@@ -2428,8 +2428,12 @@
       "sha256": "f879fb86b079e591dfe4a8513752a8e0394e252b940aa35d3f7430f27b7382c6",
       "executable": false
     },
-    "migrations/core/0025_import_custody_retirement.sql": {
-      "sha256": "48ff042167f938a3fdfa9cb1f2cfb9740dbb6ed23af77cfeb9eac2e03018cf05",
+    "migrations/core/0025_import_reversal_fences.sql": {
+      "sha256": "9d39a1bcddb50f586a3125d49ca49ef5a3967992e44617a4fc3b2af7c987cad4",
+      "executable": false
+    },
+    "migrations/core/0026_import_custody_retirement.sql": {
+      "sha256": "777ef508c6de2a134bc692dcf1b2d269c6d665ed4e802b468afa922e195bda6d",
       "executable": false
     },
     "ONBOARDING.md": {

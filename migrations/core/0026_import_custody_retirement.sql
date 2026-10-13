@@ -1,10 +1,5 @@
--- Add the adopted import-kit reversal fence and custody retirement schemas.
+-- Add the adopted import-kit custody retirement schema after reversal fences.
 -- Earlier migrations remain immutable; definitions come from the current kit.
-CREATE TABLE IF NOT EXISTS ik_d1_reversal_fences (job_id TEXT PRIMARY KEY REFERENCES ik_jobs(id) ON DELETE CASCADE,action TEXT NOT NULL,fence INTEGER NOT NULL,state_revision INTEGER NOT NULL,erased_records INTEGER NOT NULL,reused INTEGER NOT NULL);
-CREATE INDEX IF NOT EXISTS ik_provenance_job ON ik_provenance(job_id,reversed,ordinal,effect_ordinal);
-CREATE INDEX IF NOT EXISTS ik_provenance_source ON ik_provenance(source_identity,reversed);
-CREATE INDEX IF NOT EXISTS ik_d1_history_source ON ik_d1_history(source_identity);
-CREATE INDEX IF NOT EXISTS ik_sources_job ON ik_sources(job_id);
 CREATE TABLE IF NOT EXISTS ik_d1_retirements (id TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('job','stream')), destination TEXT NOT NULL, receipt_id TEXT NOT NULL, retired_at TEXT NOT NULL, PRIMARY KEY(id, kind));
 CREATE TABLE IF NOT EXISTS ik_d1_erasure_journal (id TEXT PRIMARY KEY, destination TEXT NOT NULL, recorded_at TEXT NOT NULL, records_erased INTEGER NOT NULL CHECK(records_erased>=0), jobs_retired INTEGER NOT NULL CHECK(jobs_retired>=0), streams_retired INTEGER NOT NULL CHECK(streams_retired>=0), stores_json TEXT NOT NULL CHECK(json_valid(stores_json)));
 CREATE INDEX IF NOT EXISTS ik_d1_erasure_journal_time ON ik_d1_erasure_journal(destination, recorded_at);
