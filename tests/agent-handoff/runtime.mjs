@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {cp,readFile,symlink,writeFile} from 'node:fs/promises';
+import {cp,readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {classifyCommandOutput} from '../command-diagnostics.mjs';
@@ -14,7 +14,9 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
   const tracked=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
   for(const file of tracked)await cp(resolve(file),resolve(checkout.root,file),{force:true});
   for(const folder of ['src','packages','tests','vite','migrations'])await cp(resolve(folder),resolve(checkout.root,folder),{recursive:true,force:true});
-  await symlink(resolve('node_modules'),resolve(checkout.root,'node_modules'));
+  // The public launcher prepares dependencies too; keep its install owned by
+  // this checkout instead of allowing it to rewrite the parent's linked tree.
+  await checkout.command(['install']);
   const origin='http://127.0.0.1:'+port;
   const setup=await checkout.command(['setup','--owner-email',testOwner,'--port',String(port)],null);assert.equal(setup.code,0,JSON.stringify(classifyCommandOutput(setup.output,'setup')));
   const settings=resolve(checkout.root,'.dev.vars');
@@ -25,7 +27,7 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
   gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];
   let active,cookie;
   // Foreground dev with the owner dev persona; stopping it is required before CLI transfers.
-  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');}
+  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');}
   async function stopDev(){if(!active)return;await checkout.command(['dev','--stop']);assert.equal((await active.closed).code,0);active=null;}
   await startDev();
   async function request(path,method='GET',value,options={}){

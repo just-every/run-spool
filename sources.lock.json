@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "e8118802fef36c5eef2c00fb63c426f8a20543ae4b98f265ffb771b05d4e3db9",
+      "sha256": "95a5e9706a190a89bfddc8a5f16467f2d15265b8bc51647ce69d308395635179",
       "executable": false
     },
     "RELEASE.json": {
@@ -5121,7 +5121,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "7012d43a93cd0092632ae0e0106bc35c27394b20b210f99f2b21f83bf64738e5",
+      "sha256": "c652d4a66919b0e1a650d9b40bbf717ba19a7cceb5ca2df7303855981758fe41",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -5197,11 +5197,11 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "4f5efa5259746554f7315f3f3f7e7f3cf9c23a6e348ddb2570ac1f9a263f6553",
+      "sha256": "a1525f897302014130417a0ffecb3dbd5b7514075e68fb413742e0ab15aafc02",
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "f60fcc5fb179d09df7461f1ac877f8ae31099a4d04f68834aada5171434c85af",
+      "sha256": "a90788b60dc755a332a8e29738c09b894e1b768103c2baa5528422ea0d76be23",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
