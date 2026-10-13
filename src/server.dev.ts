@@ -5,7 +5,7 @@ import worker from './server';
 import { withDevIdentity } from './modules/operator-auth/dev/index.mjs';
 import { authConfig } from './auth/session.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
-import { signInDocument } from './auth/sign-in.server';
+import { signInPage } from './auth/sign-in.server';
 import { devPersonas } from './auth/dev-personas';
 import { privateRuntimePath } from './auth/private-runtime.server';
 
@@ -23,7 +23,7 @@ const local = {
   }
   const response = await worker.fetch(request, bindings, execution);
   const redirect = response.status === 303 && response.headers.get('location')?.startsWith('/sign-in');
-  if (new URL(request.url).pathname === '/' && request.method === 'GET' && redirect) return signInDocument(request, runtimeBindings(bindings as Bindings));
+  if (new URL(request.url).pathname === '/' && request.method === 'GET' && redirect) return await signInPage(request, runtimeBindings(bindings as Bindings));
   return response;
  },
 } satisfies typeof worker;

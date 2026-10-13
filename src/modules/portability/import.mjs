@@ -134,7 +134,7 @@ export async function finalizeImport(context,id,{contentHash,archiveHash,laterJo
   const digest=verifier.digest();if(contentHash!==undefined)insist(contentHash===digest,'content_checksum');
   insist(archiveHash===archive.digest(),'archive_checksum',409);
   const checked=await fence(db,manifest,row.metadata.copies,laterJournal);
-  if(row.metadata.legacyRecovery)await requireLegacyEmpty(context,row.metadata.legacyRecovery.emptyTables);
+  if(row.metadata.legacyRecovery)await requireLegacyEmpty(context,row.metadata.legacyRecovery);
   for(const table of row.metadata.targets) if(!config.replaceableTables.includes(table.name))insist(!(await statement(db,`SELECT 1 FROM ${quote(table.name)} LIMIT 1`).first()),'target_not_empty:'+table.name,409);
   const dependentGuards=await excludedDependentGuards(db,row.metadata.targets,config.replaceableTables);
   await bucketsEmpty(context,row);

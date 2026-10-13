@@ -3,8 +3,8 @@ import {readArchive,makePart} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 import {canonicalJson,sha256} from '../../src/modules/portability/hash.mjs';
 import {canonical} from '../../src/domain/privacy.ts';
-// Before 0016 there were neither repair tables nor (0018) erasure receipts.
-const repairTables=['repair_checks','repairs','rer_erasure_operations'];
+// Before 0016 there were neither repair tables nor (0018) erasure receipts nor (0020) the identity link's tables.
+const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.
 export async function preRepairArchive(text){
