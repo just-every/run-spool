@@ -8,6 +8,7 @@ import { erasureArchiveTables, erasureExcludedTables, validateErasureArchive } f
 import { fenceLegacyOccurrences } from './occurrences';
 import { scrubExportRow } from './stored-text';
 import { isPreviousSchema, readPreviousArchive, normalizePreviousArchive } from './archive-compat';
+import { linkArchiveTables, linkMigrations, emptyLinkTables } from './link-archive';
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
@@ -48,15 +49,16 @@ export async function archiveStream(service: any): Promise<ReadableStream<Uint8A
   });
  } catch (error) { await service.exports.abort(id); throw error; }
 }
-// Archives from before later additive tables (erasure receipts in 0018, and
-// before that the two repair tables in 0016) carry exactly today's inventory
+// Archives from before later additive tables (the identity link's two in
+// 0020, erasure receipts in 0018, and before that the two repair tables in 0016) carry exactly today's inventory
 // minus those tables. Their verified rows restore unchanged into today's
 // schema; the later tables start empty.
 // Each set names the additive migrations that created it; an archive that
 // records its applied migrations gains exactly those, nothing else.
 const laterTables = [
- { tables: erasureArchiveTables, migrations: ['0018_erasure.sql'] },
- { tables: [...erasureArchiveTables, ...repairArchiveTables], migrations: ['0016_repairs.sql', '0018_erasure.sql'] },
+ { tables: linkArchiveTables, migrations: linkMigrations },
+ { tables: [...erasureArchiveTables, ...linkArchiveTables], migrations: ['0018_erasure.sql', ...linkMigrations] },
+ { tables: [...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: ['0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
 ];
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
@@ -91,7 +93,7 @@ async function templateManifest(service:any){
 }
 async function legacyRecords(service: any, value: unknown) {
  const legacy=await validateArchive(value);
- const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[]};
+ const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
 }

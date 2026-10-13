@@ -35,6 +35,21 @@ export async function eraseD1ImportTarget(kind: string, id: string, nativeStatem
   requireText(kind, 'target kind'); requireText(id, 'target id');
   await readAtomic(context, [], undefined, 'erase');
   if(context.maxBatchBytes!==undefined){if(related)throw new Error('IMPORT_RELATED_ERASURE_UNBOUNDED_ONLY');return eraseBounded(kind,id,nativeStatements,context);}
+  const { before, after, decisions } = await targetErasure(kind, id, context, related);
+  const db = context.storage.database;
+  const prefix = packGuards([authority(context, 'erase'), ...before]);
+  // Assertion cleanup can itself revoke authority through native SQL triggers.
+  // The last statement must abort the same batch without creating another row.
+  const suffix = [...packGuards([...after, authority(context, 'erase'), sql('DELETE FROM ik_d1_assertions')]), finalAuthority(context, 'erase')];
+  if (prefix.length + nativeStatements.length + suffix.length > remaining(context)) throw new D1RequestLimitError();
+  const results = await db.batch([...prefix, ...nativeStatements, ...suffix].map(statement => prepare(db, statement)));
+  return { nativeResults: results.slice(prefix.length, prefix.length + nativeStatements.length), erasedRecords: decisions.length };
+}
+
+/** The unbounded erasure of one target as guards before the native statements
+ * and writes after them. Jobs in `retiring` are left alone: the caller deletes
+ * their whole custody in the same batch, so their plans are not rewritten. */
+export async function targetErasure(kind: string, id: string, context: D1ImportContext, related?: D1RelatedErasure, retiring: ReadonlySet<string> = new Set()): Promise<{ before: D1Sql[]; after: D1Sql[]; decisions: ErasedDecision[]; jobs: string[] }> {
   const { database: db, targets } = context.storage;
   if (await db.prepare(`${unindexedJobs} LIMIT 1`).bind(context.destination).first()) throw new Error('IMPORT_ERASURE_INDEX_UPGRADE_REQUIRED');
   const digest = targetIdentity(context.destination, kind, id);
@@ -52,7 +67,8 @@ export async function eraseD1ImportTarget(kind: string, id: string, nativeStatem
     ...exactRows('ik_d1_plan_index', ['job_id','ordinal','source_identity','target_identity'], sourceRows)];
   const after: D1Sql[] = [], changedJobs: ErasedJob[] = [], decisions: ErasedDecision[] = [];
   const changedPlans = new Map<string, ImportPlan>();
-  for (const raw of snapshot.rows('ik_jobs', 'id', ids)) {
+  const kept = ids.filter(job => !retiring.has(job));
+  for (const raw of snapshot.rows('ik_jobs', 'id', kept)) {
     const plan = snapshot.plans.get(raw.id)!;
     const originals = scan?.originals.get(raw.id);
     if (plan.destination !== context.destination || (!originals && !plan.entries.some(entry => identities.has(entry.identity)))) throw new Error('IMPORT_ERASURE_INDEX_MISMATCH');
@@ -77,8 +93,8 @@ export async function eraseD1ImportTarget(kind: string, id: string, nativeStatem
       decisions.push({ job_id: job.id, ordinal, identity: entry.identity, source_hash: entry.source.payloadHash, effects_hash: sha256(canonicalJson(entry.effects)) });
     }
   }
-  const releaseCopies = jsonChunks(ids).flatMap(chunk => [sql('UPDATE ik_d1_creation_plans SET released=1 WHERE job_id IN (SELECT value FROM json_each(?))', chunk), sql('DELETE FROM ik_d1_creation_plans WHERE job_id IN (SELECT value FROM json_each(?))', chunk)]);
-  const removeChunks = [...releaseCopies, ...jsonChunks(ids).map(chunk => {const selected=new Set(JSON.parse(chunk));return changed(sql('DELETE FROM ik_d1_plan_chunks WHERE job_id IN (SELECT value FROM json_each(?))', chunk),deleteRows('ik_d1_plan_chunks',row=>selected.has(row.job_id)));})];
+  const releaseCopies = jsonChunks(kept).flatMap(chunk => [sql('UPDATE ik_d1_creation_plans SET released=1 WHERE job_id IN (SELECT value FROM json_each(?))', chunk), sql('DELETE FROM ik_d1_creation_plans WHERE job_id IN (SELECT value FROM json_each(?))', chunk)]);
+  const removeChunks = [...releaseCopies, ...jsonChunks(kept).map(chunk => {const selected=new Set(JSON.parse(chunk));return changed(sql('DELETE FROM ik_d1_plan_chunks WHERE job_id IN (SELECT value FROM json_each(?))', chunk),deleteRows('ik_d1_plan_chunks',row=>selected.has(row.job_id)));})];
   after.unshift(...removeChunks);
   const reports = await eraseReversalEvidence(context, changedPlans);
   before.push(...reports.before);
@@ -89,11 +105,5 @@ export async function eraseD1ImportTarget(kind: string, id: string, nativeStatem
   const target = await targets.read(db, context.destination, kind, id);
   before.push(...targetGuards(targets,target ?? null, context.destination, kind, id));
   after.push(...targetGuards(targets,null, context.destination, kind, id));
-  const prefix = packGuards([authority(context, 'erase'), ...before]);
-  // Assertion cleanup can itself revoke authority through native SQL triggers.
-  // The last statement must abort the same batch without creating another row.
-  const suffix = [...packGuards([...after, authority(context, 'erase'), sql('DELETE FROM ik_d1_assertions')]), finalAuthority(context, 'erase')];
-  if (prefix.length + nativeStatements.length + suffix.length > remaining(context)) throw new D1RequestLimitError();
-  const results = await db.batch([...prefix, ...nativeStatements, ...suffix].map(statement => prepare(db, statement)));
-  return { nativeResults: results.slice(prefix.length, prefix.length + nativeStatements.length), erasedRecords: decisions.length };
+  return { before, after, decisions, jobs: ids };
 }

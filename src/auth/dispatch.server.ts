@@ -2,20 +2,21 @@ import { devNotFound, safeReturnTo } from '../modules/operator-auth/index.mjs';
 import { fontDocumentResponse } from '../base/font-response';
 import { authResponse, ownerSession } from './session.server';
 import { developmentOutboxResponse } from './outbox.server.mjs';
-import { signInDocument } from './sign-in.server';
+import { signInPage } from './sign-in.server';
 import type { Bindings } from './bindings';
 export async function authenticationResponse(request: Request, env: Bindings): Promise<Response | null> {
  const path = new URL(request.url).pathname;
  if (path === '/__dev/personas' || path === '/auth/dev/enter') return devNotFound();
  if (path === '/__dev/outbox' || path === '/__dev/key') return developmentOutboxResponse(request, env);
- if (path.startsWith('/auth/')) {
+ // The identity link's well-known document, keys and callback belong to Base's dependency routes.
+ if (path.startsWith('/auth/') || path.startsWith('/.well-known/rer-')) {
   const response = await authResponse(request, env);
   if (response && path === '/auth/magic-link' && request.method === 'POST' && request.headers.get('accept')?.includes('text/html')) {
-   return signInDocument(request, env, response.status);
+   return await signInPage(request, env, response.status);
   }
   return (await fontDocumentResponse(response)) ?? new Response('Not found', { status: 404 });
  }
- if (path === '/sign-in') return ['GET', 'HEAD'].includes(request.method) ? signInDocument(request, env) : new Response('Method not allowed', { status: 405 });
+ if (path === '/sign-in') return ['GET', 'HEAD'].includes(request.method) ? await signInPage(request, env) : new Response('Method not allowed', { status: 405 });
  return null;
 }
 export async function authorizeDocument(request: Request, env: Bindings): Promise<Response | null> {

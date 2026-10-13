@@ -84,3 +84,29 @@ export interface D1ImportContext extends Pick<ImportContext, 'destination' | 'na
 
 /** The predecessor marker stays in successor audit JSON even after reversal. */
 export interface D1ProvenanceRow extends ProvenanceRow { predecessorId?: string }
+/** A person named for erasure from import custody, by exact identifiers only.
+ * `target` is the native entity their records were imported into; `values` are
+ * exact strings (an email, a label the product built from the person) that may
+ * sit whole in a job or stream header, an original's name or a private stage.
+ * Nothing is ever matched as a substring. */
+export interface D1ImportPerson {
+  target?: { kind: string; id: string };
+  values?: string[];
+  related?: D1RelatedErasure;
+}
+/** One erasure journal row: what was erased and where, never the values. */
+export interface D1ErasureJournalEntry {
+  receiptId: string;
+  destination: string;
+  recordedAt: string;
+  recordsErased: number;
+  jobsRetired: number;
+  streamsRetired: number;
+  stores: { store: string; rows: number }[];
+}
+export interface D1CustodyRetirement extends D1ErasureJournalEntry {
+  /** Jobs and streams whose whole custody was retired: no undo or resume. */
+  retiredJobs: string[];
+  retiredStreams: string[];
+  nativeResults: unknown[];
+}

@@ -31,8 +31,11 @@ outside D1 and R2.
   leaves-first, the subject row last) is deleted in a D1 batch that also holds
   portability's `erasureStatements(table, key)` for that row and
   `invalidateTransfersStatements()`. A batch holds at most `rows` dependents, so
-  deletion work is bounded. Scope/audit and completeness checks also read the
-  declared closure; their cost grows with that closure. A guard on the operation's step
+  deletion work is bounded. The first step reads and orders the declared closure
+  and queues what it leaves; every later step reads, verifies and deletes only its
+  own slice of that queue, and the last step reads the closure once more from the
+  subject and every remembered parent, so the work of an erasure is linear in its
+  rows. A guard on the operation's step
   counter makes a concurrent runner fail with `erasure_busy` (409) instead of
   committing twice.
 - **ERASE-005 — Blobs after the commit.** For a declared `blob` edge, each row's
@@ -51,7 +54,7 @@ outside D1 and R2.
   replaced with one label per erasure, `erased:<128 random bits>`. The label is
   not derived from the subject, so nobody who holds the database or an older
   archive can recompute it or test a guess against it. Declared `clear` columns
-  are overwritten. Audit rows for selected dependents are relabelled in every batch. Temporary
+  are overwritten. Audit rows for a batch's dependents are relabelled in that batch, and every remembered dependent's in the final one. Temporary
   scope preserves earlier keys until the final pass, catching audit rows written
   after those dependents disappeared; that scope is then removed atomically.
 - **ERASE-008 — Value-free receipt.** The receipt row holds the entity name,
@@ -73,7 +76,8 @@ outside D1 and R2.
   the receipt in the same statements. These are passed to
   `eraseD1ImportTarget(kind, id, nativeStatements, context)`, so kit custody,
   the product cascade and the fence commit in one batch. `deleteBlobs` then runs
-  as usual.
+  as usual. `retireD1ImportCustody` takes the same statements for a whole
+  person's import custody and its erasure journal.
 - **ERASE-013 — Stated limits.** An old archive restored into a brand-new store
   that has no journal cannot be recognised. Raw database imports bypass every
   product fence. Copies outside the installation are out of reach: downloaded

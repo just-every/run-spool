@@ -193,7 +193,7 @@ existing installation data. Remote and container recovery are not supported.
 2. Read the verification limits below, then run from that empty checkout:
 
    ```sh
-   node scripts/rer.mjs import --input exports/backup-v1.rer --legacy-v1 --yes \
+   rer import --input exports/backup-v1.rer --legacy-v1 --yes \
      --acknowledge-unverified-metadata --output exports/recovered-v2.rer
    ```
 
@@ -216,6 +216,14 @@ closing content hash and completeness. It validates the carried erasure journal
 and refuses rows matching its tombstones or any destination erasure fence.
 Product validation, foreign keys and normal restore safeguards still apply.
 Any mismatch refuses recovery; this mode does not repair damaged archives.
+
+Recovery needs a new installation. SQLite, migration and transfer bookkeeping, the
+storage tables of FTS5 indexes (`<index>_data|idx|content|docsize|config`; the index
+itself is still checked through its own SELECT) and the rows the destination's own
+migrations seed may exist; the seed rows are compared with a scratch replay of the
+applied migrations (Node runners) and must be unchanged. Any other row refuses with
+`legacy_target_not_empty`, before staging and again inside the restore batch. A table
+the policy lists in `replaceableTables` is replaced by the restore as usual.
 
 V1 cannot authenticate the complete manifest: source identity, export time,
 erasure epoch/journal, rowids and other metadata lack the v2 archive binding.

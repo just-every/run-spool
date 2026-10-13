@@ -1,10 +1,12 @@
 import { AuthError, createOperatorAuth, createAuthHandler, securityHeaders } from '../modules/operator-auth/index.mjs';
 import { readInput } from '../modules/operator-auth/input.mjs';
+import { createDependencies } from '../modules/dependencies/index.mjs';
+import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
 import { operatorMail } from './mail.server.mjs';
 import type { Bindings } from './bindings';
 export function authConfig(env: Bindings) {
  return { origin: env.AUTH_ORIGIN, OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET,
-  SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true',
+  SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
   branding: { productName: 'Spool', accentColor: '#1C1C1B', signInPath: '/sign-in' } };
 }
 export function operatorAuth(env: Bindings) {
@@ -33,7 +35,14 @@ export async function authResponse(request: Request, env: Bindings) {
    throw error;
   }
  }
- return createAuthHandler(operatorAuth(env))(request);
+ const auth = operatorAuth(env);
+ // The optional oidc-provider@1 link: well-known document, link keys and callback,
+ // app-local approvals, and an IdP owner claim used only inside link redemption
+ // (the public /auth/owner-claim route stays the signed managed claim).
+ const config = authConfig(env), clientIp = () => request.headers.get('CF-Connecting-IP') ?? '';
+ const claimOwner = (token: string) => createIdpOwnerClaimHandler({ db: env.DB, authConfig: config, clientIp, expectedPin: undefined })(new Request(config.origin + '/auth/owner-claim', { method: 'POST', headers: { Host: new URL(config.origin).host, Origin: config.origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }));
+ const linked = await createDependencies({ db: env.DB, origin: config.origin, name: 'Spool', provider: env.IDENTITY_PROVIDER || undefined, local: config.local, auth, claimOwner }).handle(request);
+ return linked ?? createAuthHandler(auth)(request);
 }
 export function ownerWrite(request: Request, env: Bindings) {
  const url = new URL(request.url);

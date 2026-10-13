@@ -4,7 +4,7 @@ import { createPortability } from './index.mjs';
 import { createImport, uploadPart, finalizeImport, abortImport } from './import.mjs';
 import { readLegacyArchive, ArchiveVerifier } from './format.mjs';
 import { fileRecords, exportArchive } from './files.mjs';
-import { ensureLegacyAudit, legacyEmptyTables, requireLegacyEmpty } from './legacy-safety.mjs';
+import { ensureLegacyAudit, legacyTargetState, requireLegacyEmpty } from './legacy-safety.mjs';
 import { insist, PortabilityError } from './storage.mjs';
 
 export async function recoverLegacyArchive({db,buckets,policy:input,migrations},path,output,transient,acknowledged) {
@@ -13,8 +13,8 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
  insist(!(await lstat(output).catch(error=>{if(error.code==='ENOENT')return null;throw error;})),'legacy_output_exists',409);
  // Whole-file verification precedes even staging/audit schema writes.
  for await(const record of fileRecords(path,readLegacyArchive)){}
- const context={db,buckets,config:policy(input),migrations},emptyTables=await legacyEmptyTables(db);
- await requireLegacyEmpty(context,emptyTables);
+ const context={db,buckets,config:policy(input),migrations},target=await legacyTargetState(db,migrations);
+ await requireLegacyEmpty(context,target);
  let id,manifest,closing,integrity,status,complete=false;
  try {
   for await(const record of fileRecords(path,readLegacyArchive)) {
@@ -25,7 +25,7 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
     id=await createImport(context,manifest,'legacy-v1',{
      event:'legacy_v1_unverified_restore',acknowledgedUnverifiedMetadata:true,
      sourceIdentity:record.sourceIdentity,exportedAt:record.exportedAt,
-     recoveryOutput:output,emptyTables,
+     recoveryOutput:output,...target,
     });
     // A refused schema writes nothing, not even the audit table.
     await ensureLegacyAudit(db);

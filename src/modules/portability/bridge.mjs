@@ -36,7 +36,10 @@ async function placement(db,manifest,cat,replay,applied) {
     earlier=applied.slice(0,matching.at(-1));
     unapplied=applied.slice(matching[0]);
   }
-  const restorable=cat.tables.map(t=>t.name);
+  // Only rows the archive carries can skip a later migration's change. A table
+  // the archive does not hold is restored empty, so triggers and backfills that
+  // name only such tables (a newly added module's own) change no restored row.
+  const restorable=cat.tables.map(t=>t.name).filter(name=>manifest.tables.some(t=>t.name===name));
   for(const name of unapplied)insist(!replay.statements(name).some(sql=>changesData(sql,restorable)),'schema_mismatch:migration_data:'+name);
   return {earlier};
 }

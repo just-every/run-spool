@@ -14,5 +14,20 @@ export function migrationReplay(plan,input) {
       for(const migration of plan.filter(m=>names.includes(m.name)))for(const sql of migration.statements)scratch.exec(sql);
       return await schemaIdentity(db,config);
     }finally{scratch.close();}
+  },
+  // The rows the whole replay leaves in each requested table, as sorted images (legacy-safety.mjs).
+  // A table the replay lacks, or one holding more than `limit` rows, has no entry.
+  async rowImages(requests,limit) {
+    const scratch=new DatabaseSync(':memory:'),found=new Map();
+    try {
+      for(const migration of plan)for(const sql of migration.statements)scratch.exec(sql);
+      for(const {name,columns} of requests) {
+        try {
+          const rows=scratch.prepare(`SELECT json_array(${columns.map(c=>`quote("${c.replaceAll('"','""')}")`).join(',')}) AS image FROM "${name.replaceAll('"','""')}" LIMIT ?`).all(limit+1).map(r=>r.image);
+          if(rows.length<=limit)found.set(name,rows.sort());
+        }catch{}
+      }
+      return found;
+    }finally{scratch.close();}
   }};
 }

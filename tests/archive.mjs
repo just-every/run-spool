@@ -14,7 +14,7 @@ export async function archiveProjection(response) {
 // Deliberate native compatibility fixture, never the current roundtrip format.
 export function nativeArchive(data,version=2) {
  const rows=structuredClone(data);
- delete rows.sentry_project_aliases;delete rows.sentry_import_targets;delete rows.alert_rules;delete rows.alert_history;delete rows.repairs;delete rows.repair_checks;delete rows.rer_erasure_operations;
+ delete rows.sentry_project_aliases;delete rows.sentry_import_targets;delete rows.alert_rules;delete rows.alert_history;delete rows.repairs;delete rows.repair_checks;delete rows.rer_erasure_operations;delete rows.rer_dependency_installation;delete rows.rer_dependency_link;
  rows.events=rows.events.map(({occurrence,historical,...row})=>{if(historical)throw new Error('Historical imports require current Base JSONL');return row});
  rows.artifacts=rows.artifacts.map(({occurrence,...row})=>row);
  rows.issues=rows.issues.map(({latest_release_seq,...row})=>row);
@@ -30,7 +30,7 @@ export function assertLegacyUpgrade(actual,previous) {
  for(const table of ['events','artifacts'])expected[table]=expected[table].map(row=>({...row,occurrence:'legacy'}));
  expected.events=expected.events.map(row=>({...row,historical:0}));
  expected.issues=expected.issues.map(row=>{const ceiling=Math.max(0,...expected.releases.filter(release=>release.project===row.project).map(release=>release.seq));return {...row,latest_release_seq:ceiling,resolved_seq:row.state==='resolved'?Math.max(row.resolved_seq??0,ceiling):row.resolved_seq}});
- expected.alerts=expected.alerts.map(row=>({...row,payload:null}));expected.alert_rules=[];expected.alert_history=[];expected.repairs=[];expected.repair_checks=[];expected.rer_erasure_operations=[];expected.sentry_import_targets=[];
+ expected.alerts=expected.alerts.map(row=>({...row,payload:null}));expected.alert_rules=[];expected.alert_history=[];expected.repairs=[];expected.repair_checks=[];expected.rer_erasure_operations=[];expected.sentry_import_targets=[];expected.rer_dependency_installation=[];expected.rer_dependency_link=[];
  expected.sentry_project_aliases=expected.projects.map((project,index)=>({id:index+1,project:project.id}));
  const sorted=data=>Object.fromEntries(Object.entries(data).map(([table,rows])=>[table,rows.map(row=>canonical(row)).sort()]));
  assert.ok(isDeepStrictEqual(sorted(actual),sorted(expected)),'every original field and row survives; migrated event/map identities are legacy');
