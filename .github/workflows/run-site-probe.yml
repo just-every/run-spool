@@ -52,6 +52,15 @@ jobs:
             }
             const valid = body?.success === true && Array.isArray(body.errors) &&
               body.errors.length === 0 && Object.hasOwn(body, 'result');
+            if (!valid) {
+              // Fixed field names, types and array lengths only; never log provider values.
+              const shape = value => value === null ? 'null' :
+                Array.isArray(value) ? `array(${value.length})` : typeof value;
+              console.log(`${label}: envelope shape body=${shape(body)} ` +
+                `success=${shape(body?.success)} success-check=${body?.success === true ? 'passed' : 'failed'} ` +
+                `errors=${shape(body?.errors)} result=${shape(body?.result)} ` +
+                `result_info=${shape(body?.result_info)}`);
+            }
             if (optional && !valid) return;
             check(valid, `${label}: invalid envelope`);
             const info = body.result_info;
