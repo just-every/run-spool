@@ -1996,8 +1996,8 @@
       "sha256": "41c2c300a6c92566fd8d60414d15fd3208ecbea25313fa6f13a918b8cff812cf",
       "executable": false
     },
-    ".github/workflows/run-site-probe.yml": {
-      "sha256": "cf85e2d259b1f040b17ccb7d87520a789201d358c60f54a1f132ff5480863d87",
+    ".github/workflows/run-site.yml": {
+      "sha256": "ef3626b149bbfd6220659264f072b83d63800c2de5c137910fe77426aaaea103",
       "executable": false
     },
     ".github/workflows/sdk-release.yml": {
