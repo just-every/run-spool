@@ -59,7 +59,7 @@
     {
       "path": "migrations/core/0014_dev_sessions.sql",
       "originPath": "modules/operator-auth/accounts/schema/dev-sessions.sql",
-      "revision": "9ec15a63a410d209cd5a179749336bb61751e0f6",
+      "revision": "4336124fe52f0d11a9d27093bcf852ae36fd3a90",
       "files": {
         "migrations/core/0014_dev_sessions.sql": "18754583983c09f3624038131c1b03fadecb8375dddb0a5d09c449a4238ce298"
       },
@@ -70,7 +70,7 @@
     {
       "path": "migrations/core/0015_domain_rules_step_up.sql",
       "originPath": "modules/operator-auth/accounts/schema/domain-rules-step-up.sql",
-      "revision": "9ec15a63a410d209cd5a179749336bb61751e0f6",
+      "revision": "4336124fe52f0d11a9d27093bcf852ae36fd3a90",
       "files": {
         "migrations/core/0015_domain_rules_step_up.sql": "e41c7f1381f547582148cdf247b521d7f166461ab24058ace95acdf21839e815"
       },
@@ -81,7 +81,7 @@
     {
       "path": "migrations/core/0017_provider_control.sql",
       "originPath": "modules/operator-auth/accounts/schema/provider-control.sql",
-      "revision": "9ec15a63a410d209cd5a179749336bb61751e0f6",
+      "revision": "4336124fe52f0d11a9d27093bcf852ae36fd3a90",
       "files": {
         "migrations/core/0017_provider_control.sql": "f19cc7a792538a8ff36d87760a3cad58fccab0316984488d1834af14fbf37cfe"
       },
