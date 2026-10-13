@@ -7,12 +7,20 @@ import { authConfig } from './auth/session.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { signInDocument } from './auth/sign-in.server';
 import { devPersonas } from './auth/dev-personas';
+import { privateRuntimePath } from './auth/private-runtime.server';
 
 // "/" sends a visitor without a session to /sign-in, a page the key exchange never runs on (the
 // dev layer adds it to the root document). Locally, the root answers with the sign-in page itself.
 const local = {
  ...worker,
  async fetch(request, bindings, execution) {
+  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
+  // Vite's virtual client entry has no file extension. The shared production
+  // asset handler serves built files; local module namespaces belong to Vite.
+  const path = new URL(request.url).pathname;
+  if (bindings.ASSETS && (request.method === 'GET' || request.method === 'HEAD') && /^\/(?:@id\/|@fs\/|@vite\/|@react-refresh$|node_modules\/)/.test(path)) {
+   return bindings.ASSETS.fetch(request);
+  }
   const response = await worker.fetch(request, bindings, execution);
   const redirect = response.status === 303 && response.headers.get('location')?.startsWith('/sign-in');
   if (new URL(request.url).pathname === '/' && request.method === 'GET' && redirect) return signInDocument(request, runtimeBindings(bindings as Bindings));
