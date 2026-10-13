@@ -8,7 +8,7 @@ You need:
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
 - a SendGrid API key that can send mail, and a sender address verified in SendGrid. Sign-in links are sent by email.
 
-Published rer 0.2.1 currently stops with `spawn pnpm ENOENT` when installing a fresh checkout without pnpm on PATH. This bootstrap issue needs an upstream rer publication; the sequence below is blocked on that fix. No manual pnpm or PATH workaround is part of this guide.
+With rer 0.2.2, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
 
 ## First install
 
@@ -37,15 +37,14 @@ Published rer 0.2.1 currently stops with `spawn pnpm ENOENT` when installing a f
 
    Open `.rer/deploy/production.env` in a text editor and fill in the first five lines: your Cloudflare account ID and API token, the email address you will sign in with, the verified SendGrid sender, and the SendGrid API key. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
 
-3. Deploy, then make yourself the owner:
+3. Deploy and claim the hosted owner:
 
    ```sh
    set -a && . .rer/deploy/production.env && set +a
    rer deploy --environment production
-   node scripts/hosted.mjs claim --environment production
    ```
 
-   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. The published rer baseline (0.2.1) does not claim the hosted owner, so `hosted claim` does it: it sends the deployed one-time setup token to the new installation, which makes `OWNER_EMAIL` its owner. It prints `Owner claimed` and the sign-in address. Running it again changes nothing and reports the owner as kept. Keep the private environment file; rer 0.2.1 does not automatically remove its setup token.
+   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. In rer 0.2.2 it also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. No separate claim command is needed. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the private environment file and deploy record; retirement does not remove the token from your local environment file.
 
 4. Open the printed `/sign-in` address, enter your `OWNER_EMAIL` and follow the link in the email. A fresh installation then opens first-run setup to create your first project.
 

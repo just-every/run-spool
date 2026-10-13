@@ -39,9 +39,9 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 
 ## Run it on your computer
 
-Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
+Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.2`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
 
-Published rer 0.2.1 currently stops with `spawn pnpm ENOENT` when installing a fresh checkout without pnpm on PATH. This bootstrap issue needs an upstream rer publication; the sequence below is blocked on that fix. No manual pnpm or PATH workaround is part of this guide.
+With rer 0.2.2, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
 
 ```sh
 rer install
@@ -66,7 +66,7 @@ Export includes private maps and browser-origin policy but excludes owner/auth s
 
 ## Run it on your Cloudflare account
 
-[docs/HOSTED.md](docs/HOSTED.md) deploys this checkout to your own Cloudflare account with `rer deploy`, makes you its owner with `node scripts/hosted.mjs claim`, and updates it to newer source later (export, `git pull --ff-only`, `rer install`, `rer deploy` to the same environment, `node scripts/hosted.mjs check`).
+[docs/HOSTED.md](docs/HOSTED.md) deploys this checkout to your own Cloudflare account with `rer deploy`, which claims the hosted owner and retires the deployed one-time setup token, and updates it to newer source later (export, `git pull --ff-only`, `rer install`, `rer deploy` to the same environment, `node scripts/hosted.mjs check`).
 
 ## Capture protocol
 

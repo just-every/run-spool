@@ -2,12 +2,12 @@
 
 Spool needs Node 22 or later and git. Install the public rer command with npm (included with Node). rer selects the declared Node 22.20.0 runtime and supplies pnpm 10.12.4 privately, without changing your other installations. You do not need pnpm on PATH.
 
-Published rer 0.2.1 currently stops with `spawn pnpm ENOENT` when installing a fresh checkout without pnpm on PATH. This bootstrap issue needs an upstream rer publication; the sequence below is blocked on that fix. No manual pnpm or PATH workaround is part of this guide.
+With rer 0.2.2, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
 
 ## Install and start
 
 ```sh
-npm install -g @runeditrun/rer
+npm install -g @runeditrun/rer@0.2.2
 git clone https://github.com/just-every/run-spool.git spool
 cd spool
 rer install
