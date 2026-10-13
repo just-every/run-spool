@@ -2445,7 +2445,11 @@
       "executable": false
     },
     "migrations/core/0028_owner_erasure.sql": {
-      "sha256": "b5aab179a8eaf65e0b1968f729cfed883b19baef6f1e4cae1e2938af165dc2a5",
+      "sha256": "f7f896993c3c4aa39cf890855d34e3c7a6d34b3c81e5d95da4cacbd5fc447353",
+      "executable": false
+    },
+    "migrations/core/0029_owner_claim_erasure_freeze.sql": {
+      "sha256": "a1e9e4ce75075c34007fedb6173e9cbf4eccdd7a47d1228ef090cb6acbf5751d",
       "executable": false
     },
     "ONBOARDING.md": {
