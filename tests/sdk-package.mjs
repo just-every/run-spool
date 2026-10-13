@@ -38,7 +38,7 @@ try {
   };
 
   // Browser: the three-line init in a page built with the package's own Vite plugin, which uploads the map.
-  const source = `import { init, breadcrumb } from '@just-every/spool';\ninit({ ...window.__SPOOL__ });\nbreadcrumb('checkout', 'card 4242 4242 4242 4242 password=FRESH_APP_SECRET');\ndocument.querySelector('button').onclick = () => setTimeout(function checkout() {\n  const account = {};\n  return account.address.city;\n}, 0);\n`;
+  const source = `import { init, breadcrumb } from '@just-every/spool';\nwindow.__installSpool=()=>window.__client=init({ ...window.__SPOOL__ });\nwindow.__installSpool();\nbreadcrumb('checkout', 'card 4242 4242 4242 4242 password=FRESH_APP_SECRET');\ndocument.querySelector('button').onclick = () => setTimeout(function checkout() {\n  const account = {};\n  return account.address.city;\n}, 0);\n`;
   const thrownLine = source.split('\n').findIndex(line => line.includes('account.address.city')) + 1;
   await writeFile(resolve(app, 'main.js'), source);
   const { spoolSourceMaps } = await import(pathToFileURL(resolve(app, 'node_modules/@just-every/spool/dist/vite.js')).href);
@@ -52,9 +52,9 @@ try {
   const wrapper = `window.__pageErrors=0;addEventListener('error',()=>{window.__pageErrors++});const original=fetch;window.fetch=async(...args)=>{const response=await original(...args);if(!response.ok)reportError(new Error('HTTP '+response.status));return response};`;
   server = createServer((req, res) => {
     if (req.url === '/app.js') { res.setHeader('Content-Type', 'text/javascript'); res.end(bundle); return; }
-    const wrapped = req.url === '/wrapped', noisy = req.url === '/noisy', pageConfig = wrapped ? { ...config, release: 'web@2.0.0' } : config;
+    const wrapped = req.url === '/wrapped', noisy = req.url === '/noisy', closing = req.url === '/closing', pageConfig = wrapped ? { ...config, release: 'web@2.0.0' } : config;
     // /noisy: a timer throws an error with a new message every 20 ms for 2 s, and another location throws once at 1.5 s.
-    const outcomes = noisy ? 'window.__outcomes={};window.__SPOOL__.onOutcome=result=>{const key=result.outcome+"/"+(result.reason??"");window.__outcomes[key]=(window.__outcomes[key]??0)+1};' : '';
+    const outcomes = noisy ? 'window.__outcomes={};window.__SPOOL__.onOutcome=result=>{const key=result.outcome+"/"+(result.reason??"");window.__outcomes[key]=(window.__outcomes[key]??0)+1};' : closing ? 'window.__outcomes=[];window.__SPOOL__.onOutcome=result=>window.__outcomes.push(result);' : '';
     const noise = noisy ? `<script type="module">let n=0;const noise=setInterval(function tick(){throw new Error('tick '+(n++))},20);setTimeout(()=>clearInterval(noise),2000);setTimeout(function genuine(){throw new Error('genuine failure at another location')},1500);</script>` : '';
     res.setHeader('Content-Type', 'text/html'); res.end(`<!doctype html><title>Fresh app</title><button>Throw</button><script>${wrapped ? wrapper : ''}window.__SPOOL__=${JSON.stringify(pageConfig)};${outcomes}</script><script type="module" src="/app.js"></script>${noise}`);
   });
@@ -111,6 +111,39 @@ try {
   const packet = await request(`/api/projects/fresh/issues/${noisyIssue.id}/packet`);
   assert.equal(packet.issue.client_dropped, noisyIssue.client_dropped);
   await noisyPage.close();
+
+  // Closing a client settles its held error and clears the refill timer. A fresh init can send at the same location
+  // immediately, and the retired listener cannot send its former held error later.
+  const closingPage = await browser.newPage(), closingSends = [];
+  closingPage.on('request', request => { if (request.method() === 'POST' && request.url().includes('/api/ingest/')) closingSends.push(JSON.parse(request.postData())); });
+  await closingPage.goto(`${appOrigin}/closing`);
+  const closingBurst = await closingPage.evaluate(() => {
+    const outcomeStart = window.__outcomes.length;
+    let n = 0;
+    while (!window.__outcomes.some(result => result.outcome === 'dropped' && result.reason === 'client_cap') && n < 1000) {
+      const message = `closing ${n}`, error = new Error(message);
+      error.stack = `Error: ${message}\n    at closeBurst (https://closing.example.test/app.js:123:1)`;
+      dispatchEvent(new ErrorEvent('error', { error, message }));
+      n++;
+    }
+    if (!window.__outcomes.some(result => result.outcome === 'dropped' && result.reason === 'client_cap')) throw new Error('the public listener did not cap this location');
+    const heldMessage = `closing ${n - 1}`, beforeDrops = window.__outcomes.filter(result => result.outcome === 'dropped' && result.reason === 'client_cap').length;
+    window.__client.close();
+    const afterDrops = window.__outcomes.filter(result => result.outcome === 'dropped' && result.reason === 'client_cap').length;
+    window.__installSpool();
+    const message = 'reinitialized', error = new Error(message);
+    error.stack = `Error: ${message}\n    at closeBurst (https://closing.example.test/app.js:123:1)`;
+    dispatchEvent(new ErrorEvent('error', { error, message }));
+    return { heldMessage, offered: n, outcomeStart, closeDrops: afterDrops - beforeDrops };
+  });
+  assert.ok(closingBurst.closeDrops > 0, 'closing settles the held error as a client cap drop');
+  for (let attempt = 0; attempt < 100 && await closingPage.evaluate(({ target }) => window.__outcomes.length < target, { target: closingBurst.outcomeStart + closingBurst.offered + 1 }); attempt++) await wait(20);
+  const sendsAfterReinit = closingSends.length;
+  assert.ok(sendsAfterReinit > 0 && closingSends.some(event => event.message === 'reinitialized'), 'the reinitialized error reaches the public transport');
+  await wait(2200);
+  assert.equal(closingSends.length, sendsAfterReinit, 'the retired client sends no delayed error after close and re-init');
+  assert.ok(!closingSends.some(event => event.message === closingBurst.heldMessage), 'the held error from the closed client is not sent');
+  await closingPage.close();
 
   // Node: an uncaught exception is reported, then the process exits with code 1 as Node would.
   await request('/api/projects/fresh/releases', 'POST', { name: 'api@1.0.0', build: 'n1' });
