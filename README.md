@@ -10,6 +10,25 @@
 
 <p align="center"><a href="https://run-spool.com">run-spool.com</a> · <a href="https://justevery.com">Part of Just Every</a> · <a href="LICENSE">MIT licensed</a></p>
 
+<p align="center">
+  <a href="https://justevery.com/#vol-spool"><img src=".github/assets/media/preview.gif" width="800" alt="Spool: a storefront error arrives, its stack trace maps to src/account.ts line 42 and the evidence packet is ready"></a>
+</p>
+<p align="center"><a href="https://justevery.com/#vol-spool"><b>Watch the full demo</b></a> · 42 seconds</p>
+
+<p align="center">
+  <img src=".github/assets/media/flow.webp" width="800" alt="1 Caught, 2 Mapped, 3 Ready: the TypeError arrives as a new issue, its stack frame maps to src/account.ts:42:25, and the evidence packet is ready to download">
+</p>
+
+<p align="center">
+  <img src=".github/assets/media/screen-1.webp" width="800" alt="Spool's issue page for TypeError: Cannot read properties of undefined (reading 'city'): seven occurrences, the stack trace mapped to src/account.ts:42:25, and the evidence packet"><br>
+  <sub>Each error traced to the exact line in your original source.</sub>
+</p>
+
+<p align="center">
+  <img src=".github/assets/media/screen-2.webp" width="800" alt="Spool's Issues list: the TypeError marked Regressed in r43 above two new issues, with release, status, occurrences and last received"><br>
+  <sub>A fixed error that comes back is flagged as a regression in its release.</sub>
+</p>
+
 # Spool · JavaScript evidence workbench
 
 Spool is a local-first, single-owner workbench for bounded JavaScript exception evidence across project-scoped applications. It stores sanitized events in D1 and supports issue grouping, release/build identity, source-map lookup, triage, scoped read-only evidence grants, private archive/restore, and explicit retention.
