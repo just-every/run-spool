@@ -20,7 +20,16 @@ try {
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
  async function capture(scenario,width){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);const path=`${scenario}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:true,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario,width,path});}
- {const visitor=await browser.newContext({viewport:{width,height:900}}),landing=await visitor.newPage();landing.on('pageerror',error=>pageErrors.push(error.message));await landing.goto(origin+'/');assert.equal(await landing.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'landing overflow');assert.deepEqual((await new AxeBuilder({page:landing}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);await landing.getByRole('link',{name:'Sign in',exact:true}).click();await assertSignInForm(landing);await visitor.close();checked('Visitor landing fits, passes axe and leads to owner sign-in');}
+ {
+  const visitor=await browser.newContext({viewport:{width,height:900}}),lobby=await visitor.newPage();
+  lobby.on('pageerror',error=>pageErrors.push(error.message));await lobby.goto(origin+'/');
+  assert.equal(await lobby.locator('html').getAttribute('data-state'),'unclaimed');
+  assert.equal(await lobby.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Lobby overflow');
+  assert.deepEqual((await new AxeBuilder({page:lobby}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
+  const setup=lobby.getByRole('link',{name:'Finish setup',exact:true});assert.equal(await setup.getAttribute('href'),'/setup');
+  await setup.click();await assertSignInForm(lobby,'/setup');
+  await visitor.close();checked('Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup');
+ }
  const project=await api('/api/projects','POST',{id:'cedar',name:'Cedar Dispatch'});
  await page.goto(origin+'/projects/cedar/issues');await page.getByRole('heading',{name:'Waiting for your first event',exact:true}).waitFor();
  await capture('waiting',width);
