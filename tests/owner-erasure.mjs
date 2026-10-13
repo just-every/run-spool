@@ -6,6 +6,9 @@ import { randomUUID } from 'node:crypto';
 import { runtime,successor,confirmLatest,snapshot,archive,eraseInput,restore } from './owner-erasure/helpers.mjs';
 import { testOwner,testSetupToken } from './auth.mjs';
 import { sentryExport } from './project-erasure/fixture.mjs';
+import { authorityRaces, heldScopes } from './owner-erasure-authority.mjs';
+import { interruptedErasure } from './owner-erasure-resume.mjs';
+import { archiveFences } from './owner-erasure-archives.mjs';
 
 const evidence={checks:[]};let app,fresh;
 try {
@@ -18,6 +21,17 @@ try {
  assert.equal((await app.request('/api/owner/erasure',eraseInput(sole))).status,409);
  assert.deepEqual(await snapshot(app),before,'sole owner refusal changes no data');
  const next=await successor(app);
+ // Other people's independent native sessions and tokens survive unchanged.
+ // The successor's invitation session is intentionally retired; their later
+ // independent magic session remains stored but is fenced by the role change.
+ const otherCookies={};
+ for(const email of ['quinn@spool.test',next.email]) {
+  assert.equal((await app.call('/auth/magic-link',{email})).status,202);
+  const cookie=await confirmLatest(app,email);assert.ok(cookie);otherCookies[email]=cookie;
+ }
+ const independent=await app.DB.prepare("SELECT s.* FROM oa_sessions s JOIN oa_tokens t ON t.id=s.source_token_id WHERE t.kind='magic' AND s.operator_id<>?").bind(owner.id).all();
+ assert.equal(independent.results.length,2);
+ const independentTokens=await app.DB.prepare("SELECT * FROM oa_tokens WHERE kind='magic' AND operator_id<>?").bind(owner.id).all();
  const project=await app.json('/api/projects',{id:'personal-capture',name:`Test owner and ${other}`},201);
  await app.json('/api/projects/personal-capture/releases',{name:'r1',build:'b1'},201);
  await app.json('/api/projects/personal-capture/artifacts',{release:'r1',build:'b1',debugId:'map',map:{version:3,sources:['src/app.js'],sourcesContent:[`Test owner / ${testOwner} / ${owner.id} / ${other}`],names:[],mappings:'AAAA'}},201);
@@ -27,6 +41,7 @@ try {
  await app.DB.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) VALUES(?,?,?)').bind(randomUUID(),Date.now(),JSON.stringify({deliveryId:'mixed-private-note',from:'auth@localhost.test',to:[testOwner,'quinn@spool.test'],text:`Test owner and ${other}`})).run();
  await app.DB.prepare('INSERT INTO oa_external_identities(issuer,subject,operator_id) VALUES(?,?,?)').bind('https://identity.test','personal-owner-subject',owner.id).run();
  await app.DB.prepare('INSERT INTO oc_idp_grants(issuer,client_id,jti,subject,sector_id) VALUES(?,?,?,?,?)').bind('https://identity.test','client','personal-owner-grant','personal-owner-subject','installation-sector').run();
+ evidence.holds=await heldScopes(app,otherId);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.oa_operators===1 && preview.redacted.events>0 && preview.redacted.artifacts>0);
@@ -46,6 +61,11 @@ try {
  const after=await snapshot(app);
  for(const needle of needles)assert.ok(!JSON.stringify(after).includes(needle),`all stored cells erased for ${needle}`);
  assert.deepEqual(after.oa_operators.find(row=>row.id===otherId),before.oa_operators.find(row=>row.id===otherId),'unrelated operator identical');
+ for(const row of independent.results)assert.deepEqual(after.oa_sessions.find(item=>item.id===row.id),row,'independent other-person session preserved');
+ for(const row of independentTokens.results)assert.deepEqual(after.oa_tokens.find(item=>item.id===row.id),row,'independent other-person token preserved');
+ assert.equal((await app.call('/auth/session',undefined,{Cookie:otherCookies['quinn@spool.test']})).status,200,'unrelated member remains signed in');
+ assert.equal((await app.call('/auth/session',undefined,{Cookie:otherCookies[next.email]})).status,401,'independent successor session is fenced by promotion');
+ assert.equal(after.oa_tokens.filter(row=>row.issuer_id===owner.id).length,0,'predecessor-issued invitation is retired');
  for(const table of ['projects','issues','events','artifacts','repairs','rer_mail_development_outbox']) {
   const occurrences=value=>JSON.stringify(value).split(other).length-1;
   assert.equal(occurrences(after[table]),occurrences(before[table]),`${table} preserves co-located other person values`);
@@ -65,14 +85,22 @@ try {
  fresh=await runtime();
  assert.equal((await restore(fresh,post.text)).status,200,'redacted rows remain restorable');
  assert.equal((await restore(fresh,pre.text)).body.error,'erasure_epoch','fresh destination receiving later journal refuses old captures');
+ evidence.native={planned:latest.deleted,redacted:latest.redacted,deleted:receipt.deleted,phase:receipt.phase,independentSessionsPreserved:independent.results.length,independentTokensPreserved:independentTokens.results.length,otherCanaries:Object.fromEntries(['projects','issues','events','artifacts','repairs','rer_mail_development_outbox'].map(table=>[table,{before:JSON.stringify(before[table]).split(other).length-1,after:JSON.stringify(after[table]).split(other).length-1}]))};
+ console.log('Owner erasure native: '+JSON.stringify(evidence.native));
+ await fresh.close();fresh=null;
+ evidence.archives=await archiveFences(app,pre,post);
  evidence.checks.push('native self/other mixed canaries; real successor sign-in and sole-owner handoff; count-only plan and receipt; transport denials and stale plan nonmutation; full stored-cell scan; claim and predecessor credential fences; successor management; same/fresh archive fences');
- await fresh.close();fresh=null;await app.close();app=null;
+ await app.close();app=null;
  app=await runtime();await successor(app);
  const source=Buffer.from(JSON.stringify(sentryExport())).toString('base64'),operationKey='owner-custody-bound';
  await app.json('/api/imports/sentry/plan',{source,operationKey});
  const held=await app.json('/api/owner/erasure');assert.equal(held.hold,'shared_import_custody');
  before=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(held))).status,409);assert.deepEqual(await snapshot(app),before,'shared originals and their other-person bytes remain identical on refusal');
  evidence.checks.push('shared import originals and principal custody explicitly held without mutation');
+ await app.close();app=null;
+ evidence.authorityRaces=await authorityRaces();
+ evidence.resumption=await interruptedErasure();
+ evidence.checks.push('structural, ambiguous attribution and unrelated invitation holds leave all rows identical; independent other-person sessions and tokens survive; commit-time predecessor and successor authority races prevent destructive mutation; multi-batch interruption and restart complete through native scheduler; late predecessor mint rejected after completion; child-only archive and explicit later journal fences');
  await mkdir('.artifacts/owner-erasure',{recursive:true});await writeFile('.artifacts/owner-erasure/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log('Owner erasure public flow passed: '+evidence.checks.length+' groups.');
 }finally{await fresh?.close();await app?.close();}
