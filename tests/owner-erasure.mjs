@@ -96,7 +96,7 @@ try {
  app=await runtime();await successor(app);
  const source=Buffer.from(JSON.stringify(sentryExport())).toString('base64'),operationKey='owner-custody-bound';
  const planned=await app.json('/api/imports/sentry/plan',{source,operationKey});
- await app.json('/api/imports/sentry/apply',{source,reviewedFingerprint:planned.fingerprint,operationKey});
+ await app.json('/api/imports/sentry/apply',{source,reviewedFingerprint:planned.fingerprint,operationKey},201);
  const held=await app.json('/api/owner/erasure');assert.equal(held.hold,'shared_import_custody');
  before=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(held))).status,409);assert.deepEqual(await snapshot(app),before,'shared originals and their other-person bytes remain identical on refusal');
  evidence.checks.push('shared import originals and principal custody explicitly held without mutation');

@@ -30,7 +30,9 @@ export async function authorityRaces() {
    const after=await snapshot(app);
    for(const [table,rows] of Object.entries(before)) {
     const expected=party!=='capture'&&table==='oa_sessions'?rows.map(row=>row.operator_id===target?{...row,revoked_at:1}:row):
-     party==='capture'&&table==='projects'?rows.map(row=>row.id==='race-proof'?{...row,name:row.name+' changed'}:row):rows;
+     party==='capture'&&table==='projects'?rows.map(row=>row.id==='race-proof'?{...row,name:row.name+' changed'}:row):
+     // Base creates the installation's portability identity on first use; a refusal may create it but never advance its epoch.
+     table==='rer_portability_state'&&!rows.length&&after[table].length===1?[{...after[table][0],epoch:0,applying:0,import_job:null}]:rows;
     assert.deepEqual(after[table],expected,`${party} refusal preserves ${table} apart from the injected change`);
    }
    assert.equal(after.rer_erasure_operations.length,0,'refused first step releases the durable freeze');
