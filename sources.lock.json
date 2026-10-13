@@ -5197,7 +5197,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "7d32f3834d5e8003c29ea6b19ea477d08a70e7616b7a1623e4e631cd76519d7a",
+      "sha256": "fcb82c3db7d6c611f610b316db30e70836fa0a5a2539d481dc5a835836a92605",
       "executable": false
     },
     "tests/commands.mjs": {

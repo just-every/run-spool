@@ -61,7 +61,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
   const baseline=await createProcessBaseline();
   function start(args,diagnostic=diagnostics.started(args[0])){
    const scope=createProcessScope(baseline);let child;
-   try{child=spawn(process.execPath,[new URL(import.meta.resolve('@runeditrun/rer/internal/global/rer.mjs')).pathname,...args,'--cwd',root,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
+   try{child=spawn(process.execPath,[new URL(import.meta.resolve('@runeditrun/rer/internal/global/rer.mjs')).pathname,...args,...(args[0]==='dev'&&!args.includes('--stop')?['--foreground']:[]),'--cwd',root,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
    diagnostic.spawned=true;
    let output='';const item={child,settled:false,spawnError:null,custody:commandCustody(child,scope)};owned.add(item);
    const capture=b=>{output=(output+b).slice(-100000);Object.assign(diagnostic,classifyCommandOutput(output,args[0]));};
