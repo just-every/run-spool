@@ -17,6 +17,7 @@ import { lobbyResponse } from './base/lobby';
 import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
 import { continueErasures } from './domain/erasure/service';
+import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import type { AlertEnvironment } from './domain/alerts/types';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
@@ -44,6 +45,7 @@ export default {
   }
   if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
   if (path === '/api/editor/config') return editorConfigResponse(request, env);
+  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
   const auth = await authenticationResponse(request, env); if (auth) return auth;
   return dispatch(request, () => api.fetch(request, env, execution), async () => {
    if (!applicationDocument(path)) {

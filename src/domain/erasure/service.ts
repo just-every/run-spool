@@ -6,6 +6,7 @@ import { portability } from '../portability';
 import { sentryTargets } from '../sentry-import/targets';
 import { mappingVersion } from '../sentry-import/source';
 import { projectErasure, erasureExceptions } from './declaration';
+import { ownerErasureService } from './owner-service';
 
 export async function projectErasureService(db: D1Database) {
  const transfer = await portability(db);
@@ -75,8 +76,8 @@ export async function eraseProject(db: D1Database, session: any, project: string
 
 /** Scheduled continuation for an erasure a request left unfinished. */
 export async function continueErasures(db: D1Database, until: number) {
- const open = (await db.prepare("SELECT id FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string }>()).results;
+ const open = (await db.prepare("SELECT id,entity FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string; entity: string }>()).results;
  if (!open.length) return;
  const erasure = await projectErasureService(db);
- for (const { id } of open) { if (Date.now() > until) break; await erasure.run(id, { until, rows: STEP_ROWS }); }
+ for (const { id,entity } of open) { if (Date.now() > until) break; await (entity==='installation-owner'?await ownerErasureService(db):erasure).run(id, { until, rows: STEP_ROWS }); }
 }

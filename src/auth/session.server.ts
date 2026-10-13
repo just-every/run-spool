@@ -4,6 +4,7 @@ import { createDependencies } from '../modules/dependencies/index.mjs';
 import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
 import { operatorMail } from './mail.server.mjs';
 import type { Bindings } from './bindings';
+import { successorConfirmation } from '../domain/erasure/owner-transfer';
 export function authConfig(env: Bindings) {
  return { origin: env.AUTH_ORIGIN, OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET,
   SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
@@ -20,6 +21,7 @@ export async function ownerSession(request: Request, env: Bindings) {
  return session?.operator.role === 'owner' ? session : null;
 }
 export async function authResponse(request: Request, env: Bindings) {
+ const successor = await successorConfirmation(request, env); if (successor) return successor;
  // Spool renders its own form feedback from the structured auth result. Parse
  // native forms with Base's bounded input reader, then use its JSON transport.
  if (new URL(request.url).pathname === '/auth/magic-link' && request.method === 'POST'

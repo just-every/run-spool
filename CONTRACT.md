@@ -34,3 +34,13 @@ Erasure deletes the project and all project events, issues, releases, repairs, r
 Retained scope exceptions, each named in the preview and receipt: the installation owner, claim ledgers and authentication state remain because project erasure preserves installation authority; unrelated projects remain because they lie outside the selected project; project audit entries survive with only their kind and time, their project reference replaced by a random label shared only with the receipt, so a database holder cannot join them back; receipts keep counts and times only; portability tombstones are keyed hashes. Owner erasure is a separate unmet BASE-DATA-003 obligation, not satisfied by this project scope.
 
 Older archives are refused by the installation's restore fence, including archives holding only child rows, and by a fresh destination that first receives the post-erasure archive, or a later archive given with `rer import --journal`. A brand-new store given only an older archive has no later journal and cannot recognise the erasure. Already downloaded archives, delivered mail, remote provider records, D1 Time Travel and backups, raw database imports and destination secrets (`ALERT_DESTINATIONS`) lie outside the local fence; erasure reports these limits rather than claiming their deletion. The public-door proof is described in [ACCEPTANCE.md](ACCEPTANCE.md).
+# Installation-owner erasure
+
+The authenticated owner can preview and explicitly confirm exact self-identifier
+erasure through the native HTTP workflow in [OWNER-ERASURE.md](docs/OWNER-ERASURE.md).
+A real successor must first accept an ordinary invitation; atomic handoff keeps
+one active owner, fences predecessor sessions/grants, and permits the successor
+to sign in and manage the installation. Base provides count-only plans and
+receipts, resumable deletion, and the archive restore fence. Shared import
+custody and ambiguous/structural attribution are explicit nonmutating holds;
+the operation never removes unrelated co-located data to claim success.

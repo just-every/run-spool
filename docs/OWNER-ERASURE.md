@@ -1,0 +1,101 @@
+# Installation-owner personal-data erasure
+
+The native HTTP workflow targets the authenticated owner's own operator row.
+It cannot name another operator. It uses Base `preview`, `start`, `run` and
+`receipt`, and its durable multi-step deletion pipeline. Project erasure remains
+a separate operation.
+
+1. Complete ordinary email sign-in (or native email step-up). Send
+   `POST /api/owner/erasure/successor` with `email` and `displayName` for the real
+   successor. This privately calls Base's member invitation primitive; general
+   invitations, role changes and second-owner creation remain closed.
+2. The successor follows that ordinary one-use email invitation. They are an
+   active member and have no owner management yet. The current owner remains
+   the sole owner.
+3. `GET /api/owner/erasure` returns table counts, exceptions, a plan hash and any
+   hold. It contains no email, operator ID, stored text or successor identifier.
+4. With a fresh native proof, send `POST /api/owner/erasure` containing only
+   `{"confirm":"ERASE MY PERSONAL DATA","planHash":"<preview hash>"}`.
+   The first atomic Base step rechecks the predecessor's session/version and
+   the exact verified successor session/version, promotes that member, and
+   deactivates the predecessor. There is exactly one active owner after commit.
+   Both parties' earlier owner/invitation sessions are invalidated. The successor
+   uses ordinary email sign-in again and retains normal owner management.
+
+All writes require the configured origin. Anonymous sessions, project grants,
+cross-origin requests, extra subject fields, wrong confirmation and stale plans
+are refused. The final owner's native database protection remains in place;
+without a verified successor the operation plainly refuses without deletion.
+Responses can be `202` while deletion continues; the scheduler resumes the Base
+operation. The successor reads counts and times at
+`GET /api/owner/erasure/receipts`. The predecessor receives no continuing owner
+access. Receipts clear the subject and contain no stored identity value.
+
+## Scope and preservation
+
+Relational deletion covers the predecessor's `oa_operators`, own tokens and
+sessions, external bindings, provider session data/pins, step-up challenges,
+credentials, invitation-cancellation state, development credential marks,
+setup links, pending dependency approvals and their correlated auth outbox
+messages. Successor invitation provenance is retired and their pre-handoff
+session is invalidated; other people's invitation provenance causes a hold.
+Attributable project grants and legacy single-owner grants are deleted; other
+identified minters' rows remain. The additive credential attribution migration
+is required. A durable credential trigger rejects a delayed predecessor mint
+after erasure has completed. Competing writes are frozen during the resumable
+operation, and each Base batch owns its guard only within that transaction.
+
+The bootstrap singleton remains, with a retired claim marker. The managed
+claim retains installation/time/completion facts but loses email, operator,
+session and claim-token identifier. Matching IdP claim grants retain their
+issuer/client uniqueness while subject, sector and claim-token values are
+retired. Claim replay or bootstrap cannot reopen the installation. Auth audit
+actors become random unjoinable labels and their value is cleared. Email rate
+buckets derived from the current session secret are removed; uncorrelated IP
+and confirmation-token rate aggregates remain.
+
+The supported captured values are exact known operator ID, email, display name
+and bound IdP subjects in project names, issue titles, event messages and
+breadcrumbs, map JSON values, diagnostic text, repair notes/links/checks,
+stored alert titles and development outbox JSON values. JSON is decoded before
+matching, so escaped strings are covered. Only matching values are replaced;
+other values in the same row, map or message stay intact. Map/event digests are
+recomputed. A shared operator display name found in capture causes a hold.
+This is exact-identifier removal, not a claim that the schema can infer a person
+from prose, unknown aliases or an identical name belonging to an unregistered
+person. Encodings within text (for example a base64 string), unknown aliases,
+and future incoming captures are outside this declared operation.
+
+Structural row keys, event grouping inputs, domain-rule creator attribution,
+unsupported captured surfaces and unreadable content are refused rather than
+altering structural identities or deleting neighbouring records. The displayed
+hold must be resolved through an appropriate supported workflow first.
+
+## Shared import custody is a current boundary
+
+Any retained import job, stream, staging object or original causes
+`shared_import_custody`, before destructive mutation. Import-kit stores exact
+original bytes, possibly in chunks, plus normalized/rejected source records
+and `principal_id`/`parent_principal_id` pointers in durable custody ledgers.
+Its current retirement selector does not select custody by those principal
+pointers. Related source/original erasure requires a native target, and its
+original-erasure policy withdraws whole affected artifacts, including unrelated
+people's bytes. That cannot satisfy selective self erasure while keeping
+co-located other-person data identical. Spool therefore does not claim complete
+owner erasure for installations with that custody. Base needs selective
+principal retirement and a supported privacy transformation of shared originals
+before this hold can be lifted safely.
+
+## Archives and external copies
+
+Each deleted row receives the existing portability tombstone. Native content
+redaction also advances Base's maintained redaction checkpoint, so older
+archives—including captured child rows—are rejected by the existing restore
+fence. A fresh destination needs a trusted later journal (or the later archive)
+to know about the erasure. Post-erasure archives remain restorable. An empty
+store given only an old archive cannot infer later erasure; raw database imports
+bypass the application fence.
+
+This does not remove downloaded archives, delivered email, identity-provider
+records, `OWNER_EMAIL`/alert destination deployment configuration, D1 Time Travel
+or provider/external backups. The owner must separately retire those copies.
