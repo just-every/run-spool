@@ -1,6 +1,6 @@
 import { createOperatorAuth, createAuthHandler, AuthError } from '../../modules/operator-auth/index.mjs';
 import { hashToken } from '../../modules/operator-auth/crypto.mjs';
-import { authConfig } from '../../auth/session.server';
+import { authConfig } from '../../auth/session.server.ts';
 import { operatorMail } from '../../auth/mail.server.mjs';
 import type { Bindings } from '../../auth/bindings';
 import { readInput } from '../../modules/operator-auth/input.mjs';

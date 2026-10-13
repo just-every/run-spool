@@ -4,7 +4,7 @@ import { createDependencies } from '../modules/dependencies/index.mjs';
 import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
 import { operatorMail } from './mail.server.mjs';
 import type { Bindings } from './bindings';
-import { successorConfirmation } from '../domain/erasure/owner-transfer';
+import { successorConfirmation } from '../domain/erasure/owner-transfer.ts';
 export function authConfig(env: Bindings) {
  return { origin: env.AUTH_ORIGIN, OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET,
   SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,

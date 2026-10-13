@@ -3,7 +3,7 @@ import { localDevelopmentEnabled } from './local.server.mjs';
 import type { Bindings } from './bindings';
 import { operatorAuth } from './session.server.ts';
 import { fontHead } from '../base/font-head.ts';
-import { oidcNotice } from './oidc-presentation.server';
+import { oidcNotice } from './oidc-presentation.server.ts';
 const escape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 type SignInProvider = { label: string; startPath: string; authorizationOrigins?: string[] };
 // A linked Auth install, once the owner turned its sign-in on, is offered above the email form.
