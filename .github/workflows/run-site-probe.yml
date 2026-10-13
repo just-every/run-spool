@@ -1,0 +1,97 @@
+name: Run site credential probe
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: run-site-credential-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: run-site
+    steps:
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.20.0
+      - name: GET-only first-deploy preflight
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+          const token = process.env.CLOUDFLARE_API_TOKEN;
+          const domain = 'run-spool.com';
+          class ProbeFailure extends Error {}
+          function check(ok, label) { if (!ok) throw new ProbeFailure(label); }
+          async function get(path, label, expected = 200, optional = false) {
+            let response;
+            try {
+              response = await fetch(`https://api.cloudflare.com/client/v4${path}`, {
+                method: 'GET', redirect: 'error', signal: AbortSignal.timeout(20000),
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            } catch {
+              if (optional) { console.log(`${label}: unconfirmed`); return; }
+              throw new ProbeFailure(`${label}: request failed`);
+            }
+            console.log(`${label}: HTTP ${response.status}`);
+            if (optional && response.status !== expected) return;
+            check(response.status === expected, `${label}: unexpected status`);
+            if (expected === 404) return;
+            let body;
+            try { body = await response.json(); }
+            catch {
+              if (optional) return;
+              throw new ProbeFailure(`${label}: invalid JSON`);
+            }
+            const valid = body?.success === true && Array.isArray(body.errors) &&
+              body.errors.length === 0 && Object.hasOwn(body, 'result');
+            if (optional && !valid) return;
+            check(valid, `${label}: invalid envelope`);
+            const info = body.result_info;
+            if (Array.isArray(body.result) && info) {
+              check([undefined, null, ''].includes(info.cursor) &&
+                [undefined, 0, 1].includes(info.total_pages) &&
+                [undefined, 1].includes(info.page), `${label}: incomplete list`);
+              for (const key of ['count', 'total_count']) {
+                check(info[key] === undefined || info[key] === body.result.length,
+                  `${label}: partial list`);
+              }
+            }
+            return body.result;
+          }
+          try {
+            check(typeof account === 'string' && /^[a-f0-9]{32}$/.test(account), 'Account variable missing or invalid');
+            check(typeof token === 'string' && token.length > 0, 'Token missing');
+            const verified = await get(`/accounts/${account}/tokens/verify`, 'Token');
+            check(verified?.status === 'active', 'Token inactive');
+            console.log('Token active: yes');
+            const zones = await get(`/zones?name=${domain}&account.id=${account}`, 'Zone');
+            check(Array.isArray(zones) && zones.length === 1, 'Intended zone missing');
+            const zone = zones[0];
+            check(zone?.name === domain && zone.status === 'active' &&
+              zone.account?.id === account && /^[a-f0-9]{32}$/.test(zone.id), 'Wrong zone');
+            console.log('Intended active account zone: yes');
+            const domains = await get(`/accounts/${account}/workers/domains?zone_id=${zone.id}`, 'Domains');
+            check(Array.isArray(domains) && domains.every(row => typeof row?.hostname === 'string'),
+              'Invalid domain list');
+            check(!domains.some(row => [domain, `www.${domain}`].includes(row.hostname.toLowerCase())),
+              'Site domains already claimed');
+            console.log('Apex/www absent: yes');
+            await get(`/accounts/${account}/workers/scripts/spool-production--site/settings`, 'Worker absent', 404);
+            const https = await get(`/zones/${zone.id}/settings/always_use_https`, 'HTTPS setting', 200, true);
+            check(!(https?.id === 'always_use_https' && https.value === 'off'), 'HTTPS confirmed off');
+            console.log(https?.id === 'always_use_https' && https.value === 'on'
+              ? 'HTTPS setting: on; live proof required' : 'HTTPS setting: unconfirmed; live proof required');
+            console.log('Token preflight: passed (GET only)');
+          } catch (error) {
+            console.error(error instanceof ProbeFailure ? error.message : 'Credential probe failed');
+            process.exitCode = 1;
+          }
+          NODE
