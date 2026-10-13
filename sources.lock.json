@@ -2029,7 +2029,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "fc859fbf2c523ea5bbd3c220eb50af0735e39745b7d25caef66a19656b2b3b96",
+      "sha256": "164f91db5c3fe97f40dd1e79c574a7fb474b8f725cc0f83146c8378901763360",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2426,6 +2426,10 @@
     },
     "migrations/core/0024_identity_providers.sql": {
       "sha256": "f879fb86b079e591dfe4a8513752a8e0394e252b940aa35d3f7430f27b7382c6",
+      "executable": false
+    },
+    "migrations/core/0025_import_custody_retirement.sql": {
+      "sha256": "48ff042167f938a3fdfa9cb1f2cfb9740dbb6ed23af77cfeb9eac2e03018cf05",
       "executable": false
     },
     "ONBOARDING.md": {
