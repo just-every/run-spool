@@ -2445,7 +2445,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "4f3eb87a03ae4fdc83499a99aa10a552375e865f580171a7d0e5928b90d69998",
+      "sha256": "c46d797333d662ef3a107453721ebb81d649b003d60e3107f8d8bd0d4d8ea51f",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "95a5e9706a190a89bfddc8a5f16467f2d15265b8bc51647ce69d308395635179",
+      "sha256": "bfa847fe189ec81ec62d3ba881fea4491a254c7bc67701ec8044ab304fdc0f6d",
       "executable": false
     },
     "RELEASE.json": {
@@ -5265,7 +5265,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "a90788b60dc755a332a8e29738c09b894e1b768103c2baa5528422ea0d76be23",
+      "sha256": "80dfde7d755f20ec52c675cc1fb6e6c4299117fee406ae63a73bb15af67201c0",
       "executable": false
     },
     "tests/dev-credentials.mjs": {

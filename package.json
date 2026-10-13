@@ -37,6 +37,7 @@
     "deps": "rer install",
     "rer": "rer",
     "test:commands": "node tests/commands.mjs",
+    "test:setup": "playwright install chromium",
     "source:lock": "node scripts/edition-authoring/cli.mjs lock",
     "source:check": "node scripts/edition-authoring/cli.mjs check",
     "sourcemaps": "node packages/sdk/src/sourcemaps/bin.mjs",
