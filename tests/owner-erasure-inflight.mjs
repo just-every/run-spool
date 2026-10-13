@@ -25,7 +25,7 @@ export async function heldOwnerRequest(app,path,value,{method='POST',headers={}}
 // Owner writes in the main API that read a body: admitted before the handoff, they commit nothing after it.
 // Key revocation reads no body, so its request cannot be held open here; it commits through the same check.
 export async function delayedOwnerWrites() {
- const app=await runtime(),pending=[];
+ const app=await runtime({ALERT_DESTINATIONS:JSON.stringify([{id:'owner-mail',project:'inflight-owner',label:'Owner mail',channel:'mail',recipient:'owner@spool.test'}])}),pending=[];
  try {
   await successor(app);
   const project=await app.json('/api/projects',{id:'inflight-owner',name:'Inflight owner'},201);
@@ -33,8 +33,20 @@ export async function delayedOwnerWrites() {
   const event=await app.json('/api/ingest/inflight-owner',{version:1,eventId:'inflight-owner-event',release:'r1',build:'b1',environment:'test',type:'Error',message:'Example error',frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run'}],breadcrumbs:[]},201,{Authorization:'Bearer '+project.ingestKey});
   const issue=(await app.json('/api/projects/inflight-owner/issues')).find(row=>row.id===event.issue);
   await app.json('/api/projects/inflight-owner/browser-origins',{origin:'https://app.test'},201);
+  const alertRule={name:'Owner mail',enabled:true,channel:'mail',destination:'owner-mail',kinds:['new_issue'],windowMs:60000,threshold:2};
+  const rule=await app.json('/api/projects/inflight-owner/alerting/rules',alertRule,201);
+  const now=Date.now();
+  await app.DB.batch([
+   app.DB.prepare("INSERT INTO alerts(id,project,issue,kind,created) VALUES('inflight-alert','inflight-owner',?,'new_issue',?)").bind(issue.id,now),
+   app.DB.prepare("INSERT INTO alert_intents VALUES('inflight-delivery','inflight-owner','inflight-alert',?,1,'mail','owner-mail','{}','spool.issue.new',?,'queued',NULL,1)").bind(rule.id,now),
+   app.DB.prepare("INSERT INTO alert_mail_jobs(id,project,message,destination_hash,state,next_at) VALUES('inflight-delivery','inflight-owner','{}','hmac:x','uncertain',?)").bind(now),
+   app.DB.prepare("INSERT INTO alert_history VALUES('inflight-delivery','inflight-owner','inflight-alert',?,1,'mail','owner-mail','uncertain',NULL,1,?,?,0)").bind(rule.id,now,now),
+  ]);
   const requests=[
    ['/api/projects',{id:'late-project',name:'Late project'}],
+   ['/api/projects/inflight-owner/alerting/rules',{...alertRule,name:'Late rule'}],
+   [`/api/projects/inflight-owner/alerting/rules/${rule.id}`,{...alertRule,name:'Revised rule',revision:1},{method:'PUT'}],
+   ['/api/projects/inflight-owner/alerting/deliveries/inflight-delivery/resolve',{state:'accepted',evidence:'receiver_confirmed'}],
    ['/api/projects/inflight-owner/keys',{kind:'ingest'}],
    ['/api/projects/inflight-owner/browser-origins',{origin:'https://late.test'}],
    ['/api/projects/inflight-owner/browser-origins',{origin:'https://app.test'},{method:'DELETE'}],
