@@ -31,6 +31,12 @@ operation. The successor reads counts and times at
 `GET /api/owner/erasure/receipts`. The predecessor receives no continuing owner
 access. Receipts clear the subject and contain no stored identity value.
 
+If the first deletion batch refuses a changed plan or authority, the untouched
+operation is cancelled and ordinary surviving sessions, sign-in and writes can
+continue. Cancellation is conditional on no committed step or retained work;
+an operation that has deleted anything remains resumable. The write freeze
+continues through the finalization phase until the receipt is complete.
+
 ## Scope and preservation
 
 Relational deletion covers the predecessor's `oa_operators`, own tokens and
@@ -44,6 +50,15 @@ identified minters' rows remain. The additive credential attribution migration
 is required. A durable credential trigger rejects a delayed predecessor mint
 after erasure has completed. Competing writes are frozen during the resumable
 operation, and each Base batch owns its guard only within that transaction.
+
+Repair create/check/fact transactions also recheck the original session and
+operator version, so a body withheld across the handoff cannot write later.
+The main API still has an in-flight authority boundary: already-admitted
+browser-origin, triage, retention and restore requests lack that transaction
+check. A delayed browser-origin write can reintroduce a predecessor identifier
+after completion. Full owner-erasure acceptance is blocked until those routes
+receive transaction-time session guards; the current workflow does not claim
+to fence all already-admitted requests.
 
 The bootstrap singleton remains, with a retired claim marker. The managed
 claim retains installation/time/completion facts but loses email, operator,

@@ -8,6 +8,8 @@ import { testOwner,testSetupToken } from './auth.mjs';
 import { sentryExport } from './project-erasure/fixture.mjs';
 import { authorityRaces, heldScopes } from './owner-erasure-authority.mjs';
 import { interruptedErasure } from './owner-erasure-resume.mjs';
+import { interruptedFinalization } from './owner-erasure-finalization.mjs';
+import { delayedRepairWrites } from './owner-erasure-inflight.mjs';
 import { archiveFences } from './owner-erasure-archives.mjs';
 
 const evidence={checks:[]};let app,fresh;
@@ -93,13 +95,16 @@ try {
  await app.close();app=null;
  app=await runtime();await successor(app);
  const source=Buffer.from(JSON.stringify(sentryExport())).toString('base64'),operationKey='owner-custody-bound';
- await app.json('/api/imports/sentry/plan',{source,operationKey});
+ const planned=await app.json('/api/imports/sentry/plan',{source,operationKey});
+ await app.json('/api/imports/sentry/apply',{source,reviewedFingerprint:planned.fingerprint,operationKey});
  const held=await app.json('/api/owner/erasure');assert.equal(held.hold,'shared_import_custody');
  before=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(held))).status,409);assert.deepEqual(await snapshot(app),before,'shared originals and their other-person bytes remain identical on refusal');
  evidence.checks.push('shared import originals and principal custody explicitly held without mutation');
  await app.close();app=null;
  evidence.authorityRaces=await authorityRaces();
  evidence.resumption=await interruptedErasure();
+ evidence.finalization=await interruptedFinalization();
+ evidence.delayedRepairs=await delayedRepairWrites();
  evidence.checks.push('structural, ambiguous attribution and unrelated invitation holds leave all rows identical; independent other-person sessions and tokens survive; commit-time predecessor and successor authority races prevent destructive mutation; multi-batch interruption and restart complete through native scheduler; late predecessor mint rejected after completion; child-only archive and explicit later journal fences');
  await mkdir('.artifacts/owner-erasure',{recursive:true});await writeFile('.artifacts/owner-erasure/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log('Owner erasure public flow passed: '+evidence.checks.length+' groups.');

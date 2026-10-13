@@ -35,6 +35,7 @@ export async function archiveFences(app,pre,post) {
   checkout=await commandCheckout();
   await mkdir(resolve(checkout.root,'exports'),{recursive:true});
   for(const [name,text] of [['pre',pre.text],['post',post.text],['children',child]])await writeFile(resolve(checkout.root,'exports',name+'.rer'),text,{mode:0o600});
+  await checkout.command(['install']);
   await checkout.command(['setup','--owner-email',testOwner,'--port',String(await freePort())]);
   const reason=result=>/Archive operation refused \(([^)]+)\)/.exec(result.output)?.[1]??null;
   for(const name of ['pre','children']) {

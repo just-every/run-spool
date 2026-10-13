@@ -55,7 +55,7 @@ export async function ownerDeclaration(db: D1Database) {
   const transfer=await portability(db);
   return [
    ...importCustodyRoots.map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)})`)),
-   guard(db,`(SELECT count(*) FROM oa_operators WHERE role='owner' AND status='active')=1 AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.role='owner' AND o.status='active' AND o.version=? AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>?)`,intent.session_id,subject.id,intent.owner_version,Date.now()),
+   guard(db,`(SELECT count(*) FROM oa_operators WHERE role='owner' AND status='active')=1 AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.role='owner' AND o.status='active' AND o.version=? AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER))`,intent.session_id,subject.id,intent.owner_version),
    guard(db,`EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=? AND o.version=? AND o.status='active' AND o.role='member' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.id=? AND s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) AND s.operator_version=o.version))`,intent.successor_id,intent.successor_version,intent.successor_session),
    ...captureStatements(db,captured.changes),...await transfer.redactionStatements(),
    db.prepare("UPDATE oa_operators SET role='owner' WHERE id=?").bind(intent.successor_id),

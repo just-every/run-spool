@@ -4,6 +4,7 @@ import { canonical, hash } from '../privacy';
 import { ownerDeclaration, ownerExceptions } from './owner-declaration';
 import { capturePlan, ownerIdentifiers } from './owner-capture';
 import { unsupportedOwnerSurface } from './owner-scope';
+import { recoverableOwnerErasure } from './owner-operation';
 export function ownerHoldMessage(code: string | null) {
  if(!code)return null;
  const messages: Record<string,string> = {
@@ -21,7 +22,7 @@ export function ownerHoldMessage(code: string | null) {
 }
 
 export async function ownerErasureService(db: D1Database) {
- return createErasure({db,portability:await portability(db),declarations:[await ownerDeclaration(db)]});
+ return recoverableOwnerErasure(db,createErasure({db,portability:await portability(db),declarations:[await ownerDeclaration(db)]}));
 }
 export async function ownerPreview(db: D1Database,id: string) {
  const service=await ownerErasureService(db), native=await service.preview('installation-owner',{id});
