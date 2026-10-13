@@ -12,7 +12,7 @@ import { ownerClaimResponse } from './editor/owner-claim.server';
 import { editorConfigResponse, editorDocument } from './editor/config.server';
 import { runAlerts } from './domain/alerts/dispatch';
 import { staticAssetResponse } from './base/static-assets';
-import { setupStateResponse } from './base/setup-state';
+import { admitted, setupStateResponse } from './base/setup-state';
 import { lobbyResponse } from './base/lobby';
 import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
@@ -32,8 +32,8 @@ export default {
   const path = new URL(request.url).pathname;
   const asset = await staticAssetResponse(request, env); if (asset) return asset;
   const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
-  // The native owner keeps the workbench at /; every other visitor sees the same Lobby.
-  if (path === '/' && !await ownerSession(request, env)) {
+  // Admit the root before reading a native session; owners keep the workbench at /.
+  if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request, env))) {
    const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return lobby;
   }
   if (isDocsRequest(request)) return docsResponse(request);
