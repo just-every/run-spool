@@ -2585,7 +2585,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "c97d6a8fcd1d6f37dfaebc6604aeb6eab6b1aec5f77ea05f9c6e41e9254ebaa0",
+      "sha256": "e071d6e080151a546e859444a487942729c70c58251b4997dedc5da758291ad6",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -3089,7 +3089,7 @@
       "executable": false
     },
     "src/domain/capture.ts": {
-      "sha256": "4cee8014f707e3bb60726eb056d41d1dc846311d67663c11f57f021340f9d9c2",
+      "sha256": "b152774c2054618933dd0ec6ed8020d86728d2d1229a736acb43bfbb19c3ef31",
       "executable": false
     },
     "src/domain/credential-fence.ts": {
@@ -3117,7 +3117,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-capture.ts": {
-      "sha256": "a607e6cad59dd8341059d75f64601f4012acbff5976c27bb2f9afdf9637761ae",
+      "sha256": "2bdaeed32617c4f385f9de64f0f3f3688fe63e69d030a857b702da435d1b2f90",
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
@@ -3141,7 +3141,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-transfer.ts": {
-      "sha256": "3de789a8bf4e5b25b4c3a3114020c793eab4fbca9bf6173a9d7c227c8ea19806",
+      "sha256": "30e477a8898d1bddde7669d3861aeab51d71578c67bde84f80d854f128372a50",
       "executable": false
     },
     "src/domain/erasure/routes.ts": {
@@ -5377,7 +5377,7 @@
       "executable": false
     },
     "tests/owner-erasure-authority.mjs": {
-      "sha256": "d41c09e82171a0d0582b7becd90b3df8e50d2adf2dd1a8172b835b50310a71c7",
+      "sha256": "747a1e44b460d6c76b4e94a94f37ca13c6962c3b5f3828d82b7b773b4f87125e",
       "executable": false
     },
     "tests/owner-erasure-finalization.mjs": {
@@ -5393,7 +5393,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "6294e9198cad2ad3ed30f2982fafdbe35826716d3eed2a341b5ca9e68d5b743c",
+      "sha256": "7d49d56dc32a89e1a47e47e1e47df956e6e1473aa0bf1b9882696f6f3421ea62",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
@@ -5493,7 +5493,7 @@
       "executable": false
     },
     "tests/sdk-package.mjs": {
-      "sha256": "0c3a9e5078ed1b423e1aff368c35b1ec73922d026d35784cf0ecf08f01f0e2da",
+      "sha256": "ebc353f1ba8e312964f79eb2c7954b82bed40eebecf894a406cf8200d60363a5",
       "executable": false
     },
     "tests/sentry-http.mjs": {

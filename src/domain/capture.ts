@@ -69,12 +69,17 @@ export interface Dropped { outcome:'dropped'; reason:'client_cap'|'duplicate'; e
 interface TrackedError { place:string; error:Error; stack:string }
 // Overlong stacks are cut at a line boundary before they are split, parsed or retained, so their state stays bounded
 // while the error is still identified and sent. Frames come from the first 30 frame lines, which the cut keeps for any
-// ordinary stack. A first line too long to keep (a V8 header carrying a huge message) holds no frame and is skipped.
+// ordinary stack. A V8 stack carries the message (possibly many lines) before its first "at" line, and the message is
+// sent separately, so the cut starts at that line. Without one, a first line too long to keep holds no frame and is skipped.
 function boundedStack(stack:string) {
   if(stack.length<=locationStackChars)return stack;
-  const header=stack.indexOf('\n');
-  if(header<0)return '';
-  const start=header>locationStackChars?header+1:0;
+  const frame=stack.search(/^[ \t]*at\s/m);
+  let start=Math.max(frame,0);
+  if(frame<0){
+    const header=stack.indexOf('\n');
+    if(header<0)return '';
+    if(header>locationStackChars)start=header+1;
+  }
   if(stack.length-start<=locationStackChars)return stack.slice(start);
   const cut=stack.lastIndexOf('\n',start+locationStackChars);
   return cut>start?stack.slice(start,cut):'';

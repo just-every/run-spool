@@ -152,6 +152,15 @@ try {
   for (let attempt = 0; attempt < 100 && !closingSends.some(event => event.message === 'deep render failure'); attempt++) await wait(20);
   const deep = closingSends.find(event => event.message === 'deep render failure');
   assert.equal(deep?.frames[0].function, 'renderWithHooks0', 'an error with a long stack from a new location is sent with its top frame');
+  // A multi-line message over 8,192 characters (a ZodError) must not hide the frames behind it.
+  await closingPage.evaluate(() => {
+    const error = new Error(JSON.stringify(Array.from({ length: 200 }, (_, i) => ({ code: 'invalid_type', path: ['items', i] })), null, 2));
+    error.name = 'ZodError';
+    error.stack = `ZodError: ${error.message}\n    at parseItems (https://zod.example.test/app.js:42:7)\n    at run (https://zod.example.test/app.js:50:3)`;
+    dispatchEvent(new ErrorEvent('error', { error, message: 'zod failure' }));
+  });
+  for (let attempt = 0; attempt < 100 && !closingSends.some(event => event.frames?.[0]?.function === 'parseItems'); attempt++) await wait(20);
+  assert.ok(closingSends.some(event => event.frames?.[0]?.function === 'parseItems'), 'a long multi-line message from a new location is sent with its first frame');
   await closingPage.close();
 
   // Node: an uncaught exception is reported, then the process exits with code 1 as Node would.

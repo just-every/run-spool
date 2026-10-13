@@ -26,6 +26,11 @@ try {
  await app.json('/api/owner/erasure/successor',{email:'sucessor@spool.test',displayName:'Successor Person'},202);
  const next=await successor(app);
  assert.equal(await app.DB.prepare("SELECT 1 FROM oa_operators WHERE email='sucessor@spool.test'").first(),null,'replaced invitee is retired');
+ // An accepted successor the owner replaced can be named again; the second naming retires the replacement.
+ await app.json('/api/owner/erasure/successor',{email:'second@spool.test',displayName:'Second Person'},202);
+ await app.json('/api/owner/erasure/successor',{email:next.email,displayName:'Successor Person'},202);
+ next.cookie=await confirmLatest(app,next.email);
+ assert.equal(await app.DB.prepare("SELECT 1 FROM oa_operators WHERE email='second@spool.test'").first(),null,'second replaced invitee is retired');
  // Other people's independent native sessions and tokens survive unchanged.
  // The successor's invitation session is intentionally retired; their later
  // independent magic session remains stored but is fenced by the role change.

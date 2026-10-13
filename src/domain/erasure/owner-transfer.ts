@@ -19,7 +19,8 @@ export async function inviteSuccessor(request: Request, env: Bindings, session: 
  const email = input.email.trim().toLowerCase();
  if (email === session.operator.email) throw new AuthError('successor_must_differ', 409);
  const existing = await env.DB.prepare('SELECT id,status,role FROM oa_operators WHERE email=?').bind(email).first<any>();
- if (existing && (existing.status !== 'invited' || existing.role !== 'member')) throw new AuthError('successor_invitation_conflict', 409);
+ const reinvitable = existing?.status === 'inactive' && !!await env.DB.prepare('SELECT 1 FROM oa_invitation_cancellations WHERE operator_id=?').bind(existing.id).first();
+ if (existing && (existing.status !== 'invited' && !reinvitable || existing.role !== 'member')) throw new AuthError('successor_invitation_conflict', 409);
  await auth.invite(request, { ...input, email, role: 'member', returnTo: '/sign-in' });
  const successor = await env.DB.prepare('SELECT id FROM oa_operators WHERE email=?').bind(email).first<any>();
  const rates=await Promise.all(['bootstrap','magic','invite','step-up'].map(scope=>hashToken(env.SESSION_SECRET,'rate',`${scope}:email:${session.operator.email}`)));
@@ -28,7 +29,8 @@ export async function inviteSuccessor(request: Request, env: Bindings, session: 
  const now = Date.now();
  // Replacing the intent retires the earlier successor in the same fenced transaction: this owner's invitations to them
  // and their delivery mail are removed, and the invited operator is deleted, or deactivated if they had accepted, so a
- // mistyped or unanswered invitation never leaves invitation provenance that holds the owner's erasure.
+ // mistyped or unanswered invitation never leaves invitation provenance that holds the owner's erasure. A deactivated
+ // successor gets the native invitation-cancellation marker, so the owner can name them again and they confirm afresh.
  const earlier = `(SELECT successor_id FROM spool_owner_successor WHERE owner_id=?1 AND successor_id<>?2)`;
  const invites = `(SELECT id FROM oa_tokens WHERE kind='invite' AND issuer_id=?1 AND operator_id=${earlier})`;
  const retire = (sql: string) => env.DB.prepare(`${sql} AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=?3 AND o.id=?1 AND o.role='owner' AND o.status='active' AND o.version=?4 AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>?5)`)
@@ -37,6 +39,7 @@ export async function inviteSuccessor(request: Request, env: Bindings, session: 
   retire(`DELETE FROM rer_mail_development_outbox WHERE json_valid(message) AND json_extract(message,'$.deliveryId') IN ${invites}`),
   retire(`DELETE FROM oa_dev_credentials WHERE credential='oa_tokens' AND id IN ${invites}`),
   retire(`UPDATE oa_sessions SET source_token_id=NULL,revoked_at=coalesce(revoked_at,?5) WHERE source_token_id IN ${invites}`),
+  retire(`INSERT OR REPLACE INTO oa_invitation_cancellations(operator_id,operator_version) SELECT id,version+1 FROM oa_operators WHERE id=${earlier} AND status='active' AND role='member'`),
   retire(`UPDATE oa_operators SET status='inactive',version=version+1 WHERE id=${earlier} AND status='active' AND role='member'`),
   retire(`DELETE FROM oa_tokens WHERE id IN ${invites}`),
   retire(`DELETE FROM oa_invitation_cancellations WHERE operator_id=${earlier} AND EXISTS(SELECT 1 FROM oa_operators WHERE id=${earlier} AND status='invited')`),

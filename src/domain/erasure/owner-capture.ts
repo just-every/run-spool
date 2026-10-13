@@ -26,7 +26,7 @@ export async function ownerIdentifiers(db: D1Database, id: string) {
 // identifier ("Sam." or "Sam:", but not "Sample", nor an address that ends a longer address). One found inside a longer
 // token cannot be told apart from other people's text, so it holds the plan instead of being rewritten. Longer needles
 // go first, so a display name inside the owner's own address is erased with that address.
-const continuesBefore = /(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])$/u, continuesAfter = /^(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])/u;
+const continuesBefore = /(?:[\p{L}\p{M}\p{N}_]|[\p{L}\p{M}\p{N}_][.+@-])$/u, continuesAfter = /^(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])/u;
 function redactText(text: string, needles: string[]) {
  return [...needles].sort((a,b) => b.length-a.length).reduce((value, needle) => {
   for (let at = value.indexOf(needle); at >= 0; at = value.indexOf(needle, at + needle.length))
