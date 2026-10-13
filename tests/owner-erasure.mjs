@@ -22,7 +22,10 @@ try {
  let before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(sole))).status,409);
  assert.deepEqual(await snapshot(app),before,'sole owner refusal changes no data');
+ // A mistyped first invitation is retired when the owner invites the real successor, so it cannot hold erasure.
+ await app.json('/api/owner/erasure/successor',{email:'sucessor@spool.test',displayName:'Successor Person'},202);
  const next=await successor(app);
+ assert.equal(await app.DB.prepare("SELECT 1 FROM oa_operators WHERE email='sucessor@spool.test'").first(),null,'replaced invitee is retired');
  // Other people's independent native sessions and tokens survive unchanged.
  // The successor's invitation session is intentionally retired; their later
  // independent magic session remains stored but is fenced by the role change.

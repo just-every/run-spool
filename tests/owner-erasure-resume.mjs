@@ -45,8 +45,20 @@ export async function interruptedErasure() {
   app.cookie=await confirmLatest(app,next.email);
   const receipts=await app.json('/api/owner/erasure/receipts');assert.equal(receipts.length,1);assert.equal(receipts[0].id,interrupted.id);assert.equal(receipts[0].phase,'complete');
   const key=await app.json('/api/projects/resume-proof/keys',{kind:'agent'},201);assert.ok(key.key);
-  assert.equal((await app.call('/api/ingest/resume-proof',{}, {Authorization:'Bearer '+project.ingestKey})).status,401,'old project grant is retired');
-  const report={seededSessions:count,interruptedStep:interrupted.step,interruptedDeleted:deleted,completedStep:complete.step,completedDeleted:JSON.parse(complete.deleted),phase:complete.phase,lateCredentialInsert:'rejected',successorMint:'accepted'};
+  // The project's ingest key outlives its minter: deployed SDKs keep reporting and the key stays listed.
+  await app.json('/api/projects/resume-proof/releases',{name:'r1',build:'b1'},201);
+  const event=id=>({version:1,eventId:id,release:'r1',build:'b1',environment:'test',type:'Error',message:'checkout failed',frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run'}],breadcrumbs:[]});
+  assert.equal((await app.call('/api/ingest/resume-proof',event('after-handoff'),{Authorization:'Bearer '+project.ingestKey})).status,201,'pre-erasure ingest key still ingests');
+  assert.ok((await app.json('/api/projects/resume-proof/keys')).some(row=>row.kind==='ingest'&&!row.revoked),'pre-erasure ingest key is still listed');
+  assert.equal((await app.DB.prepare('SELECT count(*) n FROM credentials WHERE minted_by=?').bind(owner.id).first()).n,0,'no key keeps the erased owner as minter');
+  // A key minted before a later identity fence (the linked Auth install moves the version) can still be revoked.
+  const fenced=await app.json('/api/projects/resume-proof/keys',{kind:'ingest'},201);
+  await app.DB.prepare("UPDATE oa_operators SET version=version+1 WHERE email=?").bind(next.email).run();
+  assert.equal((await app.call('/auth/magic-link',{email:next.email})).status,202);
+  app.cookie=await confirmLatest(app,next.email);
+  assert.equal((await app.request('/api/projects/resume-proof/keys/'+fenced.hash,undefined,{},'DELETE')).status,200,'key minted before a fence is revocable');
+  assert.equal((await app.call('/api/ingest/resume-proof',event('after-revoke'),{Authorization:'Bearer '+fenced.key})).status,401,'revoked key no longer ingests');
+  const report={seededSessions:count,interruptedStep:interrupted.step,interruptedDeleted:deleted,completedStep:complete.step,completedDeleted:JSON.parse(complete.deleted),phase:complete.phase,lateCredentialInsert:'rejected',successorMint:'accepted',ingestKeyAfterErasure:'accepted',revokeAfterFence:'accepted'};
   console.log('Owner erasure resumption: '+JSON.stringify(report));return report;
  } finally {await app.close();}
 }

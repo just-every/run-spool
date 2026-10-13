@@ -22,8 +22,20 @@ export async function ownerIdentifiers(db: D1Database, id: string) {
  const remembered=(await db.prepare(`SELECT json_extract(s.row_json,'$.subject') AS subject FROM rer_erasure_scope s JOIN rer_erasure_operations o ON o.id=s.operation WHERE o.entity='installation-owner' AND json_extract(o.subject,'$.id')=? AND s.kind='graph' AND s.table_name='oa_external_identities'`).bind(id).all<any>()).results;
  return [...new Set([owner.id,owner.email,owner.display_name,...identities.map(row => row.subject),...remembered.map(row=>row.subject)].filter(Boolean))] as string[];
 }
+// An identifier is the owner's only as a whole token: the characters around it must not continue a word, address or
+// identifier ("Sam." or "Sam:", but not "Sample", nor an address that ends a longer address). One found inside a longer
+// token cannot be told apart from other people's text, so it holds the plan instead of being rewritten. Longer needles
+// go first, so a display name inside the owner's own address is erased with that address.
+const continuesBefore = /(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])$/u, continuesAfter = /^(?:[\p{L}\p{M}\p{N}_]|[.+@-][\p{L}\p{M}\p{N}_])/u;
+function redactText(text: string, needles: string[]) {
+ return [...needles].sort((a,b) => b.length-a.length).reduce((value, needle) => {
+  for (let at = value.indexOf(needle); at >= 0; at = value.indexOf(needle, at + needle.length))
+   if (continuesBefore.test(value.slice(Math.max(0,at-3),at)) || continuesAfter.test(value.slice(at+needle.length,at+needle.length+3))) throw new Error('identifier_inside_longer_token');
+  return value.replaceAll(needle, '[erased]');
+ }, text);
+}
 function replace(value: any, needles: string[]): any {
- if (typeof value === 'string') return needles.reduce((text, needle) => text.replaceAll(needle, '[erased]'), value);
+ if (typeof value === 'string') return redactText(value, needles);
  if (Array.isArray(value)) return value.map(item => replace(item, needles));
  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => {
   if (contains(key, needles)) throw new Error('identifier_in_structural_key');

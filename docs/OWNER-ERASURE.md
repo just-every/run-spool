@@ -8,7 +8,10 @@ a separate operation.
 1. Complete ordinary email sign-in (or native email step-up). Send
    `POST /api/owner/erasure/successor` with `email` and `displayName` for the real
    successor. This privately calls Base's member invitation primitive; general
-   invitations, role changes and second-owner creation remain closed.
+   invitations, role changes and second-owner creation remain closed. Inviting a
+   different successor retires the earlier one in the same transaction: this
+   owner's invitations to them are removed, and the invited operator is deleted
+   (or deactivated if they had accepted), so a mistyped address never holds erasure.
 2. The successor follows that ordinary one-use email invitation. They are an
    active member and have no owner management yet. The current owner remains
    the sole owner.
@@ -41,14 +44,17 @@ continues through the finalization phase until the receipt is complete.
 
 Relational deletion covers the predecessor's `oa_operators`, own tokens and
 sessions, external bindings, provider session data/pins, step-up challenges,
-credentials, invitation-cancellation state, development credential marks,
+agent and deploy keys, invitation-cancellation state, development credential marks,
 setup links, pending dependency approvals and their correlated auth outbox
 messages. Successor invitation provenance is retired and their pre-handoff
 session is invalidated; other people's invitation provenance causes a hold.
-Attributable project grants and legacy single-owner grants are deleted; other
-identified minters' rows remain. The additive credential attribution migration
-is required. A durable credential trigger rejects a delayed predecessor mint
-after erasure has completed. Competing writes are frozen during the resumable
+The predecessor's agent and deploy keys, and legacy unattributed ones, are
+deleted. Project ingest keys are project rows: they stay listed and keep
+ingesting, and only their minter attribution is cleared. The additive
+credential attribution migration is required. Migration 0030's durable
+credential trigger rejects a delayed predecessor mint after erasure has
+completed; afterwards an existing key may only be revoked, which works
+regardless of who minted it or any later identity fence. Competing writes are frozen during the resumable
 operation, and each Base batch owns its guard only within that transaction.
 
 Repair create/check/fact transactions also recheck the original session and
@@ -73,8 +79,13 @@ The supported captured values are exact known operator ID, email, display name
 and bound IdP subjects in project names, issue titles, event messages and
 breadcrumbs, map JSON values, diagnostic text, repair notes/links/checks,
 stored alert titles and development outbox JSON values. JSON is decoded before
-matching, so escaped strings are covered. Only matching values are replaced;
-other values in the same row, map or message stay intact. Map/event digests are
+matching, so escaped strings are covered. Identifiers match only as whole
+tokens: the characters around them must not continue a word, address or
+identifier, so "Sam" is replaced in "Sam: failed" but never inside "Sample".
+An identifier found only inside a longer token causes the
+`identifier_inside_longer_token` hold, because it cannot be told apart from
+other people's text. Only matching values are replaced; other values in the
+same row, map or message stay intact. Map/event digests are
 recomputed. A shared operator display name found in capture causes a hold.
 This is exact-identifier removal, not a claim that the schema can infer a person
 from prose, unknown aliases or an identical name belonging to an unregistered

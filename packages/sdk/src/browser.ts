@@ -20,8 +20,8 @@ let active: SpoolClient | undefined;
  * Install once: captures uncaught errors and unhandled promise rejections in this page. Each error location (type and
  * top frame) sends at most 30 at once, then one every 2 seconds; an error repeating one from the last 5 seconds is not
  * sent. Errors not sent settle through onOutcome as `dropped` (reason `client_cap` or `duplicate`); tracked locations
- * carry their missed count on the next send. Location tracking is bounded, so an unseen location at capacity or a
- * stack too large to identify safely still settles but is not attributed to another issue. It never throws:
+ * carry their missed count on the next send. Location tracking is bounded, so an unseen location at capacity still
+ * settles but is not attributed to another issue; a very long stack is cut at a line boundary and sent. It never throws:
  * with wrong options every capture settles as `rejected` with reason `invalid_options`.
  */
 export function init(options: SpoolOptions): SpoolClient {

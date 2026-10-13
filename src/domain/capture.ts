@@ -67,13 +67,23 @@ export interface Dropped { outcome:'dropped'; reason:'client_cap'|'duplicate'; e
 // Where an error happened: its type and top frame's file, function and line, as Spool groups an issue (the message is
 // excluded). Store only a fixed-size fingerprint: stacks and frame paths come from the page and can be arbitrarily long.
 interface TrackedError { place:string; error:Error; stack:string }
+// Overlong stacks are cut at a line boundary before they are split, parsed or retained, so their state stays bounded
+// while the error is still identified and sent. Frames come from the first 30 frame lines, which the cut keeps for any
+// ordinary stack. A first line too long to keep (a V8 header carrying a huge message) holds no frame and is skipped.
+function boundedStack(stack:string) {
+  if(stack.length<=locationStackChars)return stack;
+  const header=stack.indexOf('\n');
+  if(header<0)return '';
+  const start=header>locationStackChars?header+1:0;
+  if(stack.length-start<=locationStackChars)return stack.slice(start);
+  const cut=stack.lastIndexOf('\n',start+locationStackChars);
+  return cut>start?stack.slice(start,cut):'';
+}
 function location(error:Error):TrackedError|undefined {
   const typeValue=read(error,'name'),messageValue=read(error,'message'),stackValue=read(error,'stack');
   if(typeValue!==undefined&&typeValue!==null&&typeof typeValue!=='string'||messageValue!==undefined&&messageValue!==null&&typeof messageValue!=='string'||stackValue!==undefined&&stackValue!==null&&typeof stackValue!=='string')return undefined;
   const rawType=typeof typeValue==='string'?typeValue.slice(0,100):'',type=/^[\w.:-]+$/.test(rawType)?rawType:'Error';
-  const message=typeof messageValue==='string'?messageValue.slice(0,1000):'',stack=typeof stackValue==='string'?stackValue:'';
-  // Refuse overlong stacks before splitting/parsing them; their location cannot be retained safely in bounded state.
-  if(stack.length>locationStackChars)return undefined;
+  const message=typeof messageValue==='string'?messageValue.slice(0,1000):'',stack=boundedStack(typeof stackValue==='string'?stackValue:'');
   const top=frames(stack)[0];
   const place=!top?fingerprint([type,'','','']):fingerprint([type,normalizedFile(top.file),scrub(top.function),String(top.line)]);
   // Apply the same privacy normalization used by the event before keying, so equivalent issue locations share a cap.
@@ -89,10 +99,10 @@ function fingerprint(parts:string[]) {
   const finish=(value:number)=>{value^=value>>>16;value=Math.imul(value,0x7feb352d);value^=value>>>15;value=Math.imul(value,0x846ca68b);value^=value>>>16;return(value>>>0).toString(16).padStart(8,'0')};
   return finish(a)+finish(b)+finish(c)+finish(d);
 }
-// Held errors are snapshots rather than references to page-owned Error objects. Keep their stack verbatim so a delayed
-// send keeps the same normalized issue location; refuse stacks too large to retain within a fixed per-error bound.
+// Held errors are snapshots rather than references to page-owned Error objects. Keep their bounded stack so a delayed
+// send keeps the same normalized issue location.
 function heldError(tracked:TrackedError):Error|undefined {
-  if(tracked.stack.length>locationStackChars||!frames(tracked.stack).length)return undefined;
+  if(!frames(tracked.stack).length)return undefined;
   return tracked.error;
 }
 // A page error that repeats one captured in the last few seconds (same location and message) is dropped as a duplicate;

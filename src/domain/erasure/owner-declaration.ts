@@ -6,7 +6,8 @@ import { importCustodyRoots, unsupportedOwnerSurface } from './owner-scope';
 const child = (table: string, column = 'operator_id') => ({table,from:'oa_operators',on:{[column]:'id'}});
 const sessionChild = (table: string) => ({table,from:'oa_sessions',on:{session_id:'id'}});
 export const ownerExceptions = [
- 'Exact known self identifiers are removed from supported native text and JSON values. Unknown aliases and future captures are outside this operation.',
+ 'Exact known self identifiers are removed from supported native text and JSON values where they stand as whole tokens; one found only inside a longer word or address causes a hold. Unknown aliases and future captures are outside this operation.',
+ 'Project ingest keys keep working; only their record of who minted them is cleared. Agent and deploy keys minted by the owner are deleted.',
  'Structural identifiers and shared import custody cause a refusal; no co-located records are discarded to hide those limits.',
  'Installation claim markers remain retired and cannot bootstrap another owner. The verified successor becomes the sole owner.',
  'Downloaded archives, delivered mail, provider records, configuration secrets, D1 Time Travel and external backups must be removed separately.',
@@ -24,7 +25,8 @@ export async function ownerDeclaration(db: D1Database) {
   ...['oa_provider_sessions','oa_provider_session_pins'].map(sessionChild),
   child('oa_setup_links','owner_id'),child('rer_dependency_pending','approved_by'),child('spool_owner_successor','owner_id'),
   {table:'oa_limits',from:'spool_owner_successor',where:'key IN (SELECT value FROM json_each(?))',params:['rate_keys']},
-  {table:'credentials',from:'oa_operators',where:attributed?'minted_by=? OR minted_by IS NULL':'? IS NOT NULL',params:['id']},
+  // Agent and deploy keys are personal; ingest keys are project rows that keep every deployed SDK reporting.
+  {table:'credentials',from:'oa_operators',where:attributed?"kind IN ('agent','deploy') AND (minted_by=? OR minted_by IS NULL)":"kind IN ('agent','deploy') AND ? IS NOT NULL",params:['id']},
   {table:'oa_dev_credentials',from:'credentials',where:"credential='credentials' AND id=?",params:['hash']},
   {table:'sessions',from:'oa_operators',where:'? IS NOT NULL',params:['id']},
   {table:'oa_dev_credentials',from:'oa_tokens',where:"credential='oa_tokens' AND id=?",params:['id']},
@@ -58,6 +60,7 @@ export async function ownerDeclaration(db: D1Database) {
    guard(db,`(SELECT count(*) FROM oa_operators WHERE role='owner' AND status='active')=1 AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.role='owner' AND o.status='active' AND o.version=? AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER))`,intent.session_id,subject.id,intent.owner_version),
    guard(db,`EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=? AND o.version=? AND o.status='active' AND o.role='member' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.id=? AND s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) AND s.operator_version=o.version))`,intent.successor_id,intent.successor_version,intent.successor_session),
    ...captureStatements(db,captured.changes),...await transfer.redactionStatements(),
+   db.prepare("UPDATE credentials SET minted_by=NULL,minted_version=NULL WHERE kind='ingest' AND minted_by=?").bind(subject.id),
    db.prepare("UPDATE oa_operators SET role='owner' WHERE id=?").bind(intent.successor_id),
    db.prepare("UPDATE oa_operators SET role='member',status='inactive' WHERE id=?").bind(subject.id),
    db.prepare(`UPDATE oc_idp_grants SET subject='',jti=lower(hex(randomblob(16))),sector_id='' WHERE EXISTS(SELECT 1 FROM oa_external_identities e WHERE e.operator_id=? AND e.issuer=oc_idp_grants.issuer AND e.subject=oc_idp_grants.subject)`).bind(subject.id),
@@ -65,7 +68,8 @@ export async function ownerDeclaration(db: D1Database) {
  },
  statements:async ({db,subject}: any) => {
   const needles=await ownerIdentifiers(db,subject.id);
-  // Also test JSON-decoded leaves: escaped Unicode must not evade completion.
+  // Also test JSON-decoded leaves: escaped Unicode must not evade completion. Under the plan's token rule every
+  // whole-token occurrence is redacted and any other occurrence holds the plan, so none may remain at all.
   return [...importCustodyRoots.map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)})`)),...Object.entries(ownerCaptureColumns).flatMap(([table,columns])=>columns.map(column=>guard(db,
    `NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)} r WHERE EXISTS(SELECT 1 FROM json_each(?) n WHERE instr(CAST(r.${sqlQuote(column)} AS TEXT),n.value)>0 OR EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(r.${sqlQuote(column)}) THEN r.${sqlQuote(column)} ELSE 'null' END) j WHERE typeof(j.atom)='text' AND instr(j.atom,n.value)>0)))`,JSON.stringify(needles))))];
  },

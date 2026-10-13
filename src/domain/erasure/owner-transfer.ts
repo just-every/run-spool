@@ -25,10 +25,28 @@ export async function inviteSuccessor(request: Request, env: Bindings, session: 
  const rates=await Promise.all(['bootstrap','magic','invite','step-up'].map(scope=>hashToken(env.SESSION_SECRET,'rate',`${scope}:email:${session.operator.email}`)));
  // Native invitation is already fenced on the owner session. This second
 // fence prevents a raced revocation from publishing a transfer intention.
- const result = await env.DB.prepare(`INSERT INTO spool_owner_successor(owner_id,successor_id,session_id,owner_version,rate_keys)
+ const now = Date.now();
+ // Replacing the intent retires the earlier successor in the same fenced transaction: this owner's invitations to them
+ // and their delivery mail are removed, and the invited operator is deleted, or deactivated if they had accepted, so a
+ // mistyped or unanswered invitation never leaves invitation provenance that holds the owner's erasure.
+ const earlier = `(SELECT successor_id FROM spool_owner_successor WHERE owner_id=?1 AND successor_id<>?2)`;
+ const invites = `(SELECT id FROM oa_tokens WHERE kind='invite' AND issuer_id=?1 AND operator_id=${earlier})`;
+ const retire = (sql: string) => env.DB.prepare(`${sql} AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=?3 AND o.id=?1 AND o.role='owner' AND o.status='active' AND o.version=?4 AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>?5)`)
+  .bind(session.operator.id,successor.id,session.id,session.operator.version,now);
+ const results = await env.DB.batch([
+  retire(`DELETE FROM rer_mail_development_outbox WHERE json_valid(message) AND json_extract(message,'$.deliveryId') IN ${invites}`),
+  retire(`DELETE FROM oa_dev_credentials WHERE credential='oa_tokens' AND id IN ${invites}`),
+  retire(`UPDATE oa_sessions SET source_token_id=NULL,revoked_at=coalesce(revoked_at,?5) WHERE source_token_id IN ${invites}`),
+  retire(`UPDATE oa_operators SET status='inactive',version=version+1 WHERE id=${earlier} AND status='active' AND role='member'`),
+  retire(`DELETE FROM oa_tokens WHERE id IN ${invites}`),
+  retire(`DELETE FROM oa_invitation_cancellations WHERE operator_id=${earlier} AND EXISTS(SELECT 1 FROM oa_operators WHERE id=${earlier} AND status='invited')`),
+  retire(`DELETE FROM oa_operators WHERE id=${earlier} AND status='invited' AND role='member' AND NOT EXISTS(SELECT 1 FROM oa_tokens WHERE operator_id=oa_operators.id)`),
+  env.DB.prepare(`INSERT INTO spool_owner_successor(owner_id,successor_id,session_id,owner_version,rate_keys)
  SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.role='owner' AND o.status='active' AND o.version=? AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>?)
  ON CONFLICT(owner_id) DO UPDATE SET successor_id=excluded.successor_id,session_id=excluded.session_id,owner_version=excluded.owner_version,rate_keys=excluded.rate_keys`)
- .bind(session.operator.id,successor.id,session.id,session.operator.version,JSON.stringify(rates),session.id,session.operator.id,session.operator.version,Date.now()).run();
+ .bind(session.operator.id,successor.id,session.id,session.operator.version,JSON.stringify(rates),session.id,session.operator.id,session.operator.version,now),
+ ]);
+ const result = results.at(-1)!;
  if (!result.meta.changes) throw new AuthError('authority_changed', 409);
  return { status: 'invited' };
 }

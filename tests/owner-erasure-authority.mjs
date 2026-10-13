@@ -61,6 +61,8 @@ export async function heldScopes(app,otherId) {
  const owner=await app.DB.prepare("SELECT * FROM oa_operators WHERE role='owner'").first();
  const cases=[
   {hold:'identifier_in_structural_key',plant:()=>app.json('/api/projects',{id:owner.id,name:'Unrelated project label'},201),clear:()=>app.DB.batch([app.DB.prepare('DELETE FROM audit WHERE project=?').bind(owner.id),app.DB.prepare('DELETE FROM credentials WHERE project=?').bind(owner.id),app.DB.prepare('DELETE FROM projects WHERE id=?').bind(owner.id)])},
+  // "Test ownership" holds the owner's display name only inside a longer word: held, and the text stays intact.
+  {hold:'identifier_inside_longer_token',plant:()=>app.json('/api/projects',{id:'longer-token',name:'Test ownership dashboard'},201),clear:()=>app.DB.batch([app.DB.prepare('DELETE FROM audit WHERE project=?').bind('longer-token'),app.DB.prepare('DELETE FROM credentials WHERE project=?').bind('longer-token'),app.DB.prepare('DELETE FROM projects WHERE id=?').bind('longer-token')])},
   {hold:'ambiguous_display_name',plant:()=>app.DB.prepare('UPDATE oa_operators SET display_name=? WHERE id=?').bind(owner.display_name,otherId).run(),clear:()=>app.DB.prepare('UPDATE oa_operators SET display_name=? WHERE id=?').bind('Quinn Otherperson',otherId).run()},
   {hold:'ambiguous_identity_attribution',plant:()=>app.DB.prepare('UPDATE oa_operators SET email=? WHERE id=?').bind('prefix-'+owner.email,otherId).run(),clear:()=>app.DB.prepare('UPDATE oa_operators SET email=? WHERE id=?').bind('quinn@spool.test',otherId).run()},
  ];

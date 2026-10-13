@@ -143,6 +143,15 @@ try {
   await wait(2200);
   assert.equal(closingSends.length, sendsAfterReinit, 'the retired client sends no delayed error after close and re-init');
   assert.ok(!closingSends.some(event => event.message === closingBurst.heldMessage), 'the held error from the closed client is not sent');
+  // A long stack (Safari keeps 100 frames, Firefox 128) from a new location is cut at a line boundary and sent, not dropped.
+  await closingPage.evaluate(() => {
+    const error = new TypeError('deep render failure');
+    error.stack = Array.from({ length: 100 }, (_, i) => `renderWithHooks${i}@https://deep.example.test/_next/static/chunks/framework-0123456789abcdef.js:1:${10000 + i}`).join('\n');
+    dispatchEvent(new ErrorEvent('error', { error, message: error.message }));
+  });
+  for (let attempt = 0; attempt < 100 && !closingSends.some(event => event.message === 'deep render failure'); attempt++) await wait(20);
+  const deep = closingSends.find(event => event.message === 'deep render failure');
+  assert.equal(deep?.frames[0].function, 'renderWithHooks0', 'an error with a long stack from a new location is sent with its top frame');
   await closingPage.close();
 
   // Node: an uncaught exception is reported, then the process exits with code 1 as Node would.

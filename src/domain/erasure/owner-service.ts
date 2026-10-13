@@ -12,6 +12,7 @@ export function ownerHoldMessage(code: string | null) {
   shared_import_custody:'Shared import originals and immutable importer attribution cannot yet be selectively erased without removing other people’s data. Nothing was erased.',
   credential_authority_migration_required:'Apply the credential authority migration before owner erasure.',
   ambiguous_display_name:'The same captured name belongs to another operator; selective erasure needs unambiguous attribution.',
+  identifier_inside_longer_token:'Captured text contains your name, email or ID only inside a longer word or address, which may be someone else’s. Nothing was erased.',
   shared_invitation_provenance:'Other people still have invitation provenance tied to this owner. Selective retirement is required before erasure.',
   domain_creator_attribution:'Domain policy retains this owner’s creator attribution. A supported policy transfer is required first.',
   plan_changed:'The data or successor authority changed. Read a fresh preview and confirm that plan.',
@@ -40,12 +41,6 @@ export async function eraseOwner(db: D1Database,session: any,input: any,until: n
  const preview=await ownerPreview(db,session.operator.id);
  if(preview.public.planHash!==input.planHash)throw new ErasureError('plan_changed',409);
  if(preview.public.hold)throw new ErasureError('held:'+preview.public.hold,409);
- // Install only once the additive attribution schema is present. This guard
- // survives completion and rejects a predecessor request paused before erasure
- // that resumes its INSERT after the temporary write freeze has ended.
- for(const action of ['INSERT','UPDATE'])await db.prepare(`CREATE TRIGGER IF NOT EXISTS spool_erased_owner_credential_${action.toLowerCase()} BEFORE ${action} ON credentials
- WHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner') AND NOT EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=NEW.minted_by AND o.version=NEW.minted_version AND o.status='active' AND o.role='owner')
- BEGIN SELECT RAISE(ABORT,'credential_authority_changed'); END`).run();
  // Correlated email rate digests are removed; IP aggregates have no identity
  // association and remain. Persist the digest keys in the ordinary erasure
  // graph via a temporary correlation, never as raw email in a receipt.
