@@ -8,7 +8,7 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 
 ## Run it on your computer
 
-Clone the source with `git clone https://github.com/just-every/run-spool.git` and `cd run-spool`. Select **Node 22.20.0** and **pnpm 10.12.4**. The public command order is:
+Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Select **Node 22.20.0** and **pnpm 10.12.4**. The public command order is:
 
 ```sh
 pnpm install

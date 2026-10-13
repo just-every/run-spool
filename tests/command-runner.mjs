@@ -1,14 +1,19 @@
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
-import {mkdtemp,rm} from 'node:fs/promises';
+import {mkdtemp,readFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {boundedCleanup,journeyDiagnostics,classifyCommandOutput} from './command-diagnostics.mjs';
 import {resourceRefusalFamily,waitForServerResources} from './command-resources.mjs';
 import {outboxFetch} from './auth.mjs';
 import {commandCustody} from '@runeditrun/rer/internal/onboarding/command-custody.mjs';
 import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '@runeditrun/rer/process-scope';
 
+// Use the installed consumer bin: its launcher installs the checkout's pin
+// with the frozen lockfile before checking a fresh, dependency-free clone.
+const rerPackage=new URL(import.meta.resolve('@runeditrun/rer/package.json'));
+const rerBin=fileURLToPath(new URL(JSON.parse(await readFile(rerPackage,'utf8')).bin.rer,rerPackage));
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const validPid=pid=>Number.isSafeInteger(pid)&&pid>1;
 function signalGroup(item,signal){
@@ -61,7 +66,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
   const baseline=await createProcessBaseline();
   function start(args,diagnostic=diagnostics.started(args[0])){
    const scope=createProcessScope(baseline);let child;
-   try{child=spawn(process.execPath,[new URL(import.meta.resolve('@runeditrun/rer/internal/global/rer.mjs')).pathname,...args,...(args[0]==='dev'&&!args.includes('--stop')?['--foreground']:[]),'--cwd',root,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
+   try{child=spawn(process.execPath,[rerBin,...args,'--cwd',root,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
    diagnostic.spawned=true;
    let output='';const item={child,settled:false,spawnError:null,custody:commandCustody(child,scope)};owned.add(item);
    const capture=b=>{output=(output+b).slice(-100000);Object.assign(diagnostic,classifyCommandOutput(output,args[0]));};
