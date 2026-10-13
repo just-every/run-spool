@@ -1,13 +1,14 @@
 # Run it locally
 
-Use Node 22.20.0 and pnpm 10.12.4 for maintained first-party checkouts. From a
+Use Node 22 or later, git and public rer (`npm install -g @runeditrun/rer`).
+rer supplies Node 22.20.0 and pnpm 10.12.4 for this checkout. From a
 runnable edition's root, install locked dependencies, prepare its local owner,
 then start development:
 
 ```sh
-node scripts/rer.mjs install
-node scripts/rer.mjs setup --owner-email you@example.com
-node scripts/rer.mjs dev
+rer install
+rer setup
+rer dev
 ```
 
 Commands that run project work select the exact Node version declared by the
@@ -47,7 +48,7 @@ ports in one browser each keep their own sign-in.
 A first `setup` without `--port` saves the first free port from 8787 and prints
 it in one line; it never saves a port another process listens on, on any
 address. To move a checkout whose saved port is held by another checkout (or
-by nothing), run `node scripts/rer.mjs setup --port N` in it: only the saved
+by nothing), run `rer setup --port N` in it: only the saved
 port changes, its data is kept, no reset is needed, and setup prints the old
 and new port. A refusal for a busy port names the process or checkout that
 holds it and gives that exact command with a free port.
@@ -65,7 +66,7 @@ below their own floor, described next.
 
 Missing non-interactive setup answers exit 3 and name the manifest fields.
 Read `rer-setup.json` and pass a private, mode-0600 JSON object keyed by those
-names using `node scripts/rer.mjs setup --answers PATH --non-interactive`,
+names using `rer setup --answers PATH --non-interactive`,
 for example `{"OWNER_EMAIL":"owner@example.com"}`. Secret values stay in
 private inputs and never go in command arguments. A setup rerun with the saved
 owner and origin preserves existing owner/data and exact private settings.
@@ -99,8 +100,8 @@ external email is sent. A successful sign-in consumes the link once. Seeds
 without dev identity print only `RER_SIGN_IN URL` for the local outbox.
 
 Dev and preview are managed foreground servers. The first invocation stays
-active while serving. Use `node scripts/rer.mjs dev --stop` or
-`node scripts/rer.mjs preview --stop` to stop them; `--idle-timeout SECONDS`
+active while serving. Use `rer dev --stop` or
+`rer preview --stop` to stop them; `--idle-timeout SECONDS`
 sets inactivity cleanup. Compatible repeated starts reuse the registered
 server, print readiness and exit. Preview serves fixed production output; dev
 serves live source edits.
@@ -139,12 +140,12 @@ path served by the app. Import requires an empty destination and `--yes`
 confirms the restore.
 
 ```sh
-node scripts/rer.mjs verify
-node scripts/rer.mjs reset --yes
-node scripts/rer.mjs export --output exports/installation.rer
-node scripts/rer.mjs import --input exports/installation.rer --yes
-node scripts/rer.mjs deploy
-node scripts/rer.mjs describe
+rer verify
+rer reset --yes
+rer export --target local --output exports/installation.rer
+rer import --target local --input exports/installation.rer --yes
+rer deploy
+rer describe
 ```
 
 ## Send your first error
@@ -185,12 +186,12 @@ outbox, private settings and transient runtime state are excluded. Remote
 transfer is unsupported by the maintained references and fails visibly.
 
 Real deployment uses the owner-account procedure and its private credentials.
-`node scripts/rer.mjs deploy --dry-run` validates and builds locally without a
+`rer deploy --dry-run` validates and builds locally without a
 provider request. The default environment is `production`; select another with
 `--environment NAME`. Local validation does not establish provider acceptance,
 hosted health or mail delivery.
 
-`node scripts/rer.mjs describe` reads the current checkout's actual verbs,
+`rer describe` reads the current checkout's actual verbs,
 flags, aliases, pins, effects and local state without installing or running
 project commands. New verbs accept `--help`, `--cwd PATH`, `--non-interactive`
 and `--json`. Setup also accepts `--owner-name`, `--port`, `--host` and a
@@ -200,20 +201,7 @@ export/import accept their target, file and restore options. `check` accepts
 `--profile first-party`. Heavy commands accept `--no-queue` only when the
 original caller has `CI=true`. Release retains its own compatibility flags.
 
-The package-script aliases remain available from the same runnable root:
-
-```sh
-pnpm run deps
-pnpm run setup
-pnpm run dev
-```
-
-`deps` dispatches to `rer install`; forwarded flags follow `--`.
-
-Package aliases, when used, take the form `pnpm run VERB -- FLAGS`; use
-`pnpm run deploy -- --dry-run` because `pnpm deploy` is a different built-in
-command. `pnpm install --frozen-lockfile` is the equivalent dependency action
-to `node scripts/rer.mjs install`.
+Use the installed public `rer` for lifecycle commands; no pnpm on PATH is required.
 
 Local durable state is `.wrangler/state`; CLI bookkeeping is `.rer/local`,
 installer state is `.seed/installer`, and the default private settings file is

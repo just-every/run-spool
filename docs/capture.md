@@ -53,7 +53,7 @@ Each bundle needs its `.map` next to it. Both register the release, mark each bu
 
 ## Keys for anything outside this checkout
 
-While Spool runs as `pnpm run dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that your application can use, start Spool with `pnpm run dev -- --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
+While Spool runs as `rer dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that your application can use, start Spool with `rer dev --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
 
 ## 4. Check it works
 

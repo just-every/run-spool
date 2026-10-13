@@ -12,7 +12,7 @@ An agent key works for one project only. Revoke it from **Settings** whenever yo
 
 ## Keys for anything outside this checkout
 
-While Spool runs as `pnpm run dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that an agent outside this checkout can use, start Spool with `pnpm run dev -- --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
+While Spool runs as `rer dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that an agent outside this checkout can use, start Spool with `rer dev --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
 
 ## What the agent can read
 
