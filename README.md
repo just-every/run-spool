@@ -1,3 +1,15 @@
+<p align="center">
+  <a href="https://run-spool.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-dark.webp">
+      <source media="(prefers-color-scheme: light)" srcset=".github/assets/banner-light.webp">
+      <img src=".github/assets/banner-light.webp" width="100%" alt="Spool: See exactly what broke. 100% free, open source alternative to Sentry, Bugsnag and Rollbar.">
+    </picture>
+  </a>
+</p>
+
+<p align="center"><a href="https://run-spool.com">run-spool.com</a> · <a href="https://justevery.com">Part of Just Every</a> · <a href="LICENSE">MIT licensed</a></p>
+
 # Spool · JavaScript evidence workbench
 
 Spool is a local-first, single-owner workbench for bounded JavaScript exception evidence across project-scoped applications. It stores sanitized events in D1 and supports issue grouping, release/build identity, source-map lookup, triage, scoped read-only evidence grants, private archive/restore, and explicit retention.
