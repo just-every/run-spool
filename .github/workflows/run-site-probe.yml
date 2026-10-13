@@ -50,8 +50,9 @@ jobs:
               if (optional) return;
               throw new ProbeFailure(`${label}: invalid JSON`);
             }
-            const valid = body?.success === true && Array.isArray(body.errors) &&
-              body.errors.length === 0 && Object.hasOwn(body, 'result');
+            const valid = body?.success === true &&
+              (body.errors === null || Array.isArray(body.errors) && body.errors.length === 0) &&
+              Object.hasOwn(body, 'result');
             if (!valid) {
               // Fixed field names, types and array lengths only; never log provider values.
               const shape = value => value === null ? 'null' :
