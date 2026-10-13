@@ -24,7 +24,8 @@ const useCheckoutKey=async()=>{gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await get('.
 const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  diagnostics.stage('contract');
  assert.equal(await exists('node_modules'),false);assert.equal(await exists('.dev.vars'),false);
- await command(['check','--profile','first-party']);
+ // The public package launcher installs the declared pin before structural check.
+ await command(['check','--profile','first-party']);assert.equal(await exists('node_modules'),true);
  const packageText=await get('package.json'),pkg=JSON.parse(packageText);delete pkg.scripts.preview;await put('package.json',JSON.stringify(pkg));assert.notEqual((await command(['check','--profile','first-party'],null)).code,0);await put('package.json',packageText);
  diagnostics.stage('legacy-state');
  await mkdir(resolve(root,'.wrangler/reference'),{recursive:true});await put('.wrangler/reference/preserve.txt','legacy-state-fixture');
