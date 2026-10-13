@@ -3,9 +3,10 @@ const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)pr
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
+import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
-import {authBindings,signIn,testDevKey} from './auth.mjs';
+import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
 
 // Credentials minted while signed in with a dev session count only behind the local key gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -23,8 +24,17 @@ const documentStub={name:'document-stub',setup(build){
 }};
 const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
 
+// The linked Auth install's published key, the only network edge: a loopback JWKS.
+const {publicKey,privateKey}=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+const {kty,crv,x,y}=await crypto.subtle.exportKey('jwk',publicKey),authKey={kty,crv,x,y,kid:'auth-key-1',alg:'ES256',use:'sig'};
+const jwks=createServer((request,response)=>{response.writeHead(200,{'content-type':'application/json'});response.end(JSON.stringify({keys:[authKey]}));});
+await new Promise(ready=>jwks.listen(0,'127.0.0.1',ready));
+const issuer=`http://127.0.0.1:${jwks.address().port}`;
+const part=value=>Buffer.from(JSON.stringify(value)).toString('base64url');
+const signed=async(header,claims)=>{const input=part(header)+'.'+part(claims);return input+'.'+Buffer.from(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},privateKey,new TextEncoder().encode(input))).toString('base64url');};
+
 const port=15471,origin=`http://127.0.0.1:${port}`,directory=await mkdtemp(resolve(tmpdir(),'spool-dev-credentials-'));
-const worker=(name,script)=>({name,modules:true,script,compatibilityDate:'2026-09-08',compatibilityFlags:['nodejs_compat'],d1Databases:{DB:'spool-dev-credentials'},bindings:authBindings(origin)});
+const worker=(name,script)=>({name,modules:true,script,compatibilityDate:'2026-09-08',compatibilityFlags:['nodejs_compat'],d1Databases:{DB:'spool-dev-credentials'},bindings:{...authBindings(origin),IDENTITY_PROVIDER:issuer}});
 const mf=new Miniflare(convertV4MiniflareOptions({host:'127.0.0.1',port,defaultPersistRoot:directory,workers:[worker('local',await bundle('src/server.dev.ts')),worker('deployed',await bundle('src/server.ts'))]}));
 try{
  await mf.ready;
@@ -72,7 +82,25 @@ try{
   assert.equal(await status(await probe(remote,true)),401,`a dev-minted ${name} is refused by the deployed entry`);
  }
  assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),401,'every dev-minted ingest key is refused without the key');
- console.log('Spool dev credentials: ordinary keys unchanged; every dev-minted ingest, agent and deploy key works only behind the key and never in the deployed entry.');
+ // A fence from the linked Auth install ends the owner's session and fences every agent and deploy key a session of
+ // theirs minted; signing in again brings none back, and keys minted after the fence work. (Link and binding rows are
+ // what a completed link and an Auth sign-in leave.)
+ const owner=await db.prepare('SELECT id FROM oa_operators WHERE email=?').bind(testOwner).first();
+ await db.prepare('INSERT INTO rer_dependency_link(interface,issuer,client_id,metadata,needs_relink,linked_at) VALUES(?,?,?,?,0,?)').bind('oidc-provider@1',issuer,'spool-client',JSON.stringify({algorithms:['ES256'],jwks:issuer+'/jwks'}),Date.now()).run();
+ await db.prepare('INSERT INTO oa_external_identities(issuer,subject,operator_id) VALUES(?,?,?)').bind(issuer,'pairwise-owner',owner.id).run();
+ const ordinaryDeploy=await minted(ordinary,'deploy');
+ const release=bearer=>local('/api/projects/web/releases',{method:'POST',bearer,body:{name:'r'+Math.random().toString(36).slice(2,8),build:'b'}});
+ const keys=async(agentKey,deployKey)=>[await status(await local('/api/projects/web/issues',{bearer:agentKey})),await status(await release(deployKey))];
+ assert.deepEqual(await keys(ordinaryAgent,ordinaryDeploy),[200,201]);
+ const now=Math.floor(Date.now()/1000);
+ const fence=await signed({alg:'ES256',kid:authKey.kid,typ:'logout+jwt'},{iss:issuer,aud:'spool-client',sub:'pairwise-owner',iat:now,exp:now+120,jti:crypto.randomUUID(),events:{'https://runeditrun.com/events/identity-fence':{}}});
+ assert.equal(await status(await fetch(origin+'/auth/oidc/auth/logout',{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({logout_token:fence})})),204);
+ assert.equal(await status(await local('/api/projects',{cookie:ordinary})),401,'the fenced session ends');
+ assert.deepEqual(await keys(ordinaryAgent,ordinaryDeploy),[401,401],'the agent and deploy keys it minted are fenced');
+ const again=await signIn(origin,{bootstrap:false});
+ assert.deepEqual(await keys(ordinaryAgent,ordinaryDeploy),[401,401],'signing in again restores none of them');
+ assert.deepEqual(await keys(await minted(again,'agent'),await minted(again,'deploy')),[200,201],'keys minted after the fence work');
+ console.log('Spool dev credentials: ordinary keys unchanged; every dev-minted ingest, agent and deploy key works only behind the key and never in the deployed entry; a fence ends the agent and deploy keys its person minted.');
 }finally{
- await mf.dispose();await rm(directory,{recursive:true,force:true});
+ await mf.dispose();await rm(directory,{recursive:true,force:true});jwks.close();
 }

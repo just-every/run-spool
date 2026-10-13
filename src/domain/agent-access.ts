@@ -1,11 +1,12 @@
 import { hash } from './privacy';
 import { mintAdmission } from './dev-credentials';
+import { mintedByCurrentPerson } from './credential-fence';
 
-/** Only a current, admitted bearer counts; query parameters are never credentials. */
+/** Only a current, admitted bearer whose minting person is unfenced counts; query parameters are never credentials. */
 export async function agentProject(request: Request, db: D1Database): Promise<string | null> {
  const bearer = /^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization') ?? '')?.[1];
  if (!bearer) return null;
- const grant = await db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${await mintAdmission(request)}`).bind(await hash(bearer)).first<{ project: string }>();
+ const grant = await db.prepare(`SELECT project FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(request)}`).bind(await hash(bearer)).first<{ project: string }>();
  return grant?.project ?? null;
 }
 
