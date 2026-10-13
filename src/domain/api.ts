@@ -26,11 +26,12 @@ import { deniedResponse } from './denied-response';
 import { alertProjection, issueProjection, outcomeProjection } from './agent-projection';
 import { issuePacket } from './packet';
 
-const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null}}>();
+const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null}}>();
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function body(c:any,limit=32768) { const declared=Number(c.req.header('content-length')??0); if(declared>limit) throw new Error('Body exceeds limit'); const reader=c.req.raw.body?.getReader();if(!reader)throw new Error('Missing body');let size=0,chunks:Uint8Array[]=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();throw new Error('Body exceeds limit')}chunks.push(value)}const bytes=new Uint8Array(size);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}return JSON.parse(new TextDecoder().decode(bytes)) }
 const record=(db:D1Database,project:string,reason:string)=>stmt(db,'INSERT INTO outcomes VALUES(?,?,?,1) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+1',project,Math.floor(now()/60000)*60000,reason).run();
+const mintCredential=(c:any,keyHash:string,project:string,kind:string)=>{const minter=c.get('minter');return stmt(c.env.DB,'INSERT INTO credentials(hash,project,kind,created,revoked,minted_by,minted_version) VALUES(?,?,?,?,NULL,?,?)',keyHash,project,kind,now(),minter?.id??null,minter?.version??null)};
 const audit=(db:D1Database,project:string|null,kind:string,detail:any)=>stmt(db,'INSERT INTO audit VALUES(?,?,?,?,?)',crypto.randomUUID(),project,kind,JSON.stringify(detail),now());
 api.use('*',async(c,next)=>{c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
   const grant=await agentProject(c.req.raw,c.env.DB);
@@ -70,19 +71,21 @@ api.route('/api/erasures',erasureReceiptRoutes);
 api.use('/api',async(c,next)=>{if(!await ownerSession(c.req.raw,c.env))return c.json({error:'Sign in required'},401);await next()});
 api.use('/api/*',async(c,next)=>{
   if(c.req.path.startsWith('/api/ingest/'))return next();
-  if(c.get('project')){c.set('owner',false);c.set('dev',false);return next()}
+  if(c.get('project')){c.set('owner',false);c.set('dev',false);c.set('minter',null);return next()}
   const session=await ownerSession(c.req.raw,c.env);
   c.set('owner',!!session);c.set('dev',session?.kind==='dev');
+  // Keys minted here record this person and their identity fence (credential-fence.ts).
+  c.set('minter',session?{id:session.operator.id,version:session.operator.version}:null);
   if(session){if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);return next()}
   return c.json({error:'Sign in required'},401);
 });
 api.route('/api/projects/:project/alerting',alertRoutes);
 api.route('/api/projects/:project/repairs',repairRoutes);
 api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
-api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await c.env.DB.batch([stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),stmt(c.env.DB,'INSERT INTO credentials VALUES(?,?,?,?,NULL)',await hash(key),id,'ingest',now()),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
+api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await c.env.DB.batch([stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
 api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM releases WHERE project=? ORDER BY seq DESC',c.req.param('project')).all()).results));
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,'SELECT hash,kind,created,revoked FROM credentials WHERE project=?',c.req.param('project')).all()).results));
-api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await c.env.DB.batch([stmt(c.env.DB,'INSERT INTO credentials VALUES(?,?,?,?,NULL)',h,c.req.param('project'),b.kind,now()),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
+api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await c.env.DB.batch([mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
 api.delete('/api/projects/:project/keys/:hash',async c=>{await c.env.DB.batch([stmt(c.env.DB,'UPDATE credentials SET revoked=? WHERE project=? AND hash=?',now(),c.req.param('project'),c.req.param('hash')),audit(c.env.DB,c.req.param('project'),'key_revoked',{hash:c.req.param('hash')})]);return c.json({ok:true})});
 api.get('/api/projects/:project/browser-origins',async c=>c.json((await stmt(c.env.DB,'SELECT origin,created FROM browser_origins WHERE project=? ORDER BY created,origin',c.req.param('project')).all()).results));
 api.on(['POST','DELETE'],'/api/projects/:project/browser-origins',async c=>{

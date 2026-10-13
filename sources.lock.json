@@ -2041,7 +2041,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "b41d8ececd56acfa5b931e7d6b4fd4f9a969f33067d5bba27252cf8ada1c3ead",
+      "sha256": "939a5e49a2471a9a832bda95d9f1612b1e6d6ae11a457df56c6b2ce400c934ec",
       "executable": false
     },
     "deploy-site.json": {
@@ -2434,6 +2434,10 @@
     },
     "migrations/core/0026_import_custody_retirement.sql": {
       "sha256": "777ef508c6de2a134bc692dcf1b2d269c6d665ed4e802b468afa922e195bda6d",
+      "executable": false
+    },
+    "migrations/core/0027_credential_minters.sql": {
+      "sha256": "58b3d887355aaab49c0b30a27ba33ff49e17879189a2e40c79e79070c43d3e22",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -2989,7 +2993,7 @@
       "executable": false
     },
     "src/domain/agent-access.ts": {
-      "sha256": "ece646a91379e129d96904f46ed60e63ce6213d3e4fa164ec840364cfabda569",
+      "sha256": "d4e75dfd111ef7a65e296c9c9318a1cb28206497270ce4b11a0ec9d7b0454b86",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -3041,7 +3045,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "226c2e6b4a5b52c1e216b0ae0b0c6475248aaa20b6ab037abf77b9a92f532bc5",
+      "sha256": "dac2bc1571a3eee0a098e26adb143cc8174d2efe3d9ea338b46826f5dab78112",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -3058,6 +3062,10 @@
     },
     "src/domain/capture.ts": {
       "sha256": "147f7bc4d150e402c83d4d8ed945bb9d885b249517f8284134fac9f75d8d2fbb",
+      "executable": false
+    },
+    "src/domain/credential-fence.ts": {
+      "sha256": "b403295b65ac4d577fbfbdc12ffbc53349db00dd37cf60f71a70c2953c005823",
       "executable": false
     },
     "src/domain/denied-response.ts": {
@@ -3193,7 +3201,7 @@
       "executable": false
     },
     "src/domain/sentry/deploy.ts": {
-      "sha256": "27fb98655dcbac12839c277a212eee62f5b77fc5bb3fb2b608612de39f3aac84",
+      "sha256": "d448654d3926998a8fc82698621132100bd24c1453949dc5abc09f30a43042e5",
       "executable": false
     },
     "src/domain/sentry/dsn.ts": {
@@ -5273,7 +5281,7 @@
       "executable": false
     },
     "tests/dev-credentials.mjs": {
-      "sha256": "3e573408c52901349238b939799fb8c2253d435886b14a8d3cbc1b76102a0545",
+      "sha256": "12791ddbfdd65a90b1eab11155fbc7fd483e1e45e9cda6d2c47a1912bc1969ec",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
