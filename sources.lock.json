@@ -5061,7 +5061,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "411bae14ee325a221048f7c873c4707f2aed28f0f527960ee15b4c1cb950b2b2",
+      "sha256": "ac44e49fdd64bf45f378fd538f92f920a92b59eea8e61d48167bf8d576ad2725",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {
