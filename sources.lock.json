@@ -2288,6 +2288,10 @@
       "sha256": "ec7980052e938b0daaba2317f1fb3bc66a292b9b51f8b6f8142435b6059249b0",
       "executable": false
     },
+    "docs/HOSTED.md": {
+      "sha256": "ee89b8f63fc73320855be37cb44a31b39d4bf8ff171c1282c410ce8f43c06fc0",
+      "executable": false
+    },
     "docs/install.md": {
       "sha256": "2fcfca8898f83fc8ceec1ffbfb5011453dfb2e61db2be5d7f30d960347e15163",
       "executable": false
@@ -2473,11 +2477,11 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "5e5088b04021bc4299a946dd2841252f3f9d4cb5bc6b63f9d0a5b87f9679df8d",
+      "sha256": "c317e6f9982459ae2161d66ef2a2c9fc1541712b0d70b81abff4bf776957cb35",
       "executable": false
     },
     "package.json": {
-      "sha256": "fab58cfe9c6a4014ff722ce1f8bf89b04ea7c3fdde14c64c1d0e8f1f2898f30b",
+      "sha256": "49f06550ec11035ac7a175a1334c1efca3bb56f26b8f7cbf1dbc18659e65de3a",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2573,7 +2577,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "771d4e016452fa4f5964f7d916ef944798e8df214dac74423a999b462d31d1db",
+      "sha256": "74ee8ec7bbe920b598f6cbd3195a212b2d9e020c05cc461af8f12f15776219a8",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -2689,7 +2693,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "a7c4b31c4b9b37e7a9efe85d7f0a5f1fe1a16a16cc23e650a1adde748ce77f6b",
+      "sha256": "504a7c611cf000daa3aa148c51085547cc6556fbe255a015b5ab6652e023e906",
       "executable": false
     },
     "RELEASE.json": {
@@ -2842,6 +2846,10 @@
     },
     "scripts/edition-authoring/updates.mjs": {
       "sha256": "54e7246025a618ed16ee042c22dc9a8dc27b06175c30f81c4c6568992ed04799",
+      "executable": false
+    },
+    "scripts/hosted.mjs": {
+      "sha256": "99775891e5ad162805f1a7023addb4dc54a002fd8f4f033b54b86866f66f63b0",
       "executable": false
     },
     "scripts/install.mjs": {
@@ -3073,7 +3081,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "dac2bc1571a3eee0a098e26adb143cc8174d2efe3d9ea338b46826f5dab78112",
+      "sha256": "e91dd21dea981dde0d93b86f9b0e141751aafef35838e4583c7874a921fe3370",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -3172,6 +3180,10 @@
       "sha256": "f7ab61eeea47947d3fb52d3a476bf416222a7b3b4bf2179d7f6b705f6bd1acf7",
       "executable": false
     },
+    "src/domain/owner-authority.ts": {
+      "sha256": "07cd0d65ee3bf5d9e80d4fcd5f2a83bf00234cb21b530bcfeb06b8e84feb9d53",
+      "executable": false
+    },
     "src/domain/packet.ts": {
       "sha256": "6f558fc06f92e1b55d672a10721a64f036b4d643b868a73c209fbd0142fe7e0c",
       "executable": false
@@ -3201,7 +3213,7 @@
       "executable": false
     },
     "src/domain/repairs/routes.ts": {
-      "sha256": "ab1b028e8ac1f3cd448c884704dabe8526ae8650959007296894cbfa64888599",
+      "sha256": "95ed11e74e6f4684406c526fcc29a33541ba22a7f5f5d5cb49984173d44ba55a",
       "executable": false
     },
     "src/domain/repairs/view.ts": {
@@ -5385,7 +5397,7 @@
       "executable": false
     },
     "tests/owner-erasure-inflight.mjs": {
-      "sha256": "ad326a168dfd0171ab130c45def0fda2bceeffe8bea4605e7cd4cbdefc556583",
+      "sha256": "c76e8cd0e18f064498384c8054f3b02597a008df23d69c6f6e4a29948d71ae3d",
       "executable": false
     },
     "tests/owner-erasure-resume.mjs": {
@@ -5393,7 +5405,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "7d49d56dc32a89e1a47e47e1e47df956e6e1473aa0bf1b9882696f6f3421ea62",
+      "sha256": "50f3ed1d1186f91936a0048296561cb38b6b1183aa8dfc7df610a50c0b8bbaa4",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {

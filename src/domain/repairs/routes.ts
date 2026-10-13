@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { boundedText, checkInput, REPAIR_FACTS, repairLink, revision, type RepairFact } from './input';
 import { issueRepairs, repairView } from './view';
@@ -8,7 +8,7 @@ import { issueRepairs, repairView } from './view';
 // Owner-recorded repair history. Recording never sends mail or webhooks, never
 // creates alert rows and never starts work: every write touches only repairs,
 // repair_checks and the audit table.
-const routes = new Hono<{ Bindings: Bindings; Variables: { repairSession: NonNullable<Awaited<ReturnType<typeof ownerSession>>> } }>();
+const routes = new Hono<{ Bindings: Bindings; Variables: { repairSession: OwnerSession } }>();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
  s(db, `INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1`, crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
@@ -33,16 +33,7 @@ async function input(c: any) {
 }
 const budget = (error: unknown, c: any) => /repair(_check)?_budget/.test(String((error as Error).message)) ? c.json({ error: String((error as Error).message).includes('check') ? 'A repair holds at most 10 checks' : 'An issue holds at most 20 repairs' }, 409) : null;
 const current = (c: any, id: string) => s(c.env.DB, 'SELECT * FROM repairs WHERE project=? AND id=?', c.req.param('project'), id).first<any>();
-async function write(c: any, statements: D1PreparedStatement[]) {
- const session=c.get('repairSession'),db=c.env.DB as D1Database;
- const guard=()=>s(db,`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
-  SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
-  WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
-   AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
-   AND o.status='active' AND o.role='owner') THEN 1 ELSE 0 END`,session.id,session.operator.id,session.operator.version);
- try {return (await db.batch([guard(),...statements,guard(),db.prepare('DELETE FROM spool_authority_guards')])).slice(1,-2);}
- catch(error) {if(/CHECK constraint failed: ok=1/.test(String(error)))throw new AuthError('authority_changed',409);throw error;}
-}
+const write = (c: any, statements: D1PreparedStatement[]) => ownerBatch(c.env.DB, c.get('repairSession'), statements);
 
 routes.get('/', async c => {
  const issue = c.req.query('issue');

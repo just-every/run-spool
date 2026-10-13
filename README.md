@@ -43,6 +43,10 @@ Stop dev with its matching `--stop` command before verify, reset or transfer. Pr
 
 Export includes private maps and browser-origin policy but excludes owner/auth state, grants, outbox and transient state. Import requires an empty domain database and creates no owner or grants; run setup and create new keys after restoring. Existing or restored projects complete first run, including after restart. Reset removes only its displayed local inventory and preserves source, exports and deployment receipts. Deploy and release dry runs are local checks. Actual accounts, mail sender configuration, deployment, installs, receipts, tags and publication remain owner actions.
 
+## Run it on your Cloudflare account
+
+[docs/HOSTED.md](docs/HOSTED.md) deploys this checkout to your own Cloudflare account with `rer deploy`, makes you its owner with `pnpm run hosted claim`, and updates it to newer source later (export, `git pull --ff-only`, `pnpm install`, `rer deploy` to the same environment, `pnpm run hosted check`).
+
 ## Capture protocol
 
 Spool's own SDK, [`@just-every/spool`](packages/sdk/README.md), is the way to send errors. Install it and initialise it once with the project's endpoint and ingest key:

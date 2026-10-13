@@ -9,7 +9,7 @@ import { sentryExport } from './project-erasure/fixture.mjs';
 import { authorityRaces, heldScopes } from './owner-erasure-authority.mjs';
 import { interruptedErasure } from './owner-erasure-resume.mjs';
 import { interruptedFinalization } from './owner-erasure-finalization.mjs';
-import { delayedRepairWrites } from './owner-erasure-inflight.mjs';
+import { delayedRepairWrites, delayedOwnerWrites, delayedRestore } from './owner-erasure-inflight.mjs';
 import { archiveFences } from './owner-erasure-archives.mjs';
 
 const evidence={checks:[]};let app,fresh;
@@ -113,6 +113,8 @@ try {
  evidence.resumption=await interruptedErasure();
  evidence.finalization=await interruptedFinalization();
  evidence.delayedRepairs=await delayedRepairWrites();
+ evidence.delayedOwnerWrites=await delayedOwnerWrites();
+ evidence.delayedRestore=await delayedRestore();
  evidence.checks.push('structural, ambiguous attribution and unrelated invitation holds leave all rows identical; independent other-person sessions and tokens survive; commit-time predecessor and successor authority races prevent destructive mutation; multi-batch interruption and restart complete through native scheduler; late predecessor mint rejected after completion; child-only archive and explicit later journal fences');
  await mkdir('.artifacts/owner-erasure',{recursive:true});await writeFile('.artifacts/owner-erasure/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log('Owner erasure public flow passed: '+evidence.checks.length+' groups.');

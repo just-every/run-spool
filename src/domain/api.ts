@@ -25,14 +25,18 @@ import { agentProject, agentReadPath } from './agent-access';
 import { deniedResponse } from './denied-response';
 import { alertProjection, issueProjection, outcomeProjection } from './agent-projection';
 import { issuePacket } from './packet';
+import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority';
 
-const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null}}>();
+const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function body(c:any,limit=32768) { const declared=Number(c.req.header('content-length')??0); if(declared>limit) throw new Error('Body exceeds limit'); const reader=c.req.raw.body?.getReader();if(!reader)throw new Error('Missing body');let size=0,chunks:Uint8Array[]=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();throw new Error('Body exceeds limit')}chunks.push(value)}const bytes=new Uint8Array(size);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}return JSON.parse(new TextDecoder().decode(bytes)) }
 const record=(db:D1Database,project:string,reason:string)=>stmt(db,'INSERT INTO outcomes VALUES(?,?,?,1) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+1',project,Math.floor(now()/60000)*60000,reason).run();
 const mintCredential=(c:any,keyHash:string,project:string,kind:string)=>{const minter=c.get('minter');return stmt(c.env.DB,'INSERT INTO credentials(hash,project,kind,created,revoked,minted_by,minted_version) VALUES(?,?,?,?,NULL,?,?)',keyHash,project,kind,now(),minter?.id??null,minter?.version??null)};
 const audit=(db:D1Database,project:string|null,kind:string,detail:any)=>stmt(db,'INSERT INTO audit VALUES(?,?,?,?,?)',crypto.randomUUID(),project,kind,JSON.stringify(detail),now());
+// Owner writes commit only while the session that admitted them still holds owner authority (owner-authority.ts).
+const write=(c:any,statements:D1PreparedStatement[])=>ownerBatch(c.env.DB,c.get('session'),statements);
+const ownerDb=(c:any)=>ownerDatabase(c.env.DB,c.get('session'));
 api.use('*',async(c,next)=>{c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
   const grant=await agentProject(c.req.raw,c.env.DB);
   c.set('project',grant);
@@ -76,17 +80,17 @@ api.use('/api/*',async(c,next)=>{
   c.set('owner',!!session);c.set('dev',session?.kind==='dev');
   // Keys minted here record this person and their identity fence (credential-fence.ts).
   c.set('minter',session?{id:session.operator.id,version:session.operator.version}:null);
-  if(session){if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);return next()}
+  if(session){c.set('session',session);if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);return next()}
   return c.json({error:'Sign in required'},401);
 });
 api.route('/api/projects/:project/alerting',alertRoutes);
 api.route('/api/projects/:project/repairs',repairRoutes);
 api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
-api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await c.env.DB.batch([stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
+api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
 api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM releases WHERE project=? ORDER BY seq DESC',c.req.param('project')).all()).results));
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,'SELECT hash,kind,created,revoked FROM credentials WHERE project=?',c.req.param('project')).all()).results));
-api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await c.env.DB.batch([mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
-api.delete('/api/projects/:project/keys/:hash',async c=>{await c.env.DB.batch([stmt(c.env.DB,'UPDATE credentials SET revoked=? WHERE project=? AND hash=?',now(),c.req.param('project'),c.req.param('hash')),audit(c.env.DB,c.req.param('project'),'key_revoked',{hash:c.req.param('hash')})]);return c.json({ok:true})});
+api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await write(c,[mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
+api.delete('/api/projects/:project/keys/:hash',async c=>{await write(c,[stmt(c.env.DB,'UPDATE credentials SET revoked=? WHERE project=? AND hash=?',now(),c.req.param('project'),c.req.param('hash')),audit(c.env.DB,c.req.param('project'),'key_revoked',{hash:c.req.param('hash')})]);return c.json({ok:true})});
 api.get('/api/projects/:project/browser-origins',async c=>c.json((await stmt(c.env.DB,'SELECT origin,created FROM browser_origins WHERE project=? ORDER BY created,origin',c.req.param('project')).all()).results));
 api.on(['POST','DELETE'],'/api/projects/:project/browser-origins',async c=>{
   const project=c.req.param('project'),b=await body(c,2048);
@@ -95,7 +99,7 @@ api.on(['POST','DELETE'],'/api/projects/:project/browser-origins',async c=>{
   const add=c.req.method==='POST',id=crypto.randomUUID(),time=now();
   const implicit=origin===c.env.AUTH_ORIGIN;
   if(implicit&&add)return c.json({origin,changed:false,allowed:true,implicit:true},add?201:200);
-  try{const result=await c.env.DB.batch([add?stmt(c.env.DB,'INSERT INTO browser_origins VALUES(?,?,?) ON CONFLICT(project,origin) DO NOTHING',project,origin,time):stmt(c.env.DB,'DELETE FROM browser_origins WHERE project=? AND origin=?',project,origin),stmt(c.env.DB,'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1',id,project,add?'browser_origin_added':'browser_origin_removed',JSON.stringify({origin}),time)]);return c.json({origin,changed:result[0].meta.changes>0,allowed:add||implicit,implicit},add?201:200)}catch(error){if(String((error as Error).message).includes('browser_origin_budget'))return c.json({error:'browser_origin_budget'},429);throw error}
+  try{const result=await write(c,[add?stmt(c.env.DB,'INSERT INTO browser_origins VALUES(?,?,?) ON CONFLICT(project,origin) DO NOTHING',project,origin,time):stmt(c.env.DB,'DELETE FROM browser_origins WHERE project=? AND origin=?',project,origin),stmt(c.env.DB,'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1',id,project,add?'browser_origin_added':'browser_origin_removed',JSON.stringify({origin}),time)]);return c.json({origin,changed:result[0].meta.changes>0,allowed:add||implicit,implicit},add?201:200)}catch(error){if(String((error as Error).message).includes('browser_origin_budget'))return c.json({error:'browser_origin_budget'},429);throw error}
 });
 api.get('/api/projects/:project/issues',async c=>{
   const state=c.req.query('state')??'all',limitParam=c.req.query('limit')??'100',limit=Number(limitParam);
@@ -109,7 +113,7 @@ api.get('/api/projects/:project/alerts',async c=>c.json((await stmt(c.env.DB,"SE
 api.patch('/api/projects/:project/issues/:issue',async c=>{
   const b=await body(c);if(!['open','acknowledged','resolved','suppressed'].includes(b.state)||!Number.isSafeInteger(b.revision))throw new Error('Invalid triage');
   const issue=await stmt(c.env.DB,'SELECT * FROM issues WHERE project=? AND id=?',c.req.param('project'),c.req.param('issue')).first<any>();if(!issue)return c.json({error:'Issue not found'},404);
-  const results=await c.env.DB.batch([stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state)]);const result=results[0].results[0] as any;
+  const results=await write(c,[stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state)]);const result=results[0].results[0] as any;
   if(!result)return c.json({error:'Revision conflict'},409);
   return c.json({state:b.state,...result});
 });
@@ -121,14 +125,14 @@ api.get('/api/archive',async c=>new Response(await archiveStream(await portabili
 api.post('/api/restore',async c=>{
  if(c.req.header('x-confirm-restore')!=='yes')return c.json({error:'Confirm restore explicitly'},400);
  if(!c.req.raw.body)throw new Error('Missing archive');
- await restoreStream(await portability(c.env.DB),c.req.raw.body);
+ await restoreStream(await portability(ownerDb(c)),c.req.raw.body);
  return c.json({restored:true,credentials:'excluded; create new project grants'});
 });
 api.post('/api/projects/:project/retention',async c=>{
  const p=c.req.param('project'),b=await body(c);if(!Number.isSafeInteger(b.cutoff)||b.cutoff<0||b.cutoff>now()||typeof b.apply!=='boolean')throw new Error('Invalid retention cutoff');
  const affected=await stmt(c.env.DB,'SELECT COUNT(*) total FROM events WHERE project=? AND received<?',p,b.cutoff).first<any>();
  if(!b.apply)return c.json({dryRun:true,events:affected.total,cutoff:b.cutoff,deduplication:'Event IDs before cutoff can be admitted again; retry horizon is retained data only'});
- const removed=await applyRetention(c.env.DB,p,b.cutoff);
+ const removed=await applyRetention(ownerDb(c),p,b.cutoff);
  return c.json({applied:true,events:removed,cutoff:b.cutoff,coverage:'Historical evidence deleted; comparisons across cutoff are incomplete'});
 });
 export default api;

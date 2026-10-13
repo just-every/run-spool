@@ -1,0 +1,36 @@
+import { AuthError } from '../modules/operator-auth/index.mjs';
+import type { ownerSession } from '../auth/session.server';
+
+export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>;
+
+// An owner write admitted before an owner handoff must not commit after it.
+// The session that admitted the request is checked again inside the same D1
+// batch, before and after its statements: still unrevoked and unexpired, at its
+// operator's current version, and that operator still the active owner.
+const guard = (db: D1Database, session: OwnerSession) => db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
+ SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
+ WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
+  AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
+  AND o.status='active' AND o.role='owner') THEN 1 ELSE 0 END`).bind(session.id, session.operator.id, session.operator.version);
+
+export async function ownerBatch(db: D1Database, session: OwnerSession, statements: D1PreparedStatement[]) {
+ try { return (await db.batch([guard(db, session), ...statements, guard(db, session), db.prepare('DELETE FROM spool_authority_guards')])).slice(1, -2); }
+ catch (error) { if (/CHECK constraint failed: ok=1/.test(String(error))) throw new AuthError('authority_changed', 409); throw error; }
+}
+
+// For writes that span several batches (retention, restore through Base's
+// portability engine): every batch commits only under the same check. Once one
+// is refused, later batches pass unchecked so the engine's own cleanup and abort
+// run before the refusal reaches the caller.
+export function ownerDatabase(db: D1Database, session: OwnerSession): D1Database {
+ let refused = false;
+ return new Proxy(db, { get(target, key) {
+  if (key === 'batch') return async (statements: D1PreparedStatement[]) => {
+   if (refused) return target.batch(statements);
+   try { return await ownerBatch(target, session, statements); }
+   catch (error) { if (error instanceof AuthError) refused = true; throw error; }
+  };
+  const value = Reflect.get(target, key, target);
+  return typeof value === 'function' ? value.bind(target) : value;
+ } });
+}
