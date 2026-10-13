@@ -24,7 +24,8 @@ const useCheckoutKey=async()=>{gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await get('.
 const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  diagnostics.stage('contract');
  assert.equal(await exists('node_modules'),false);assert.equal(await exists('.dev.vars'),false);
- await command(['check','--profile','first-party']);
+ // The public package launcher installs the declared pin before structural check.
+ await command(['check','--profile','first-party']);assert.equal(await exists('node_modules'),true);
  const packageText=await get('package.json'),pkg=JSON.parse(packageText);delete pkg.scripts.preview;await put('package.json',JSON.stringify(pkg));assert.notEqual((await command(['check','--profile','first-party'],null)).code,0);await put('package.json',packageText);
  diagnostics.stage('legacy-state');
  await mkdir(resolve(root,'.wrangler/reference'),{recursive:true});await put('.wrangler/reference/preserve.txt','legacy-state-fixture');
@@ -111,5 +112,5 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
  await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: dependency-free contract and omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, fresh CLI preview outbox confirmation and one-use restart without another link request, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
+ console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, fresh CLI preview outbox confirmation and one-use restart without another link request, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
 }catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
