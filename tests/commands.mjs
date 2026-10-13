@@ -112,5 +112,5 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
  await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: dependency-free contract and omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, fresh CLI preview outbox confirmation and one-use restart without another link request, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
+ console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, fresh CLI preview outbox confirmation and one-use restart without another link request, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
 }catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
