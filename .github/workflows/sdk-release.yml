@@ -1,0 +1,209 @@
+name: Release SDK
+
+# Publishes @just-every/spool from an sdk-v<version> tag that equals packages/sdk/package.json's version, has a
+# CHANGELOG heading, and points at a main commit whose Verify run is green. Every other trigger is a dry run: every
+# step except npm publish. One build; the smoke test and npm publish use that exact tarball (the publish job takes
+# the build job's artifact and checks its sha256). Publishing authenticates with the just-every org secret NPM_TOKEN;
+# the token-check job reports on every push and manual run whether that secret reaches this repository.
+on:
+  push:
+    tags: ['sdk-v*']
+    branches: ['**']
+    paths:
+      - packages/sdk/**
+      - src/domain/capture.ts
+      - src/domain/privacy.ts
+      - src/domain/scrub.ts
+      - src/domain/scrub-keyed.ts
+      - .github/workflows/sdk-release.yml
+  pull_request:
+    paths:
+      - packages/sdk/**
+      - .github/workflows/sdk-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdk-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read # the tagged commit's Verify result
+    outputs:
+      publish: ${{ steps.mode.outputs.publish }}
+      version: ${{ steps.build.outputs.version }}
+    env:
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Release or dry run
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./packages/sdk/package.json').version")
+          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF_TYPE" == tag ]]; then
+            if [[ "$GITHUB_REF_NAME" != "sdk-v$version" ]]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not equal packages/sdk/package.json's version $version (tag sdk-v$version)."
+              exit 1
+            fi
+            if ! grep -qx "## $version" packages/sdk/CHANGELOG.md; then
+              echo "::error::packages/sdk/CHANGELOG.md has no '## $version' heading."
+              exit 1
+            fi
+            if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+              echo "::error::$GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main."
+              exit 1
+            fi
+            green=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/verify.yml/runs?head_sha=$GITHUB_SHA&status=success&per_page=1" --jq '.total_count')
+            if [[ "$green" == 0 ]]; then
+              echo "::error::$GITHUB_SHA has no green Verify run; release only a commit whose CI passed."
+              exit 1
+            fi
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "Release: $GITHUB_REF_NAME at $GITHUB_SHA (on main, Verify green)."
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Dry run ($GITHUB_EVENT_NAME on $GITHUB_REF): every step except npm publish."
+          fi
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the tarball once
+        id: build
+        run: |
+          set -euo pipefail
+          node packages/sdk/build.mjs --pack | tee "$RUNNER_TEMP/build.log"
+          tarball=$(tail -n 1 "$RUNNER_TEMP/build.log" | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).tarball")
+          version=$(node -p "require('./packages/sdk/package.json').version")
+          mkdir -p "$RUNNER_TEMP/sdk-dist" && cp "$tarball" "$RUNNER_TEMP/sdk-dist/"
+          (cd "$RUNNER_TEMP/sdk-dist" && sha256sum "$(basename "$tarball")" > SHA256SUMS && cat SHA256SUMS)
+          {
+            echo "tarball=$RUNNER_TEMP/sdk-dist/$(basename "$tarball")"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Same bytes from a second clone at another path
+        env:
+          TARBALL: ${{ steps.build.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          second="$RUNNER_TEMP/second clone/errors"
+          git clone --quiet --no-local "$GITHUB_WORKSPACE" "$second"
+          git -C "$second" checkout --quiet --detach "$GITHUB_SHA"
+          (cd "$second" && pnpm install --frozen-lockfile --silent && node packages/sdk/build.mjs --pack > "$RUNNER_TEMP/second.log")
+          rebuilt=$(tail -n 1 "$RUNNER_TEMP/second.log" | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).tarball")
+          sha256sum "$TARBALL" "$rebuilt"
+          cmp "$TARBALL" "$rebuilt"
+          rm -rf -- "$RUNNER_TEMP/second clone"
+
+      - name: Smoke test the tarball in an empty project
+        env:
+          TARBALL: ${{ steps.build.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          app="$RUNNER_TEMP/smoke"
+          mkdir -p "$app" && cd "$app"
+          echo '{"name":"smoke","private":true,"type":"module"}' > package.json
+          npm install "$TARBALL" --offline --no-audit --no-fund --ignore-scripts
+          node -e "const p=require('./node_modules/@just-every/spool/package.json'); if (p.dependencies) throw new Error('runtime dependencies: '+Object.keys(p.dependencies))"
+          node --input-type=module -e "
+            for (const entry of ['@just-every/spool', '@just-every/spool/node', '@just-every/spool/worker', '@just-every/spool/vite']) {
+              const module = await import(entry);
+              console.log(entry, Object.keys(module).sort().join(' '));
+            }"
+          if npx --no-install spool-sourcemaps 2> usage.txt; then echo "::error::spool-sourcemaps without arguments should fail with its usage"; exit 1; fi
+          grep -q 'Usage: spool-sourcemaps' usage.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: just-every-spool-${{ steps.build.outputs.version }}
+          path: ${{ runner.temp }}/sdk-dist
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        env:
+          VERSION: ${{ steps.build.outputs.version }}
+          PUBLISH: ${{ steps.mode.outputs.publish }}
+        run: |
+          {
+            echo "### @just-every/spool ${VERSION:-(not built)}"
+            echo
+            if [[ "$PUBLISH" == true ]]; then echo "Release build from $GITHUB_REF_NAME; the publish job publishes it."; else echo "Dry run: nothing published."; fi
+            if [[ -f "$RUNNER_TEMP/sdk-dist/SHA256SUMS" ]]; then echo; echo '```'; cat "$RUNNER_TEMP/sdk-dist/SHA256SUMS"; echo '```'; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  token-check:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          registry-url: https://registry.npmjs.org
+      - name: NPM_TOKEN reaches this repository
+        run: |
+          set -euo pipefail
+          if [[ -n "$NODE_AUTH_TOKEN" ]]; then echo "NPM_TOKEN present: yes"; else echo "NPM_TOKEN present: no"; exit 0; fi
+          npm whoami --registry=https://registry.npmjs.org
+
+  publish:
+    needs: build
+    if: needs.build.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          registry-url: https://registry.npmjs.org
+      - uses: actions/download-artifact@v4
+        with:
+          name: just-every-spool-${{ needs.build.outputs.version }}
+          path: ${{ runner.temp }}/sdk-dist
+
+      - name: Publish the exact tarball the build smoke-tested
+        run: |
+          set -euo pipefail
+          if [[ -z "$NODE_AUTH_TOKEN" ]]; then
+            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the org secret's Repository access (Settings > Secrets and variables > Actions > NPM_TOKEN)."
+            exit 1
+          fi
+          cd "$RUNNER_TEMP/sdk-dist"
+          sha256sum --check --strict SHA256SUMS
+          if npm view "@just-every/spool@$VERSION" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+            echo "@just-every/spool@$VERSION is already published; nothing to publish."
+            exit 0
+          fi
+          npm publish "just-every-spool-$VERSION.tgz" --access public --registry=https://registry.npmjs.org

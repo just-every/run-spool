@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "project": {
+    "schema": 1,
+    "projectId": "just-every/spool",
+    "name": "Spool",
+    "sourceRepository": "https://github.com/just-every/run-spool",
+    "license": "MIT",
+    "deployment": {
+      "target": "cloudflare-workers",
+      "artifactFile": "rer-worker-artifact.json"
+    },
+    "operations": {
+      "setup": "bash scripts/delivery/setup-build.sh",
+      "build": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run build",
+      "verify": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run verify",
+      "artifact": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && node scripts/build-delivery-artifact.mjs",
+      "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic."
+    },
+    "verification": {
+      "sensitivePaths": [
+        "src/domain/**",
+        "src/server.ts",
+        "src/base/**",
+        "src/editor/**",
+        "scripts/**",
+        "rer-setup.json",
+        ".github/workflows/rer-managed.yml",
+        "src/modules/**"
+      ],
+      "migrationDirectories": [
+        "migrations"
+      ],
+      "guidanceFiles": [
+        "AGENTS.md",
+        "CONTRACT.md",
+        "OPERATIONS.md"
+      ],
+      "testPatterns": [
+        "tests/*.mjs"
+      ]
+    }
+  },
+  "managed": {
+    "workflowRef": "runeditrun/delivery/.github/workflows/trusted-build.yml@bf7a25abb44bec1457a7bc738ff63921d90fb52e",
+    "artifactFile": "rer-worker-artifact.json",
+    "buildProfile": "project",
+    "verificationProfiles": [
+      "full"
+    ],
+    "pnpmVersion": "10.12.4"
+  },
+  "setup": {
+    "manifestFile": "rer-setup.json"
+  },
+  "artifact": {
+    "specInputs": {
+      "publicVariableNames": [
+        "AUTH_ORIGIN",
+        "OWNER_EMAIL",
+        "MAIL_PROVIDER",
+        "MAIL_FROM",
+        "RER_MANAGEMENT_ORIGIN",
+        "RER_INSTALLATION_ID",
+        "RER_OWNER_CLAIM_ISSUER",
+        "RER_OWNER_CLAIM_INSTALLATION_ID",
+        "RER_OWNER_CLAIM_APP_ORIGIN",
+        "RER_OWNER_CLAIM_PUBLIC_KEYS",
+        "MAIL_ACCOUNT_ID"
+      ],
+      "secretNames": [
+        "SESSION_SECRET",
+        "SETUP_TOKEN"
+      ],
+      "optionalSecretNames": [
+        "MAIL_API_KEY"
+      ],
+      "providerEffects": [
+        "outbound-mail",
+        "outbound-webhooks"
+      ],
+      "surfaces": {
+        "app": {
+          "path": "/",
+          "originVariable": "AUTH_ORIGIN",
+          "readiness": [
+            {
+              "path": "/health",
+              "statuses": [
+                200
+              ]
+            }
+          ]
+        }
+      },
+      "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic."
+    }
+  }
+}

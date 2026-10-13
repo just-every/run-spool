@@ -1,0 +1,8 @@
+{
+  "version": "0.1.0",
+  "contractChanges": {},
+  "extensionPointChanges": [],
+  "migrations": [],
+  "breaking": false,
+  "agentUpdateInstructions": "First public release: there is no earlier public version to update from. Follow README.md to install and run Spool."
+}

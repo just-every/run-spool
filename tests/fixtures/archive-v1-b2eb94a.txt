@@ -1,0 +1,54 @@
+import { hash, canonical, normalize, identity, scrub } from './privacy';
+import { validateMap } from './artifacts';
+export const tables:Record<string,string[]>= {
+  projects:['id','name','created'], releases:['project','name','seq','build','created'],
+  issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq'],
+  events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received'],
+  artifacts:['project','release','build','debug','payload','digest','created'],
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created']
+};
+export async function exportArchive(db:D1Database) {
+  // batch obtains one consistent D1 transaction across all authoritative tables.
+  const result=await db.batch(Object.keys(tables).map(t=>db.prepare(`SELECT * FROM ${t}`)));
+  const data=Object.fromEntries(Object.keys(tables).map((t,i)=>[t,result[i].results]));
+  const archive={version:1,migration:'0001_errors',data};return {...archive,checksum:await hash(canonical(archive))};
+}
+function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
+function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
+function frame(value:any){shape(value,Object.prototype.hasOwnProperty.call(value??{},'debugId')?['file','line','column','function','debugId']:['file','line','column','function']);const normalized=normalize({version:1,eventId:'validation',release:'validation',build:'validation',environment:'validation',type:'Error',message:'',frames:[value],breadcrumbs:[]}).frames[0];if(canonical(normalized)!==canonical(value))throw new Error('Archive unsanitized frame');}
+function diagnostic(value:any,event:any){
+ if(!Array.isArray(value)||value.length!==event.frames.length)throw new Error('Archive diagnostic');
+ for(let i=0;i<value.length;i++){
+  const d=value[i];if(!d||!['missing_debug_id','missing_artifact','identity_mismatch','unmapped_position','mapped','invalid_artifact'].includes(d.status))throw new Error('Archive diagnostic status');
+  const fields=['generated','status'];if(['mapped','unmapped_position','invalid_artifact'].includes(d.status))fields.push('artifactDigest');if(d.status==='mapped')fields.push('original');shape(d,fields);frame(d.generated);if(canonical(d.generated)!==canonical(event.frames[i]))throw new Error('Archive generated frame mismatch');
+  if('artifactDigest' in d && !/^[a-f0-9]{64}$/.test(d.artifactDigest))throw new Error('Archive diagnostic digest');
+  if(d.status==='mapped'){shape(d.original,['file','line','column','function']);frame(d.original);}
+ }
+}
+export async function validateArchive(v:any) {
+  if(!v || v.version!==1||v.migration!=='0001_errors'||!v.data||await hash(canonical({version:v.version,migration:v.migration,data:v.data}))!==v.checksum)throw new Error('Archive identity/checksum mismatch');
+  if(Object.keys(v.data).sort().join()!==Object.keys(tables).sort().join())throw new Error('Archive tables mismatch');
+  for(const [table,fields] of Object.entries(tables)) {
+    const rows=v.data[table];if(!Array.isArray(rows)||rows.length>10000)throw new Error('Archive row budget');
+    for(const row of rows){if(!row||Object.keys(row).sort().join()!==[...fields].sort().join()||Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.values(row).some(x=>typeof x==='string'&&x.length>300000))throw new Error('Archive row shape');}
+  }
+  for(const row of v.data.projects){safeText(row.name);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive timestamp');}
+  for(const row of v.data.releases){identity(row.name,'release');identity(row.build,'build');if(!Number.isSafeInteger(row.seq)||row.seq<1)throw new Error('Archive release ordering');}
+  const projects=new Set(v.data.projects.map((r:any)=>identity(r.id,'project')));
+  const issues=new Map(v.data.issues.map((r:any)=>[r.id,r]));
+  const releases=new Map(v.data.releases.map((r:any)=>[r.project+':'+r.name,r]));
+  for(const [table,rows] of Object.entries(v.data) as any)for(const row of rows){
+    if(table!=='projects'&&row.project!==null&&!projects.has(row.project))throw new Error('Archive project reference');
+    if(row.issue && (issues.get(row.issue) as any)?.project!==row.project)throw new Error('Archive issue reference');
+  }
+  const occurrenceCounts=new Map<string,number>();for(const e of v.data.events)occurrenceCounts.set(e.issue,(occurrenceCounts.get(e.issue)??0)+1);
+  for(const row of v.data.issues){safeText(row.title);if(!/^[a-f0-9]{64}$/.test(row.id)||!/^[a-f0-9]{64}$/.test(row.fingerprint)||!Number.isSafeInteger(row.revision)||row.revision<1)throw new Error('Archive issue identity');if(!['open','acknowledged','resolved','suppressed'].includes(row.state)||row.algorithm!=='js-frame-v1'||!Number.isSafeInteger(row.count)||row.count<0)throw new Error('Archive issue state');const count=occurrenceCounts.get(row.id)??0;if(count!==row.count)throw new Error('Archive aggregate mismatch');}
+  for(const row of v.data.events){const event=normalize(JSON.parse(row.payload));if(JSON.stringify(event)!==row.payload||event.eventId!==row.id||event.release!==row.release||event.build!==row.build||event.environment!==row.environment||!/^[a-f0-9]{64}$/.test(row.digest))throw new Error('Archive event integrity');const r:any=releases.get(row.project+':'+row.release);if(!r||r.seq!==row.release_seq||r.build!==row.build)throw new Error('Archive release reference');diagnostic(JSON.parse(row.diagnostic),event);const basis=JSON.stringify([event.type,event.frames[0].file,event.frames[0].function,event.frames[0].line]);const fingerprint=await hash(basis);if((issues.get(row.issue) as any).fingerprint!==fingerprint||await hash(row.project+':'+fingerprint)!==row.issue)throw new Error('Archive grouping mismatch');}
+  for(const row of v.data.artifacts){const payload=validateMap(JSON.parse(row.payload));if(payload!==row.payload||await hash(payload)!==row.digest)throw new Error('Archive artifact integrity');const r:any=releases.get(row.project+':'+row.release);if(!r||r.build!==row.build)throw new Error('Archive artifact release');}
+  for(const row of v.data.outcomes)if(!['accepted','duplicate','conflict','unauthorized','invalid','oversized','rejected','rate_limited','budget','storage_failure'].includes(row.reason)||!Number.isSafeInteger(row.count)||row.count<0||!Number.isSafeInteger(row.window))throw new Error('Archive loss accounting');
+  for(const row of v.data.alerts)if(!['new_issue','regression'].includes(row.kind)||!Number.isSafeInteger(row.created))throw new Error('Archive alert');
+  const kinds:Record<string,string[]>={project_created:['id'],release_registered:['name','build','seq'],key_created:['hash','kind'],key_revoked:['hash'],triage:['issue','state','revision'],artifact_uploaded:['release','build','debug','digest'],retention_gap:['cutoff','removed','dedupHorizon']};
+  for(const row of v.data.audit){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const value of Object.values(detail)){if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
+  for(const project of projects){if(v.data.artifacts.filter((r:any)=>r.project===project).length>20)throw new Error('Archive artifact budget');}
+  return v.data;
+}

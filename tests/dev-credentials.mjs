@@ -1,0 +1,78 @@
+import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {resolve} from 'node:path';
+import {authBindings,signIn,testDevKey} from './auth.mjs';
+
+// Credentials minted while signed in with a dev session count only behind the local key gate. This runs the real
+// local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
+// document renderers are replaced (the Start entry and the build-time docs module behind the landing and /docs),
+// because neither the API nor the gate reaches them.
+const require=createRequire(import.meta.url);
+const {Miniflare,convertV4MiniflareOptions}=require(require.resolve('miniflare',{paths:[require.resolve('wrangler/package.json')]}));
+const {unstable_splitSqlQuery}=require('wrangler');
+const esbuild=require('esbuild');
+const documentStub={name:'document-stub',setup(build){
+ build.onResolve({filter:/^@tanstack\/react-start\/server-entry$/},()=>({path:'document',namespace:'stub'}));
+ build.onResolve({filter:/^virtual:spool-docs$/},()=>({path:'docs',namespace:'stub'}));
+ build.onLoad({filter:/^docs$/,namespace:'stub'},()=>({loader:'js',contents:"export const repository='';export default {repository:'',sections:[],pages:[]}"}));
+ build.onLoad({filter:/^document$/,namespace:'stub'},()=>({loader:'js',contents:"export default {fetch:async()=>new Response('<!doctype html><title>Spool</title><body>document</body>',{headers:{'content-type':'text/html'}})}"}));
+}};
+const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
+
+const port=15471,origin=`http://127.0.0.1:${port}`,directory=await mkdtemp(resolve(tmpdir(),'spool-dev-credentials-'));
+const worker=(name,script)=>({name,modules:true,script,compatibilityDate:'2026-09-08',compatibilityFlags:['nodejs_compat'],d1Databases:{DB:'spool-dev-credentials'},bindings:authBindings(origin)});
+const mf=new Miniflare(convertV4MiniflareOptions({host:'127.0.0.1',port,defaultPersistRoot:directory,workers:[worker('local',await bundle('src/server.dev.ts')),worker('deployed',await bundle('src/server.ts'))]}));
+try{
+ await mf.ready;
+ const db=await mf.getD1Database('DB','local');
+ for(const file of (await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort()){
+  const queries=unstable_splitSqlQuery(await readFile(resolve('migrations/core',file),'utf8')).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+  await db.batch(queries.map(sql=>db.prepare(sql)));
+ }
+ const deployed=await mf.getWorker('deployed');
+ // key: the header the rer harness sends; without it a request looks as one through a forwarding proxy does.
+ const call=(target,path,{method='GET',cookie,body,key=false,bearer}={})=>target(origin+path,{method,redirect:'manual',headers:{Origin:origin,...body?{'Content-Type':'application/json'}:{},...cookie?{Cookie:cookie}:{},...bearer?{Authorization:'Bearer '+bearer}:{},...key?{'x-rer-dev-key':testDevKey}:{}},...body?{body:JSON.stringify(body)}:{}});
+ const local=(path,options)=>call(fetch,path,options),remote=(path,options)=>call((url,init)=>deployed.fetch(url,init),path,options);
+ const status=async response=>{await response.body?.cancel();return response.status};
+ const event=id=>({version:1,eventId:id,release:'r1',build:'b1',environment:'production',type:'TypeError',message:'failed',frames:[{file:'https://app.test/bundle.js',line:1,column:0,function:'run',debugId:'d1'}],breadcrumbs:[]});
+
+ // An ordinary session: the first owner and every credential it mints work with no key at all.
+ const ordinary=await signIn(origin);
+ assert.equal(await status(await local('/api/projects',{method:'POST',cookie:ordinary,body:{id:'web',name:'Web'}})),201);
+ assert.equal(await status(await local('/api/projects/web/releases',{method:'POST',cookie:ordinary,body:{name:'r1',build:'b1'}})),201);
+ const minted=async(cookie,kind,key,project='web')=>(await (await local(`/api/projects/${project}/keys`,{method:'POST',cookie,body:{kind},key})).json()).key;
+ const ordinaryAgent=await minted(ordinary,'agent');
+ for(const target of [local,remote])assert.equal(await status(await target('/api/projects/web/issues',{bearer:ordinaryAgent})),200,'an ordinary agent key is unchanged');
+
+ // A dev session needs the key on every request; the deployed entry never admits it.
+ const entered=await local('/auth/dev/enter?as=owner',{key:true});assert.equal(entered.status,303);await entered.body?.cancel();
+ // The browser also receives the port-named gate cookie (rer_dev_gate_<port>); the session cookie alone is what a request without the key carries.
+ const dev=entered.headers.getSetCookie().map(line=>line.split(';')[0]).filter(pair=>!pair.startsWith('rer_dev_gate')).join('; ');
+ assert.equal(await status(await local('/api/projects',{cookie:dev})),401,'a dev session without the key is refused');
+ assert.equal(await status(await remote('/api/projects',{cookie:dev,key:true})),401,'the deployed entry refuses a dev session even with the key');
+ const create=await local('/api/projects',{method:'POST',cookie:dev,key:true,body:{id:'minted',name:'Minted'}});assert.equal(create.status,201);
+ const project=await create.json(),agent=await minted(dev,'agent',true,'minted'),deploy=await minted(dev,'deploy',true,'minted'),ingest=await minted(dev,'ingest',true,'minted');
+ assert.ok(agent&&deploy&&ingest);
+ assert.equal(await status(await local('/api/projects/minted/releases',{method:'POST',cookie:dev,key:true,body:{name:'r1',build:'b1'}})),201);
+ assert.equal((await db.prepare("SELECT COUNT(*) n FROM oa_dev_credentials WHERE credential='credentials'").first()).n,4,'every mint path in the dev session is recorded; the ordinary ones are not');
+
+ // Dev-minted credentials: admitted with the key, refused without it and by the deployed entry.
+ const probes=[
+  ['ingest key',(target,key)=>target('/api/ingest/minted',{method:'POST',bearer:project.ingestKey,body:event('e-'+Math.random()),key}),201],
+  ['agent key',(target,key)=>target('/api/projects/minted/issues',{bearer:agent,key}),200],
+  ['deploy key',(target,key)=>target('/api/projects/minted/releases',{method:'POST',bearer:deploy,body:{name:'r'+Math.random().toString(36).slice(2,8),build:'b'},key}),201],
+ ];
+ for(const [name,probe,allowed] of probes){
+  assert.equal(await status(await probe(local,true)),allowed,`a dev-minted ${name} works behind the key`);
+  assert.equal(await status(await probe(local,false)),401,`a dev-minted ${name} is refused without the key`);
+  assert.equal(await status(await probe(remote,true)),401,`a dev-minted ${name} is refused by the deployed entry`);
+ }
+ assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),401,'every dev-minted ingest key is refused without the key');
+ console.log('Spool dev credentials: ordinary keys unchanged; every dev-minted ingest, agent and deploy key works only behind the key and never in the deployed entry.');
+}finally{
+ await mf.dispose();await rm(directory,{recursive:true,force:true});
+}

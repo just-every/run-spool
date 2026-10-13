@@ -1,0 +1,278 @@
+{
+  "pages": [
+    {
+      "file": "evidence-packet.html",
+      "ok": true,
+      "bound": null,
+      "duplicateIds": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "dropdown": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "modal": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "viewports": [
+        {
+          "width": 1536,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        },
+        {
+          "width": 390,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "install-errors.html",
+      "ok": true,
+      "bound": null,
+      "duplicateIds": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "dropdown": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "modal": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "viewports": [
+        {
+          "width": 1536,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        },
+        {
+          "width": 390,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "issues.html",
+      "ok": true,
+      "bound": null,
+      "duplicateIds": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "dropdown": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "modal": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "viewports": [
+        {
+          "width": 1536,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        },
+        {
+          "width": 390,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "release-setup.html",
+      "ok": true,
+      "bound": null,
+      "duplicateIds": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "dropdown": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "modal": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "viewports": [
+        {
+          "width": 1536,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        },
+        {
+          "width": 390,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        }
+      ]
+    },
+    {
+      "file": "selected-issue.html",
+      "ok": true,
+      "bound": null,
+      "duplicateIds": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "dropdown": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "modal": {
+        "present": false,
+        "ok": true,
+        "probed": 0,
+        "probes": []
+      },
+      "viewports": [
+        {
+          "width": 1536,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        },
+        {
+          "width": 390,
+          "ok": true,
+          "pageErrors": [],
+          "consoleErrors": [],
+          "composition": {
+            "holding": false,
+            "ok": true
+          },
+          "shellState": {
+            "applicable": false,
+            "ok": true,
+            "failures": []
+          }
+        }
+      ]
+    }
+  ],
+  "pageErrors": 0,
+  "consoleErrors": 0,
+  "duplicateIds": 0,
+  "brokenTargets": [],
+  "interactionFailures": [],
+  "compositionFailures": [],
+  "shellConsistencyFailures": [],
+  "shellConsistencyTolerances": [],
+  "activeNavigationFailures": [],
+  "deepLinkBack": {
+    "present": false,
+    "ok": true
+  },
+  "failures": []
+}

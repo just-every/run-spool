@@ -1,0 +1,30 @@
+/** CI-only module: secrets are resolved by environment name, never serialized into builds. */
+export function deployConfiguration(options) {
+  const endpoint = new URL(options.endpoint);
+  if (!['http:', 'https:'].includes(endpoint.protocol) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || endpoint.pathname !== '/') throw new Error('Endpoint must be an absolute HTTP(S) origin without credentials');
+  if (endpoint.protocol !== 'https:' && !['localhost','127.0.0.1','[::1]'].includes(endpoint.hostname)) throw new Error('Deploy keys require HTTPS outside loopback');
+  if (!/^[A-Za-z0-9._:-]{1,100}$/.test(options.project ?? '') || typeof options.release !== 'string' || !options.release || typeof options.build !== 'string' || !options.build) throw new Error('Project, release and build are required');
+  if (!/^[A-Z_][A-Z0-9_]*$/i.test(options.keyEnv ?? '')) throw new Error('keyEnv must name an environment variable');
+  const key = process.env[options.keyEnv];
+  if (!key) throw new Error('Deploy key environment variable is empty');
+  return { endpoint: endpoint.origin, project: options.project, release: options.release, build: options.build, key };
+}
+export async function uploadSourceMaps(options, artifacts) {
+  const config = deployConfiguration(options);
+  if (!Array.isArray(artifacts) || !artifacts.length || artifacts.length > 20) throw new Error('Supply between one and twenty source maps');
+  const post = async (path, payload) => {
+    let response;
+    try { response = await fetch(`${config.endpoint}/api/projects/${encodeURIComponent(config.project)}/${path}`, { method:'POST', redirect:'error', headers:{'Content-Type':'application/json',Authorization:`Bearer ${config.key}`},body:JSON.stringify(payload) }) }
+    catch { throw new Error('Spool upload transport failed') }
+    if (!response.ok) throw new Error(`Spool ${path} refused (HTTP ${response.status})`);
+    return response.json();
+  };
+  await post('releases', { name: config.release, build: config.build });
+  const results = [];
+  for (const artifact of artifacts) {
+    if (Buffer.byteLength(JSON.stringify(artifact.map)) > 262144) throw new Error('Source map exceeds 256 KiB');
+    const result = await post('artifacts', { release: config.release, build: config.build, debugId: artifact.debugId, map: artifact.map });
+    results.push({ debugId: artifact.debugId, digest: result.digest });
+  }
+  return { uploaded: results.length, artifacts: results };
+}

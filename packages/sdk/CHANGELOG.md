@@ -1,0 +1,9 @@
+# Changelog
+
+## 0.1.0
+
+- First release of `@just-every/spool`: browser `init` (uncaught errors and unhandled rejections, explicit scrubbed breadcrumbs), Node `init` (reports uncaught exceptions, then exits as Node would), Cloudflare Workers `captureException` with `ctx.waitUntil`, typed release and build identity, the `spool-sourcemaps` CLI and the `/vite` (Rollup) plugin. No runtime dependencies.
+- The SDK never throws into or replaces the app's own flow: every function settles with an outcome for any thrown value and in any environment (pages without `crypto.randomUUID`, no `fetch`, Spool unreachable); wrong options settle as `rejected` with reason `invalid_options` instead of throwing; the Node handler always prints the app's own error and exits 1.
+- The SDK cannot feed back on itself: it sends with the `fetch` present at `init`, and the browser listener drops an uncaught error repeating one sent in the last 5 seconds and sends at most 30 per minute, so a page whose fetch wrapper reports Spool's refusals as errors sends a handful of requests instead of thousands. The Node handler prints the app's first uncaught error and exits 1 even when `fetch` never settles, ignoring later throws while it reports.
+- One noisy error cannot hide a new one, and nothing the browser listener drops is silent: the cap applies per error location (type and top frame, message excluded; 30 at once, then one every 2 seconds), the newest error over the cap is sent once its location may send again, each dropped error settles through `onOutcome` as `dropped` with reason `client_cap` or `duplicate`, and the next event from that location carries the drop count, which Spool shows on the issue (`client_dropped`).
+- A burst of distinct errors cannot freeze the page or fill its memory: the browser listener's repeat map prunes only what has expired and holds at most 256 entries, so the cost of each error stays constant however many arrive at once.

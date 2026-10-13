@@ -1,0 +1,52 @@
+import { defineErasure } from '../../modules/erasure/index.mjs';
+
+// BASE-DATA-003 project erasure. The selected project and every row that
+// depends on it are deleted through Base erasure, so each deleted row also gets
+// its portability tombstone. Only an imported project has Sentry-import
+// targets, and its erasure commits in one import-kit batch, so targets and the
+// native rows they name leave together inside the fence.
+const fromProject = (table: string) => ({ table, from: 'projects', on: { project: 'id' } });
+const integration = (table: string) => ({ table, from: 'projects', where: "namespace='spool.'||?", params: ['id'] });
+// Surviving project audit rows are detached here and labelled with the
+// operation's random label by `statements` once the project row is gone.
+export const ERASED_AUDIT_PENDING = '{"erasure":"pending"}';
+
+export const projectErasure = defineErasure({
+ entity: 'project',
+ root: { table: 'projects' },
+ edges: [
+  ...['events', 'issues', 'releases', 'artifacts', 'outcomes', 'credentials', 'browser_origins', 'browser_origin_guards', 'sentry_project_aliases',
+   'alerts', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks'].map(fromProject),
+  { table: 'alert_mail_attempts', from: 'alert_mail_jobs', on: { delivery_id: 'id' } },
+  // Development mail captured for this project's alert deliveries.
+  { table: 'rer_mail_development_outbox', from: 'alert_mail_jobs', where: "CASE WHEN json_valid(message) THEN json_extract(message,'$.deliveryId') END=?", params: ['id'] },
+  // The dev-minted mark of a deleted project credential.
+  { table: 'oa_dev_credentials', from: 'credentials', where: "credential='credentials' AND id=?", params: ['hash'] },
+  ...['integration_deliveries', 'integration_attempts', 'integration_resolutions', 'integration_replays', 'integration_tokens', 'integration_token_events', 'integration_token_usage'].map(integration),
+  // One predicate per project, never one query per event: import targets name
+  // the project directly, or by the project in their JSON key, or by issue.
+  { table: 'sentry_import_targets', from: 'projects', where: "(kind='project' AND id=?) OR (CASE WHEN kind IN ('release','event') THEN json_extract(id,'$[0]') END=?) OR (kind='issue' AND id IN (SELECT id FROM issues WHERE project=?))", params: ['id', 'id', 'id'] },
+ ],
+ redact: [
+  { table: 'audit', from: 'projects', on: { project: 'id' }, set: { project: null, detail: ERASED_AUDIT_PENDING }, reason: 'Project audit entries survive with their kind and time only, under a random label that cannot be joined back to the project.' },
+  { table: 'alert_scheduler', from: 'projects', where: 'last_project=?', params: ['id'], set: { last_project: '' }, reason: 'The alert scheduler cursor keeps no project identifier.' },
+  { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
+ ],
+ retain: [
+  { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },
+  { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },
+  { table: 'oc_owner_claims', reason: 'The managed owner-claim ledger stays with the installation.' },
+  { table: 'rer_erasure_operations', reason: 'Erasure receipts keep counts and times only.' },
+ ],
+ // One erasure at a time, so pending audit entries always get their own label.
+ hold: async ({ db }) => await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,
+ statements: async ({ db, label }) => [db.prepare('UPDATE audit SET detail=json_object(\'erasure\',?) WHERE project IS NULL AND detail=?').bind(label, ERASED_AUDIT_PENDING)],
+});
+
+// Exceptions that are not tables: shown in the preview and the receipt.
+export const erasureExceptions = [
+ 'Other projects stay: they lie outside the selected project.',
+ 'Portability tombstones stay as keyed hashes so older archives are refused on restore.',
+ 'Already downloaded archives, delivered mail, provider records, D1 Time Travel and backups, raw database imports and destination secrets (ALERT_DESTINATIONS) lie outside this installation and are not deleted.',
+ 'A brand-new installation given only an older archive cannot recognise this erasure; give it the newer archive as a later journal.',
+];

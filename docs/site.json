@@ -1,0 +1,253 @@
+{
+  "sections": [
+    {
+      "title": "Start here",
+      "pages": [
+        {
+          "slug": "",
+          "source": "docs/overview.md",
+          "label": "Overview"
+        },
+        {
+          "slug": "install",
+          "source": "docs/install.md",
+          "label": "Run it on your computer"
+        },
+        {
+          "slug": "capture",
+          "source": "docs/capture.md",
+          "label": "Connect your app"
+        }
+      ]
+    },
+    {
+      "title": "Use it",
+      "pages": [
+        {
+          "slug": "issues",
+          "source": "docs/triage.md",
+          "label": "Investigating an issue"
+        },
+        {
+          "slug": "agents",
+          "source": "docs/agents.md",
+          "label": "Your coding agent"
+        }
+      ]
+    }
+  ],
+  "githubOnly": [
+    {
+      "source": "ACCEPTANCE.md",
+      "reason": "Release evidence gates for maintainers"
+    },
+    {
+      "source": "ACCESSIBILITY.md",
+      "reason": "Accessibility test coverage notes for maintainers"
+    },
+    {
+      "source": "AGENTS.md",
+      "reason": "Contributor and coding-agent rules for working on Spool"
+    },
+    {
+      "source": "BROWSER-ORIGINS.md",
+      "reason": "Maintainer notes on browser origin enforcement"
+    },
+    {
+      "source": "CLAUDE.md",
+      "reason": "A pointer for coding agents working in the repository"
+    },
+    {
+      "source": "CONTRACT.md",
+      "reason": "The product's requirement clauses, for maintainers"
+    },
+    {
+      "source": "DUPLICATE-TRANSPORT.md",
+      "reason": "Maintainer notes on duplicate transport handling"
+    },
+    {
+      "source": "HANDOVER.md",
+      "reason": "Maintainer handover notes"
+    },
+    {
+      "source": "ISSUE-BROWSING.md",
+      "reason": "Maintainer notes on the issue list's behaviour"
+    },
+    {
+      "source": "MANAGED-ADMISSION.md",
+      "reason": "Maintainer notes on managed admission"
+    },
+    {
+      "source": "ONBOARDING.md",
+      "reason": "Notes for contributors starting on the source"
+    },
+    {
+      "source": "OPERATIONS.md",
+      "reason": "Operating requirements, for maintainers"
+    },
+    {
+      "source": "README.md",
+      "reason": "The repository's front page on GitHub"
+    },
+    {
+      "source": "RUN-LOCALLY.md",
+      "reason": "Command and flag reference for maintainers, which names internal environment variables and the shared job queue; the owner-facing steps are on Run it on your computer"
+    },
+    {
+      "source": "SEED-COMMAND-CONTRACT.md",
+      "reason": "The command contract the source is built to, for maintainers"
+    },
+    {
+      "source": "TARGET.md",
+      "reason": "Product target and claim limits, for maintainers"
+    },
+    {
+      "source": "design/ALIGNMENT.md",
+      "reason": "Design review notes, for maintainers"
+    },
+    {
+      "source": "design/README.md",
+      "reason": "Notes on the design prototype and the 11 Oct style, for maintainers"
+    },
+    {
+      "source": "design/STATE-ALIGNMENT.md",
+      "reason": "Design state notes, for maintainers"
+    },
+    {
+      "source": "docs/ALERT-IMPLEMENTATION.md",
+      "reason": "Alert implementation notes, for maintainers"
+    },
+    {
+      "source": "docs/ALERT-WEBHOOKS.md",
+      "reason": "Alert webhook delivery notes, for maintainers"
+    },
+    {
+      "source": "docs/PROJECT-ERASURE.md",
+      "reason": "Project erasure implementation notes, for maintainers"
+    },
+    {
+      "source": "docs/SENTRY-SWITCHING.md",
+      "reason": "Engineering notes on the Sentry intake, with qualification disclaimers and verification detail; the owner-facing steps are on Connect your app"
+    },
+    {
+      "source": "scripts/base-cli/cli/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/ai/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/container/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/deploy-kit/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/erasure/CONTRACT.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/erasure/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/job-queue/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/mail/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/mail/src/adapters/messaging/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/mail/src/events/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/operator-auth/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/operator-auth/identity/oidc/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/modules/portability/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "scripts/base-cli/scripts/publish-check/README.md",
+      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
+    },
+    {
+      "source": "src/modules/dependencies/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/egress-service/ADOPTION.md",
+      "reason": "Base egress service documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/egress-service/DESIGN.md",
+      "reason": "Base egress service documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/egress-service/OWNER-STEPS.md",
+      "reason": "Base egress service documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/egress-service/README.md",
+      "reason": "Base egress service documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/egress-service/tls/README.md",
+      "reason": "Base egress service documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/erasure/CONTRACT.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/erasure/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/mail/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/mail/src/adapters/messaging/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/mail/src/events/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/operator-auth/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/operator-auth/conformance/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/operator-auth/docs/native-accounts.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/operator-auth/identity/oidc/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    },
+    {
+      "source": "src/modules/portability/README.md",
+      "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "units": [
+    {
+      "id": "selected-issue",
+      "states": [
+        "selected-issue"
+      ],
+      "actions": 0,
+      "fields": 0,
+      "unbound": 0,
+      "sourceKind": "local-page",
+      "viewportCoverage": "not-claimed",
+      "nativeScripts": 0
+    },
+    {
+      "id": "issues",
+      "states": [
+        "issues"
+      ],
+      "actions": 0,
+      "fields": 0,
+      "unbound": 0,
+      "sourceKind": "local-page",
+      "viewportCoverage": "not-claimed",
+      "nativeScripts": 0
+    },
+    {
+      "id": "install-errors",
+      "states": [
+        "install-errors"
+      ],
+      "actions": 0,
+      "fields": 0,
+      "unbound": 0,
+      "sourceKind": "local-page",
+      "viewportCoverage": "not-claimed",
+      "nativeScripts": 0
+    },
+    {
+      "id": "release-setup",
+      "states": [
+        "release-setup"
+      ],
+      "actions": 0,
+      "fields": 0,
+      "unbound": 0,
+      "sourceKind": "local-page",
+      "viewportCoverage": "not-claimed",
+      "nativeScripts": 0
+    },
+    {
+      "id": "evidence-packet",
+      "states": [
+        "evidence-packet"
+      ],
+      "actions": 0,
+      "fields": 0,
+      "unbound": 0,
+      "sourceKind": "local-page",
+      "viewportCoverage": "not-claimed",
+      "nativeScripts": 0
+    }
+  ],
+  "nav": [],
+  "holdings": [],
+  "counts": {
+    "navigate": 0,
+    "dropdown": 0,
+    "modal": 0,
+    "field": 0,
+    "none": 0,
+    "lunaOnly": 0,
+    "detOnly": 0,
+    "agree": 0,
+    "disagree": 0
+  },
+  "unbound": [],
+  "invalidDropdowns": [],
+  "shellSizeDelta": [],
+  "shellAmbiguities": [],
+  "suppressedShellOverlaps": [],
+  "skippedShellTransplants": [],
+  "replacedShellActions": 0,
+  "shellActionRemaps": 0,
+  "scriptDirections": [
+    {
+      "stateId": "selected-issue",
+      "scriptDirection": "ltr",
+      "writingMode": "horizontal-tb"
+    },
+    {
+      "stateId": "issues",
+      "scriptDirection": "ltr",
+      "writingMode": "horizontal-tb"
+    },
+    {
+      "stateId": "install-errors",
+      "scriptDirection": "ltr",
+      "writingMode": "horizontal-tb"
+    },
+    {
+      "stateId": "release-setup",
+      "scriptDirection": "ltr",
+      "writingMode": "horizontal-tb"
+    },
+    {
+      "stateId": "evidence-packet",
+      "scriptDirection": "ltr",
+      "writingMode": "horizontal-tb"
+    }
+  ],
+  "canonicalShell": {},
+  "canonicalShellPage": null,
+  "shellConsistency": {
+    "changes": 0,
+    "decisions": []
+  },
+  "version": 1,
+  "revision": "prototype-v8",
+  "source": {
+    "branchDir": "/var/folders/m4/05fy4d295ts77ldyt9qll0vc0000gn/T/12ui-errors-javascript-evidence-workb-fYMCgy/branch",
+    "sourceDir": "/var/folders/m4/05fy4d295ts77ldyt9qll0vc0000gn/T/12ui-errors-javascript-evidence-workb-fYMCgy/branch",
+    "runId": "crt-ff369c25d275c753ed6cdf5325f75fe321adf66a",
+    "planPath": "/var/folders/m4/05fy4d295ts77ldyt9qll0vc0000gn/T/12ui-errors-javascript-evidence-workb-fYMCgy/branch/branch.plan.json"
+  },
+  "input": {
+    "exportedHtmlFiles": 5,
+    "semanticViewportSections": 0,
+    "localPageUnits": 5,
+    "viewportCoverage": "not-claimed",
+    "planStatus": "passed"
+  },
+  "labels": {
+    "requestedScreens": 5,
+    "labeledScreens": 0,
+    "costMicros": 0,
+    "costScope": "new hosted prototype-label calls only; workflow model usage is recorded separately",
+    "precedence": "deterministic navigation applies; dropdowns bind only from three or more distinct labeled options"
+  },
+  "polish": {
+    "enabled": false
+  },
+  "gates": {
+    "exportedHtml": "passed",
+    "branchPlan": "passed",
+    "semanticViewportSections": "accepted-partial",
+    "runtime": "passed",
+    "shellConsistency": "passed",
+    "activeNavigation": "passed",
+    "zeroActionRealPages": "passed",
+    "dropdownValidity": "passed",
+    "holdingRatio": "passed"
+  },
+  "runtime": {
+    "auditPath": "runtime-audit.json",
+    "pageCount": 5,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "duplicateIds": 0,
+    "brokenTargets": 0,
+    "interactionFailures": [],
+    "compositionFailures": [],
+    "shellConsistencyFailures": [],
+    "activeNavigationFailures": [],
+    "viewportWidths": [
+      390,
+      1536
+    ],
+    "deepLinkBack": {
+      "present": false,
+      "ok": true
+    }
+  },
+  "facts": {
+    "realPages": 5,
+    "holdingPages": 0,
+    "holdingRatio": 0,
+    "zeroActionRealPages": [],
+    "invalidDropdowns": 0,
+    "dropdownDemotions": 0,
+    "shellResiduals": 0,
+    "maxShellDeltaPx": 0,
+    "skippedShellTransplants": 0,
+    "untestedScriptDirections": [],
+    "visualReviewRequired": false
+  },
+  "degradations": [],
+  "warnings": [
+    "5 local document page(s) retain native layout and behavior; only navigation to existing pages is added. Responsive viewport coverage is not inferred. Unresolved labels and routes remain in the manifest."
+  ]
+}

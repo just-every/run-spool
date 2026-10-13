@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "project": "runeditrun/egress-service",
+  "compatibilityDate": "2026-09-08",
+  "workersDev": false,
+  "vars": {
+    "EGRESS_GRANTS": "[{\"entrypoint\":\"EgressService\",\"allowedHosts\":[]},{\"entrypoint\":\"EgressRestricted\",\"allowedHosts\":[]}]"
+  }
+}

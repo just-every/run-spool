@@ -1,0 +1,9 @@
+# Spool interface source custody
+
+12ui generated original reference design selected candidate C, expanded to five application states. `approved-selected-issue.png` and `prototype/` retain the approved geometry, assets and original generated prototype. Prototype sample values, avatars and script notes are reference-only; runtime uses actual private API data and `src/ui`. No competitor assets or code are used.
+
+The prototype SVG symbol identifiers were repaired to remove collisions, and its recorded runtime gate passed. Final rendered alignment is separately recorded in ignored `.artifacts/design-alignment-selected`; completion is recorded in HANDOVER. Functional content, real outcomes and inconclusive verification take precedence over decorative sample data.
+
+The 11 Oct 2026 Spool style replaces this baseline's look in the running product: paper, ink and one marker-yellow highlighter, Zilla Slab headings, IBM Plex Sans text and IBM Plex Mono for code strings, self-hosted under `public/fonts` (SIL OFL, `public/fonts/OFL.txt`) and declared in `public/fonts/fonts.css`. Tokens live once in `public/theme/spool.css`. The public landing (`src/ui/landing`) and the docs pages (`src/ui/docs`, built from the Markdown that `docs/site.json` lists) share the same header, footer and type. The prototype above remains as history.
+
+The docs pages follow a 12ui pick kept in `design/docs12ui` (`page-1440.png`, `page-390.png`, `index-1440.png`, `index-390.png`): a sidebar whose sections are nodes on a thread, a mono eyebrow, numbered sections as steps on the thread, ruled code cards labelled with the fence language, marker-edged callouts and a pill pager. The page's source is `src/ui/docs/DocsPage.tsx`, `vite/docs/markdown.ts` and `public/theme/docs.css`; the images are the visual authority for later changes.

@@ -1,0 +1,132 @@
+/* Docs: the landing's header, footer and type; the layout follows the 12ui pick in design/docs12ui. One thread runs
+   from the wordmark, down the sidebar's sections and through each numbered step, as on the landing's 1-2-3. */
+.docs{--thread:2px solid var(--ink);--node:34px}
+.docs .landing-header{padding-bottom:8px}
+.docs .thread-run{align-self:center;height:0;margin:0 28px 0 20px;border:0;border-top:var(--thread);border-radius:0}
+.docs-layout{display:grid;grid-template-columns:240px minmax(0,1040px);gap:72px;max-width:1440px;margin:0 auto;padding:48px var(--gutter) 96px}
+.docs-menu{display:none}
+.docs-sidebar{position:sticky;top:32px;align-self:start}
+
+/* Navigation: each section is a node on a vertical thread; the current page is the one marker stroke. */
+.docs-nav>div{position:relative;padding-left:24px;border-left:var(--thread);margin-left:7px}
+.docs-nav>div+div{margin-top:28px}
+.docs-nav-title{position:relative;margin:0 0 10px;font:500 13px/1.2 var(--font-code);letter-spacing:.12em;text-transform:uppercase}
+.docs-nav-title::before{content:"";position:absolute;left:-33px;top:50%;width:14px;height:14px;margin-top:-7px;background:var(--paper);border:var(--thread);border-radius:50%}
+.docs-nav ul{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+.docs-nav a{display:block;padding:7px 12px;margin-left:-12px;font-size:16px;line-height:1.35;text-decoration:none}
+.docs-nav a:hover{text-decoration:underline;text-underline-offset:4px}
+.docs-nav a[aria-current=page]{font-weight:600}
+
+.docs-main{min-width:0}
+.docs-eyebrow{margin-bottom:14px;font:500 13px/1.2 var(--font-code);letter-spacing:.14em;text-transform:uppercase}
+.docs-article h1{text-wrap:balance;font-size:clamp(40px,4.6vw,66px);line-height:1;letter-spacing:-.025em;-webkit-text-stroke:.022em var(--ink)}
+
+.prose{margin-top:28px;font-size:18px;line-height:1.65}
+.prose>*+*,.prose .step>*+*{margin-top:18px}
+.prose>p:first-child{max-width:44ch;font-size:clamp(19px,1.6vw,22px);line-height:1.55}
+.prose p,.prose li{max-width:68ch}
+.prose h2{margin-top:56px;padding-top:28px;border-top:var(--rule);font-size:clamp(26px,2.6vw,34px)}
+.prose h3{margin-top:32px;font-size:22px}
+.prose h4,.prose h5,.prose h6{margin-top:24px;font-size:18px}
+.prose h2+*,.prose h3+*,.prose h4+*{margin-top:12px}
+.prose a:not([class]){text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px;overflow-wrap:anywhere}
+.prose a:not([class]):hover{text-decoration-thickness:2.5px}
+.prose ul,.prose ol{margin-bottom:0;padding-left:1.4em}
+.prose li+li{margin-top:8px}
+.prose li>*+*{margin-top:10px}
+.prose li::marker{font-weight:600}
+.prose strong{font-weight:600}
+
+/* Code: ruled cards; the fence's language labels the card. */
+.prose code{padding:.08em .32em;background:var(--paper-sunk);border-radius:4px;font-size:.86em;overflow-wrap:anywhere}
+.prose pre{position:relative;margin:18px 0 0;padding:20px 22px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card);font-size:15px;line-height:1.65;white-space:pre;overflow-x:auto}
+.prose pre[data-language]{padding-top:34px}
+.prose pre[data-language]::before{content:attr(data-language);position:absolute;top:10px;right:16px;font:500 12px/1 var(--font-code);letter-spacing:.06em;color:var(--ink-soft)}
+.prose pre code{padding:0;background:none;font-size:inherit;overflow-wrap:normal}
+
+/* Callouts: a quoted note, with the marker as its edge. */
+.prose blockquote{margin:18px 0 0;padding:14px 20px;background:var(--paper-raised);border:var(--inner-border);border-left:6px solid var(--mark);border-radius:var(--radius-input)}
+.prose blockquote>*+*{margin-top:10px}
+
+.table-scroll{overflow-x:auto}
+.prose table{width:100%;border-collapse:collapse;font-size:15px}
+.prose th,.prose td{padding:10px 12px;border-bottom:var(--hairline-border);text-align:left;vertical-align:top}
+.prose th{border-bottom:var(--rule);font-weight:600}
+
+/* Numbered sections are steps on the thread. */
+.prose .step{position:relative;padding:0 0 40px 64px;counter-reset:none}
+.prose .step::before{content:"";position:absolute;left:calc(var(--node) / 2 - 1px);top:calc(var(--node) / 2);bottom:0;border-left:var(--thread)}
+.prose .step:last-child{padding-bottom:0}
+.prose .step>.step-heading{margin-top:0;padding-top:0;border-top:0}
+.prose .step-heading{position:relative;min-height:var(--node);font-size:clamp(26px,2.4vw,32px);line-height:var(--node)}
+.prose .step-no{position:absolute;left:-64px;top:0;z-index:1;display:grid;place-items:center;width:var(--node);height:var(--node);background:var(--paper);border:var(--thread);border-radius:50%;font:700 18px/1 var(--font-display);font-variant-numeric:lining-nums}
+.prose .step>.step-heading+*{margin-top:14px}
+.prose .step+h2{margin-top:24px}
+
+/* A numbered list is a thread too: each item's bold lead is its title. */
+.prose>ol,.prose .step>ol{counter-reset:item;padding:0;list-style:none}
+.prose>ol>li,.prose .step>ol>li{position:relative;max-width:none;padding-left:60px;counter-increment:item}
+.prose>ol>li+li,.prose .step>ol>li+li{margin-top:0;padding-top:28px}
+.prose>ol>li::before,.prose .step>ol>li::before{content:counter(item);position:absolute;left:0;top:calc(var(--item-top,0px));z-index:1;display:grid;place-items:center;width:var(--node);height:var(--node);background:var(--paper);border:var(--thread);border-radius:50%;font:700 18px/1 var(--font-display);font-variant-numeric:lining-nums}
+.prose>ol>li+li::before,.prose .step>ol>li+li::before{top:28px}
+.prose>ol>li::after,.prose .step>ol>li::after{content:"";position:absolute;left:calc(var(--node) / 2 - 1px);top:var(--node);bottom:calc(-1 * var(--node));border-left:var(--thread)}
+.prose>ol>li+li::after,.prose .step>ol>li+li::after{top:calc(28px + var(--node))}
+.prose>ol>li:last-child::after,.prose .step>ol>li:last-child::after{display:none}
+.prose>ol>li>strong:first-child,.prose .step>ol>li>strong:first-child{display:block;margin-bottom:4px;font:700 22px/1.2 var(--font-display)}
+.prose>ol>li>*,.prose .step>ol>li>*{max-width:68ch}
+
+/* Three short steps run across, the rail joining their numerals. */
+@media(min-width:1024px){
+ .prose>ol:has(>li:nth-child(3):last-child){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 40px}
+ .prose>ol:has(>li:nth-child(3):last-child)>li{padding:var(--node) 0 0}
+ .prose>ol:has(>li:nth-child(3):last-child)>li+li{padding-top:var(--node)}
+ .prose>ol:has(>li:nth-child(3):last-child)>li::before,.prose>ol:has(>li:nth-child(3):last-child)>li+li::before{top:0}
+ .prose>ol:has(>li:nth-child(3):last-child)>li::after,.prose>ol:has(>li:nth-child(3):last-child)>li+li::after{top:calc(var(--node) / 2 - 1px);bottom:auto;left:calc(var(--node) + 12px);right:-40px;border-left:0;border-top:var(--thread)}
+ .prose>ol:has(>li:nth-child(3):last-child)>li>strong:first-child{margin-top:12px}
+}
+
+/* Pager: the two pills, with the Markdown link between them. */
+.docs-foot{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px 24px;margin-top:64px;padding-top:28px;border-top:var(--rule)}
+.docs-pager{display:contents}
+.docs-pager a{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 24px;border:1.5px solid var(--ink);border-radius:var(--radius-pill);font:600 16px/1 var(--font-text);text-decoration:none}
+.docs-pager .previous{grid-column:1}
+.docs-pager .next{grid-column:3;grid-row:1;background:var(--ink);color:var(--paper)}
+.docs-pager a:hover{background:var(--paper-sunk)}
+.docs-pager .next:hover{background:#000}
+.docs-source{grid-column:2;grid-row:1;justify-self:end;font-size:15px}
+.docs-source a:not([class]){text-decoration:underline;text-underline-offset:4px}
+
+@media(max-width:1023px){
+ .docs-layout{grid-template-columns:minmax(0,1fr);gap:0;padding-top:20px}
+ .docs-sidebar{display:none}
+ .docs-menu{display:block;margin-bottom:32px;border:var(--card-border);border-radius:var(--radius-card);background:var(--paper)}
+ .docs-menu summary{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 18px;font-weight:600;cursor:pointer;list-style:none}
+ .docs-menu summary::-webkit-details-marker{display:none}
+ .docs-menu summary::after{content:"";width:9px;height:9px;margin-top:-4px;border:solid var(--ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+ .docs-menu[open] summary::after{margin-top:4px;transform:rotate(-135deg)}
+ .docs-menu .docs-nav{padding:4px 18px 18px;border-top:var(--rule)}
+ .docs-menu .docs-nav>div:first-child{margin-top:16px}
+ .docs-menu .docs-nav a{margin-left:-12px}
+}
+@media(max-width:760px){
+ /* The eyebrow takes the marker; the thread keeps to the header and numbered lists, and step numbers sit inline. */
+ .docs-eyebrow{display:inline-block;padding:.5em .8em;margin-left:-.4em;background:var(--mark);-webkit-mask:var(--ragged-mask);mask:var(--ragged-mask)}
+ .prose .step{padding:0 0 28px}
+ .prose .step::before{display:none}
+ .prose .step-heading{line-height:1.1}
+ .prose .step-no{position:static;display:inline;width:auto;height:auto;border:0;border-radius:0;background:none;font:inherit}
+ .prose .step-no .visually-hidden{position:static;width:auto;height:auto;clip:auto;overflow:visible}
+ .prose .step-no::after{content:" "}
+ .prose>ol>li::before,.prose .step>ol>li::before{background:var(--ink);color:var(--paper)}
+}
+@media(max-width:560px){
+ .docs .landing-header{padding-bottom:4px}
+ .docs .thread-run{margin:0 0 0 12px}
+ .prose{margin-top:24px;font-size:17px}
+ .prose pre{padding:14px;font-size:13.5px}
+ .prose pre[data-language]{padding-top:30px}
+ .prose h2{margin-top:36px;padding-top:18px}
+ .docs-foot{grid-template-columns:auto 1fr auto;margin-top:48px}
+ .docs-source{grid-column:1/-1;grid-row:2;justify-self:start}
+ .docs-pager a{padding:0 18px}
+}

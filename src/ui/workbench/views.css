@@ -1,0 +1,138 @@
+/* Work views: ruled sections, the issue card, stack rows, tables, dialogs and the empty state. */
+.evidence{padding:28px 0 32px}
+.evidence+.evidence{border-top:var(--rule)}
+.evidence h2{margin-bottom:12px;font-size:clamp(24px,2.3vw,32px);overflow-wrap:anywhere}
+.evidence h3{margin:20px 0 6px;font-size:20px}
+.evidence p{max-width:72ch;margin:10px 0}
+.evidence>.form-field{margin:16px 0 12px}
+.muted{color:var(--ink-soft);font-size:14px}
+.inline-link{text-decoration:underline}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px 24px;align-items:end;margin:20px 0}
+.form-grid>button,.form-grid>div{justify-self:start}
+.button-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin:16px 0}
+div.data-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:12px 0;border-bottom:var(--hairline-border)}
+.data-row code{overflow-wrap:anywhere}
+div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.6fr) auto}
+.evidence>:is(button,a)+:is(button,a){margin-left:24px}
+.field-error{font-size:14px;font-weight:600}
+[aria-invalid=true]{border-width:2.5px!important;border-style:dashed!important}
+.checkbox{display:flex;align-items:flex-start;gap:10px;margin:14px 0;line-height:1.5}
+.checkbox input{flex:none;width:20px;height:20px;accent-color:var(--ink)}
+.danger-button{margin-top:4px}
+
+.callout{margin:16px 0;padding:14px 18px;background:var(--paper-raised);border:var(--inner-border);border-radius:var(--radius-input)}
+.callout strong{display:block;font-weight:600}
+.callout p{margin:6px 0 0}
+.status-notice{border-left:4px solid var(--ink)}
+.secret-key .key-value{display:block;margin:10px 0;padding:10px 14px;font-size:15px;overflow-wrap:anywhere}
+
+/* Opened issue. */
+.issue-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin:20px 0 16px}
+.issue-toolbar .text-button:first-child{margin-right:auto}
+.issue{margin-bottom:var(--app-gap);padding:24px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card)}
+.issue-summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:24px;margin-bottom:20px;padding-bottom:20px;border-bottom:var(--rule)}
+.issue-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.metadata{font:400 14px/1.5 var(--font-code);overflow-wrap:anywhere}
+.issue-count{text-align:center;font-size:13px}
+.issue-count strong{display:block;font:700 40px/1 var(--font-display)}
+.phone-download{display:none}
+.triage{padding-left:24px;border-left:var(--rule)}
+.triage select{min-width:170px}
+.stack-heading{margin-bottom:12px;font-size:20px}
+.stack{margin:12px 0;padding:6px;list-style:none;border:var(--inner-border);border-radius:var(--radius-input)}
+.stack-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:baseline;gap:14px;padding:11px 12px;border-top:var(--hairline-border)}
+.stack-row:first-child,.stack-row:first-child+.stack-row{border-top:0}
+.line-no{font:400 14px var(--font-code)}
+.frame-coordinate{display:block;font:500 15px/1.45 var(--font-code);overflow-wrap:anywhere}
+.frame-function{display:block;margin-top:2px;font:400 13px/1.45 var(--font-code);color:var(--ink-soft);overflow-wrap:anywhere}
+span.frame-function{font-family:var(--font-text)}
+.mark-bar .frame-function{color:var(--ink)}
+.frame-source{font-size:13px;white-space:nowrap}
+.issue-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0}
+.issue-facts>div{padding:14px 16px;border:var(--card-border);border-radius:var(--radius-input)}
+.issue-facts dt{font-weight:500}
+.issue-facts dd{margin:4px 0 0;font-size:15px;overflow-wrap:anywhere}
+.recent-occurrence h2{font-size:24px}
+.issue-caveat{font-size:14px}
+.capture-accounting dl,.erasure-counts{margin:12px 0;border:var(--inner-border);border-radius:var(--radius-input)}
+.capture-accounting dl>div,.erasure-counts>div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px}
+.capture-accounting dl>div+div,.erasure-counts>div+div{border-top:var(--hairline-border)}
+.capture-accounting dd,.erasure-counts dd{margin:0;font-weight:600}
+/* Project erasure: the counts box and the kept list share the text measure. */
+.erasure-counts,.erasure-kept{max-width:72ch}
+.erasure-kept{margin:8px 0 20px;padding-left:20px;line-height:1.55}
+.erasure-kept li+li{margin-top:6px}
+
+/* Issue list and other tables: hairline rows inside one ruled card. */
+.issue-browser-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:12px 24px}
+.issue-browser-heading h2{margin:0}
+.issue-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}
+.issue-counts>div{padding:14px 16px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-input)}
+.issue-counts span{display:block;font-size:14px}
+.issue-counts strong{display:block;margin-top:4px;font:700 32px/1.1 var(--font-display);font-variant-numeric:lining-nums tabular-nums}
+.issue-filters{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:16px;margin:8px 0 20px}
+.list-summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin-bottom:12px}
+.table-region{max-width:100%;overflow:auto;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card)}
+.issue-table,.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;font-variant-numeric:tabular-nums}
+.issue-table th,.issue-table td,.data-table th,.data-table td{padding:14px 16px;vertical-align:top;border-bottom:var(--hairline-border)}
+.issue-table :is(th,td)+:is(th,td),.data-table :is(th,td)+:is(th,td){border-left:var(--hairline-border)}
+.issue-table thead th,.data-table thead th{font-weight:600;border-bottom:var(--rule)}
+.issue-table tbody tr:last-child>*,.data-table tbody tr:last-child>*{border-bottom:0}
+.issue-table tbody th{width:44%;font-weight:400}
+.issue-open{display:block;margin-bottom:6px;font:500 14px/1.45 var(--font-code);overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
+.issue-table .attention-badge{margin-right:6px}
+.unseen-issue>th{box-shadow:inset 4px 0 0 var(--ink)}
+.unseen-label{font-size:12px;font-weight:600}
+.data-table td:last-child{text-align:right}
+.pagination{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:16px}
+.issue-filter-empty{padding:20px 0}
+
+/* Empty and missing states: a sunk card with an ink drawing. */
+.empty-state{display:grid;justify-items:center;gap:14px;margin:var(--app-gap) 0;padding:40px var(--card-pad) 44px;text-align:center;background:var(--paper-sunk);border:var(--card-border);border-radius:var(--radius-card)}
+.empty-illustration{width:min(100%,260px);height:auto;color:var(--ink)}
+.empty-state h2{font-size:clamp(26px,2.6vw,36px)}
+.empty-state>p{max-width:46ch;font-size:17px}
+.empty-state .button-row{justify-content:center;margin:6px 0 0}
+.missing-state{justify-items:start;text-align:left}
+.missing-state h1{font-size:clamp(30px,3vw,42px)}
+.missing-state .crumb{margin:0;padding:0;border:0}
+
+/* Details dialog. */
+.details-dialog{position:fixed;width:min(760px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 40px);overflow:auto;padding:24px;background:var(--paper);color:var(--ink);border:var(--card-border);border-radius:var(--radius-card);box-shadow:0 18px 60px rgb(28 28 27 / .25)}
+.details-dialog::backdrop{background:rgb(28 28 27 / .45)}
+.details-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;padding-bottom:12px;border-bottom:var(--rule)}
+.details-heading h2{min-width:0;font-size:22px;overflow-wrap:anywhere}
+.details-dialog p{margin:12px 0}
+
+@media(max-width:900px){.issue-filters{grid-template-columns:1fr 1fr}.issue-filters>:first-child{grid-column:1/-1}}
+@media(max-width:760px){
+ .evidence h2{font-size:26px}
+ .issue{padding:16px}
+ .issue-summary{grid-template-columns:minmax(0,1fr) auto;gap:16px}
+ .issue-summary{margin-bottom:14px;padding-bottom:14px}
+ .triage{grid-column:1/-1;padding:12px 0 0;border-left:0;border-top:var(--hairline-border)}
+ .triage .form-field{flex-direction:row;align-items:center;gap:14px}
+ .triage select{flex:1;min-width:0}
+ /* The packet's Download sits in the summary card so it shares the first screen with the marked frame; the rail keeps its description. */
+ .phone-download{display:inline-flex;grid-column:1/-1;width:100%;min-height:48px;margin-top:2px}
+ .packet .rail-download{display:none}
+ .stack-row{grid-template-columns:18px minmax(0,1fr);gap:4px 10px;padding:8px 10px}
+ .frame-source{grid-column:2;font-size:12px}
+ .issue-facts{grid-template-columns:1fr;gap:12px}
+ .issue-counts{gap:8px}
+ .issue-counts>div{padding:10px}
+ .issue-counts strong{font-size:26px}
+ div.key-row{grid-template-columns:minmax(0,1fr) auto}
+ .issue-filters{gap:8px 12px}
+ /* Phone tables become one ruled card per row. */
+ .issue-table thead,.data-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .issue-table,.issue-table tbody,.data-table,.data-table tbody{display:block;width:100%}
+ .issue-table tr,.data-table tr{display:grid;grid-template-columns:1fr 1fr;padding:10px 12px;border-bottom:var(--hairline-border)}
+ .issue-table tbody tr:last-child,.data-table tbody tr:last-child{border-bottom:0}
+ .issue-table tbody th,.data-table tbody th{grid-column:1/-1;width:auto}
+ .issue-table :is(th,td),.data-table :is(th,td){display:block;min-width:0;padding:6px 4px;border:0!important}
+ .issue-table td::before,.data-table td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;font-size:12px;font-weight:600}
+ .issue-table td:last-child{grid-column:1/-1}
+ .data-table td:last-child{text-align:left}
+ .details-dialog{padding:16px}
+}

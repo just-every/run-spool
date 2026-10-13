@@ -1,0 +1,222 @@
+{
+  "format": "spool-sentry-org-export",
+  "version": 1,
+  "organization": {
+    "id": "1",
+    "slug": "fixture-org",
+    "region": "us"
+  },
+  "window": {
+    "start": "2026-02-01T00:00:00Z",
+    "end": "2026-02-03T00:00:00Z"
+  },
+  "collections": [
+    {
+      "kind": "projects",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "101",
+              "slug": "web",
+              "name": "Imported web",
+              "dateCreated": "2026-01-01T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "releases",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "version": "web@1.0.0",
+              "dateCreated": "2026-02-01T00:00:00Z",
+              "projects": [
+                {
+                  "slug": "web",
+                  "name": "Imported web"
+                }
+              ],
+              "authors": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "issues",
+      "project": "web",
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "501",
+              "title": "TypeError: failed token=IMPORT_SECRET",
+              "status": "unresolved",
+              "firstSeen": "2026-02-02T00:00:00Z",
+              "lastSeen": "2026-02-02T00:00:00Z",
+              "count": "9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "events",
+      "project": "web",
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "eventID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "groupID": "501",
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "release": {
+                "version": "web@1.0.0"
+              },
+              "dist": "build-1",
+              "environment": "production",
+              "user": {
+                "email": "person@example.com"
+              },
+              "entries": [
+                {
+                  "type": "exception",
+                  "data": {
+                    "values": [
+                      {
+                        "type": "TypeError",
+                        "value": "failed token=IMPORT_SECRET",
+                        "rawStacktrace": {
+                          "frames": [
+                            {
+                              "filename": "https://app.example/bundle.js?access=private",
+                              "lineNo": 1,
+                              "colNo": 12,
+                              "function": "checkout"
+                            }
+                          ]
+                        },
+                        "stacktrace": {
+                          "frames": [
+                            {
+                              "filename": "src/checkout.ts",
+                              "lineNo": 12,
+                              "colNo": 3,
+                              "function": "checkout"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "breadcrumbs",
+                  "data": {
+                    "values": [
+                      {
+                        "category": "flow",
+                        "message": "password=PRIVATE_LABEL"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "eventID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "groupID": "501",
+              "dateCreated": "2026-02-02T00:00:00Z",
+              "release": {
+                "version": "web@1.0.0"
+              },
+              "dist": "build-1",
+              "environment": "production",
+              "user": {
+                "email": "person@example.com"
+              },
+              "entries": [
+                {
+                  "type": "exception",
+                  "data": {
+                    "values": [
+                      {
+                        "type": "TypeError",
+                        "value": "failed token=IMPORT_SECRET",
+                        "rawStacktrace": {
+                          "frames": [
+                            {
+                              "filename": "https://app.example/bundle.js?access=private",
+                              "lineNo": 1,
+                              "colNo": 12,
+                              "function": "checkout"
+                            }
+                          ]
+                        },
+                        "stacktrace": {
+                          "frames": [
+                            {
+                              "filename": "src/checkout.ts",
+                              "lineNo": 12,
+                              "colNo": 3,
+                              "function": "checkout"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "breadcrumbs",
+                  "data": {
+                    "values": [
+                      {
+                        "category": "flow",
+                        "message": "password=PRIVATE_LABEL"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "dashboards",
+      "project": null,
+      "pages": [
+        {
+          "cursor": null,
+          "nextCursor": null,
+          "response": [
+            {
+              "id": "9",
+              "title": "Unsupported dashboard"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "omissions": [
+    "Fixture only; not a real customer export.",
+    "Only one selected issue event detail; vendor issue count exceeds exported events."
+  ]
+}

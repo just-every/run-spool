@@ -1,0 +1,15 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE projects(id TEXT PRIMARY KEY,name TEXT NOT NULL,created INTEGER NOT NULL);
+CREATE TABLE credentials(hash TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),kind TEXT NOT NULL CHECK(kind IN ('ingest','agent')),created INTEGER NOT NULL,revoked INTEGER);
+CREATE TABLE sessions(hash TEXT PRIMARY KEY,expires INTEGER NOT NULL);
+CREATE TABLE releases(project TEXT NOT NULL REFERENCES projects(id),name TEXT NOT NULL,seq INTEGER NOT NULL,build TEXT NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(project,name),UNIQUE(project,seq));
+CREATE TABLE issues(id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),fingerprint TEXT NOT NULL,algorithm TEXT NOT NULL,title TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'open',revision INTEGER NOT NULL DEFAULT 1,count INTEGER NOT NULL DEFAULT 0,first_seen INTEGER NOT NULL,last_seen INTEGER NOT NULL,resolved_seq INTEGER,UNIQUE(project,fingerprint));
+CREATE TABLE events(id TEXT NOT NULL,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),release TEXT NOT NULL,release_seq INTEGER NOT NULL,build TEXT NOT NULL,environment TEXT NOT NULL,payload TEXT NOT NULL,digest TEXT NOT NULL,diagnostic TEXT NOT NULL,received INTEGER NOT NULL,PRIMARY KEY(project,id));
+CREATE INDEX events_issue ON events(issue,received);
+CREATE TABLE artifacts(project TEXT NOT NULL REFERENCES projects(id),release TEXT NOT NULL,build TEXT NOT NULL,debug TEXT NOT NULL,payload TEXT NOT NULL,digest TEXT NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(project,release,build,debug));
+CREATE TABLE outcomes(project TEXT NOT NULL REFERENCES projects(id),window INTEGER NOT NULL,reason TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(project,window,reason));
+CREATE TABLE audit(id TEXT PRIMARY KEY,project TEXT REFERENCES projects(id),kind TEXT NOT NULL,detail TEXT NOT NULL,created INTEGER NOT NULL);
+CREATE TABLE alerts(id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),kind TEXT NOT NULL,created INTEGER NOT NULL);
+CREATE TABLE login_budget(bucket TEXT PRIMARY KEY,attempts INTEGER NOT NULL);
+CREATE TRIGGER event_capacity BEFORE INSERT ON events WHEN (SELECT COUNT(*) FROM events WHERE project=NEW.project)>=10000 BEGIN SELECT RAISE(ABORT,'retained_event_budget'); END;
+CREATE TRIGGER minute_capacity BEFORE INSERT ON events WHEN (SELECT COUNT(*) FROM events WHERE project=NEW.project AND received>=CAST(NEW.received/60000 AS INTEGER)*60000)>=120 BEGIN SELECT RAISE(ABORT,'minute_budget'); END;

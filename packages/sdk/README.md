@@ -1,0 +1,97 @@
+# @just-every/spool
+
+Send JavaScript errors from browsers, Node and Cloudflare Workers to your own [Spool](https://github.com/just-every/run-spool) installation. No runtime dependencies; the browser entry is about 5 KB gzipped.
+
+```sh
+npm install @just-every/spool
+```
+
+Every event carries the release and build that produced it. Register that release and build in Spool (Releases, or the build plugin below) before you ship: Spool refuses events from releases it does not know.
+
+## Browser
+
+```js
+import { init } from '@just-every/spool';
+init({ endpoint: 'https://spool.example.com', project: 'web-app', ingestKey: 'YOUR_INGEST_KEY',
+  release: 'web@1.4.0', build: 'b1907' });
+```
+
+`init` installs once and captures uncaught errors and unhandled promise rejections. Spool must allow your page's exact origin: add it in first run, in Settings or on the project's **Connect** page. Other calls:
+
+```js
+import { captureException, breadcrumb } from '@just-every/spool';
+breadcrumb('checkout', 'payment submitted'); // explicit labels only, scrubbed, the last 20 are sent
+const result = await captureException(error); // { outcome: 'accepted', issue, eventId }
+```
+
+The SDK sends with the `fetch` the page had when `init` ran, so a fetch wrapper installed later never sees Spool's requests. `captureException` calls are always sent. Uncaught errors pass two limits, so a page that reports failed requests as errors cannot turn Spool's refusals into a stream of sends, and one noisy error cannot hide a new one:
+
+- **Repeats.** An uncaught error that repeats one from the last 5 seconds (same type, message and top frame) is not sent again.
+- **Cap per location.** Each error location (the error's type and top frame: file, function and line; the message is not part of it, as in Spool's issue grouping) sends at most 30 errors at once, then one every 2 seconds. Over that, the newest error at that location waits and is sent as soon as the location may send again; the one it replaces is dropped. Other locations are not affected, so an error thrown from new code is sent at once while another keeps failing.
+
+Nothing is dropped silently. Each uncaught error the SDK does not send settles through `onOutcome` as `{ outcome: 'dropped', reason: 'client_cap' }` or `{ outcome: 'dropped', reason: 'duplicate' }`, and is counted: the next event sent from the same location carries the number of errors there that were not sent since the previous one. Spool adds those counts up per issue and shows them as **Not sent by the SDK** on the issue, as `client_dropped` in the issues API and in the issue's packet (a `client_dropped` gap). Repeats are reported with the location's next send, so repeats with no later error there are counted only in `onOutcome`.
+
+Breadcrumbs are never collected automatically: no DOM values, form text, requests or console output. Messages, frames and labels are scrubbed of common secrets before they leave the page, and again by Spool.
+
+## Node
+
+```js
+import { init, captureException } from '@just-every/spool/node';
+init({ endpoint: 'https://spool.example.com', project: 'api', ingestKey: process.env.SPOOL_INGEST_KEY,
+  release: 'api@2.0.1', build: process.env.GIT_SHA });
+await captureException(error);
+```
+
+`init` reports uncaught exceptions and unhandled rejections, then prints the error and exits with code 1 as Node would (it waits at most `exitTimeoutMs`, 2000 by default, even if `fetch` never settles). Only the first uncaught error is reported and printed; later ones while it is being reported are ignored, as Node would never have run them. If your code also listens for `uncaughtException`, the process is left to your handler.
+
+## Cloudflare Workers
+
+```js
+import { captureException } from '@just-every/spool/worker';
+export default {
+  async fetch(request, env, ctx) {
+    try { return await handle(request, env); }
+    catch (error) {
+      captureException(error, { endpoint: env.SPOOL_ENDPOINT, project: 'edge', ingestKey: env.SPOOL_INGEST_KEY, release: 'edge@3', build: env.BUILD }, ctx);
+      return new Response('Internal error', { status: 500 });
+    }
+  },
+};
+```
+
+The capture is passed to `ctx.waitUntil`, so the response does not wait for Spool and the Worker stays alive until Spool answers.
+
+## Outcomes
+
+Every capture settles with Spool's answer: `accepted` (with the `issue` it joined), `duplicate`, `rejected` (with a `reason`, such as `unregistered_release_or_build`), `dropped` (over the project's minute or storage budget) or `unavailable`. `unknown` means the request did not complete; it is never reported as success. Pass `onOutcome` to `init` to see each one.
+
+The SDK never throws into your code or replaces your error: no function throws, no promise rejects, whatever was thrown and wherever it runs (a page without `crypto.randomUUID`, no `fetch`, Spool unreachable). What it could not send settles as `rejected` with a `reason`: `invalid_options` (a wrong or missing `init` option, named in `detail`), `not_initialized` (a capture before `init`), `no_parseable_stack` (a thrown value without a stack, such as a string) or `invalid_event`. Wrong options do not stop your app from starting, so check `onOutcome` once after setup.
+
+## Source maps
+
+Spool maps minified frames to your original source with the maps you upload. Uploading needs a project **deploy key** (Settings), which can only register releases and upload maps. Keep it in your build's environment and pass the variable's name, never the key.
+
+Vite or Rollup:
+
+```js
+import { spoolSourceMaps } from '@just-every/spool/vite';
+export default {
+  build: { sourcemap: true },
+  plugins: [spoolSourceMaps({ endpoint: 'https://spool.example.com', project: 'web-app', release: 'web@1.4.0', build: 'b1907', keyEnv: 'SPOOL_DEPLOY_KEY' })],
+};
+```
+
+Any other bundler, after the build:
+
+```sh
+npx spool-sourcemaps --endpoint https://spool.example.com --project web-app \
+  --release web@1.4.0 --build b1907 --key-env SPOOL_DEPLOY_KEY dist/app.js
+```
+
+Both register the release and build, add a debug ID to each bundle and upload its map; a failed upload fails the build. The SDK reads those debug IDs at capture time, so `init` needs no extra option.
+
+## Already using Sentry?
+
+Spool also accepts errors from the unmodified Sentry browser and Node SDKs: replace only the DSN with the one Spool shows for your project. See the [switching guide](https://github.com/just-every/run-spool/blob/main/docs/SENTRY-SWITCHING.md).
+
+MIT licence.

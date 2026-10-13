@@ -1,0 +1,255 @@
+/* Landing and docs: printed-report bands on paper. On the landing one hand-drawn thread leaves the wordmark, loops past the 1-2-3,
+   runs down every band and ends wound onto the footer spool; each section draws its own piece (see src/ui/landing/Thread.tsx). */
+.landing-page,.landing-footer{max-width:1440px;margin:0 auto;padding:0 var(--gutter)}
+.landing{--card-border:2px solid var(--ink);--band-gap:8.3333%;--u:1px;--P:56px;--tc:calc(var(--gutter) / -2);--tw:calc(var(--gutter) * .7)}
+
+/* The thread: pieces are absolutely placed SVGs that join at shared points. Stretched pieces keep an even 2px stroke. */
+.thread{position:absolute;max-width:none;overflow:visible;pointer-events:none;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.thread-pt{width:1px;height:1px}
+.t-narrow,.cross{display:none}
+.landing a:not([class]){text-decoration:none}
+.underlined-link,.landing-footer a{font-weight:500;text-decoration:underline!important;text-underline-offset:6px;text-decoration-thickness:1.5px}
+/* Zilla Slab's heaviest cut is 700; a hairline of ink on display sizes gives the pick's heavy, confident slab. */
+.hero-copy h1,.close-band h2{-webkit-text-stroke:.022em var(--ink);letter-spacing:-.025em}
+.band-copy h2{-webkit-text-stroke:.012em var(--ink);letter-spacing:-.02em}
+.mark{padding:.12em .38em}
+
+/* Header: wordmark left, a short nav right. */
+.landing-header{display:flex;align-items:center;gap:20px;padding-top:40px}
+.hero-band .landing-header{height:calc(var(--head-pad) + var(--wm) * 1.5);padding-top:var(--head-pad)}
+.hero-band .wordmark-link{display:flex}
+.brand-run{flex:1;display:flex;align-items:center;min-width:0}
+/* The docs header draws its thread as this rule (docs.css); the landing draws it as SVG (Thread.tsx). */
+.thread-run{flex:1}
+.wordmark-link{display:block;flex:none;text-decoration:none}
+.wordmark-link .wordmark{font-size:36px}
+.hero-band .wordmark-link .wordmark{font-size:var(--wm)}
+.wordmark-link .wordmark img{width:1.5em;height:1.5em}
+.landing-nav{display:flex;gap:28px;font-size:18px;font-weight:500}
+.landing-nav a:hover,.landing-footer a:hover{text-decoration:underline;text-underline-offset:6px}
+.landing-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1.5px}
+
+/* Hero: copy on the left, the drawing on the right; the thread leaves the wordmark and loops past each numeral. */
+.hero-band{--wm:36px;--numeral:40px;--drawing:min(600px,44%);--head-pad:40px;--n-top:22px;--n-mid:calc(var(--n-top) + var(--numeral) / 2);--step-gap:28px;--steps-pad:48px;--hero-pad:96px;--j:calc((100% - var(--band-gap)) * 5 / 11 + var(--band-gap) / 2);position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--drawing);column-gap:6%;padding-bottom:var(--hero-pad)}
+.hero-band .landing-header{grid-column:1/-1}
+.hero-band .landing-nav{position:absolute;top:58px;right:0}
+.hero-lead{left:0;top:0}
+.hero-run{left:150px;top:0;height:130px;width:calc(100% - var(--drawing) + var(--numeral) / 2 - 260px)}
+.hero-tail{left:var(--j);bottom:0;height:var(--hero-pad);width:calc(100% - var(--drawing) + var(--numeral) / 2 - var(--j))}
+.hero-copy{align-self:center;padding:24px 0 40px}
+.hero-copy h1{font-size:clamp(46px,7.2vw,104px);line-height:.98}
+.hero-subhead{max-width:23ch;margin:32px 0 44px;font-size:clamp(19px,2vw,28px);line-height:1.4}
+.hero-subhead:has(+ .hero-alt){margin-bottom:14px}
+.hero-alt{margin:0 0 44px;color:var(--ink-soft);font-size:clamp(16px,1.25vw,18px);font-weight:500;line-height:1.45;text-wrap:balance}
+.hero-alt strong{font-weight:600}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:20px 48px;font-size:clamp(17px,1.6vw,22px)}
+.hero-actions .primary-button{min-height:62px;padding:0 64px;font-size:clamp(17px,1.6vw,22px);font-weight:500}
+.hero-drawing{display:flex;flex-direction:column}
+.thread-steps{flex:1;display:grid;grid-template-rows:auto auto 1fr;align-content:start;gap:var(--step-gap);margin:0;padding:var(--steps-pad) 0 0;list-style:none}
+.step{position:relative;display:grid;grid-template-columns:var(--numeral) minmax(0,1fr);column-gap:22px;align-items:start}
+.numeral{position:relative;z-index:1;display:grid;place-items:center;width:var(--numeral);height:var(--numeral);margin-top:var(--n-top);background:var(--paper);border:2px solid var(--ink);border-radius:50%;font:700 20px/1 var(--font-display);font-variant-numeric:lining-nums}
+/* A numeral's thread passes behind it: the knot is anchored at its centre, the segment stretches to the next one. */
+.knot{left:calc(var(--numeral) / 2);top:var(--n-mid)}
+.step-seg{--seg:80px;left:calc(var(--numeral) / 2 - var(--seg) * .75);width:var(--seg);top:calc(var(--n-mid) + 44px);height:calc(100% + var(--step-gap) - 96px)}
+.step-seg.seg-last{height:calc(100% - var(--n-mid) - 44px)}
+.step-card{min-width:0;padding:18px 24px 22px}
+.step-card .card-title{margin-bottom:14px;font-size:clamp(22px,2vw,28px)}
+.inner-box{display:block;margin:0;padding:14px 18px;border:var(--inner-border);border-radius:var(--radius-input);background:var(--paper-raised)}
+.step-error{display:block;font-size:clamp(14px,1.3vw,18px);line-height:1.5}
+.chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:12px;font-size:clamp(14px,1.1vw,16px)}
+.chip-row .state-chip,.chip-row .attention-badge{font-size:inherit;padding:2px 12px}
+.chip-row code{font-size:inherit}
+.chip-row code:last-child{margin-left:4px}
+.mini-stack{display:grid;border:var(--inner-border);border-radius:var(--radius-input);padding:6px}
+.mini-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:12px;margin:0;padding:10px 10px;font-size:clamp(14px,1.3vw,17px)}
+.mini-row+.mini-row{border-top:var(--hairline-border)}
+.mini-row code{font-weight:500}
+.mini-row .mark{justify-self:start}
+.mini-index{font-size:14px}
+.mini-tag{font-size:13px;white-space:nowrap}
+.packet-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 20px}
+.packet-title{font:700 clamp(19px,1.6vw,22px)/1.2 var(--font-display)}
+.packet-row .highlight-button,.drawn-button{min-height:50px;padding:0 28px;font-size:clamp(16px,1.4vw,19px);font-weight:600;cursor:default}
+
+/* Bands: no rules between them. Each has its own arrangement of copy and drawing on wide screens (the l- classes below); they stack on narrower ones.
+   --P is the band's padding; the thread's pieces are fractions of the band, so they follow each band's height (Thread.tsx). */
+.band{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:28px;padding:var(--P) 0}
+.band-copy h2{font-size:clamp(34px,4.4vw,62px);line-height:1.02;text-wrap:balance}
+.band-copy p{max-width:30ch;margin-top:24px;font-size:clamp(18px,1.75vw,24px);line-height:1.45}
+.drawing-card{padding:26px 30px 30px}
+.drawing-card .card-title{font-size:clamp(20px,2vw,28px)}
+.drawing-note{margin-bottom:16px;font-size:clamp(16px,1.4vw,19px)}
+.licence-line{font-size:clamp(17px,1.7vw,24px);line-height:1.6}
+.nowrap{white-space:nowrap}
+.key-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;font-size:clamp(16px,1.5vw,20px)}
+.key-line code{font-size:.92em}
+.scrubbed-title code{font-size:clamp(15px,1.45vw,20px);line-height:1.6;overflow-wrap:anywhere}
+.scrubbed-title .mark{white-space:nowrap}
+.release-flow{display:grid;justify-items:center;margin:0}
+.issue-card{width:100%;padding:20px 24px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card)}
+.issue-card>code{font-size:clamp(15px,1.45vw,19px);font-weight:500;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.issue-card .chip-row{margin-top:14px}
+.flow-arrow{position:relative;height:56px;border-left:var(--rule)}
+.flow-arrow::after{content:"";position:absolute;bottom:0;left:-6.5px;width:11px;height:11px;border:solid var(--ink);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+.code-card pre,.terminal-card pre{margin:0;padding:0;background:none;border:0;font-size:clamp(14px,1.45vw,20px);line-height:2;white-space:pre-wrap}
+.code-card pre{padding-left:28px;border-left:var(--rule)}
+.terminal-line{display:block}
+.prompt{display:inline-block;width:2em;user-select:none}
+.terminal-card{padding:30px 32px 28px}
+
+/* Engraved ornaments (src/ui/landing/Ornament.tsx): one small drawing per band, each anchored to the band or to its drawing so it follows the card.
+   --u scales them from 0.8px at 1024px to 1px at 1360px. They are drawn above the thread and never over text or a card.
+   Below 1024px the bands stack and they are hidden; on phones a few come back small beside the heading. */
+.ornament{display:none}
+.ticks{position:absolute;left:calc(100% + 41px);top:50%;margin-top:-22px;width:28px;height:44px;overflow:visible;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;pointer-events:none}
+@media(min-width:1024px){
+ .landing{--u:clamp(.8px,calc(.0595vw + .19px),1px);--P:clamp(64px,5.56vw,80px);--D:calc(var(--P) * 1.25);--G:calc(var(--P) * .45);--G3:calc(var(--P) * .65)}
+ .ornament{display:block;position:absolute;z-index:1;height:auto;pointer-events:none;user-select:none}
+ .o-spools2{right:0;top:calc(var(--P) - 12 * var(--u));width:calc(190 * var(--u))}
+ .o-robot{left:calc(100% + 20 * var(--u));bottom:0;width:calc(120 * var(--u))}
+ .o-pincushion{right:-10.43%;bottom:calc(100% + 16 * var(--u));width:calc(168 * var(--u))}
+ .o-thimble{left:calc(20 * var(--u));bottom:calc(100% + 4px);width:calc(150 * var(--u))}
+ .o-bundle{left:214.98%;top:calc(20 * var(--u));width:calc(196 * var(--u))}
+ .o-needle{left:calc(54.5% - 157.12 * var(--u));top:calc(var(--P) + 60 * var(--u));width:calc(180 * var(--u))}
+ .o-laptop{left:79.7%;top:calc(var(--P) + 20 * var(--u));width:calc(200 * var(--u))}
+ .o-mug{left:calc(79.7% - 100 * var(--u));top:calc(var(--P) + 86 * var(--u));width:calc(84 * var(--u))}
+ .close-band .o-tape{width:calc(var(--u) * 200);right:calc(var(--u) * 130);bottom:calc(var(--u) * 78)}
+
+ /* Seven arrangements, each a different one from its neighbours (percentages are of the band; a card is 36.7%). Copy comes first in the page. */
+ .band{gap:0;align-items:start}
+ .band-drawing{position:relative}
+ .l-free{grid-template-columns:36.7% 19.55% 43.75%;align-items:center}
+ .l-free .band-drawing{grid-column:1;grid-row:1}
+ .l-free .band-copy{grid-column:3;grid-row:1}
+ .l-agents{grid-template-columns:34% 16% 36.7% 13.3%}
+ .l-agents .band-copy{grid-column:1;grid-row:1}
+ .l-agents .band-drawing{grid-column:3;grid-row:1;margin-top:var(--D)}
+ .l-regressions{justify-items:center}
+ .l-regressions .band-copy{text-align:center}
+ .l-regressions .band-copy p{max-width:23em;margin-inline:auto}
+ .l-regressions .band-drawing{width:77.77%;margin-top:var(--G3)}
+ .l-regressions .release-flow{grid-template-columns:minmax(0,1fr) 5.62% minmax(0,1fr);justify-items:stretch;align-items:start}
+ .l-regressions .flow-arrow{align-self:center;width:100%;height:0;border-left:0;border-top:var(--rule)}
+ .l-regressions .flow-arrow::after{top:-6.5px;right:0;bottom:auto;left:auto;transform:rotate(-45deg)}
+ .l-private{grid-template-columns:36.7% 22.7% 40.6%}
+ .l-private .band-drawing{grid-column:1;grid-row:1;margin-top:var(--D)}
+ .l-private .band-copy{grid-column:3;grid-row:1}
+ .l-archive .band-copy,.l-run .band-copy{max-width:50%}
+ .l-run .band-copy p{max-width:23em}
+ .l-archive .band-drawing,.l-run .band-drawing{width:36.7%;margin-top:var(--G)}
+ .l-try{grid-template-columns:36.7% 25.3% 38%}
+ .l-try .band-drawing{grid-column:1;grid-row:1;align-self:center}
+ .l-try .band-copy{grid-column:3;grid-row:1}
+
+ /* The thread's pieces: each is a fraction of the band, so it follows the band's height. B3 splits around the loop. */
+ .tw{left:0;top:0;width:100%;height:100%}
+ .tw-reg-a{height:17%}
+ .tw-loop{left:3.125%;top:17%}
+ .tw-reg-b{top:calc(17% + 120px);height:calc(83% - 120px)}
+ /* B6 runs through the needle's eye: the thread is drawn behind the needle, so the open slot shows it. Its two pieces meet at the slot's centre,
+    which is (157.12, 16.79) u inside the needle (0.8729, 0.1541 of its width) and so on x=54.5%, 76.79 u below the band's content top. */
+ .tw-try-a{height:calc(var(--P) + 76.79 * var(--u))}
+ .tw-try-b{top:calc(var(--P) + 76.79 * var(--u));height:calc(100% - var(--P) - 76.79 * var(--u))}
+}
+/* On phones the thread keeps to a strip 13px wide centred 14.65px left of the copy, so it stays 9px or more from the text and 4px inside the screen edge. */
+@media(max-width:760px){.ticks{display:none}.landing{--tc:-14.65px;--tw:13px}}
+
+/* Close and footer. */
+.close-band{position:relative;padding:96px 0 104px}
+.close-band h2{margin-bottom:40px;font-size:clamp(44px,7.2vw,104px);line-height:1}
+.close-band .primary-button{min-height:62px;padding:0 64px;font-size:clamp(17px,1.6vw,22px);font-weight:500}
+.landing-footer{padding-bottom:48px}
+.landing-footer:not(:where(.has-thread)){display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px 40px}
+.landing-footer:not(:where(.has-thread))::before{content:"";flex-basis:100%;border-top:var(--rule)}
+.landing-footer:not(:where(.has-thread)) nav{display:flex;gap:40px;font-size:18px}
+.footer-row{--fc:96%;position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px 40px;min-height:150px;padding:0}
+.footer-row nav{display:flex;gap:40px;margin-right:calc(4% + 180px);font-size:18px}
+.footer-wind{left:var(--fc);top:0}
+.footer-spool{position:absolute;left:calc(var(--fc) - 152px);top:22px;width:128px;height:108px;pointer-events:none}
+
+@media(min-width:1024px) and (max-width:1279px){
+ .mini-row{grid-template-columns:24px minmax(0,1fr)}
+ .mini-tag{grid-column:2}
+}
+@media(max-width:1023px){
+ .hero-band{--wm:30px;--head-pad:24px;--steps-pad:36px;--hero-pad:64px;grid-template-columns:minmax(0,1fr)}
+ .hero-band .landing-nav{position:static}
+ .landing-nav{gap:20px;font-size:17px}
+ .hero-copy{padding:36px 0 8px}
+ .hero-subhead{max-width:30ch;margin:20px 0 28px}
+ .hero-alt{margin-bottom:28px}
+ .hero-actions{gap:16px 28px}
+ .hero-actions .primary-button{padding:0 44px}
+ .band-copy p{max-width:none;margin-top:16px}
+ .release-flow{margin:0;max-width:none}
+ .close-band{padding:64px 0 72px}
+ /* The thread drops down the left margin; on the steps it runs behind each numeral. */
+ .t-wide{display:none}
+ .t-narrow{display:block}
+ .band-thread{left:calc(var(--tc) - var(--tw) / 2);top:0;width:var(--tw);height:100%}
+ .hero-copy{position:relative}
+ .narrow-lead{left:var(--tc);top:calc(var(--head-pad) + var(--wm) * 1.4156);width:calc(var(--wm) * 1.4281 - var(--tc));height:calc(var(--wm) * .0844 + 30px)}
+ .copy-thread{left:calc(var(--tc) - var(--tw) / 2);top:30px;width:var(--tw);height:calc(100% - 30px)}
+ .step-swing{left:var(--tc);top:calc(var(--steps-pad) * -1);width:calc(var(--numeral) / 2 - var(--tc));height:calc(var(--steps-pad) + var(--n-mid))}
+ .step-seg{--seg:46px;top:var(--n-mid);height:calc(100% + var(--step-gap))}
+ .step-seg.seg-last{height:calc(100% - var(--n-mid))}
+ .narrow-tail{left:var(--tc);bottom:0;width:calc(var(--numeral) / 2 - var(--tc));height:var(--hero-pad)}
+ .footer-row{min-height:0;padding:24px 0 124px}
+ .footer-row nav{margin-right:0}
+ .footer-spool{left:0;top:auto;bottom:0;transform:scaleX(-1)}
+ .footer-strip{top:0;height:calc(100% - 108.6px)}
+ .footer-swing{left:var(--tc);top:calc(100% - 108.6px);width:calc(12px - var(--tc));height:40px}
+}
+@media(max-width:560px){
+ /* The thread keeps to the left margin or the right one, alternating by band, and crosses the page in the padding between two bands. */
+ .band-thread.s-r{left:calc(100% - var(--tc) - var(--tw) / 2)}
+ .strip-first{height:calc(100% - var(--P))}
+ .strip-mid{top:var(--P);height:calc(100% - 2 * var(--P))}
+ .strip-last{top:var(--P);height:calc(100% - var(--P))}
+ .cross{display:block;left:var(--tc);top:calc(var(--P) * -1);width:calc(100% - 2 * var(--tc));height:calc(var(--P) * 2)}
+ .ornament{display:block;position:absolute;right:0;top:var(--P);height:auto;pointer-events:none}
+ .o-spools2,.o-pincushion{width:64px}
+ .o-robot{width:52px}
+ .o-thimble{width:56px}
+ .o-laptop{width:72px}
+ .o-bundle,.o-needle,.o-mug,.o-tape{display:none}
+ .l-free h2,.l-agents h2,.l-regressions h2,.l-private h2,.l-run h2{padding-right:76px}
+ .l-free h2{min-height:52px}
+ .l-agents h2{min-height:70px}
+ .l-regressions h2{min-height:61px}
+ .l-private h2{min-height:56px}
+ .l-run h2{min-height:63px}
+ .hero-band{--wm:27px;--numeral:32px;--head-pad:20px;--n-top:14px;--step-gap:14px;--steps-pad:22px}
+ .step-seg{--seg:30px}
+ .landing-header{gap:12px}
+ .landing-nav{gap:14px;font-size:15px}
+ .hero-copy{padding:26px 0 0}
+ .hero-copy h1{font-size:44px}
+ .hero-subhead{margin:14px 0 20px;font-size:17px}
+ .hero-alt{margin-bottom:20px;font-size:15px}
+ .hero-actions{gap:12px 22px;font-size:16px}
+ .hero-actions .primary-button{min-height:48px;padding:0 30px;font-size:16px}
+ .step{column-gap:10px}
+ .numeral{margin-top:14px;font-size:16px;border-width:1.5px}
+ .step-card{padding:10px 12px 12px}
+ .step-card .card-title{margin-bottom:8px;padding-bottom:6px;font-size:18px}
+ .inner-box{padding:8px 10px}
+ .step-error{font-size:12.5px;line-height:1.4}
+ .chip-row{gap:6px 8px;margin-top:8px;font-size:12px}
+ .chip-row .state-chip,.chip-row .attention-badge{font-size:12px;padding:1px 9px}
+ .chip-row code{font-size:12px}
+ .mini-stack{padding:2px 4px}
+ .mini-row{grid-template-columns:14px minmax(0,1fr);gap:0 8px;padding:6px 6px;font-size:12.5px}
+ .mini-index{font-size:12px}
+ .mini-tag{grid-column:2;font-size:11.5px}
+ .packet-row{flex-wrap:nowrap;gap:8px}
+ .packet-title{font-size:14px;white-space:nowrap}
+ .packet-row .highlight-button{min-height:38px;padding:0 10px;font-size:13px;white-space:nowrap}
+ .drawing-card{padding:18px 18px 20px}
+ .drawn-button{min-height:46px;padding:0 22px;font-size:16px}
+ .issue-card{padding:16px}
+ .code-card pre{padding-left:16px}
+ .terminal-card{padding:20px 18px}
+ .terminal-card pre{font-size:15px}
+ .landing-footer nav{gap:24px}
+}

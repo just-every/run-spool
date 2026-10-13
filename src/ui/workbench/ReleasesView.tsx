@@ -1,0 +1,38 @@
+import { useEffect, useRef } from 'react';
+import { Details } from './Details';
+import { Field, useDraft, type Request, type Run } from './shared';
+export interface UploadTarget { id: string; release: string; debugId: string; issue: string }
+export function ReleasesView({ project, releases, busy, request, run, refresh, target, onUploaded }: {
+  project: string; releases: any[]; busy: boolean; request: Request; run: Run; refresh: () => void; target?: UploadTarget; onUploaded: (issue: string) => void;
+}) {
+  const [name, setName] = useDraft(`${project}.release-name`, ''), [build, setBuild] = useDraft(`${project}.release-build`, '');
+  const [selected, setSelected] = useDraft(`${project}.map-release`, ''), [debug, setDebug] = useDraft(`${project}.map-debug`, '');
+  const [map, setMap] = useDraft<any>(`${project}.map-file`, null), [error, setError] = useDraft(`${project}.map-error`, ''), [result, setResult] = useDraft(`${project}.map-result`, '');
+  const [handledTarget, setHandledTarget] = useDraft(`${project}.map-handled-target`, '');
+  const [context, setContext] = useDraft<UploadTarget | undefined>(`${project}.map-context`, undefined);
+  const [edited, setEdited] = useDraft(`${project}.map-edited`, false);
+  const selection = useRef(0), fileInput = useRef<HTMLInputElement>(null), pendingTarget = target?.id !== handledTarget ? target : undefined;
+  function applyTarget(next: UploadTarget) {
+    // Replacing a draft is one explicit action, including its selected file.
+    ++selection.current; setSelected(next.release); setDebug(next.debugId); setMap(null);
+    if (fileInput.current) fileInput.current.value = '';
+    setError(''); setResult(''); setEdited(false); setContext(next); setHandledTarget(next.id);
+  }
+  useEffect(() => { if (pendingTarget && !edited && !map) applyTarget(pendingTarget); }, [pendingTarget, edited, map]);
+  const release = releases.find(row => row.name === selected);
+  return <>
+    <section className="evidence"><h2>Register a release</h2><form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => { await request(`/api/projects/${project}/releases`, 'POST', { name, build }); if (!edited && !map) setSelected(name); setName(''); setBuild(''); refresh(); }); }}><Field label="Release name" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={name} onChange={e => setName(e.target.value)} /><Field label="Build identifier" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={build} onChange={e => setBuild(e.target.value)} /><button className="primary-button" disabled={busy}>Register release</button></form><Details title="Release order"><p>Registration order determines whether a returning resolved issue is a regression. Register each new release before capture. Registration does not prove deployment.</p></Details></section>
+    <section className="evidence" id="upload-map"><h2>Upload a source map</h2>{context && <p>Match the map to the occurrence you were investigating.</p>}
+    {pendingTarget && (edited || map) && <div className="callout" role="status"><strong>Your source map draft is still here.</strong><p>Use the requested issue’s release and debug ID only if you want to replace this draft. Replacing it also clears the selected map file.</p><button className="text-button" onClick={() => setHandledTarget(pendingTarget.id)}>Keep current draft</button><button className="text-button" onClick={() => applyTarget(pendingTarget)}>Replace draft with this issue</button></div>}
+    <form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
+      if (!release || !map) throw new Error('Choose a registered release and a source map.');
+      await request(`/api/projects/${project}/artifacts`, 'POST', { release: release.name, build: release.build, debugId: debug, map: map.value });
+      setMap(null); setEdited(false); if (fileInput.current) fileInput.current.value = ''; setResult('Source map uploaded. Matching frames can now show their original source.'); refresh();
+    }); }}><label className="form-field">Release<select required value={selected} onChange={e => { setSelected(e.target.value); setEdited(true); }}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><Field label="Bundle debug ID" required value={debug} onChange={e => { setDebug(e.target.value); setEdited(true); }} /><label className="form-field">Source map file · max 256 KiB<input ref={fileInput} type="file" accept=".map,.json,application/json" aria-invalid={!!error} aria-describedby={error ? 'map-error' : undefined} onChange={e => {
+      const current = ++selection.current, file = e.target.files?.[0]; setMap(null); setError(''); setResult(''); setEdited(true);
+      if (!file) return;
+      void (async () => { try { if (file.size > 262144) throw new Error('Map exceeds 256 KiB.'); const value = JSON.parse(await file.text()); if (!value || value.version !== 3 || !Array.isArray(value.sources) || typeof value.mappings !== 'string') throw new Error('Choose a flat Source Map V3 file.'); if (selection.current === current) { setMap({ name: file.name, value }); if (typeof (value.debug_id ?? value.debugId) === 'string') setDebug(value.debug_id ?? value.debugId); } } catch (failure) { if (selection.current === current) setError(failure instanceof SyntaxError ? 'Invalid source map JSON.' : (failure as Error).message); } })();
+    }} /></label>{error && <p id="map-error" role="alert">{error}</p>}{map && <p>Ready to upload: {map.name}</p>}<button className="primary-button" disabled={busy || !map}>Upload matching map</button></form>{result && <p role="status">{result}</p>}{context && <button className="text-button" onClick={() => onUploaded(context.issue)}>Return to issue</button>}<Details title="Source map requirements"><p>Maps must be flat Source Map V3 files, up to 256 KiB, with exact project, release, build and debug ID matches. Each project holds up to 20 maps. Source contents remain private and are excluded from issue packets. No remote source URL is fetched.</p></Details></section>
+    <section className="evidence"><h2>Registered releases</h2>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">Registration sequence</th><th scope="col"><span className="visually-hidden">Details</span></th></tr></thead><tbody>{releases.map((row, index) => <tr className="data-row" key={row.name}><th scope="row"><strong className={index ? undefined : 'mark'}>{row.name}</strong></th><td data-label="Build identifier"><code>{row.build}</code></td><td data-label="Registration sequence">Sequence {row.seq}</td><td><Details title={`Release ${row.name}`}><pre>{JSON.stringify(row, null, 2)}</pre></Details></td></tr>)}</tbody></table></div> : <p>Register your first release above before connecting your application.</p>}</section>
+  </>;
+}

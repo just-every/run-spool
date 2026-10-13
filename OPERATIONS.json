@@ -1,0 +1,260 @@
+{
+  "version": 2,
+  "project": "just-every/spool",
+  "runtime": {
+    "requirements": [
+      {
+        "name": "node",
+        "version": "22.20.0"
+      },
+      {
+        "name": "pnpm",
+        "version": "10.12.4"
+      }
+    ]
+  },
+  "requiredEnvironment": [
+    "OWNER_EMAIL",
+    "SESSION_SECRET",
+    "SETUP_TOKEN",
+    "AUTH_ORIGIN",
+    "AUTH_LOCAL",
+    "MAIL_PROVIDER",
+    "MAIL_FROM"
+  ],
+  "seedContract": {
+    "version": 1,
+    "profile": "first-party",
+    "adapter": "scripts/installer/local.mjs"
+  },
+  "documentation": {
+    "document": "OPERATIONS.md"
+  },
+  "commands": {
+    "setup": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "setup"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Build, apply additive local migrations, create the first real owner or preserve the existing owner, request ordinary outbox sign-in, then stop the temporary runtime. Refuse ambiguous legacy stores before changes."
+    },
+    "dev": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "dev"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for dev effects."
+    },
+    "build": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "build"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for build effects."
+    },
+    "verify": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "verify"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Build and typecheck; run real Worker/D1 product/auth/restore tests, synthetic accessibility and real public-command/browser journeys at 1440 and 390. Includes native signed owner admission and responsive owner editor checks."
+    },
+    "reset": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "reset"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Require confirmation; refuse active state; remove only canonical local data, private settings and installer drafts. Preserve source, exports and deploy receipts."
+    },
+    "deploy": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "deploy"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Dry-run builds and validates with zero provider calls; an explicit owner-authorized deployment uses the owner Cloudflare account and configured mail sender."
+    },
+    "export": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "export"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Export all owned local D1 domain resources through Base portability, including private maps; exclude auth, grants, outbox and transient admission state."
+    },
+    "import": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "import"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Require confirmation and an empty local destination; validate new and legacy archives, then atomically restore via Base portability. Does not recreate grants or owner."
+    },
+    "release": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "release"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for release effects."
+    },
+    "outbox": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "outbox"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for outbox effects."
+    },
+    "doctor": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "doctor"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for doctor effects."
+    },
+    "describe": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "describe"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for describe effects."
+    },
+    "check": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "check"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for check effects."
+    },
+    "install": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "install"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "See SEED-COMMAND-CONTRACT.md for install effects."
+    },
+    "preview": {
+      "argv": [
+        "node",
+        "scripts/rer.mjs",
+        "preview"
+      ],
+      "inputs": [
+        "scripts/rer.mjs",
+        "scripts/installer/local.mjs"
+      ],
+      "effects": "Serve fixed production output, preserve local owner and durable state, stop after idle timeout or explicit stop."
+    },
+    "artifact": {
+      "argv": [
+        "node",
+        "scripts/build-delivery-artifact.mjs"
+      ],
+      "inputs": [
+        "scripts/build-delivery-artifact.mjs",
+        "scripts/delivery/base/package.mjs",
+        "scripts/delivery/base/packaging.json",
+        "rer-setup.json"
+      ],
+      "effects": "After build, emit an untrusted schema-2 managed delivery artifact and raw payloads. No deploy, provider call, tag, registration or public release."
+    }
+  },
+  "health": {
+    "path": "/health",
+    "meaning": "D1 query and Worker availability; deployment identity when deploy-kit supplies it. Does not prove capture completeness or mail delivery."
+  },
+  "acceptance": {
+    "document": "ACCEPTANCE.md"
+  },
+  "environmentSources": {
+    "OWNER_EMAIL": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "SESSION_SECRET": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "SETUP_TOKEN": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "AUTH_ORIGIN": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "AUTH_LOCAL": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "MAIL_PROVIDER": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md",
+    "MAIL_FROM": "Local setup creates or preserves this setting in the private settings file; see OPERATIONS.md"
+  },
+  "loops": [
+    {
+      "id": "development-mail-outbox",
+      "type": "worker",
+      "required": true,
+      "enabled": true
+    },
+    {
+      "id": "hosted-sign-in-mail",
+      "type": "mail",
+      "required": false,
+      "enabled": false,
+      "provider": "sendgrid"
+    }
+  ],
+  "authentication": "Base operator-auth: active owner sessions rechecked for private APIs and documents; ordinary development outbox sign-in; project-scoped ingest and read grants unchanged. Optional signed first-owner claim shares native admission and permanently refuses a second owner; editor configuration rechecks owner sessions. Additional operator invitations remain disabled."
+}

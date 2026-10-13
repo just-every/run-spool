@@ -1,0 +1,9 @@
+{
+  "name": "@errors/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "22.20.0" },
+  "bin": { "spool-agent": "./bin/spool-agent.mjs" },
+  "dependencies": { "@modelcontextprotocol/sdk": "1.32.1" }
+}

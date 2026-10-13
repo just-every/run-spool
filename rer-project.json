@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "projectId": "just-every/spool",
+  "name": "Spool",
+  "sourceRepository": "https://github.com/just-every/run-spool",
+  "license": "MIT",
+  "deployment": {
+    "target": "cloudflare-workers",
+    "artifactFile": "rer-worker-artifact.json"
+  },
+  "operations": {
+    "setup": "bash scripts/delivery/setup-build.sh",
+    "build": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run build",
+    "verify": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run verify",
+    "artifact": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && node scripts/build-delivery-artifact.mjs",
+    "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic."
+  },
+  "verification": {
+    "sensitivePaths": [
+      "src/domain/**",
+      "src/server.ts",
+      "src/base/**",
+      "src/editor/**",
+      "scripts/**",
+      "rer-setup.json",
+      ".github/workflows/rer-managed.yml",
+      "src/modules/**"
+    ],
+    "migrationDirectories": [
+      "migrations"
+    ],
+    "guidanceFiles": [
+      "AGENTS.md",
+      "CONTRACT.md",
+      "OPERATIONS.md"
+    ],
+    "testPatterns": [
+      "tests/*.mjs"
+    ]
+  },
+  "setup": {
+    "path": "rer-setup.json",
+    "sha256": "0457010bb51997d29bf8b830ba33479b4935a2c6cf1978cac81f23c128b28d05"
+  }
+}

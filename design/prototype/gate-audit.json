@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "revision": "prototype-v8",
+  "input": {
+    "exportedHtmlFiles": 5,
+    "semanticViewportSections": 0,
+    "localPageUnits": 5,
+    "viewportCoverage": "not-claimed",
+    "planStatus": "passed"
+  },
+  "gates": {
+    "exportedHtml": "passed",
+    "branchPlan": "passed",
+    "semanticViewportSections": "accepted-partial",
+    "runtime": "passed",
+    "shellConsistency": "passed",
+    "activeNavigation": "passed",
+    "zeroActionRealPages": "passed",
+    "dropdownValidity": "passed",
+    "holdingRatio": "passed"
+  },
+  "facts": {
+    "realPages": 5,
+    "holdingPages": 0,
+    "holdingRatio": 0,
+    "zeroActionRealPages": [],
+    "invalidDropdowns": 0,
+    "dropdownDemotions": 0,
+    "shellResiduals": 0,
+    "maxShellDeltaPx": 0,
+    "skippedShellTransplants": 0,
+    "untestedScriptDirections": [],
+    "visualReviewRequired": false
+  },
+  "degradations": [],
+  "warnings": [
+    "5 local document page(s) retain native layout and behavior; only navigation to existing pages is added. Responsive viewport coverage is not inferred. Unresolved labels and routes remain in the manifest."
+  ],
+  "blockers": []
+}

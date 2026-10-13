@@ -1,0 +1,64 @@
+# Connect your app
+
+Spool learns about errors from your application through Spool's own SDK, `@just-every/spool`. Every error belongs to a project and to a release you have registered, so Spool can tell which build it came from.
+
+The **Capture** page in Spool walks through these steps for the selected project and fills in its own address and the latest release for you.
+
+## 1. Add the Spool SDK
+
+Install the package and initialise it once in your application, with your Spool address, the project and its ingest key:
+
+```sh
+npm install @just-every/spool
+```
+
+```js
+import { init } from '@just-every/spool';
+init({ endpoint: "http://127.0.0.1:8787", project: "web-app", ingestKey: 'YOUR_INGEST_KEY',
+  release: "r42", build: "b1907" });
+```
+
+It listens for errors and unhandled promise rejections in the browser, next to anything else you already use. Add explicit labels with `breadcrumb('checkout', 'payment submitted')`; Spool never collects form values, requests or console output on its own, and it removes common secrets before anything leaves the page.
+
+Browsers can only send to Spool from origins you allow: add your application's exact origin on the **Capture** page.
+
+On a server, import `init` and `captureException` from `@just-every/spool/node`. In a Cloudflare Worker, call `captureException(error, options, ctx)` from `@just-every/spool/worker`; it keeps the Worker alive with `ctx.waitUntil` until Spool answers.
+
+## 2. Register the release
+
+Open **Releases** and add the release name and build your application reports, such as `r42` and `b1907`. Register each release in the order you ship them: that order is how Spool knows a resolved issue has come back in a later release. Spool refuses errors from releases it does not know.
+
+## 3. Upload the source maps
+
+Upload the `.map` file for each bundle of that release and build in **Releases**. Spool keeps maps private and never fetches source files from the internet. A project holds up to 20 maps of 256 KiB each.
+
+You can also upload maps from your build with a **deploy key** from **Settings**. A deploy key can only register releases and upload maps for its project. Keep the key in your build's environment, never in your application's source. With Vite or Rollup, add the SDK's plugin:
+
+```js
+import { spoolSourceMaps } from '@just-every/spool/vite';
+export default {
+  build: { sourcemap: true },
+  plugins: [spoolSourceMaps({ endpoint: 'https://spool.example', project: 'web', release: 'web@1.2.0', build: 'build-42', keyEnv: 'SPOOL_DEPLOY_KEY' })],
+};
+```
+
+With any other bundler, run the command-line tool after the build:
+
+```sh
+npx spool-sourcemaps --endpoint https://spool.example --project web \
+  --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
+```
+
+Each bundle needs its `.map` next to it. Both register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The tool prints only how many maps it uploaded, and a failed upload fails your build.
+
+## Keys for anything outside this checkout
+
+While Spool runs as `pnpm run dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that your application can use, start Spool with `pnpm run dev -- --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
+
+## 4. Check it works
+
+When you create a project, **Send test error** registers the release shown and sends one real error with the new key. The **Capture** page can also send a test exception with your ingest key. It appears in **Issues**, with its stack mapped to your original source once the matching map is uploaded.
+
+## Already using Sentry? Point your DSN here
+
+Spool also accepts JavaScript errors from the unmodified Sentry browser and Node SDKs. Replace only the DSN with the one Spool shows for your project, and keep your release and dist settings. Spool keeps the exceptions and their stack traces; it does not keep sessions, traces, replays or attachments. The [switching guide](SENTRY-SWITCHING.md) has the details.
