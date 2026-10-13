@@ -11,12 +11,12 @@ function DocsNav({ sections, current, label }: { sections: DocsSection[]; curren
 }
 
 /** One docs page: the landing's header and footer around a page rendered at build time from the repository's Markdown. */
-export function DocsPage({ repository, sections, page, pages }: { repository: string; sections: DocsSection[]; page: Page; pages: Page[] }) {
+export function DocsPage({ repository, sections, page, pages, variant, styles }: { repository: string; sections: DocsSection[]; page: Page; pages: Page[]; variant?: 'site'; styles?: string[] }) {
   const index = pages.indexOf(page), previous = pages[index - 1], next = pages[index + 1];
   return <html lang="en">
-    <PublicHead title={page.slug ? `${page.title} · Spool docs` : 'Spool docs'} description={page.description} stylesheet="/theme/docs.css" />
+    <PublicHead title={page.slug ? `${page.title} · Spool docs` : 'Spool docs'} description={page.description} stylesheet="/theme/docs.css" styles={styles} />
     <body className="landing docs">
-      <div className="landing-page"><SiteHeader repository={repository} current="docs" thread /></div>
+      <div className="landing-page"><SiteHeader repository={repository} current="docs" thread variant={variant} /></div>
       <div className="docs-layout">
         <details className="docs-menu"><summary>Docs pages</summary><DocsNav sections={sections} current={page.slug} label="Docs pages" /></details>
         <aside className="docs-sidebar"><DocsNav sections={sections} current={page.slug} label="Docs" /></aside>

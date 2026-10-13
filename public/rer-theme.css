@@ -1,0 +1,16 @@
+/* Spool's existing paper, ink, highlighter and self-hosted typefaces. */
+:root {
+ --rer-page: #F3F0E6;
+ --rer-surface: #F7F3EA;
+ --rer-text: #1C1C1B;
+ --rer-muted: #4A4A44;
+ --rer-border: #4A4A44;
+ --rer-focus: #1C1C1B;
+ --rer-accent: #1C1C1B;
+ --rer-accent-text: #F3F0E6;
+ --rer-link: #1C1C1B;
+ --rer-font-heading: "Zilla Slab", Rockwell, Georgia, serif;
+ --rer-font-body: "IBM Plex Sans", system-ui, sans-serif;
+ --rer-radius: 10px;
+ --rer-logo: url("/theme/spool-mark.svg");
+}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {lstat,readFile,stat} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
-import {productionModules} from '../scripts/base-onboarding/production-modules.mjs';
+import {productionModules} from '@runeditrun/rer/production-modules';
 import {miniflareAssets} from './product-assets.mjs';
 
 // Wrangler 4.129.1's DEFAULT_MODULE_RULES, appended after emitted rules just as

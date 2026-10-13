@@ -1,4 +1,4 @@
-import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir,lstat,access,rm,symlink,readdir} from 'node:fs/promises';
@@ -42,7 +42,7 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  diagnostics.stage('slow-readiness');
  const adapterText=await get('scripts/installer/local.mjs');
  const delayed=adapterText.replace('const lifecycle = localInstaller({ ...base.hooks,', `const lifecycle = localInstaller({ ...base.hooks,
- health: async (url,signal) => { if (!await import('node:fs/promises').then(fs=>fs.access('.test-readiness-release').then(()=>true,()=>false))) return {ready:false,message:'Readiness held by test'}; return (await import('../base-onboarding/adapter.mjs')).defaultHealth(url,signal); },`);
+ health: async (url,signal) => { if (!await import('node:fs/promises').then(fs=>fs.access('.test-readiness-release').then(()=>true,()=>false))) return {ready:false,message:'Readiness held by test'}; return (await import('@runeditrun/rer/local-installer')).defaultHealth(url,signal); },`);
  await put('scripts/installer/local.mjs',delayed);
  const slow=checkout.start(['setup','--owner-email',testOwner,'--port','15530']);
  for(let i=0;i<1200&&!slow.output().includes('Still starting');i++){assert.equal(slow.child.exitCode,null);await new Promise(r=>setTimeout(r,250));}

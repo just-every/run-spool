@@ -11,16 +11,16 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 Clone the source with `git clone https://github.com/just-every/run-spool.git` and `cd run-spool`. Select **Node 22.20.0** and **pnpm 10.12.4**. The public command order is:
 
 ```sh
-node scripts/rer.mjs install
-node scripts/rer.mjs setup
-node scripts/rer.mjs dev
-node scripts/rer.mjs outbox
-node scripts/rer.mjs verify
-node scripts/rer.mjs reset --yes
-node scripts/rer.mjs export --target local --output exports/spool.jsonl
-node scripts/rer.mjs import --target local --input exports/spool.jsonl --yes
-node scripts/rer.mjs deploy --dry-run
-node scripts/rer.mjs describe
+pnpm install
+pnpm exec rer setup
+pnpm exec rer dev
+pnpm exec rer outbox
+pnpm exec rer verify
+pnpm exec rer reset --yes
+pnpm exec rer export --target local --output exports/spool.jsonl
+pnpm exec rer import --target local --input exports/spool.jsonl --yes
+pnpm exec rer deploy --dry-run
+pnpm exec rer describe
 ```
 
 Use this order with care on a populated installation: export before reset to preserve evidence, and import only into an empty destination. Setup asks for the real owner's email or reads declared setup answers; keep it and secrets out of shell arguments. Setup generates private managed secrets, applies additive local migrations, claims or preserves the one owner, requests ordinary sign-in and stops its temporary app. It creates no sample project and sends no email. For older state, follow [OPERATIONS.md](OPERATIONS.md#existing-installation-recovery).
@@ -64,9 +64,9 @@ New archives use Base portability JSONL with per-part and whole-content integrit
 
 Per-project Alerts implements new-issue, later-release regression and complete server-received volume-window spike feed facts, rules and delivery logs. New-issue and regression alerts are sent right after ingest; the scheduled Worker evaluates spikes and dispatches eligible persisted retries and anything still queued, and records each run's time for `/health` and Settings. Base Mail needs provider acceptance; HMAC-signed webhooks require a separately installed enforcing egress service with no ordinary-fetch fallback. Local capture or provider submission does not prove recipient delivery. No Oncall dependency or Slack integration is required. See [OPERATIONS.md](OPERATIONS.md#per-project-alerts) and the [alert delivery contract](docs/ALERT-WEBHOOKS.md).
 
-`node scripts/rer.mjs verify` builds and typechecks the real application, then runs native Worker/D1 runtime, product/auth/restore, origin and public-command journeys. First run is exercised at 1440 and 390 with no-JavaScript sign-in, actual project forms, failed creation, once-shown keys, Axe/reflow and completed restart. The same verify includes alerts outbox/HMAC/rules/delivery, second-origin mapped capture and regression triage, unmodified Sentry browser/node 11.6.0 programs that change only the DSN, fixture importer dry run/apply/guarded undo and grant-scope checks, and signed first/second claim plus owner editor at 1440 and 390 with CSP and logout revocation. [ACCEPTANCE.md](ACCEPTANCE.md) defines required evidence. The owner's completion report records exact heads and actual results; the presence of a program does not establish a passing run.
+`pnpm exec rer verify` builds and typechecks the real application, then runs native Worker/D1 runtime, product/auth/restore, origin and public-command journeys. First run is exercised at 1440 and 390 with no-JavaScript sign-in, actual project forms, failed creation, once-shown keys, Axe/reflow and completed restart. The same verify includes alerts outbox/HMAC/rules/delivery, second-origin mapped capture and regression triage, unmodified Sentry browser/node 11.6.0 programs that change only the DSN, fixture importer dry run/apply/guarded undo and grant-scope checks, and signed first/second claim plus owner editor at 1440 and 390 with CSP and logout revocation. [ACCEPTANCE.md](ACCEPTANCE.md) defines required evidence. The owner's completion report records exact heads and actual results; the presence of a program does not establish a passing run.
 
-Chromium is Playwright's bundled browser by default. Local setup and verification never deploy. `node scripts/rer.mjs deploy --dry-run` validates the real package without provider calls and does not prove deployment or mailbox delivery.
+Chromium is Playwright's bundled browser by default. Local setup and verification never deploy. `pnpm exec rer deploy --dry-run` validates the real package without provider calls and does not prove deployment or mailbox delivery.
 
 Compatibility programs exercise the capture helper with a minified Node V8 error, an automatic Chromium browser error and a separate emitted Cloudflare Worker using `waitUntil`. `pnpm test:sdk` installs the packed `@just-every/spool` tarball into a fresh app, builds it with the package's Vite plugin, and checks a Chromium capture mapped to the original line with scrubbed breadcrumbs and a Node uncaught exception reported before exit. Firefox and Safari parsing grammar is implemented but has not been tested in a real Firefox or Safari browser. There is no generic framework or SDK compatibility claim. Large-instance economics and hosted recovery remain unaccepted. Automatic sampling is not implemented; transport omissions are unknown.
 

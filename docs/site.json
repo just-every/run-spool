@@ -130,62 +130,6 @@
       "reason": "Engineering notes on the Sentry intake, with qualification disclaimers and verification detail; the owner-facing steps are on Connect your app"
     },
     {
-      "source": "scripts/base-cli/cli/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/ai/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/container/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/deploy-kit/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/erasure/CONTRACT.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/erasure/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/job-queue/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/mail/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/mail/src/adapters/messaging/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/mail/src/events/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/operator-auth/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/operator-auth/identity/oidc/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/modules/portability/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
-      "source": "scripts/base-cli/scripts/publish-check/README.md",
-      "reason": "Base CLI documentation exported byte for byte with the portable rer CLI (base-copies.json)"
-    },
-    {
       "source": "src/modules/dependencies/README.md",
       "reason": "Base module documentation, copied byte for byte with the module (base-copies.json)"
     },

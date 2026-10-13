@@ -1,17 +1,18 @@
-import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
 import {startTestWorker} from './worker.mjs';
 import {signIn,authBindings,testSetupToken,testDevKey,outboxFetch} from './auth.mjs';
 const worker=await startTestWorker(15468),origin=worker.origin;
 let failure;
-// Visitors without an owner session get the static public landing at /, with a way to sign in.
-async function assertLanding(response){assert.equal(response.status,200);const csp=response.headers.get('content-security-policy');assert.ok(csp.includes("default-src 'none'")&&!csp.includes('script-src'));const html=await response.text();assert.ok(html.includes('href="/sign-in"'));assert.ok(!html.includes('<script'));}
+// Visitors without an owner session get the shared Lobby at /, using the same native first-project state as /setup.
+async function assertLobby(response,claimed=false){assert.equal(response.status,200);const csp=response.headers.get('content-security-policy');assert.ok(csp.includes("default-src 'none'")&&!csp.includes('script-src'));const html=await response.text();assert.ok(html.includes(claimed ? 'href="/sign-in"' : 'href="/setup"'));assert.ok(!html.includes('<script'));}
 let restoreFetch=()=>{};
 try{restoreFetch=observeRuntimeFetch();}catch{}
 try {
+ assert.deepEqual(await (await fetch(origin+'/setup/state')).json(),{state:'unclaimed'});
  const health=await (await fetch(origin+'/health')).json();assert.equal(health.status,'ok');assert.equal(health.ok,true);
- await assertLanding(await fetch(origin+'/',{redirect:'manual'}));
+ await assertLobby(await fetch(origin+'/',{redirect:'manual'}));
  // The public docs are built from the repository Markdown and served to everyone; unknown pages are 404.
  {const docs=await fetch(origin+'/docs');assert.equal(docs.status,200);const html=await docs.text();assert.ok(html.includes('href="/docs/install"')&&!html.includes('<script'));const page=await fetch(origin+'/docs/install');assert.equal(page.status,200);await page.body?.cancel();const missing=await fetch(origin+'/docs/missing-page');assert.equal(missing.status,404);await missing.body?.cancel();}
  for(const path of ['/app','/setup']){const response=await fetch(origin+path,{redirect:'manual'});assert.equal(response.status,303);const destination=new URL(response.headers.get('location'),origin);assert.equal(destination.pathname,'/sign-in');assert.equal(destination.searchParams.get('returnTo'),path);}
@@ -34,6 +35,8 @@ try {
  assert.equal((await (await fetch(origin+'/api/projects',{headers})).json()).length,0);
  assert.equal((await fetch(origin+'/setup',{headers,redirect:'manual'})).status,200);
  const created=await create({id:'fresh',name:'Fresh'});assert.equal(created.status,201);const project=await created.json();
+ assert.deepEqual(await (await fetch(origin+'/setup/state')).json(),{state:'claimed'});
+ await assertLobby(await fetch(origin+'/'),true);
  const agentResponse=await fetch(origin+'/api/projects/fresh/keys',{method:'POST',headers,body:JSON.stringify({kind:'agent'})});assert.equal(agentResponse.status,201);const agent=await agentResponse.json();
  for(const key of [project.ingestKey,agent.key,'test-deploy-grant-not-an-owner']){
   const grant={Origin:origin,'Content-Type':'application/json',Authorization:'Bearer '+key};
@@ -53,7 +56,7 @@ try {
  const revoked=await fetch(origin+'/auth/session/revoke',{method:'POST',headers,body:JSON.stringify({sessionId:session.id})});assert.equal(revoked.status,204);
  assert.equal((await create({id:'revoked',name:'Revoked'})).status,401);
  const denied=new URL((await fetch(origin+'/setup',{headers,redirect:'manual'})).headers.get('location'),origin);assert.equal(denied.pathname,'/sign-in');assert.equal(denied.searchParams.get('returnTo'),'/setup');
- assert.equal((await fetch(origin+'/api/projects',{headers})).status,401);await assertLanding(await fetch(origin,{headers,redirect:'manual'}));
+ assert.equal((await fetch(origin+'/api/projects',{headers})).status,401);await assertLobby(await fetch(origin,{headers,redirect:'manual'}),true);
  console.log('Spool runtime: DB health, server document gate, direct API gate, ordinary one-use outbox auth, second-claim refusal and immediate revocation passed.');
 }catch(error){failure=error;throw new Error('Owner runtime journey failed; private runtime details withheld');}finally{
  try{restoreFetch();}catch{}

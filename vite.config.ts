@@ -5,7 +5,7 @@ import { defineConfig } from 'vite'
 import { documentBoundary } from './vite/document-boundary'
 import { excludeLocalVariables } from './vite/exclude-local-variables'
 import { docsSite } from './vite/docs-site'
-import { archiveOutputGuard } from './scripts/base-onboarding/archive-output.mjs'
+import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
 
 // Only `vite dev` loads the local-only entry and the checkout's dev key; a build keeps src/server.ts
 // and never sees either (rer build checks its output).
@@ -14,7 +14,7 @@ const serve = { main: './src/server.dev.ts', vars: { ...local('RER_DEV_ORIGIN'),
 
 // Serve application sources and assets; private local state and archives stay closed,
 // and a build refuses any archive in its written output.
-const allow = ['src', 'public', 'node_modules']
+const allow = ['src', 'public', 'node_modules', 'deploy-site.json']
 const deny = ['**/.rer/**', '**/.seed/**', '**/exports/**', '**/*.rer']
 
 export default defineConfig(({ command, isPreview }) => ({

@@ -1,4 +1,4 @@
-import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {legacyOriginData} from './legacy-origin-data.mjs';
 import {authBindings,signIn} from './auth.mjs';

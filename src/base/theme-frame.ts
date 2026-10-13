@@ -26,7 +26,7 @@ const FRAME_STYLE = '.rer-themed body{box-sizing:border-box;margin:0;min-height:
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!))
 const hashes = new Map<string, Promise<string>>()
 // WCAG relative luminance picks readable button text for the branding accent.
-const ink = (hex: string) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4).reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0) > 0.179 ? '#000000' : '#ffffff'
+export const ink = (hex: string) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4).reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0) > 0.179 ? '#000000' : '#ffffff'
 const digest = async (text: string) => btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))))
 
 /** `policy` is the document's style/font/image CSP: the hashed frame style plus same-origin theme files. */

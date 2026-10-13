@@ -1,4 +1,4 @@
-import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 // New-issue and regression alerts leave right after ingest, without waiting for the cron, and the cron never sends them again.
 import assert from 'node:assert/strict';

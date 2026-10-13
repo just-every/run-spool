@@ -43,7 +43,7 @@ export function AgentHandoff({ project, agentKey, onDismiss }: {
     <p>Copy these lines now. The key is shown once and disappears when you reload or dismiss this panel.</p>
     <h3>Setup and packet command</h3>
     <pre>{urlLine}{'\nexport SPOOL_AGENT_KEY='}<span data-secret="agent-key">{quotedAgentKey}</span>{'\n'}{packetCommand}</pre>
-    {isLoopback && <p className="agent-handoff-guidance">Local <code>rer dev</code>: keys minted by a dev persona require the existing <code>SPOOL_DEV_KEY</code> gate. Keep that gate within this checkout; it can open the owner persona. For an agent outside this checkout, mint an ordinary key with <code>node scripts/rer.mjs dev --login</code>.</p>}
+    {isLoopback && <p className="agent-handoff-guidance">Local <code>rer dev</code>: keys minted by a dev persona require the existing <code>SPOOL_DEV_KEY</code> gate. Keep that gate within this checkout; it can open the owner persona. For an agent outside this checkout, mint an ordinary key with <code>pnpm exec rer dev --login</code>.</p>}
     <h3>Paste-in prompt</h3>
     <pre>{pastePrompt}</pre>
     <div className="button-row">

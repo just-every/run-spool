@@ -6,8 +6,8 @@ import {resolve} from 'node:path';
 import {boundedCleanup,journeyDiagnostics,classifyCommandOutput} from './command-diagnostics.mjs';
 import {resourceRefusalFamily,waitForServerResources} from './command-resources.mjs';
 import {outboxFetch} from './auth.mjs';
-import {commandCustody} from '../scripts/base-onboarding/command-custody.mjs';
-import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '../scripts/base-onboarding/process-scope.mjs';
+import {commandCustody} from '@runeditrun/rer/internal/onboarding/command-custody.mjs';
+import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '@runeditrun/rer/process-scope';
 
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const validPid=pid=>Number.isSafeInteger(pid)&&pid>1;
@@ -61,7 +61,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
   const baseline=await createProcessBaseline();
   function start(args,diagnostic=diagnostics.started(args[0])){
    const scope=createProcessScope(baseline);let child;
-   try{child=spawn(process.execPath,['scripts/rer.mjs',...args,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
+   try{child=spawn(process.execPath,[new URL(import.meta.resolve('@runeditrun/rer/internal/bin/rer.mjs')).pathname,...args,'--cwd',root,'--non-interactive','--json'],{cwd:root,env:processScopeEnvironment(scope,env),stdio:['ignore','pipe','pipe'],detached:true});}catch(error){diagnostic.spawnFailed=true;throw error;}
    diagnostic.spawned=true;
    let output='';const item={child,settled:false,spawnError:null,custody:commandCustody(child,scope)};owned.add(item);
    const capture=b=>{output=(output+b).slice(-100000);Object.assign(diagnostic,classifyCommandOutput(output,args[0]));};

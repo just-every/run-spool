@@ -4,5 +4,5 @@ export function applicationDocument(path: string): boolean {
  return /^\/projects\/[^/]+\/(?:issues(?:\/[^/]+)?|releases|capture|settings|alerts)\/?$/.test(path);
 }
 export function servicePath(path: string): boolean {
- return path === '/health' || path === '/api' || path.startsWith('/api/') || path.startsWith('/auth/') || path.startsWith('/__dev/');
+ return path === '/setup/state' || path === '/health' || path === '/api' || path.startsWith('/api/') || path.startsWith('/auth/') || path.startsWith('/__dev/');
 }

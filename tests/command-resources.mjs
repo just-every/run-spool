@@ -1,6 +1,6 @@
 import {types} from 'node:util';
 import {performance} from 'node:perf_hooks';
-import {serverResources} from '../scripts/base-cli/cli/server-resources.mjs';
+import {serverResources} from '@runeditrun/rer/server-resources';
 
 // Base words the load refusal with the measured load and threshold, so it is matched by its exact shape.
 export const loadRefusal=/^Not started: this computer is busy\. Its 1-minute load is (?:[0-9]+\.[0-9]|unknown) and a server starts only at [0-9.]+ or below\.\nTry again in a few minutes, or start it anyway with a higher threshold, for example RER_SERVERS_LOAD_THRESHOLD=[0-9]+ rer dev\.$/;

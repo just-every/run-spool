@@ -42,6 +42,9 @@ importers:
       '@playwright/test':
         specifier: 1.55.1
         version: 1.55.1
+      '@runeditrun/rer':
+        specifier: 0.2.0
+        version: 0.2.0
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -958,6 +961,11 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
+
+  '@runeditrun/rer@0.2.0':
+    resolution: {integrity: sha512-SEtAuF4BM1d+wQVkoWBH5BZ22BGqbnbZSf8tbeb4+pzCWMMU36KXz24szyrkwZ0usgnBf5hXH7XVl9UUUl+wwg==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   '@sentry/browser-utils@11.6.0':
     resolution: {integrity: sha512-s4zuuE71NORfyNd6ciS27/o97qgfu70qDRdPCkLK8UOcs1REsaAQPgmvNBSADRYm4eeFwWejKBCQKjL5kOzLqw==}
@@ -2698,6 +2706,8 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@runeditrun/rer@0.2.0': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:

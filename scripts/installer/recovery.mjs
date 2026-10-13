@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { createHash, createHmac } from 'node:crypto';
-import { LocalStateSafetyError } from '../base-onboarding/local/state.mjs';
-import { readPrivateFile, writePrivateFile, privateDirectory } from '../base-onboarding/private-files.mjs';
+import { LocalStateSafetyError } from '@runeditrun/rer/local/state';
+import { readPrivateFile, writePrivateFile, privateDirectory } from '@runeditrun/rer/private-files';
 import { validateWalSnapshot } from './wal-inspection.mjs';
 
 const missing = error => { if (error.code === 'ENOENT') return null; throw error; };

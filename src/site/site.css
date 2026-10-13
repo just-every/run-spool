@@ -1,0 +1,2 @@
+/* The shared Run page consumes this token; the installer theme schema does not yet admit it. */
+:root { --rer-font-mono: "IBM Plex Mono", ui-monospace, monospace; }

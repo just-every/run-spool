@@ -1,4 +1,4 @@
-import {queuedEntrypoint} from '../scripts/base-onboarding/queued-entry.mjs';
+import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 // Privacy table: plants one native-ingest issue per secret form (message, title
 // and breadcrumbs) and one Sentry store event, delivers alerts, then reads all

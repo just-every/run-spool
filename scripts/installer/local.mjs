@@ -1,9 +1,9 @@
-import { operatorInstaller, developmentTarget, previewTarget } from '../base-onboarding/operator-installer.mjs';
-import { localInstaller } from '../base-onboarding/adapter.mjs';
-import { installOperator } from '../base-onboarding/operator-install.mjs';
-import { signIn } from '../base-onboarding/adapter-auth.mjs';
-import { commandAdapter as createCommandAdapter } from '../base-cli/cli/adapter.mjs';
-import { ownerDeploy } from '../base-cli/cli/deploy.mjs';
+import { operatorInstaller, developmentTarget, previewTarget } from '@runeditrun/rer/operator-installer';
+import { localInstaller } from '@runeditrun/rer/local-installer';
+import { installOperator } from '@runeditrun/rer/operator-install';
+import { signIn } from '@runeditrun/rer/adapter-auth';
+import { commandAdapter as createCommandAdapter } from '@runeditrun/rer/adapter';
+import { ownerDeploy } from '@runeditrun/rer/deploy';
 import { inspectExistingState, retirePassword } from './recovery.mjs';
 import { spoolPortability } from './portability.mjs';
 import * as model from './ui/seed.mjs';
@@ -23,6 +23,7 @@ export const install = (root, input, store, onApp, signal) => installOperator(ro
 export const commandAdapter = createCommandAdapter(adapter, {
  dev: developmentTarget, preview: previewTarget, verify: ['pnpm', ['run', 'verify:app']],
  deploy: ownerDeploy('deploy.json', lifecycle), portability: spoolPortability(),
+ site: { entry: 'src/site/pages.tsx', output: 'dist/site', declaration: 'deploy-site.json', config: 'vite.site.config.ts' },
  setup: { manifestFile: 'rer-setup.json' }, browserModule: 'scripts/installer/ui/seed.mjs',
  // The production build regenerates the TanStack route tree; preview's fixed-build receipt ignores it.
  generatedOutputs: ['src/routeTree.gen.ts'],

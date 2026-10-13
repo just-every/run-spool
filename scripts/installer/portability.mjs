@@ -1,6 +1,6 @@
 import { lstat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { RerError, refuse } from '../base-cli/cli/errors.mjs';
+import { RerError, refuse } from '@runeditrun/rer/errors';
 import { inspectExistingState } from './recovery.mjs';
 export function spoolPortability() {
  async function transfer({ root, path, journal, store, signal, operationToken }, direction) {
