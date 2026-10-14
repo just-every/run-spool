@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { hash } from '../privacy';
 import { authorize, body, s, guard, audit, write, conflict } from './common';
+import { correctionHeadlines } from './headlines';
 const routes=new Hono<any>();
 type Move={event:string;occurrence:string;from:string;to:string};
 type Snapshot={id:string;revision:number;count:number;after:number};
@@ -47,7 +48,8 @@ routes.post('/:project/corrections/:id/:action',async c=>{
   else jobs.push(s(db,`INSERT INTO event_grouping(project,event,occurrence,original_issue,algorithm,basis,fingerprint,correction,direction) SELECT e.project,e.id,e.occurrence,i.id,i.algorithm,json_array(json_extract(e.payload,'$.type'),json_extract(e.payload,'$.frames[0].file'),json_extract(e.payload,'$.frames[0].function'),json_extract(e.payload,'$.frames[0].line')),i.fingerprint,?,'apply' FROM events e JOIN issues i ON i.id=e.issue WHERE e.project=? AND e.id=? ON CONFLICT(project,event,occurrence) DO NOTHING`,id,project,move.event));
   jobs.push(s(db,'UPDATE events SET issue=? WHERE project=? AND id=? AND occurrence=?',undo?move.from:move.to,project,move.event,move.occurrence),s(db,'UPDATE event_grouping SET correction=?,direction=? WHERE project=? AND event=? AND occurrence=?',id,undo?'undo':'apply',project,move.event,move.occurrence));
  }
- for(const issue of [...p.issues.map(i=>i.id),...(p.kind==='split'?[p.target]:[])])jobs.push(s(db,`UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=? AND issue=?),first_seen=COALESCE((SELECT MIN(received) FROM events WHERE project=? AND issue=?),first_seen),last_seen=COALESCE((SELECT MAX(received) FROM events WHERE project=? AND issue=?),last_seen),latest_release_seq=MAX(COALESCE(latest_release_seq,0),COALESCE((SELECT MAX(release_seq) FROM events WHERE project=? AND issue=?),0)),revision=revision+1 WHERE project=? AND id=?`,project,issue,project,issue,project,issue,project,issue,project,issue));
+ const affected=[...p.issues.map(i=>i.id),...(p.kind==='split'?[p.target]:[])],headlines=await correctionHeadlines(db,project,affected,p.moves,undo);
+ for(const issue of affected)jobs.push(s(db,`UPDATE issues SET title=?,count=(SELECT COUNT(*) FROM events WHERE project=? AND issue=?),first_seen=COALESCE((SELECT MIN(received) FROM events WHERE project=? AND issue=?),first_seen),last_seen=COALESCE((SELECT MAX(received) FROM events WHERE project=? AND issue=?),last_seen),latest_release_seq=MAX(COALESCE(latest_release_seq,0),COALESCE((SELECT MAX(release_seq) FROM events WHERE project=? AND issue=?),0)),revision=revision+1 WHERE project=? AND id=?`,headlines.get(issue),project,issue,project,issue,project,issue,project,issue,project,issue));
  jobs.push(s(db,'UPDATE grouping_corrections SET state=?,updated=? WHERE project=? AND id=?',undo?'undone':'applied',Date.now(),project,id),audit(db,project,undo?'grouping_undone':'grouping_applied',{correction:id}));
  try{await write(c,auth.session,jobs);return c.json({id,state:undo?'undone':'applied',moves:p.moves})}catch(e){return conflict(c,e)}
 });

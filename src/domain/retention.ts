@@ -4,6 +4,7 @@ import { occurrenceKey, occurrenceKeys, type OccurrenceTable } from './occurrenc
 import { portability } from './portability';
 import { scrub } from './privacy';
 import { retentionAlertStatements } from './alerts/spikes';
+import { withdrawAlertEvidence, RETAINED_HEADLINE } from './alerts/retention';
 
 type Candidate = Record<string, string>;
 const predicates = {
@@ -25,15 +26,7 @@ async function erase(db: D1Database, source: string, table: OccurrenceTable, row
   for (const field of ['tombstone', 'legacy']) jobs.push(statement(db,
    `INSERT OR IGNORE INTO rer_portability_journal SELECT ?,json_extract(candidate.value,'$.${field}') FROM json_each(?) candidate WHERE json_extract(candidate.value,'$.${field}') IS NOT NULL AND EXISTS(SELECT 1 FROM ${table} WHERE ${eligible} AND ${match})`, source, encoded, project, cutoff));
   if(table==='events')jobs.push(
-   // Alerts copy the issue headline, including regressions and spikes admitted
-   // after the cutoff. They have no headline occurrence identity, so retain the
-   // lifecycle/release chronology but withdraw that diagnostic text whenever
-   // any of its issue's evidence is erased. Substituting the surviving headline
-   // would falsely attribute newer evidence to the historical alert.
-   statement(db, `UPDATE alerts SET payload=json_set(payload,'$.title','[headline unavailable after retention]')
-    WHERE project=? AND payload IS NOT NULL AND issue IN (
-     SELECT events.issue FROM events WHERE ${eligible} AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match})
-    )`,project,project,cutoff,encoded),
+   ...withdrawAlertEvidence(db, project, cutoff, encoded, Date.now()),
    statement(db, `DELETE FROM sentry_import_targets WHERE kind='event' AND EXISTS(SELECT 1 FROM events WHERE ${eligible} AND sentry_import_targets.id=json_array(events.project,events.id) AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match}))`,project,cutoff,encoded));
   jobs.push(statement(db, `DELETE FROM ${table} WHERE ${eligible} AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match})`, project, cutoff, encoded));
   if (table === 'events') jobs.push(statement(db, "UPDATE audit SET detail=json_set(detail,'$.removed',json_extract(detail,'$.removed')+changes()) WHERE id=?", auditId));
@@ -45,8 +38,18 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  const transfer = await portability(db), before = await state(db), auditId = crypto.randomUUID();
  const events = (await statement(db, 'SELECT project,id,occurrence FROM events WHERE project=? AND received<?', project, cutoff).all()).results as Candidate[];
  const maps = (await statement(db, 'SELECT project,release,build,debug,occurrence FROM artifacts WHERE project=? AND created<?', project, cutoff).all()).results as Candidate[];
- const retained = (await statement(db, 'SELECT e.id,e.occurrence,e.issue,e.payload FROM events e WHERE e.project=? AND e.received>=? AND e.id=(SELECT id FROM events WHERE project=e.project AND issue=e.issue AND received>=? ORDER BY received,id LIMIT 1)', project, cutoff, cutoff).all()).results as any[];
- const headlines = retained.map(row => { const event = JSON.parse(row.payload); return statement(db, 'UPDATE issues SET title=? WHERE project=? AND id=? AND EXISTS(SELECT 1 FROM events WHERE project=? AND id=? AND occurrence=?)', scrub(event.type + ': ' + event.message), project, row.issue, project, row.id, row.occurrence); });
+ const retained = (await statement(db, 'SELECT id,occurrence,issue,payload FROM events WHERE project=? AND received>=? ORDER BY received,id', project, cutoff).all()).results as any[];
+ // Resolve membership in the write transaction: a correction can move a
+ // retained headline after this read. Never reattach its text to its old issue.
+ const headlines: D1PreparedStatement[] = [];
+ for (let offset = 0; offset < retained.length; offset += 50) {
+  const titles = retained.slice(offset, offset + 50).map(row => { const event = JSON.parse(row.payload); return { id: row.id, occurrence: row.occurrence, title: scrub(event.type + ': ' + event.message) }; });
+  headlines.push(statement(db, `WITH headlines AS (
+   SELECT e.issue,json_extract(candidate.value,'$.title') title FROM events e,json_each(?) candidate
+   WHERE e.project=? AND e.id=json_extract(candidate.value,'$.id') AND e.occurrence=json_extract(candidate.value,'$.occurrence')
+    AND e.id=(SELECT id FROM events WHERE project=e.project AND issue=e.issue ORDER BY received,id LIMIT 1)
+  ) UPDATE issues SET title=(SELECT title FROM headlines WHERE issue=issues.id) WHERE project=? AND id IN (SELECT issue FROM headlines)`, JSON.stringify(titles), project, project));
+ }
  const copies = await db.prepare(transferInventory).first<{ inventory: string }>();
  const invalidation = await transfer.invalidateTransfersStatements();
  const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff, auditId);
@@ -63,7 +66,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   statement(db, "INSERT INTO audit VALUES(?,?,'retention_gap',?,?)", auditId, project, JSON.stringify({ cutoff, removed: 0, dedupHorizon: cutoff }), Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...eventJobs,
-  statement(db, "UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE issue=issues.id),title='[headline unavailable after retention]',revision=revision+1 WHERE project=?", project),
+  statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
   ...headlines, ...mapJobs,
   db.prepare('UPDATE rer_portability_state SET epoch=epoch+1 WHERE id=1'),
   db.prepare('INSERT INTO rer_portability_epochs SELECT source_identity,epoch FROM rer_portability_state WHERE id=1 ON CONFLICT(source) DO UPDATE SET epoch=MAX(epoch,excluded.epoch)'),

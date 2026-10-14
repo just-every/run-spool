@@ -1,5 +1,6 @@
 // Measured recovery is computed from stored events, releases, maps, counters and
 // retention records. It is never declared by a person or a model.
+import { correctionMembership, originalMembership } from '../operators/provenance';
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 export const LOSS_REASONS = ['unauthorized', 'invalid', 'oversized', 'rejected', 'rate_limited', 'budget', 'storage_failure', 'unregistered_release_or_build', 'missing_release_register_required'];
 const EVIDENCE_LIMIT = 10;
@@ -27,14 +28,22 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
   reasons: [{ code: 'not_deployed', reason: 'The repair is not marked deployed in a registered release.' }, CLIENT_LOSS] };
  const release = await query(db, 'SELECT name,seq,build,created FROM releases WHERE project=? AND name=?', repair.project, repair.deployed_release).first<any>();
  const start = release.created, seq = release.seq;
- const events = (order: string) => query(db, `SELECT id,release,release_seq,received FROM events WHERE project=? AND issue=? AND historical=0 AND received>=? AND ${order} ORDER BY received,id LIMIT ?`, repair.project, repair.issue, start, seq, EVIDENCE_LIMIT).all<any>();
- const count = (order: string) => query(db, `SELECT COUNT(*) total FROM events WHERE project=? AND issue=? AND historical=0 AND received>=? AND ${order}`, repair.project, repair.issue, start, seq).first<any>();
- const [recurred, recurredTotal, older, olderTotal, captured, map, losses, retention] = await Promise.all([
+ // Current grouping alone can lose a witnessed recurrence. Keep native
+ // admission identity and exact membership during this repair's lifetime too.
+ // An earlier correction cannot assert equivalent future capture coverage, so
+ // affected issues also carry an explicit gap even if the change was undone.
+ const membership = `(e.issue=? OR ${originalMembership('e', '?')} OR ${correctionMembership('e', '?', '?')})`;
+ const parameters = [repair.project, repair.issue, repair.issue, repair.issue, repair.created, start, seq];
+ const events = (order: string) => query(db, `SELECT e.id,e.release,e.release_seq,e.received FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.received>=? AND ${order} ORDER BY e.received,e.id LIMIT ?`, ...parameters, EVIDENCE_LIMIT).all<any>();
+ const count = (order: string) => query(db, `SELECT COUNT(*) total FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.received>=? AND ${order}`, ...parameters).first<any>();
+ const [recurred, recurredTotal, older, olderTotal, captured, map, losses, retention, grouping] = await Promise.all([
   events('release_seq>=?'), count('release_seq>=?'), events('release_seq<?'), count('release_seq<?'),
   query(db, 'SELECT COUNT(*) total FROM events WHERE project=? AND release=? AND historical=0', repair.project, release.name).first<any>(),
   query(db, 'SELECT 1 FROM artifacts WHERE project=? AND release=? AND build=? LIMIT 1', repair.project, release.name, release.build).first(),
   query(db, `SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND reason IN (${LOSS_REASONS.map(() => '?').join(',')}) GROUP BY reason ORDER BY reason`, repair.project, Math.floor(start / 60000) * 60000, ...LOSS_REASONS).all<any>(),
   query(db, "SELECT COUNT(*) total FROM audit WHERE project=? AND kind='retention_gap' AND json_extract(detail,'$.cutoff')>?", repair.project, start).first<any>(),
+  query(db, `SELECT 1 FROM grouping_corrections c,json_each(c.plan,'$.moves') m WHERE c.project=? AND c.state IN ('applied','undone')
+   AND (json_extract(m.value,'$.from')=? OR json_extract(m.value,'$.to')=?) LIMIT 1`, repair.project, repair.issue, repair.issue).first(),
  ]);
  const row = (event: any) => ({ id: event.id, release: event.release, sequence: event.release_seq, received: event.received });
  const evidence = {
@@ -43,8 +52,8 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
   olderReleaseEvents: { count: olderTotal.total, events: older.results.map(row), counted: false as const },
   releaseEvents: captured.total, mapStored: !!map, loss: losses.results.map(({ reason, count }) => ({ reason, count })),
  };
- if (evidence.recurrence.count) return { verdict: 'recurred', reasons: [{ code: 'recurred', reason: `The same group arrived again in release ${release.name} (sequence ${seq}) or a later registered release after ${release.name} was registered.` }], evidence, limits: VERDICT_LIMITS };
- const reasons: Reason[] = [];
+ const reasons: Reason[] = grouping ? [{ code: 'grouping_changed', reason: 'Operator corrections changed this group, including any later undo. Retained admission and repair-associated occurrences still count; future default grouping does not establish coverage of the corrected group.' }] : [];
+ if (evidence.recurrence.count) return { verdict: 'recurred', reasons: [{ code: 'recurred', reason: `A retained occurrence associated with this group at admission, currently, or during this repair arrived in release ${release.name} (sequence ${seq}) or a later registered release after ${release.name} was registered.` }, ...reasons], evidence, limits: VERDICT_LIMITS };
  if (!evidence.releaseEvents) reasons.push({ code: 'no_capture_from_release', reason: `No event at all has arrived from release ${release.name}, so capture is not shown to be wired for it.` });
  if (repair.exercised === null) reasons.push({ code: 'flow_not_exercised', reason: `No one has recorded that the affected flow was exercised in release ${release.name} after the deploy.` });
  if (!evidence.mapStored) reasons.push({ code: 'map_missing', reason: `No source map is stored for release ${release.name} and build ${release.build}, so its frames stay unmapped.` });

@@ -6,6 +6,22 @@ CREATE TABLE suppression_policies(id TEXT PRIMARY KEY,project TEXT NOT NULL REFE
 CREATE TABLE event_suppressions(project TEXT NOT NULL REFERENCES projects(id),event TEXT NOT NULL,occurrence TEXT NOT NULL,reasons TEXT NOT NULL,PRIMARY KEY(project,event,occurrence),FOREIGN KEY(project,event,occurrence) REFERENCES events(project,id,occurrence) ON DELETE CASCADE);
 CREATE TABLE deployment_manifests(project TEXT NOT NULL REFERENCES projects(id),release TEXT NOT NULL,environment TEXT NOT NULL,commit_sha TEXT NOT NULL,repository TEXT NOT NULL,deployed_at INTEGER NOT NULL,created INTEGER NOT NULL,PRIMARY KEY(project,release,environment),FOREIGN KEY(project,release) REFERENCES releases(project,name));
 CREATE TABLE operator_guards(ok INTEGER NOT NULL CHECK(ok=1));
+-- Keep correction conflicts distinct from the owner's independent ok=1 guard.
+CREATE TRIGGER operator_guard_conflict BEFORE INSERT ON operator_guards WHEN NEW.ok<>1 BEGIN SELECT RAISE(ABORT,'operator_revision_or_occurrence_conflict'); END;
+-- A worker can have read a delivery before retention cancels it. Its late
+-- insert must not recreate the erased private diagnostic in a local copy.
+CREATE TRIGGER retention_integration_delivery BEFORE INSERT ON integration_deliveries
+ WHEN EXISTS(SELECT 1 FROM alert_intents i WHERE NEW.namespace='spool.'||i.project AND NEW.id=i.id AND i.code='retention_removed')
+ BEGIN SELECT RAISE(ABORT,'retention_removed'); END;
+CREATE TRIGGER retention_integration_replay BEFORE INSERT ON integration_replays
+ WHEN EXISTS(SELECT 1 FROM alert_intents i WHERE NEW.namespace='spool.'||i.project AND NEW.id=i.id AND i.code='retention_removed')
+ BEGIN SELECT RAISE(ABORT,'retention_removed'); END;
+CREATE TRIGGER retention_mail_job BEFORE INSERT ON alert_mail_jobs
+ WHEN EXISTS(SELECT 1 FROM alert_intents i WHERE i.project=NEW.project AND i.id=NEW.id AND i.code='retention_removed')
+ BEGIN SELECT RAISE(ABORT,'retention_removed'); END;
+CREATE TRIGGER retention_development_mail BEFORE INSERT ON rer_mail_development_outbox
+ WHEN json_valid(NEW.message) AND EXISTS(SELECT 1 FROM alert_intents i WHERE i.id=json_extract(NEW.message,'$.deliveryId') AND i.code='retention_removed')
+ BEGIN SELECT RAISE(ABORT,'retention_removed'); END;
 CREATE TRIGGER grouping_capacity BEFORE INSERT ON grouping_corrections WHEN (SELECT COUNT(*) FROM grouping_corrections WHERE project=NEW.project)>=50 BEGIN SELECT RAISE(ABORT,'correction_history_full'); END;
 CREATE TRIGGER suppression_capacity BEFORE INSERT ON suppression_policies WHEN (SELECT COUNT(*) FROM suppression_policies WHERE project=NEW.project)>=20 BEGIN SELECT RAISE(ABORT,'suppression_policy_full'); END;
 CREATE TRIGGER portability_grouping_corrections_insert BEFORE INSERT ON grouping_corrections WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;

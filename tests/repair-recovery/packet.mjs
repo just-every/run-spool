@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {cli,clientEnvironment} from '../agent-handoff/clients.mjs';
-const previousKeys=['version','project','issue','events','loss','trust','sourceContent','verification','grouping','releaseHistory','links','bounds','gaps'];
-// Part 3: before any repair the packet only gains an empty list.
+const previousKeys=['version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','releaseHistory','links','bounds','gaps'];
+// Before any repair, the deployment-aware packet carries an empty repair list.
 export function packetBeforeRepair(packet){
  assert.deepEqual(Object.keys(packet).filter(key=>key!=='repairs'),previousKeys);assert.deepEqual(packet.repairs,[]);
  assert.deepEqual(packet.verification,{state:'inconclusive',reason:'No independently measured workflow exposure or postdeploy proof'});
