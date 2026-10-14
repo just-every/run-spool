@@ -1,5 +1,9 @@
 /* Workbench frame: paper sidebar, ruled header, main column and the evidence rail.
    Tokens and shared components come from /theme/spool.css. */
+/* The workbench keeps the slab, highlighter and ink but sits on a lighter, near-neutral ground with hairline
+   cards and 1px controls; the landing, docs, setup and sign-in pages keep the theme's paper and 1.5px rules.
+   Set on the root so the page canvas and modal dialogs take it too. Fields stay at least 3:1 on their ground. */
+:root:has(.workbench-shell){--paper:#F5F4EF;--paper-raised:#FBFAF7;--paper-sunk:#EBEAE4;--card-border:1px solid var(--hairline);--control-stroke:1px;--field-line:rgb(28 28 27 / .55)}
 .workbench-shell{--sidebar:280px;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh;background:linear-gradient(var(--ink),var(--ink)) calc(var(--sidebar) - 1.5px) 0/1.5px 100% no-repeat}
 
 .sidebar{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:24px;height:100vh;overflow-y:auto;padding:32px 24px 28px 32px}

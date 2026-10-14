@@ -2729,7 +2729,7 @@
       "executable": false
     },
     "public/theme/spool.css": {
-      "sha256": "94c620e4683ada9bb87fb7c95a5183b3e04dcba3008db961eb3fe927f36d1775",
+      "sha256": "9c6ce55bc70a665f86ff982dd6788a4d74e44d5541c97ff33509806a121dc81c",
       "executable": false
     },
     "README.md": {
@@ -5149,7 +5149,7 @@
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
-      "sha256": "5250532e5cc65716c37cefd4589fe01fe8d3a53296a6c0d4225111decce5e7c2",
+      "sha256": "b5a5f6d9ebe517e60e339f85a2ca91de07f6ae8c52e8e39c72b3c40cd72f0758",
       "executable": false
     },
     "src/ui/alerts/Alerts.tsx": {
@@ -5405,7 +5405,7 @@
       "executable": false
     },
     "src/ui/workbench/shell.css": {
-      "sha256": "d062dcabe8b8d5e08990c71efdd4726382725e938c67c72f244cc310a7e7304d",
+      "sha256": "23529510b6fd440aa30970e7f91d62d4c7bec00aef653404d7416d98d1a1c8d5",
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {
