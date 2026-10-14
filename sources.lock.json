@@ -5245,7 +5245,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "c6677e8a6040e141743201faa00a27cbd263eeb609190b9923abede29163d3b4",
+      "sha256": "91df8379db45138729fd5b72024d1f87099ea4fe4630feaf38b012ee24caf849",
       "executable": false
     },
     "src/ui/workbench/ProjectErasure.tsx": {
@@ -5469,7 +5469,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "72c6e968e846526882097a44951ac8b0a998cf33c567068fcbbdf80af4c94399",
+      "sha256": "80db95d3fd74d084e84c573ee2f3c1a34436b87a1e9b1d047eb5648ebae5b90d",
       "executable": false
     },
     "tests/otlp-flow.mjs": {

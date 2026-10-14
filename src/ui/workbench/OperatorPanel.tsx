@@ -115,13 +115,15 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh }: 
       event.preventDefault();
       void run(async () => {
         await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        setState(null);
         refresh();
       });
     }}>
-      <Field label="Assigned operator label" maxLength={80} value={label} onChange={event => setLabel(event.target.value)} />
+      <Field label="Assigned operator label" disabled={busy || !state} maxLength={80} value={label} onChange={event => setLabel(event.target.value)} />
       <button className="primary-button" disabled={busy || !state}>Save assignment</button>
       <button type="button" className="text-button" disabled={busy || !state} onClick={() => void run(async () => {
         await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
+        setState(null);
         refresh();
       })}>Unassign</button>
     </form>
@@ -133,13 +135,13 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh }: 
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>
           {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
-            <input type="checkbox" checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
+            <input type="checkbox" disabled={busy || !state} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
             <code>{event.id}</code>
           </label>)}
         </fieldset>
-        <button className="text-button" disabled={busy || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
-        <Field label="Merge into issue ID" value={target} onChange={event => setTarget(event.target.value)} />
-        <button className="text-button" disabled={busy || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
+        <button className="text-button" disabled={busy || !state || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
+        <Field label="Merge into issue ID" disabled={busy || !state} value={target} onChange={event => setTarget(event.target.value)} />
+        <button className="text-button" disabled={busy || !state || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
         {preview && <CorrectionReview preview={preview} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
         <CorrectionHistory entries={history} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
       </Details>
@@ -153,16 +155,16 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh }: 
             setState(await request(`${root}/operator-state`));
           });
         }}>
-          <label className="form-field">Match field<select value={field} onChange={event => {
+          <label className="form-field">Match field<select disabled={busy || !state} value={field} onChange={event => {
             setField(event.target.value);
             if (event.target.value === 'fingerprint') {
               setMode('exact');
               setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
             }
           }}><option value="fingerprint">Original fingerprint</option><option value="release">Release</option><option value="message">Sanitized message</option></select></label>
-          <label className="form-field">Match mode<select value={mode} disabled={field === 'fingerprint'} onChange={event => setMode(event.target.value)}><option value="exact">Exact</option><option value="substring">Substring</option></select></label>
-          <Field label="Match value" value={value} required maxLength={160} onChange={event => setValue(event.target.value)} />
-          <button className="primary-button" disabled={busy}>Add suppression policy</button>
+          <label className="form-field">Match mode<select value={mode} disabled={busy || !state || field === 'fingerprint'} onChange={event => setMode(event.target.value)}><option value="exact">Exact</option><option value="substring">Substring</option></select></label>
+          <Field label="Match value" disabled={busy || !state} value={value} required maxLength={160} onChange={event => setValue(event.target.value)} />
+          <button className="primary-button" disabled={busy || !state}>Add suppression policy</button>
         </form>
         {state?.policies.map((policy: any) => <div className="callout" key={policy.id}>
           <p>{policy.enabled ? 'Enabled' : 'Disabled'} · {policy.field} · {policy.mode} · <code>{policy.value}</code> · revision {policy.revision}</p>
