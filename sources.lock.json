@@ -5501,7 +5501,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "6d3ccfb1e8d784f1da9f76dff7d2c26d708c45446fb7e139c0ffdc5d804a18dc",
+      "sha256": "3a29b541d9687fdf13799f56aba2a3324dee2ea0b8f5042d659943e006e53fb5",
       "executable": false
     },
     "tests/auth.mjs": {
