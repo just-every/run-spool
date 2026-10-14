@@ -4,10 +4,11 @@ import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/for
 import {canonicalJson,sha256} from '../../src/modules/portability/hash.mjs';
 import {canonical} from '../../src/domain/privacy.ts';
 // The declared pre-repair inventory also predates erasure receipts (0018),
-// identity links (0020), and operator custody (0031).
+// identity links (0020), operator custody (0031) and execution (0032).
 const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
 const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'];
-const laterTables=[...repairTables,...operatorTables];
+const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
+const laterTables=[...repairTables,...operatorTables,...executionTables];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.
 export async function preRepairArchive(text){
@@ -33,7 +34,7 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  const before=await read();
  await app.resetRestore(await preRepairArchive(source.text));
  let restored=await app.archive();assert.deepEqual(restored.data.repairs,[]);assert.deepEqual(restored.data.repair_checks,[]);
- for(const table of operatorTables)assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
+ for(const table of [...operatorTables,...executionTables])assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
