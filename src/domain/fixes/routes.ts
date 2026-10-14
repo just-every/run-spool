@@ -18,12 +18,12 @@ const view = async (c: any, row: any) => workflowView(c.env.DB, runtimeBindings(
 // A provider step needs the workflow's lease: taken atomically, only while no
 // other step holds it and only when the receipt budget can hold the whole step.
 const LEASE_MS = 5 * 60_000;
-// With `claimed`, the lease is taken only if this batch's claim moved the workflow to that revision.
-const lease = (c: any, row: any, time: number, claimed: number | null) => [
- s(c.env.DB, 'DELETE FROM fix_leases WHERE workflow=? AND until<=?', row.id, time),
- s(c.env.DB, 'INSERT INTO fix_leases(workflow,project,until) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM fix_receipts WHERE workflow=?)+?<=? AND (? IS NULL OR EXISTS(SELECT 1 FROM fix_workflows WHERE id=? AND revision=?)) ON CONFLICT(workflow) DO NOTHING',
-  row.id, row.project, time + LEASE_MS, row.id, STEP_RECEIPTS, RECEIPT_LIMIT, claimed, row.id, claimed ?? 0),
-];
+const expiredLease = (c: any, row: any, time: number) => s(c.env.DB, 'DELETE FROM fix_leases WHERE workflow=? AND until<=?', row.id, time);
+// With `afterClaim`, this must directly follow the claim UPDATE: changes()=1 means
+// this request's own claim succeeded, so a stale request never takes the lease.
+const takeLease = (c: any, row: any, time: number, afterClaim: boolean) => s(c.env.DB,
+ `INSERT INTO fix_leases(workflow,project,until) SELECT ?,?,? WHERE ${afterClaim ? 'changes()=1 AND ' : ''}(SELECT COUNT(*) FROM fix_receipts WHERE workflow=?)+?<=? ON CONFLICT(workflow) DO NOTHING`,
+ row.id, row.project, time + LEASE_MS, row.id, STEP_RECEIPTS, RECEIPT_LIMIT);
 async function refusedLease(c: any, row: any) {
  const used = (await s(c.env.DB, 'SELECT COUNT(*) n FROM fix_receipts WHERE workflow=?', row.id).first<any>()).n;
  const error = used + STEP_RECEIPTS > RECEIPT_LIMIT
@@ -75,7 +75,7 @@ routes.post('/:fix/approve', async c => {
  if (!updated.meta.changes) return c.json({ error: 'Revision conflict' }, 409);
  const approved = await current(c);
  if (connection(runtimeBindings(c.env)).state === 'configured' && !approved.pull_number) {
-  const [, leased] = await ownerWrites(c, lease(c, approved, Date.now(), null));
+  const time = Date.now(), [, leased] = await ownerWrites(c, [expiredLease(c, approved, time), takeLease(c, approved, time, false)]);
   if (!leased.meta.changes) return refusedLease(c, approved);
   const failed = await leasedStep(c, approved); if (failed) return failed;
  }
@@ -87,9 +87,11 @@ routes.post('/:fix/advance', async c => {
  if (!row) return c.json({ error: 'Workflow not found' }, 404);
  if (row.approved === null) return c.json({ error: 'Approve the grant first' }, 409);
  // Claim this step by revision so two clicks cannot open two branches.
- const time = Date.now(), [claimed, , leased] = await ownerWrites(c, [
+ // Order matters: the lease and the audit row follow the claim, each on changes()=1.
+ const time = Date.now(), [, claimed, leased] = await ownerWrites(c, [
+  expiredLease(c, row, time),
   s(c.env.DB, 'UPDATE fix_workflows SET revision=revision+1,updated=? WHERE id=? AND revision=?', time, row.id, expected),
-  ...lease(c, row, time, expected + 1),
+  takeLease(c, row, time, true),
   audit(c.env.DB, row.project, 'fix_advanced', { workflow: row.id, revision: expected + 1 }, time),
  ]);
  if (!claimed.meta.changes) return c.json({ error: 'Revision conflict' }, 409);

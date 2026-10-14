@@ -2333,7 +2333,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "fcc6690e6e5cacc9a2ab124bcee545a18b9a07f87e9e18cd2a84f2be16212119",
+      "sha256": "0ead843cff924f18ba21f746e248dbdcf68e110a63157cd5a92c93d6443b228f",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -2941,7 +2941,7 @@
       "executable": false
     },
     "scripts/reproduce/sandbox.mjs": {
-      "sha256": "a4fbe413971dcd0cf1851be42d3ba7bac36756228f4f0dc0f2afb221219ae2d8",
+      "sha256": "a394643d9c772becc85709da01b00b6313d48851aeeb4b6986849e4fe7e87074",
       "executable": false
     },
     "scripts/sentry-import.mjs": {
@@ -3245,7 +3245,7 @@
       "executable": false
     },
     "src/domain/fixes/routes.ts": {
-      "sha256": "c472a030ca68d2de65191e19e38d5a3d30176890c344c9b6df7a5e07072cd453",
+      "sha256": "2dd8e36055c0a77e9775143d95f8b594047d39c5e4545b666065c728774c36eb",
       "executable": false
     },
     "src/domain/fixes/workflow.ts": {
@@ -3381,7 +3381,7 @@
       "executable": false
     },
     "src/domain/reproducers/view.ts": {
-      "sha256": "6061142b04cdd0aab2a41348482f96076388d825e1640a617cc374b5e6553859",
+      "sha256": "4b9882e1b873bc3bf78bec989ce0edf5024eda852202e0a22ac26c726f12ad10",
       "executable": false
     },
     "src/domain/retention.ts": {
@@ -5377,7 +5377,7 @@
       "executable": false
     },
     "src/ui/workbench/ReproducerCard.tsx": {
-      "sha256": "863e707b01553c033dd89cc9dbe2c1eab5f1d2a1ea4b5077444f8cf550dabc55",
+      "sha256": "a53576f63a89fd50368c044fdac08e85c6d5367dd7a2b82d1743420b80e7551b",
       "executable": false
     },
     "src/ui/workbench/RetentionSettings.tsx": {
@@ -5557,7 +5557,7 @@
       "executable": false
     },
     "tests/execution/fix.mjs": {
-      "sha256": "6e9a0841325f740c7051910b03730fc44f1529f874b6643ff56e56f592c8a85d",
+      "sha256": "1cb57a6645a16054943a766cc46504d86b66809556ce90b88d2530bfc47fecb8",
       "executable": false
     },
     "tests/execution/fixture.mjs": {

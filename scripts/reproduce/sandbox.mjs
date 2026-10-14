@@ -31,17 +31,48 @@ export function validJob(job) {
 }
 
 // The job's entry, under per-run random module and class names no job module
-// can import. It only calls the export once and hands back what happened: the
-// value, or the thrown value with the stack string the engine attached to it.
-// Structured cloning carries both to the harness as plain data.
-const entry = (call, names) => `import { WorkerEntrypoint } from "cloudflare:workers";
+// can import. Its first import is a per-run module that captures the few
+// primordials the call needs before any job module evaluates, so job code that
+// patches iteration, then or Reflect cannot steer the call: the export is called
+// with Reflect.apply and no spread, awaited only if it returned an untampered
+// native promise (anything else is a returned value), and the stack is read
+// without running job code. It hands back what happened as structured-cloned
+// data; it never decides an outcome. Job code that the owner uploaded can still
+// shape its own throw (see docs/REPRODUCE-AND-FIX.md, Trust boundary).
+const primordials = `const apply = Reflect.apply, getProto = Object.getPrototypeOf, getOwn = Object.getOwnPropertyDescriptor;
+const NativePromise = Promise, promiseProto = Promise.prototype, then = Promise.prototype.then;
+const stackGetter = getOwn(new Error(), "stack")?.get;
+export const invoke = (fn, input) => apply(fn, undefined, input);
+// IsPromise without touching a proxy or fake: the original then throws first.
+// A real promise counts only with its original prototype and constructor, so
+// awaiting it reads data properties and runs no job code.
+export function nativePromise(value) {
+ if (value === null || typeof value !== "object") return false;
+ try { apply(then, value, []); } catch { return false; }
+ const ctor = getOwn(promiseProto, "constructor");
+ return getProto(value) === promiseProto && !getOwn(value, "constructor") && !!ctor && "value" in ctor && ctor.value === NativePromise;
+}
+export function ownStack(error) {
+ try {
+  const stack = getOwn(error, "stack");
+  if (!stack) return null;
+  const value = "value" in stack ? stack.value : stack.get === stackGetter && stackGetter ? apply(stackGetter, error, []) : null;
+  return typeof value === "string" ? value : null;
+ } catch { return null; }
+}
+`;
+const entry = (call, names) => `import { invoke, nativePromise, ownStack } from ${JSON.stringify(names.primordials)};
+import { WorkerEntrypoint } from "cloudflare:workers";
 import * as target from ${JSON.stringify(call.module)};
+// Results carry an own then, so a then patched onto Object.prototype is never consulted.
 export class ${names.entrypoint} extends WorkerEntrypoint {
  async call(input) {
   const entry = target[${JSON.stringify(call.export)}];
-  if (typeof entry !== "function") return { missing: typeof entry };
-  try { return { returned: await entry(...input) }; }
-  catch (error) { let stack = null; try { stack = error?.stack; } catch {} return { threw: error, stack: typeof stack === "string" ? stack : null }; }
+  if (typeof entry !== "function") return { then: undefined, missing: typeof entry };
+  let value;
+  try { value = invoke(entry, input); } catch (error) { return { then: undefined, threw: error, stack: ownStack(error) }; }
+  if (!nativePromise(value)) return { then: undefined, returned: value };
+  try { return { then: undefined, returned: await value }; } catch (error) { return { then: undefined, threw: error, stack: ownStack(error) }; }
  }
 }
 `;
@@ -99,6 +130,7 @@ const harness :Workerd.Worker = (
 const job :Workerd.Worker = (
  modules = [
   (name = ${JSON.stringify(names.module)}, esModule = embed "entry.js"),
+  (name = ${JSON.stringify(names.primordials)}, esModule = embed "primordials.js"),
 ${modules.map((m, index) => `  (name = ${JSON.stringify(m.name)}, esModule = embed "m${index}.js"),`).join('\n')}
  ],
  compatibilityDate = ${JSON.stringify(compatibilityDate)},
@@ -121,11 +153,12 @@ export async function sandboxVersion() { return (await execute(['--version'], tm
 
 export async function runSandbox(input) {
  const job = validJob(input), directory = await mkdtemp(join(tmpdir(), 'spool-sandbox-')), output = join(directory, 'out'), random = randomBytes(16).toString('hex');
- const names = { module: `spool-entry-${random}.js`, entrypoint: `Spool${random}` };
+ const names = { module: `spool-entry-${random}.js`, primordials: `spool-primordials-${random}.js`, entrypoint: `Spool${random}` };
  try {
   await mkdir(output);
   await Promise.all([
    writeFile(join(directory, 'entry.js'), entry(job.call, names)),
+   writeFile(join(directory, 'primordials.js'), primordials),
    writeFile(join(directory, 'harness.js'), harness),
    writeFile(join(directory, 'input.json'), JSON.stringify(job.call.input)),
    writeFile(join(directory, 'config.capnp'), config(job.modules, job.environment.compatibilityDate, names, output)),
