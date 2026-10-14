@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { rejectedResponse } from '../base/rejected-response';
 import { AuthError } from '../modules/operator-auth/index.mjs';
 import { ownerSession, ownerWrite } from '../auth/session.server';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
@@ -67,7 +68,12 @@ api.options('/api/ingest/:project',async c=>{
   c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Authorization, Content-Type');c.header('Access-Control-Max-Age','60');return c.body(null,204);
 });
 api.post('/api/ingest/:project',async c=>{
-  const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));if('response' in auth)return auth.response;
+  const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));
+  if('response' in auth){
+    const response=await rejectedResponse(c.req.raw,auth.response);
+    if(response.status===408||response.status===413)return c.json({outcome:'rejected',reason:response.status===408?'body_timeout':'body_limit'},response.status);
+    return response;
+  }
   try{const raw=await body(c);return admitEvent(c,auth.scope,normalize(raw),await hash(canonical(raw)))}catch(error){try{await recordIngest(c,auth.scope,(error as Error).message.includes('exceeds')?'oversized':'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return c.json({outcome:'rejected',reason:scrub((error as Error).message)},400)}
 });
 api.route('/api/projects',deployRoutes);

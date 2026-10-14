@@ -53,14 +53,14 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
     const algorithm='js-frame-v1',top=event.frames[0],basis=JSON.stringify([event.type,top.file,top.function,top.line]),fingerprint=await hash(basis),issue=await hash(project+':'+fingerprint);
-    const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID();
+    const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const jobs=[
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
-      ...admissionAlerts(db,{alertId,project,issue,release:event.release,build:event.build,sequence:release.seq,time,origin:c.env.ALERT_PUBLIC_ORIGIN,fingerprint,message:event.message}),
-      stmt(db,"UPDATE issues SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq THEN 'open' ELSE state END WHERE id=?",time,release.seq,issue),
-      stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,?,?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,release.seq,event.build,event.environment,JSON.stringify(event),digest,diagnosis,crypto.randomUUID()),
+      stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,?,?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,release.seq,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
+      ...admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:release.seq,time,origin:c.env.ALERT_PUBLIC_ORIGIN}),
+      stmt(db,"UPDATE issues SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=? AND receipt.event=? AND receipt.occurrence=?) THEN 'open' ELSE state END WHERE id=?",time,release.seq,project,event.eventId,occurrence,issue),
       outcomeStatement(db,project,'accepted'),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];

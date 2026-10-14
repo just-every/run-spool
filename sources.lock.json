@@ -2313,11 +2313,11 @@
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
-      "sha256": "2add95acaa2cea0047336ff1bf58811c40e224582a43e695082d8ee08ad94de9",
+      "sha256": "9a9d74fffb5f17358c61f45fa5d59dd8da80cfa583d0e8bc21d90b6fac3bcc96",
       "executable": false
     },
     "docs/OTLP-INTAKE.md": {
-      "sha256": "b6f6d8c264a64a9988fabe6fb31d169a255681551e314a4caf2c93ef6fd0c963",
+      "sha256": "e65dd4ab038af272cc2d2f139ac3cde8a60103dd73e4776955b8c62dbf3164bc",
       "executable": false
     },
     "docs/overview.md": {
@@ -3053,7 +3053,7 @@
       "executable": false
     },
     "src/domain/admission.ts": {
-      "sha256": "56440056993be763baa125c93286bb9ae80265c01c9c6173911a8a4b854f5bfa",
+      "sha256": "95ebb978491274521bda241bfdc7fd863d2e006c1c659673e6f27a439b23bd3e",
       "executable": false
     },
     "src/domain/agent-access.ts": {
@@ -3065,7 +3065,7 @@
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
-      "sha256": "016093a1fb200ea507a0acb0f53f570cfe60b00c3683faa15d0e1527e4c46376",
+      "sha256": "4bb5cb65e83fa58a179999ff7fa264897050fae139a44f41f6b7366d3a8ff9f5",
       "executable": false
     },
     "src/domain/alerts/archive.ts": {
@@ -3113,7 +3113,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "6202476bcfcda562346daa4666f0fec585eea8e81df0d20abbe2c6a729bd1073",
+      "sha256": "33f02faf776d5f2bb073f96dfaa05e52c5b100e7a617aea65b3165d297b6b872",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -3245,7 +3245,7 @@
       "executable": false
     },
     "src/domain/otlp/routes.ts": {
-      "sha256": "37bce209a91cea43420d05390507fbef2a9a03f56c342ed3fa7964e1990b2128",
+      "sha256": "f3a4127f27cd38c6732ed1d9f972aa529e11f9604192003a19a904cf772d316b",
       "executable": false
     },
     "src/domain/otlp/values.ts": {
@@ -5373,7 +5373,7 @@
       "executable": false
     },
     "tests/alerts-runtime.mjs": {
-      "sha256": "29954d13c7c05e5e7d4c5ab73363807d9c23667da672da645fdcb744289f986c",
+      "sha256": "fc6811bfd6cbe7b55bb35171763c88ed579175300a80ab7cf0c5280a84734a45",
       "executable": false
     },
     "tests/alerts-ui.mjs": {
@@ -5394,6 +5394,10 @@
     },
     "tests/alerts/runtime.mjs": {
       "sha256": "d9999fa0d0a100fd11e189c50512811266ad7e1a98e7b6788e97224a519ac359",
+      "executable": false
+    },
+    "tests/alerts/suppression-eligibility.mjs": {
+      "sha256": "60893e63afc56dc4be74f67034e8b4676bd9be40f881f9e70bb1a3279b4677c5",
       "executable": false
     },
     "tests/archive.mjs": {

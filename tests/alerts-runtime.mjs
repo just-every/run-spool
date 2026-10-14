@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
 import {alertRuntime,event,rule,setup} from './alerts/runtime.mjs';
+import {suppressionEligibility} from './alerts/suppression-eligibility.mjs';
 import {readArchive,makePart} from '../src/modules/portability/index.mjs';
 import {ContentVerifier} from '../src/modules/portability/format.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-proof-'));const inbox=await receiver(resolve(temp,'inbox.sqlite'));let app;
@@ -77,6 +78,8 @@ try {
  const spikes=(await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike');assert.equal(spikes.length,1);assert.ok(spikes.every(a=>a.issue!==policyIssue.issue),'previously suppressed events cannot spike after disable');assert.ok(JSON.parse(spikes[0].payload).window.count>=2);assert.equal((await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(spike.id).first()).next_start,start+60000);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,spike.id).run();
  await app.json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:true});assert.equal((await app.json(deliveryPath+'/gaps')).length,1);
+ await suppressionEligibility(app,auth,event,deliveryPath);
+
  // Native portability carries safe, disabled rules and inert history, never queues or secrets.
  const exported=await app.request('/api/archive');assert.equal(exported.status,200);const archive=await exported.text(),records=[];for await(const r of readArchive(new Response(archive).body))records.push(r);
  for(const canary of ['HIDDEN_ALERT_CANARY','alert-owner@example.com',app.bindings.ALERT_DESTINATION_HASH_KEY])assert.ok(!archive.includes(canary));

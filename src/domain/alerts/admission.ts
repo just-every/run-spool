@@ -1,6 +1,11 @@
-import { policyMatch, matchArgs } from '../operators/policies';
+import { originalMembership } from '../operators/provenance';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
+const firstUnsuppressedAlert = `NOT EXISTS(SELECT 1 FROM alerts previous WHERE previous.project=i.project AND previous.issue=i.id AND previous.kind='new_issue')
+ AND NOT EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.historical=0
+  AND (e.issue=i.id OR ${originalMembership('e','i.id')})
+  AND NOT (e.id=? AND e.occurrence=?)
+  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence))`;
 // SQL evaluates this inside event admission, so an in-flight HTTP request cannot
 // commit an old received timestamp after a complete spike window was consumed.
 export const receivedAtSql="CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER)";
@@ -15,12 +20,21 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  s(db,`INSERT INTO alert_history(id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,updated)
  SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,'pending',created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
 }
-export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;release:string;build:string;sequence:number;time:number;origin?:string;fingerprint:string;message:string}) {
- const {alertId:id,project,issue,release,build,sequence,time}=input;
- return [s(db,`INSERT INTO alerts(id,project,issue,kind,created,payload)
- SELECT ?,project,id,CASE WHEN revision=0 THEN 'new_issue' ELSE 'regression' END,?,
- json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN revision=0 THEN 'new_issue' ELSE 'regression' END,
- 'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',?),'issueUrl',?)
- FROM issues WHERE id=? AND project=? AND algorithm='js-frame-v1' AND state<>'suppressed' AND NOT EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch}) AND (revision=0 OR (state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq))`,
- id,time,id,new Date(time).toISOString(),release,build,sequence,issueLink(publicOrigin(input.origin),project,issue),issue,project,...matchArgs(project,input.fingerprint,release,input.message),sequence),...routeStatements(db,id,time)];
+export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
+ const {alertId:id,project,issue,eventId,occurrence,release,build,sequence,time}=input;
+ return [s(db,`WITH candidate AS (
+  SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,
+   (${firstUnsuppressedAlert}) AS first_capture,
+   EXISTS(SELECT 1 FROM events captured WHERE captured.project=i.project AND captured.id=? AND captured.occurrence=?
+    AND captured.issue=i.id AND captured.historical=0
+    AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=captured.project AND receipt.event=captured.id AND receipt.occurrence=captured.occurrence)) AS current_unsuppressed
+  FROM issues i WHERE i.id=? AND i.project=? AND i.algorithm='js-frame-v1'
+ )
+ INSERT INTO alerts(id,project,issue,kind,created,payload)
+ SELECT ?,project,id,CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,?,
+  json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,
+   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',?),'issueUrl',?)
+ FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
+  AND (first_capture=1 OR (state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq))`,
+ eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,sequence,issueLink(publicOrigin(input.origin),project,issue),sequence),...routeStatements(db,id,time)];
 }

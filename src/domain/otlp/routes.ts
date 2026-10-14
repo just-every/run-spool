@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
+import { rejectedResponse } from '../../base/rejected-response';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure, type IngestScope } from '../admission';
 import { ingestOrigin, requestedHeaders } from '../origins';
 import { candidates, prepare } from './convert';
@@ -16,13 +17,14 @@ routes.options(path,async c=>{
 routes.post(path,async c=>{
   c.header('Access-Control-Expose-Headers','Retry-After');let scope:IngestScope|undefined;
   const failure=async(response:Response)=>{
+    if(response.status===408||response.status===413)return c.json({message:response.status===408?'body_timeout':'body_limit'},response.status);
     const body=await response.json() as {reason?:string};
     if(response.status===429)c.header('Retry-After',response.headers.get('Retry-After')??'60');
     return c.json({message:body.reason??'ingest_rejected'},response.status as any);
   };
   try{
     const bearer=c.req.header('authorization')?.match(/^Bearer ([^\s]+)$/i)?.[1];
-    const auth=await authorizeIngest(c,c.req.param('project'),bearer);if('response' in auth)return failure(auth.response);scope=auth.scope;
+    const auth=await authorizeIngest(c,c.req.param('project'),bearer);if('response' in auth)return failure(await rejectedResponse(c.req.raw,auth.response));scope=auth.scope;
     const input=candidates(await readOtlp(c.req.raw));
     const prepared=await Promise.all(input.map(prepare));
     let rejected=0;const reasons=new Set<string>();
