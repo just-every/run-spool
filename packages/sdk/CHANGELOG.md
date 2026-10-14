@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Optional `client` option: a random install identifier (16 to 64 letters, digits, `-` or `_`) sent with errors so Spool can count affected users; the browser `anonymousClient()` makes one and keeps it in `localStorage` under `spool.client`.
+- Browser `exposure(...flows)` reports that the page reached named flows (at most 20) in this release, with capture installed. It needs `client`, never throws, and settles with Spool's outcome.
+
 ## 0.1.0
 
 - First release of `@just-every/spool`: browser `init` (uncaught errors and unhandled rejections, explicit scrubbed breadcrumbs), Node `init` (reports uncaught exceptions, then exits as Node would), Cloudflare Workers `captureException` with `ctx.waitUntil`, typed release and build identity, the `spool-sourcemaps` CLI and the `/vite` (Rollup) plugin. No runtime dependencies.

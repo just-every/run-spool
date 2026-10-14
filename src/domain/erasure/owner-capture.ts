@@ -8,8 +8,9 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],
+ reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
 };
-const jsonColumns = new Set(['payload','diagnostic','message']);
+const jsonColumns = new Set(['payload','diagnostic','message','spec','observation','checks','grant_spec','detail']);
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));
 const containsValue = (value: any, needles: string[]): boolean => typeof value==='string' ? contains(value,needles) : Array.isArray(value) ? value.some(item=>containsValue(item,needles)) : !!value && typeof value==='object' && Object.entries(value).some(([key,item])=>contains(key,needles)||containsValue(item,needles));

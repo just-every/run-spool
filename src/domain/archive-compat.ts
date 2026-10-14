@@ -4,6 +4,7 @@ import { validateArchiveRows } from './archive';
 import { upgradeOccurrence } from './occurrences';
 import { legacyIssueReleases } from './issue-release';
 import { emptyLinkTables } from './link-archive';
+import { emptyExecutionTables } from './execution-archive';
 import { legacyImportDefaults } from './sentry-import/archive';
 // Only the exact prior inventories emitted before alert/import additions qualify.
 const previousSchema = '502ff0b6cf7bc791c78a453621e0672e71b20aca5d4e6dfd6a7fc6705925879b';
@@ -44,6 +45,6 @@ export async function normalizePreviousArchive(previous:Awaited<ReturnType<typeo
  }
  const upgraded=Object.fromEntries(Object.entries(previous.data).map(([table,rows])=>[table,rows.map(row=>Object.hasOwn(row,'occurrence')?row:upgradeOccurrence(table,row))]));
  const legacy=await validateArchiveRows(operatorDefaults(legacyIssueReleases(legacyImportDefaults(upgraded))));
- const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables()};
+ const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  return {data,manifest:{...current,sourceIdentity:previous.manifest.sourceIdentity,epoch:previous.manifest.epoch,journal:previous.manifest.journal,exportedAt:previous.manifest.exportedAt}};
 }

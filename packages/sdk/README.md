@@ -33,6 +33,18 @@ Nothing is dropped silently. Each uncaught error the SDK does not send settles t
 
 Breadcrumbs are never collected automatically: no DOM values, form text, requests or console output. Messages, frames and labels are scrubbed of common secrets before they leave the page, and again by Spool.
 
+### Affected users and flows
+
+To let Spool measure whether a deployed fix reached the users a failure affected, give each install a random identifier and report the flows it reaches:
+
+```js
+import { init, anonymousClient } from '@just-every/spool';
+const spool = init({ endpoint, project, ingestKey, release, build, client: anonymousClient() });
+spool.exposure('checkout');
+```
+
+`anonymousClient()` keeps a random 32-character identifier in `localStorage` under `spool.client` (a fresh one per call if storage is unavailable). Pass your own random value instead if you prefer; it must never be a name, address or account ID. `exposure()` settles with Spool's outcome and never throws.
+
 ## Node
 
 ```js

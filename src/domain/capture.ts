@@ -1,5 +1,5 @@
 import { file as normalizedFile, normalize, scrub, type Envelope, type Frame } from './privacy.ts';
-export interface CaptureOptions { endpoint:string; project:string; ingestKey:string; release:string; build:string; environment:string; debugId?:string; breadcrumbs?:string[]|(()=>string[]); onOutcome?:(result:any)=>void; onPreview?:(event:any)=>void;
+export interface CaptureOptions { endpoint:string; project:string; ingestKey:string; release:string; build:string; environment:string; debugId?:string; client?:string; breadcrumbs?:string[]|(()=>string[]); onOutcome?:(result:any)=>void; onPreview?:(event:any)=>void;
   /** Only Spool's own pages send to their own origin with 'same-origin', so a local dev session's key gate applies. */
   credentials?:'omit'|'same-origin';
   /** The fetch captured when capture was set up, so a fetch wrapper the page installs later never sees Spool's own requests.
@@ -50,7 +50,7 @@ export async function captureException(error:unknown,options:CaptureOptions,even
     const stack=read(error,'stack'),parsed=stackFrames(typeof stack==='string'?stack:'',options.debugId);
     if(!parsed.length)return settle({outcome:'rejected',reason:'no_parseable_stack',eventId},options.onOutcome);
     const name=text(read(error,'name')).slice(0,100),crumbs=typeof options.breadcrumbs==='function'?options.breadcrumbs():options.breadcrumbs;
-    event=normalize({version:1,eventId,release:options.release,build:options.build,environment:options.environment,type:/^[\w.:-]+$/.test(name)?name:'Error',message:text(read(error,'message')),frames:parsed,breadcrumbs:(Array.isArray(crumbs)?crumbs:[]).filter(crumb=>typeof crumb==='string').slice(-20),...(options.dropped?{dropped:options.dropped}:{})});
+    event=normalize({version:1,eventId,release:options.release,build:options.build,environment:options.environment,type:/^[\w.:-]+$/.test(name)?name:'Error',message:text(read(error,'message')),frames:parsed,breadcrumbs:(Array.isArray(crumbs)?crumbs:[]).filter(crumb=>typeof crumb==='string').slice(-20),...(options.dropped?{dropped:options.dropped}:{}),...(options.client?{client:options.client}:{})});
     options.onPreview?.(event);
   }catch {return settle({outcome:'rejected',reason:'invalid_event',eventId:eventId??''},options.onOutcome)}
   try {

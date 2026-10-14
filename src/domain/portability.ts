@@ -5,6 +5,7 @@ import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
 import { validateArchive, validateArchiveRows, tables } from './archive';
 import { repairArchiveTables, validateRepairArchive } from './repairs/archive';
+import { emptyExecutionTables, executionArchiveTables, executionExcludedTables, validateExecutionArchive } from './execution-archive';
 import { erasureArchiveTables, erasureExcludedTables, validateErasureArchive } from './erasure/archive';
 import { fenceLegacyOccurrences } from './occurrences';
 import { scrubExportRow } from './stored-text';
@@ -13,15 +14,15 @@ import { linkArchiveTables, linkMigrations, emptyLinkTables } from './link-archi
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
-  const rows=Object.fromEntries(await Promise.all([...Object.keys(tables),...alertArchiveTables,...repairArchiveTables,...erasureArchiveTables].map(async table => [table, await read(table)])));
-  const data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateErasureArchive(rows))));
+  const rows=Object.fromEntries(await Promise.all([...Object.keys(tables),...alertArchiveTables,...repairArchiveTables,...erasureArchiveTables,...executionArchiveTables].map(async table => [table, await read(table)])));
+  const data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateErasureArchive(validateExecutionArchive(rows)))));
   await fenceLegacyOccurrences(db, manifest, data, later);
   return true;
  };
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, alertExportRow(table, row)),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -58,11 +59,15 @@ export async function archiveStream(service: any): Promise<ReadableStream<Uint8A
 // records its applied migrations gains exactly those, nothing else.
 const operatorNames=Object.keys(operatorTables);
 const operatorMigration='0031_operator_corrections.sql';
+const executionMigration='0032_execution.sql';
 const laterTables = [
- {tables:operatorNames,migrations:[operatorMigration]},
- { tables: [...operatorNames,...linkArchiveTables], migrations: [operatorMigration,...linkMigrations] },
- { tables: [...operatorNames,...erasureArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0018_erasure.sql', ...linkMigrations] },
- { tables: [...operatorNames,...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
+ { tables: executionArchiveTables, migrations: [executionMigration] },
+ ...[
+  {tables:operatorNames,migrations:[operatorMigration]},
+  { tables: [...operatorNames,...linkArchiveTables], migrations: [operatorMigration,...linkMigrations] },
+  { tables: [...operatorNames,...erasureArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0018_erasure.sql', ...linkMigrations] },
+  { tables: [...operatorNames,...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
+ ].map(later => ({ tables: [...later.tables, ...executionArchiveTables], migrations: [...later.migrations, executionMigration] })),
 ];
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
@@ -97,7 +102,7 @@ async function templateManifest(service:any){
 }
 async function legacyRecords(service: any, value: unknown) {
  const legacy=await validateArchive(value);
- const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables()};
+ const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
 }

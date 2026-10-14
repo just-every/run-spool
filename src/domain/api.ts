@@ -8,6 +8,10 @@ import alertRoutes from './alerts/routes';
 import groupingRoutes from './operators/grouping';
 import policyRoutes from './operators/policies';
 import repairRoutes from './repairs/routes';
+import reproducerRoutes from './reproducers/routes';
+import runnerRoutes from './reproducers/runner-routes';
+import fixRoutes from './fixes/routes';
+import { exposureResponse } from './exposure/intake';
 import { projectErasureRoutes, erasureReceiptRoutes } from './erasure/routes';
 import { erasedProjectIdentifier } from './erasure/identifiers';
 import { applyRetention } from './retention';
@@ -58,7 +62,7 @@ api.onError((err,c)=>{
 });
 // The scheduler's last run is public on purpose: it holds no project or credential data and shows whether the cron ticks.
 api.get('/health',async c=>{await c.env.DB.prepare('SELECT COUNT(*) FROM projects').first();const scheduler=await c.env.DB.prepare('SELECT last_run FROM alert_scheduler WHERE id=1').first<{last_run:number|null}>();return c.json({status:'ok',ok:true,deployment:{sourceSha:c.env.RER_DEPLOY_SOURCE,fingerprint:c.env.RER_DEPLOY_FINGERPRINT,versionId:c.env.RER_VERSION?.id},alerts:{lastScheduledRun:scheduler?.last_run?new Date(scheduler.last_run).toISOString():null}})});
-api.options('/api/ingest/:project',async c=>{
+const preflight=async(c:any)=>{
   c.header('Vary','Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
   const project=c.req.param('project'),origin=c.req.header('origin');
   const known=await stmt(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first();
@@ -66,7 +70,12 @@ api.options('/api/ingest/:project',async c=>{
   const policy=await ingestOrigin(c.env.DB,project,origin,c.env.AUTH_ORIGIN);
   if(!policy.allowed)return c.json({error:'Origin not allowed'},403);
   c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Authorization, Content-Type');c.header('Access-Control-Max-Age','60');return c.body(null,204);
-});
+};
+api.options('/api/ingest/:project',preflight);
+api.options('/api/ingest/:project/exposure',preflight);
+api.post('/api/ingest/:project/exposure',exposureResponse);
+// The reproducer runner's single-use run tokens are its only authority.
+api.route('/api/sandbox',runnerRoutes);
 api.post('/api/ingest/:project',async c=>{
   const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));
   if('response' in auth){
@@ -97,6 +106,8 @@ api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects/:project/alerting',alertRoutes);
 api.route('/api/projects/:project/repairs',repairRoutes);
+api.route('/api/projects/:project/reproducers',reproducerRoutes);
+api.route('/api/projects/:project/fixes',fixRoutes);
 api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
 api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
 api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at)) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments FROM releases WHERE project=? ORDER BY seq DESC`,c.req.param('project')).all()).results));

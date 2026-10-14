@@ -11,7 +11,7 @@ const labels: Record<string, string> = {
   alert_mail_attempts: 'Mail attempts', rer_mail_development_outbox: 'Development outbox messages', oa_dev_credentials: 'Dev-minted key marks',
   integration_deliveries: 'Webhook deliveries', integration_attempts: 'Webhook attempts', integration_resolutions: 'Webhook resolutions',
   integration_replays: 'Webhook replays', integration_tokens: 'Integration tokens', integration_token_events: 'Integration token events',
-  integration_token_usage: 'Integration token usage', repairs: 'Repairs', repair_checks: 'Repair checks', audit: 'Audit entries', alert_scheduler: 'Scheduler cursor',
+  integration_token_usage: 'Integration token usage', repairs: 'Repairs', repair_checks: 'Repair checks', reproducers: 'Reproducers', reproducer_runs: 'Reproducer runs', reproducer_run_tokens: 'Reproducer run tokens', fix_workflows: 'Fix workflows', fix_receipts: 'Fix receipts', exposures: 'Exposure reports', audit: 'Audit entries', alert_scheduler: 'Scheduler cursor',
 };
 const label = (table: string) => labels[table] ?? table;
 const total = (counts: Record<string, number>) => Object.values(counts).reduce((sum, n) => sum + n, 0);
@@ -43,7 +43,7 @@ export function ProjectErasure({ project, request, run, busy }: { project: strin
   </section>;
   return <section className="evidence" aria-labelledby="erasure-title">
     <h2 id="erasure-title">Erase this project</h2>
-    <p>Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs and Sentry import records. It cannot be undone.</p>
+    <p>Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs, reproducers, fix workflows, exposure reports and Sentry import records. It cannot be undone.</p>
     <button className="text-button" disabled={busy} onClick={() => void run(async () => { setPreview(await request(`/api/projects/${project}/erasure`)); setTyped(''); })}>Preview erasure</button>
     {preview && <>
       <p role="status">{total(preview.deleted)} rows will be deleted.</p>

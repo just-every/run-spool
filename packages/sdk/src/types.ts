@@ -16,6 +16,9 @@ export interface SpoolOptions {
   environment?: string;
   /** Set only when your bundle was not processed by Spool's build plugin or CLI, which register debug IDs themselves. */
   debugId?: string;
+  /** A random identifier for this install or browser, never a name or address (16 to 64 letters, digits, `-` or `_`). With it,
+   * Spool can count how many affected users a deployed fix reached. In the browser, `anonymousClient()` makes and keeps one. */
+  client?: string;
   /** Called with every capture outcome, including transport failures and, in the browser, each uncaught error the SDK did not send (`dropped` with reason `client_cap` or `duplicate`). */
   onOutcome?: (result: CaptureResult) => void;
 }
