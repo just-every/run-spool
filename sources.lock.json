@@ -5673,7 +5673,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "98f89b8e765af13f77bd71d26b6b8dfdc6ea7b7033b4c973c98d8abde02d3cbc",
+      "sha256": "44af168990f4d9d0e0284d01b89254698ac245e8e36aa48bf67e706711b7f3f9",
       "executable": false
     },
     "tests/project-erasure.mjs": {

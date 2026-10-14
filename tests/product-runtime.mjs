@@ -67,7 +67,7 @@ async function stop(){const active=miniflare;miniflare=null;try{if(active)await 
 let cookie='',requestSequence=0;
 async function req(path,method='GET',value,headers={}){const requestId=requestSequence+1;const response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});Object.defineProperty(response,'fixtureRequest',{value:requestId});return response}
 async function json(path,method,value,headers){const r=await req(path,method,value,headers);try{assert.ok(r.ok,'product HTTP request succeeds');return await (path==='/api/archive'?archiveProjection(r):r.json())}catch(error){error.productRequest={method:method??'GET',status:r.status,ordinal:r.fixtureRequest};throw error}}
-async function login(){cookie=await signIn(origin)}
+async function login(options){cookie=await signIn(origin,options)}
 async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}
 
 try {
@@ -149,7 +149,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  for(const [index,message] of ['a@b.test '.repeat(111),'token=x '.repeat(125),'😀'.repeat(500)].entries())await json('/api/ingest/web','POST',{...event,eventId:'expanded-title-'+index,message,frames:[{...event.frames[0],function:'expandedTitle'+index}]},auth);
  await json('/api/ingest/web','POST',{...event,eventId:'combined-type-scrub',type:'token',message:'synthetic-value',frames:[{...event.frames[0],function:'combinedScrub'}]},auth);
  await operatorFlow({req,json});
- const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login();await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
+ const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 
  await stop();cookie='';await start(resolve(temporary,'state-b'));await login();await setupLocation(false);
