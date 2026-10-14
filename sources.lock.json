@@ -2313,7 +2313,7 @@
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
-      "sha256": "9a9d74fffb5f17358c61f45fa5d59dd8da80cfa583d0e8bc21d90b6fac3bcc96",
+      "sha256": "95077ffa0ae0309a49acd91e6a05171133f63ff861b98179b46f9491ea0fb5c5",
       "executable": false
     },
     "docs/OTLP-INTAKE.md": {
@@ -3053,7 +3053,7 @@
       "executable": false
     },
     "src/domain/admission.ts": {
-      "sha256": "95ebb978491274521bda241bfdc7fd863d2e006c1c659673e6f27a439b23bd3e",
+      "sha256": "acec5f554f0c2b86084df77454b6ad9f23913dfd4a25d8a9f91b4e4d10541376",
       "executable": false
     },
     "src/domain/agent-access.ts": {
@@ -3065,11 +3065,15 @@
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
-      "sha256": "4bb5cb65e83fa58a179999ff7fa264897050fae139a44f41f6b7366d3a8ff9f5",
+      "sha256": "f265a649fb1077b26dd3f285ffc12b38f530a13a87e0d0a938e202589777971d",
       "executable": false
     },
     "src/domain/alerts/archive.ts": {
       "sha256": "28a57161b2edf47c651bd6647e72451194cd06b57fcdf53e2b2e164aad2dbb60",
+      "executable": false
+    },
+    "src/domain/alerts/capture-history.ts": {
+      "sha256": "aa8c97a4193d0df6ff3b4ab1090403396595451fa027f4306424874d91fa8506",
       "executable": false
     },
     "src/domain/alerts/destinations.server.ts": {
@@ -3209,7 +3213,7 @@
       "executable": false
     },
     "src/domain/operators/archive.ts": {
-      "sha256": "0c0af56659d6010ea90168be848da3581bd8a816b3b95b14ecd5b6d3f64b252e",
+      "sha256": "fea10952785c18ef3d8ae268cfef27d150c993ebc63dc11134b0c49af5fba09d",
       "executable": false
     },
     "src/domain/operators/common.ts": {

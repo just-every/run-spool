@@ -1,6 +1,7 @@
 import { canonical, hash, scrub } from '../privacy';
 import { deploymentInput } from './deployments';
 import { policyInput } from './policies';
+import { captureAuditKinds } from '../alerts/capture-history';
 export const operatorTables:Record<string,string[]>={
  grouping_corrections:['id','project','kind','state','plan','created','updated'],
  event_grouping:['project','event','occurrence','original_issue','algorithm','basis','fingerprint','correction','direction'],
@@ -10,7 +11,7 @@ export const operatorTables:Record<string,string[]>={
  deployment_manifests:['project','release','environment','commit_sha','repository','deployed_at','created'],
 };
 export const operatorDefaults=(data:any)=>({...Object.fromEntries(Object.keys(operatorTables).map(name=>[name,[]])),...data});
-export const operatorAuditKinds=['issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered'];
+export const operatorAuditKinds=['issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered',...captureAuditKinds];
 function assert(ok:unknown,message='Archive operator integrity'):asserts ok{if(!ok)throw new Error(message)}
 function fields(value:any,names:string[]){assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join()===names.sort().join())}
 const integer=(n:any)=>Number.isSafeInteger(n)&&n>=0;
@@ -48,8 +49,13 @@ export async function validateOperators(data:any){
   const seen=new Set();for(const reason of reasons){fields(reason,['id','revision','field','mode','value']);const p=data.suppression_policies.find((p:any)=>p.id===reason.id&&p.project===r.project);assert(p&&integer(reason.revision)&&reason.revision>0&&reason.revision<=p.revision&&!seen.has(reason.id));seen.add(reason.id);policyInput({...reason,enabled:true});const value=reason.field==='fingerprint'?fp:reason.field==='release'?e.release:event.message;assert(reason.mode==='exact'?value===reason.value:value.includes(reason.value));}
  }
  for(const r of data.deployment_manifests){assert(data.releases.some((release:any)=>release.project===r.project&&release.name===r.release)&&integer(r.created)&&integer(r.deployed_at));const normalized=deploymentInput({commitSha:r.commit_sha,repository:r.repository,deployedAt:new Date(r.deployed_at).toISOString(),environment:r.environment});assert(canonical(normalized)===canonical({commit_sha:r.commit_sha,repository:r.repository,deployed_at:r.deployed_at,environment:r.environment}))}
+ const captureFacts=new Set<string>();
  for(const r of data.audit.filter((r:any)=>operatorAuditKinds.includes(r.kind))){
   assert(integer(r.created));const d=JSON.parse(r.detail);
+  if(captureAuditKinds.includes(r.kind)){
+   fields(d,['issue']);const issue=issues.get(d.issue),key=JSON.stringify([r.project,d.issue,r.kind]);
+   assert(uuid(r.id)&&issue?.project===r.project&&issue.algorithm==='js-frame-v1'&&!captureFacts.has(key));captureFacts.add(key);
+  }
   if(r.kind==='issue_assigned'){fields(d,['issue','label','revision']);assert(issues.get(d.issue)?.project===r.project&&integer(d.revision)&&d.revision>0&&(d.label===null||typeof d.label==='string'&&d.label.length<=80&&scrub(d.label)===d.label))}
   if(r.kind==='suppression_changed'){fields(d,['policy','revision','field','mode','value','enabled']);assert(data.suppression_policies.some((p:any)=>p.id===d.policy&&p.project===r.project&&p.revision>=d.revision)&&integer(d.revision)&&d.revision>0&&[0,1].includes(d.enabled));policyInput({...d,enabled:d.enabled===1})}
   if(r.kind.startsWith('grouping_')){fields(d,['correction']);assert(corrections.get(d.correction)?.project===r.project)}

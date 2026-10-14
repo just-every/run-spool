@@ -1,7 +1,17 @@
 import { originalMembership } from '../operators/provenance';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
+import { captureFact } from './capture-history';
+// Lifetime facts survive retention. Without them, a legacy retention gap is
+// unknown history, never proof that a later capture is the issue's first.
 const firstUnsuppressedAlert = `NOT EXISTS(SELECT 1 FROM alerts previous WHERE previous.project=i.project AND previous.issue=i.id AND previous.kind='new_issue')
+ AND NOT ${captureFact('capture_unsuppressed', 'i.id')}
+ AND (${captureFact('capture_history_started', 'i.id')} OR NOT EXISTS(
+  SELECT 1 FROM audit gap WHERE gap.project=i.project AND gap.kind='retention_gap'
+   AND json_extract(gap.detail,'$.removed')>0 AND (gap.created>=i.first_seen OR EXISTS(
+    SELECT 1 FROM grouping_corrections correction WHERE correction.project=i.project AND correction.state IN ('applied','undone')
+     AND (json_extract(correction.plan,'$.target')=i.id OR EXISTS(
+      SELECT 1 FROM json_each(correction.plan,'$.issues') member WHERE json_extract(member.value,'$.id')=i.id))))))
  AND NOT EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.historical=0
   AND (e.issue=i.id OR ${originalMembership('e','i.id')})
   AND NOT (e.id=? AND e.occurrence=?)
