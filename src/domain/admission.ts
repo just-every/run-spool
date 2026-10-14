@@ -1,3 +1,4 @@
+import { policyMatch, matchArgs } from './operators/policies';
 import { normalize, hash, scrub, type Envelope } from './privacy';
 import { diagnose } from './artifacts';
 import { ingestOrigin } from './origins';
@@ -56,9 +57,10 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const jobs=[
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
-      ...admissionAlerts(db,{alertId,project,issue,release:event.release,build:event.build,sequence:release.seq,time,origin:c.env.ALERT_PUBLIC_ORIGIN}),
+      ...admissionAlerts(db,{alertId,project,issue,release:event.release,build:event.build,sequence:release.seq,time,origin:c.env.ALERT_PUBLIC_ORIGIN,fingerprint,message:event.message}),
       stmt(db,"UPDATE issues SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq THEN 'open' ELSE state END WHERE id=?",time,release.seq,issue),
       stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,?,?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,release.seq,event.build,event.environment,JSON.stringify(event),digest,diagnosis,crypto.randomUUID()),
+      stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
       outcomeStatement(db,project,'accepted'),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];

@@ -42,7 +42,17 @@ export async function delayedOwnerWrites() {
    app.DB.prepare("INSERT INTO alert_mail_jobs(id,project,message,destination_hash,state,next_at) VALUES('inflight-delivery','inflight-owner','{}','hmac:x','uncertain',?)").bind(now),
    app.DB.prepare("INSERT INTO alert_history VALUES('inflight-delivery','inflight-owner','inflight-alert',?,1,'mail','owner-mail','uncertain',NULL,1,?,?,0)").bind(rule.id,now,now),
   ]);
+  const policy=await app.json('/api/projects/inflight-owner/suppression-policies',{field:'message',mode:'exact',value:'Future quiet error',enabled:true},201);
+  const correction=await app.json('/api/projects/inflight-owner/corrections/preview',{kind:'split',source:issue.id,revision:issue.revision,events:['inflight-owner-event']},201);
+  await app.json(`/api/projects/inflight-owner/corrections/${correction.id}/apply`,{confirm:true});
+  const nextPreview=await app.json('/api/projects/inflight-owner/corrections/preview',{kind:'split',source:correction.plan.target,revision:1,events:['inflight-owner-event']},201);
   const requests=[
+   [`/api/projects/inflight-owner/issues/${issue.id}/assignment`,{revision:issue.revision+1,label:'Late operator'},{method:'PATCH'}],
+   ['/api/projects/inflight-owner/suppression-policies',{field:'release',mode:'exact',value:'r1',enabled:true}],
+   [`/api/projects/inflight-owner/suppression-policies/${policy.id}`,{...policy,enabled:false},{method:'PATCH'}],
+   ['/api/projects/inflight-owner/corrections/preview',{kind:'split',source:correction.plan.target,revision:1,events:['inflight-owner-event']}],
+   [`/api/projects/inflight-owner/corrections/${nextPreview.id}/apply`,{confirm:true}],
+   [`/api/projects/inflight-owner/corrections/${correction.id}/undo`,{confirm:true}],
    ['/api/projects',{id:'late-project',name:'Late project'}],
    ['/api/projects/inflight-owner/alerting/rules',{...alertRule,name:'Late rule'}],
    [`/api/projects/inflight-owner/alerting/rules/${rule.id}`,{...alertRule,name:'Revised rule',revision:1},{method:'PUT'}],

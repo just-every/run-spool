@@ -1,3 +1,4 @@
+import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
@@ -20,7 +21,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, alertExportRow(table, row)),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -55,10 +56,13 @@ export async function archiveStream(service: any): Promise<ReadableStream<Uint8A
 // schema; the later tables start empty.
 // Each set names the additive migrations that created it; an archive that
 // records its applied migrations gains exactly those, nothing else.
+const operatorNames=Object.keys(operatorTables);
+const operatorMigration='0031_operator_corrections.sql';
 const laterTables = [
- { tables: linkArchiveTables, migrations: linkMigrations },
- { tables: [...erasureArchiveTables, ...linkArchiveTables], migrations: ['0018_erasure.sql', ...linkMigrations] },
- { tables: [...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: ['0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
+ {tables:operatorNames,migrations:[operatorMigration]},
+ { tables: [...operatorNames,...linkArchiveTables], migrations: [operatorMigration,...linkMigrations] },
+ { tables: [...operatorNames,...erasureArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0018_erasure.sql', ...linkMigrations] },
+ { tables: [...operatorNames,...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
 ];
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));

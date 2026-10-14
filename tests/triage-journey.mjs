@@ -1,3 +1,4 @@
+import { operatorUi } from './operator-ui.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -73,6 +74,7 @@ try {
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.getByRole('button',{name:'Refresh',exact:true}).click();await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}
  assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow');
+ await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
 }finally{await browser?.close();await application?.stop();await worker.stop();}
 }
 for(const width of [1440,390])await journey(width);

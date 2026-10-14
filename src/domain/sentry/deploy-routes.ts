@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { deploymentInput } from '../operators/deployments';
 import type { Bindings } from '../../auth/bindings';
 import { canonical, hash, identity } from '../privacy';
 import { validateMap } from '../artifacts';
@@ -20,15 +21,20 @@ async function failure(c:any,project:string,error:unknown){
 }
 routes.post('/:project/releases',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,32768),name=identity(b.name,'release'),build=identity(b.build,'build'),db=c.env.DB,time=Date.now();
+  const b=await readBody(c.req.raw,32768),name=identity(b.name,'release'),build=identity(b.build,'build'),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
   try{
     const result=await deployBatch(c,auth,[
       stmt(db,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?) OR EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND build=?) THEN 1 ELSE 0 END",project,name,project,name,build),
       stmt(db,'INSERT INTO releases(project,name,seq,build,created) SELECT ?,?,(SELECT COALESCE(MAX(seq),0)+1 FROM releases WHERE project=?),?,? WHERE NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?)',project,name,project,build,time,project,name),
       stmt(db,"INSERT INTO audit SELECT ?,?,'release_registered',json_object('name',name,'build',build,'seq',seq),? FROM releases WHERE project=? AND name=? AND changes()=1",crypto.randomUUID(),project,time,project,name),
+      ...(manifest?[
+       stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=?) OR EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=? AND commit_sha=? AND repository=? AND deployed_at=?) THEN 1 ELSE 0 END',project,name,manifest.environment,project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at),
+       stmt(db,'INSERT INTO deployment_manifests VALUES(?,?,?,?,?,?,?) ON CONFLICT(project,release,environment) DO NOTHING',project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at,time),
+       stmt(db,"INSERT INTO audit SELECT ?,?,'deployment_registered',?,? WHERE changes()=1",crypto.randomUUID(),project,JSON.stringify({release:name,environment:manifest.environment}),time),
+      ]:[]),
     ]);
     const row=await stmt(db,'SELECT name,build,seq FROM releases WHERE project=? AND name=?',project,name).first();
-    return c.json(row,result[2].meta.changes?201:200);
+    return c.json({...row,manifest},result[2].meta.changes?201:200);
   }catch(error){return failure(c,project,error)}
 });
 routes.post('/:project/artifacts',async c=>{

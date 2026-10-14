@@ -1,3 +1,4 @@
+import { policyMatch, matchArgs } from '../operators/policies';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
 // SQL evaluates this inside event admission, so an in-flight HTTP request cannot
@@ -14,12 +15,12 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  s(db,`INSERT INTO alert_history(id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,updated)
  SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,'pending',created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
 }
-export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
+export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;release:string;build:string;sequence:number;time:number;origin?:string;fingerprint:string;message:string}) {
  const {alertId:id,project,issue,release,build,sequence,time}=input;
  return [s(db,`INSERT INTO alerts(id,project,issue,kind,created,payload)
  SELECT ?,project,id,CASE WHEN revision=0 THEN 'new_issue' ELSE 'regression' END,?,
  json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN revision=0 THEN 'new_issue' ELSE 'regression' END,
  'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',?),'issueUrl',?)
- FROM issues WHERE id=? AND project=? AND algorithm='js-frame-v1' AND (revision=0 OR (state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq))`,
- id,time,id,new Date(time).toISOString(),release,build,sequence,issueLink(publicOrigin(input.origin),project,issue),issue,project,sequence),...routeStatements(db,id,time)];
+ FROM issues WHERE id=? AND project=? AND algorithm='js-frame-v1' AND state<>'suppressed' AND NOT EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch}) AND (revision=0 OR (state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq))`,
+ id,time,id,new Date(time).toISOString(),release,build,sequence,issueLink(publicOrigin(input.origin),project,issue),issue,project,...matchArgs(project,input.fingerprint,release,input.message),sequence),...routeStatements(db,id,time)];
 }

@@ -1,3 +1,5 @@
+import { observedDeployment } from './operators/deployments';
+import { hash } from './privacy';
 import { diagnose } from './artifacts';
 import { canonical, normalize } from './privacy';
 import { clientDroppedSql, decodeIssueAttention, issueAttentionSql } from './issue-attention';
@@ -47,10 +49,10 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
  if (!row) return null;
  const issue = issueProjection(decodeIssueAttention(row));
  const [selected, totals, first, last, losses, windows, auditRows, auditTotal, repairs] = await Promise.all([
-  query(db, 'SELECT * FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>(),
+  query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>(),
   query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id).first<any>(),
-  query(db, 'SELECT release,release_seq,build,historical FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id).first<any>(),
-  query(db, 'SELECT release,release_seq,build,historical FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id).first<any>(),
+  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id).first<any>(),
+  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id).first<any>(),
   query(db, 'SELECT project,window,reason,count FROM outcomes WHERE project=? ORDER BY window DESC,reason LIMIT 100', project).all<any>(),
   query(db, 'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason ORDER BY reason LIMIT 100', project, Date.now() - 86400000).all<any>(),
   query(db, "SELECT id,project,kind,detail,created FROM audit WHERE project=? AND kind='retention_gap' ORDER BY created DESC,id DESC LIMIT 20", project).all<any>(),
@@ -65,7 +67,9 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
    type: stored.type, message: stored.message, frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
   const currentLookup = row.historical === 1 ? atAdmission : diagnosticProjection(await diagnose(db, project, event));
-  return { id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event, atAdmission, currentLookup,
+  const basis=JSON.stringify([event.type,event.frames[0].file,event.frames[0].function,event.frames[0].line]);
+  const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
+  return { originalGrouping:{issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??issue.algorithm,basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event, atAdmission, currentLookup,
    release: release(row), build: text(row.build), environment: text(row.environment) };
  }));
  const retention = auditRows.results.map(row => {
@@ -91,6 +95,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   grouping: issue.algorithm === 'sentry-import-v1'
    ? { algorithm: issue.algorithm, basis: 'exported organization, project and issue identity', limitations: 'Preserves exported groups; imported history does not join live capture or trigger alerts' }
    : { algorithm: issue.algorithm, basis: 'exception type + first generated file/function/line; message and release excluded', limitations: 'generated bundle changes can split groups; no semantic merge claim' },
+  deployments: {first:await observedDeployment(db,project,first),last:await observedDeployment(db,project,last)},
   releaseHistory: { basis: 'retained events ordered by received time, then event id; not the original history before retention or import', first: release(first), last: release(last) },
   links: { issue: `/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(id)}`, packet: `${root}/issues/${encodeURIComponent(id)}/packet`, outcomes: `${root}/outcomes` },
   bounds: { byteCap: PACKET_BYTE_CAP, eventLimit: EVENT_LIMIT, availableEvents: totals.available, includedEvents: events.length, omittedEvents: 0, order: 'newest received first; oldest removed first' },

@@ -1,3 +1,5 @@
+import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
+import { operatorFlow } from './operator-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {authBindings,signIn,browserSignIn} from './auth.mjs';
@@ -145,6 +147,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await json('/api/ingest/web','POST',{...event,eventId:'long-title',message:'x'.repeat(1000),frames:[{...event.frames[0],function:'longTitle'}]},auth);
  for(const [index,message] of ['a@b.test '.repeat(111),'token=x '.repeat(125),'😀'.repeat(500)].entries())await json('/api/ingest/web','POST',{...event,eventId:'expanded-title-'+index,message,frames:[{...event.frames[0],function:'expandedTitle'+index}]},auth);
  await json('/api/ingest/web','POST',{...event,eventId:'combined-type-scrub',type:'token',message:'synthetic-value',frames:[{...event.frames[0],function:'combinedScrub'}]},auth);
+ await operatorFlow({req,json});
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login();await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 
@@ -152,11 +155,13 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  assert.equal((await req('/api/restore','POST',{...nativeArchive(archive.data),checksum:'broken'})).status,400);
  const poisoned=nativeArchive(archive.data);poisoned.data.issues[0].title='token=test-spool-restore-title-canary alice@private.example';poisoned.data.events[0].diagnostic=JSON.stringify([{generated:{secret:'test-spool-restore-diagnostic-canary'},status:'mapped',original:{sourceContent:'test-spool-restore-source-canary'}}]);poisoned.checksum=createHash('sha256').update(canonical({version:poisoned.version,migration:poisoned.migration,data:poisoned.data})).digest('hex');assert.equal((await req('/api/restore','POST',poisoned)).status,400);assert.ok(isDeepStrictEqual(await json('/api/projects'),[]),'private domain rows match exactly');
 
+ await operatorArchiveTamper({archive,req,json});
  await json('/api/restore','POST',archive.text);await setupLocation(true);const restored=await json('/api/archive');assert.ok(isDeepStrictEqual(restored.data,archive.data),'private domain rows match exactly');
  const before=await json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:false});assert.ok(before.events>0);
  await json('/api/projects/web/retention','POST',{cutoff:retentionCutoff,apply:true});const retainedPacket=await json(`/api/projects/web/issues/${older.issue}/packet`);assert.equal(retainedPacket.issue.count,1);assert.equal(retainedPacket.issue.title,'TypeError: RETAINED_NEW_CONTEXT');assert.ok(!JSON.stringify(retainedPacket).includes('RETENTION_OLD_CONTEXT'));
  const retainedArchive=await json('/api/archive');await stop();cookie='';await start(resolve(temporary,'state-c'));await login();await json('/api/restore','POST',retainedArchive.text);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,retainedArchive.data),'private domain rows match exactly');
  await json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:true});groups=await json('/api/projects/web/issues');assert.ok(groups.every(g=>g.count===0));
+ await operatorRetentionAndErasure({req,json});
  console.log('Spool emitted Worker/D1 acceptance passed: atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, archive independent restore, retention.');
  console.log(withoutBrowser?'Non-browser domain gate: browser capture/UI skipped under explicit launch hold; separate Worker transport passed.':'Real Chromium automatic exception, stored-group browsing/selection and separate Worker waitUntil transport also passed.');
 }

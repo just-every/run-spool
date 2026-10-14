@@ -1,0 +1,43 @@
+# Operator corrections and deployment evidence
+
+These are owner workbench operations, independently authorized by every route and fenced against owner handoff inside their D1 transaction. An agent, ingest or deploy key cannot assign, regroup or change a suppression policy. Cookie writes require the same origin. Deployment registration alone also accepts an exact-project deploy key.
+
+## Grouping
+
+The default remains `js-frame-v1`: exception type and first generated file, function and line, excluding message, column and release. The independently labelled `tests/fixtures/grouping-labelled.json` records a correct default relation, a false merge from one minified line and a false split after a bundle changes. The public product flow admits its actual events, demonstrates those relations, and exercises correction and undo; it never reads expected issue hashes from the corpus.
+
+`POST /api/projects/:project/corrections/preview` takes either `{kind:"split",source,revision,events:[eventId,...]}` or `{kind:"merge",source,revision,target,targetRevision}`. A preview stores exact occurrence identities, issue revisions and before/after counts, with every proposed move and the new issue ID for a split. It moves nothing and sends no alert. One current unapplied preview is kept per project; a new preview replaces it. The Issue view exposes selectable packet occurrences and an issue-ID merge target. The API can select up to 200 retained occurrences; a merge refuses if its source exceeds that bound. Imported history cannot be moved into live groups.
+
+`POST /api/projects/:project/corrections/:id/apply` requires `{confirm:true}`. All reviewed issue revisions, counts and occurrence identities are checked within the same transaction that performs the moves. Stale preview, capture, triage, assignment or retention conflicts without a partial move. No payload, digest, diagnostic, occurrence identity or receipt timestamp is rewritten. An additive provenance row preserves the original algorithm, basis, fingerprint and issue. Packets show original grouping beside current issue and correction. A moved event retry remains a duplicate of its current issue.
+
+Corrections affect **only the exact stored occurrences**. Future events follow the original deterministic grouping algorithm. Corrections create no accepted counters, alerts, delivery intents or delivery rows. Corrected occurrences are excluded from subsequent spike evaluation, including after undo, so historical operator work cannot create a new live volume signal. Existing alert history remains evidence of the admission-time group.
+
+`POST .../:id/undo` also requires `{confirm:true}`. It returns only the original retained occurrence to its prior issue, with guards on all post-apply issue revisions and the occurrence's latest correction. Newer work, retention, an event-ID reuse, or a second correction causes refusal. Undo changes neither triage nor assignment and never recreates a deleted event. Empty issues remain inspectable. History is capped at 50 records per project; reaching that cap refuses a further correction rather than silently losing provenance or undo guards. Each record contains IDs and counts, never copies of event payloads.
+
+## Assignment and suppression
+
+`PATCH /api/projects/:project/issues/:issue/assignment` takes `{revision,label}`. The bounded scrubbed label (80 characters) records operator responsibility, and `null` unassigns. This is deliberately a label, not an invited person or extra account: the installation still has exactly one owner. It grants no access and sends no notification. Assignment, reassignment and unassignment increment the issue revision and write an audit entry.
+
+`POST /api/projects/:project/suppression-policies` accepts `{field,mode,value,enabled}`; `PATCH .../:id` additionally requires `revision`. Each project has up to 20 policies. Fields are original `fingerprint`, `release`, and sanitized `message`; modes are case-sensitive `exact` and literal `substring` (fingerprints require exact). No regex executes. Values are scrubbed, nonempty and at most 160 characters. The Issue view exposes create and enable/disable controls, revisions and the operator audit.
+
+Policy matching occurs in the admission transaction, using the accepted normalized event, so a policy change cannot race a previously computed decision. Matching events remain accepted, retained and counted, with a per-occurrence receipt naming matching policy IDs, revisions, fields, modes and values. They create no new/regression alert, intent or delivery and never contribute to spike windows. Disabling or editing a policy does not unsuppress earlier receipts. Policies affect future admissions; they do not retract already queued alerts. Manual issue suppression retains its existing lifecycle semantics and spike exclusion.
+
+## Deployment manifests
+
+The existing `POST /api/projects/:project/releases` accepts an optional `manifest` with all of:
+
+```json
+{"name":"web@2","build":"bundle-2","manifest":{"commitSha":"0123456789012345678901234567890123456789","repository":"https://example.test/team/repo","deployedAt":"2026-10-10T12:00:00.000Z","environment":"production"}}
+```
+
+The commit is a full lowercase 40- or 64-digit SHA. Repository URLs must be canonical HTTPS without userinfo, query or fragment; they are never fetched. Deployment time is a canonical ISO UTC timestamp. A `(project,release,environment)` binding is immutable: identical retries are idempotent and changed identity conflicts. A manifest may be added to an already registered release; another environment can have a separate binding. Register a distinct release identity for a second deployment of the same code to the same environment if its deployed-at time differs.
+
+Packets and the Issue view show the first and last retained occurrence's exact release and environment and its matching manifest, ordered by receipt time then event ID. Unknown manifests are explicitly unknown. Registering manifests out of order cannot replace this event ordering, and a rollback's later event points to the older release's binding. Manifests are owner/deploy-key records, not independent provider deployment proof. Existing release registration sequence continues to control admission/build identity, regression and repair observation; this change does not silently redefine those contracts.
+
+## Custody and boundaries
+
+All six new data tables travel in native archives, with semantic validation of grouping provenance, correction plans, policy receipts, assignment scope and manifest URL/identity. Pre-change archives restore with these additive tables empty; unchanged events derive their original grouping from their retained payload. Project erasure declares every new table, removes its rows and anonymizes operator audit details. Retention cascades per-occurrence provenance and suppression receipts, preserves only bounded ID/count history, and invalidates undo through the existing issue revisions and occurrence checks.
+
+Owner erasure refuses with an explicit unsupported-attribution hold if a known owner identifier appears in an assignment label, correction basis, policy value/receipt, manifest URL or operator audit. It does not silently drop attribution or rewrite an immutable record. Clearing a label alone does not remove its prior audit attribution; project erasure removes the complete project custody when appropriate. Other owner-erasure paths continue unchanged.
+
+These are implemented flows with public HTTP/UI and semantic restore/erasure tests in the existing suites. Test execution and hosted/provider acceptance are separate evidence; source and a deployment record alone do not establish them.

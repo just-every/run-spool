@@ -54,6 +54,18 @@ try {
  // Complete-window spikes use accepted server-received evidence and a durable cursor.
  const spike=await app.json(deliveryPath+'/rules','POST',rule('webhook',{name:'Spike',kinds:['spike']}));
  await app.close();app=await alertRuntime(inbox,{state:resolve(temp,'app')});
+
+ // A matching policy retains/counts evidence but contributes neither admission delivery nor a later spike, even after disable.
+ const policy=await app.json('/api/projects/web/suppression-policies','POST',{field:'message',mode:'exact',value:'policy quiet',enabled:true});
+ const policyFrame={file:'https://app.example.com/policy.js',line:1,column:0,function:'quietPolicy'};
+ const priorAlerts=(await app.json('/api/projects/web/alerts')).length,priorIntents=(await app.db.prepare('SELECT COUNT(*) n FROM alert_intents').first()).n;
+ const policyIssue=await app.json('/api/ingest/web','POST',event('policy-1',{message:'policy quiet',frames:[policyFrame]}),auth);
+ const resolved=(await app.json('/api/projects/web/issues')).find(i=>i.id===policyIssue.issue);await app.json('/api/projects/web/issues/'+resolved.id,'PATCH',{state:'resolved',revision:resolved.revision});
+ await app.json('/api/projects/web/releases','POST',{name:'policy-r3',build:'policy-b3'});
+ await app.json('/api/ingest/web','POST',event('policy-2',{release:'policy-r3',build:'policy-b3',message:'policy quiet',frames:[policyFrame]}),auth);
+ assert.equal((await app.json('/api/projects/web/alerts')).length,priorAlerts,'policy blocks new and later-release regression feed');assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM alert_intents').first()).n,priorIntents,'policy blocks delivery intents');
+ const policyPacket=await app.json('/api/projects/web/issues/'+policyIssue.issue+'/packet');assert.equal(policyPacket.issue.count,2);assert.ok(policyPacket.events.every(e=>e.suppression.some(r=>r.id===policy.id)));
+ await app.json('/api/projects/web/suppression-policies/'+policy.id,'PATCH',{...policy,enabled:false});
  const start=Math.floor(Date.now()/60000)*60000;
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-180000,spike.id).run();
  const suppressed=await app.json('/api/ingest/web','POST',event('suppressed-1',{frames:[{file:'https://app.example.com/suppressed.js',line:1,column:0,function:'quiet'}]}),auth);
@@ -62,7 +74,7 @@ try {
  await app.json('/api/ingest/web','POST',event('volume-1'),auth);await app.json('/api/ingest/web','POST',event('volume-2'),auth);
  await app.schedule(start+59999);assert.equal((await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike').length,0);
  await Promise.all([app.schedule(start+60000),app.schedule(start+60000)]);
- const spikes=(await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike');assert.equal(spikes.length,1);assert.ok(JSON.parse(spikes[0].payload).window.count>=2);assert.equal((await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(spike.id).first()).next_start,start+60000);
+ const spikes=(await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike');assert.equal(spikes.length,1);assert.ok(spikes.every(a=>a.issue!==policyIssue.issue),'previously suppressed events cannot spike after disable');assert.ok(JSON.parse(spikes[0].payload).window.count>=2);assert.equal((await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(spike.id).first()).next_start,start+60000);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,spike.id).run();
  await app.json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:true});assert.equal((await app.json(deliveryPath+'/gaps')).length,1);
  // Native portability carries safe, disabled rules and inert history, never queues or secrets.

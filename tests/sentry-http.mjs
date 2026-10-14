@@ -1,3 +1,4 @@
+import { otlpFlow } from './otlp-flow.mjs';
 import assert from 'node:assert/strict';
 import { gzipSync } from 'node:zlib';
 import { startTestWorker } from './worker.mjs';
@@ -41,5 +42,6 @@ try{
   await json('/api/projects/wire/browser-origins','DELETE',{origin:foreign});assert.equal((await req(path,'POST',envelope(event),{Origin:foreign})).status,403);
   await json('/api/projects/wire/keys/'+deploy.hash,'DELETE');assert.equal((await req('/api/projects/wire/releases','POST',release,deployHeaders)).status,401);
   const ingest=(await json('/api/projects/wire/keys')).find(row=>row.kind==='ingest');await json('/api/projects/wire/keys/'+ingest.hash,'DELETE');assert.equal((await req(path,'POST',envelope(event))).status,401);
+  await otlpFlow({req,json,origin});
   console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}

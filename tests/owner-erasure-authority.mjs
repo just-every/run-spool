@@ -68,6 +68,13 @@ export async function heldScopes(app,otherId) {
   {hold:'ambiguous_display_name',plant:()=>app.DB.prepare('UPDATE oa_operators SET display_name=? WHERE id=?').bind(owner.display_name,otherId).run(),clear:()=>app.DB.prepare('UPDATE oa_operators SET display_name=? WHERE id=?').bind('Quinn Otherperson',otherId).run()},
   {hold:'ambiguous_identity_attribution',plant:()=>app.DB.prepare('UPDATE oa_operators SET email=? WHERE id=?').bind('prefix-'+owner.email,otherId).run(),clear:()=>app.DB.prepare('UPDATE oa_operators SET email=? WHERE id=?').bind('quinn@spool.test',otherId).run()},
  ];
+ cases.push({hold:'identifier_in_unsupported_surface',plant:async()=>{
+  const project=await app.json('/api/projects',{id:'owner-operator-label',name:'Operator attribution'},201);
+  await app.json('/api/projects/owner-operator-label/releases',{name:'r1',build:'b1'},201);
+  const accepted=await app.json('/api/ingest/owner-operator-label',{version:1,eventId:'attribution-event',release:'r1',build:'b1',environment:'test',type:'Error',message:'Synthetic error',frames:[{file:'app.js',line:1,column:0,function:'run'}],breadcrumbs:[]},201,{Authorization:'Bearer '+project.ingestKey});
+  const issue=(await app.json('/api/projects/owner-operator-label/issues')).find(i=>i.id===accepted.issue);
+  const assigned=await app.request(`/api/projects/owner-operator-label/issues/${issue.id}/assignment`,{revision:issue.revision,label:owner.display_name},{},'PATCH');assert.equal(assigned.status,200);
+ },clear:async()=>{const path='/api/projects/owner-operator-label/erasure',plan=await app.json(path);assert.equal((await app.json(path,{confirm:'owner-operator-label',planHash:plan.planHash})).phase,'complete')}});
  const invite=randomUUID();
  cases.push({hold:'shared_invitation_provenance',plant:()=>app.DB.prepare("INSERT INTO oa_tokens(id,token_hash,kind,operator_id,operator_version,issuer_id,issuer_version,return_to,created_at,expires_at) VALUES(?,?,'invite',?,1,?,?, '/',?,?)").bind(invite,randomUUID(),otherId,owner.id,owner.version,Date.now(),Date.now()+60000).run(),clear:()=>app.DB.prepare('DELETE FROM oa_tokens WHERE id=?').bind(invite).run()});
  const results=[];

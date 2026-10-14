@@ -1,0 +1,143 @@
+{
+  "schema": "spool.grouping-labelled/v1",
+  "purpose": "Synthetic JavaScript event pairs with semantic labels assigned independently of Spool grouping output. Labels describe the incident, not a computed fingerprint or issue ID.",
+  "project": "grouping-corpus",
+  "registeredContexts": [
+    { "release": "corpus-default-r1", "build": "build-default-r1", "registered": true },
+    { "release": "corpus-default-r2", "build": "build-default-r2", "registered": true },
+    { "release": "corpus-minified-r1", "build": "build-minified-r1", "registered": true },
+    { "release": "corpus-minified-r2", "build": "build-minified-r2", "registered": true },
+    { "release": "corpus-profile-r1", "build": "build-profile-r1", "registered": true },
+    { "release": "corpus-profile-r2", "build": "build-profile-r2", "registered": true }
+  ],
+  "cases": [
+    {
+      "id": "default-correct-merge",
+      "phenomenon": "default grouping behaves correctly",
+      "expectedRelation": "same-issue",
+      "reason": "Both events fail at the same renderCard title read in the same bundle location. One input is null and the other undefined; they need the same source fix despite different messages and registered releases.",
+      "events": [
+        {
+          "semanticLabel": "render-card-title-read",
+          "semanticReason": "The failing operation is renderCard reading card.title.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-default-null-01",
+            "release": "corpus-default-r1",
+            "build": "build-default-r1",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of null (reading 'title')",
+            "frames": [
+              { "file": "https://assets.example.test/app.js", "function": "renderCard", "line": 42, "column": 8 },
+              { "file": "https://assets.example.test/app.js", "function": "renderPage", "line": 17, "column": 3 }
+            ],
+            "breadcrumbs": []
+          }
+        },
+        {
+          "semanticLabel": "render-card-title-read",
+          "semanticReason": "The same renderCard expression fails when card is undefined instead of null.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-default-undefined-02",
+            "release": "corpus-default-r2",
+            "build": "build-default-r2",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of undefined (reading 'title')",
+            "frames": [
+              { "file": "https://assets.example.test/app.js", "function": "renderCard", "line": 42, "column": 12 },
+              { "file": "https://assets.example.test/app.js", "function": "renderPage", "line": 17, "column": 3 }
+            ],
+            "breadcrumbs": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "minified-false-merge",
+      "phenomenon": "false merge requiring a split",
+      "expectedRelation": "separate-issues",
+      "reason": "Both errors land in the same dispatchAction function on the same one-line minified bundle, which is too coarse to identify the operation. The columns and messages describe unrelated missing values and require different fixes.",
+      "events": [
+        {
+          "semanticLabel": "record-id-read",
+          "semanticReason": "The record action dereferences a missing record while reading record.id.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-minified-record-id-03",
+            "release": "corpus-minified-r1",
+            "build": "build-minified-r1",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of undefined (reading 'id')",
+            "frames": [
+              { "file": "https://assets.example.test/app.min.js", "function": "dispatchAction", "line": 1, "column": 812 }
+            ],
+            "breadcrumbs": []
+          }
+        },
+        {
+          "semanticLabel": "success-callback-call",
+          "semanticReason": "The success action calls a missing onSuccess callback; this is separate from the record.id read.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-minified-success-callback-04",
+            "release": "corpus-minified-r2",
+            "build": "build-minified-r2",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of undefined (reading 'onSuccess')",
+            "frames": [
+              { "file": "https://assets.example.test/app.min.js", "function": "dispatchAction", "line": 1, "column": 2102 }
+            ],
+            "breadcrumbs": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "profile-false-split",
+      "phenomenon": "false split requiring a merge",
+      "expectedRelation": "same-issue",
+      "reason": "Both events are the same synthetic account-profile name read, account.profile.name, after a rebuild shifted the generated chunk name and line. Their generated top-frame locations differ although the underlying operation and message are unchanged.",
+      "events": [
+        {
+          "semanticLabel": "account-profile-name-read",
+          "semanticReason": "Synthetic source operation: AccountPanel.render reads account.profile.name; this build places it in profile.a1.js at line 88.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-profile-build-a-05",
+            "release": "corpus-profile-r1",
+            "build": "build-profile-r1",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of undefined (reading 'name')",
+            "frames": [
+              { "file": "https://assets.example.test/profile.a1.js", "function": "AccountPanel.render", "line": 88, "column": 14 }
+            ],
+            "breadcrumbs": []
+          }
+        },
+        {
+          "semanticLabel": "account-profile-name-read",
+          "semanticReason": "Same synthetic source operation: AccountPanel.render still reads account.profile.name; this rebuild emits profile.b7.js and shifts it to line 91.",
+          "event": {
+            "version": 1,
+            "eventId": "evt-profile-build-b-06",
+            "release": "corpus-profile-r2",
+            "build": "build-profile-r2",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "Cannot read properties of undefined (reading 'name')",
+            "frames": [
+              { "file": "https://assets.example.test/profile.b7.js", "function": "AccountPanel.render", "line": 91, "column": 14 }
+            ],
+            "breadcrumbs": []
+          }
+        }
+      ]
+    }
+  ]
+}
