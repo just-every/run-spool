@@ -10,6 +10,11 @@ CREATE TABLE operator_guards(ok INTEGER NOT NULL CHECK(ok=1));
 CREATE TRIGGER operator_guard_conflict BEFORE INSERT ON operator_guards WHEN NEW.ok<>1 BEGIN SELECT RAISE(ABORT,'operator_revision_or_occurrence_conflict'); END;
 -- A worker can have read a delivery before retention cancels it. Its late
 -- insert must not recreate the erased private diagnostic in a local copy.
+-- The fence is irreversible even if a later status writer tries to replace
+-- the cancellation reason. Intents are excluded from restored history.
+CREATE TRIGGER retention_intent_withdrawal BEFORE UPDATE OF state,code ON alert_intents
+ WHEN OLD.code='retention_removed' AND (NEW.code IS NOT 'retention_removed' OR NEW.state<>'cancelled')
+ BEGIN SELECT RAISE(ABORT,'retention_removed'); END;
 CREATE TRIGGER retention_integration_delivery BEFORE INSERT ON integration_deliveries
  WHEN EXISTS(SELECT 1 FROM alert_intents i WHERE NEW.namespace='spool.'||i.project AND NEW.id=i.id AND i.code='retention_removed')
  BEGIN SELECT RAISE(ABORT,'retention_removed'); END;

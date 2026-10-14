@@ -2493,7 +2493,7 @@
       "executable": false
     },
     "migrations/core/0031_operator_corrections.sql": {
-      "sha256": "ca23c9956aefde56744cc71a1b0f3b87e3f971fd6b9d4a02051f974612cea0f7",
+      "sha256": "56972450e5d879692b47e129fbd37ab50c1566d52222a3037ee9c6b55776e56a",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -3093,7 +3093,7 @@
       "executable": false
     },
     "src/domain/alerts/routes.ts": {
-      "sha256": "d821b2d8ed3f79075841b4a102f6ac988bdad46132546eb54431c1e5ddd128fe",
+      "sha256": "984f121c44c7ae2f851b455f0f1f75a4e267c51b0659b4f2f5190d43db28be00",
       "executable": false
     },
     "src/domain/alerts/rules.ts": {

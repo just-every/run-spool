@@ -42,7 +42,8 @@ routes.put('/rules/:rule',async c=>{
   s(c.env.DB,`INSERT INTO audit SELECT ?,?,'alert_rule_revised',?,? WHERE changes()=1`,change,p,JSON.stringify({rule:id,revision:b.revision+1}),time),
   s(c.env.DB,`DELETE FROM alert_cursors WHERE project=? AND rule_id=? AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,change),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND EXISTS(SELECT 1 FROM audit WHERE id=?) AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike') ON CONFLICT(rule_id) DO NOTHING`,Math.ceil(time/b.windowMs)*b.windowMs,p,id,b.revision+1,change),
-  s(c.env.DB,`UPDATE alert_intents SET state='cancelled',code='rule_revised' WHERE project=? AND rule_id=? AND rule_revision=? AND expanded=0 AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
+  // Retention withdrawal is irreversible: its reason also fences stale expansion.
+  s(c.env.DB,`UPDATE alert_intents SET state='cancelled',code='rule_revised' WHERE project=? AND rule_id=? AND rule_revision=? AND expanded=0 AND code IS NOT 'retention_removed' AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
   s(c.env.DB,`UPDATE alert_mail_jobs SET state='blocked',code='rule_revised' WHERE state='queued' AND id IN(SELECT id FROM alert_intents WHERE project=? AND rule_id=? AND rule_revision=?) AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
  ]);
  if(!results[0].results.length)return c.json({error:'Revision conflict'},409);
