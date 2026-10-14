@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://justevery.com/#vol-spool"><img src=".github/assets/media/preview.gif" width="800" alt="Spool: a storefront error arrives, its stack trace maps to src/account.ts line 42 and the evidence packet is ready"></a>
 </p>
-<p align="center"><a href="https://justevery.com/#vol-spool"><b>Watch the full demo</b></a> · 42 seconds</p>
+<p align="center"><a href="https://justevery.com/#vol-spool"><b>Watch the full demo</b></a> · 51 seconds</p>
 
 <p align="center">
   <img src=".github/assets/media/flow.webp" width="800" alt="1 Caught, 2 Mapped, 3 Ready: the TypeError arrives as a new issue, its stack frame maps to src/account.ts:42:25, and the evidence packet is ready to download">
