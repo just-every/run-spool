@@ -47,14 +47,22 @@ export function validateConfig(config, dependencies = {}) {
 
 export function parseAddress(value) {
   bounded(value, 998, 'invalid_address');
-  const match = value.trim().match(/^(?:(.*?)\s*<([^<>]+)>|([^<>]+))$/u);
-  const email = (match?.[2] ?? match?.[3] ?? '').trim();
+  const source = value.trim();
+  const angle = source.indexOf('<');
+  let email = source, name;
+  if (angle !== -1) {
+    if (!source.endsWith('>')) fail('invalid_address');
+    email = source.slice(angle + 1, -1).trim();
+    name = source.slice(0, angle).trim();
+    // Trailing Unicode whitespace belongs to the angle separator, but line
+    // separators inside the display name were never accepted by the dot matcher.
+    if (/[\u2028\u2029]/.test(name)) fail('invalid_address');
+  }
   // Conservative mailbox subset; never serialize multiple mailboxes as one.
   const parts = email.split('@');
   if (parts.length !== 2 || !parts[0] || parts[0].length > 64 || email.length > 254 ||
       !/^[^\s@<>(),:;"\\]+$/u.test(parts[0]) || parts[0].startsWith('.') || parts[0].endsWith('.') || parts[0].includes('..') ||
       !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(parts[1])) fail('invalid_address');
-  let name = match?.[1]?.trim();
   if (name?.startsWith('"') && name.endsWith('"')) name = name.slice(1, -1);
   if (name && /[<>"\\]/.test(name)) fail('invalid_address');
   return name ? { email, name } : { email };

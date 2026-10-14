@@ -19,7 +19,14 @@ function localOrigin(origin) {
 }
 
 function routePath(path) {
-  return typeof path === 'string' && /^\/(?:[A-Za-z0-9_-]+\/?)+$/.test(path) && !path.includes('//');
+  if (typeof path !== 'string' || path.length < 2 || path[0] !== '/') return false;
+  // Consume each character once; a separator must follow a nonempty segment.
+  for (let i = 1; i < path.length; i++) {
+    if (path[i] === '/') {
+      if (path[i - 1] === '/') return false;
+    } else if (!/[A-Za-z0-9_-]/.test(path[i])) return false;
+  }
+  return true;
 }
 
 // The seed's own served stylesheet, in the grammar operator-auth branding accepts.
