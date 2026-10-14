@@ -15,9 +15,9 @@ export async function unsupportedOwnerSurface(db: D1Database, needles: string[])
  ];
  for(const [table,where] of unrelated) {
   const info=(await db.prepare(`PRAGMA table_info(${sqlQuote(table)})`).all<any>()).results;
-  const text=info.filter(column=>/TEXT/i.test(column.type)).map(column=>sqlQuote(column.name));
+  const text=info.filter(column=>/TEXT/i.test(column.type)).map(column=>`r.${sqlQuote(column.name)}`);
   const matches=text.map(column=>`instr(${column},n.value)>0`).join(' OR ');
-  if(await db.prepare(`SELECT 1 FROM ${sqlQuote(table)} WHERE (${where}) AND EXISTS(SELECT 1 FROM json_each(?) n WHERE ${matches}) LIMIT 1`).bind(...Array.from({length:(where.match(/\?/g)??[]).length},()=>id),JSON.stringify(needles)).first())return 'ambiguous_identity_attribution';
+  if(await db.prepare(`SELECT 1 FROM ${sqlQuote(table)} r WHERE (${where}) AND EXISTS(SELECT 1 FROM json_each(?) n WHERE ${matches}) LIMIT 1`).bind(...Array.from({length:(where.match(/\?/g)??[]).length},()=>id),JSON.stringify(needles)).first())return 'ambiguous_identity_attribution';
  }
  const tables=(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all<any>()).results;
  for(const {name} of tables) {
@@ -31,8 +31,10 @@ export async function unsupportedOwnerSurface(db: D1Database, needles: string[])
   const info=(await db.prepare(`PRAGMA table_info(${sqlQuote(name)})`).all<any>()).results;
   const columns=info.filter(column=>/TEXT|BLOB/i.test(column.type)).map(column=>column.name);
   for(const column of columns) {
-   const value=`CAST(${sqlQuote(column)} AS TEXT)`;
-   const found=await db.prepare(`SELECT 1 FROM ${sqlQuote(name)} WHERE EXISTS(SELECT 1 FROM json_each(?) n WHERE instr(${value},n.value)>0 OR EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(${value}) THEN ${value} ELSE 'null' END) j WHERE typeof(j.atom)='text' AND instr(j.atom,n.value)>0)) LIMIT 1`).bind(JSON.stringify(needles)).first();
+   // json_each also has value/id/type columns; bind every inspected cell to
+   // the stored row so a same-named column cannot resolve to the needle itself.
+   const value=`CAST(r.${sqlQuote(column)} AS TEXT)`;
+   const found=await db.prepare(`SELECT 1 FROM ${sqlQuote(name)} r WHERE EXISTS(SELECT 1 FROM json_each(?) n WHERE instr(${value},n.value)>0 OR EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(${value}) THEN ${value} ELSE 'null' END) j WHERE typeof(j.atom)='text' AND instr(j.atom,n.value)>0)) LIMIT 1`).bind(JSON.stringify(needles)).first();
    if(found)return 'identifier_in_unsupported_surface';
   }
  }

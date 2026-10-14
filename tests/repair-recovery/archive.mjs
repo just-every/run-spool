@@ -3,8 +3,11 @@ import {readArchive,makePart} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 import {canonicalJson,sha256} from '../../src/modules/portability/hash.mjs';
 import {canonical} from '../../src/domain/privacy.ts';
-// Before 0016 there were neither repair tables nor (0018) erasure receipts nor (0020) the identity link's tables.
+// The declared pre-repair inventory also predates erasure receipts (0018),
+// identity links (0020), and operator custody (0031).
 const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
+const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'];
+const laterTables=[...repairTables,...operatorTables];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.
 export async function preRepairArchive(text){
@@ -12,7 +15,7 @@ export async function preRepairArchive(text){
  const [manifest]=records,data=Object.fromEntries(manifest.tables.map(table=>[table.name,[]]));
  for(const part of records.filter(record=>record.kind==='part'))for(const item of part.items)data[item.table].push(item);
  data.audit=data.audit.filter(item=>!item.row.kind.startsWith('repair_')).map((item,index)=>({...item,index}));
- const tables=manifest.tables.filter(table=>!repairTables.includes(table.name)).map(table=>({...table,count:data[table.name].length}));
+ const tables=manifest.tables.filter(table=>!laterTables.includes(table.name)).map(table=>({...table,count:data[table.name].length}));
  const items=tables.flatMap(table=>data[table.name]),parts=[];
  for(let offset=0;offset<items.length;offset+=500)parts.push(await makePart(parts.length,items.slice(offset,offset+500)));
  // Archives from before 0016 predate the recorded migration list as well.
@@ -30,6 +33,7 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  const before=await read();
  await app.resetRestore(await preRepairArchive(source.text));
  let restored=await app.archive();assert.deepEqual(restored.data.repairs,[]);assert.deepEqual(restored.data.repair_checks,[]);
+ for(const table of operatorTables)assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);

@@ -10,6 +10,8 @@
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px 24px;align-items:end;margin:20px 0}
 .form-grid>button,.form-grid>div{justify-self:start}
 .button-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin:16px 0}
+.operator-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin:16px 0}
+.operator-controls>.details-trigger{margin:0}
 div.data-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:12px 0;border-bottom:var(--hairline-border)}
 .data-row code{overflow-wrap:anywhere}
 div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.6fr) auto}

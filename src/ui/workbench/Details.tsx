@@ -1,7 +1,7 @@
 import { useId, useRef, type ReactNode } from 'react';
 
 /** Native modal focus containment, Escape and focus return, with retained children. */
-export function Details({ title, children, onOpen }: { title: string; children: ReactNode; onOpen?: () => void }) {
+export function Details({ title, children, onOpen, triggerLabel = 'Details' }: { title: string; children: ReactNode; onOpen?: () => void; triggerLabel?: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -10,7 +10,7 @@ export function Details({ title, children, onOpen }: { title: string; children: 
   return <>
     <button ref={trigger} className="text-button details-trigger" aria-label={`Details: ${title}`} aria-haspopup="dialog" aria-expanded="false" aria-controls={id} onClick={() => {
       dialog.current?.showModal(); trigger.current?.setAttribute('aria-expanded', 'true'); heading.current?.focus(); onOpen?.();
-    }}>Details</button>
+    }}>{triggerLabel}</button>
     <dialog ref={dialog} id={id} className="details-dialog" aria-labelledby={`${id}-title`} onKeyDown={event => {
       // Finish keyboard dismissal in this event, before the native cancel task.
       if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); }

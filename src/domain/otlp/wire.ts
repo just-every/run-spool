@@ -1,5 +1,12 @@
+import { rejectedResponse } from '../../base/rejected-response';
+
 export class OtlpError extends Error {
   constructor(readonly reason:string,readonly status=400){super(reason)}
+}
+/** Complete early wire refusals without parsing or buffering rejected input. */
+async function rejectWire(request:Request,reason:string,status:number):Promise<never>{
+  const response=await rejectedResponse(request,new Response(null,{status}));
+  throw new OtlpError(response.status===408?'body_timeout':response.status===413?'body_limit':reason,response.status);
 }
 export function object(value:any):Record<string,any>{
   if(!value||typeof value!=='object'||Array.isArray(value))throw new OtlpError('invalid_structure');
@@ -13,10 +20,10 @@ export function list(value:any,limit:number):any[]{
 }
 /** Bound the stream before decode/parse; nesting is checked before JSON.parse. */
 export async function readOtlp(request:Request):Promise<Record<string,any>>{
-  if(!/^application\/json(?:\s*;\s*charset=utf-8)?\s*$/i.test(request.headers.get('content-type')??''))throw new OtlpError('unsupported_content_type',415);
-  if(!['','identity'].includes((request.headers.get('content-encoding')??'').toLowerCase()))throw new OtlpError('unsupported_content_encoding',415);
+  if(!/^application\/json(?:\s*;\s*charset=utf-8)?\s*$/i.test(request.headers.get('content-type')??''))return rejectWire(request,'unsupported_content_type',415);
+  if(!['','identity'].includes((request.headers.get('content-encoding')??'').toLowerCase()))return rejectWire(request,'unsupported_content_encoding',415);
   const declared=request.headers.get('content-length');
-  if(declared!==null&&(!/^\d+$/.test(declared)||Number(declared)>32768))throw new OtlpError('body_limit',413);
+  if(declared!==null&&(!/^\d+$/.test(declared)||Number(declared)>32768))return rejectWire(request,'body_limit',413);
   const reader=request.body?.getReader();if(!reader)throw new OtlpError('invalid_json');
   let size=0;const chunks:Uint8Array[]=[];
   while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>32768){await reader.cancel();throw new OtlpError('body_limit',413)}chunks.push(value)}

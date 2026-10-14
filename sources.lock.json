@@ -2317,7 +2317,7 @@
       "executable": false
     },
     "docs/OTLP-INTAKE.md": {
-      "sha256": "570672275399d96101eb699fb960cb02a6992362eabbe8e4893430ccb584a1a2",
+      "sha256": "b6f6d8c264a64a9988fabe6fb31d169a255681551e314a4caf2c93ef6fd0c963",
       "executable": false
     },
     "docs/overview.md": {
@@ -3173,7 +3173,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-scope.ts": {
-      "sha256": "dc56b059287163258a894348cdbd3c5705d943cae86031ae8fb9f57a892030d6",
+      "sha256": "2dfbeb14c0321f136920bf4fad0c7403717a66b74fc0d2187c3b5acd187a2ec8",
       "executable": false
     },
     "src/domain/erasure/owner-service.ts": {
@@ -3253,7 +3253,7 @@
       "executable": false
     },
     "src/domain/otlp/wire.ts": {
-      "sha256": "f68fc5a4237f076977c1007363fc4788309a369a56ec289fd76ecc2af5e32c26",
+      "sha256": "1005a965822c6c30c6fd740994ac25756337e579d682e0e271ab0e2d5bdc0f6c",
       "executable": false
     },
     "src/domain/owner-authority.ts": {
@@ -5213,7 +5213,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "ac44e49fdd64bf45f378fd538f92f920a92b59eea8e61d48167bf8d576ad2725",
+      "sha256": "a997470df88c5f562f0a0302dbfbe58d4ecf7053c0b8c8c5e2045001c3b1a1bb",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {
@@ -5245,7 +5245,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "b0f80dcaac7ab42c84f65e462e8e8ca9131baa8aec1ffab30d9305a4fd40837c",
+      "sha256": "c6677e8a6040e141743201faa00a27cbd263eeb609190b9923abede29163d3b4",
       "executable": false
     },
     "src/ui/workbench/ProjectErasure.tsx": {
@@ -5313,7 +5313,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "fc5a946162423e08e9869abba739ad5a7709043e9d9753a5db61ea85400b5ddb",
+      "sha256": "da372dd3972214b1695fa19d4d285e76da5ca179395b4a8068c45ad09f56c9d2",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
@@ -5569,7 +5569,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "53b04872bf341255263c9d099e22ee49614bfa29958740084836e7c66d315935",
+      "sha256": "4ef8ac921a6b8eb3f6e3f6804537902d04c7a04689595f5645cc4f4394269dea",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
