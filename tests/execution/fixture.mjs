@@ -16,6 +16,15 @@ export function probe() {
   return fetch('https://example.com/').then(() => environment + '; network reached', error => environment + '; network blocked: ' + error.message);
 }
 export function spin() { for (;;) {} }
+export function forgeMe() { return 'forge-me'; }
+// Inside workerd only: rewrite the sandbox's report of forgeMe() into the captured failure.
+if (typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers') {
+  const real = console.log;
+  console.log = (line, ...rest) => {
+    const marker = /^(SPOOL_OBSERVATION_[0-9a-f]{32}) .*forge-me/.exec(String(line));
+    return marker ? real(marker[1] + ' ' + JSON.stringify({ phase: 'threw', name: 'TypeError', message: "Cannot read properties of undefined (reading 'length')", stack: 'TypeError: forged\\n    at lineCount (src/cart.js:3:27)' })) : real(line, ...rest);
+  };
+}
 `;
 const fixed=broken.replace('return label(order.lines.length);','return label(order.lines?.length ?? 0);');
 async function bundle(directory,source){

@@ -25,10 +25,19 @@ export function validJob(job) {
  return job;
 }
 
-function harness(call, marker) {
- return `import * as target from ${JSON.stringify(call.module)};
+// The reporter is the harness's first import, so it is evaluated before any
+// job module and keeps the original console.log and JSON.stringify: job code
+// that replaces them later cannot rewrite the observation. Job code cannot read
+// the marker (it lives only in a bound native function, which toString does
+// not reveal), and a second report from job code importing the reporter makes
+// the run ambiguous rather than forged.
+const reporter = marker => `const send = console.log.bind(console, ${JSON.stringify(marker)}), stringify = JSON.stringify;
+export default observation => send(stringify(observation));
+`;
+function harness(call) {
+ return `import report from "spool-report.js";
+import * as target from ${JSON.stringify(call.module)};
 import input from "spool-input";
-const report = console.log.bind(console);
 const preview = value => { try { return String(JSON.stringify(value) ?? String(value)).slice(0, 500); } catch { return String(value).slice(0, 500); } };
 export default { async test() {
  let observation;
@@ -40,7 +49,7 @@ export default { async test() {
  } catch (error) {
   observation = { phase: "threw", name: String(error?.name ?? typeof error).slice(0, 200), message: String(error?.message ?? error).slice(0, 2000), stack: String(error?.stack ?? "").slice(0, 8000) };
  }
- report(${JSON.stringify(marker)} + " " + JSON.stringify(observation));
+ report(observation);
 } };
 `;
 }
@@ -54,6 +63,7 @@ const config :Workerd.Config = (
 const sandbox :Workerd.Worker = (
  modules = [
   (name = "spool-harness.js", esModule = embed "harness.js"),
+  (name = "spool-report.js", esModule = embed "report.js"),
 ${modules.map((m, index) => `  (name = ${JSON.stringify(m.name)}, esModule = embed "m${index}.js"),`).join('\n')}
   (name = "spool-input", text = embed "input.json"),
  ],
@@ -79,7 +89,8 @@ export async function runSandbox(input) {
  const job = validJob(input), directory = await mkdtemp(join(tmpdir(), 'spool-sandbox-')), marker = 'SPOOL_OBSERVATION_' + randomBytes(16).toString('hex');
  try {
   await Promise.all([
-   writeFile(join(directory, 'harness.js'), harness(job.call, marker)),
+   writeFile(join(directory, 'harness.js'), harness(job.call)),
+   writeFile(join(directory, 'report.js'), reporter(marker)),
    writeFile(join(directory, 'input.json'), JSON.stringify(job.call.input)),
    writeFile(join(directory, 'config.capnp'), config(job.modules, job.environment.compatibilityDate)),
    ...job.modules.map((m, index) => writeFile(join(directory, `m${index}.js`), m.source)),

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {isDeepStrictEqual} from 'node:util';
 const p='/api/projects/shop';
 const workflow=async(app,issue,id)=>(await app.json(`${p}/fixes?issue=${issue}`)).workflows.find(row=>row.id===id);
 
@@ -30,7 +31,8 @@ export async function connectedWorkflow(app,github,{issue,reproducer,run},id){
  assert.equal(opened.status,'pull_request_open');const number=opened.states.pullRequest.number;
  assert.deepEqual(opened.receipts.map(r=>[r.step,r.outcome]),[['mint_token','succeeded'],['read_base','succeeded'],['create_branch','succeeded'],['commit_file','succeeded'],['open_draft_pull_request','succeeded'],['revoke_token','succeeded']]);
  assert.equal(github.live(),0,'the installation token was revoked');
- const minted=github.requests.find(r=>r.path.endsWith('/access_tokens'));assert.deepEqual(minted.body,{repositories:['run-spool'],permissions:{contents:'write',pull_requests:'write',checks:'read'}},'least privilege asked of GitHub');
+ const minted=github.requests.filter(r=>r.path.endsWith('/access_tokens')).map(r=>({repositories:r.body.repositories.map(name=>name.toLowerCase()),permissions:r.body.permissions}));
+ assert.ok(minted.length&&minted.every(body=>isDeepStrictEqual(body,{repositories:['run-spool'],permissions:{contents:'write',pull_requests:'write',checks:'read'}})),'least privilege asked of GitHub');
  const file=github.file(opened.grant.branch,opened.grant.file.path),record=JSON.parse(file);
  assert.equal(github.sha256(file),opened.grant.file.sha256,'the committed file is exactly the approved one');
  assert.deepEqual([record.kind,record.call.input,record.run.outcome],['spool-reproducer',[{}],'reproduced']);
@@ -55,9 +57,10 @@ export async function deployedWorkflow(app,issue,id,fixedRelease){
 
 // An expired grant refuses the next step without contacting GitHub; renewal is a new approval.
 export async function expiredGrant(app,github,{issue,reproducer,run}){
- const short=await app.json(`${p}/fixes`,'POST',{reproducer:reproducer.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',durationMinutes:1});
+ // Typed in another case: GitHub's canonical name still matches the grant.
+ const short=await app.json(`${p}/fixes`,'POST',{reproducer:reproducer.id,run:run.id,repository:'Just-Every/Run-Spool',flow:'checkout',durationMinutes:1});
  const approved=await app.json(`${p}/fixes/${short.id}/approve`,'POST',{revision:short.revision});
- assert.equal(approved.status,'pull_request_open','a connected approval opens the branch at once');
+ assert.equal(approved.status,'pull_request_open','a connected approval opens the branch at once, whatever the repository case');
  return async()=>{
   const wait=approved.states.approved.expires-Date.now()+1000;if(wait>0)await new Promise(r=>setTimeout(r,wait));
   const requests=github.requests.length,current=await workflow(app,issue,short.id);
@@ -66,6 +69,11 @@ export async function expiredGrant(app,github,{issue,reproducer,run}){
   assert.deepEqual([body.workflow.receipts.at(-1).outcome,body.workflow.receipts.at(-1).detail.sent],['refused',false]);
   assert.equal(github.requests.length,requests,'an expired grant sends nothing');
   const renewed=await app.json(`${p}/fixes/${short.id}/approve`,'POST',{revision:body.workflow.revision});assert.ok(renewed.states.approved.expires>Date.now());
-  return {expired:body.workflow.status,renewed:renewed.status};
+  // Reads add receipts. Once a whole step might not fit the receipt budget, Spool refuses before contacting GitHub.
+  let latest=renewed,status=200,last;
+  for(let n=0;n<60&&status===200;n++){const response=await app.request(`${p}/fixes/${short.id}/advance`,'POST',{revision:latest.revision});status=response.status;last=await response.json();latest=status===200?last:last.workflow;}
+  const sent=github.requests.length,again=await app.request(`${p}/fixes/${short.id}/advance`,'POST',{revision:latest.revision});await again.body?.cancel();
+  assert.deepEqual([status,/receipt budget/.test(last.error),github.live(),latest.receipts.length<=200,again.status,github.requests.length-sent],[409,true,0,true,409,0],'no unreceipted or unrevoked token after the receipt budget');
+  return {expired:body.workflow.status,renewed:renewed.status,budget:{status,error:last.error,receipts:latest.receipts.length,liveTokens:github.live()}};
  };
 }

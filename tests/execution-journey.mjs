@@ -41,13 +41,14 @@ try{
  const fixedRun=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{release:r2.name});
  const ran=await runner(fixedRun.command);assert.equal(ran.code,0,ran.output);assert.match(ran.output,/^not_reproduced: The call returned string/m);results.fixedRelease=ran.output.trim();
  stage='exposure';const verdicts=await exposureVerdicts(app,ingestKey,{issue:reproduced.issue,id:awaiting.id,r2,fixture});
- results.low=(await verdicts.low()).reasons;const reached=await verdicts.reached();results.reached={reasons:reached.reasons,denominators:reached.denominators};
+ results.tiny=(await verdicts.tiny()).reasons;results.low=(await verdicts.low()).reasons;const reached=await verdicts.reached();results.reached={reasons:reached.reasons,denominators:reached.denominators};
  stage='ui';browser=await launchBrowser();results.captures=await executionPanel(app,browser,directory,reproduced.issue,reproduced.reproducer);await browser.close();browser=null;
  stage='capture-gap';results.gap=(await verdicts.gap()).reasons;
  stage='recurrence';results.verdicts=await verdicts.recurred();
  stage='expiry';results.expiry=await finishExpiry();
  stage='archive';
  const archive=await (await app.request('/api/archive')).text();
+ assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
  const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
  const before=await views(app);
  restored=await executionRuntime(restoredState,15477);await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});

@@ -8,6 +8,11 @@ import { FIX_PERMISSIONS, type FixOperation } from './grant';
 type Configured = Extract<Connection, { state: 'configured' }>;
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 export class GrantRefused extends Error {}
+// fix_receipt_capacity in migration 0032, and the most receipts one step can write
+// (mint, read base, branch, file, pull request or read, checks, three compares, revoke).
+export const RECEIPT_LIMIT = 200, STEP_RECEIPTS = 8;
+// GitHub owner and repository names are case-insensitive.
+export const sameRepository = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 const SUMMARY: Record<string, (body: any) => object> = {
  mint_token: body => ({ expiresAt: String(body.expires_at ?? ''), permissions: body.permissions ?? {}, repositories: (body.repositories ?? []).map((r: any) => String(r.full_name ?? r.name)) }),
  read_base: body => ({ sha: String(body.object?.sha ?? '') }),
@@ -39,7 +44,7 @@ export class ProviderSession {
  async call(step: FixOperation, method: string, path: string, body?: object): Promise<any> {
   await this.allow(step);
   const repo = `/repos/${this.grant.repository}/`;
-  if (step !== 'mint_token' && step !== 'revoke_token' && !path.startsWith(repo)) await this.refuse(step, 'The call names a repository outside the grant.');
+  if (step !== 'mint_token' && step !== 'revoke_token' && !path.toLowerCase().startsWith(repo.toLowerCase())) await this.refuse(step, 'The call names a repository outside the grant.');
   let response: Response, parsed: any = null;
   const authorization = step === 'mint_token' ? `Bearer ${await appJwt(this.connection)}` : `Bearer ${this.token}`;
   try {
@@ -53,6 +58,8 @@ export class ProviderSession {
    await this.receipt(step, method, path, 'failed', response.status, { message: scrub(String(parsed?.message ?? '')).slice(0, 300) });
    throw new Error(`GitHub ${step} failed: HTTP ${response.status}`);
   }
+  // Hold a minted token before writing its receipt, so close() can always revoke it.
+  if (step === 'mint_token') this.token = typeof parsed?.token === 'string' && parsed.token ? parsed.token : null;
   const summary = SUMMARY[step](parsed ?? {});
   await this.receipt(step, method, path, 'succeeded', response.status, summary);
   return { body: parsed, summary };
@@ -62,10 +69,9 @@ export class ProviderSession {
  async open() {
   const [, name] = this.grant.repository.split('/');
   const minted = await this.call('mint_token', 'POST', `/app/installations/${this.connection.installationId}/access_tokens`, { repositories: [name], permissions: FIX_PERMISSIONS });
-  this.token = String(minted.body.token ?? '');
   const granted = { ...minted.body.permissions }; delete granted.metadata;
   const repositories = (minted.body.repositories ?? []).map((r: any) => String(r.full_name ?? ''));
-  if (JSON.stringify(Object.entries(granted).sort()) !== JSON.stringify(Object.entries(FIX_PERMISSIONS).sort()) || repositories.some((full: string) => full !== this.grant.repository)) {
+  if (JSON.stringify(Object.entries(granted).sort()) !== JSON.stringify(Object.entries(FIX_PERMISSIONS).sort()) || repositories.some((full: string) => !sameRepository(full, this.grant.repository))) {
    await this.close();
    await this.refuse('mint_token', 'GitHub returned a token broader than the grant; it was revoked unused.');
   }

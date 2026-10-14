@@ -3,7 +3,7 @@ import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
 import { connection, publicConnection } from './connection';
 import { reproducerFile } from './grant';
-import { GrantRefused, ProviderSession } from './provider';
+import { GrantRefused, ProviderSession, RECEIPT_LIMIT, STEP_RECEIPTS } from './provider';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 // Provider answers are stored only in the shapes Spool expects.
@@ -22,7 +22,7 @@ async function inputs(db: D1Database, row: any) {
 // deployed commit contains it.
 async function deployment(db: D1Database, row: any, grant: any, rows: any[]): Promise<(Deployment & { commit: string; source: string }) | null> {
  if (!row.merge_sha) return null;
- const manifests = (await s(db, 'SELECT m.release,m.environment,m.commit_sha,m.deployed_at,r.seq FROM deployment_manifests m JOIN releases r ON r.project=m.project AND r.name=m.release WHERE m.project=? AND m.repository=? ORDER BY m.deployed_at,m.release', row.project, `https://github.com/${grant.repository}`).all<any>()).results;
+ const manifests = (await s(db, 'SELECT m.release,m.environment,m.commit_sha,m.deployed_at,r.seq FROM deployment_manifests m JOIN releases r ON r.project=m.project AND r.name=m.release WHERE m.project=? AND lower(m.repository)=? ORDER BY m.deployed_at,m.release', row.project, `https://github.com/${grant.repository}`.toLowerCase()).all<any>()).results;
  const contains = (commit: string) => succeeded(rows, 'compare_commits').some(r => r.target.endsWith(`/compare/${row.merge_sha}...${commit}`) && ['ahead', 'identical'].includes(r.detail.status));
  const found = manifests.find(m => m.commit_sha === row.merge_sha || contains(m.commit_sha));
  return found ? { release: found.release, sequence: found.seq, environment: found.environment, at: found.deployed_at, commit: found.commit_sha, source: found.commit_sha === row.merge_sha ? 'deployment_manifest' : 'deployment_manifest_and_compare_receipt' } : null;
@@ -60,11 +60,14 @@ export async function advance(db: D1Database, env: any, row: any) {
  const link = connection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
+ // Every call must leave a receipt: refuse, with nothing sent, a step the budget cannot hold.
+ const used = (await s(db, 'SELECT COUNT(*) n FROM fix_receipts WHERE workflow=?', row.id).first<any>()).n;
+ if (used + STEP_RECEIPTS > RECEIPT_LIMIT) throw new GrantRefused(`This workflow's receipt budget (${RECEIPT_LIMIT}) cannot hold another step, so nothing was sent to GitHub. Propose a new fix workflow to continue.`);
  if (!row.expires || Date.now() >= row.expires) await session.refuse('advance', 'The approved grant has expired; approve a renewed grant to continue.');
  const done = (step: string) => receipts(db, row.id).then(rows => succeeded(rows, step).length > 0);
  const update = (sql: string, ...args: any[]) => s(db, `UPDATE fix_workflows SET ${sql},updated=? WHERE id=?`, ...args, Date.now(), row.id).run();
- await session.open();
  try {
+  await session.open();
   if (!row.pull_number) {
    if (!await done('create_branch')) {
     const base = await session.call('read_base', 'GET', `${repo}/git/ref/heads/${grant.base.split('/').map(encodeURIComponent).join('/')}`);
@@ -87,7 +90,7 @@ export async function advance(db: D1Database, env: any, row: any) {
   const merge = merged ?? row.merge_sha;
   if (merge) {
    const compared = new Set(succeeded(await receipts(db, row.id), 'compare_commits').map(r => r.target));
-   const later = (await s(db, 'SELECT DISTINCT commit_sha FROM deployment_manifests WHERE project=? AND repository=? AND commit_sha<>? ORDER BY deployed_at DESC LIMIT 3', row.project, `https://github.com/${grant.repository}`, merge).all<any>()).results;
+   const later = (await s(db, 'SELECT DISTINCT commit_sha FROM deployment_manifests WHERE project=? AND lower(repository)=? AND commit_sha<>? ORDER BY deployed_at DESC LIMIT 3', row.project, `https://github.com/${grant.repository}`.toLowerCase(), merge).all<any>()).results;
    for (const { commit_sha } of later) if (!compared.has(`${repo}/compare/${merge}...${commit_sha}`)) await session.call('compare_commits', 'GET', `${repo}/compare/${merge}...${commit_sha}`);
   }
  } finally { await session.close(); }

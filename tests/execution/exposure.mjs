@@ -6,8 +6,9 @@ const proof=async(app,issue,id)=>(await app.json(`${p}/fixes?issue=${issue}`)).w
 
 // Before the fix: 30 users reached checkout in the broken release; the six
 // who failed are the affected cohort. That is the baseline failure rate.
+// Before the deploy only one affected user has reported it; the rest arrive later.
 export async function baseline(app,ingest,r1){
- for(let n=0;n<30;n++){const sent=await report(app,ingest,r1,client(n),['checkout']);assert.equal(sent.status,201,JSON.stringify(sent));}
+ const sent=await report(app,ingest,r1,client(0),['checkout']);assert.equal(sent.status,201,JSON.stringify(sent));
  const denied=await app.request('/api/ingest/shop/exposure','POST',{},{Authorization:'Bearer '+'0'.repeat(64),Cookie:''});assert.equal(denied.status,401,'exposure needs the project ingest key');await denied.body?.cancel();
 }
 
@@ -18,8 +19,16 @@ export async function exposureVerdicts(app,ingest,{issue,id,r2,fixture}){
  const first=await proof(app,issue,id);steps.deployedNoTraffic=first.verdict;
  assert.equal(first.verdict,'inconclusive');assert.deepEqual(first.reasons.map(r=>r.code),['no_exposure']);assert.equal(first.denominators.cohort.affectedUsers,6);
  return {
+  // One affected user was the whole baseline and is the only one exposed: one quiet user proves nothing.
+  async tiny(){
+   await report(app,ingest,r2,client(0),['checkout']);
+   const tiny=await proof(app,issue,id);steps.tinyBaseline=tiny.verdict;
+   assert.deepEqual([tiny.verdict,tiny.reasons.map(r=>r.code),tiny.denominators.instrumentation.baselineExposed,tiny.denominators.instrumentation.withCapture],['inconclusive',['exposure_too_low'],1,1]);
+   for(let n=1;n<30;n++)await report(app,ingest,{name:'2026.10.1',build:'b1'},client(n),['checkout']);
+   return tiny;
+  },
   async low(){
-   for(const n of [0,40,41])await report(app,ingest,r2,client(n),['checkout']);
+   for(const n of [40,41])await report(app,ingest,r2,client(n),['checkout']);
    const low=await proof(app,issue,id);steps.lowExposure=low.verdict;
    assert.equal(low.verdict,'inconclusive');assert.ok(low.reasons.some(r=>r.code==='exposure_too_low'),JSON.stringify(low.reasons));
    assert.deepEqual([low.denominators.instrumentation.withCapture,low.denominators.cohort.reachedOnFixedRelease,low.denominators.instrumentation.baselineFailed,low.denominators.instrumentation.baselineExposed],[3,1,6,30]);
@@ -27,13 +36,13 @@ export async function exposureVerdicts(app,ingest,{issue,id,r2,fixture}){
   },
   async reached(){
    for(let n=1;n<6;n++)await report(app,ingest,r2,client(n),['checkout']);
-   for(let n=42;n<62;n++)await report(app,ingest,r2,client(n),['checkout']);
-   for(let n=62;n<66;n++)await report(app,ingest,r2,client(n),['checkout'],false);
-   for(let n=66;n<70;n++)await report(app,ingest,{name:'2026.10.1',build:'b1'},client(n),[]);
+   for(let n=42;n<82;n++)await report(app,ingest,r2,client(n),['checkout']);
+   for(let n=82;n<86;n++)await report(app,ingest,r2,client(n),['checkout'],false);
+   for(let n=86;n<90;n++)await report(app,ingest,{name:'2026.10.1',build:'b1'},client(n),[]);
    const reached=await proof(app,issue,id);steps.reached=reached.verdict;
    assert.equal(reached.verdict,'reached',JSON.stringify(reached.reasons));
    const d=reached.denominators;
-   assert.deepEqual([d.cohort.reachedOnFixedRelease,d.instrumentation.withCapture,d.instrumentation.withoutCapture,d.rollout.onFixedRelease,d.rollout.usersSinceDeploy],[6,28,4,32,36]);
+   assert.deepEqual([d.cohort.reachedOnFixedRelease,d.instrumentation.withCapture,d.instrumentation.withoutCapture,d.rollout.onFixedRelease,d.rollout.usersSinceDeploy],[6,48,4,52,80]);
    return reached;
   },
   // Reports the server refused after the deploy are a capture gap: no longer "reached".

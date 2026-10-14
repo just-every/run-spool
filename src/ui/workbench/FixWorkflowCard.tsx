@@ -57,7 +57,7 @@ function Exposure({ proof }: { proof: any }) {
       <div><dt>Traffic</dt><dd>{d.traffic.sessionReportsOnFixedRelease} session reports on the fixed release</dd></div>
       <div><dt>Instrumentation ({d.instrumentation.flow})</dt><dd>{d.instrumentation.withCapture} exposed with capture, {d.instrumentation.withoutCapture} without; before the fix {d.instrumentation.baselineFailed} of {d.instrumentation.baselineExposed} failed ({percent(d.instrumentation.baselineRate)})</dd></div>
       <div><dt>Capture gap</dt><dd>{d.captureGap.loss.length ? d.captureGap.loss.map((row: any) => `${row.reason} ${row.count}`).join(', ') : 'No server-side loss'}; {d.captureGap.usersWithoutCapture} exposed users without capture</dd></div>
-      <div><dt>If the fix changed nothing</dt><dd>{d.expectedFailuresIfUnfixed === null ? 'No baseline' : `about ${d.expectedFailuresIfUnfixed.toFixed(1)} failures expected; chance of none ${percent(d.chanceOfNoFailureIfUnfixed)}`}</dd></div>
+      <div><dt>If the fix changed nothing</dt><dd>{d.expectedFailuresIfUnfixed === null ? 'No baseline' : `at a rate of at least ${percent(d.instrumentation.baselineRateLowerBound)} (95% lower bound), about ${d.expectedFailuresIfUnfixed.toFixed(1)} failures expected; chance of none ${percent(d.chanceOfNoFailureIfUnfixed)}`}</dd></div>
     </dl>
     <p>{proof.limits}</p>
   </div>;

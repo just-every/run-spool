@@ -22,14 +22,16 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
    if(!appAuthorized(request.headers.authorization))return send(response,401,{message:'Bad credentials'});
    const asked=JSON.parse(body),value='ghs_'+randomBytes(18).toString('hex');
    const permissions={...asked.permissions,metadata:'read',...state.broaden?{administration:'write'}:{}};
-   tokens.set(value,{repositories:asked.repositories.map(name=>repository.split('/')[0]+'/'+name),permissions,expires:Date.now()+3600_000});
-   return send(response,201,{token:value,expires_at:new Date(Date.now()+3600_000).toISOString(),permissions,repository_selection:'selected',repositories:asked.repositories.map(name=>({name,full_name:repository.split('/')[0]+'/'+name}))});
+   // GitHub names are case-insensitive; answers carry the canonical full_name.
+   const canonical=name=>name.toLowerCase()===repository.split('/')[1].toLowerCase()?repository:repository.split('/')[0]+'/'+name;
+   tokens.set(value,{repositories:asked.repositories.map(canonical),permissions,expires:Date.now()+3600_000});
+   return send(response,201,{token:value,expires_at:new Date(Date.now()+3600_000).toISOString(),permissions,repository_selection:'selected',repositories:asked.repositories.map(name=>({name:canonical(name).split('/')[1],full_name:canonical(name)}))});
   }
   const grant=tokens.get(token);
   if(!grant||grant.expires<Date.now())return send(response,401,{message:'Bad credentials'});
   if(request.method==='DELETE'&&path==='/installation/token'){tokens.delete(token);response.writeHead(204);return response.end();}
   const prefix=`/repos/${repository}/`;
-  if(!path.startsWith(prefix)||!grant.repositories.includes(repository))return send(response,404,{message:'Not Found'});
+  if(!path.toLowerCase().startsWith(prefix.toLowerCase())||!grant.repositories.includes(repository))return send(response,404,{message:'Not Found'});
   const rest=path.slice(prefix.length),needs=level=>(name)=>({read:1,write:2})[grant.permissions[name]]>=({read:1,write:2})[level];
   if(request.method==='GET'&&rest.startsWith('git/ref/')){const ref=state.refs.get(decodeURIComponent(rest.slice(8)));return ref?send(response,200,{ref:'refs/'+rest.slice(8),object:{sha:ref}}):send(response,404,{message:'Not Found'});}
   if(request.method==='POST'&&rest==='git/refs'){if(!needs('write')('contents'))return send(response,403,{message:'Resource not accessible by integration'});const input=JSON.parse(body),name=input.ref.replace(/^refs\//,'');if(state.refs.has(name))return send(response,422,{message:'Reference already exists'});state.refs.set(name,input.sha);return send(response,201,{ref:input.ref,object:{sha:input.sha}});}

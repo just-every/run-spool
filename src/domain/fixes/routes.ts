@@ -63,7 +63,10 @@ routes.post('/:fix/advance', async c => {
  if (!row) return c.json({ error: 'Workflow not found' }, 404);
  if (row.approved === null) return c.json({ error: 'Approve the grant first' }, 409);
  // Claim this step by revision so two clicks cannot open two branches.
- const [claimed] = await ownerWrites(c, [s(c.env.DB, 'UPDATE fix_workflows SET revision=revision+1,updated=? WHERE id=? AND revision=?', Date.now(), row.id, expected)]);
+ const time = Date.now(), [claimed] = await ownerWrites(c, [
+  s(c.env.DB, 'UPDATE fix_workflows SET revision=revision+1,updated=? WHERE id=? AND revision=?', time, row.id, expected),
+  audit(c.env.DB, row.project, 'fix_advanced', { workflow: row.id, revision: expected + 1 }, time),
+ ]);
  if (!claimed.meta.changes) return c.json({ error: 'Revision conflict' }, 409);
  try { await advance(c.env.DB, runtimeBindings(c.env), await current(c)); }
  catch (error) { return c.json({ error: String((error as Error).message), workflow: await view(c, await current(c)) }, error instanceof GrantRefused ? 409 : 502); }

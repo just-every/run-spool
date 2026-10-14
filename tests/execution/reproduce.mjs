@@ -47,7 +47,7 @@ export async function reproduceProof(app,fixture,ingest){
  assert.equal(lie.outcome,'not_reproduced','the behaviour check, not the report, decides');
  // Distinct outcomes: failed (missing export, killed loop) and a returned call that shows the isolation.
  const outcomes={};
- for(const [name,body] of [['missing',{event:'cart-0',export:'missingExport',input:[]}],['spin',{event:'cart-0',export:'spin',input:[]}],['probe',{event:'cart-0',export:'probe',input:[]}]]){
+ for(const [name,body] of [['missing',{event:'cart-0',export:'missingExport',input:[]}],['spin',{event:'cart-0',export:'spin',input:[]}],['probe',{event:'cart-0',export:'probe',input:[]}],['forge',{event:'cart-0',export:'forgeMe',input:[]}]]){
   const record=await app.json(`${p}/reproducers`,'POST',body),run=await app.json(`${p}/reproducers/${record.id}/runs`,'POST',{});
   const result=await runner(run.command);assert.equal(result.code,0,result.output);
   outcomes[name]=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===record.id).runs[0];
@@ -55,6 +55,7 @@ export async function reproduceProof(app,fixture,ingest){
  assert.deepEqual([outcomes.missing.outcome,outcomes.missing.observation.phase],['failed','entry_missing']);
  assert.deepEqual([outcomes.spin.outcome,outcomes.spin.observation.phase],['failed','timed_out'],'a call that never returns is killed');
  assert.equal(outcomes.probe.outcome,'not_reproduced');
+ assert.deepEqual([outcomes.forge.outcome,outcomes.forge.observation.phase],['not_reproduced','returned'],'job code that rewrites console.log cannot forge the observation');
  assert.match(outcomes.probe.observation.preview,/^"(no process object|empty environment); network blocked: /,'no environment and no network inside the sandbox: '+outcomes.probe.observation.preview);
  const view=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===reproducer.id);
  const reproduced=view.runs.find(run=>run.outcome==='reproduced');

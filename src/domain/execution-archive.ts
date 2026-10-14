@@ -16,7 +16,7 @@ export const executionExcludedTables = ['reproducer_run_tokens'];
 export const emptyExecutionTables = () => Object.fromEntries(executionArchiveTables.map(name => [name, []]));
 const auditKinds: Record<string, string[]> = {
  reproducer_recorded: ['reproducer', 'issue', 'support'], reproducer_run_queued: ['reproducer', 'run', 'release'], reproducer_run_finished: ['reproducer', 'run', 'outcome'],
- fix_proposed: ['workflow', 'issue', 'repository'], fix_approved: ['workflow', 'revision'],
+ fix_proposed: ['workflow', 'issue', 'repository'], fix_approved: ['workflow', 'revision'], fix_advanced: ['workflow', 'revision'],
 };
 function assert(ok: unknown): asserts ok { if (!ok) throw new Error('Invalid execution archive'); }
 const shape = (row: any, fields: string[]) => assert(row && typeof row === 'object' && !Array.isArray(row) && Object.keys(row).sort().join() === [...fields].sort().join());
