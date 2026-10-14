@@ -51,7 +51,8 @@ export function validateExecutionArchive(data: any) {
   name(r.flow, /^[a-zA-Z0-9._:-]{1,100}$/); const grant = object(r.grant_spec); assert(grant.version === 1 && grant.provider === 'github');
   integer(r.revision, 1); integer(r.proposed); integer(r.updated); assert((r.approved === null && r.expires === null) || (Number.isSafeInteger(r.approved) && r.expires > r.approved));
   assert(r.pull_number === null ? r.pull_url === null && r.merged === null : Number.isSafeInteger(r.pull_number) && typeof r.pull_url === 'string' && scrub(r.pull_url) === r.pull_url);
-  assert((r.merged === null && r.merge_sha === null) || (Number.isSafeInteger(r.merged) && /^[0-9a-f]{40}$/.test(r.merge_sha)) && (r.head_sha === null || /^[0-9a-f]{40}$/.test(r.head_sha)));
+  assert((r.merged === null && r.merge_sha === null) || (Number.isSafeInteger(r.merged) && /^[0-9a-f]{40}$/.test(r.merge_sha)));
+  assert(r.head_sha === null || /^[0-9a-f]{40}$/.test(r.head_sha));
   workflows.set(r.id, r);
  }
  for (const r of data.fix_receipts) {

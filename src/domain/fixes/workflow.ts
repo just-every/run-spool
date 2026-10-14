@@ -1,4 +1,4 @@
-import { hash } from '../privacy';
+import { hash, scrub } from '../privacy';
 import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
 import { connection, publicConnection } from './connection';
@@ -6,6 +6,8 @@ import { reproducerFile } from './grant';
 import { GrantRefused, ProviderSession } from './provider';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
+// Provider answers are stored only in the shapes Spool expects.
+const commit = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value) ? value : null;
 const base64 = (text: string) => btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 const receipts = async (db: D1Database, workflow: string) => (await s(db, 'SELECT * FROM fix_receipts WHERE workflow=? ORDER BY at,id', workflow).all<any>()).results.map(row => ({ ...row, detail: JSON.parse(row.detail) }));
 const succeeded = (rows: any[], step: string) => rows.filter(row => row.step === step && row.outcome === 'succeeded');
@@ -74,14 +76,15 @@ export async function advance(db: D1Database, env: any, row: any) {
     await session.call('commit_file', 'PUT', `${repo}/contents/${grant.file.path.split('/').map(encodeURIComponent).join('/')}`, { message: `Add Spool reproducer ${row.reproducer}`, content: base64(content), branch: grant.branch });
    }
    const pull = await session.call('open_draft_pull_request', 'POST', `${repo}/pulls`, { title: grant.pullRequest.title, body: grant.pullRequest.body, head: grant.branch, base: grant.base, draft: true });
-   await update('pull_number=?,pull_url=?,head_sha=?', pull.summary.number, pull.summary.url, pull.summary.head || null);
+   if (!Number.isSafeInteger(pull.summary.number) || pull.summary.number < 1 || !/^https:\/\/[^\s?#]+$/.test(pull.summary.url)) throw new Error('GitHub returned an unexpected pull request');
+   await update('pull_number=?,pull_url=?,head_sha=?', pull.summary.number, scrub(pull.summary.url), commit(pull.summary.head));
    return;
   }
-  const pull = await session.call('read_pull_request', 'GET', `${repo}/pulls/${row.pull_number}`), merged = pull.summary.merged && pull.summary.mergeCommit;
-  if (merged) await update('head_sha=?,merged=COALESCE(merged,?),merge_sha=COALESCE(merge_sha,?)', pull.summary.head || row.head_sha, Date.parse(pull.summary.mergedAt) || Date.now(), pull.summary.mergeCommit);
-  else await update('head_sha=?', pull.summary.head || row.head_sha);
-  if (pull.summary.head) await session.call('read_checks', 'GET', `${repo}/commits/${pull.summary.head}/check-runs`);
-  const merge = merged ? pull.summary.mergeCommit : row.merge_sha;
+  const pull = await session.call('read_pull_request', 'GET', `${repo}/pulls/${row.pull_number}`), merged = pull.summary.merged ? commit(pull.summary.mergeCommit) : null, head = commit(pull.summary.head);
+  if (merged) await update('head_sha=?,merged=COALESCE(merged,?),merge_sha=COALESCE(merge_sha,?)', head ?? row.head_sha, Date.parse(pull.summary.mergedAt) || Date.now(), merged);
+  else await update('head_sha=?', head ?? row.head_sha);
+  if (head) await session.call('read_checks', 'GET', `${repo}/commits/${head}/check-runs`);
+  const merge = merged ?? row.merge_sha;
   if (merge) {
    const compared = new Set(succeeded(await receipts(db, row.id), 'compare_commits').map(r => r.target));
    const later = (await s(db, 'SELECT DISTINCT commit_sha FROM deployment_manifests WHERE project=? AND repository=? AND commit_sha<>? ORDER BY deployed_at DESC LIMIT 3', row.project, `https://github.com/${grant.repository}`, merge).all<any>()).results;
