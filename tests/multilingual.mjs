@@ -8,6 +8,7 @@ import {executionRuntime} from './execution/runtime.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {openGate} from './auth.mjs';
 import {mappingArchive} from './multilingual/archive.mjs';
+import {exceptionTrust} from './multilingual/trust.mjs';
 const state=await mkdtemp(join(tmpdir(),'spool-languages-')),restoredState=await mkdtemp(join(tmpdir(),'spool-languages-restore-'));
 let app,restored,browser;
 try{
@@ -30,6 +31,7 @@ try{
  assert.equal(pyPacket.events[0].event.frames[0].file,`${scrubbedPosixHome}/cart.py`);assert.equal(goPacket.events[0].event.frames.length,2);assert.equal(goPacket.events[0].event.frames[0].function,'main.(*账本[go.shape.int]).Checkout');
  const rawAdmissions={python:pyPacket.events[0].atAdmission,go:goPacket.events[0].atAdmission};
  const alias=new URL(project.dsn).pathname.slice(1);
+ await exceptionTrust(app,ingest,packet,base,alias,project.ingestKey);
  for(const [language,issue,source] of [['python',py.issue,pyPacket],['go',goResult.issue,goPacket]]){
   const event=source.events[0].event;
   const equivalent=await ingest({...event,eventId:language+'-structured',message:'changed message'});assert.equal(equivalent.issue,issue);
@@ -47,10 +49,9 @@ try{
  await ingest({...base,eventId:'python-raw',language:'python',stack:python},200);
  await ingest({...base,eventId:'python-raw',language:'python',stack:python.replace('PRIVATE_SOURCE','ALTERED_SOURCE')},409);
  for(const input of [
-  {...base,eventId:'bad-both',language:'go',stack:go,frames:goPacket.events[0].event.frames},
   {...base,eventId:'bad-python',language:'python',stack:'ExceptionGroup: unsupported'},
   {...base,eventId:'bad-python-location',language:'python',stack:python.replace('line 42','line -1')},
-  {...base,eventId:'bad-go-location',language:'go',stack:go.replace('cart.go:42','cart.go:-1')},
+  {...base,eventId:'bad-go-location',language:'go',stack:'panic: bad\n\ngoroutine 1 [running]:\nmain.crash()\n\t/app/crash.go:-1'},
   {...base,eventId:'bad-mixed',language:'go',stack:'panic: bad\nmain.crash()\n\tcrash.go:1\n'+python},
   {...base,eventId:'bad-go-prefix',language:'go',stack:python+'\n'+go},
   {...base,eventId:'bad-python-prefix',language:'python',stack:go+'\n'+python},
@@ -101,6 +102,7 @@ try{
  }
  await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  const after=await restored.json(`${p}/issues/${goResult.issue}/packet`);
+ assert.equal(after.events.find(e=>e.id==='go-raw').event.exceptionSource,'parsed-text');
  assert.equal(after.events.find(e=>e.id==='go-raw').currentLookup[0].original.file,'src/cart.go');assert.deepEqual(after.events.find(e=>e.id==='go-raw').atAdmission,rawAdmissions.go);
  assert.equal((await restored.json(`${p}/issues`)).reduce((n,i)=>n+i.count,0),countBefore);
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM credentials').first()).n,0);
@@ -110,7 +112,7 @@ try{
   for(const width of [1440,390]){
    const context=await browser.newContext({viewport:{width,height:900}});
    try{await openGate(context,restored.origin);await context.addCookies([{name:restored.cookie.split('=')[0],value:restored.cookie.slice(restored.cookie.indexOf('=')+1),url:restored.origin}]);const page=await context.newPage();
-    await page.goto(`${restored.origin}/projects/languages/issues/${py.issue}`);await page.getByRole('heading',{name:'Stack trace',exact:true}).waitFor();assert.ok((await page.locator('.frame-coordinate').first().innerText()).endsWith('cart.py:42'));assert.ok(!(await page.locator('.frame-coordinate').first().innerText()).includes('null'));await page.screenshot({path:`.artifacts/languages/python-${width}.png`,fullPage:true});
+    await page.goto(`${restored.origin}/projects/languages/issues/${py.issue}`);await page.getByRole('heading',{name:'Stack trace',exact:true}).waitFor();await page.getByText('Exception type and frames were parsed from text for some retained occurrences.',{exact:false}).waitFor();assert.ok((await page.locator('.frame-coordinate').first().innerText()).endsWith('cart.py:42'));assert.ok(!(await page.locator('.frame-coordinate').first().innerText()).includes('null'));await page.screenshot({path:`.artifacts/languages/python-${width}.png`,fullPage:true});
     await page.goto(`${restored.origin}/projects/languages/issues/${goResult.issue}`);await page.getByRole('heading',{name:'Stack trace',exact:true}).waitFor();await page.locator('.frame-coordinate').filter({hasText:'src/cart.go:42'}).first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await page.screenshot({path:`.artifacts/languages/go-${width}.png`,fullPage:true});
    }finally{await context.close();}
   }

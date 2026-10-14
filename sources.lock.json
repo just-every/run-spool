@@ -2345,7 +2345,7 @@
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
-      "sha256": "c25bc42f17478af065ad93983cf1931229181d6e91873a1e3b6ffd880b918ba6",
+      "sha256": "e34425fade030610c20b6ab9f5563b9cdeff137bbb2e06d035a2e96c2a04b31b",
       "executable": false
     },
     "docs/triage.md": {
@@ -2637,7 +2637,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "bfbfe91bed4022c32669f5941136eb320a90ab42bf6aac39788549e6e00e331f",
+      "sha256": "a263cc034e2fe2f3438b761eb4f0f40d9ec89e73e094e9f88af1dcaf2e2ff3f9",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -3260,6 +3260,10 @@
       "sha256": "1e6e9cbd5a1a1c6ec7c6e91d17610713d039e866c318675b4dae92928e8d2d6e",
       "executable": false
     },
+    "src/domain/frame-path.ts": {
+      "sha256": "a103ca1debb1e4f5788dc2ff87a53bbe858223e599acf6e8d3e65a09c5d5ec46",
+      "executable": false
+    },
     "src/domain/issue-attention.ts": {
       "sha256": "07f176c04dea0670f141be729b47a0c9a26f14d9874af8dde772a9e4434d583f",
       "executable": false
@@ -3337,7 +3341,7 @@
       "executable": false
     },
     "src/domain/packet.ts": {
-      "sha256": "f5ca4d3fcd01284e76709a54828b4e34885e97975a01aac502ca49e63af538c5",
+      "sha256": "3f6264cf2a257ebf13420a4fb3501ad63650451f18bb8dddfdd7f0b3e1b415ec",
       "executable": false
     },
     "src/domain/path-mappings.ts": {
@@ -3349,7 +3353,7 @@
       "executable": false
     },
     "src/domain/privacy.ts": {
-      "sha256": "44b239dbbb8fec852e421adbe5df5194dd85e07c423f29ae0d0cb3012e8e00c8",
+      "sha256": "ed6c003f2567e027be7d4167317ca28685dab00ba02c501408c677429748f03b",
       "executable": false
     },
     "src/domain/repairs/archive.ts": {
@@ -3473,7 +3477,7 @@
       "executable": false
     },
     "src/domain/stacks-go.ts": {
-      "sha256": "a287a35bab93c164ac83a5dd45be6248efe173d094bbfe3137a585ba9fdb33bd",
+      "sha256": "20f2f82bdf9709ccf18b4361f99d6a2bea0345f8347a874fc0f578087e962f66",
       "executable": false
     },
     "src/domain/stacks-python.ts": {
@@ -5357,7 +5361,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "32c1018aa367b30b8fb12ab88f0074d4c036677f961b401f294103d99142fcb8",
+      "sha256": "59cfd87d74862cb0bbd2e2d777a1b5dc5a3c49abaddd49bb3e97cabc4df03799",
       "executable": false
     },
     "src/ui/workbench/location.ts": {
@@ -5625,11 +5629,15 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "4c3a5cf4a5584e58714fb06accb9333e4c0bd843b0180777f878f3ca31e949c8",
+      "sha256": "bf0e3687b111feff0239c42586029928618dba216b4f2c1e2b59f994fed84387",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
       "sha256": "e761af66945e1fe7f032129e8f3b25a34e68ed2b89c6ba545e6235e775630119",
+      "executable": false
+    },
+    "tests/multilingual/trust.mjs": {
+      "sha256": "68b567bc6ca07fba165f476d8ef091bce4ee3a576211bf147ef845d8fc472afd",
       "executable": false
     },
     "tests/navigation.mjs": {

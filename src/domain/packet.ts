@@ -68,7 +68,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   // Explicit envelope input prevents unknown stored properties from becoming
   // output; normalization preserves the admission privacy contract.
   const event = normalize({ version: stored.version, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment,
-   type: stored.type, message: stored.message, frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
+   type: stored.type, message: stored.message, ...(stored.exceptionSource !== undefined ? {exceptionSource:stored.exceptionSource} : {}), frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
   const currentLookup = row.historical === 1 ? atAdmission : diagnosticProjection(await diagnose(db, project, event));
   const basis=grouping(event).basis;
