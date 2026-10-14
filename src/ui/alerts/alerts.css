@@ -1,5 +1,5 @@
 .alert-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:20px 0}
-.alert-tabs button:not(.text-button){min-height:44px;padding:0 20px;background:none;border:1.5px solid var(--ink);border-radius:var(--radius-pill);font:500 15px var(--font-text);cursor:pointer}
+.alert-tabs button:not(.text-button){min-height:44px;padding:0 20px;background:none;border:var(--control-stroke) solid var(--ink);border-radius:var(--radius-pill);font:500 15px var(--font-text);cursor:pointer}
 .alert-tabs button[aria-current=page]:not(.text-button){background:var(--ink);color:var(--paper)}
 .alert-tabs .text-button{margin-left:auto}
 .alert-records{margin:0;padding:0;list-style:none}
