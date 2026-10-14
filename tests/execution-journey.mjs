@@ -53,6 +53,16 @@ try{
  restored=await executionRuntime(restoredState,15477);await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  assert.deepEqual(await views(restored),before,'reproducers, runs, workflows, receipts and exposure verdicts restore unchanged');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
+ // Erasure removes every new table's rows for the project, an unused run token included.
+ stage='erasure';
+ await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
+ const tables=['reproducers','reproducer_runs','reproducer_run_tokens','fix_workflows','fix_receipts','exposures'];
+ const counts=async()=>Object.fromEntries(await Promise.all(tables.map(async table=>[table,(await app.db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project='shop'`).first()).n])));
+ const planted=await counts();assert.ok(Object.values(planted).every(n=>n>0),JSON.stringify(planted));
+ const preview=await app.json(`${p}/erasure`);
+ const erased=await app.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:preview.planHash});assert.equal(erased.phase,'complete');
+ assert.deepEqual(await counts(),Object.fromEntries(tables.map(table=>[table,0])),'project erasure deletes reproducers, runs, tokens, workflows, receipts and exposure');
+ results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);
  await writeFile(resolve(directory,'results.json'),JSON.stringify(results,null,2)+'\n');
  console.log(`Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
