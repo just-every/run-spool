@@ -16,6 +16,7 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
  }
  const server=createServer(async(request,response)=>{
   let body='';for await(const chunk of request)body+=chunk;
+  if(state.delay)await new Promise(resolve=>setTimeout(resolve,state.delay));
   const url=new URL(request.url,'http://double'),path=url.pathname,token=(request.headers.authorization??'').replace(/^Bearer /,'');
   requests.push({method:request.method,path,body:body?JSON.parse(body):null,token:token.startsWith('ghs_')?'installation':token?'app-jwt':'none'});
   if(request.method==='POST'&&path===`/app/installations/${installationId}/access_tokens`){

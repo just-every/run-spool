@@ -12,7 +12,7 @@ export const executionTables: Record<string, string[]> = {
  exposures: ['project', 'release', 'environment', 'flow', 'client', 'capture', 'reports', 'first', 'last'],
 };
 export const executionArchiveTables = Object.keys(executionTables);
-export const executionExcludedTables = ['reproducer_run_tokens'];
+export const executionExcludedTables = ['reproducer_run_tokens', 'fix_leases'];
 export const emptyExecutionTables = () => Object.fromEntries(executionArchiveTables.map(name => [name, []]));
 const auditKinds: Record<string, string[]> = {
  reproducer_recorded: ['reproducer', 'issue', 'support'], reproducer_run_queued: ['reproducer', 'run', 'release'], reproducer_run_finished: ['reproducer', 'run', 'outcome'],

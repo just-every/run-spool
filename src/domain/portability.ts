@@ -60,19 +60,25 @@ export async function archiveStream(service: any): Promise<ReadableStream<Uint8A
 const operatorNames=Object.keys(operatorTables);
 const operatorMigration='0031_operator_corrections.sql';
 const executionMigration='0032_execution.sql';
+// 0033 adds only the excluded fix_leases table: an archive with today's tables
+// that records migrations without it gains just that name.
+const leaseMigration='0033_fix_leases.sql';
 const laterTables = [
- { tables: executionArchiveTables, migrations: [executionMigration] },
+ { tables: [] as string[], migrations: [leaseMigration] },
+ { tables: executionArchiveTables, migrations: [executionMigration, leaseMigration] },
  ...[
   {tables:operatorNames,migrations:[operatorMigration]},
   { tables: [...operatorNames,...linkArchiveTables], migrations: [operatorMigration,...linkMigrations] },
   { tables: [...operatorNames,...erasureArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0018_erasure.sql', ...linkMigrations] },
   { tables: [...operatorNames,...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
- ].map(later => ({ tables: [...later.tables, ...executionArchiveTables], migrations: [...later.migrations, executionMigration] })),
+ ].map(later => ({ tables: [...later.tables, ...executionArchiveTables], migrations: [...later.migrations, executionMigration, leaseMigration] })),
 ];
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  for (const later of laterTables) {
+  // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)))) continue;
   const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name));
   if (manifest.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(manifest.tables) || canonicalJson(manifest.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');

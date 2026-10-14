@@ -3,7 +3,7 @@ import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
 import { connection, publicConnection } from './connection';
 import { reproducerFile } from './grant';
-import { GrantRefused, ProviderSession, RECEIPT_LIMIT, STEP_RECEIPTS } from './provider';
+import { GrantRefused, ProviderSession } from './provider';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 // Provider answers are stored only in the shapes Spool expects.
@@ -53,16 +53,14 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
  };
 }
 
-// One step forward under the approved grant: open the branch and draft pull
+// Callers hold the workflow's step lease (routes.ts), which reserved this
+// step's receipts. One step forward under the approved grant: open the branch and draft pull
 // request, or read its state, checks and whether a deployment contains it.
 // The token is minted for this call only and revoked before returning.
 export async function advance(db: D1Database, env: any, row: any) {
  const link = connection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
- // Every call must leave a receipt: refuse, with nothing sent, a step the budget cannot hold.
- const used = (await s(db, 'SELECT COUNT(*) n FROM fix_receipts WHERE workflow=?', row.id).first<any>()).n;
- if (used + STEP_RECEIPTS > RECEIPT_LIMIT) throw new GrantRefused(`This workflow's receipt budget (${RECEIPT_LIMIT}) cannot hold another step, so nothing was sent to GitHub. Propose a new fix workflow to continue.`);
  if (!row.expires || Date.now() >= row.expires) await session.refuse('advance', 'The approved grant has expired; approve a renewed grant to continue.');
  const done = (step: string) => receipts(db, row.id).then(rows => succeeded(rows, step).length > 0);
  const update = (sql: string, ...args: any[]) => s(db, `UPDATE fix_workflows SET ${sql},updated=? WHERE id=?`, ...args, Date.now(), row.id).run();

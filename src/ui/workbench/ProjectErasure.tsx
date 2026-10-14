@@ -11,7 +11,7 @@ const labels: Record<string, string> = {
   alert_mail_attempts: 'Mail attempts', rer_mail_development_outbox: 'Development outbox messages', oa_dev_credentials: 'Dev-minted key marks',
   integration_deliveries: 'Webhook deliveries', integration_attempts: 'Webhook attempts', integration_resolutions: 'Webhook resolutions',
   integration_replays: 'Webhook replays', integration_tokens: 'Integration tokens', integration_token_events: 'Integration token events',
-  integration_token_usage: 'Integration token usage', repairs: 'Repairs', repair_checks: 'Repair checks', reproducers: 'Reproducers', reproducer_runs: 'Reproducer runs', reproducer_run_tokens: 'Reproducer run tokens', fix_workflows: 'Fix workflows', fix_receipts: 'Fix receipts', exposures: 'Exposure reports', audit: 'Audit entries', alert_scheduler: 'Scheduler cursor',
+  integration_token_usage: 'Integration token usage', repairs: 'Repairs', repair_checks: 'Repair checks', reproducers: 'Reproducers', reproducer_runs: 'Reproducer runs', reproducer_run_tokens: 'Reproducer run tokens', fix_workflows: 'Fix workflows', fix_leases: 'Fix step leases', fix_receipts: 'Fix receipts', exposures: 'Exposure reports', audit: 'Audit entries', alert_scheduler: 'Scheduler cursor',
 };
 const label = (table: string) => labels[table] ?? table;
 const total = (counts: Record<string, number>) => Object.values(counts).reduce((sum, n) => sum + n, 0);

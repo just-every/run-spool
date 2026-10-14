@@ -37,8 +37,14 @@ export async function connectedWorkflow(app,github,{issue,reproducer,run},id){
  assert.equal(github.sha256(file),opened.grant.file.sha256,'the committed file is exactly the approved one');
  assert.deepEqual([record.kind,record.call.input,record.run.outcome],['spool-reproducer',[{}],'reproduced']);
  assert.equal(github.state.pulls[number-1].draft,true);assert.equal(github.requests.filter(r=>r.method!=='GET'&&r.path.includes('/git/refs')).every(r=>/^refs\/heads\/spool\/fix-[0-9a-f]{8}$/.test(r.body.ref)),true,'only fix branches are written');assert.equal(github.state.refs.get('heads/main')===github.requests.find(r=>r.path.endsWith('/git/refs')).body.sha,true,'the base branch is unchanged');
+ // Two advances at once: the second finds this workflow's step lease taken and sends nothing.
+ github.state.delay=300;const sent=github.requests.length,first=app.request(`${p}/fixes/${id}/advance`,'POST',{revision:opened.revision});
+ await new Promise(resolve=>setTimeout(resolve,150));const second=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:opened.revision+1});
+ const overlap=await second.json(),done=await first;github.state.delay=0;await done.body?.cancel();
+ assert.deepEqual([done.status,second.status,/in progress/.test(overlap.error),github.requests.length-sent],[200,409,true,4],'concurrent advances run one step');
+ const latest=await workflow(app,issue,id);
  // A provider answer broader than the grant is refused and revoked unused.
- github.state.broaden=true;const broad=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:opened.revision});github.state.broaden=false;
+ github.state.broaden=true;const broad=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:latest.revision});github.state.broaden=false;
  assert.equal(broad.status,409);const broadBody=await broad.json();
  assert.deepEqual(broadBody.workflow.receipts.slice(-3).map(r=>[r.step,r.outcome]),[['mint_token','succeeded'],['revoke_token','succeeded'],['mint_token','refused']]);assert.equal(github.live(),0);
  const proposedOnly=await workflow(app,issue,id);assert.equal(proposedOnly.states.merged,null,'merged is never inferred');
