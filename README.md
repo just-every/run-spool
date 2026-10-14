@@ -39,9 +39,9 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 
 ## Run it on your computer
 
-Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.2`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
+Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.4`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
 
-With rer 0.2.2, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
+With rer 0.2.4, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
 
 ```sh
 rer install

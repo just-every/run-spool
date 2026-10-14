@@ -48,3 +48,10 @@ export async function normalizePreviousArchive(previous:Awaited<ReturnType<typeo
  const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  return {data,manifest:{...current,sourceIdentity:previous.manifest.sourceIdentity,epoch:previous.manifest.epoch,journal:previous.manifest.journal,exportedAt:previous.manifest.exportedAt}};
 }
+
+/** Only the exact previous configuration inventory can retire the bootstrap token. */
+export function retireArchiveSetupToken(manifest: any, configuration: string[]) {
+ const previous = [...configuration]; previous.splice(2, 0, 'SETUP_TOKEN');
+ return canonicalJson(manifest.requiredConfiguration) === canonicalJson(previous)
+  ? { ...manifest, requiredConfiguration: configuration } : manifest;
+}

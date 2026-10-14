@@ -9,7 +9,7 @@ import { emptyExecutionTables, executionArchiveTables, executionExcludedTables, 
 import { erasureArchiveTables, erasureExcludedTables, validateErasureArchive } from './erasure/archive';
 import { fenceLegacyOccurrences } from './occurrences';
 import { scrubExportRow } from './stored-text';
-import { isPreviousSchema, readPreviousArchive, normalizePreviousArchive } from './archive-compat';
+import { isPreviousSchema, readPreviousArchive, normalizePreviousArchive, retireArchiveSetupToken } from './archive-compat';
 import { linkArchiveTables, linkMigrations, emptyLinkTables } from './link-archive';
 
 function stagedValidation(later: string[] = []) {
@@ -24,7 +24,7 @@ function stagedValidation(later: string[] = []) {
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, alertExportRow(table, row)),
- requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
+ requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
 export async function portability(db: D1Database) {
@@ -88,18 +88,21 @@ async function earlierManifest(db: D1Database, manifest: any) {
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
- let id, closing, binding: any, complete = false;
+ let id, closing, binding: any, complete = false, rewritten = false;
  try {
   for await (const record of readArchive(source)) {
-   if (record.kind === 'manifest') { const manifest = db ? await earlierManifest(db, record) : record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest); }
+   if (record.kind === 'manifest') {
+    const manifest = retireArchiveSetupToken((db ? await earlierManifest(db, record) : null) ?? record, portabilityPolicy.requiredConfiguration);
+    rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
+   }
    else if (record.kind === 'part') { binding.add(record); await service.imports.uploadPart(id, record.index, record); }
    else closing = record;
   }
   if (!closing) throw new Error('Archive closing record missing');
-  // A rewritten earlier manifest has new content and archive hashes;
+  // A migrated schema or retired setup token changes the content and archive hashes;
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
-  await service.imports.finalize(id, { archiveHash: binding.digest(), ...(db ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
+  await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }
 async function templateManifest(service:any){

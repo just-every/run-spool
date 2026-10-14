@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { isDeepStrictEqual } from 'node:util';
+import { ContentVerifier, ArchiveVerifier } from '../src/modules/portability/format.mjs';
 import { readArchive } from '../src/modules/portability/index.mjs';
 import { createHash } from 'node:crypto';
 import { canonical } from '../src/domain/privacy.ts';
@@ -36,4 +37,14 @@ export function assertLegacyUpgrade(actual,previous) {
  expected.sentry_project_aliases=expected.projects.map((project,index)=>({id:index+1,project:project.id}));
  const sorted=data=>Object.fromEntries(Object.entries(data).map(([table,rows])=>[table,rows.map(row=>canonical(row)).sort()]));
  assert.ok(isDeepStrictEqual(sorted(actual),sorted(expected)),'every original field and row survives; migrated event/map identities are legacy');
+}
+
+// Change fixture metadata with valid checksums so restore policy, not integrity, decides.
+export async function archiveConfiguration(text, configuration) {
+ const records=[];for await(const record of readArchive(new Response(text).body))records.push(record);
+ const manifest={...records[0],requiredConfiguration:configuration};
+ const parts=records.filter(record=>record.kind==='part');
+ const content=new ContentVerifier(manifest),binding=new ArchiveVerifier(manifest);
+ for(const part of parts){binding.add(part);for(const item of part.items)content.add(item)}
+ return [manifest,...parts,{kind:'closing',partCount:parts.length,contentHash:content.digest(),archiveHash:binding.digest()}].map(record=>JSON.stringify(record)).join('\n')+'\n';
 }
