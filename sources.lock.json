@@ -5337,7 +5337,7 @@
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
-      "sha256": "cfde1628f164381975ddd42b6a3c6b5f791709b66fb9471500032001609e4dfd",
+      "sha256": "89d01eccf0fbc99bd6a197b7c44dad69a1964b97906ccd703e59bbaab6bd9fd2",
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
