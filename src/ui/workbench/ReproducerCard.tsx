@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Details } from './Details';
 import { date, type Request } from './shared';
 
-export const outcomeLabel: Record<string, string> = { reproduced: 'Reproduced', not_reproduced: 'Not reproduced', failed: 'Failed' };
+export const outcomeLabel: Record<string, string> = { reproduced: 'Reproduced by your uploaded source', not_reproduced: 'Not reproduced by your uploaded source', failed: 'Failed' };
 const stateLabel: Record<string, string> = { queued: 'Queued, waiting for the runner', claimed: 'Running in the sandbox', expired: 'Expired before a report' };
 type Props = { project: string; reproducer: any; releases: any[]; busy: boolean; write: (work: () => Promise<unknown>) => Promise<void>; request: Request; onTicket: (ticket: any) => void };
 
@@ -34,6 +34,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
     {reproducer.runs.map((run: any) => <div key={run.id} className={`callout run ${run.outcome ?? run.state}`}>
       <strong>{run.outcome ? outcomeLabel[run.outcome] : stateLabel[run.state]}</strong> · release {run.release} · queued {date(run.created)}
       {run.reason && <p>{run.reason}</p>}
+      {run.outcome && run.outcome !== 'failed' && <p className="execution-meta">{run.basis}</p>}
       {!!run.checks.length && <ul className="run-checks">{run.checks.map((check: any) => <li key={check.check}>{check.passed ? '✓' : '✗'} {check.check.replace('_', ' ')}: expected {String(check.expected)}, observed {String(check.observed)}{check.required ? '' : ' (shown, not required)'}</li>)}</ul>}
       {run.tools && <p className="execution-meta">Tools: {run.tools.workerd}, Node {run.tools.node}, {run.tools.runner}</p>}
       {run.observation && <Details title="Sandbox observation"><pre>{JSON.stringify(run.observation, null, 2)}</pre></Details>}

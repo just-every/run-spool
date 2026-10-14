@@ -42,6 +42,10 @@ export async function connectedWorkflow(app,github,{issue,reproducer,run},id){
  await new Promise(resolve=>setTimeout(resolve,150));const second=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:opened.revision+1});
  const overlap=await second.json(),done=await first;github.state.delay=0;await done.body?.cancel();
  assert.deepEqual([done.status,second.status,/in progress/.test(overlap.error),github.requests.length-sent],[200,409,true,4],'concurrent advances run one step');
+ // A stale tab's advance loses its claim and takes no lease, so the current advance still runs.
+ const stale=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:(await workflow(app,issue,id)).revision-1});await stale.body?.cancel();
+ const fresh=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:(await workflow(app,issue,id)).revision});await fresh.body?.cancel();
+ assert.deepEqual([stale.status,fresh.status],[409,200],'a stale advance leaves no lease behind');
  const latest=await workflow(app,issue,id);
  // A provider answer broader than the grant is refused and revoked unused.
  github.state.broaden=true;const broad=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:latest.revision});github.state.broaden=false;
