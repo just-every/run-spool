@@ -1,6 +1,6 @@
 # Spool product direction — 10 October 2026
 
-Spool is the selected product identity. The current source is a local-first implementation of the JavaScript evidence workbench described below. The product source retains committed Base dispatch origin 558f57d9003a637667a181d147958a7f38a4ccb6; `src/**` is the independently edited authoritative application. Never regenerate it from the author scaffold.
+Spool is the selected product identity. The current source is a local-first implementation of the exception evidence workbench described below. The product source retains committed Base dispatch origin 558f57d9003a637667a181d147958a7f38a4ccb6; `src/**` is the independently edited authoritative application. Never regenerate it from the author scaffold.
 
 ## Intended outcome
 
@@ -8,7 +8,7 @@ A team can turn a JavaScript failure into inspectable evidence tied to its actua
 
 ## Current local product
 
-One independently operated installation, owner session, multiple project boundaries, browser capture and a documented Worker capture helper; bounded native JSON and supported Sentry JavaScript exception envelope/store intake through project-scoped DSNs (plus bounded OTLP/HTTP JSON error logs; no traces, metrics or general OTLP claim). Durable sanitized D1 events, versioned deterministic grouping, stable event IDs with retry conflict detection, explicit release/environment/build identities, authenticated artifact upload, actual source-map lookup, honest diagnostic reasons, owner triage and regression state. Read-only per-project agent evidence grant never confers write/admin authority. UI lists real stored data and honest empty states. Native archive export/restore and manual retention preview/apply are implemented.
+One independently operated installation, owner session, multiple project boundaries, browser capture and a documented Worker capture helper; bounded native JSON and supported Sentry JavaScript, Python and Go exception envelope/store intake through project-scoped DSNs (plus bounded OTLP/HTTP JSON error logs; no traces, metrics or general OTLP claim). Durable sanitized D1 events, versioned deterministic grouping, stable event IDs with retry conflict detection, explicit release/environment/build identities, authenticated artifact upload, actual source-map lookup, honest diagnostic reasons, owner triage and regression state. Read-only per-project agent evidence grant never confers write/admin authority. UI lists real stored data and honest empty states. Native archive export/restore and manual retention preview/apply are implemented.
 
 Current source also includes the source-map CLI/Rollup/Vite plugin, release/map-only project deploy keys, Spool's own installable SDK [`@just-every/spool`](packages/sdk/README.md) (browser with explicit scrubbed breadcrumbs, Node, Cloudflare Workers, plus that CLI and plugin; publication is an owner action), and an owner-only Base import-kit organization adapter with reviewed dry run, apply/resume and guarded undo. Unsupported Sentry telemetry is counted and discarded; supported evidence uses the native scrubber. Unmodified `@sentry/browser` and `@sentry/node` 11.6.0 verification programs exist, with executed results recorded separately; package pins alone are not runtime proof. Intake, tooling and fixture-qualified import await native and full-CI acceptance. No feature-parity or completed-migration claim may be made until a real owner export passes and is reconciled through the importer. Naming Sentry, Bugsnag and Rollbar as what Spool replaces on the homepage is the owner's decision of 12 Oct 2026. See [SENTRY-SWITCHING.md](docs/SENTRY-SWITCHING.md).
 
@@ -34,3 +34,5 @@ Research: combined four-product report and architecture scaffold, original Error
 ## Independent help requested
 
 Parent can allocate a read-only security/contract reviewer (permissions, privacy, map identity, loss), a grouping/privacy corpus author in tests/review-corpus only, and a UX reviewer of the 12ui candidates. No other agent should modify app/src or the acceptance gates without coordination. Local ports 15440–15479. No push, deploy, provider mutation or credentials beyond local synthetic setup.
+
+See [supported languages](docs/SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

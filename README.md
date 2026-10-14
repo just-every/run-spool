@@ -29,9 +29,9 @@
   <sub>A fixed error that comes back is flagged as a regression in its release.</sub>
 </p>
 
-# Spool · JavaScript evidence workbench
+# Spool · Exception evidence workbench
 
-Spool is a local-first, single-owner workbench for bounded JavaScript exception evidence across project-scoped applications. It stores sanitized events in D1 and supports issue grouping, release/build identity, source-map lookup, triage, scoped read-only evidence grants, private archive/restore, and explicit retention.
+Spool is a local-first, single-owner workbench for bounded JavaScript, Python and Go exception evidence across project-scoped applications. It stores sanitized events in D1 and supports issue grouping, release/build identity, source-map lookup, triage, scoped read-only evidence grants, private archive/restore, and explicit retention.
 
 Public source: [just-every/run-spool](https://github.com/just-every/run-spool), release 0.1.0. Licensed under the [MIT License](LICENSE).
 
@@ -39,9 +39,9 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 
 ## Run it on your computer
 
-Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.4`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
+Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.5`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
 
-With rer 0.2.4, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
+With rer 0.2.5, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
 
 ```sh
 rer install
@@ -90,7 +90,7 @@ Exact project browser-origin configuration, ingest-only CORS and credential-omit
 
 ### Already using Sentry? Point your DSN here
 
-Spool also implements project-scoped Sentry DSNs for supported JavaScript exception envelope and legacy store intake. Selected exception fields and breadcrumb labels pass the native scrubber; unsupported telemetry items are counted and discarded. The source includes verification programs using unmodified `@sentry/browser` and `@sentry/node` 11.6.0; executed results are recorded separately, and package pins alone do not prove runtime acceptance. The source-map CLI and Rollup/Vite plugin register releases and upload bounded flat maps using a project deploy key that grants only those two writes. The owner-only Base import-kit adapter offers reviewed dry run, apply/resume and guarded undo for a bounded organization export bundle; qualification is synthetic-fixture-only until a real owner export is reconciled. See [SENTRY-SWITCHING.md](docs/SENTRY-SWITCHING.md) for exact supported intake, artifact tooling, import format and rollback boundaries. The homepage says Spool is a 100% free, open source alternative to Sentry, Bugsnag and Rollbar, naming them only as what it replaces (owner decision, 12 Oct 2026); no feature-parity or completed-migration claim is made.
+Spool also implements project-scoped Sentry DSNs for supported JavaScript, Python and Go exception envelope and legacy store intake. Selected exception fields and breadcrumb labels pass the native scrubber; unsupported telemetry items are counted and discarded. The source includes verification programs using unmodified `@sentry/browser` and `@sentry/node` 11.6.0; executed results are recorded separately, and package pins alone do not prove runtime acceptance. The source-map CLI and Rollup/Vite plugin register releases and upload bounded flat maps using a project deploy key that grants only those two writes. The owner-only Base import-kit adapter offers reviewed dry run, apply/resume and guarded undo for a bounded organization export bundle; qualification is synthetic-fixture-only until a real owner export is reconciled. See [SENTRY-SWITCHING.md](docs/SENTRY-SWITCHING.md) for exact supported intake, artifact tooling, import format and rollback boundaries. The homepage says Spool is a 100% free, open source alternative to Sentry, Bugsnag and Rollbar, naming them only as what it replaces (owner decision, 12 Oct 2026); no feature-parity or completed-migration claim is made.
 
 
 ## Operating limits and privacy
@@ -116,3 +116,5 @@ Text bounds: normalized fields and headlines are at most 1,000 well-formed UTF-1
 `pnpm test:origins` runs isolated real HTTP/D1 origin, migration, concurrency, redirect, and archive checks without a browser. `pnpm run test:domain` explicitly omits browser journeys; it is not a replacement for full `pnpm verify`.
 
 The [triage guide](docs/triage.md) explains issue links, unseen priority, mapped stacks and first capture.
+
+See [supported languages](docs/SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

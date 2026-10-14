@@ -1,8 +1,8 @@
-# Switching JavaScript error intake to Spool
+# Switching exception intake to Spool
 
-Spool accepts bounded JavaScript exception evidence. This is not a claim of Sentry feature parity or a completed customer migration. Organization import is qualified with synthetic fixtures only. An owner-supplied real export must be reconciled before any Sentry-alternative claim.
+Spool accepts bounded JavaScript, Python and Go exception evidence. This is not a claim of Sentry feature parity or a completed customer migration. Organization import is qualified with synthetic fixtures only. An owner-supplied real export must be reconciled before any Sentry-alternative claim.
 
-Starting without Sentry? Spool's own SDK, [`@just-every/spool`](../packages/sdk/README.md), is the main way to send errors. This guide is for applications that already run a Sentry SDK.
+For JavaScript applications starting without Sentry, Spool's own SDK, [`@just-every/spool`](../packages/sdk/README.md), is the main way to send errors. This guide is for applications that already run a Sentry SDK.
 
 ## What moves
 
@@ -12,14 +12,14 @@ The full verify runs unmodified `@sentry/browser` and `@sentry/node` 11.6.0 with
 
 Transport limits are 256 KiB compressed gzip, 1 MiB expanded/uncompressed, 100 envelope items and 8 KiB per header. Item lengths are bytes; zero-length and binary unsupported items are valid. The entire framing is checked before any event is admitted. Supported encodings are identity and gzip. Query auth, `X-Sentry-Auth`, Bearer auth if supplied, and envelope DSN credentials must agree. The public key grants ingest only and a numeric DSN project alias is bound to one native project. Invalid, revoked or wrong-project keys and unauthorized browser origins cannot admit events. Ingest keys remain valid until revoked.
 
-The outermost reported exception supplies the stack. Frames are reversed from Sentry's oldest-first order and columns are converted from one-based to zero-based once. Spool requires at least one valid file/line/column frame. Message-only captures and frames without coordinates are rejected explicitly. Request/user/context/module/local-variable data is not persisted; selected exception fields and breadcrumb labels pass the existing scrubber. Debug metadata is matched against raw frame paths before query strings and private local paths are removed.
+The outermost reported exception supplies the stack. Frames are reversed from Sentry's oldest-first order and columns are converted from one-based to zero-based once. Spool requires at least one valid file/line frame; JavaScript also requires column, while Python/Go may omit it. Message-only captures and frames without coordinates are rejected explicitly. Request/user/context/module/local-variable data is not persisted; selected exception fields and breadcrumb labels pass the existing scrubber. Debug metadata is matched against raw frame paths before query strings and private local paths are removed.
 
 ## Register, upload, then change the DSN
 
 1. Create/select a project in Spool. Grant the application's exact origin (scheme, host and port). Obtain a project ingest DSN from the owner's project/key controls. Keep the former DSN in deployment configuration for rollback.
 2. Register the exact SDK `release` and `dist` before capture. Common names such as `web@1.2.0+commit` are accepted without rewriting. A missing `dist` has the explicit build identity `sentry-no-dist`, which must be registered. Missing `release` is rejected with `missing_release_register_required`; a DSN alone cannot invent deployment identity. Spool never infers the latest release. One release currently has one build; use distinct release names for distinct distributions.
 3. Create a project **deploy** key. It can only POST release registration and source maps to its project. It cannot read issues, ingest, change triage/rules/origins/settings/grants, create projects, export/import, or access another project. Put it in a CI environment variable, not application source or browser configuration.
-4. Build with flat Source Map V3 and source contents, then inject/upload before publishing application bytes. The Spool CLI uses the key by environment **name** and prints only upload counts:
+4. For JavaScript, build with flat Source Map V3 and source contents, then inject/upload before publishing application bytes. The Spool CLI uses the key by environment **name** and prints only upload counts:
 
    ```sh
    npx spool-sourcemaps --endpoint https://spool.example --project web \
@@ -118,3 +118,5 @@ Retained originals are private owner-only evidence, separate from scrubbed issue
 Source references: [envelope framing](https://develop.sentry.dev/sdk/foundations/envelopes/), [transport authentication](https://develop.sentry.dev/sdk/foundations/transport/authentication/), [11.6.0 SDK URL construction](https://github.com/getsentry/sentry-javascript/blob/11.6.0/packages/core/src/api.ts), [11.6.0 debug metadata](https://github.com/getsentry/sentry-javascript/blob/11.6.0/packages/core/src/utils/prepareEvent.ts).
 
 The exact prior-inventory Base JSONL formats (before and immediately after occurrence identities) uses the same 16 MiB compatibility bound as native v1/v2 files. Its original integrity is verified before normalization, and source identity, epoch and permanent erasure journal are retained. Current complete Base archives continue to stream without that whole-file compatibility bound.
+
+See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

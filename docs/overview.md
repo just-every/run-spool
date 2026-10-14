@@ -1,6 +1,6 @@
 # What Spool does
 
-Spool catches your JavaScript errors and points to the exact line in your own source. It runs on your own computer, it is free and open source under the MIT licence, and it has one owner: you.
+Spool records JavaScript, Python and Go exception locations. JavaScript source maps can locate original source; Python and Go retain reported source coordinates, with optional Go repository path mappings. It runs on your own computer, it is free and open source under the MIT licence, and it has one owner: you.
 
 ## How it works
 
@@ -22,3 +22,5 @@ Spool catches your JavaScript errors and points to the exact line in your own so
 - [Connect your app](capture.md) adds capture to your application and uploads source maps.
 - [Investigating an issue](triage.md) walks through the Issues list and an issue's stack trace.
 - [Hand it to your coding agent](agents.md) sets up a read-only agent key.
+
+See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

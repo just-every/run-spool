@@ -21,6 +21,7 @@ import { ownerAlert, ownerIssue } from './stored-text';
 import { portability, archiveStream, restoreStream } from './portability';
 import { PortabilityError } from '../modules/portability/index.mjs';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
+import { nativeBody } from './native-wire';
 import deployRoutes from './sentry/deploy-routes';
 import sentryRoutes from './sentry/routes';
 import otlpRoutes from './otlp/routes';
@@ -38,6 +39,11 @@ import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority'
 const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
+async function ingestRejection(c:any,response:Response) {
+  const result=await rejectedResponse(c.req.raw,response);
+  if(result.status===408||result.status===413)return c.json({outcome:'rejected',reason:result.status===408?'body_timeout':'body_limit'},result.status);
+  return result;
+}
 async function body(c:any,limit=32768) { const declared=Number(c.req.header('content-length')??0); if(declared>limit) throw new Error('Body exceeds limit'); const reader=c.req.raw.body?.getReader();if(!reader)throw new Error('Missing body');let size=0,chunks:Uint8Array[]=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();throw new Error('Body exceeds limit')}chunks.push(value)}const bytes=new Uint8Array(size);let pos=0;for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.length}return JSON.parse(new TextDecoder().decode(bytes)) }
 const record=(db:D1Database,project:string,reason:string)=>stmt(db,'INSERT INTO outcomes VALUES(?,?,?,1) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+1',project,Math.floor(now()/60000)*60000,reason).run();
 const mintCredential=(c:any,keyHash:string,project:string,kind:string)=>{const minter=c.get('minter');return stmt(c.env.DB,'INSERT INTO credentials(hash,project,kind,created,revoked,minted_by,minted_version) VALUES(?,?,?,?,NULL,?,?)',keyHash,project,kind,now(),minter?.id??null,minter?.version??null)};
@@ -78,12 +84,15 @@ api.post('/api/ingest/:project/exposure',exposureResponse);
 api.route('/api/sandbox',runnerRoutes);
 api.post('/api/ingest/:project',async c=>{
   const auth=await authorizeIngest(c,c.req.param('project'),c.req.header('authorization')?.replace(/^Bearer /,''));
-  if('response' in auth){
-    const response=await rejectedResponse(c.req.raw,auth.response);
-    if(response.status===408||response.status===413)return c.json({outcome:'rejected',reason:response.status===408?'body_timeout':'body_limit'},response.status);
-    return response;
-  }
-  try{const raw=await body(c);return admitEvent(c,auth.scope,normalize(raw),await hash(canonical(raw)))}catch(error){try{await recordIngest(c,auth.scope,(error as Error).message.includes('exceeds')?'oversized':'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return c.json({outcome:'rejected',reason:scrub((error as Error).message)},400)}
+  if('response' in auth)return ingestRejection(c,auth.response);
+  try{
+    const parsed=await nativeBody(c.req.raw);
+    if('rejected' in parsed){
+      try{await recordIngest(c,auth.scope,'oversized')}catch(failure){return ingestFailure(c,auth.scope,failure)}
+      return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as any));
+    }
+    return admitEvent(c,auth.scope,normalize(parsed.value),await hash(canonical(parsed.value)));
+  }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 api.route('/api/projects',deployRoutes);
 api.route('/api',sentryRoutes);
@@ -110,7 +119,7 @@ api.route('/api/projects/:project/reproducers',reproducerRoutes);
 api.route('/api/projects/:project/fixes',fixRoutes);
 api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
 api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
-api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at)) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments FROM releases WHERE project=? ORDER BY seq DESC`,c.req.param('project')).all()).results));
+api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at,'pathMappings',json((SELECT payload FROM deployment_path_mappings m WHERE m.project=d.project AND m.release=d.release AND m.environment=d.environment)))) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments FROM releases WHERE project=? ORDER BY seq DESC`,c.req.param('project')).all()).results));
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,'SELECT hash,kind,created,revoked FROM credentials WHERE project=?',c.req.param('project')).all()).results));
 api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await write(c,[mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});
 api.delete('/api/projects/:project/keys/:hash',async c=>{await write(c,[stmt(c.env.DB,'UPDATE credentials SET revoked=? WHERE project=? AND hash=?',now(),c.req.param('project'),c.req.param('hash')),audit(c.env.DB,c.req.param('project'),'key_revoked',{hash:c.req.param('hash')})]);return c.json({ok:true})});

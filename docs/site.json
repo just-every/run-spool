@@ -17,6 +17,11 @@
           "slug": "capture",
           "source": "docs/capture.md",
           "label": "Connect your app"
+        },
+        {
+          "slug": "supported-languages",
+          "source": "docs/SUPPORTED-LANGUAGES.md",
+          "label": "Python and Go exceptions"
         }
       ]
     },

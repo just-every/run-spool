@@ -14,7 +14,7 @@ export async function evaluateSpikes(env:AlertEnvironment,time:number) {
   for(let turn=0,start=rule.next_start;turn<4&&start+rule.window_ms<=time;turn++,start+=rule.window_ms) {
    const end=start+rule.window_ms;
    const issues=(await s(env.DB,`SELECT i.id,COUNT(*) count FROM events e JOIN issues i ON i.id=e.issue AND i.project=e.project
-    WHERE e.project=? AND ${eligible} AND e.received>=? AND e.received<? AND i.algorithm='js-frame-v1' AND i.state<>'suppressed' GROUP BY i.id HAVING COUNT(*)>=?`,rule.project,start,end,rule.threshold).all<{id:string;count:number}>()).results;
+    WHERE e.project=? AND ${eligible} AND e.received>=? AND e.received<? AND i.algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1') AND i.state<>'suppressed' GROUP BY i.id HAVING COUNT(*)>=?`,rule.project,start,end,rule.threshold).all<{id:string;count:number}>()).results;
    const jobs:D1PreparedStatement[]=[];
    for(const issue of issues) {
     const id=await hash(JSON.stringify(['spike',rule.id,rule.revision,issue.id,start]));
@@ -23,7 +23,7 @@ export async function evaluateSpikes(env:AlertEnvironment,time:number) {
     // headline from an earlier occurrence outside this wholly retained window.
     // Read that diagnostic text in the admission transaction, never before it.
     jobs.push(s(env.DB,`INSERT INTO alerts(id,project,issue,kind,created,payload) SELECT ?,project,id,'spike',?,json_set(?,'$.title',title,'$.window.count',${windowCount})
-     FROM issues WHERE id=? AND project=? AND algorithm='js-frame-v1' AND state<>'suppressed'
+     FROM issues WHERE id=? AND project=? AND algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1') AND state<>'suppressed'
      AND ${windowCount}>=?
      AND EXISTS(SELECT 1 FROM alert_cursors c JOIN alert_rules r ON r.id=c.rule_id AND r.revision=c.revision WHERE c.rule_id=? AND c.revision=? AND c.next_start=? AND r.enabled=1)
      ON CONFLICT(id) DO NOTHING`,id,end,payload,start,end,issue.id,rule.project,start,end,rule.threshold,rule.id,rule.revision,start),...routeStatements(env.DB,id,time,rule.id));

@@ -5,6 +5,7 @@ import { DEFECT_CLASS, mapModules, moduleName, recorded, RUNNER_PROTOCOL, SANDBO
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const INPUT_BYTES = 8192;
 export const UNSUPPORTED: Record<string, string> = {
+ capture_language_unsupported: 'Python and Go capture is evidence only; the reproducer runs JavaScript ES modules only.',
  imported_history: 'Imported history has no live capture or stored map to run against.',
  frame_not_mapped: 'The first frame does not map to original source through a stored source map.',
  source_content_missing: 'The stored map does not carry the source text of the mapped file.',
@@ -45,9 +46,10 @@ export async function classify(db: D1Database, project: string, eventId: string,
  const unsupported = (reason: string, event: any = null) => ({ issue: row.issue, support: 'unsupported' as const, reason, spec: { version: 1, defectClass: DEFECT_CLASS, event, reason: UNSUPPORTED[reason] } });
  if (row.historical === 1) return unsupported('imported_history');
  const stored = JSON.parse(row.payload);
- const envelope = normalize({ version: 1, eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment, type: stored.type, message: stored.message, frames: stored.frames, breadcrumbs: [] });
+ const envelope = normalize({ version: 1, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment, type: stored.type, message: stored.message, frames: stored.frames, breadcrumbs: [] });
  const [top] = await diagnose(db, project, envelope);
  const event = { id: row.id, release: row.release, build: row.build, environment: row.environment, type: envelope.type, message: envelope.message, frame: { generated: top.generated, status: top.status, ...(top.original ? { original: top.original } : {}) } };
+ if (envelope.language) return unsupported('capture_language_unsupported', {...event,language:envelope.language});
  if (top.status !== 'mapped') return unsupported('frame_not_mapped', event);
  if (!/\.m?js$/.test(top.original.file)) return unsupported('source_language_unsupported', event);
  const artifact = await query(db, 'SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?', project, row.release, row.build, top.generated.debugId).first<any>();

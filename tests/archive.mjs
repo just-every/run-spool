@@ -15,7 +15,7 @@ export async function archiveProjection(response) {
 // Deliberate native compatibility fixture, never the current roundtrip format.
 export function nativeArchive(data,version=2) {
  const rows=structuredClone(data);
- for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'])delete rows[table];
+ for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'])delete rows[table];
  delete rows.sentry_project_aliases;delete rows.sentry_import_targets;delete rows.alert_rules;delete rows.alert_history;delete rows.repairs;delete rows.repair_checks;delete rows.rer_erasure_operations;delete rows.rer_dependency_installation;delete rows.rer_dependency_link;for(const table of ['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'])delete rows[table];
  rows.events=rows.events.map(({occurrence,historical,...row})=>{if(historical)throw new Error('Historical imports require current Base JSONL');return row});
  rows.artifacts=rows.artifacts.map(({occurrence,...row})=>row);
@@ -28,7 +28,7 @@ export function nativeArchive(data,version=2) {
 }
 export function assertLegacyUpgrade(actual,previous) {
  const expected=structuredClone(previous);
- for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'])expected[table]=[];
+ for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'])expected[table]=[];
  expected.browser_origins??=[];
  for(const table of ['events','artifacts'])expected[table]=expected[table].map(row=>({...row,occurrence:'legacy'}));
  expected.events=expected.events.map(row=>({...row,historical:0}));

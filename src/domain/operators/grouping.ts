@@ -15,11 +15,11 @@ routes.post('/:project/corrections/preview',async c=>{
  const source=await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,b.source).first<any>();
  if(!source)return c.json({error:'Issue not found'},404);
  if(source.revision!==b.revision)return c.json({error:'Revision conflict'},409);
- if(source.algorithm!=='js-frame-v1')throw new Error('Imported history cannot be regrouped with live capture');
+ if(!['js-frame-v1','python-frame-v1','go-frame-v1'].includes(source.algorithm))throw new Error('Imported history cannot be regrouped with live capture');
  const id=crypto.randomUUID(),fingerprint=b.kind==='split'?await hash('operator-split:'+id):null,target=b.kind==='split'?await hash(project+':'+fingerprint):b.target;
  if(typeof target!=='string'||target===source.id)throw new Error('Choose a different target');
  const destination=b.kind==='merge'?await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,target).first<any>():null;
- if(b.kind==='merge'&&(!destination||destination.algorithm!=='js-frame-v1'))throw new Error('Target must be a live capture issue in this project');
+ if(b.kind==='merge'&&(!destination||!['js-frame-v1','python-frame-v1','go-frame-v1'].includes(destination.algorithm)))throw new Error('Target must be a live capture issue in this project');
  if(b.kind==='merge'&&destination.revision!==b.targetRevision)return c.json({error:'Target revision conflict'},409);
  const all=(await s(db,'SELECT id,occurrence,issue,historical FROM events WHERE project=? AND issue=? ORDER BY id LIMIT 201',project,source.id).all<any>()).results;
  const selected=b.kind==='split'?b.events:null;
@@ -40,12 +40,12 @@ routes.post('/:project/corrections/:id/:action',async c=>{
  const p:Plan=JSON.parse(row.plan),jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_corrections WHERE project=? AND id=? AND state=?)',project,id,row.state),...p.issues.map(i=>revision(db,project,i,undo))];
  if(p.kind==='split'){
   if(undo)jobs.push(guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=1 AND count=?)',project,p.target,p.moves.length));
-  else jobs.push(s(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen,latest_release_seq) SELECT ?,project,?,'js-frame-v1',title,'open',0,0,first_seen,last_seen,latest_release_seq FROM issues WHERE project=? AND id=?",p.target,p.fingerprint,project,p.issues[0].id));
+  else jobs.push(s(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen,latest_release_seq) SELECT ?,project,?,algorithm,title,'open',0,0,first_seen,last_seen,latest_release_seq FROM issues WHERE project=? AND id=?",p.target,p.fingerprint,project,p.issues[0].id));
  }
  for(const move of p.moves){
   jobs.push(guard(db,'EXISTS(SELECT 1 FROM events WHERE project=? AND id=? AND occurrence=? AND issue=? AND historical=0)',project,move.event,move.occurrence,undo?move.to:move.from));
   if(undo)jobs.push(guard(db,"EXISTS(SELECT 1 FROM event_grouping WHERE project=? AND event=? AND occurrence=? AND correction=? AND direction='apply')",project,move.event,move.occurrence,id));
-  else jobs.push(s(db,`INSERT INTO event_grouping(project,event,occurrence,original_issue,algorithm,basis,fingerprint,correction,direction) SELECT e.project,e.id,e.occurrence,i.id,i.algorithm,json_array(json_extract(e.payload,'$.type'),json_extract(e.payload,'$.frames[0].file'),json_extract(e.payload,'$.frames[0].function'),json_extract(e.payload,'$.frames[0].line')),i.fingerprint,?,'apply' FROM events e JOIN issues i ON i.id=e.issue WHERE e.project=? AND e.id=? ON CONFLICT(project,event,occurrence) DO NOTHING`,id,project,move.event));
+  else jobs.push(s(db,`INSERT INTO event_grouping(project,event,occurrence,original_issue,algorithm,basis,fingerprint,correction,direction) SELECT e.project,e.id,e.occurrence,i.id,i.algorithm,CASE WHEN json_extract(e.payload,'$.language') IS NULL THEN json_array(json_extract(e.payload,'$.type'),json_extract(e.payload,'$.frames[0].file'),json_extract(e.payload,'$.frames[0].function'),json_extract(e.payload,'$.frames[0].line')) ELSE json_array(json_extract(e.payload,'$.language'),json_extract(e.payload,'$.type'),json_extract(e.payload,'$.frames[0].file'),json_extract(e.payload,'$.frames[0].function'),json_extract(e.payload,'$.frames[0].line')) END,i.fingerprint,?,'apply' FROM events e JOIN issues i ON i.id=e.issue WHERE e.project=? AND e.id=? ON CONFLICT(project,event,occurrence) DO NOTHING`,id,project,move.event));
   jobs.push(s(db,'UPDATE events SET issue=? WHERE project=? AND id=? AND occurrence=?',undo?move.from:move.to,project,move.event,move.occurrence),s(db,'UPDATE event_grouping SET correction=?,direction=? WHERE project=? AND event=? AND occurrence=?',id,undo?'undo':'apply',project,move.event,move.occurrence));
  }
  const affected=[...p.issues.map(i=>i.id),...(p.kind==='split'?[p.target]:[])],headlines=await correctionHeadlines(db,project,affected,p.moves,undo);

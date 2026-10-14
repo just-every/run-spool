@@ -1,3 +1,4 @@
+import { sourceDiagnostics } from './path-mappings';
 import { TraceMap, originalPositionFor, decodedMappings } from '@jridgewell/trace-mapping';
 import { file, scrub, type Envelope } from './privacy';
 export function validateMap(map:any): string {
@@ -18,6 +19,7 @@ export function validateMap(map:any): string {
   const decoded=decodedMappings(new TraceMap(map));for(const line of decoded)for(const segment of line){if(![1,4,5].includes(segment.length)||segment.some(n=>!Number.isSafeInteger(n)||n<0||n>10000000)||(segment.length>=4 && (segment[1]!>=map.sources.length || segment[2]!>=10000000))||(segment.length===5 && segment[4]!>=map.names.length))throw new Error('Invalid decoded mapping');}return text;
 }
 export async function diagnose(db:D1Database, project:string, event:Envelope): Promise<any[]> {
+  if (event.language) return sourceDiagnostics(db,project,event);
   return Promise.all(event.frames.map(async frame=>{
     if(!frame.debugId) return {generated:frame,status:'missing_debug_id'};
     const row = await db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,frame.debugId).first<any>();
@@ -27,7 +29,7 @@ export async function diagnose(db:D1Database, project:string, event:Envelope): P
     }
     try {
       const map = JSON.parse(row.payload);
-      const original = originalPositionFor(new TraceMap(map),{line:frame.line,column:frame.column});
+      const original = originalPositionFor(new TraceMap(map),{line:frame.line,column:frame.column!});
       if(original.line===null) return {generated:frame,status:'unmapped_position',artifactDigest:row.digest};
       return {generated:frame,status:'mapped',original:{file:file(original.source??''),line:original.line,column:original.column,function:scrub(original.name??frame.function)},artifactDigest:row.digest};
     } catch { return {generated:frame,status:'invalid_artifact',artifactDigest:row.digest} }

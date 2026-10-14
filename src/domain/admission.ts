@@ -1,5 +1,5 @@
 import { policyMatch, matchArgs } from './operators/policies';
-import { normalize, hash, scrub, type Envelope } from './privacy';
+import { normalize, grouping, hash, scrub, type Envelope } from './privacy';
 import { diagnose } from './artifacts';
 import { ingestOrigin } from './origins';
 import { admissionAlerts, receivedAtSql } from './alerts/admission';
@@ -53,7 +53,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     if(!release||release.build!==event.build){await record('unregistered_release_or_build');return c.json({outcome:'rejected',reason:'unregistered_release_or_build',register:`/projects/${encodeURIComponent(project)}/releases`},422)}
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
-    const algorithm='js-frame-v1',top=event.frames[0],basis=JSON.stringify([event.type,top.file,top.function,top.line]),fingerprint=await hash(basis),issue=await hash(project+':'+fingerprint);
+    const {algorithm,basis}=grouping(event),fingerprint=await hash(basis),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const jobs=[
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),

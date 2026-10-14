@@ -6,7 +6,7 @@ import {canonical} from '../../src/domain/privacy.ts';
 // The declared pre-repair inventory also predates erasure receipts (0018),
 // identity links (0020), operator custody (0031) and execution (0032).
 const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
-const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'];
+const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'];
 const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
 const laterTables=[...repairTables,...operatorTables,...executionTables];
 // The archive an installation without repair history exports: the same rows in

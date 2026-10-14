@@ -1,0 +1,5 @@
+-- Repository path evidence belongs to an exact owner/deploy manifest, not a source map.
+CREATE TABLE deployment_path_mappings(project TEXT NOT NULL,release TEXT NOT NULL,environment TEXT NOT NULL,build TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(project,release,environment),FOREIGN KEY(project,release,environment) REFERENCES deployment_manifests(project,release,environment));
+CREATE TRIGGER portability_deployment_path_mappings_insert BEFORE INSERT ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;
+CREATE TRIGGER portability_deployment_path_mappings_update BEFORE UPDATE ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;
+CREATE TRIGGER portability_deployment_path_mappings_delete BEFORE DELETE ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;

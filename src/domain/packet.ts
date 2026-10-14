@@ -1,5 +1,5 @@
 import { observedDeployment } from './operators/deployments';
-import { hash } from './privacy';
+import { grouping, hash } from './privacy';
 import { diagnose } from './artifacts';
 import { canonical, normalize } from './privacy';
 import { clientDroppedSql, decodeIssueAttention, issueAttentionSql } from './issue-attention';
@@ -13,6 +13,10 @@ const EVENT_LIMIT = 10;
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 type Gap = { code: string; reason: string; [key: string]: unknown };
 const reasons: Record<string, string> = {
+ python_source: 'Python file, line and function are reported source coordinates; source content and symbolication are unavailable.',
+ go_path_mapped: 'This is owner-recorded repository path mapping only. Go binary/DWARF symbolication and source content are unavailable.',
+ go_mapping_unavailable: 'No repository path mapping is recorded for this exact project, release, build and environment. Go binary/DWARF symbolication is unavailable.',
+ go_path_unmatched: 'No recorded prefix matches this Go source path. Binary/DWARF symbolication is unavailable.',
  missing_debug_id: 'The generated frame has no debug identity to select a confidential source map.',
  missing_artifact: 'No source map is stored for this project, release, build and debug identity.',
  identity_mismatch: 'The debug identity exists, but its release or build does not match this event.',
@@ -34,7 +38,7 @@ function eventGaps(events: any[]): Gap[] {
      && canonical(frame.generated) === canonical(admitted.generated) ? 'mapped' : 'changed';
    });
    if (changes.includes('mapped')) gaps.push({ code: 'late_map', reason: 'The current source-map lookup resolves a frame that was missing, mismatched, unmapped or invalid at admission; atAdmission remains the original evidence snapshot.', event: event.id });
-   if (changes.includes('changed') || event.atAdmission.length !== event.currentLookup.length) gaps.push({ code: 'lookup_changed', reason: 'The current source-map lookup differs from the unchanged atAdmission snapshot. Available artifacts or lookup diagnostics may differ.', event: event.id });
+   if (changes.includes('changed') || event.atAdmission.length !== event.currentLookup.length) gaps.push({ code: 'lookup_changed', reason: 'The current source lookup differs from the unchanged atAdmission snapshot. Available artifacts, recorded path mappings or lookup diagnostics may differ.', event: event.id });
   }
   return gaps;
  });
@@ -63,13 +67,13 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   const stored = JSON.parse(row.payload);
   // Explicit envelope input prevents unknown stored properties from becoming
   // output; normalization preserves the admission privacy contract.
-  const event = normalize({ version: stored.version, eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment,
+  const event = normalize({ version: stored.version, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment,
    type: stored.type, message: stored.message, frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
   const currentLookup = row.historical === 1 ? atAdmission : diagnosticProjection(await diagnose(db, project, event));
-  const basis=JSON.stringify([event.type,event.frames[0].file,event.frames[0].function,event.frames[0].line]);
+  const basis=grouping(event).basis;
   const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
-  return { originalGrouping:{issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??issue.algorithm,basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event, atAdmission, currentLookup,
+  return { originalGrouping:{issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??(row.historical?issue.algorithm:grouping(event).algorithm),basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event, atAdmission, currentLookup,
    release: release(row), build: text(row.build), environment: text(row.environment) };
  }));
  const retention = auditRows.results.map(row => {
@@ -94,7 +98,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   verification: repairs.verification, repairs: repairs.repairs,
   grouping: issue.algorithm === 'sentry-import-v1'
    ? { algorithm: issue.algorithm, basis: 'exported organization, project and issue identity', limitations: 'Preserves exported groups; imported history does not join live capture or trigger alerts' }
-   : { algorithm: issue.algorithm, basis: 'exception type + first generated file/function/line; message and release excluded', limitations: 'generated bundle changes can split groups; no semantic merge claim' },
+   : { algorithm: issue.algorithm, basis: 'language (JavaScript legacy basis preserved) + exception type + first reported file/function/line; message and release excluded', limitations: 'reported path changes can split groups; no semantic merge claim' },
   deployments: {first:await observedDeployment(db,project,first),last:await observedDeployment(db,project,last)},
   releaseHistory: { basis: 'retained events ordered by received time, then event id; not the original history before retention or import', first: release(first), last: release(last) },
   links: { issue: `/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(id)}`, packet: `${root}/issues/${encodeURIComponent(id)}/packet`, outcomes: `${root}/outcomes` },

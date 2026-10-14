@@ -60,6 +60,7 @@ export function diagnosticProjection(rows: any) {
  return Array.isArray(rows) ? rows.slice(0, 30).map(row => ({ generated: frameProjection(row?.generated), status: text(row?.status),
   ...(row?.original ? { original: { file: file(typeof row.original.file === 'string' ? row.original.file : ''), line: number(row.original.line), column: number(row.original.column), function: text(row.original.function, 1000) } } : {}),
   ...(typeof row?.artifactDigest === 'string' ? { artifactDigest: text(row.artifactDigest) } : {}),
+  ...(row?.mapping ? {mapping:{from:file(row.mapping.from),to:file(row.mapping.to),repository:text(row.mapping.repository,512),commitSha:text(row.mapping.commitSha),release:text(row.mapping.release),build:text(row.mapping.build),environment:text(row.mapping.environment)}} : {}),
   ...(typeof row?.source === 'string' ? { source: text(row.source) } : {}),
  })) : [];
 }

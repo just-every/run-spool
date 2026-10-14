@@ -1,3 +1,4 @@
+import { mappingStatements } from '../path-mappings';
 import { Hono } from 'hono';
 import { deploymentInput } from '../operators/deployments';
 import type { Bindings } from '../../auth/bindings';
@@ -30,6 +31,7 @@ routes.post('/:project/releases',async c=>{
       ...(manifest?[
        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=?) OR EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=? AND commit_sha=? AND repository=? AND deployed_at=?) THEN 1 ELSE 0 END',project,name,manifest.environment,project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at),
        stmt(db,'INSERT INTO deployment_manifests VALUES(?,?,?,?,?,?,?) ON CONFLICT(project,release,environment) DO NOTHING',project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at,time),
+       ...mappingStatements(db,project,name,build,manifest.environment,manifest.pathMappings),
        stmt(db,"INSERT INTO audit SELECT ?,?,'deployment_registered',?,? WHERE changes()=1",crypto.randomUUID(),project,JSON.stringify({release:name,environment:manifest.environment}),time),
       ]:[]),
     ]);

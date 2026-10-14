@@ -65,3 +65,7 @@ The verdict is **Recurred** when the failure arrives from the fixed release afte
 ## Archives and erasure
 
 Reproducers, runs, fix workflows, receipts and exposure reports travel in owner archives and restore unchanged; run tokens do not, so a restored queued run can no longer be claimed. Project erasure deletes all of them, including run tokens.
+
+Python and Go capture is evidence only. Reproducer requests explicitly return unsupported for either language, including deceptive JavaScript file extensions and debug IDs.
+
+See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

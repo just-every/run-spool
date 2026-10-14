@@ -62,3 +62,5 @@ When you create a project, **Send test error** registers the release shown and s
 ## Already using Sentry? Point your DSN here
 
 Spool also accepts JavaScript errors from the unmodified Sentry browser and Node SDKs. Replace only the DSN with the one Spool shows for your project, and keep your release and dist settings. Spool keeps the exceptions and their stack traces; it does not keep sessions, traces, replays or attachments. The [switching guide](SENTRY-SWITCHING.md) has the details.
+
+See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

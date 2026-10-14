@@ -48,8 +48,8 @@ importers:
         specifier: 1.55.1
         version: 1.55.1
       '@runeditrun/rer':
-        specifier: 0.2.4
-        version: 0.2.4
+        specifier: 0.2.5
+        version: 0.2.5
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -967,8 +967,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@runeditrun/rer@0.2.4':
-    resolution: {integrity: sha512-nlSq/1BD+HreDHAnJQ8bck6FYqCYiBncGI9KLR0zmSHj4vL4Jue/KhaJrK3lm9UKE6F3RhYrMg9H07dJjlweXw==}
+  '@runeditrun/rer@0.2.5':
+    resolution: {integrity: sha512-Y/oIF+gag8MN/hQeOQ/RflsymZE/TcBljgZZpcIS/uJ3stdq++AyRUUQw/Ag+0tLaOw/0JP/nBXeqkg3i/wT5g==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -2718,7 +2718,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@runeditrun/rer@0.2.4': {}
+  '@runeditrun/rer@0.2.5': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:

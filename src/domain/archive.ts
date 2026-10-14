@@ -1,5 +1,6 @@
+import { pathMappings } from './path-mappings';
 import { operatorTables, operatorDefaults, operatorAuditKinds, validateOperators } from './operators/archive';
-import { hash, canonical, normalize, identity, scrub } from './privacy';
+import { grouping, hash, canonical, normalize, identity, scrub } from './privacy';
 import { validateMap } from './artifacts';
 import { EXPOSURE_LOSS } from './exposure/report';
 import { importedTables, legacyImportDefaults, validateImportedRows, importedDiagnostic } from './sentry-import/archive';
@@ -15,14 +16,26 @@ export const tables:Record<string,string[]>= {
 };
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
-function frame(value:any){shape(value,Object.prototype.hasOwnProperty.call(value??{},'debugId')?['file','line','column','function','debugId']:['file','line','column','function']);const normalized=normalize({version:1,eventId:'validation',release:'validation',build:'validation',environment:'validation',type:'Error',message:'',frames:[value],breadcrumbs:[]}).frames[0];if(canonical(normalized)!==canonical(value))throw new Error('Archive unsanitized frame');}
-function diagnostic(value:any,event:any){
+function frame(value:any,language?:any){shape(value,Object.prototype.hasOwnProperty.call(value??{},'debugId')?['file','line','column','function','debugId']:['file','line','column','function']);const normalized=normalize({version:1,...(language?{language}:{}),eventId:'validation',release:'validation',build:'validation',environment:'validation',type:'Error',message:'',frames:[value],breadcrumbs:[]}).frames[0];if(canonical(normalized)!==canonical(value))throw new Error('Archive unsanitized frame');}
+function diagnostic(value:any,event:any,data:any,project:string){
  if(!Array.isArray(value)||value.length!==event.frames.length)throw new Error('Archive diagnostic');
  for(let i=0;i<value.length;i++){
-  const d=value[i];if(!d||!['missing_debug_id','missing_artifact','identity_mismatch','unmapped_position','mapped','invalid_artifact'].includes(d.status))throw new Error('Archive diagnostic status');
-  const fields=['generated','status'];if(['mapped','unmapped_position','invalid_artifact'].includes(d.status))fields.push('artifactDigest');if(d.status==='mapped')fields.push('original');shape(d,fields);frame(d.generated);if(canonical(d.generated)!==canonical(event.frames[i]))throw new Error('Archive generated frame mismatch');
+  const d=value[i],language=event.language;
+  const statuses=language==='python'?['python_source']:language==='go'?['go_mapping_unavailable','go_path_unmatched','go_path_mapped']:['missing_debug_id','missing_artifact','identity_mismatch','unmapped_position','mapped','invalid_artifact'];
+  if(!d||!statuses.includes(d.status))throw new Error('Archive diagnostic status');
+  const fields=['generated','status'];if(['mapped','unmapped_position','invalid_artifact'].includes(d.status))fields.push('artifactDigest');if(d.status==='mapped')fields.push('original');
+  if(d.status==='python_source')fields.push('source');
+  if(d.status==='go_path_mapped')fields.push('source','original','mapping');
+  shape(d,fields);frame(d.generated,language);if(canonical(d.generated)!==canonical(event.frames[i]))throw new Error('Archive generated frame mismatch');
   if('artifactDigest' in d && !/^[a-f0-9]{64}$/.test(d.artifactDigest))throw new Error('Archive diagnostic digest');
-  if(d.status==='mapped'){shape(d.original,['file','line','column','function']);frame(d.original);}
+  if(d.original){shape(d.original,['file','line','column','function']);frame(d.original,language);}
+  if(d.status==='python_source'&&d.source!=='reported_source_path')throw new Error('Archive source provenance');
+  if(d.status==='go_path_mapped'){
+   shape(d.mapping,['from','to','repository','commitSha','release','build','environment']);
+   const m=d.mapping,record=data.deployment_path_mappings.find((r:any)=>r.project===project&&r.release===event.release&&r.build===event.build&&r.environment===event.environment),manifest=data.deployment_manifests.find((r:any)=>r.project===project&&r.release===event.release&&r.environment===event.environment);
+   const matches=record?pathMappings(JSON.parse(record.payload)).filter(p=>d.generated.file===p.from||d.generated.file.startsWith(p.from+'/')).sort((a,b)=>b.from.length-a.from.length):[];
+   if(!matches.length||m.from!==matches[0].from||m.to!==matches[0].to||m.repository!==manifest?.repository||m.commitSha!==manifest?.commit_sha||m.release!==event.release||m.build!==event.build||m.environment!==event.environment||d.source!=='owner_or_deploy_key_recorded'||d.original.file!==(m.to==='.'?d.generated.file.slice(m.from.length+1)||'.':m.to+d.generated.file.slice(m.from.length))||d.original.line!==d.generated.line||d.original.column!==d.generated.column||d.original.function!==d.generated.function||(d.original.file!=='.'&&/(^|\/)\.{1,2}(\/|$)/.test(d.original.file)))throw new Error('Archive mapping provenance');
+  }
  }
 }
 export async function validateArchive(v:any) {
@@ -58,8 +71,8 @@ export async function validateArchiveRows(data:any,legacy=false) {
   validateIssueReleases(data);
   const originals=await validateOperators(data);
   const occurrenceCounts=new Map<string,number>();for(const e of v.data.events)occurrenceCounts.set(e.issue,(occurrenceCounts.get(e.issue)??0)+1);
-  for(const row of v.data.issues){safeText(row.title);if(!/^[a-f0-9]{64}$/.test(row.id)||!/^[a-f0-9]{64}$/.test(row.fingerprint)||!Number.isSafeInteger(row.revision)||row.revision<1)throw new Error('Archive issue identity');if(!['open','acknowledged','resolved','suppressed'].includes(row.state)||!['js-frame-v1','sentry-import-v1'].includes(row.algorithm)||!Number.isSafeInteger(row.count)||row.count<0)throw new Error('Archive issue state');const count=occurrenceCounts.get(row.id)??0;if(count!==row.count)throw new Error('Archive aggregate mismatch');}
-  for(const row of v.data.events){validateOccurrence(row.occurrence);const event=normalize(JSON.parse(row.payload));if(JSON.stringify(event)!==row.payload||event.eventId!==row.id||event.release!==row.release||event.build!==row.build||event.environment!==row.environment||!/^[a-f0-9]{64}$/.test(row.digest))throw new Error('Archive event integrity');const r:any=releases.get(row.project+':'+row.release);if(!r||r.seq!==row.release_seq||r.build!==row.build)throw new Error('Archive release reference');if(row.historical){importedDiagnostic(JSON.parse(row.diagnostic),event);continue}diagnostic(JSON.parse(row.diagnostic),event);const basis=JSON.stringify([event.type,event.frames[0].file,event.frames[0].function,event.frames[0].line]);const fingerprint=await hash(basis);if(!originals.has(JSON.stringify([row.project,row.id,row.occurrence]))&&((issues.get(row.issue) as any).fingerprint!==fingerprint||await hash(row.project+':'+fingerprint)!==row.issue))throw new Error('Archive grouping mismatch');}
+  for(const row of v.data.issues){safeText(row.title);if(!/^[a-f0-9]{64}$/.test(row.id)||!/^[a-f0-9]{64}$/.test(row.fingerprint)||!Number.isSafeInteger(row.revision)||row.revision<1)throw new Error('Archive issue identity');if(!['open','acknowledged','resolved','suppressed'].includes(row.state)||!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-import-v1'].includes(row.algorithm)||!Number.isSafeInteger(row.count)||row.count<0)throw new Error('Archive issue state');const count=occurrenceCounts.get(row.id)??0;if(count!==row.count)throw new Error('Archive aggregate mismatch');}
+  for(const row of v.data.events){validateOccurrence(row.occurrence);const event=normalize(JSON.parse(row.payload));if(JSON.stringify(event)!==row.payload||event.eventId!==row.id||event.release!==row.release||event.build!==row.build||event.environment!==row.environment||!/^[a-f0-9]{64}$/.test(row.digest))throw new Error('Archive event integrity');const r:any=releases.get(row.project+':'+row.release);if(!r||r.seq!==row.release_seq||r.build!==row.build)throw new Error('Archive release reference');if(row.historical){importedDiagnostic(JSON.parse(row.diagnostic),event);continue}diagnostic(JSON.parse(row.diagnostic),event,data,row.project);const basis=grouping(event).basis;const fingerprint=await hash(basis);if(!originals.has(JSON.stringify([row.project,row.id,row.occurrence]))&&((issues.get(row.issue) as any).algorithm!==grouping(event).algorithm||(issues.get(row.issue) as any).fingerprint!==fingerprint||await hash(row.project+':'+fingerprint)!==row.issue))throw new Error('Archive grouping mismatch');}
   for(const row of v.data.artifacts){validateOccurrence(row.occurrence);const payload=validateMap(JSON.parse(row.payload));if(payload!==row.payload||await hash(payload)!==row.digest)throw new Error('Archive artifact integrity');const r:any=releases.get(row.project+':'+row.release);if(!r||r.build!==row.build)throw new Error('Archive artifact release');}
   for(const row of v.data.outcomes)if(!['accepted','duplicate','conflict','unauthorized','invalid','oversized','rejected','rate_limited','budget','storage_failure','unregistered_release_or_build','missing_release_register_required','sentry_unsupported_session','sentry_unsupported_performance','sentry_unsupported_attachment','sentry_unsupported_client_report','sentry_unsupported_replay','sentry_unsupported_profile','sentry_unsupported_feedback','sentry_unsupported_check_in','sentry_unsupported_other_telemetry','sentry_unsupported_unknown',...EXPOSURE_LOSS].includes(row.reason)||!Number.isSafeInteger(row.count)||row.count<0||!Number.isSafeInteger(row.window))throw new Error('Archive loss accounting');
   for(const row of v.data.alerts)if(!['new_issue','regression'].includes(row.kind)||!Number.isSafeInteger(row.created))throw new Error('Archive alert');

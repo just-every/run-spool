@@ -99,7 +99,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
    async function poll(){
     for(let i=0;i<1200;i++){
      if(item.item.spawnError)throw item.item.spawnError;
-     if(item.child.exitCode!==null||item.item.settled)throw new Error('Managed server exited before readiness; private output withheld');
+     if(item.child.exitCode!==null||item.item.settled)throw new Error('Managed server exited before readiness: '+JSON.stringify({exitCode:item.child.exitCode,...classifyCommandOutput(item.output(),args[0])}));
      if(item.output().split('\n').some(line=>{try{return JSON.parse(line).event==='ready'}catch{return false}})){
       item.diagnostic.readinessObserved=true;
       assert.equal((await fetch(origin+'/health')).status,200);item.diagnostic.healthChecked=true;

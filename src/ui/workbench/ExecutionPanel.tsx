@@ -11,7 +11,7 @@ const root = (project: string) => `/api/projects/${encodeURIComponent(project)}`
 export function ExecutionPanel({ project, issue, event, busy, request, run }: Props) {
   const [reproducers, setReproducers] = useState<any[] | null>(null), [fixes, setFixes] = useState<any>(null), [releases, setReleases] = useState<any[]>([]), [failed, setFailed] = useState(false);
   const [exported, setExported] = useState(''), [input, setInput] = useState('[]'), [ticket, setTicket] = useState<any>(null), [problem, setProblem] = useState('');
-  const live = issue.algorithm === 'js-frame-v1';
+  const live = ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm);
   async function load() {
     try {
       const query = `?issue=${encodeURIComponent(issue.id)}`;

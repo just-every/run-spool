@@ -23,7 +23,7 @@ Setup asks for the real first owner's email or reads it from the declared setup 
 
 ## Product and source boundaries
 
-Spool is a local-first JavaScript evidence product with one owner identity and isolated projects. `src/**` is authoritative. Retained Base and family source records provenance; never regenerate or re-export product code over the application. Keep lowercase API and asset paths, package scope/name, seed ID, and edition/source identities stable.
+Spool is a local-first JavaScript, Python and Go evidence product with one owner identity and isolated projects. `src/**` is authoritative. Retained Base and family source records provenance; never regenerate or re-export product code over the application. Keep lowercase API and asset paths, package scope/name, seed ID, and edition/source identities stable.
 
 Every private API handler must enforce the current owner session or its exact project grant itself, including direct transport calls; a route guard alone is insufficient. The HTTP dispatcher in `src/base/dispatch.ts` selects handler ownership but does not authenticate requests or catch failures. Keep actual Worker handlers and named exports in `src/server.ts`. Keep secrets in server-only modules. There are no private TanStack Start server functions; if one is added, use a server-only module and a dynamic import inside its handler, then prove unauthenticated direct transport is rejected.
 

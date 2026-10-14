@@ -18,7 +18,7 @@ export function validateRepairArchive(data: any) {
  assert(Array.isArray(data.repairs) && Array.isArray(data.repair_checks));
  const issues = new Map<string, any>(data.issues.map((row: any) => [row.id, row])), repairs = new Map<string, any>(), checks = new Set<string>();
  for (const r of data.repairs) {
-  shape(r, repairFields); uuid(r.id); assert(!repairs.has(r.id) && issues.get(r.issue)?.project === r.project && issues.get(r.issue).algorithm === 'js-frame-v1');
+  shape(r, repairFields); uuid(r.id); assert(!repairs.has(r.id) && issues.get(r.issue)?.project === r.project && ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issues.get(r.issue).algorithm));
   integer(r.snapshot_revision); integer(r.snapshot_release_seq); integer(r.revision, 1); integer(r.created); integer(r.updated);
   const events = JSON.parse(r.snapshot_events); assert(Array.isArray(events) && events.length <= 10 && events.every((id: any) => typeof id === 'string' && /^[a-zA-Z0-9._:-]{1,100}$/.test(id)));
   assert(repairLink(r.link) === r.link); safe(r.note, 1000); time(r.approved); time(r.merged);
