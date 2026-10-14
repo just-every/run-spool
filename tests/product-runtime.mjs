@@ -28,6 +28,7 @@ let worker,captureWorker,browser,miniflare;
 async function start(state,migrate=true){
  if(!process.argv.includes('--wrangler-proxy')){
   const log=new Log(LogLevel.INFO);log.log=message=>output.add(message+'\n');
+  const bindings=authBindings(origin);if(!migrate)delete bindings.SETUP_TOKEN; // An existing hosted owner has retired the bootstrap token.
   // Miniflare permits a missing asset directory; this fixture requires the real build.
   if(!(await stat(config.assets.directory)).isDirectory())throw new Error('Emitted asset directory is required');
   const emittedModules=(await readdir('dist/server',{recursive:true}))
@@ -37,7 +38,7 @@ async function start(state,migrate=true){
    log,handleStructuredLogs:({message})=>output.add(message+'\n'),
    name:config.name,modules:[{type:'ESModule',path:config.main},...emittedModules],
    modulesRoot:resolve('dist/server'),compatibilityDate:config.compatibility_date,
-   compatibilityFlags:config.compatibility_flags,bindings:{...authBindings(origin)},
+   compatibilityFlags:config.compatibility_flags,bindings,
    assets:miniflareAssets(config),
    d1Databases:{DB:config.d1_databases[0].database_id},
    resourcePersistencePath:resolve(state,'v3'),host:'127.0.0.1',port
