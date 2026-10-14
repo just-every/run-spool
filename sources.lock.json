@@ -5381,7 +5381,7 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "2ef8ccc471ad53205b700339544456c7a859ac0764f8350975ae1fb0c757b077",
+      "sha256": "8841440be2dcd57c3e3888571070c695258a0b45bdbf9e7e076a19879e020740",
       "executable": false
     },
     "tests/alerts/native-journey.mjs": {
