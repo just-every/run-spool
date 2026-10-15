@@ -1,3 +1,4 @@
+import { admissionBasis } from '../bundle-grouping';
 import { pathMappings } from '../path-mappings';
 import { canonical, grouping, hash, scrub } from '../privacy';
 import { deploymentInput } from './deployments';
@@ -38,7 +39,7 @@ export async function validateOperators(data:any){
  for(const r of data.event_grouping){
   const key=JSON.stringify([r.project,r.event,r.occurrence]),event=events.get(key),change=corrections.get(r.correction),original=issues.get(r.original_issue);
   assert(event&&!event.historical&&['js-frame-v1','python-frame-v1','go-frame-v1'].includes(r.algorithm)&&digest(r.fingerprint)&&original?.project===r.project&&original.fingerprint===r.fingerprint&&r.original_issue===await hash(r.project+':'+r.fingerprint));
-  const payload=JSON.parse(event.payload),basis=grouping(payload).basis;
+  const payload=JSON.parse(event.payload),basis=await admissionBasis(payload,original,data.grouping_routes);
   assert(r.algorithm===grouping(payload).algorithm&&original.algorithm===r.algorithm&&r.basis===basis&&await hash(basis)===r.fingerprint&&change?.project===r.project&&['apply','undo'].includes(r.direction)&&change.state===(r.direction==='apply'?'applied':'undone'));
   const move=change.plan.moves.find((m:any)=>m.event===r.event&&m.occurrence===r.occurrence);assert(move&&event.issue===(r.direction==='apply'?move.to:move.from));
   originals.set(key,r);
@@ -47,7 +48,7 @@ export async function validateOperators(data:any){
  for(const r of data.suppression_policies){assert(uuid(r.id)&&Number.isSafeInteger(r.revision)&&r.revision>0&&[0,1].includes(r.enabled)&&integer(r.created)&&integer(r.updated));policyInput({...r,enabled:r.enabled===1})}
  for(const r of data.event_suppressions){
   const e=events.get(JSON.stringify([r.project,r.event,r.occurrence]));assert(e&&!e.historical);const reasons=JSON.parse(r.reasons);assert(Array.isArray(reasons)&&reasons.length>0&&reasons.length<=20);
-  const event=JSON.parse(e.payload),fp=await hash(grouping(event).basis);
+  const event=JSON.parse(e.payload),original=originals.get(JSON.stringify([r.project,r.event,r.occurrence])),issue=issues.get(original?.original_issue??e.issue),fp=await hash(original?.basis??await admissionBasis(event,issue,data.grouping_routes));
   const seen=new Set();for(const reason of reasons){fields(reason,['id','revision','field','mode','value']);const p=data.suppression_policies.find((p:any)=>p.id===reason.id&&p.project===r.project);assert(p&&integer(reason.revision)&&reason.revision>0&&reason.revision<=p.revision&&!seen.has(reason.id));seen.add(reason.id);policyInput({...reason,enabled:true});const value=reason.field==='fingerprint'?fp:reason.field==='release'?e.release:event.message;assert(reason.mode==='exact'?value===reason.value:value.includes(reason.value));}
  }
  for(const r of data.deployment_manifests){assert(data.releases.some((release:any)=>release.project===r.project&&release.name===r.release)&&integer(r.created)&&integer(r.deployed_at));const normalized=deploymentInput({commitSha:r.commit_sha,repository:r.repository,deployedAt:new Date(r.deployed_at).toISOString(),environment:r.environment});assert(canonical(normalized)===canonical({commit_sha:r.commit_sha,repository:r.repository,deployed_at:r.deployed_at,environment:r.environment}))}

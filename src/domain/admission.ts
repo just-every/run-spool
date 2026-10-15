@@ -1,5 +1,6 @@
 import { policyMatch, matchArgs } from './operators/policies';
-import { normalize, grouping, hash, scrub, type Envelope } from './privacy';
+import { normalize, hash, scrub, type Envelope } from './privacy';
+import { captureGrouping } from './bundle-grouping';
 import { diagnose } from './artifacts';
 import { ingestOrigin } from './origins';
 import { admissionAlerts, receivedAtSql } from './alerts/admission';
@@ -53,11 +54,15 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     if(!release||release.build!==event.build){await record('unregistered_release_or_build');return c.json({outcome:'rejected',reason:'unregistered_release_or_build',register:`/projects/${encodeURIComponent(project)}/releases`},422)}
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
-    const {algorithm,basis}=grouping(event),fingerprint=await hash(basis),issue=await hash(project+':'+fingerprint);
+    const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const jobs=[
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
+      ...(route?[
+       stmt(db,'INSERT INTO grouping_routes VALUES(?,?,?,?) ON CONFLICT(project,fingerprint) DO NOTHING',project,route.fingerprint,issue,basis),
+       stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM grouping_routes WHERE project=? AND fingerprint=? AND issue=? AND basis=?) THEN 1 ELSE 0 END',project,route.fingerprint,issue,basis),
+      ]:[]),
       startCaptureHistory(db,project,issue,time),
       stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,?,?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,release.seq,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),

@@ -1,3 +1,4 @@
+import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
@@ -65,6 +66,7 @@ const executionMigration='0032_execution.sql';
 const leaseMigration='0033_fix_leases.sql';
 const mappingTables = ['deployment_path_mappings'];
 const mappingMigration = '0034_source_paths.sql';
+const bundleNames=Object.keys(bundleTables),bundleMigration='0035_bundle_grouping.sql';
 const laterTables = [
  { tables: mappingTables, migrations: [leaseMigration,mappingMigration] },
  { tables: [...executionArchiveTables,...mappingTables], migrations: [executionMigration, leaseMigration,mappingMigration] },
@@ -74,7 +76,8 @@ const laterTables = [
   { tables: [...operatorNames,...erasureArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0018_erasure.sql', ...linkMigrations] },
   { tables: [...operatorNames,...erasureArchiveTables, ...repairArchiveTables, ...linkArchiveTables], migrations: [operatorMigration,'0016_repairs.sql', '0018_erasure.sql', ...linkMigrations] },
  ].map(later => ({ tables: [...later.tables, ...executionArchiveTables,...mappingTables], migrations: [...later.migrations, executionMigration, leaseMigration,mappingMigration] })),
-];
+].map(later=>({tables:[...later.tables,...bundleNames],migrations:[...later.migrations,bundleMigration]}));
+laterTables.unshift({tables:bundleNames,migrations:[bundleMigration]});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

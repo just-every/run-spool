@@ -16,7 +16,7 @@ export const projectErasure = defineErasure({
  root: { table: 'projects' },
  edges: [
   ...['events', 'issues', 'releases', 'artifacts', 'outcomes', 'credentials', 'browser_origins', 'browser_origin_guards', 'sentry_project_aliases',
-   'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
+   'grouping_routes', 'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
    'reproducers', 'reproducer_runs', 'reproducer_run_tokens', 'fix_workflows', 'fix_leases', 'fix_receipts', 'exposures'].map(fromProject),
   { table: 'alert_mail_attempts', from: 'alert_mail_jobs', on: { delivery_id: 'id' } },
   // Development mail captured for this project's alert deliveries.

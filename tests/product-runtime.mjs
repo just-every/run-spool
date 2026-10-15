@@ -1,5 +1,6 @@
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
+import { bundleGroupingFlow } from './bundle-grouping.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {authBindings,signIn,browserSignIn} from './auth.mjs';
@@ -149,6 +150,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  for(const [index,message] of ['a@b.test '.repeat(111),'token=x '.repeat(125),'😀'.repeat(500)].entries())await json('/api/ingest/web','POST',{...event,eventId:'expanded-title-'+index,message,frames:[{...event.frames[0],function:'expandedTitle'+index}]},auth);
  await json('/api/ingest/web','POST',{...event,eventId:'combined-type-scrub',type:'token',message:'synthetic-value',frames:[{...event.frames[0],function:'combinedScrub'}]},auth);
  await operatorFlow({req,json});
+ const bundleRetention=await bundleGroupingFlow({json});
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 
@@ -162,6 +164,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  assert.equal((await req('/api/restore','POST',await archiveConfiguration(emptyArchive.text,[...retiredConfiguration,'UNEXPECTED_CONFIGURATION']))).status,400,'retiring bootstrap configuration does not permit unrelated inventory changes');
  assert.deepEqual(await json('/api/projects'),[],'configuration refusal preserves an empty destination');
  await json('/api/restore','POST',await archiveConfiguration(archive.text,retiredConfiguration));await setupLocation(true);const restored=await json('/api/archive');assert.ok(isDeepStrictEqual(restored.data,archive.data),'private domain rows match exactly');
+ await bundleRetention();
  const before=await json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:false});assert.ok(before.events>0);
  await json('/api/projects/web/retention','POST',{cutoff:retentionCutoff,apply:true});const retainedPacket=await json(`/api/projects/web/issues/${older.issue}/packet`);assert.equal(retainedPacket.issue.count,1);assert.equal(retainedPacket.issue.title,'TypeError: RETAINED_NEW_CONTEXT');assert.ok(!JSON.stringify(retainedPacket).includes('RETENTION_OLD_CONTEXT'));
  const retainedArchive=await json('/api/archive');await stop();cookie='';await start(resolve(temporary,'state-c'));await login();await json('/api/restore','POST',retainedArchive.text);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,retainedArchive.data),'private domain rows match exactly');

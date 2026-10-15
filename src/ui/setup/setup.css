@@ -17,6 +17,11 @@
 .setup-content .form-field{font-size:16px;font-weight:400}
 .setup-content .primary-button{min-height:52px;padding:0 44px;font-size:17px}
 .setup-note{font-size:16px}
+.setup-alternative{display:block;margin-top:28px;padding-top:20px;border-top:var(--rule)}
+.setup-alternative p{margin-bottom:10px}
+.setup-content .evidence{margin:0;padding:0;border:0}
+.setup-content .evidence input[type=file]{max-width:100%}
+.setup-content .evidence .primary-button{display:block;height:auto;margin-top:16px;padding:14px 20px;white-space:normal}
 .setup-key{margin:24px 0 8px;padding:14px 16px;border:var(--card-border);border-radius:var(--radius-input)}
 .setup-key label{display:block;margin-bottom:8px;font-size:16px}
 .setup-key textarea{display:block;width:100%;min-height:58px;padding:12px 16px;resize:none;field-sizing:content;background:var(--mark);border:0;border-radius:3px;font:400 17px/1.5 var(--font-code);color:var(--ink);overflow-wrap:anywhere}

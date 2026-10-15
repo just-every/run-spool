@@ -51,13 +51,23 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
 
 Each bundle needs its `.map` next to it. Both register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The tool prints only how many maps it uploaded, and a failed upload fails your build.
 
-## Keys for anything outside this checkout
-
-While Spool runs as `rer dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that your application can use, start Spool with `rer dev --login` instead. It prints a sign-in link: open it, choose the newest message in the local outbox and follow its one-use link. Keys you create in that session work anywhere.
-
 ## 4. Check it works
 
 When you create a project, **Send test error** registers the release shown and sends one real error with the new key. The **Capture** page can also send a test exception with your ingest key. It appears in **Issues**, with its stack mapped to your original source once the matching map is uploaded.
+
+## Keys for anything outside this checkout
+
+The default `rer dev` owner persona marks ingest, deploy and agent keys as dev-minted. Those keys require the checkout's private dev gate on each request, so copying them into a separate application can return `invalid_ingest_key`.
+
+To connect an external app, build or agent:
+
+1. Stop the current runtime with Ctrl+C or `rer dev --stop`.
+2. Run `rer dev --login` from the Spool checkout.
+3. Open its private `RER_OPEN` outbox link, choose the newest sign-in message and follow its one-use link. If needed, request a new message at the printed `RER_SIGN_IN` address and run `rer outbox` in another terminal. Local sign-in sends no email.
+4. Open Settings and create replacement keys for the intended project. An ingest key sends events; a deploy key registers releases and uploads maps; an agent key reads that project's evidence. None grants owner administration.
+5. Put the new ingest key in your app's SDK configuration and the deploy key in your build's private environment. Register the release/build and allow your app's exact browser origin before capture. Replace the old dev-minted keys in every external client.
+
+Ordinary keys created after this sign-in do not need the dev gate; their project and operation scopes still apply. Keep `RER_OPEN` and the dev gate private to the checkout: the gate can open the owner persona. Browser capture deliberately omits credentials, so do not try to share that gate with your app. Hosted keys created through ordinary email sign-in use the same project scopes.
 
 ## Already using Sentry? Point your DSN here
 

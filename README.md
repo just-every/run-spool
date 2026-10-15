@@ -39,34 +39,32 @@ Spool runs locally on a Cloudflare Worker and D1 through Wrangler. Operator-auth
 
 ## Run it on your computer
 
-Clone the source with `git clone https://github.com/just-every/run-spool.git spool` and `cd spool`. Start with **Node 22 or later** and **git**, and install public rer with `npm install -g @runeditrun/rer@0.2.5`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. The public command order is:
-
-With rer 0.2.5, `rer install` bootstraps the pinned pnpm itself. You do not need to install pnpm or add it to PATH.
+Start with **Node 22 or later** and **git**, on macOS, Linux or Windows with WSL2. Install rer once per computer:
 
 ```sh
-rer install
-rer setup
-rer dev
-rer outbox
-rer verify
-rer reset --yes
-rer export --target local --output exports/spool.jsonl
-rer import --target local --input exports/spool.jsonl --yes
-rer deploy --dry-run
-rer describe
+curl -fsSL https://runeditrun.com/install.sh | sh
 ```
 
-Use this order with care on a populated installation: export before reset to preserve evidence, and import only into an empty destination. Setup asks for the real owner's email or reads declared setup answers; keep it and secrets out of shell arguments. Setup generates private managed secrets, applies additive local migrations, claims or preserves the one owner, requests ordinary sign-in and stops its temporary app. It creates no sample project and sends no email. For older state, follow [OPERATIONS.md](OPERATIONS.md#existing-installation-recovery).
+Or use `npm install -g @runeditrun/rer`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes; you do not need pnpm on PATH. Then follow the [Run page](https://run-spool.com/run):
 
-Dev stays in the foreground and prints the health-ready application URL. `rer dev` opens signed in: it prints `RER_SIGNED_IN` (the owner) and `RER_OPEN`, a link that carries this checkout's private dev key in its fragment. Open `RER_OPEN` in a browser on this computer and you land signed in as the owner; a small dev badge switches to the `member` persona (a signed-in operator who is not the owner) or signs out. Never share the link: the key is what keeps the outbox and dev sign-in closed to anything that reaches this port through a proxy or tunnel, and `reset` removes the key so every earlier browser session stops working. `--as member` (or `--as signed-out`) starts as another persona, and `--login` turns dev identity off so dev prints `RER_SIGN_IN` and a key-carrying `RER_OPEN` for the outbox instead: choose the newest message and follow its one-use link (no email is sent). Previews open the outbox the same way. `RER_OPEN` is for people at this terminal; scripts use `rer dev --json` or the key header. The sign-in form works before JavaScript loads. Keys minted in a dev session are dev-minted and refused without the dev key; use `dev --login` to mint keys for a client outside this checkout. After confirmation, a fresh installation opens `/setup`; create the first project, copy its once-shown ingest key, add the Spool SDK with the shown install line and init, use **Send test error**, and explicitly continue to the workbench. The key stays only in page memory; replace a lost key in Settings. Register the release/build before capture.
+```sh
+git clone https://github.com/just-every/run-spool.git spool
+cd spool && rer dev
+```
+
+`rer dev` installs everything, makes you the owner and prints a link that opens Spool signed in. It prompts for the owner's email when needed. For maintenance, `rer install` and `rer setup` are available separately, along with `rer outbox`, `rer verify`, `rer export`, `rer import`, `rer reset --yes`, `rer deploy --dry-run` and `rer describe`.
+
+On a populated installation, export before reset to preserve evidence, and import only into an empty destination. Setup asks for the real owner's email or reads declared setup answers; keep it and secrets out of shell arguments. Setup generates private managed secrets, applies additive local migrations, claims or preserves the one owner, requests ordinary sign-in and stops its temporary app. It creates no sample project and sends no email. For older state, follow [OPERATIONS.md](OPERATIONS.md#existing-installation-recovery).
+
+Dev stays in the foreground and prints the health-ready application URL. `rer dev` opens signed in: it prints `RER_SIGNED_IN` (the owner) and `RER_OPEN`, a link that carries this checkout's private dev key in its fragment. Open `RER_OPEN` in a browser on this computer and you land signed in as the owner; a small dev badge switches to the `member` persona (a signed-in operator who is not the owner) or signs out. Never share the link: the key is what keeps the outbox and dev sign-in closed to anything that reaches this port through a proxy or tunnel, and `reset` removes the key so every earlier browser session stops working. `--as member` (or `--as signed-out`) starts as another persona, and `--login` turns dev identity off so dev prints `RER_SIGN_IN` and a key-carrying `RER_OPEN` for the outbox instead: choose the newest message and follow its one-use link (no email is sent). Previews open the outbox the same way. `RER_OPEN` is for people at this terminal; scripts use `rer dev --json` or the key header. The sign-in form works before JavaScript loads. Keys minted in a dev session are dev-minted and refused without the dev key; follow the [ordinary-key steps](docs/capture.md#keys-for-anything-outside-this-checkout) to mint keys for an external app, build or agent through `rer dev --login`. A fresh installation opens `/setup`; choose **Restore a private archive** to restore before creating a project, or create the first project, copy its once-shown ingest key, add the Spool SDK with the shown install line and init, use **Send test error**, and explicitly continue to the workbench. The key stays only in page memory; replace a lost key in Settings. Register the release/build before capture.
 
 Stop dev with its matching `--stop` command before verify, reset or transfer. Preview serves fixed production output; dev supports HMR. Both preserve the same owner and D1 state, and requested ports override runtime origins without rewriting saved settings. [RUN-LOCALLY.md](RUN-LOCALLY.md) describes idle timeout, capacity and the shared job queue. `describe` lists supported verbs and flags.
 
-Export includes private maps and browser-origin policy but excludes owner/auth state, grants, outbox and transient state. Import requires an empty domain database and creates no owner or grants; run setup and create new keys after restoring. Existing or restored projects complete first run, including after restart. Reset removes only its displayed local inventory and preserves source, exports and deployment receipts. Deploy and release dry runs are local checks. Actual accounts, mail sender configuration, deployment, installs, receipts, tags and publication remain owner actions.
+Export includes private maps and browser-origin policy but excludes owner/auth state, grants, outbox and transient state. Import requires an empty domain database and creates no owner or grants; run setup if the destination has no owner and create new keys after restoring. Browser restore is available from `/setup` before the first project and Settings thereafter. For CLI import of a browser download, first run `chmod 600 /path/to/spool-private-archive.jsonl`; see [the transfer procedure](OPERATIONS.md#data-movement-and-retention). Existing or restored projects complete first run, including after restart. Reset removes only its displayed local inventory and preserves source, exports and deployment receipts. Deploy and release dry runs are local checks. Actual accounts, mail sender configuration, deployment, installs, receipts, tags and publication remain owner actions.
 
 ## Run it on your Cloudflare account
 
-[docs/HOSTED.md](docs/HOSTED.md) deploys this checkout to your own Cloudflare account with `rer deploy`, which claims the hosted owner and retires the deployed one-time setup token, and updates it to newer source later (export, `git pull --ff-only`, `rer install`, `rer deploy` to the same environment, `node scripts/hosted.mjs check`).
+[docs/HOSTED.md](docs/HOSTED.md) deploys this checkout to your own Cloudflare account with `rer deploy`, which claims the hosted owner and retires the deployed one-time setup token, and covers removal with `rer deploy --remove --yes --environment production` from the original deploying checkout with its private deployment receipt. It also updates to newer source later (export, `git pull --ff-only`, `rer install`, `rer deploy` to the same environment, `node scripts/hosted.mjs check`).
 
 ## Capture protocol
 

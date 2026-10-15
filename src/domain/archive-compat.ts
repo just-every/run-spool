@@ -1,3 +1,4 @@
+import { bundleDefaults } from './bundle-grouping';
 import { operatorDefaults } from './operators/archive';
 import { readArchive, canonicalJson, PortabilityError } from '../modules/portability/index.mjs';
 import { validateArchiveRows } from './archive';
@@ -44,7 +45,7 @@ export async function normalizePreviousArchive(previous:Awaited<ReturnType<typeo
   requireMatch(canonicalJson(old.columns)===canonicalJson(columns)&&canonicalJson(old.dependencies)===canonicalJson(target.dependencies)&&old.rowidAlias===target.rowidAlias,'legacy_column_inventory');
  }
  const upgraded=Object.fromEntries(Object.entries(previous.data).map(([table,rows])=>[table,rows.map(row=>Object.hasOwn(row,'occurrence')?row:upgradeOccurrence(table,row))]));
- const legacy=await validateArchiveRows(operatorDefaults(legacyIssueReleases(legacyImportDefaults(upgraded))));
+ const legacy=await validateArchiveRows(bundleDefaults(operatorDefaults(legacyIssueReleases(legacyImportDefaults(upgraded)))));
  const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  return {data,manifest:{...current,sourceIdentity:previous.manifest.sourceIdentity,epoch:previous.manifest.epoch,journal:previous.manifest.journal,exportedAt:previous.manifest.exportedAt}};
 }

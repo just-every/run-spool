@@ -2,24 +2,18 @@
 
 ## Run it locally
 
-From the checkout root, follow this command order:
+Follow the public first-run instructions:
 
-Use Node 22 or later, git and the installed public `rer` (`npm install -g @runeditrun/rer`). rer supplies the declared Node 22.20.0 and pnpm 10.12.4 pins. The command list is the public order, not a script to replay blindly on a populated installation: export data before any reset when you need to preserve it, and import only into an empty destination.
+Use Node 22 or later and git, on macOS, Linux or Windows with WSL2. Install public rer once per computer with `curl -fsSL https://runeditrun.com/install.sh | sh` or `npm install -g @runeditrun/rer`. rer supplies the declared Node 22.20.0 and pnpm 10.12.4 pins. The public first-run path matches `/run`:
 
 ```sh
-rer install
-rer setup
-rer dev
-rer outbox
-rer verify
-rer reset --yes
-rer export --target local --output exports/spool.jsonl
-rer import --target local --input exports/spool.jsonl --yes
-rer deploy --dry-run
-rer describe
+git clone https://github.com/just-every/run-spool.git spool
+cd spool && rer dev
 ```
 
-Setup asks for the real first owner's email or reads it from the declared setup answers; do not put the address or secrets in shell arguments. It applies local migrations, claims or preserves the one owner, requests an ordinary sign-in message and stops its temporary app. Dev stays in the foreground and prints its health-ready URL. `rer dev` opens signed in: it prints `RER_SIGNED_IN` (the owner) and `RER_OPEN`, a link that carries this checkout's private dev key in its fragment. Open `RER_OPEN` in a browser on this computer and you land signed in as the owner; a small dev badge switches to the `member` persona (a signed-in operator who is not the owner, so the workbench stays closed to it) or signs out. Never share the link: the key is what keeps the outbox and dev sign-in closed to anything that reaches this port through a proxy or tunnel, and `reset` removes the key so every earlier browser session stops working. `--as member` (or `--as signed-out`) starts as another persona, and `--login` turns dev identity off so dev prints `RER_SIGN_IN` and a key-carrying `RER_OPEN` for the outbox instead: choose the newest message and follow its one-use link (no email is sent). Previews open the outbox the same way. `RER_OPEN` is for people at this terminal; scripts use `rer dev --json` or the key header. Run `outbox` in another terminal while dev is live to print the outbox link again. Credentials minted in a dev session (ingest, agent and deploy keys) are recorded as dev-minted and work only on a request that holds the key; mint them with `dev --login` when a client outside this checkout needs one. Stop dev before verify, reset or data transfer. Reset is destructive to the displayed local installation inventory. Export reads a stopped local installation; import requires an empty destination and creates no owner or project grants. Use the deploy dry run to build and validate locally; it makes no provider request. Run `rer describe` for other supported commands and flags.
+In an existing checkout, run `rer dev`. It installs dependencies and prepares the owner when needed. `rer install` and `rer setup` remain available separately. Use `rer describe` for supported maintenance commands; export before destructive reset and import only into an empty destination.
+
+Setup asks for the real first owner's email or reads it from the declared setup answers; do not put the address or secrets in shell arguments. It applies local migrations, claims or preserves the one owner, requests an ordinary sign-in message and stops its temporary app. Dev stays in the foreground and prints its health-ready URL. `rer dev` opens signed in: it prints `RER_SIGNED_IN` (the owner) and `RER_OPEN`, a link that carries this checkout's private dev key in its fragment. Open `RER_OPEN` in a browser on this computer and you land signed in as the owner; a small dev badge switches to the `member` persona (a signed-in operator who is not the owner, so the workbench stays closed to it) or signs out. Never share the link: the key is what keeps the outbox and dev sign-in closed to anything that reaches this port through a proxy or tunnel, and `reset` removes the key so every earlier browser session stops working. `--as member` (or `--as signed-out`) starts as another persona, and `--login` turns dev identity off so dev prints `RER_SIGN_IN` and a key-carrying `RER_OPEN` for the outbox instead: choose the newest message and follow its one-use link (no email is sent). Previews open the outbox the same way. `RER_OPEN` is for people at this terminal; scripts use `rer dev --json` or the key header. Run `outbox` in another terminal while dev is live to print the outbox link again. Credentials minted in a dev session (ingest, agent and deploy keys) are recorded as dev-minted and work only on a request that holds the key; for an external app, build or agent, stop dev, run `rer dev --login`, open its private outbox link, follow the newest ordinary sign-in message, and create replacement project keys in Settings. See docs/capture.md for the exact steps and grant scopes. Stop dev before verify, reset or data transfer. Reset is destructive to the displayed local installation inventory. Export reads a stopped local installation; import requires an empty destination and creates no owner or project grants. Fresh browser restore is available from `/setup` before project creation; browser-downloaded private archives need `chmod 600` before CLI import. Hosted removal is `rer deploy --remove --yes` (add `--environment <name>` to select the deployed environment; default `production`) from the original deploying checkout with its retained private deployment receipt. Use the deploy dry run to build and validate locally; it makes no provider request. Run `rer describe` for other supported commands and flags.
 
 ## Product and source boundaries
 
