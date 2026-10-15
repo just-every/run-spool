@@ -4,7 +4,7 @@ export type AlertEnvironment = {
  DB: D1Database; ALERT_DESTINATIONS?: string; ALERT_PUBLIC_ORIGIN?: string;
  ALERT_DESTINATION_HASH_KEY?: string; INTEGRATION_EGRESS?: TrustedTransport;
  MAIL_PROVIDER?: string; MAIL_FROM?: string; MAIL_API_KEY?: string; MAIL_ACCOUNT_ID?: string;
- AUTH_LOCAL?: string; AUTH_ORIGIN?: string;
+ AUTH_LOCAL?: string; AUTH_ORIGIN?: string; RER_DEMO?: string;
 };
 export type Rule = { id:string; project:string; revision:number; name:string; enabled:number;
  channel:'mail'|'webhook'; destination:string; kinds:string; window_ms:number; threshold:number; created:number; updated:number };

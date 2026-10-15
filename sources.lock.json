@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "parent": null,
   "edition": "just-every/spool",
-  "manifest": "e717985e3668208583849b0f8ee5d59ea64d59d1adfcfcf268f1fc21377bcd15",
+  "manifest": "6a80741141d7259b8976535528ad6312754c1761555421d206884c245602e2da",
   "toolchain": {
     "id": "runeditrun/edition-authoring",
     "version": "1.1.0",
@@ -48,7 +48,12 @@
           "src/identity.ts",
           "src/site",
           "vite.site.config.ts",
-          "deploy-site.json"
+          "deploy-site.json",
+          "src/demo.ts",
+          "src/demo",
+          "deploy-demo.json",
+          "DEMO.md",
+          ".github/workflows/run-demo.yml"
         ]
       },
       "baseline": null
@@ -1942,6 +1947,16 @@
         "digest": "3641d12b81cb779663dc964f4acb6dffd91eeded0e6f52b89bc26a76a0ec81f1",
         "sha256": "e3d5adf5e1c5e9b380d8b2e8005c433f99ca9cd6f304af6efaf76c321866df1d"
       }
+    },
+    {
+      "id": "runeditrun/demo",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/modules/demo"
+        ]
+      },
+      "baseline": null
     }
   ],
   "files": {
@@ -1971,6 +1986,10 @@
     },
     ".github/workflows/rer-managed.yml": {
       "sha256": "4438b6e2ab1aa8eac1ccb92a7a6063ed222ac3b8575417824951e80a0bf4c40a",
+      "executable": false
+    },
+    ".github/workflows/run-demo.yml": {
+      "sha256": "444a94a08a4fa7a8b903081cfdd5d19d0d763b70d86ad928f8d83ecc8aedbccb",
       "executable": false
     },
     ".github/workflows/run-site.yml": {
@@ -2006,7 +2025,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "e0b59fa7a203dfa498afda5355356a2512c6d2764c0448d833f7ff4cd07e6525",
+      "sha256": "74e6b0acd36a4406c450e5f78d9007c68743dc6a917954508d432ba2b0cb66f9",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2021,12 +2040,20 @@
       "sha256": "bc92ad9a0d03e2c0d7a2b00aeeded518a5cb3ee9f58e7a8221f0c0273cbbde06",
       "executable": false
     },
+    "DEMO.md": {
+      "sha256": "15ffeca1379256c579c943edc26f12cb3e92874975d30d4fd80d5867832ca45d",
+      "executable": false
+    },
+    "deploy-demo.json": {
+      "sha256": "8d2406ab8a440b0a320b1636e9f866517e40541614d08817ee9615f960e0855f",
+      "executable": false
+    },
     "deploy-site.json": {
       "sha256": "73643b6c2fed03822eb26e9e9ef4d1aa4dd09b86326562a918891686cfca6bb6",
       "executable": false
     },
     "deploy.json": {
-      "sha256": "92ffdb57b96da81d89c18e711576ef9168ad240e0fda59d70395b396c311f7b8",
+      "sha256": "d6bfae7ca845e77752ddabee5632023fc310066d4a051e14fb6b7580e09518a1",
       "executable": false
     },
     "design/ALIGNMENT.md": {
@@ -2314,7 +2341,7 @@
       "executable": false
     },
     "edition.json": {
-      "sha256": "e717985e3668208583849b0f8ee5d59ea64d59d1adfcfcf268f1fc21377bcd15",
+      "sha256": "6a80741141d7259b8976535528ad6312754c1761555421d206884c245602e2da",
       "executable": false
     },
     "HANDOVER.md": {
@@ -2486,7 +2513,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "735e09de89dcff8e7bf085a88cdb851c1e5f6ede9b66d0f0123d187f44e9bccb",
+      "sha256": "6b06a25400bf287e0aab966470cd1814e670d48f7d8f641c0cd0db67802f7a03",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2582,7 +2609,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "3ba90915099c20e58f573d43589297b842361ee7ca2ebb4cf2b8431bfa187896",
+      "sha256": "efd0136111efa9da2330133deea30c465b5f12404ad16529c02e5f997ede0654",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -2926,7 +2953,7 @@
       "executable": false
     },
     "src/auth/bindings.ts": {
-      "sha256": "c0694948b11a9797b2d3c9e709e0556c5497506d062649f05a30f6e0fc584a41",
+      "sha256": "835b899c6dce08b2538deedfdcd2c021b75f9eb2fb405a8aa0bc2a9122e6c2cf",
       "executable": false
     },
     "src/auth/dev-personas.ts": {
@@ -2946,7 +2973,7 @@
       "executable": false
     },
     "src/auth/mail.server.mjs": {
-      "sha256": "876acf8bd1a9db1a2cefc7e866cd7a5ea49bccbec70d879e0bd1f214741436f9",
+      "sha256": "04f144f04347fb3def073238a442883cde7ad074acc73a282c4de8b01bd85f16",
       "executable": false
     },
     "src/auth/oidc-presentation.server.ts": {
@@ -3041,6 +3068,18 @@
       "sha256": "df944caeaf62db214b4835b7b7556fa3d9c3b2d7aed46cfd82995b94098154bd",
       "executable": false
     },
+    "src/demo.ts": {
+      "sha256": "1015362d2e31e13036d8f90bb3ce2cb5b7d40c2c6bcab9434ae9a3ff99f3b338",
+      "executable": false
+    },
+    "src/demo/data.ts": {
+      "sha256": "6f7598243b63bd2e5fa3a3d816a6c0309f6fb60fc2ed2f26792440ac0948790c",
+      "executable": false
+    },
+    "src/demo/environment.ts": {
+      "sha256": "c2f9a2c4390e65ef98669c1c375e29bfdf8905ead0f036f930d581aceff4e2d0",
+      "executable": false
+    },
     "src/domain/admission.ts": {
       "sha256": "8a16e1ba030501d76d8704a184fc47b1e1a1f054c592a40f515d74bdd2087961",
       "executable": false
@@ -3066,7 +3105,7 @@
       "executable": false
     },
     "src/domain/alerts/destinations.server.ts": {
-      "sha256": "828febe0208bdd7efea7748e9806dad0e2da074e25f0765b721ea343a15f282a",
+      "sha256": "3bba5ceb95f1d23100991516c46046e96a5ef7af1b3013bc9e06f09245964db0",
       "executable": false
     },
     "src/domain/alerts/dispatch.ts": {
@@ -3074,7 +3113,7 @@
       "executable": false
     },
     "src/domain/alerts/mail.ts": {
-      "sha256": "5b51dd293c63af9623908f2e2851e48049c91c2deb67dddf198693db0afc91ed",
+      "sha256": "7b4d08100c715874683edc8beb34556616c7d541d2abdef5c1eccfb09002dac4",
       "executable": false
     },
     "src/domain/alerts/payload.ts": {
@@ -3098,7 +3137,7 @@
       "executable": false
     },
     "src/domain/alerts/types.ts": {
-      "sha256": "0c498d581a9f06c651a7aa66e5f1ad4dcf0430ad278ff332d7fd20aa466fa4ec",
+      "sha256": "ac6fd129a685588cf4c7c76aeffc46dedb42e02dc7623eaac65734a63f4ff079",
       "executable": false
     },
     "src/domain/alerts/webhook.server.ts": {
@@ -3462,7 +3501,7 @@
       "executable": false
     },
     "src/editor/owner-claim.server.ts": {
-      "sha256": "4fb72d7a32c6751d053d2348e7eaf2d534ed135c4312d287695d50c701bc3b80",
+      "sha256": "dd090c1afa9979d6510294c531be0df1c1d5e368e8cc1dcb6e9b653a74621ede",
       "executable": false
     },
     "src/editor/OwnerEditor.tsx": {
@@ -3483,6 +3522,30 @@
     },
     "src/identity.ts": {
       "sha256": "7e9bd6e7275044062c3b74bfe615ae8f63e44ea18d336c07ddb22c53e0cf3fab",
+      "executable": false
+    },
+    "src/modules/demo/index.d.mts": {
+      "sha256": "2fe3e8715a0b41cc931dbc31a0a73a01a8ddfd8363334f32ebc8978854016e22",
+      "executable": false
+    },
+    "src/modules/demo/index.mjs": {
+      "sha256": "29d0e4d44d0542febc29bc2f8c7447fdc3a5fdd80aebda2a3485de0e4b594a3e",
+      "executable": false
+    },
+    "src/modules/demo/README.md": {
+      "sha256": "2c79b0a5a4c1998f7bdd8638a442159c4eb3cb0eee07032d67d521347751b9f7",
+      "executable": false
+    },
+    "src/modules/demo/sockets.mjs": {
+      "sha256": "be9978b79f3aeef305c6e6fa36ce041b7bda559941c6c377bc4cc2b19506177b",
+      "executable": false
+    },
+    "src/modules/demo/vite.d.mts": {
+      "sha256": "f43b152b4a993feaf96afdbc276922bfa20d64725ea0150a12ec6ec805a7c7b3",
+      "executable": false
+    },
+    "src/modules/demo/vite.mjs": {
+      "sha256": "e38556e50c954814ee8e12278babd627d5cdd051a7ea2c242a61d6c5d84d12f8",
       "executable": false
     },
     "src/modules/dependencies/approval.mjs": {
@@ -5130,7 +5193,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "e026988e7d2872e4217aefced2e30031a7202efef51f82a6f2f49f347d8f558b",
+      "sha256": "bd04d2ccc65959d5f37f888b844dc85d736a5642c89c5a6f68ec299070537179",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -5810,7 +5873,7 @@
       "executable": false
     },
     "vite.config.ts": {
-      "sha256": "bca5e6a74ad8dc3838d75e8516d0da39a1c289541adc0c48daec09aa6467bbcf",
+      "sha256": "f8dc73128361909600df084a5b3ca3d9f727e6f7722a9ef9db6c7ef4250065f9",
       "executable": false
     },
     "vite.site.config.ts": {

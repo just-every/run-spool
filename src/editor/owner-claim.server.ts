@@ -11,7 +11,7 @@ export async function ownerClaimResponse(request: Request, env: ManagedBindings)
     branding: { productName: 'Spool', accentColor: '#cb541f', signInPath: '/sign-in' } },
    clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
    issuer: env.RER_OWNER_CLAIM_ISSUER!, installationId: env.RER_OWNER_CLAIM_INSTALLATION_ID!,
-   appOrigin: env.RER_OWNER_CLAIM_APP_ORIGIN!, expectedEmail: env.OWNER_EMAIL,
+   appOrigin: env.RER_DEMO === '1' ? env.AUTH_ORIGIN : env.RER_OWNER_CLAIM_APP_ORIGIN!, expectedEmail: env.OWNER_EMAIL,
    publicKeys: JSON.parse(env.RER_OWNER_CLAIM_PUBLIC_KEYS ?? 'null'),
   })(request);
   return response ?? new Response('Not found', {status: 404});
