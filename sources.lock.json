@@ -5801,7 +5801,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "db0f6d21eeda848356790199b401bc85b5d340362a1a69e4439f3ddfeede9603",
+      "sha256": "2f327b6985ef78d9b572fa37bf4e2fb3323e7fe4f438b1693deb3057fcb2e1d2",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
