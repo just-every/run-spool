@@ -8,8 +8,9 @@ export async function mappingArchive(text,edit=()=>{},previous=false){
  for(const part of records.filter(r=>r.kind==='part'))for(const item of part.items)rows[item.table].push(item.row);
  edit(rows);
  if(previous){
-  manifest.tables=manifest.tables.filter(t=>t.name!=='deployment_path_mappings');
-  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>name!=='0034_source_paths.sql');
+  // The pre-mapping archive also predates stable bundle grouping routes.
+  manifest.tables=manifest.tables.filter(t=>!['deployment_path_mappings','grouping_routes'].includes(t.name));
+  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0034_source_paths.sql','0035_bundle_grouping.sql'].includes(name));
   manifest.schema=await sha256(canonicalJson(manifest.tables.map(({name,sql})=>({name,sql}))));
  }
  const items=[];for(const table of manifest.tables){table.count=rows[table.name].length;for(const [index,row] of rows[table.name].entries())items.push({kind:'row',table:table.name,index,row,...(table.rowidAlias?{rowid:index+1}:{})});}
