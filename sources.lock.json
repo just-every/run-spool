@@ -5725,7 +5725,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "c69b9b13bb392dab024fd60aa0f154ca8d7caead2b8511fbeba631e4ac768de2",
+      "sha256": "c2fd034956f1002e54ad66fbcb836c1ab7eb3fedb187a053ffdb2a0f8d0d28d7",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -5741,7 +5741,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "c1662c19ea756ce70822523655668a92de1eeff8a5071288c51a63ac1fd2e354",
+      "sha256": "ad1b22ff48a90bf60db9c3171b12e3daea2cc7e007a0b7ce8baa029d2ce37f91",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -5801,7 +5801,7 @@
       "executable": false
     },
     "tests/auth.mjs": {
-      "sha256": "0912b986657dd5a1ee9243746a71fd952e59b494c8e9529ff50e804708fff7f0",
+      "sha256": "1a9d0d954e600f149caec273f3b2fd739a5f8f8da68a946425998df61c3027d3",
       "executable": false
     },
     "tests/browser-launch.mjs": {
@@ -6029,7 +6029,7 @@
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
-      "sha256": "7efac25a9789e82fa21f4dd8b636621b81510ac2643287e201d9771fe01128c7",
+      "sha256": "99c9e05969c6cd1096f00a18a4fd437f5a598c0bfacf67243a8e0a3aa321c1c9",
       "executable": false
     },
     "tests/repair-recovery/packet.mjs": {

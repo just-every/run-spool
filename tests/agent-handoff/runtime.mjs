@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import {cp,readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
+import {parseEnv} from 'node:util';
 import {execFileSync} from 'node:child_process';
 import {classifyCommandOutput} from '../command-diagnostics.mjs';
 import {commandCheckout} from '../command-runner.mjs';
-import {gate,testOwner} from '../auth.mjs';
+import {gate,testOwner,signIn} from '../auth.mjs';
 import {archiveProjection} from '../archive.mjs';
 // The command harness clones HEAD. Overlay current tracked inputs and the new
 // agent package so this journey tests the candidate, including uncommitted edits.
@@ -38,7 +39,7 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
    // A body that is not JSON (an HTML error page from the dev server) is reported as it arrived.
    try{body=JSON.parse(text)}catch{throw Error(`${args[1]??'GET'} ${args[0]}: HTTP ${r.status} ${r.headers.get('content-type')??'no content type'}, not JSON: ${text.replace(/\s+/g,' ').trim().slice(0,1500)}`)}
    const category=['destination_configuration','destination_unconfigured','Invalid alert rule fields','Invalid alert rule','Invalid alert event selection','Invalid alert window or revision'].includes(body.error)?body.error:'other';throw Error(`${args[1]??'GET'} ${args[0]}: HTTP ${r.status} ${category}`)}return r.json();}
-  const runtime={checkout,origin,get cookie(){return cookie},get devKey(){return gate.key},request,json,startDev,stopDev,async resetRestore(text,invalidText){await stopDev();await checkout.command(['reset','--yes']);await checkout.command(['setup','--owner-email',testOwner,'--port',String(port)]);await configure();await startDev();if(invalidText){const before=await archiveProjection(await request('/api/archive'));const rejected=await request('/api/restore','POST',invalidText,{headers:{'X-Confirm-Restore':'yes'}});assert.equal(rejected.status,400,'unknown stored alert field refused by public restore');await rejected.body?.cancel();assert.deepEqual((await archiveProjection(await request('/api/archive'))).data,before.data,'unknown-field restore mutates no domain rows');}await json('/api/restore','POST',text,{headers:{'X-Confirm-Restore':'yes'}});},archive:async()=>archiveProjection(await request('/api/archive')),async close(){let failure;try{await stopDev();}catch(error){failure=error}const result=await checkout.close();assert.equal(result.children,'stopped');assert.equal(result.directory,'removed');if(failure)throw failure;return result;}};return runtime;
+  const runtime={checkout,origin,async ordinarySession(){return signIn(origin,{bootstrap:false,sessionSecret:parseEnv(await readFile(settings,'utf8')).SESSION_SECRET});},get cookie(){return cookie},get devKey(){return gate.key},request,json,startDev,stopDev,async resetRestore(text,invalidText){await stopDev();await checkout.command(['reset','--yes']);await checkout.command(['setup','--owner-email',testOwner,'--port',String(port)]);await configure();await startDev();if(invalidText){const before=await archiveProjection(await request('/api/archive'));const rejected=await request('/api/restore','POST',invalidText,{headers:{'X-Confirm-Restore':'yes'}});assert.equal(rejected.status,400,'unknown stored alert field refused by public restore');await rejected.body?.cancel();assert.deepEqual((await archiveProjection(await request('/api/archive'))).data,before.data,'unknown-field restore mutates no domain rows');}await json('/api/restore','POST',text,{headers:{'X-Confirm-Restore':'yes'}});},archive:async()=>archiveProjection(await request('/api/archive')),async close(){let failure;try{await stopDev();}catch(error){failure=error}const result=await checkout.close();assert.equal(result.children,'stopped');assert.equal(result.directory,'removed');if(failure)throw failure;return result;}};return runtime;
  }catch(error){await checkout.close();throw error;}
 }
 export async function writeEvidence(file,value){await writeFile(file,JSON.stringify(value,null,2)+'\n');}

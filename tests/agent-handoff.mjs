@@ -11,7 +11,6 @@ import {scopeProof} from './agent-handoff/scope.mjs';
 import {capArchive,capProof} from './agent-handoff/caps.mjs';
 import {handoffPanel} from './agent-handoff/ui.mjs';
 import {startDispatchApp} from './triage-app.mjs';
-import {signIn} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 const directory=resolve('.artifacts/agent-handoff');await mkdir(directory,{recursive:true});
 let app,browser,secondOrigin,mcp,redirectServer,receivingServer,failure,stage='setup';const evidence={checks:[],captures:[]};
@@ -41,7 +40,7 @@ try{
  stage='second-origin';
  // The dev-minted agent is required; a normal owner session mints the capture
  // credential because cross-origin SDK clients cannot carry the private dev gate.
- const ordinaryCookie=await signIn(app.origin,{bootstrap:false});const browserIngest=await json('/api/projects/a/keys','POST',{kind:'ingest'},{headers:{Cookie:ordinaryCookie}});
+ const ordinaryCookie=await app.ordinarySession();const browserIngest=await json('/api/projects/a/keys','POST',{kind:'ingest'},{headers:{Cookie:ordinaryCookie}});
  secondOrigin=await startDispatchApp({endpoint:app.origin,project:'a',ingestKey:browserIngest.key,release:'z-release',build:'build-z',environment:'browser',debugId:'dispatch-map'});
  await json('/api/projects/a/browser-origins','POST',{origin:secondOrigin.origin});for(const [origin,status] of [[secondOrigin.origin,204],['https://unconfigured.example',403]]){const preflight=await request('/api/ingest/a','OPTIONS',undefined,{headers:{Cookie:'',Origin:origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization, content-type'}});assert.equal(preflight.status,status,'native project origin preflight');await preflight.body?.cancel();}browser=await launchBrowser();const throwPage=await browser.newPage();await throwPage.goto(secondOrigin.origin);await throwPage.getByRole('button',{name:'Prepare delivery'}).click();await throwPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');const thrown=await throwPage.evaluate(()=>window.captureOutcome);
  const realPath='/api/projects/a/issues/'+thrown.issue+'/packet',beforeMap=await json(realPath,'GET',undefined,agent);assert.equal(beforeMap.events[0].event.frames[0].line,1);const realSnapshot=structuredClone(beforeMap.events[0].atAdmission);

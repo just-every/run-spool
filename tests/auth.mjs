@@ -15,7 +15,7 @@ export async function openGate(context, origin) {
 export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: testOwner, RER_DEV_KEY: testDevKey,
  SESSION_SECRET: 'test-spool-session-secret-at-least-32-characters', SETUP_TOKEN: testSetupToken,
  MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' });
-export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false } = {}) {
+export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {
  try {
  const post = (path, body) => fetch(origin + path, { method:'POST', redirect:'manual', headers:{Origin:origin,'Content-Type':'application/json'}, body:JSON.stringify(body) });
  if(bootstrap){const response=await post('/auth/bootstrap',{token:testSetupToken,displayName:'Test owner'});assert.ok([303,409].includes(response.status),'real first owner bootstrap or preservation');await response.body?.cancel();}
@@ -26,7 +26,7 @@ export async function signIn(origin, { bootstrap = true, returnTo = '/', form = 
   const confirmed=await post('/auth/confirm',{token});assert.equal(confirmed.status,303);
   return confirmed.headers.get('set-cookie').split(';')[0];
  }
- const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json','x-rer-local-cli':createHmac('sha256',authBindings(origin).SESSION_SECRET).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
+ const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json','x-rer-local-cli':createHmac('sha256',sessionSecret).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
  assert.equal(response.status,303,'real local owner admission');
  const cookies=response.headers.getSetCookie();const cookie=cookies.map(value=>value.split(';')[0]).join('; ');assert.ok(cookie);await response.body?.cancel();
  return cookie;
