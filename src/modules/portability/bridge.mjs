@@ -3,12 +3,19 @@ import { canonicalJson } from './hash.mjs';
 import { tokens, identifier, folded } from './generated.mjs';
 import { changesData } from './migration-statements.mjs';
 
-// Applied product migrations in the ledger's own order: the deploy ledger when
-// present (it covers any older Wrangler history), else Wrangler's.
+// Applied product migrations in the ledger's own order. A state-bearing D1
+// ledger may hold an unacknowledged migration whose effects are unknown; neither
+// an archive nor a restore can attest its history until that is resolved.
 export async function appliedMigrations(db) {
   const ledgers=(await all(db,"SELECT name FROM sqlite_master WHERE type='table' AND name IN ('_rer_deploy_migrations','d1_migrations')")).map(x=>x.name);
   if(ledgers.includes('_rer_deploy_migrations'))return (await all(db,"SELECT name FROM _rer_deploy_migrations WHERE state='applied' ORDER BY name")).map(x=>x.name);
-  return ledgers.includes('d1_migrations')?(await all(db,'SELECT name FROM d1_migrations ORDER BY id')).map(x=>x.name):undefined;
+  if(!ledgers.includes('d1_migrations'))return;
+  const columns=(await all(db,'PRAGMA table_info(d1_migrations)')).map(x=>x.name);
+  const tracked=columns.includes('state') || columns.includes('sha256');
+  if(tracked)insist(columns.includes('state') && columns.includes('sha256'),'schema_mismatch:migration_history',409);
+  const rows=await all(db,`SELECT name${tracked?',state':''} FROM d1_migrations ORDER BY id`);
+  if(tracked)insist(rows.every(row=>row.state==='applied'),'schema_mismatch:uncertain_migrations',409);
+  return rows.map(row=>row.name);
 }
 // Where an archive sits in the destination's applied migrations: those its
 // rows passed through (earlier) and those applied after it (unapplied).
@@ -47,10 +54,13 @@ async function placement(db,manifest,cat,replay,applied) {
 // migrations that changed only data (a purge or a backfill) or added an index.
 // Those that change restorable data are refused like any other. Without a
 // replayer the statements cannot be read, so an archive whose recorded
-// migrations the destination's ledger has outgrown is refused.
+// migrations the destination's ledger has outgrown is refused. An archive that
+// records a migration the destination never applied is newer than it, even
+// when that migration left the schema as it was (an index, a data change).
 export async function sameSchemaMigrations(db,manifest,cat,migrations) {
   const applied=await appliedMigrations(db);
   if(!applied)return;
+  insist(!manifest.migrations || manifest.migrations.every(name=>applied.includes(name)),'schema_mismatch:migrations');
   if(!migrations){insist(!manifest.migrations || applied.every(name=>manifest.migrations.includes(name)),'schema_mismatch:migrations');return;}
   await placement(db,manifest,cat,await migrations(),applied);
 }

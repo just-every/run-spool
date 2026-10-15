@@ -188,3 +188,16 @@ carries no record: deploy it once with this rer, then remove it.
    Edit** on the account.
 4. **`RUN_DEMO_DEPLOY=true`** as a repository variable when the demo should go
    live. Until then nothing deploys.
+
+## Spool sample workspace
+
+The disposable Cedar Market workspace includes six issue groups, three releases,
+matching source maps and deployment records. Three recent occurrences pass through
+normal event admission, generating capture receipts and silently completed mail
+alerts from the saved rule. Historical imported occurrences remain historical.
+
+The demo GitHub connection lets visitors try approved fix writes without an App
+secret or changes on GitHub. Repository/base reads use the public GitHub API;
+branches, file commits and draft pull requests return demo success. Subsequent
+reads of that simulated draft use its local demo state. No mail payload is kept
+in a demo outbox.

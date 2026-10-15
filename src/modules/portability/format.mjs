@@ -1,6 +1,6 @@
 import { archiveLines } from './lines.mjs';
 import { canonicalJson, sha256, StreamHash, unbase64, utf8 } from './hash.mjs';
-import { insist } from './storage.mjs';
+import { insist, PortabilityError } from './storage.mjs';
 import { validateRow } from './catalogue.mjs';
 export const FORMAT='runeditrun-portability';
 export const MAX_LINE_BYTES=24*1024*1024;
@@ -107,7 +107,7 @@ async function* verifiedRecords(source,maxLineBytes,partBytes,validateManifest,r
   let manifest,verifier,archive,index=0,closed=false;
   for await(const line of archiveLines(source,maxLineBytes)) {
     insist(!closed,'data_after_closing');
-    let record;try{record=JSON.parse(line);}catch{throw new Error('archive_json');}
+    let record;try{record=JSON.parse(line);}catch{throw new PortabilityError('archive_json');}
     if(!manifest) {await validateManifest(record);manifest=record;verifier=new ContentVerifier(manifest);archive=new ArchiveVerifier(manifest);yield record;continue;}
     if(record.kind==='closing') {
       insist(index===manifest.partCount && record.partCount===index,'part_count');

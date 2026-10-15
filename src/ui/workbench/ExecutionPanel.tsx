@@ -45,7 +45,7 @@ export function ExecutionPanel({ project, issue, event, busy, request, run }: Pr
     {ticket && <div className="callout run-ticket" role="status"><strong>Run queued. Run this once in your Spool checkout within 15 minutes; the token is shown only now.</strong><code>{ticket.command}</code><button className="text-button" onClick={() => void navigator.clipboard.writeText(ticket.command)}>Copy command</button></div>}
     {reproducers?.map(reproducer => <ReproducerCard key={reproducer.id} {...{ project, reproducer, releases, busy, write, request }} onTicket={setTicket} />)}
     {fixes && <><h3 className="execution-subtitle">Fix branches</h3>
-      <p className="execution-meta">GitHub connection: {fixes.connection.state === 'configured' ? `App ${fixes.connection.appId}, installation ${fixes.connection.installationId}` : fixes.connection.state === 'invalid' ? `invalid (${fixes.connection.reason})` : 'not configured. Approved grants wait for one.'}</p>
+      <p className="execution-meta">GitHub connection: {fixes.connection.demo ? 'Demo connection' : fixes.connection.state === 'configured' ? `App ${fixes.connection.appId}, installation ${fixes.connection.installationId}` : fixes.connection.state === 'invalid' ? `invalid (${fixes.connection.reason})` : 'not configured. Approved grants wait for one.'}</p>
       {!fixes.workflows.length && <p>Propose a fix branch from a run Spool confirmed as reproduced.</p>}
       {fixes.workflows.map((workflow: any) => <FixWorkflowCard key={workflow.id} {...{ project, workflow, busy, write, request }} />)}</>}
   </section>;

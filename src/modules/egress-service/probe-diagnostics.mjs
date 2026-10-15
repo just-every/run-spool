@@ -67,7 +67,7 @@ export async function probeDiagnostic({ api, target, statePath, sourceSha, reque
   };
   const validAttempts = attempts == null || (Array.isArray(attempts) && attempts.every(attempt => record(attempt)
     && Number.isFinite(attempt.offsetMs) && (attempt.status === null || status(attempt.status))
-    && typeof attempt.body === 'string' && ['cfRay', 'contentType', 'errorClass'].every(key => attempt[key] === null || typeof attempt[key] === 'string')));
+    && ['cfRay', 'contentType', 'errorClass'].every(key => attempt[key] === null || typeof attempt[key] === 'string')));
   const valid = [
     record(state) && fingerprint !== null && validAttempts,
     record(live) && version(live.versionId) !== null && names !== null

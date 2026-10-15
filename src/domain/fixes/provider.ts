@@ -1,3 +1,5 @@
+import { demoEffect } from '../../modules/demo/index.mjs';
+import { demoWrite } from './demo-provider';
 import { scrub } from '../privacy';
 import { appJwt, type Connection } from './connection';
 import { FIX_PERMISSIONS, type FixOperation } from './grant';
@@ -46,9 +48,12 @@ export class ProviderSession {
   const repo = `/repos/${this.grant.repository}/`;
   if (step !== 'mint_token' && step !== 'revoke_token' && !path.toLowerCase().startsWith(repo.toLowerCase())) await this.refuse(step, 'The call names a repository outside the grant.');
   let response: Response, parsed: any = null;
-  const authorization = step === 'mint_token' ? `Bearer ${await appJwt(this.connection)}` : `Bearer ${this.token}`;
   try {
-   response = await fetch(this.connection.apiOrigin + path, { method, redirect: 'manual', headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'spool-fix-workflow', Authorization: authorization, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} });
+   const send = async () => {
+    const authorization: Record<string, string> = this.connection.demo ? {} : { Authorization: step === 'mint_token' ? `Bearer ${await appJwt(this.connection)}` : `Bearer ${this.token}` };
+    return fetch(this.connection.apiOrigin + path, { method, redirect: 'manual', headers: { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'spool-fix-workflow', ...authorization, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} });
+   };
+   response = ['GET', 'HEAD', 'OPTIONS'].includes(method) && !['read_pull_request', 'read_checks'].includes(step) ? await send() : await demoEffect(send, () => demoWrite(step, this.grant.repository, { ...body, ...(step === 'commit_file' ? { path: decodeURIComponent(path.split('/contents/')[1]) } : {}) }, this.workflow));
    parsed = response.status === 204 ? {} : await response.json().catch(() => null);
   } catch (error) {
    await this.receipt(step, method, path, 'failed', null, { reason: 'network_error' });

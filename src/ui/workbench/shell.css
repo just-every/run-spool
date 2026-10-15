@@ -9,6 +9,7 @@
 .sidebar{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:24px;height:100vh;overflow-y:auto;padding:32px 24px 28px 32px}
 .sidebar-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .brand .wordmark{font-size:36px}
+html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 .brand-tagline{margin-top:6px;font-size:14px}
 .menu-button{display:none}
 .project-picker{font-weight:600}
@@ -48,6 +49,7 @@
 
 @media(max-width:1100px){
  .workbench-shell{--sidebar:240px}
+ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:26px}
  .main,.has-issue .main{display:block;padding:0 32px 48px}
  .right{position:static;max-height:none;margin:24px 0 8px}
 }
@@ -56,6 +58,7 @@
  .sidebar{position:static;height:auto;overflow:visible;gap:16px;padding:20px 24px 0;border-right:0}
  .sidebar-brand{align-items:center;padding-bottom:14px;border-bottom:var(--rule)}
  .brand .wordmark{font-size:32px}
+ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:32px}
  .brand-tagline{display:none}
  .menu-button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;border:0;background:none;font:500 17px var(--font-text);cursor:pointer}
  .menu-button[aria-expanded=true]{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}

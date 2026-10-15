@@ -8,11 +8,13 @@ import { fence, mergeJournal, tombstone } from './journal.mjs';
 import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards } from './restore-safety.mjs';
-import { additiveBridge, sameSchemaMigrations } from './bridge.mjs';
+import { additiveBridge, sameSchemaMigrations, appliedMigrations } from './bridge.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
 export async function createImport(context,manifest,actor='direct',legacyRecovery) {
-  const {db,config,buckets}=context;await checkManifest(manifest);await state(db);
+  const {db,config,buckets}=context;await checkManifest(manifest);
   insist(manifest.product===config.product,'wrong_product');
+  // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
+  await appliedMigrations(db);await state(db);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[manifest.schema];
   const same=manifest.schema===cat.identity;
   const bridge=same || upgrade?undefined:await additiveBridge(db,manifest,cat,context.migrations);
