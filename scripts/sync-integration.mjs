@@ -10,7 +10,7 @@ export async function integrationRecipe(root, write = false) {
   const config = JSON.parse(await readFile(resolve(root, 'scripts/delivery/base/packaging.json'), 'utf8'));
   const spec = await deploymentSpec(root, config.artifact.specInputs);
   const {project, workflow, setup} = packagingConfig(config);
-  const selectedSetup = await loadSetupManifest(root, setup);
+  const selectedSetup = await loadSetupManifest(root, setup, config.artifact.specInputs?.mail);
   const descriptor = selectedSetup
     ? {...project, setup: {path: selectedSetup.path, sha256: selectedSetup.sha256}}
     : project;

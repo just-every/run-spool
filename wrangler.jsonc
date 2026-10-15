@@ -22,5 +22,10 @@
     "crons": [
       "* * * * *"
     ]
+  },
+  "vars": {
+    "MAIL_PROVIDER": "resend",
+    "MAIL_FROM": "",
+    "MAIL_RELAY_URL": ""
   }
 }

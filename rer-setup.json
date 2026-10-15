@@ -58,7 +58,7 @@
     {
       "name": "MAIL_PROVIDER",
       "label": "Email provider",
-      "help": "Hosted installs send real sign-in email. Local development suppresses mail.",
+      "help": "Managed hosting configures mail for you. Free and Assisted hosting use your email provider. Local development suppresses mail.",
       "kind": "select",
       "required": true,
       "default": "resend",
@@ -66,6 +66,10 @@
         {
           "value": "development",
           "label": "Local development (mail suppressed)"
+        },
+        {
+          "value": "rer",
+          "label": "RER managed mail"
         },
         {
           "value": "resend",
@@ -89,6 +93,18 @@
       "runtimeEditable": true
     },
     {
+      "name": "MAIL_RELAY_URL",
+      "label": "Managed mail relay URL",
+      "kind": "url",
+      "required": true,
+      "when": {
+        "field": "MAIL_PROVIDER",
+        "equals": "rer"
+      },
+      "group": "email",
+      "runtimeEditable": false
+    },
+    {
       "name": "MAIL_API_KEY",
       "label": "Mail API key",
       "kind": "secret",
@@ -97,6 +113,14 @@
       "ownerVisible": true,
       "group": "email",
       "presentations": [
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "rer"
+          },
+          "label": "RER mail credential",
+          "required": true
+        },
         {
           "when": {
             "field": "MAIL_PROVIDER",

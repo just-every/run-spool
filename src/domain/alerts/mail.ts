@@ -1,4 +1,4 @@
-import { operatorMail } from '../../auth/mail.server.mjs';
+import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { validateConfig, validateMessage } from '../../modules/mail/src/core/validation.mjs';
 import { authorizedDestination, destinationHash } from './destinations.server';
@@ -9,7 +9,7 @@ function sender(env:AlertEnvironment) {
  if(!env.MAIL_PROVIDER||!env.MAIL_FROM)throw new Error('mail_unconfigured');
  if(env.MAIL_PROVIDER==='development') {
   if(env.RER_DEMO !== '1' && !localDevelopmentEnabled(env))throw new Error('mail_unconfigured');
- } else validateConfig({provider:env.MAIL_PROVIDER,mode:'production',apiKey:env.MAIL_API_KEY,...(env.MAIL_PROVIDER==='cloudflare'?{accountId:env.MAIL_ACCOUNT_ID}:{})});
+ } else validateConfig(productionMailConfig(env));
  const result=operatorMail(env);if(!result)throw new Error('mail_unconfigured');return result;
 }
 export async function expandMail(env:AlertEnvironment,intent:Intent,time:number) {

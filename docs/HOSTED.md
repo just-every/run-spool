@@ -1,8 +1,16 @@
-# Run Spool on your Cloudflare account
+# Hosting Spool
+
+## Managed mail
+
+With RER Managed hosting, Configure supplies and hides all four mail inputs: `MAIL_PROVIDER=rer`, `MAIL_FROM`, `MAIL_RELAY_URL` and the private `MAIL_API_KEY`. RER assigns the sender and relay URL and stores an installation/environment credential in encrypted private settings. You need no provider account and copy no mail key. The provider credential stays with RER. Spool uses Base's `rer` mail adapter for sign-in links and email alerts.
+
+This checkout pins rer 0.2.22. Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
+
+## Run Spool on your Cloudflare account
 
 `rer deploy` puts this checkout on your own Cloudflare account as one Worker with its D1 database, at `https://spool-<environment>.<your-subdomain>.workers.dev`. These steps use the environment name `production`; use a lowercase identifier starting with a letter, with letters, digits and single hyphens between segments (at most 32 characters), and keep using the same one.
 
-You need:
+For the Free or Assisted account procedure below, you need:
 
 - this checkout, set up as in the [README](../README.md#run-it-on-your-computer) (Node 22 or later from [nodejs.org](https://nodejs.org/en/download), git and public rer; Node must already be on PATH, then rer supplies the pinned runtimes);
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;

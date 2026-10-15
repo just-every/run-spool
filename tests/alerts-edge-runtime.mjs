@@ -5,7 +5,8 @@ import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
-import {alertRuntime,event,rule,setup} from './alerts/runtime.mjs';
+import {alertRuntime,event,rule,setup,relayUrl} from './alerts/runtime.mjs';
+import {testOwner} from './auth.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-edge-')),inbox=await receiver(resolve(temp,'receiver.sqlite'));let app;
 try {
  app=await alertRuntime(inbox,{egress:false});const auth=await setup(app);
@@ -24,5 +25,17 @@ try {
  // The dispatch after ingest finds mail unconfigured on this request, so the intent stays undelivered for the cron.
  await app.json('/api/ingest/web','POST',event('revoked-before-send',{frames:[{file:'https://app.example.com/revoked.js',line:1,column:0,function:'revoked'}]}),{...key,'x-fixture-unconfigured':'mail'});
  await app.json('/api/projects/web/alerting/rules/'+created.id,'PUT',rule('mail',{revision:1,enabled:false}));await app.schedule(Date.now());assert.equal(inbox.mailCount,count);assert.ok((await app.json('/api/projects/web/alerting/deliveries')).some(r=>r.state==='cancelled'));
+ await app.close();app=await alertRuntime(inbox,{mail:'rer'});const relayKey=await setup(app);
+ const signin=inbox.relayRequests[0];assert.equal(signin.body.to,testOwner);assert.match(signin.body.text,/\/auth\/confirm\?token=/);
+ await app.json('/api/projects/web/alerting/rules','POST',rule('mail'));inbox.mailStatuses.push(429);
+ await app.json('/api/ingest/web','POST',event('relay-rate-limit'),relayKey);await app.schedule(Date.now());
+ assert.equal((await app.json('/api/projects/web/alerting/deliveries'))[0].state,'retrying');const attempts=inbox.relayRequests.length;
+ await app.schedule(Date.now()+2000);assert.equal((await app.json('/api/projects/web/alerting/deliveries'))[0].state,'accepted');assert.equal(inbox.relayRequests.length,attempts+1);
+ inbox.mailStatuses.push(401);await app.json('/api/ingest/web','POST',event('relay-retired-key',{frames:[{file:'https://app.example.com/retired.js',line:1,column:0,function:'retired'}]}),relayKey);await app.schedule(Date.now());
+ assert.ok((await app.json('/api/projects/web/alerting/deliveries')).some(r=>r.state==='rejected'&&r.code==='provider_rejected'));
+ inbox.mailStatuses.push(401);const unavailable=await app.request('/auth/magic-link','POST',{email:testOwner},{'CF-Connecting-IP':'192.0.2.40'});assert.equal(unavailable.status,503);assert.equal((await unavailable.json()).error,'mail_unavailable');assert.equal((await app.request('/health')).status,200);
+ const hooks=inbox.requests.length;inbox.mailStatuses.push(302);await app.json('/api/ingest/web','POST',event('relay-redirect',{frames:[{file:'https://app.example.com/redirect.js',line:1,column:0,function:'redirect'}]}),relayKey);await app.schedule(Date.now());assert.equal(inbox.requests.length,hooks);assert.ok((await app.json('/api/projects/web/alerting/deliveries')).some(r=>r.state==='uncertain'));
+ for(const request of inbox.relayRequests){assert.equal(request.url,relayUrl);assert.equal(request.method,'POST');assert.equal(request.redirect,'manual');assert.equal(request.authorization,'Bearer synthetic-key-no-provider-call');assert.equal(request.contentType,'application/json');assert.deepEqual(Object.keys(request.body).sort(),request.body.html?['html','subject','text','to']:['subject','text','to']);assert.equal(typeof request.body.to,'string');assert.ok(request.body.subject&&request.body.text);}
  console.log('Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.');
+ console.log('RER relay: native sign-in and alert mail POST the exact relay envelope with Bearer credentials; Workers fetch enforces Base redirect:error without following redirects; 429 Retry-After queues then accepts; 401 is owner-visible rejected delivery / mail_unavailable, with health intact.');
 }finally{await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

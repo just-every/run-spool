@@ -72,6 +72,10 @@ Export before reset and import only into an empty destination. Export includes p
 
 Stop dev with `rer dev --stop` and export a private archive before updating. In your existing checkout, run `git pull` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings and deployment receipt. The 17 additive migrations `0020_dependencies.sql` through `0036_owner_signin.sql` apply automatically; existing evidence, triage states and project keys are preserved. Keep the existing database; no reset or restore is needed. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
 
+## Managed hosting
+
+Spool pins rer 0.2.22 and supports RER Managed mail for sign-in links and email alerts. Managed Configure supplies and hides the mail settings: no mail-provider account or copied API key is needed. Free and Assisted self hosting keep their existing provider choices and sender setup; see [the hosting guide](docs/HOSTED.md#managed-mail).
+
 ## Run it on your Cloudflare account
 
 Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --environment production` prints a private, one-use owner link using the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.

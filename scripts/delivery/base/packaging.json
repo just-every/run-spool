@@ -60,6 +60,7 @@
         "OWNER_EMAIL",
         "MAIL_PROVIDER",
         "MAIL_FROM",
+        "MAIL_RELAY_URL",
         "RER_MANAGEMENT_ORIGIN",
         "RER_INSTALLATION_ID",
         "RER_OWNER_CLAIM_ISSUER",
@@ -71,10 +72,10 @@
       "secretNames": [
         "SESSION_SECRET",
         "SETUP_TOKEN",
-        "MAIL_API_KEY",
         "ALERT_DESTINATION_HASH_KEY"
       ],
       "optionalSecretNames": [
+        "MAIL_API_KEY",
         "ALERT_DESTINATIONS"
       ],
       "providerEffects": [
@@ -95,7 +96,12 @@
           ]
         }
       },
-      "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic."
+      "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic.",
+      "mail": {
+        "providers": [
+          "rer"
+        ]
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
+import { productionMailConfig } from '../../auth/mail.server.mjs';
 import { validateConfig, parseAddress } from '../../modules/mail/src/core/validation.mjs';
 import { identity, scrub } from '../privacy';
 import { validateDestination } from '../../modules/integrations/core/destination';
@@ -35,7 +36,7 @@ export function destinationChoices(env:AlertEnvironment,project:string) {
  try {
   parseAddress(env.MAIL_FROM);
   if(env.MAIL_PROVIDER==='development')mailConfigured=env.RER_DEMO==='1'||localDevelopmentEnabled(env);
-  else {validateConfig({provider:env.MAIL_PROVIDER,mode:'production',apiKey:env.MAIL_API_KEY,...(env.MAIL_PROVIDER==='cloudflare'?{accountId:env.MAIL_ACCOUNT_ID}:{})});mailConfigured=true;}
+  else {validateConfig(productionMailConfig(env));mailConfigured=true;}
  }catch{}
  return destinations(env).filter(d=>d.project===project).map(d=>({id:d.id,label:d.label,channel:d.channel,configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}));
 }
