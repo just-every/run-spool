@@ -6,6 +6,15 @@ on:
         description: 'Use demo-test and the published Turnstile test keys'
         type: boolean
         default: false
+      test_instance_type:
+        description: 'Test host size override (production uses deploy-demo.json)'
+        type: choice
+        default: declared
+        options: [declared, basic, standard-1, standard-2, standard-3, standard-4]
+      test_max_instances:
+        description: 'Test host places, including prior trials awaiting idle cleanup'
+        type: number
+        default: 10
       remove:
         description: 'Remove this demo host and its owned container resources'
         type: boolean
@@ -36,6 +45,12 @@ jobs:
       - name: Scope test deployment
         if: inputs.test_only
         run: node --input-type=module -e "import fs from 'node:fs'; const p='deploy-demo.json'; const d=JSON.parse(fs.readFileSync(p)); d.domain='test.run-spool.com'; fs.writeFileSync(p,JSON.stringify(d));"
+      - name: Select test host limits
+        if: ${{ inputs.test_only && !inputs.remove }}
+        run: node --input-type=module -e "import fs from 'node:fs'; const p='deploy-demo.json'; const d=JSON.parse(fs.readFileSync(p)); if(process.env.DEMO_INSTANCE_TYPE!=='declared') d.instanceType=process.env.DEMO_INSTANCE_TYPE; d.maxInstances=Number(process.env.DEMO_MAX_INSTANCES); fs.writeFileSync(p,JSON.stringify(d));"
+        env:
+          DEMO_INSTANCE_TYPE: ${{ inputs.test_instance_type }}
+          DEMO_MAX_INSTANCES: ${{ inputs.test_max_instances }}
       # Managed packaging requires the public sender placeholder; the demo's
       # direct-deploy declaration supplies its sender privately at runtime.
       - name: Prepare demo image bindings
