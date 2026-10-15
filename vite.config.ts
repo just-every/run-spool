@@ -20,6 +20,9 @@ const deny = ['**/.rer/**', '**/.seed/**', '**/exports/**', '**/*.rer']
 export default defineConfig(({ command, isPreview }) => ({
   // The Worker owns preflight: Vite's default CORS middleware otherwise returns 204
   // before project authorization or the native ingest origin policy can run.
-  server: { cors: false, fs: { strict: true, allow, deny } },
+  // Private settings change only through `rer setup` while dev is stopped. A change event for
+  // .dev.vars that arrives while dev serves (a late file-watch delivery for setup's own write)
+  // would make the Cloudflare plugin restart the dev server and drop every request in flight.
+  server: { cors: false, fs: { strict: true, allow, deny }, watch: { ignored: ['**/.dev.vars', '**/.dev.vars.*'] } },
   plugins: [documentBoundary(), cloudflare({ inspectorPort: false, viteEnvironment: { name: 'ssr' }, persistState: { path: '.wrangler/state' }, ...(command === 'serve' && !isPreview ? { config: serve } : process.env.RER_DEV_ORIGIN ? { config: { vars: local('RER_DEV_ORIGIN') } } : {}) }), tanstackStart(), react(), excludeLocalVariables(), docsSite(), archiveOutputGuard()],
 }))
