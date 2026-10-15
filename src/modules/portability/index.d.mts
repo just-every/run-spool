@@ -54,5 +54,9 @@ export function makePart(index:number,items:Item[]):Promise<Part>;
 export function canonicalJson(value:unknown):string;
 export function sha256(value:string|Uint8Array):Promise<string>;
 export const MAX_LINE_BYTES:number;
+/** Tables no archive carries (exact names, or prefixes ending in `%`). */
+export const excludedTables:readonly string[];
+/** True when no archive under this policy carries `table`. */
+export function excludedTable(table:string,policy?:Pick<ArchivePolicy,'excludeTables'|'includeTables'>):boolean;
 export const MAX_PART_BYTES:number;
 export class PortabilityError extends Error {code:string;status:number;constructor(code:string,status?:number)}

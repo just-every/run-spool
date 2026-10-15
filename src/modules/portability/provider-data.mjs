@@ -1,6 +1,6 @@
 import { all, quote, insist } from './storage.mjs';
 import { sidecar, copyRowid } from './copies.mjs';
-const TRANSIENT=['oa_setup_links','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes','oa_provider_sessions','oa_provider_session_pins','oa_oidc_transactions','oa_step_up_challenges','oa_identity_provider_health'];
+const TRANSIENT=['oa_setup_links','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes','oa_provider_sessions','oa_provider_session_pins','oa_oidc_transactions','oa_step_up_challenges','oa_identity_provider_health','oa_owner_signins'];
 // Mandatory secret/session filtering even when a product explicitly includes a table.
 export async function dropProviderData(db,tables,copies) {
  const commands=[];

@@ -1,6 +1,10 @@
 import { all, insist, quote, PortabilityError } from './storage.mjs';
 import { canonicalJson, sha256, base64, unbase64, utf8 } from './hash.mjs';
-const defaults=['sqlite_%','_cf_%','d1_migrations','_rer_deploy_migrations','_rer_portability_migrations','rer_portability_%','rer_mail_development_outbox','rer_ai_development_outbox','oa_%','oc_%','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes'];
+/** Tables no archive carries: SQLite/Cloudflare internals, migration ledgers,
+ * portability bookkeeping, development outboxes, operator identity and dependency
+ * secrets. Exact names, or prefixes ending in `%`. Seeds' own table inventories
+ * skip the same tables through `excludedTable`. */
+export const excludedTables=Object.freeze(['sqlite_%','_cf_%','d1_migrations','_rer_deploy_migrations','_rer_portability_migrations','rer_portability_%','rer_mail_development_outbox','rer_ai_development_outbox','oa_%','oc_%','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes']);
 const fields=['product','excludeTables','includeTables','derivedTables','secretColumns','exportRow','replaceableTables','requiredConfiguration','validateStaged','acceptedSchemas','buckets','extraPayloads','partBytes'];
 const name=value=>typeof value==='string' && value.length>0 && value.length<=512 && !/[\x00-\x1f]/.test(value);
 const names=value=>Array.isArray(value) && value.every(name) && new Set(value).size===value.length;
@@ -19,10 +23,13 @@ export function policy(input) {
   }
   for(const [key,entry] of Object.entries(result.extraPayloads)) insist(name(key) && typeof entry.produce==='function' && typeof entry.consume==='function','invalid_extra_payload');
   for(const key of ['secretColumns','acceptedSchemas','buckets','extraPayloads'])result[key]=Object.assign(Object.create(null),result[key]);
-  return {...result,excludeTables:[...defaults,...result.excludeTables]};
+  return {...result,excludeTables:[...excludedTables,...result.excludeTables]};
 }
 const identifier=value=>value.replace(/[A-Z]/g,letter=>letter.toLowerCase());
 const matches=(table,pattern)=>pattern.endsWith('%') ? identifier(table).startsWith(identifier(pattern.slice(0,-1))) : identifier(table)===identifier(pattern);
+/** True when no archive carries `table`: one of Base's `excludedTables`, or one of
+ * the policy's own `excludeTables`, unless the policy includes it explicitly. */
+export const excludedTable=(table,input={})=>!(input.includeTables??[]).includes(table) && [...excludedTables,...(input.excludeTables??[])].some(pattern=>matches(table,pattern));
 async function archived(db,config) {
   const objects=await all(db,"SELECT name,sql,type,tbl_name FROM sqlite_master WHERE sql IS NOT NULL ORDER BY name");
   const kinds=await all(db,'PRAGMA table_list');
@@ -45,7 +52,7 @@ export async function catalogue(db,config) {
     columns.forEach(c=>{if(c.hidden)c.generated=c.hidden===2?'virtual':'stored';delete c.hidden;});
     // Both archived base cells and visible staging reads must fit D1's SQL
     // limit, with room for copy names and joins.
-    insist([false,true].every(encoded=>utf8(projectedColumns({columns},encoded)).length+1024<=100000),'transfer_sql_limit:'+entry.name);
+    insist([false,true].every(encoded=>utf8(projectedColumns({columns},encoded)).length+1024+columns.length*64<=100000),'transfer_sql_limit:'+entry.name);
     const dependencies=[...new Set((await all(db,`PRAGMA foreign_key_list(${quote(entry.name)})`)).map(ref=>objects.find(x=>x.type==='table' && identifier(x.name)===identifier(ref.table))?.name??ref.table))].sort();
     for(const parent of dependencies) insist(!excluded.some(x=>x.name===parent),'excluded_foreign_key:'+entry.name+':'+parent);
     const rowidAlias=columns.some(c=>c.pk)?null:['rowid','_rowid_','oid'].find(alias=>!columns.some(c=>c.name.toLowerCase()===alias));
