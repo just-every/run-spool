@@ -5813,7 +5813,7 @@
       "executable": false
     },
     "tests/command-diagnostics.mjs": {
-      "sha256": "66ceaddba95934a7080e9acefe1bb343c78245b4ca1798301b60f0f16c3efdd7",
+      "sha256": "1b89c545e8952f047fcba2cc44b972261386cc60324b68d80d68c32adebb0267",
       "executable": false
     },
     "tests/command-resources.mjs": {
@@ -5825,7 +5825,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "a8e69ab160e3b56e93fb63cfe4f745c7d08db5fd08f5320f4e492ecf9c56ae0d",
+      "sha256": "bb3783f6274bcb52663c5e296486975b86c69c7496f72bdbdc56dbec4f886cfe",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
@@ -5964,8 +5964,8 @@
       "sha256": "49ad1de07eda6d21aa61e05da395688cc97dec4d4a355902ae1f37a835502b33",
       "executable": false
     },
-    "tests/preview-sign-in.mjs": {
-      "sha256": "3de43cf10c6143de2a5b015af8166c8720f8435882edec8873186d729d8392a7",
+    "tests/preview-session.mjs": {
+      "sha256": "a2d1a703250ceb4d306b6d1d1d1a9e209eac85709e5f64eed92b108dd18afda6",
       "executable": false
     },
     "tests/privacy-table.mjs": {
@@ -6073,7 +6073,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "3ca0c0ccbfe55324795c4bf1ef792b151a36dae84f0312b6fb54b35c282c88da",
+      "sha256": "24c421d4ba78d185f7afaa3fd74ab059279abab67db84213aee2cf2c3bce7888",
       "executable": false
     },
     "tests/source-import.mjs": {

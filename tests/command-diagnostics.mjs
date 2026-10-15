@@ -2,10 +2,10 @@ import {types} from 'node:util';
 import {runInNewContext} from 'node:vm';
 import {loadRefusal} from './command-resources.mjs';
 
-const stages=['checkout','contract','legacy-state','linked-settings','install','failed-build','slow-readiness','setup','owner-preservation','dev','desktop-sign-in','preview','mobile-sign-in','resume','export','reset','restore-policy','restore','deploy-dry-run','fresh-owner','complete'];
+const stages=['checkout','contract','legacy-state','linked-settings','install','failed-build','slow-readiness','setup','owner-preservation','dev','desktop-sign-in','preview','mobile-preview','resume','export','reset','restore-policy','restore','deploy-dry-run','fresh-owner','complete'];
 const commands=new Set(['check','install','setup','dev','preview','export','import','reset','deploy']);
 const errorTypes=new Set(['Error','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','URIError','EvalError','AggregateError','TimeoutError','AbortError']);
-const sources=['commands.mjs','command-runner.mjs','command-diagnostics.mjs','auth.mjs','browser-launch.mjs','setup-journey.mjs'];
+const sources=['commands.mjs','command-runner.mjs','command-diagnostics.mjs','auth.mjs','browser-launch.mjs','setup-journey.mjs','preview-session.mjs'];
 const integer=value=>Number.isSafeInteger(value)&&value>=0&&value<=1_000_000?value:null;
 const exitCode=value=>Number.isSafeInteger(value)&&Math.abs(value)<=1_000_000?value:null;
 function data(value,key){try{if(types.isProxy(value))return undefined;return Object.getOwnPropertyDescriptor(value,key)?.value;}catch{return undefined;}}

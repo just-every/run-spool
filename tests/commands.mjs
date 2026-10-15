@@ -8,7 +8,7 @@ import {commandCheckout} from './command-runner.mjs';
 import {journeyDiagnostics,finishJourney} from './command-diagnostics.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {testOwner,gate} from './auth.mjs';
-import {browserPreviewSignIn} from './preview-sign-in.mjs';
+import {browserPreviewSession,previewOwnerSession} from './preview-session.mjs';
 import {firstProjectJourney} from './setup-journey.mjs';
 import {readArchive,makePart} from '../src/modules/portability/index.mjs';
 import {ContentVerifier} from '../src/modules/portability/format.mjs';
@@ -19,7 +19,7 @@ try {
 const origin='http://127.0.0.1:15530',previewOrigin='http://127.0.0.1:15531';
 const exists=path=>access(resolve(root,path)).then(()=>true,()=>false);
 const get=path=>readFile(resolve(root,path),'utf8');
-// rer setup writes the checkout's dev key; the outbox answers only requests that hold it.
+// rer setup writes the checkout's local admission key.
 const useCheckoutKey=async()=>{gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await get('.rer/local/dev-key.env'))[1];};
 const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  diagnostics.stage('contract');
@@ -64,12 +64,13 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  const post=(path,value)=>fetch(origin+path,{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify(value)});
  assert.equal((await post('/api/projects/journey/releases',{name:'r1',build:'b1'})).status,201);
 
+ const previewCookies=await previewOwnerSession(origin,generated.SESSION_SECRET);
  await command(['dev','--stop']);assert.equal((await dev.closed).code,0);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false);
  diagnostics.stage('preview');
  const preview=await ready(['preview','--port','15531'],previewOrigin);
- diagnostics.stage('mobile-sign-in');
+ diagnostics.stage('mobile-preview');
  const narrow=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),phone=await narrow.newPage();
- await browserPreviewSignIn(phone,previewOrigin,preview.output());
+ await browserPreviewSession(phone,previewOrigin,preview.output(),previewCookies);
  assert.equal((await narrow.request.get(previewOrigin+'/setup',{maxRedirects:0})).headers().location,'/');
  assert.equal(new URL(phone.url()).pathname,'/');assert.equal(await phone.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
  await narrow.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await preview.closed).code,0);
@@ -107,13 +108,13 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  await command(['reset','--yes']);await command(['setup','--owner-email',testOwner,'--port','15530']);await useCheckoutKey();
  assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'fresh mobile setup stops its runtime');
  const mobileDev=await ready(['dev','--foreground','--port','15530'],origin);browser=await launchBrowser();
- await firstProjectJourney(browser,origin,390);await command(['dev','--stop']);assert.equal((await mobileDev.closed).code,0);
+ await firstProjectJourney(browser,origin,390);const resumedCookies=await previewOwnerSession(origin,parseEnv(await get('.dev.vars')).SESSION_SECRET);await command(['dev','--stop']);assert.equal((await mobileDev.closed).code,0);
  const mobileRestart=await ready(['preview','--port','15531'],previewOrigin);
  const resumed=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),resumedPage=await resumed.newPage();
- await browserPreviewSignIn(resumedPage,previewOrigin,mobileRestart.output());assert.equal(new URL(resumedPage.url()).pathname,'/');
+ await browserPreviewSession(resumedPage,previewOrigin,mobileRestart.output(),resumedCookies);assert.equal(new URL(resumedPage.url()).pathname,'/');
  const completed=await resumed.request.get(previewOrigin+'/setup',{maxRedirects:0});assert.equal(completed.status(),303);assert.equal(completed.headers().location,'/');
  assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
  await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, one-click preview owner admission after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
+ console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
 }catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
