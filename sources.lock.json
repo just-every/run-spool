@@ -2158,7 +2158,7 @@
       "executable": false
     },
     ".github/workflows/run-demo.yml": {
-      "sha256": "5042e9092e9b8ce860b12ff54eee1dcdcefcbd3e19d267810d695865b169a237",
+      "sha256": "ab93b25a27f4ce062e60b945891ee376c9798c5db0cccf792c43a418f4be8bed",
       "executable": false
     },
     ".github/workflows/run-site.yml": {
@@ -6246,7 +6246,7 @@
       "executable": false
     },
     "wrangler.jsonc": {
-      "sha256": "a1000802bcf89def1ce8464a59ccb7fac8576eb5a9d804ae8c155756813f0104",
+      "sha256": "b70fc95d4b24b0581acb6b883a9f64d26fa2648af519e7c6db7c927e95c4c8cd",
       "executable": false
     }
   }

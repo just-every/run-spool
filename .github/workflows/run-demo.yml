@@ -36,6 +36,11 @@ jobs:
       - name: Scope test deployment
         if: inputs.test_only
         run: node --input-type=module -e "import fs from 'node:fs'; const p='deploy-demo.json'; const d=JSON.parse(fs.readFileSync(p)); d.domain='test.run-spool.com'; fs.writeFileSync(p,JSON.stringify(d));"
+      # Managed packaging requires the public sender placeholder; the demo's
+      # direct-deploy declaration supplies its sender privately at runtime.
+      - name: Prepare demo image bindings
+        if: ${{ !inputs.remove }}
+        run: node --input-type=module -e "import fs from 'node:fs'; const p='wrangler.jsonc'; const c=JSON.parse(fs.readFileSync(p)); delete c.vars.MAIL_FROM; fs.writeFileSync(p,JSON.stringify(c));"
       - name: Deploy or remove demo
         run: |
           if [ "$REMOVE" = true ]; then
