@@ -1,3 +1,5 @@
+import { withDemo } from './modules/demo/index.mjs';
+import { seedDemo } from './demo';
 import start from '@tanstack/react-start/server-entry';
 import api from './domain/api';
 import { setupDocumentResponse, setupClaimed } from './domain/setup.server';
@@ -32,12 +34,12 @@ function refused(error: unknown) {
  if (!(error instanceof AuthError)) throw error;
  return new Response(`Request refused: ${error.code}`, { status: error.status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
-export default {
+export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
   return handle(request, bindings, execution).catch(refused);
  },
-} satisfies ExportedHandler<Bindings & AlertEnvironment>;
+} satisfies ExportedHandler<Bindings & AlertEnvironment>, { seed: seedDemo });
 async function handle(request: Request, bindings: Bindings & AlertEnvironment, execution: ExecutionContext): Promise<Response> {
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
