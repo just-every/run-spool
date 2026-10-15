@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { assertSignInForm, openGate, testOwner } from './auth.mjs';
 import AxeBuilder from '@axe-core/playwright';
 
-// One real, empty installation per call. Submit ordinary owner sign-in without
+// One real, empty installation per call. Enter the dev owner without
 // JavaScript, then continue in a hydrated browser for the public project form.
 export async function firstProjectJourney(browser, origin, width) {
  const viewport={width,height:900};
@@ -45,7 +45,6 @@ export async function firstProjectJourney(browser, origin, width) {
   await context.grantPermissions(['clipboard-read','clipboard-write'],{origin});
   await page.getByRole('heading',{name:'Your project is ready',exact:true}).focus();
   const copy=page.getByRole('button',{name:'Copy ingest key',exact:true});
-  await tabTo(page.locator('aside.callout').getByRole('link',{name:'Settings → Project keys',exact:true}),'Project key settings');
   await tabTo(key,'Ingest key');await tabTo(copy,'Copy ingest key button');await page.keyboard.press('Enter');
   const copyStatus=page.getByRole('status').filter({hasText:'Key copied.'});await copyStatus.waitFor();
   assert.equal(await copyStatus.evaluate(el=>typeof el.textContent==='string'&&el.textContent.trim().length>0),true,'keyboard copy gives feedback');
@@ -57,8 +56,8 @@ export async function firstProjectJourney(browser, origin, width) {
   await tabTo(page.getByRole('button',{name:'Copy Install command',exact:true}),'Copy install command button');
   await tabTo(page.getByRole('button',{name:'Copy SDK init',exact:true}),'Copy SDK init button');await page.keyboard.press('Enter');await page.getByRole('status').filter({hasText:/^Copied\.$/}).waitFor();
   assert.equal(await page.evaluate(async()=>await navigator.clipboard.readText()),initText,'copy retains the SDK init with its key');await page.evaluate(()=>navigator.clipboard.writeText(''));
-  // One-click Dev admission deliberately mints a checkout-scoped key. The
-  // origin editor still saves the app origin, but that cannot widen this key.
+  // A dev-created ingest key works from the app once its exact origin is allowed.
+  // The application never receives the private owner gate.
   const appOrigin='http://127.0.0.1:15599',ingestKey=await key.inputValue();
   const fromApp=()=>fetch(origin+'/api/ingest/journey',{method:'POST',headers:{Origin:appOrigin,Authorization:`Bearer ${ingestKey}`,'content-type':'application/json'},body:JSON.stringify({version:1,eventId:`app-${width}-${Date.now()}`,release:'1.0.0',build:'local',environment:'production',type:'TypeError',message:'From the app origin',frames:[{file:appOrigin+'/app.js',line:1,column:0,function:'checkout'}]})});
   assert.equal((await (await fromApp()).json()).reason,'origin_not_allowed','an origin that first run has not allowed is refused');
@@ -71,7 +70,7 @@ export async function firstProjectJourney(browser, origin, width) {
   await page.getByRole('status').filter({hasText:'Test error received.'}).waitFor();
   const testIssue=page.getByRole('link',{name:'Open the test issue',exact:true});await tabTo(testIssue,'Open the test issue link');
   const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));assert.ok((await (await request.get(origin+'/api/projects/journey/issues')).json()).some(row=>row.id===issueId),'the test error became an issue');
-  assert.equal((await fromApp()).status,401,'allowing an app origin cannot widen a checkout-scoped key');
+  const captured=await fromApp();assert.equal(captured.status,201,'the allowed app uses its scoped key without the owner gate');assert.equal((await captured.json()).outcome,'accepted');
   await tabTo(page.getByRole('button',{name:'Copy Sentry DSN',exact:true}),'Copy Sentry DSN button');await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(async()=>await navigator.clipboard.readText()),await dsn.innerText(),'copy retains the once-shown DSN');await page.evaluate(()=>navigator.clipboard.writeText(''));await inspect('sent');
   const continueLink=page.getByRole('link',{name:'Continue to workbench',exact:true});await tabTo(continueLink,'Continue to workbench link');await page.keyboard.press('Enter');await page.getByRole('navigation',{name:'Workbench',includeHidden:true}).getByRole('link',{name:'Settings',exact:true,includeHidden:true}).waitFor({state:'attached'});assert.equal(new URL(page.url()).pathname,'/projects/journey/issues');

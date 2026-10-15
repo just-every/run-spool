@@ -2149,6 +2149,10 @@
       "sha256": "19a08a8ce01bda4d6e3bb1975b372d14ae8e58c2e0351adac3ad877166e712ba",
       "executable": false
     },
+    ".github/workflows/command-journey.yml": {
+      "sha256": "13a60a40ac747541990d161d01537b97e29570a28ccde8fa53365ee23f198c60",
+      "executable": false
+    },
     ".github/workflows/rer-managed.yml": {
       "sha256": "4438b6e2ab1aa8eac1ccb92a7a6063ed222ac3b8575417824951e80a0bf4c40a",
       "executable": false
@@ -2166,7 +2170,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "d49895d13aaa96afbf153560b7c0ffb828b06e94b12c7b6d5ced49aee2cebfd2",
+      "sha256": "a2ba4d62de9720760b9f20b770cee76069619ea0b5f395b0016386c1d62faac9",
       "executable": false
     },
     ".gitignore": {
@@ -2686,7 +2690,7 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "e216e09c058d455501b26783cb4a9d3e7b8e5bdd1d2345bf78acec8e4e7ec513",
+      "sha256": "d0eaf59283f153143a308cc0b96b6c667f3b28af10cf597bc8dc0ab29a50672e",
       "executable": false
     },
     "package.json": {
@@ -6090,7 +6094,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "24c421d4ba78d185f7afaa3fd74ab059279abab67db84213aee2cf2c3bce7888",
+      "sha256": "dcfd3bc128e75b259737bc3fb6138e815e3cda83caefe5e6c0c60e31350c0db9",
       "executable": false
     },
     "tests/source-import.mjs": {

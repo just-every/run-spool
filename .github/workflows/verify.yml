@@ -8,24 +8,13 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Reclaim unused hosted runner toolchain space
-        if: runner.environment == 'github-hosted' && runner.os == 'Linux'
-        shell: bash
-        run: |
-          # This disposable JavaScript job does not use Android, .NET, or Haskell.
-          # Keep Node, browser dependencies, the checkout, and caches intact.
-          printf 'Filesystem space before toolchain cleanup\n'
-          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
-          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /usr/local/.ghcup
-          printf 'Filesystem space after toolchain cleanup\n'
-          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
       - uses: pnpm/action-setup@v4
         with:
           version: 10.12.4
@@ -36,7 +25,88 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Check source and portable contract
+        run: |
+          pnpm run check -- --profile first-party
+          pnpm source:check
+          node scripts/edition-authoring/cli.mjs verify-base --offline
+      - name: Build application
+        run: pnpm run build:app
+      - name: Check integration and types
+        run: |
+          pnpm integration:check
+          pnpm typecheck
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verify-build
+          # Only build output, including hidden Vite manifests and asset rules.
+          # Never transfer local settings, state, or installation data.
+          path: |
+            dist/
+            public/errors-capture.js
+            !dist/**/.dev.vars*
+            !dist/**/.env*
+            !dist/**/.wrangler/**
+            !dist/**/.rer/**
+            !dist/**/.seed/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  tests:
+    name: verify (${{ matrix.shard }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: runtime
+            command: pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+          - shard: owner-ui
+            command: pnpm test:accessibility && pnpm test:admission
+          - shard: alerts
+            command: pnpm test:alerts && pnpm test:alerts-ui
+          - shard: sdk
+            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+          - shard: evidence
+            command: pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution && pnpm test:project-erasure && pnpm test:owner-erasure
+    steps:
+      # Keep the default checkout root on every runner: emitted configs can
+      # contain absolute paths from the build job's checkout.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: verify-build
+          path: .
       - run: pnpm exec playwright install --with-deps chromium
         env:
           DEBUG: pw:install
-      - run: pnpm verify
+      - name: Run suites
+        run: ${{ matrix.command }}
+      - name: Check hosted output and hydration
+        if: matrix.shard == 'owner-ui'
+        # These are the post-verify:app checks from the pinned rer verify.
+        run: |
+          node --input-type=module <<'NODE'
+          import {checkHostedOutput} from '@runeditrun/rer/internal/cli/hosted-output.mjs';
+          import {checkHydration} from '@runeditrun/rer/internal/cli/hydration/check.mjs';
+          import {commandAdapter} from './scripts/installer/local.mjs';
+          const root = process.cwd();
+          const declaration = commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration;
+          console.log(await checkHostedOutput(root, {declaration}));
+          console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
+          NODE
