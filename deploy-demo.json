@@ -4,7 +4,6 @@
   "name": "Spool",
   "settings": {
     "MAIL_PROVIDER": "development",
-    "MAIL_FROM": "Spool demo <demo@demo.invalid>",
     "AUTH_LOCAL": "false"
   }
 }
