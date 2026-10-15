@@ -74,6 +74,8 @@ jobs:
             command: pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution
           - shard: project-erasure
             command: pnpm test:project-erasure
+          - shard: project-erasure-cap
+            command: pnpm test:project-erasure-cap
           - shard: owner-erasure
             command: pnpm test:owner-erasure
     steps:

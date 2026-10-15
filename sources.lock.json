@@ -2170,7 +2170,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "d1459d401d2a6f7b41e796035af378dcc5d2039428b0849a22201f9d4b5c084d",
+      "sha256": "94d93b03269a96407d4198df7258421e754b23807c8187173912cf151eac0f6b",
       "executable": false
     },
     ".gitignore": {
@@ -2690,11 +2690,11 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "582955f5286c7cc1deffa13ca6788ddddc249593a08af795c11988499c85ea95",
+      "sha256": "5bef6580aa56e46df2eae7b34112c485263db1cddb3a6279d2ebf56989b994c5",
       "executable": false
     },
     "package.json": {
-      "sha256": "07e832219cfcf027c8a49722262bc520fd64fee085a9f8cc3bff532bdbccb204",
+      "sha256": "365f53954c3afdc1359a86aa9e418bd3719dd904e11feb5b21d0718d96baa3f5",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -5842,7 +5842,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "d52654c92c06f4c11db2533c0ea410d01aaae3b8b6635ad67987eea1ec53eba8",
+      "sha256": "fae4448e0f4bc1d57e46a5e62905aa051e0cb325b4e408b851f8235be8ca0c55",
       "executable": false
     },
     "tests/commands.mjs": {
@@ -6009,8 +6009,12 @@
       "sha256": "8c83e9d0c9f0faa0c1225931689eabc5d954ec4b8dfe71e963b09f9b146a3f63",
       "executable": false
     },
+    "tests/project-erasure-cap.mjs": {
+      "sha256": "cb35753752ce168a291bc7a3bf7bd9222b6a8764be1e76ac0bfcb633fda15947",
+      "executable": false
+    },
     "tests/project-erasure.mjs": {
-      "sha256": "4414997a8fe64a03c4a39aa513c8d5c8a64b55504fd9a25dc03ecd7959008ef7",
+      "sha256": "37f55c6b6740033e926863bf806a321db8ef8fe3d6f7f696e0d76d7939a7a3b5",
       "executable": false
     },
     "tests/project-erasure/doors.mjs": {

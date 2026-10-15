@@ -84,7 +84,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
    const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>{item.diagnostic.timedOut=true;reject(new Error('Command deadline exceeded'));},15*60*1000);});
    try{
     const result=await Promise.race([item.closed,expired]);if(item.item.spawnError)throw item.item.spawnError;
-    if(expected!==null)assert.equal(result.code,expected,'seed command exits with the expected status');return result;
+    if(expected!==null)assert.equal(result.code,expected,'seed command exits with the expected status: '+JSON.stringify(classifyCommandOutput(result.output,args[0])));return result;
    }finally{clearTimeout(timeout);}
   }
   async function ready(args,origin){
