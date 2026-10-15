@@ -67,15 +67,19 @@ try {
  assert.equal((await app.json('/api/projects/web/alerts')).length,priorAlerts,'policy blocks new and later-release regression feed');assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM alert_intents').first()).n,priorIntents,'policy blocks delivery intents');
  const policyPacket=await app.json('/api/projects/web/issues/'+policyIssue.issue+'/packet');assert.equal(policyPacket.issue.count,2);assert.ok(policyPacket.events.every(e=>e.suppression.some(r=>r.id===policy.id)));
  await app.json('/api/projects/web/suppression-policies/'+policy.id,'PATCH',{...policy,enabled:false});
- const start=Math.floor(Date.now()/60000)*60000;
- await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-180000,spike.id).run();
  const suppressed=await app.json('/api/ingest/web','POST',event('suppressed-1',{frames:[{file:'https://app.example.com/suppressed.js',line:1,column:0,function:'quiet'}]}),auth);
  await app.json('/api/ingest/web','POST',event('suppressed-2',{frames:[{file:'https://app.example.com/suppressed.js',line:1,column:0,function:'quiet'}]}),auth);
  const quiet=(await app.json('/api/projects/web/issues')).find(i=>i.id===suppressed.issue);await app.json('/api/projects/web/issues/'+quiet.id,'PATCH',{state:'suppressed',revision:quiet.revision});
- await app.json('/api/ingest/web','POST',event('volume-1'),auth);await app.json('/api/ingest/web','POST',event('volume-2'),auth);
- await app.schedule(start+59999);assert.equal((await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike').length,0);
+ for(const id of ['volume-1','volume-2','volume-3'])await app.json('/api/ingest/web','POST',event(id),auth);
+ // Use a real received window, including when these requests cross a minute.
+ // Earlier windows may legitimately spike during catch-up; only this window is incomplete.
+ const window=await app.db.prepare("SELECT CAST(received/60000 AS INTEGER)*60000 start,COUNT(*) count FROM events WHERE project='web' AND id IN ('volume-1','volume-2','volume-3') GROUP BY start HAVING COUNT(*)>=2 ORDER BY start DESC LIMIT 1").first();
+ assert.ok(window,'accepted volume events share a complete-window fixture');const start=window.start;
+ const windowSpikes=alerts=>alerts.filter(a=>a.kind==='spike'&&JSON.parse(a.payload).window.start===new Date(start).toISOString());
+ await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-180000,spike.id).run();
+ await app.schedule(start+59999);assert.equal(windowSpikes(await app.json('/api/projects/web/alerts')).length,0);
  await Promise.all([app.schedule(start+60000),app.schedule(start+60000)]);
- const spikes=(await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike');assert.equal(spikes.length,1);assert.ok(spikes.every(a=>a.issue!==policyIssue.issue),'previously suppressed events cannot spike after disable');assert.ok(JSON.parse(spikes[0].payload).window.count>=2);assert.equal((await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(spike.id).first()).next_start,start+60000);
+ const allSpikes=(await app.json('/api/projects/web/alerts')).filter(a=>a.kind==='spike'),spikes=windowSpikes(allSpikes);assert.equal(spikes.length,1);assert.ok(allSpikes.every(a=>a.issue!==policyIssue.issue&&a.issue!==suppressed.issue),'suppressed evidence cannot spike after disable or during catch-up');assert.ok(JSON.parse(spikes[0].payload).window.count>=2);assert.equal((await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(spike.id).first()).next_start,start+60000);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,spike.id).run();
  await app.json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:true});assert.equal((await app.json(deliveryPath+'/gaps')).length,1);
  await suppressionEligibility(app,auth,event,deliveryPath);

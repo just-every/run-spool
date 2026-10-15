@@ -5786,7 +5786,7 @@
       "executable": false
     },
     "tests/alerts-runtime.mjs": {
-      "sha256": "e8d004aed83334a9dc4e333f1110387432b950c767ebdf7a05a621883514a5dd",
+      "sha256": "26b7c498eaa1eedc7b8a372adb84305c646de7f452448301594eda669088e406",
       "executable": false
     },
     "tests/alerts-ui.mjs": {
