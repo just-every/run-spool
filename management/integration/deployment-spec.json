@@ -210,6 +210,12 @@
       "name": "0034_source_paths.sql",
       "sha256": "607ce23ee14fb8bae0ae04f579b540ed681cb52308b44017574fdec41212dee5",
       "sql": "-- Repository path evidence belongs to an exact owner/deploy manifest, not a source map.\nCREATE TABLE deployment_path_mappings(project TEXT NOT NULL,release TEXT NOT NULL,environment TEXT NOT NULL,build TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(project,release,environment),FOREIGN KEY(project,release,environment) REFERENCES deployment_manifests(project,release,environment));\nCREATE TRIGGER portability_deployment_path_mappings_insert BEFORE INSERT ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_deployment_path_mappings_update BEFORE UPDATE ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_deployment_path_mappings_delete BEFORE DELETE ON deployment_path_mappings WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0035_bundle_grouping.sql",
+      "sha256": "f13ea63d7298fe9414b2887bcdeb12f3359d24ca79547135dbb61aa6f0260289",
+      "sql": "-- Stable bundle identity points at an immutable native grouping anchor.\nCREATE TABLE grouping_routes(project TEXT NOT NULL REFERENCES projects(id),fingerprint TEXT NOT NULL,issue TEXT NOT NULL REFERENCES issues(id),basis TEXT NOT NULL,PRIMARY KEY(project,fingerprint),UNIQUE(project,issue));\nCREATE TRIGGER portability_grouping_routes_insert BEFORE INSERT ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_grouping_routes_update BEFORE UPDATE ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_grouping_routes_delete BEFORE DELETE ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
