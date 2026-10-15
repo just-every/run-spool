@@ -5,13 +5,18 @@
     {
       "id": "owner",
       "label": "First owner"
+    },
+    {
+      "id": "email",
+      "label": "Sign-in email",
+      "help": "Local development uses the outbox. Hosted sign-in requires a configured email provider."
     }
   ],
   "fields": [
     {
       "name": "OWNER_EMAIL",
       "label": "Owner email",
-      "help": "Sign-in links for this address appear in the local development outbox; no email is sent.",
+      "help": "The first owner uses this address for sign-in. Local development delivers sign-in links to the outbox.",
       "kind": "email",
       "required": true,
       "prefill": "account-email",
@@ -44,6 +49,65 @@
       "default": "",
       "help": "Optional Auth install. Leave empty to use email links.",
       "group": "owner"
+    },
+    {
+      "name": "MAIL_PROVIDER",
+      "label": "Email provider",
+      "kind": "select",
+      "required": true,
+      "default": "development",
+      "options": [
+        {
+          "value": "development",
+          "label": "Local outbox"
+        },
+        {
+          "value": "resend",
+          "label": "Resend"
+        },
+        {
+          "value": "sendgrid",
+          "label": "SendGrid"
+        }
+      ],
+      "group": "email",
+      "runtimeEditable": false
+    },
+    {
+      "name": "MAIL_FROM",
+      "label": "Sender email",
+      "kind": "email",
+      "default": "auth@localhost.test",
+      "required": true,
+      "group": "email",
+      "runtimeEditable": true
+    },
+    {
+      "name": "MAIL_API_KEY",
+      "label": "Mail API key",
+      "kind": "secret",
+      "input": "entered",
+      "required": false,
+      "ownerVisible": true,
+      "group": "email",
+      "presentations": [
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "resend"
+          },
+          "label": "Resend API key",
+          "required": true
+        },
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "sendgrid"
+          },
+          "label": "SendGrid API key",
+          "required": true
+        }
+      ]
     }
   ],
   "steps": [

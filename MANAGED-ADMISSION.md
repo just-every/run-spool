@@ -40,7 +40,7 @@ in `base-copies.json` into `scripts/delivery/base` without Base tests.
 `setup.manifestFile` selects the committed canonical manifest. `rer-project.json`
 records the exact setup digest, product recovery guidance and full verification
 command. The managed workflow pins the reviewed delivery
-trusted-build revision `bf7a25abb44bec1457a7bc738ff63921d90fb52e`. Packaging emits
+trusted-build revision `86c8b37399c901bffd9a240dbd1148a65ec83b34`. Packaging emits
 schema-2 payloads for the built Worker, assets and exact migration bytes.
 
 After the ordinary build, run:
