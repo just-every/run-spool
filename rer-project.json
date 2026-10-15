@@ -11,7 +11,7 @@
   "operations": {
     "setup": "bash scripts/delivery/setup-build.sh",
     "build": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run build",
-    "verify": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm run verify",
+    "verify": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && pnpm exec rer check --profile first-party && pnpm source:check && node scripts/edition-authoring/cli.mjs verify-base --offline && pnpm integration:check",
     "artifact": "export PATH=\"$PWD/.rer-tools/node_modules/.bin:$PATH\" && node scripts/build-delivery-artifact.mjs",
     "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic."
   },

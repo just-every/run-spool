@@ -8,4 +8,3 @@ npm install --prefix "$spool_build_root/.rer-tools" --no-save --package-lock=fal
   --no-audit --no-fund node@22.20.0 pnpm@10.12.4
 export PATH="$spool_build_root/.rer-tools/node_modules/.bin:$PATH"
 pnpm install --frozen-lockfile
-pnpm exec playwright install --with-deps chromium
