@@ -2193,7 +2193,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "86c56df229cdd2d94af344b35f615924f743f323c74044613e2be8fbb3af9ea1",
+      "sha256": "26d70e64475fa71a5ad1bd161282c5aa35be224e4666456c13442ce1d221c2de",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3429,7 +3429,7 @@
       "executable": false
     },
     "src/domain/fixes/provider.ts": {
-      "sha256": "61161ae65a5ee64be119a9c1f39e24ed3ca79669712f798725ed70b7762ac7f4",
+      "sha256": "7ed7c653c5f4570b3b989b6d139e125c8ec7ff8c5ca60768051a3d029565404b",
       "executable": false
     },
     "src/domain/fixes/routes.ts": {
@@ -5605,7 +5605,7 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
-      "sha256": "473c4e1e00e0b3ef38570e70480a1809f096b190d185a1d6d87af2e6a6c05da1",
+      "sha256": "2ce194afaf9f531b1d1cf47f1310cd7c1ea0587855adb7041f76f1ec763f5ac1",
       "executable": false
     },
     "src/ui/workbench/FixWorkflowCard.tsx": {
@@ -5653,7 +5653,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "4ad23a2357978334583ec0ba43687fddd29f71ac49748c1c16fdff4a08521fe6",
+      "sha256": "04e1f4101903e42b55f5cf2019e406a7978136c9f5e75d5430cca60cb487d6b5",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -5705,7 +5705,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "da372dd3972214b1695fa19d4d285e76da5ca179395b4a8068c45ad09f56c9d2",
+      "sha256": "7471f3b370d9bd0827c2f25801713cd03a0e7bb339def3a8b6f959821f992d9d",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
@@ -5757,7 +5757,7 @@
       "executable": false
     },
     "tests/alerts-immediate.mjs": {
-      "sha256": "f6b4fc775a040b762b75c12bbdec0bf3304474f1ac7159ce7d8aa6d0d025da8c",
+      "sha256": "4e7a45d44a1d69ae3d8e262acae4e739be4428a91e546498cbbc64a031772a5b",
       "executable": false
     },
     "tests/alerts-native.mjs": {
@@ -5849,7 +5849,7 @@
       "executable": false
     },
     "tests/execution/fix.mjs": {
-      "sha256": "1cb57a6645a16054943a766cc46504d86b66809556ce90b88d2530bfc47fecb8",
+      "sha256": "5473a15abd7734a63e4425021499501a3618ae40891cd23cb1f651883183cdac",
       "executable": false
     },
     "tests/execution/fixture.mjs": {
@@ -5857,7 +5857,7 @@
       "executable": false
     },
     "tests/execution/github-double.mjs": {
-      "sha256": "772a2d98489c3d5113f4f47a165aecd22b249c1a8b6b54a1c9a5d3b847b7c71b",
+      "sha256": "aff20886acf6d8120ff3695d9486def1379a456270cae60b5a78afc38bcfebb1",
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
@@ -5969,7 +5969,7 @@
       "executable": false
     },
     "tests/privacy-table.mjs": {
-      "sha256": "2ae9b1c8a8fa36bef0d3718eede748e70bde8676306d03595f3c6d07b2e93f65",
+      "sha256": "e1e929b60593808dd19931eef945ee73bdd73d098054bc0199ddb4550028e549",
       "executable": false
     },
     "tests/privacy-table/forms.mjs": {

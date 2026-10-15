@@ -54,7 +54,8 @@ try {
   issues.sentry = (await app.json('/api/projects/web/issues?limit=100')).find(row => !Object.values(issues).includes(row.id)).id;
   for (let n = 0; n < 3; n++) await app.schedule(Date.now());
   await record('alert webhook payloads', rcv.requests.map(r => JSON.parse(r.body)));
-  await record('alert email', (await app.db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY rowid').all()).results.map(r => JSON.parse(r.message)));
+  const mailJobs=(await app.db.prepare('SELECT message FROM alert_mail_jobs ORDER BY id').all()).results;assert.ok(mailJobs.length,'prepared alert email is covered even when local sends are suppressed');
+  await record('alert email', mailJobs.map(r => JSON.parse(r.message)));
   const agentKey = (await app.json('/api/projects/web/keys', 'POST', { kind: 'agent' })).key;
   const agent = p => fetch(app.origin + p, { headers: { Authorization: 'Bearer ' + agentKey } }).then(r => { assert.equal(r.status, 200, p); return r.json(); });
   await record('owner issue list', await app.json('/api/projects/web/issues?limit=100'));

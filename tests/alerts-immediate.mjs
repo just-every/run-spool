@@ -12,7 +12,11 @@ const deliveries='/api/projects/web/alerting/deliveries';
 const frames=name=>({frames:[{file:`https://app.example.com/${name}.js`,line:1,column:0,function:name}]});
 try {
  app=await alertRuntime(inbox);const auth=await setup(app);
- const sent=kind=>async()=>(await app.db.prepare("SELECT COUNT(*) n FROM rer_mail_development_outbox WHERE message LIKE ?").bind(`%Spool ${kind}%`).first()).n;
+ const sent=kind=>async()=>{
+  const [feed,rows]=await Promise.all([app.json('/api/projects/web/alerts'),app.json(deliveries)]);
+  const alerts=new Set(feed.filter(row=>row.kind===kind.replaceAll(' ','_')).map(row=>row.id));
+  return rows.filter(row=>row.channel==='mail'&&row.state==='accepted'&&alerts.has(row.alert_id)).length;
+ };
  const mails=sent('new issue'),regressionMails=sent('regression');
  const settled=async(mail,effects,count=mails)=>{for(let i=0;i<100;i++){if(await count()>=mail&&inbox.effects()>=effects)return;await new Promise(r=>setTimeout(r,50))}};
  const health=async()=>(await (await fetch(app.origin+'/health')).json()).alerts.lastScheduledRun;
@@ -37,5 +41,6 @@ try {
  assert.equal(await regressionMails(),1);assert.equal(inbox.effects(),3);assert.equal(await health(),lastTick,'no scheduled run was needed for the regression');
  for(let i=0;i<3;i++)await app.schedule(Date.now()+i*1000);
  assert.equal(await regressionMails(),1);assert.equal(inbox.effects(),3);assert.equal(inbox.requests.length,3);
- console.log(JSON.stringify({passed:true,ingestToDeliveredMs:Date.now()-started,proof:'Idle tick recorded in /health; new-issue and regression mail and webhook sent after ingest with no scheduled run; racing and later scheduled runs sent nothing twice.'}));
+ assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first()).n,0,'local mail is suppressed');
+ console.log(JSON.stringify({passed:true,ingestToDeliveredMs:Date.now()-started,proof:'Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice.'}));
 } finally {await app?.close();await inbox.close?.();await rm(temp,{recursive:true,force:true});}
