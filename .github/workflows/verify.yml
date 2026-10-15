@@ -71,7 +71,11 @@ jobs:
           - shard: sdk
             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
           - shard: evidence
-            command: pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution && pnpm test:project-erasure && pnpm test:owner-erasure
+            command: pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution
+          - shard: project-erasure
+            command: pnpm test:project-erasure
+          - shard: owner-erasure
+            command: pnpm test:owner-erasure
     steps:
       # Keep the default checkout root on every runner: emitted configs can
       # contain absolute paths from the build job's checkout.
@@ -100,8 +104,9 @@ jobs:
       - name: Check hosted output and hydration
         if: matrix.shard == 'owner-ui'
         # These are the post-verify:app checks from the pinned rer verify.
+        # Node 22 detects module syntax; --input-type breaks Miniflare's file-based worker thread.
         run: |
-          node --input-type=module <<'NODE'
+          node <<'NODE'
           import {checkHostedOutput} from '@runeditrun/rer/internal/cli/hosted-output.mjs';
           import {checkHydration} from '@runeditrun/rer/internal/cli/hydration/check.mjs';
           import {commandAdapter} from './scripts/installer/local.mjs';
