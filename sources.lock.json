@@ -2158,7 +2158,7 @@
       "executable": false
     },
     ".github/workflows/run-demo.yml": {
-      "sha256": "ab93b25a27f4ce062e60b945891ee376c9798c5db0cccf792c43a418f4be8bed",
+      "sha256": "a96744bd87749c7bce374cfdffc6c2b2db8f0ca63a5c7cc743da658e79055cad",
       "executable": false
     },
     ".github/workflows/run-site.yml": {
@@ -2194,7 +2194,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "54ab7f4a93bd7a87d152e10a2a379b02425f52a93a31689cf557d8f5aa3e3b1b",
+      "sha256": "ce82ed245a5b49622541fa658bcfc4ef89a308f9829859b2f7e7ee13ddb9adf0",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -3130,7 +3130,7 @@
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
-      "sha256": "bc75a370396fc1f655a5993919e108b0eba0441e18d1d346934b482b0d9fe518",
+      "sha256": "0b97e2459883fbb77845844cf20e6760dc775881fd26640a6a6dae050504b891",
       "executable": false
     },
     "seed.json": {
@@ -3766,15 +3766,15 @@
       "executable": false
     },
     "src/modules/demo/label.mjs": {
-      "sha256": "05c208a184941cf4c8be04502e2918c0ce9372159978022f02fb35c219f74d4f",
+      "sha256": "e39cffea58d72eebacf6d587f539f1632dd7139bb8e851451877a5ef0a60f2e5",
       "executable": false
     },
     "src/modules/demo/README.md": {
-      "sha256": "b00a8aa86d6a0df3c7ce904c3fa3bbb18b0b25a5fac722b4d7beafad183ae74f",
+      "sha256": "8fb9b98295fa59c8d4bdd6bd0d0b9940dc1113bb4a6d01813e76b5c878a445fc",
       "executable": false
     },
     "src/modules/demo/responses.mjs": {
-      "sha256": "3194f1a6aaec1f84477c15cf22fd32b650e317a119cfca26f0529c7ec5cd0cc5",
+      "sha256": "f91b6cb14dfde5c30750e6d248820f7218a855353e43e2defbc10fcc25fedc5d",
       "executable": false
     },
     "src/modules/demo/sockets.mjs": {
@@ -4234,7 +4234,7 @@
       "executable": false
     },
     "src/modules/import-kit/src/d1/erasure-stage.ts": {
-      "sha256": "9ecbdf112c28bb1bccf49ad28fcb2f469b01c8982a726efd99d3271ec64018b4",
+      "sha256": "9e4a69b1373d49269ef38bf3311468102bb94b308391838a8317ca361ddbe42d",
       "executable": false
     },
     "src/modules/import-kit/src/d1/erasure-step.ts": {
@@ -4242,7 +4242,7 @@
       "executable": false
     },
     "src/modules/import-kit/src/d1/erasure-values.ts": {
-      "sha256": "aa84881bea35969c83fce0b072a2878e761cbbc58137786a6d657ea28a27f22d",
+      "sha256": "57ccad1fc84f020c6b8d4d8bed2d2018028455961e38bc793acc5f27865094fe",
       "executable": false
     },
     "src/modules/import-kit/src/d1/erasure-writes.ts": {
@@ -4434,7 +4434,7 @@
       "executable": false
     },
     "src/modules/import-kit/src/d1/retirement-bounded.ts": {
-      "sha256": "508f3e2efa5624e525eb4ebf1c75ed954a3cfbdce8129ee10f8821a125f8e25d",
+      "sha256": "832581740e597e7c42e701370cf01372a67f97be84d42c44d701c13f5e62eaca",
       "executable": false
     },
     "src/modules/import-kit/src/d1/retirement-schema.ts": {
@@ -5226,7 +5226,7 @@
       "executable": false
     },
     "src/modules/operator-auth/identity/email-link/index.mjs": {
-      "sha256": "a682f502d87661d6556a005c3d0caef7896e5d7a5dd36703ec0088e2d95f9d0d",
+      "sha256": "7d7aa3530804b772006dfd881a8457ba11bc10ca65893a6bc1ec23a5e48e9c43",
       "executable": false
     },
     "src/modules/operator-auth/identity/email-link/message.mjs": {
@@ -5326,7 +5326,7 @@
       "executable": false
     },
     "src/modules/operator-auth/README.md": {
-      "sha256": "10699d8f086345f71c1f5fd1dd3b95dea72813ace61a9095dac5a4858d239e58",
+      "sha256": "fa9f1b13e8b98c269ebedc93ef703ac3438120b6a05937bc43eb1dc97c029b12",
       "executable": false
     },
     "src/modules/operator-auth/rejected-response.mjs": {
