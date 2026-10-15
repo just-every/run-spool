@@ -5734,7 +5734,7 @@
       "executable": false
     },
     "tests/admission-runtime.mjs": {
-      "sha256": "ffef19ce0615004e68dc8e44439b8b27790734e771212ebb51ad5b78d550669b",
+      "sha256": "6a168628dd4984dc9cf6e6122f12797dc3827f6f4f1a51720d75c6342ec3f1aa",
       "executable": false
     },
     "tests/agent-handoff.mjs": {
@@ -5978,7 +5978,7 @@
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
-      "sha256": "49ad1de07eda6d21aa61e05da395688cc97dec4d4a355902ae1f37a835502b33",
+      "sha256": "50a04816aab359fe92d79c4d3a4f607971fddb27f7a38e44f125395ebaf971e0",
       "executable": false
     },
     "tests/preview-session.mjs": {

@@ -21,8 +21,10 @@ export async function freePort() {
 
 /** Run the emitted application with real local D1 and all committed migrations. */
 export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false} = {}) {
- port ??= await freePort();
- const origin = `http://127.0.0.1:${port}`;
+ // Hosted auth has a fixed trusted origin, so let workerd bind its transport
+ // atomically instead of releasing a probe port before startup or restart.
+ port ??= hostedMail ? 0 : await freePort();
+ let origin = `http://127.0.0.1:${port}`;
  const {worker: emitted, database, triggers} = await emittedWorkerOptions(resolve('dist/server/wrangler.json'), miniflare);
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
  let worker;
@@ -31,7 +33,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
-export default {...application,fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===${JSON.stringify(origin)})headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+export default {...application,fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
    if(request.url!=='https://api.resend.com/emails')throw new Error('Unexpected test network destination');
@@ -52,7 +54,7 @@ export default {...application,fetch(request,env,ctx){const url=new URL(request.
   });
   if (triggers.length) options.workers[0].config.triggers = triggers;
   worker = new Miniflare(options);
-  await worker.ready;
+  origin = (await worker.ready).origin;
  };
  const apply = async files => {
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
@@ -71,9 +73,9 @@ export default {...application,fetch(request,env,ctx){const url=new URL(request.
    method, redirect: 'manual', headers: {Origin: origin, ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
    ...(value === undefined ? {} : {body: JSON.stringify(value)}),
   });
-  const runtime = {origin, DB: db, call,
+  const runtime = {get origin() {return origin;}, DB: db, call,
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),
-   restart: async () => {await worker.dispose(); await start(); runtime.DB = await worker.getD1Database(database.binding);},
+   restart: async () => {await worker.dispose(); await start(); runtime.DB = await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);},
    close: async () => {await worker.dispose(); await rm(temporary, {recursive: true, force: true});},
   };
   return runtime;
