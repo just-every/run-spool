@@ -27,10 +27,10 @@ export const commandAdapter = createCommandAdapter(adapter, {
  setup: { manifestFile: 'rer-setup.json' }, browserModule: 'scripts/installer/ui/seed.mjs',
  // The production build regenerates the TanStack route tree; preview's fixed-build receipt ignores it.
  generatedOutputs: ['src/routeTree.gen.ts'],
- // Local dev identity: the local-only Worker entry, the build output rer build scans for the dev layer, and the kept end-to-end email-link test.
- devIdentity: { entry: 'src/server.dev.ts', output: ['dist'], emailLinkTest: 'tests/setup-journey.mjs' },
+ // Local dev identity: the local-only Worker entry, the build output rer build scans for the dev layer, and its local owner journey.
+ devIdentity: { entry: 'src/server.dev.ts', output: ['dist'], emailLinkTest: 'tests/owner-erasure.mjs' },
  localOnlyKeys: ['RER_DEV_ORIGIN', 'RER_DEV_IDENTITY'],
  product: model.product.name,
- // Hosted setup defaults to a real provider; this computer's setup answers the development outbox itself.
+ // Hosted setup defaults to a real provider; local setup opens the owner session without email.
  input: { names: { email: 'OWNER_EMAIL', name: 'displayName' }, defaults: async () => ({ MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' }) },
 });

@@ -35,5 +35,5 @@ try {
   const html=await page.content();assert.ok(!html.includes('alert-owner@example.com'));assert.ok(!html.includes(app.bindings.ALERT_DESTINATION_HASH_KEY));
   await mkdir('.artifacts/alerts',{recursive:true});await page.screenshot({path:`.artifacts/alerts/journey-${width}.png`,fullPage:true});await context.close();
  }
- assert.deepEqual(errors,[]);console.log('Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/outbox/webhook state, project isolation and keyboard navigation.');
+ assert.deepEqual(errors,[]);console.log('Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.');
 }finally{await browser?.close();await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

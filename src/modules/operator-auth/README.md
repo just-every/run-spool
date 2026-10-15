@@ -63,7 +63,7 @@ Base's operator auth is the only staff sign-in, in three layers:
 | --- | --- | --- |
 | `identity/` | Proving who a person is: the email link (`identity/email-link/`), identity providers over OpenID Connect (`identity/oidc/`, see [its README](identity/oidc/README.md)), and the admission that turns a verified principal into a session (`identity/admission.mjs`). | Outputs a **verified principal** `{issuer, subject, provider?, email?, emailVerified?, emailVerifiedAt?, amr?}`; `identity/index.mjs`. |
 | `accounts/` | Who a person is in this app and what they may do: operators, roles, invitations, sessions, domain rules and step-up proofs in the `oa_` store (`accounts/store.mjs`, `accounts/schema/`). | The **accounts adapter interface** (`accounts/adapter.mjs`); Base's implementation over `oa_` is `accounts/oa.mjs`. |
-| `dev/` | Local-only dev sessions, personas and the badge, loaded only from a local-only Worker entry. | `dev/index.mjs`; see "Local dev identity" below. |
+| `dev/` | Local-only dev sessions, personas and mode labels, loaded only from a local-only Worker entry. | `dev/index.mjs`; see "Local dev identity" below. |
 
 The files at the root are shared by all three: HTTP and input checks, crypto,
 configuration and branding, the shared page frame (`page.mjs`), the key gate
@@ -380,7 +380,7 @@ for other requests). It is server-rendered plain HTML with no script, so it work
 before hydration and without JavaScript, in the same hashed-style frame as the
 confirmation page (light and dark, the seed's `rer-theme.css` when declared).
 It shows "Continue with…" for each linked, reachable provider, then the email
-link, then optional seed links (the local outbox) and, while the first owner is
+link, then optional seed links and, while the first owner is
 unclaimed, the setup form. A provider that has failed discovery or JWKS for 5
 minutes, or answered 404 or a DNS failure, is hidden, and a browser that still
 posts to it comes back to this page with a notice and the email link instead of
@@ -477,8 +477,7 @@ local mode. `admits(request)` accepts the `rer_dev_gate_<port>` cookie (an HMAC 
 key, so a reset key refuses old cookies) or the key in `x-rer-dev-key` (the rer
 CLI and test harnesses). `exchange(request)` serves `GET /__dev/key` and trades
 the key from the URL fragment, through a same-origin POST, for a host-only
-`HttpOnly; SameSite=Strict; Path=/` cookie. Seeds gate their development outbox
-with it.
+`HttpOnly; SameSite=Strict; Path=/` cookie.
 
 `dev/` is the dev layer: **server-only and local-only**. Import it only from a
 local-only Worker entry (a Vite-serve or local `wrangler dev` entry), never
@@ -489,19 +488,21 @@ the seed's Worker and serves, behind the gate only:
 | Path | Result |
 | --- | --- |
 | `/auth/dev/enter?as=owner\|signed-out\|PERSONA&returnTo=` | Creates or reuses a real `oa_sessions` row of kind `dev` for the configured owner or persona and 303s to `returnTo` (default `/app`); `signed-out` revokes the current session. |
+| `POST /auth/local/cli-session` | Owner-side tooling proves possession of the session secret with `x-rer-local-cli`; exact loopback and origin checks precede issuing a native owner session and fresh local proof. This route exists only in the dev entry. |
 | `/__dev/personas` | `[{as,email,role?}]`, used by `rer dev` for `RER_SIGNED_IN`. |
 
 `personas()` returns the seed's `devPersonas()`: `[{as, role, displayName?}]`,
 real operators at `<as>@dev.localhost` created only by dev sign-in. Dev
 sessions pass the same version fences, revocation, deactivation and allow-list
-as every other session. The core admits a `dev` session, and any credential
+as every other session. An admitted local dev session also confirms sensitive
+actions directly, so dev never waits for an email step-up link. The core admits a `dev` session, and any credential
 minted while using one (`oa_dev_credentials`, today an invitation link, whose
 confirmation then yields a `dev` session), only when the dev layer's
 registered check passes for that request; a production Worker never registers
-one. HTML documents gain a dev-only badge for switching identity; the root
-document also gets the fragment exchange script. Both are added under the
-document's own CSP by hash. With `RER_DEV_IDENTITY=off` (`rer dev --login`)
-dev sign-in and personas answer 404 while the gate still opens the outbox. The
+one. HTML documents gain the Dev suffix on product labels marked with
+`data-rer-name` and document titles; a demo receives Demo instead. The dedicated
+`/__dev/key` document exchanges the RER_OPEN fragment without placing the key in
+request URLs. `RER_DEV_IDENTITY=off` disables dev sign-in and personas. The
 layer answers 503 to every request when `RER_INSTALLATION_ID` is set beside a
 non-loopback `RER_MANAGEMENT_ORIGIN`.
 

@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {boundedCleanup,journeyDiagnostics,classifyCommandOutput} from './command-diagnostics.mjs';
 import {resourceRefusalFamily,waitForServerResources} from './command-resources.mjs';
-import {outboxFetch} from './auth.mjs';
+import {legacyCheckout} from './legacy-mail.mjs';
 import {commandCustody} from '@runeditrun/rer/internal/onboarding/command-custody.mjs';
 import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '@runeditrun/rer/process-scope';
 
@@ -62,6 +62,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
   // Current-command journeys need only HEAD. Fetching unrelated promised
   // history can require credentials even when HEAD is complete locally.
   const cloned=spawnSync('git',['clone','--no-local','--depth','1','--quiet',process.cwd(),root],{encoding:'utf8'});assert.equal(cloned.status,0,'isolated command checkout succeeds');
+  legacyCheckout(root);
   const env={...process.env,CI:'true',WRANGLER_SEND_METRICS:'false',RER_SERVERS_DIR:resolve(directory,'servers'),RER_SERVER_JOURNEY:'1'};delete env.RER_LOCAL_OPERATION;
   const baseline=await createProcessBaseline();
   function start(args,diagnostic=diagnostics.started(args[0])){
@@ -103,7 +104,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
      if(item.output().split('\n').some(line=>{try{return JSON.parse(line).event==='ready'}catch{return false}})){
       item.diagnostic.readinessObserved=true;
       assert.equal((await fetch(origin+'/health')).status,200);item.diagnostic.healthChecked=true;
-      assert.equal((await outboxFetch(origin)).status,200);item.diagnostic.outboxChecked=true;return item;
+      assert.equal((await fetch(origin+'/__dev/outbox')).status,404);return item;
      }
      await delay(250);
     }

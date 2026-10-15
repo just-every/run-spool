@@ -1,3 +1,4 @@
+import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -22,7 +23,7 @@ export async function nativeAlertRuntime() {
   options.workers[0].config.triggers=triggers;
   runtime=new miniflare.Miniflare(options);
   await runtime.ready;
-  const db=await runtime.getD1Database(database.binding);
+  const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   const {unstable_splitSqlQuery}=require('wrangler');
   const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));

@@ -6,17 +6,21 @@ import { signIn, testOwner } from '../auth.mjs';
 export async function runtime(extra={}) {
  const port=await freePort(),origin=`http://127.0.0.1:${port}`,issuer='https://owner-erasure-issuer.test',installationId=randomUUID();
  const {privateKey,publicKey}=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
- const app=await admissionRuntime({RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:origin,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify({erasure:publicKey.export({format:'jwk'})}),...extra},{port});
+ const app=await admissionRuntime({RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:origin,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify({erasure:publicKey.export({format:'jwk'})}),...extra},{port,hostedMail:true});
  try {
   const now=Math.floor(Date.now()/1000),encode=value=>Buffer.from(JSON.stringify(value)).toString('base64url');
-  const body=encode({alg:'ES256',typ:'rer-owner-claim+jwt',kid:'erasure'})+'.'+encode({v:1,iss:issuer,aud:origin,installationId,email:testOwner,jti:randomUUID(),iat:now,exp:now+240});
+  const body=encode({alg:'ES256',typ:'rer-owner-claim+jwt',kid:'erasure'})+'.'+encode({v:1,iss:issuer,aud:'https://spool.example',installationId,email:testOwner,jti:randomUUID(),iat:now,exp:now+240});
   const token=body+'.'+sign('sha256',Buffer.from(body),{key:privateKey,dsaEncoding:'ieee-p1363'}).toString('base64url');
   assert.equal((await app.call('/auth/owner-claim',{token,displayName:'Test owner'})).status,303);
-  app.cookie=await signIn(origin,{bootstrap:false});
+  app.cookie=await nativeSignIn(app,testOwner);
   app.request=(path,value,headers={},method)=>app.call(path,value,{Cookie:app.cookie,...headers},method);
   app.json=async(path,value,status=200,headers={})=>{const response=await app.request(path,value,headers);const data=await response.json();assert.equal(response.status,status,`${path}: ${JSON.stringify(data)}`);return data;};
   return app;
  }catch(error){await app.close();throw error;}
+}
+async function nativeSignIn(app,email){
+ assert.equal((await app.call('/auth/magic-link',{email})).status,202);
+ return confirmLatest(app,email);
 }
 export async function confirmLatest(app,email,cookie) {
  const rows=(await app.DB.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence DESC').all()).results;

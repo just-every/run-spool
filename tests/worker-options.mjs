@@ -1,3 +1,4 @@
+import {localRuntime} from './local-runtime.mjs';
 import assert from 'node:assert/strict';
 import {lstat,readFile,stat} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
@@ -65,9 +66,9 @@ export async function emittedWorkerOptions(configPath,miniflare) {
  assert.ok(database.remote===undefined||database.remote===false,'Remote emitted D1 is unsupported');
  assert.ok(database.preview_database_id===undefined||database.preview_database_id===database.database_id,'Alternate emitted D1 preview identity is unsupported');
  const rules=[...config.rules,...defaultRules].map(({type,globs,fallthrough})=>({type,include:globs,fallthrough}));
- return {database,triggers,worker:{
+ return {database,triggers,worker:await localRuntime({
   name:config.name,...await productionModules(config.main,rules,miniflare),
   compatibilityDate:config.compatibility_date,compatibilityFlags:config.compatibility_flags,
   bindings:config.vars,assets:miniflareAssets(config),d1Databases:{[database.binding]:database.database_id}
- }};
+ })};
 }

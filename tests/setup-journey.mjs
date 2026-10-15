@@ -11,30 +11,8 @@ export async function firstProjectJourney(browser, origin, width) {
  let context;
  try {
   const signIn=await plain.newPage();await openGate(plain,origin);await signIn.goto(origin+'/sign-in');await assertSignInForm(signIn);
-  await signIn.getByRole('link',{name:'Open development outbox',exact:true}).click();
-  const messages=signIn.getByRole('link',{name:'Read message',exact:true});
-  const messagesBefore=await messages.count();
-  await signIn.goto(origin+'/sign-in');await assertSignInForm(signIn);
-  await signIn.getByLabel('Owner email',{exact:true}).fill(testOwner);
-  const sent=signIn.waitForResponse(response=>new URL(response.url()).pathname==='/auth/magic-link'&&response.request().method()==='POST');
-  await signIn.getByRole('button',{name:'Send sign-in link',exact:true}).click();
-  assert.equal((await sent).status(),200,'ordinary no-JavaScript sign-in form returns successful HTML');
-  const sentStatus=signIn.getByRole('status');await sentStatus.waitFor({state:'visible'});
-  assert.equal(await sentStatus.evaluate(el=>typeof el.textContent==='string'&&el.textContent.trim().length>0),true,'native sign-in submission gives usable sent feedback');
-  await signIn.getByRole('link',{name:'Open development outbox',exact:true}).click();
-  assert.ok(await messages.count()>messagesBefore,'native sign-in submission adds an ordinary outbox message');
-  // Native outbox ordering is newest timestamp, then newest sequence first.
-  await messages.first().click();
-  await signIn.getByRole('link',{name:'Open this link',exact:true}).click();
-  const confirmation=signIn.waitForResponse(response=>new URL(response.url()).pathname==='/auth/confirm'&&response.request().method()==='POST');
-  await signIn.getByRole('button',{name:'Confirm',exact:true}).click();
-  assert.equal((await confirmation).status(),303,'ordinary outbox confirmation establishes the owner session once');
+  await signIn.getByRole('link',{name:'Continue as owner',exact:true}).click();
   await signIn.waitForURL(origin+'/setup');
-  assert.equal(new URL(signIn.url()).pathname,'/setup');
-  await signIn.goto(origin+'/__dev/outbox');await messages.first().click();
-  const reused=signIn.waitForResponse(response=>new URL(response.url()).pathname==='/auth/confirm'&&response.request().method()==='GET');
-  await signIn.getByRole('link',{name:'Open this link',exact:true}).click();
-  assert.equal((await reused).status(),400,'the consumed outbox confirmation cannot be reused');
   context=await browser.newContext({viewport,storageState:await plain.storageState()});
   await plain.close();
   const page=await context.newPage();const consoleErrors=[];page.on('console',message=>{if(message.type()==='error'&&/pattern/i.test(message.text()))consoleErrors.push(message.text());});await page.goto(origin+'/setup');

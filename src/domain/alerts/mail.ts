@@ -52,7 +52,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }
   let state='uncertain',code='response_unknown',receipt:string|null=null;
-  try {const result=await mail.send(JSON.parse(job.message));state=result.status==='development'?'captured_locally':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
+  try {const result=await mail.send(JSON.parse(job.message));state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
   const finished=clock();
   const next=state==='queued'?finished+JSON.parse(job.retry_delays)[job.attempts]:null;
   await finishMail(env,job.id,claim,state,code,receipt,finished,next);

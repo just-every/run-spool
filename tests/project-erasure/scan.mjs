@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
-import {outboxFetch} from '../auth.mjs';
+import {legacyMailRows} from '../legacy-mail.mjs';
 
 // Every table and every column of the local D1 file, read-only, as text and as
 // bytes. Returns each needle found with its table and column.
@@ -26,10 +26,9 @@ export function scanDatabase(root,needles){
  return {tables,cells,found};
 }
 export async function scanOutbox(app,needles){
- const listing=await (await outboxFetch(app.origin)).text(),ids=[...new Set([...listing.matchAll(/\?message=([^"&]+)"/g)].map(match=>match[1]))],found=[];
- for(const id of ids){const body=await (await outboxFetch(app.origin,'?message='+id)).text();for(const needle of needles)if(body.toLowerCase().includes(needle.toLowerCase()))found.push({message:id,needle});}
- for(const needle of needles)if(listing.toLowerCase().includes(needle.toLowerCase()))found.push({message:'listing',needle});
- return {messages:ids.length,found};
+ const rows=await legacyMailRows(app.origin),found=[];
+ for(const row of rows)for(const needle of needles)if(row.message.toLowerCase().includes(needle.toLowerCase()))found.push({message:row.id,needle});
+ return {messages:rows.length,found};
 }
 export const scanText=(text,needles)=>needles.filter(needle=>text.toLowerCase().includes(needle.toLowerCase()));
 

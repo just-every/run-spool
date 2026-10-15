@@ -181,20 +181,33 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "3d643dda1d203d36e3fa57e8e5ba14e414bba6f9",
+          "revision": "38aa7efdb3cceec585d2344ed54dd559295b9059",
           "path": "modules/operator-auth",
           "paths": [
             "README.md",
             "accounts/adapter.mjs",
             "accounts/admin.mjs",
+            "accounts/credentials.mjs",
+            "accounts/editor-owner.mjs",
+            "accounts/email-change.mjs",
             "accounts/index.d.mts",
             "accounts/index.mjs",
+            "accounts/native.d.mts",
+            "accounts/native.mjs",
             "accounts/oa.mjs",
+            "accounts/owner-signin.mjs",
+            "accounts/provider-control.mjs",
+            "accounts/provider-pin.mjs",
             "accounts/roles.mjs",
+            "accounts/schema/dependency-setup.sql",
             "accounts/schema/dev-sessions.sql",
             "accounts/schema/domain-rules-step-up.sql",
             "accounts/schema/invitation-cancellation.sql",
             "accounts/schema/operator-auth.sql",
+            "accounts/schema/owner-signin.sql",
+            "accounts/schema/provider-control.sql",
+            "accounts/schema/provider-pins.sql",
+            "accounts/settings-page.mjs",
             "accounts/store.mjs",
             "branding.mjs",
             "config.mjs",
@@ -203,21 +216,27 @@
             "conformance/index.mjs",
             "conformance/presentation.mjs",
             "crypto.mjs",
+            "csp.mjs",
+            "dev-admission.d.mts",
             "dev-admission.mjs",
             "dev-gate.mjs",
-            "dev/badge.mjs",
+            "dev/cli-session.mjs",
             "dev/index.d.mts",
             "dev/index.mjs",
             "dev/personas.mjs",
             "dev/sign-in-as.d.mts",
             "dev/sign-in-as.mjs",
             "docs/README.md",
+            "docs/native-accounts.md",
             "docs/tanstack-start.md",
             "docs/vite-spa.md",
             "errors.mjs",
             "http.mjs",
             "identity/admission.mjs",
+            "identity/after-confirm.mjs",
             "identity/email-link/confirmation.mjs",
+            "identity/email-link/index.d.mts",
+            "identity/email-link/index.mjs",
             "identity/email-link/message.mjs",
             "identity/index.d.mts",
             "identity/index.mjs",
@@ -238,10 +257,14 @@
             "index.mjs",
             "input.mjs",
             "local-cli.mjs",
+            "loopback.mjs",
+            "owner-signin-grant.mjs",
             "page.mjs",
             "policy.mjs",
+            "rejected-response.mjs",
             "routes.mjs",
             "service.mjs",
+            "signin/index.d.mts",
             "signin/index.mjs"
           ]
         },
@@ -259,6 +282,18 @@
             "originPath": "accounts/admin.mjs"
           },
           {
+            "path": "src/modules/operator-auth/accounts/credentials.mjs",
+            "originPath": "accounts/credentials.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/editor-owner.mjs",
+            "originPath": "accounts/editor-owner.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/email-change.mjs",
+            "originPath": "accounts/email-change.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/accounts/index.d.mts",
             "originPath": "accounts/index.d.mts"
           },
@@ -267,12 +302,36 @@
             "originPath": "accounts/index.mjs"
           },
           {
+            "path": "src/modules/operator-auth/accounts/native.d.mts",
+            "originPath": "accounts/native.d.mts"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/native.mjs",
+            "originPath": "accounts/native.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/accounts/oa.mjs",
             "originPath": "accounts/oa.mjs"
           },
           {
+            "path": "src/modules/operator-auth/accounts/owner-signin.mjs",
+            "originPath": "accounts/owner-signin.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/provider-control.mjs",
+            "originPath": "accounts/provider-control.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/provider-pin.mjs",
+            "originPath": "accounts/provider-pin.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/accounts/roles.mjs",
             "originPath": "accounts/roles.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/schema/dependency-setup.sql",
+            "originPath": "accounts/schema/dependency-setup.sql"
           },
           {
             "path": "src/modules/operator-auth/accounts/schema/dev-sessions.sql",
@@ -289,6 +348,22 @@
           {
             "path": "src/modules/operator-auth/accounts/schema/operator-auth.sql",
             "originPath": "accounts/schema/operator-auth.sql"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/schema/owner-signin.sql",
+            "originPath": "accounts/schema/owner-signin.sql"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/schema/provider-control.sql",
+            "originPath": "accounts/schema/provider-control.sql"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/schema/provider-pins.sql",
+            "originPath": "accounts/schema/provider-pins.sql"
+          },
+          {
+            "path": "src/modules/operator-auth/accounts/settings-page.mjs",
+            "originPath": "accounts/settings-page.mjs"
           },
           {
             "path": "src/modules/operator-auth/accounts/store.mjs",
@@ -323,6 +398,14 @@
             "originPath": "crypto.mjs"
           },
           {
+            "path": "src/modules/operator-auth/csp.mjs",
+            "originPath": "csp.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/dev-admission.d.mts",
+            "originPath": "dev-admission.d.mts"
+          },
+          {
             "path": "src/modules/operator-auth/dev-admission.mjs",
             "originPath": "dev-admission.mjs"
           },
@@ -331,8 +414,8 @@
             "originPath": "dev-gate.mjs"
           },
           {
-            "path": "src/modules/operator-auth/dev/badge.mjs",
-            "originPath": "dev/badge.mjs"
+            "path": "src/modules/operator-auth/dev/cli-session.mjs",
+            "originPath": "dev/cli-session.mjs"
           },
           {
             "path": "src/modules/operator-auth/dev/index.d.mts",
@@ -359,6 +442,10 @@
             "originPath": "docs/README.md"
           },
           {
+            "path": "src/modules/operator-auth/docs/native-accounts.md",
+            "originPath": "docs/native-accounts.md"
+          },
+          {
             "path": "src/modules/operator-auth/docs/tanstack-start.md",
             "originPath": "docs/tanstack-start.md"
           },
@@ -379,8 +466,20 @@
             "originPath": "identity/admission.mjs"
           },
           {
+            "path": "src/modules/operator-auth/identity/after-confirm.mjs",
+            "originPath": "identity/after-confirm.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/identity/email-link/confirmation.mjs",
             "originPath": "identity/email-link/confirmation.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/identity/email-link/index.d.mts",
+            "originPath": "identity/email-link/index.d.mts"
+          },
+          {
+            "path": "src/modules/operator-auth/identity/email-link/index.mjs",
+            "originPath": "identity/email-link/index.mjs"
           },
           {
             "path": "src/modules/operator-auth/identity/email-link/message.mjs",
@@ -463,6 +562,14 @@
             "originPath": "local-cli.mjs"
           },
           {
+            "path": "src/modules/operator-auth/loopback.mjs",
+            "originPath": "loopback.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/owner-signin-grant.mjs",
+            "originPath": "owner-signin-grant.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/page.mjs",
             "originPath": "page.mjs"
           },
@@ -471,12 +578,20 @@
             "originPath": "policy.mjs"
           },
           {
+            "path": "src/modules/operator-auth/rejected-response.mjs",
+            "originPath": "rejected-response.mjs"
+          },
+          {
             "path": "src/modules/operator-auth/routes.mjs",
             "originPath": "routes.mjs"
           },
           {
             "path": "src/modules/operator-auth/service.mjs",
             "originPath": "service.mjs"
+          },
+          {
+            "path": "src/modules/operator-auth/signin/index.d.mts",
+            "originPath": "signin/index.d.mts"
           },
           {
             "path": "src/modules/operator-auth/signin/index.mjs",
@@ -1503,7 +1618,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "3d643dda1d203d36e3fa57e8e5ba14e414bba6f9",
+          "revision": "38aa7efdb3cceec585d2344ed54dd559295b9059",
           "path": "modules/mail",
           "paths": [
             ".gitignore",
@@ -1519,6 +1634,15 @@
             "src/adapters/cloudflare/headers.mjs",
             "src/adapters/cloudflare/index.mjs",
             "src/adapters/cloudflare/response.mjs",
+            "src/adapters/messaging/README.md",
+            "src/adapters/messaging/contract.mjs",
+            "src/adapters/messaging/event-schema.mjs",
+            "src/adapters/messaging/index.mjs",
+            "src/adapters/messaging/jws.mjs",
+            "src/adapters/messaging/request.mjs",
+            "src/adapters/messaging/serialize.mjs",
+            "src/adapters/rer/contract.mjs",
+            "src/adapters/rer/index.mjs",
             "src/adapters/resend/README.md",
             "src/adapters/resend/index.mjs",
             "src/adapters/resend/response.mjs",
@@ -1534,8 +1658,6 @@
             "src/development/index.mjs",
             "src/development/outbox.mjs",
             "src/development/schema.sql",
-            "src/development/viewer-html.mjs",
-            "src/development/viewer.mjs",
             "src/doctor/README.md",
             "src/doctor/common.mjs",
             "src/doctor/dns.mjs",
@@ -1544,6 +1666,8 @@
             "src/doctor/receive.mjs",
             "src/doctor/records.mjs",
             "src/events/README.md",
+            "src/events/d1-schema.sql",
+            "src/events/d1-storage.mjs",
             "src/events/index.mjs",
             "src/events/intake.mjs",
             "src/events/storage.mjs",
@@ -1617,6 +1741,42 @@
             "originPath": "src/adapters/cloudflare/response.mjs"
           },
           {
+            "path": "src/modules/mail/src/adapters/messaging/README.md",
+            "originPath": "src/adapters/messaging/README.md"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/contract.mjs",
+            "originPath": "src/adapters/messaging/contract.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/event-schema.mjs",
+            "originPath": "src/adapters/messaging/event-schema.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/index.mjs",
+            "originPath": "src/adapters/messaging/index.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/jws.mjs",
+            "originPath": "src/adapters/messaging/jws.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/request.mjs",
+            "originPath": "src/adapters/messaging/request.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/messaging/serialize.mjs",
+            "originPath": "src/adapters/messaging/serialize.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/rer/contract.mjs",
+            "originPath": "src/adapters/rer/contract.mjs"
+          },
+          {
+            "path": "src/modules/mail/src/adapters/rer/index.mjs",
+            "originPath": "src/adapters/rer/index.mjs"
+          },
+          {
             "path": "src/modules/mail/src/adapters/resend/README.md",
             "originPath": "src/adapters/resend/README.md"
           },
@@ -1677,14 +1837,6 @@
             "originPath": "src/development/schema.sql"
           },
           {
-            "path": "src/modules/mail/src/development/viewer-html.mjs",
-            "originPath": "src/development/viewer-html.mjs"
-          },
-          {
-            "path": "src/modules/mail/src/development/viewer.mjs",
-            "originPath": "src/development/viewer.mjs"
-          },
-          {
             "path": "src/modules/mail/src/doctor/README.md",
             "originPath": "src/doctor/README.md"
           },
@@ -1715,6 +1867,14 @@
           {
             "path": "src/modules/mail/src/events/README.md",
             "originPath": "src/events/README.md"
+          },
+          {
+            "path": "src/modules/mail/src/events/d1-schema.sql",
+            "originPath": "src/events/d1-schema.sql"
+          },
+          {
+            "path": "src/modules/mail/src/events/d1-storage.mjs",
+            "originPath": "src/events/d1-storage.mjs"
           },
           {
             "path": "src/modules/mail/src/events/index.mjs",

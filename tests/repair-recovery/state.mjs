@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import {outboxFetch} from '../auth.mjs';
+import {legacyMailRows} from '../legacy-mail.mjs';
 import {canonical} from '../../src/domain/privacy.ts';
 // Every archived row count, the exact repair rows, delivery rows and the local
 // development outbox: the observable effects a repair write could have.
 export async function snapshot(app){
  const {data}=await app.archive();
- const outbox=[...(await (await outboxFetch(app.origin)).text()).matchAll(/\?message=([^"&]+)"/g)].length;
+ const outbox=(await legacyMailRows(app.origin)).length;
  return {rows:Object.fromEntries(Object.entries(data).map(([table,rows])=>[table,rows.length])),repairs:canonical(data.repairs),checks:canonical(data.repair_checks),deliveries:data.alert_history.length,alerts:data.alerts.length,outbox,data};
 }
 export async function unchanged(app,before,label){

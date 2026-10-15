@@ -1,3 +1,4 @@
+import {registerLegacyMail} from './legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
@@ -41,7 +42,7 @@ export async function startTestWorker(port) {
   native=new Miniflare(options);
   await native.ready;
   try {
-   const db=await native.getD1Database(database.binding);
+   const db=await native.getD1Database(database.binding);registerLegacyMail(origin,db);
    assert.equal((await db.prepare('PRAGMA foreign_keys').first()).foreign_keys,1,'D1 enforces foreign keys');
    const {unstable_splitSqlQuery}=require('wrangler');
    const files=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();

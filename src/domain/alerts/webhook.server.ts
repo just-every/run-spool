@@ -1,3 +1,4 @@
+import { demoEffect } from '../../modules/demo/index.mjs';
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import { IntegrationsRepository } from '../../modules/integrations/core/repository';
 import { DeliveryService } from '../../modules/integrations/core/delivery';
@@ -39,7 +40,7 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
     JOIN alert_rules r ON r.id=i.rule_id AND r.project=i.project AND r.revision=i.rule_revision AND r.enabled=1 AND r.channel=i.channel AND r.destination=i.destination
     WHERE d.namespace=? AND d.id=? AND d.state='sending' AND d.claim=? AND d.claim_until>?`,namespace(project),intent.id,claim,now()).first<{claim_until:number}>();
    if(!authority||authority.claim_until<=now())throw new Error('delivery_authority');
-   return env.INTEGRATION_EGRESS.send(request);
+   return demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));
   }},
  });
 }

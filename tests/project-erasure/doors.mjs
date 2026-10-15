@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
-import {outboxFetch} from '../auth.mjs';
+import {legacyMailRows} from '../legacy-mail.mjs';
 import {canonical} from '../../src/domain/privacy.ts';
 
 // Every archived row, the erasure receipts and the development outbox listing:
 // what a refused erase must leave exactly as it was.
 async function state(app){
  const {data}=await app.archive();
- const outbox=await (await outboxFetch(app.origin)).text();
- return canonical({data,receipts:await app.json('/api/erasures'),outbox:[...outbox.matchAll(/\?message=([^"&]+)"/g)].map(match=>match[1])});
+ const outbox=(await legacyMailRows(app.origin)).map(row=>row.id);
+ return canonical({data,receipts:await app.json('/api/erasures'),outbox});
 }
 // Each refusal through public HTTP, before and after compared.
 export async function refusals(app,{project,keys,planHash}){

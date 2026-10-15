@@ -108,7 +108,7 @@ export async function inspectExistingState({ root, input = {}, vars = {} }) {
  }
 }
 export async function retirePassword({ root }) {
- // Only after a successful real owner claim/preservation and ordinary outbox
+ // Only after a successful real owner claim/preservation and local owner
  // sign-in. Shared private-file helpers reject linked or unsafe private paths.
  const settings = await readPrivateFile(join(root, '.dev.vars')).catch(missing);
  if (settings !== null && /^OWNER_PASSWORD=/m.test(settings)) {

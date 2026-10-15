@@ -1,14 +1,13 @@
 import { devNotFound, safeReturnTo } from '../modules/operator-auth/index.mjs';
 import { fontDocumentResponse } from '../base/font-response';
 import { authResponse, ownerSession } from './session.server';
-import { developmentOutboxResponse } from './outbox.server.mjs';
 import { signInPage } from './sign-in.server';
 import { linkedOidcPresentation } from './oidc-presentation.server';
 import type { Bindings } from './bindings';
 export async function authenticationResponse(request: Request, env: Bindings): Promise<Response | null> {
  const path = new URL(request.url).pathname;
  if (path === '/__dev/personas' || path === '/auth/dev/enter') return devNotFound();
- if (path === '/__dev/outbox' || path === '/__dev/key') return developmentOutboxResponse(request, env);
+ if (path.startsWith('/__dev/')) return devNotFound();
  // The identity link's well-known document, keys and callback belong to Base's dependency routes.
  if (path.startsWith('/auth/') || path.startsWith('/.well-known/rer-')) {
   const response = await linkedOidcPresentation(request, nativeRequest => authResponse(nativeRequest, env));

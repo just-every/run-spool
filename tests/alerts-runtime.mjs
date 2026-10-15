@@ -23,8 +23,8 @@ try {
  const admitted=await app.json('/api/ingest/web','POST',event('first'),auth);
  const duplicate=await Promise.all(Array.from({length:4},()=>app.request('/api/ingest/web','POST',event('first'),auth)));assert.ok(duplicate.every(r=>r.status===200));
  await app.schedule(Date.now());
- let logs=await app.json(deliveryPath+'/deliveries');assert.equal(logs.length,2);assert.ok(logs.some(r=>r.state==='captured_locally'));assert.ok(logs.some(r=>r.state==='accepted'));assert.equal(inbox.effects(),1);
- const outbox=await app.db.prepare("SELECT COUNT(*) n FROM rer_mail_development_outbox WHERE message LIKE '%Spool new issue%'").first();assert.equal(outbox.n,1);
+ let logs=await app.json(deliveryPath+'/deliveries');assert.equal(logs.length,2);assert.ok(logs.some(r=>r.channel==='mail'&&r.state==='accepted'));assert.ok(logs.some(r=>r.channel==='webhook'&&r.state==='accepted'));assert.equal(inbox.effects(),1);
+ const outbox=await app.db.prepare("SELECT COUNT(*) n FROM rer_mail_development_outbox WHERE message LIKE '%Spool new issue%'").first();assert.equal(outbox.n,0);
  const payload=JSON.parse(inbox.requests[0].body);assert.equal(payload.issueId,admitted.issue);assert.equal(payload.release.name,'r1');assert.ok(!inbox.requests[0].body.includes('HIDDEN_ALERT_CANARY'));
  for(const secret of ['alert-owner@example.com','synthetic-key-no-provider-call',app.bindings.ALERT_DESTINATION_HASH_KEY])assert.ok(!JSON.stringify(await app.json(deliveryPath+'/destinations')).includes(secret));
  // A forced admission failure rolls back the actual issue/feed/intent transaction.
@@ -92,5 +92,5 @@ try {
  const restoredRule=(await app.json(deliveryPath+'/rules')).find(r=>r.id===webhook.id);await app.json(deliveryPath+'/rules/'+webhook.id,'PUT',rule('webhook',{revision:restoredRule.revision}));await app.schedule(Date.now());assert.equal(inbox.requests.length,sends);
  const key=await app.json('/api/projects/web/keys','POST',{kind:'ingest'});await app.json('/api/ingest/web','POST',event('post-restore',{frames:[{file:'https://app.example.com/after.js',line:1,column:0,function:'after'}]}),{Authorization:`Bearer ${key.key}`});await app.schedule(Date.now());assert.equal(inbox.requests.length,sends+1);
  const session=app.cookie;await app.request('/auth/signout','POST',{});assert.ok((await app.request(deliveryPath+'/rules','GET',undefined,{Cookie:session})).status>=400);
- console.log('Alert public doors passed: atomic capture to real Base outbox and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
+ console.log('Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
 } finally {await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

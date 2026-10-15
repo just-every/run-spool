@@ -76,7 +76,7 @@ The service validates the URL, headers, body, the service-owned grant, account o
 
 Spool's Base URL validator still performs its preflight, but it cannot prove DNS pinning; the guarantees above are the egress service's, per route. Source and local acceptance (`tests/alerts-egress.mjs` drives Spool's scheduled delivery through the service's own transport, `createDevEgress`, to a real loopback TLS receiver) is not production egress acceptance.
 
-Mail uses the same Base sender and explicit `MAIL_PROVIDER` configuration as operator sign-in. Missing configuration never enables development capture. One recipient is frozen per job. Development outbox capture is shown as **captured locally**, and provider submission as **accepted**. Neither means recipient delivery. A lost result after send, including development capture, is uncertain. Local outbox writes are not idempotent. Mail rate limits alone retry; a recipient/provider/from configuration change blocks existing work.
+Mail uses the same Base sender and explicit `MAIL_PROVIDER` configuration as operator sign-in. Missing configuration never enables development capture. One recipient is frozen per job. Local mail is suppressed silently and completes as **accepted**. Provider submission is also **accepted**, which does not prove recipient delivery. A lost result after a production send is uncertain. Mail rate limits alone retry; a recipient/provider/from configuration change blocks existing work.
 
 ## Durability, revocation and portability
 

@@ -9,7 +9,7 @@
     {
       "id": "email",
       "label": "Sign-in email",
-      "help": "Local development uses the outbox. Hosted sign-in requires a configured email provider."
+      "help": "Local development suppresses mail. Hosted sign-in requires an email provider or linked Auth installation."
     },
     {
       "id": "alerts",
@@ -21,7 +21,7 @@
     {
       "name": "OWNER_EMAIL",
       "label": "Owner email",
-      "help": "The first owner uses this address for sign-in. Local development delivers sign-in links to the outbox.",
+      "help": "The first owner uses this address for sign-in. Local development opens signed in without email.",
       "kind": "email",
       "required": true,
       "prefill": "account-email",
@@ -58,14 +58,14 @@
     {
       "name": "MAIL_PROVIDER",
       "label": "Email provider",
-      "help": "Hosted installs send real sign-in email and need Resend or SendGrid. The local outbox is only for running Spool on this computer.",
+      "help": "Hosted installs send real sign-in email. Local development suppresses mail.",
       "kind": "select",
       "required": true,
       "default": "resend",
       "options": [
         {
           "value": "development",
-          "label": "Local outbox"
+          "label": "Local development (mail suppressed)"
         },
         {
           "value": "resend",

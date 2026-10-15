@@ -28,14 +28,7 @@ this computer set differently (each distinct pin keeps its own copy), and about
 a checkout on another volume than your home folder, where pnpm cannot clone
 packages from its store.
 
-After `RER_READY`, a seed with dev identity prints `RER_SIGNED_IN EMAIL` and
-`RER_OPEN URL`: open that URL on this computer and the app opens signed in as
-the owner, at `/setup` until first-run is finished. Other seeds, and
-`dev --login`, print `RER_SIGN_IN URL` for the local outbox: open it, follow
-the newest ordinary sign-in link and finish first-run setup at `/setup`. Until
-first-run completion is stored durably, app routes send the signed-in owner to
-`/setup`; signed-out visitors sign in and return there. Once complete,
-`/setup` opens the app or settings. The local outbox sends no external email.
+`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
 
 The saved local port is used; a first setup saves the first free port from 8787. Explicit ports are decimal
 integers from 1 through 65535 and must be free; a busy requested port fails
@@ -85,19 +78,7 @@ migrations, prepares the first owner, requests an ordinary sign-in message and
 stops its temporary app before it exits. Existing owner data and private
 settings are preserved on a repeated setup.
 
-Dev starts the real local app with assets and HMR and prints `RER_READY URL`
-after the application health check. With dev identity it then prints
-`RER_SIGNED_IN EMAIL` and `RER_OPEN URL`. The `RER_OPEN` URL carries this
-checkout's dev key in its fragment: opening it signs the browser in through a
-real dev session, and the key is removed from the address bar and kept only as a
-host-only cookie. Treat that line as a credential and open it only on this
-computer. A dev-only badge switches between the owner, signed out and the
-seed's personas (`admin@dev.localhost` and so on). `dev --as PERSONA` starts as
-another persona or `signed-out`; `dev --login` turns dev identity off and uses
-the outbox: it prints `RER_SIGN_IN URL` and a `RER_OPEN` URL that opens that
-outbox. Choose the newest ordinary sign-in message and follow its link. No
-external email is sent. A successful sign-in consumes the link once. Seeds
-without dev identity print only `RER_SIGN_IN URL` for the local outbox.
+`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
 
 Dev and preview are managed foreground servers. The first invocation stays
 active while serving. Use `rer dev --stop` or

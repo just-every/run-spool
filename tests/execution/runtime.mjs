@@ -1,3 +1,4 @@
+import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -13,7 +14,7 @@ export async function executionRuntime(state,port,extra={}){
  const {worker,database}=await emittedWorkerOptions(resolve('dist/server/wrangler.json'),miniflare);
  const runtime=new Miniflare(convertV4MiniflareOptions({...worker,bindings:{...worker.bindings,...authBindings(origin),...extra},resourcePersistencePath:state,host:'127.0.0.1',port}));
  try{
-  await runtime.ready;const db=await runtime.getD1Database(database.binding);
+  await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){
    const {unstable_splitSqlQuery}=require('wrangler');
    const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');

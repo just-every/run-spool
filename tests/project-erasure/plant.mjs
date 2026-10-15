@@ -1,7 +1,8 @@
+import {plantLegacyAlertMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {createHash} from 'node:crypto';
-import {outboxFetch} from '../auth.mjs';
+import {legacyMailRows} from '../legacy-mail.mjs';
 import {archiveText} from '../agent-handoff/caps.mjs';
 import {canary,organization,importedProject,capProject,mobileProject,sentryExport,sourceMap,event} from './fixture.mjs';
 
@@ -43,11 +44,10 @@ export async function plantCanary(app){
  // the unconfigured webhook, so the later state checks start just after a tick.
  let history=[];
  const ticked=async()=>{const run=(await (await fetch(app.origin+'/health')).json()).alerts?.lastScheduledRun;return !!run&&Date.parse(run)>ingested};
- for(let n=0;n<150;n++){history=await app.json(`/api/projects/${project}/alerting/deliveries`);if(history.some(row=>row.channel==='mail'&&row.state==='captured_locally')&&history.some(row=>row.channel==='webhook')&&await ticked())break;await delay(1000);}
- assert.ok(history.some(row=>row.channel==='mail'&&row.state==='captured_locally'),'the mail alert reached the development outbox');
- const listing=await (await outboxFetch(app.origin)).text(),ids=[...new Set([...listing.matchAll(/\?message=([^"&]+)"/g)].map(match=>match[1]))];
- let routed=false;for(const id of ids)if((await (await outboxFetch(app.origin,'?message='+id)).text()).includes(canary.RECIPIENT.toLowerCase()))routed=true;
- assert.ok(routed,'the outbox holds the canary recipient before erasure');
+ for(let n=0;n<150;n++){history=await app.json(`/api/projects/${project}/alerting/deliveries`);if(history.some(row=>row.channel==='mail'&&row.state==='accepted')&&history.some(row=>row.channel==='webhook')&&await ticked())break;await delay(1000);}
+ assert.ok(history.some(row=>row.channel==='mail'&&row.state==='accepted'),'the local mail alert succeeded without sending');
+ await plantLegacyAlertMail(app.checkout.root,project);
+ const legacy=await legacyMailRows(app.origin);assert.ok(legacy.some(row=>row.message.includes(canary.RECIPIENT.toLowerCase())),'legacy mail contains the recipient before erasure');
  const repair=await app.json(`/api/projects/${project}/repairs`,'POST',{issue:first.issue,link:'https://github.example/erase/pull/1',note:`Repair ${canary.REPAIR}`});
  return {project,issue:first.issue,keys,repair:repair.id};
 }

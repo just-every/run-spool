@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
-import {outboxFetch} from '../auth.mjs';
+import {legacyMailRows} from '../legacy-mail.mjs';
 import {event,rule} from './runtime.mjs';
 const alerts='/api/projects/web/alerting';
 
@@ -23,20 +23,12 @@ export async function verifyDelivery(app,kind) {
  // A new issue's or regression's delivery may still be finishing in the dispatch after ingest; it settles without a further tick.
  let delivery;for(let i=0;i<100;i++){delivery=(await app.json(alerts+'/deliveries')).find(row=>row.alert_id===alert.id);if(delivery&&!['pending','queued','sending'].includes(delivery.state))break;await delay(50)}
  assert.ok(delivery,`${kind} persisted delivery`);
- assert.equal(delivery.state,'captured_locally');assert.equal(delivery.attempts,1);
+ assert.equal(delivery.state,'accepted');assert.equal(delivery.attempts,1);
  const detail=await app.json(alerts+'/deliveries/'+delivery.id);
- assert.equal(detail.attempts.length,1);assert.equal(detail.attempts[0].state,'captured_locally');
+ assert.equal(detail.attempts.length,1);assert.equal(detail.attempts[0].state,'accepted');
  assert.ok(detail.attempts[0].finished>=detail.attempts[0].started);
- // Read-only correlation of the actual Base record with the public delivery ID.
- const message=await app.db.prepare("SELECT id FROM rer_mail_development_outbox WHERE json_extract(message,'$.deliveryId')=?").bind(delivery.id).first();
- assert.ok(message,`${kind} correlated Base outbox record`);
- const response=await outboxFetch(app.origin,'?message='+message.id);assert.equal(response.status,200);
- const html=await response.text(),payload=JSON.parse(alert.payload);
- assert.ok(html.includes(`Spool ${kind.replaceAll('_',' ')}`));
- assert.ok(html.includes(`Issue: ${payload.issueId}`));assert.ok(html.includes(`Project: ${payload.projectId}`));
- assert.ok(html.includes(`Observed: ${payload.occurredAt}`));
- if(kind!=='spike')assert.ok(html.includes(`Release: ${payload.release.name}`));
- return {kind,alert:alert.id,issue:payload.issueId,delivery:delivery.id,state:delivery.state,attempt:detail.attempts[0],outboxMessage:message.id,viewerStatus:response.status,...(payload.window?{window:payload.window}:{})};
+ const messages=await app.db.prepare('SELECT COUNT(*) n FROM rer_mail_development_outbox').first();assert.equal(messages.n,0,'local mail is silently suppressed');
+ const payload=JSON.parse(alert.payload);return {kind,alert:alert.id,issue:payload.issueId,delivery:delivery.id,state:delivery.state,attempt:detail.attempts[0],...(payload.window?{window:payload.window}:{})};
 }
 export async function newIssue(app,fixture) {
  await capture(app,fixture,'native-new');await tick(app);
@@ -69,9 +61,9 @@ export async function spike(app,fixture,record=()=>{}) {
 }
 export async function verifyNoReplay(app) {
  const before=await app.json(alerts+'/deliveries');
- const outboxBefore=await (await outboxFetch(app.origin)).text();
+ const outboxBefore=await legacyMailRows(app.origin);
  await tick(app);
  assert.deepEqual((await app.json(alerts+'/deliveries')).map(({id,state,attempts})=>({id,state,attempts})),before.map(({id,state,attempts})=>({id,state,attempts})));
- assert.equal(await (await outboxFetch(app.origin)).text(),outboxBefore,'subsequent tick creates no outbox message');
+ assert.deepEqual(await legacyMailRows(app.origin),outboxBefore,'subsequent tick creates no outbox message');
  return {deliveries:before.length,attempts:before.map(row=>row.attempts),replayed:false};
 }

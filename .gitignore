@@ -16,3 +16,5 @@ rer-package/
 packages/sdk/dist
 packages/sdk/build
 packages/sdk/LICENSE
+
+.rer/demo/

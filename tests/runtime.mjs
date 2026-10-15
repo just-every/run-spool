@@ -2,7 +2,7 @@ import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
 import {startTestWorker} from './worker.mjs';
-import {signIn,authBindings,testSetupToken,testDevKey,outboxFetch} from './auth.mjs';
+import {signIn,authBindings,testSetupToken,testDevKey} from './auth.mjs';
 const worker=await startTestWorker(15468),origin=worker.origin;
 let failure;
 // Visitors without an owner session get the shared Lobby at /, using the same native first-project state as /setup.
@@ -18,11 +18,9 @@ try {
  for(const path of ['/app','/setup']){const response=await fetch(origin+path,{redirect:'manual'});assert.equal(response.status,303);const destination=new URL(response.headers.get('location'),origin);assert.equal(destination.pathname,'/sign-in');assert.equal(destination.searchParams.get('returnTo'),path);}
  for(const path of ['/missing','/health/extra'])assert.equal((await fetch(origin+path,{redirect:'manual'})).status,404);
  for(const path of ['/api','/api/missing','/api/projects','/api/archive'])assert.equal((await fetch(origin+path)).status,401);
- const form=await (await fetch(origin+'/sign-in')).text();assert.ok(form.includes('method="post"'));assert.ok(form.includes('action="/auth/magic-link?'));assert.ok(form.includes('name="returnTo" value="/setup"'));
+ const form=await (await fetch(origin+'/sign-in')).text();assert.ok(form.includes('/auth/dev/enter?as=owner'));
  assert.equal((await fetch(origin+'/__dev/outbox')).status,404,'the outbox needs the key gate');
  assert.equal((await fetch(origin+'/__dev/personas',{redirect:'manual'})).status,404,'dev personas stay hidden before document authorization');
- assert.equal((await outboxFetch(origin,'',{headers:{Origin:'https://remote.invalid'}})).status,404);
- assert.equal((await outboxFetch(origin,'',{headers:{'Sec-Fetch-Site':'cross-site'}})).status,404);
  let cookie=await signIn(origin);
  const headers={Cookie:cookie,Origin:origin,'Content-Type':'application/json'};
  for(const path of ['/','/app']){const pending=await fetch(origin+path,{headers,redirect:'manual'});assert.equal(pending.status,303);assert.equal(pending.headers.get('location'),'/setup');}
@@ -47,9 +45,6 @@ try {
  const complete=await fetch(origin+'/setup',{headers,redirect:'manual'});assert.equal(complete.status,303);assert.equal(complete.headers.get('location'),'/');
  {const owner=await fetch(origin,{headers});assert.equal(owner.status,200);assert.ok((await owner.text()).includes('<script'),'owners keep the workbench at /');}
  assert.equal((await fetch(origin+'/missing',{headers})).status,404);
- for(const returnTo of [null,'https://remote.invalid/','/setup','/projects/fresh?view=capture'])await signIn(origin,{bootstrap:false,form:true,returnTo});
- const redisplay=await fetch(origin+'/auth/magic-link?returnTo=%2Fsetup',{method:'POST',headers:{Origin:origin,'Content-Type':'application/x-www-form-urlencoded',Accept:'text/html'},body:new URLSearchParams({email:'invalid',returnTo:'https://remote.invalid/'})});assert.equal(redisplay.status,400);assert.ok((await redisplay.text()).includes('name="returnTo" value="/setup"'));
- const crossForm=await fetch(origin+'/auth/magic-link',{method:'POST',headers:{Origin:'https://remote.invalid',Accept:'text/html','Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({email:'owner@spool.test',returnTo:'/setup'})});assert.equal(crossForm.status,403);assert.ok((await crossForm.text()).includes('role="alert"'));
  assert.equal((await fetch(origin+'/auth/bootstrap',{method:'POST',headers,body:JSON.stringify({token:testSetupToken,displayName:'Second owner'}),redirect:'manual'})).status,409);
  assert.equal((await fetch(origin+'/api/projects',{headers:{Cookie:'errors_session=old-password-session'}})).status,401);
  const session=await (await fetch(origin+'/auth/session',{headers})).json();
@@ -57,7 +52,7 @@ try {
  assert.equal((await create({id:'revoked',name:'Revoked'})).status,401);
  const denied=new URL((await fetch(origin+'/setup',{headers,redirect:'manual'})).headers.get('location'),origin);assert.equal(denied.pathname,'/sign-in');assert.equal(denied.searchParams.get('returnTo'),'/setup');
  assert.equal((await fetch(origin+'/api/projects',{headers})).status,401);await assertLobby(await fetch(origin,{headers,redirect:'manual'}),true);
- console.log('Spool runtime: DB health, server document gate, direct API gate, ordinary one-use outbox auth, second-claim refusal and immediate revocation passed.');
+ console.log('Spool runtime: DB health, server document gate, direct API gate, local owner admission, second-claim refusal and immediate revocation passed.');
 }catch(error){failure=error;throw new Error('Owner runtime journey failed; private runtime details withheld');}finally{
  try{restoreFetch();}catch{}
  let beforeStop,afterStop;

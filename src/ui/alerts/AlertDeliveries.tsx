@@ -3,7 +3,7 @@ import { alertApi, date, status } from './client';
 import { Details } from '../workbench/Details';
 import { Field, useDraft } from '../workbench/shared';
 export function AlertDeliveries({project,rows,refresh}:{project:string;rows:any[];refresh:()=>void}) {
- return <section className="evidence"><h2>Delivery log</h2><p>Captured locally means the development outbox saved the message. Accepted means receiver or provider submission, not human acknowledgment. Only definite rate limits retry automatically.</p>
+ return <section className="evidence"><h2>Delivery log</h2><p>Accepted means receiver or provider submission, not human acknowledgment. Only definite rate limits retry automatically.</p>
  {!rows.length?<p>No delivery intents have been recorded.</p>:<ul className="alert-records">{rows.map(row=><Delivery key={row.id} project={project} row={row} refresh={refresh}/>)}</ul>}</section>;
 }
 function Delivery({project,row,refresh}:{project:string;row:any;refresh:()=>void}) {

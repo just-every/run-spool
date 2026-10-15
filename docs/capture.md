@@ -63,11 +63,7 @@ The default `rer dev` owner persona marks ingest, deploy and agent keys as dev-m
 
 To connect an external app, build or agent:
 
-1. Stop the current runtime with Ctrl+C or `rer dev --stop`.
-2. Run `rer dev --login` from the Spool checkout.
-3. Open its private `RER_OPEN` outbox link, choose the newest sign-in message and follow its one-use link. If needed, request a new message at the printed `RER_SIGN_IN` address and run `rer outbox` in another terminal. Local sign-in sends no email.
-4. Open Settings and create replacement keys for the intended project. An ingest key sends events; a deploy key registers releases and uploads maps; an agent key reads that project's evidence. None grants owner administration.
-5. Put the new ingest key in your app's SDK configuration and the deploy key in your build's private environment. Register the release/build and allow your app's exact browser origin before capture. Replace the old dev-minted keys in every external client.
+`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
 
 Ordinary keys created after this sign-in do not need the dev gate; their project and operation scopes still apply. Keep `RER_OPEN` and the dev gate private to the checkout: the gate can open the owner persona. Browser capture deliberately omits credentials, so do not try to share that gate with your app. Hosted keys created through ordinary email sign-in use the same project scopes.
 
