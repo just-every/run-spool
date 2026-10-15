@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 — 2026-10-16
+
+- Keep local development mail silent and open the owner through the private `RER_OPEN` entry. Remove captured-mail pages and preserve native hosted sign-in and erasure checks.
+- Adopt rer 0.2.24 with its matching Base records, bounded archive I/O and resumable import custody helpers; keep the populated demo work and its runtime-only sender configuration.
+- Keep push verification sharded within its time budget; run the slower public command journey on release tags and nightly. Fix the owner-erasure test runtime’s transport-port race.
+- This is a compatibility and security patch over 0.2.0, with no product migrations or contract changes. Export before updating, preserve the existing installation and restart with `rer dev`. SDK 0.2.0 remains unpublished.
+- Product screenshot: [Cedar Dispatch issues at 1440](.github/assets/release/spool-0.2.1-issues-1440.png), captured from the current local app with synthetic business data and real SDK ingestion.
 
 - Mark credential fixtures and examples explicitly synthetic so hosted source checks accept them.
 

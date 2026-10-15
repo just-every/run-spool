@@ -1,26 +1,9 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "contractChanges": {},
   "extensionPointChanges": [],
-  "migrations": [
-    "migrations/core/0020_dependencies.sql",
-    "migrations/core/0021_dependency_approval.sql",
-    "migrations/core/0022_dependency_setup.sql",
-    "migrations/core/0023_idp_owner.sql",
-    "migrations/core/0024_identity_providers.sql",
-    "migrations/core/0025_import_reversal_fences.sql",
-    "migrations/core/0026_import_custody_retirement.sql",
-    "migrations/core/0027_credential_minters.sql",
-    "migrations/core/0028_owner_erasure.sql",
-    "migrations/core/0029_owner_claim_erasure_freeze.sql",
-    "migrations/core/0030_owner_erasure_credential_authority.sql",
-    "migrations/core/0031_operator_corrections.sql",
-    "migrations/core/0032_execution.sql",
-    "migrations/core/0033_fix_leases.sql",
-    "migrations/core/0034_source_paths.sql",
-    "migrations/core/0035_bundle_grouping.sql",
-    "migrations/core/0036_owner_signin.sql"
-  ],
+  "migrations": [],
   "breaking": false,
-  "agentUpdateInstructions": "From 0.1.0: stop dev with rer dev --stop and export a private archive before updating. Run git pull in the existing checkout, then rer dev locally or rer deploy from the original deploying checkout for a hosted installation. Additive migrations 0020–0036 apply automatically; existing evidence, triage states and project keys are preserved. Retain local state, private settings and deployment receipts; do not reset or restore into the existing database. SDK 0.2.0 remains unpublished on npm and requires a separate owner-authorized release; the app update does not publish it."
+  "agentUpdateInstructions": "From 0.2.0: stop local dev with rer dev --stop and export a private archive before updating. Run git pull in the existing checkout, then rer dev locally or rer deploy from the original deploying checkout for a hosted installation. This patch adds no product migrations or contract changes. Preserve the existing database, local settings, project keys and deployment receipts; do not reset or restore into the populated installation. Local dev opens through its private RER_OPEN owner entry and suppresses mail. Dev-created ingest/deploy keys work locally within their project; deployed installations refuse every dev-created key. Archives exclude project grants, so restored installations need fresh keys. Managed hosting supplies the RER mail relay; Free and Assisted hosting retain their configured provider. The application pins rer 0.2.24. SDK 0.2.0 remains unpublished on npm and is not published by this app release.",
+  "publicReleaseNotes": "Spool 0.2.1 fixes local capture and source-map admission, hardens repository-scoped fix grants, and supports RER Managed mail with safe owner login hints. Local development suppresses mail and opens through its private RER_OPEN owner entry. No product migrations or contract changes. Product screenshot: .github/assets/release/spool-0.2.1-issues-1440.png (1440 x 900), showing the current Spool Dev app with synthetic Cedar Dispatch evidence captured through the real SDK, source-mapped and regressed in a later registered release. This screenshot is a local product capture, not a hosted or demo acceptance claim. The app release does not publish the SDK."
 }
