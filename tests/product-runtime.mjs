@@ -1,3 +1,4 @@
+import {localRuntime} from './local-runtime.mjs';
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
 import { bundleGroupingFlow } from './bundle-grouping.mjs';
@@ -35,7 +36,7 @@ async function start(state,migrate=true){
   const emittedModules=(await readdir('dist/server',{recursive:true}))
    .filter(p=>/\.(m?js)$/.test(p)&&resolve('dist/server',p)!==config.main&&p!=='duplicate-probe.js')
    .map(p=>({type:'ESModule',path:resolve('dist/server',p)}));
-  miniflare=new Miniflare(convertV4MiniflareOptions({
+  miniflare=new Miniflare(convertV4MiniflareOptions(await localRuntime({
    log,handleStructuredLogs:({message})=>output.add(message+'\n'),
    name:config.name,modules:[{type:'ESModule',path:config.main},...emittedModules],
    modulesRoot:resolve('dist/server'),compatibilityDate:config.compatibility_date,
@@ -43,7 +44,7 @@ async function start(state,migrate=true){
    assets:miniflareAssets(config),
    d1Databases:{DB:config.d1_databases[0].database_id},
    resourcePersistencePath:resolve(state,'v3'),host:'127.0.0.1',port
-  }));
+  })));
   await miniflare.ready;
   if(migrate){
    const db=await miniflare.getD1Database('DB');

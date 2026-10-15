@@ -28,6 +28,8 @@ const legacyFile=resolve(temporary,'legacy-native.ts');
 await writeFile(legacyFile,legacySource.replace("from './privacy'","from "+JSON.stringify(resolve('src/domain/privacy.ts'))).replace("from './artifacts'","from "+JSON.stringify(resolve('src/domain/artifacts.ts'))));
 const harness=resolve(temporary,'harness.ts');
 await writeFile(harness,`
+import {withDevIdentity} from ${JSON.stringify(resolve('src/modules/operator-auth/dev/index.mjs'))};
+import {authConfig} from ${JSON.stringify(resolve('src/auth/session.server.ts'))};
 import api from ${JSON.stringify(resolve('src/domain/api.ts'))};
 import {authenticationResponse} from ${JSON.stringify(resolve('src/auth/dispatch.server.ts'))};
 import {portability} from ${JSON.stringify(resolve('src/domain/portability.ts'))};
@@ -35,7 +37,7 @@ import {exportArchive as legacyExport} from ${JSON.stringify(legacyFile)};
 api.post('/api/test-snapshot',async c=>{const service=await portability(c.env.DB);const id=await service.exports.create();while((await service.exports.advance(id)).phase==='building'){};return c.json({id});});
 api.get('/api/test-transfer-state',async c=>c.json({jobs:await c.env.DB.prepare('SELECT COUNT(*) count FROM rer_portability_jobs').first(),snapshots:await c.env.DB.prepare("SELECT COUNT(*) count FROM sqlite_master WHERE name GLOB 'rer_portability_snap_*'").first(),journal:await c.env.DB.prepare('SELECT COUNT(*) count FROM rer_portability_journal').first()}));
 api.get('/api/test-guard-count',async c=>c.json(await c.env.DB.prepare('SELECT COUNT(*) count FROM browser_origin_guards').first()));
-export default {async fetch(request,env,ctx){
+const application={async fetch(request,env,ctx){
   if(env.TEST_LEGACY_PRODUCER==='true'){if(new URL(request.url).pathname==='/health'){await env.DB.prepare('SELECT COUNT(*) FROM projects').first();return Response.json({ok:true});}if(new URL(request.url).pathname==='/api/test-legacy-export')return Response.json(await legacyExport(env.DB));return new Response(null,{status:404});}
   const auth=await authenticationResponse(request,env);if(auth)return auth;
   if(request.headers.get('x-test-storage-failure')==='yes'){
@@ -50,8 +52,9 @@ export default {async fetch(request,env,ctx){
   }
   return api.fetch(request,env,ctx);
 }};
+export default withDevIdentity(application,{config:authConfig});
 `);
-await build({entryPoints:[harness],outfile:resolve(temporary,'worker.js'),bundle:true,format:'esm',platform:'browser',external:['node:*']});
+await build({entryPoints:[harness],outfile:resolve(temporary,'worker.js'),bundle:true,format:'esm',platform:'browser',external:['node:*','cloudflare:*']});
 const source=JSON.parse(await readFile('wrangler.jsonc','utf8'));
 const config={name:'errors-origin-acceptance',main:resolve(temporary,'worker.js'),compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags,d1_databases:source.d1_databases,vars:{...authBindings(origin)}};
 const cfg=resolve(temporary,'wrangler.json');await writeFile(cfg,JSON.stringify(config));

@@ -2149,7 +2149,7 @@
       "executable": false
     },
     ".github/workflows/run-demo.yml": {
-      "sha256": "444a94a08a4fa7a8b903081cfdd5d19d0d763b70d86ad928f8d83ecc8aedbccb",
+      "sha256": "5042e9092e9b8ce860b12ff54eee1dcdcefcbd3e19d267810d695865b169a237",
       "executable": false
     },
     ".github/workflows/run-site.yml": {
@@ -2181,7 +2181,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "824cce61b93f4a76d3e04c2ab2589aef7d93f15b9b617347eb2bd2de2aa416cd",
+      "sha256": "2a8ac8acba3298d4a0292886db0e1ff9c88ec44eab59f7a6d628dcd6c0ea6125",
       "executable": false
     },
     "base-copies.json": {
@@ -5805,7 +5805,7 @@
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {
-      "sha256": "38986f894f961a91924c1bd3b305bfe422fcc3e7aff2a2d5f2df04875c8093e5",
+      "sha256": "e8b1ffddd3a9812b06aa0377e3c01081167cd72fe038662992818f9f058dffe1",
       "executable": false
     },
     "tests/bundle-grouping.mjs": {
@@ -5985,7 +5985,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "891d44bdc7fa54b75952b08c7d92651ba79e1238c72cf8769d737b5d98c73472",
+      "sha256": "8c83e9d0c9f0faa0c1225931689eabc5d954ec4b8dfe71e963b09f9b146a3f63",
       "executable": false
     },
     "tests/project-erasure.mjs": {
