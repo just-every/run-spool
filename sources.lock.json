@@ -2381,7 +2381,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "26e7a954a036f6e35d8144441b61403173b1f0d48e7bbfb98f1ba4c9e5813c46",
+      "sha256": "9ea2df00ae658bff93963b4ebce634257537ee14cd43d70b1274910aa55e2c28",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -2753,11 +2753,11 @@
       "executable": false
     },
     "rer-project.json": {
-      "sha256": "e7966109819cfacde252c2e9a358dd292eaac687256613d145db5b4e33845660",
+      "sha256": "d6b08f4569865c0fefb109feaf325c2672c534a96322ba4e369f64cb79456f57",
       "executable": false
     },
     "rer-setup.json": {
-      "sha256": "b7c4a80536409aa1ef8a501c67a101ea96db344f583e7c1365c47dc63e4b7368",
+      "sha256": "c918eef784f198ed03cf868fcd89b8ad3595e98ead308ef31bce75b594d6fc11",
       "executable": false
     },
     "RUN-LOCALLY.md": {
@@ -2821,7 +2821,7 @@
       "executable": false
     },
     "scripts/delivery/base/packaging.json": {
-      "sha256": "97b0f911634bd02947b5603ab9cdd8df8a9208938907ce38c62197d65ed3b0cd",
+      "sha256": "1816780e3311f3df4644ea261877b680556f9f43b360cdb81bf6ea8b3ed7fcb8",
       "executable": false
     },
     "scripts/delivery/base/paths.mjs": {
@@ -2909,7 +2909,7 @@
       "executable": false
     },
     "scripts/installer/local.mjs": {
-      "sha256": "cb57d7bda0d85b0b1e72e05ed179f71ab76aa05648c8c5fa9ba40f60004ba9c0",
+      "sha256": "7792105cbaf764a2b29dad3e06a2437ba17915f29c9d1a352f91a30e048f8501",
       "executable": false
     },
     "scripts/installer/portability-worker.mjs": {

@@ -221,11 +221,10 @@
   "publicVariables": {},
   "secretNames": [
     "SESSION_SECRET",
-    "SETUP_TOKEN"
-  ],
-  "optionalSecretNames": [
+    "SETUP_TOKEN",
     "MAIL_API_KEY"
   ],
+  "optionalSecretNames": [],
   "schedules": [
     "* * * * *"
   ],

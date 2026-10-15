@@ -30,5 +30,7 @@ export const commandAdapter = createCommandAdapter(adapter, {
  // Local dev identity: the local-only Worker entry, the build output rer build scans for the dev layer, and the kept end-to-end email-link test.
  devIdentity: { entry: 'src/server.dev.ts', output: ['dist'], emailLinkTest: 'tests/setup-journey.mjs' },
  localOnlyKeys: ['RER_DEV_ORIGIN', 'RER_DEV_IDENTITY'],
- product: model.product.name, input: { names: { email: 'OWNER_EMAIL', name: 'displayName' } },
+ product: model.product.name,
+ // Hosted setup defaults to a real provider; this computer's setup answers the development outbox itself.
+ input: { names: { email: 'OWNER_EMAIL', name: 'displayName' }, defaults: async () => ({ MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' }) },
 });

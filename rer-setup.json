@@ -53,9 +53,10 @@
     {
       "name": "MAIL_PROVIDER",
       "label": "Email provider",
+      "help": "Hosted installs send real sign-in email and need Resend or SendGrid. The local outbox is only for running Spool on this computer.",
       "kind": "select",
       "required": true,
-      "default": "development",
+      "default": "resend",
       "options": [
         {
           "value": "development",
