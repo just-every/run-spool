@@ -27,7 +27,7 @@ export SPOOL_DEV_KEY
 
 Set this before running the CLI commands above or starting your MCP client. The CLI sends it as `x-rer-dev-key` only to loopback. The separate agent key sets the project's read scope. Keep the gate private to trusted local tooling: it can also open the owner persona. Never give it to a browser app, put it in a `VITE_` variable, commit it or export it with evidence.
 
-With rer dev v2 (pinned rer 0.2.22), ingest and deploy keys work against local Spool without this gate; see [key scopes](capture.md#keys-for-anything-outside-this-checkout). Deployed Spool refuses all dev-minted keys. For a deployed installation, sign in there and create a fresh read-only agent key; use its HTTPS project URL and agent key, without `SPOOL_DEV_KEY`. Private archives exclude all project grants. After a local handoff, clear the shell credentials with `unset SPOOL_DEV_KEY SPOOL_AGENT_KEY`.
+With rer dev v2 (pinned rer 0.2.23), ingest and deploy keys work against local Spool without this gate; see [key scopes](capture.md#keys-for-anything-outside-this-checkout). Deployed Spool refuses all dev-minted keys. For a deployed installation, sign in there and create a fresh read-only agent key; use its HTTPS project URL and agent key, without `SPOOL_DEV_KEY`. Private archives exclude all project grants. After a local handoff, clear the shell credentials with `unset SPOOL_DEV_KEY SPOOL_AGENT_KEY`.
 
 ## MCP configuration
 

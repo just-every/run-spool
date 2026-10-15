@@ -1,7 +1,6 @@
 import { demoEffect } from '../modules/demo/index.mjs'
 import { createMailSender } from '../modules/mail/index.mjs'
 import { localDevelopmentEnabled } from './local.server.mjs'
-import { relayFetch } from './mail-fetch.server.mjs'
 
 export function productionMailConfig(env) {
   return {
@@ -25,14 +24,7 @@ export function operatorMail(env) {
 
   return {
     async send(message) {
-      // Native sign-in adds this SMTP hint; RER owns the relay's SMTP headers.
-      // Leave every other header/feature to Base's ordinary validation.
-      if (env.MAIL_PROVIDER === 'rer' && message.headers?.['Auto-Submitted'] === 'auto-generated') {
-        const { 'Auto-Submitted': _, ...headers } = message.headers
-        message = { ...message, headers }
-      }
-      return createMailSender(productionMailConfig(env),
-        env.MAIL_PROVIDER === 'rer' ? { fetch: relayFetch } : {}).send(message)
+      return createMailSender(productionMailConfig(env)).send(message)
     },
   }
 }

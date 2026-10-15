@@ -33,7 +33,7 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent read-only access to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool), release 0.2.0. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.2.0](https://github.com/just-every/run-spool/tree/v0.2.0); the clone instructions below use `main`, which includes later changes. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
@@ -52,6 +52,8 @@ git clone https://github.com/just-every/run-spool.git spool
 cd spool && rer dev
 ```
 
+To run the tagged release instead, use `git clone --branch v0.2.0 https://github.com/just-every/run-spool.git spool` in place of the clone command above. Its dependencies and instructions are those shipped with that tag.
+
 `rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@spool.test` for the `spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
 
 To choose your own email before first start, use `rer install` and `rer setup` instead. Explicit setup asks for missing required answers in an interactive terminal. With non-TTY input, put JSON such as `{"OWNER_EMAIL":"you@example.com"}` in `.rer/local/setup-answers.json`, an ignored private file with mode `0600`, then run `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the Spool checkout. The answers path must be relative and contained inside that checkout; absolute paths, traversal and symlinks are refused. Piping an email alone is not a setup answer. Saved answers are reused. To replace the temporary dev owner's address later, stop dev first and supply `OWNER_EMAIL` through that file. Keep addresses and secrets out of shell arguments. See [installation](docs/install.md) for the file procedure.
@@ -60,11 +62,11 @@ Setup prepares private settings and the database, claims or preserves the owner,
 
 `rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its `#rer-dev=` fragment carries this checkout's owner gate. Keep the link and gate private. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo; no mailbox viewer is needed.
 
-With rer dev v2 (pinned rer 0.2.22), an ingest key created in dev works directly from your app against local Spool, and a deploy key works from your local build, without the owner gate. Allow your browser app's exact origin in Capture. Read-only dev agent keys still need the gate: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for the local agent CLI, as shown in [the agent guide](docs/WITH-YOUR-AGENT.md#local-agent-access). Never give the gate to a browser app. Every dev-minted key is refused by deployed Spool; create fresh keys there. Private archives exclude all project grants.
+With rer dev v2 (pinned rer 0.2.23), an ingest key created in dev works directly from your app against local Spool, and a deploy key works from your local build, without the owner gate. Allow your browser app's exact origin in Capture. Read-only dev agent keys still need the gate: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for the local agent CLI, as shown in [the agent guide](docs/WITH-YOUR-AGENT.md#local-agent-access). Never give the gate to a browser app. Every dev-minted key is refused by deployed Spool; create fresh keys there. Private archives exclude all project grants.
 
-A fresh installation opens `/setup`. Create the first project, copy its once-shown ingest key, add the SDK with the shown install line and init, use **Send test error**, then choose **Continue to workbench**. Replace a lost key in Settings. To restore existing evidence instead, choose **Restore a private archive** before creating a project. Register the app's release/build before capture.
+A fresh installation opens `/setup`. Create the first project, copy its once-shown ingest key, add the SDK with the shown install line and init, use **Send test error** to check ingestion from Spool itself, then choose **Continue to workbench**. Replace a lost key in Settings. To restore existing evidence instead, choose **Restore a private archive** before creating a project. Register the app's release/build before sending its errors; the setup test registers the release/build shown on that screen.
 
-Stop dev with `rer dev --stop` (or Ctrl+C in the foreground) before verify, reset or transfer. Your owner, projects and evidence stay on this computer for the next start. [RUN-LOCALLY.md](RUN-LOCALLY.md) describes preview, idle timeout and server capacity. `rer describe` lists supported maintenance commands and flags.
+Stop dev with `rer dev --stop` (or Ctrl+C in the foreground) before deploy, verify, reset or transfer. Your owner, projects and evidence stay on this computer for the next start. [RUN-LOCALLY.md](RUN-LOCALLY.md) describes preview, idle timeout and server capacity. `rer describe` lists supported maintenance commands and flags.
 
 Export before reset and import only into an empty destination. Export includes private maps and browser-origin policy but excludes sign-in sessions, project keys, outbox and temporary state. Run setup if the destination has no owner and create new keys after restoring. Browser restore is available from `/setup` before the first project and Settings thereafter. For CLI import of a browser download, first run `chmod 600 /path/to/spool-private-archive.jsonl`; see [the transfer procedure](OPERATIONS.md#data-movement-and-retention). Reset removes only its displayed local inventory and preserves source, exports and deployment records.
 
@@ -74,11 +76,11 @@ Stop dev with `rer dev --stop` and export a private archive before updating. In 
 
 ## Managed hosting
 
-Spool pins rer 0.2.22 and supports RER Managed mail for sign-in links and email alerts. Managed Configure supplies and hides the mail settings: no mail-provider account or copied API key is needed. Free and Assisted self hosting keep their existing provider choices and sender setup; see [the hosting guide](docs/HOSTED.md#managed-mail).
+Spool pins rer 0.2.23 and supports RER Managed mail for sign-in links and email alerts. Managed Configure supplies and hides the mail settings: no mail-provider account or copied API key is needed. Free and Assisted self hosting keep their existing provider choices and sender setup; see [the hosting guide](docs/HOSTED.md#managed-mail).
 
 ## Run it on your Cloudflare account
 
-Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --environment production` prints a private, one-use owner link using the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.
+Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender. Stop local dev with `rer dev --stop`, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --env-file .rer/deploy/production.env --environment production` prints a private, one-use owner link using the hosting guide's private settings file, the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.
 
 To remove it, export anything you need and run `rer deploy --remove --yes` from the original deploying checkout, retaining its private deployment record and using the same account credentials. The default environment is `production`; add `--environment <name>` for another environment. Removal deletes the Worker and its database. The hosting guide also covers updates and restoring archives. `rer deploy --dry-run` validates the package locally without provider requests.
 

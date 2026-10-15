@@ -4,7 +4,7 @@
 
 With RER Managed hosting, Configure supplies and hides all four mail inputs: `MAIL_PROVIDER=rer`, `MAIL_FROM`, `MAIL_RELAY_URL` and the private `MAIL_API_KEY`. RER assigns the sender and relay URL and stores an installation/environment credential in encrypted private settings. You need no provider account and copy no mail key. The provider credential stays with RER. Spool uses Base's `rer` mail adapter for sign-in links and email alerts.
 
-This checkout pins rer 0.2.22. Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
+This checkout pins rer 0.2.23. Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
 
 ## Run Spool on your Cloudflare account
 
@@ -47,9 +47,10 @@ The [Run page](https://run-spool.com/run) uses `rer dev` for the first local sta
 
    Open `.rer/deploy/production.env` in a text editor and fill in the first five lines: your Cloudflare account ID and API token, the email address you will sign in with, the verified SendGrid sender, and the SendGrid API key. Keep these values out of shell commands. The file can be read only by you. Git ignores it, and `rer reset` keeps it. Keep it for every later deploy of this environment.
 
-3. Deploy and claim the hosted owner:
+3. Stop local dev, then deploy and claim the hosted owner:
 
    ```sh
+   rer dev --stop
    set -a && . .rer/deploy/production.env && set +a
    rer deploy --environment production
    ```
@@ -74,9 +75,10 @@ rer signin --env-file .rer/deploy/production.env --environment production
 
 1. Export first. Sign in to your hosted Spool, open **Settings** and choose **Download private archive**. Keep the downloaded `spool-private-archive.jsonl` until the update is confirmed.
 
-2. Update this checkout and deploy it to the same environment:
+2. Stop local dev, update this checkout and deploy it to the same environment:
 
    ```sh
+   rer dev --stop
    git pull --ff-only
    rer install
    set -a && . .rer/deploy/production.env && set +a
@@ -95,6 +97,7 @@ Removal deletes this environment's Worker and its recorded owned resources, incl
 Run removal from the **original checkout that deployed this environment**, with its retained private `.rer/deploy/production.json` ownership record/receipt and credentials for the same Cloudflare account:
 
 ```sh
+rer dev --stop
 set -a && . .rer/deploy/production.env && set +a
 rer deploy --remove --yes --environment production
 ```

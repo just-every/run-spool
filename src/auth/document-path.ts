@@ -1,6 +1,6 @@
 /** Product document routes, shared by the Worker and the local Vite boundary. */
 export function applicationDocument(path: string): boolean {
- if (['/', '/app', '/setup', '/sign-in'].includes(path)) return true;
+ if (['/', '/app', '/setup', '/sign-in', '/signin'].includes(path)) return true;
  return /^\/projects\/[^/]+\/(?:issues(?:\/[^/]+)?|releases|capture|settings|alerts)\/?$/.test(path);
 }
 export function servicePath(path: string): boolean {

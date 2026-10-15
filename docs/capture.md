@@ -2,7 +2,9 @@
 
 Spool learns about errors from your application through Spool's own SDK, `@just-every/spool`. Every error belongs to a project and to a release you have registered, so Spool can tell which build it came from.
 
-The **Capture** page in Spool walks through these steps for the selected project and fills in its own address and the latest release for you.
+During first-project setup, **Send test error** checks the new key and release from Spool itself; choose **Continue to workbench** afterwards. To check errors from your own application, follow the steps below.
+
+The **Capture** page in the workbench walks through these steps for the selected project and fills in its own address and the latest release for you.
 
 ## 1. Add the Spool SDK
 
@@ -55,11 +57,13 @@ Each bundle needs its `.map` next to it. Both register the release, mark each bu
 
 ## 4. Check it works
 
-When you create a project, **Send test error** registers the release shown and sends one real error with the new key. The **Capture** page can also send a test exception with your ingest key. It appears in **Issues**, with its stack mapped to your original source once the matching map is uploaded.
+Trigger an error in your application, then open **Capture** and choose **Check for events**. Open the received issue in **Issues** and check that its stack maps to your original source using the matching release, build and uploaded map.
+
+For a check from inside Spool, first-project setup has **Send test error**, which registers the release shown and sends one sample error with the new key. Choose **Continue to workbench** to see it in **Issues**. Later, **Capture test exception** on **Capture** sends a test using your ingest key and a release you already registered. These tests check ingestion from Spool's own origin; they do not check your app's origin, SDK installation or source maps.
 
 ## Keys for anything outside this checkout
 
-Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.22), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
+Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.23), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
 
 | Key | Scope | Local dev gate required? |
 | --- | --- | --- |
@@ -71,7 +75,7 @@ Allow your browser application's exact origin on **Capture**, and register its r
 
 The `rer-dev` fragment is the private checkout gate used for owner entry and local read-only agent access. For a trusted local coding agent, extract only that value privately into `SPOOL_DEV_KEY` and use the absolute path to Spool's CLI from your app repository; see [local agent access](WITH-YOUR-AGENT.md#local-agent-access). Keep the gate out of shared configuration and source control.
 
-Deployed Spool refuses every dev-minted key, including ingest and deploy keys. Sign in to the deployed installation and create fresh keys for that installation. Private archives exclude all project grants, including dev-minted grants; recreate keys after restore. Local mail is suppressed, so no email or mailbox workaround is needed. Stop with `rer dev --stop` before reset or data transfer.
+Deployed Spool refuses every dev-minted key, including ingest and deploy keys. Sign in to the deployed installation and create fresh keys for that installation. Private archives exclude all project grants, including dev-minted grants; recreate keys after restore. Local mail is suppressed, so no email or mailbox workaround is needed. Stop with `rer dev --stop` before deploy, verify, reset or data transfer.
 
 ## Already using Sentry? Point your DSN here
 

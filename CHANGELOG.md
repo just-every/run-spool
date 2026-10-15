@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Pin rer 0.2.23 and adopt Base's Worker-compatible Managed mail transport and relay headers; remove the local redirect shim. Prefill owner sign-in from `login_hint` using Base's email policy and explain unavailable mail in plain language. Clarify deploy, sign-in, capture and release documentation after the passing stranger journey.
+
 - Pin rer 0.2.22 and support Base's `rer` mail adapter for RER Managed sign-in and alerts. RER supplies and hides the mail settings, with no provider account or copied key; Free and Assisted self-hosting provider choices remain unchanged.
 
 - Fix local capture and source-map uploads with dev-created project keys, including Capture test exception; keep owner and agent access gated and refuse dev grants on hosted installations. Pin rer 0.2.22, document dev v2 and private agent setup, and explain that restored installations require fresh project keys.

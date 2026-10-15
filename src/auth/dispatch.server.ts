@@ -16,7 +16,7 @@ export async function authenticationResponse(request: Request, env: Bindings): P
   }
   return (await fontDocumentResponse(response)) ?? new Response('Not found', { status: 404 });
  }
- if (path === '/sign-in') return ['GET', 'HEAD'].includes(request.method) ? await signInPage(request, env) : new Response('Method not allowed', { status: 405 });
+ if (path === '/sign-in' || path === '/signin') return ['GET', 'HEAD'].includes(request.method) ? await signInPage(request, env) : new Response('Method not allowed', { status: 405 });
  return null;
 }
 export async function authorizeDocument(request: Request, env: Bindings): Promise<Response | null> {
