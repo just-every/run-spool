@@ -2218,7 +2218,7 @@
       "executable": false
     },
     "deploy-demo.json": {
-      "sha256": "40e014c62d2d1913ab7fe82df85ab5596c6c34d5a36a886df52b36e4adb56ce7",
+      "sha256": "d3c260e99ea11e2a53f50657ceb60207a2b8aa14c585d8a68d35bd938a81a11f",
       "executable": false
     },
     "deploy-site.json": {
@@ -3250,7 +3250,7 @@
       "executable": false
     },
     "src/demo.ts": {
-      "sha256": "4394dd3e7fcd8678a1aa95f67a34b3a9192ef475c8a98783a552540662d52c7e",
+      "sha256": "9979458ad25998519d7efb73146cda2067791f626e23343bc12ab3f8b623ced4",
       "executable": false
     },
     "src/demo/data.ts": {
@@ -3259,6 +3259,10 @@
     },
     "src/demo/environment.ts": {
       "sha256": "e7d7b6debdebd2b5ea3fe846f05017807da82b5d544f1993024827091e93bd2c",
+      "executable": false
+    },
+    "src/demo/history.ts": {
+      "sha256": "186f7a7a28727277f7185578327cee6deef491eb7f17b893a40f072ddd7ca728",
       "executable": false
     },
     "src/demo/workspace.ts": {
