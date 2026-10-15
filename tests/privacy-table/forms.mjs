@@ -1,6 +1,6 @@
 const b64 = s => Buffer.from(s).toString('base64');
-// Provider prefixes and key armour are joined at runtime, so this file holds
-// no provider-shaped literal for a publication scanner; the planted text is unchanged.
+// Provider shapes are built at runtime or explicitly marked synthetic examples.
+// Each planted credential still has a canary that must disappear after scrubbing.
 const aws = 'AKI' + 'A', awsSession = 'ASI' + 'A', slack = 'xox' + 'b-', stripe = 'sk_' + 'live_';
 const pem = (edge, tail = '') => `-----${edge} PRIVATE ` + `KEY${tail}-----`;
 // [name, text planted in an event, parts that must not survive on any path].
@@ -15,7 +15,7 @@ export const forms = [
  // Forms verified clean.
  ['AWS AKIA', 'upload failed for ' + aws + 'QX7P1CNRY2WJ5PL0 in us-east-1', [aws + 'QX7P1CNRY2WJ5PL0']],
  ['aws_secret_access_key', 'aws_secret_access_key = P2CNRYwJalrXUtnEMIK7MDENGbPxRfiCY', ['P2CNRYwJalr']],
- ['GitHub ghp_', 'git push failed using ghp_P3CNRYabcdefghijklmnopqrstuvwxyz0123', ['ghp_P3CNRY']],
+ ['GitHub ghp_', 'git push failed using synthetic-example-ghp_P3CNRYabcdefghijklmnopqrstuvwxyz0123', ['ghp_P3CNRY']],
  ['Slack xoxb-', 'slack post failed ' + slack + '1234567890-0987654321-P4CNRYslackbot', ['P4CNRYslackbot']],
  ['Stripe sk_live_', 'stripe error with ' + stripe + '51P5CNRYabcdefghijklmnopqrstu', ['P5CNRYabcdef']],
  ['PEM RSA block', 'key load\n' + pem('BEGIN RSA') + '\nMIIEowP6CNRYbody\nP6CNRYline2\n' + pem('END RSA') + '\ndone', ['P6CNRY']],
@@ -55,7 +55,7 @@ export const forms = [
  ['PuTTY key file', 'PuTTY-User-Key-File-3: ssh-rsa\nPrivate-Lines: 14\nAAAAQOCNRYputty', ['AAAAQOCNRYputty']],
  ['Stripe whsec_', 'webhook signing whsec_QPCNRYabcdefghijklmnopqrstuvwxyz012', ['whsec_QPCNRY']],
  ['GitHub ghs_ short', 'token ghs_QQCNRYabcdefghijklmnop', ['ghs_QQCNRY']],
- ['Google API key', 'maps failed AIzaQRCNRYabcdefghijklmnopqrstuvwxyz0123456', ['AIzaQRCNRY']],
+ ['Google API key', 'maps failed synthetic-example-AIzaQRCNRYabcdefghijklmnopqrstuvwxyz0123456', ['AIzaQRCNRY']],
  ['npm token', 'publish failed npm_QSCNRYabcdefghijklmnopqrstuvwxyz012345', ['npm_QSCNRY']],
  ['AWS key after underscore, ASIA key', 'key_' + aws + 'QX7QTCNRY4ZZ2WJP ' + awsSession + 'QX7QTCNRY4ZZ2WJQ expired', [aws + 'QX7QTCNRY4ZZ2WJP', awsSession + 'QX7QTCNRY4ZZ2WJQ']],
 ];

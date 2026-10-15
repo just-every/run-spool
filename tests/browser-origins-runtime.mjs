@@ -119,7 +119,7 @@ try{
  a=>a.data.browser_origins[0].project=null,a=>a.data.browser_origins[0].created=-1,
  a=>a.data.browser_origins.push({...a.data.browser_origins[0]}),
  a=>a.data.browser_origins.push({...a.data.browser_origins[0],origin:'https://overflow.example'}),
- a=>a.data.audit.find(row=>row.kind==='browser_origin_added').detail='{"origin":"https://safe.example","secret":"test-spool-archive-canary"}',
+ a=>a.data.audit.find(row=>row.kind==='browser_origin_added').detail='{"origin":"https://safe.example","secret":"synthetic-test-spool-archive-canary"}',
  a=>a.data.audit.find(row=>row.kind==='browser_origin_added').project=null,
  a=>a.data.browser_origin_guards=[],a=>a.version=3,a=>a.migration='wrong'
  ];

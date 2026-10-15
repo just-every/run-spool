@@ -2,7 +2,7 @@ import {createHmac} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {legacyMailRows} from './legacy-mail.mjs';
 export const testOwner = 'owner@spool.test';
-export const testSetupToken = 'test-spool-setup-token-ordinary-owner-claim';
+export const testSetupToken = 'synthetic-test-spool-setup-token-ordinary-owner-claim';
 // Local admission answers only a request holding the checkout's RER_DEV_KEY. Tests that start
 // the real rer commands point `gate.key` at the key rer setup wrote; in-process runtimes get this one.
 export const testDevKey = 'spool-test-dev-key-abcdefghijklmnopqrstuvwxyz0123456789';
@@ -13,7 +13,7 @@ export async function openGate(context, origin) {
  assert.equal(response.status(), 204, 'the key opens local admission');
 }
 export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: testOwner, RER_DEV_KEY: testDevKey,
- SESSION_SECRET: 'test-spool-session-secret-at-least-32-characters', SETUP_TOKEN: testSetupToken,
+ SESSION_SECRET: 'synthetic-test-spool-session-secret-at-least-32-characters', SETUP_TOKEN: testSetupToken,
  MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' });
 export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {
  try {

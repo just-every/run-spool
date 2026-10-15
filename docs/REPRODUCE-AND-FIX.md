@@ -38,7 +38,7 @@ Approving starts the grant's clock. Each step mints a GitHub App installation to
 
 States are recorded independently: **proposed** and **approved** by you; **merged** only from a receipt of GitHub's pull request state (Spool never merges); **deployed** only when a deployment manifest registered for this repository names the merge commit, or a compare receipt shows the deployed commit contains it.
 
-The connection is the owner's GitHub App, in the `GITHUB_CONNECTION` secret: `{"appId":"…","installationId":"…","privateKey":"-----BEGIN RSA PRIVATE KEY-----…"}`. Locally put it in `.dev.vars`; on a deployed Worker set it as a Worker secret. Without it, an approved workflow stops at **Approved, awaiting connection**, with no provider request and no receipt.
+The connection is the owner's GitHub App, in the `GITHUB_CONNECTION` secret: `{"appId":"…","installationId":"…","privateKey":"synthetic-example-pem-private-key"}`. Locally put it in `.dev.vars`; on a deployed Worker set it as a Worker secret. Without it, an approved workflow stops at **Approved, awaiting connection**, with no provider request and no receipt.
 
 ## 3. Did the fix reach the affected users?
 

@@ -169,7 +169,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
 
  await stop();cookie='';await start(resolve(temporary,'state-b'));await login();await setupLocation(false);
  assert.equal((await req('/api/restore','POST',{...nativeArchive(archive.data),checksum:'broken'})).status,400);
- const poisoned=nativeArchive(archive.data);poisoned.data.issues[0].title='token=test-spool-restore-title-canary alice@private.example';poisoned.data.events[0].diagnostic=JSON.stringify([{generated:{secret:'test-spool-restore-diagnostic-canary'},status:'mapped',original:{sourceContent:'test-spool-restore-source-canary'}}]);poisoned.checksum=createHash('sha256').update(canonical({version:poisoned.version,migration:poisoned.migration,data:poisoned.data})).digest('hex');assert.equal((await req('/api/restore','POST',poisoned)).status,400);assert.ok(isDeepStrictEqual(await json('/api/projects'),[]),'private domain rows match exactly');
+ const poisoned=nativeArchive(archive.data);poisoned.data.issues[0].title='token=test-spool-restore-title-canary alice@private.example';poisoned.data.events[0].diagnostic=JSON.stringify([{generated:{secret:'synthetic-test-spool-restore-diagnostic-canary'},status:'mapped',original:{sourceContent:'test-spool-restore-source-canary'}}]);poisoned.checksum=createHash('sha256').update(canonical({version:poisoned.version,migration:poisoned.migration,data:poisoned.data})).digest('hex');assert.equal((await req('/api/restore','POST',poisoned)).status,400);assert.ok(isDeepStrictEqual(await json('/api/projects'),[]),'private domain rows match exactly');
 
  await operatorArchiveTamper({archive,req,json});
  const retiredConfiguration=[...archive.manifest.requiredConfiguration];retiredConfiguration.splice(2,0,'SETUP_TOKEN');

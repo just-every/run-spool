@@ -2202,7 +2202,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "9dc91fe9b55363e44b689f8b75b6f64eeb8a65bdd15ac3da59453759b271f456",
+      "sha256": "ac8afa894b34551f8b3871663546fde235c22cd522f9cee800d63362a58d94b9",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2486,7 +2486,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "aff314b0a736aa01a851191e739e06a3b2491dda35d67ba1bd083d4477e867c0",
+      "sha256": "47e982e3af7c78d9f2ece30007bc05e4c42d77596c6ec6f2bec10c8da174d805",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -5750,7 +5750,7 @@
       "executable": false
     },
     "tests/agent-handoff/packet.mjs": {
-      "sha256": "90d2e2f6e2818198daf58190a1fee28169b1e4b930b6522815831945880fa6f4",
+      "sha256": "ba50d9c123e0294dedd2ca4a5e813b52dd3e73dc5765fedfba6f0fa35ee5d2a3",
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
@@ -5814,7 +5814,7 @@
       "executable": false
     },
     "tests/auth.mjs": {
-      "sha256": "1a9d0d954e600f149caec273f3b2fd739a5f8f8da68a946425998df61c3027d3",
+      "sha256": "8a05b90a511889064609d56b783aec83e3c304f4ed8c20a93e0a3ddb6b5857dd",
       "executable": false
     },
     "tests/browser-launch.mjs": {
@@ -5822,7 +5822,7 @@
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {
-      "sha256": "e8b1ffddd3a9812b06aa0377e3c01081167cd72fe038662992818f9f058dffe1",
+      "sha256": "cba80d1b83b3039c39a6caa47a81e9a201dae5e05ec947a2d3be8c2f488263a6",
       "executable": false
     },
     "tests/bundle-grouping.mjs": {
@@ -5990,7 +5990,7 @@
       "executable": false
     },
     "tests/privacy-table/forms.mjs": {
-      "sha256": "e408ee806b412ab0aa0201a102eb87951d953620865e2d130b67142a2c864242",
+      "sha256": "7e205a3c7c3ff9b8597172bb4feae492a63bd97459c4c783c69374f28abda9ed",
       "executable": false
     },
     "tests/product-assets.mjs": {
@@ -6002,7 +6002,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "8c83e9d0c9f0faa0c1225931689eabc5d954ec4b8dfe71e963b09f9b146a3f63",
+      "sha256": "ed45c9968c3914695eef68e4059fe9d9e8ac43f33ba60c7cdbca5924374fe5e5",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {

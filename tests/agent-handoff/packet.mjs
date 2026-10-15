@@ -8,7 +8,7 @@ export const plainText='TokenExpiredError: the tokenizer rejected passwordless s
 export const plantedSecrets=[
  ['access_token=HANDOFF_ACCESS_TOKEN&state=ok','HANDOFF_ACCESS_TOKEN'],['oauth client_secret=HANDOFF_CLIENT_SECRET rejected','HANDOFF_CLIENT_SECRET'],
  ['refresh_token: HANDOFF_REFRESH_TOKEN','HANDOFF_REFRESH_TOKEN'],['{"user":"amy","password":"HANDOFF_JSON_PASSWORD"}','HANDOFF_JSON_PASSWORD'],
- ['{\\"api_key\\":\\"HANDOFF_ESCAPED_KEY\\"}','HANDOFF_ESCAPED_KEY'],["{'secret': 'HANDOFF_QUOTED_SECRET'}",'HANDOFF_QUOTED_SECRET'],
+ ['{\\"api_key\\":\\"HANDOFF_ESCAPED_KEY\\"}','HANDOFF_ESCAPED_KEY'],["{'secret': 'synthetic-HANDOFF_QUOTED_SECRET'}",'HANDOFF_QUOTED_SECRET'],
  ['Authorization: Basic '+base64('amy:HANDOFF_BASIC'),base64('amy:HANDOFF_BASIC')],['Authorization: Bearer HANDOFF_BEARER','HANDOFF_BEARER'],
  ['X-Api-Key: HANDOFF_HEADER_KEY','HANDOFF_HEADER_KEY'],['Cookie: theme=dark; sid=HANDOFF_COOKIE_SID','HANDOFF_COOKIE_SID'],
  ['sessionid=HANDOFF_SESSION_ID','HANDOFF_SESSION_ID'],['AWS_SECRET_ACCESS_KEY=HANDOFF_ENV_SECRET','HANDOFF_ENV_SECRET'],
