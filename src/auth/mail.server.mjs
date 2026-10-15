@@ -6,7 +6,7 @@ import { localDevelopmentEnabled } from './local.server.mjs'
 export function operatorMail(env) {
   if (!env.MAIL_PROVIDER) return undefined
   if (env.MAIL_PROVIDER === 'development') {
-    if (!localDevelopmentEnabled(env)) return undefined
+    if (env.RER_DEMO !== '1' && !localDevelopmentEnabled(env)) return undefined
     return {
       async send(message) {
         return createMailSender({ provider: 'development', mode: 'development' }, {

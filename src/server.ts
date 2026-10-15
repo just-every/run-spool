@@ -1,3 +1,5 @@
+import { withDemo } from './modules/demo/index.mjs';
+import { seedDemo } from './demo';
 import start from '@tanstack/react-start/server-entry';
 import api from './domain/api';
 import { setupDocumentResponse, setupClaimed } from './domain/setup.server';
@@ -25,7 +27,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
  // A project erasure that outlived its request continues here.
  await continueErasures(env.DB, Date.now() + 20_000);
 }
-export default {
+export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
   if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
@@ -59,4 +61,4 @@ export default {
    return editorDocument(await start.fetch(request), env);
   });
  },
-} satisfies ExportedHandler<Bindings & AlertEnvironment>;
+} satisfies ExportedHandler<Bindings & AlertEnvironment>, { seed: seedDemo });

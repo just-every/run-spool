@@ -47,5 +47,9 @@
   ],
   "crons": [
     "* * * * *"
+  ],
+  "platforms": [
+    "workers",
+    "container"
   ]
 }

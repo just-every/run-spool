@@ -48,7 +48,12 @@
           "src/identity.ts",
           "src/site",
           "vite.site.config.ts",
-          "deploy-site.json"
+          "deploy-site.json",
+          "src/demo.ts",
+          "src/demo",
+          "deploy-demo.json",
+          "DEMO.md",
+          ".github/workflows/run-demo.yml"
         ]
       }
     },
@@ -1942,6 +1947,16 @@
             "path": "src/modules/erasure/plan.mjs",
             "originPath": "plan.mjs"
           }
+        ]
+      }
+    },
+    {
+      "id": "runeditrun/demo",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/modules/demo"
         ]
       }
     }
