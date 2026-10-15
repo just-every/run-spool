@@ -1,8 +1,7 @@
 import { admissionBasis } from '../bundle-grouping';
 import { pathMappings } from '../path-mappings';
 import { canonical, grouping, hash, scrub } from '../privacy';
-import { deploymentInput } from './deployments';
-import { policyInput } from './policies';
+import { deploymentInput, policyInput } from './validation';
 import { captureAuditKinds } from '../alerts/capture-history';
 export const operatorTables:Record<string,string[]>={
  grouping_corrections:['id','project','kind','state','plan','created','updated'],

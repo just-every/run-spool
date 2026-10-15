@@ -1,11 +1,7 @@
 import { Hono } from 'hono';
 import { scrub } from '../privacy';
+import { policyInput } from './validation';
 import { authorize, body, s, guard, audit, write, conflict } from './common';
-export function policyInput(b:any){
- if(!['fingerprint','release','message'].includes(b.field)||!['exact','substring'].includes(b.mode)||typeof b.value!=='string'||!b.value.trim()||b.value.length>160||scrub(b.value)!==b.value||typeof b.enabled!=='boolean')throw new Error('A bounded scrubbed exact or substring policy is required');
- if(b.field==='fingerprint'&&(b.mode!=='exact'||!/^[a-f0-9]{64}$/.test(b.value)))throw new Error('Fingerprint policies require an exact fingerprint');
- return {field:b.field,mode:b.mode,value:b.value,enabled:b.enabled};
-}
 // Used directly inside the admission batch: enabled policies cannot race a stale JavaScript decision.
 export const policyMatch=`p.project=? AND p.enabled=1 AND CASE p.mode WHEN 'exact' THEN (CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END)=p.value ELSE instr(CASE p.field WHEN 'fingerprint' THEN ? WHEN 'release' THEN ? ELSE ? END,p.value)>0 END`;
 export const matchArgs=(project:string,fingerprint:string,release:string,message:string)=>[project,fingerprint,release,message,fingerprint,release,message];

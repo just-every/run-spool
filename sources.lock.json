@@ -3465,7 +3465,7 @@
       "executable": false
     },
     "src/domain/operators/archive.ts": {
-      "sha256": "32b7a8d967fa7b7e557bed94ebaba0dd89bebcd5373cd5ec3d821ecc5543a017",
+      "sha256": "b67b5e206d311616aaeebfd76cd9608d97768a19e1e51bb16363e250c4edcdf4",
       "executable": false
     },
     "src/domain/operators/common.ts": {
@@ -3473,7 +3473,7 @@
       "executable": false
     },
     "src/domain/operators/deployments.ts": {
-      "sha256": "2b3f3a09b7d9c1517dd21f7b7513be33d7d32bb220d7ced8bf9929811c170fba",
+      "sha256": "5b5bb080076ff4951ff3755618b6bcd8fe3f2b7488a8f422b623174fd7245bf8",
       "executable": false
     },
     "src/domain/operators/grouping.ts": {
@@ -3485,11 +3485,15 @@
       "executable": false
     },
     "src/domain/operators/policies.ts": {
-      "sha256": "a3fbbf1a6ef97363bcf3d7c72e058f1e22e4d5082b93d3727b02dc93ccd70def",
+      "sha256": "9841a0078fb98f1644b256efe08eb318f22125244ff4bc2687a965b8e09f0359",
       "executable": false
     },
     "src/domain/operators/provenance.ts": {
       "sha256": "088bc6d0434e21f1259abc47dbf91e09f190dcc88728a1f8300bcb79cedeb5da",
+      "executable": false
+    },
+    "src/domain/operators/validation.ts": {
+      "sha256": "ca77ee952964d981e61e11359429336988b9929f4fd2f7a3cfbcff932162ef33",
       "executable": false
     },
     "src/domain/origins.ts": {
@@ -3629,7 +3633,7 @@
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
-      "sha256": "34c9c5802fef479ac7f2e704290c6014012dddcd9160572416aeba59b086b4d1",
+      "sha256": "38978f12468f2da08ad2687b31c16e01b5193360a3dce988dc8cb390b5a0f147",
       "executable": false
     },
     "src/domain/sentry/deploy.ts": {

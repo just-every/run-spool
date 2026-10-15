@@ -1,6 +1,6 @@
 import { mappingStatements } from '../path-mappings';
 import { Hono } from 'hono';
-import { deploymentInput } from '../operators/deployments';
+import { deploymentInput } from '../operators/validation';
 import type { Bindings } from '../../auth/bindings';
 import { canonical, hash, identity } from '../privacy';
 import { validateMap } from '../artifacts';
