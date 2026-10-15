@@ -6126,7 +6126,7 @@
       "executable": false
     },
     "tests/project-erasure/scan.mjs": {
-      "sha256": "dedff51e6d9c6478f5693b8b11e149a18fde682661f57c2618216d3f28c5dff8",
+      "sha256": "b0a267928a7ceffd84f5db25dc6f6483a823e24874976d5b47c446d7d6bd79e7",
       "executable": false
     },
     "tests/project-erasure/ui.mjs": {
