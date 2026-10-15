@@ -12,6 +12,8 @@ export function scanDatabase(root,needles){
  for(const file of readdirSync(directory).filter(name=>name.endsWith('.sqlite'))){
   const db=new DatabaseSync(resolve(directory,file),{readOnly:true});
   try{
+   // The live Worker can still be finishing a SQLite checkpoint after its reply.
+   db.exec('PRAGMA busy_timeout=5000');
    for(const {name} of db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all()){
     tables++;
     const columns=db.prepare(`PRAGMA table_xinfo("${name.replaceAll('"','""')}")`).all().map(column=>column.name);
@@ -39,6 +41,7 @@ export function auditReport(root,{erased,expected}){
  for(const file of readdirSync(directory).filter(name=>name.endsWith('.sqlite'))){
   const db=new DatabaseSync(resolve(directory,file),{readOnly:true});
   try{
+   db.exec('PRAGMA busy_timeout=5000');
    if(!db.prepare("SELECT 1 FROM sqlite_master WHERE name='audit'").get())continue;
    const labelled=db.prepare("SELECT kind,detail,created FROM audit WHERE project IS NULL AND detail LIKE '{\"erasure\":%'").all();
    const labels=[...new Set(labelled.map(row=>JSON.parse(row.detail).erasure))];
