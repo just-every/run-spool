@@ -17,7 +17,8 @@ export function spoolSourceMaps(options) {
         if (mapAsset?.type === 'asset') mapAsset.source = JSON.stringify(artifact.map);
         artifacts.push(artifact);
       }
-      await uploadSourceMaps(options, artifacts);
+      const result = await uploadSourceMaps(options, artifacts);
+      this.info(`Uploaded ${result.uploaded} source map${result.uploaded === 1 ? '' : 's'}.`);
     },
   };
 }

@@ -1,5 +1,6 @@
 import { TraceMap } from '@jridgewell/trace-mapping';
-import { file, hash } from '../privacy';
+import { hash } from '../privacy';
+import { sourceMapFile } from '../source-map-path';
 
 // The one declared defect class so far: a JavaScript exception whose first
 // frame maps, through a stored source map, to an ES module source the map
@@ -31,7 +32,7 @@ export async function mapModules(payload: string): Promise<SourceModule[]> {
   const source = map.sourcesContent?.[index], name = moduleName(String(resolved ?? ''));
   if (typeof source !== 'string' || !name || seen.has(name)) continue;
   seen.add(name);
-  modules.push({ name, original: file(String(resolved)), source, sha256: await hash(source), bytes: new TextEncoder().encode(source).length });
+  modules.push({ name, original: sourceMapFile(String(resolved)), source, sha256: await hash(source), bytes: new TextEncoder().encode(source).length });
  }
  if (modules.reduce((total, row) => total + row.bytes, 0) > MODULE_BYTES) throw new Error('module_budget');
  return modules;

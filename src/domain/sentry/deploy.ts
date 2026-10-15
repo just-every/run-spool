@@ -15,7 +15,7 @@ export async function authorizeDeploy(c:any,project:string):Promise<{guard:()=>D
   const grant=await c.env.DB.prepare(`SELECT project,kind FROM credentials WHERE hash=? AND kind IN ('agent','deploy') AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`).bind(digest).first();
   if(!grant)return {response:c.json({error:'Invalid deploy key'},401)};
   // These routes precede the normal agent guard; preserve its read-only denial.
-  if(grant.kind==='agent')return {response:c.json({error:'Read-only project scope required'},403)};
+  if(grant.kind==='agent')return {response:c.json({error:'Agent keys are read-only and limited to their project.'},403)};
   if(grant.project!==project)return {response:c.json({error:'Deploy project scope required'},403)};
   return {guard:()=>c.env.DB.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='deploy' AND revoked IS NULL AND ${mintedByCurrentPerson}) THEN 1 ELSE 0 END`).bind(digest,project)};
 }

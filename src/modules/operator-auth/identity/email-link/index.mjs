@@ -7,7 +7,7 @@ import { isActiveOperator } from '../../accounts/roles.mjs';
 import { isLocalCli } from '../../local-cli.mjs';
 import { linkMessage } from './message.mjs';
 import { completionHook } from '../after-confirm.mjs';
-export const STEP_UP_ACTIONS = Object.freeze(['providers:unlink', 'providers:relink', 'domains:change', 'owner:transfer', 'export', 'delete', 'credentials:mint']);
+export const STEP_UP_ACTIONS = Object.freeze(['providers:unlink', 'providers:relink', 'domains:change', 'owner:transfer', 'export', 'delete', 'credentials:mint', 'email:change']);
 export const STEP_UP_SECONDS = 600;
 
 // Persistence owns the atomic authority check, proof consumption and session

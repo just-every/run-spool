@@ -130,6 +130,9 @@ version), domain rules in `oa_domain_rules`. `auth.accounts` exposes it and
 | `/auth/providers` | GET | the pinned provider links; owner only |
 | `/auth/providers/unlink`, `/auth/providers/relink` | POST | provider; owner only, step-up |
 | `/auth/oidc/<id>/start`, `/auth/oidc/<id>/callback` | POST / GET | each provider's own routes (see [identity/oidc](identity/oidc/README.md)) |
+| `/auth/owner-signin?token=…` | GET/HEAD | 200 owner sign-in confirmation for a live `rer signin` link, or 400 invalid/used/expired; **no writes** |
+| `/auth/owner-signin` | POST | token; consume once for the active owner it names, 303 with cookie; see "Owner sign-in without mail" |
+| `/auth/email` | POST | email; the signed-in operator's own sign-in email; fresh step-up proof; 409 `email_in_use` |
 
 Unknown `/auth/*` paths return 404. Unsupported methods return 405. Except for invalid/expired confirmation GET/HEAD documents, known public
 errors are JSON `{error:code}`: invalid input 400, unauthenticated 401, policy/host/
@@ -426,6 +429,40 @@ Creating a server-declared owner dev persona also requires the signed-in owner's
 fresh local proof in addition to the checkout key. Its creation repeats the actor
 session/version fence in the database write.
 
+## Owner sign-in without mail (`rer signin`)
+
+An owner whose mail does not work yet, or whose `OWNER_EMAIL` was mistyped, gets
+in with `rer signin [--environment NAME]`. rer uses only the Cloudflare
+credentials that deployed that environment: it checks that the live Worker is
+the one its deploy record names, writes one row into `oa_owner_signins` in the
+deployment's own D1 through the D1 API, and prints the link
+`/auth/owner-signin?token=…` once to the terminal. The row holds the SHA-256 of
+the 256-bit token (`owner-signin-grant.mjs`), the claimed owner's id and
+version, and an expiry 15 minutes ahead; the token itself is never stored, and
+rer writes it to no log, receipt or deploy record.
+
+GET only shows a confirmation page (link scanners cannot use it). POST consumes
+the grant in one transaction with the session it opens, and only while the
+grant is unused, unexpired, at most 15 minutes from the Worker's own clock
+(whatever clock minted it), and names the operator that is still the active
+owner at the same version (a role or status change voids it). The same
+transaction records `owner:signin-link` in `oa_auth_audit` for that owner and
+counts as a fresh step-up proof. The route uses the confirmation rate limit,
+the exact Origin and the secure cookie of every other sign-in.
+
+Why it is safe: writing that table needs the same Cloudflare token that can
+already replace the Worker or read and write its database, so the link adds no
+authority beyond the deploy credentials. It works once, only for the recorded
+owner, within 15 minutes, and its use is logged. Production email-link sign-in
+is unchanged. Native accounts (`createNativeAuth`) do not mount this route.
+
+A wrong sign-in email is corrected in the app: `POST /auth/email {email}`
+changes the signed-in operator's own address after a fresh proof (a step-up
+link to the current address, a recent email-link sign-in, or a `rer signin`
+link). It revokes unused links sent to the old address and keeps sessions and
+provider bindings. An address another operator holds is refused with
+`email_in_use`. `STEP_UP_ACTIONS` gains `email:change`.
+
 ## Local dev identity and the key gate
 
 `dev-gate.mjs` (exported as `devGate`, production-safe) is the per-checkout key
@@ -592,6 +629,12 @@ requesting email links. The reference applies them as
 `0009_domain_rules_step_up.sql`. The earlier single-issuer `oidc/` adapter
 (`createOidcClient`) is replaced by `config.providers`; its existing bindings keep
 signing in once the same issuer is configured as a provider.
+
+**Owner sign-in links.** `rer signin` needs `oa_owner_signins`: apply
+`accounts/schema/owner-signin.sql` as a new numbered migration (additive, safe
+after the fresh schema; the reference applies it as
+`migrations/core/0024_owner_signin.sql`). Only the owner-signin route reads it;
+until it exists, `rer signin` refuses before writing anything.
 
 Seeds copy this module at different revisions, and an older copy lacks the
 cancellation migration and the optional OIDC and conformance files. Check each

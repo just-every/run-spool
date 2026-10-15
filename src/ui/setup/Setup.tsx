@@ -7,7 +7,7 @@ import { Field } from '../workbench/shared';
 import { ArchiveSettings } from '../workbench/ArchiveSettings';
 import './setup.css';
 
-type CreatedProject = { id: string; name: string; ingestKey: string; dsn?: string };
+type CreatedProject = { id: string; name: string; ingestKey: string; dsn?: string; devMinted?: boolean };
 export function Setup() {
  const [ready, setReady] = useState(false);
  const [restoring, setRestoring] = useState(false);
@@ -42,6 +42,7 @@ export function Setup() {
     {error && <div ref={notice} tabIndex={-1} role="alert" className="callout status-notice">{error} <a href="/sign-in">Sign in again</a></div>}
     {created ? <>
      <h2>{created.name}</h2><p>Copy this ingest key now. It is shown only once. If you lose it, create a new ingest key in Settings.</p>
+     {created.devMinted && <aside className="callout"><strong>This key works inside this checkout.</strong><p>It needs the private dev gate and will not work in an app running elsewhere, even on this computer.</p><p>For your app: run <code>rer dev --stop</code>, then <code>rer dev --login</code>. Open its printed <code>RER_OPEN</code> outbox link, follow the newest sign-in message, and create an ingest key in <a className="inline-link" href={`/projects/${encodeURIComponent(created.id)}/settings`}>Settings → Project keys</a>. Use that new key in your app and allow its origin below. Keep the private dev gate in this checkout.</p></aside>}
      <div className="secret-key setup-key"><label htmlFor="setup-ingest-key">Ingest key</label><textarea id="setup-ingest-key" rows={2} readOnly value={created.ingestKey} spellCheck={false} autoComplete="off" /><button className="text-button" type="button" onClick={() => void copyKey()}>Copy ingest key</button><p role="status">{copied ? 'Key copied.' : ''}</p></div>
      <div className="setup-release"><Field label="Release" value={release} required pattern="[a-zA-Z0-9._:@+\-]+" onChange={event => setRelease(event.target.value)} /><Field label="Build" value={build} required pattern="[a-zA-Z0-9._:\-]+" onChange={event => setBuild(event.target.value)} /></div>
      {endpoint && <SdkSetup endpoint={endpoint} project={created.id} ingestKey={created.ingestKey} release={release} build={build} />}

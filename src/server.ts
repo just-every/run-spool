@@ -54,7 +54,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  // Independently mounted owner/auth handlers share the same agent denial.
  if (path.startsWith('/auth/') || path === '/api/editor/config') {
   const grant = await agentProject(request, env.DB);
-  if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Read-only project scope required' }, { status: 403 });
+  if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Agent keys are read-only and limited to their project.' }, { status: 403 });
  }
  if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
  if (path === '/api/editor/config') return editorConfigResponse(request, env);

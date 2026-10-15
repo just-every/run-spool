@@ -8,7 +8,7 @@ import {archiveProjection,nativeArchive,archiveConfiguration} from './archive.mj
 import assert from 'node:assert/strict';
 import {isDeepStrictEqual} from 'node:util';
 import {spawn,spawnSync} from 'node:child_process';
-import {mkdtemp,readFile,writeFile,mkdir,rm,readdir,stat} from 'node:fs/promises';
+import {mkdtemp,readFile,writeFile,mkdir,rm,readdir,stat,realpath} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {createRequire} from 'node:module';
@@ -95,17 +95,29 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  assert.equal((await req('/api/ingest/web','POST',{...event,message:'failed token=test-spool-conflicting-private-canary user@example.com'},auth)).status,409);
  const concurrent=await Promise.all(Array.from({length:6},()=>req('/api/ingest/web','POST',{...event,eventId:'concurrent'},auth)));assert.equal(concurrent.filter(r=>r.status===201).length,1);
  let groups=await json('/api/projects/web/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,2);assert.equal((await json('/api/projects/web/alerts')).length,1);
- // Real minified JavaScript throw, actual esbuild source map and original line proof.
+ // Real minified call chain through map upload, ingest and the issue packet.
  const esbuild=await import(require.resolve('esbuild',{paths:[resolve('node_modules/vite')]}));
- const fixture=resolve(temporary,'fixture.js');await writeFile(fixture,'export function upgrade(account) {\n  return account.address.city;\n}\nupgrade({});\n');
- await esbuild.build({entryPoints:[fixture],outfile:resolve(temporary,'bundle.mjs'),minify:true,sourcemap:true,format:'esm',platform:'browser'});
- let thrown;try{await import('file://'+resolve(temporary,'bundle.mjs'))}catch(e){thrown=e}assert.ok(thrown instanceof TypeError);
+ await mkdir(resolve(temporary,'src'),{recursive:true});
+ const fixture=resolve(temporary,'src/account.js'),bundle=resolve(temporary,'dist/assets/bundle.mjs');
+ await writeFile(fixture,'export function describeUser(account) {\n  return account.address.city;\n}\nexport function checkout(account) {\n  return globalThis.spoolMappingFixture.describeUser(account);\n}\nglobalThis.spoolMappingFixture = {describeUser, checkout};\n');
+ await writeFile(resolve(temporary,'src/main.js'),'import "./account.js";\n[{}].map(account => globalThis.spoolMappingFixture.checkout(account));\n');
+ await writeFile(resolve(temporary,'index.html'),'<script type="module" src="/src/main.js"></script>');
+ const {build:viteBuild}=await import('vite');
+ await viteBuild({configFile:false,root:await realpath(temporary),logLevel:'silent',build:{outDir:'dist',minify:true,sourcemap:true,modulePreload:false,rollupOptions:{output:{entryFileNames:'assets/bundle.mjs'}}}});
+ let thrown;try{await import('file://'+bundle)}catch(e){thrown=e}finally{delete globalThis.spoolMappingFixture}assert.ok(thrown instanceof TypeError);
  const {frames,captureException}=await import('../src/domain/capture.ts');
- const parsed=frames(thrown.stack,'d1');assert.equal(parsed[0].line,1);
- const map=JSON.parse(await readFile(resolve(temporary,'bundle.mjs.map'),'utf8'));
+ const parsed=frames(thrown.stack,'d1').filter(frame=>frame.file.endsWith('/dist/assets/bundle.mjs'));assert.equal(parsed.length,4);assert.equal(parsed[0].line,1);assert.notEqual(parsed[0].function.replace(/ \[as [^\]]+\]$/, '').split('.').at(-1),'describeUser','Vite really minifies the reported function');
+ const map=JSON.parse(await readFile(bundle+'.map','utf8'));
  await json('/api/projects/web/artifacts','POST',{release:'r1',build:'b1',debugId:'d1',map});
- const mappedEvent={...event,eventId:'mapped',message:thrown.message,frames:[parsed[0]]};
+ const mappedEvent={...event,eventId:'mapped',message:thrown.message,frames:parsed};
  const mapped=await json('/api/ingest/web','POST',mappedEvent,auth);assert.equal(mapped.diagnostic[0].status,'mapped');assert.equal(mapped.diagnostic[0].original.line,2);
+ const mappedPacket=await json(`/api/projects/web/issues/${mapped.issue}/packet`),mappedOccurrence=mappedPacket.events.find(row=>row.id==='mapped');
+ for(const diagnostic of [mapped.diagnostic,mappedOccurrence.atAdmission,mappedOccurrence.currentLookup])assert.deepEqual(diagnostic.map(row=>({file:row.original.file,line:row.original.line,function:row.original.function})),[
+  {file:'src/account.js',line:2,function:'describeUser'},
+  {file:'src/account.js',line:5,function:'checkout'},
+  {file:'src/main.js',line:2,function:'<anonymous>'},
+  {file:'src/main.js',line:2,function:parsed[3].function}
+ ]);
  const capture=await captureException(thrown,{endpoint:origin,project:'web',ingestKey:project.ingestKey,release:'r1',build:'b1',environment:'test',debugId:'d1'},'capture-real');assert.equal(capture.outcome,'accepted');
  const offline=await captureException(thrown,{endpoint:'http://127.0.0.1:15479',project:'web',ingestKey:project.ingestKey,release:'r1',build:'b1',environment:'test'},'capture-offline');assert.equal(offline.outcome,'unknown');
  if(!withoutBrowser){

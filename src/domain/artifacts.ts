@@ -1,6 +1,8 @@
 import { sourceDiagnostics } from './path-mappings';
-import { TraceMap, originalPositionFor, decodedMappings } from '@jridgewell/trace-mapping';
-import { file, scrub, type Envelope } from './privacy';
+import { TraceMap, originalPositionFor, decodedMappings, traceSegment } from '@jridgewell/trace-mapping';
+import { scrub, type Envelope } from './privacy';
+import { sourceMapFile } from './source-map-path';
+import { functionScopes, type FunctionScopes } from './source-map-functions';
 export function validateMap(map:any): string {
   if (!map || map.version!==3 || !Array.isArray(map.sources) || !map.sources.length || map.sources.length>100 || map.sources.some((s:any)=>typeof s!=='string') || !Array.isArray(map.names) || map.names.length>10000 || map.names.some((s:any)=>typeof s!=='string') || typeof map.mappings!=='string' || 'sections' in map) throw new Error('Unsupported map (flat Source Map V3 only)');
   if (map.sourcesContent && (!Array.isArray(map.sourcesContent) || map.sourcesContent.some((s:any)=>s!==null&&typeof s!=='string'))) throw new Error('Invalid source content');
@@ -20,6 +22,7 @@ export function validateMap(map:any): string {
 }
 export async function diagnose(db:D1Database, project:string, event:Envelope): Promise<any[]> {
   if (event.language) return sourceDiagnostics(db,project,event);
+  const scopes = new Map<string, FunctionScopes>();
   return Promise.all(event.frames.map(async frame=>{
     if(!frame.debugId) return {generated:frame,status:'missing_debug_id'};
     const row = await db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,frame.debugId).first<any>();
@@ -29,9 +32,17 @@ export async function diagnose(db:D1Database, project:string, event:Envelope): P
     }
     try {
       const map = JSON.parse(row.payload);
-      const original = originalPositionFor(new TraceMap(map),{line:frame.line,column:frame.column!});
+      const traced = new TraceMap(map), original = originalPositionFor(traced,{line:frame.line,column:frame.column!});
       if(original.line===null) return {generated:frame,status:'unmapped_position',artifactDigest:row.digest};
-      return {generated:frame,status:'mapped',original:{file:file(original.source??''),line:original.line,column:original.column,function:scrub(original.name??frame.function)},artifactDigest:row.digest};
+      const segment = traceSegment(traced,frame.line-1,frame.column!), sourceIndex = segment && segment.length >= 4 ? segment[1] : undefined;
+      const source = sourceIndex === undefined ? null : map.sourcesContent?.[sourceIndex];
+      let name: string | null = null;
+      if (typeof source === 'string') {
+        const key = `${row.digest}:${sourceIndex}`;
+        if (!scopes.has(key)) scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
+        name = scopes.get(key)!(original.line,original.column!);
+      }
+      return {generated:frame,status:'mapped',original:{file:sourceMapFile(original.source??''),line:original.line,column:original.column,function:scrub(name??frame.function)},artifactDigest:row.digest};
     } catch { return {generated:frame,status:'invalid_artifact',artifactDigest:row.digest} }
   }));
 }

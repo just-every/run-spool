@@ -21,7 +21,7 @@ export async function ownerDeclaration(db: D1Database) {
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
  edges:[child('oa_tokens'),child('oa_tokens','issuer_id'),child('oa_sessions'),
   {table:'oa_sessions',from:'oa_tokens',on:{source_token_id:'id'}},
-  ...['oa_external_identities','oa_invitation_cancellations','oa_step_up_challenges','oa_credentials'].map(table => child(table)),
+  ...['oa_owner_signins','oa_external_identities','oa_invitation_cancellations','oa_step_up_challenges','oa_credentials'].map(table => child(table)),
   ...['oa_provider_sessions','oa_provider_session_pins'].map(sessionChild),
   child('oa_setup_links','owner_id'),child('rer_dependency_pending','approved_by'),child('spool_owner_successor','owner_id'),
   {table:'oa_limits',from:'spool_owner_successor',where:'key IN (SELECT value FROM json_each(?))',params:['rate_keys']},

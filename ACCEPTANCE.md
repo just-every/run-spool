@@ -1,5 +1,11 @@
 # Spool acceptance
 
+The first release lets one owner run Spool locally or on their Cloudflare account, create isolated projects, and catch errors from an app. Map JavaScript stacks to the original source, download an evidence packet or share read-only access with an agent, and see when a resolved error comes back in a later release.
+
+Keep private evidence in an archive, restore it into a fresh installation, and remove a hosted installation when finished. Local use needs no Cloudflare account, mail provider or existing error tracker; pnpm is supplied by rer. Teams, on-call services and a migration from another tracker are unnecessary for these jobs.
+
+The checks and remaining acceptance limits follow.
+
 ## Source and local checks
 
 Spool implements one native owner across isolated projects, Base operator-auth and loopback outbox sign-in, scoped ingest/read/deploy grants, scrubbed D1 evidence, bounded private maps, revision-aware triage, browser-origin policy, portability with native v1/v2 restore, manual retention, alerts, bounded Sentry intake and optional managed claim/editor integration. The recorded Base adoption pin is in [base-copies.json](base-copies.json); product-owned `src/**` remains authoritative.

@@ -13,6 +13,9 @@ importers:
 
   .:
     dependencies:
+      '@babel/parser':
+        specifier: 7.29.8
+        version: 7.29.8
       '@jridgewell/trace-mapping':
         specifier: 0.3.31
         version: 0.3.31
@@ -35,9 +38,6 @@ importers:
       '@axe-core/playwright':
         specifier: 4.13.0
         version: 4.13.0(playwright-core@1.55.1)
-      '@babel/parser':
-        specifier: 7.29.8
-        version: 7.29.8
       '@cloudflare/vite-plugin':
         specifier: 1.54.5
         version: 1.54.5(@types/node@22.20.5)(vite@8.2.2(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0))(wrangler@4.129.1(@cloudflare/workers-types@5.20260908.1)(@types/node@22.20.5))
@@ -48,8 +48,8 @@ importers:
         specifier: 1.55.1
         version: 1.55.1
       '@runeditrun/rer':
-        specifier: 0.2.17
-        version: 0.2.17
+        specifier: 0.2.19
+        version: 0.2.19
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -967,8 +967,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@runeditrun/rer@0.2.17':
-    resolution: {integrity: sha512-D945/8jhB3JdXwlAy8qCUBbbxXvT6faHqWTTbVNcBiXwO9R5Zo2Agd1IYQYl5x0AbojnzQTwi2nemuHpN8hi9w==}
+  '@runeditrun/rer@0.2.19':
+    resolution: {integrity: sha512-N5cDcgkOvXrlFtXx0EwVR36QVyUhvmu/T2dCoYqDY2UM2W2Ib6LRfabVbR9ZYBbzBJE1GIazBsaMzerzf8oZFA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -2718,7 +2718,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@runeditrun/rer@0.2.17': {}
+  '@runeditrun/rer@0.2.19': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:

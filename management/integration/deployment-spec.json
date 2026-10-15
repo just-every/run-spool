@@ -216,6 +216,12 @@
       "name": "0035_bundle_grouping.sql",
       "sha256": "f13ea63d7298fe9414b2887bcdeb12f3359d24ca79547135dbb61aa6f0260289",
       "sql": "-- Stable bundle identity points at an immutable native grouping anchor.\nCREATE TABLE grouping_routes(project TEXT NOT NULL REFERENCES projects(id),fingerprint TEXT NOT NULL,issue TEXT NOT NULL REFERENCES issues(id),basis TEXT NOT NULL,PRIMARY KEY(project,fingerprint),UNIQUE(project,issue));\nCREATE TRIGGER portability_grouping_routes_insert BEFORE INSERT ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_grouping_routes_update BEFORE UPDATE ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_grouping_routes_delete BEFORE DELETE ON grouping_routes WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0036_owner_signin.sql",
+      "sha256": "98da904e768e35b43fb1be83d9dcc9c9b5d86ab3a795234ed5223c4fddc567d9",
+      "sql": "-- One-time owner sign-in links minted by `rer signin` with the deployment's own\n-- Cloudflare credentials, written straight into this table through the D1 API.\n-- Apply as a NEW numbered migration under the seed's next unused number; never\n-- rewrite an applied migration. Additive only. token_hash is the SHA-256 of the\n-- link token (owner-signin-grant.mjs); the token itself is never stored.\nCREATE TABLE IF NOT EXISTS oa_owner_signins (\n id TEXT PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE,\n operator_id TEXT NOT NULL REFERENCES oa_operators(id), operator_version INTEGER NOT NULL,\n created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, consumed_at INTEGER\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
