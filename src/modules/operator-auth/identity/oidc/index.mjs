@@ -1,3 +1,4 @@
+import { rejectedResponse } from '../../rejected-response.mjs';
 // Server-only entry. Never include this module or its configuration in a browser bundle.
 // OpenID Connect sign-in for several pinned providers at once. Each provider
 // has its own start and callback route; its output is a verified principal,
@@ -8,12 +9,22 @@ import { configure } from './config.mjs';
 import { check, OidcError } from './errors.mjs';
 import { random, isRandom, digest, keyedHash, seal, unseal } from './crypto.mjs';
 import { storage } from './store.mjs';
-import { discover, exchange, readJson } from './network.mjs';
+import { discover, exchange, readJson, GrantRejected } from './network.mjs';
 import { parseIdToken, knowsKey, verifyIdToken, principalOf } from './jwt.mjs';
 import { PRESETS, MINIMUM_PROVIDER_VERSION } from './presets.mjs';
 import { refuseInProduction } from '../principal.mjs';
 export { OidcError } from './errors.mjs';
 export { PRESETS, MINIMUM_PROVIDER_VERSION } from './presets.mjs';
+
+// Separate reachability from a verified exchange; discovery must never reset
+// exchange failure or certify a new registration. IDs cannot contain ':'.
+const exchangeKey = link => `exchange:${link.id}:${link.linkedAt}`;
+const working = (link, health) => {
+  const exchange = link && health.get(exchangeKey(link));
+  const reachability = link && health.get(link.id);
+  return link?.status === 'linked' && !!exchange && exchange.failingSince === null && exchange.hardFailureAt === null
+    && (!reachability || reachability.failingSince === null && reachability.hardFailureAt === null);
+};
 
 export const HIDE_AFTER_MS = 5 * 60000;
 const PROBE_EVERY_MS = 60000;
@@ -43,7 +54,9 @@ function errorResponse(error, config, request, clearCookie) {
   if (clearCookie) headers.append('Set-Cookie', clearCookie);
   const code = known ? error.code : 'oidc_unavailable';
   if (request && /\btext\/html\b/.test(request.headers.get('accept') ?? '')) {
-    headers.set('Location', `${config.signInPath}?notice=${encodeURIComponent(code)}`);
+    const location = new URL(config.signInPath, 'https://signin.invalid');
+    location.searchParams.set('notice', code);
+    headers.set('Location', location.pathname + location.search + location.hash);
     return new Response(null, { status: 303, headers });
   }
   return Response.json({ error: code }, { status: known ? error.status : 503, headers });
@@ -187,15 +200,20 @@ export function createOidcProviders({ admission, db, config: input, clientIp, fe
       if (url.searchParams.has('error')) { check(!url.searchParams.has('code')); throw new OidcError('oidc_provider_denied', 401); }
       const code = url.searchParams.get('code');
       check(typeof code === 'string' && code.length <= 4096 && /^[\x21-\x7e]+$/.test(code));
-      const tokens = await exchange(fetcher, link, view, config, code, transaction.verifier, clock());
-      let claims;
+      let tokens, claims;
       try {
+        tokens = await exchange(fetcher, link, view, config, code, transaction.verifier, clock());
         const parsed = parseIdToken(tokens.id_token, link);
         const keys = await keysFor(provider, link, parsed.header.kid);
         claims = await verifyIdToken(parsed, keys, link, view, config, transaction, { ...tokens, code }, clock());
-      } catch (error) { if (error instanceof OidcError && error.status !== 400) throw error; throw new OidcError(error instanceof OidcError ? error.code : 'oidc_invalid_response'); }
+      } catch (error) {
+        if (!(error instanceof GrantRejected) && error?.code !== 'oidc_storage_unavailable') await store.exchangeHealth(link, false, error?.hard === true, clock());
+        if (error instanceof OidcError && error.status !== 400) throw error;
+        throw new OidcError(error instanceof OidcError ? error.code : 'oidc_invalid_response');
+      }
       check(clock() < transaction.expiresAt, 'oidc_invalid_correlation');
       check(transaction.policyVersion === await policyVersion() && await enabled(), 'oidc_sign_in_disabled', 403);
+      await store.exchangeHealth(link, true, false, clock());
       const providerPin={id:link.id,issuer:link.issuer,clientId:link.clientId,linkedAt:link.linkedAt};
       if (Object.hasOwn(claims,'install_owner')) {
         check(typeof claim === 'function','oidc_claim_refused',403);
@@ -214,6 +232,7 @@ export function createOidcProviders({ admission, db, config: input, clientIp, fe
   }
   return Object.freeze({
     ids: Object.freeze([...providers.keys()]),
+    signInPath: config.signInPath,
     begin, callback,
     callbackPaths: Object.freeze(Object.fromEntries([...providers.values()].map(p => [new URL(p.redirectUri).pathname, p.id]))),
     /** The sign-in page's list: a provider is hidden while unlinked or unreachable. */
@@ -231,7 +250,7 @@ export function createOidcProviders({ admission, db, config: input, clientIp, fe
         // Where the start route sends the browser: a form posting there needs it in form-action.
         const authorizationOrigins = link ? [new URL(link.authorization).origin] : [...provider.endpointOrigins];
         result.push({ id: provider.id, label: provider.label, preset: provider.preset, startPath: provider.startPath, authorizationOrigins,
-          visible: link?.status !== 'unlinked' && !unreachable, linked: link?.status === 'linked', pendingRelink: !!link?.pendingAt });
+          visible: link?.status !== 'unlinked' && !unreachable, linked: working(link, health), pendingRelink: !!link?.pendingAt });
       }
       // A hidden provider is checked again at most once a minute, after the page answers.
       if (stale.length) { const probes = Promise.all(stale.map(probe)); if (typeof waitUntil === 'function') waitUntil(probes); else await probes; }
@@ -253,14 +272,15 @@ export function createOidcProviders({ admission, db, config: input, clientIp, fe
       await store.unlink(id);
     },
     async links() {
-      return (await store.links()).map(({ keySet: _, keysFetchedAt: __, ...link }) => link);
+      const [links, health] = await Promise.all([store.links(), store.health()]);
+      return links.map(({ keySet: _, keysFetchedAt: __, ...link }) => ({ ...link, healthy: working(link, health) }));
     },
   });
 }
 
 // Exact routes only: /auth/oidc/<id>/start and /auth/oidc/<id>/callback.
-export function createOidcHandler(oidc) {
-  return async request => {
+export function createOidcHandler(oidc, { signInPath = oidc.signInPath ?? '/signin' } = {}) {
+  const handle = async request => {
     const path = new URL(request.url).pathname;
     const callbackId = oidc.callbackPaths?.[path];
     if (callbackId) return oidc.callback(request, callbackId);
@@ -282,6 +302,10 @@ export function createOidcHandler(oidc) {
       else { const form = new URLSearchParams(text); check(form.getAll('returnTo').length <= 1); input = { returnTo: form.get('returnTo') ?? undefined }; }
       check(input && typeof input === 'object' && !Array.isArray(input));
       return oidc.begin(request, match[1], { returnTo: input.returnTo });
-    } catch (e) { return Response.json({ error: e instanceof OidcError ? e.code : 'oidc_invalid_input' }, { status: e instanceof OidcError ? e.status : 400, headers: securityHeaders() }); }
+    } catch (e) { return errorResponse(e instanceof OidcError ? e : new OidcError('oidc_invalid_input'), { signInPath }, request); }
+  };
+  return async request => {
+    const response = await handle(request);
+    return response ? rejectedResponse(request, response) : response;
   };
 }

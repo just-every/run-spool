@@ -1,3 +1,4 @@
+import { rejectedResponse } from '../rejected-response.mjs';
 // Local dev identity. SERVER-ONLY and LOCAL-ONLY: load this layer only from a
 // local-only Worker entry (a `wrangler dev` or Vite-serve entry), never from the
 // deployed main. `rer build` refuses any build output containing the marker.
@@ -40,19 +41,20 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       if (managedInstallation(env)) {
         // Never admit a dev credential here; with dev identity on, serve nothing.
         registerDevAdmission(null);
-        if (env.RER_DEV_IDENTITY !== 'off') return text(503, 'Dev identity refuses to run beside RER_INSTALLATION_ID with a non-loopback RER_MANAGEMENT_ORIGIN. Remove those bindings from local settings or use rer dev --login.');
-        return new URL(request.url).pathname === '/auth/dev/enter' || new URL(request.url).pathname === '/__dev/personas' ? devNotFound() : worker.fetch(request, original, execution);
+        if (env.RER_DEV_IDENTITY !== 'off') return rejectedResponse(request, text(503, 'Dev identity refuses to run beside RER_INSTALLATION_ID with a non-loopback RER_MANAGEMENT_ORIGIN. Remove those bindings from local settings or use rer dev --login.'));
+        return new URL(request.url).pathname === '/auth/dev/enter' || new URL(request.url).pathname === '/__dev/personas' ? rejectedResponse(request, devNotFound()) : worker.fetch(request, original, execution);
       }
       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
       registerDevAdmission(gate ? r => gate.admits(r) : null);
       const path = new URL(request.url).pathname;
       if (path === '/auth/dev/enter' || path === '/__dev/personas') {
-        if (!gate || env.RER_DEV_IDENTITY === 'off' || !await gate.admits(request)) return devNotFound();
+        if (!gate || env.RER_DEV_IDENTITY === 'off' || !await gate.admits(request)) return rejectedResponse(request, devNotFound());
         const context = identity(env, authConfig, declared);
         try {
-          return path === '/__dev/personas' ? Response.json(context.list(), { headers }) : await enter(request, gate, context);
+          const response = path === '/__dev/personas' ? Response.json(await context.list(), { headers }) : await enter(request, gate, context);
+          return rejectedResponse(request, response);
         } catch (error) {
-          if (error instanceof AuthError) return Response.json({ error: error.code }, { status: error.status, headers });
+          if (error instanceof AuthError) return rejectedResponse(request, Response.json({ error: error.code }, { status: error.status, headers }));
           throw error;
         }
       }
@@ -68,7 +70,16 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
 function identity(env, authConfig, declared) {
   const config = configure(authConfig(env)), store = new AuthStore(env.DB);
   const hash = token => hashToken(config.SESSION_SECRET, 'session', token);
-  const everyone = () => [{ as: 'owner', email: config.OWNER_EMAIL }, ...declared];
+  // The `owner` persona is the owner rer setup claimed while that owner is
+  // active; after that owner has left, the earliest-created active owner; with
+  // no active owner left, nobody (email null), so rer names who it signs in as.
+  const owner = async () => {
+    const setup = await store.byEmail(config.OWNER_EMAIL);
+    if (setup?.role === 'owner' && isActiveOperator(setup, config.allowList)) return setup.email;
+    const rows = (await store.statement(`SELECT email FROM oa_operators WHERE role='owner' AND status='active' ORDER BY created_at, id`).all()).results;
+    return rows.find(row => isActiveOperator({ ...row, status: 'active' }, config.allowList))?.email ?? (setup ? null : config.OWNER_EMAIL);
+  };
+  const everyone = async () => [{ as: 'owner', email: await owner() }, ...declared];
   async function current(request) {
     const token = readCookie(request, config);
     if (!token) return null;
@@ -85,8 +96,8 @@ function identity(env, authConfig, declared) {
       if (!defaultRolePolicy({ actor: actor.operator, action: 'operators:invite', role: 'owner' })) throw new AuthError('forbidden', 403);
       return { ...actor, hash: await hash(readCookie(request, config)) };
     },
-    list: () => [...everyone().map(({ as, email, role }) => ({ as, email, ...(role ? { role } : {}) })), { as: 'signed-out' }],
-    async badge(request) { return { session: await current(request), choices: everyone() }; },
+    list: async () => [...(await everyone()).map(({ as, email, role }) => ({ as, email, ...(role ? { role } : {}) })), { as: 'signed-out' }],
+    async badge(request) { return { session: await current(request), choices: (await everyone()).filter(persona => persona.email) }; },
   };
 }
 
@@ -104,8 +115,9 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
     reply.set('location', '/');
     return new Response(null, { status: 303, headers: reply });
   }
-  const persona = everyone().find(p => p.as === as);
+  const persona = (await everyone()).find(p => p.as === as);
   if (!persona) return devNotFound();
+  if (!persona.email) return text(409, 'No active owner remains in this app. Sign in another way, or run rer reset --yes and rer setup for a new owner.');
   let operator = await store.byEmail(persona.email);
   // Personas are real operators, created only here, in local dev.
   if (!operator && persona.role) {
