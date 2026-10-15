@@ -10,9 +10,18 @@ A coding agent, such as Claude Code or Codex, can read Spool's evidence directly
 
 An agent key works for one project only. Revoke it from **Settings** whenever you like.
 
-## Keys for anything outside this checkout
+## Local agent access
 
-While Spool runs as `rer dev`, it opens signed in with this checkout's private key, and every key you create then works only on requests that carry that private key. To create keys that an agent outside this checkout can use, start Spool with `rer dev --login` instead. It prints a sign-in link: open its private one-click owner link. Keys you create in that session work anywhere.
+In local `rer dev`, a dev-minted agent key also requires this checkout's private gate. In the printed `RER_OPEN` link, privately copy the fragment value after `rer-dev=` and before any `&`, then enter it at this hidden Bash prompt:
+
+```sh
+read -r -s -p 'Private rer-dev fragment value: ' SPOOL_DEV_KEY; printf '\n'
+export SPOOL_DEV_KEY
+```
+
+Do not paste the whole URL or put the value in a command argument. The trusted local agent CLI sends the gate only to loopback as `x-rer-dev-key`; the separate agent key still limits reads to one project. The [CLI and MCP guide](WITH-YOUR-AGENT.md#local-agent-access) shows the commands and configuration.
+
+Run the CLI using its absolute path inside the Spool checkout, even when your terminal or agent is working in your application's repository. Never give the gate to a browser app or put it in source control: it can also open the owner persona. With rer dev v2 (pinned rer 0.2.22), local ingest and deploy keys do not need this gate. Dev-minted keys of every scope are refused by deployed Spool; create fresh keys after signing in there. Archives exclude all project grants.
 
 ## What the agent can read
 

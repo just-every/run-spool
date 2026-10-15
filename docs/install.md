@@ -25,9 +25,32 @@ cd spool && rer dev
 
 `rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@spool.test` for the `spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
 
-For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set); with non-TTY input, supply a private JSON answers file using `rer setup --answers <file> --non-interactive`. Piping an email alone is not a setup answer.
+For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
 To choose your real email before first start, use `rer install` and interactive `rer setup` instead of going straight to `rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
+
+For non-interactive setup, work from the Spool checkout and create an ignored private answers file:
+
+```sh
+mkdir -p .rer/local
+(umask 077; touch .rer/local/setup-answers.json)
+chmod 600 .rer/local/setup-answers.json
+```
+
+Open that file in your editor and save a JSON object using the installer field name:
+
+```json
+{"OWNER_EMAIL":"you@example.com"}
+```
+
+Then run:
+
+```sh
+rer setup --answers .rer/local/setup-answers.json --non-interactive
+rer dev
+```
+
+The `--answers` path must be relative and contained inside the checkout. Absolute paths, `..` traversal and symlinks are refused; the file must be owned by you, regular, unshared by hard links and readable/writable only by you (`0600`). `.rer/` is already ignored by this checkout. Do not place the file in a shared directory or commit it.
 
 ## Your first project
 
@@ -35,7 +58,7 @@ The first time you open Spool, `/setup` offers project creation or archive resto
 
 Spool then shows the project's **ingest key** once. Copy it now: if you lose it, create a new ingest key in **Settings**. Below it are the install line and a three-line `init` for Spool's SDK, already filled in with this installation's address and that key, and **Send test error**, which sends one real error to the new project. Already using Sentry? The project's **Sentry DSN** is shown there too.
 
-For an app or build outside this checkout, [create ordinary keys through local sign-in](capture.md#keys-for-anything-outside-this-checkout) before connecting it. Keys created by the default dev persona require this checkout's dev gate.
+With rer dev v2 (pinned rer 0.2.22), this ingest key works from your app against local Spool without the private dev gate. A deploy key from Settings also works from your local build without the gate. Allow your browser app's exact origin in Capture; never give the browser the `RER_OPEN` link or its gate. Local read-only agent access still needs the gate, privately extracted from the `rer-dev` fragment as `SPOOL_DEV_KEY`; see [the agent guide](WITH-YOUR-AGENT.md#local-agent-access). Deployed Spool refuses all dev-minted keys; sign in there and create fresh keys. [Key scopes](capture.md#keys-for-anything-outside-this-checkout) explains the boundaries.
 
 When you choose **Continue to workbench**, Spool opens the project's **Issues**, waiting for your first event. [Connect your app](capture.md) next.
 

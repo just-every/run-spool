@@ -2,19 +2,34 @@
 
 Mint a read-only **agent** key in a project's workbench and save the once-shown key privately. Set `SPOOL_URL` to that project's exact API root, for example `https://spool.example/api/projects/web`. The key reads only that project; revoke it in the workbench to stop the next HTTP request, including calls from an already-running MCP process.
 
-Use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the checkout; no npm publication or model account is needed for evidence retrieval. Enter the key privately without putting it in process arguments:
+Use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
 
 ```sh
 export SPOOL_URL='https://spool.example/api/projects/web'
 read -r -s -p 'Agent key: ' SPOOL_AGENT_KEY; printf '\n'
 export SPOOL_AGENT_KEY
-node packages/agent/bin/spool-agent.mjs issues --state open --limit 10
-node packages/agent/bin/spool-agent.mjs packet ISSUE_ID --format markdown
-node packages/agent/bin/spool-agent.mjs packet ISSUE_ID --format json
-node packages/agent/bin/spool-agent.mjs outcomes
+node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs issues --state open --limit 10
+node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs packet ISSUE_ID --format markdown
+node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs packet ISSUE_ID --format json
+node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs outcomes
 ```
 
-Instead of the key environment variable, add `--key-file /absolute/private/key-file` (keep it readable only by you), or pipe the key to an HTTP command with `--key-stdin`. MCP reserves stdin for its protocol, so use environment or a key file. `--timeout-ms 10000` controls the request deadline. Exit codes: **0** success, **2** unauthorized/missing credentials, **3** missing/out of scope, **4** unavailable/invalid input. HTTPS is required except localhost, 127/8, and ::1. Redirects are refused, including within the same origin. For local `rer dev` dev-minted grants only, supply the checkout gate as `SPOOL_DEV_KEY` in the environment; it is sent as `x-rer-dev-key` only to loopback. The agent key sets the project's read scope. Keep the dev gate within this checkout: it can also open the owner persona. For an agent outside this checkout, start `rer dev --login`, sign in normally and mint an ordinary agent key; use that project's URL and agent key alone, without `SPOOL_DEV_KEY`.
+Instead of the key environment variable, add `--key-file /absolute/private/key-file` (keep it readable only by you), or pipe the key to an HTTP command with `--key-stdin`. MCP reserves stdin for its protocol, so use environment or a key file. `--timeout-ms 10000` controls the request deadline. Exit codes: **0** success, **2** unauthorized/missing credentials, **3** missing/out of scope, **4** unavailable/invalid input. HTTPS is required except localhost, 127/8, and ::1. Redirects are refused, including within the same origin.
+
+## Local agent access
+
+For local `rer dev`, set `SPOOL_URL` to the printed loopback origin plus `/api/projects/YOUR_PROJECT`. A dev-minted agent key also needs the private checkout gate. Find the `#rer-dev=...` fragment in the private `RER_OPEN` link printed by rer. Copy only the value after `rer-dev=` and before any `&` into this hidden prompt; do not paste the whole URL, print the value or put it in a command argument:
+
+```sh
+read -r -s -p 'Private rer-dev fragment value: ' SPOOL_DEV_KEY; printf '\n'
+export SPOOL_DEV_KEY
+```
+
+Set this before running the CLI commands above or starting your MCP client. The CLI sends it as `x-rer-dev-key` only to loopback. The separate agent key sets the project's read scope. Keep the gate private to trusted local tooling: it can also open the owner persona. Never give it to a browser app, put it in a `VITE_` variable, commit it or export it with evidence.
+
+With rer dev v2 (pinned rer 0.2.22), ingest and deploy keys work against local Spool without this gate; see [key scopes](capture.md#keys-for-anything-outside-this-checkout). Deployed Spool refuses all dev-minted keys. For a deployed installation, sign in there and create a fresh read-only agent key; use its HTTPS project URL and agent key, without `SPOOL_DEV_KEY`. Private archives exclude all project grants. After a local handoff, clear the shell credentials with `unset SPOOL_DEV_KEY SPOOL_AGENT_KEY`.
+
+## MCP configuration
 
 For **Claude Code**, put this non-secret entry in your project's `.mcp.json`, replacing the two absolute paths and URL. Launch Claude Code from a terminal with `SPOOL_AGENT_KEY` set; the variable expands from the environment. For local dev, also add `"SPOOL_DEV_KEY": "${SPOOL_DEV_KEY}"` to `env`.
 

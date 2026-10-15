@@ -28,7 +28,9 @@ this computer set differently (each distinct pin keeps its own copy), and about
 a checkout on another volume than your home folder, where pnpm cannot clone
 packages from its store.
 
-`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
+`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its `rer-dev` fragment value is this checkout's private owner gate. Keep it private. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo; there is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer.
+
+With rer dev v2 (pinned rer 0.2.22), local ingest and deploy keys work from your app and build without the gate. Dev-minted agent keys still require it: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for trusted local CLI/MCP use. Invoke the CLI by its absolute path in the Spool checkout when working from your app's repository. Never give the gate to a browser app or include it in source or build output. Deployed Spool refuses all dev-minted keys; sign in there and create fresh keys. Private archives exclude all project grants. See [the agent instructions](docs/WITH-YOUR-AGENT.md#local-agent-access) and [key scopes](docs/capture.md#keys-for-anything-outside-this-checkout).
 
 The saved local port is used; a first setup saves the first free port from 8787. Explicit ports are decimal
 integers from 1 through 65535 and must be free; a busy requested port fails
@@ -59,10 +61,14 @@ below their own floor, described next.
 
 Missing non-interactive setup answers exit 3 and name the manifest fields.
 Read `rer-setup.json` and pass a private, mode-0600 JSON object keyed by those
-names using `rer setup --answers PATH --non-interactive`,
-for example `{"OWNER_EMAIL":"owner@example.com"}`. Secret values stay in
-private inputs and never go in command arguments. A setup rerun with the saved
-owner and origin preserves existing owner/data and exact private settings.
+names, for example `{"OWNER_EMAIL":"owner@example.com"}`. Save it in the
+ignored `.rer/local/setup-answers.json` and run
+`rer setup --answers .rer/local/setup-answers.json --non-interactive` from the
+Spool checkout. The answers path must be relative and contained inside that
+checkout; absolute paths, traversal, symlinks and shared hard links are refused.
+See [the private-file procedure](docs/install.md#install-and-start). Secret
+values stay in private inputs and never go in command arguments. A setup rerun
+with the saved owner and origin preserves existing owner/data and exact private settings.
 Conflicting saved identity or origin reports an actionable recovery path.
 Review reset's exact removal inventory before confirmation; export domain data
 first if it should be restored, and import only into an empty destination.
@@ -74,14 +80,14 @@ root, inspect the live queue with
 
 For the real owner mailbox, `setup` can prompt instead of receiving
 `--owner-email` on the command line. Setup builds the app, applies local
-migrations, prepares the first owner, requests an ordinary sign-in message and
+migrations, prepares the first owner, opens the local owner without email and
 stops its temporary app before it exits. Existing owner data and private
 settings are preserved on a repeated setup.
 
-`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
-
-Dev and preview are managed foreground servers. The first invocation stays
-active while serving. Use `rer dev --stop` or
+Dev and preview are managed servers. With TTY output, dev stays in the
+foreground; with non-TTY output it returns once ready and leaves the server
+running in the background. `--foreground` and `--detach` select explicitly.
+Use `rer dev --stop` or
 `rer preview --stop` to stop them; `--idle-timeout SECONDS`
 sets inactivity cleanup. Compatible repeated starts reuse the registered
 server, print readiness and exit. Preview serves fixed production output; dev
@@ -147,10 +153,11 @@ init({ endpoint: 'http://127.0.0.1:8787', project: 'web-app', ingestKey: 'YOUR_I
   release: '1.0.0', build: 'local' });
 ```
 
-Allow your application's exact origin on the project's Capture page. Keys
-created while `dev` runs with dev identity work only on requests that carry
-this checkout's dev key, so an application elsewhere needs a key created under
-`dev --login`. Already using Sentry? Point its DSN at the one Spool shows; see
+Allow your application's exact origin on the project's Capture page. The
+local ingest key authorizes events for that project without the private owner
+gate. A deploy key can register releases and upload maps only for its project;
+an agent key reads only its project's evidence. Already using Sentry? Point
+its DSN at the one Spool shows; see
 [docs/SENTRY-SWITCHING.md](docs/SENTRY-SWITCHING.md).
 
 Stop dev or preview with `--stop` or Ctrl-C before build or verification, and
@@ -163,8 +170,8 @@ operations and ambiguous or linked state.
 Local export creates a private archive with an integrity receipt and explicit
 exclusions. Import validates the archive and restores into an empty destination.
 After import, run setup to establish the owner and local configuration. Auth,
-outbox, private settings and transient runtime state are excluded. Remote
-transfer is unsupported by the maintained references and fails visibly.
+all project grants, outbox, private settings and transient runtime state are
+excluded. Remote transfer is unsupported by the maintained references and fails visibly.
 
 Real deployment uses the owner-account procedure and its private credentials.
 `rer deploy --dry-run` validates and builds locally without a
@@ -189,8 +196,10 @@ installer state is `.seed/installer`, and the default private settings file is
 `.dev.vars` with mode 0600. Setup writes this checkout's dev key to
 `.rer/local/dev-key.env` (mode 0600); a repeat setup keeps it and reset removes
 it, which also ends every browser's earlier dev cookie. Dev sign-in, personas
-and the development outbox answer only a request holding that key's cookie, so
-a tunnel or local proxy to the app cannot reach them; anything else returns 404.
+and dev agent reads require that key's exchanged cookie or private header,
+including requests arriving through a tunnel or local proxy. Local ingest and
+deploy admission still require the exact project grant; they do not require
+the owner gate. Dev and demo expose no mailbox viewer.
 Any local user or process that can read the checkout can read the key and sign
 in as the owner. `rer deploy` refuses the key, and `rer build` refuses output
 that contains the dev layer.

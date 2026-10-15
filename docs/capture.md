@@ -59,13 +59,19 @@ When you create a project, **Send test error** registers the release shown and s
 
 ## Keys for anything outside this checkout
 
-The default `rer dev` owner persona marks ingest, deploy and agent keys as dev-minted. Those keys require the checkout's private dev gate on each request, so copying them into a separate application can return `invalid_ingest_key`.
+Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.22), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
 
-To connect an external app, build or agent:
+| Key | Scope | Local dev gate required? |
+| --- | --- | --- |
+| Ingest | Send events to one project | No |
+| Deploy | Register releases and upload source maps for one project | No |
+| Agent | Read evidence for one project; no writes | Yes, for dev-minted keys |
 
-`rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its fragment carries the checkout key, which must never be shared. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo. There is no mail viewer or top bar. Stop with `rer dev --stop` or `rer demo --stop` before reset or data transfer. Project keys created with a dev persona require the private dev gate; use `rer dev --login` and its one-click owner link for native project credentials.
+Allow your browser application's exact origin on **Capture**, and register its release/build before sending errors. Browser capture deliberately omits owner credentials. Never put `RER_OPEN`, its `rer-dev` fragment value or `SPOOL_DEV_KEY` in a browser app, SDK init, browser environment variable or build output. Ingest admission does not grant owner access or evidence reads.
 
-Ordinary keys created after this sign-in do not need the dev gate; their project and operation scopes still apply. Keep `RER_OPEN` and the dev gate private to the checkout: the gate can open the owner persona. Browser capture deliberately omits credentials, so do not try to share that gate with your app. Hosted keys created through ordinary email sign-in use the same project scopes.
+The `rer-dev` fragment is the private checkout gate used for owner entry and local read-only agent access. For a trusted local coding agent, extract only that value privately into `SPOOL_DEV_KEY` and use the absolute path to Spool's CLI from your app repository; see [local agent access](WITH-YOUR-AGENT.md#local-agent-access). Keep the gate out of shared configuration and source control.
+
+Deployed Spool refuses every dev-minted key, including ingest and deploy keys. Sign in to the deployed installation and create fresh keys for that installation. Private archives exclude all project grants, including dev-minted grants; recreate keys after restore. Local mail is suppressed, so no email or mailbox workaround is needed. Stop with `rer dev --stop` before reset or data transfer.
 
 ## Already using Sentry? Point your DSN here
 

@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
 
-// Credentials minted while signed in with a dev session count only behind the local key gate. This runs the real
+// Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
 // document renderers are replaced (the Start entry and the build-time docs module behind the landing and /docs),
 // because neither the API nor the gate reaches them.
@@ -70,7 +70,8 @@ try{
  assert.equal(await status(await local('/api/projects/minted/releases',{method:'POST',cookie:dev,key:true,body:{name:'r1',build:'b1'}})),201);
  assert.equal((await db.prepare("SELECT COUNT(*) n FROM oa_dev_credentials WHERE credential='credentials'").first()).n,4,'every mint path in the dev session is recorded; the ordinary ones are not');
 
- // Dev-minted credentials: admitted with the key, refused without it and by the deployed entry.
+ // Dev-minted capture/build credentials need no owner gate locally. Agent reads
+ // still need it, and production refuses every dev-minted credential.
  const probes=[
   ['ingest key',(target,key)=>target('/api/ingest/minted',{method:'POST',bearer:project.ingestKey,body:event('e-'+Math.random()),key}),201],
   ['agent key',(target,key)=>target('/api/projects/minted/issues',{bearer:agent,key}),200],
@@ -78,10 +79,10 @@ try{
  ];
  for(const [name,probe,allowed] of probes){
   assert.equal(await status(await probe(local,true)),allowed,`a dev-minted ${name} works behind the key`);
-  assert.equal(await status(await probe(local,false)),401,`a dev-minted ${name} is refused without the key`);
+  assert.equal(await status(await probe(local,false)),name==='agent key'?401:allowed,`local ${name} admission follows its scope`);
   assert.equal(await status(await probe(remote,true)),401,`a dev-minted ${name} is refused by the deployed entry`);
  }
- assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),401,'every dev-minted ingest key is refused without the key');
+ assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),201,'Settings ingest keys work without the owner gate');
  // A fence from the linked Auth install ends the owner's session and fences every agent and deploy key a session of
  // theirs minted; signing in again brings none back, and keys minted after the fence work. (Link and binding rows are
  // what a completed link and an Auth sign-in leave.)
@@ -100,7 +101,7 @@ try{
  const again=await signIn(origin,{bootstrap:false});
  assert.deepEqual(await keys(ordinaryAgent,ordinaryDeploy),[401,401],'signing in again restores none of them');
  assert.deepEqual(await keys(await minted(again,'agent'),await minted(again,'deploy')),[200,201],'keys minted after the fence work');
- console.log('Spool dev credentials: ordinary keys unchanged; every dev-minted ingest, agent and deploy key works only behind the key and never in the deployed entry; a fence ends the agent and deploy keys its person minted.');
+ console.log('Spool dev credentials: local ingest/deploy work with scoped keys alone; agent reads and owner sessions retain the gate; deployed entries reject dev grants; identity fences retire agent/deploy keys.');
 }finally{
  await mf.dispose();await rm(directory,{recursive:true,force:true});jwks.close();
 }

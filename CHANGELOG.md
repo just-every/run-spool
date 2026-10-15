@@ -4,6 +4,7 @@
 
 - Pin rer 0.2.22 and support Base's `rer` mail adapter for RER Managed sign-in and alerts. RER supplies and hides the mail settings, with no provider account or copied key; Free and Assisted self-hosting provider choices remain unchanged.
 
+- Fix local capture and source-map uploads with dev-created project keys, including Capture test exception; keep owner and agent access gated and refuse dev grants on hosted installations. Pin rer 0.2.22, document dev v2 and private agent setup, and explain that restored installations require fresh project keys.
 - Fix-branch grants now accept a minted GitHub token only when GitHub reports its repositories as exactly the granted one (case-insensitive); a missing, empty, wider or different list revokes the token unused and refuses with a plain reason.
 - The reproducer button reads "Record reproducer" with the occurrence id beside it, and Spool's sample error no longer offers the form. The release form leads with name and build; the deployment manifest and server (Go/Python) path-mapping fields sit under an optional section.
 

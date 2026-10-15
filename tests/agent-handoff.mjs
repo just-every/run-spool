@@ -38,9 +38,8 @@ try{
  await json('/api/projects/a/artifacts','POST',{release:'z-release',build:'build-z',debugId:'unmapped',map:{version:3,sources:['empty.ts'],names:[],mappings:''}});
  const unmapped=await json('/api/ingest/a','POST',event('unmapped',{frames:[{file:'https://app.example/unmapped.js',line:1,column:0,function:'missing',debugId:'unmapped'}]}),auth);gap(await json('/api/projects/a/issues/'+unmapped.issue+'/packet','GET',undefined,agent),/unmapped_position/);
  stage='second-origin';
- // The dev-minted agent is required; a normal owner session mints the capture
- // credential because cross-origin SDK clients cannot carry the private dev gate.
- const ordinaryCookie=await app.ordinarySession();const browserIngest=await json('/api/projects/a/keys','POST',{kind:'ingest'},{headers:{Cookie:ordinaryCookie}});
+ // A real app uses its dev-minted ingest key without receiving the owner gate.
+ const browserIngest={key:project.ingestKey};
  secondOrigin=await startDispatchApp({endpoint:app.origin,project:'a',ingestKey:browserIngest.key,release:'z-release',build:'build-z',environment:'browser',debugId:'dispatch-map'});
  await json('/api/projects/a/browser-origins','POST',{origin:secondOrigin.origin});for(const [origin,status] of [[secondOrigin.origin,204],['https://unconfigured.example',403]]){const preflight=await request('/api/ingest/a','OPTIONS',undefined,{headers:{Cookie:'',Origin:origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization, content-type'}});assert.equal(preflight.status,status,'native project origin preflight');await preflight.body?.cancel();}browser=await launchBrowser();const throwPage=await browser.newPage();await throwPage.goto(secondOrigin.origin);await throwPage.getByRole('button',{name:'Prepare delivery'}).click();await throwPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');const thrown=await throwPage.evaluate(()=>window.captureOutcome);
  const realPath='/api/projects/a/issues/'+thrown.issue+'/packet',beforeMap=await json(realPath,'GET',undefined,agent);assert.equal(beforeMap.events[0].event.frames[0].line,1);const realSnapshot=structuredClone(beforeMap.events[0].atAdmission);
