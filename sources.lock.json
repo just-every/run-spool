@@ -2017,7 +2017,7 @@
       "executable": false
     },
     ".github/workflows/rer-managed.yml": {
-      "sha256": "41c2c300a6c92566fd8d60414d15fd3208ecbea25313fa6f13a918b8cff812cf",
+      "sha256": "4438b6e2ab1aa8eac1ccb92a7a6063ed222ac3b8575417824951e80a0bf4c40a",
       "executable": false
     },
     ".github/workflows/run-site.yml": {
@@ -2377,7 +2377,7 @@
       "executable": false
     },
     "MANAGED-ADMISSION.md": {
-      "sha256": "89a7e16d362206e978c1ae389971248c4966c5aaa2f0950f8a5efe892861c326",
+      "sha256": "002b0ec72dac39bfb3002dfa8b7eac6a7b389bcaaa074d748c2b41fe1a7818df",
       "executable": false
     },
     "management/integration/deployment-spec.json": {
@@ -2821,7 +2821,7 @@
       "executable": false
     },
     "scripts/delivery/base/packaging.json": {
-      "sha256": "a3161286fcfce48f7dc6fb6a77dff7ddb26fa414c2f9dc566a6c3aa6bc3c27dc",
+      "sha256": "97b0f911634bd02947b5603ab9cdd8df8a9208938907ce38c62197d65ed3b0cd",
       "executable": false
     },
     "scripts/delivery/base/paths.mjs": {
