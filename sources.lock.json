@@ -2025,7 +2025,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "74e6b0acd36a4406c450e5f78d9007c68743dc6a917954508d432ba2b0cb66f9",
+      "sha256": "a80ff7df3007d301e0002d1b3ecf0abb1e8b008e3214c8f6d57c1b13f5c450ed",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2361,7 +2361,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "ade43e0e4ffcc0b0fbc3f3cd663b6519fea4aa310bd142e88ff4d6e51f9b0891",
+      "sha256": "77f00c161180dd19415fde2c49b93b17859ebb3582e3530e913b4f64f698b32c",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -2517,7 +2517,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "6b06a25400bf287e0aab966470cd1814e670d48f7d8f641c0cd0db67802f7a03",
+      "sha256": "9bdb15751cc168e2a69f742119a8abb1560f38099dda9be96e2440ac5a477953",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2613,7 +2613,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "efd0136111efa9da2330133deea30c465b5f12404ad16529c02e5f997ede0654",
+      "sha256": "44ce53aefa3e2544695803c960bb61c1e57055400c828971b356ddd5a0bca552",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -3537,11 +3537,11 @@
       "executable": false
     },
     "src/modules/demo/index.mjs": {
-      "sha256": "29d0e4d44d0542febc29bc2f8c7447fdc3a5fdd80aebda2a3485de0e4b594a3e",
+      "sha256": "154c7fea50350afc5e19100a143aae6a5c6834d03f293a6452b5862a5adc10bc",
       "executable": false
     },
     "src/modules/demo/README.md": {
-      "sha256": "2c79b0a5a4c1998f7bdd8638a442159c4eb3cb0eee07032d67d521347751b9f7",
+      "sha256": "44b7b2dfea231d0df6620b2abbf3c6ca11dc866f4d4c8f3b4dcef6f832d5604e",
       "executable": false
     },
     "src/modules/demo/sockets.mjs": {
