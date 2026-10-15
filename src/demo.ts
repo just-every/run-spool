@@ -2,7 +2,7 @@ import type { Json } from './modules/import-kit/src/types';
 import type { Bindings } from './auth/bindings';
 import { sentryTargets } from './domain/sentry-import/targets';
 import { canonical, grouping, hash } from './domain/privacy';
-import { diagnose } from './domain/artifacts';
+import { historySeed } from './demo/history';
 import { demoProject } from './demo/environment';
 import { groups, releases, sampleEvent } from './demo/data';
 import { seedWorkspace, seedRecentCapture } from './demo/workspace';
@@ -30,6 +30,7 @@ export async function seedDemo(env: Bindings, { ownerEmail, now }: { ownerEmail:
   await put('release', JSON.stringify([demoProject, release.name]), { project: demoProject, ...release, seq: index + 1, created: start + index * 2 * day });
  }
  await seedWorkspace(env, start);
+ const history = await historySeed(db, demoProject);
  for (const [groupIndex, group] of groups.entries()) {
   const { algorithm, basis } = grouping(sampleEvent(group, groupIndex, 0));
   const fingerprint = await hash(basis), issue = await hash(`${demoProject}:${fingerprint}`);
@@ -38,14 +39,15 @@ export async function seedDemo(env: Bindings, { ownerEmail, now }: { ownerEmail:
    title: `${group.type}: ${group.message}`, state: group.state, revision: 1, count: group.count,
    first_seen: first, last_seen: last, resolved_seq: group.state === 'resolved' ? 3 : null, latest_release_seq: 3 });
   for (let index = 0; index < group.count; index++) {
-   const event = sampleEvent(group, groupIndex, index), identity = JSON.stringify([demoProject, event.eventId]);
-   if (await read('event', identity)) continue;
-   await put('event', identity, { id: event.eventId, project: demoProject, issue, release: event.release,
+   const event = sampleEvent(group, groupIndex, index);
+   if (history.contains(event.eventId)) continue;
+   await history.add({ id: event.eventId, project: demoProject, issue, release: event.release,
     release_seq: releases.findIndex(release => release.name === event.release) + 1, build: event.build,
     environment: event.environment, payload: JSON.stringify(event), digest: await hash(canonical(event)),
-    diagnostic: JSON.stringify(await diagnose(db, demoProject, event)),
+    diagnostic: JSON.stringify(await history.diagnose(event)),
     received: Math.round(first + (last - first) * index / (group.count - 1)), occurrence: crypto.randomUUID(), historical: 1 });
   }
  }
+ await history.flush();
  await seedRecentCapture(env);
 }
