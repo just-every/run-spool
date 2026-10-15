@@ -5,5 +5,6 @@
   "settings": {
     "MAIL_PROVIDER": "development",
     "AUTH_LOCAL": "false"
-  }
+  },
+  "instanceType": "standard-1"
 }
