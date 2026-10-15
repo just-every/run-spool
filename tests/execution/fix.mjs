@@ -51,9 +51,16 @@ export async function connectedWorkflow(app,github,{issue,reproducer,run},id){
  github.state.broaden=true;const broad=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:latest.revision});github.state.broaden=false;
  assert.equal(broad.status,409);const broadBody=await broad.json();
  assert.deepEqual(broadBody.workflow.receipts.slice(-3).map(r=>[r.step,r.outcome]),[['mint_token','succeeded'],['revoke_token','succeeded'],['mint_token','refused']]);assert.equal(github.live(),0);
+ // GitHub must report the token's repositories as exactly the granted one: a missing, empty or wider list is refused and revoked unused.
+ for(const reported of ['missing','empty','wider']){
+  github.state.reported=reported;const open=await workflow(app,issue,id),unproven=await app.request(`${p}/fixes/${id}/advance`,'POST',{revision:open.revision});github.state.reported='exact';
+  const body=await unproven.json();
+  assert.equal(unproven.status,409,`a token with ${reported} repositories is refused`);assert.match(body.error,/not provably limited to this one repository/);
+  assert.deepEqual(body.workflow.receipts.slice(-3).map(r=>[r.step,r.outcome]),[['mint_token','succeeded'],['revoke_token','succeeded'],['mint_token','refused']]);assert.equal(github.live(),0);
+ }
  const proposedOnly=await workflow(app,issue,id);assert.equal(proposedOnly.states.merged,null,'merged is never inferred');
  // The owner merges on GitHub; Spool observes it through a receipt.
- const merge=github.merge(number),merged=await app.json(`${p}/fixes/${id}/advance`,'POST',{revision:broadBody.workflow.revision});
+ const merge=github.merge(number),merged=await app.json(`${p}/fixes/${id}/advance`,'POST',{revision:(await workflow(app,issue,id)).revision});
  assert.equal(merged.status,'merged');assert.equal(merged.states.merged.commit,merge);assert.equal(merged.states.merged.source,'provider_receipt');assert.equal(merged.states.deployed,null);
  assert.deepEqual(merged.ci.runs,[{name:'test',status:'completed',conclusion:'success'}]);
  return {merge,receipts:merged.receipts.length,states:Object.fromEntries(Object.entries(merged.states).map(([key,value])=>[key,value?'recorded':null]))};

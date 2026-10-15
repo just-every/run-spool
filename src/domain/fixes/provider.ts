@@ -65,15 +65,16 @@ export class ProviderSession {
   return { body: parsed, summary };
  }
  // One installation token for this repository with exactly the granted
- // permissions. A broader answer is refused and the token revoked at once.
+ // permissions. An answer not exactly this repository, or broader, is refused and the token revoked at once.
  async open() {
   const [, name] = this.grant.repository.split('/');
   const minted = await this.call('mint_token', 'POST', `/app/installations/${this.connection.installationId}/access_tokens`, { repositories: [name], permissions: FIX_PERMISSIONS });
   const granted = { ...minted.body.permissions }; delete granted.metadata;
-  const repositories = (minted.body.repositories ?? []).map((r: any) => String(r.full_name ?? ''));
-  if (JSON.stringify(Object.entries(granted).sort()) !== JSON.stringify(Object.entries(FIX_PERMISSIONS).sort()) || repositories.some((full: string) => !sameRepository(full, this.grant.repository))) {
+  // Provably one repository: a missing, empty or wider list is not that proof.
+  const repositories = Array.isArray(minted.body.repositories) ? minted.body.repositories.map((r: any) => String(r?.full_name ?? '')) : [];
+  if (JSON.stringify(Object.entries(granted).sort()) !== JSON.stringify(Object.entries(FIX_PERMISSIONS).sort()) || repositories.length !== 1 || !sameRepository(repositories[0], this.grant.repository)) {
    await this.close();
-   await this.refuse('mint_token', 'GitHub returned a token broader than the grant; it was revoked unused.');
+   await this.refuse('mint_token', 'GitHub returned a token not provably limited to this one repository with exactly the granted permissions; it was revoked unused.');
   }
  }
  async close() {

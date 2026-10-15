@@ -11,6 +11,7 @@ const root = (project: string) => `/api/projects/${encodeURIComponent(project)}`
 export function ExecutionPanel({ project, issue, event, busy, request, run }: Props) {
   const [reproducers, setReproducers] = useState<any[] | null>(null), [fixes, setFixes] = useState<any>(null), [releases, setReleases] = useState<any[]>([]), [failed, setFailed] = useState(false);
   const [exported, setExported] = useState(''), [input, setInput] = useState('[]'), [ticket, setTicket] = useState<any>(null), [problem, setProblem] = useState('');
+  const sample = event?.event?.environment === 'spool-test';
   const live = ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm);
   async function load() {
     try {
@@ -34,10 +35,12 @@ export function ExecutionPanel({ project, issue, event, busy, request, run }: Pr
     {failed && <p role="alert">Reproducers could not be loaded. <button className="text-button" onClick={() => void load()}>Retry</button></p>}
     {problem && <p role="alert" className="callout">{problem}</p>}
     <p>A reproducer replays the newest occurrence's mapped function with an input you choose, in a separate sandbox process with no network, no secrets and no files. Spool, not the sandbox, decides whether the behaviour matches the captured event.</p>
-    {event && <form className="form-grid" onSubmit={record}>
+    {event && sample && <p>This is Spool’s sample error, so there is no mapped function of yours to reproduce. Reproduce a failure from your own app instead.</p>}
+    {event && !sample && <form className="form-grid" onSubmit={record}>
       <Field label="Export to call (blank: the mapped function)" value={exported} maxLength={100} onChange={value => setExported(value)} />
       <label className="form-field">Input (JSON array of arguments)<textarea required value={input} maxLength={8192} rows={3} onChange={change => setInput(change.target.value)} /></label>
-      <button className="primary-button" disabled={busy}>Record reproducer for {event.id}</button>
+      <button className="primary-button" disabled={busy}>Record reproducer</button>
+      <p className="execution-meta">Replays occurrence <code>{event.id}</code>.</p>
     </form>}
     {ticket && <div className="callout run-ticket" role="status"><strong>Run queued. Run this once in your Spool checkout within 15 minutes; the token is shown only now.</strong><code>{ticket.command}</code><button className="text-button" onClick={() => void navigator.clipboard.writeText(ticket.command)}>Copy command</button></div>}
     {reproducers?.map(reproducer => <ReproducerCard key={reproducer.id} {...{ project, reproducer, releases, busy, write, request }} onTicket={setTicket} />)}

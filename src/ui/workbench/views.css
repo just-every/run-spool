@@ -9,6 +9,7 @@
 .inline-link{text-decoration:underline}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px 24px;align-items:end;margin:20px 0}
 .form-grid>button,.form-grid>div{justify-self:start}
+.form-more{grid-column:1/-1}.form-more>summary{cursor:pointer;font-weight:600}.form-more>.form-grid{margin:12px 0 0}
 .button-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin:16px 0}
 .operator-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin:16px 0}
 .operator-controls>.details-trigger{margin:0}

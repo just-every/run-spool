@@ -6,7 +6,7 @@ import {createHash,createVerify,generateKeyPairSync,randomBytes} from 'node:cryp
 export async function githubDouble({appId='42',installationId='7',repository='just-every/run-spool'}={}){
  const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});
  const sha=()=>randomBytes(20).toString('hex'),requests=[],tokens=new Map();
- const state={refs:new Map([['heads/main',sha()]]),files:new Map(),pulls:[],checks:new Map(),broaden:false};
+ const state={refs:new Map([['heads/main',sha()]]),files:new Map(),pulls:[],checks:new Map(),broaden:false,reported:'exact'};
  const send=(response,status,body)=>{response.writeHead(status,{'Content-Type':'application/json'});response.end(JSON.stringify(body));};
  function appAuthorized(header){
   const [head,payload,signature]=(header??'').replace(/^Bearer /,'').split('.');
@@ -14,6 +14,8 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
   const claims=JSON.parse(Buffer.from(payload,'base64url'));const now=Math.floor(Date.now()/1000);
   return claims.iss===appId&&claims.iat<=now&&claims.exp>now&&claims.exp-claims.iat<=600;
  }
+ // How the answer names the token's repositories: as asked, omitted, empty, or wider.
+ const entry=full=>({name:full.split('/')[1],full_name:full}),reported=full=>state.reported==='missing'?{}:state.reported==='empty'?{repositories:[]}:state.reported==='wider'?{repositories:[...full,repository.split('/')[0]+'/other'].map(entry)}:{repositories:full.map(entry)};
  const server=createServer(async(request,response)=>{
   let body='';for await(const chunk of request)body+=chunk;
   if(state.delay)await new Promise(resolve=>setTimeout(resolve,state.delay));
@@ -26,7 +28,7 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
    // GitHub names are case-insensitive; answers carry the canonical full_name.
    const canonical=name=>name.toLowerCase()===repository.split('/')[1].toLowerCase()?repository:repository.split('/')[0]+'/'+name;
    tokens.set(value,{repositories:asked.repositories.map(canonical),permissions,expires:Date.now()+3600_000});
-   return send(response,201,{token:value,expires_at:new Date(Date.now()+3600_000).toISOString(),permissions,repository_selection:'selected',repositories:asked.repositories.map(name=>({name:canonical(name).split('/')[1],full_name:canonical(name)}))});
+   return send(response,201,{token:value,expires_at:new Date(Date.now()+3600_000).toISOString(),permissions,repository_selection:'selected',...reported(asked.repositories.map(canonical))});
   }
   const grant=tokens.get(token);
   if(!grant||grant.expires<Date.now())return send(response,401,{message:'Bad credentials'});
