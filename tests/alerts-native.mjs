@@ -12,7 +12,7 @@ await test('native scheduled event delivers a later-release regression with sile
  const app=await nativeAlertRuntime();
  try{const fixture=await prepareNativeAlerts(app,['regression']);await capture(app,fixture,'initial');await regression(app,fixture);await verifyNoReplay(app)}finally{await app.close()}
 });
-await test('native scheduled event completes a real spike window and delivers its Base outbox message once',async()=>{
+await test('native scheduled event completes a real spike window and completes with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();
  try{
   const fixture=await prepareNativeAlerts(app,['spike']);

@@ -5761,7 +5761,7 @@
       "executable": false
     },
     "tests/alerts-native.mjs": {
-      "sha256": "d6909bca182cbb17b065bc7c4e4b6928089adb13814239381dbfd3ce0418dc05",
+      "sha256": "d7a3741c20591ae41ae00a2bd91ddc3a98a94664644a16fe8666e27922dcd50d",
       "executable": false
     },
     "tests/alerts-runtime.mjs": {
@@ -5769,7 +5769,7 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "cb13b5cff0474aec630b9f10335d6ba80bb87a40bbbe7e9eb4b13ace29f3df88",
+      "sha256": "9e632fed80d7bc765ed2dec327d920f42016a5c8fd30da790e6b86735198f3ec",
       "executable": false
     },
     "tests/alerts/native-journey.mjs": {
