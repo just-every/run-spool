@@ -2,8 +2,13 @@
 
 ## 0.2.0
 
+2026-10-15 — unpublished, owner-held source release. npm currently serves 0.1.0. The Spool app's 0.2.0 release does not publish this SDK.
+
 - Optional `client` option: a random install identifier (16 to 64 letters, digits, `-` or `_`) sent with errors so Spool can count affected users; the browser `anonymousClient()` makes one and keeps it in `localStorage` under `spool.client`.
 - Browser `exposure(...flows)` reports that the page reached named flows (at most 20) in this release, with capture installed. It needs `client`, never throws, and settles with Spool's outcome.
+- The Vite/Rollup plugin reports `Uploaded N source maps.` after a successful upload; the published 0.1.0 plugin does not print this count.
+- Long browser stacks are cut at a line boundary within 8,192 characters before identification and sending, preserving usable error evidence.
+- Browser location tracking is bounded and evicts only fully refilled locations with no held event or unreported drops. A new location at capacity still reports its outcome without assigning its drops to another issue.
 
 ## 0.1.0
 

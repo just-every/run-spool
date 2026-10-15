@@ -138,6 +138,58 @@
           }
         }
       ]
+    },
+    {
+      "id": "distinct-entry-names",
+      "phenomenon": "ordinary entry names are not content hashes",
+      "expectedRelation": "separate-issues",
+      "reason": "Checkout and settings are separate source files with different failures. Their eight lowercase letters identify the entry, not a generated content hash.",
+      "events": [
+        {
+          "semanticLabel": "checkout",
+          "semanticReason": "Checkout computes the basket total.",
+          "event": {
+            "version": 1,
+            "eventId": "entry-checkout",
+            "release": "corpus-default-r1",
+            "build": "build-default-r1",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "checkout total is undefined",
+            "frames": [
+              {
+                "file": "https://assets.example.test/app-checkout.js",
+                "function": "t",
+                "line": 1,
+                "column": 19
+              }
+            ],
+            "breadcrumbs": []
+          }
+        },
+        {
+          "semanticLabel": "settings",
+          "semanticReason": "Settings loads account preferences.",
+          "event": {
+            "version": 1,
+            "eventId": "entry-settings",
+            "release": "corpus-default-r1",
+            "build": "build-default-r1",
+            "environment": "production",
+            "type": "TypeError",
+            "message": "settings preferences are undefined",
+            "frames": [
+              {
+                "file": "https://assets.example.test/app-settings.js",
+                "function": "t",
+                "line": 1,
+                "column": 19
+              }
+            ],
+            "breadcrumbs": []
+          }
+        }
+      ]
     }
   ]
 }

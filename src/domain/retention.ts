@@ -5,6 +5,7 @@ import { portability } from './portability';
 import { scrub } from './privacy';
 import { retentionAlertStatements } from './alerts/spikes';
 import { withdrawAlertEvidence, RETAINED_HEADLINE } from './alerts/retention';
+import { retentionExposureStatements } from './exposure/retention';
 
 type Candidate = Record<string, string>;
 const predicates = {
@@ -54,6 +55,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  const invalidation = await transfer.invalidateTransfersStatements();
  const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff, auditId);
  const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, cutoff, auditId);
+ const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, cutoff, Date.now());
  // The source/epoch guard rejects a competing restore or retention. Each journal
  // INSERT and DELETE uses the same occurrence and predicate inside this batch.
  // A concurrently admitted map reference therefore preserves both map and fence.
@@ -67,7 +69,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
-  ...headlines, ...mapJobs,
+  ...headlines, ...mapJobs, ...exposureJobs,
   db.prepare('UPDATE rer_portability_state SET epoch=epoch+1 WHERE id=1'),
   db.prepare('INSERT INTO rer_portability_epochs SELECT source_identity,epoch FROM rer_portability_state WHERE id=1 ON CONFLICT(source) DO UPDATE SET epoch=MAX(epoch,excluded.epoch)'),
   statement(db, "SELECT json_extract(detail,'$.removed') AS removed FROM audit WHERE id=?", auditId),

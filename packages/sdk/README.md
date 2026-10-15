@@ -6,6 +6,8 @@ Send JavaScript errors from browsers, Node and Cloudflare Workers to your own [S
 npm install @just-every/spool
 ```
 
+As of 2026-10-15, npm serves 0.1.0. This checkout contains owner-held SDK 0.2.0 source, which remains unpublished. Ordinary capture and source-map upload are available in 0.1.0. Exposure signals, the Vite/Rollup upload-count message, long-stack handling and location-tracking improvements described here require 0.2.0; use a separately supplied 0.2.0 artifact or wait for its authorized npm release. Updating the Spool app does not publish or upgrade the SDK. See [CHANGELOG.md](CHANGELOG.md).
+
 Every event carries the release and build that produced it. Register that release and build in Spool (Releases, or the build plugin below) before you ship: Spool refuses events from releases it does not know.
 
 ## Browser

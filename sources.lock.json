@@ -2032,6 +2032,10 @@
       "sha256": "11d4a852a2087f210cedaab48bf8af22f6fafca91a6b9ab76fc025ad25963e5a",
       "executable": false
     },
+    "CHANGELOG.md": {
+      "sha256": "86c56df229cdd2d94af344b35f615924f743f323c74044613e2be8fbb3af9ea1",
+      "executable": false
+    },
     "CLAUDE.md": {
       "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
       "executable": false
@@ -2281,7 +2285,7 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "13289fce1ee34db2bcc69ff8fbbf6c022052699a7cb9d164c4b1433cf3330471",
+      "sha256": "a29678b5b2d4545e8595e9ef1a6177d3b7af2e7c41cdd4c589bd95d6592658fd",
       "executable": false
     },
     "docs/HOSTED.md": {
@@ -2313,7 +2317,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "1cea4a594fe4245e5438cbbf68226acc8575914155b2d7459a884acca71642a4",
+      "sha256": "aff314b0a736aa01a851191e739e06a3b2491dda35d67ba1bd083d4477e867c0",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -2521,7 +2525,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "204ed981ddf047f09ce1138e403cc874db2520a647cbe2079e50183b4bee503b",
+      "sha256": "467e467a4ec3f7e5ef2d91e4ab32ca8ce737bad2d508822145f361566e658bbf",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2553,7 +2557,7 @@
       "executable": false
     },
     "packages/sdk/CHANGELOG.md": {
-      "sha256": "3a58c83a0a025bfc795262bec5360fba4adf2571d36eee6794f94b7dc43aa3c9",
+      "sha256": "e1024a5e3c32355dfd67bceb406360a15ab7f4d9c98c5aba6aec945286b77ad1",
       "executable": false
     },
     "packages/sdk/package.json": {
@@ -2561,7 +2565,7 @@
       "executable": false
     },
     "packages/sdk/README.md": {
-      "sha256": "8f2accdaf3c2c469d36255e657148aa6087bafb855ace8c92d8d3efbf1e2f23e",
+      "sha256": "22f5967b2a60ce3677c534be221537a090e29ea2b249acf552ed76a0e67ea77a",
       "executable": false
     },
     "packages/sdk/src/browser.ts": {
@@ -2733,11 +2737,11 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "ed285c8f24ec8017cf97b9496f9e459dda0546e40f645c434a959416a1afcae7",
+      "sha256": "20a32bd22cd52d46951b1f08d4c88bda55ee2077c8cf1e477197388b4236deaf",
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "8b5990184262b86fd3c1b368ea2e7f605151af397c6b488d4f72dd1b759d0161",
+      "sha256": "0f5ce9033fc168e31a58c8f4cdca7cdf1ccebc648ae920752f694fddd2fe993c",
       "executable": false
     },
     "rer-project.json": {
@@ -2957,7 +2961,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "f07a2e61e771ef59d16d0e3890824cef5b15473ba01b4b6d04358fd98a8eb4a4",
+      "sha256": "572966ca557bcdc1b563bde792df37829de1e70b96bcd0e97b268269e6e76c09",
       "executable": false
     },
     "src/auth/bindings.ts": {
@@ -3169,7 +3173,7 @@
       "executable": false
     },
     "src/domain/bundle-grouping.ts": {
-      "sha256": "b3611a6c9cd00bd491a44fd74bdd15d144627bade76685058754895e14e98ee0",
+      "sha256": "7ef2e9d5f2e1496806c7b903d061dad9736788619fa8028e2b8415a1337abb9d",
       "executable": false
     },
     "src/domain/capture.ts": {
@@ -3241,15 +3245,23 @@
       "executable": false
     },
     "src/domain/exposure/intake.ts": {
-      "sha256": "b6620228ee3aadfa90621a7901e4bccae0fe1aa932fe17af251401469e329857",
+      "sha256": "ecb95b485792fc21275b9054850bcef483dcc11b98afe8ec00c46326b2f7f5c7",
       "executable": false
     },
     "src/domain/exposure/proof.ts": {
-      "sha256": "a0545e3ce9451cb2793ca1b8123a6fd7e877fb9221038b10bb2309ba774408c6",
+      "sha256": "68884c58c18511de889dacceb7e514d14f7858f2dd2a4f4fdf9a8ef853710b86",
       "executable": false
     },
     "src/domain/exposure/report.ts": {
-      "sha256": "f0c3fc9f097c1c29ce332a87116251974f787f06b88385b6a310a959e706f7e1",
+      "sha256": "0e553c5bfdd9232e58aa3dff6e50783d52fa0fc6e7c9baab8eaed7b69521d9f7",
+      "executable": false
+    },
+    "src/domain/exposure/retention.ts": {
+      "sha256": "89a6aa210e4ad065951343447b0c67869b19bc1736d7525224a23813fda47f7b",
+      "executable": false
+    },
+    "src/domain/exposure/storage.ts": {
+      "sha256": "b82576b30356c8e67914458c95050c2fdb5ded38ede3295af5c1e0d7b1235494",
       "executable": false
     },
     "src/domain/fixes/connection.ts": {
@@ -3417,7 +3429,7 @@
       "executable": false
     },
     "src/domain/retention.ts": {
-      "sha256": "f1d91e53feae860316a3b81f706748fd873028316cf855950fc9716cf907f9e2",
+      "sha256": "c864b080cb452f0da08cc705c0e40dccfd5de6143adca08325da74d54ab81526",
       "executable": false
     },
     "src/domain/scrub-keyed.ts": {
@@ -5688,12 +5700,16 @@
       "sha256": "0a908b8ff786651bde15d23ed4c5235019725141909034144b68b6f23078f7b3",
       "executable": false
     },
+    "tests/exposure-cap.mjs": {
+      "sha256": "333e46ceeac00b51c5f6a2b228081d86774d80f344c4d386fdefd0bc98935f05",
+      "executable": false
+    },
     "tests/fixtures/archive-v1-b2eb94a.txt": {
       "sha256": "5b8faa6170db8a0d920cba1ccf87324977a58cb0519daa8b6615ec0978cb4f5f",
       "executable": false
     },
     "tests/fixtures/grouping-labelled.json": {
-      "sha256": "25b7c7797e92f36d6fa9c47d21d13f688c2528ca9b7d868920d4fed46ae35e75",
+      "sha256": "d02431f374627909debade3766543c06b5c547bd8290d9d859210506225ce84a",
       "executable": false
     },
     "tests/fixtures/sentry/organization.json": {
@@ -5725,7 +5741,7 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "6d7ffcc349752f04ff2ade5e6622e4de88d293f94171adefd5eca7e71549cabf",
+      "sha256": "60fa122048a5e50016f15320f0511735ee39e1da6ee85d549b1e8881bab190f0",
       "executable": false
     },
     "tests/operator-ui.mjs": {
@@ -5793,7 +5809,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "891d44bdc7fa54b75952b08c7d92651ba79e1238c72cf8769d737b5d98c73472",
+      "sha256": "0214d89583fb1c7bbf81d912dda95fd440f2c17736bae1fe741446c722302afd",
       "executable": false
     },
     "tests/project-erasure.mjs": {

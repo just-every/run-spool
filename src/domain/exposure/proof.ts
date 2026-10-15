@@ -1,6 +1,6 @@
 import { correctionMembership, originalMembership } from '../operators/provenance';
 import { LOSS_REASONS } from '../repairs/observation';
-import { EXPOSURE_LOSS } from './report';
+import { EXPOSURE_DISCARDED, EXPOSURE_LOSS } from './report';
 
 // Whether a deployed fix reached the users the failure affected, measured from
 // stored events and exposure reports. A quiet feed is never success by itself:
@@ -47,7 +47,15 @@ export async function exposureProof(db: D1Database, project: string, issue: stri
   query(db, 'SELECT x.client,MIN(x.capture) capture FROM exposures x JOIN releases r ON r.project=x.project AND r.name=x.release WHERE x.project=? AND x.environment=? AND x.flow=? AND r.seq>=? AND x.last>=? GROUP BY x.client', project, environment, flow, seq, start).all<any>(),
   query(db, 'SELECT DISTINCT x.client FROM exposures x JOIN releases r ON r.project=x.project AND r.name=x.release WHERE x.project=? AND x.environment=? AND x.flow=? AND r.seq<?', project, environment, flow, seq).all<any>(),
   query(db, `SELECT e.id,e.release,${client} client FROM events e WHERE e.project=? AND ${membership} AND e.historical=0 AND e.environment=? AND e.release_seq>=? AND e.received>=? ORDER BY e.received,e.id`, project, ...member, environment, seq, start).all<any>(),
-  query(db, `SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND reason IN (${[...LOSS_REASONS, ...EXPOSURE_LOSS].map(() => '?').join(',')}) GROUP BY reason ORDER BY reason`, project, window, ...LOSS_REASONS, ...EXPOSURE_LOSS).all<any>(),
+  // Discarding part of a pre-fix baseline can inflate its failure rate. Include
+  // those losses from the earliest retained baseline report, not just deploy.
+  // A wholly new baseline collected after an earlier loss can stand on its own.
+  query(db, `SELECT reason,SUM(count) count FROM outcomes WHERE project=?
+   AND reason IN (${[...LOSS_REASONS, ...EXPOSURE_LOSS].map(() => '?').join(',')})
+   AND (window>=? OR (reason IN (${EXPOSURE_DISCARDED.map(() => '?').join(',')}) AND window>=COALESCE((
+    SELECT CAST(MIN(x.first)/60000 AS INTEGER)*60000 FROM exposures x JOIN releases r ON r.project=x.project AND r.name=x.release
+    WHERE x.project=? AND x.environment=? AND x.flow=? AND r.seq<?),?)))
+   GROUP BY reason ORDER BY reason`, project, ...LOSS_REASONS, ...EXPOSURE_LOSS, window, ...EXPOSURE_DISCARDED, project, environment, flow, seq, window).all<any>(),
  ]);
  const cohort = new Set(affected.results.map(row => row.client as string));
  const capturing = exposed.results.filter(row => row.capture === 1).map(row => row.client as string);
@@ -75,7 +83,7 @@ export async function exposureProof(db: D1Database, project: string, issue: stri
  if (rate === null) reasons.push({ code: 'no_baseline', reason: `There is no pre-fix failure rate for ${flow}: ${before.size ? 'none of the users who reached it before the fix are in the affected cohort' : 'no user reported reaching it before the fix'}.` });
  else if (capturing.length && chance! > CHANCE_LIMIT) reasons.push({ code: 'exposure_too_low', reason: `Exposure is too low: with ${capturing.length} exposed user${capturing.length === 1 ? '' : 's'} and a pre-fix failure rate of at least ${(bound! * 100).toFixed(1)}% (${failedBefore} of ${before.size} failed; 95% lower bound), seeing no failure would happen ${(chance! * 100).toFixed(1)}% of the time even if the fix changed nothing.` });
  if (capturing.length && !reached) reasons.push({ code: 'affected_not_reached', reason: `None of the ${cohort.size} previously affected users has reached ${flow} on the fixed release yet.` });
- if (lossRows.length) reasons.push({ code: 'capture_gap', reason: `The server rejected or dropped reports since the deploy (${lossRows.map(row => `${row.reason} ${row.count}`).join(', ')}), so a recurrence may be missing.` });
+ if (lossRows.length) reasons.push({ code: 'capture_gap', reason: `Capture evidence is incomplete (${lossRows.map(row => `${row.reason} ${row.count}`).join(', ')}): reports were refused or retained exposure rows were discarded during the measurement window.` });
  if (reasons.length) return result('inconclusive', reasons);
  return result('reached', [{ code: 'reached', reason: `The fix reached ${reached} of ${cohort.size} previously affected users and ${capturing.length} users in total on ${flow}. At the lowest pre-fix rate the baseline supports (${(bound! * 100).toFixed(1)}%, from ${failedBefore} of ${before.size}) about ${(bound! * capturing.length).toFixed(1)} failures were expected; none arrived (chance if unfixed ${(chance! * 100).toFixed(2)}%).` }]);
 }

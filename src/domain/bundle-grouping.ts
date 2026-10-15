@@ -1,14 +1,28 @@
 import { grouping, hash, normalize, type Envelope } from './privacy';
 
-// Vite's default eight-character base64url suffix and hex content hashes used
-// by other bundlers. Keep the origin, directory, entry name and extension.
+const bundleSuffix = /(^|\/)([^/]+?)(?:[.-]([a-fA-F0-9]{8,64})|-([A-Za-z0-9_-]{8}))(\.(?:m?js|cjs))$/;
+
+// Vite/Rollup's eight-character base64url suffix needs a non-lowercase
+// character to distinguish it from entry names such as app-checkout.js.
+// Also recognize hexadecimal content hashes (webpack/Rollup), including
+// all-letter hex. Keep the origin, directory, entry name and extension.
 // Reported frames and source-map coordinates are never rewritten.
 export function bundleFile(file: string): string {
- return file.replace(/(^|\/)([^/]+?)(?:-[A-Za-z0-9_-]{8}|[.-][a-fA-F0-9]{8,64})(\.(?:m?js|cjs))$/, '$1$2-[hash]$3');
+ return file.replace(bundleSuffix,
+  (matched, directory, entry, hex, encoded, extension) => hex || /[^a-z]/.test(encoded) ? `${directory}${entry}-[hash]${extension}` : matched);
 }
 export function bundleBasis(event: Envelope): string {
+ return basisWithFile(event,bundleFile(event.frames[0]!.file));
+}
+function basisWithFile(event: Envelope,file: string): string {
  const top=event.frames[0]!;
- return grouping(event.language ? event : {...event,frames:[{...top,file:bundleFile(top.file)}]}).basis;
+ return grouping(event.language ? event : {...event,frames:[{...top,file}]}).basis;
+}
+// Read persisted admissions under the original rule, including its mistaken
+// lowercase suffixes. Their recorded route and issue hashes still have to
+// agree. This never selects the destination of a new capture.
+function recordedBundleBasis(event: Envelope): string {
+ return basisWithFile(event,event.frames[0]!.file.replace(bundleSuffix,'$1$2-[hash]$5'));
 }
 export type GroupingRoute = {project:string; fingerprint:string; issue:string; basis:string};
 export const bundleTables = { grouping_routes: ['project','fingerprint','issue','basis'] };
@@ -44,7 +58,7 @@ export async function captureGrouping(db:D1Database,project:string,event:Envelop
 export async function admissionBasis(event:Envelope,issue:{id:string;fingerprint:string},routes:GroupingRoute[]) {
  const raw=grouping(event).basis;
  if(await hash(raw)===issue.fingerprint)return raw;
- const key=await hash(bundleBasis(event));
+ const key=await hash(recordedBundleBasis(event));
  return routes.find(route=>route.issue===issue.id&&route.fingerprint===key)?.basis??raw;
 }
 
@@ -55,7 +69,7 @@ export async function validateBundleRoutes(data:any) {
   if(!Array.isArray(basis)||basis.length!==4)throw new Error('Archive bundle grouping basis');
   const event=normalize({version:1,eventId:'validation',release:'validation',build:'validation',environment:'validation',type:basis[0],message:'',frames:[{file:basis[1],function:basis[2],line:basis[3],column:0}]});
   const fingerprint=await hash(route.basis),key=route.project+':'+route.fingerprint;
-  if(grouping(event).basis!==route.basis||issue?.algorithm!=='js-frame-v1'||issue.fingerprint!==fingerprint||await hash(route.project+':'+fingerprint)!==route.issue||await hash(bundleBasis(event))!==route.fingerprint||seen.has(key)||destinations.has(route.issue))throw new Error('Archive bundle grouping integrity');
+  if(grouping(event).basis!==route.basis||issue?.algorithm!=='js-frame-v1'||issue.fingerprint!==fingerprint||await hash(route.project+':'+fingerprint)!==route.issue||await hash(recordedBundleBasis(event))!==route.fingerprint||seen.has(key)||destinations.has(route.issue))throw new Error('Archive bundle grouping integrity');
   seen.add(key);destinations.add(route.issue);
  }
 }

@@ -1,8 +1,8 @@
 {
   "id": "errors-workbench",
   "name": "Spool",
-  "version": "0.1.0",
-  "maturity": "Local-first JavaScript evidence product with one owner, isolated projects, Base operator-auth and local outbox, public CLI lifecycle, bounded alerts and Sentry exception intake, fixture-qualified import, managed admission/editor and local deploy dry-run. Exact-head local verification belongs in the completion evidence; live deployment, provider delivery and publication require separate owner acceptance.",
+  "version": "0.2.0",
+  "maturity": "Local-first JavaScript, Python and Go evidence product with one owner and isolated projects; bounded native, Sentry and OTLP-log intake, private source maps, operator corrections, owner/project erasure, sandbox reproducer, granted GitHub fix branches and exposure measurement. Runtime checks and review evidence are recorded separately; source metadata does not establish hosted, provider or npm publication acceptance.",
   "category": "monitoring",
   "replaces": [
     { "name": "Sentry", "edition": null },
@@ -11,9 +11,9 @@
   ],
   "spine": {
     "id": "javascript-evidence",
-    "record": "A sanitized JavaScript exception occurrence grouped into a project-scoped issue."
+    "record": "A sanitized JavaScript, Python or Go exception occurrence grouped into a project-scoped issue."
   },
-  "description": "A local-first workbench for bounded JavaScript exception evidence, source maps, and project-scoped issue triage.",
+  "description": "A local-first workbench for bounded JavaScript, Python and Go exception evidence, JavaScript source maps, project-scoped triage, and reproduction, fix review and measured rollout.",
   "scope": "One owner identity per installation with multiple isolated projects and project-scoped ingest and read grants.",
   "capabilities": [
     {
@@ -50,7 +50,7 @@
     },
     {
       "id": "portable-retained-evidence",
-      "description": "Export Base portability archives and restore validated new or legacy data; manual retention invalidates stored snapshots and records erasures. The owner-only Base import-kit organization adapter supports reviewed dry run, apply/resume and guarded undo, qualified with synthetic fixtures only. See docs/SENTRY-SWITCHING.md. BASE-DATA-003 owner-only project erasure is an OPEN obligation pending the helper on verified Base main, public restore-fence ordering and complete Spool product adoption; shared helper source adoption is integrated (see docs/PROJECT-ERASURE.md); retention does not satisfy it. See CONTRACT.md and ACCEPTANCE.md for cascades, scope exceptions, anonymised audits, receipts, restore fences, five-minute timing and UI evidence.",
+      "description": "Export Base portability archives and restore validated new or legacy data into an empty destination; manual retention invalidates stored snapshots and records occurrence tombstones. Owner-only project erasure uses the adopted Base helper with complete project cascades, anonymised audits, count-only receipts and restore fences. The owner-only Base import-kit organization adapter supports reviewed dry run, apply/resume and guarded undo, qualified with synthetic fixtures only. See docs/SENTRY-SWITCHING.md, docs/PROJECT-ERASURE.md, CONTRACT.md and ACCEPTANCE.md for custody, scope exceptions, external limits and five-minute timing.",
       "clauses": [
         "ERR-009",
         "BASE-DATA-003"
@@ -69,6 +69,81 @@
       "clauses": [
         "ERR-004",
         "ERR-007"
+      ]
+    },
+    {
+      "id": "multilingual-exception-evidence",
+      "description": "Accept bounded native and Sentry Python/Go exceptions with language-specific grouping, scrubbed structured or parsed-text frames and release-bound repository path mappings. Python/Go remain evidence only: no JavaScript source-map lookup, binary symbolication or sandbox execution. See docs/SUPPORTED-LANGUAGES.md.",
+      "clauses": [
+        "ERR-001",
+        "ERR-002",
+        "ERR-003",
+        "ERR-005",
+        "ERR-006"
+      ]
+    },
+    {
+      "id": "bounded-otlp-logs",
+      "description": "Accept the documented bounded OTLP/HTTP JSON error-log profile through project ingest authority, registered release/build and origin checks. Traces, metrics, protobuf, compressed payloads and general OTLP compatibility are outside this adapter. See docs/OTLP-INTAKE.md.",
+      "clauses": [
+        "ERR-001",
+        "ERR-002",
+        "ERR-003",
+        "ERR-008"
+      ]
+    },
+    {
+      "id": "operator-corrections",
+      "description": "Preview exact retained-occurrence split/merge corrections, apply and undo with revision and occurrence fences, retain original grouping provenance, assign operator labels, apply event-time literal suppression policies, and register immutable release/environment deployment manifests. Recognized bundle hashes support stable grouping without replacing native evidence. See docs/OPERATOR-CORRECTIONS.md.",
+      "clauses": [
+        "ERR-002",
+        "ERR-006",
+        "ERR-008",
+        "ERR-009"
+      ]
+    },
+    {
+      "id": "sandbox-reproducer",
+      "description": "Record supported mapped JavaScript ES-module reproducers and run them only in the separate local workerd sandbox with no network, secrets, files or app bindings, using a single-use expiring run token. Spool computes reproduced/not-reproduced/failed from runner observations and labels the verdict as evidence from uploaded source; unsupported inputs never run. See docs/REPRODUCE-AND-FIX.md.",
+      "clauses": [
+        "ERR-003",
+        "ERR-004",
+        "ERR-007",
+        "ERR-009"
+      ]
+    },
+    {
+      "id": "granted-fix-branch",
+      "description": "After owner approval, carry a reproducer record through one GitHub fix branch and a draft pull request under an exact repository-scoped, expiring grant. Record provider receipts and revoke step tokens; never write the base branch, merge, force-push, tag, release or deploy. Requires the owner GitHub App connection. See docs/REPRODUCE-AND-FIX.md.",
+      "clauses": [
+        "ERR-004",
+        "ERR-008",
+        "ERR-009"
+      ]
+    },
+    {
+      "id": "exposure-measurement",
+      "description": "Measure affected-client cohorts, flow exposure, rollout, recurrence and capture gaps from stored reports and deployment manifests; missing denominators remain inconclusive. Random client identifiers and flow reports require SDK 0.2.0, which is owner-held and unpublished on npm. See docs/REPRODUCE-AND-FIX.md.",
+      "clauses": [
+        "ERR-003",
+        "ERR-008",
+        "ERR-009"
+      ]
+    },
+    {
+      "id": "owner-self-erasure",
+      "description": "Erase the authenticated owner personal data only after a verified successor takes installation authority, using count-only preview, typed confirmation, resumable Base erasure and restore fences. Unsupported attribution and shared custody are explicit holds; external copies and configuration remain outside the fence. See docs/OWNER-ERASURE.md.",
+      "clauses": [
+        "ERR-004",
+        "ERR-009",
+        "BASE-DATA-003"
+      ]
+    },
+    {
+      "id": "owner-signin-link",
+      "description": "Allow the original deploying checkout and its provider credentials to request a private, one-use owner sign-in link with rer signin when mail is unavailable. Links expire within 15 minutes and remain owner-version-fenced; ordinary mail sign-in remains available. See docs/HOSTED.md.",
+      "clauses": [
+        "ERR-004"
       ]
     }
   ],
@@ -151,6 +226,41 @@
       "requiredWhen": "Performing an actual owner-account deployment.",
       "secret": true,
       "why": "Authorize deploy-kit provider operations; not needed for dry-run."
+    },
+    {
+      "name": "GITHUB_CONNECTION",
+      "required": false,
+      "requiredWhen": "Advancing an approved GitHub fix-branch workflow against GitHub.",
+      "secret": true,
+      "why": "Server-only JSON containing the owner GitHub App appId, installationId and privateKey; absent configuration stops at Approved, awaiting connection without provider calls."
+    },
+    {
+      "name": "ALERT_DESTINATIONS",
+      "required": false,
+      "requiredWhen": "Delivering project alerts to configured mail or webhook destinations; may remain empty when external delivery is unused.",
+      "secret": true,
+      "why": "Server-only destination JSON holds recipients, webhook URLs and signing keys; only safe IDs and labels are shown to the owner."
+    },
+    {
+      "name": "ALERT_DESTINATION_HASH_KEY",
+      "required": false,
+      "requiredWhen": "Using configured mail or webhook alert destinations.",
+      "secret": true,
+      "why": "Stable Base64 key of at least 32 bytes for destination fingerprint HMACs; preserve it while deliveries are active. Setup generates it when missing."
+    },
+    {
+      "name": "ALERT_PUBLIC_ORIGIN",
+      "required": false,
+      "requiredWhen": "Including issue links in outgoing alert payloads; otherwise issueUrl is null.",
+      "secret": false,
+      "why": "Trusted exact HTTPS application origin for alert links; incoming Host is never used."
+    },
+    {
+      "name": "INTEGRATION_EGRESS",
+      "required": false,
+      "requiredWhen": "Delivering signed webhook alerts through the separately installed enforcing egress service.",
+      "secret": false,
+      "why": "Trusted service RPC binding exposing send(WireRequest), not a secret string or ordinary fetch URL. The shipped deployment has no binding, so webhook delivery stays blocked until configured."
     },
     {
       "name": "RER_OWNER_CLAIM_ISSUER",

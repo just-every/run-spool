@@ -33,7 +33,7 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent read-only access to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool), release 0.1.0. Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool), release 0.2.0. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
@@ -68,6 +68,10 @@ Stop dev with `rer dev --stop` (or Ctrl+C in the foreground) before verify, rese
 
 Export before reset and import only into an empty destination. Export includes private maps and browser-origin policy but excludes sign-in sessions, project keys, outbox and temporary state. Run setup if the destination has no owner and create new keys after restoring. Browser restore is available from `/setup` before the first project and Settings thereafter. For CLI import of a browser download, first run `chmod 600 /path/to/spool-private-archive.jsonl`; see [the transfer procedure](OPERATIONS.md#data-movement-and-retention). Reset removes only its displayed local inventory and preserves source, exports and deployment records.
 
+## Upgrade from 0.1.0
+
+Stop dev with `rer dev --stop` and export a private archive before updating. In your existing checkout, run `git pull` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings and deployment receipt. The 17 additive migrations `0020_dependencies.sql` through `0036_owner_signin.sql` apply automatically; existing evidence, triage states and project keys are preserved. Keep the existing database; no reset or restore is needed. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
+
 ## Run it on your Cloudflare account
 
 Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --environment production` prints a private, one-use owner link using the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.
@@ -81,6 +85,8 @@ Spool's own SDK, [`@just-every/spool`](packages/sdk/README.md), is the way to se
 ```sh
 npm install @just-every/spool
 ```
+
+As of 2026-10-15, this installs SDK 0.1.0, the published npm version. SDK 0.2.0 remains owner-held and unpublished. Ordinary error capture and map upload work with 0.1.0; exposure measurement (`client`, `anonymousClient()` and `exposure()`) and the Vite/Rollup upload-count message require 0.2.0. The Spool app release does not publish or upgrade the SDK. See the [SDK release notes](packages/sdk/CHANGELOG.md).
 
 ```js
 import { init } from '@just-every/spool';

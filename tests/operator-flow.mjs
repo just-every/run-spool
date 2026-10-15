@@ -10,6 +10,10 @@ export async function operatorFlow({req,json}){
  for(const r of corpus.registeredContexts)await json(`${p}/releases`,'POST',{name:r.release,build:r.build});
  const groups=[];
  for(const c of corpus.cases){const results=[];for(const row of c.events)results.push(await admit(row.event));groups.push({case:c,results});}
+ const entries=groups.find(g=>g.case.id==='distinct-entry-names');
+ assert.notEqual(entries.results[0].issue,entries.results[1].issue,'ordinary entry names remain separate issues');
+ const entryAlerts=(await json(`${p}/alerts`)).filter(row=>row.kind==='new_issue'&&entries.results.some(result=>result.issue===row.issue));
+ assert.equal(entryAlerts.length,2,'each distinct entry creates its own new-issue alert');
  assert.equal(groups[0].results[0].issue,groups[0].results[1].issue,'independent default same-incident relation');
  const falseMerge=groups.find(g=>g.case.expectedRelation==='separate-issues'),falseSplit=groups.find(g=>g.case.expectedRelation==='same-issue'&&g.results[0].issue!==g.results[1].issue);
  assert.ok(falseMerge&&falseSplit);assert.equal(falseMerge.results[0].issue,falseMerge.results[1].issue,'minified columns expose default false merge');assert.notEqual(falseSplit.results[0].issue,falseSplit.results[1].issue,'bundle location drift exposes default false split');

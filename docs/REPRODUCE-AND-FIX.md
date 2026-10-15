@@ -42,7 +42,9 @@ The connection is the owner's GitHub App, in the `GITHUB_CONNECTION` secret: `{"
 
 ## 3. Did the fix reach the affected users?
 
-Exposure needs two SDK signals, both in `@just-every/spool` 0.2.0 or later. A random `client` identifier (never a name or address; in the browser `anonymousClient()` makes and keeps one) sent with errors, and flow reports:
+Exposure needs two SDK signals, both in `@just-every/spool` 0.2.0 or later. As of 2026-10-15, SDK 0.2.0 is owner-held and unpublished on npm; `npm install @just-every/spool` installs 0.1.0, which cannot send these signals. The app release does not publish the SDK. The example below requires a separately supplied 0.2.0 SDK artifact or a future authorized npm release; it is not available from the current npm install. See the [SDK release notes](../packages/sdk/CHANGELOG.md).
+
+The signals are a random `client` identifier (never a name or address; in the browser `anonymousClient()` makes and keeps one) sent with errors, and flow reports:
 
 ```js
 import { init, anonymousClient } from '@just-every/spool';
