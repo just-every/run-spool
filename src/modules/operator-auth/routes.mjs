@@ -1,3 +1,4 @@
+import { rejectedResponse } from './rejected-response.mjs';
 import { identitySettingsPage } from './accounts/settings-page.mjs';
 import { confirmationResponse } from './identity/email-link/confirmation.mjs';
 import { createOidcHandler } from './identity/oidc/index.mjs';
@@ -19,8 +20,8 @@ function notice(auth, code, extra = {}) {
 
 /** Fetch-compatible optional HTTP adapter. Returns null for paths it does not own. */
 export function createAuthHandler(auth) {
-  const oidc = auth.providers ? createOidcHandler(auth.providers) : null;
-  return async function handleAuth(request) {
+  const oidc = auth.providers ? createOidcHandler(auth.providers, { signInPath: auth.presentation.signInPath }) : null;
+  const handleAuth = async function(request) {
     const url = new URL(request.url);
     const path = url.pathname;
     let form = false;
@@ -42,7 +43,7 @@ export function createAuthHandler(auth) {
       if (path === '/auth/operators' && request.method === 'GET') return json(await auth.listOperators(request));
       if (path === '/auth/sessions' && request.method === 'GET') return json(await auth.listSessions(request, readParameters(url.searchParams).operatorId));
       if (path === '/auth/domain-rules' && request.method === 'GET') return json(await auth.listDomainRules(request));
-      if (path === '/auth/settings/identity' && request.method === 'GET') {const value=await auth.identitySettings(request);return /text\/html/.test(request.headers.get('accept')??'')?identitySettingsPage(value):json(value);}
+      if (path === '/auth/settings/identity' && request.method === 'GET') {const value=await auth.identitySettings(request);return /text\/html/.test(request.headers.get('accept')??'')?await identitySettingsPage(value,auth.presentation):json(value);}
       if (path === '/auth/providers' && request.method === 'GET') return json(await auth.listProviders(request));
       const posts = new Set(['/auth/bootstrap', '/auth/magic-link', '/auth/confirm', '/auth/signout', '/auth/invite', '/auth/invite/cancel', '/auth/review-session',
         '/auth/operator/status', '/auth/operator/role', '/auth/session/revoke', '/auth/step-up', '/auth/domain-rules', '/auth/providers/unlink', '/auth/providers/relink', '/auth/settings/identity', '/auth/setup-complete']);
@@ -87,5 +88,9 @@ export function createAuthHandler(auth) {
       // Do not put SQL, email addresses, setup tokens or provider exceptions on the wire.
       return json({ error: 'auth_unavailable' }, 503);
     }
+  };
+  return async function(request) {
+    const response = await handleAuth(request);
+    return response ? rejectedResponse(request, response) : response;
   };
 }

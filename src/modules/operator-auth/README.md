@@ -285,7 +285,10 @@ an invitation whose issuer still has authority.
 Durable fixed-window limits pair the client-IP resolver with a normalized email;
 defaults are 30 per IP and 5 per email per 15 minutes. `limitWindowSeconds`,
 `ipLimit` and `emailLimit` configure those defaults. Bootstrap, magic link,
-invitation, confirmation and review use separate scopes. Confirmation limits bind
+invitation, confirmation and review use separate scopes. Bootstrap uses only
+the client-IP budget: its configured owner email is shared by every caller,
+so wrong setup tokens from one client cannot exhaust another client's budget.
+The same bootstrap policy applies to signed owner claims. Confirmation limits bind
 the presented opaque token instead of the address. `clientIp` is mandatory;
 unavailable addresses fail closed (503). Header trust belongs to the deployment
 boundary. Do not trust X-Forwarded-For.
