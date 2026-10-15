@@ -5,6 +5,7 @@ import { canonical, grouping, hash } from './domain/privacy';
 import { diagnose } from './domain/artifacts';
 import { demoProject } from './demo/environment';
 import { groups, releases, sampleEvent } from './demo/data';
+import { seedWorkspace, seedRecentCapture } from './demo/workspace';
 
 /** Historical sample evidence through Spool's native import store adapter.
  * No admission budget is bypassed and no alert is fabricated for old events.
@@ -28,6 +29,7 @@ export async function seedDemo(env: Bindings, { ownerEmail, now }: { ownerEmail:
  for (const [index, release] of releases.entries()) {
   await put('release', JSON.stringify([demoProject, release.name]), { project: demoProject, ...release, seq: index + 1, created: start + index * 2 * day });
  }
+ await seedWorkspace(env, start);
  for (const [groupIndex, group] of groups.entries()) {
   const { algorithm, basis } = grouping(sampleEvent(group, groupIndex, 0));
   const fingerprint = await hash(basis), issue = await hash(`${demoProject}:${fingerprint}`);
@@ -45,4 +47,5 @@ export async function seedDemo(env: Bindings, { ownerEmail, now }: { ownerEmail:
     received: Math.round(first + (last - first) * index / (group.count - 1)), occurrence: crypto.randomUUID(), historical: 1 });
   }
  }
+ await seedRecentCapture(env);
 }

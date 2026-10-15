@@ -1,4 +1,3 @@
-import { demoEffect } from '../modules/demo/index.mjs'
 import { createMailSender } from '../modules/mail/index.mjs'
 import { localDevelopmentEnabled } from './local.server.mjs'
 
@@ -15,10 +14,7 @@ export function productionMailConfig(env) {
 // Construct only on a send: first-owner setup never depends on mail credentials.
 export function operatorMail(env) {
   if (env.RER_DEMO === '1' || localDevelopmentEnabled(env)) {
-    return { send: message => demoEffect(
-      () => createMailSender({ provider: 'development', mode: 'development' }).send(message),
-      () => ({ provider: 'development', status: 'development', providerMessageId: null }),
-    ) }
+    return createMailSender({ provider: 'development', mode: 'development' })
   }
   if (!env.MAIL_PROVIDER || env.MAIL_PROVIDER === 'development') return undefined
 

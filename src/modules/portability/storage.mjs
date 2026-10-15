@@ -1,6 +1,9 @@
 import { canonicalJson } from './hash.mjs';
+const errorCodes = new WeakMap();
+// A verifier's original machine code remains independent of mutable properties.
+export const portabilityErrorCode = error => errorCodes.get(error);
 export class PortabilityError extends Error {
-  constructor(code, status=400) { super(code); this.code=code; this.status=status; }
+  constructor(code, status=400) { super(code); this.code=code; this.status=status; errorCodes.set(this,code); }
 }
 export function insist(condition, code, status=400) { if (!condition) throw new PortabilityError(code,status); }
 export const quote = name => '"'+name.replaceAll('"','""')+'"';
@@ -33,7 +36,11 @@ export function partStatements(db,id,part) {
   return result;
 }
 export async function readPart(db,id,index) {
-  const rows=await all(db,'SELECT data FROM rer_portability_segments WHERE job=? AND part=? ORDER BY segment',id,index);
+  const rows=[];
+  for(let offset=0;;offset+=64) {
+    const page=await all(db,'SELECT data FROM rer_portability_segments WHERE job=? AND part=? ORDER BY segment LIMIT 64 OFFSET ?',id,index,offset);
+    rows.push(...page);if(page.length<64)break;
+  }
   insist(rows.length,'part_missing');
   return JSON.parse(rows.map(x=>x.data).join(''));
 }

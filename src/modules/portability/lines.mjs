@@ -1,3 +1,5 @@
+import { PortabilityError } from './storage.mjs';
+
 /** Read one bounded UTF-8 line at a time; never materialize the complete archive. */
 export async function* archiveLines(source, maxLineBytes) {
   if (!Number.isSafeInteger(maxLineBytes) || maxLineBytes < 1) throw new Error('Invalid archive line limit.');
@@ -14,7 +16,9 @@ export async function* archiveLines(source, maxLineBytes) {
     buffer.set(fragment, bytes); bytes = required;
   }
   function line() {
-    const value = decoder.decode(buffer.subarray(0, bytes)); bytes = 0;
+    // Invalid UTF-8 is malformed archive text: the same constant diagnostic as invalid JSON.
+    let value; try { value = decoder.decode(buffer.subarray(0, bytes)); } catch { throw new PortabilityError('archive_json'); }
+    bytes = 0;
     return value.endsWith('\r') ? value.slice(0, -1) : value;
   }
   try {
