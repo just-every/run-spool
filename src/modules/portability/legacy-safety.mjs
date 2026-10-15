@@ -45,16 +45,16 @@ export async function legacyTargetState(db,migrations) {
  }
  return {emptyTables:names.filter(name=>!seeded.some(s=>s.name===name)),seededTables:seeded};
 }
-const seededCondition=(db,table)=>[`(SELECT count(*) FROM ${quote(table.name)})=? AND NOT EXISTS(SELECT 1 FROM (${imageSql(table.name,table.columns)}) WHERE image NOT IN (SELECT value FROM json_each(?)))`,table.images.length,JSON.stringify(table.images)];
+const seededCondition=table=>[`(SELECT count(*) FROM ${quote(table.name)})=? AND NOT EXISTS(SELECT 1 FROM (${imageSql(table.name,table.columns)}) WHERE image NOT IN (SELECT value FROM json_each(?)))`,table.images.length,JSON.stringify(table.images)];
 export async function requireLegacyEmpty({db,buckets},{emptyTables,seededTables=[]}) {
  for(const table of emptyTables)insist(!(await statement(db,`SELECT 1 FROM ${quote(table)} LIMIT 1`).first()),'legacy_target_not_empty:'+table,409);
- for(const table of seededTables){const [condition,...values]=seededCondition(db,table);insist((await statement(db,`SELECT CASE WHEN (${condition}) THEN 1 ELSE 0 END AS ok`,...values).first()).ok===1,'legacy_target_not_empty:'+table.name,409);}
+ for(const table of seededTables){const [condition,...values]=seededCondition(table);insist((await statement(db,`SELECT CASE WHEN (${condition}) THEN 1 ELSE 0 END AS ok`,...values).first()).ok===1,'legacy_target_not_empty:'+table.name,409);}
  for(const [name,bucket] of Object.entries(buckets))insist(!(await bucket.list({limit:1})).objects.length,'legacy_bucket_not_empty:'+name,409);
 }
 export function legacyEmptyGuards(db,row) {
  const recovery=row.metadata.legacyRecovery;
  return [...(recovery?.emptyTables??[]).map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${quote(table)})`)),
-  ...(recovery?.seededTables??[]).map(table=>{const [condition,...values]=seededCondition(db,table);return guard(db,condition,...values);})];
+  ...(recovery?.seededTables??[]).map(table=>{const [condition,...values]=seededCondition(table);return guard(db,condition,...values);})];
 }
 export async function ensureLegacyAudit(db) {
  // Additive sidecar, installed only by recovery; existing product migrations

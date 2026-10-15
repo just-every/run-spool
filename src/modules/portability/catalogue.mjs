@@ -1,4 +1,4 @@
-import { all, insist, quote, PortabilityError } from './storage.mjs';
+import { all, insist, quote } from './storage.mjs';
 import { canonicalJson, sha256, base64, unbase64, utf8 } from './hash.mjs';
 /** Tables no archive carries: SQLite/Cloudflare internals, migration ledgers,
  * portability bookkeeping, development outboxes, operator identity and dependency

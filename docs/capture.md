@@ -63,7 +63,7 @@ For a check from inside Spool, first-project setup has **Send test error**, whic
 
 ## Keys for anything outside this checkout
 
-Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.23), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
+Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.24), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
 
 | Key | Scope | Local dev gate required? |
 | --- | --- | --- |

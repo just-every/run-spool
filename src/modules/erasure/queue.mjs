@@ -8,8 +8,6 @@ import { foreignKeyLinks } from './order.mjs';
  * the whole erasure stays linear in its rows. The slice is verified inside the
  * step's batch; anything the queue does not know about (rows written after it
  * was built) is found by the full collection that runs once the queue is empty. */
-const seq = n => String(n).padStart(10, '0');
-
 export const clearQueue = (db, id) => statement(db, "DELETE FROM rer_erasure_scope WHERE operation=? AND kind='queue'", id);
 
 /** Replaces the operation's queue with `entries`; chunks stay small enough for one bound value. */

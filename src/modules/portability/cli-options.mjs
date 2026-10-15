@@ -1,4 +1,4 @@
-import { lstat, readFile, mkdir, open, rename } from 'node:fs/promises';
+import { lstat, mkdir, open, rename } from 'node:fs/promises';
 import { isAbsolute, dirname } from 'node:path';
 import { constants } from 'node:fs';
 export function options(args) {

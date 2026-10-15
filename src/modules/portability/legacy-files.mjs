@@ -12,7 +12,7 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
  insist(typeof output==='string' && output!==path,'legacy_output_required',409);
  insist(!(await lstat(output).catch(error=>{if(error.code==='ENOENT')return null;throw error;})),'legacy_output_exists',409);
  // Whole-file verification precedes even staging/audit schema writes.
- for await(const record of fileRecords(path,readLegacyArchive)){}
+ for await(const _record of fileRecords(path,readLegacyArchive)){}
  const context={db,buckets,config:policy(input),migrations},target=await legacyTargetState(db,migrations);
  await requireLegacyEmpty(context,target);
  let id,manifest,closing,integrity,status,complete=false;

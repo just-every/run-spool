@@ -25,7 +25,7 @@ export async function appliedMigrations(db) {
 // earlier prefix. Restored rows never pass through a later migration, so one
 // that writes or rewrites restorable data is refused, whether or not it changes
 // the schema.
-async function placement(db,manifest,cat,replay,applied) {
+async function placement(manifest,cat,replay,applied) {
   insist(canonicalJson(replay.names)===canonicalJson(applied) && await replay.schemaAfter(applied)===cat.identity,'schema_mismatch');
   let earlier,unapplied;
   if(manifest.migrations) {
@@ -62,7 +62,7 @@ export async function sameSchemaMigrations(db,manifest,cat,migrations) {
   if(!applied)return;
   insist(!manifest.migrations || manifest.migrations.every(name=>applied.includes(name)),'schema_mismatch:migrations');
   if(!migrations){insist(!manifest.migrations || applied.every(name=>manifest.migrations.includes(name)),'schema_mismatch:migrations');return;}
-  await placement(db,manifest,cat,await migrations(),applied);
+  await placement(manifest,cat,await migrations(),applied);
 }
 // An archive made before later migrations restores only when those migrations
 // are additive: new tables, new columns that take a default, or indexes (which
@@ -71,7 +71,7 @@ export async function additiveBridge(db,manifest,cat,migrations) {
   insist(migrations,'schema_mismatch');
   const replay=await migrations(),applied=await appliedMigrations(db)??[];
   insist(!manifest.migrations || manifest.migrations.every(name=>applied.includes(name)),'schema_mismatch:migrations');
-  const {earlier}=await placement(db,manifest,cat,replay,applied);
+  const {earlier}=await placement(manifest,cat,replay,applied);
   const columns={};
   for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name),label=':'+table.name;

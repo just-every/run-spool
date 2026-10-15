@@ -1,4 +1,4 @@
-import { stream, run, all, insist } from './storage.mjs';
+import { run, all, insist } from './storage.mjs';
 import { base64, unbase64, StreamHash } from './hash.mjs';
 export async function* byteChunks(source,limit) {
   const reader=(source instanceof ReadableStream?source:new Response(source).body).getReader();

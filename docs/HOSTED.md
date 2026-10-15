@@ -4,7 +4,7 @@
 
 With RER Managed hosting, Configure supplies and hides all four mail inputs: `MAIL_PROVIDER=rer`, `MAIL_FROM`, `MAIL_RELAY_URL` and the private `MAIL_API_KEY`. RER assigns the sender and relay URL and stores an installation/environment credential in encrypted private settings. You need no provider account and copy no mail key. The provider credential stays with RER. Spool uses Base's `rer` mail adapter for sign-in links and email alerts.
 
-This checkout pins rer 0.2.23. Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
+This checkout pins rer 0.2.24. Free and Assisted self hosting retain their existing provider choices and require the chosen provider's sender and credentials. The manual Cloudflare/SendGrid procedure below remains available for your own account.
 
 ## Run Spool on your Cloudflare account
 
