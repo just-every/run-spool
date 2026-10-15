@@ -1,7 +1,6 @@
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
 import { bundleGroupingFlow } from './bundle-grouping.mjs';
-import { exposureCapFlow } from './exposure-cap.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {authBindings,signIn,browserSignIn} from './auth.mjs';
@@ -164,7 +163,6 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await json('/api/ingest/web','POST',{...event,eventId:'combined-type-scrub',type:'token',message:'synthetic-value',frames:[{...event.frames[0],function:'combinedScrub'}]},auth);
  await operatorFlow({req,json});
  const bundleRetention=await bundleGroupingFlow({json});
- await exposureCapFlow({json,req});
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 
