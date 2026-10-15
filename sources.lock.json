@@ -5825,7 +5825,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "bb3783f6274bcb52663c5e296486975b86c69c7496f72bdbdc56dbec4f886cfe",
+      "sha256": "b269f614da3e56c5439b3bdc5e1f2074317c41f7b93eb4afe0298eacae6fc357",
       "executable": false
     },
     "tests/dev-credentials.mjs": {

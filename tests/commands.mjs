@@ -100,8 +100,9 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  const previousNodeOptions=checkout.env.NODE_OPTIONS;checkout.env.NODE_OPTIONS=(previousNodeOptions??'')+' --require='+resolve(root,'.test-no-provider.cjs');checkout.env.SPOOL_PROVIDER_ATTEMPTS=resolve(root,'.test-provider-attempts');
  assert.notEqual((await command(['deploy','--dry-run'],null)).code,0,'production refuses suppressed local mail without Auth');
  const localSettings=await get('.dev.vars');
- await put('.dev.vars',localSettings+'\nMAIL_PROVIDER=resend\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
- try { await command(['deploy','--dry-run']); } finally {await put('.dev.vars',localSettings);if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
+ await put('.test-deploy.env','MAIL_FROM=auth@spool.test\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
+ try { await command(['deploy','--dry-run','--env-file','.test-deploy.env']); } finally {await rm(resolve(root,'.test-deploy.env'));if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
+ assert.equal(await get('.dev.vars'),localSettings,'production dry-run preserves local settings');
  assert.equal(await exists('.test-provider-attempts'),false,'deploy dry-run performs no provider HTTP calls');await rm(resolve(root,'.test-no-provider.cjs'));
  assert.equal(await get('.rer/deploy/owner-kept.txt'),'owner custody');
  diagnostics.stage('fresh-owner');
