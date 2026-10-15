@@ -8,7 +8,7 @@ import type { AlertEnvironment, Intent } from './types';
 function sender(env:AlertEnvironment) {
  if(!env.MAIL_PROVIDER||!env.MAIL_FROM)throw new Error('mail_unconfigured');
  if(env.MAIL_PROVIDER==='development') {
-  if(!localDevelopmentEnabled(env))throw new Error('mail_unconfigured');
+  if(env.RER_DEMO !== '1' && !localDevelopmentEnabled(env))throw new Error('mail_unconfigured');
  } else validateConfig({provider:env.MAIL_PROVIDER,mode:'production',apiKey:env.MAIL_API_KEY,...(env.MAIL_PROVIDER==='cloudflare'?{accountId:env.MAIL_ACCOUNT_ID}:{})});
  const result=operatorMail(env);if(!result)throw new Error('mail_unconfigured');return result;
 }
