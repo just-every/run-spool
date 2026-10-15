@@ -18,6 +18,7 @@ import { identity } from './identity';
 import { docsResponse, isDocsRequest } from './ui/docs/document.server';
 import { continueErasures } from './domain/erasure/service';
 import { ownerErasureResponse } from './domain/erasure/owner-routes';
+import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
@@ -25,38 +26,47 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
  // A project erasure that outlived its request continues here.
  await continueErasures(env.DB, Date.now() + 20_000);
 }
+// A refusal raised while reading the session (a foreign Host, for one) answers as
+// itself, the way the API's handlers answer it, instead of escaping the Worker.
+function refused(error: unknown) {
+ if (!(error instanceof AuthError)) throw error;
+ return new Response(`Request refused: ${error.code}`, { status: error.status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+}
 export default {
  scheduled,
  async fetch(request, bindings, execution) {
-  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
-  const env = runtimeBindings(bindings as Bindings);
-  const path = new URL(request.url).pathname;
-  const asset = await staticAssetResponse(request, env); if (asset) return asset;
-  const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
-  // Admit the root before reading a native session; owners keep the workbench at /.
-  if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request, env))) {
-   const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return lobby;
-  }
-  if (isDocsRequest(request)) return docsResponse(request);
-  // Independently mounted owner/auth handlers share the same agent denial.
-  if (path.startsWith('/auth/') || path === '/api/editor/config') {
-   const grant = await agentProject(request, env.DB);
-   if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Read-only project scope required' }, { status: 403 });
-  }
-  if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
-  if (path === '/api/editor/config') return editorConfigResponse(request, env);
-  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
-  const auth = await authenticationResponse(request, env); if (auth) return auth;
-  return dispatch(request, () => api.fetch(request, env, execution), async () => {
-   if (!applicationDocument(path)) {
-    if (!await ownerSession(request, env)) return new Response('Not found', { status: 404 });
-    // Owners keep the router's styled not-found page, even before project setup.
-    return editorDocument(await start.fetch(request), env);
-   }
-   const denied = await authorizeDocument(request, env); if (denied) return denied;
-   const setup = await setupDocumentResponse(request, env); if (setup) return setup;
-   if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
-   return editorDocument(await start.fetch(request), env);
-  });
+  return handle(request, bindings, execution).catch(refused);
  },
 } satisfies ExportedHandler<Bindings & AlertEnvironment>;
+async function handle(request: Request, bindings: Bindings & AlertEnvironment, execution: ExecutionContext): Promise<Response> {
+ if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
+ const env = runtimeBindings(bindings as Bindings);
+ const path = new URL(request.url).pathname;
+ const asset = await staticAssetResponse(request, env); if (asset) return asset;
+ const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
+ // Admit the root before reading a native session; owners keep the workbench at /.
+ if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request, env))) {
+  const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return lobby;
+ }
+ if (isDocsRequest(request)) return docsResponse(request);
+ // Independently mounted owner/auth handlers share the same agent denial.
+ if (path.startsWith('/auth/') || path === '/api/editor/config') {
+  const grant = await agentProject(request, env.DB);
+  if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Read-only project scope required' }, { status: 403 });
+ }
+ if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
+ if (path === '/api/editor/config') return editorConfigResponse(request, env);
+ const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
+ const auth = await authenticationResponse(request, env); if (auth) return auth;
+ return dispatch(request, () => api.fetch(request, env, execution), async () => {
+  if (!applicationDocument(path)) {
+   if (!await ownerSession(request, env)) return new Response('Not found', { status: 404 });
+   // Owners keep the router's styled not-found page, even before project setup.
+   return editorDocument(await start.fetch(request), env);
+  }
+  const denied = await authorizeDocument(request, env); if (denied) return denied;
+  const setup = await setupDocumentResponse(request, env); if (setup) return setup;
+  if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
+  return editorDocument(await start.fetch(request), env);
+ });
+}
