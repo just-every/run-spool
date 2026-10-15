@@ -71,7 +71,11 @@
       "secretNames": [
         "SESSION_SECRET",
         "SETUP_TOKEN",
-        "MAIL_API_KEY"
+        "MAIL_API_KEY",
+        "ALERT_DESTINATION_HASH_KEY"
+      ],
+      "optionalSecretNames": [
+        "ALERT_DESTINATIONS"
       ],
       "providerEffects": [
         "outbound-mail",

@@ -18,7 +18,8 @@ export function injectDebugId(code, inputMap) {
   const hex = createHash('sha256').update(code).update('\0').update(JSON.stringify(map)).digest('hex');
   const debugId = `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;
   // A block-local initializer has an empty completion, preserving directive-only eval results.
-  const registration = `;{const _spoolDebugRegistration=(()=>{try{const g=globalThis,s=(new Error()).stack;if(s){g._sentryDebugIds=g._sentryDebugIds||{};g._sentryDebugIds[s]=${JSON.stringify(debugId)};g._sentryDebugIdIdentifier="sentry-dbid-${debugId}"}}catch{}})();}`;
+  // debugId is built from hex digits and hyphens only, so it is quoted as is.
+  const registration = `;{const _spoolDebugRegistration=(()=>{try{const g=globalThis,s=(new Error()).stack;if(s){g._sentryDebugIds=g._sentryDebugIds||{};g._sentryDebugIds[s]="${debugId}";g._sentryDebugIdIdentifier="sentry-dbid-${debugId}"}}catch{}})();}`;
   code = insertRegistration(code, map, position, registration);
   map.debug_id = debugId;
   return { code: `${code}\n//# debugId=${debugId}\n`, map, debugId };

@@ -10,6 +10,11 @@
       "id": "email",
       "label": "Sign-in email",
       "help": "Local development uses the outbox. Hosted sign-in requires a configured email provider."
+    },
+    {
+      "id": "alerts",
+      "label": "Alerts",
+      "help": "Optional. Alert rules send to the destinations listed here; leave it empty to start without any."
     }
   ],
   "fields": [
@@ -109,6 +114,26 @@
           "required": true
         }
       ]
+    },
+    {
+      "name": "ALERT_DESTINATIONS",
+      "label": "Alert destinations",
+      "kind": "secret",
+      "input": "entered",
+      "required": false,
+      "ownerVisible": true,
+      "group": "alerts",
+      "help": "Optional JSON list of mail or webhook destinations, for example [{\"id\":\"team-mail\",\"project\":\"web-app\",\"label\":\"Team mail\",\"channel\":\"mail\",\"recipient\":\"team@example.com\"}]. Webhooks also need the egress service in docs/ALERT-WEBHOOKS.md."
+    },
+    {
+      "name": "ALERT_DESTINATION_HASH_KEY",
+      "label": "Alert destination key",
+      "kind": "secret",
+      "required": true,
+      "ownerVisible": false,
+      "input": "managed",
+      "generate": "base64",
+      "group": "alerts"
     }
   ],
   "steps": [

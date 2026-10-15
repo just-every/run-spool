@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - Optional `client` option: a random install identifier (16 to 64 letters, digits, `-` or `_`) sent with errors so Spool can count affected users; the browser `anonymousClient()` makes one and keeps it in `localStorage` under `spool.client`.
 - Browser `exposure(...flows)` reports that the page reached named flows (at most 20) in this release, with capture installed. It needs `client`, never throws, and settles with Spool's outcome.

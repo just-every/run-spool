@@ -42,7 +42,7 @@ The connection is the owner's GitHub App, in the `GITHUB_CONNECTION` secret: `{"
 
 ## 3. Did the fix reach the affected users?
 
-Exposure needs two SDK signals. A random `client` identifier (never a name or address; in the browser `anonymousClient()` makes and keeps one) sent with errors, and flow reports:
+Exposure needs two SDK signals, both in `@just-every/spool` 0.2.0 or later. A random `client` identifier (never a name or address; in the browser `anonymousClient()` makes and keeps one) sent with errors, and flow reports:
 
 ```js
 import { init, anonymousClient } from '@just-every/spool';

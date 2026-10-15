@@ -177,9 +177,8 @@ the seed retires them in its own migration.
 ## Adopting
 
 Copy these files byte for byte to a folder the Worker build serves, such as
-`src/modules/erasure/`. A seed made by `rer` export also receives them under
-`scripts/base-cli/modules/erasure/`, but `vite dev` serves only `src`, `public`
-and `node_modules`, so runtime imports must not reach into `scripts/`. The
+`src/modules/erasure/`. `vite dev` serves only `src`, `public` and
+`node_modules`, so runtime imports must not reach into `scripts/`. The
 standalone default seed copies this module and portability into `src/modules/`.
 The files are:
 

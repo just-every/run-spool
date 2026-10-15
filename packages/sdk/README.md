@@ -35,7 +35,7 @@ Breadcrumbs are never collected automatically: no DOM values, form text, request
 
 ### Affected users and flows
 
-To let Spool measure whether a deployed fix reached the users a failure affected, give each install a random identifier and report the flows it reaches:
+To let Spool measure whether a deployed fix reached the users a failure affected, give each install a random identifier and report the flows it reaches (`client`, `anonymousClient()` and `exposure()` need version 0.2.0 or later):
 
 ```js
 import { init, anonymousClient } from '@just-every/spool';

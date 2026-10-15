@@ -1901,49 +1901,6 @@
         ]
       },
       "role": "module"
-    },
-    {
-      "id": "runeditrun/base-erasure",
-      "role": "module",
-      "source": {
-        "kind": "local",
-        "paths": [
-          "src/modules/erasure"
-        ],
-        "origin": {
-          "repository": "https://github.com/runeditrun/base.git",
-          "revision": "9ec15a63a410d209cd5a179749336bb61751e0f6",
-          "path": "modules/erasure",
-          "paths": [
-            "CONTRACT.md",
-            "README.md",
-            "audit.mjs",
-            "blobs.mjs",
-            "cascade.mjs",
-            "completion.mjs",
-            "declaration.mjs",
-            "fence.mjs",
-            "index.d.mts",
-            "index.mjs",
-            "order.mjs",
-            "plan.mjs",
-            "rate.mjs",
-            "receipt.mjs",
-            "root.mjs",
-            "schema/erasure-rates.sql",
-            "schema/erasure.sql",
-            "scope.mjs",
-            "sql.mjs",
-            "verification.mjs"
-          ]
-        },
-        "mappings": [
-          {
-            "path": "src/modules/erasure/plan.mjs",
-            "originPath": "plan.mjs"
-          }
-        ]
-      }
     }
   ]
 }

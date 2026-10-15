@@ -40,7 +40,9 @@ export function matchSql(item, parents) {
   if (!item.on) return parents.map(p => ({ where: `(${item.where})`, values: (item.params ?? []).map(c => p[c]) }));
   const pairs = Object.entries(item.on);
   const tuples = parents.map(p => pairs.map(([, parent]) => p[parent])).filter(t => t.every(v => v !== null && v !== undefined));
-  const where = `EXISTS(SELECT 1 FROM json_each(?) j WHERE ${pairs.map(([child], i) => `${quote(item.table)}.${quote(child)}=json_extract(j.value,'$[${i}]')`).join(' AND ')})`;
+  // A set lookup, so an index on the child columns serves it; json_each's own
+  // columns (id, key, value...) are never in scope beside the child's.
+  const where = `(${pairs.map(([child]) => `${quote(item.table)}.${quote(child)}`).join(',')}) IN (SELECT ${pairs.map((_, i) => `json_extract(j.value,'$[${i}]')`).join(',')} FROM json_each(?) j)`;
   return chunks(tuples, 200).map(part => ({ where, values: [JSON.stringify(part)] }));
 }
 
@@ -71,7 +73,7 @@ export async function collect(db, d, subject, remembered = []) {
   for (const [table, old] of known) {
     const pk = keys.get(table).pk;
     for (const part of chunks([...old.values()], 200)) {
-      const found = await all(db, `SELECT ${projection(columns.get(table))} FROM ${quote(table)} WHERE EXISTS(SELECT 1 FROM json_each(?) j WHERE ${pk.map((c, i) => `${quote(table)}.${quote(c)} IS json_extract(j.value,'$[${i}]')`).join(' AND ')})`, JSON.stringify(part.map(row => pk.map(c => row[c]))));
+      const found = await all(db, `SELECT ${projection(columns.get(table))} FROM ${quote(table)} WHERE EXISTS(SELECT 1 FROM json_each(?) j WHERE ${pk.map((c, i) => `${quote(table)}.${c === 'rowid' ? 'rowid' : quote(c)} IS json_extract(j.value,'$[${i}]')`).join(' AND ')})`, JSON.stringify(part.map(row => pk.map(c => row[c]))));
       for (const row of found) { remember(table, row); const key = keyOf(table, row); rows.get(table).set(canonicalJson(key), { table, key, row, depth: 1 }); }
     }
   }

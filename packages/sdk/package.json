@@ -1,6 +1,6 @@
 {
   "name": "@just-every/spool",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Send JavaScript errors from browsers, Node and Cloudflare Workers to your own Spool installation.",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/just-every/run-spool.git", "directory": "packages/sdk" },

@@ -54,9 +54,10 @@ function importContext(db: D1Database, session: any, organization: string): D1Im
   } } };
 }
 
-// Rows per atomic step. The helper re-verifies the whole remaining graph in
-// every step, so few large steps finish the retained-event cap (10,000
-// occurrences plus their children) far sooner than many small ones.
+// Rows per atomic step. After its first step the helper works from a queue of
+// the planned rows in deletion order, verifying only each step's slice, so the
+// whole erasure stays linear in its rows; the step size only sets how many
+// batches the retained-event cap (10,000 occurrences plus their children) takes.
 const STEP_ROWS = 25_000;
 /** Erase one project to completion within `until`, or leave it for the scheduled sweep. */
 export async function eraseProject(db: D1Database, session: any, project: string, planHash: string, until: number) {
