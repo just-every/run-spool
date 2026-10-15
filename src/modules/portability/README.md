@@ -32,6 +32,43 @@ schema at construction. Apply the bookkeeping migration first. Policy fields:
 | `extraPayloads` | Named `{produce,consume}` pairs. Producers return bytes or a byte stream. Consumers receive a verified byte stream and descriptor before D1 commit. |
 | `partBytes` | Maximum part size, default 16 MiB, configurable from 1 KiB to 16 MiB. |
 
+Archives always skip Base's own tables: SQLite and Cloudflare internals, the
+migration ledgers (`d1_migrations`, `_rer_deploy_migrations`,
+`_rer_portability_migrations`), portability bookkeeping, development outboxes,
+operator identity and dependency secrets. `excludedTables` lists them (exact
+names, or prefixes ending in `%`), and `excludedTable(name, policy)` says whether
+an archive under that policy skips a table. A seed's own table inventory, which
+refuses tables it does not know, uses the same predicate, so it does not refuse a
+table Base created and never archives.
+
+For native local CLI transfers, declare executable policy through
+`localPortability({database, buckets, policyModule})`. `policyModule` is a
+seed-root-relative path or a `file:` URL (including `new URL('./archive-policy.mjs',
+import.meta.url)` in the seed adapter). Its real path must be a file inside the
+seed root, and its **default export** must be the policy object:
+
+```js
+const allowedDomains = new Set(['example.org']);
+export default {
+  product: 'my-product',
+  validateStaged: async ({read}) =>
+    (await read('contacts')).every(row => allowedDomains.has(row.domain)),
+};
+```
+
+The runner validates the module/export before applying data migrations. The
+native transfer worker imports that same seed-owned entry point, preserving
+functions and module-local closures. Modules should have no top-level effects:
+preflight and transfer each load them in a separate process. Archive metadata
+never selects executable policy. Invalid paths, missing/invalid default exports,
+and declaring both `policy` and `policyModule` fail closed. Serializable object
+`policy` declarations remain supported; inline functions (including nested
+schema-upgrade and payload callbacks) are refused instead of being dropped by
+JSON transport. Container transfer currently refuses `policyModule` explicitly;
+it continues to accept serializable object policies. Malformed primary or later
+journal JSON is reported once as `archive_json` with exit 2, before local data
+migrations, without echoing archive content or parser diagnostics.
+
 Default exclusions are `sqlite_%`, `_cf_%`, `d1_migrations`,
 `rer_portability_%`, `rer_mail_development_outbox`, `oa_%`, `oc_%`,
 `rer_dependency_keys`, `rer_dependency_pending` and `rer_dependency_codes`.
@@ -255,6 +292,10 @@ by table name. Product-only staging keeps restore queries small even with long
 column names.
 Advance normalizes the durable snapshot, sorts archived keys and checks attachment
 references again before completing the archive.
+The shared D1 transport preserves mixed-script text through SQLite decoding and
+accounts for workerd's whole-call string width. Snapshot and archive-segment
+reads are bounded before crossing the provider boundary; staging and restore
+transactions remain atomic.
 `exports.advance(id,{expectedPart,maxParts})` commits durable bounded parts;
 `expectedPart` makes a lost-acknowledgement retry a no-op. Status reports progress;
 download streams completed jobs. Abort removes snapshots and stored parts.
@@ -380,6 +421,8 @@ executes the copied Worker and CLI. Tests and development fixtures are not copie
 
 ```text
 modules/portability/index.mjs
+modules/d1-transport/index.mjs
+modules/d1-transport/index.d.mts
 modules/portability/index.d.mts
 modules/portability/lines.mjs
 modules/portability/hash.mjs
@@ -399,6 +442,7 @@ modules/portability/import.mjs
 modules/portability/payloads.mjs
 modules/portability/journal.mjs
 modules/portability/http.mjs
+modules/portability/http-client.mjs
 modules/portability/cli.mjs
 modules/portability/cli-options.mjs
 modules/portability/schema/portability.sql

@@ -6,7 +6,7 @@ import {signIn,authBindings,testSetupToken,testDevKey} from './auth.mjs';
 const worker=await startTestWorker(15468),origin=worker.origin;
 let failure;
 // Visitors without an owner session get the shared Lobby at /, using the same native first-project state as /setup.
-async function assertLobby(response,claimed=false){assert.equal(response.status,200);const csp=response.headers.get('content-security-policy');assert.ok(csp.includes("default-src 'none'")&&!csp.includes('script-src'));const html=await response.text();assert.ok(html.includes(claimed ? 'href="/sign-in"' : 'href="/setup"'));assert.ok(!html.includes('<script'));}
+async function assertLobby(response,claimed=false){assert.equal(response.status,200);const csp=response.headers.get('content-security-policy');assert.ok(csp.includes("default-src 'none'")&&!csp.includes('script-src'));const html=await response.text();const entry=/<a class="btn" href="([^"]+)"/.exec(html);assert.ok(entry);assert.equal(new URL(entry[1],origin).pathname,claimed?'/sign-in':'/setup');assert.ok(!html.includes('<script'));}
 let restoreFetch=()=>{};
 try{restoreFetch=observeRuntimeFetch();}catch{}
 try {

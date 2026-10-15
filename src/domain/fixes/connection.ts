@@ -4,9 +4,10 @@
 export type Connection =
  | { state: 'not_configured' }
  | { state: 'invalid'; reason: string }
- | { state: 'configured'; appId: string; installationId: string; apiOrigin: string; privateKey: string };
+ | { state: 'configured'; appId: string; installationId: string; apiOrigin: string; privateKey: string; demo?: boolean };
 
-export function connection(env: { GITHUB_CONNECTION?: string; AUTH_LOCAL?: string }): Connection {
+export function connection(env: { GITHUB_CONNECTION?: string; AUTH_LOCAL?: string; RER_DEMO?: string }): Connection {
+ if (env.RER_DEMO === '1') return { state: 'configured', appId: 'demo', installationId: 'demo', apiOrigin: 'https://api.github.com', privateKey: '', demo: true };
  if (!env.GITHUB_CONNECTION?.trim()) return { state: 'not_configured' };
  let value: any;
  try { value = JSON.parse(env.GITHUB_CONNECTION); } catch { return { state: 'invalid', reason: 'GITHUB_CONNECTION is not JSON' }; }
@@ -25,7 +26,7 @@ export function connection(env: { GITHUB_CONNECTION?: string; AUTH_LOCAL?: strin
  }
  return { state: 'configured', appId: id('appId'), installationId: id('installationId'), apiOrigin, privateKey: value.privateKey };
 }
-export const publicConnection = (c: Connection) => c.state === 'configured' ? { state: c.state, appId: c.appId, installationId: c.installationId, api: c.apiOrigin } : c;
+export const publicConnection = (c: Connection) => c.state === 'configured' ? { state: c.state, appId: c.appId, installationId: c.installationId, api: c.apiOrigin, ...(c.demo ? { demo: true } : {}) } : c;
 
 const base64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const text = (value: string) => base64url(new TextEncoder().encode(value));
