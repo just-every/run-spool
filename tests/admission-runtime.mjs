@@ -20,11 +20,11 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false, https = false} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
- let origin = `http://127.0.0.1:${port}`;
+ let origin = `${https ? 'https' : 'http'}://127.0.0.1:${port}`;
  const {worker: emitted, database, triggers} = await emittedWorkerOptions(resolve('dist/server/wrangler.json'), miniflare);
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
  let worker;
@@ -49,7 +49,7 @@ export default {...application,fetch(request,env,ctx){const url=new URL(request.
   const options = convertV4MiniflareOptions({
    ...emitted, log: new Log(LogLevel.ERROR),
    bindings: {...emitted.bindings, ...authBindings(origin), ...extra, ...mailBindings},
-   resourcePersistencePath: resolve(temporary, 'state'), host: '127.0.0.1', port,
+   resourcePersistencePath: resolve(temporary, 'state'), host: '127.0.0.1', port, https,
    unsafeTriggerHandlers: triggers.length > 0,
   });
   if (triggers.length) options.workers[0].config.triggers = triggers;

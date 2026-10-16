@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "parent": null,
   "edition": "just-every/spool",
-  "manifest": "c15a41d5f6b4fd1b2900a995c2cb949fbe3d510d4be5ce78f42d6d9000502009",
+  "manifest": "fbf149371460f699777cd4b4b55f51b6822f4a4f6c5c3609a643b4a190430380",
   "toolchain": {
     "id": "runeditrun/edition-authoring",
     "version": "1.1.0",
@@ -832,7 +832,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "1ce15dd8cbb7c8cf2d83ebfde2b4a8a130ff9d74",
+          "revision": "ae0842a265e8ec7b42d1b2a7ca717926aabf63de",
           "path": ".",
           "paths": [
             "modules/delivery-producer/artifact.mjs",
@@ -853,7 +853,10 @@
             "schema/SETUP.schema.json",
             "schema/json-schema.mjs",
             "schema/setup-validation.mjs",
-            "modules/delivery-producer/mail.mjs"
+            "modules/delivery-producer/mail.mjs",
+            "modules/delivery-producer/sign-in.mjs",
+            "modules/delivery-producer/native-export.mjs",
+            "modules/delivery-producer/sql-statements.mjs"
           ]
         },
         "mappings": [
@@ -932,13 +935,25 @@
           {
             "path": "scripts/delivery/base/mail.mjs",
             "originPath": "modules/delivery-producer/mail.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/sign-in.mjs",
+            "originPath": "modules/delivery-producer/sign-in.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/native-export.mjs",
+            "originPath": "modules/delivery-producer/native-export.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/sql-statements.mjs",
+            "originPath": "modules/delivery-producer/sql-statements.mjs"
           }
         ]
       },
       "baseline": {
-        "key": "fd0144b1a1d8830231c5d16a7a70a32a480a0a344bc7e0e14e240eff0cad648c",
-        "digest": "07b55c4b096c2adb00dfb8011eba990fb6204ab8194dcd06f2c6953d622e3445",
-        "sha256": "fb82c468180cbc4693173744013c98b5c9505773ae817a94dac2e1470f505541"
+        "key": "d0cf8745d2a01197af39166f0cdecabb379c6fab08dcb6d0539662b0ed223362",
+        "digest": "a151e114ff7065027b63d88df1ba2d3462d70e6eef33730562728fe29deec0f9",
+        "sha256": "05c322ec1550746963ae9c156bd2c3e13eee472b209dccc536695b100ef4adba"
       }
     },
     {
@@ -2198,7 +2213,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "1b4eb7fd639df52e82b95dd58ce0fa6e82c238e696205c513b0f62cb37dcc3b3",
+      "sha256": "71c892f486e23638ca7caf289447189ee21e19b49977eb300433ddecd3664e6a",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2518,7 +2533,7 @@
       "executable": false
     },
     "edition.json": {
-      "sha256": "c15a41d5f6b4fd1b2900a995c2cb949fbe3d510d4be5ce78f42d6d9000502009",
+      "sha256": "fbf149371460f699777cd4b4b55f51b6822f4a4f6c5c3609a643b4a190430380",
       "executable": false
     },
     "HANDOVER.md": {
@@ -2538,7 +2553,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "3158eb5bfa97e15d05c576aa0fe3822a269753f1e19a510aefcf63693bc153d0",
+      "sha256": "80861d548f9e75f9999b428e32cae8ebac3eb77e13cd14e2c4fa500d4d61b544",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -2698,7 +2713,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "0b79ddd12c4667de261a97ab05a1c13b91dbf6560a37c1e4e3daeec41feb9cbe",
+      "sha256": "f0135b6f8b426484a793ee4641c9f5f925f5e744bce8093eb7227215c2f4fa06",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2794,7 +2809,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "2ac4d8da2fdd8f8091ac6d92bf94592b89de7ac38763ff81da0a9642f5f69f45",
+      "sha256": "7f7513280e4833b0719bac13ef1779d0951f002f99fa2b29412fc4e1848023bf",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -2954,7 +2969,7 @@
       "executable": false
     },
     "scripts/delivery/base/declarations.mjs": {
-      "sha256": "00924a1564e172d4d210a32936afe757870e226796465c11ac148e39d0ea0a85",
+      "sha256": "d8cf67d18fdc6ff027d323d0986a7815b52c71df01c4cbb3dde428cfc7f55a0c",
       "executable": false
     },
     "scripts/delivery/base/export.mjs": {
@@ -2985,12 +3000,16 @@
       "sha256": "41650d5f2c22c0dbf8c4d8640bc89d872907828b558df4af89c4f70059d4878f",
       "executable": false
     },
+    "scripts/delivery/base/native-export.mjs": {
+      "sha256": "5c0f90e688f5242dbc2f62416259cbb3074647298df8daa431a7022aa10d1a41",
+      "executable": false
+    },
     "scripts/delivery/base/package.mjs": {
       "sha256": "5a32dec3274b66474e12d5141e973542248ceeecf0f8464f6e9da87d60228cb4",
       "executable": false
     },
     "scripts/delivery/base/packaging.json": {
-      "sha256": "436d9aa53346478c1f9e680ba8e9d3fc655b4438eb4c6f905c89a9a2a719d116",
+      "sha256": "81946cff7b499bf5739028e2377826aed408d6096b4801020e95d8f277cb86a6",
       "executable": false
     },
     "scripts/delivery/base/paths.mjs": {
@@ -3021,8 +3040,16 @@
       "sha256": "cb8a88fc712f5f102c2a00454a6d46b0ca0b9ec15bd79bf4370358375ad7a009",
       "executable": false
     },
+    "scripts/delivery/base/sign-in.mjs": {
+      "sha256": "951aada2c00131ab7c808974827654b0fda20bcaeed1f2f97194b25441c03aff",
+      "executable": false
+    },
     "scripts/delivery/base/spec.mjs": {
-      "sha256": "6a11b2986a98936f60c8984e73add5ba491002f0609fb0b478874967caaffd92",
+      "sha256": "65179ca5222485513260e8d58aaae6740ae6fe1b27065e96f0d95d197fc6d3f0",
+      "executable": false
+    },
+    "scripts/delivery/base/sql-statements.mjs": {
+      "sha256": "8819f7f91b7781905796ea35b01dd1a55e08ed3893ff6d8aafaf03d2f35c1c9a",
       "executable": false
     },
     "scripts/delivery/setup-build.sh": {
@@ -5834,7 +5861,7 @@
       "executable": false
     },
     "tests/admission-runtime.mjs": {
-      "sha256": "6a168628dd4984dc9cf6e6122f12797dc3827f6f4f1a51720d75c6342ec3f1aa",
+      "sha256": "20a4705a42742108098e88dfeaf18084ffb38602ad7e919277c888d84210620e",
       "executable": false
     },
     "tests/agent-handoff.mjs": {
@@ -6011,6 +6038,10 @@
     },
     "tests/local-runtime.mjs": {
       "sha256": "39381a1541f88731c0d587d16bd6dcfc1ec9aade097dbd955b9bf9ca601e1653",
+      "executable": false
+    },
+    "tests/managed-sign-in.mjs": {
+      "sha256": "2637338ccf2f69c21a5ca271ec3084ecab54c2a04f6e9b8ee633d3a42ef4bcca",
       "executable": false
     },
     "tests/multilingual.mjs": {

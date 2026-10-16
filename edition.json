@@ -812,7 +812,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "1ce15dd8cbb7c8cf2d83ebfde2b4a8a130ff9d74",
+          "revision": "ae0842a265e8ec7b42d1b2a7ca717926aabf63de",
           "path": ".",
           "paths": [
             "modules/delivery-producer/artifact.mjs",
@@ -833,7 +833,10 @@
             "schema/SETUP.schema.json",
             "schema/json-schema.mjs",
             "schema/setup-validation.mjs",
-            "modules/delivery-producer/mail.mjs"
+            "modules/delivery-producer/mail.mjs",
+            "modules/delivery-producer/sign-in.mjs",
+            "modules/delivery-producer/native-export.mjs",
+            "modules/delivery-producer/sql-statements.mjs"
           ]
         },
         "mappings": [
@@ -912,6 +915,18 @@
           {
             "path": "scripts/delivery/base/mail.mjs",
             "originPath": "modules/delivery-producer/mail.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/sign-in.mjs",
+            "originPath": "modules/delivery-producer/sign-in.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/native-export.mjs",
+            "originPath": "modules/delivery-producer/native-export.mjs"
+          },
+          {
+            "path": "scripts/delivery/base/sql-statements.mjs",
+            "originPath": "modules/delivery-producer/sql-statements.mjs"
           }
         ]
       }
