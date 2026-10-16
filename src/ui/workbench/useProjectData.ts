@@ -2,17 +2,19 @@ import { useEffect, useState } from 'react';
 import type { View } from './location';
 import type { Request } from './shared';
 import { loadIssuePanels, type IssuePanels } from './issuePanels';
+import { useProjectIssues } from './useProjectIssues';
 export function useProjectData(project: string, view: View, selected: string | undefined, refreshCount: number, request: Request) {
+  const issues = useProjectIssues(project, refreshCount, request);
   const [data, setData] = useState<any>(null), [failed, setFailed] = useState(''), [loading, setLoading] = useState(false);
   const [panels, setPanels] = useState<IssuePanels | null>(null);
   const [packet, setPacket] = useState<any>(null), [packetStatus, setPacketStatus] = useState('idle');
   useEffect(() => {
     if (!project) { setData(null); return; }
     let alive = true; setLoading(true); setFailed('');
-    const parts = ['issues', ...(view === 'settings' ? ['keys', 'releases'] : view === 'releases' ? ['releases'] : view === 'capture' ? ['releases', 'outcomes'] : selected ? ['outcomes'] : [])];
+    const parts = [...(view === 'settings' ? ['keys', 'releases'] : view === 'releases' ? ['releases'] : view === 'capture' ? ['releases', 'outcomes'] : selected ? ['outcomes'] : [])];
     Promise.all(parts.map(async part => [part, await request(`/api/projects/${encodeURIComponent(project)}/${part}`)] as const))
-      .then(entries => { const { issues = [], releases = [], keys = [], outcomes = null } = Object.fromEntries(entries); return { issues, releases, keys, outcomes }; })
-      .then(({issues, releases, keys, outcomes}) => { if (alive) { setData({ project, issues: issues.map((issue: any) => ({ ...issue, releases: typeof issue.releases === 'string' ? JSON.parse(issue.releases) : issue.releases ?? [] })), releases, keys, outcomes }); setLoading(false); } })
+      .then(entries => { const { releases = [], keys = [], outcomes = null } = Object.fromEntries(entries); return { releases, keys, outcomes }; })
+      .then(({releases, keys, outcomes}) => { if (alive) { setData({ project, releases, keys, outcomes }); setLoading(false); } })
       .catch(error => { if (alive) { setLoading(false); setFailed(error.message); } });
     return () => { alive = false; };
   }, [project, view, !!selected, refreshCount, request]);
@@ -28,6 +30,6 @@ export function useProjectData(project: string, view: View, selected: string | u
     return () => { alive = false; };
   }, [project, selected, refreshCount, request]);
   const scoped = data?.project === project ? data : null;
-  return { issues: scoped?.issues ?? [], releases: scoped?.releases ?? [], keys: scoped?.keys ?? [], outcomes: scoped?.outcomes ?? null,
-    loading: loading || (!!project && !scoped && !failed), failed, panels, packet: packet?.project === project && packet?.issue?.id === selected ? packet : null, packetStatus };
+  return { issues: issues.rows, releases: scoped?.releases ?? [], keys: scoped?.keys ?? [], outcomes: scoped?.outcomes ?? null,
+    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: issues.failed || failed, panels, packet: packet?.project === project && packet?.issue?.id === selected ? packet : null, packetStatus };
 }
