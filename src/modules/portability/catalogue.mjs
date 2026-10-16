@@ -1,10 +1,10 @@
 import { all, insist, quote } from './storage.mjs';
 import { canonicalJson, sha256, base64, unbase64, utf8 } from './hash.mjs';
 /** Tables no archive carries: SQLite/Cloudflare internals, migration ledgers,
- * portability bookkeeping, development outboxes, operator identity and dependency
- * secrets. Exact names, or prefixes ending in `%`. Seeds' own table inventories
+ * portability bookkeeping, development outboxes, operator identity, dependency
+ * secrets and refresh-safe command receipts. Exact names, or prefixes ending in `%`. Seeds' own table inventories
  * skip the same tables through `excludedTable`. */
-export const excludedTables=Object.freeze(['sqlite_%','_cf_%','d1_migrations','_rer_deploy_migrations','_rer_portability_migrations','rer_portability_%','rer_mail_development_outbox','rer_ai_development_outbox','oa_%','oc_%','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes']);
+export const excludedTables=Object.freeze(['sqlite_%','_cf_%','d1_migrations','_rer_deploy_migrations','_rer_portability_migrations','rer_portability_%','rer_mail_development_outbox','rer_ai_development_outbox','oa_%','oc_%','rer_dependency_keys','rer_dependency_pending','rer_dependency_codes','rer_command_receipts']);
 const fields=['product','excludeTables','includeTables','derivedTables','secretColumns','exportRow','replaceableTables','requiredConfiguration','validateStaged','acceptedSchemas','buckets','extraPayloads','partBytes'];
 const name=value=>typeof value==='string' && value.length>0 && value.length<=512 && !/[\x00-\x1f]/.test(value);
 const names=value=>Array.isArray(value) && value.every(name) && new Set(value).size===value.length;

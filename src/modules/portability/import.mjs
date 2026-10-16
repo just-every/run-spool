@@ -1,4 +1,5 @@
-import { all, statement, state, guard, job, save, partStatements, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
+import { all, statement, state, guard, job, save, partQueries, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
+import { stagePart } from './import-staging.mjs';
 import { refuseProviderData } from './provider-data.mjs';
 import { refuseDevData } from './dev-data.mjs';
 import { catalogue, validateRow, bindCell, writableColumns } from './catalogue.mjs';
@@ -69,20 +70,19 @@ export async function uploadPart(context,id,index,part) {
       insist(entry && item.offset+unbase64(item.data).length<=entry.size,'binary_inventory');
     }
   }
-  row.metadata.stagedCounts=Object.assign(Object.create(null),row.metadata.stagedCounts);
+  const stagedCounts=Object.assign(Object.create(null),row.metadata.stagedCounts);
   for(const [table,group] of groups) {
     const width=group.rows[0].length,count=Math.min(30,Math.floor(100/width));
     insist(count>0,'unsupported_restore_width:'+table);
-    const copy=row.metadata.copies[table],first=(row.metadata.stagedCounts[table]??0)+1;
+    const copy=row.metadata.copies[table],first=(stagedCounts[table]??0)+1;
     for(let start=0;start<group.rows.length;start+=count) {
       const chunk=group.rows.slice(start,start+count);
-      inserts.push(statement(db,`INSERT INTO ${quote(copy)} (${group.columns}) VALUES${chunk.map(()=> '('+Array(width).fill('?').join(',')+')').join(',')}`,...chunk.flat()));
-      inserts.push(statement(db,`INSERT INTO ${quote(sidecar(copy))} VALUES${chunk.map((_,i)=>`(?,${first+start+i},?,?)`).join(',')}`,...group.metadata.slice(start,start+count).flat()));
+      inserts.push({sql:`INSERT INTO ${quote(copy)} (${group.columns}) VALUES${chunk.map(()=> '('+Array(width).fill('?').join(',')+')').join(',')}`,params:chunk.flat()});
+      inserts.push({sql:`INSERT INTO ${quote(sidecar(copy))} VALUES${chunk.map((_,i)=>`(?,${first+start+i},?,?)`).join(',')}`,params:group.metadata.slice(start,start+count).flat()});
     }
-    row.metadata.stagedCounts[table]=first-1+group.rows.length;
+    stagedCounts[table]=first-1+group.rows.length;
   }
-  const before=row.completed;row.completed++;
-  try{await db.batch([guard(db,'(SELECT completed FROM rer_portability_jobs WHERE id=?)=?',id,before),...inserts,...partStatements(db,id,part),save(db,row),db.prepare('DELETE FROM rer_portability_guard')]);}
+  try{await stagePart(context,row,part,[...inserts,...partQueries(id,part).slice(1)],stagedCounts);}
   catch(e){const duplicate=await statement(db,'SELECT sha256 FROM rer_portability_parts WHERE job=? AND idx=?',id,index).first();if(!duplicate || duplicate.sha256!==part.sha256)throw e;}
   return importStatus(context,id);
 }

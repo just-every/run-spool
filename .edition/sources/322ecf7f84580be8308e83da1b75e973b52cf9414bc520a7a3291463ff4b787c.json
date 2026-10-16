@@ -1,8 +1,8 @@
 {
-  "key": "f210a74213b6e3a2b9d97433e8c939997ac2bfcc55f504e7c9d2bb3bcb0a5011",
+  "key": "322ecf7f84580be8308e83da1b75e973b52cf9414bc520a7a3291463ff4b787c",
   "origin": {
     "repository": "https://github.com/runeditrun/base.git",
-    "revision": "3d643dda1d203d36e3fa57e8e5ba14e414bba6f9",
+    "revision": "398bdd222401a60ac2d0732454f6a947b3033029",
     "path": "modules/integrations/core",
     "paths": [
       "CONTRACT.md",

@@ -301,8 +301,12 @@ transactions remain atomic.
 download streams completed jobs. Abort removes snapshots and stored parts.
 
 `imports.create(manifest,actor?)` creates staging under one durable import lock.
-Upload parts strictly in order. Same-index/same-hash retries are no-ops; different
-content returns 409. Finalize requires the closing `archiveHash` and verifies all
+Upload parts strictly in order. Each upload stages rows and archived JSON in
+batches bounded by D1 transport bytes, checkpointing each batch atomically.
+A same-index/same-hash retry resumes an interrupted part or acknowledges a finished
+part; different content returns 409. Reassembled bytes pass the part checksum
+before completion advances. Staged data stays private until finalization.
+Finalize requires the closing `archiveHash` and verifies all
 parts, semantic contents, destination
 emptiness, erasure and product invariants. R2 ownership is recorded after the
 empty-namespace check. Verified object writes precede one atomic D1 batch, with
@@ -439,6 +443,7 @@ modules/portability/migration-statements.mjs
 modules/portability/legacy-safety.mjs
 modules/portability/export.mjs
 modules/portability/import.mjs
+modules/portability/import-staging.mjs
 modules/portability/payloads.mjs
 modules/portability/journal.mjs
 modules/portability/http.mjs
