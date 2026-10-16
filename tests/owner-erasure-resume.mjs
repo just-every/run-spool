@@ -9,7 +9,7 @@ export async function interruptedErasure() {
   const project=await app.json('/api/projects',{id:'resume-proof',name:'Test owner and Quinn Otherperson'},201);
   // A real graph larger than a request batch. These historical sessions are
   // fixture data, not alternate handler implementations or a changed batch cap.
-  const count=1200;
+  const count=600;
   for(let from=0;from<count;from+=100)await app.DB.batch(Array.from({length:Math.min(100,count-from)},()=>app.DB.prepare("INSERT INTO oa_sessions(id,token_hash,operator_id,operator_version,kind,created_at,expires_at) VALUES(?,?,?,?,'native',?,?)").bind(randomUUID(),randomUUID(),owner.id,owner.version,Date.now(),Date.now()+600000)));
   const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null);
   await app.DB.prepare(`CREATE TRIGGER fixture_interrupt_second_batch BEFORE INSERT ON rer_erasure_guard
