@@ -8,6 +8,7 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { Details } from './Details';
 import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
 import { SchedulerStatus } from './SchedulerStatus';
+import { BusinessImports } from './BusinessImports';
 import { date, type Request, type Run } from './shared';
 export function SettingsView({ project, projects, keys, releases, request, run, busy, refresh, onCreated, onKey }: {
   project: string; projects: any[]; keys: any[]; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void; onCreated: (project: any) => void; onKey: (grant: { key: string; dsn?: string; kind: string }) => void;
@@ -22,6 +23,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     <SchedulerStatus />
     {!!project&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&<InboundFilters key={project} {...{project,request,run,busy}}/>}
+    <BusinessImports {...{ request, run, busy }} />
     <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />
     {!!project && <RetentionSettings {...{ project, request, run, busy, refresh }} />}
     {!!project && <ProjectErasure key={project} {...{ project, request, run, busy }} />}

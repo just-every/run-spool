@@ -9,14 +9,12 @@ export function sourceText(value: unknown, field: string): string {
 function fields(value: any, allowed: string[]) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key=>!allowed.includes(key))) throw new Error('Unsupported bundle shape');
 }
-export async function readSentryOrganization(bytes: Uint8Array): Promise<{ source: SourceBundle; organization: string }> {
-  let organization = '';
-  const source = await readFileSource({ namespace:'sentry-organization', name:'sentry-organization.json', format:'json', bytes, parse(value: Json): ParsedRecord[] {
+export function parseSentryOrganization(value: Json): ParsedRecord[] {
     const bundle = value as any;
     fields(bundle,['format','version','organization','window','collections','omissions']);
     if (bundle.format !== importFormat || bundle.version !== 1) throw new Error('Unsupported organization bundle format');
     fields(bundle.organization,['id','slug','region']); fields(bundle.window,['start','end']);
-    organization = sourceText(bundle.organization.slug,'organization'); sourceText(bundle.organization.id,'organization id');
+    const organization = sourceText(bundle.organization.slug,'organization'); sourceText(bundle.organization.id,'organization id');
     if (!['us','de','self-hosted'].includes(bundle.organization.region)) throw new Error('Invalid region');
     const start=Date.parse(bundle.window.start),end=Date.parse(bundle.window.end);
     if (!Number.isFinite(start) || !Number.isFinite(end) || start>end) throw new Error('Invalid export window');
@@ -47,7 +45,11 @@ export async function readSentryOrganization(bytes: Uint8Array): Promise<{ sourc
     if(!collectionKeys.has(JSON.stringify(['projects',null])) || !collectionKeys.has(JSON.stringify(['releases',null])))throw new Error('Projects and releases collections required');
     const rank:Record<string,number>={manifest:0,projects:1,releases:2,issues:3,events:4};
     return records.sort((a,b)=>(rank[a.kind]??5)-(rank[b.kind]??5));
-  } },{maxBytes:2*1024*1024,maxRecordBytes:2*1024*1024,maxRecords:500});
+}
+
+export async function readSentryOrganization(bytes: Uint8Array): Promise<{ source: SourceBundle; organization: string }> {
+  const source = await readFileSource({ namespace:'sentry-organization', name:'sentry-organization.json', format:'json', bytes, parse: parseSentryOrganization },{maxBytes:2*1024*1024,maxRecordBytes:2*1024*1024,maxRecords:500});
+  const organization = (source.records[0].payload as any).organization.slug;
   // Input reader has preserved exact bytes. Namespace binds all source identities to this organization.
   const namespace=`sentry-org:${organization}`;
   for(const record of source.records)record.namespace=namespace;

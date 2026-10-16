@@ -1,5 +1,6 @@
 import { createOwnerClaimHandler, OwnerClaimError } from '../modules/owner-claim/index.mjs';
 import type { ManagedBindings } from './bindings';
+import { ownerClaimConfig } from './owner-claim-config.server';
 
 /** Only deployment configuration supplies claim authority; POST supplies the signed claim. */
 export async function ownerClaimResponse(request: Request, env: ManagedBindings): Promise<Response> {
@@ -10,9 +11,7 @@ export async function ownerClaimResponse(request: Request, env: ManagedBindings)
     OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET, SETUP_TOKEN: env.SETUP_TOKEN,
     branding: { productName: 'Spool', accentColor: '#cb541f', signInPath: '/sign-in' } },
    clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
-   issuer: env.RER_OWNER_CLAIM_ISSUER!, installationId: env.RER_OWNER_CLAIM_INSTALLATION_ID!,
-   appOrigin: env.RER_DEMO === '1' ? env.AUTH_ORIGIN : env.RER_OWNER_CLAIM_APP_ORIGIN!, expectedEmail: env.OWNER_EMAIL,
-   publicKeys: JSON.parse(env.RER_OWNER_CLAIM_PUBLIC_KEYS ?? 'null'),
+   ...ownerClaimConfig(env),
   })(request);
   return response ?? new Response('Not found', {status: 404});
  } catch (error) {

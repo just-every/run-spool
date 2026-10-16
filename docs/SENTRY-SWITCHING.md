@@ -120,3 +120,34 @@ Source references: [envelope framing](https://develop.sentry.dev/sdk/foundations
 The exact prior-inventory Base JSONL formats (before and immediately after occurrence identities) uses the same 16 MiB compatibility bound as native v1/v2 files. Its original integrity is verified before normalization, and source identity, epoch and permanent erasure journal are retained. Current complete Base archives continue to stream without that whole-file compatibility bound.
 
 See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.
+
+## Optional Business import door
+
+In Settings, open the **Business imports** row to enable the import door. It is
+**off by default**. It uses the installation's existing owner-claim issuer,
+installation ID, app origin and public key ring; no second trust configuration
+or owner identity is created. Self-hosted owners configure those deployment
+bindings before enabling it. Disabling the door immediately stops Business
+requests. **Revoke key** permanently revokes a signing key for this door, including
+otherwise valid unexpired grants; rotate to a new key ID to restore access.
+
+Spool vendors Base's optional import-kit door from `rer-v0.2.33`. Its
+[grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
+`POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. The upload is
+the same owner-generated Sentry organization bundle documented above, chunked
+with SHA-256 checks. The parser retains Spool's 2 MiB / 500-record limits and
+uses the existing native Sentry mapping. Planning retains private upload/review
+custody and makes no native project, release, issue or event writes. Apply needs
+the exact reviewed fingerprint and the signed owner's approval record.
+
+Reconciliation checks the exported/admitted historical subset against the bundle
+manifest and its omissions, with source-ID dispositions and server-derived native
+counts, revisions and values. It makes no completeness claim against Sentry's
+vendor totals. Imports stay inert: no credentials or alert deliveries are created.
+
+The same settings row lists each real import with **approved via Business by
+<owner> at <time>, fingerprint <x>**. Its owner-session Undo remains available
+with Business disabled or its grant key revoked. Undo protects native edits and
+reverses the newest snapshot first. Original bytes remain private to this Spool
+installation. Project erasure also withdraws affected door upload/plan snapshots
+alongside import-kit originals; other native projects remain intact.

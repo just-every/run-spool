@@ -1,6 +1,6 @@
 import { ownerCaptureColumns, sqlQuote } from './owner-capture';
 
-export const importCustodyRoots=['ik_jobs','ik_originals','ik_d1_streams','ik_d1_stream_revisions','ik_d1_staging','ik_d1_native_staging','ik_d1_stream_origins'];
+export const importCustodyRoots=['ik_jobs','ik_originals','ik_d1_streams','ik_d1_stream_revisions','ik_d1_staging','ik_d1_native_staging','ik_d1_stream_origins','ik_door_uploads','ik_door_plans'];
 const covered = new Set(['oa_operators','oa_owner_signins','oa_tokens','oa_sessions','oa_external_identities','oa_credentials','oa_invitation_cancellations','oa_step_up_challenges','oa_provider_sessions','oa_provider_session_pins','oa_setup_links','oa_dev_credentials','oa_auth_audit','oa_bootstrap','oc_owner_claims','oc_idp_grants','rer_dependency_pending','spool_owner_successor','rer_erasure_operations','rer_erasure_scope','credentials',...Object.keys(ownerCaptureColumns)]);
 export async function unsupportedOwnerSurface(db: D1Database, needles: string[]) {
  const id=needles[0];

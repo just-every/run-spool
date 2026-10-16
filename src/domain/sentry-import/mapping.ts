@@ -4,7 +4,7 @@ import { identity, scrub } from '../privacy.ts';
 import { absentDist } from '../sentry/convert.ts';
 import { apiEvent } from './event.ts';
 import { mappingVersion, sourceText } from './source.ts';
-const nativeProject=(organization:string,slug:string)=>`sentry-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
+export const nativeProject=(organization:string,slug:string)=>`sentry-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
 const nativeIssue=(organization:string,slug:string,id:string)=>sha256(JSON.stringify(['sentry',organization,slug,id]));
 const time=(value:any)=>{const n=Date.parse(value);if(!Number.isSafeInteger(n)||n<0)throw new Error('Source timestamp required');return n};
 const effects=(targetKind:string,targetId:string,native:any,source:any):MappingResult=>({effects:[{targetKind,targetId,value:{native,source}}]});
