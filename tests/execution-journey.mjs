@@ -11,7 +11,7 @@ import {shopFixture} from './execution/fixture.mjs';
 import {reproduceProof,runner} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
-import {executionPanel} from './execution/ui.mjs';
+import {disconnectedGitHubSetup,executionPanel} from './execution/ui.mjs';
 // A captured failure reproduced in the isolated sandbox, carried through a fix
 // branch under an exact expiring grant, and measured after the deploy, through
 // public routes, the runner command and the issue page. GitHub is a double.
@@ -29,6 +29,11 @@ try{
  for(const path of [`${p}/reproducers?issue=${reproduced.issue}`,`${p}/fixes?issue=${reproduced.issue}`]){const r=await fetch(app.origin+path,{headers:{Authorization:'Bearer '+agent}});assert.equal(r.status,403,'agent keys cannot read reproducers or fix workflows');await r.body?.cancel();}
  stage='baseline';await baseline(app,ingestKey,r1);
  stage='awaiting-connection';const awaiting=await awaitingConnection(app,github,reproduced);results.awaitingConnection={status:awaiting.status,error:awaiting.error};
+ stage='disconnected-setup';browser=await launchBrowser();
+ const requestsBeforeSetup=github.requests.length;
+ results.setupCaptures=await disconnectedGitHubSetup(app,browser,directory,reproduced.issue);
+ assert.equal(github.requests.length,requestsBeforeSetup,'viewing disconnected setup never contacts GitHub');
+ await browser.close();browser=null;
  // The owner configures the GitHub App connection and restarts.
  await app.stop();app=await executionRuntime(state,15476,{GITHUB_CONNECTION:github.connection});
  stage='expiry-start';const finishExpiry=await expiredGrant(app,github,reproduced);

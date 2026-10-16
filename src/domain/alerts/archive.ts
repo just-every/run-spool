@@ -1,7 +1,7 @@
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 export const alertArchiveTables=['alert_rules','alert_history'];
-export const alertExcludedTables=['alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertExcludedTables=['alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};

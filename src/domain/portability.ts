@@ -78,6 +78,9 @@ const laterTables = [
  ].map(later => ({ tables: [...later.tables, ...executionArchiveTables,...mappingTables], migrations: [...later.migrations, executionMigration, leaseMigration,mappingMigration] })),
 ].map(later=>({tables:[...later.tables,...bundleNames],migrations:[...later.migrations,bundleMigration]}));
 laterTables.unshift({tables:bundleNames,migrations:[bundleMigration]});
+// Page-managed recipients are private configuration, not archive content.
+for(const later of laterTables)later.migrations.push('0037_alert_destinations.sql');
+laterTables.unshift({tables:[],migrations:['0037_alert_destinations.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

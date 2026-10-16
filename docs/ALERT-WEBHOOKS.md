@@ -6,7 +6,18 @@ Every body contains `schema`, `alertId`, `kind`, `projectId`, `issueId`, `occurr
 
 For `spike`, `release` is null, `rule` is `{id, revision}`, and `window` is `{start, end, durationMs, count, threshold}`. Start is inclusive, end exclusive. This is accepted occurrence volume in a complete aligned server-received window, not relative growth, affected users or complete capture. Each enabled rule starts at the next aligned window. Edits start a fresh revision and do not backfill. Suppressed issues produce no spike. Retention invalidates any partially removed windows and records a visible history-unavailable gap.
 
-`issueUrl` is null unless `ALERT_PUBLIC_ORIGIN` is a trusted, exact HTTPS origin. A configured URL is `origin/?project=<projectId>&issue=<issueId>`. Inbound Host is never used. Bodies exclude raw exception fields, breadcrumbs, stack frames, source maps, recipients, receiver URLs and credentials. Titles still derive from untrusted telemetry; receivers must escape them when displaying them.
+`issueUrl` uses the installation’s configured HTTPS sign-in origin (`AUTH_ORIGIN`), or an explicit trusted HTTPS `ALERT_PUBLIC_ORIGIN` override. It is null when neither is a valid HTTPS origin (including local HTTP development). A configured URL is `origin/?project=<projectId>&issue=<issueId>`. Inbound Host is never used. Bodies exclude raw exception fields, breadcrumbs, stack frames, source maps, recipients, receiver URLs and credentials. Titles still derive from untrusted telemetry; receivers must escape them when displaying them.
+
+## Manage email destinations
+
+1. Select your project, open **Alerts → Rules**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
+2. Choose **Test <name>** and check the mailbox. Hosted Spool reports provider acceptance, not confirmed receipt. Local development suppresses mail and says so explicitly. Tests are limited to one per destination per minute.
+3. Create a rule below, select that destination and choose its alert events. New issues and later-release regressions send after capture; volume spikes use the minute scheduler.
+4. To change the address, choose **Edit <name>**, update it and choose **Save destination**. Its rules move to a new revision. Queued sends to the old address stop; an already executing send cannot be retracted. Test the new address.
+
+Email destinations are private, project-scoped installation configuration (up to 20 per project). Only the signed-in owner can read or change their addresses. They are excluded from archives and erased with the project. After restore, add destinations again, select them in the restored rules and enable those rules. Mail uses this installation’s existing provider and sender. A blocked message names missing installation configuration.
+
+Signed webhooks and legacy destinations supplied in `ALERT_DESTINATIONS` remain operator-managed; the page labels them accordingly. Adding a page-managed email destination does not require changing that secret. Webhooks require the egress service described below.
 
 ## Wire protocol
 

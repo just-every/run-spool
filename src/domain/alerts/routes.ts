@@ -11,6 +11,7 @@ import { IntegrationsRepository } from '../../modules/integrations/core/reposito
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import type { SqlDatabase } from '../../modules/integrations/core/database';
 import { synchronizeHistory } from './dispatch';
+import { saveDestination, testDestination } from './destination-management.server';
 type Env=Bindings&AlertEnvironment;
 const routes=new Hono<{Bindings:Env;Variables:{alertSession:OwnerSession}}>();
 // This router authenticates its own direct transport as well as its parent API mount.
@@ -21,10 +22,14 @@ async function input(c:any) {
  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length}
  try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes))}catch{throw new Error('Invalid alert request')}
 }
-routes.get('/destinations',c=>{try{return c.json({rows:destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
+routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
+routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
+routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});
+routes.post('/destinations/:destination/test',async c=>c.json(await testDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'))));
 routes.get('/rules',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_rules WHERE project=? ORDER BY created,id',c.req.param('project')!).all()).results));
 routes.post('/rules',async c=>{
  const p=c.req.param('project')!,b=ruleInput(await input(c),c.env,p,false),id=crypto.randomUUID(),time=Date.now();
+ await findDestination(c.env,p,b.destination,b.channel);
  await ownerBatch(c.env.DB,c.get('alertSession'),[
   s(c.env.DB,'INSERT INTO alert_rules VALUES(?,?,1,?,?,?,?,?,?,?,?,?)',id,p,b.name,Number(b.enabled),b.channel,b.destination,b.kinds,b.windowMs,b.threshold,time,time),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE id=? AND enabled=1 AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike')`,Math.ceil(time/b.windowMs)*b.windowMs,id),
@@ -33,9 +38,10 @@ routes.post('/rules',async c=>{
 });
 routes.put('/rules/:rule',async c=>{
  const p=c.req.param('project')!,id=c.req.param('rule'),b=ruleInput(await input(c),c.env,p,true),time=Date.now(),change=crypto.randomUUID();
- if(!b.enabled){
+ if(b.enabled)await findDestination(c.env,p,b.destination,b.channel);
+ else {
   const previous=await s(c.env.DB,'SELECT destination,channel FROM alert_rules WHERE project=? AND id=?',p,id).first<any>();
-  if(!previous||previous.destination!==b.destination||previous.channel!==b.channel)findDestination(c.env,p,b.destination,b.channel);
+  if(!previous||previous.destination!==b.destination||previous.channel!==b.channel)await findDestination(c.env,p,b.destination,b.channel);
  }
  const results=await ownerBatch(c.env.DB,c.get('alertSession'),[
   s(c.env.DB,`UPDATE alert_rules SET revision=revision+1,name=?,enabled=?,channel=?,destination=?,kinds=?,window_ms=?,threshold=?,updated=? WHERE project=? AND id=? AND revision=? RETURNING revision`,b.name,Number(b.enabled),b.channel,b.destination,b.kinds,b.windowMs,b.threshold,time,p,id,b.revision),
@@ -49,7 +55,7 @@ routes.put('/rules/:rule',async c=>{
  if(!results[0].results.length)return c.json({error:'Revision conflict'},409);
  await synchronizeHistory(c.env,time);return c.json({id,revision:b.revision+1});
 });
-routes.get('/deliveries',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_history WHERE project=? ORDER BY created DESC,id LIMIT 100',c.req.param('project')!).all()).results));
+routes.get('/deliveries',async c=>c.json((await s(c.env.DB,'SELECT h.*,a.issue,a.kind,json_extract(a.payload,\'$.title\') title FROM alert_history h LEFT JOIN alerts a ON a.id=h.alert_id AND a.project=h.project WHERE h.project=? ORDER BY h.created DESC,h.id LIMIT 100',c.req.param('project')!).all()).results));
 routes.get('/deliveries/:delivery',async c=>{
  const p=c.req.param('project')!,id=c.req.param('delivery');
  const row=await s(c.env.DB,'SELECT * FROM alert_history WHERE project=? AND id=?',p,id).first<any>();if(!row)return c.json({error:'Delivery not found'},404);

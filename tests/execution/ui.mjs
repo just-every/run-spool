@@ -2,6 +2,33 @@ import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 import {runner} from './reproduce.mjs';
+
+// An owner reaches the disconnected integration through the real issue page.
+// Its limits must be visible before opening details or approving a grant.
+export async function disconnectedGitHubSetup(app,browser,directory,issue){
+ const captures=[];
+ for(const width of [1440,390]){
+  const context=await browser.newContext({viewport:{width,height:900}});
+  try{
+   await openGate(context,app.origin);
+   await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
+   const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
+   const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
+   await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
+   await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
+   await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();
+   await connection.getByText(/local.*operator.*checkout.*private settings.*restart/i).waitFor();
+   const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
+   await connection.getByRole('button',{name:/connection limits/i}).click();
+   const dialog=page.getByRole('dialog',{name:/GitHub connection limits/i});
+   await dialog.getByRole('link',{name:/operator procedure/i}).waitFor();
+   await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`disconnected GitHub setup fits at ${width}`);
+  }finally{await context.close();}
+ }
+ return captures;
+}
+
 // The issue page's reproduce-and-fix section at 1440 and 390: axe, no
 // horizontal overflow, and a sandbox run queued by clicking and then run.
 export async function executionPanel(app,browser,directory,issue,reproducer){

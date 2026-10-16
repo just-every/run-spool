@@ -10,10 +10,10 @@ export function AlertRules({project,rules,destinations,refresh}:Props) {
  const [busy,setBusy]=useState(false),[error,setError]=useState('');
  const selected=destinations.find(d=>d.id===destination);
  function edit(rule:any){setEditing(rule);setName(rule.name);setDestination(rule.destination);setKinds(JSON.parse(rule.kinds));setEnabled(!!rule.enabled);setWindow(rule.window_ms/60000);setThreshold(rule.threshold);setError('')}
- function clear(){setEditing(null);setName('');setDestination('');setKinds(['new_issue','regression']);setEnabled(true);setWindow(5);setThreshold(10)}
+ function clear(){setEditing(null);setName('');setDestination('');setKinds([]);setEnabled(true);setWindow(5);setThreshold(10)}
  async function save(){setBusy(true);setError('');try{await alertApi(`/api/projects/${project}/alerting/rules${editing?'/'+editing.id:''}`,editing?'PUT':'POST',{name,enabled,channel:selected?.channel??editing?.channel,destination,kinds,windowMs:windowMinutes*60000,threshold,...(editing?{revision:editing.revision}:{})});clear();refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
  return <section className="evidence"><h2>Per-project rules</h2><p>New issues and later-release regressions route when captured. Volume spikes count accepted occurrences in complete fixed windows. Suppressed issues do not produce spikes.</p>
- {!destinations.length&&<p className="callout">No destinations are configured for this project. Configure server-owned mail recipients or signed webhook destinations to enable delivery.</p>}
+ {!destinations.length&&<p className="callout">Add an email destination above before creating a rule.</p>}
  <ul className="alert-records">{rules.map(rule=><li key={rule.id}><div><strong>{rule.name}</strong><p>{rule.channel==='mail'?'Email':'Webhook'} · {rule.enabled?'Enabled':'Disabled'}</p><p>{JSON.parse(rule.kinds).map(status).join(', ')}{JSON.parse(rule.kinds).includes('spike')?` · ${rule.threshold} occurrences / ${rule.window_ms/60000} minutes`:''}</p><Details title={`Rule ${rule.name}`}><pre>{JSON.stringify(rule,null,2)}</pre></Details></div><button className="text-button" onClick={()=>edit(rule)}>Edit {rule.name}</button></li>)}</ul>
  <h3>{editing?'Edit rule':'Create rule'}</h3><form className="form-grid" onSubmit={e=>{e.preventDefault();void save()}}>
  <Field label="Rule name" required maxLength={100} value={name} onChange={e=>setName(e.target.value)}/>

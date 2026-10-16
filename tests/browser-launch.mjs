@@ -1,6 +1,5 @@
 import {chromium} from '@playwright/test';
 
 export function launchBrowser() {
-  const channel = process.env.ERRORS_BROWSER_CHANNEL;
-  return chromium.launch({headless: true, ...(channel ? {channel} : {})});
+  return chromium.launch({headless: true, args: ['--use-mock-keychain', '--password-store=basic']});
 }

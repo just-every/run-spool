@@ -2,6 +2,7 @@
 import { AgentError, HELP, parseArgs } from '../src/options.mjs';
 import { configuration, request } from '../src/transport.mjs';
 import { markdown } from '../src/format.mjs';
+import { packetMarkdown } from '../src/packet-markdown.mjs';
 
 try {
   const options = parseArgs(process.argv.slice(2));
@@ -15,7 +16,7 @@ try {
     } else {
       const operation = { issues: 'list_issues', packet: 'get_packet', outcomes: 'get_outcomes' }[options.command];
       const value = await request(config, operation, options);
-      process.stdout.write(options.format === 'json' ? `${JSON.stringify(value, null, 2)}\n` : markdown(value));
+      process.stdout.write(options.format === 'json' ? `${JSON.stringify(value, null, 2)}\n` : options.command === 'packet' ? packetMarkdown(value) : markdown(value));
     }
   }
 } catch (error) {

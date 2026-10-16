@@ -14,7 +14,17 @@ node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs packet ISSUE_ID 
 node /absolute/path/to/spool/packages/agent/bin/spool-agent.mjs outcomes
 ```
 
-Instead of the key environment variable, add `--key-file /absolute/private/key-file` (keep it readable only by you), or pipe the key to an HTTP command with `--key-stdin`. MCP reserves stdin for its protocol, so use environment or a key file. `--timeout-ms 10000` controls the request deadline. Exit codes: **0** success, **2** unauthorized/missing credentials, **3** missing/out of scope, **4** unavailable/invalid input. HTTPS is required except localhost, 127/8, and ::1. Redirects are refused, including within the same origin.
+The workbench shows the key separately from its setup commands. Its **Copy agent key** button copies only the credential; **Copy setup lines** uses hidden prompts and contains no credential values. Paste the key at the prompt so it does not enter shell history.
+
+Instead of the key environment variable, use `--key-file /absolute/private/key-file` (keep it readable only by you), or pipe the key to an HTTP command with `--key-stdin`. These credential options and `--timeout-ms` work before or after the command:
+
+```sh
+node "/absolute/path/to/spool/packages/agent/bin/spool-agent.mjs" --key-file "/absolute/private/key-file" packet ISSUE_ID --format markdown
+```
+
+MCP reserves stdin for its protocol, so use environment or a key file. `--timeout-ms 10000` controls the request deadline. Exit codes: **0** success, **2** unauthorized/missing credentials, **3** missing/out of scope, **4** unavailable/invalid input. HTTPS is required except localhost, 127/8, and ::1. Redirects are refused, including within the same origin.
+
+Packet Markdown starts with a readable summary of the issue, grouping, releases, evidence gaps and captured events. Summary strings may be shortened; the complete packet follows in a dynamically sized JSON fence. Telemetry stays inside code spans or fences and carries no execution authority. Use `--format json` for the complete packet without the summary.
 
 ## Local agent access
 

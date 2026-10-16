@@ -6,7 +6,7 @@ import { validateDestination } from '../../modules/integrations/core/destination
 import { hmac } from '../../modules/integrations/core/crypto';
 import type { AlertEnvironment, Intent } from './types';
 import { statement as s } from './types';
-type Destination = {id:string;project:string;label:string;channel:'mail'|'webhook';url?:string;key?:string;recipient?:string};
+export type Destination = {id:string;project:string;label:string;channel:'mail'|'webhook';url?:string;key?:string;recipient?:string;editable?:boolean};
 const label=/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,100}$/;
 export function keyBytes(value?:string) {
  if(!value || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value))throw new Error('destination_configuration');
@@ -22,15 +22,16 @@ export function destinations(env:AlertEnvironment):Destination[] {
   }return rows;
  }catch{throw new Error('destination_configuration')}
 }
-export function findDestination(env:AlertEnvironment,project:string,id:string,channel:string) {
- const found=destinations(env).find(d=>d.id===id&&d.project===project&&d.channel===channel);if(!found)throw new Error('destination_unconfigured');return found;
+export async function findDestination(env:AlertEnvironment,project:string,id:string,channel:string) {
+ const saved=channel==='mail'?await s(env.DB,'SELECT id,project,label,recipient FROM alert_destinations WHERE project=? AND id=?',project,id).first<any>():null;
+ const found=saved?{...saved,channel:'mail' as const,editable:true}:destinations(env).find(d=>d.id===id&&d.project===project&&d.channel===channel);if(!found)throw new Error('destination_unconfigured');return found;
 }
 export async function authorizedDestination(env:AlertEnvironment,intent:Intent) {
  const allowed=await s(env.DB,'SELECT 1 FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND channel=? AND destination=?',intent.project,intent.rule_id,intent.rule_revision,intent.channel,intent.destination).first();
  if(!allowed)throw new Error('rule_revoked');return findDestination(env,intent.project,intent.destination,intent.channel);
 }
 export async function destinationHash(env:AlertEnvironment,value:string) { return `hmac:${await hmac(keyBytes(env.ALERT_DESTINATION_HASH_KEY),value)}`; }
-export function destinationChoices(env:AlertEnvironment,project:string) {
+export async function destinationChoices(env:AlertEnvironment,project:string) {
  let hashConfigured=false,mailConfigured=false;
  try {keyBytes(env.ALERT_DESTINATION_HASH_KEY);hashConfigured=true}catch{}
  try {
@@ -38,5 +39,7 @@ export function destinationChoices(env:AlertEnvironment,project:string) {
   if(env.MAIL_PROVIDER==='development')mailConfigured=env.RER_DEMO==='1'||localDevelopmentEnabled(env);
   else {validateConfig(productionMailConfig(env));mailConfigured=true;}
  }catch{}
- return destinations(env).filter(d=>d.project===project).map(d=>({id:d.id,label:d.label,channel:d.channel,configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}));
+ const saved=(await s(env.DB,'SELECT id,label,recipient FROM alert_destinations WHERE project=? ORDER BY created,id',project).all<any>()).results;
+ const rows:Destination[]=[...destinations(env).filter(d=>d.project===project),...saved.map(d=>({...d,project,channel:'mail' as const,editable:true}))];
+ return rows.map(d=>({id:d.id,label:d.label,channel:d.channel,editable:!!d.editable,...(d.editable?{recipient:d.recipient}:{}),configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}));
 }

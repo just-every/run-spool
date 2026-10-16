@@ -38,7 +38,21 @@ Approving starts the grant's clock. Each step mints a GitHub App installation to
 
 States are recorded independently: **proposed** and **approved** by you; **merged** only from a receipt of GitHub's pull request state (Spool never merges); **deployed** only when a deployment manifest registered for this repository names the merge commit, or a compare receipt shows the deployed commit contains it.
 
-The connection is the owner's GitHub App, in the `GITHUB_CONNECTION` secret: `{"appId":"…","installationId":"…","privateKey":"synthetic-example-pem-private-key"}`. Locally stop Spool with `rer dev --stop`, add `GITHUB_CONNECTION=` followed by the one-line JSON value wrapped in single quotes to the checkout's private `.dev.vars` file (mode `0600`, with PEM line breaks encoded as `\n` inside the JSON string), preserve the other settings, and restart with `rer dev`. Hosted setup is currently unavailable: `deploy.json` does not declare `GITHUB_CONNECTION`, so `rer deploy --set-secret GITHUB_CONNECTION` refuses it as undeclared. Declaring it as required would force every installation to supply GitHub credentials; hosted setup needs deployment support for this optional integration. Do not add it through the Cloudflare dashboard: a manual Worker change invalidates rer's recorded deployment identity and can block subsequent updates. Without the connection, an approved workflow stops at **Approved, awaiting connection**, with no provider request and no receipt; approval still starts the grant's expiry clock.
+### GitHub connection availability
+
+**The issue page cannot add, repair or test a GitHub connection.** It shows this limitation and its reasons before you open connection details. Creating a GitHub App alone does not connect Spool.
+
+**Hosted setup is unavailable on the current install.** `deploy.json` does not declare `GITHUB_CONNECTION`, so `rer deploy --set-secret GITHUB_CONNECTION` refuses it as undeclared. Declaring it as required would force every installation to supply GitHub credentials; hosted setup needs deployment support for this optional integration. Do not add it through the Cloudflare dashboard: a manual Worker change invalidates rer's recorded deployment identity and can block subsequent updates.
+
+**Local setup requires operator changes outside the page.** Someone with access to the Spool checkout and permission to manage and install a GitHub App must do the following:
+
+1. Create or use their own GitHub App with repository permissions **Contents: Read and write**, **Pull requests: Read and write**, and **Checks: Read-only**. Install it on the target repository. Protect the base branch with repository rules; GitHub cannot restrict Contents permission to the fix branch.
+2. Record the numeric **App ID** from the App's settings, generate and download its PEM private key, and record the separate numeric **installation ID** from the installed App's configuration URL (the number after `/installations/`).
+3. Build one JSON value for the `GITHUB_CONNECTION` secret: `{"appId":"…","installationId":"…","privateKey":"synthetic-example-pem-private-key"}`. Encode the PEM line breaks as `\n` inside the JSON string. Keep the real key private.
+4. Stop Spool with `rer dev --stop`. Add `GITHUB_CONNECTION=` followed by that one-line JSON value wrapped in single quotes to the checkout's private `.dev.vars` file (mode `0600`), preserve the other settings, and restart with `rer dev`.
+5. Reload the issue page. **Configured** means Spool accepted the settings' format; it is not a successful connection test. A successful approved step establishes GitHub access. Approval with a connection can immediately open the branch and draft pull request, so review the exact grant first. For an already approved, unexpired grant choose **Open branch and draft pull request**; renew an expired grant to continue. Provider failures appear on the issue page and in the workflow's receipts.
+
+Without the connection, an approved workflow stops at **Approved, awaiting connection**, with no provider request and no receipt; approval still starts the grant's expiry clock. The initial branch contains only the reproducer record as data. You supply the code fix; Spool never merges, releases or deploys.
 
 ## 3. Did the fix reach the affected users?
 

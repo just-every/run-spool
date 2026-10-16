@@ -12,7 +12,7 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
  const repository=new IntegrationsRepository(new D1SqlDatabase(env.DB),namespace(project));
  const claims=new WeakMap<WireRequest,string>();
  const protocol=createWebhookProtocol({
-  async resolveDestination(id){if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');return findDestination(env,project,id,'webhook').url!},
+  async resolveDestination(id){if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');return (await findDestination(env,project,id,'webhook')).url!},
   async signingKey(envelope){
    const intent=await s(env.DB,'SELECT * FROM alert_intents WHERE project=? AND id=? AND destination=? AND channel=\'webhook\'',project,envelope.id,envelope.destinationId).first<Intent>();
    if(!intent||intent.body!==envelope.body||intent.event!==envelope.event||envelope.tenant!==namespace(project))throw new Error('delivery_authority');

@@ -18,7 +18,7 @@ export async function evaluateSpikes(env:AlertEnvironment,time:number) {
    const jobs:D1PreparedStatement[]=[];
    for(const issue of issues) {
     const id=await hash(JSON.stringify(['spike',rule.id,rule.revision,issue.id,start]));
-    const payload=JSON.stringify({schema:'spool.alert.v1',alertId:id,kind:'spike',projectId:rule.project,issueId:issue.id,occurredAt:new Date(end).toISOString(),release:null,issueUrl:issueLink(publicOrigin(env.ALERT_PUBLIC_ORIGIN),rule.project,issue.id),window:{start:new Date(start).toISOString(),end:new Date(end).toISOString(),durationMs:rule.window_ms,count:issue.count,threshold:rule.threshold},rule:{id:rule.id,revision:rule.revision}});
+    const payload=JSON.stringify({schema:'spool.alert.v1',alertId:id,kind:'spike',projectId:rule.project,issueId:issue.id,occurredAt:new Date(end).toISOString(),release:null,issueUrl:issueLink(publicOrigin(env.ALERT_PUBLIC_ORIGIN??env.AUTH_ORIGIN),rule.project,issue.id),window:{start:new Date(start).toISOString(),end:new Date(end).toISOString(),durationMs:rule.window_ms,count:issue.count,threshold:rule.threshold},rule:{id:rule.id,revision:rule.revision}});
     // The cursor fences erased window evidence, but retention can also change a
     // headline from an earlier occurrence outside this wholly retained window.
     // Read that diagnostic text in the admission transaction, never before it.

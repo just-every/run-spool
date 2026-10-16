@@ -5,7 +5,7 @@ import { authorizedDestination, destinationHash } from './destinations.server';
 import { mailMessage } from './payload';
 import { statement as s } from './types';
 import type { AlertEnvironment, Intent } from './types';
-function sender(env:AlertEnvironment) {
+export function sender(env:AlertEnvironment) {
  if(!env.MAIL_PROVIDER||!env.MAIL_FROM)throw new Error('mail_unconfigured');
  if(env.MAIL_PROVIDER==='development') {
   if(env.RER_DEMO !== '1' && !localDevelopmentEnabled(env))throw new Error('mail_unconfigured');

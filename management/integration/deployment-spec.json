@@ -222,6 +222,12 @@
       "name": "0036_owner_signin.sql",
       "sha256": "98da904e768e35b43fb1be83d9dcc9c9b5d86ab3a795234ed5223c4fddc567d9",
       "sql": "-- One-time owner sign-in links minted by `rer signin` with the deployment's own\n-- Cloudflare credentials, written straight into this table through the D1 API.\n-- Apply as a NEW numbered migration under the seed's next unused number; never\n-- rewrite an applied migration. Additive only. token_hash is the SHA-256 of the\n-- link token (owner-signin-grant.mjs); the token itself is never stored.\nCREATE TABLE IF NOT EXISTS oa_owner_signins (\n id TEXT PRIMARY KEY, token_hash TEXT NOT NULL UNIQUE,\n operator_id TEXT NOT NULL REFERENCES oa_operators(id), operator_version INTEGER NOT NULL,\n created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, consumed_at INTEGER\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0037_alert_destinations.sql",
+      "sha256": "0fd776184c88794c2c521a79eecbd083d5093eca972825a23eb1cfc7fbcaeaba",
+      "sql": "-- Private delivery configuration: excluded from archives, erased with its project.\nCREATE TABLE alert_destinations (\n id TEXT PRIMARY KEY,\n project TEXT NOT NULL REFERENCES projects(id),\n label TEXT NOT NULL,\n recipient TEXT NOT NULL,\n created INTEGER NOT NULL,\n tested_at INTEGER\n);\nCREATE INDEX alert_destinations_project ON alert_destinations(project);\nCREATE TRIGGER alert_destinations_budget BEFORE INSERT ON alert_destinations\n WHEN (SELECT COUNT(*) FROM alert_destinations WHERE project=NEW.project)>=20\n BEGIN SELECT RAISE(ABORT,'At most 20 email destinations per project'); END;\nCREATE TRIGGER portability_alert_destinations_insert BEFORE INSERT ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_destinations_update BEFORE UPDATE ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_destinations_delete BEFORE DELETE ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
