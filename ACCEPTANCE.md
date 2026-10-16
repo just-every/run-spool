@@ -56,7 +56,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/auth/session.server.ts`; `src/domain/owner-authority.ts`; `tests/owner-erasure.mjs` Only one active owner and isolated projects exist. Successor invitation is transfer, not team membership.
 
-- **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, then remove the owner and inspect reassignment/history without leaked access.
+- **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgement window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
   Current evidence: `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.
 
@@ -74,7 +74,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Capture and release health
 
-- **SDK-001 — Multi-language SDKs and DSN-compatible intake. Status: partial.** For every named runtime, execute an unmodified Sentry SDK with only its DSN changed plus Spool setup, capture handled/unhandled failures and flush/restart; reconcile persisted issue, release and discard outcomes through the public UI/API. Run the guided setup on a fresh Next.js and Django app and send one check-in with and without a connected Uptime heartbeat.
+- **SDK-001 — Multi-language SDKs and DSN-compatible intake. Status: partial.** For every named runtime, execute an unmodified Sentry SDK with only its DSN changed plus Spool setup, with its default integrations and the sessions, tracing, logs, replay (browser/mobile), feedback widget and attachment options the Sentry setup wizard enables; capture handled/unhandled failures and flush/restart; reconcile persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes per SDK-007 through the public UI/API. Run the guided setup on a fresh Next.js and Django app and send one check-in with and without a connected Uptime heartbeat.
 
   Current evidence: `src/domain/sentry/convert.ts`; `src/domain/sentry/routes.ts`; `packages/sdk/src`; `tests/sentry-sdk.mjs`; `tests/multilingual.mjs` Real browser/Node SDK journeys only; Python/Go payload subsets are tested. Other runtimes and mobile SDKs are absent.
 
@@ -82,15 +82,15 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
-- **SDK-003 — Automatic breadcrumbs and private context. Status: partial.** Toggle each instrumentation category in browser/server setup, trigger a failure with secret-bearing URLs/forms, and compare the occurrence timeline, before-send filtering, truncation and stored/forwarded privacy projection.
+- **SDK-003 — Automatic breadcrumbs and private context. Status: partial.** Toggle each instrumentation category in browser/server setup, trigger a failure with secret-bearing URLs/forms, and compare the occurrence timeline, before-send filtering, truncation and stored/forwarded privacy projection. Add an organization sensitive field, a project safe field and a custom regex mask rule in the app, preview them, then send an unmodified Sentry SDK event, span and log carrying canaries in tags, extra, contexts and message text, and confirm the canaries are removed or masked in storage, issue views, packets and exports while safe fields survive.
 
   Current evidence: `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs` Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent.
 
-- **SDK-004 — User feedback attached to failures. Status: missing.** An end user reports a browser/mobile failure with optional screenshot/contact, a teammate triages and replies, an anonymous abuse attempt is bounded, and withdrawal removes the canaries from issue, storage and export.
+- **SDK-004 — User feedback attached to failures. Status: missing.** An end user reports a browser/mobile failure with optional screenshot/contact, a teammate triages and replies, an anonymous abuse attempt is bounded, and withdrawal removes the canaries from issue, storage and export. Submit the same through an unmodified Sentry feedback widget, `captureFeedback` and a legacy `user_report` and confirm each attaches to its issue; open Spool's widget in Spanish and confirm its visible labels and accessible names are Spanish.
 
   Current evidence: No implementation evidence yet.
 
-- **SDK-005 — Crash-free sessions and release health. Status: partial.** Run known healthy/crashing sessions across two app versions and devices, vary sampling and offline delivery, then reconcile adoption and crash-free rates against submitted sessions and visible gaps.
+- **SDK-005 — Crash-free sessions and release health. Status: partial.** Run known healthy/crashing sessions across two app versions and devices, through unmodified Sentry browser, mobile and server SDKs with default release health and through Spool SDKs, vary sampling and offline delivery, then reconcile adoption and crash-free session and user rates against the sessions each SDK submitted and visible gaps.
 
   Current evidence: `src/domain/exposure/proof.ts`; `src/domain/exposure/intake.ts`; `tests/execution-journey.mjs` Repair-specific exposure proof exists; general session intake and release-health dashboards do not.
 
@@ -98,13 +98,17 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/origins.ts`; `tests/browser-origins-runtime.mjs`; `tests/sentry-sdk.mjs` An exact-origin, per-project browser allowlist refuses a non-allowed `Origin` at ingest without a CORS grant; `Referer` checks, wildcard domains, every other named filter and per-filter filtered usage are absent.
 
+- **SDK-007 — Sentry envelope item coverage from unmodified SDKs. Status: partial.** For the browser (Next.js), Node, Python, iOS, Android and React Native Sentry SDKs, change only the DSN and enable sessions, tracing, profiling, logs, metrics, replay (browser and mobile), the feedback widget and screenshot and view-hierarchy attachments, then trigger errors. Confirm that SDK-005 crash-free session and user rates reconcile with the sessions each SDK sent; that the error's issue detail shows its Sentry-SDK trace waterfall, profile, logs and replay at the error time; that widget feedback attaches to the issue; that the screenshot opens for a permitted member and is refused for an unpermitted one; and that client-report discards appear in BILL-001 usage. Send a CSP report and an Electron minidump and confirm each becomes an issue. Send a `statsd` item and an unknown item type and confirm each appears in capability diagnostics with its count and no silent drop. Exhaust a replay-category budget and confirm `X-Sentry-Rate-Limits` names only that category while errors are still accepted.
+
+  Current evidence: `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/api.ts`; `tests/sentry-http.mjs` Every envelope item is framed before admission and `event` errors are admitted; every other item type is counted per category (`sentry_unsupported_<category>`) in `/api/projects/:project/outcomes` instead of being dropped silently (tested for attachment, session and unknown types). No non-error item is stored or routed to its clause yet, `trace_metric` counts as unknown, and the minidump, unreal and security endpoints and per-category `X-Sentry-Rate-Limits` are absent.
+
 ### Investigation and source
 
 - **GROUP-001 — Explainable grouping and durable corrections. Status: partial.** Capture equivalent and distinct failures across builds, preview a custom rule, apply it to future and explicitly selected historical events, undo a correction and inspect alert rates, immutable originals and repair gaps.
 
   Current evidence: `src/domain/operators/grouping.ts`; `src/domain/operators/provenance.ts`; `tests/operator-flow.mjs`; `tests/operator-archive.mjs` Default grouping and exact retained-event split/merge exist; configurable future grouping rules do not.
 
-- **FIND-001 — Search, facets and saved investigation views. Status: partial.** Ingest more than the current list limit across projects/releases, find an older off-page event with combined filters, save a view, open it as permitted/forbidden teammates and reconcile query counts and export.
+- **FIND-001 — Search, facets and saved investigation views. Status: partial.** Ingest more than the current list limit across projects/releases, find an older off-page event with combined filters, open the For Review inbox, mark an issue reviewed and confirm it leaves the inbox for a teammate, save a view, open it as permitted/forbidden teammates and reconcile query counts and export.
 
   Current evidence: `src/domain/api.ts`; `src/ui/workbench/IssueList.tsx`; `tests/product-runtime.mjs` Current client search/status/release filters operate over at most 100 loaded groups, not the full corpus.
 
@@ -132,11 +136,11 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/issue-release.ts`; `src/domain/exposure/proof.ts`; `tests/alerts-native.mjs`; `tests/execution-journey.mjs` First/last release and recurrence correlation exist; commit causality and general release comparison do not.
 
-- **CTX-001 — Error-linked traces, logs and request performance. Status: partial.** Exercise a browser-to-service-to-job failure with propagated trace IDs, inspect one correlated waterfall/log path and missing-sample labels, then open authorized Datadog/Splunk context and verify revoked export credentials stop forwarding.
+- **CTX-001 — Error-linked traces, logs and request performance. Status: partial.** Exercise a browser-to-service-to-job failure with propagated trace IDs, once instrumented with OpenTelemetry and once with unmodified Sentry SDKs with tracing, profiling and logs enabled, inspect one correlated waterfall/log/profile path and missing-sample labels for each, then open authorized Datadog/Splunk context and verify revoked export credentials stop forwarding.
 
   Current evidence: `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs` Only bounded OTLP/HTTP JSON logs are accepted; trace/span identity is not persisted and traces/metrics are refused. Forwarders are absent.
 
-- **CTX-002 — Privacy-controlled session replay. Status: missing.** Opt in on a realistic checkout/account flow, trigger an error, play the preceding path from issue detail, verify masked fields in stored replay and exports, then revoke access and erase the session across playback/artifacts.
+- **CTX-002 — Privacy-controlled session replay. Status: missing.** Opt in on a realistic checkout/account flow with Spool's recorder and, separately, with an unmodified Sentry `replayIntegration` and mobile replay, trigger an error, play the preceding path from issue detail at the error time, verify masked fields in stored replay and exports, then revoke access and erase the session across playback/artifacts.
 
   Current evidence: No implementation evidence yet.
 
@@ -150,7 +154,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs` New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
 
-- **ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty. Status: partial.** Connect each destination using buyer-controlled accounts, test and trigger a filtered new/regressed issue, follow its exact issue link, perform each ALERT-005 action for that destination (Slack and Teams resolve, archive and assign; PagerDuty and Oncall acknowledge and resolve sync), rotate/revoke credentials and reconcile delivery history without duplicate pages.
+- **ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty. Status: partial.** Connect each destination, including a Discord channel webhook, using buyer-controlled accounts, test and trigger a filtered new/regressed issue, follow its exact issue link, perform each ALERT-005 action for that destination (Slack and Teams resolve, archive and assign; PagerDuty and Oncall acknowledge and resolve sync), rotate/revoke credentials and reconcile delivery history without duplicate pages.
 
   Current evidence: `src/domain/alerts/mail.ts`; `src/domain/alerts/webhook.server.ts`; `src/domain/alerts/destination-management.server.ts`; `tests/alerts-egress.mjs`; `tests/alerts-ui.mjs` Page-managed email and signed generic webhooks exist; native Slack/Teams/Oncall/PagerDuty adapters and real delivery qualification are missing.
 
@@ -174,7 +178,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Migration and portability
 
-- **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples, dual-run unchanged SDKs and cut over; inspect unsupported mappings and guarded undo preserving native edits.
+- **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples and the imported scrubbing rules and inbound filters, dual-run unchanged SDKs and reconcile per-item-type counts and crash-free rates with Sentry, then cut over; inspect unsupported mappings and guarded undo preserving native edits.
 
   Current evidence: `src/domain/sentry-import/source.ts`; `src/domain/sentry-import/mapping.ts`; `tests/sentry-import.mjs`; `tests/sentry-sdk.mjs` Custom bounded synthetic organization bundles and browser/Node DSNs work; real Sentry export/API reconciliation and full collection mapping are unproved.
 
@@ -194,9 +198,13 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
-- **API-001 — Public APIs, attachments and full export. Status: partial.** Use a read-only service grant to paginate all retained records and attachments, reconcile with the UI/archive, reject foreign scope, export a large query with named bounds and restore without secrets or active work.
+- **API-001 — Public APIs, attachments and full export. Status: partial.** Use a read-only service grant to paginate all retained records and attachments, open a Sentry-SDK screenshot as a permitted member and be refused as an unpermitted one, reconcile with the UI/archive, reject foreign scope, export a large query with named bounds and restore without secrets or active work.
 
   Current evidence: `src/domain/api.ts`; `src/domain/packet.ts`; `src/domain/archive.ts`; `tests/agent-handoff.mjs` Bounded packets and complete current private archives exist; broad paginated APIs, attachments and report exports do not.
+
+- **API-002 — Sentry Web API and Terraform compatibility. Status: missing.** Run a script that lists issues with a Sentry search query, paginates past the first page, assigns one and bulk-resolves several through `/api/0/`, and confirm the UI matches. Run `terraform plan`, `apply` and `import` with the `jianyuan/sentry` provider against Spool to create a team, a project, a key with a rate limit and issue and metric alerts, then re-plan and confirm no changes. Call an unsupported endpoint (named error) and attempt a write with a read-only token (refused, nothing changed).
+
+  Current evidence: No implementation evidence yet.
 
 ### Governance and operation
 
@@ -208,7 +216,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs` Manual cutoff, tombstones and explicit gaps exist; scheduled/plan retention, residency choice and legal holds do not.
 
-- **BILL-001 — Predictable USD usage and ingestion budgets. Status: partial.** Run representative volume through a project budget, reconcile usage and displayed USD forecast, trigger warning/cap outcomes and a spike-protection cap, confirm filtered events consume no quota, adjust sampling, and complete a buyer-controlled billing sandbox invoice with tax and cancellation handling.
+- **BILL-001 — Predictable USD usage and ingestion budgets. Status: partial.** Run representative volume through a project budget, reconcile usage and displayed USD forecast, trigger warning/cap outcomes and a spike-protection cap, confirm filtered events consume no quota, send Sentry SDK client reports and reconcile discarded counts by reason and category, exceed one DSN key's rate limit while a second key keeps ingesting, adjust sampling, and complete a buyer-controlled billing sandbox invoice with tax and cancellation handling.
 
   Current evidence: `src/domain/admission.ts`; `src/domain/api.ts`; `tests/product-runtime.mjs` Accepted/rejected/budget counters exist; full client-discard accounting, cost forecasting and commercial billing are missing.
 
@@ -294,12 +302,12 @@ Program presence and dependency pins are not passing results. Completion reporti
 
 ## External acceptance and engineering obligations
 
-- SDK-001/002/006 require actual supported runtime SDK executions and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility.
+- SDK-001/002/006/007 require actual supported runtime SDK executions, every named Sentry envelope item type from unmodified SDKs, and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility.
 - MIG-001 through MIG-005 require real buyer-controlled exports/API reconciliation with each named source. Current synthetic Sentry organization bundles establish only their adapter behavior; document omissions and do not replay imported work.
 - ALERT-002/003/005 and TEAM-005 require separately configured mail/chat/paging accounts and recipient checks. A production webhook requires an enforcing egress service; URL preflight or a test transport does not qualify its DNS pinning, TLS or caller/destination controls. Mail/API acknowledgement is not recipient receipt. Local dev suppresses mail.
-- SRC-002, SRC-003, TEAM-004, CTX-003, TRACK-001, INT-001 and AI-003 require buyer-controlled provider applications, least-privilege setup and real repository/tracker/deployment results. The current GitHub provider double creates a data artifact PR; it proves neither generated source repair nor live repository writes. Owner-recorded repair links remain inert text.
+- SRC-002, SRC-003, API-002, TEAM-004, CTX-003, TRACK-001, INT-001 and AI-003 require buyer-controlled provider applications, least-privilege setup and real repository/tracker/deployment results. The current GitHub provider double creates a data artifact PR; it proves neither generated source repair nor live repository writes. Owner-recorded repair links remain inert text.
 - AI-002 through AI-007 require isolated execution, approved source/model/data scope, cost limits, clear failed/inconclusive outcomes and human control at the stated boundaries. Actual live repair-rate verification needs observed exposure, not an empty feed. Spool never auto-merges or deploys.
 - GOV-001/002 and BILL-001 include provider setup, agreements, US data custody, organization identity and USD billing as engineering obligations. This contract round neither calls paid services nor changes provider/publication/account configuration. Hosted editor authorization and deployed edit-to-source behavior also need their own buyer account qualification.
 - BASE-DATA-003 preserves every cascade, preview/typed-confirmation, audit, receipt, five-minute cap, successor-transfer, ambiguous-attribution hold, resume/write-freeze and archive-fence limit detailed in CONTRACT.md. Tests must inspect private maps, Sentry-import originals/custody, alert recipient/history/outbox, workflow tokens/leases and unrelated projects. Older offline archives without a later journal, external messages/provider records and D1 backups/Time Travel remain explicit limits. Every new telemetry/replay/feedback table or object store extends the declaration before shipping.
 
-**Target status: 59 clauses — 11 done, 33 partial, 15 missing.**
+**Target status: 61 clauses — 11 done, 34 partial, 16 missing.**
