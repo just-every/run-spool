@@ -44,7 +44,7 @@ function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries: any[];
   </>;
 }
 
-export function OperatorPanel({ project, packet, busy, request, run, refresh }: { project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
+export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
@@ -64,7 +64,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh }: 
     setPreview(null);
     setSelected([]);
     setFailure('');
-    Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)])
+    (initial ?? Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]))
       .then(([operatorState, corrections]) => {
         if (alive) {
           setState(operatorState);
@@ -75,7 +75,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh }: 
       })
       .catch(error => { if (alive) setFailure(error.message); });
     return () => { alive = false; };
-  }, [root, issue.id, issue.revision, request]);
+  }, [root, issue.id, issue.revision, request, initial]);
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;

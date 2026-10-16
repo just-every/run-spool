@@ -1,7 +1,7 @@
 import { admissionBasis, type GroupingRoute } from './bundle-grouping';
 import { observedDeployment } from './operators/deployments';
 import { grouping, hash } from './privacy';
-import { diagnose } from './artifacts';
+import { createDiagnoser } from './artifacts';
 import { canonical, normalize } from './privacy';
 import { clientDroppedSql, decodeIssueAttention, issueAttentionSql } from './issue-attention';
 import { packetRepairs } from './repairs/projection';
@@ -53,31 +53,45 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
  const row = await query(db, `SELECT i.*, ${issueAttentionSql}, ${clientDroppedSql} FROM issues i WHERE project=? AND id=?`, project, id).first<any>();
  if (!row) return null;
  const issue = issueProjection(decodeIssueAttention(row));
- const [selected, totals, first, last, losses, windows, auditRows, auditTotal, repairs] = await Promise.all([
-  query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>(),
-  query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id).first<any>(),
-  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id).first<any>(),
-  query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id).first<any>(),
-  query(db, 'SELECT project,window,reason,count FROM outcomes WHERE project=? ORDER BY window DESC,reason LIMIT 100', project).all<any>(),
-  query(db, 'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason ORDER BY reason LIMIT 100', project, Date.now() - 86400000).all<any>(),
-  query(db, "SELECT id,project,kind,detail,created FROM audit WHERE project=? AND kind='retention_gap' ORDER BY created DESC,id DESC LIMIT 20", project).all<any>(),
-  query(db, "SELECT COUNT(*) count FROM audit WHERE project=? AND kind='retention_gap'", project).first<any>(),
-  packetRepairs(db, project, id),
- ]);
- const routes=(await query(db,'SELECT * FROM grouping_routes WHERE project=?',project).all<GroupingRoute>()).results;
- const events = await Promise.all(selected.results.map(async row => {
+ const selectedRead = query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>();
+ const routesRead = query(db,'SELECT * FROM grouping_routes WHERE project=?',project).all<GroupingRoute>();
+ const firstRead = query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received,id LIMIT 1', project, id).first<any>();
+ const lastRead = query(db, 'SELECT release,release_seq,build,historical,environment FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 1', project, id).first<any>();
+ const deploymentReads = new Map<string, ReturnType<typeof observedDeployment>>();
+ const deployment = (row: any) => {
+  const key = JSON.stringify(row ? [row.release,row.environment] : null);
+  if (!deploymentReads.has(key)) deploymentReads.set(key,observedDeployment(db,project,row));
+  return deploymentReads.get(key)!;
+ };
+ const deploymentsRead = Promise.all([firstRead.then(deployment),lastRead.then(deployment)]);
+ const diagnose = createDiagnoser(db,project);
+ const eventsRead = Promise.all([selectedRead,routesRead]).then(([selected,routes]) => Promise.all(selected.results.map(async row => {
   const stored = JSON.parse(row.payload);
   // Explicit envelope input prevents unknown stored properties from becoming
   // output; normalization preserves the admission privacy contract.
   const event = normalize({ version: stored.version, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment,
    type: stored.type, message: stored.message, ...(stored.exceptionSource !== undefined ? {exceptionSource:stored.exceptionSource} : {}), frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
-  const currentLookup = row.historical === 1 ? atAdmission : diagnosticProjection(await diagnose(db, project, event));
-  const basis=row.original_basis??await admissionBasis(event,issue,routes);
+  const [currentLookup,basis] = await Promise.all([
+   row.historical === 1 ? atAdmission : diagnose(event).then(diagnosticProjection),
+   row.original_basis??admissionBasis(event,issue,routes.results),
+  ]);
   const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
   return { originalGrouping:{issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??(row.historical?issue.algorithm:grouping(event).algorithm),basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event, atAdmission, currentLookup,
    release: release(row), build: text(row.build), environment: text(row.environment) };
- }));
+ })));
+ const [events, totals, first, last, losses, windows, auditRows, auditTotal, repairs, deployments] = await Promise.all([
+  eventsRead,
+  query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id).first<any>(),
+  firstRead,
+  lastRead,
+  query(db, 'SELECT project,window,reason,count FROM outcomes WHERE project=? ORDER BY window DESC,reason LIMIT 100', project).all<any>(),
+  query(db, 'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason ORDER BY reason LIMIT 100', project, Date.now() - 86400000).all<any>(),
+  query(db, "SELECT id,project,kind,detail,created FROM audit WHERE project=? AND kind='retention_gap' ORDER BY created DESC,id DESC LIMIT 20", project).all<any>(),
+  query(db, "SELECT COUNT(*) count FROM audit WHERE project=? AND kind='retention_gap'", project).first<any>(),
+  packetRepairs(db, project, id),
+  deploymentsRead,
+ ]);
  const retention = auditRows.results.map(row => {
   const detail = object(row.detail);
   return { id: text(row.id), project: text(row.project), kind: 'retention_gap', created: number(row.created),
@@ -101,7 +115,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   grouping: issue.algorithm === 'sentry-import-v1'
    ? { algorithm: issue.algorithm, basis: 'exported organization, project and issue identity', limitations: 'Preserves exported groups; imported history does not join live capture or trigger alerts' }
    : { algorithm: issue.algorithm, basis: 'language (JavaScript legacy basis preserved) + exception type + first file/function/line; message and release excluded', bundleRouting: 'JavaScript content-hash suffixes use a persisted stable file key; reported frames and original issue anchors are preserved', limitations: 'other path, function or line changes can split groups; no semantic merge claim' },
-  deployments: {first:await observedDeployment(db,project,first),last:await observedDeployment(db,project,last)},
+  deployments: {first:deployments[0],last:deployments[1]},
   releaseHistory: { basis: 'retained events ordered by received time, then event id; not the original history before retention or import', first: release(first), last: release(last) },
   links: { issue: `/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(id)}`, packet: `${root}/issues/${encodeURIComponent(id)}/packet`, outcomes: `${root}/outcomes` },
   bounds: { byteCap: PACKET_BYTE_CAP, eventLimit: EVENT_LIMIT, availableEvents: totals.available, includedEvents: events.length, omittedEvents: 0, order: 'newest received first; oldest removed first' },

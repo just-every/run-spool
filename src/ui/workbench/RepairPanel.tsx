@@ -6,21 +6,21 @@ import './RepairPanel.css';
 const verdicts: Record<string, string> = { recurred: 'Recurred', inconclusive: 'Inconclusive', no_recurrence_after_exercise: 'No recurrence after the flow was exercised' };
 const outcomes: Record<string, string> = { passed: 'Passed', failed: 'Failed', not_run: 'Not run' };
 const base = (project: string) => `/api/projects/${encodeURIComponent(project)}/repairs`;
-type Props = { project: string; issue: any; busy: boolean; request: Request; run: Run; refresh: () => void };
+type Props = { initial?: Promise<any[]>; project: string; issue: any; busy: boolean; request: Request; run: Run; refresh: () => void };
 
 /** Owner-recorded repairs and their computed recovery verdict. Spool never opens a recorded link. */
-export function RepairPanel({ project, issue, busy, request, run, refresh }: Props) {
+export function RepairPanel({ project, issue, busy, request, run, refresh, initial }: Props) {
   const [repairs, setRepairs] = useState<any[] | null>(null), [releases, setReleases] = useState<any[]>([]), [failed, setFailed] = useState(false);
   const [link, setLink] = useState(''), [note, setNote] = useState('');
   const live = ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm);
-  async function load() {
+  async function load(prepared?: Promise<any[]>) {
     try {
-      const [list, registered] = await Promise.all([request(`${base(project)}?issue=${encodeURIComponent(issue.id)}`), request(`/api/projects/${encodeURIComponent(project)}/releases`)]);
+      const [list, registered] = await (prepared ?? Promise.all([request(`${base(project)}?issue=${encodeURIComponent(issue.id)}`), request(`/api/projects/${encodeURIComponent(project)}/releases`)]));
       setRepairs(list.repairs); setReleases(registered); setFailed(false);
     } catch { setFailed(true); }
   }
   // Each evidence refresh delivers a new issue object, so the verdict is recomputed with it.
-  useEffect(() => { if (live) void load(); }, [project, issue, live]);
+  useEffect(() => { if (live) void load(initial); }, [project, issue, live, initial]);
   const write = (work: () => Promise<unknown>) => run(async () => { try { await work(); } finally { refresh(); } });
   function record(event: FormEvent) {
     event.preventDefault();
