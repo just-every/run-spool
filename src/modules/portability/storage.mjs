@@ -26,12 +26,15 @@ export function save(db,row) {
   return statement(db,'UPDATE rer_portability_jobs SET phase=?,completed=?,metadata=? WHERE id=?',row.phase,row.completed,canonicalJson(row.metadata),row.id);
 }
 export function partStatements(db,id,part) {
-  const json=canonicalJson(part), result=[statement(db,'INSERT INTO rer_portability_parts VALUES(?,?,?)',id,part.index,part.sha256)];
+  return partQueries(id,part).map(({sql,params})=>statement(db,sql,...params));
+}
+export function partQueries(id,part) {
+  const json=canonicalJson(part), result=[{sql:'INSERT INTO rer_portability_parts VALUES(?,?,?)',params:[id,part.index,part.sha256]}];
   for(let i=0,segment=0;i<json.length;segment++) {
     let end=Math.min(i+32000,json.length);
     const last=json.charCodeAt(end-1),next=json.charCodeAt(end);
     if(last>=0xd800 && last<=0xdbff && next>=0xdc00 && next<=0xdfff) end--;
-    result.push(statement(db,'INSERT INTO rer_portability_segments VALUES(?,?,?,?)',id,part.index,segment,json.slice(i,end)));i=end;
+    result.push({sql:'INSERT INTO rer_portability_segments VALUES(?,?,?,?)',params:[id,part.index,segment,json.slice(i,end)]});i=end;
   }
   return result;
 }

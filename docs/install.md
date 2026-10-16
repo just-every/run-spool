@@ -4,28 +4,17 @@ Spool needs **Node 22 or later** and git, on macOS, Linux or Windows with WSL2. 
 
 ## Install and start
 
-Install rer once per computer:
+One line, as on the [Run page](https://run-spool.com/run), installs rer, gets Spool and starts it:
 
 ```sh
-curl -fsSL https://runeditrun.com/install.sh | sh
+npx -y @runeditrun/rer dev just-every/run-spool
 ```
 
-Or use npm (included with Node):
-
-```sh
-npm install -g @runeditrun/rer
-```
-
-Get Spool and start it, as on the [Run page](https://run-spool.com/run):
-
-```sh
-git clone https://github.com/just-every/run-spool.git spool
-cd spool && rer dev
-```
+To start it again later, run `cd run-spool && rer dev`.
 
 These instructions describe `main`, including newer automatic owner setup and silent local mail after the latest tagged Spool release, `v0.2.0`. For that release, replace the clone command with `git clone --branch v0.2.0 https://github.com/just-every/run-spool.git spool` and follow the instructions shipped with the tag; its setup and mail behavior may differ.
 
-`rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@spool.test` for the `spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
+`rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@run-spool.test` for the `run-spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
 
 For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
