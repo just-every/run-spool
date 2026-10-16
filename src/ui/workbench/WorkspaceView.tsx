@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { hrefFor, useDestination } from './location';
-import { useProjectData } from './useProjectData';
+import type { useProjectData } from './useProjectData';
 import { useAttention, issueAlert } from './attention';
 import { api } from './client';
 import { Navigation } from './Navigation';
@@ -18,10 +18,9 @@ import type { useWorkspace } from './useWorkspace';
 
 const titles = { issues: 'Issues', releases: 'Releases and source maps', capture: 'Connect your application', settings: 'Settings', alerts: 'Alerts' };
 const descriptions = { issues: 'Investigate new errors and returning issues. Start with what needs attention.', releases: 'Register the release and upload its matching source map.', capture: 'Send your application’s errors to this Spool installation.', settings: 'Manage projects, access and stored evidence.', alerts: 'Review alerts, delivery rules and their outcomes.' };
-export function WorkspaceView({ workspace, renderAlerts }: { workspace: ReturnType<typeof useWorkspace>; renderAlerts: (project: string, onIssue: (id: string) => void) => ReactNode }) {
-  const { projects, notice, busy, run, refresh, revision } = workspace;
+export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: ReturnType<typeof useWorkspace>; data: ReturnType<typeof useProjectData>; renderAlerts: (project: string, onIssue: (id: string) => void) => ReactNode }) {
+  const { projects, notice, busy, run, refresh } = workspace;
   const route = useDestination(), project = route.project || projects[0]?.id || '', currentProject = projects.find(row => row.id === project);
-  const data = useProjectData(currentProject ? project : '', route.issue, revision, api);
   const attention = useAttention(project, data.issues);
   const [freshKey, setFreshKey] = useDraft<{ project: string; value: string; dsn?: string; kind?: string } | null>('fresh-key', null);
   const [target, setTarget] = useDraft<(UploadTarget & { project: string }) | undefined>('upload-target', undefined);
@@ -38,7 +37,7 @@ export function WorkspaceView({ workspace, renderAlerts }: { workspace: ReturnTy
     content = <SettingsView key={`settings-${project}`} {...controls} projects={projects} keys={data.keys} releases={data.releases} onCreated={created} onKey={grant => setFreshKey({ project, value: grant.key, dsn: grant.dsn, kind: grant.kind })} />;
   } else if (route.view === 'issues') {
     content = issueView
-      ? <IssueView key={route.issue} {...controls} packet={data.packet} status={data.packetStatus} alert={data.packet ? issueAlert(data.packet.issue) : undefined} onViewed={attention.markViewed} rail={data.packet && <EvidenceRail packet={data.packet} outcomes={data.outcomes} />} onUpload={(release, debugId) => { setTarget({ id: crypto.randomUUID(), project, release, debugId, issue: route.issue! }); route.go(project, 'releases'); }} />
+      ? <IssueView key={route.issue} {...controls} packet={data.packet} panels={data.panels} status={data.packetStatus} alert={data.packet ? issueAlert(data.packet.issue) : undefined} onViewed={attention.markViewed} rail={data.packet && <EvidenceRail packet={data.packet} outcomes={data.outcomes} />} onUpload={(release, debugId) => { setTarget({ id: crypto.randomUUID(), project, release, debugId, issue: route.issue! }); route.go(project, 'releases'); }} />
       : <IssueList key={`issues-${project}`} project={project} rows={data.issues} unseen={attention.unseen} loading={data.loading} failed={!!data.failed} onRefresh={refresh} onSetup={() => route.go(project, 'capture')} />;
   } else if (route.view === 'releases') {
     content = <ReleasesView key={`releases-${project}`} {...controls} releases={data.releases} target={target?.project === project ? target : undefined} onUploaded={onIssue} />;

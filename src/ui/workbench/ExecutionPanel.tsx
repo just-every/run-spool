@@ -5,23 +5,23 @@ import { FixWorkflowCard } from './FixWorkflowCard';
 import { GitHubConnectionSetup } from './GitHubConnectionSetup';
 import './ExecutionPanel.css';
 
-type Props = { project: string; issue: any; event: any; busy: boolean; request: Request; run: Run };
+type Props = { initial?: Promise<any[]>; project: string; issue: any; event: any; busy: boolean; request: Request; run: Run };
 const root = (project: string) => `/api/projects/${encodeURIComponent(project)}`;
 
 /** Reproduce a captured failure in the isolated sandbox, carry it through a fix branch, and measure who the fix reached. */
-export function ExecutionPanel({ project, issue, event, busy, request, run }: Props) {
+export function ExecutionPanel({ project, issue, event, busy, request, run, initial }: Props) {
   const [reproducers, setReproducers] = useState<any[] | null>(null), [fixes, setFixes] = useState<any>(null), [releases, setReleases] = useState<any[]>([]), [failed, setFailed] = useState(false);
   const [exported, setExported] = useState(''), [input, setInput] = useState('[]'), [ticket, setTicket] = useState<any>(null), [problem, setProblem] = useState('');
   const sample = event?.event?.environment === 'spool-test';
   const live = ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm);
-  async function load() {
+  async function load(prepared?: Promise<any[]>) {
     try {
       const query = `?issue=${encodeURIComponent(issue.id)}`;
-      const [list, workflows, registered] = await Promise.all([request(`${root(project)}/reproducers${query}`), request(`${root(project)}/fixes${query}`), request(`${root(project)}/releases`)]);
+      const [list, workflows, registered] = await (prepared ?? Promise.all([request(`${root(project)}/reproducers${query}`), request(`${root(project)}/fixes${query}`), request(`${root(project)}/releases`)]));
       setReproducers(list.reproducers); setFixes(workflows); setReleases(registered); setFailed(false);
     } catch { setFailed(true); }
   }
-  useEffect(() => { if (live) void load(); }, [project, issue, live]);
+  useEffect(() => { if (live) void load(initial); }, [project, issue, live, initial]);
   // Only this section reloads, so a once-shown run command survives the write.
   const write = (work: () => Promise<unknown>) => run(async () => { setProblem(''); try { await work(); } catch (error) { setProblem(String((error as Error).message)); } finally { await load(); } });
   function record(form: FormEvent) {

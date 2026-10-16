@@ -21,28 +21,40 @@ export function validateMap(map:any): string {
   const decoded=decodedMappings(new TraceMap(map));for(const line of decoded)for(const segment of line){if(![1,4,5].includes(segment.length)||segment.some(n=>!Number.isSafeInteger(n)||n<0||n>10000000)||(segment.length>=4 && (segment[1]!>=map.sources.length || segment[2]!>=10000000))||(segment.length===5 && segment[4]!>=map.names.length))throw new Error('Invalid decoded mapping');}return text;
 }
 export async function diagnose(db:D1Database, project:string, event:Envelope): Promise<any[]> {
-  if (event.language) return sourceDiagnostics(db,project,event);
+  return createDiagnoser(db,project)(event);
+}
+// Share only reads started by this diagnosis operation (or packet request).
+// A new caller gets fresh artifact state, including maps uploaded since its last read.
+export function createDiagnoser(db:D1Database, project:string) {
+  const artifacts = new Map<string, Promise<any>>();
+  const identities = new Map<string, Promise<any>>();
   const scopes = new Map<string, FunctionScopes>();
-  return Promise.all(event.frames.map(async frame=>{
-    if(!frame.debugId) return {generated:frame,status:'missing_debug_id'};
-    const row = await db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,frame.debugId).first<any>();
-    if(!row) {
-      const elsewhere = await db.prepare('SELECT 1 FROM artifacts WHERE project=? AND debug=?').bind(project,frame.debugId).first();
-      return {generated:frame,status:elsewhere?'identity_mismatch':'missing_artifact'};
-    }
-    try {
-      const map = JSON.parse(row.payload);
-      const traced = new TraceMap(map), original = originalPositionFor(traced,{line:frame.line,column:frame.column!});
-      if(original.line===null) return {generated:frame,status:'unmapped_position',artifactDigest:row.digest};
-      const segment = traceSegment(traced,frame.line-1,frame.column!), sourceIndex = segment && segment.length >= 4 ? segment[1] : undefined;
-      const source = sourceIndex === undefined ? null : map.sourcesContent?.[sourceIndex];
-      let name: string | null = null;
-      if (typeof source === 'string') {
-        const key = `${row.digest}:${sourceIndex}`;
-        if (!scopes.has(key)) scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
-        name = scopes.get(key)!(original.line,original.column!);
+  return async (event:Envelope): Promise<any[]> => {
+    if (event.language) return sourceDiagnostics(db,project,event);
+    return Promise.all(event.frames.map(async frame=>{
+      if(!frame.debugId) return {generated:frame,status:'missing_debug_id'};
+      const key = JSON.stringify([event.release,event.build,frame.debugId]);
+      if (!artifacts.has(key)) artifacts.set(key,db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,frame.debugId).first<any>());
+      const row = await artifacts.get(key);
+      if(!row) {
+        if (!identities.has(frame.debugId)) identities.set(frame.debugId,db.prepare('SELECT 1 FROM artifacts WHERE project=? AND debug=?').bind(project,frame.debugId).first());
+        const elsewhere = await identities.get(frame.debugId);
+        return {generated:frame,status:elsewhere?'identity_mismatch':'missing_artifact'};
       }
-      return {generated:frame,status:'mapped',original:{file:sourceMapFile(original.source??''),line:original.line,column:original.column,function:scrub(name??frame.function)},artifactDigest:row.digest};
-    } catch { return {generated:frame,status:'invalid_artifact',artifactDigest:row.digest} }
-  }));
+      try {
+        const map = JSON.parse(row.payload);
+        const traced = new TraceMap(map), original = originalPositionFor(traced,{line:frame.line,column:frame.column!});
+        if(original.line===null) return {generated:frame,status:'unmapped_position',artifactDigest:row.digest};
+        const segment = traceSegment(traced,frame.line-1,frame.column!), sourceIndex = segment && segment.length >= 4 ? segment[1] : undefined;
+        const source = sourceIndex === undefined ? null : map.sourcesContent?.[sourceIndex];
+        let name: string | null = null;
+        if (typeof source === 'string') {
+          const key = `${row.digest}:${sourceIndex}`;
+          if (!scopes.has(key)) scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
+          name = scopes.get(key)!(original.line,original.column!);
+        }
+        return {generated:frame,status:'mapped',original:{file:sourceMapFile(original.source??''),line:original.line,column:original.column,function:scrub(name??frame.function)},artifactDigest:row.digest};
+      } catch { return {generated:frame,status:'invalid_artifact',artifactDigest:row.digest} }
+    }));
+  };
 }
