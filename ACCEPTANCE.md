@@ -32,7 +32,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 - **ERR-006 — Audited triage and regression. Status: done.** Resolve a captured issue, admit its fingerprint in a newer and then older release, and inspect regression identity. Preview/apply/undo split and merge through owner HTTP/UI, reject stale revisions and inspect original membership.
 
-  Current evidence: `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs` Same-release recurrence policies, bulk actions and collaborative triage are TEAM-003.
+  Current evidence: `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs` Today's Resolve records the current registered release as its watermark (resolve in the current release); same-release recurrence policies, next/named-release resolution, bulk actions and collaborative triage are TEAM-003, and plain Resolve and automatic Sentry releases are SDK-009.
 
 - **ERR-007 — Sanitized evidence packet. Status: done.** Read the same packet through HTTP, CLI and official MCP transport at size/retention/import/loss boundaries; compare projections and verify no secrets, source bytes, writes or cross-project reads.
 
@@ -60,11 +60,11 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.
 
-- **TEAM-003 — Collaborative lifecycle and bulk triage. Status: partial.** Two members discuss and bulk-triage searched issues, resolve for the next release, exercise same/new/old-release recurrence, expire a suppression and push an archived-until-escalating issue past its shown forecast; confirm one accountable follow-up and stale-write refusal. Confirm a new fatal error opens as high priority and a warning as medium, set one to low by hand and confirm a later escalation leaves the manual priority with its actor shown.
+- **TEAM-003 — Collaborative lifecycle and bulk triage. Status: partial.** Two members discuss and bulk-triage searched issues, resolve for the next release, exercise same/new/old-release recurrence (a same-release repeat after a release resolution is counted as recurred in resolved release without reopening, and reopens once the project policy is switched), plain-resolve an issue and confirm the next same-release event regresses it, expire a suppression and push an archived-until-escalating issue past its shown forecast; confirm one accountable follow-up and stale-write refusal. Confirm a new fatal error opens as high priority and a warning as medium, set one to low by hand and confirm a later escalation leaves the manual priority with its actor shown.
 
   Current evidence: `src/domain/api.ts`; `src/domain/operators/policies.ts`; `tests/operator-flow.mjs`; `tests/triage-journey.mjs` Single-issue state and literal suppression/corrections exist; comments, bulk triage and collaborative recurrence policies do not.
 
-- **TEAM-004 — Issue short IDs and resolution from commits and pull requests. Status: missing.** Push a commit and merge a PR that each cite an issue's short ID, register a release containing both through the release API and through `sentry-cli releases set-commits`, and confirm both issues show the link immediately and resolve in that release. Capture each fingerprint in a newer release (regression) and an older one (no regression), and cite another project's short ID (no change, logged).
+- **TEAM-004 — Issue short IDs and resolution from commits and pull requests. Status: missing.** Push a commit and merge a PR that each cite an issue's short ID, register a release containing both through the release API and through `sentry-cli releases set-commits`, and confirm both issues show the link immediately and resolve in that release. Capture each fingerprint in a newer release (regression) and an older one (no regression), and cite another project's short ID (no change, logged). Repeat with an auto-created release named by the merge commit's full SHA and no CI registration, and confirm the issue resolves in it.
 
   Current evidence: No implementation evidence yet.
 
@@ -106,9 +106,13 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/privacy.ts`; `src/domain/exposure/proof.ts`; `src/domain/sentry/convert.ts`; `tests/execution/exposure.mjs` A native optional random installation `client` identifier is pattern-checked and counted as distinct affected users, with unattributed events counted separately, in repair exposure proof. The Sentry `user` interface is discarded at conversion with no policy or diagnostic; keep/hash/drop policy, the shared affected-user figure, user search keys, role scope and end-user erasure are absent.
 
+- **SDK-009 — Release identity from unmodified Sentry SDKs: no release, automatic releases, ordering and plain Resolve. Status: partial.** With only the DSN changed, send errors from an unmodified Python SDK with no release, from a Python SDK with an auto-detected git-SHA release, and from iOS and Android SDKs with their default `bundle@version+build` release, none of them registered. Confirm all are accepted and create issues and alerts, the two releases appear as auto-created with first-seen time and creating SDK, and the release-less events count in issue totals and search and are named as "no release" in release-scoped views. Register one of those releases afterwards through `sentry-cli releases new` and `set-commits` and confirm it enriches the same release. Plain-resolve one issue and send the same error in the same release: it is Regressed and one regression alert fires. Resolve another issue in the next release across two auto-created semver releases (`app@1.2.0`, `app@1.10.0`) and two SHA releases: regression follows the stated order, an older-release event does not regress it, and a release-less event is counted on the issue without reopening it. Send an event with an invalid release name and confirm it is accepted as release "none" with its counted note. Switch the project to "registered sequence only" with its preview and confirm an unregistered release and a missing release are each refused with the named reason and counted in project outcomes, usage and the MIG-001 dual run.
+
+  Current evidence: `src/domain/sentry/convert.ts`; `src/domain/admission.ts`; `src/domain/api.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs` Only the registered-sequence-only rule exists, and it applies to every project: a Sentry event without `release` is refused as `missing_release_register_required` and an unregistered release or `dist` as `unregistered_release_or_build`, each recorded in project outcomes (the unregistered refusal and its outcome row are tested), and Resolve records the latest registered release as its watermark, so only a later registered release regresses it. Accepting release-less events, automatic release creation, semver/first-seen ordering, the per-project rule setting and plain Resolve are absent.
+
 ### Investigation and source
 
-- **GROUP-001 — Explainable grouping and durable corrections. Status: partial.** Capture equivalent and distinct failures across builds, preview a custom rule, apply it to future and explicitly selected historical events, undo a correction and inspect alert rates, immutable originals and repair gaps.
+- **GROUP-001 — Explainable grouping and durable corrections. Status: partial.** Capture equivalent and distinct failures across builds, preview a custom rule, apply it to future and explicitly selected historical events, undo a correction and inspect alert rates, immutable originals and repair gaps. Add a `stack.module:vendor.* -app` rule and a `-group` rule, preview them, and confirm later events collapse those frames in the issue view and group by the remaining in-app frames, and that a frame an unmodified Sentry SDK sends with `in_app: false` is collapsed.
 
   Current evidence: `src/domain/operators/grouping.ts`; `src/domain/operators/provenance.ts`; `tests/operator-flow.mjs`; `tests/operator-archive.mjs` Default grouping and exact retained-event split/merge exist; configurable future grouping rules do not.
 
@@ -116,7 +120,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/api.ts`; `src/ui/workbench/IssueList.tsx`; `tests/product-runtime.mjs` Current client search/status/release filters operate over at most 100 loaded groups, not the full corpus.
 
-- **FIND-002 — Impact, trends and team reporting. Status: partial.** Open a multi-release issue and a team report over a known event/session set; reconcile totals, affected counts and triage durations, compare time zones, build a custom widget and saved event query that match the same totals, and verify a read-only export omits inaccessible projects.
+- **FIND-002 — Impact, trends and team reporting. Status: partial.** Open a multi-release issue and a team report over a known event/session set that includes events sent with no release (counted in totals, excluded and named in release-scoped figures); reconcile totals, affected counts and triage durations, compare time zones, build a custom widget and saved event query that match the same totals, and verify a read-only export omits inaccessible projects.
 
   Current evidence: `src/domain/packet.ts`; `src/ui/workbench/IssueView.tsx`; `src/domain/issue-release.ts`; `tests/triage-journey.mjs` Counts, retained first/last and release context exist; user/session analytics and team reports are absent.
 
@@ -132,7 +136,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
-- **REL-001 — Release and deployment history. Status: partial.** Report started/completed/failed deployments from CI, repeat callbacks, abandon one, roll back production and inspect included commits, timeout follow-up and regression ordering for delayed old events.
+- **REL-001 — Release and deployment history. Status: partial.** Report started/completed/failed deployments from CI, repeat callbacks, abandon one, roll back production and inspect included commits, timeout follow-up and regression ordering for delayed old events. Let a Sentry SDK event auto-create a release, then register the same name with commits and a deploy through `sentry-cli`, and confirm release history shows one enriched release with its original first-seen time.
 
   Current evidence: `src/domain/sentry/deploy-routes.ts`; `src/domain/operators/deployments.ts`; `tests/operator-flow.mjs` Completed manifests and registered sequence exist; included-commit history, start/timeout workflow and full rollout history do not.
 
@@ -140,7 +144,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/issue-release.ts`; `src/domain/exposure/proof.ts`; `tests/alerts-native.mjs`; `tests/execution-journey.mjs` First/last release and recurrence correlation exist; commit causality and general release comparison do not.
 
-- **CTX-001 — Error-linked traces, logs and request performance. Status: partial.** Exercise a browser-to-service-to-job failure with propagated trace IDs, once instrumented with OpenTelemetry and once with unmodified Sentry SDKs with tracing, profiling and logs enabled, inspect one correlated waterfall/log/profile path and missing-sample labels for each, then open authorized Datadog/Splunk context and verify revoked export credentials stop forwarding.
+- **CTX-001 — Error-linked traces, logs and request performance. Status: partial.** Exercise a browser-to-service-to-job failure with propagated trace IDs, once instrumented with OpenTelemetry and once with unmodified Sentry SDKs with tracing, profiling and logs enabled, inspect one correlated waterfall/log/profile path and missing-sample labels for each, open the page's web vitals view and reconcile p75 LCP and CLS with the sent measurements, then open authorized Datadog/Splunk context and verify revoked export credentials stop forwarding.
 
   Current evidence: `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs` Only bounded OTLP/HTTP JSON logs are accepted; trace/span identity is not persisted and traces/metrics are refused. Forwarders are absent.
 
@@ -158,7 +162,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Alerts and delivery
 
-- **ALERT-001 — Filtered rules and real anomaly detection. Status: partial.** Create filtered rules in the app, replay normal/burst/seasonal/low-traffic windows with loss, inspect baseline and threshold reasons, and reconcile exactly one alert per qualifying transition and no alert outside its filter. Fire one seen-by-more-than-3-users rule and one percent-of-sessions-affected rule from known user and session sets, and confirm the user rule is refused at preview on a project whose policy drops identity.
+- **ALERT-001 — Filtered rules and real anomaly detection. Status: partial.** Create filtered rules in the app, replay normal/burst/seasonal/low-traffic windows with loss, inspect baseline and threshold reasons, and reconcile exactly one alert per qualifying transition and no alert outside its filter. Fire one seen-by-more-than-3-users rule and one percent-of-sessions-affected rule from known user and session sets, and confirm the user rule is refused at preview on a project whose policy drops identity. Plain-resolve two issues and send one event in the same release to the first and one with no release to the second; confirm one regression alert each. With unmodified Sentry tracing, push a transaction's p95 duration and a page's LCP over warning and then critical thresholds and back, and confirm one alert per transition and a resolve.
 
   Current evidence: `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs` New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
 
@@ -186,7 +190,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Migration and portability
 
-- **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples and the imported scrubbing rules and inbound filters, dual-run unchanged SDKs and reconcile per-item-type counts, affected users and crash-free rates with Sentry, then cut over; inspect unsupported mappings and guarded undo preserving native edits.
+- **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples and the imported scrubbing rules and inbound filters, dual-run unchanged SDKs, including services that send no release and mobile builds with SDK-default releases, and reconcile per-item-type counts, affected users and crash-free rates with Sentry, then cut over; inspect unsupported mappings and guarded undo preserving native edits.
 
   Current evidence: `src/domain/sentry-import/source.ts`; `src/domain/sentry-import/mapping.ts`; `tests/sentry-import.mjs`; `tests/sentry-sdk.mjs` Custom bounded synthetic organization bundles and browser/Node DSNs work; real Sentry export/API reconciliation and full collection mapping are unproved.
 
@@ -216,7 +220,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Governance and operation
 
-- **GOV-001 — Enterprise identity and administration. Status: partial.** Configure SSO with each named provider, provision a member and project role, enforce step-up, revoke the IdP user while a session/grant is active and verify all private doors deny access; recover through the documented owner procedure.
+- **GOV-001 — Enterprise identity and administration. Status: partial.** Configure SSO with each named provider, provision a member and project role, enforce step-up, revoke the IdP user while a session/grant is active and verify all private doors deny access; recover through the documented owner procedure. Sign in one member with Google and another with GitHub, restrict Google sign-in to the verified domain and confirm an outside Google account is refused, then remove the GitHub member and confirm the next request is denied.
 
   Current evidence: `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs` Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not.
 
@@ -310,7 +314,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 
 ## External acceptance and engineering obligations
 
-- SDK-001/002/006/007 require actual supported runtime SDK executions, every named Sentry envelope item type from unmodified SDKs, and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility.
+- SDK-001/002/006/007/009 require actual supported runtime SDK executions, every named Sentry envelope item type from unmodified SDKs, and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility.
 - MIG-001 through MIG-005 require real buyer-controlled exports/API reconciliation with each named source. Current synthetic Sentry organization bundles establish only their adapter behavior; document omissions and do not replay imported work.
 - ALERT-002/003/005 and TEAM-005 require separately configured mail/chat/paging accounts and recipient checks. A production webhook requires an enforcing egress service; URL preflight or a test transport does not qualify its DNS pinning, TLS or caller/destination controls. Mail/API acknowledgement is not recipient receipt. Local dev suppresses mail.
 - SRC-002, SRC-003, API-002, TEAM-004, CTX-003, TRACK-001, INT-001 and AI-003 require buyer-controlled provider applications, least-privilege setup and real repository/tracker/deployment results. The current GitHub provider double creates a data artifact PR; it proves neither generated source repair nor live repository writes. Owner-recorded repair links remain inert text.
@@ -318,4 +322,4 @@ Program presence and dependency pins are not passing results. Completion reporti
 - GOV-001/002 and BILL-001 include provider setup, agreements, US data custody, organization identity and USD billing as engineering obligations. This contract round neither calls paid services nor changes provider/publication/account configuration. Hosted editor authorization and deployed edit-to-source behavior also need their own buyer account qualification.
 - BASE-DATA-003 preserves every cascade, preview/typed-confirmation, audit, receipt, five-minute cap, successor-transfer, ambiguous-attribution hold, resume/write-freeze and archive-fence limit detailed in CONTRACT.md. Tests must inspect private maps, Sentry-import originals/custody, alert recipient/history/outbox, workflow tokens/leases and unrelated projects. Older offline archives without a later journal, external messages/provider records and D1 backups/Time Travel remain explicit limits. Every new telemetry/replay/feedback table or object store extends the declaration before shipping.
 
-**Target status: 63 clauses — 11 done, 35 partial, 17 missing.**
+**Target status: 64 clauses — 11 done, 36 partial, 17 missing.**
