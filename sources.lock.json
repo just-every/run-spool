@@ -2213,7 +2213,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "71c892f486e23638ca7caf289447189ee21e19b49977eb300433ddecd3664e6a",
+      "sha256": "338a983d143f723a48b3f376f106479738ed374e7c9d835c84c888ad06d5fe30",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4937,7 +4937,7 @@
       "executable": false
     },
     "src/modules/mail/src/core/validation.mjs": {
-      "sha256": "fa1f79579a96fc7b12964d9515e98135993c18ea1af23922779139abc4221571",
+      "sha256": "41cf1ea718cee9a073b9c33135e23f4089a1d8cc5c311261d88fcdc0fe59f6c8",
       "executable": false
     },
     "src/modules/mail/src/development/index.d.mts": {
@@ -5017,7 +5017,7 @@
       "executable": false
     },
     "src/modules/mail/src/inbound/headers.mjs": {
-      "sha256": "79673d562647f4e15e7fe10ca3b13241acd5b2cc25a651a32918cee45e02235c",
+      "sha256": "ea7ded237bb0d235585ad1bc48d9a016f346c0cb020c1cd685b064173236d929",
       "executable": false
     },
     "src/modules/mail/src/inbound/index.mjs": {
