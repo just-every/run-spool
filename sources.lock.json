@@ -3389,7 +3389,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "2d7f995604ad623c209c58f2978081c14ef0e172cdcd53b862531a4ea86da917",
+      "sha256": "3ef6ddfdd757a00b7bd89d6aadc46ef9a09b31deecdf340dfab655758d996d48",
       "executable": false
     },
     "src/domain/bundle-grouping.ts": {
@@ -3593,7 +3593,7 @@
       "executable": false
     },
     "src/domain/packet.ts": {
-      "sha256": "449d33ce74ff5a95aa55a14102c0b2fb194a9fba2d578c7dc44c6c1aadfff2c6",
+      "sha256": "90fe5a0233a47a5aa6b8f8e38c4163f5cd7bc3ecc19fce6fc0d0893294c278b7",
       "executable": false
     },
     "src/domain/path-mappings.ts": {
@@ -5545,7 +5545,7 @@
       "executable": false
     },
     "src/routes/__root.tsx": {
-      "sha256": "c73168ef6b1921fc2a5a8cd41306f239eb781b73d2cd9afdeec62dbbdc631b99",
+      "sha256": "1a1ffa90941d8e54ab19b2f80c6b8b0ea457afcbddebddaa09121f73d7d9ce61",
       "executable": false
     },
     "src/routes/$.tsx": {
@@ -5713,7 +5713,7 @@
       "executable": false
     },
     "src/ui/Workbench.tsx": {
-      "sha256": "7ce3669851293b41d17ecb199b0aa780860428bda5b3ed1f6c9a4b0f1aaebe50",
+      "sha256": "9156a9e0aeda6c00991e663ff53edd77e6a25edd7862e429c74edefae48b57a9",
       "executable": false
     },
     "src/ui/workbench/AgentHandoff.css": {
@@ -5745,7 +5745,7 @@
       "executable": false
     },
     "src/ui/workbench/client.ts": {
-      "sha256": "ae8bd943da844c2837f46e93b78063e701eec35005502c25c49d24c065d16fbd",
+      "sha256": "cff33479b3bfa5c43b9b416bfbbc4d7c2e9c67056ad35e075732cd03b9ac72fe",
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
@@ -5765,7 +5765,7 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
-      "sha256": "6b4be01d325265d331ec952f5c12bad19fb64898c9448e8a872ed8643c2b3dd1",
+      "sha256": "b6f3ac09c462c57e09d02cee119fba5d1d8ff8fd761d47b23f2cda86833ad39b",
       "executable": false
     },
     "src/ui/workbench/FixWorkflowCard.tsx": {
@@ -5780,8 +5780,12 @@
       "sha256": "e6ea2c6922a25dae2056900b8209e2a37d66081381d505b0c3547ba6c889f9de",
       "executable": false
     },
+    "src/ui/workbench/issuePanels.ts": {
+      "sha256": "f5e169c33eabe449a3d562487e13aa6170693b89f9fa91614465fd9523a58c54",
+      "executable": false
+    },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "7cba7d9438ada05551c64506c9c70fccc3770dd4e8dbc32fb6b1818449fc29ef",
+      "sha256": "fadc54ec32facb41f2b2669a5294e750b305021692fec634d435ee7d99811a54",
       "executable": false
     },
     "src/ui/workbench/location.ts": {
@@ -5797,7 +5801,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "91df8379db45138729fd5b72024d1f87099ea4fe4630feaf38b012ee24caf849",
+      "sha256": "06110ea4dde617d785cd91d4856914dc4dc9173e992002f222cd02f71147fc0b",
       "executable": false
     },
     "src/ui/workbench/ProjectErasure.tsx": {
@@ -5825,7 +5829,7 @@
       "executable": false
     },
     "src/ui/workbench/RepairPanel.tsx": {
-      "sha256": "37ec7f6c9cfbf4ebff3c81005efbf3f785ff710896cecf7e95db7afb1697d6b8",
+      "sha256": "70eed29f54d2bb617474d79cb4fb6303bae486bd6863c0af8cd8656701606d0f",
       "executable": false
     },
     "src/ui/workbench/ReproducerCard.tsx": {
@@ -5869,7 +5873,11 @@
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {
-      "sha256": "4e09c4ae6dff450b036fb8f909f9fb0af95ce209096186eabd2f8e796c741251",
+      "sha256": "e4e9ae03c4b05067ac57bbaaa7459da16f298e3c81c46097705a5e72f8624da3",
+      "executable": false
+    },
+    "src/ui/workbench/useProjectIssues.ts": {
+      "sha256": "95bf96c4b74aab6628590e1f43e152fb4c457acb464f9117c777b02a837b72ef",
       "executable": false
     },
     "src/ui/workbench/useWorkspace.ts": {
@@ -5881,7 +5889,7 @@
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
-      "sha256": "b9c9599876d619e5dd7134452f75e1db34b4e7e1f34bd2c92053ae2744b00a8e",
+      "sha256": "1c7c5896357e5c8651a2d47c0b9c068aeb73798776ec6d297f770666e00745a9",
       "executable": false
     },
     "TARGET.md": {
