@@ -6137,7 +6137,7 @@
       "executable": false
     },
     "tests/owner-erasure-resume.mjs": {
-      "sha256": "2843ff60d06e7cdecbad854da769d79a686de5efd12764bd659602984c888f1b",
+      "sha256": "0db52444bf3bb908632f1a17f95d4a53a6d944280a9626b4699979ef12d77855",
       "executable": false
     },
     "tests/owner-erasure.mjs": {
