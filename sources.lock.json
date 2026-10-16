@@ -2469,7 +2469,7 @@
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
-      "sha256": "c7fd5b9f032d11b9e04e0870747b5915a57d257502ef1af6b0d4759d0bea68e1",
+      "sha256": "fae51b47873e0449a0fa62f0c40917e490941c3bfa9ebcc130af0290cd86529e",
       "executable": false
     },
     "docs/capture.md": {
@@ -3325,7 +3325,7 @@
       "executable": false
     },
     "src/domain/alerts/archive.ts": {
-      "sha256": "1e4308fb383cceba744b0c2b2eed9b1b2176a651f8cc6851d7fba96da3ae420e",
+      "sha256": "704395910ccf2ef39b4a48f3d9471193512f8908c2146983ec73f90443562618",
       "executable": false
     },
     "src/domain/alerts/capture-history.ts": {
@@ -3349,7 +3349,7 @@
       "executable": false
     },
     "src/domain/alerts/payload.ts": {
-      "sha256": "a887ba3b49da18b06d3ca50e776412d6c3a68346edb2c6fc1a077371c98bc0c4",
+      "sha256": "e3f84c077e015f165fe7b5341ce6fddd3b9ee43101a5935796b10c99b17a02fb",
       "executable": false
     },
     "src/domain/alerts/retention.ts": {
@@ -5585,7 +5585,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDeliveries.tsx": {
-      "sha256": "082bd6f3cd7ae1043f5c8f22566eea5c6bbd61965ad28827f6b1ab218c26b05a",
+      "sha256": "6962b71eff062c5f1e983a83cac83c2e4dcd58d8c2fd1b613b35915dcbff4edc",
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
@@ -5941,7 +5941,7 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "cc6029d219c711d45560c8206f485683e662f5ecedaba9ac1e277c749e8e0ae1",
+      "sha256": "5bb3af41e2561d321fb228f773f0a3470204595800400cf5acef89c91a80a9f2",
       "executable": false
     },
     "tests/alerts/native-journey.mjs": {

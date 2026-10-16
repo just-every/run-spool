@@ -5,7 +5,7 @@ export function publicOrigin(value?:string):string|null {
  try { const u=new URL(value); return u.protocol==='https:' && u.origin===value && !u.username && !u.password ? u.origin : null; } catch { return null; }
 }
 export function issueLink(origin:string|null,project:string,issue:string) {
- return origin ? `${origin}/?project=${encodeURIComponent(project)}&issue=${encodeURIComponent(issue)}` : null;
+ return origin ? `${origin}/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}` : null;
 }
 export function mailMessage(id:string,body:string,from:string,to:string) {
  const alert=JSON.parse(body);

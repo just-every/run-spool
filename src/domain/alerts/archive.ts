@@ -29,7 +29,10 @@ export function validateAlertArchive(data:any) {
   assert(typeof a.payload==='string'&&a.payload.length<8192);const p=JSON.parse(a.payload);
   shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...(a.kind==='spike'?['window','rule']:[])]);
   assert(p.schema==='spool.alert.v1'&&p.alertId===a.id&&p.kind===a.kind&&p.projectId===a.project&&p.issueId===a.issue&&p.occurredAt===new Date(a.created).toISOString());safe(p.title);
-  if(p.issueUrl!==null){assert(typeof p.issueUrl==='string');const origin=publicOrigin(new URL(p.issueUrl).origin);assert(origin&&p.issueUrl===issueLink(origin,a.project,a.issue));}
+  if(p.issueUrl!==null){assert(typeof p.issueUrl==='string');const origin=publicOrigin(new URL(p.issueUrl).origin);
+   // Existing archives retain the original alert bytes, including pre-canonical links.
+   const previous=origin?`${origin}/?project=${encodeURIComponent(a.project)}&issue=${encodeURIComponent(a.issue)}`:null;
+   assert(origin&&(p.issueUrl===issueLink(origin,a.project,a.issue)||p.issueUrl===previous));}
   if(a.kind==='spike'){
    assert(p.release===null);shape(p.window,['start','end','durationMs','count','threshold']);shape(p.rule,['id','revision']);
    const r=rules.get(p.rule.id);assert(r?.project===a.project);integer(p.rule.revision,1);assert(p.rule.revision<=r.revision);

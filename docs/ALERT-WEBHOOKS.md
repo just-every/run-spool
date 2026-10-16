@@ -6,7 +6,7 @@ Every body contains `schema`, `alertId`, `kind`, `projectId`, `issueId`, `occurr
 
 For `spike`, `release` is null, `rule` is `{id, revision}`, and `window` is `{start, end, durationMs, count, threshold}`. Start is inclusive, end exclusive. This is accepted occurrence volume in a complete aligned server-received window, not relative growth, affected users or complete capture. Each enabled rule starts at the next aligned window. Edits start a fresh revision and do not backfill. Suppressed issues produce no spike. Retention invalidates any partially removed windows and records a visible history-unavailable gap.
 
-`issueUrl` uses the installation’s configured HTTPS sign-in origin (`AUTH_ORIGIN`), or an explicit trusted HTTPS `ALERT_PUBLIC_ORIGIN` override. It is null when neither is a valid HTTPS origin (including local HTTP development). A configured URL is `origin/?project=<projectId>&issue=<issueId>`. Inbound Host is never used. Bodies exclude raw exception fields, breadcrumbs, stack frames, source maps, recipients, receiver URLs and credentials. Titles still derive from untrusted telemetry; receivers must escape them when displaying them.
+`issueUrl` uses the installation’s configured HTTPS sign-in origin (`AUTH_ORIGIN`), or an explicit trusted HTTPS `ALERT_PUBLIC_ORIGIN` override. It is null when neither is a valid HTTPS origin (including local HTTP development). A configured URL is `origin/projects/<projectId>/issues/<issueId>`. Inbound Host is never used. Bodies exclude raw exception fields, breadcrumbs, stack frames, source maps, recipients, receiver URLs and credentials. Titles still derive from untrusted telemetry; receivers must escape them when displaying them.
 
 ## Manage email destinations
 
