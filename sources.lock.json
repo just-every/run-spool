@@ -2149,6 +2149,10 @@
       "sha256": "19a08a8ce01bda4d6e3bb1975b372d14ae8e58c2e0351adac3ad877166e712ba",
       "executable": false
     },
+    ".github/assets/release/spool-0.2.1-issues-1440.png": {
+      "sha256": "cafa39941a9adb906f2e85d7d6c22d6ff9a6df65715e6902805c4e3d0d5d367c",
+      "executable": false
+    },
     ".github/workflows/command-journey.yml": {
       "sha256": "13a60a40ac747541990d161d01537b97e29570a28ccde8fa53365ee23f198c60",
       "executable": false
@@ -2202,7 +2206,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "ac8afa894b34551f8b3871663546fde235c22cd522f9cee800d63362a58d94b9",
+      "sha256": "2952eef3618bc5caf0738e80113ed75ab7de9e6b3038de83d02a94dc735a0a68",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2694,7 +2698,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "c074d381bea94e6efe23de3b00b2a40fb68f03e2c55b96883511bae60dac0cb9",
+      "sha256": "0b79ddd12c4667de261a97ab05a1c13b91dbf6560a37c1e4e3daeec41feb9cbe",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -2910,7 +2914,7 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "0f5ce9033fc168e31a58c8f4cdca7cdf1ccebc648ae920752f694fddd2fe993c",
+      "sha256": "80bdf991eafb968ea6a72efb6fdfa75bcf09e9bd86b20af83f61c77dc0826a40",
       "executable": false
     },
     "rer-project.json": {
@@ -3134,7 +3138,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "572966ca557bcdc1b563bde792df37829de1e70b96bcd0e97b268269e6e76c09",
+      "sha256": "06ec8f0f6b0f1fc0d62caa0a97cfa3308ead3dba803df9e9720d6e4149480dcf",
       "executable": false
     },
     "src/auth/bindings.ts": {
