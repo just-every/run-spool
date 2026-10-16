@@ -1075,7 +1075,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "398bdd222401a60ac2d0732454f6a947b3033029",
+          "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",
