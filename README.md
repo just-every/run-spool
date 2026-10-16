@@ -33,7 +33,7 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent read-only access to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.2.0](https://github.com/just-every/run-spool/tree/v0.2.0); the clone instructions below use `main`, which includes later changes. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.2.0](https://github.com/just-every/run-spool/tree/v0.2.0). The clone instructions below use `main`, which includes newer setup and mail behavior: automatic local owner preparation, private signed-in owner entry and silently suppressed local mail. These instructions describe `main`; the tagged release has its own instructions and may behave differently. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
@@ -62,7 +62,7 @@ Setup prepares private settings and the database, claims or preserves the owner,
 
 `rer dev` opens signed in as the owner. Open the private `RER_OPEN` link printed on this computer; its `#rer-dev=` fragment carries this checkout's owner gate. Keep the link and gate private. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and adds sample data in disposable state. Mail is silently suppressed in dev and demo; no mailbox viewer is needed.
 
-With rer dev v2 (pinned rer 0.2.24), an ingest key created in dev works directly from your app against local Spool, and a deploy key works from your local build, without the owner gate. Allow your browser app's exact origin in Capture. Read-only dev agent keys still need the gate: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for the local agent CLI, as shown in [the agent guide](docs/WITH-YOUR-AGENT.md#local-agent-access). Never give the gate to a browser app. Every dev-minted key is refused by deployed Spool; create fresh keys there. Private archives exclude all project grants.
+With rer dev v2 (pinned rer 0.2.25), an ingest key created in dev works directly from your app against local Spool, and a deploy key works from your local build, without the owner gate. Allow your browser app's exact origin in Capture. Read-only dev agent keys still need the gate: privately extract the `rer-dev` fragment value as `SPOOL_DEV_KEY` for the local agent CLI, as shown in [the agent guide](docs/WITH-YOUR-AGENT.md#local-agent-access). Never give the gate to a browser app. Every dev-minted key is refused by deployed Spool; create fresh keys there. Private archives exclude all project grants.
 
 A fresh installation opens `/setup`. Create the first project, copy its once-shown ingest key, add the SDK with the shown install line and init, use **Send test error** to check ingestion from Spool itself, then choose **Continue to workbench**. Replace a lost key in Settings. To restore existing evidence instead, choose **Restore a private archive** before creating a project. Register the app's release/build before sending its errors; the setup test registers the release/build shown on that screen.
 
@@ -76,7 +76,7 @@ Stop dev with `rer dev --stop` and export a private archive before updating. In 
 
 ## Managed hosting
 
-Spool pins rer 0.2.24 and supports RER Managed mail for sign-in links and email alerts. Managed Configure supplies and hides the mail settings: no mail-provider account or copied API key is needed. Free and Assisted self hosting keep their existing provider choices and sender setup; see [the hosting guide](docs/HOSTED.md#managed-mail).
+Spool pins rer 0.2.25 and supports RER Managed mail for sign-in links and email alerts. Managed Configure supplies and hides the mail settings: no mail-provider account or copied API key is needed. Free and Assisted self hosting keep their existing provider choices and sender setup; see [the hosting guide](docs/HOSTED.md#managed-mail).
 
 ## Run it on your Cloudflare account
 

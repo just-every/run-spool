@@ -21,7 +21,7 @@ export SPOOL_DEV_KEY
 
 Do not paste the whole URL or put the value in a command argument. The trusted local agent CLI sends the gate only to loopback as `x-rer-dev-key`; the separate agent key still limits reads to one project. The [CLI and MCP guide](WITH-YOUR-AGENT.md#local-agent-access) shows the commands and configuration.
 
-Run the CLI using its absolute path inside the Spool checkout, even when your terminal or agent is working in your application's repository. Never give the gate to a browser app or put it in source control: it can also open the owner persona. With rer dev v2 (pinned rer 0.2.24), local ingest and deploy keys do not need this gate. Dev-minted keys of every scope are refused by deployed Spool; create fresh keys after signing in there. Archives exclude all project grants.
+Run the CLI using its absolute path inside the Spool checkout, even when your terminal or agent is working in your application's repository. Never give the gate to a browser app or put it in source control: it can also open the owner persona. With rer dev v2 (pinned rer 0.2.25), local ingest and deploy keys do not need this gate. Dev-minted keys of every scope are refused by deployed Spool; create fresh keys after signing in there. Archives exclude all project grants.
 
 ## What the agent can read
 

@@ -7,6 +7,7 @@ import { hrefFor } from './location';
 import { Field, useDraft, type Request, type Run } from './shared';
 import { captureStatus, type CaptureOutcomes } from './captureStatus';
 import { SdkSetup, SentryIntake } from './SdkSetup';
+import { SourceMapSetup } from './SourceMapSetup';
 export function CaptureView({ project, releases, issues, outcomes, busy, request, run, refresh, onReleases, onIssue }: {
   project: string; releases: any[]; issues: any[]; outcomes: CaptureOutcomes | null; busy: boolean; request: Request; run: Run; refresh: () => void; onReleases: () => void; onIssue: (id: string) => void;
 }) {
@@ -33,5 +34,6 @@ export function CaptureView({ project, releases, issues, outcomes, busy, request
       try { const account: any = {}; account.address.city; throw new Error('Unexpected capture result'); } catch (error) { exception = error as Error; }
       setOutcome(await captureException(exception, { endpoint, project, ingestKey: key, release: release.name, build: release.build, environment: 'local-test', credentials: 'same-origin', onPreview: event => { setPreview(event); setLastCapture({ project, key, event }); } })); refresh();
     }); }}><Field label="Project ingest key" type="password" autoComplete="off" required value={key} onChange={e => setKey(e.target.value)} /><button className="primary-button" disabled={busy || !release}>Capture test exception</button></form>{outcome && <><p role="status">{outcome.outcome === 'accepted' ? 'Test event received.' : outcome.outcome === 'duplicate' ? 'This event was already received.' : `Capture ${outcome.outcome}: ${outcome.reason ? receiptLabel(outcome.reason) : 'check connection and credentials'}`}</p>{outcome.issue && <button className="text-button" onClick={() => onIssue(outcome.issue)}>Open captured issue</button>}{requiresRelease(outcome.reason) && <p><a className="inline-link" href={hrefFor(project, 'releases')}>Register the release and build</a>, then reproduce the error in your application.</p>}{lastCapture && !requiresRelease(outcome.reason) && <button className="text-button" disabled={busy} onClick={() => void run(async () => { const response = await fetch(`/api/ingest/${encodeURIComponent(lastCapture.project)}`, { method: 'POST', credentials: 'same-origin', redirect: 'manual', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${lastCapture.key}` }, body: JSON.stringify(lastCapture.event) }); if (response.status === 0 || (response.status >= 300 && response.status < 400)) throw new Error('Capture redirect refused.'); setOutcome(await response.json()); refresh(); })}>Retry exact event</button>}<Details title="Capture result"><pre>{JSON.stringify({ outcome, outbound: preview }, null, 2)}</pre></Details></>}</section>
+    <SourceMapSetup {...{ project, releases, request, run, busy, refresh }} />
   </>;
 }

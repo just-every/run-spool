@@ -2209,7 +2209,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "6e14b76eccd08d754a2a75f0b0730e333a567753af745f99a1666f638b03458c",
+      "sha256": "e0e187b4b75b23ad6f3bdaba43655dd357eb2a3122db747182d804fb768ad0fb",
       "executable": false
     },
     "base-copies.json": {
@@ -2461,7 +2461,7 @@
       "executable": false
     },
     "docs/agents.md": {
-      "sha256": "d500528e39e2a9a43cfc95974f5ac37742980bc5e3e241a15e82c33234fdc28e",
+      "sha256": "16b6be2d7ed50d3745862bf64f56104895a4b2f0d81a3920794fad52a4c4fb05",
       "executable": false
     },
     "docs/ALERT-IMPLEMENTATION.md": {
@@ -2473,15 +2473,15 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "795e5e3f32142c23004865c82229853c4fd8ccb25179c38e6b39181204fc64f3",
+      "sha256": "89058834fba9123e2df258286bb0463fc3c3e68d83301c5e597508bba9244e08",
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "bb6798aece4f8f4aabbd75d053eff15d2e56cf756c0bd3f208f6765692f12557",
+      "sha256": "27a47e6f4f2e8da38710735d981debce8a376fe3cf6a9f86557454db6af9b551",
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "6cfa6f08e7657ba9b4ad87a6adf8724d80b5bcb34db80c797f2384925f289bac",
+      "sha256": "735cfd86f418b3d8d8ffd87e46b979857f1b52d6684776cb3ce574124cb98738",
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
@@ -2505,7 +2505,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "47e982e3af7c78d9f2ece30007bc05e4c42d77596c6ec6f2bec10c8da174d805",
+      "sha256": "a21520774f63dcb4b80322882569175574dd88add50a410ceb75d16876a136be",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -2525,7 +2525,7 @@
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
-      "sha256": "4b1f4d5ac58f26f4246f903ae07dfc5c18169c292c56cb611ed40760a6248830",
+      "sha256": "966dc9b2ca30a49c496e008f94326b3dbf0c5e08666580a6cb3d6f5b782cfdc4",
       "executable": false
     },
     "DUPLICATE-TRANSPORT.md": {
@@ -2925,7 +2925,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "4bafafef4ceab16412148e55a3112f97a5d4de46c47775cd5dbf2601c5645c48",
+      "sha256": "cea80b1eef606f73eb45fa70f56bf0c5d2338a6b272c814d7cfabdfd1e963ed3",
       "executable": false
     },
     "RELEASE.json": {
@@ -5725,7 +5725,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureView.tsx": {
-      "sha256": "65ecee5f21ac95d450073565d1c7b7c674346cdab0434fab8569fa501cc08697",
+      "sha256": "bc645134c3c7530dfb6ae15b741ac1e16777cfdba2b7ed0445c25996150d691b",
       "executable": false
     },
     "src/ui/workbench/client.ts": {
@@ -5749,11 +5749,15 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
-      "sha256": "7e6e8f346ba7eced98f8c54517736404a55fdd70373b8ac391f57a34899cfe6b",
+      "sha256": "6b4be01d325265d331ec952f5c12bad19fb64898c9448e8a872ed8643c2b3dd1",
       "executable": false
     },
     "src/ui/workbench/FixWorkflowCard.tsx": {
       "sha256": "ac4fcd085b6473866cb34cf377bf9739983ccf71f9b5828cfb1aac9c68f8bb42",
+      "executable": false
+    },
+    "src/ui/workbench/GitHubConnectionSetup.tsx": {
+      "sha256": "3b3a02e720bd5bf6339206bde7f06082cfc79a0f04d56bc885b4f83f933e251a",
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
@@ -5797,7 +5801,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "04e1f4101903e42b55f5cf2019e406a7978136c9f5e75d5430cca60cb487d6b5",
+      "sha256": "836d2048b456a5b6973f9ee158ba39c22a719fb53e505793626cac61022d53fc",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -5825,7 +5829,7 @@
       "executable": false
     },
     "src/ui/workbench/SdkSetup.tsx": {
-      "sha256": "902ef19c66f566e19aecedf712417b5f5191d6256d53fe2c562a1ff39027f162",
+      "sha256": "bd722964a55d8e8a97b3f00175c40cc13aa7bbaa3fb49d25521794275ec9160e",
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
@@ -5838,6 +5842,14 @@
     },
     "src/ui/workbench/shell.css": {
       "sha256": "eaf4b8302d89f266c2775c005b414be925e04245a2c2e017aaeb40e56fdcf55f",
+      "executable": false
+    },
+    "src/ui/workbench/SourceMapSetup.tsx": {
+      "sha256": "8ea0c47a68c8276fa6e814b797b41540256bd4237d8597b11f4c1505950e8b8d",
+      "executable": false
+    },
+    "src/ui/workbench/sourceMapSnippets.ts": {
+      "sha256": "c891028f3b44bbd085ec45d72893c1d4e5211191aa8479188fb333b9e30b2af8",
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {

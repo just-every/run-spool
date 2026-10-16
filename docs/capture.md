@@ -34,7 +34,7 @@ Open **Releases** and add the release name and build your application reports, s
 
 ## 3. Upload the source maps
 
-Upload the `.map` file for each bundle of that release and build in **Releases**. Spool keeps maps private and never fetches source files from the internet. A project holds up to 20 maps of 256 KiB each.
+Spool matches each bundle to its source map using a **bundle debug ID**, a UUID stored in both the JavaScript bundle and its map. Use the plugin or command below to create that matching pair and upload the map. For a manual upload in **Releases**, use the ID from the prepared map's `debug_id` field (also written as `//# debugId=…` in the bundle), and select the same project, release and build your SDK reports. Typing a new ID into the upload form does not stamp your bundle. Spool keeps maps private and never fetches source files from the internet. A project holds up to 20 flat V3 maps of 256 KiB each.
 
 You can also upload maps from your build with a **deploy key** from **Settings**. A deploy key can only register releases and upload maps for its project. Keep the key in your build's environment, never in your application's source. With Vite or Rollup, add the SDK's plugin:
 
@@ -53,7 +53,7 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
   --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
-Each bundle needs its `.map` next to it. Both register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The command-line tool prints how many maps it uploaded; the Vite/Rollup plugin prints that count in SDK 0.2.0, while the published 0.1.0 plugin is silent on success. A failed upload fails your build.
+Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The command-line tool prints how many maps it uploaded; the Vite/Rollup plugin prints that count in SDK 0.2.0, while the published 0.1.0 plugin is silent on success. A failed upload fails your build.
 
 ## 4. Check it works
 
@@ -63,7 +63,7 @@ For a check from inside Spool, first-project setup has **Send test error**, whic
 
 ## Keys for anything outside this checkout
 
-Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.24), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
+Run Spool with `rer dev` and open the private `RER_OPEN` link to create your project and keys. With rer dev v2 (pinned rer 0.2.25), your application can use the dev-minted ingest key against local Spool directly. Your build can use a dev-minted deploy key there too. Neither needs the checkout's private owner gate, even when the application or build runs from another repository on this computer.
 
 | Key | Scope | Local dev gate required? |
 | --- | --- | --- |

@@ -24,7 +24,7 @@ export function SdkSetup({ endpoint, project, ingestKey, release, build }: { end
     <CodeBlock label="Install command" code={installCommand} />
     <h3>Initialise it once in your app</h3>
     <CodeBlock label="SDK init" code={initSnippet({ endpoint, project, ingestKey, release, build })} />
-    <p className="muted">It captures uncaught errors and unhandled rejections in the browser. On Node import <code>{sdkPackage}/node</code>; in Cloudflare Workers call <code>captureException</code> from <code>{sdkPackage}/worker</code> with your handler’s <code>ctx</code>. Upload source maps with the <code>{sdkPackage}/vite</code> plugin or <code>npx spool-sourcemaps</code>.</p>
+    <p className="muted">It captures uncaught errors and unhandled rejections in the browser. On Node import <code>{sdkPackage}/node</code>; in Cloudflare Workers call <code>captureException</code> from <code>{sdkPackage}/worker</code> with your handler’s <code>ctx</code>. For original-source stacks, use the complete <a className="inline-link" href={`${hrefFor(project, 'releases')}#source-map-setup`}>source-map setup</a> with your project’s build key and bundler configuration.</p>
   </div>;
 }
 
