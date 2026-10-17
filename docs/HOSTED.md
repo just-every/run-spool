@@ -16,19 +16,19 @@ For the Free or Assisted account procedure below, you need:
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
 - a SendGrid API key that can send mail, and a sender address verified in SendGrid. Sign-in links are sent by email.
 
-The [Run page](https://run-spool.com/run) uses `rer dev` for the first local start; it handles installation and setup. The separate `rer install` and `rer setup` commands below prepare this checkout without leaving a dev runtime running. You do not need pnpm on PATH.
+The [Run page](https://run-spool.com/run) uses one line, `npx -y @runeditrun/rer dev just-every/run-spool`, for the first local start; it handles installation and setup. The `setup` form below prepares this checkout without leaving a dev runtime running. You do not need pnpm on PATH.
 
 ## First install
 
 1. Install and set up Spool on this computer:
 
    ```sh
+   npx -y @runeditrun/rer setup just-every/run-spool
+   cd run-spool
    SPOOL_ENV=production # choose your environment name here
-   rer install
-   rer setup
    ```
 
-   Explicit `rer setup` prompts for missing required answers in an interactive terminal. With non-TTY input, use `rer setup --answers <private-json-file> --non-interactive`; piping an email alone is not an answer file. Setup stops its temporary app when complete; `rer dev` starts a local server if you need one. These local answers do not replace the hosted settings below.
+   Explicit setup prompts for missing required answers in an interactive terminal. With non-TTY input, use `rer setup --answers <private-json-file> --non-interactive`; piping an email alone is not an answer file. Setup stops its temporary app when complete; `rer dev` starts a local server if you need one. These local answers do not replace the hosted settings below.
 
 2. Create the private settings file for this environment. The command generates the session secret, the one-time setup token and the alert destination hash key. It also starts with no alert destinations (`[]`):
 
