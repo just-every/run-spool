@@ -139,3 +139,6 @@ span.frame-function{font-family:var(--font-text)}
  .data-table td:last-child{text-align:left}
  .details-dialog{padding:16px}
 }
+
+.bulk-triage{margin:16px 0;padding:12px 16px;border:var(--inner-border);border-radius:var(--radius-input)}
+.bulk-triage .issue-search-actions{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.bulk-triage li{overflow-wrap:anywhere}.issue-select{display:flex;align-items:center;gap:8px;min-height:44px;width:fit-content}.issue-select input{width:20px;height:20px;accent-color:var(--ink)}

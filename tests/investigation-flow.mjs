@@ -1,3 +1,4 @@
+import { bulkTriageFlow } from './bulk-triage-flow.mjs';
 import assert from 'node:assert/strict';
 import {launchBrowser} from './browser-launch.mjs';
 import {signIn} from './auth.mjs';
@@ -22,6 +23,7 @@ export async function investigationFlow({req,json,origin}){
  const grant=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:`Bearer ${grant.key}`};
  assert.equal((await req(base+'/issue-search?'+query,'GET',undefined,auth)).status,200);
  assert.ok([401,403].includes((await req('/api/projects/wire/issue-export','GET',undefined,auth)).status));
+ await bulkTriageFlow({req,json,base});
  const browser=await launchBrowser();
  try{const cookie=await signIn(origin,{bootstrap:false});for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});
@@ -32,6 +34,7 @@ export async function investigationFlow({req,json,origin}){
   await page.getByRole('searchbox',{name:'Search issues'}).fill('Historic environment:staging function:checkout0');
   await page.getByRole('status').filter({hasText:'1 issue matching'}).waitFor();
   assert.equal(await page.locator('tbody tr').count(),1);
+  await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Preview triage',exact:true}).click();await page.getByRole('heading',{name:'Review 1 issue',exact:true}).waitFor();await page.getByRole('button',{name:'Cancel preview',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Apply to 1 issue',exact:true}).count(),0);await page.getByRole('button',{name:'Preview triage',exact:true}).click();await page.getByRole('button',{name:'Apply to 1 issue',exact:true}).click();await page.getByRole('status').filter({hasText:'1 issue acknowledged.'}).waitFor();
   assert.ok((await page.locator('tbody tr').innerText()).includes('Historic checkout failure'));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Issue search reflows');
   const downloadPromise=page.waitForEvent('download');await page.getByRole('link',{name:'Export CSV',exact:true}).click();const download=await downloadPromise;assert.equal(await download.failure(),null);
