@@ -2504,7 +2504,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2c0a9de6cff4d5d7f43d5c7527387adeb396ce060daabb242eed0f7c8d8d5aa1",
+      "sha256": "168fec6246febf2312f882b5045aa43b8746fcf08a4339de82623e46c01e4162",
       "executable": false
     },
     "DEMO.md": {
@@ -2753,6 +2753,10 @@
     },
     "docs/capture.md": {
       "sha256": "89058834fba9123e2df258286bb0463fc3c3e68d83301c5e597508bba9244e08",
+      "executable": false
+    },
+    "docs/CLIENT-REPORTS.md": {
+      "sha256": "a2cdc5ebc6b495b5735b03f340de772d11fb2c2c2b81d798b56f8a13d45738b8",
       "executable": false
     },
     "docs/EVENT-INVESTIGATION.md": {
@@ -3708,7 +3712,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "76ea06d63b816ae1aba40a06e6112ae9ea32a56242e1ddd72cab60c0e8fbc2ad",
+      "sha256": "ca5ab9d5259d61af398667ae81f2f5603500009c4a441143ccba496ca462018d",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -3716,7 +3720,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "3ce197497e10aedf1ef0f5fd1d6a0180b59486dd9cffa34b5092a69c60aff657",
+      "sha256": "80b1e72d67771430de14a272042c65d4a105481e0dd63117977958bbd6dbeee1",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -3800,7 +3804,7 @@
       "executable": false
     },
     "src/domain/exposure/proof.ts": {
-      "sha256": "68884c58c18511de889dacceb7e514d14f7858f2dd2a4f4fdf9a8ef853710b86",
+      "sha256": "aba960c1fd22cb7b7a839360c439549461a742c2288f3aa2662dcb4705bbb15f",
       "executable": false
     },
     "src/domain/exposure/report.ts": {
@@ -4012,7 +4016,7 @@
       "executable": false
     },
     "src/domain/packet.ts": {
-      "sha256": "d17b687a68e1c6fddbe0bf512853c466e7399a8f75f943c9f837581813627382",
+      "sha256": "bd65f1910bdfaf9265b69464011b5b9c20f1e569e5dad5b6c99eb6141cd2c697",
       "executable": false
     },
     "src/domain/path-mappings.ts": {
@@ -4036,7 +4040,7 @@
       "executable": false
     },
     "src/domain/repairs/observation.ts": {
-      "sha256": "3db2bb238dfc3417b6b1d5fd8fb103e7aeada78f4ee174b26a8b316e1aa1fd36",
+      "sha256": "772ed344f549e06a6ea95b1101fd8ec96c99ca026de336700a5f2e3c14cd053a",
       "executable": false
     },
     "src/domain/repairs/projection.ts": {
@@ -4123,6 +4127,10 @@
       "sha256": "11197bd89a5a47672d4cda83832f51e4024e33bdedb9c0a0e22c3efa527ee6b1",
       "executable": false
     },
+    "src/domain/sentry/client-reports.ts": {
+      "sha256": "e806d09a5f260c681c11c7316d436c9d02aa3a94a04d9079abc565177dceec73",
+      "executable": false
+    },
     "src/domain/sentry/convert.ts": {
       "sha256": "a4122e9dfd50c3486d2ceabff12968b6bc4f057d8008b97fad9aa570ac44023e",
       "executable": false
@@ -4160,7 +4168,7 @@
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
-      "sha256": "536f3041ea39c5787a197d1dd987bdfa370efd0a4cbee187dbe426796b3f1c46",
+      "sha256": "c61f3bcece5e538f2333ee28bd3c64d9a084d91c23301f9fa38e7fc1f5284ee0",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -6252,7 +6260,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureReceipts.tsx": {
-      "sha256": "66f8757a6eecbcff46b2e534bb2dcc3bb5fa7c9bf1f5f1f7f070701c7946a35b",
+      "sha256": "325ce044526d127e07c320fab5e3741bf38cccfaa13f06793919190114f09d22",
       "executable": false
     },
     "src/ui/workbench/captureStatus.ts": {
@@ -6551,6 +6559,14 @@
       "sha256": "0df503507ce36358946dd73d20d8158b35d2e62a27f4ef27533977baa1953c3b",
       "executable": false
     },
+    "tests/client-report-flow.mjs": {
+      "sha256": "66c52d27c89ceb00e7422f34c7bfff23c4f6d4c9a1b71bf884499bdb47952b2f",
+      "executable": false
+    },
+    "tests/client-report-sdk.mjs": {
+      "sha256": "aeb11a59ad9378cae6ddd129b91356482055e602409efdd2bf091028c6cf8ea0",
+      "executable": false
+    },
     "tests/command-diagnostics.mjs": {
       "sha256": "1b89c545e8952f047fcba2cc44b972261386cc60324b68d80d68c32adebb0267",
       "executable": false
@@ -6804,7 +6820,7 @@
       "executable": false
     },
     "tests/repair-recovery/ui.mjs": {
-      "sha256": "7e1d8e5324ef16527251b77604824cceef0dc6fb54f9300587c3799b27817698",
+      "sha256": "2d843a445789882c7fc2b7ecf460c6f8d1ef81785d051771d01991b87af37798",
       "executable": false
     },
     "tests/repair-recovery/verdicts.mjs": {
@@ -6828,7 +6844,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "82eee5974dee2f932d4f8a4c82786e3db4cfc627590dcbd23302c4b1b92da4b3",
+      "sha256": "cd85fdb69127f0bb6a54b0899db5ec451de9c7193f12e1aa6b36533577a66abb",
       "executable": false
     },
     "tests/sentry-import.mjs": {

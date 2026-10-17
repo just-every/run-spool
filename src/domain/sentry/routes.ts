@@ -7,6 +7,7 @@ import { sentryKey } from './auth.ts';
 import { convertSentry } from './convert.ts';
 import { feedbackInput } from '../feedback/input';
 import { admitFeedback } from '../feedback/admission';
+import { clientReportCounts } from './client-reports';
 import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason } from './wire.ts';
 const routes=new Hono<{Bindings:Bindings}>();
 const paths=['/:alias/envelope/','/:alias/envelope','/:alias/store/','/:alias/store'];
@@ -30,8 +31,15 @@ routes.on('POST',paths,async c=>{
     const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(c.req.param('alias')!).first<{project:string}>();
     if(!row)throw new SentryWireError('invalid_ingest_key',401);
     const auth=await authorizeIngest(c,row.project,key);if('response' in auth)return auth.response;scope=auth.scope;
-    const dropped=new Map<string,number>(),events=[],feedback=[];
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[];
+    let clientReports=0,invalidReports=0;
     for(const item of envelope.items){
+      if(item.header.type==='client_report'){
+        clientReports++;
+        try{for(const [reason,count] of clientReportCounts(item.bytes))clientDiscarded.set(reason,(clientDiscarded.get(reason)??0)+count)}
+        catch(error){if(!(error instanceof SentryWireError))throw error;invalidReports++;dropped.set('client_report_invalid',invalidReports)}
+        continue;
+      }
       if(item.header.type==='feedback'||item.header.type==='user_report'){
         feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
       }
@@ -44,13 +52,13 @@ routes.on('POST',paths,async c=>{
       }
       events.push({event:convertSentry(raw,envelope.header.event_id),digest:await hash(canonical(raw))});
     }
-    if(dropped.size)await ingestBatch(c,scope,[...dropped].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
+    if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     let id:string|undefined;
     for(const {event,digest} of events){const response=await admitEvent(c,scope,event,digest);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
-    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...receipts.length?{feedback:receipts}:{}},200);
+    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...clientReports?{clientReports:{received:clientReports-invalidReports,invalid:invalidReports,discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{}},200);
   }catch(error){
     if(error instanceof SentryWireError){
       if(scope){try{await recordIngest(c,scope,error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}

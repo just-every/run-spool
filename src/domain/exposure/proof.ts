@@ -51,7 +51,7 @@ export async function exposureProof(db: D1Database, project: string, issue: stri
   // those losses from the earliest retained baseline report, not just deploy.
   // A wholly new baseline collected after an earlier loss can stand on its own.
   query(db, `SELECT reason,SUM(count) count FROM outcomes WHERE project=?
-   AND reason IN (${[...LOSS_REASONS, ...EXPOSURE_LOSS].map(() => '?').join(',')})
+   AND (reason IN (${[...LOSS_REASONS, ...EXPOSURE_LOSS].map(() => '?').join(',')}) OR reason GLOB 'client_discarded:error:*')
    AND (window>=? OR (reason IN (${EXPOSURE_DISCARDED.map(() => '?').join(',')}) AND window>=COALESCE((
     SELECT CAST(MIN(x.first)/60000 AS INTEGER)*60000 FROM exposures x JOIN releases r ON r.project=x.project AND r.name=x.release
     WHERE x.project=? AND x.environment=? AND x.flow=? AND r.seq<?),?)))
@@ -83,7 +83,7 @@ export async function exposureProof(db: D1Database, project: string, issue: stri
  if (rate === null) reasons.push({ code: 'no_baseline', reason: `There is no pre-fix failure rate for ${flow}: ${before.size ? 'none of the users who reached it before the fix are in the affected cohort' : 'no user reported reaching it before the fix'}.` });
  else if (capturing.length && chance! > CHANCE_LIMIT) reasons.push({ code: 'exposure_too_low', reason: `Exposure is too low: with ${capturing.length} exposed user${capturing.length === 1 ? '' : 's'} and a pre-fix failure rate of at least ${(bound! * 100).toFixed(1)}% (${failedBefore} of ${before.size} failed; 95% lower bound), seeing no failure would happen ${(chance! * 100).toFixed(1)}% of the time even if the fix changed nothing.` });
  if (capturing.length && !reached) reasons.push({ code: 'affected_not_reached', reason: `None of the ${cohort.size} previously affected users has reached ${flow} on the fixed release yet.` });
- if (lossRows.length) reasons.push({ code: 'capture_gap', reason: `Capture evidence is incomplete (${lossRows.map(row => `${row.reason} ${row.count}`).join(', ')}): reports were refused or retained exposure rows were discarded during the measurement window.` });
+ if (lossRows.length) reasons.push({ code: 'capture_gap', reason: `Capture evidence is incomplete (${lossRows.map(row => `${row.reason} ${row.count}`).join(', ')}): reports were refused, the SDK discarded errors, or retained exposure rows were discarded during the measurement window.` });
  if (reasons.length) return result('inconclusive', reasons);
  return result('reached', [{ code: 'reached', reason: `The fix reached ${reached} of ${cohort.size} previously affected users and ${capturing.length} users in total on ${flow}. At the lowest pre-fix rate the baseline supports (${(bound! * 100).toFixed(1)}%, from ${failedBefore} of ${before.size}) about ${(bound! * capturing.length).toFixed(1)} failures were expected; none arrived (chance if unfixed ${(chance! * 100).toFixed(2)}%).` }]);
 }

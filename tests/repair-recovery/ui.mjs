@@ -52,7 +52,7 @@ export async function repairPanel(app,browser,directory){
    const older=await capture.throw(old.name,old.build);await refresh(page);await verdict(page,'Not counted: 1 event');await verdict(page,'Verdict: No recurrence after the flow was exercised');
    assert.ok((await page.locator('.repairs .verdict').innerText()).includes(older.eventId));await check(page,directory,width,'e-older-release',captures);
    for(let n=0;n<3;n++){const response=await app.request(`/api/ingest/${project}`,'POST',{version:1,eventId:'invalid-'+n},{agent:capture.ingestKey});assert.equal(response.status,400);await response.body?.cancel();}
-   await refresh(page);await verdict(page,'Verdict: Inconclusive');await verdict(page,'The server rejected or dropped events');await check(page,directory,width,'f-rejected-spike',captures);
+   await refresh(page);await verdict(page,'Verdict: Inconclusive');await verdict(page,'invalid 3');await check(page,directory,width,'f-rejected-spike',captures);
    const recurred=await capture.throw(release.name,release.build);await refresh(page);await verdict(page,'Verdict: Recurred');
    assert.ok((await page.locator('.repairs .verdict').innerText()).includes(recurred.eventId),'recurring event named');await page.locator('.state-chip.open').waitFor();
    await check(page,directory,width,'d-recurred',captures);
