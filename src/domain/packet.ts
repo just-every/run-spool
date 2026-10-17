@@ -1,4 +1,5 @@
 import { agentSentryEvidence } from './sentry/agent-evidence';
+import { createRepositoryLinker } from './repository-links';
 import { admissionBasis, type GroupingRoute } from './bundle-grouping';
 import { observedDeployment } from './operators/deployments';
 import { grouping, hash } from './privacy';
@@ -66,6 +67,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
  };
  const deploymentsRead = Promise.all([firstRead.then(deployment),lastRead.then(deployment)]);
  const diagnose = createDiagnoser(db,project);
+ const repositoryLinks = createRepositoryLinker(db,project);
  const eventsRead = Promise.all([selectedRead,routesRead]).then(([selected,routes]) => Promise.all(selected.results.map(async row => {
   const stored = JSON.parse(row.payload);
   // Explicit envelope input prevents unknown stored properties from becoming
@@ -80,6 +82,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
   const projectedEvent=event.sentry?{...event,sentry:agentSentryEvidence(event.sentry)}:event;
   return { originalGrouping:{issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??(row.historical?issue.algorithm:grouping(event).algorithm),basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event:projectedEvent, atAdmission, currentLookup,
+   repositorySources: await repositoryLinks(event,currentLookup,row.historical === 1),
    release: release(row), build: text(row.build), environment: text(row.environment) };
  })));
  const [events, totals, first, last, losses, windows, auditRows, auditTotal, repairs, deployments] = await Promise.all([
