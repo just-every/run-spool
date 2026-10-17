@@ -102,7 +102,7 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   return { id: text(row.id), project: text(row.project), kind: 'retention_gap', created: number(row.created),
    detail: { cutoff: number(detail?.cutoff), removed: number(detail?.removed), dedupHorizon: number(detail?.dedupHorizon) } };
  });
- const baseGaps: Gap[] = [{ code: 'windowed_loss', reason: 'Counters include server admission and SDK-reported client discards. Unreported loss before transport remains unknown.',
+ const baseGaps: Gap[] = [{ code: 'windowed_loss', reason: 'Counters include server admission and SDK-reported client discards. Unreported loss before transport is unknown.',
   window: 'last 24 hours', rows: windows.results.map(outcomeProjection) }];
  if (retention.length) baseGaps.push({ code: 'retention_gap', reason: 'Project retention operations are recorded at the cutoffs below; each row reports the actual number of events removed, which may be zero. First and last release describe surviving observations only.',
   rows: retention, available: auditTotal?.count ?? retention.length, included: retention.length });

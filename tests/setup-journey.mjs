@@ -61,6 +61,7 @@ export async function firstProjectJourney(browser, origin, width) {
   const appOrigin='http://127.0.0.1:15599',ingestKey=await key.inputValue();
   const fromApp=()=>fetch(origin+'/api/ingest/journey',{method:'POST',headers:{Origin:appOrigin,Authorization:`Bearer ${ingestKey}`,'content-type':'application/json'},body:JSON.stringify({version:1,eventId:`app-${width}-${Date.now()}`,release:'1.0.0',build:'local',environment:'production',type:'TypeError',message:'From the app origin',frames:[{file:appOrigin+'/app.js',line:1,column:0,function:'checkout'}]})});
   assert.equal((await (await fromApp()).json()).reason,'origin_not_allowed','an origin that first run has not allowed is refused');
+  await tabTo(page.getByRole('link',{name:'source-map setup',exact:true}),'Source-map setup link');
   await tabTo(page.getByLabel('Your app’s origin',{exact:true}),'App origin field');await page.keyboard.type(appOrigin);
   const allowed=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/journey/browser-origins'&&response.request().method()==='POST');
   await tabTo(page.getByRole('button',{name:'Allow origin',exact:true}),'Allow origin button');await page.keyboard.press('Enter');assert.equal((await allowed).status(),201);
