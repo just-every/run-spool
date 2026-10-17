@@ -50,7 +50,7 @@ try {
  assert.ok((await app.json('/api/projects/web/alerting/deliveries')).some(r=>r.state==='rejected'&&r.code==='provider_redirected'));
  const afterRedirect=inbox.relayRequests.length;await app.schedule(Date.now()+10000);assert.equal(inbox.relayRequests.length,afterRedirect,'a refused redirect is never retried');assert.equal(inbox.redirectRequests.length,redirects,'the redirect target is never fetched');
  if(process.env.SPOOL_SHOTS) {
-  const {chromium}=await import('@playwright/test');const browser=await chromium.launch({headless:true});
+  const {launchBrowser}=await import('./browser-launch.mjs');const browser=await launchBrowser();
   try {
    await mkdir(process.env.SPOOL_SHOTS,{recursive:true});
    for(const width of [1440,390]) {

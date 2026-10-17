@@ -80,7 +80,8 @@
       ],
       "providerEffects": [
         "outbound-mail",
-        "outbound-webhooks"
+        "outbound-webhooks",
+        "github"
       ],
       "surfaces": {
         "app": {

@@ -18,8 +18,8 @@ export function resourceRefusalFamily(error){
 // Only the primary guard's exact resource refusals wait. This is before any
 // persistent CLI starts; its own later resource check remains authoritative.
 // Boundary injection is for external one-off evidence, never CLI configuration.
-export async function waitForServerResources(root,{check=serverResources,now=()=>performance.now(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
- const deadline=now()+20*60*1000;
+export async function waitForServerResources(root,{check=serverResources,now=()=>performance.now(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),timeoutMilliseconds=20*60*1000}={}){
+ const deadline=now()+timeoutMilliseconds;
  for(;;){
   try{await check(root);return;}catch(error){
    if(resourceRefusalFamily(error)==='unknown')throw error;

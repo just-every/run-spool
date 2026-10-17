@@ -88,9 +88,13 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
    }finally{clearTimeout(timeout);}
   }
   async function ready(args,origin){
+   const admissionDeadline=Date.now()+20*60*1000;
+   let admissionRefusal;
+   for(;;){
+   if(admissionRefusal&&Date.now()>=admissionDeadline)throw admissionRefusal;
    const diagnostic=diagnostics.started(args[0]);
    diagnostic.resourcePreflight='checking';
-   try{await waitForServerResources(root);diagnostic.resourcePreflight='passed';}catch(error){
+   try{await waitForServerResources(root,{timeoutMilliseconds:Math.max(0,admissionDeadline-Date.now())});diagnostic.resourcePreflight='passed';}catch(error){
     diagnostic.resourcePreflightRefusal=resourceRefusalFamily(error);
     diagnostic.resourcePreflight=diagnostic.resourcePreflightRefusal==='unknown'?'failed':'refused';
     throw error;
@@ -110,7 +114,17 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
     }
     item.diagnostic.timedOut=true;throw new Error('Managed server failed readiness');
    }
-   try{return await Promise.race([poll(),expired]);}finally{clearTimeout(timeout);}
+   try{return await Promise.race([poll(),expired]);}catch(error){
+    // The CLI checks again after preparing the app. Its exact "Not started"
+    // refusal admits no server; wait for resources before asking it to start.
+    // Application failures and every other refusal still fail immediately.
+    if(!diagnostic.exited||diagnostic.exitCode!==4||diagnostic.cliErrorCode!=='safety_refusal'
+     ||diagnostic.refusalFamily!=='resource-load'||diagnostic.readinessObserved||Date.now()>=admissionDeadline)throw error;
+    admissionRefusal=error;
+    console.log('Spool server launch was not admitted for shared-machine load; waiting before admission.');
+    await delay(Math.min(60_000,admissionDeadline-Date.now()));
+   }finally{clearTimeout(timeout);}
+   }
   }
   return {root,env,command,ready,start,close};
  }catch(error){

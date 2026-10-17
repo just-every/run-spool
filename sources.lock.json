@@ -2856,7 +2856,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "b2476c8fb29337bc766b190269f98e6c8c34d71716bb39cf7b027405e736a8d6",
+      "sha256": "3dfa376e0441fafe6ea6957f541c5625c9218e3ed3635ed605aecfe618b06a25",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3032,7 +3032,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "adb089fca2d77d29091dee0c231c18196cf512ed7e085a91d1e84ca7ab33f7d6",
+      "sha256": "f16c523fff61dacc7348d1fa3cf751c74c7b9301bcf142bf5f20e4a0f0e34842",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -3332,7 +3332,7 @@
       "executable": false
     },
     "scripts/delivery/base/packaging.json": {
-      "sha256": "81946cff7b499bf5739028e2377826aed408d6096b4801020e95d8f277cb86a6",
+      "sha256": "2d3027b501500f6b037508e992688559e427280af8d7d252ea3debc03572e19e",
       "executable": false
     },
     "scripts/delivery/base/paths.mjs": {
@@ -3453,6 +3453,10 @@
     },
     "scripts/installer/ui/seed.mjs": {
       "sha256": "8d6a41830fc2cc59a0da4c01514c04e86e34483e3daeb959787c68c4a5088527",
+      "executable": false
+    },
+    "scripts/installer/verify.mjs": {
+      "sha256": "4b4f83f46e6b2030768599ffb9cd403d695f6bcae87835cd3bc4fe0278f05fb0",
       "executable": false
     },
     "scripts/installer/wal-inspection.mjs": {
@@ -6488,7 +6492,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "ad1b22ff48a90bf60db9c3171b12e3daea2cc7e007a0b7ce8baa029d2ce37f91",
+      "sha256": "170877df6398df723306a723dae028db9b5b871b1ccfa2a6081de09a05ad853b",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -6500,7 +6504,7 @@
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
-      "sha256": "c949274295261a79ba25970313a60a130e266a25d8166d997f77505679d6119b",
+      "sha256": "46b4d609ed724bdf273414e376ae943fa260269832dd4993ed0f7165b9ca0d34",
       "executable": false
     },
     "tests/alerts-egress.mjs": {
@@ -6580,15 +6584,15 @@
       "executable": false
     },
     "tests/command-resources.mjs": {
-      "sha256": "b4241d401acf2aa2e2308618ada481b3d271412293e160fe35e841e20e19c29b",
+      "sha256": "b1039792118144e4827576ea778568b2839dd2c58e638454c6e94e6f7e2774c4",
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "fae4448e0f4bc1d57e46a5e62905aa051e0cb325b4e408b851f8235be8ca0c55",
+      "sha256": "6d5d4517ba7ca7c4913621cb6523d787eecef0a813353bbaee9150f5698e3252",
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "6795fa9cf8282e81967db814421a1793c959fed4203568eb022f6bebc846f4cb",
+      "sha256": "b2f71dd8fc12830d0548b39ee1f1104c8fa2eb88ff34233d2a8e8772f2a18ebe",
       "executable": false
     },
     "tests/dev-credentials.mjs": {

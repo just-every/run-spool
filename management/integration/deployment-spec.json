@@ -276,7 +276,8 @@
   "recovery": "Preserve the private deployment receipt and applied D1 migration ledger. Export a private archive before maintenance; restore into an empty installation, create fresh project grants, and verify evidence before switching traffic.",
   "providerEffects": [
     "outbound-mail",
-    "outbound-webhooks"
+    "outbound-webhooks",
+    "github"
   ],
   "surfaces": {
     "app": {

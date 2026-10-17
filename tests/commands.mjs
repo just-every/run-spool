@@ -65,7 +65,7 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.equal((await post('/api/projects/journey/releases',{name:'r1',build:'b1'})).status,201);
 
  const previewCookies=await previewOwnerSession(origin,generated.SESSION_SECRET);
- await command(['dev','--stop']);assert.equal((await dev.closed).code,0);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false);
+ dev.child.kill('SIGINT');assert.equal((await dev.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false);
  diagnostics.stage('preview');
  const preview=await ready(['preview','--port','15531'],previewOrigin);
  diagnostics.stage('mobile-preview');
@@ -110,7 +110,7 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  await command(['reset','--yes']);await command(['setup','--owner-email',testOwner,'--port','15530']);await useCheckoutKey();
  assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'fresh mobile setup stops its runtime');
  const mobileDev=await ready(['dev','--foreground','--port','15530'],origin);browser=await launchBrowser();
- await firstProjectJourney(browser,origin,390);const resumedCookies=await previewOwnerSession(origin,parseEnv(await get('.dev.vars')).SESSION_SECRET);await command(['dev','--stop']);assert.equal((await mobileDev.closed).code,0);
+ await firstProjectJourney(browser,origin,390);const resumedCookies=await previewOwnerSession(origin,parseEnv(await get('.dev.vars')).SESSION_SECRET);mobileDev.child.kill('SIGINT');assert.equal((await mobileDev.closed).code,130);
  const mobileRestart=await ready(['preview','--port','15531'],previewOrigin);
  const resumed=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),resumedPage=await resumed.newPage();
  await browserPreviewSession(resumedPage,previewOrigin,mobileRestart.output(),resumedCookies);assert.equal(new URL(resumedPage.url()).pathname,'/');

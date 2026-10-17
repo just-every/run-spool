@@ -26,7 +26,7 @@
     "test:domain": "node tests/product-runtime.mjs --no-browser",
     "test:origins": "node tests/browser-origins-runtime.mjs",
     "build:app": "node scripts/build-capture.mjs && vite build",
-    "verify:app": "pnpm run check -- --profile first-party && pnpm source:check && node scripts/edition-authoring/cli.mjs verify-base --offline && pnpm run build:app && pnpm integration:check && pnpm typecheck && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:accessibility && pnpm test:alerts && pnpm test:alerts-ui && pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:admission && pnpm test:dev-credentials && pnpm test:commands && pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution && pnpm test:project-erasure && pnpm test:project-erasure-cap && pnpm test:owner-erasure && pnpm test:languages",
+    "verify:app": "node scripts/installer/verify.mjs",
     "reset": "rer reset",
     "export": "rer export",
     "import": "rer import",
