@@ -127,6 +127,7 @@ try{
  app=await executionRuntime(state,15484);await app.json('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});
  assert.equal((await app.json(`${p}/releases`))[0].build,release.build);assert.ok(archive.includes('PRIVATE_CONTEXT'),'SDK source context retained in private archive');assert.ok(archive.includes('PRIVATE_EXTRA'),'ordinary structured extra retained in private archive');
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
+ assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM inbound_filter_policies').first()).n,0,'pre-mapping archive starts inbound policies empty');
  console.log('Multilingual public journey passed: native/Sentry equivalence, grammar/privacy/deduplication, scoped late path mapping, unchanged admission, JS-only execution, archive restoration and project erasure.');
 }finally{
  await browser?.close();await app?.stop();await restored?.stop();await rm(state,{recursive:true,force:true});await rm(restoredState,{recursive:true,force:true});

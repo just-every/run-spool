@@ -6588,11 +6588,11 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "4f0de580ca6159fd4c20a68acf0c1a124d0a9308fdd2b05a546730fd9be21417",
+      "sha256": "87f87327dee055fcc2ab2857a4cfa48e71aa5f97a913ea6fe57bc6b5b4688953",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "89103d9d23d23fe87c81697e5b266367022b9aaaf21e31c10e4d1d66e9e9ace3",
+      "sha256": "65ec46bab8b66dc35cc29d8324ca496a500d275aa90bcea6c5615b1b78c0715d",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -6716,7 +6716,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "2f327b6985ef78d9b572fa37bf4e2fb3323e7fe4f438b1693deb3057fcb2e1d2",
+      "sha256": "2462ed6c21fa9e52106e2a8dcf0014e232c0efef10569090163e74e2be0b6be7",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
