@@ -130,15 +130,18 @@ async function enter(request, gate, { config, store, hash, current, everyone, ow
     reply.set('location', '/');
     return new Response(null, { status: 303, headers: reply });
   }
-  const persona = (await everyone()).find(p => p.as === as);
-  if (!persona) {
-    const value = await auth.oneClick.enter(request, { as, returnTo: url.searchParams.get('returnTo') ?? '/app' });
+  const oneClick = async email => {
+    const value = await auth.oneClick.enter(request, { as: email, returnTo: url.searchParams.get('returnTo') ?? '/app' });
     reply.append('set-cookie', value.cookie);
     reply.set('location', value.returnTo);
     return new Response(null, { status: 303, headers: reply });
-  }
+  };
+  const persona = (await everyone()).find(p => p.as === as);
+  if (!persona) return oneClick(as);
   if (!persona.email) return text(409, 'No active owner remains in this app. Sign in another way, or run rer reset --yes and rer setup for a new owner.');
   let operator = await store.byEmail(persona.email);
+  // Someone invited at a persona's address is that person, with the role they were invited to; accepting the invite signs them in.
+  if (operator?.status === 'invited') return oneClick(operator.email);
   // Personas are real operators, created only here, in local dev.
   if (!operator && persona.role) {
     if (persona.role === 'owner') {

@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { Readable } from 'node:stream';
 import { randomUUID } from 'node:crypto';
 import { readArchive } from './index.mjs';
+import { canonicalJson } from './hash.mjs';
 export async function* fileRecords(path,reader=readArchive) {
  const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
  try { yield* reader(Readable.toWeb(file.createReadStream({ autoClose: false }))); }
@@ -19,23 +20,35 @@ function receipt(manifest, closing, transient) {
   requiredConfiguration: manifest.requiredConfiguration,
  };
 }
-export async function exportArchive(service, path, transient) {
+// `progress` receives {phase, parts, total?, bytes?} events; the CLI turns them into lines (progress.mjs).
+export async function exportArchive(service, path, transient, progress) {
  let id, temporary, file;
  try {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   temporary = path + '.' + randomUUID() + '.partial';
   file = await open(temporary, 'wx', 0o600);
   id = await service.exports.create();
-  while ((await service.exports.advance(id, { maxParts: 16 })).phase === 'building') {}
+  // The manifest leads the archive and holds the final part count and payload hashes, so
+  // nothing can be written until every part is built (export.mjs advanceExport). One part per
+  // advance keeps the progress line moving; a part is at most 16 MiB.
+  let status;
+  do {
+   status = await service.exports.advance(id, { maxParts: 1 });
+   progress?.({ phase: 'building', parts: status.completed, bytes: status.bytes, ...(status.phase === 'complete' ? { total: status.total } : {}) });
+  } while (status.phase === 'building');
   const reader = (await service.exports.download(id)).getReader();
   try {
-   for (;;) {
+   // One chunk per record: the manifest, then each part, then the closing record.
+   for (let record = 0, written = 0;; record++) {
     const { done, value } = await reader.read(); if (done) break;
     let offset = 0;
     while (offset < value.length) offset += (await file.write(value, offset)).bytesWritten;
+    written += value.length;
+    if (record > 0 && record <= status.total) progress?.({ phase: 'writing', parts: record, total: status.total, bytes: written });
    }
   } finally { await reader.cancel(); reader.releaseLock(); }
   await file.sync(); await file.close(); file = undefined;
+  progress?.({ phase: 'checking', direction: 'export' });
   let manifest, closing;
   for await (const record of fileRecords(temporary)) { if (record.kind === 'manifest') manifest = record; if (record.kind === 'closing') closing = record; }
   await link(temporary, path);
@@ -46,19 +59,25 @@ export async function exportArchive(service, path, transient) {
   if (id) await service.exports.abort(id);
  }
 }
-export async function importArchive(service, path, transient, journal) {
- let id, manifest, closing, complete = false;
+export async function importArchive(service, path, transient, journal, progress) {
+ let id, manifest, closing, complete = false, staged = 0;
  try {
   // Validate both complete archives before creating any restore state.
   let later;
+  progress?.({ phase: 'checking', direction: 'import' });
   for (const file of [path, journal].filter(Boolean)) for await (const record of fileRecords(file)) {
    if (file === journal && record.kind === 'manifest') later = { sourceIdentity: record.sourceIdentity, epoch: record.epoch, journal: record.journal };
   }
   for await (const record of fileRecords(path)) {
    if (record.kind === 'manifest') { manifest = record; id = await service.imports.create(manifest); }
-   else if (record.kind === 'part') await service.imports.uploadPart(id, record.index, record);
+   else if (record.kind === 'part') {
+    await service.imports.uploadPart(id, record.index, record);
+    staged += Buffer.byteLength(canonicalJson(record)) + 1;
+    progress?.({ phase: 'staging', parts: record.index + 1, total: manifest.partCount, bytes: staged });
+   }
    else closing = record;
   }
+  progress?.({ phase: 'finishing', total: manifest.partCount });
   const status = await service.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash, ...(later ? { laterJournal: later } : {}) }); complete = true;
   return { ...receipt(manifest, closing, transient), ...(status.bridged ? { bridged: status.bridged } : {}) };
  } finally { if (id && !complete) await service.imports.abort(id); }

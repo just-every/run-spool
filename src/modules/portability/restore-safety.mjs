@@ -1,4 +1,5 @@
 import { all,statement,guard,quote,insist } from './storage.mjs';
+import { canonicalJson } from './hash.mjs';
 const identifier=value=>value.replace(/[A-Z]/g,c=>c.toLowerCase());
 
 export async function excludedDependentGuards(db,targets,replaceable) {
@@ -28,3 +29,25 @@ export async function excludedDependentGuards(db,targets,replaceable) {
   }
   return guards;
 }
+const imageSql=(table,columns)=>`SELECT json_array(${columns.map(c=>`quote(${quote(c)})`).join(',')}) AS image FROM ${quote(table)}`;
+const MAX_SEED_ROWS=10000;
+
+/** Of the filled tables `names`, those holding exactly the rows the replay of the destination's
+ * applied migrations (migrations(), a node runner's scratch database) leaves there: the settings
+ * and other rows a fresh installation's own migrations seed. Without a usable replay none is. */
+export async function migrationSeeded(db,names,migrations) {
+ if(!names.length || !migrations)return [];
+ const requests=[];
+ for(const name of names)requests.push({name,columns:(await all(db,`SELECT name FROM pragma_table_info(?)`,name)).map(c=>c.name)});
+ // Without a usable replay no seed is vouched for, so those rows count as the installation's own.
+ const expected=await migrations().then(replay=>replay.rowImages(requests,MAX_SEED_ROWS),()=>new Map()),seeded=[];
+ for(const {name,columns} of requests) {
+  const want=expected.get(name);
+  if(!want || (await statement(db,`SELECT count(*) AS n FROM ${quote(name)}`).first()).n!==want.length)continue;
+  const found=(await all(db,imageSql(name,columns))).map(r=>r.image).sort();
+  if(canonicalJson(found)===canonicalJson(want))seeded.push({name,columns,images:found});
+ }
+ return seeded;
+}
+/** The SQL condition (with its values) that `table` still holds exactly its seeded rows. */
+export const seededCondition=table=>[`(SELECT count(*) FROM ${quote(table.name)})=? AND NOT EXISTS(SELECT 1 FROM (${imageSql(table.name,table.columns)}) WHERE image NOT IN (SELECT value FROM json_each(?)))`,table.images.length,JSON.stringify(table.images)];

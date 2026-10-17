@@ -1,5 +1,6 @@
 import { all, statement, guard, quote, insist } from './storage.mjs';
 import { canonicalJson } from './hash.mjs';
+import { migrationSeeded, seededCondition } from './restore-safety.mjs';
 
 // Recovery requires a new installation, including excluded identity tables and
 // normally replaceable product rows. Only SQLite/migration/transfer bookkeeping,
@@ -18,34 +19,17 @@ function shadowTables(tables) {
  }
  return shadows;
 }
-const imageSql=(table,columns)=>`SELECT json_array(${columns.map(c=>`quote(${quote(c)})`).join(',')}) AS image FROM ${quote(table)}`;
-const MAX_SEED_ROWS=10000;
-
 /** What the destination must still hold when the restore commits: `emptyTables` stay empty and
- * each of `seededTables` keeps exactly the rows its migrations put there. A table with rows the
- * replay of the destination's applied migrations (migrations(), a node runner's scratch database)
- * does not produce is listed as to-be-empty, so the preflight refuses it. */
+ * each of `seededTables` keeps exactly the rows its migrations put there. A table with other rows
+ * is listed as to-be-empty, so the preflight refuses it. */
 export async function legacyTargetState(db,migrations) {
  const tables=await all(db,"SELECT name,sql FROM sqlite_master WHERE type='table' AND sql IS NOT NULL ORDER BY name"),shadows=shadowTables(tables);
  const names=tables.map(t=>t.name).filter(name=>!bookkeeping(name) && !shadows.has(name.toLowerCase()));
  const filled=[];
  for(const name of names)if(await statement(db,`SELECT 1 FROM ${quote(name)} LIMIT 1`).first())filled.push(name);
- const seeded=[];
- if(filled.length && migrations) {
-  const requests=[];
-  for(const name of filled)requests.push({name,columns:(await all(db,`SELECT name FROM pragma_table_info(?)`,name)).map(c=>c.name)});
-  // Without a usable replay no seed is vouched for, so those rows count as the installation's own.
-  const expected=await migrations().then(replay=>replay.rowImages(requests,MAX_SEED_ROWS),()=>new Map());
-  for(const {name,columns} of requests) {
-   const want=expected.get(name);
-   if(!want || (await statement(db,`SELECT count(*) AS n FROM ${quote(name)}`).first()).n!==want.length)continue;
-   const found=(await all(db,imageSql(name,columns))).map(r=>r.image).sort();
-   if(canonicalJson(found)===canonicalJson(want))seeded.push({name,columns,images:found});
-  }
- }
+ const seeded=await migrationSeeded(db,filled,migrations);
  return {emptyTables:names.filter(name=>!seeded.some(s=>s.name===name)),seededTables:seeded};
 }
-const seededCondition=table=>[`(SELECT count(*) FROM ${quote(table.name)})=? AND NOT EXISTS(SELECT 1 FROM (${imageSql(table.name,table.columns)}) WHERE image NOT IN (SELECT value FROM json_each(?)))`,table.images.length,JSON.stringify(table.images)];
 export async function requireLegacyEmpty({db,buckets},{emptyTables,seededTables=[]}) {
  for(const table of emptyTables)insist(!(await statement(db,`SELECT 1 FROM ${quote(table)} LIMIT 1`).first()),'legacy_target_not_empty:'+table,409);
  for(const table of seededTables){const [condition,...values]=seededCondition(table);insist((await statement(db,`SELECT CASE WHEN (${condition}) THEN 1 ELSE 0 END AS ok`,...values).first()).ok===1,'legacy_target_not_empty:'+table.name,409);}

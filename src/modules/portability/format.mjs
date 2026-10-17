@@ -11,9 +11,11 @@ export async function makePart(index,items) {
 export async function checkPart(part,index,partBytes=MAX_PART_BYTES) {
   insist(part?.kind==='part' && part.index===index && Array.isArray(part.items) && part.items.length>0 && Object.keys(part).sort().join(',')==='index,items,kind,sha256','part_order');
   insist(Number.isSafeInteger(partBytes) && partBytes>0 && partBytes<=MAX_PART_BYTES,'invalid_part_limit');
-  insist(utf8(canonicalJson(part)).length<=partBytes,'part_byte_limit',413);
+  const size=utf8(canonicalJson(part)).length;
+  insist(size<=partBytes,'part_byte_limit',413);
   insist(part.sha256===await sha256(canonicalJson({kind:part.kind,index:part.index,items:part.items})),'part_checksum');
   insist(part.items.filter(x=>x.kind==='row').length<=1000,'part_row_limit');
+  return size;
 }
 export async function checkManifest(m) {
   insist(m?.kind==='manifest' && m.format===FORMAT,'archive_format');

@@ -132,7 +132,7 @@ const expected = [
   ['P2', 'bad certificates refused on the edge', r => r.P1.receiver.status !== undefined && r.P1.goodCertificate.status !== undefined && Object.values(r.P2).every(x => x.error === 'egress_connection_failed'), 'all four egress_connection_failed'],
   // transport.ts reaches exchange only after the public name's DoH answers pass validation;
   // egress_connection_failed originates there, so it proves DNS independently of working TLS.
-  ['P3', 'DoH answers from the edge', r => dnsObserved(r.P3), 'negative name refused; public name passes DNS validation; raw A and AAAA HTTP/JSON retained as separately labelled diagnostic second queries'],
+  ['P3', 'DoH answers from the edge', r => dnsObserved(r.P3), 'negative name refused; public name passes DNS validation; raw A and AAAA HTTP/JSON retained as separately labeled diagnostic second queries'],
   ['P4', 'no public route to the egress Worker', r => r.P4.status === null || r.P4.status >= 400, 'workers.dev request fails or answers 4xx/5xx'],
   ['P5', 'service-owned named grants narrow on the edge and read back', r => r.P5.grantVerified === true && r.P5.allowed?.status !== undefined && r.P5.narrowed?.error === 'egress_destination_not_allowed', 'strict service grant + target deployment + caller binding readback succeeds, badssl.com returns HTTP and the otherwise-working receiver is denied'],
   ['P6', 'platform private-address refusal required by the fetch route', r => r.P6.fetchPrivate.outcome === 403 && r.P6.fetchPrivateName.outcome === 403, 'direct Worker fetch returns 403 for both https://10.0.0.1/ and https://localtest.me/; errors or other statuses do not qualify private-address refusal; raw socket result is diagnostic only'],

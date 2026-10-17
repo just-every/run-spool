@@ -24,7 +24,7 @@ schema at construction. Apply the bookkeeping migration first. Policy fields:
 | `derivedTables` | Virtual/FTS tables to regenerate; their shadow tables are excluded. |
 | `secretColumns` | Per-table nullable base columns omitted at export and written as NULL. Primary keys and generated columns cannot be secret. |
 | `exportRow(table,row)` | Pure, synchronous, idempotent transformation of encoded base cells. Restore writes its result verbatim; SQLite recomputes generated cells. |
-| `replaceableTables` | Bootstrap or migration-seeded rows replaced in the atomic restore batch. Populated excluded dependents reachable through modifying FK actions refuse replacement. |
+| `replaceableTables` | Bootstrap rows replaced in the atomic restore batch. Rows the destination's own migrations insert need no entry where the runner passes `migrations` (see "Migration-seeded rows"). Populated excluded dependents reachable through modifying FK actions refuse replacement. |
 | `requiredConfiguration` | Setting names returned after restore for the owner to re-enter. |
 | `validateStaged({db,tables,read,manifest})` | Read-only product validation before any object write; false or a thrown error refuses restore. `tables` names the staging tables for bounded SQL queries; `read` is a convenience for small tables. |
 | `acceptedSchemas` | Map from an earlier full schema hash to `{upgradeRow(table,row)}`. Upgrade functions are pure and synchronous. No older schema is accepted by default. |
@@ -121,7 +121,7 @@ idempotence and recovery; D1 cannot roll back Durable Object or external state.
 The UTF-8 JSON-lines archive has a manifest, indexed checksummed parts and a
 closing record. `readArchive(stream)` uses the shared bounded, fatal UTF-8 line
 reader. The default maximum line size is 24 MiB; callers can set a smaller bound.
-No runtime or CLI materializes the whole archive. Readers enforce a 16 MiB
+No runtime or CLI materializes the whole archive. The manifest opens the archive and holds the final part count and payload hashes, so an export builds all its parts in the job before any byte is written; `exportArchive` and `importArchive` take an optional `progress` callback (`progress.mjs` turns its events into throttled lines with a time-left estimate). Readers enforce a 16 MiB
 canonical UTF-8 part limit; `readArchive(stream,{partBytes})` can lower it.
 Import uploads enforce the policy's part limit before any staging write.
 A part has at most 1,000 rows;
@@ -314,6 +314,18 @@ deferred FKs, trigger suppression/recreation, replaceable rows, staged inserts,
 journal adoption and completion. FK cycles and self-references restore together.
 An unsuccessful commit removes only owned objects. A lost commit acknowledgement
 is resolved by reading durable completion before any cleanup.
+
+### Migration-seeded rows
+
+A fresh destination already holds the rows its own migrations insert, such as a
+seed's default settings. When the runner passes `migrations` (Node runners: a
+scratch replay of the destination's applied migrations), finalize treats a target
+table holding exactly those rows as empty: the archive's rows replace them in the
+restore batch, or they stay when the archive predates the table (an additive
+bridge). The batch repeats the check. Any other row refuses with
+`target_not_empty:<table>`, which the CLI reports with the table's name and the
+export, reset and import commands to run. A Worker import has no replay, so a
+hosted restore still needs such tables in `replaceableTables`.
 
 An empty destination must be reserved for restore: pause destination writers and
 serialize finalize/abort calls. Product writes to source tables can continue.

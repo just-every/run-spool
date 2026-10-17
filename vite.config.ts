@@ -4,7 +4,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { documentBoundary } from './vite/document-boundary'
-import { excludeLocalVariables } from './vite/exclude-local-variables'
+import { excludeLocalVariables } from '@runeditrun/rer/local-variables-output'
 import { docsSite } from './vite/docs-site'
 import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
 

@@ -96,7 +96,7 @@ export async function advanceExport(context,id,{expectedPart,maxParts=1}={}) {
     if(expectedPart!==undefined && row.completed!==expectedPart)return exportStatus(context,id);
     const before=row.completed,items=await nextItems(context,row);
     if(items) {
-      const part=await makePart(before,items);await checkPart(part,before,row.metadata.partBytes);row.completed++;
+      const part=await makePart(before,items),size=await checkPart(part,before,row.metadata.partBytes);row.completed++;row.metadata.bytes=(row.metadata.bytes??0)+size+1;
       try{await context.db.batch([guard(context.db,'(SELECT completed FROM rer_portability_jobs WHERE id=?)=?',id,before),...partStatements(context.db,id,part),save(context.db,row),context.db.prepare('DELETE FROM rer_portability_guard')]);}
       catch(e){if((await job(context.db,id)).completed===before)throw e;}
       if(expectedPart!==undefined)expectedPart++;
@@ -114,7 +114,7 @@ export async function advanceExport(context,id,{expectedPart,maxParts=1}={}) {
   return exportStatus(context,id);
 }
 export async function exportStatus(context,id) {
-  const row=await job(context.db,id,'export');return {id,kind:'export',phase:row.phase,completed:row.completed,total:row.phase==='complete'?row.completed:null,contentHash:row.metadata.contentHash??null};
+  const row=await job(context.db,id,'export');return {id,kind:'export',phase:row.phase,completed:row.completed,total:row.phase==='complete'?row.completed:null,bytes:row.metadata.bytes??0,contentHash:row.metadata.contentHash??null};
 }
 export async function downloadExport(context,id) {
   const row=await job(context.db,id,'export');insist(row.phase==='complete','export_incomplete',409);

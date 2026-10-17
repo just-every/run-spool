@@ -8,7 +8,7 @@ import { checkManifest, checkPart, ContentVerifier, ArchiveVerifier } from './fo
 import { fence, mergeJournal, tombstone } from './journal.mjs';
 import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
-import { excludedDependentGuards } from './restore-safety.mjs';
+import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
 import { additiveBridge, sameSchemaMigrations, appliedMigrations } from './bridge.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
 export async function createImport(context,manifest,actor='direct',legacyRecovery) {
@@ -105,8 +105,20 @@ async function bucketsEmpty(context,row) {
     }while(cursor);
   }
 }
-function emptyGuards(context,row) {
-  return row.metadata.targets.filter(t=>!context.config.replaceableTables.includes(t.name)).map(t=>guard(context.db,`NOT EXISTS(SELECT 1 FROM ${quote(t.name)})`));
+function emptyGuards(context,row,seeded) {
+  return row.metadata.targets.filter(t=>!context.config.replaceableTables.includes(t.name) && !seeded.some(s=>s.name===t.name)).map(t=>guard(context.db,`NOT EXISTS(SELECT 1 FROM ${quote(t.name)})`));
+}
+// A fresh installation already holds the rows its own migrations insert (settings and
+// other seeded rows). A table holding exactly those, as a node runner's replay of the
+// applied migrations shows, does not make it non-empty: the archive's rows replace
+// them, or they stay when the archive predates the table. Any other row refuses.
+async function destinationState(context,row) {
+  const {db,config}=context,filled=[];
+  for(const table of row.metadata.targets) if(!config.replaceableTables.includes(table.name) && await statement(db,`SELECT 1 FROM ${quote(table.name)} LIMIT 1`).first())filled.push(table.name);
+  const seeded=await migrationSeeded(db,filled,context.migrations);
+  for(const name of filled)insist(seeded.some(s=>s.name===name),'target_not_empty:'+name,409);
+  const archived=seeded.filter(s=>row.metadata.manifest.tables.some(t=>t.name===s.name)).map(s=>s.name);
+  return {seeded,replaced:[...config.replaceableTables,...archived]};
 }
 async function removeOwned(context,id) {
   const owned=await all(context.db,'SELECT bucket,key FROM rer_portability_owned WHERE job=?',id);
@@ -137,8 +149,8 @@ export async function finalizeImport(context,id,{contentHash,archiveHash,laterJo
   insist(archiveHash===archive.digest(),'archive_checksum',409);
   const checked=await fence(db,manifest,row.metadata.copies,laterJournal);
   if(row.metadata.legacyRecovery)await requireLegacyEmpty(context,row.metadata.legacyRecovery);
-  for(const table of row.metadata.targets) if(!config.replaceableTables.includes(table.name))insist(!(await statement(db,`SELECT 1 FROM ${quote(table.name)} LIMIT 1`).first()),'target_not_empty:'+table.name,409);
-  const dependentGuards=await excludedDependentGuards(db,row.metadata.targets,config.replaceableTables);
+  const {seeded,replaced}=await destinationState(context,row);
+  const dependentGuards=await excludedDependentGuards(db,row.metadata.targets,replaced);
   await bucketsEmpty(context,row);
   await refuseDevData(db,row.metadata.copies,row.metadata.targets);
   await refuseProviderData(db,row.metadata.copies,row.metadata.targets);
@@ -160,11 +172,11 @@ export async function finalizeImport(context,id,{contentHash,archiveHash,laterJo
     }
     for(const payload of manifest.payloads)await config.extraPayloads[payload.name].consume(binaryStream(context,id,payload,binaryIndexes),payload);
     row.phase='complete';row.metadata.contentHash=digest;
-    await db.batch([db.prepare('PRAGMA defer_foreign_keys=ON'),...emptyGuards(context,row),...dependentGuards,...legacyEmptyGuards(db,row),
+    await db.batch([db.prepare('PRAGMA defer_foreign_keys=ON'),...emptyGuards(context,row,seeded),...seeded.map(t=>guard(db,...seededCondition(t))),...dependentGuards,...legacyEmptyGuards(db,row),
       guard(db,'NOT EXISTS(SELECT 1 FROM rer_portability_epochs WHERE source=? AND epoch>?) AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE source_identity=? AND epoch>?)',manifest.sourceIdentity,checked.epoch,manifest.sourceIdentity,checked.epoch),
       ...row.metadata.targets.map(t=>guard(db,`NOT EXISTS(SELECT 1 FROM ${quote(sidecar(row.metadata.copies[t.name]))} s JOIN rer_portability_journal j ON j.source=? AND j.tombstone=s.rer_portability_tombstone)`,manifest.sourceIdentity)),
       ...row.metadata.triggers.map(t=>db.prepare(`DROP TRIGGER ${quote(t.name)}`)),
-      ...config.replaceableTables.map(t=>db.prepare(`DELETE FROM ${quote(t)}`)),
+      ...replaced.map(t=>db.prepare(`DELETE FROM ${quote(t)}`)),
       ...row.metadata.targets.flatMap(t=>restoreCopy(db,t,row.metadata.copies[t.name])),
       ...row.metadata.triggers.map(t=>db.prepare(t.sql)),...mergeJournal(db,manifest,checked),...legacyAuditStatements(db,row),save(db,row),
       db.prepare('UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1'),db.prepare('DELETE FROM rer_portability_guard')]);
@@ -184,4 +196,12 @@ export async function abortImport(context,id) {
   await removeOwned(context,id);await cleanCopies(context.db,row);row.phase='aborted';
   await context.db.batch([save(context.db,row),statement(context.db,'UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1 AND import_job=?',id)]);
   return importStatus(context,id);
+}
+// A restore's staging outlives a worker that died mid-restore (a crashed process or workerd) and refuses
+// every later import as running. Only a caller that owns the destination, as the local CLI does under the
+// checkout's operation lock, may call this: a hosted service can have a live import.
+export async function abortAbandonedImport(context) {
+  const id=(await state(context.db)).import_job;
+  if(!id)return null;
+  await abortImport(context,id);return id;
 }
