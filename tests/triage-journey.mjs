@@ -45,7 +45,7 @@ try {
  const appPage=await context.newPage();async function throwInApp(){await appPage.goto(application.origin);await appPage.getByRole('button',{name:'Prepare delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');return appPage.evaluate(()=>window.captureOutcome);}
  const admitted=await throwInApp();assert.ok(admitted.issue);checked('Real minified application throws and capture crosses a second loopback origin');
  const issuePath='/projects/cedar/issues/'+admitted.issue;
- await (await workbenchLink(page,'Issues',false)).click();await page.getByRole('button',{name:'Check for events',exact:true}).click();await page.locator('.unseen-label').waitFor();
+ await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-label').waitFor();
  const row=page.locator('tbody tr').first();assert.match(await row.innerText(),/New/);await row.getByRole('link').click();await page.locator('.missing-map').waitFor();assert.equal(await page.locator('.missing-map').count(),1);
  await page.getByRole('button',{name:'Upload map',exact:true}).click();await page.getByLabel('Bundle debug ID',{exact:true}).waitFor();assert.equal(await page.getByLabel('Bundle debug ID',{exact:true}).inputValue(),'dispatch-map');
  await page.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
@@ -64,7 +64,7 @@ try {
  await api('/api/projects/cedar/releases','POST',{name:'winter-deliveries',build:'dispatch-b'});await api('/api/projects/cedar/artifacts','POST',{release:'winter-deliveries',build:'dispatch-b',debugId:'dispatch-map',map:application.map});application.setRelease('winter-deliveries','dispatch-b');const regressed=await throwInApp();assert.equal(regressed.issue,admitted.issue);
  application.setRelease('autumn-deliveries','dispatch-a');assert.equal((await throwInApp()).issue,admitted.issue);
  await appPage.evaluate(()=>{window.captureOutcome=null;});await appPage.getByRole('button',{name:'Track delivery'}).click();await appPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');assert.notEqual((await appPage.evaluate(()=>window.captureOutcome)).issue,admitted.issue);
- await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByRole('button',{name:'Refresh issues'}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();assert.equal(await page.locator('.unseen-label').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
+ await page.getByRole('link',{name:'All issues',exact:true}).click();await page.getByRole('button',{name:'Refresh issues'}).click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();await page.waitForFunction(()=>document.querySelectorAll('.unseen-label').length===2);assert.equal(await page.locator('.unseen-label').count(),2);assert.ok((await page.locator('tbody tr').first().innerText()).includes('Regressed in winter-deliveries'));
  await capture('regression-priority',width);
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
