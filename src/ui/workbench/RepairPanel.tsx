@@ -12,7 +12,7 @@ type Props = { initial?: Promise<any[]>; project: string; issue: any; busy: bool
 export function RepairPanel({ project, issue, busy, request, run, refresh, initial }: Props) {
   const [repairs, setRepairs] = useState<any[] | null>(null), [releases, setReleases] = useState<any[]>([]), [failed, setFailed] = useState(false);
   const [link, setLink] = useState(''), [note, setNote] = useState('');
-  const live = ['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm);
+  const live = ['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(issue.algorithm);
   async function load(prepared?: Promise<any[]>) {
     try {
       const [list, registered] = await (prepared ?? Promise.all([request(`${base(project)}?issue=${encodeURIComponent(issue.id)}`), request(`/api/projects/${encodeURIComponent(project)}/releases`)]));

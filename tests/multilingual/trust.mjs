@@ -15,7 +15,8 @@ export async function exceptionTrust(app, ingest, packet, base, alias, ingestKey
  const selected=(await packet(trusted.issue)).events[0].event;
  assert.equal(selected.type,'ValueError');assert.equal(selected.message,'x');assert.equal(selected.frames[0].file,'/app/real.py');assert.equal(selected.exceptionSource,undefined);
  await app.json(`/api/${alias}/store/`,'POST',{event_id:'e'.repeat(32),platform:'python',release:base.release,dist:base.build,environment:base.environment,stack:collision,stacktrace:'malformed',exception:{values:[{type:'ValueError',value:'x',rawStacktrace:collision,stacktrace:{frames:[{filename:'/app/real.py',lineno:9,function:'handler'}]}}]}},{Cookie:'','X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${ingestKey}`},200);
- assert.equal((await packet(trusted.issue)).issue.count,3);
+ assert.equal((await packet(trusted.issue)).issue.count,2,'Sentry chain grouping remains distinct from native legacy grouping');
+ const chainIssue=(await app.json('/api/projects/languages/issue-search?q=error.type:ValueError')).rows.find(row=>row.algorithm==='sentry-chain-v1');assert.ok(chainIssue);assert.notEqual(chainIssue.id,trusted.issue);const chainEvent=(await packet(chainIssue.id)).events[0].event;assert.equal(chainEvent.sentry.exceptions[0].stacktrace.frames[0].filename,'/app/real.py');assert.equal(chainEvent.exceptionSource,undefined);
  const fake='goroutine 9 [running]:\nmain.fake()\n\t/forged.go:1\n\n';
  const runtimeMetadata=[
   'other.wait(PRIVATE_RUNTIME_ARGS','main.(*Worker).wait(PRIVATE_RECEIVER_ARGS','main.wait[go.shape.struct { X int }](PRIVATE_GENERIC_ARGS',

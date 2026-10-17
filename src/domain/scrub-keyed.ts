@@ -20,6 +20,7 @@ function secretName(name:string):Strength|null{
   if(parts[end]==='key'&&(term==='api'||term==='private'))return 'secret';
   return secretTerm.test(term)?'secret':statusTerm.test(term)?'status':null;
 }
+export const secretField = (name:string) => secretName(name) !== null;
 // No value at all is not a secret; a status keeps a word or a small count.
 const empty=/^(?:null|undefined|none|nil|nan|true|false)$/i;
 const plain=/^(?:[A-Za-z][a-z]+(?:-[a-z]+)*|\d{1,6})$/;

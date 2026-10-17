@@ -45,7 +45,7 @@ routes.post('/', async c => {
  const project = c.req.param('project')!, b = await input(c);
  const issue = typeof b.issue === 'string' ? await s(c.env.DB, 'SELECT id,revision,algorithm,latest_release_seq FROM issues WHERE project=? AND id=?', project, b.issue).first<any>() : null;
  if (!issue) return c.json({ error: 'Issue not found' }, 404);
- if (!['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm)) throw new Error('Imported history cannot recur in live capture; record repairs on live issues');
+ if (!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(issue.algorithm)) throw new Error('Imported history cannot recur in live capture; record repairs on live issues');
  const link = repairLink(b.link), note = boundedText(b.note, 'Note', 1000), id = crypto.randomUUID(), time = Date.now();
  // The evidence snapshot: issue revision, the packet's newest retained event IDs
  // and the issue's release watermark when the repair was recorded.

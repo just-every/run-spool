@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import type { IssuePanels } from './issuePanels';
 import { Details } from './Details';
+import { EventExplorer } from './EventExplorer';
+import { SentryEvent } from './SentryEvent';
 import { OperatorPanel } from './OperatorPanel';
 import { RepairPanel } from './RepairPanel';
 import { ExecutionPanel } from './ExecutionPanel';
@@ -13,24 +15,29 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode;
 }) {
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  useEffect(()=>setSelectedEvent(null),[project,packet?.issue.id]);
   useEffect(() => { if (packet && alert) onViewed(alert.id); }, [packet, alert?.id, onViewed]);
   if (!packet) return <section className="evidence">{status === 'loading' ? <p role="status">Loading issue evidence…</p> : <><h2>Issue evidence unavailable</h2><p>The issue may have been removed, or its evidence could not be loaded.</p><button className="text-button" onClick={refresh}>Retry evidence</button></>}</section>;
-  const group = packet.issue, event = packet.events?.[0], frames: any[] = event?.currentLookup ?? [];
+  const group = packet.issue, event = selectedEvent ?? packet.events?.[0], frames: any[] = event?.currentLookup ?? [];
   const missing = frames.filter(frame => !['mapped','go_path_mapped','python_source'].includes(frame.status));
   const language = event?.event.language;
   const imported = event?.historical === true;
   const sample = event?.event.environment === 'spool-test';
   return <>
     <div className="issue-toolbar"><Link className="text-button" to={hrefFor(project) as any}>All issues</Link><button className="text-button" onClick={() => void run(async () => { await navigator.clipboard.writeText(new URL(hrefFor(project, 'issues', group.id), location.origin).href); setCopied(true); })}>{copied ? 'Link copied' : 'Copy link'}</button><button className="text-button" disabled={busy} onClick={refresh}>Refresh</button></div>
+    <EventExplorer key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet} onSelect={setSelectedEvent}/>
     <section className="issue">
       <div className="issue-summary"><div className="issue-body"><div className="issue-status"><span className={`state-chip ${group.state}`}>{stateLabel(group.state)}</span>{alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}</div><p className="metadata">{event ? `${event.event.release} · ${event.event.environment}` : 'Occurrence evidence deleted by retention'}</p></div><p className="issue-count"><strong>{group.count}</strong> <span>retained occurrences</span></p>
       <div className="triage"><label className="form-field">Status<select value={group.state} disabled={busy} onChange={e => void run(async () => { await request(`/api/projects/${project}/issues/${group.id}`, 'PATCH', { state: e.target.value, revision: group.revision }); refresh(); })}>{states.map(state => <option key={state} value={state}>{stateLabel(state)}</option>)}</select></label></div>
         <button className="highlight-button phone-download" onClick={() => download(packet, `spool-${group.id.slice(0, 12)}-packet.json`)}><span aria-hidden="true">↓</span> Download evidence</button></div>
-      <h2 className="stack-heading">Stack trace</h2>
+      {selectedEvent&&<p className="metadata">Selected event <code>{selectedEvent.id}</code> · received {date(selectedEvent.received)}</p>}
+      {event?.event.sentry&&<SentryEvent data={event.event.sentry} grouping={selectedEvent?.grouping??event.originalGrouping}/>}
+      <h2 className="stack-heading">{event?.event.sentry?'Primary exception source lookup':'Stack trace'}</h2>
       {sample && <p className="callout"><strong>Spool’s sample error.</strong> This stack comes from the Send test error button in Spool. It checks that your key and release can receive an error. It does not need a source map from your app.</p>}
       {packet.events?.some((occurrence: any) => occurrence.event.exceptionSource === 'parsed-text') && <p className="callout">Exception type and frames were parsed from text for some retained occurrences. Message text can imitate a traceback; these are best-effort reported locations.</p>}
       {imported && <p className="callout">Imported historical evidence. {frames.some(frame => frame.status === 'imported_symbolicated_stack') ? 'These locations were already symbolicated in the export; Spool has not verified their generated positions.' : 'These raw stack locations come from the export.'} This history does not trigger alerts or join live capture groups.</p>}
-      {language && <p className="callout">{language === 'python' ? 'Python reported source paths. Source content and symbolication are unavailable.' : 'Go reported source paths. Recorded release prefixes can map to repository paths; binary and DWARF symbolication are unavailable.'} The sandbox reproducer supports JavaScript only.</p>}
+      {language && <p className="callout">{language === 'python' ? event?.event.sentry ? 'Python paths are reported source coordinates. Source-map symbolication is unavailable; SDK context above is retained as sent.' : 'Python reported source paths. Source content and symbolication are unavailable.' : 'Go reported source paths. Recorded release prefixes can map to repository paths; binary and DWARF symbolication are unavailable.'} The sandbox reproducer supports JavaScript only.</p>}
       {language === 'go' && !!missing.length && <p className="callout">{missing.some(frame => frame.status === 'go_mapping_unavailable') ? 'No path mappings are recorded for this release, build and environment. Register a deployment manifest with path mappings in Releases.' : 'Some reported paths do not match the recorded deployment prefixes.'}</p>}
       {!language && !imported && !sample && !!missing.length && <div className="callout missing-map"><strong>Original source unavailable for {missing.length === 1 ? 'one frame' : `${missing.length} frames`}</strong><p>{missing.some(frame => frame.status === 'missing_debug_id') ? 'Some frames have no debug ID. Add the bundle’s debug ID to capture and upload its matching map.' : missing.every(frame => ['unmapped_position', 'invalid_artifact'].includes(frame.status)) ? 'The stored map could not locate these positions. Check the generated coordinates and map diagnostics in Details.' : 'Upload the map matching this release, build and debug ID to locate the original source.'}</p><button className="text-button" onClick={() => onUpload(event.event.release, missing.find(frame => frame.generated.debugId)?.generated.debugId ?? '')}>Upload map</button></div>}
       <ol className="stack readable-stack">{frames.slice(0, allFrames ? 30 : 6).map((frame, index) => {

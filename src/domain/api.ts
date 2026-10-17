@@ -6,6 +6,7 @@ import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
 import alertRoutes from './alerts/routes';
 import investigationRoutes from './investigation/search';
+import eventRoutes from './investigation/events';
 import groupingRoutes from './operators/grouping';
 import policyRoutes from './operators/policies';
 import repairRoutes from './repairs/routes';
@@ -113,6 +114,7 @@ api.use('/api/*',async(c,next)=>{
   return c.json({error:'Sign in required'},401);
 });
 api.route('/api/projects',investigationRoutes);
+api.route('/api/projects',eventRoutes);
 api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects/:project/alerting',alertRoutes);

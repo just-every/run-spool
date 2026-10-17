@@ -46,8 +46,9 @@ export async function classify(db: D1Database, project: string, eventId: string,
  const unsupported = (reason: string, event: any = null) => ({ issue: row.issue, support: 'unsupported' as const, reason, spec: { version: 1, defectClass: DEFECT_CLASS, event, reason: UNSUPPORTED[reason] } });
  if (row.historical === 1) return unsupported('imported_history');
  const stored = JSON.parse(row.payload);
- const envelope = normalize({ version: 1, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment, type: stored.type, message: stored.message, frames: stored.frames, breadcrumbs: [] });
+ const envelope = normalize({ version: 1, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment, type: stored.type, message: stored.message, frames: stored.frames, breadcrumbs: [], ...(stored.sentry?{sentry:stored.sentry}:{}) });
  const [top] = await diagnose(db, project, envelope);
+ if(!top)return unsupported('frame_not_mapped',{id:row.id,release:row.release,build:row.build,environment:row.environment,type:envelope.type,message:envelope.message,frame:null});
  const event = { id: row.id, release: row.release, build: row.build, environment: row.environment, type: envelope.type, message: envelope.message, frame: { generated: top.generated, status: top.status, ...(top.original ? { original: top.original } : {}) } };
  if (envelope.language) return unsupported('capture_language_unsupported', {...event,language:envelope.language});
  if (top.status !== 'mapped') return unsupported('frame_not_mapped', event);

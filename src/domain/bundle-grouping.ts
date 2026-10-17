@@ -2,16 +2,11 @@ import { grouping, hash, normalize, type Envelope } from './privacy';
 
 const bundleSuffix = /(^|\/)([^/]+?)(?:[.-]([a-fA-F0-9]{8,64})|-([A-Za-z0-9_-]{8}))(\.(?:m?js|cjs))$/;
 
-// Vite/Rollup's eight-character base64url suffix needs a non-lowercase
-// character to distinguish it from entry names such as app-checkout.js.
-// Also recognize hexadecimal content hashes (webpack/Rollup), including
-// all-letter hex. Keep the origin, directory, entry name and extension.
-// Reported frames and source-map coordinates are never rewritten.
-export function bundleFile(file: string): string {
- return file.replace(bundleSuffix,
-  (matched, directory, entry, hex, encoded, extension) => hex || /[^a-z]/.test(encoded) ? `${directory}${entry}-[hash]${extension}` : matched);
-}
+import { bundleFile } from './grouping-path';
+export { bundleFile } from './grouping-path';
+
 export function bundleBasis(event: Envelope): string {
+ if(event.sentry)return grouping(event).basis;
  return basisWithFile(event,bundleFile(event.frames[0]!.file));
 }
 function basisWithFile(event: Envelope,file: string): string {
@@ -29,7 +24,9 @@ export const bundleTables = { grouping_routes: ['project','fingerprint','issue',
 export const bundleDefaults = (data:any) => ({grouping_routes:[],...data});
 
 export async function captureGrouping(db:D1Database,project:string,event:Envelope) {
- const raw=grouping(event),normalized=bundleBasis(event);
+ const raw=grouping(event);
+ if(event.sentry)return {...raw,fingerprint:await hash(raw.basis),route:null};
+ const normalized=bundleBasis(event);
  if(normalized===raw.basis)return {...raw,fingerprint:await hash(raw.basis),route:null};
  const key=await hash(normalized);
  let route=await db.prepare('SELECT * FROM grouping_routes WHERE project=? AND fingerprint=?').bind(project,key).first<GroupingRoute>();
@@ -57,6 +54,7 @@ export async function captureGrouping(db:D1Database,project:string,event:Envelop
 /** Recover the original admission basis without changing old v1 evidence. */
 export async function admissionBasis(event:Envelope,issue:{id:string;fingerprint:string},routes:GroupingRoute[]) {
  const raw=grouping(event).basis;
+ if(event.sentry)return raw;
  if(await hash(raw)===issue.fingerprint)return raw;
  const key=await hash(recordedBundleBasis(event));
  return routes.find(route=>route.issue===issue.id&&route.fingerprint===key)?.basis??raw;

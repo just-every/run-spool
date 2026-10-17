@@ -40,6 +40,10 @@ export async function ingestFailure(c:any,scope:IngestScope,error:unknown){
   }
   return c.json({outcome:'unavailable',reason:'transaction_not_confirmed'},503);
 }
+function sentryTrimming(db:D1Database,project:string,event:Envelope){
+ const notes=event.sentry?.truncation??[],frames=notes.filter(n=>['middle_frames','invalid_frames'].includes(n.reason)).reduce((sum,n)=>sum+(n.omitted??0),0),values=notes.filter(n=>['value_bytes','value_depth'].includes(n.reason)).length;
+ return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
+}
 /** The sole native/Sentry admission transaction. Import history never calls this. */
 export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string):Promise<Response>{
   const event=normalize(input),{project}=scope,db=c.env.DB;
@@ -70,6 +74,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       rememberUnsuppressedCapture(db,project,issue,event.eventId,occurrence,time),
       stmt(db,"UPDATE issues SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=? AND receipt.event=? AND receipt.occurrence=?) THEN 'open' ELSE state END WHERE id=?",time,release.seq,project,event.eventId,occurrence,issue),
       outcomeStatement(db,project,'accepted'),
+      ...sentryTrimming(db,project,event),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),
     ];
     try{await ingestBatch(c,scope,jobs)}catch(error){const retry=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();if(retry)return await duplicate(retry);throw error}

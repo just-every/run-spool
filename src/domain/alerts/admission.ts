@@ -38,7 +38,7 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
    EXISTS(SELECT 1 FROM events captured WHERE captured.project=i.project AND captured.id=? AND captured.occurrence=?
     AND captured.issue=i.id AND captured.historical=0
     AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=captured.project AND receipt.event=captured.id AND receipt.occurrence=captured.occurrence)) AS current_unsuppressed
-  FROM issues i WHERE i.id=? AND i.project=? AND i.algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1')
+  FROM issues i WHERE i.id=? AND i.project=? AND i.algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1')
  )
  INSERT INTO alerts(id,project,issue,kind,created,payload)
  SELECT ?,project,id,CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,?,

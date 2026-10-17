@@ -37,7 +37,7 @@ export async function validateOperators(data:any){
  const originals=new Map<string,any>();
  for(const r of data.event_grouping){
   const key=JSON.stringify([r.project,r.event,r.occurrence]),event=events.get(key),change=corrections.get(r.correction),original=issues.get(r.original_issue);
-  assert(event&&!event.historical&&['js-frame-v1','python-frame-v1','go-frame-v1'].includes(r.algorithm)&&digest(r.fingerprint)&&original?.project===r.project&&original.fingerprint===r.fingerprint&&r.original_issue===await hash(r.project+':'+r.fingerprint));
+  assert(event&&!event.historical&&['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(r.algorithm)&&digest(r.fingerprint)&&original?.project===r.project&&original.fingerprint===r.fingerprint&&r.original_issue===await hash(r.project+':'+r.fingerprint));
   const payload=JSON.parse(event.payload),basis=await admissionBasis(payload,original,data.grouping_routes);
   assert(r.algorithm===grouping(payload).algorithm&&original.algorithm===r.algorithm&&r.basis===basis&&await hash(basis)===r.fingerprint&&change?.project===r.project&&['apply','undo'].includes(r.direction)&&change.state===(r.direction==='apply'?'applied':'undone'));
   const move=change.plan.moves.find((m:any)=>m.event===r.event&&m.occurrence===r.occurrence);assert(move&&event.issue===(r.direction==='apply'?move.to:move.from));
@@ -57,7 +57,7 @@ export async function validateOperators(data:any){
   assert(integer(r.created));const d=JSON.parse(r.detail);
   if(captureAuditKinds.includes(r.kind)){
    fields(d,['issue']);const issue=issues.get(d.issue),key=JSON.stringify([r.project,d.issue,r.kind]);
-   assert(uuid(r.id)&&issue?.project===r.project&&['js-frame-v1','python-frame-v1','go-frame-v1'].includes(issue.algorithm)&&!captureFacts.has(key));captureFacts.add(key);
+   assert(uuid(r.id)&&issue?.project===r.project&&['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(issue.algorithm)&&!captureFacts.has(key));captureFacts.add(key);
   }
   if(r.kind==='issue_assigned'){fields(d,['issue','label','revision']);assert(issues.get(d.issue)?.project===r.project&&integer(d.revision)&&d.revision>0&&(d.label===null||typeof d.label==='string'&&d.label.length<=80&&scrub(d.label)===d.label))}
   if(r.kind==='suppression_changed'){fields(d,['policy','revision','field','mode','value','enabled']);assert(data.suppression_policies.some((p:any)=>p.id===d.policy&&p.project===r.project&&p.revision>=d.revision)&&integer(d.revision)&&d.revision>0&&[0,1].includes(d.enabled));policyInput({...d,enabled:d.enabled===1})}

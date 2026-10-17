@@ -38,8 +38,9 @@ try{
   const sentry={event_id:(language==='python'?'a':'b').repeat(32),platform:language,release:release.name,dist:release.build,environment:'production',exception:{values:[{type:event.type,value:'other message',stacktrace:{frames:[...event.frames].reverse().map(f=>({filename:f.file,lineno:f.line,function:f.function,vars:{secret:'PRIVATE_LOCALS'},context_line:'PRIVATE_CONTEXT'}))}}]},user:{email:'PRIVATE_USER'},extra:{private:'PRIVATE_EXTRA'}};
   await app.json(`/api/${alias}/store/`,'POST',sentry,{Cookie:'','X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${project.ingestKey}`},200);
   const malformed=structuredClone(sentry);malformed.event_id=(language==='python'?'c':'d').repeat(32);malformed.exception.values[0].stacktrace.frames.at(-1).lineno=-1;
-  await app.json(`/api/${alias}/store/`,'POST',malformed,{Cookie:'','X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${project.ingestKey}`},422);
-  const updated=await packet(issue);assert.equal(updated.issue.count,3);assert.ok(updated.events.every(e=>e.originalGrouping.issue===issue&&e.event.language===language));
+  await app.json(`/api/${alias}/store/`,'POST',malformed,{Cookie:'','X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${project.ingestKey}`},200);
+  const chainIssue=(await app.json(`${p}/issue-search?q=`+encodeURIComponent(`error.type:${event.type}`))).rows.find(row=>row.algorithm==='sentry-chain-v1');assert.ok(chainIssue);assert.notEqual(chainIssue.id,issue);const chainPacket=await packet(chainIssue.id);assert.equal(chainPacket.events[0].event.sentry.exceptions.length,1);assert.ok(!JSON.stringify(chainPacket).includes('PRIVATE_CONTEXT'));assert.ok(!JSON.stringify(chainPacket).includes('PRIVATE_EXTRA'));
+  const updated=await packet(issue);assert.equal(updated.issue.count,2);assert.ok(updated.events.every(e=>e.originalGrouping.issue===issue&&e.event.language===language));
   const deceptive=await ingest({...event,eventId:language+'-deceptive',frames:[{file:'evil.js',line:1,column:0,function:'main',debugId:'evil-map'}]});
   const repro=await app.json(`${p}/reproducers`,'POST',{event:language+'-deceptive',input:[]});assert.equal(repro.support,'unsupported');assert.equal(repro.reason,'capture_language_unsupported');
   await app.json(`${p}/reproducers/${repro.id}/runs`,'POST',{},undefined,409);
@@ -86,7 +87,8 @@ try{
  await ingest({...goPacket.events[0].event,eventId:'go-ui',environment:'production'});
  const countBefore=(await app.json(`${p}/issues`)).reduce((n,i)=>n+i.count,0);
  const archive=await (await app.request('/api/archive')).text();
- for(const secret of ['PRIVATE_USER','PRIVATE_SOURCE','PRIVATE_ARGS','PRIVATE_OTHER','PRIVATE_LOCALS','PRIVATE_CONTEXT','PRIVATE_EXTRA','PRIVATE_NOTE','PRIVATE_WINDOWS','PRIVATE_QUERY'])assert.ok(!archive.includes(secret),`discard ${secret}`);
+ for(const secret of ['PRIVATE_USER','PRIVATE_SOURCE','PRIVATE_ARGS','PRIVATE_OTHER','PRIVATE_LOCALS','PRIVATE_NOTE','PRIVATE_WINDOWS','PRIVATE_QUERY'])assert.ok(!archive.includes(secret),`discard ${secret}`);
+ assert.ok(archive.includes('PRIVATE_CONTEXT'),'SDK source context retained in private archive');assert.ok(archive.includes('PRIVATE_EXTRA'),'ordinary structured extra retained in private archive');
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,1);
  // Free the first worker before restoration: one Worker runtime at a time.
  await app.stop();app=null;
@@ -105,6 +107,7 @@ try{
  assert.equal(after.events.find(e=>e.id==='go-raw').event.exceptionSource,'parsed-text');
  assert.equal(after.events.find(e=>e.id==='go-raw').currentLookup[0].original.file,'src/cart.go');assert.deepEqual(after.events.find(e=>e.id==='go-raw').atAdmission,rawAdmissions.go);
  assert.equal((await restored.json(`${p}/issues`)).reduce((n,i)=>n+i.count,0),countBefore);
+ const retainedSentry=(await restored.json(`${p}/issue-search?q=error.type:ValueError`)).rows.find(row=>row.algorithm==='sentry-chain-v1');const retainedList=await restored.json(`${p}/issues/${retainedSentry.id}/events`);const retainedDetail=await restored.json(`${p}/issues/${retainedSentry.id}/events/${retainedList.latest.id}?occurrence=${retainedList.latest.occurrence}`);assert.ok(retainedDetail.event.sentry.exceptions[0].stacktrace.frames.some(f=>f.context_line==='PRIVATE_CONTEXT'));assert.equal(retainedDetail.event.sentry.extra.private,'PRIVATE_EXTRA');
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM credentials').first()).n,0);
  if(!process.argv.includes('--no-browser')){
   await mkdir('.artifacts/languages',{recursive:true});
@@ -122,7 +125,8 @@ try{
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  await restored.stop();restored=null;await rm(state,{recursive:true,force:true});
  app=await executionRuntime(state,15484);await app.json('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});
- assert.equal((await app.json(`${p}/releases`))[0].build,release.build);assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
+ assert.equal((await app.json(`${p}/releases`))[0].build,release.build);assert.ok(archive.includes('PRIVATE_CONTEXT'),'SDK source context retained in private archive');assert.ok(archive.includes('PRIVATE_EXTRA'),'ordinary structured extra retained in private archive');
+ assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  console.log('Multilingual public journey passed: native/Sentry equivalence, grammar/privacy/deduplication, scoped late path mapping, unchanged admission, JS-only execution, archive restoration and project erasure.');
 }finally{
  await browser?.close();await app?.stop();await restored?.stop();await rm(state,{recursive:true,force:true});await rm(restoredState,{recursive:true,force:true});
