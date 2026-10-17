@@ -70,8 +70,12 @@ jobs:
             command: pnpm test:alerts && pnpm test:alerts-ui
           - shard: sdk
             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
-          - shard: evidence
-            command: pnpm test:agent-handoff && pnpm test:privacy && pnpm test:repair-recovery && pnpm test:execution
+          - shard: agent-handoff
+            command: pnpm test:agent-handoff && pnpm test:privacy
+          - shard: repair-recovery
+            command: pnpm test:repair-recovery
+          - shard: execution
+            command: pnpm test:execution
           - shard: project-erasure
             command: pnpm test:project-erasure
           - shard: project-erasure-cap

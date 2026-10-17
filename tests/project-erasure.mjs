@@ -23,7 +23,7 @@ try{
  stage='plant';const planted=await plantCanary(app),mobile=await plantMobile(app);
  const needles=[...Object.values(canary),importedProject,mobile.project];
  const before=scanDatabase(app.checkout.root,Object.values(canary));
- for(const kind of ['NAME','EVENT','MAP','RECIPIENT','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','MOBILE'])assert.ok(before.found.some(row=>row.needle===canary[kind]),`canary ${kind} is planted in D1`);
+ for(const kind of ['NAME','EVENT','MAP','RECIPIENT','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','MOBILE','FEEDBACK'])assert.ok(before.found.some(row=>row.needle===canary[kind]),`canary ${kind} is planted in D1`);
  const pre=await app.archive();assert.deepEqual(scanText(pre.text,[canary.NAME,canary.EVENT,canary.MAP]).length,3,'the pre-erasure archive holds the canaries');
  // The other project from the same Sentry export is unrelated and must stay exactly as it was.
  const erased=[importedProject,mobile.project];
@@ -32,7 +32,7 @@ try{
 
  stage='preview';const preview=await json(`/api/projects/${planted.project}/erasure`);
  assert.deepEqual(scanText(JSON.stringify(preview),needles),[],'the preview carries counts without personal values or identifiers');
- for(const table of ['projects','events','issues','releases','artifacts','credentials','browser_origins','alerts','alert_rules','alert_history','alert_intents','alert_mail_jobs','alert_mail_attempts','rer_mail_development_outbox','repairs','sentry_import_targets'])assert.ok(preview.deleted[table]>0,`preview counts ${table}`);
+ for(const table of ['projects','events','issues','releases','artifacts','credentials','browser_origins','alerts','alert_rules','alert_history','alert_intents','alert_mail_jobs','alert_mail_attempts','rer_mail_development_outbox','repairs','feedback','sentry_import_targets'])assert.ok(preview.deleted[table]>0,`preview counts ${table}`);
  assert.ok(preview.redacted.audit>0&&preview.retained.length&&preview.exceptions.length,'preview lists anonymised audit, retained tables and exceptions');
 
  stage='authorization';evidence.refusals=await refusals(app,{project:planted.project,keys:planted.keys,planHash:preview.planHash});

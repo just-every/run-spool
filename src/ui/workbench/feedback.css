@@ -1,0 +1,8 @@
+.feedback-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.feedback-heading h2{margin-bottom:0}
+.feedback-list{list-style:none;margin:1.25rem 0 0;padding:0}
+.feedback-list>li{padding:1.25rem 0;border-top:var(--hairline-border);min-width:0}
+.feedback-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
+.feedback-list code{overflow-wrap:anywhere;word-break:break-word}
+.feedback-confirm{padding:1rem;background:var(--paper-sunk);border-left:3px solid currentColor}
+.feedback-panel .metadata{overflow-wrap:anywhere}

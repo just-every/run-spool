@@ -30,6 +30,7 @@ import sentryRoutes from './sentry/routes';
 import otlpRoutes from './otlp/routes';
 import sentryImportRoutes from './sentry-import/routes';
 import { projectDsn } from './sentry/dsn';
+import { feedbackRoutes } from './feedback/routes';
 import { browserOrigin, ingestOrigin, requestedHeaders } from './origins';
 import { clientDroppedSql, issueAttentionSql, decodeIssueAttention } from './issue-attention';
 import { recordDevMint } from './dev-credentials';
@@ -116,6 +117,7 @@ api.use('/api/*',async(c,next)=>{
 });
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
+api.route('/api/projects/:project/feedback',feedbackRoutes);
 api.route('/api/projects/:project/inbound-filters',inboundFilterRoutes);
 api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);

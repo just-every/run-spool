@@ -5,6 +5,8 @@ import { authorizeIngest, admitEvent, recordIngest, ingestBatch, ingestFailure, 
 import { ingestOrigin } from '../origins';
 import { sentryKey } from './auth.ts';
 import { convertSentry } from './convert.ts';
+import { feedbackInput } from '../feedback/input';
+import { admitFeedback } from '../feedback/admission';
 import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason } from './wire.ts';
 const routes=new Hono<{Bindings:Bindings}>();
 const paths=['/:alias/envelope/','/:alias/envelope','/:alias/store/','/:alias/store'];
@@ -28,10 +30,14 @@ routes.on('POST',paths,async c=>{
     const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(c.req.param('alias')!).first<{project:string}>();
     if(!row)throw new SentryWireError('invalid_ingest_key',401);
     const auth=await authorizeIngest(c,row.project,key);if('response' in auth)return auth.response;scope=auth.scope;
-    const dropped=new Map<string,number>(),events=[];
+    const dropped=new Map<string,number>(),events=[],feedback=[];
     for(const item of envelope.items){
+      if(item.header.type==='feedback'||item.header.type==='user_report'){
+        feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
+      }
       if(item.header.type!=='event'){const reason=unsupportedReason(item.header.type);dropped.set(reason,(dropped.get(reason)??0)+1);continue}
       const raw=objectJson(item.bytes);
+      if(raw.type==='feedback'){feedback.push(await feedbackInput(raw,'feedback',envelope.header.event_id));continue}
       if(raw.type!==undefined&&raw.type!=='error'){
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
@@ -41,10 +47,13 @@ routes.on('POST',paths,async c=>{
     if(dropped.size)await ingestBatch(c,scope,[...dropped].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     let id:string|undefined;
     for(const {event,digest} of events){const response=await admitEvent(c,scope,event,digest);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
-    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped)},200);
+    const receipts=[];
+    // Admit errors first so feedback in the same envelope can bind their exact occurrence.
+    for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
+    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...receipts.length?{feedback:receipts}:{}},200);
   }catch(error){
     if(error instanceof SentryWireError){
-      if(scope){try{await recordIngest(c,scope,error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}
+      if(scope){try{await recordIngest(c,scope,error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}
       c.header('X-Sentry-Error',error.reason);return c.json({outcome:'rejected',reason:error.reason,...error.reason==='missing_release_register_required'&&scope?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},error.status as any);
     }
     if(scope){if(String((error as Error).message).startsWith('D1'))return ingestFailure(c,scope,error);await recordIngest(c,scope,'invalid')}

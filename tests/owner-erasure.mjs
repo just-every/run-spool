@@ -47,6 +47,8 @@ try {
  await app.json('/api/projects/personal-capture/artifacts',{release:'r1',build:'b1',debugId:'map',map:{version:3,sources:['src/app.js'],sourcesContent:[`Test owner / ${testOwner} / ${owner.id} / ${other}`],names:[],mappings:'AAAA'}},201);
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
+ const feedbackDsn=new URL(project.dsn),feedbackBody={event_id:'e'.repeat(32),type:'feedback',contexts:{feedback:{message:`Test owner / ${owner.id} / ${other}`}}};
+ const feedbackResponse=await fetch(app.origin+`/api/${feedbackDsn.pathname.slice(1)}/envelope/?sentry_key=${feedbackDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"feedback"}\n'+JSON.stringify(feedbackBody)});assert.equal(feedbackResponse.status,200);await feedbackResponse.body?.cancel();
  await app.json('/api/projects/personal-capture/repairs',{issue:captured.issue,link:'https://code.test/pull/1',note:`Test owner and ${other}`},201);
  await app.DB.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) VALUES(?,?,?)').bind(randomUUID(),Date.now(),JSON.stringify({deliveryId:'mixed-private-note',from:'auth@localhost.test',to:[testOwner,'quinn@spool.test'],text:`Test owner and ${other}`})).run();
  await app.DB.prepare('INSERT INTO oa_external_identities(issuer,subject,operator_id) VALUES(?,?,?)').bind('https://identity.test','personal-owner-subject',owner.id).run();
@@ -54,7 +56,7 @@ try {
  evidence.holds=await heldScopes(app,otherId);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.oa_operators===1 && preview.redacted.events>0 && preview.redacted.artifacts>0);
+ assert.ok(preview.deleted.oa_operators===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -76,7 +78,7 @@ try {
  assert.equal((await app.call('/auth/session',undefined,{Cookie:otherCookies['quinn@spool.test']})).status,200,'unrelated member remains signed in');
  assert.equal((await app.call('/auth/session',undefined,{Cookie:otherCookies[next.email]})).status,401,'independent successor session is fenced by promotion');
  assert.equal(after.oa_tokens.filter(row=>row.issuer_id===owner.id).length,0,'predecessor-issued invitation is retired');
- for(const table of ['projects','issues','events','artifacts','repairs','rer_mail_development_outbox']) {
+ for(const table of ['projects','issues','events','artifacts','repairs','feedback','rer_mail_development_outbox']) {
   const occurrences=value=>JSON.stringify(value).split(other).length-1;
   assert.equal(occurrences(after[table]),occurrences(before[table]),`${table} preserves co-located other person values`);
  }
@@ -95,7 +97,7 @@ try {
  fresh=await runtime();
  assert.equal((await restore(fresh,post.text)).status,200,'redacted rows remain restorable');
  assert.equal((await restore(fresh,pre.text)).body.error,'erasure_epoch','fresh destination receiving later journal refuses old captures');
- evidence.native={planned:latest.deleted,redacted:latest.redacted,deleted:receipt.deleted,phase:receipt.phase,independentSessionsPreserved:independent.results.length,independentTokensPreserved:independentTokens.results.length,otherCanaries:Object.fromEntries(['projects','issues','events','artifacts','repairs','rer_mail_development_outbox'].map(table=>[table,{before:JSON.stringify(before[table]).split(other).length-1,after:JSON.stringify(after[table]).split(other).length-1}]))};
+ evidence.native={planned:latest.deleted,redacted:latest.redacted,deleted:receipt.deleted,phase:receipt.phase,independentSessionsPreserved:independent.results.length,independentTokensPreserved:independentTokens.results.length,otherCanaries:Object.fromEntries(['projects','issues','events','artifacts','repairs','feedback','rer_mail_development_outbox'].map(table=>[table,{before:JSON.stringify(before[table]).split(other).length-1,after:JSON.stringify(after[table]).split(other).length-1}]))};
  console.log('Owner erasure native: '+JSON.stringify(evidence.native));
  await fresh.close();fresh=null;
  evidence.archives=await archiveFences(app,pre,post);

@@ -49,6 +49,8 @@ export async function plantCanary(app){
  await plantLegacyAlertMail(app.checkout.root,project);
  const legacy=await legacyMailRows(app.origin);assert.ok(legacy.some(row=>row.message.includes(canary.RECIPIENT.toLowerCase())),'legacy mail contains the recipient before erasure');
  const repair=await app.json(`/api/projects/${project}/repairs`,'POST',{issue:first.issue,link:'https://github.example/erase/pull/1',note:`Repair ${canary.REPAIR}`});
+ const feedbackGrant=await app.json(`/api/projects/${project}/keys`,'POST',{kind:'ingest'}),dsn=new URL(feedbackGrant.dsn);
+ await app.json(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"feedback"}\n'+JSON.stringify({event_id:'d'.repeat(32),type:'feedback',contexts:{feedback:{message:`Customer report ${canary.FEEDBACK}`}}}));
  return {project,issue:first.issue,keys,repair:repair.id};
 }
 

@@ -1,16 +1,18 @@
-import { canonical, hash } from '../privacy';
+import { canonical, hash, scrub } from '../privacy';
 import { validateMap } from '../artifacts';
 import { repairLink } from '../repairs/input';
 
 // Only content columns are rewritten. Keys, grouping inputs and immutable
 // import custody cannot be silently changed or dropped with a neighbour's data.
 export const ownerCaptureColumns: Record<string, string[]> = {
+ feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
 };
-const jsonColumns = new Set(['payload','diagnostic','message','spec','observation','checks','grant_spec','detail']);
+const jsonColumns = new Set(['payload','diagnostic','spec','observation','checks','grant_spec','detail']);
+const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));
 const containsValue = (value: any, needles: string[]): boolean => typeof value==='string' ? contains(value,needles) : Array.isArray(value) ? value.some(item=>containsValue(item,needles)) : !!value && typeof value==='object' && Object.entries(value).some(([key,item])=>contains(key,needles)||containsValue(item,needles));
@@ -57,7 +59,7 @@ export async function capturePlan(db: D1Database, needles: string[]) {
    for (const column of columns) {
     if (typeof row[column] !== 'string') continue;
     let value: any;
-    try { value = jsonColumns.has(column) ? JSON.parse(row[column]) : row[column]; } catch { hold = 'unreadable_captured_content'; continue; }
+    try { value = jsonColumn(table,column) ? JSON.parse(row[column]) : row[column]; } catch { hold = 'unreadable_captured_content'; continue; }
     if (!containsValue(value, needles)) continue;
     try {
      if (table === 'events' && column === 'payload') {
@@ -65,7 +67,8 @@ export async function capturePlan(db: D1Database, needles: string[]) {
       if (containsValue(structural, needles)) throw new Error('identifier_in_event_grouping_or_identity');
       value = {...value, message: replace(message,needles), breadcrumbs: replace(breadcrumbs,needles)};
      } else value = replace(value, needles);
-     let encoded = jsonColumns.has(column) ? JSON.stringify(value) : value;
+     let encoded = jsonColumn(table,column) ? JSON.stringify(value) : value;
+     if (table === 'feedback') encoded = scrub(encoded);
      if (table === 'artifacts') encoded = validateMap(value);
      if (table === 'repairs' && column === 'link') encoded = repairLink(encoded);
      before[column] = row[column]; after[column] = encoded;

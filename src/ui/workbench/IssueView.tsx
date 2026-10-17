@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import type { IssuePanels } from './issuePanels';
 import { Details } from './Details';
 import { EventExplorer } from './EventExplorer';
+import { FeedbackPanel } from './FeedbackPanel';
 import { SentryEvent } from './SentryEvent';
 import { OperatorPanel } from './OperatorPanel';
 import { RepairPanel } from './RepairPanel';
@@ -48,6 +49,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
+    <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>
     {rail}
     <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{event?.event.release ?? 'Unavailable'}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>
     <section className="evidence"><h2>Observed deployments</h2><p>First and last retained occurrence, ordered by receipt time. Manifest records are supplied by the owner or deploy key; registration order is not deployment order.</p>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${d.release} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>

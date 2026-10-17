@@ -6,6 +6,7 @@ import { scrub } from './privacy';
 import { retentionAlertStatements } from './alerts/spikes';
 import { withdrawAlertEvidence, RETAINED_HEADLINE } from './alerts/retention';
 import { retentionExposureStatements } from './exposure/retention';
+import { feedbackRetentionStatements } from './feedback/custody';
 
 type Candidate = Record<string, string>;
 const predicates = {
@@ -56,6 +57,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff, auditId);
  const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, cutoff, auditId);
  const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, cutoff, Date.now());
+ const feedbackJobs = await feedbackRetentionStatements(db, before.source_identity, project, cutoff);
  // The source/epoch guard rejects a competing restore or retention. Each journal
  // INSERT and DELETE uses the same occurrence and predicate inside this batch.
  // A concurrently admitted map reference therefore preserves both map and fence.
@@ -67,6 +69,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   ...invalidation,
   statement(db, "INSERT INTO audit VALUES(?,?,'retention_gap',?,?)", auditId, project, JSON.stringify({ cutoff, removed: 0, dedupHorizon: cutoff }), Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
+  ...feedbackJobs,
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
   ...headlines, ...mapJobs, ...exposureJobs,
