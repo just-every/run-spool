@@ -14,7 +14,7 @@ routes.on('OPTIONS',paths,async c=>{
   const headers=requested?requested.toLowerCase().split(',').map(v=>v.trim()):[];
   if(!/^[1-9][0-9]{0,15}$/.test(alias)||!origin||c.req.header('access-control-request-method')!=='POST'||requested.length>256||new Set(headers).size!==headers.length||headers.some(h=>!['content-type','x-sentry-auth','authorization'].includes(h)))return c.json({error:'Preflight not allowed'},403);
   const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(alias).first<{project:string}>();
-  if(!row||!(await ingestOrigin(c.env.DB,row.project,origin,c.env.AUTH_ORIGIN)).allowed)return c.json({error:'Origin not allowed'},403);
+  if(!row||!(await ingestOrigin(c.env.DB,row.project,origin,c.env.AUTH_ORIGIN,c.req.header('referer'))).allowed)return c.json({error:'Origin not allowed'},403);
   c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Content-Type, X-Sentry-Auth, Authorization');c.header('Access-Control-Max-Age','60');return c.body(null,204);
 });
 routes.on('POST',paths,async c=>{

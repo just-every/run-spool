@@ -1,3 +1,4 @@
+import {inboundFilterTables} from './filters/archive';
 import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
@@ -81,6 +82,8 @@ laterTables.unshift({tables:bundleNames,migrations:[bundleMigration]});
 // Page-managed recipients are private configuration, not archive content.
 for(const later of laterTables)later.migrations.push('0037_alert_destinations.sql');
 laterTables.unshift({tables:[],migrations:['0037_alert_destinations.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(inboundFilterTables));later.migrations.push('0038_investigation_indexes.sql','0039_inbound_filters.sql')}
+laterTables.unshift({tables:Object.keys(inboundFilterTables),migrations:['0038_investigation_indexes.sql','0039_inbound_filters.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

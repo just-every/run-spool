@@ -16,7 +16,7 @@ export function migrationFailure(result) {
 export function safeFailure(error) {
  const types=['AssertionError','TimeoutError','SyntaxError','TypeError','Error'];
  const result={type:types.includes(error?.name)?error.name:'Error'};
- const location=String(error?.stack??'').match(/\btests\/(?:product-runtime|operator-flow|bundle-grouping-flow|worker|product-diagnostics|auth|archive)\.mjs:\d+:\d+(?=\)?(?:\n|$))/)?.[0];
+ const location=String(error?.stack??'').match(/\btests\/(?:product-runtime|browser-origins-runtime|operator-flow|bundle-grouping-flow|worker|product-diagnostics|auth|archive)\.mjs:\d+:\d+(?=\)?(?:\n|$))/)?.[0];
  if(location)result.location=location;
  const codes=['ENOENT','EACCES','EEXIST','ENOTDIR','ENOSPC','ERR_ASSERTION','ECONNRESET','ECONNREFUSED'];
  if(codes.includes(error?.code))result.code=error.code;

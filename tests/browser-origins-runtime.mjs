@@ -1,5 +1,6 @@
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
+import {safeFailure} from './product-diagnostics.mjs';
 import {legacyOriginData} from './legacy-origin-data.mjs';
 import {authBindings,signIn} from './auth.mjs';
 import {archiveProjection,nativeArchive,assertLegacyUpgrade} from './archive.mjs';
@@ -47,7 +48,7 @@ const application={async fetch(request,env,ctx){
   }
   if(request.headers.get('x-test-revoke-origin')==='yes'&&new URL(request.url).pathname.startsWith('/api/ingest/')){
     const db=env.DB;
-    const facade={prepare(sql){const prepared=db.prepare(sql);if(sql!=='SELECT 1 FROM browser_origins WHERE project=? AND origin=?')return prepared;return {bind(...args){const bound=prepared.bind(...args);return {async first(){const result=await bound.first();await db.prepare('DELETE FROM browser_origins WHERE project=? AND origin=?').bind(...args).run();return result}}}}},batch:db.batch.bind(db)};
+    const facade={prepare(sql){const prepared=db.prepare(sql);if(sql!=='SELECT origin FROM browser_origins WHERE project=?')return prepared;return {bind(...args){const bound=prepared.bind(...args);return {async all(){const result=await bound.all();await db.prepare('DELETE FROM browser_origins WHERE project=? AND origin=?').bind(args[0],'http://127.0.0.1:15476').run();return result}}}}},batch:db.batch.bind(db)};
     return api.fetch(request,{...env,DB:facade},ctx);
   }
   return api.fetch(request,env,ctx);
@@ -85,7 +86,8 @@ try{
  for(const headers of [{'Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'authorization,content-type'},{'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,content-type,extra'},{'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,authorization'},{'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'*'},{'Access-Control-Request-Method':'POST'}]){const response=await request('/api/ingest/cors','OPTIONS',undefined,{Origin:foreign,...headers});assert.equal(response.status,403);assert.equal(response.headers.get('access-control-allow-origin'),null)}
  assert.ok(isDeepStrictEqual((await json('/api/archive')).data,beforeOptions.data),'private domain rows match exactly');check('strict OPTIONS exact grants, no cookies/credentials or mutations');
  for(const invalid of ['null','http://127.0.0.1:15477','https://127.0.0.1:15476','https://other.example','https://app.example/path']){const response=await request('/api/ingest/cors','POST',{...event,eventId:'denied-origin'},{...auth,Origin:invalid});assert.equal(response.status,403);assert.equal(response.headers.get('access-control-allow-origin'),null)}
- const unavailable=await request('/api/ingest/cors','POST',{...event,eventId:'storage-unavailable'},{...auth,Origin:foreign,'X-Test-Storage-Failure':'yes'});assert.equal(unavailable.status,503);assert.equal(unavailable.headers.get('access-control-allow-origin'),foreign);assert.equal((await unavailable.json()).reason,'transaction_not_confirmed');assert.ok(isDeepStrictEqual((await json('/api/archive')).data,beforeOptions.data),'private domain rows match exactly');
+ const afterDenied=await json('/api/archive');assert.deepEqual({...afterDenied.data,outcomes:beforeOptions.data.outcomes},beforeOptions.data,'domain refusals only change outcomes');const sums=rows=>Object.fromEntries([...new Set(rows.map(row=>row.project+':'+row.reason))].map(key=>[key,rows.filter(row=>row.project+':'+row.reason===key).reduce((n,row)=>n+row.count,0)]));const beforeCounts=sums(beforeOptions.data.outcomes),afterCounts=sums(afterDenied.data.outcomes);for(const key of new Set([...Object.keys(beforeCounts),...Object.keys(afterCounts)]))assert.equal((afterCounts[key]??0)-(beforeCounts[key]??0),['cors:filtered','cors:filtered:allowed_domains'].includes(key)?5:0,'each domain refusal counts once overall and once for the domain filter');
+ const unavailable=await request('/api/ingest/cors','POST',{...event,eventId:'storage-unavailable'},{...auth,Origin:foreign,'X-Test-Storage-Failure':'yes'});assert.equal(unavailable.status,503);assert.equal(unavailable.headers.get('access-control-allow-origin'),foreign);assert.equal((await unavailable.json()).reason,'transaction_not_confirmed');assert.ok(isDeepStrictEqual((await json('/api/archive')).data,afterDenied.data),'storage failure adds no admission effects');
  const foreignEvent={...event,eventId:'foreign-accepted'};const accepted=await request('/api/ingest/cors','POST',foreignEvent,{...auth,Origin:foreign});assert.equal(accepted.status,201);assert.equal(accepted.headers.get('access-control-allow-origin'),foreign);assert.equal(accepted.headers.get('access-control-allow-credentials'),null);
  assert.equal((await request('/api/ingest/cors','POST',foreignEvent,{...auth,Origin:foreign})).status,200);
  assert.equal((await request('/api/ingest/cors','POST',{...foreignEvent,message:'altered'},{...auth,Origin:foreign})).status,409);
@@ -131,6 +133,6 @@ try{
  await stop();const grants=await sql('SELECT COUNT(*) count FROM credentials; SELECT COUNT(*) count FROM browser_origin_guards;');assert.equal(grants[0].results[0].count,0);assert.equal(grants[1].results[0].count,0);check('v2 independent equivalence; poisoned/orphan/duplicate/over-cap configs and audit/guard fields reject before mutation; zero grants/guards');
  evidence.completed=true;
  console.log('Browser-origin non-browser runtime gates passed: '+evidence.checks.length+' groups. Actual two-origin Chrome capture/a11y remain blocked and unclaimed.');
-}catch{throw new Error('Browser-origin runtime journey failed; private runtime details withheld');}finally{
+}catch(error){throw new Error('Browser-origin runtime journey failed: '+JSON.stringify(safeFailure(error)));}finally{
  if(redirectServer)await new Promise(r=>redirectServer.close(r));if(destinationServer)await new Promise(r=>destinationServer.close(r));await stop();await mkdir('.artifacts',{recursive:true});await writeFile('.artifacts/browser-origins-runtime-results.json',JSON.stringify(evidence,null,2));await rm(temporary,{recursive:true,force:true});
 }

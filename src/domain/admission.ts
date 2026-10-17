@@ -1,3 +1,4 @@
+import {readInboundPolicy,inboundPolicyFence,matchInbound,inboundMetadata,inboundDomainFences,type InboundPolicy,type DomainDecision} from './filters';
 import { policyMatch, matchArgs } from './operators/policies';
 import { normalize, hash, scrub, type Envelope } from './privacy';
 import { captureGrouping } from './bundle-grouping';
@@ -8,29 +9,33 @@ import { startCaptureHistory, rememberUnsuppressedCapture } from './alerts/captu
 import { dispatchAdmitted } from './alerts/dispatch';
 import { mintAdmission } from './dev-credentials';
 export const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
-export interface IngestScope { project:string; keyHash:string; foreign:string|null }
+export interface IngestScope { project:string; keyHash:string; foreign:string|null; revision:number; policy:InboundPolicy; domain:DomainDecision }
 export async function authorizeIngest(c:any,project:string,key:string|undefined):Promise<{scope:IngestScope}|{response:Response}>{
   c.header('Vary','Origin');
-  const policy=await ingestOrigin(c.env.DB,project,c.req.header('origin'),c.env.AUTH_ORIGIN);
-  if(!policy.allowed)return {response:c.json({outcome:'rejected',reason:'origin_not_allowed'},403)};
-  if(policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
+  const policy=await ingestOrigin(c.env.DB,project,c.req.header('origin'),c.env.AUTH_ORIGIN,c.req.header('referer'));
+
+  if(policy.allowed&&policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
   const keyHash=key?await hash(key):'';
   const grant=keyHash&&await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${await mintAdmission(c.req.raw)}`,keyHash,project).first();
-  if(!grant)return {response:c.json({outcome:'rejected',reason:'invalid_ingest_key'},401)};
-  return {scope:{project,keyHash,foreign:policy.foreign}};
+  if(!grant)return {response:policy.allowed?c.json({outcome:'rejected',reason:'invalid_ingest_key'},401):c.json({outcome:'rejected',reason:policy.domain.reason},403)};
+  const scope={project,keyHash,foreign:policy.foreign,revision:policy.revision,policy:policy.policy,domain:policy.domain};
+  if(!policy.allowed){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,project,'filtered'),outcomeStatement(c.env.DB,project,'filtered:allowed_domains')]);return {response:c.json({outcome:'filtered',reason:policy.domain.reason,filters:['allowed_domains']},403)}}
+  if(policy.cors)c.header('Access-Control-Allow-Origin',policy.cors);
+  return {scope};
 }
 function authority(c:any,scope:IngestScope){
   return stmt(c.env.DB,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL) AND (? IS NULL OR EXISTS(SELECT 1 FROM browser_origins WHERE project=? AND origin=?)) THEN 1 ELSE 0 END",scope.keyHash,scope.project,scope.foreign,scope.project,scope.foreign);
 }
 export async function ingestBatch(c:any,scope:IngestScope,jobs:D1PreparedStatement[]){
-  return c.env.DB.batch([authority(c,scope),...jobs,authority(c,scope),stmt(c.env.DB,'DELETE FROM spool_authority_guards')]);
+  return c.env.DB.batch([authority(c,scope),inboundPolicyFence(c.env.DB,scope.project,scope.revision),...inboundDomainFences(c.env.DB,scope.project,scope.domain),...jobs,authority(c,scope),stmt(c.env.DB,'DELETE FROM spool_authority_guards')]);
 }
 export function outcomeStatement(db:D1Database,project:string,reason:string,count=1){return stmt(db,'INSERT INTO outcomes VALUES(?,?,?,?) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+excluded.count',project,Math.floor(Date.now()/60000)*60000,reason,count)}
 export async function recordIngest(c:any,scope:IngestScope,reason:string,count=1){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,scope.project,reason,count)])}
 export async function ingestFailure(c:any,scope:IngestScope,error:unknown){
   const message=String((error as Error).message);
-  const policy=await ingestOrigin(c.env.DB,scope.project,c.req.header('origin'),c.env.AUTH_ORIGIN);
-  if(!policy.allowed){c.header('Access-Control-Allow-Origin',undefined);return c.json({outcome:'rejected',reason:'origin_not_allowed'},403)};
+  const policy=await ingestOrigin(c.env.DB,scope.project,c.req.header('origin'),c.env.AUTH_ORIGIN,c.req.header('referer'));
+  if(!policy.allowed){c.header('Access-Control-Allow-Origin',undefined);return c.json({outcome:'rejected',reason:policy.domain.reason},403)};
+  if(policy.revision!==scope.revision)return c.json({outcome:'rejected',reason:'inbound_policy_changed'},409);
   const grant=await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${await mintAdmission(c.req.raw)}`,scope.keyHash,scope.project).first();
   if(!grant)return c.json({outcome:'rejected',reason:'invalid_ingest_key'},401);
   if(message.includes('spool_authority_guards')||message.includes('CHECK constraint failed'))return c.json({outcome:'rejected',reason:'ingest_authority_changed'},403);
@@ -50,6 +55,8 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
+    const matches=matchInbound(event,scope.policy,inboundMetadata(event,{origin:c.req.header('origin'),referer:c.req.header('referer'),userAgent:c.req.header('user-agent'),clientIp:c.req.header('cf-connecting-ip'),domainAllowed:scope.domain.allowed}));
+    if(matches.length){await ingestBatch(c,scope,[outcomeStatement(db,project,'filtered'),...matches.map(id=>outcomeStatement(db,project,'filtered:'+id))]);return c.json({outcome:'filtered',reason:'inbound_filter',filters:matches},202)}
     const existing=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();
     if(existing)return await duplicate(existing);
     const budget=await stmt(db,"SELECT COALESCE(SUM(count),0) total FROM outcomes WHERE project=? AND window>=? AND reason IN ('accepted','rejected','invalid','oversized','rate_limited','budget','unregistered_release_or_build','missing_release_register_required')",project,Math.floor(Date.now()/60000)*60000).first<any>();

@@ -1,3 +1,4 @@
+import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filters';
 import { Hono } from 'hono';
 import { rejectedResponse } from '../base/rejected-response';
 import { AuthError } from '../modules/operator-auth/index.mjs';
@@ -75,7 +76,7 @@ const preflight=async(c:any)=>{
   const project=c.req.param('project'),origin=c.req.header('origin');
   const known=await stmt(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first();
   if(!known||!origin||c.req.header('access-control-request-method')!=='POST'||!requestedHeaders(c.req.header('access-control-request-headers')))return c.json({error:'Preflight not allowed'},403);
-  const policy=await ingestOrigin(c.env.DB,project,origin,c.env.AUTH_ORIGIN);
+  const policy=await ingestOrigin(c.env.DB,project,origin,c.env.AUTH_ORIGIN,c.req.header('referer'));
   if(!policy.allowed)return c.json({error:'Origin not allowed'},403);
   c.header('Access-Control-Allow-Origin',origin);c.header('Access-Control-Allow-Methods','POST');c.header('Access-Control-Allow-Headers','Authorization, Content-Type');c.header('Access-Control-Max-Age','60');return c.body(null,204);
 };
@@ -115,6 +116,7 @@ api.use('/api/*',async(c,next)=>{
 });
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
+api.route('/api/projects/:project/inbound-filters',inboundFilterRoutes);
 api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects/:project/alerting',alertRoutes);
@@ -122,7 +124,7 @@ api.route('/api/projects/:project/repairs',repairRoutes);
 api.route('/api/projects/:project/reproducers',reproducerRoutes);
 api.route('/api/projects/:project/fixes',fixRoutes);
 api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
-api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,ingestKey:key,devMinted:c.get('dev'),dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
+api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,now()),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,defaultOnFilters,inboundPolicy:defaultInboundPolicy(),ingestKey:key,devMinted:c.get('dev'),dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
 api.get('/api/projects/:project/releases',async c=>c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at,'pathMappings',json((SELECT payload FROM deployment_path_mappings m WHERE m.project=d.project AND m.release=d.release AND m.environment=d.environment)))) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments FROM releases WHERE project=? ORDER BY seq DESC`,c.req.param('project')).all()).results));
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,'SELECT hash,kind,created,revoked FROM credentials WHERE project=?',c.req.param('project')).all()).results));
 api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await write(c,[mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});

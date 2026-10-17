@@ -1,5 +1,6 @@
 import { investigationFlow } from './investigation-flow.mjs';
 import { fidelityFlow } from './fidelity-flow.mjs';
+import { inboundFilterFlow } from './inbound-filter-flow.mjs';
 import { otlpFlow } from './otlp-flow.mjs';
 import assert from 'node:assert/strict';
 import { gzipSync } from 'node:zlib';
@@ -47,5 +48,6 @@ try{
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin});
   await fidelityFlow({req,json,origin});
+  await inboundFilterFlow({req,json,origin});
   console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}
