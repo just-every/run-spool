@@ -72,6 +72,16 @@ Existing ERR-001 through ERR-010 and BASE-DATA-003 identities remain stable. Exp
 
   **Acceptance evidence:** Run the named implemented journeys on the emitted Worker, inspect 1440/390 end states, then qualify each supported runtime/device and configured real provider with a buyer-controlled account.
 
+- **OPS-001 — Base commands and native admission.** The public rer command contract uses declared Node/pnpm pins and one setup manifest for terminal/browser. Setup claims or preserves the owner and private settings, stops its temporary app and leaves empty product data; rer dev uses real assets/HMR and private local identity. Local dev grants never authorize deployed entry. Reset is confirmed/contained and preserves source, exports and deployment receipts. Export/import share Base integrity and inactive empty-target restore. Deployment dry-run makes no provider request. Managed signed first-owner admission precedes auth dispatch; editor config independently checks the owner and has short expiry/exact-origin CSP.
+
+  **Acceptance evidence:** Use public rer install/setup/dev/export/import/reset and deployment dry-run in a fresh checkout and independent destination; preserve existing setup, reject unsafe answer paths and reused managed claims, and deny anonymous/project-grant editor access.
+
+- **BASE-DATA-003 — Project and installation-owner erasure.** The owner has count-only preview, typed confirmation bound to the exact current plan, resumable destructive steps and a completion receipt with per-table counts/times and no personal values. Project-root cascade, anonymized permanent audit, portability tombstones, source-import custody withdrawal, stale-write fences and the completion-time obligation below are preserved, restated against GOV-003's published retained volume: project erasure completes within 15 minutes for 150,000 retained events, and at no less than 10,000 events a minute above that. Owner self-erasure first transfers authority to a verified successor; it refuses unsupported/ambiguous attribution rather than damaging other people's data. All current declared tables and outbox copies participate; new capture stores must extend this declaration before release.
+
+  **Acceptance evidence:** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, a 160,000-event project erased within 16 minutes (15 minutes for 150,000 events plus one minute per further 10,000), successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.
+
+## Target clauses
+
 ### Teams and triage
 
 - **TEAM-001 — Organizations, members and project permissions.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes sessions, keys and linked service authority; service accounts have explicit project scopes. Private data, search, exports and integrations obey membership on every transport. Owner transfer remains available without restricting the organization to one active contributor.
@@ -369,17 +379,9 @@ Existing ERR-001 through ERR-010 and BASE-DATA-003 identities remain stable. Exp
 
   **Acceptance evidence:** At 1440 and 390, onboard a realistic team project, capture/map an error, search/assign/comment, follow an alert, approve a repair and inspect all end states with keyboard, screen reader checks and revoked/offline sessions.
 
-- **OPS-001 — Base commands and native admission.** The public rer command contract uses declared Node/pnpm pins and one setup manifest for terminal/browser. Setup claims or preserves the owner and private settings, stops its temporary app and leaves empty product data; rer dev uses real assets/HMR and private local identity. Local dev grants never authorize deployed entry. Reset is confirmed/contained and preserves source, exports and deployment receipts. Export/import share Base integrity and inactive empty-target restore. Deployment dry-run makes no provider request. Managed signed first-owner admission precedes auth dispatch; editor config independently checks the owner and has short expiry/exact-origin CSP.
-
-  **Acceptance evidence:** Use public rer install/setup/dev/export/import/reset and deployment dry-run in a fresh checkout and independent destination; preserve existing setup, reject unsafe answer paths and reused managed claims, and deny anonymous/project-grant editor access.
-
 - **AUDIT-001 — Permanent privacy-safe action audit.** Record actor/service, time, action, subject and outcome for triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only, portable, permissioned history without secrets, raw payloads or personal values in permanent subject/actor labels. Erasure anonymizes attribution and retains count-only receipts; denied/stale writes cannot claim completion. Exportable organization audit and admin investigation must cover new team/provider paths.
 
   **Acceptance evidence:** Perform owner/member/agent and denied actions, restart/export/restore, erase an actor/project and inspect retained nonpersonal chronology, correct outcomes and absence of secret/erased identifiers.
-
-- **BASE-DATA-003 — Project and installation-owner erasure.** The owner has count-only preview, typed confirmation bound to the exact current plan, resumable destructive steps and a completion receipt with per-table counts/times and no personal values. Project-root cascade, anonymized permanent audit, portability tombstones, source-import custody withdrawal, stale-write fences and the completion-time obligation below are preserved, restated against GOV-003's published retained volume: project erasure completes within 15 minutes for 150,000 retained events, and at no less than 10,000 events a minute above that. Owner self-erasure first transfers authority to a verified successor; it refuses unsupported/ambiguous attribution rather than damaging other people's data. All current declared tables and outbox copies participate; new capture stores must extend this declaration before release.
-
-  **Acceptance evidence:** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, a 160,000-event project erased within 16 minutes (15 minutes for 150,000 events plus one minute per further 10,000), successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.
 
 ### Deployment integrations
 
@@ -387,7 +389,7 @@ Existing ERR-001 through ERR-010 and BASE-DATA-003 identities remain stable. Exp
 
   **Acceptance evidence:** Deploy preview and production from each provider, upload artifacts, trigger a mapped error, fail/roll back a deployment and replay a callback; inspect one deployment identity and immediate disconnect/erasure fences.
 
-### Push further
+## Push further
 
 - **AI-001 — Controlled coding-agent handoff.** Cursor, GitHub Copilot and Claude can consume the same permissioned CLI/MCP packet, source/release links, gaps and current repair observations. The engineer selects project/repository scope, data fields, model/provider and budget; no telemetry instruction can expand them. Preview external data egress, retain audit, expire/revoke access and distinguish suggestions from confirmed causes. Read-only diagnosis never silently acquires repository write or production authority.
 
