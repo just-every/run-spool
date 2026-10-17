@@ -5,6 +5,7 @@ import { ownerSession, ownerWrite } from '../auth/session.server';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
 import alertRoutes from './alerts/routes';
+import investigationRoutes from './investigation/search';
 import groupingRoutes from './operators/grouping';
 import policyRoutes from './operators/policies';
 import repairRoutes from './repairs/routes';
@@ -111,6 +112,7 @@ api.use('/api/*',async(c,next)=>{
   if(session){c.set('session',session);if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);return next()}
   return c.json({error:'Sign in required'},401);
 });
+api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects/:project/alerting',alertRoutes);

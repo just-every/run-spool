@@ -228,6 +228,12 @@
       "name": "0037_alert_destinations.sql",
       "sha256": "0fd776184c88794c2c521a79eecbd083d5093eca972825a23eb1cfc7fbcaeaba",
       "sql": "-- Private delivery configuration: excluded from archives, erased with its project.\nCREATE TABLE alert_destinations (\n id TEXT PRIMARY KEY,\n project TEXT NOT NULL REFERENCES projects(id),\n label TEXT NOT NULL,\n recipient TEXT NOT NULL,\n created INTEGER NOT NULL,\n tested_at INTEGER\n);\nCREATE INDEX alert_destinations_project ON alert_destinations(project);\nCREATE TRIGGER alert_destinations_budget BEFORE INSERT ON alert_destinations\n WHEN (SELECT COUNT(*) FROM alert_destinations WHERE project=NEW.project)>=20\n BEGIN SELECT RAISE(ABORT,'At most 20 email destinations per project'); END;\nCREATE TRIGGER portability_alert_destinations_insert BEFORE INSERT ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_destinations_update BEFORE UPDATE ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\nCREATE TRIGGER portability_alert_destinations_delete BEFORE DELETE ON alert_destinations WHEN EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL) BEGIN SELECT RAISE(ABORT,'restore_in_progress'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0038_investigation_indexes.sql",
+      "sha256": "875de8cf91ea5832269a6889de1e52cb7f16e29ec87f382f116091783c359144",
+      "sql": "CREATE INDEX issues_project_received ON issues(project,last_seen DESC,id DESC);\nCREATE INDEX events_project_issue_received ON events(project,issue,received DESC,id DESC);\nCREATE INDEX events_project_release_environment ON events(project,release,environment,issue);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

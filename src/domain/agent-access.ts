@@ -18,6 +18,6 @@ export function agentReadPath(request: Request, project: string): boolean {
   if (parts.length === 7) parts[5] = decodeURIComponent(parts[5]);
  } catch { return false; }
  if (parts[0] !== '' || parts[1] !== 'api' || parts[2] !== 'projects' || parts[3] !== project) return false;
- return (parts.length === 5 && ['issues', 'outcomes', 'alerts'].includes(parts[4])) ||
+ return (parts.length === 5 && ['issues', 'outcomes', 'alerts', 'issue-search', 'issue-export'].includes(parts[4])) ||
   (parts.length === 7 && parts[4] === 'issues' && /^[a-zA-Z0-9._:-]{1,100}$/.test(parts[5]) && parts[6] === 'packet');
 }

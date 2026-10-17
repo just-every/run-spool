@@ -1,0 +1,9 @@
+# Search and export retained issues
+
+The Issues view searches every retained issue in the selected project. Combine words and fields such as `environment:production error.type:TypeError function:checkout after:2026-01-01`. Quote values with spaces. `before:` is exclusive and `after:` inclusive, using occurrence receipt timestamps; include an explicit timezone when specifying a time. `release:latest` means the newest registered sequence. Unsupported fields fail with a named error. All event conditions must match the same occurrence. An issue's occurrence count remains its full retained count.
+
+`GET /api/projects/:project/issue-search` accepts `q`, `status` (all/open/acknowledged/resolved/suppressed), `release`, `sort` (priority/latest/occurrences), and `cursor`. It returns version 1, 25 rows, total matching issues, query-wide status/release/environment facets, and `next`. Priority sorts active regressions before new issues; ties use latest receipt and issue ID descending. Pass `next` unchanged as the cursor for the same query. Cursor pages observe current retained data; new intake or triage can move issues, so refresh to start a new traversal.
+
+`GET /api/projects/:project/issue-export` accepts the same filters and `format=json|csv`. It exports all matching issue aggregates up to 10,000; a larger query returns 413 with its matched count and limit before sending a partial file. Paginate the API for larger results. JSON states its completeness and bounds. Exports do not contain occurrence payloads or attachments. Both doors require the current owner or an exact-project, current read-only agent grant; a shared search link never grants access.
+
+Copy search link preserves filters and ordering. Viewing/unseen remains local to the browser and is shown for the current page, separate from server query-wide counts. Identity, custom-tag and collaborative search are still listed as gaps in CONTRACT.md.
