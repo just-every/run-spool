@@ -3,11 +3,11 @@ import { SiteHeader } from '../landing/SiteHeader';
 import { Footer } from '../landing/Footer';
 import { PublicHead } from '../landing/PublicHead';
 
-function DocsNav({ sections, current, label }: { sections: DocsSection[]; current: string; label: string }) {
+function DocsNav({ sections, current, label, contract }: { sections: DocsSection[]; current: string; label: string; contract?: boolean }) {
   return <nav className="docs-nav" aria-label={label}>{sections.map(section => <div key={section.title}>
     <p className="docs-nav-title">{section.title}</p>
     <ul>{section.pages.map(page => <li key={page.slug}><a href={page.href} className={page.slug === current ? 'mark-bar' : undefined} aria-current={page.slug === current ? 'page' : undefined}>{page.label}</a></li>)}</ul>
-  </div>)}</nav>;
+  </div>)}{contract && <div><ul><li><a href="/contract">Contract</a></li></ul></div>}</nav>;
 }
 
 /** One docs page: the landing's header and footer around a page rendered at build time from the repository's Markdown. */
@@ -18,8 +18,8 @@ export function DocsPage({ repository, sections, page, pages, variant, styles }:
     <body className="landing docs">
       <div className="landing-page"><SiteHeader repository={repository} current="docs" thread variant={variant} /></div>
       <div className="docs-layout">
-        <details className="docs-menu"><summary>Docs pages</summary><DocsNav sections={sections} current={page.slug} label="Docs pages" /></details>
-        <aside className="docs-sidebar"><DocsNav sections={sections} current={page.slug} label="Docs" /></aside>
+        <details className="docs-menu"><summary>Docs pages</summary><DocsNav sections={sections} current={page.slug} label="Docs pages" contract={variant === 'site'} /></details>
+        <aside className="docs-sidebar"><DocsNav sections={sections} current={page.slug} label="Docs" contract={variant === 'site'} /></aside>
         <main className="docs-main">
           <article className="docs-article" aria-labelledby="docs-title">
             <p className="docs-eyebrow">{page.section}</p>
@@ -35,7 +35,7 @@ export function DocsPage({ repository, sections, page, pages, variant, styles }:
           </div>
         </main>
       </div>
-      <Footer repository={repository} />
+      <Footer repository={repository} variant={variant} />
     </body>
   </html>;
 }
