@@ -2756,7 +2756,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "193c5d913f14001233d94c6f41aabcb84961998861d1b73d30da9bfb6a6967f2",
+      "sha256": "6d90a05be96b57cf560002a33c87020ce41e5b1c43914944233c1c5b1a9c3199",
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
@@ -2980,7 +2980,7 @@
       "executable": false
     },
     "ONBOARDING.md": {
-      "sha256": "e09d725991de43491665264632fd3a5235e84e093608b7ff6b7d61a52b5d99fa",
+      "sha256": "c7fbc1a91256957951c93034fae49cfb85ad160c4e68eed155a6f8fd7f656565",
       "executable": false
     },
     "OPERATIONS.json": {
@@ -2988,7 +2988,7 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "c107a879036cb90611d00736a1f6f92378d63e3752b7e48eb854f502fbf36a92",
+      "sha256": "b0c86deb1b4e1dc1241e73fed717916a5e48cf1f94ada6c7c5b124d39df7b1c3",
       "executable": false
     },
     "package.json": {
@@ -3208,7 +3208,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "0f6a866e5c8786a6c10b7c93f3e37a43e5a62ca33a74e482ba74e446375302fb",
+      "sha256": "2ed41de61e0cc3148e56ff27ca7c707f6564c50ad13ae3fd1120cfac3249346a",
       "executable": false
     },
     "RELEASE.json": {
@@ -3224,7 +3224,7 @@
       "executable": false
     },
     "RUN-LOCALLY.md": {
-      "sha256": "f242f29b6cfd0c6e658ad3a913eca65fde438a3ba0f9122440d539bfa5129cb3",
+      "sha256": "25a8feb4d6c6b3edcd3945d1ae0b5ca886d616512fd6e5080e6c0b2ff33dbead",
       "executable": false
     },
     "scripts/build-capture.mjs": {
