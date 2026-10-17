@@ -50,6 +50,16 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `tests/triage-journey.mjs`; `tests/agent-handoff.mjs`; `tests/repair-recovery.mjs`; `tests/execution-journey.mjs` Local journeys exist; full target, hosted/provider and native-device acceptance remain open.
 
+- **OPS-001 — Base commands and native admission. Status: done.** Use public rer install/setup/dev/export/import/reset and deployment dry-run in a fresh checkout and independent destination; preserve existing setup, reject unsafe answer paths and reused managed claims, and deny anonymous/project-grant editor access.
+
+  Current evidence: `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs` Local command behavior is implemented; actual owner-account deployment and provider acceptance are separate gates.
+
+- **BASE-DATA-003 — Project and installation-owner erasure. Status: partial.** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, a 160,000-event project erased within 16 minutes (15 minutes for 150,000 events plus one minute per further 10,000), successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.
+
+  Current evidence: `src/domain/erasure/declaration.ts`; `src/domain/erasure/owner-declaration.ts`; `src/modules/erasure`; `tests/project-erasure.mjs`; `tests/project-erasure-cap.mjs`; `tests/owner-erasure.mjs` Done for the current declared store and exact-identifier policy, not unimplemented mobile/replay/feedback stores or external copies. Full retained limits appear in the custody section above. Completion is measured at 10,000 retained events within 300 seconds (`tests/project-erasure-cap.mjs`), today's admission cap; GOV-003's 150,000-event obligation is unproved.
+
+## Target clauses
+
 ### Teams and triage
 
 - **TEAM-001 — Organizations, members and project permissions. Status: partial.** Invite two teammates and an external read-only collaborator; grant access to disjoint projects, triage concurrently, remove a member and verify immediate denial across UI, HTTP, SDK-management, CLI and exports.
@@ -268,17 +278,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.
 
-- **OPS-001 — Base commands and native admission. Status: done.** Use public rer install/setup/dev/export/import/reset and deployment dry-run in a fresh checkout and independent destination; preserve existing setup, reject unsafe answer paths and reused managed claims, and deny anonymous/project-grant editor access.
-
-  Current evidence: `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs` Local command behavior is implemented; actual owner-account deployment and provider acceptance are separate gates.
-
 - **AUDIT-001 — Permanent privacy-safe action audit. Status: partial.** Perform owner/member/agent and denied actions, restart/export/restore, erase an actor/project and inspect retained nonpersonal chronology, correct outcomes and absence of secret/erased identifiers.
 
   Current evidence: `src/domain/owner-authority.ts`; `src/domain/erasure`; `tests/project-erasure.mjs`; `tests/owner-erasure.mjs` Current destructive/triage and workflow audit exists; organization-wide audit UI/export and future provider paths are incomplete.
-
-- **BASE-DATA-003 — Project and installation-owner erasure. Status: partial.** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, a 160,000-event project erased within 16 minutes (15 minutes for 150,000 events plus one minute per further 10,000), successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.
-
-  Current evidence: `src/domain/erasure/declaration.ts`; `src/domain/erasure/owner-declaration.ts`; `src/modules/erasure`; `tests/project-erasure.mjs`; `tests/project-erasure-cap.mjs`; `tests/owner-erasure.mjs` Done for the current declared store and exact-identifier policy, not unimplemented mobile/replay/feedback stores or external copies. Full retained limits appear in the custody section above. Completion is measured at 10,000 retained events within 300 seconds (`tests/project-erasure-cap.mjs`), today's admission cap; GOV-003's 150,000-event obligation is unproved.
 
 ### Deployment integrations
 
@@ -286,7 +288,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
-### Push further
+## Push further
 
 - **AI-001 — Controlled coding-agent handoff. Status: partial.** In each named agent client, request one issue packet, inspect its untrusted labels and missing coverage, refuse cross-project/mutation/prompt-injection requests, revoke the grant and confirm the next HTTP/CLI/MCP call is denied.
 
