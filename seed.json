@@ -13,7 +13,7 @@
     "id": "javascript-evidence",
     "record": "A sanitized JavaScript, Python or Go exception occurrence grouped into a project-scoped issue."
   },
-  "description": "A local-first workbench for bounded JavaScript, Python and Go exception evidence, JavaScript source maps, project-scoped triage, and reproduction, fix review and measured rollout.",
+  "description": "Investigate application errors with grouped issues, source maps and evidence for reviewing fixes.",
   "scope": "One owner identity per installation with multiple isolated projects and project-scoped ingest and read grants.",
   "capabilities": [
     {

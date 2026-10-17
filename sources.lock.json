@@ -3492,7 +3492,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "06ec8f0f6b0f1fc0d62caa0a97cfa3308ead3dba803df9e9720d6e4149480dcf",
+      "sha256": "87f2625870c3538857324bb6f8b247f27a5356aab6e57adcda50cdf09e9407ca",
       "executable": false
     },
     "src/auth/bindings.ts": {
