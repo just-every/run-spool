@@ -1,12 +1,12 @@
 # Spool local onboarding
 
-Use Node 22 or later, git and the installed public `rer` (`npm install -g @runeditrun/rer`). rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. Validate the command contract, install frozen dependencies, claim the first owner with your email, then start the private workbench:
+Use Node 22 or later and git (without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- setup just-every/run-spool` brings its own). rer supplies the declared Node 22.20.0 and pnpm 10.12.4 runtimes. One line clones Spool, installs frozen dependencies and claims the first owner with your email; then, from the checkout, validate the command contract and start the private workbench:
 
 ```sh
+npx -y @runeditrun/rer setup just-every/run-spool
+cd run-spool
 rer check --profile first-party
-rer install
-rer setup --port 15440
-rer dev --port 15440
+rer dev
 ```
 
 Setup applies additive D1 migrations to local storage, generates managed secrets in the ignored 0600 `.dev.vars`, claims one real owner through operator-auth and stops its temporary app. It preserves existing owner identity and secrets. Open the private `RER_OPEN` link printed by `rer dev` to enter as the owner. Its `rer-dev` fragment value is this checkout's private owner gate. Dev and demo silently suppress mail and expose no mailbox viewer; no email confirmation is needed locally. See [OPERATIONS.md](OPERATIONS.md) before recovering an older installation. After sign-in, create one or more project scopes and save each ingest key when shown because it is not displayed again. Register the project's release and build before capture; upload a matching flat Source Map V3 file when original source locations are needed.

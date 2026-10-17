@@ -1,15 +1,16 @@
 # Run it locally
 
-Use Node 22 or later, git and public rer (`npm install -g @runeditrun/rer`).
-rer supplies Node 22.20.0 and pnpm 10.12.4 for this checkout. From a
-runnable edition's root, install locked dependencies, prepare its local owner,
-then start development:
+Use Node 22 or later and git. Start with one line, which clones Spool, installs
+locked dependencies, prepares its local owner and starts development:
 
 ```sh
-rer install
-rer setup
-rer dev
+npx -y @runeditrun/rer dev just-every/run-spool
 ```
+
+Set up only: `npx -y @runeditrun/rer setup just-every/run-spool`. Without Node:
+`curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool`.
+rer supplies Node 22.20.0 and pnpm 10.12.4 for this checkout. From a runnable
+edition's root, `rer dev` alone starts it again.
 
 Commands that run project work select the exact Node version declared by the
 project. They use an exact matching installed runtime or a checksum-verified
