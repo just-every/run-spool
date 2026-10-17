@@ -43,7 +43,7 @@
     "sourcemaps": "node packages/sdk/src/sourcemaps/bin.mjs",
     "sdk:pack": "node packages/sdk/build.mjs --pack",
     "sentry:import": "node scripts/sentry-import.mjs",
-    "test:sentry": "node tests/sentry-http.mjs && node tests/sentry-import.mjs",
+    "test:sentry": "node tests/sentry-http.mjs && node tests/sentry-import.mjs && node tests/business-import.mjs",
     "test:sentry:sdk": "node tests/sentry-sdk.mjs",
     "test:sdk": "node tests/sdk-package.mjs",
     "test:alerts": "node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs",

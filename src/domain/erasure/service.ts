@@ -1,4 +1,4 @@
-import { createErasure } from '../../modules/erasure/index.mjs';
+import { createErasure, defineErasure } from '../../modules/erasure/index.mjs';
 import { eraseD1ImportTarget } from '../../modules/import-kit/src/d1/index.ts';
 import type { D1ImportContext, D1RelatedErasure } from '../../modules/import-kit/src/d1/types.ts';
 import type { SourceRecord } from '../../modules/import-kit/src/types.ts';
@@ -7,10 +7,12 @@ import { sentryTargets } from '../sentry-import/targets';
 import { mappingVersion } from '../sentry-import/source';
 import { projectErasure, erasureExceptions } from './declaration';
 import { ownerErasureService } from './owner-service';
+import { businessCustodyEdges } from './business-custody';
 
 export async function projectErasureService(db: D1Database) {
  const transfer = await portability(db);
- return createErasure({ db, portability: transfer, declarations: [projectErasure] });
+ const declaration=defineErasure({...projectErasure,edges:[...projectErasure.edges,...await businessCustodyEdges(db)]});
+ return createErasure({ db, portability: transfer, declarations: [declaration] });
 }
 
 // Counts, times and declared exceptions only: no label, subject or stored value.

@@ -38,6 +38,8 @@ export const projectErasure = defineErasure({
   { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },
   { table: 'oc_owner_claims', reason: 'The managed owner-claim ledger stays with the installation.' },
   { table: 'rer_erasure_operations', reason: 'Erasure receipts keep counts and times only.' },
+  { table: 'ik_door_settings', reason: 'Installation Business import opt-in stays with the owner.' },
+  { table: 'ik_door_revoked_keys', reason: 'Revoked Business signing keys stay revoked.' },
  ],
  // One erasure at a time, so pending audit entries always get their own label.
  hold: async ({ db }) => await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,

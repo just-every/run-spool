@@ -8,7 +8,7 @@ import {authBindings} from './auth.mjs';
 import {finishProductRun,migrationFailure,workerOutput} from './product-diagnostics.mjs';
 import {emittedWorkerOptions} from './worker-options.mjs';
 
-export async function startTestWorker(port) {
+export async function startTestWorker(port, bindings={}) {
  let temporary,native,stopping;
  const origin=`http://127.0.0.1:${port}`,output=workerOutput();
  const artifactDirectory=resolve('.artifacts'),runId=Date.now();
@@ -31,7 +31,7 @@ export async function startTestWorker(port) {
   // One native listener owns the actual emitted app, disk assets and migrated D1.
   // Wrangler dev's additional proxy hop is deliberately absent; no HTTP replay.
   const options=convertV4MiniflareOptions({
-   ...worker,bindings:{...worker.bindings,...authBindings(origin)},
+   ...worker,bindings:{...worker.bindings,...authBindings(origin),...bindings},
    log,handleStructuredLogs:({message})=>output.add(message+'\n'),
    resourcePersistencePath:resolve(temporary,'state/v3'),host:'127.0.0.1',port,
    unsafeTriggerHandlers:triggers.length>0

@@ -22,6 +22,7 @@ import { continueErasures } from './domain/erasure/service';
 import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
+import { businessImportResponse } from './domain/sentry-import/door.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  await runAlerts(env,event.scheduledTime);
@@ -58,6 +59,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  }
  if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
  if (path === '/api/editor/config') return editorConfigResponse(request, env);
+ const businessImport = await businessImportResponse(request, env); if (businessImport) return businessImport;
  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
  const auth = await authenticationResponse(request, env); if (auth) return auth;
  return dispatch(request, () => api.fetch(request, env, execution), async () => {
