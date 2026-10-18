@@ -41,16 +41,20 @@ export const sentryTargets:D1TargetAdapter={
       value.source===null?sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',row.targetKind,row.targetId):sql('INSERT INTO sentry_import_targets(kind,id,revision,source) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,source=excluded.source',row.targetKind,row.targetId,row.revision,canonicalJson(value.source))];
   },
   remove(destination,kind,id){const a=address(destination,kind,id);return [sql(`DELETE FROM ${a.table} WHERE ${a.where}`,...a.values),sql('DELETE FROM sentry_import_targets WHERE kind=? AND id=?',kind,id)]},
+  // The native set an import guards is its own imported targets, read in one
+  // query per kind however many rows exist; ingested evidence stays outside it.
   async list(db,destination){
+    if(destination!=='spool-owner')throw new Error('Invalid import destination');
     const rows:TargetRow[]=[];
     for(const [kind,definition] of Object.entries(definitions)){
-      const natives=await db.prepare(`SELECT * FROM ${definition.table}`).all();
-      for(const native of natives.results){const id=definition.keys.length===1?native[definition.keys[0]]:JSON.stringify(definition.keys.map(key=>native[key]));rows.push((await read(db,destination,kind,id))!)}
+      const join=definition.keys.map((key,index)=>`n.${key}=${definition.keys.length===1?'m.id':`json_extract(m.id,'$[${index}]')`}`).join(' AND ');
+      const {results}=await db.prepare(`SELECT n.*,m.id AS import_target_id,m.revision AS import_revision,m.source AS import_source FROM sentry_import_targets m JOIN ${definition.table} n ON ${join} WHERE m.kind=? ORDER BY m.id`).bind(kind).all<any>();
+      for(const {import_target_id,import_revision,import_source,...native} of results)rows.push({destination,targetKind:kind,targetId:import_target_id,revision:import_revision,value:{native,source:JSON.parse(import_source)}});
     }
     return rows;
   },
   matchesCount(count,destination){
     if(destination!=='spool-owner')throw new Error('Invalid import destination');
-    return sql(`${Object.values(definitions).map(d=>`(SELECT COUNT(*) FROM ${d.table})`).join('+')}=? AND NOT EXISTS(SELECT 1 FROM sentry_import_targets m WHERE ${Object.entries(definitions).map(([kind,d])=>`(m.kind='${kind}' AND NOT EXISTS(SELECT 1 FROM ${d.table} n WHERE ${d.keys.map((key,index)=>`n.${key}=${d.keys.length===1?'m.id':`json_extract(m.id,'$[${index}]')`}`).join(' AND ')}))`).join(' OR ')})`,count);
+    return sql(`(SELECT COUNT(*) FROM sentry_import_targets)=? AND NOT EXISTS(SELECT 1 FROM sentry_import_targets m WHERE ${Object.entries(definitions).map(([kind,d])=>`(m.kind='${kind}' AND NOT EXISTS(SELECT 1 FROM ${d.table} n WHERE ${d.keys.map((key,index)=>`n.${key}=${d.keys.length===1?'m.id':`json_extract(m.id,'$[${index}]')`}`).join(' AND ')}))`).join(' OR ')})`,count);
   },
 };

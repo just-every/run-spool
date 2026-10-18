@@ -94,6 +94,10 @@ for(const later of laterTables){later.tables.push(...Object.keys(groupingTables)
 laterTables.unshift({tables:Object.keys(groupingTables),migrations:['0041_business_import_door.sql','0042_grouping_rules.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(releaseTables));later.migrations.push('0043_sentry_releases.sql')}
 laterTables.unshift({tables:Object.keys(releaseTables),migrations:['0043_sentry_releases.sql']});
+// 0044-0048 add only import-kit and door tables, which archives exclude.
+const importDoorMigrations=['0044_import_preparation_steps.sql','0045_import_custody_replace.sql','0046_import_erasure_progress.sql','0047_import_door_apply_failures.sql','0048_import_door_scopes.sql'];
+for(const later of laterTables)later.migrations.push(...importDoorMigrations);
+laterTables.unshift({tables:[],migrations:importDoorMigrations});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

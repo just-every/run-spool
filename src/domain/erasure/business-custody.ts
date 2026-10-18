@@ -31,7 +31,9 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
   // A lineage snapshot can repeat the same private fields across catch-ups.
   {table:'ik_door_uploads',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},
   {table:'ik_door_chunks',from:'ik_door_uploads',on:{upload_id:'id'}},
+  {table:'ik_door_scopes',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},
   {table:'ik_door_plans',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},
+  {table:'ik_door_apply_failures',from:'ik_door_plans',on:{plan_id:'id'}},
   {table:'ik_door_plan_chunks',from:'ik_door_plans',on:{plan_id:'id'}},
   {table:'ik_door_approvals',from:'ik_door_plans',on:{plan_id:'id'}},
   {table:'ik_door_grants',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},

@@ -91,29 +91,28 @@ Imported projects receive deterministic namespaced IDs and no credentials. Vendo
 
 ## Review, apply, inspect and undo
 
-The authenticated owner API is the public boundary for import. Agent, ingest and deploy keys are refused. Set an owner session cookie in a local environment variable through your existing owner session; do not paste it in shell commands or reports.
+The importer runs through Spool's one import door, Base import-kit's pipeline at `POST /api/operator/import/{uploads,plan,apply,status,reconcile,undo}`: upload, plan, reviewed fingerprint, apply, reconcile and undo. Business uses the same door with signed grants (below), and both share one history and undo. The door needs the current owner session, the exact app `Origin` and an `X-Import-Source` header naming the namespace `sentry-org:<organization slug>`; the bundle must belong to that organization. Agent, ingest and deploy keys are refused. Set an owner session cookie in a local environment variable through your existing owner session; do not paste it in shell commands or reports.
 
 ```sh
 node scripts/sentry-import.mjs dry-run --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --file ./organization.json --operation migration-2026-10-10
+  --session-env SPOOL_OWNER_SESSION --file ./organization.json
 
 node scripts/sentry-import.mjs apply --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --file ./organization.json \
-  --fingerprint REVIEWED_FINGERPRINT --operation migration-2026-10-10
+  --session-env SPOOL_OWNER_SESSION --organization example \
+  --plan PLAN_ID --fingerprint REVIEWED_FINGERPRINT
 
-node scripts/sentry-import.mjs read --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --organization example --job JOB_ID
-
-node scripts/sentry-import.mjs resume --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --organization example --job JOB_ID
+node scripts/sentry-import.mjs reconcile --endpoint https://spool.example \
+  --session-env SPOOL_OWNER_SESSION --organization example --plan PLAN_ID
 
 node scripts/sentry-import.mjs undo --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --organization example --job JOB_ID
+  --session-env SPOOL_OWNER_SESSION --organization example --plan PLAN_ID
 ```
 
-Dry run shows the exact scrubbed target rows, rejected records and declared omissions. It creates no job or target records. Apply requires the exact reviewed fingerprint and the same operation key used for dry run. If dry run omits the key, use the generated `operationKey` returned with the plan. Each new operation gives historical events fresh occurrence identities; retries keep the reviewed identities. Repeating that operation resumes the same journal; it cannot silently substitute new source bytes. Apply/undo check the current owner/session in the same SQL transaction as native rows and Base journal writes. Reopening Spool does not lose the checkpoint. Undo runs in reverse dependency order. Exact full-row fences catch native edits even when a revision number was not advanced; a conflict stops reversal and preserves edits. Restore the conflicting row deliberately or keep the import; never bypass the guard. Undo restores exact replaced before-images and removes new rows only while their current evidence still matches.
+Dry run uploads the exact bytes in SHA-256-checked 64 KiB chunks and returns the plan: its fingerprint, counts, rejected records with reasons, and differences against the organization's previous import. It writes no native records. Apply needs the plan ID and the exact reviewed fingerprint; it repeats bounded requests until the server reports the job `completed`, and repeating it answers the same job. `status` reads the job; `reconcile` re-derives every source ID's disposition (present, or explained with its reason) and the native counts, revisions and values from Spool's data. A newer bundle of an imported organization is a catch-up: add `--catchup` to the dry run; unchanged records stay, changed records it created are proposed as guarded replacements and records gone at source are only listed. One bundle's historical events keep one set of occurrence identities; a different bundle gives fresh ones. Apply and undo check the current owner session in the same SQL transaction as native rows and the Base journal. Undo runs newest import first, in reverse dependency order. Exact full-row fences catch native edits even when a revision number was not advanced; a conflict stops reversal and preserves edits. Restore the conflicting row deliberately or keep the import; never bypass the guard. Settings → **Business imports** lists every import ("approved by" for the owner's own, "approved via Business by" for Business) with an Undo.
 
-Retained originals are private owner-only evidence, separate from scrubbed issue packets. Download them to a new access-controlled file with `originals --output FILE`; the CLI refuses overwriting an existing file. Project event retention does not erase that private import journal. Native owner archives include scrubbed historical rows and source identity metadata but deliberately exclude the Base import job/original journal. Download exact originals separately before moving installations; original-job resume and undo remain on the installation that owns the journal. Treat both archives and original downloads as confidential; deleting a native event is not erasure of its original export. This release has no automatic source-journal expiry.
+The uploaded bytes and each plan's snapshot stay private to this installation, separate from scrubbed issue packets. Project event retention does not erase them. Native owner archives include scrubbed historical rows and source identity metadata but deliberately exclude the import door and Base import journal; undo and reconciliation remain on the installation that holds them. Keep the export file itself confidential; deleting a native event is not erasure of its original export. This release has no automatic source-journal expiry.
+
+Jobs created by the owner-session importer before the import door keep their journal: `read`, `resume`, `undo` and `originals --output FILE` take `--organization` and `--job` for them (the CLI refuses overwriting an existing originals file). New imports always run through the door.
 
 Source references: [envelope framing](https://develop.sentry.dev/sdk/foundations/envelopes/), [transport authentication](https://develop.sentry.dev/sdk/foundations/transport/authentication/), [11.6.0 SDK URL construction](https://github.com/getsentry/sentry-javascript/blob/11.6.0/packages/core/src/api.ts), [11.6.0 debug metadata](https://github.com/getsentry/sentry-javascript/blob/11.6.0/packages/core/src/utils/prepareEvent.ts).
 
@@ -128,16 +127,19 @@ In Settings, open the **Business imports** row to enable the import door. It is
 installation ID, app origin and public key ring; no second trust configuration
 or owner identity is created. Without those bindings (`RER_OWNER_CLAIM_*`) the
 row says trust configuration is required. `rer deploy` does not declare them for
-a self-hosted installation, so there the door stays unavailable; use the
-owner-session importer above. Disabling the door immediately stops Business
+a self-hosted installation, so there Business grants stay unavailable; the
+owner's importer above uses the same door without them. Disabling the door immediately stops Business
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 
-Spool vendors Base's optional import-kit door from `rer-v0.2.33`. Its
+Spool vendors Base's import-kit door from `rer-v0.2.61`. Its
 [grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
-`POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. The upload is
-the same owner-generated Sentry organization bundle documented above, chunked
-with SHA-256 checks. The parser retains Spool's 2 MiB / 500-record limits and
+`POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. A grant's
+namespace must be `sentry-org:<organization slug>` (or a namespace an earlier
+import already holds); any other namespace is refused with 403
+`unknown_import_source` before anything is written. The upload is the same
+owner-generated Sentry organization bundle documented above, chunked with
+SHA-256 checks. The parser retains Spool's 2 MiB / 500-record limits and
 uses the existing native Sentry mapping. Planning retains private upload/review
 custody and makes no native project, release, issue or event writes. Apply needs
 the exact reviewed fingerprint and the signed owner's approval record.
@@ -148,7 +150,8 @@ counts, revisions and values. It makes no completeness claim against Sentry's
 vendor totals. Imports stay inert: no credentials or alert deliveries are created.
 
 The same settings row lists each real import with **approved via Business by
-<owner> at <time>, fingerprint <x>**. Its owner-session Undo remains available
+<owner> at <time>, fingerprint <x>** (the owner's own imports read **approved
+by**). Its owner-session Undo remains available
 with Business disabled or its grant key revoked. Undo protects native edits and
 reverses the newest snapshot first. Original bytes remain private to this Spool
 installation. Project erasure also withdraws affected door upload/plan snapshots

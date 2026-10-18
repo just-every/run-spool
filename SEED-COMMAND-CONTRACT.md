@@ -568,6 +568,12 @@ under POST `/api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. This is
 an optional product import integration. The seed supplies its database, real
 target adapter, parser/mapping, destination and actual owner principal, and
 applies `importDoorSchema` in a new numbered migration after its D1 kit schemas.
+A seed that already installed the door never re-applies `importDoorSchema`
+(it refuses on that older door schema, so the deploy fails rather than keep the
+old plan table). It applies the door migrations once each, in order, each in a
+new numbered migration: `importDoorApplyFailureMigration` as a single atomic
+batch, then `importDoorScopesMigration`. Until both are applied, an enabled
+door answers every route with 503 `import_door_schema_outdated`.
 Base does not mount the door in a seed automatically. Copy the module's
 `CONTRACT.md` and `src/door/README.md` with its runtime and dependencies.
 

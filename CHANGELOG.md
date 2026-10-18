@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **One import pipeline.** The owner's Sentry importer (`scripts/sentry-import.mjs`) now runs through Base import-kit's import door, the same upload → plan → reviewed fingerprint → apply → reconcile → undo pipeline Business grants use, at `/api/operator/import/*` with the owner session. The old `/api/imports/sentry/plan` and `/apply` routes are gone; jobs they created keep read, originals, resume and undo. Each Sentry organization is one door namespace, `sentry-org:<slug>`, and a newer bundle of an organization is a reviewed catch-up. Settings → **Business imports** lists the owner's imports too.
+- Pin rer 0.2.61 and refresh the import-kit, owner-claim, operator-auth and other Base copies (the shared page heads stay at the earlier pin). Door fixes from Base: erasure with door rows and earlier doors' rows, failed applies ending `failed`, the namespace allow-list, a permanent door key and a per-request statement budget.
+- Additive migrations `0044_import_preparation_steps.sql` through `0048_import_door_scopes.sql` apply automatically (48 total), including the door's apply-failure migration for the door 0041 installed. Export a private archive before updating.
+
 ## 0.3.1 — 2026-10-18
 
 - Rephrase the Sentry non-goal for the RunEditRun Site import: organization import has been exercised with synthetic fixtures only, and owner-export qualification is pending. The importer, its qualification limits and the Site claim guard are unchanged.

@@ -699,7 +699,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "398bdd222401a60ac2d0732454f6a947b3033029",
+          "revision": "3478fc15bb18c2f74def8e8906bd308320c7953b",
           "path": "modules/owner-claim",
           "paths": [
             "idp.mjs",
@@ -1075,15 +1075,17 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
+          "revision": "3478fc15bb18c2f74def8e8906bd308320c7953b",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",
             "d1/budget.ts",
             "d1/compressed-plan.ts",
             "d1/creation.ts",
+            "d1/custody-fence.ts",
             "d1/custody-state-schema.ts",
             "d1/database.ts",
+            "d1/entry-locator.ts",
             "d1/erased-artifacts.ts",
             "d1/erased-custody.ts",
             "d1/erased-plan.ts",
@@ -1104,6 +1106,7 @@
             "d1/erasure-snapshot.ts",
             "d1/erasure-stage.ts",
             "d1/erasure-step.ts",
+            "d1/erasure-superseded.ts",
             "d1/erasure-values.ts",
             "d1/erasure-writes.ts",
             "d1/erasure.ts",
@@ -1116,6 +1119,7 @@
             "d1/integrity.ts",
             "d1/inventory-snapshot.ts",
             "d1/jobs.ts",
+            "d1/native-set.ts",
             "d1/native-staging-admission.ts",
             "d1/native-staging-context.ts",
             "d1/native-staging-lifecycle.ts",
@@ -1151,8 +1155,10 @@
             "d1/read-results.ts",
             "d1/redacted-custody.ts",
             "d1/redaction-step.ts",
+            "d1/referenced-plans.ts",
             "d1/retained-values.ts",
             "d1/retirement-bounded.ts",
+            "d1/retirement-door.ts",
             "d1/retirement-schema.ts",
             "d1/retirement-scope.ts",
             "d1/retirement-steps.ts",
@@ -1198,13 +1204,20 @@
             "d1/undo-snapshot.ts",
             "d1/undo-state.ts",
             "d1/undo-types.ts",
+            "door/ADOPTING.md",
             "door/README.md",
+            "door/admission.ts",
             "door/authority.ts",
+            "door/failures.ts",
             "door/grants.ts",
+            "door/handler.ts",
             "door/index.ts",
             "door/inventory.ts",
             "door/jobs.ts",
+            "door/limits.ts",
+            "door/operator.ts",
             "door/planning.ts",
+            "door/protocol.ts",
             "door/schema.ts",
             "door/store.ts",
             "door/types.ts",
@@ -1251,12 +1264,20 @@
             "originPath": "d1/creation.ts"
           },
           {
+            "path": "src/modules/import-kit/src/d1/custody-fence.ts",
+            "originPath": "d1/custody-fence.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/d1/custody-state-schema.ts",
             "originPath": "d1/custody-state-schema.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/database.ts",
             "originPath": "d1/database.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/d1/entry-locator.ts",
+            "originPath": "d1/entry-locator.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/erased-artifacts.ts",
@@ -1339,6 +1360,10 @@
             "originPath": "d1/erasure-step.ts"
           },
           {
+            "path": "src/modules/import-kit/src/d1/erasure-superseded.ts",
+            "originPath": "d1/erasure-superseded.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/d1/erasure-values.ts",
             "originPath": "d1/erasure-values.ts"
           },
@@ -1385,6 +1410,10 @@
           {
             "path": "src/modules/import-kit/src/d1/jobs.ts",
             "originPath": "d1/jobs.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/d1/native-set.ts",
+            "originPath": "d1/native-set.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/native-staging-admission.ts",
@@ -1527,12 +1556,20 @@
             "originPath": "d1/redaction-step.ts"
           },
           {
+            "path": "src/modules/import-kit/src/d1/referenced-plans.ts",
+            "originPath": "d1/referenced-plans.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/d1/retained-values.ts",
             "originPath": "d1/retained-values.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/retirement-bounded.ts",
             "originPath": "d1/retirement-bounded.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/d1/retirement-door.ts",
+            "originPath": "d1/retirement-door.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/retirement-schema.ts",
@@ -1715,16 +1752,32 @@
             "originPath": "d1/undo-types.ts"
           },
           {
+            "path": "src/modules/import-kit/src/door/ADOPTING.md",
+            "originPath": "door/ADOPTING.md"
+          },
+          {
             "path": "src/modules/import-kit/src/door/README.md",
             "originPath": "door/README.md"
+          },
+          {
+            "path": "src/modules/import-kit/src/door/admission.ts",
+            "originPath": "door/admission.ts"
           },
           {
             "path": "src/modules/import-kit/src/door/authority.ts",
             "originPath": "door/authority.ts"
           },
           {
+            "path": "src/modules/import-kit/src/door/failures.ts",
+            "originPath": "door/failures.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/door/grants.ts",
             "originPath": "door/grants.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/door/handler.ts",
+            "originPath": "door/handler.ts"
           },
           {
             "path": "src/modules/import-kit/src/door/index.ts",
@@ -1739,8 +1792,20 @@
             "originPath": "door/jobs.ts"
           },
           {
+            "path": "src/modules/import-kit/src/door/limits.ts",
+            "originPath": "door/limits.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/door/operator.ts",
+            "originPath": "door/operator.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/door/planning.ts",
             "originPath": "door/planning.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/door/protocol.ts",
+            "originPath": "door/protocol.ts"
           },
           {
             "path": "src/modules/import-kit/src/door/schema.ts",
