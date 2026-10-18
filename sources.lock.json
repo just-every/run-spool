@@ -6864,7 +6864,7 @@
       "executable": false
     },
     "tests/operator-archive.mjs": {
-      "sha256": "eeb86584d966e86dafe4fad6916319d173711905d0aa9510770510969c1d3347",
+      "sha256": "6101c208fa68661deffb16418aa753c778df9747928c1332fe2904d8f6a6d4b5",
       "executable": false
     },
     "tests/operator-flow.mjs": {
@@ -6892,7 +6892,7 @@
       "executable": false
     },
     "tests/owner-erasure-authority.mjs": {
-      "sha256": "ba5c3046d9a8434f8c08cd93c4638a1d91d3efb62f982de52467f7e263b9882d",
+      "sha256": "493b124ab0118b3c9bc28392f7fef5dfb4117ff9df420bf14816ecaf96da0386",
       "executable": false
     },
     "tests/owner-erasure-finalization.mjs": {

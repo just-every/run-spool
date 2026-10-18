@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import { makePart } from '../src/modules/portability/index.mjs';
 import { ContentVerifier, ArchiveVerifier } from '../src/modules/portability/format.mjs';
@@ -33,6 +34,6 @@ export async function operatorRetentionAndErasure({req,json}){
  await json(`${p}/suppression-policies/${policy.id}`,'PATCH',{...policy,enabled:false});const reused=await ingest();assert.equal(reused.outcome,'accepted');assert.equal(reused.issue,accepted.issue);const fresh=await json(`${p}/issues/${reused.issue}/packet`);assert.notEqual(fresh.events[0].occurrence,oldOccurrence);assert.equal(fresh.events[0].currentGrouping.correction,null);assert.equal((await req(`${p}/corrections/${preview.id}/undo`,'POST',{confirm:true})).status,409,'old correction cannot resurrect or move a reused event ID');
  const project='grouping-corpus',path=`/api/projects/${project}/erasure`,plan=await json(path);
  for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'])assert.ok(plan.deleted[table]>0,'erasure traverses populated operator custody');
- const receipt=await json(path,'POST',{confirm:project,planHash:plan.planHash});assert.equal(receipt.phase,'complete');
+ const receipt=await followErasure(json,await json(path,'POST',{confirm:project,planHash:plan.planHash}));assert.equal(receipt.phase,'complete');
  const after=await archiveProjection(await req('/api/archive'));for(const rows of Object.values(after.data))for(const row of rows)assert.notEqual(row.project,project,'erased operator project leaves no project row');assert.ok(!JSON.stringify(after.data).includes(project),'audit anonymization removes erased operator identifiers');
 }
