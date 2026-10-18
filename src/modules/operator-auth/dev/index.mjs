@@ -49,7 +49,7 @@ export function withDevIdentity(worker, { bindings = env => env, config: authCon
       const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' });
       registerDevAdmission(gate && env.RER_DEV_IDENTITY !== 'off' ? r => gate.admits(r) : null);
       const path = new URL(request.url).pathname;
-      if (path === '/__dev/key') return gate ? gate.exchange(request) : devNotFound();
+      if (path === '/__dev/key') return gate ? gate.exchange(request, authConfig(env).branding) : devNotFound();
       if (path === '/signin' && gate && env.RER_DEV_IDENTITY !== 'off' && ['GET', 'HEAD'].includes(request.method)) {
         if (!await gate.admits(request)) return new Response(null, { status: 303, headers: { ...headers, location: '/__dev/key' } });
         const context = identity(env, authConfig, declared);

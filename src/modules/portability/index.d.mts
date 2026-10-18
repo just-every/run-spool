@@ -28,7 +28,7 @@ export interface ArchivePolicy {
   extraPayloads?: Record<string,{produce:()=>Uint8Array|ReadableStream<Uint8Array>|Promise<Uint8Array|ReadableStream<Uint8Array>>;consume:(source:ReadableStream<Uint8Array>,descriptor:PayloadDescriptor)=>void|Promise<void>}>;
   partBytes?: number;
 }
-export interface Status {id:string;kind:'export'|'import';phase:'building'|'staging'|'applying'|'complete'|'aborted';completed:number;total:number|null;/** Export only: bytes of the parts built so far. */bytes?:number;contentHash:string|null;requiredConfiguration?:string[];bridged?:Bridge}
+export interface Status {id:string;kind:'export'|'import';phase:'building'|'staging'|'applying'|'complete'|'aborted';completed:number;total:number|null;/** Export only: bytes of the parts built so far. */bytes?:number;contentHash:string|null;requiredConfiguration?:string[];bridged?:Bridge;/** Platform bookkeeping ignored in an older archive. */skippedTables?:string[]}
 /** Later additive migrations an older archive was restored across. */
 export interface Bridge {fromSchema:string;toSchema:string;migrations:string[];tables:string[];columns:Record<string,string[]>}
 /** A runner's replay of the destination's applied migrations: the archive schema identity after a chosen set, and each migration's statements. */
@@ -54,7 +54,7 @@ export function makePart(index:number,items:Item[]):Promise<Part>;
 export function canonicalJson(value:unknown):string;
 export function sha256(value:string|Uint8Array):Promise<string>;
 export const MAX_LINE_BYTES:number;
-/** Tables no archive carries (exact names, or prefixes ending in `%`). */
+/** Default exclusions (exact names, or prefixes ending in `%`); identity tables may be included. */
 export const excludedTables:readonly string[];
 /** True when no archive under this policy carries `table`. */
 export function excludedTable(table:string,policy?:Pick<ArchivePolicy,'excludeTables'|'includeTables'>):boolean;

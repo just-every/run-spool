@@ -69,7 +69,11 @@ export async function importArchive(service, path, transient, journal, progress)
    if (file === journal && record.kind === 'manifest') later = { sourceIdentity: record.sourceIdentity, epoch: record.epoch, journal: record.journal };
   }
   for await (const record of fileRecords(path)) {
-   if (record.kind === 'manifest') { manifest = record; id = await service.imports.create(manifest); }
+   if (record.kind === 'manifest') {
+    manifest = record; id = await service.imports.create(manifest);
+    const { skippedTables } = await service.imports.status(id);
+    if (skippedTables?.length) progress?.({ phase: 'skipped', tables: skippedTables });
+   }
    else if (record.kind === 'part') {
     await service.imports.uploadPart(id, record.index, record);
     staged += Buffer.byteLength(canonicalJson(record)) + 1;
@@ -79,6 +83,6 @@ export async function importArchive(service, path, transient, journal, progress)
   }
   progress?.({ phase: 'finishing', total: manifest.partCount });
   const status = await service.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash, ...(later ? { laterJournal: later } : {}) }); complete = true;
-  return { ...receipt(manifest, closing, transient), ...(status.bridged ? { bridged: status.bridged } : {}) };
+  return { ...receipt(manifest, closing, transient), ...(status.bridged ? { bridged: status.bridged } : {}), ...(status.skippedTables ? { skippedTables: status.skippedTables } : {}) };
  } finally { if (id && !complete) await service.imports.abort(id); }
 }

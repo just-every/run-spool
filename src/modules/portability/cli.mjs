@@ -4,6 +4,7 @@ import { Readable } from 'node:stream';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { options, cookieFile, absent, privateFile, checkpoint, promote } from './cli-options.mjs';
 import { readArchive } from './format.mjs';
+import { skippedTablesLine } from './bookkeeping.mjs';
 import { canonicalJson } from './hash.mjs';
 import { transferClient, transferDiagnostic } from './http-client.mjs';
 export async function main(args) {
@@ -37,6 +38,7 @@ export async function main(args) {
       else closing=record;
     }
     const result=await get('imports/'+id+'/finalize','POST',{contentHash:closing.contentHash,archiveHash:closing.archiveHash});
+    if(result.skippedTables?.length)process.stdout.write(skippedTablesLine(result.skippedTables)+'\n');
     process.stdout.write('Import '+result.phase+'.\nRequired configuration: '+result.requiredConfiguration.join(', ')+'\n');return;
   }
   let collection='exports';

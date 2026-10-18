@@ -20,7 +20,7 @@ schema at construction. Apply the bookkeeping migration first. Policy fields:
 | --- | --- |
 | `product` | Required archive product identity. |
 | `excludeTables` | Additional exact names or prefixes ending in `%`. |
-| `includeTables` | Explicit identity tables to include despite default exclusions. |
+| `includeTables` | Explicit identity tables to include despite default identity exclusions. Mandatory platform bookkeeping tables cannot be included. |
 | `derivedTables` | Virtual/FTS tables to regenerate; their shadow tables are excluded. |
 | `secretColumns` | Per-table nullable base columns omitted at export and written as NULL. Primary keys and generated columns cannot be secret. |
 | `exportRow(table,row)` | Pure, synchronous, idempotent transformation of encoded base cells. Restore writes its result verbatim; SQLite recomputes generated cells. |
@@ -32,14 +32,35 @@ schema at construction. Apply the bookkeeping migration first. Policy fields:
 | `extraPayloads` | Named `{produce,consume}` pairs. Producers return bytes or a byte stream. Consumers receive a verified byte stream and descriptor before D1 commit. |
 | `partBytes` | Maximum part size, default 16 MiB, configurable from 1 KiB to 16 MiB. |
 
-Archives always skip Base's own tables: SQLite and Cloudflare internals, the
-migration ledgers (`d1_migrations`, `_rer_deploy_migrations`,
-`_rer_portability_migrations`), portability bookkeeping, development outboxes,
-operator identity and dependency secrets. `excludedTables` lists them (exact
-names, or prefixes ending in `%`), and `excludedTable(name, policy)` says whether
-an archive under that policy skips a table. A seed's own table inventory, which
-refuses tables it does not know, uses the same predicate, so it does not refuse a
-table Base created and never archives.
+`bookkeeping.mjs` defines the mandatory `platformTables` list. These tables
+belong to the current runtime or environment and never travel:
+
+| Tables (exact names or prefixes ending in `%`) | Reason |
+| --- | --- |
+| `sqlite_%`, `_cf_%` | SQLite and Cloudflare internals. |
+| `d1_migrations`, `_rer_deploy_migrations`, `_rer_portability_migrations`, `rer_migrations` | Destination migration history. Current Base uses the D1 and `_rer_` ledgers; `rer_migrations` is excluded for historical compatibility. |
+| `rer_portability_%` | Transfer jobs, snapshots, staging, journals and recovery bookkeeping. |
+| `rer_mail_development_outbox`, `rer_ai_development_outbox` | Local development effect captures. |
+| `rer_dependency_keys`, `rer_dependency_pending`, `rer_dependency_codes` | Provider secrets and transient linking credentials. |
+| `rer_command_receipts` | Command replay receipts tied to the source installation. |
+| `rer_erasure_blobs`, `rer_erasure_guard`, `rer_erasure_scope`, `rer_erasure_rates` | Erasure work queues, transaction guards, working scope and local rate limits. |
+| `rer_demo` | Local demo setup markers. |
+
+`excludedTables` combines this list with the default identity exclusions `oa_%`
+and `oc_%`. Policy may override those identity exclusions through `includeTables`,
+but naming a mandatory platform table there refuses construction with
+`platform_table:<name>` and a message identifying the table.
+`excludedTable(name, policy)` always returns true for mandatory platform tables,
+regardless of policy, so export cannot include them. A seed's own table inventory,
+which refuses tables it does not know, uses the same predicate, so it does not
+refuse a table Base created and never archives.
+
+These are specific exclusions, not a blanket exclusion of `rer_%` tables.
+Durable erasure receipts in `rer_erasure_operations`, installation identity in
+`rer_dependency_installation`, retained links in `rer_dependency_link`, and mail
+delivery receipts and state in `rer_mail_event_receipts` and
+`rer_mail_event_states` remain portable unless product policy excludes them.
+Seed-owned tables are likewise discovered and remain portable by default.
 
 For native local CLI transfers, declare executable policy through
 `localPortability({database, buckets, policyModule})`. `policyModule` is a
@@ -69,9 +90,6 @@ it continues to accept serializable object policies. Malformed primary or later
 journal JSON is reported once as `archive_json` with exit 2, before local data
 migrations, without echoing archive content or parser diagnostics.
 
-Default exclusions are `sqlite_%`, `_cf_%`, `d1_migrations`,
-`rer_portability_%`, `rer_mail_development_outbox`, `oa_%`, `oc_%`,
-`rer_dependency_keys`, `rer_dependency_pending` and `rer_dependency_codes`.
 When a policy includes operator-auth tables, local dev identity still never
 travels, and no policy option changes that: export drops `oa_sessions` rows of
 kind `dev`, every credential recorded in `oa_dev_credentials` (and that table's
@@ -146,6 +164,15 @@ finalize and checked before any R2 write, extra payload consumer or D1 restore
 commit. Local `rer import` verifies the whole input before even applying
 destination migrations. `contentHash` remains the content-equivalence digest;
 `archiveHash` changes when export time, source metadata or part boundaries change.
+
+Older version 2 archives may contain tables now classified as mandatory platform
+bookkeeping. Import verifies the original archive in full, including its
+manifest, every part, `contentHash` and `archiveHash`; excluded rows still count
+in those integrity checks. Their rows are never staged or restored. Only these
+mandatory tables are removed from the effective schema before compatibility
+checks; this does not waive checks on any remaining table. `imports.status(id)`
+reports their names in `skippedTables`. File and HTTP CLI imports print one line
+when any are skipped: `Skipped platform bookkeeping tables: <names>.`
 
 Version 1 archives lack this binding and are refused with
 `legacy_archive_unverifiable` (HTTP 409; local `rer import` exit 4), before
@@ -444,6 +471,7 @@ modules/portability/lines.mjs
 modules/portability/hash.mjs
 modules/portability/format.mjs
 modules/portability/catalogue.mjs
+modules/portability/bookkeeping.mjs
 modules/portability/storage.mjs
 modules/portability/copies.mjs
 modules/portability/dev-data.mjs

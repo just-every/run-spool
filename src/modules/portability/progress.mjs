@@ -1,3 +1,4 @@
+import { skippedTablesLine } from './bookkeeping.mjs';
 // Human progress for a long export or import. The caller sends events; this turns
 // them into at most one line every few seconds, with an estimate of the time left
 // once a phase has two samples. The first and last line of every phase always show.
@@ -38,6 +39,7 @@ export function transferProgress(report, { interval = 3000, now = () => performa
     }
   };
   return event => {
+    if (event.phase === 'skipped') { report(skippedTablesLine(event.tables)); return; }
     if (event.phase === 'start') {
       const noun = event.direction === 'export' ? `Exporting about ${formatBytes(event.bytes)} of local data` : `Restoring a ${formatBytes(event.bytes)} archive`;
       if (event.direction === 'export') expected = event.bytes;
