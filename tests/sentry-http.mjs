@@ -1,3 +1,4 @@
+import { releaseIdentityFlow } from './release-identity-flow.mjs';
 import { groupingRulesFlow } from './grouping-rules-flow.mjs';
 import { investigationFlow } from './investigation-flow.mjs';
 import { fidelityFlow } from './fidelity-flow.mjs';
@@ -15,6 +16,7 @@ try{
   const req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{},...headers},...body?{body:typeof body==='string'||body instanceof Uint8Array?body:JSON.stringify(body)}:{}});
   const json=async(path,method,body,headers)=>{const response=await req(path,method,body,headers);assert.ok(response.ok,`${path}: HTTP ${response.status}`);return response.json()};
   const project=await json('/api/projects','POST',{id:'wire',name:'Wire flow'}),other=await json('/api/projects','POST',{id:'other',name:'Other project'});
+  await json('/api/projects/wire/release-policy','PUT',{revision:0,policy:{version:1,order:'registered',pattern:'*'}});
   const dsn=new URL(project.dsn),alias=dsn.pathname.slice(1),key=dsn.username;
   assert.match(alias,/^\d+$/);assert.equal(key,project.ingestKey);
   const path=`/api/${alias}/envelope/?sentry_key=${key}&sentry_version=7`;
@@ -52,6 +54,7 @@ try{
   await investigationFlow({req,json,origin});
   await fidelityFlow({req,json,origin});
   await groupingRulesFlow({req,json,origin,cookie});
+  await releaseIdentityFlow({req,json,origin,cookie});
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});

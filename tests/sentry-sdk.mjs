@@ -46,6 +46,7 @@ try{
     const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
     const rejectedProject=`unregistered-${width}`;
     dsns.rejected=(await request('/api/projects','POST',{id:rejectedProject,name:'Release rejection'})).dsn;
+    await request(`/api/projects/${rejectedProject}/release-policy`,'PUT',{revision:0,policy:{version:1,order:'registered',pattern:'*'}});
     await request(`/api/projects/${rejectedProject}/browser-origins`,'POST',{origin:applicationOrigin});
     await page.goto(applicationOrigin+'/?target=rejected');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button').click();
     let rejectedReceipt;

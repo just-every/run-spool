@@ -9,7 +9,7 @@ import {canonical} from '../../src/domain/privacy.ts';
 const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
 const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'];
 const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
-const laterTables=[...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies'];
+const laterTables=[...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions'];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.
 export async function preRepairArchive(text){
@@ -26,7 +26,7 @@ export async function preRepairArchive(text){
  const verifier=new ContentVerifier(earlier),binding=new ArchiveVerifier(earlier);for(const item of items)verifier.add(item);for(const part of parts)binding.add(part);
  return [earlier,...parts,{kind:'closing',partCount:parts.length,contentHash:verifier.digest(),archiveHash:binding.digest()}].map(record=>canonicalJson(record)+'\n').join('');
 }
-const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>!repairTables.includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
+const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...repairTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
 // Part 4: a pre-repair archive restores with empty repair tables; a populated
 // archive restores repairs, checks and every verdict input intact.
 export async function archiveProof(app,{issue,repair,cutoff}){
@@ -35,7 +35,7 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  const before=await read();
  await app.resetRestore(await preRepairArchive(source.text));
  let restored=await app.archive();assert.deepEqual(restored.data.repairs,[]);assert.deepEqual(restored.data.repair_checks,[]);
- for(const table of [...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies'])assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
+ for(const table of [...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions'])assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);

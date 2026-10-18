@@ -1,3 +1,5 @@
+import { prepareRelease } from './releases/admission';
+import { regressionSql,newerReleaseSql } from './releases/order';
 import { readGroupingPolicy,groupingPolicyFence } from './grouping/policy';
 import {readInboundPolicy,inboundPolicyFence,matchInbound,inboundMetadata,inboundDomainFences,type InboundPolicy,type DomainDecision} from './filters';
 import { policyMatch, matchArgs } from './operators/policies';
@@ -51,7 +53,7 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
  return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
-export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string):Promise<Response>{
+export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false):Promise<Response>{
   let event=normalize(input);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
@@ -62,15 +64,18 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     if(existing)return await duplicate(existing);
     const budget=await stmt(db,"SELECT COALESCE(SUM(count),0) total FROM outcomes WHERE project=? AND window>=? AND reason IN ('accepted','rejected','invalid','oversized','rate_limited','budget','unregistered_release_or_build','missing_release_register_required')",project,Math.floor(Date.now()/60000)*60000).first<any>();
     if(budget.total>=120){await record('rate_limited');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'minute_budget',retryAfter:60},429)}
-    const release=await stmt(db,'SELECT seq,build FROM releases WHERE project=? AND name=?',project,event.release).first<any>();
-    if(!release||release.build!==event.build){await record('unregistered_release_or_build');return c.json({outcome:'rejected',reason:'unregistered_release_or_build',register:`/projects/${encodeURIComponent(project)}/releases`},422)}
+    const prepared=await prepareRelease(db,project,event,sentryIntake);
+    if(prepared.refusal){await record(prepared.refusal);return c.json({outcome:'rejected',reason:prepared.refusal,register:`/projects/${encodeURIComponent(project)}/releases`},422)}
+    event=prepared.event!;
+    const releaseSequence=event.release?`(SELECT seq FROM releases WHERE project=? AND name=?)`:'0';
+    const releaseArgs=event.release?[project,event.release]:[];
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
     if(event.sentry)event=normalize({...event,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
-    const jobs=[groupingPolicyFence(db,project,groupingPolicy.revision),
+    const jobs=[...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
       ...(route?[
@@ -78,11 +83,15 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM grouping_routes WHERE project=? AND fingerprint=? AND issue=? AND basis=?) THEN 1 ELSE 0 END',project,route.fingerprint,issue,basis),
       ]:[]),
       startCaptureHistory(db,project,issue,time),
-      stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,?,?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,release.seq,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
+      stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,${releaseSequence},?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,...releaseArgs,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
-      ...admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:release.seq,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN}),
+      stmt(db,"INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) VALUES(?,?,'current',0,?,NULL,0) ON CONFLICT(project,issue) DO NOTHING",project,issue,time),
+      stmt(db,`UPDATE issue_resolutions SET observed_seq=(SELECT CASE WHEN ${newerReleaseSql('issue_resolutions.project','incoming','issue_resolutions.observed_seq')} THEN incoming.release_seq ELSE issue_resolutions.observed_seq END FROM events incoming WHERE incoming.project=issue_resolutions.project AND incoming.id=? AND incoming.occurrence=?) WHERE project=? AND issue=?`,event.eventId,occurrence,project,issue),
+      ...admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN}),
       rememberUnsuppressedCapture(db,project,issue,event.eventId,occurrence,time),
-      stmt(db,"UPDATE issues SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=? AND receipt.event=? AND receipt.occurrence=?) THEN 'open' ELSE state END WHERE id=?",time,release.seq,project,event.eventId,occurrence,issue),
+      stmt(db,`UPDATE issues AS i SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()} AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=incoming.project AND receipt.event=incoming.id AND receipt.occurrence=incoming.occurrence)) THEN 'open' ELSE state END WHERE id=?`,time,event.eventId,occurrence,issue),
+      stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode='current' AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
+      ...prepared.notes!.map(note=>outcomeStatement(db,project,'sentry_release_'+note)),
       outcomeStatement(db,project,'accepted'),
       ...sentryTrimming(db,project,event),
       ...(originGuard?[stmt(db,'DELETE FROM browser_origin_guards WHERE id=?',originGuard)]:[]),

@@ -1,3 +1,4 @@
+import { releaseTables } from './releases/archive';
 import { groupingTables } from './grouping/archive';
 import {inboundFilterTables} from './filters/archive';
 import { feedbackTables } from './feedback/archive';
@@ -90,6 +91,8 @@ for(const later of laterTables){later.tables.push(...Object.keys(feedbackTables)
 laterTables.unshift({tables:Object.keys(feedbackTables),migrations:['0040_feedback.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(groupingTables));later.migrations.push('0041_business_import_door.sql','0042_grouping_rules.sql')}
 laterTables.unshift({tables:Object.keys(groupingTables),migrations:['0041_business_import_door.sql','0042_grouping_rules.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(releaseTables));later.migrations.push('0043_sentry_releases.sql')}
+laterTables.unshift({tables:Object.keys(releaseTables),migrations:['0043_sentry_releases.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

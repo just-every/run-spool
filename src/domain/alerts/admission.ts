@@ -1,3 +1,4 @@
+import { regressionSql } from '../releases/order';
 import { originalMembership } from '../operators/provenance';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
@@ -31,9 +32,11 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,'pending',created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
 }
 export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
- const {alertId:id,project,issue,eventId,occurrence,release,build,sequence,time}=input;
+ const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;
  return [s(db,`WITH candidate AS (
   SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,
+   (SELECT release_seq FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=?) current_sequence,
+   EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()}) regresses,
    (${firstUnsuppressedAlert}) AS first_capture,
    EXISTS(SELECT 1 FROM events captured WHERE captured.project=i.project AND captured.id=? AND captured.occurrence=?
     AND captured.issue=i.id AND captured.historical=0
@@ -43,8 +46,8 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
  INSERT INTO alerts(id,project,issue,kind,created,payload)
  SELECT ?,project,id,CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,?,
   json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,
-   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',?),'issueUrl',?)
+   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?)
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
-  AND (first_capture=1 OR (state='resolved' AND latest_release_seq IS NOT NULL AND ?>resolved_seq))`,
- eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,sequence,issueLink(publicOrigin(input.origin),project,issue),sequence),...routeStatements(db,id,time)];
+  AND (first_capture=1 OR (state='resolved' AND regresses=1))`,
+ eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue)),...routeStatements(db,id,time)];
 }

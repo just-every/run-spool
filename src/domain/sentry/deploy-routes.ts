@@ -1,3 +1,4 @@
+import { releaseVersionKey,releaseIdentity } from '../releases/identity';
 import { mappingStatements } from '../path-mappings';
 import { Hono } from 'hono';
 import { deploymentInput } from '../operators/validation';
@@ -22,12 +23,14 @@ async function failure(c:any,project:string,error:unknown){
 }
 routes.post('/:project/releases',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,32768),name=identity(b.name,'release'),build=identity(b.build,'build'),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
+  const b=await readBody(c.req.raw,32768),name=releaseIdentity(b.name),build=identity(b.build,'build'),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
   try{
     const result=await deployBatch(c,auth,[
-      stmt(db,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?) OR EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND build=?) THEN 1 ELSE 0 END",project,name,project,name,build),
+      stmt(db,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?) OR EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name AND m.auto_created=1) OR EXISTS(SELECT 1 FROM release_builds b WHERE b.project=releases.project AND b.release=releases.name AND b.build=?))) THEN 1 ELSE 0 END",project,name,project,name,build,build),
       stmt(db,'INSERT INTO releases(project,name,seq,build,created) SELECT ?,?,(SELECT COALESCE(MAX(seq),0)+1 FROM releases WHERE project=?),?,? WHERE NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?)',project,name,project,build,time,project,name),
       stmt(db,"INSERT INTO audit SELECT ?,?,'release_registered',json_object('name',name,'build',build,'seq',seq),? FROM releases WHERE project=? AND name=? AND changes()=1",crypto.randomUUID(),project,time,project,name),
+      stmt(db,"INSERT INTO release_metadata(project,release,first_seen,environment,sdk,auto_created,version_key) SELECT project,name,created,?,'{}',0,? FROM releases WHERE project=? AND name=? ON CONFLICT(project,release) DO UPDATE SET auto_created=0",manifest?.environment??'unknown',releaseVersionKey(name),project,name),
+      stmt(db,'INSERT INTO release_builds VALUES(?,?,?,1) ON CONFLICT(project,release,build) DO UPDATE SET registered=1',project,name,build),
       ...(manifest?[
        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=?) OR EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=? AND commit_sha=? AND repository=? AND deployed_at=?) THEN 1 ELSE 0 END',project,name,manifest.environment,project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at),
        stmt(db,'INSERT INTO deployment_manifests VALUES(?,?,?,?,?,?,?) ON CONFLICT(project,release,environment) DO NOTHING',project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at,time),
@@ -41,16 +44,18 @@ routes.post('/:project/releases',async c=>{
 });
 routes.post('/:project/artifacts',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,300000),release=identity(b.release,'release'),build=identity(b.build,'build'),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
+  const b=await readBody(c.req.raw,300000),release=releaseIdentity(b.release),build=identity(b.build,'build'),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
   const payload=validateMap(JSON.parse(canonical(metadata.map))),digest=await hash(payload),db=c.env.DB;
   try{
     const existing=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();
     if(existing){await deployBatch(c,auth,[]);return existing.digest===digest?c.json({digest,bytes:new TextEncoder().encode(payload).length},200):c.json({error:'Artifact identity conflicts'},409)}
     try{
       await deployBatch(c,auth,[
-        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND build=?) THEN 1 ELSE 0 END',project,release,build),
+        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_builds b WHERE b.project=releases.project AND b.release=releases.name AND b.build=?))) THEN 1 ELSE 0 END',project,release,build,build),
         stmt(db,'INSERT INTO artifacts(project,release,build,debug,payload,digest,created,occurrence) VALUES(?,?,?,?,?,?,?,?)',project,release,build,debug,payload,digest,Date.now(),crypto.randomUUID()),
         stmt(db,'INSERT INTO audit VALUES(?,?,?,?,?)',crypto.randomUUID(),project,'artifact_uploaded',JSON.stringify({release,build,debug,digest}),Date.now()),
+        stmt(db,'UPDATE release_metadata SET auto_created=0 WHERE project=? AND release=?',project,release),
+        stmt(db,'INSERT INTO release_builds VALUES(?,?,?,1) ON CONFLICT(project,release,build) DO UPDATE SET registered=1',project,release,build),
       ]);
       return c.json({digest,bytes:new TextEncoder().encode(payload).length},201);
     }catch(error){

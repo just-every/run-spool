@@ -8,6 +8,8 @@ export function eventQuery(query: string) {
   if(!value)throw new Error(`Search value required for ${key}`);
   switch(key){
    case 'text': contains(`json_extract(e.payload,'$.message')||' '||json_extract(e.payload,'$.type')||' '||e.issue||' '||json_extract(e.payload,'$.frames')||' '||COALESCE(json_extract(e.payload,'$.sentry.exceptions'),'')`,value);break;
+   case '!has':if(value!=='release')throw new Error('Only !has:release is supported');clauses.push("e.release=''");break;
+   case 'has':if(value!=='release')throw new Error('Only has:release is supported');clauses.push("e.release<>''");break;
    case 'release': clauses.push(value==='latest'?`e.release=(SELECT name FROM releases WHERE project=e.project ORDER BY seq DESC LIMIT 1)`:'e.release=?');if(value!=='latest')args.push(value);break;
    case 'environment': clauses.push('e.environment=?');args.push(value);break;
    case 'message':contains(`json_extract(e.payload,'$.message')`,value);break;

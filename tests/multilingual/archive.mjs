@@ -9,8 +9,8 @@ export async function mappingArchive(text,edit=()=>{},previous=false){
  edit(rows);
  if(previous){
   // The pre-mapping archive also predates bundle grouping and inbound policies.
-  manifest.tables=manifest.tables.filter(t=>!['deployment_path_mappings','grouping_routes','inbound_filter_policies','feedback','grouping_policies'].includes(t.name));
-  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0034_source_paths.sql','0035_bundle_grouping.sql','0038_investigation_indexes.sql','0039_inbound_filters.sql','0040_feedback.sql','0041_business_import_door.sql','0042_grouping_rules.sql'].includes(name));
+  manifest.tables=manifest.tables.filter(t=>!['deployment_path_mappings','grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions'].includes(t.name));
+  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0034_source_paths.sql','0035_bundle_grouping.sql','0038_investigation_indexes.sql','0039_inbound_filters.sql','0040_feedback.sql','0041_business_import_door.sql','0042_grouping_rules.sql','0043_sentry_releases.sql'].includes(name));
   manifest.schema=await sha256(canonicalJson(manifest.tables.map(({name,sql})=>({name,sql}))));
  }
  const items=[];for(const table of manifest.tables){table.count=rows[table.name].length;for(const [index,row] of rows[table.name].entries())items.push({kind:'row',table:table.name,index,row,...(table.rowidAlias?{rowid:index+1}:{})});}

@@ -35,7 +35,7 @@ export function issueProjection(row: any) {
  let releases: unknown = [];
  try { releases = typeof row.releases === 'string' ? JSON.parse(row.releases) : row.releases; } catch { /* No known release list. */ }
  return {
-  id: text(row.id), project: text(row.project), fingerprint: text(row.fingerprint), algorithm: text(row.algorithm),
+  resolution_mode:row.resolution_mode===undefined?null:text(row.resolution_mode),seen_without_release:number(row.seen_without_release),id: text(row.id), project: text(row.project), fingerprint: text(row.fingerprint), algorithm: text(row.algorithm),
   title: text(row.title, 1000), state: text(row.state), revision: number(row.revision), count: number(row.count),
   first_seen: number(row.first_seen), last_seen: number(row.last_seen), resolved_seq: number(row.resolved_seq), latest_release_seq: number(row.latest_release_seq),
   attention: attentionProjection(row.attention),
