@@ -58,6 +58,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
+      RER_SERVERS_DISK_FLOOR_GIB: '4'
     strategy:
       fail-fast: false
       matrix:
