@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1 — 2026-10-18
+
+- Rephrase the Sentry non-goal for the RunEditRun Site import: organization import has been exercised with synthetic fixtures only, and owner-export qualification is pending. The importer, its qualification limits and the Site claim guard are unchanged.
+- Add previewed project stack and fingerprint rules for later Sentry intake, immutable admission policy snapshots and grouping explanations. Rules and snapshots survive private archive restore; existing occurrences are not regrouped. This is partial GROUP-001; see [grouping rules](docs/GROUPING-RULES.md) for remaining gaps.
+- Accept Sentry events without a release, auto-create optional releases, preview release ordering and strict-registration policies, and support plain resolution on the next accepted unsuppressed event. Fence bulk resolution previews and preserve independent release-resolution boundaries, including in sliced private archives (SDK-009 through `72cc548`). This is partial SDK-009; see [Sentry release identity](docs/SENTRY-RELEASES.md) for remaining gaps.
+- Align select chevrons 14 px from the border and dim them when disabled.
+- Set the measured verification disk floor to 4 GiB (`822cd55`); preserve historical archive fixtures at their original schema.
+
+Export a private archive before updating from 0.3.0. In the existing checkout, run `git pull`, then `rer dev` locally or `rer deploy` from the original deploying checkout. Keep the existing database, private settings, project keys and deployment receipts; do not reset or restore into the populated installation. Additive migrations `0042_grouping_rules.sql` and `0043_sentry_releases.sql` apply automatically (43 total). Earlier upgrade instructions remain below. The app still pins rer 0.2.49 and does not publish SDK 0.2.0. This release does not extend the hosted or importer qualification recorded for 0.3.0.
+
 ## 0.3.0 — 2026-10-18
 
 Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export`). Then run `git pull` and `rer dev` in the existing checkout, or `rer deploy` from the original deploying checkout for a hosted installation. Keep the existing database; no reset or restore is needed.

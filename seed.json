@@ -1,7 +1,7 @@
 {
   "id": "errors-workbench",
   "name": "Spool",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "maturity": "Local-first JavaScript, Python and Go evidence product with one owner and isolated projects; bounded native, Sentry and OTLP-log intake, private source maps, operator corrections, owner/project erasure, sandbox reproducer, granted GitHub fix branches and exposure measurement. Runtime checks and review evidence are recorded separately; source metadata does not establish hosted, provider or npm publication acceptance.",
   "category": "monitoring",
   "replaces": [
@@ -149,7 +149,7 @@
   ],
   "nonGoals": [
     "Automatic hosted provisioning during local setup; actual owner-account deployment and mail sender acceptance require explicit owner action.",
-    "Sentry feature parity or a completed-migration claim; organization import is qualified with synthetic fixtures only until a real owner export passes and is reconciled.",
+    "Sentry feature parity or a completed-migration claim; organization import has been exercised with synthetic fixtures only, and owner-export qualification is pending.",
     "External paging, automatic retention, or guarantees of complete capture coverage.",
     "Unbounded event payloads, remote artifact URL fetching, or execution of telemetry-provided instructions."
   ],
