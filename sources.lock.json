@@ -6508,7 +6508,7 @@
       "executable": false
     },
     "src/ui/workbench/SdkSetup.tsx": {
-      "sha256": "bd722964a55d8e8a97b3f00175c40cc13aa7bbaa3fb49d25521794275ec9160e",
+      "sha256": "f2856f605c75fbe6dbd75dab3ca5c23409fa8e1477c040f43c729c2beee09e18",
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
@@ -6572,7 +6572,7 @@
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
-      "sha256": "89d01eccf0fbc99bd6a197b7c44dad69a1964b97906ccd703e59bbaab6bd9fd2",
+      "sha256": "83be3f8660d3f44e4d1edf6ceab21e705e6b4f4c6be8ad1825f46283b632be83",
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {

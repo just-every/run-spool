@@ -19,7 +19,7 @@ export async function capArchive(app,issue){
  // maps. Clear unrelated history rather than inventing a second application.
  const seed=data.events.find(row=>row.project==='a'&&row.issue===issue),group=data.issues.find(row=>row.id===issue);assert.ok(seed&&group);
  for(const [table,rows] of Object.entries(data))data[table]=rows.filter(row=>table==='projects'?row.id==='a':row.project==='a');
- data.issues=[group];data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_history=[];
+ data.issues=[group];data.issue_resolutions=data.issue_resolutions.filter(row=>row.issue===issue);data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_history=[];
  // Capture facts follow the retained issue; excluded issues cannot leave
  // dangling history in this intentionally sliced archive.
  data.audit=data.audit.filter(row=>!row.kind.startsWith('alert_')&&(!['capture_history_started','capture_unsuppressed'].includes(row.kind)||JSON.parse(row.detail).issue===issue));
