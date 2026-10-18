@@ -6,6 +6,7 @@ import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
+import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
 import { validateArchive, validateArchiveRows, tables } from './archive';
@@ -96,14 +97,18 @@ laterTables.unshift({tables:Object.keys(releaseTables),migrations:['0043_sentry_
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
+ const product = await restorableManifest(manifest);
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)))) continue;
   const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name));
-  if (manifest.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
-  if (!Array.isArray(manifest.tables) || canonicalJson(manifest.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
+  if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
+  if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
-  return { ...manifest, ...migrations, schema: current.identity, tables: current.tables.map((table: any) => ({ ...table, count: manifest.tables.find((old: any) => old.name === table.name)?.count ?? 0 })) };
+  // Parts still carry the original bookkeeping rows. Keep their descriptors so
+  // Base can validate and skip them while restoring only the current product.
+  const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  return { ...manifest, ...migrations, schema: await sha256(canonicalJson(tables.map(({ name, sql }: any) => ({ name, sql })))), tables };
  }
  return null;
 }
