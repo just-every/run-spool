@@ -64,7 +64,9 @@ hr{border:0;border-top:var(--rule);margin:0}
 /* Fields. */
 .form-field{display:flex;flex-direction:column;gap:6px;min-width:0;font:500 14px/1.4 var(--font-text)}
 .form-field input:not([type=checkbox]):not([type=radio]),.form-field select,.form-field textarea,.select{width:100%;max-width:100%;min-height:44px;padding:9px 12px;background:var(--paper-raised);border:var(--control-stroke) solid var(--field-line);border-radius:var(--radius-input);font:400 15px/1.4 var(--font-text);color:var(--ink)}
-.form-field select,.select{appearance:none;padding-right:40px;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 20px) 52%,calc(100% - 14px) 52%;background-size:6px 6px;background-repeat:no-repeat}
+/* every single-choice select; multiple and size>1 lists keep their native look (Base #247 foundation/runtime/select-style.ts) */
+:is(.form-field select,.select):not([multiple],[size]:not([size="1"])){--rer-select-ink:var(--ink);-webkit-appearance:none;appearance:none;padding-inline-end:40px;text-overflow:ellipsis;background-image:linear-gradient(to top right,transparent calc(50% - 1.1px),var(--rer-select-ink) calc(50% - .55px),var(--rer-select-ink) calc(50% + .55px),transparent calc(50% + 1.1px)),linear-gradient(to top left,transparent calc(50% - 1.1px),var(--rer-select-ink) calc(50% - .55px),var(--rer-select-ink) calc(50% + .55px),transparent calc(50% + 1.1px));background-repeat:no-repeat;background-position:right 20px center,right 14px center;background-size:6px 6px}
+:is(.form-field select,.select):not([multiple],[size]:not([size="1"])):disabled{--rer-select-ink:color-mix(in srgb,var(--ink) 55%,transparent)}
 .form-field input[type=file]{padding:6px}
 .form-field input::file-selector-button{margin-right:14px;padding:8px 16px;border:0;border-right:var(--rule);background:none;font:600 14px var(--font-text);color:var(--ink)}
 .form-field input::placeholder{color:var(--ink-soft)}
