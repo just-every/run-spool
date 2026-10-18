@@ -2528,7 +2528,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "dffda85b052fe3e012170e3e2871a9b1e25fcea5b56ce464f6c443310e4c8677",
+      "sha256": "e48f0db2973a8aa501ebafef15bafa88a0a09e94edbac6a21cc3c1fe2c8b3e91",
       "executable": false
     },
     ".gitignore": {
@@ -4136,7 +4136,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "89ca2c82de994e19f7fa01529dc2ae8e49e9cc02d9990afaaf4f9c1a2e74a9bf",
+      "sha256": "38fb4fb1e8b14ea081b4443b2f7bfc98cbd839685dac2e9e9720674bb9769ed1",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -6815,6 +6815,14 @@
       "sha256": "2629b704b324de624cddc285953389785206ddade9aa1143262f824ec2aa609c",
       "executable": false
     },
+    "tests/fixtures/archive-fc75a7ac.md": {
+      "sha256": "5486bd2a098a95ee77f7d47fcd0a7af6afda16394ad5181a51e3a5263f94cbb5",
+      "executable": false
+    },
+    "tests/fixtures/archive-fc75a7ac.rer": {
+      "sha256": "484253855070f882ef38e9b95f8912d4c87dce6c5b17c2cfb3076f4874e1dbbe",
+      "executable": false
+    },
     "tests/fixtures/archive-v1-b2eb94a.txt": {
       "sha256": "5b8faa6170db8a0d920cba1ccf87324977a58cb0519daa8b6615ec0978cb4f5f",
       "executable": false
@@ -6869,6 +6877,10 @@
     },
     "tests/navigation.mjs": {
       "sha256": "044b9f3f1f6b019f8b0c22d42be63937842a78c7f05b920c7c5f2e8ac9bfeb97",
+      "executable": false
+    },
+    "tests/old-archive.mjs": {
+      "sha256": "8fc850788ba9b256f4a7138e6950f67561c556e0867f91f7e7c0f8c051ce66f3",
       "executable": false
     },
     "tests/operator-archive.mjs": {
