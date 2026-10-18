@@ -6720,7 +6720,7 @@
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
-      "sha256": "672d4accdc7d55f2cbe76d62d4835ca37124988923b0b2f7dd9b53399438b687",
+      "sha256": "b86e4e810ba3709fa8c46077aa214b2fcb42170a22015563690bfa3d4e0fb32d",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
@@ -6752,7 +6752,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "e63a6938375de4d8440d8110b31595eb3cbdc264a8e5591705aa5e3c8ca15669",
+      "sha256": "5430b3e543035f3df374b8228dfd10f0c0972bc3dad3c3761ad3034f5dbf9c5b",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -6876,7 +6876,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "a7281848784afa6f81a1a22bea86973d691438be64f4ce24d8dae7abd738f52d",
+      "sha256": "83ef87e290eb4c83404e238aeaa5cad8a9c3c00b4fd11cf574c5ad96614e945a",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
