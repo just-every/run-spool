@@ -1,3 +1,4 @@
+import { validateGroupingSnapshot } from '../grouping/rules.ts';
 import { framePath } from '../frame-path.ts';
 import { isObject, evidenceText, evidenceValue, evidenceRecord, frameVariables } from './evidence-values.ts';
 import type { SentryEvidence, SentryFrame, SentryStack, SentryException, Truncation } from './evidence-types.ts';
@@ -86,6 +87,7 @@ export function sanitizeSentry(value:any):SentryEvidence {
   if(!isObject(image))return image;
   return Object.fromEntries(Object.entries(image).map(([key,v])=>[key,(key==='code_file'||key==='debug_file')&&typeof v==='string'?framePath(v,'python'):v]));
  });
+ if(value.grouping!==undefined)out.grouping=validateGroupingSnapshot(value.grouping);
  out.tags=tags(value.tags,notes);
  const derived:Record<string,any>={level:out.level,environment:out.environment,release:out.release,dist:out.dist,transaction:out.transaction,server_name:out.server_name,url:out.request?.url};
  const title=out.exceptions.at(-1),mechanism=title?.mechanism;

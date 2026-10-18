@@ -1,3 +1,4 @@
+import { readGroupingPolicy,groupingPolicyFence } from './grouping/policy';
 import {readInboundPolicy,inboundPolicyFence,matchInbound,inboundMetadata,inboundDomainFences,type InboundPolicy,type DomainDecision} from './filters';
 import { policyMatch, matchArgs } from './operators/policies';
 import { normalize, hash, scrub, type Envelope } from './privacy';
@@ -51,7 +52,7 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
 export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string):Promise<Response>{
-  const event=normalize(input),{project}=scope,db=c.env.DB;
+  let event=normalize(input);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
@@ -65,9 +66,11 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     if(!release||release.build!==event.build){await record('unregistered_release_or_build');return c.json({outcome:'rejected',reason:'unregistered_release_or_build',register:`/projects/${encodeURIComponent(project)}/releases`},422)}
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
+    const groupingPolicy=await readGroupingPolicy(db,project);
+    if(event.sentry)event=normalize({...event,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
-    const jobs=[
+    const jobs=[groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
       ...(route?[

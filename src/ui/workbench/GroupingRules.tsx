@@ -1,0 +1,24 @@
+import {useEffect,useState} from 'react';
+import type {Request,Run} from './shared';
+export function GroupingRules({project,request,run,busy}:{project:string;request:Request;run:Run;busy:boolean}){
+ const [current,setCurrent]=useState<any>(null),[draft,setDraft]=useState<any>(null),[preview,setPreview]=useState<any>(null),[status,setStatus]=useState(''),[error,setError]=useState('');
+ const root=`/api/projects/${encodeURIComponent(project)}/grouping-rules`;
+ const load=async()=>{const row=await request(root);setCurrent(row);setDraft(row.policy);setError('')};
+ useEffect(()=>{let alive=true;request(root).then(row=>{if(alive){setCurrent(row);setDraft(row.policy);setError('')}}).catch(e=>{if(alive)setError(e.message)});return()=>{alive=false}},[root,request]);
+ const action=(fn:()=>Promise<void>)=>void run(async()=>{try{setError('');await fn()}catch(e){setError((e as Error).message)}});
+ return <section className="evidence" aria-labelledby="grouping-rules-heading"><h2 id="grouping-rules-heading">Project grouping rules</h2>
+ <p>Preview Sentry stack and fingerprint rules against retained events, then save for later intake. Recorded grouping and prior corrections stay inspectable. Native v1 events keep their native rule.</p>
+ {error&&<p role="alert">{error}</p>}
+ {!draft?<><p role="status">{error?'Rules unavailable.':'Loading grouping rules…'}</p>{error&&<button onClick={()=>action(load)}>Retry grouping rules</button>}</>:<>
+ <p>Active revision {current.revision}. Ordered stack rules use path, module, package, function or family with +app, -app, +group and -group. The first matching fingerprint rule wins; project fingerprints take precedence over SDK fingerprints. Only * is a wildcard.</p>
+ <label className="form-field">Stack trace rules<textarea aria-label="Stack trace rules" rows={4} value={draft.stack} disabled={busy} placeholder="stack.module:vendor.* -app" onChange={e=>{setDraft({...draft,stack:e.target.value});setPreview(null)}}/></label>
+ <label className="form-field">Fingerprint rules<textarea aria-label="Fingerprint rules" rows={4} value={draft.fingerprint} disabled={busy} placeholder="error.type:KeyError -> checkout-account" onChange={e=>{setDraft({...draft,fingerprint:e.target.value});setPreview(null)}}/></label>
+ <p className="muted">Fingerprint matchers: error.type and error.value (any cause), message, level, logger, sdk.name, family and tags.KEY. Combine matchers with spaces; quote values containing spaces. Use comma-separated fingerprint values, including {'{{ default }}'} to retain default grouping. Unknown syntax is refused.</p>
+ <div className="button-row"><button className="text-button" disabled={busy} onClick={()=>action(async()=>{let after='',scanned=0,changed=0,unavailable=0;const samples:any[]=[];do{const page=await request(root+'/preview','POST',{policy:draft,after});scanned+=page.scanned;for(const row of page.rows){if(!row.eligible)unavailable++;else if(row.changed){changed++;if(samples.length<5)samples.push(row)}}after=page.next??''}while(after);setPreview({scanned,changed,unavailable,samples,policy:JSON.stringify(draft)});setStatus('Grouping preview complete. No occurrences moved.');})}>Preview grouping rules</button>
+ <button className="primary-button" disabled={busy||!preview||preview.policy!==JSON.stringify(draft)} onClick={()=>action(async()=>{const row=await request(root,'PUT',{revision:current.revision,policy:draft});setCurrent(row);setDraft(row.policy);setPreview(null);setStatus(`Grouping rules saved at revision ${row.revision}. Later Sentry events use these rules.`)})}>Save grouping rules</button>
+ <button className="text-button" disabled={busy} onClick={()=>action(async()=>{await load();setPreview(null);setStatus('Active grouping rules refreshed')})}>Refresh grouping rules</button></div>
+ {preview&&<div className="callout"><h3>Retained-event preview</h3><p>{preview.scanned} scanned · {preview.changed} change grouping · {preview.unavailable} native or imported events keep their recorded rule.</p><p>Historical regrouping requires selecting occurrences in the issue’s split or merge correction preview. Saving rules alone never rewrites history, alert rates or repair evidence.</p>{!!preview.samples.length&&<details><summary>Changed event examples</summary><pre>{JSON.stringify(preview.samples,null,2)}</pre></details>}</div>}
+ {status&&<p role="status">{status}</p>}
+ </>}
+ </section>;
+}

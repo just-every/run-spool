@@ -1,3 +1,4 @@
+import { groupingTables,groupingDefaults,validateGroupingArchive } from './grouping/archive';
 import {inboundFilterTables,inboundFilterDefaults,validateInboundFilterArchive,inboundAuditKinds,inboundFilteredReasons} from './filters/archive';
 import { feedbackTables, feedbackDefaults, feedbackOutcomes, validateFeedbackArchive } from './feedback/archive';
 import { bundleTables, bundleDefaults, validateBundleRoutes, admissionBasis } from './bundle-grouping';
@@ -16,7 +17,7 @@ export const tables:Record<string,string[]>= {
   issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq'],
   events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received','occurrence','historical'],
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
-  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables
 };
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
@@ -46,7 +47,7 @@ export async function validateArchive(v:any) {
   shape(v,['version','migration','data','checksum']);
   const legacy=v.version===1&&v.migration==='0001_errors';
   if(!v || (!legacy&&(v.version!==2||v.migration!=='0003_browser_origins'))||!v.data||await hash(canonical({version:v.version,migration:v.migration,data:v.data}))!==v.checksum)throw new Error('Archive identity/checksum mismatch');
-  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
+  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)&&!Object.hasOwn(groupingTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
   const inputTables=legacy?Object.fromEntries(Object.entries(oldTables).filter(([name])=>name!=='browser_origins')):oldTables;
   if(Object.keys(v.data).sort().join()!==Object.keys(inputTables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(inputTables)) {
@@ -58,7 +59,7 @@ export async function validateArchive(v:any) {
 }
 export async function validateArchiveRows(data:any,legacy=false) {
   // Native v1/v2 and the exact pre-alert schemas have no feedback collection.
-  data=inboundFilterDefaults(feedbackDefaults(data));
+  data=groupingDefaults(inboundFilterDefaults(feedbackDefaults(data)));
   const v={data};
   if(Object.keys(data).sort().join()!==Object.keys(tables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(tables)) {
@@ -84,10 +85,11 @@ export async function validateArchiveRows(data:any,legacy=false) {
   for(const row of v.data.outcomes)if((!isClientReportOutcome(row.reason)&&!['accepted','filtered',...feedbackOutcomes,...inboundFilteredReasons,'duplicate','conflict','unauthorized','invalid','oversized','rejected','rate_limited','budget','storage_failure','unregistered_release_or_build','missing_release_register_required','sentry_unsupported_session','sentry_unsupported_performance','sentry_unsupported_attachment','sentry_unsupported_client_report','sentry_unsupported_replay','sentry_unsupported_profile','sentry_unsupported_feedback','sentry_unsupported_check_in','sentry_unsupported_other_telemetry','sentry_unsupported_unknown','sentry_trimmed_frames','sentry_trimmed_values',...EXPOSURE_LOSS].includes(row.reason))||!Number.isSafeInteger(row.count)||row.count<0||!Number.isSafeInteger(row.window))throw new Error('Archive loss accounting');
   for(const row of v.data.alerts)if(!['new_issue','regression'].includes(row.kind)||!Number.isSafeInteger(row.created))throw new Error('Archive alert');
   const kinds:Record<string,string[]>={feedback_withdrawn:['count'],project_created:['id'],release_registered:['name','build','seq'],key_created:['hash','kind'],key_revoked:['hash'],triage:['issue','state','revision'],artifact_uploaded:['release','build','debug','digest'],retention_gap:['cutoff','removed','dedupHorizon'],...legacy?{}:{browser_origin_added:['origin'],browser_origin_removed:['origin']}};
-  for(const row of v.data.audit.filter((r:any)=>!operatorAuditKinds.includes(r.kind)&&!inboundAuditKinds.includes(r.kind))){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const [field,value] of Object.entries(detail)){if(field==='origin'&&row.kind.startsWith('browser_origin_')){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin audit project');browserOrigin(value);}else if(row.kind==='artifact_uploaded'&&field==='debug'){identity(value,'debug ID');}else if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
+  for(const row of v.data.audit.filter((r:any)=>!operatorAuditKinds.includes(r.kind)&&!inboundAuditKinds.includes(r.kind)&&r.kind!=='grouping_rules_changed')){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const [field,value] of Object.entries(detail)){if(field==='origin'&&row.kind.startsWith('browser_origin_')){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin audit project');browserOrigin(value);}else if(row.kind==='artifact_uploaded'&&field==='debug'){identity(value,'debug ID');}else if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
   const originIdentities=new Set<string>();
   if(!legacy)for(const row of v.data.browser_origins){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin project');browserOrigin(row.origin);const key=row.project+'\n'+row.origin;if(originIdentities.has(key))throw new Error('Archive duplicate origin');originIdentities.add(key);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive origin timestamp');}
   for(const project of projects){if(v.data.events.filter((r:any)=>r.project===project).length>10000)throw new Error('Archive event budget');if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');if(v.data.artifacts.filter((r:any)=>r.project===project).length>20)throw new Error('Archive artifact budget');}
+  await validateGroupingArchive(v.data);
   await validateInboundFilterArchive(v.data);
   validateFeedbackArchive(v.data);
   await validateImportedRows(v.data);

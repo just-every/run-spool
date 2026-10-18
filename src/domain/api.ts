@@ -1,3 +1,4 @@
+import { groupingRoutes as projectGroupingRoutes } from './grouping/routes';
 import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filters';
 import { Hono } from 'hono';
 import { rejectedResponse } from '../base/rejected-response';
@@ -122,6 +123,7 @@ api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);
 api.route('/api/projects/:project/inbound-filters',inboundFilterRoutes);
+api.route('/api/projects/:project/grouping-rules',projectGroupingRoutes);
 api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects',bulkTriageRoutes);

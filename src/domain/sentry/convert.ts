@@ -12,7 +12,7 @@ export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope
  if(typeof value.release!=='string'||!value.release)throw new SentryWireError('missing_release_register_required',422);
  const exceptions=Array.isArray(value.exception?.values)?value.exception.values:[];
  const crumbs=Array.isArray(value.breadcrumbs)?value.breadcrumbs:value.breadcrumbs?.values;
- const sentry=sanitizeSentry({...value,version:1,environment:value.environment??'production',level:value.level??(exceptions.length?'error':'info'),exceptions,threads:Array.isArray(value.threads)?value.threads:value.threads?.values,breadcrumbs:Array.isArray(crumbs)?crumbs:[],truncation:[]});
+ const sentry=sanitizeSentry({...value,grouping:undefined,version:1,environment:value.environment??'production',level:value.level??(exceptions.length?'error':'info'),exceptions,threads:Array.isArray(value.threads)?value.threads:value.threads?.values,breadcrumbs:Array.isArray(crumbs)?crumbs:[],truncation:[]});
  const exception=sentry.exceptions.at(-1);
  const stack=exception?.stacktrace??sentry.stacktrace??[...sentry.exceptions].reverse().find(e=>e.stacktrace)?.stacktrace;
  const images=Array.isArray(sentry.debug_meta?.images)?sentry.debug_meta.images:[];

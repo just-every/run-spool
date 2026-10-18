@@ -1,3 +1,4 @@
+import { groupingRulesFlow } from './grouping-rules-flow.mjs';
 import { investigationFlow } from './investigation-flow.mjs';
 import { fidelityFlow } from './fidelity-flow.mjs';
 import { inboundFilterFlow } from './inbound-filter-flow.mjs';
@@ -50,6 +51,7 @@ try{
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin});
   await fidelityFlow({req,json,origin});
+  await groupingRulesFlow({req,json,origin,cookie});
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});

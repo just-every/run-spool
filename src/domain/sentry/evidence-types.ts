@@ -15,6 +15,7 @@ export interface SentryException {
  stacktrace?: SentryStack;
 }
 export interface SentryEvidence {
+ grouping?: import('../grouping/rules').GroupingSnapshot;
  version: 1; exceptions: SentryException[]; truncation: Truncation[];
  platform?: string; stacktrace?: SentryStack;
  threads?: { id?: Json; name?: string; crashed?: boolean; current?: boolean; state?: Json; stacktrace?: SentryStack }[];
