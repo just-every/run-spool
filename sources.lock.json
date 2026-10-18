@@ -2496,7 +2496,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "2952eef3618bc5caf0738e80113ed75ab7de9e6b3038de83d02a94dc735a0a68",
+      "sha256": "c33b352c9e9ad01f7671d5a5eac0f04cde30fab82f5f6c36735d722817546e7d",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2504,7 +2504,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "168fec6246febf2312f882b5045aa43b8746fcf08a4339de82623e46c01e4162",
+      "sha256": "6c53cb433e994038034efe83bffc62d6515036851032a4271c6b515259f8979b",
       "executable": false
     },
     "DEMO.md": {
@@ -2776,7 +2776,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "6d90a05be96b57cf560002a33c87020ce41e5b1c43914944233c1c5b1a9c3199",
+      "sha256": "1e84295a35691d079a974f8b431f62b7827cc045027a569f5249ab3388988387",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -2812,7 +2812,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "0fd77dba27b5c65be77353dde2c5eb2e913fd7e5ef770ba7d8c67fcf036a7ac2",
+      "sha256": "d37b997e82ddb7d91820a9fa5e8ba480fd4707206525dccd6e8e0b9f124d4a92",
       "executable": false
     },
     "docs/site.json": {
@@ -3036,7 +3036,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "138d642832af85be808e2b816b17c2dbebbbc32730550cf03d8b8bb51ad3ddcf",
+      "sha256": "e674e3bcec17c065758d5caf80df4da16a8c4aa612046be15ad3162086f0d4ab",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -3252,11 +3252,11 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "2ed41de61e0cc3148e56ff27ca7c707f6564c50ad13ae3fd1120cfac3249346a",
+      "sha256": "3b4b391d6a9ec74e088985c4b0626108165691d3c76e5cd4bfd122116192709e",
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "80bdf991eafb968ea6a72efb6fdfa75bcf09e9bd86b20af83f61c77dc0826a40",
+      "sha256": "6e3b5a8b81e22c149b77d38ad1f1b0312d060fb20335614d4e4c694c75afc20d",
       "executable": false
     },
     "rer-project.json": {
@@ -3496,7 +3496,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "87f2625870c3538857324bb6f8b247f27a5356aab6e57adcda50cdf09e9407ca",
+      "sha256": "3724bae31fe8efffa23a783bebb9190d3d2e83ff204865527c27f6837eaaa68b",
       "executable": false
     },
     "src/auth/bindings.ts": {

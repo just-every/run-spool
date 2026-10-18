@@ -126,8 +126,10 @@ See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Py
 In Settings, open the **Business imports** row to enable the import door. It is
 **off by default**. It uses the installation's existing owner-claim issuer,
 installation ID, app origin and public key ring; no second trust configuration
-or owner identity is created. Self-hosted owners configure those deployment
-bindings before enabling it. Disabling the door immediately stops Business
+or owner identity is created. Without those bindings (`RER_OWNER_CLAIM_*`) the
+row says trust configuration is required. `rer deploy` does not declare them for
+a self-hosted installation, so there the door stays unavailable; use the
+owner-session importer above. Disabling the door immediately stops Business
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 

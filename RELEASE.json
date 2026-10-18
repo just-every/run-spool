@@ -1,9 +1,20 @@
 {
-  "version": "0.2.1",
-  "contractChanges": {},
+  "version": "0.3.0",
+  "contractChanges": {
+    "ERR-001": "Published text states the shipped limits (120 outcomes a minute, 10,000 retained events per project, registered release/build for Sentry SDK events); GOV-003 and SDK-009 keep the larger targets.",
+    "ERR-005": "Published text states flat maps only, 20 maps of 256 KiB per project; SRC-004 keeps indexed maps, sourceRoot and published capacity.",
+    "ERR-009": "Published text states the 10,000-event and 20-artifact archive limits per project; GOV-003 keeps streaming archives of any volume.",
+    "BASE-DATA-003": "Published text states erasure within five minutes at the 10,000-event limit; GOV-003 keeps the 150,000-event obligation."
+  },
   "extensionPointChanges": [],
-  "migrations": [],
+  "migrations": [
+    "migrations/core/0037_alert_destinations.sql",
+    "migrations/core/0038_investigation_indexes.sql",
+    "migrations/core/0039_inbound_filters.sql",
+    "migrations/core/0040_feedback.sql",
+    "migrations/core/0041_business_import_door.sql"
+  ],
   "breaking": false,
-  "agentUpdateInstructions": "From 0.2.0: stop local dev with rer dev --stop and export a private archive before updating. Run git pull in the existing checkout, then rer dev locally or rer deploy from the original deploying checkout for a hosted installation. This patch adds no product migrations or contract changes. Preserve the existing database, local settings, project keys and deployment receipts; do not reset or restore into the populated installation. Local dev opens through its private RER_OPEN owner entry and suppresses mail. Dev-created ingest/deploy keys work locally within their project; deployed installations refuse every dev-created key. Archives exclude project grants, so restored installations need fresh keys. Managed hosting supplies the RER mail relay; Free and Assisted hosting retain their configured provider. The application pins rer 0.2.24. SDK 0.2.0 remains unpublished on npm and is not published by this app release.",
-  "publicReleaseNotes": "Spool 0.2.1 fixes local capture and source-map admission, hardens repository-scoped fix grants, and supports RER Managed mail with safe owner login hints. Local development suppresses mail and opens through its private RER_OPEN owner entry. No product migrations or contract changes. Product screenshot: .github/assets/release/spool-0.2.1-issues-1440.png (1440 x 900), showing the current Spool Dev app with synthetic Cedar Dispatch evidence captured through the real SDK, source-mapped and regressed in a later registered release. This screenshot is a local product capture, not a hosted or demo acceptance claim. The app release does not publish the SDK."
+  "agentUpdateInstructions": "From 0.2.0: export a private archive first (Settings > Download private archive, or rer export with local dev stopped). Run git pull in the existing checkout, then rer dev locally or rer deploy from the original deploying checkout for a hosted installation. Additive migrations 0037-0041 apply automatically; existing projects, evidence, triage states and project keys are preserved. Keep the existing database, local settings, project keys and deployment receipts; do not reset or restore into the populated installation. The import door in Settings > Business imports is off by default and needs the installation's owner-claim trust bindings (RER_OWNER_CLAIM_*); self-hosted rer deploy does not declare them. Local dev opens through its private RER_OPEN owner entry and suppresses mail. The application pins rer 0.2.49. SDK 0.2.0 remains unpublished on npm and is not published by this app release.",
+  "publicReleaseNotes": "Spool 0.3.0 brings Sentry history in through Base's import door (off by default, undoable, inert history beside new errors) and adds full-corpus issue search and export, previewed bulk triage, complete Sentry exception chains, inbound filters, Sentry text feedback, SDK discard reports, recorded repository source links and alert email destinations managed from Alerts. Upgrading from 0.2.0 applies additive migrations 0037-0041 and keeps existing data. The release gate covered a local upgrade from v0.2.0, a door import of the repository's synthetic Sentry export, an unmodified Sentry Node SDK pointed at Spool, triage, the alert feed at 1440 and 390, and a fresh Cloudflare/SendGrid deployment with email sign-in and a delivered alert email. The importer is qualified with synthetic exports only. The app release does not publish the SDK."
 }
