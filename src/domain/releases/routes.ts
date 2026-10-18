@@ -11,7 +11,7 @@ releasePolicyRoutes.post('/preview',async c=>{
  try{input=await jsonBody(c.req.raw,2000);policy=validateReleasePolicy(input.policy);if(input.after!==undefined&&(typeof input.after!=='string'||!/^[a-f0-9]{0,64}$/.test(input.after)))throw new Error('Invalid preview cursor');}catch(e){return c.json({error:(e as Error).message},400)}
  const project=c.req.param('project')!,current=await readReleasePolicy(c.env.DB,project);
  const [issues,releases]=await Promise.all([
- c.env.DB.prepare("SELECT i.id,COALESCE(z.boundary_seq,i.resolved_seq) resolved_seq,z.mode,r.name boundary FROM issues i LEFT JOIN issue_resolutions z ON z.project=i.project AND z.issue=i.id LEFT JOIN releases r ON r.project=i.project AND r.seq=COALESCE(z.boundary_seq,i.resolved_seq) WHERE i.project=? AND i.state='resolved' AND i.id>? ORDER BY i.id LIMIT 101").bind(project,input.after??'').all<any>(),
+ c.env.DB.prepare("SELECT i.id,COALESCE(z.boundary_seq,i.resolved_seq) resolved_seq,z.mode,r.name boundary FROM issues i LEFT JOIN issue_resolutions z ON z.project=i.project AND z.issue=i.id LEFT JOIN releases r ON r.project=i.project AND r.seq=COALESCE(z.boundary_seq,i.resolved_seq) WHERE i.project=? AND i.algorithm='sentry-chain-v1' AND i.state='resolved' AND i.id>? ORDER BY i.id LIMIT 101").bind(project,input.after??'').all<any>(),
  c.env.DB.prepare('SELECT name,seq FROM releases WHERE project=? ORDER BY seq').bind(project).all<any>()]);
  const rows=issues.results.slice(0,100).map(issue=>{const boundary=issue.boundary?releaseVersionKey(issue.boundary):null;const changed=issue.mode==='plain'?[]:releases.results.filter(r=>{
   const key=releaseVersionKey(r.name),sequence=r.seq>issue.resolved_seq,semantic=boundary&&key?key>boundary:sequence;

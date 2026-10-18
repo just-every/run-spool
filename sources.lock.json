@@ -2504,7 +2504,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "b2cffba5c47a4f084a1000dfa4e0333518247953ce2ae39fc87772ff967b0fa7",
+      "sha256": "fc6d432a6fe1d8a37c8ba72ceef5768a3a20937e9a887ba46c9c45b807cd7472",
       "executable": false
     },
     "DEMO.md": {
@@ -2816,7 +2816,7 @@
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
-      "sha256": "034778a57c00b72ea66d4c504c1f38e92866d732e20c17d0546c5f3075c889d5",
+      "sha256": "edf5b08b03d955551c38f169ff34b45bdbd5f11adde43ce2069403da5512ab80",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -4000,7 +4000,7 @@
       "executable": false
     },
     "src/domain/operators/bulk-triage.ts": {
-      "sha256": "b8e1a46e728a6fd078e859b4773f3aaefb09d8489a678b36056775db49408815",
+      "sha256": "b77f2e336296fc2b89368ee1ac2734b05b9813b94380aa6beef8146270e46302",
       "executable": false
     },
     "src/domain/operators/common.ts": {
@@ -4096,7 +4096,7 @@
       "executable": false
     },
     "src/domain/releases/routes.ts": {
-      "sha256": "0ddc23dc1a0d28e0d9369f0e9330ab22db83102700a7983038265c017ed93aca",
+      "sha256": "3964cd839c36952fd7b41e33097bd1a0409e169ebdd2f6efbe62c75b143b9ade",
       "executable": false
     },
     "src/domain/repairs/archive.ts": {
@@ -6472,7 +6472,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasePolicy.tsx": {
-      "sha256": "eaafb5495540d10dd118b845af45bf352f086ddad3c2b4de5edc5b11f29242dc",
+      "sha256": "9af5f95ab8ffd8a575f7dab88e0949df27174591ad72ffb45097076151c3afe3",
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
@@ -6908,7 +6908,7 @@
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
-      "sha256": "f3ca70ea0cf7f22ad8b4e828b9bd33df90d59fec95888cc5c6847bb544ba7bb5",
+      "sha256": "4596600a96ff09b4b4fb7b21c91dc8078827eb8412619f92df3eed790e93eee8",
       "executable": false
     },
     "tests/repair-recovery.mjs": {

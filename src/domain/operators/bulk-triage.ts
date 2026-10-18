@@ -1,3 +1,4 @@
+import { readReleasePolicy,releasePolicyFence } from '../releases/policy';
 import { Hono } from 'hono';
 import { canonical, hash } from '../privacy';
 import { ownerIssue } from '../stored-text';
@@ -25,11 +26,13 @@ routes.post('/:project/bulk-triage', async c => {
  const releases = await s(c.env.DB,'SELECT name,seq FROM releases WHERE project=? ORDER BY seq DESC LIMIT 1',project).first<any>();
  for(const row of rows){row.plannedSequence=row.latest_release_seq ?? releases?.seq ?? 0;row.plannedRelease=row.current_release ?? (row.latest_release_seq==null?releases?.name:null) ?? 'No registered release'}
  const snapshot = rows.map(({id,revision,count,last_seen,latest_release_seq,state,plannedSequence}) => ({id,revision,count,last_seen,latest_release_seq,state,plannedSequence}));
- const preview = await hash(canonical({project,state:input.state,resolution,issues:snapshot}));
+ const releasePolicy=await readReleasePolicy(c.env.DB,project);
+ const preview = await hash(canonical({project,state:input.state,resolution,releasePolicyRevision:releasePolicy.revision,boundaries:rows.map(row=>row.current_release),issues:snapshot}));
  if (!input.apply) return c.json({preview,state:input.state,issues:rows.map(row => ({id:row.id,title:ownerIssue(row).title,state:row.state,revision:row.revision,count:row.count,resolvedSequence:input.state==='resolved' ? row.plannedSequence : null,resolvedRelease:input.state==='resolved'?(resolution==='plain'?'Next accepted event in any release or none':row.plannedRelease):null})),resolution:resolution==='plain'?'Plain resolution regresses on the next accepted event in any release or none.':'Each issue resolves in its current registered release. A recurrence in a later registered release reopens it.'});
  if (input.preview !== preview) return c.json({error:'Preview changed; preview the selection again'},409);
  try {
   const jobs = rows.map(row => guard(c.env.DB,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=? AND count=? AND last_seen=? AND latest_release_seq IS ?)',project,row.id,row.revision,row.count,row.last_seen,row.latest_release_seq));
+  jobs.unshift(releasePolicyFence(c.env.DB,project,releasePolicy.revision));
   // All guards precede all changes, so one stale member rolls back the whole selection.
   for (const row of rows) {
    jobs.push(s(c.env.DB,"UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN ? ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,?),revision=revision+1 WHERE project=? AND id=?",input.state,input.state,row.plannedSequence,row.plannedSequence,project,row.id));
