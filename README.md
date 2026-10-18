@@ -33,7 +33,7 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent read-only access to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.3.0](https://github.com/just-every/run-spool/tree/v0.3.0). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.4.0](https://github.com/just-every/run-spool/tree/v0.4.0). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
@@ -45,7 +45,7 @@ Start with **Node 22 or later** and **git**, on macOS, Linux or Windows with WSL
 npx -y @runeditrun/rer dev just-every/run-spool
 ```
 
-To start it again later, run `cd run-spool && rer dev`. To run the tagged release instead, use `git clone --branch v0.3.0 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
+To start it again later, run `cd run-spool && rer dev`. To run the tagged release instead, use `git clone --branch v0.4.0 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
 
 `rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@run-spool.test` for the `run-spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
 
@@ -63,9 +63,9 @@ Stop dev with `rer dev --stop` (or Ctrl+C in the foreground) before deploy, veri
 
 Export before reset and import only into an empty destination. Export includes private maps and browser-origin policy but excludes sign-in sessions, project keys, outbox and temporary state. Run setup if the destination has no owner and create new keys after restoring. Browser restore is available from `/setup` before the first project and Settings thereafter. For CLI import of a browser download, first run `chmod 600 /path/to/spool-private-archive.jsonl`; see [the transfer procedure](OPERATIONS.md#data-movement-and-retention). Reset removes only its displayed local inventory and preserves source, exports and deployment records.
 
-## Upgrade from 0.2.0
+## Upgrade from 0.3.1
 
-Stop dev with `rer dev --stop` and export a private archive before updating. In your existing checkout, run `git pull` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings and deployment receipt. The 5 additive migrations `0037_alert_destinations.sql` through `0041_business_import_door.sql` apply automatically; existing evidence, triage states and project keys are preserved. From 0.1.0, the same steps also apply migrations `0020` through `0036`. Keep the existing database; no reset or restore is needed. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
+Back up first: export a private archive (Settings → **Download private archive**, or stop dev and run `rer export --output exports/spool.rer`). In your existing checkout, run `git pull` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings and deployment receipt. The 5 additive migrations `0044_import_preparation_steps.sql` through `0048_import_door_scopes.sql` apply automatically (48 in total); existing projects, evidence, triage states and project keys are preserved. Keep the existing database; no reset or restore is needed. From 0.3.0 the same steps also apply `0042` and `0043`, from 0.2.0 `0037` through `0041`, and from 0.1.0 `0020` through `0036`. An archive written by 0.3.1 or earlier also restores into a fresh 0.4.0 installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
 
 ## Managed hosting
 

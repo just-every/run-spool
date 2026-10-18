@@ -12,7 +12,7 @@ npx -y @runeditrun/rer dev just-every/run-spool
 
 To start it again later, run `cd run-spool && rer dev`.
 
-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.3.0`. For that release, replace the clone command with `git clone --branch v0.3.0 https://github.com/just-every/run-spool.git spool` and follow the instructions shipped with the tag.
+These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.4.0`. For that release, replace the clone command with `git clone --branch v0.4.0 https://github.com/just-every/run-spool.git spool` and follow the instructions shipped with the tag.
 
 `rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@run-spool.test` for the `run-spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
 

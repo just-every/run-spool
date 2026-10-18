@@ -1,10 +1,37 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-10-19
 
-- **One import pipeline.** The owner's Sentry importer (`scripts/sentry-import.mjs`) now runs through Base import-kit's import door, the same upload → plan → reviewed fingerprint → apply → reconcile → undo pipeline Business grants use, at `/api/operator/import/*` with the owner session. The old `/api/imports/sentry/plan` and `/apply` routes are gone; jobs they created keep read, originals, resume and undo. Each Sentry organization is one door namespace, `sentry-org:<slug>`, and a newer bundle of an organization is a reviewed catch-up. Settings → **Business imports** lists the owner's imports too.
-- Pin rer 0.2.61 and refresh the import-kit, owner-claim, operator-auth and other Base copies (the shared page heads stay at the earlier pin). Door fixes from Base: erasure with door rows and earlier doors' rows, failed applies ending `failed`, the namespace allow-list, a permanent door key and a per-request statement budget.
-- Additive migrations `0044_import_preparation_steps.sql` through `0048_import_door_scopes.sql` apply automatically (48 total), including the door's apply-failure migration for the door 0041 installed. Export a private archive before updating.
+Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). Then run `git pull` and `rer dev` in the existing checkout, or `rer deploy` from the original deploying checkout for a hosted installation. Keep the existing database, private settings, project keys and deployment receipts; do not reset or restore into the populated installation.
+
+### What an owner gets
+
+- **One import door for Sentry history.** The owner's importer, `scripts/sentry-import.mjs`, now runs through Base import-kit's import door at `/api/operator/import/*` with the owner session: `dry-run` uploads the owner-generated `spool-sentry-org-export` bundle and returns a plan with its fingerprint, counts and rejections; `apply` needs that reviewed fingerprint; `reconcile` re-derives every source ID's disposition; `undo` reverses newest first. Business grants use the same pipeline, so Settings → **Business imports** lists the owner's own imports ("approved by") beside Business ones, each with Undo. Each Sentry organization is one door namespace, `sentry-org:<slug>`; a newer bundle of an imported organization is a reviewed catch-up (`--catchup`). Imported projects and issues sit beside new errors and stay inert. See [Switching from Sentry](docs/SENTRY-SWITCHING.md).
+- **Older archives restore into a fresh installation.** Private archives written by earlier releases, including CLI exports that carry platform bookkeeping, restore into an empty 0.4.0 installation from `/setup` or with `rer import`.
+- **Project erasure is an accepted job.** Confirming erasure returns at once with a durable job; the panel follows its bounded steps, leaving the page does not cancel it, and only **Project erased** marks completion ([project erasure](docs/PROJECT-ERASURE.md)).
+- The application pins rer 0.2.61, with refreshed Base portability, import-kit, owner-claim and operator-auth copies. Door fixes from Base: erasure covers door rows, failed applies end `failed`, a namespace allow-list, a permanent door key and a per-request statement budget.
+
+### This release's gate
+
+Run on `main` at `8b81bef` before this record was written. Locally (1440 and 390): a v0.3.1 install with a resolved issue was upgraded with `git pull` and `rer dev`; migrations 0044–0048 applied and the project, issue and its resolved state were kept. On that upgraded install the repository's synthetic Sentry export (`tests/fixtures/sentry/organization.json`) moved in through the import door with `scripts/sentry-import.mjs` dry run, apply and reconcile, and Settings → **Business imports** listed it as approved by the owner. An unmodified `@sentry/node` 11.6.0 app with only its DSN changed sent errors that grouped into one issue beside the imported one; the new issue was resolved, the imported one suppressed, and the alert feed showed the new-issue alert. A browser archive and a `rer export` archive, each made by v0.3.1, restored into fresh installations of this head (from `/setup` and with `rer import`) with their project and issue. Hosted, a fresh `rer deploy` to Cloudflare with SendGrid signed the owner in by an emailed link, took the same export through the import door, grouped the same Sentry-SDK errors beside it, delivered the new-issue alert email to a real mailbox with a working issue link, and resolved and suppressed the two issues. These are the only acceptance claims of this release.
+
+### Not in this release
+
+- **Homepage claims still ahead of the code:** "alternative to Sentry, Bugsnag and Rollbar" — Sentry intake and import are bounded (below) and there is no Bugsnag or Rollbar import or SDK compatibility; "Export everything to one file" — archives refuse a project above 10,000 events or 20 maps and exclude the import door and its journal, so undo and reconciliation stay on the installation that ran the import; "Node 22 and pnpm are all you need. Setup asks for your email" — rer supplies pnpm and the pinned Node, and first `rer dev` chooses a local owner without asking; "Every feature, on your own computer" — local development suppresses all mail, so sign-in and alert email need a hosted installation with a mail provider.
+- The Sentry importer is qualified with synthetic fixtures only; a real organization export has not been reconciled. No feature parity or completed migration is claimed.
+- Self-hosted `rer deploy` declares no import-door trust bindings (`RER_OWNER_CLAIM_*`), so Business grants stay unavailable there; the owner's importer uses the door without them.
+- Per-project limits are unchanged: 120 outcomes a minute, 10,000 retained events, 20 flat source maps of 256 KiB; indexed maps and `sourceRoot` are not supported. GROUP-001 and SDK-009 remain partial as recorded for 0.3.1.
+- Hosted project erasure timing on D1 is not measured.
+- SDK 0.2.0 remains owner-held and unpublished; `npm install @just-every/spool` resolves to 0.1.0. The app release does not publish the SDK.
+
+### Known issues
+
+- Imported issues carry no "imported" label in the issue list; the issue page marks them "Imported historical evidence".
+- The Sentry SDK's default deduplication drops an identical exception repeated within one process, so a single run reports it once; separate runs group into the same issue.
+
+### Migrations
+
+Additive, applied automatically: `migrations/core/0044_import_preparation_steps.sql`, `0045_import_custody_replace.sql`, `0046_import_erasure_progress.sql`, `0047_import_door_apply_failures.sql`, `0048_import_door_scopes.sql` (48 total). Jobs created by the owner-session importer before the door keep `read`, `originals`, `resume` and `undo`; the old `/api/imports/sentry/plan` and `/apply` routes are gone.
 
 ## 0.3.1 — 2026-10-18
 
