@@ -4,6 +4,7 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {createHash} from 'node:crypto';
 import {legacyMailRows} from '../legacy-mail.mjs';
 import {archiveText} from '../agent-handoff/caps.mjs';
+import {sentryDoorClient} from '../../scripts/sentry-import.mjs';
 import {canary,organization,importedProject,capProject,mobileProject,sentryExport,sourceMap,event} from './fixture.mjs';
 
 const ingest=(app,project,key,body)=>app.json(`/api/ingest/${project}`,'POST',body,{agent:key});
@@ -27,10 +28,10 @@ export async function plantCap(app){
 // The canary project: created by Sentry organization import, then given native
 // capture, a private source map, alert routing, delivery history and a repair.
 export async function plantCanary(app){
- const source=Buffer.from(JSON.stringify(sentryExport())).toString('base64'),operationKey='erase-journey';
- const planned=await app.json('/api/imports/sentry/plan','POST',{source,operationKey});assert.equal(planned.counts.rejected,0);
- let job=(await app.json('/api/imports/sentry/apply','POST',{source,reviewedFingerprint:planned.fingerprint,operationKey})).job;
- for(let n=0;n<20&&job.state!=='completed';n++)job=(await app.json(`/api/imports/sentry/${organization}/${job.id}/resume`,'POST')).job;
+ // Spool's Sentry importer, through the import door as the owner.
+ const door=sentryDoorClient({organization,transport:(action,body,namespace)=>app.request(`/api/operator/import/${action}`,'POST',body,{headers:{'X-Import-Source':namespace}})});
+ const planned=await door.plan(Buffer.from(JSON.stringify(sentryExport())));assert.equal(planned.counts.rejected,0);
+ const {job}=await door.apply(planned.planId,planned.fingerprint);
  assert.equal(job.state,'completed');
  const project=importedProject;assert.ok((await app.json('/api/projects')).some(row=>row.id===project),'import created the canary project');
  for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:true,channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2});

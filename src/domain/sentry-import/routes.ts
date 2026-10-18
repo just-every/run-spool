@@ -1,48 +1,20 @@
 import { Hono } from 'hono';
-import { Buffer } from 'node:buffer';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { deniedResponse } from '../denied-response';
 import type { Bindings } from '../../auth/bindings';
-import { createD1ImportJob, applyD1ImportBatches, readD1ImportJob, resumeD1Import, undoD1Import, readD1ImportOriginals, readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';
-import { readAtomic } from '../../modules/import-kit/src/d1/database.ts';
-import { buildImportPlan } from '../../modules/import-kit/src/plan/index.ts';
-import { readSentryOrganization, mappingVersion, sourceText } from './source.ts';
-import { organizationMapping } from './mapping.ts';
+import { readD1ImportJob, resumeD1Import, undoD1Import, readD1ImportOriginals, readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';
+import { sourceText } from './source.ts';
 import { ownerImportContext } from './context';
+// Sentry organization imports run through the import door (door.server.ts).
+// These routes only keep jobs the owner-session importer created before it:
+// their journal, private originals, resume and guarded undo.
 const routes=new Hono<{Bindings:Bindings}>();
-async function body(request:Request){
-  if(!request.body)throw new Error('Import body required');
-  const reader=request.body.getReader(),chunks:Uint8Array[]=[];let size=0;
-  try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>3*1024*1024){await reader.cancel();throw new Error('Import body exceeds limit')}chunks.push(value)}}finally{reader.releaseLock()}
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-}
 async function owner(c:any,write:boolean){
   const session=await ownerSession(c.req.raw,c.env);
   if(!session)return {response:await deniedResponse(c.req.raw,c.json({error:'Owner sign-in required'},401))};
   if(write&&!ownerWrite(c.req.raw,c.env))return {response:await deniedResponse(c.req.raw,c.json({error:'Same-origin owner request required'},403))};
   return {session};
 }
-routes.on(['POST'],'/:mode',async c=>{
-  if(!['plan','apply'].includes(c.req.param('mode')))return c.notFound();
-  const auth=await owner(c,true);if(auth.response)return auth.response;
-  const input=await body(c.req.raw);
-  const allowed=c.req.param('mode')==='plan'?['source','operationKey']:['source','reviewedFingerprint','operationKey'];
-  if(!input||Object.keys(input).some(key=>!allowed.includes(key))||typeof input.source!=='string'||!input.source)throw new Error('Invalid import request');
-  const bytes=Buffer.from(input.source,'base64');if(bytes.toString('base64')!==input.source||bytes.byteLength>2*1024*1024)throw new Error('Invalid import source bytes');
-  const {source,organization}=await readSentryOrganization(bytes),scope=ownerImportContext(c.env,auth.session,`sentry-org:${organization}`);
-  await readAtomic(scope,[]);
-  const operationKey=sourceText(input.operationKey??(c.req.param('mode')==='plan'?crypto.randomUUID():undefined),'import operation key');
-  const plan=buildImportPlan(source,organizationMapping(source,operationKey),scope);
-  if(c.req.param('mode')==='plan'){
-    await readAtomic(scope,[]);
-    return c.json({organization,operationKey,fingerprint:plan.fingerprint,counts:plan.counts,diagnostics:plan.diagnostics,entries:plan.entries.map(entry=>({kind:entry.source.kind,sourceId:entry.source.sourceId,effects:entry.effects.map(effect=>({kind:effect.targetKind,id:effect.targetId,value:effect.value})),unmapped:entry.unmapped,rejection:entry.rejection})),dryRun:true});
-  }
-  if(typeof input.reviewedFingerprint!=='string'||typeof input.operationKey!=='string')throw new Error('Reviewed fingerprint and operation key required');
-  const applying={...scope,reviewedFingerprint:input.reviewedFingerprint,operationKey};
-  const job=await createD1ImportJob(plan,applying);
-  const result=job.state==='completed'?job:await applyD1ImportBatches(job.id,applying);
-  return c.json({organization,job:result},201);
-});
 routes.get('/:organization/:job',async c=>{
   const auth=await owner(c,false);if(auth.response)return auth.response;
   const scope=ownerImportContext(c.env,auth.session,`sentry-org:${sourceText(c.req.param('organization'),'organization')}`),job=await readD1ImportJob(c.req.param('job'),scope);

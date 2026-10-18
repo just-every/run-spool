@@ -1,5 +1,4 @@
-import { readFileSource } from '../../modules/import-kit/src/readers/file.ts';
-import type { Json, ParsedRecord, SourceBundle } from '../../modules/import-kit/src/types.ts';
+import type { Json, ParsedRecord } from '../../modules/import-kit/src/types.ts';
 export const importFormat = 'spool-sentry-org-export';
 export const mappingVersion = 'spool-sentry-org-v1';
 export function sourceText(value: unknown, field: string): string {
@@ -45,13 +44,4 @@ export function parseSentryOrganization(value: Json): ParsedRecord[] {
     if(!collectionKeys.has(JSON.stringify(['projects',null])) || !collectionKeys.has(JSON.stringify(['releases',null])))throw new Error('Projects and releases collections required');
     const rank:Record<string,number>={manifest:0,projects:1,releases:2,issues:3,events:4};
     return records.sort((a,b)=>(rank[a.kind]??5)-(rank[b.kind]??5));
-}
-
-export async function readSentryOrganization(bytes: Uint8Array): Promise<{ source: SourceBundle; organization: string }> {
-  const source = await readFileSource({ namespace:'sentry-organization', name:'sentry-organization.json', format:'json', bytes, parse: parseSentryOrganization },{maxBytes:2*1024*1024,maxRecordBytes:2*1024*1024,maxRecords:500});
-  const organization = (source.records[0].payload as any).organization.slug;
-  // Input reader has preserved exact bytes. Namespace binds all source identities to this organization.
-  const namespace=`sentry-org:${organization}`;
-  for(const record of source.records)record.namespace=namespace;
-  return {source,organization};
 }

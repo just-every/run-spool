@@ -22,7 +22,7 @@ import { continueErasures } from './domain/erasure/service';
 import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
-import { businessImportResponse } from './domain/sentry-import/door.server';
+import { importDoorResponse } from './domain/sentry-import/door.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  await runAlerts(env,event.scheduledTime);
@@ -53,13 +53,14 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  }
  if (isDocsRequest(request)) return docsResponse(request);
  // Independently mounted owner/auth handlers share the same agent denial.
- if (path.startsWith('/auth/') || path === '/api/editor/config') {
+ if (path.startsWith('/auth/') || path === '/api/editor/config' || path.startsWith('/api/operator/import/')) {
   const grant = await agentProject(request, env.DB);
   if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Agent keys are read-only and limited to their project.' }, { status: 403 });
  }
  if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
  if (path === '/api/editor/config') return editorConfigResponse(request, env);
- const businessImport = await businessImportResponse(request, env); if (businessImport) return businessImport;
+ // The import door (owner session and Business grants) runs before ordinary routing.
+ const importDoor = await importDoorResponse(request, env); if (importDoor) return importDoor;
  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
  const auth = await authenticationResponse(request, env); if (auth) return auth;
  return dispatch(request, () => api.fetch(request, env, execution), async () => {

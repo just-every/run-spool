@@ -28,9 +28,10 @@ export async function importGap(app){
  // Preserve imported issue history but deliberately remove event collection:
  // this is a supported export shape, not simulated application data.
  fixture.collections=fixture.collections.filter(row=>row.kind!=='events');
- const source=Buffer.from(JSON.stringify(fixture)).toString('base64');const plan=await app.json('/api/imports/sentry/plan','POST',{source,operationKey:'handoff-history'});
- let job=(await app.json('/api/imports/sentry/apply','POST',{source,operationKey:'handoff-history',reviewedFingerprint:plan.fingerprint})).job;
- for(let n=0;n<20&&job.state!=='completed';n++)job=(await app.json('/api/imports/sentry/fixture-org/'+job.id+'/resume','POST')).job;assert.equal(job.state,'completed');
- const snapshot=await app.json('/api/imports/sentry/fixture-org/'+job.id),issue=snapshot.rows.find(row=>row.targetKind==='issue').value.native;
+ const {sentryDoorClient}=await import('../../scripts/sentry-import.mjs');
+ const door=sentryDoorClient({transport:(action,body,namespace)=>app.request(`/api/operator/import/${action}`,'POST',body,{headers:{'X-Import-Source':namespace}})});
+ const plan=await door.plan(Buffer.from(JSON.stringify(fixture)));const {job}=await door.apply(plan.planId,plan.fingerprint);assert.equal(job.state,'completed');
+ const projects=await app.json('/api/projects'),imported=projects.find(row=>row.id.startsWith('sentry-'));assert.ok(imported,'the import created its project');
+ const issue=(await app.json(`/api/projects/${imported.id}/issues`))[0];
  const packet=await app.json(`/api/projects/${issue.project}/issues/${issue.id}/packet`);gap(packet,/import.*(history|live)|historical/i);assert.equal(packet.events.length,0);return packet;
 }

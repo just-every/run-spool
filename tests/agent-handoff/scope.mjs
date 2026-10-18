@@ -16,7 +16,7 @@ export async function scopeProof(app,grant,issue,otherIssue,project){
  [`/api/projects/a/issues/${issue}`,'PATCH',{state:'resolved',revision:0}],['/api/ingest/a','POST',{version:1}],
  ['/api/projects/a/browser-origins','POST',{origin:'https://evil.example'}],['/api/projects/a/browser-origins','DELETE',{origin:'https://evil.example'}],
  ['/api/projects/a/retention','POST',{cutoff:Date.now(),apply:true}],['/api/projects/a/erase','POST',{confirmation:'a'}],['/api/restore','POST',{}],
- ['/api/1/store/','POST',{}],['/api/1/envelope/','POST',{}],['/api/imports/sentry/plan','POST',{}],['/api/imports/sentry/apply','POST',{}],['/api/imports/sentry/fixture-org/unknown/resume','POST',{}],['/api/imports/sentry/fixture-org/unknown/undo','POST',{}],
+ ['/api/1/store/','POST',{}],['/api/1/envelope/','POST',{}],['/api/operator/import/uploads','POST',{}],['/api/operator/import/plan','POST',{}],['/api/operator/import/apply','POST',{}],['/api/operator/import/undo','POST',{}],['/api/imports/sentry/fixture-org/unknown/resume','POST',{}],['/api/imports/sentry/fixture-org/unknown/undo','POST',{}],
  ['/api/projects/a/alerting/rules','POST',{}],['/api/projects/a/alerting/rules/unknown','PUT',{}],['/api/projects/a/alerting/deliveries/unknown/resolve','POST',{}],
  ];
  for(const path of reads)for(const method of ['POST','PUT','PATCH','DELETE','HEAD','OPTIONS'])mutations.push([path,method,method==='HEAD'||method==='OPTIONS'?undefined:{}]);
