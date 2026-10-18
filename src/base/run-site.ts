@@ -1,3 +1,4 @@
+import { iconHead } from './icon-head'
 // The run site's shared pages: the Run page (Direction A: centred headline, two
 // stacked step cards, the facts under them), a small composed homepage for
 // seeds without an approved one (Base's references), and the not-found page.
@@ -106,7 +107,7 @@ const ARROW = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke
 
 export function document(identity: EditionIdentity, title: string, description: string, style: string, body: string, script = ''): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(title)}</title><meta name="description" content="${escape(description)}">`
-    + `<link rel="icon" href="${escape(identity.mark)}">${identity.fonts ? `<link rel="stylesheet" href="${escape(identity.fonts)}">` : ''}<link rel="stylesheet" href="${escape(identity.theme)}"><style>${identity.accentColor ? `:root{--rer-brand-accent:${identity.accentColor};--rer-brand-accent-text:${ink(identity.accentColor)}}` : ''}${BASE}${style}</style></head>`
+    + `${iconHead}${identity.fonts ? `<link rel="stylesheet" href="${escape(identity.fonts)}">` : ''}<link rel="stylesheet" href="${escape(identity.theme)}"><style>${identity.accentColor ? `:root{--rer-brand-accent:${identity.accentColor};--rer-brand-accent-text:${ink(identity.accentColor)}}` : ''}${BASE}${style}</style></head>`
     + `<body>${identity.band ? `<div class="art" aria-hidden="true"><img src="${escape(identity.band)}" alt=""></div>` : ''}${body}${script ? `<script>${script}</script>` : ''}</body></html>`
 }
 /** Docs, Contract and Source: Docs when the site has /docs, Contract when the seed has a CONTRACT.md. */

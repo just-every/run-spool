@@ -2617,7 +2617,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "64a37e46d444a08368d4065bd8190517eee97b1817450a725d4497ebd86eb0c6",
+      "sha256": "56080f26e43f3b4b4b5284b9d2ac146c64d54b946bd4866f55681d0b43248444",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -3201,7 +3201,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "308b7ffa23e6bcea90ae6d3dc5dcf120df0083992bf0680d5ad2e91a1819e528",
+      "sha256": "f64ef6a7fe34e43260da40ed1eee9b17214a8d5b42c9293d59a72bb19db48139",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -3301,7 +3301,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "aac67032403217f43280a1372ec6e237250441b98e752183d23e9bd9df681323",
+      "sha256": "a2ab291c4fe5203da7a48eeb248602039dd4cb49fb68855a66fca0ad2ff24efb",
       "executable": false
     },
     "pnpm-workspace.yaml": {
@@ -3748,12 +3748,16 @@
       "sha256": "932bf2aa40a05c76f3a2c25a121db282e17c7bc839f9c37cd102ffe7f4e7ceca",
       "executable": false
     },
+    "src/base/icon-head.ts": {
+      "sha256": "ce4fa9ca48534d926469829abd372d1c81c6de31fb18cb4df567bc84a598e86f",
+      "executable": false
+    },
     "src/base/identity.ts": {
       "sha256": "0bc7faa1ce3d7fe3839a6a68135160be45387b052e4699dc7b45d13f67cb2106",
       "executable": false
     },
     "src/base/lobby.ts": {
-      "sha256": "876f708136f0001b6e23871c54f4a1c7fc9c78f29882a55b9a9c7c793ad4466d",
+      "sha256": "13282c598498bbf3ef5c5551525a2cb2faeeb6516360e54243f0d7a59723abd8",
       "executable": false
     },
     "src/base/page-style.ts": {
@@ -3765,7 +3769,7 @@
       "executable": false
     },
     "src/base/run-site.ts": {
-      "sha256": "d592249de707768c2159c343396011e42d3428c163e28a0c203f637f4b4dcf11",
+      "sha256": "578ae4cbe9afbe8b02248d84d7332979c9a1e6823e2c8724aa372e3a73d3546a",
       "executable": false
     },
     "src/base/seed-contract.d.mts": {
@@ -3793,7 +3797,7 @@
       "executable": false
     },
     "src/base/theme-frame.ts": {
-      "sha256": "013414b6cf564f0157efb7939d74ea3900bc4ce0b74217dfcf0dd309356ea70c",
+      "sha256": "b65a43496156ee6ebe86ab9d0158ea0d18659146aa1d22aaa380ac14d83d64d0",
       "executable": false
     },
     "src/branding.json": {
