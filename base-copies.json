@@ -980,17 +980,6 @@
       }
     },
     {
-      "path": "src/modules/erasure/cascade.mjs",
-      "originPath": "modules/erasure/cascade.mjs",
-      "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
-      "files": {
-        "src/modules/erasure/cascade.mjs": "e100fec1eaaf6b54e110d9778bc96a78a6e9011b047bba6db42d1a9d81da75ac"
-      },
-      "modes": {
-        "src/modules/erasure/cascade.mjs": "100644"
-      }
-    },
-    {
       "path": "src/modules/erasure/completion.mjs",
       "originPath": "modules/erasure/completion.mjs",
       "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
@@ -1032,39 +1021,6 @@
       },
       "modes": {
         "src/modules/erasure/fence.mjs": "100644"
-      }
-    },
-    {
-      "path": "src/modules/erasure/index.d.mts",
-      "originPath": "modules/erasure/index.d.mts",
-      "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
-      "files": {
-        "src/modules/erasure/index.d.mts": "204f2236b0877cf4005a317bbc4d9bdaf727fbe060195ce06fb046492bf04040"
-      },
-      "modes": {
-        "src/modules/erasure/index.d.mts": "100644"
-      }
-    },
-    {
-      "path": "src/modules/erasure/index.mjs",
-      "originPath": "modules/erasure/index.mjs",
-      "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
-      "files": {
-        "src/modules/erasure/index.mjs": "3db675becd9f30683c24ce9b72b43c36210643af2493c7ee2a2db6ec53978d46"
-      },
-      "modes": {
-        "src/modules/erasure/index.mjs": "100644"
-      }
-    },
-    {
-      "path": "src/modules/erasure/order.mjs",
-      "originPath": "modules/erasure/order.mjs",
-      "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
-      "files": {
-        "src/modules/erasure/order.mjs": "40d391f40831275b379a73f8e97634a652f4dbbc49862bccd520a75ee24a272b"
-      },
-      "modes": {
-        "src/modules/erasure/order.mjs": "100644"
       }
     },
     {
@@ -1175,17 +1131,6 @@
       },
       "modes": {
         "src/modules/erasure/sql.mjs": "100644"
-      }
-    },
-    {
-      "path": "src/modules/erasure/verification.mjs",
-      "originPath": "modules/erasure/verification.mjs",
-      "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
-      "files": {
-        "src/modules/erasure/verification.mjs": "0a52ed3c1a766b616edc161c5a44ca236bfd75af5de9987f2d199c6cecad4128"
-      },
-      "modes": {
-        "src/modules/erasure/verification.mjs": "100644"
       }
     },
     {

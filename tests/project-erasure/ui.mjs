@@ -7,8 +7,8 @@ async function check(page,directory,width,name,captures,needles){
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${name} at ${width}: no horizontal overflow`);
  const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(row=>row.id),[],`${name} at ${width}: axe`);
  // The panel shows counts and times, never a stored personal value.
- const panel=await page.locator('section[aria-labelledby^="erasure"]').innerText();assert.deepEqual(scanText(panel,needles),[],`${name} at ${width}: no personal value`);
- const path=`${directory}/erasure-${name}-${width}.png`;await page.screenshot({path,fullPage:true});captures.push(path);
+ const section=page.locator('section[aria-labelledby^="erasure"]'),panel=await section.innerText();assert.deepEqual(scanText(panel,needles),[],`${name} at ${width}: no personal value`);
+ const path=`${directory}/erasure-${name}-${width}.png`;await section.screenshot({path});captures.push(path);
 }
 // Preview, typed confirmation and receipt by clicking in the Settings panel.
 export async function erasePanel(app,browser,directory,{project,width,needles}){
@@ -24,8 +24,15 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
   assert.equal(await erase.isDisabled(),true,'erase stays disabled before typed confirmation');
   await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project.slice(0,-1));assert.equal(await erase.isDisabled(),true,'a partial identifier does not confirm');
   await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project);await check(page,directory,width,'confirmation',captures,needles);
-  const started=Date.now(),response=page.waitForResponse(r=>new URL(r.url()).pathname===`/api/projects/${project}/erasure`&&r.request().method()==='POST',{timeout:300_000});
-  await erase.click();const status=(await response).status();assert.equal(status,200,'the erase completes within the request');
+  let release;const follow= new Promise(resolve=>{release=resolve});
+  await page.route('**/api/erasures/*/resume',async route=>{await follow;await route.continue()});
+  const started=Date.now(),response=page.waitForResponse(r=>new URL(r.url()).pathname===`/api/projects/${project}/erasure`&&r.request().method()==='POST');
+  await erase.click();const status=(await response).status();assert.equal(status,202,'the erase returns an accepted job');
+  await page.getByRole('heading',{name:'Erasure continuing',exact:true}).waitFor();
+  await check(page,directory,width,'progress',captures,needles);
+  release();
+  await page.waitForFunction(()=>document.querySelector('#erasure-receipt')?.textContent==='Project erased'||document.querySelector('section[aria-labelledby="erasure-receipt"] [role="alert"]'),{},{timeout:300_000});
+  assert.equal(await page.locator('section[aria-labelledby="erasure-receipt"] [role="alert"]').count(),0,'the accepted job continues without an error');
   await page.getByRole('heading',{name:'Project erased',exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'erasure-receipt','focus moves to the receipt');
   await check(page,directory,width,'receipt',captures,needles);

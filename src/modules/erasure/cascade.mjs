@@ -8,7 +8,9 @@ import { progressStatement, committedStatement } from './receipt.mjs';
 import { queueStatements, readQueue, consumeStatement, clearQueue, slicePlan, rootScopeExists } from './queue.mjs';
 
 const where = (keys, table) => keys.get(table).pk.map(c => `${c === 'rowid' ? 'rowid' : quote(c)}=?`).join(' AND ');
-const values = e => Object.values(e.key);
+// Persisted queue keys are canonical JSON, whose property order need not
+// match a composite primary key. Bind by the schema order on every step.
+const values = (plan, e) => plan.keys.get(e.table).pk.map(column => e.key[column]);
 
 function redactStatements(db, d, plan) {
   const out = [];
@@ -28,9 +30,9 @@ export async function deletionStatements(ctx, d, plan, entries, id, deleted) {
     const match = where(plan.keys, e.table);
     out.push(...childAbsenceStatements(db, plan, e));
     for (const blob of new Map(d.edges.filter(x => x.table === e.table && x.blob).map(x => [x.blob.bucket + '\0' + x.blob.keyColumn, x.blob])).values()) {
-      out.push(statement(db, `INSERT OR IGNORE INTO rer_erasure_blobs(operation,bucket,key) SELECT ?,?,${quote(blob.keyColumn)} FROM ${quote(e.table)} WHERE ${match} AND ${quote(blob.keyColumn)} IS NOT NULL`, id, blob.bucket, ...values(e)));
+      out.push(statement(db, `INSERT OR IGNORE INTO rer_erasure_blobs(operation,bucket,key) SELECT ?,?,${quote(blob.keyColumn)} FROM ${quote(e.table)} WHERE ${match} AND ${quote(blob.keyColumn)} IS NOT NULL`, id, blob.bucket, ...values(plan, e)));
     }
-    out.push(statement(db, `DELETE FROM ${quote(e.table)} WHERE ${match}`, ...values(e)), ...await fence.row(e.table, e.key));
+    out.push(statement(db, `DELETE FROM ${quote(e.table)} WHERE ${match}`, ...values(plan, e)), ...await fence.row(e.table, e.key));
     deleted[e.table] = (deleted[e.table] ?? 0) + 1;
   }
   return out;

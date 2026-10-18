@@ -1,4 +1,4 @@
-import { createErasure, defineErasure } from '../../modules/erasure/index.mjs';
+import { createErasure, defineErasure, ErasureError } from '../../modules/erasure/index.mjs';
 import { eraseD1ImportTarget } from '../../modules/import-kit/src/d1/index.ts';
 import type { D1ImportContext, D1RelatedErasure } from '../../modules/import-kit/src/d1/types.ts';
 import type { SourceRecord } from '../../modules/import-kit/src/types.ts';
@@ -48,39 +48,58 @@ function related({ organization, slug }: { organization: string; slug: string })
   },
  };
 }
-function importContext(db: D1Database, session: any, organization: string): D1ImportContext {
+function importContext(db: D1Database, operationId: string, organization: string): D1ImportContext {
  return { destination: 'spool-owner', namespace: `sentry-org:${organization}`, mappingVersion, batchSize: 10, maxBatches: 1,
   originalErasurePolicy: 'withdraw-affected-artifacts',
-  storage: { database: db, targets: sentryTargets }, authorization: { principalId: session.operator.id, predicate() {
-   return { sql: "EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND s.operator_id=? AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) AND o.status='active' AND o.role='owner' AND s.operator_version=o.version)", params: [session.id, session.operator.id] };
+  storage: { database: db, targets: sentryTargets }, authorization: { principalId: `project-erasure:${operationId}`, predicate() {
+   // The owner already confirmed this durable operation. A scheduled runner
+   // can finish it without retaining an owner's session or personal identity.
+   // The grant survives publication: import-kit checks it before AND after
+   // the transaction clears the subject and advances the receipt phase.
+   return { sql: "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project')", params: [operationId] };
   } } };
 }
 
-// Rows per atomic step. After its first step the helper works from a queue of
-// the planned rows in deletion order, verifying only each step's slice, so the
-// whole erasure stays linear in its rows; the step size only sets how many
-// batches the retained-event cap (10,000 occurrences plus their children) takes.
-const STEP_ROWS = 25_000;
-/** Erase one project to completion within `until`, or leave it for the scheduled sweep. */
-export async function eraseProject(db: D1Database, session: any, project: string, planHash: string, until: number) {
- const erasure = await projectErasureService(db);
- const imported = await importedProject(db, project);
- if (imported) {
-  // Mirror start()'s checks; nativeStatements re-plans and refuses a held or open erasure.
-  const preview = await erasure.preview('project', { id: project });
-  if (preview.planHash !== planHash) return { status: 409 as const, error: 'plan_changed' };
-  const { operationId, statements } = await erasure.nativeStatements('project', { id: project });
-  await eraseD1ImportTarget('project', project, statements, importContext(db, session, imported.organization), related(imported));
-  return { status: 200 as const, receipt: await erasure.deleteBlobs(operationId, { until }) };
- }
- const opened = await erasure.start('project', { id: project }, { planHash });
- return { status: 200 as const, receipt: await erasure.run(opened.id, { until, rows: STEP_ROWS }) };
+// Every follow-up request commits one bounded step. It never waits for all
+// 10,000 retained events; the receipt is the completion signal.
+const STEP_ROWS = 500;
+export async function startProjectErasure(db: D1Database, project: string, planHash: string) {
+ return (await projectErasureService(db)).start('project', { id: project }, { planHash });
 }
 
-/** Scheduled continuation for an erasure a request left unfinished. */
+export async function resumeProjectErasure(db: D1Database, id: string) {
+ const erasure = await projectErasureService(db);
+ const operation = await db.prepare("SELECT subject,phase FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(id).first<{subject: string | null; phase: string}>();
+ if (!operation) throw new ErasureError('erasure_not_found', 404);
+ if (operation.phase === 'complete') return erasure.receipt(id);
+ const project = operation.subject ? JSON.parse(operation.subject).id as string : null;
+ const imported = project ? await importedProject(db, project) : null;
+ if (imported && project) {
+  // Custody withdrawal, native cascade and all tombstones still publish in
+  // one import-kit transaction, now as continuation of the accepted job.
+  const { statements } = await erasure.nativeStatements('project', { id: project }, { operationId: id });
+  await eraseD1ImportTarget('project', project, statements, importContext(db, id, imported.organization), related(imported));
+ } else if (operation.phase === 'deleting') {
+  await erasure.commit(id, { rows: STEP_ROWS, until: 0 });
+ }
+ // Blob verification and the final fenced re-read alone may mark complete.
+ return erasure.deleteBlobs(id, { until: 0 });
+}
+
+/** Scheduled continuation also finishes jobs after the client disconnects. */
 export async function continueErasures(db: D1Database, until: number) {
  const open = (await db.prepare("SELECT id,entity FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string; entity: string }>()).results;
- if (!open.length) return;
- const erasure = await projectErasureService(db);
- for (const { id,entity } of open) { if (Date.now() > until) break; await (entity==='installation-owner'?await ownerErasureService(db):erasure).run(id, { until, rows: STEP_ROWS }); }
+ for (const { id,entity } of open) {
+  while (Date.now() <= until) {
+   try {
+    const receipt = entity === 'installation-owner' ? await (await ownerErasureService(db)).run(id, { until, rows: STEP_ROWS }) : await resumeProjectErasure(db, id);
+    if (receipt.phase === 'complete') break;
+   } catch (error) {
+    // A client or another scheduled invocation owns this step. Its atomic
+    // guard keeps the job resumable; the next invocation reads fresh progress.
+    if (error instanceof ErasureError && error.code === 'erasure_busy') break;
+    throw error;
+   }
+  }
+ }
 }

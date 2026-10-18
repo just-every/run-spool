@@ -26,7 +26,7 @@ import { businessImportResponse } from './domain/sentry-import/door.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  await runAlerts(env,event.scheduledTime);
- // A project erasure that outlived its request continues here.
+ // Accepted erasure jobs continue here after the client disconnects.
  await continueErasures(env.DB, Date.now() + 20_000);
 }
 // A refusal raised while reading the session (a foreign Host, for one) answers as

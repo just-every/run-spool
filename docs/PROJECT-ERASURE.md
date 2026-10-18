@@ -14,7 +14,10 @@ a project.
 2. Type the project identifier to confirm. A partial or different identifier
    keeps **Erase project** disabled; over HTTP it is refused with 400 and
    nothing changes.
-3. The receipt lists the deleted counts and the requested, committed and
+3. Erasure is accepted as a durable job immediately after confirmation. The panel
+   follows its bounded steps and shows progress. Leaving the page does not cancel
+   it: the scheduled sweep continues the same job. Only **Project erased** marks
+   completion. The receipt lists the deleted counts and the requested, committed and
    completed times. **Continue** returns to the workbench.
 
 Take a private archive first if you may need the data later. An archive made
@@ -23,8 +26,9 @@ before the erasure is refused by this installation afterwards.
 | Route | Who | Result |
 | --- | --- | --- |
 | `GET /api/projects/:project/erasure` | owner session | `{deleted, redacted, retained, exceptions, planHash, hold}` |
-| `POST /api/projects/:project/erasure` `{confirm, planHash}` | owner session, same origin | receipt; 200 when complete, 202 when the scheduled run continues it |
-| `GET /api/erasures`, `GET /api/erasures/:id` | owner session | receipts (counts and times only) |
+| `POST /api/projects/:project/erasure` `{confirm, planHash}` | owner session, same origin | 202 accepted receipt with `Location: /api/erasures/:id`; no destructive work in this request |
+| `GET /api/erasures`, `GET /api/erasures/:id` | owner session | receipts (counts and times only); status reads never advance a job |
+| `POST /api/erasures/:id/resume` | owner session, same origin | one bounded step; 202 while continuing, 200 only when complete |
 
 Anonymous requests get 401; any project grant (ingest, agent or deploy key)
 gets 403; a cross-origin write 403; an unknown project 404; a changed plan
@@ -73,26 +77,34 @@ new project: its tombstone would refuse every later archive holding it.
 
 ## Measured
 
-`tests/project-erasure.mjs` (`test:project-erasure`, part of verify) runs the
-whole journey through public rer setup, dev, HTTP, export and import, and erases
-a project holding the retained-event cap (10,000 occurrences) in about 60 to 70
-seconds on a local Miniflare D1 and 147 seconds on the GitHub Verify runner,
-inside the 300-second requirement. Hosted D1
-statement, CPU and request limits are not measured here; an erasure that
-outlives its request continues on the next scheduled run.
+`tests/project-erasure.mjs` runs the Settings journey, progress and completion
+at 1440 and 390, including imported custody, anonymised audit, unrelated data
+and old-archive fences. `tests/project-erasure-cap.mjs` separately restores
+10,000 retained occurrences, requires a prompt 202 acceptance, follows the same
+job to completion within the unchanged 300-second cap, and scans D1 and a fresh
+archive for erased values. The local pre-change POST took 90.34 seconds (75.29
+seconds from job creation to completion); the old request performed the whole
+erasure before sending headers. With accepted jobs and bounded continuation,
+the same local cap accepted in 0.729 seconds and completed in 29.766 seconds
+(28.975 seconds from job creation). Hosted D1 limits remain separately
+unmeasured.
 
 ## Base helper adoption
 
 `src/modules/erasure` is Base main's reviewed erasure module at
-`9ec15a63a410d209cd5a179749336bb61751e0f6`, recorded file by file in
+`a81dd10c05b33c6f6372fc360ef29c40ea04332d`, with unchanged files recorded in
 [base-copies.json](../base-copies.json) with migration
-`0018_erasure.sql` (the module's own erasure schema). One file differs:
+`0018_erasure.sql` (the module's own erasure schema). The adapted files are recorded in edition.json rather than claimed as
+byte-identical copies. `index.mjs`/`index.d.mts` let an accepted imported job
+publish its existing operation inside the original custody transaction.
+`order.mjs` batches indexed parent/child lookups, and `verification.mjs` builds
+SQLite key sets once while preserving all scope guards. `cascade.mjs` binds
+queued composite keys in schema order rather than JSON property order. Also,
 `src/modules/erasure/plan.mjs` qualifies the primary-key column when it
 re-reads remembered rows. Unqualified, a key named like a `json_each` column
 (`id`) resolves to the JSON row, so the re-read matched every row of an integer
 `id` table; erasing one project then deleted every project's Sentry DSN alias.
-The file is mapped as adapted source in edition.json until Base carries the
-same fix, after which it returns to a byte-identical copy.
+The adopted Base version retains that qualified-key fix.
 
 The adopted portability copy runs the restore fence, including an explicit
 later journal, before any destination occupancy check, so an older archive is

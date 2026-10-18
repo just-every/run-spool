@@ -5,13 +5,12 @@ import { ErasureError } from '../../modules/erasure/index.mjs';
 import { hash } from '../privacy';
 import { deniedResponse } from '../denied-response';
 import { erasureExceptions } from './declaration';
-import { projectErasureService, eraseProject, receiptView } from './service';
+import { projectErasureService, startProjectErasure, resumeProjectErasure, receiptView } from './service';
 
 // Owner-only BASE-DATA-003 project erasure. These routers check their own
 // direct transport: any project grant (ingest, agent or deploy key) is refused
 // with 403, an anonymous request with 401, and owner writes must be same-origin.
-type Env = { Bindings: Bindings; Variables: { session: any } };
-const REQUEST_BUDGET_MS = 240_000;
+type Env = { Bindings: Bindings };
 
 async function guard(c: any, next: () => Promise<void>) {
  const env = runtimeBindings(c.env);
@@ -20,7 +19,6 @@ async function guard(c: any, next: () => Promise<void>) {
  const session = await ownerSession(c.req.raw, env);
  if (!session) return deniedResponse(c.req.raw, c.json({ error: 'Owner session required' }, 401));
  if (!['GET', 'HEAD'].includes(c.req.method) && !ownerWrite(c.req.raw, env)) return deniedResponse(c.req.raw, c.json({ error: 'Same-origin required' }, 403));
- c.set('session', session);
  await next();
 }
 const failure = (c: any, error: unknown) => {
@@ -49,9 +47,10 @@ projectErasureRoutes.post('/', async c => {
  // Typed confirmation: the exact project identifier, plus the previewed plan.
  if (!input || input.confirm !== project || typeof input.planHash !== 'string' || !/^[a-f0-9]{64}$/.test(input.planHash)) return c.json({ error: 'Type the project identifier to confirm erasure' }, 400);
  try {
-  const result = await eraseProject(c.env.DB, c.get('session'), project, input.planHash, Date.now() + REQUEST_BUDGET_MS);
-  if ('error' in result) return c.json({ error: result.error }, result.status);
-  return c.json(receiptView(result.receipt), result.receipt.phase === 'complete' ? 200 : 202);
+  const receipt = await startProjectErasure(c.env.DB, project, input.planHash);
+  c.header('Location', `/api/erasures/${receipt.id}`);
+  c.header('Cache-Control', 'no-store');
+  return c.json(receiptView(receipt), 202);
  } catch (error) { return failure(c, error); }
 });
 
@@ -64,4 +63,19 @@ erasureReceiptRoutes.get('/', async c => {
 });
 erasureReceiptRoutes.get('/:id', async c => {
  try { return c.json(receiptView(await (await projectErasureService(c.env.DB)).receipt(c.req.param('id')))); } catch (error) { return failure(c, error); }
+});
+
+// Explicit owner-only continuation: GET remains a side-effect-free status read.
+erasureReceiptRoutes.post('/:id/resume', async c => {
+ try {
+  const receipt = await resumeProjectErasure(c.env.DB, c.req.param('id'));
+  c.header('Cache-Control', 'no-store');
+  return c.json(receiptView(receipt), receipt.phase === 'complete' ? 200 : 202);
+ } catch (error) {
+  if (error instanceof ErasureError && error.code === 'erasure_busy') {
+   const receipt = await (await projectErasureService(c.env.DB)).receipt(c.req.param('id'));
+   return c.json(receiptView(receipt), receipt.phase === 'complete' ? 200 : 202);
+  }
+  return failure(c, error);
+ }
 });

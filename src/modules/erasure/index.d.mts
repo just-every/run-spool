@@ -46,7 +46,7 @@ export interface Erasure {
   deleteBlobs(id: string, options?: { until?: number; page?: number }): Promise<Receipt>;
   run(id: string, options?: { rows?: number; until?: number }): Promise<Receipt>;
   receipt(id: string): Promise<Receipt>;
-  nativeStatements(entity: string, subject: Key): Promise<{ operationId: string; statements: D1Sql[] }>;
+  nativeStatements(entity: string, subject: Key, options?: { operationId?: string }): Promise<{ operationId: string; statements: D1Sql[] }>;
 }
 export function defineErasure(declaration: Declaration): Defined;
 export function createErasure(options: { db: D1Database; buckets?: Record<string, R2Bucket>; portability: PortabilityFence; declarations: (Declaration | Defined)[] }): Erasure;

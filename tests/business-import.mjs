@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import { createHash, randomUUID, webcrypto } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -218,7 +219,8 @@ try {
  const erasePreview=await ownerJson(projectPath+'/erasure');
  assert.equal(erasePreview.hold,null);
  for(const table of ['ik_door_uploads','ik_door_chunks','ik_door_plans','ik_door_plan_chunks','ik_door_approvals'])assert.ok(erasePreview.deleted[table]>0,`${table} participates in project erasure`);
- const erased=await ownerJson(projectPath+'/erasure','POST',{confirm:imported[0].id,planHash:erasePreview.planHash});
+ const accepted=await json(await ownerRequest(projectPath+'/erasure','POST',{confirm:imported[0].id,planHash:erasePreview.planHash}),202);
+ const erased=await followErasure(async(path,method)=>{const response=await ownerRequest(path,method);assert.ok(response.ok);return response.json();},accepted);
  assert.equal(erased.phase,'complete');
  assert.deepEqual(await nativeSnapshot(),beforeNative,'erasure removes imported graph and preserves the unrelated native project');
  await json(await doorRequest('status',eraseNamespace,{planId:erasePlan.planId}),404);

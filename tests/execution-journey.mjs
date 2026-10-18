@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -66,7 +67,7 @@ try{
  const counts=async()=>Object.fromEntries(await Promise.all(tables.map(async table=>[table,(await app.db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project='shop'`).first()).n])));
  const planted=await counts();assert.ok(Object.values(planted).every(n=>n>0),JSON.stringify(planted));
  const preview=await app.json(`${p}/erasure`);
- const erased=await app.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:preview.planHash});assert.equal(erased.phase,'complete');
+ const erased=await followErasure(app.json,await app.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:preview.planHash}));assert.equal(erased.phase,'complete');
  assert.deepEqual(await counts(),Object.fromEntries(tables.map(table=>[table,0])),'project erasure deletes reproducers, runs, tokens, workflows, receipts and exposure');
  results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);

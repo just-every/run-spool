@@ -20,6 +20,10 @@ export async function refusals(app,{project,keys,planHash}){
   await check(`${kind} grant preview`,await app.request(path,'GET',undefined,{agent:key}),403);
   await check(`${kind} grant erase`,await app.request(path,'POST',confirm,{agent:key}),403);
  }
+ await check('anonymous continuation',await fetch(app.origin+'/api/erasures/missing/resume',{method:'POST',headers:{Origin:app.origin,'x-rer-dev-key':app.devKey}}),401);
+ for(const [kind,key] of Object.entries(keys))await check(`${kind} grant continuation`,await app.request('/api/erasures/missing/resume','POST',undefined,{agent:key}),403);
+ await check('cross-origin continuation',await app.request('/api/erasures/missing/resume','POST',undefined,{headers:{Origin:'https://attacker.example'}}),403);
+ await check('unknown continuation',await app.request('/api/erasures/missing/resume','POST'),404);
  await check('unknown project preview',await app.request('/api/projects/no-such-project/erasure'),404);
  await check('unknown project erase',await app.request('/api/projects/no-such-project/erasure','POST',{confirm:'no-such-project',planHash}),404);
  await check('wrong confirmation',await app.request(path,'POST',{confirm:project+'-wrong',planHash}),400);

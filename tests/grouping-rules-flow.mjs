@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 import assert from 'node:assert/strict';
@@ -45,6 +46,6 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
   await panel.getByRole('button',{name:'Save grouping rules',exact:true}).click();await panel.getByRole('status').filter({hasText:'Grouping rules saved'}).waitFor();await panel.screenshot({path:`.artifacts/grouping-rules/saved-${width}.png`});
   await page.goto(origin+'/projects/group-rules/issues/'+destination.id);await page.getByText('Related Exceptions',{exact:true}).waitFor();await page.locator('.metadata').filter({hasText:'Selected event'}).waitFor();await page.getByRole('button',{name:'Details: Event grouping information',exact:true}).click();await page.getByRole('dialog').waitFor();assert.ok((await page.getByRole('dialog').innerText()).includes('custom fingerprint'));await page.screenshot({path:`.artifacts/grouping-rules/explanation-${width}.png`});await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await context.close();
  }}finally{await browser.close()}
- const erasure=await json(base+'/erasure');assert.equal(erasure.deleted.grouping_policies,1);await json(base+'/erasure','POST',{confirm:'group-rules',planHash:erasure.planHash});assert.ok(!(await archiveProjection(await req('/api/archive'))).data.grouping_policies.some(row=>row.project==='group-rules'));
+ const erasure=await json(base+'/erasure');assert.equal(erasure.deleted.grouping_policies,1);await followErasure(json,await json(base+'/erasure','POST',{confirm:'group-rules',planHash:erasure.planHash}));assert.ok(!(await archiveProjection(await req('/api/archive'))).data.grouping_policies.some(row=>row.project==='group-rules'));
  console.log('Grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.');
 }

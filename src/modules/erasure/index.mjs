@@ -7,7 +7,7 @@ import { deleteBlobs } from './blobs.mjs';
 import { newLabel } from './audit.mjs';
 import { receipt, activeFor, openStatement, progressStatement } from './receipt.mjs';
 import { fenceCalls, toD1Sql } from './fence.mjs';
-import { insist, randomHex } from './sql.mjs';
+import { insist, randomHex, canonicalJson, guard } from './sql.mjs';
 export { defineErasure } from './declaration.mjs';
 export { ErasureError } from './sql.mjs';
 export { toD1Sql } from './fence.mjs';
@@ -67,14 +67,20 @@ export function createErasure({ db, buckets = {}, portability, declarations }) {
     receipt: id => receipt(db, id),
     /** The whole D1 phase as import-kit `D1Sql`, for `eraseD1ImportTarget(kind,id,nativeStatements,ctx)`.
      * Run `deleteBlobs(operationId)` after that batch commits. */
-    async nativeStatements(name, subject) {
+    async nativeStatements(name, subject, { operationId } = {}) {
       const d = entity(name);
-      insist(!await activeFor(db, d, subject), 'erasure_open', 409);
+      const active = await activeFor(db, d, subject);
+      // An accepted import job reuses its unopened destructive phase. The
+      // transaction guard prevents another runner from publishing it twice.
+      insist(operationId ? active?.id === operationId : !active, operationId ? 'erasure_busy' : 'erasure_open', 409);
+      const existing = operationId ? await db.prepare('SELECT * FROM rer_erasure_operations WHERE id=?').bind(operationId).first() : null;
+      if (operationId) insist(existing?.phase === 'deleting' && existing.step === 0 && existing.subject === canonicalJson(subject), 'erasure_busy', 409);
       const plan = await subjectPlan(d, subject), totals = await summary(d, plan);
-      const reason = d.hold ? await d.hold({ db, subject: plan.subject }) : null;
+      const reason = !existing && d.hold ? await d.hold({ db, subject: plan.subject }) : null;
       insist(!reason, 'held:' + reason, 409);
-      const id = randomHex(16), label = newLabel(), now = new Date().toISOString(), deleted = {};
-      const statements = [...await ctx.fence.transfers(), openStatement(db, d, { id, subject: plan.subject, label, planned: totals.deleted, blobs: totals.blobs, now }),
+      const id = operationId ?? randomHex(16), label = existing?.label ?? newLabel(), now = new Date().toISOString(), deleted = {};
+      const opening = existing ? guard(db, "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND step=0 AND phase='deleting')", id) : openStatement(db, d, { id, subject: plan.subject, label, planned: totals.deleted, blobs: totals.blobs, now });
+      const statements = [...await ctx.fence.transfers(), opening,
         ...await scopeStatements(db, d, plan, id), ...await firstStatements(ctx, d, plan, label), ...await verificationStatements(db, d, plan, id, label), ...cleanupStatements(ctx, d, plan, label), ...await deletionStatements(ctx, d, plan, plan.order, id, deleted),
         ...await finalStatements(ctx, d, plan, id, label, now, deleted), progressStatement(db, id, 0, deleted), db.prepare('DELETE FROM rer_erasure_guard')];
       return { operationId: id, statements: statements.map(toD1Sql) };

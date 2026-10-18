@@ -2371,6 +2371,66 @@
           "src/modules/demo"
         ]
       }
+    },
+    {
+      "id": "runeditrun/erasure",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/modules/erasure"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
+          "path": "modules/erasure",
+          "paths": [
+            "CONTRACT.md",
+            "README.md",
+            "audit.mjs",
+            "blobs.mjs",
+            "cascade.mjs",
+            "completion.mjs",
+            "declaration.mjs",
+            "fence.mjs",
+            "index.d.mts",
+            "index.mjs",
+            "order.mjs",
+            "plan.mjs",
+            "queue.mjs",
+            "rate.mjs",
+            "receipt.mjs",
+            "root.mjs",
+            "schema/erasure-rates.sql",
+            "schema/erasure.sql",
+            "scope.mjs",
+            "sql.mjs",
+            "verification.mjs"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "src/modules/erasure/index.mjs",
+            "originPath": "index.mjs"
+          },
+          {
+            "path": "src/modules/erasure/index.d.mts",
+            "originPath": "index.d.mts"
+          },
+          {
+            "path": "src/modules/erasure/order.mjs",
+            "originPath": "order.mjs"
+          },
+          {
+            "path": "src/modules/erasure/verification.mjs",
+            "originPath": "verification.mjs"
+          },
+          {
+            "path": "src/modules/erasure/cascade.mjs",
+            "originPath": "cascade.mjs"
+          }
+        ]
+      }
     }
   ]
 }

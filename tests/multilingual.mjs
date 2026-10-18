@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -121,7 +122,7 @@ try{
   }
   await browser.close();browser=null;
  }
- const preview=await restored.json(`${p}/erasure`);await restored.json(`${p}/erasure`,'POST',{confirm:'languages',planHash:preview.planHash});
+ const preview=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'languages',planHash:preview.planHash}));
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  await restored.stop();restored=null;await rm(state,{recursive:true,force:true});
  app=await executionRuntime(state,15484);await app.json('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});

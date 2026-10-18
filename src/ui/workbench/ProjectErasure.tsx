@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Field, type Request, type Run } from './shared';
 
 // Owner-only project erasure (BASE-DATA-003): count-only preview, typed
@@ -27,9 +27,21 @@ const when = (value: string | null) => value ? new Date(value).toLocaleString('e
 
 export function ProjectErasure({ project, request, run, busy }: { project: string; request: Request; run: Run; busy: boolean }) {
   const [preview, setPreview] = useState<any>(null), [typed, setTyped] = useState(''), [receipt, setReceipt] = useState<any>(null);
+  const [progressError, setProgressError] = useState('');
+  useEffect(() => {
+    if (!receipt || receipt.phase === 'complete' || progressError) return;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      request(`/api/erasures/${receipt.id}/resume`, 'POST').then(next => {
+        if (!cancelled) setReceipt(next);
+      }).catch(error => { if (!cancelled) setProgressError(error instanceof Error ? error.message : 'Erasure could not continue.'); });
+    }, 100);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [receipt, request, progressError]);
   if (receipt) return <section className="evidence" aria-labelledby="erasure-receipt">
-    <h2 id="erasure-receipt" tabIndex={-1} ref={focusOnMount}>{receipt.phase === 'complete' ? 'Project erased' : 'Erasure continuing'}</h2>
-    <p role="status">{receipt.phase === 'complete' ? `${total(receipt.deleted)} rows deleted in ${receipt.seconds} seconds.` : 'The rest continues on the next scheduled run.'}</p>
+    <h2 id="erasure-receipt" tabIndex={-1} ref={focusOnMount} aria-live="polite">{receipt.phase === 'complete' ? 'Project erased' : 'Erasure continuing'}</h2>
+    <p role="status">{receipt.phase === 'complete' ? `${total(receipt.deleted)} rows deleted in ${receipt.seconds} seconds.` : 'Erasure is in progress. This page follows each step; it also continues in the background if you leave.'}</p>
+    {progressError && <p role="alert">{progressError} The erasure remains saved for the scheduled run.</p>}
     <Counts title="Deleted" counts={receipt.deleted} />
     <h3>Times</h3>
     <dl className="erasure-counts">
