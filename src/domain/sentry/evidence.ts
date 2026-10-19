@@ -1,6 +1,7 @@
 import { validateGroupingSnapshot } from '../grouping/rules.ts';
 import { framePath } from '../frame-path.ts';
 import { isObject, evidenceText, evidenceValue, evidenceRecord, frameVariables } from './evidence-values.ts';
+import { requestQuery } from './query.ts';
 import type { SentryEvidence, SentryFrame, SentryStack, SentryException, Truncation } from './evidence-types.ts';
 export type { SentryEvidence, SentryFrame, SentryException, Truncation } from './evidence-types.ts';
 const textKeys=['filename','abs_path','module','package','function','raw_function','symbol','platform','instruction_addr','symbol_addr','image_addr','addr_mode','trust'] as const;
@@ -75,13 +76,11 @@ export function sanitizeSentry(value:any):SentryEvidence {
   const r=value.request,kept:Record<string,any>={};
   for(const key of ['url','method'] as const)if(typeof r[key]==='string')kept[key]=r[key];
   if(r.headers!==undefined){const headers=Array.isArray(r.headers)?Object.fromEntries(r.headers.filter((v:any)=>Array.isArray(v)&&v.length===2)):r.headers;if(isObject(headers))kept.headers=headers;}
-  if(isObject(r.env)){
-   const allowed=['SERVER_NAME','SERVER_PORT','SERVER_PROTOCOL','REQUEST_METHOD','HTTP_HOST'];
-   kept.env=Object.fromEntries(Object.entries(r.env).filter(([key])=>allowed.includes(key)));
-   if(Object.keys(kept.env).length!==Object.keys(r.env).length)notes.push({path:'request.env',reason:'request_policy_excluded'});
-  }
   out.request=evidenceRecord(kept,'request',notes);
-  for(const key of ['cookies','data','query_string'])if(r[key]!==undefined)notes.push({path:`request.${key}`,reason:'request_policy_excluded'});
+  // Query components need decoding and individual scrubbing; treating the
+  // whole string as a header can swallow later, ordinary diagnostic fields.
+  if(r.query_string!==undefined){const query=requestQuery(r.query_string,notes);if(query!==undefined)out.request!.query_string=query;}
+  for(const key of ['cookies','data','env'])if(r[key]!==undefined)notes.push({path:`request.${key}`,reason:'request_policy_excluded'});
  }
  if(Array.isArray(out.debug_meta?.images))out.debug_meta.images=out.debug_meta.images.map(image=>{
   if(!isObject(image))return image;
