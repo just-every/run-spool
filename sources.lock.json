@@ -3333,7 +3333,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "d27def94c6473d00fff4a71383261284cdfbaeefcd61a036f777ab50d97f03d8",
+      "sha256": "252c80b0e474e988088af82a842c84688265603cd2538eed9432862d71f372bb",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -4400,8 +4400,12 @@
       "sha256": "a3fcf528b956b7f7bb49b5cd449bfbbdc32902393ed366be5432a91a599d307a",
       "executable": false
     },
+    "src/domain/scrub-number.ts": {
+      "sha256": "0ccd612971a0581b77171e041a32b94c7643fda2e2f5c0a4135806bdbb83a4fd",
+      "executable": false
+    },
     "src/domain/scrub.ts": {
-      "sha256": "f9960cee347825581ffe49d023a622d0ca1bd7737e39e34a217f60ea4065560d",
+      "sha256": "c40a7a7d79628703cda055bc3e2a8bda0193f6ad917025c3f7ef05ab00718de4",
       "executable": false
     },
     "src/domain/sentry-import/archive.ts": {
@@ -7201,7 +7205,7 @@
       "executable": false
     },
     "tests/privacy-table/forms.mjs": {
-      "sha256": "7e205a3c7c3ff9b8597172bb4feae492a63bd97459c4c783c69374f28abda9ed",
+      "sha256": "6020a4aa7859f3910c372d024af08b051b31f2cacfcb392f47c84feb6ea6c2b5",
       "executable": false
     },
     "tests/product-assets.mjs": {
