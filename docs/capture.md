@@ -8,7 +8,7 @@ The **Capture** page in the workbench walks through these steps for the selected
 
 ## 1. Add the Spool SDK
 
-Install the package and initialise it once in your application, with your Spool address, the project and its ingest key:
+Install the package and initialize it once in your application, with your Spool address, the project and its ingest key:
 
 ```sh
 npm install @just-every/spool

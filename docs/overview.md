@@ -1,6 +1,6 @@
 # What Spool does
 
-Spool records JavaScript, Python and Go exception locations. JavaScript source maps can locate original source; Python and Go retain reported source coordinates, with optional Go repository path mappings. It runs on your own computer, it is free and open source under the MIT licence, and it has one owner: you.
+Spool records JavaScript, Python and Go exception locations. JavaScript source maps can locate original source; Python and Go retain reported source coordinates, with optional Go repository path mappings. It runs on your own computer, it is free and open source under the MIT license, and it has one owner: you.
 
 ## How it works
 
