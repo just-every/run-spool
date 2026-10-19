@@ -7,7 +7,7 @@ export async function githubDouble({appId='42',installationId='7',repository='ju
  const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});
  const sha=()=>randomBytes(20).toString('hex'),requests=[],tokens=new Map();
  const state={refs:new Map([['heads/main',sha()]]),files:new Map(),pulls:[],checks:new Map(),broaden:false,reported:'exact'};
- const send=(response,status,body)=>{response.writeHead(status,{'Content-Type':'application/json'});response.end(JSON.stringify(body));};
+ const send=(response,status,body)=>{if(state.losePullResponse&&body?.html_url){state.losePullResponse=false;response.destroy();return;}response.writeHead(status,{'Content-Type':'application/json'});response.end(JSON.stringify(body));};
  function appAuthorized(header){
   const [head,payload,signature]=(header??'').replace(/^Bearer /,'').split('.');
   if(!signature||!createVerify('RSA-SHA256').update(`${head}.${payload}`).verify(publicKey,Buffer.from(signature,'base64url')))return false;

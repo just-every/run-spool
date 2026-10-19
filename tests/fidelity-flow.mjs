@@ -5,10 +5,12 @@ export async function fidelityFlow({req,json}) {
  await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web'});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  let sequence=0;
+ const queryString='page=2&%61pi_key=PRIVATE_QUERY_KEY&authorization=PRIVATE_QUERY_AUTH&filter=checkout+failed&note=password%3DPRIVATE_QUERY_NESTED&email=PRIVATE_QUERY_EMAIL%40example.com&redirect=https%3A%2F%2Fcedar.example%2Fcart%3Ftoken%3DPRIVATE_QUERY_URL&tag=checkout&tag=retry';
  const frame=(name,line)=>({filename:'/app/checkout.py',function:name,lineno:line,in_app:true,pre_context:['order = load_order()'],context_line:'charge(order)',post_context:['return receipt'],vars:{password:'PRIVATE_PASSWORD',api_key:'PRIVATE_API_KEY',order_id:'order-123',nested:{authorization:'PRIVATE_NESTED',items:3}}});
  const chain=(type='KeyError',tenant='acme')=>({event_id:(++sequence).toString(16).padStart(32,'0'),release:'checkout@2.0.0',dist:'web',platform:'python',environment:'production',exception:{values:[{type,value:'Missing checkout account',stacktrace:{frames:[frame('load_account',8),{...frame('library_wrapper',4),in_app:false}]},mechanism:{type:'chained',handled:false}},{type:'CheckoutError',value:'Unable to charge order',stacktrace:{frames:[frame('checkout',20)]},mechanism:{type:'generic',handled:false}}]},tags:{tenant},contexts:{browser:{name:'Chrome',version:'130'},os:{name:'macOS'}},request:{url:'https://cedar.example/checkout?token=PRIVATE_URL',method:'POST',headers:{Authorization:'PRIVATE_AUTH',Cookie:'PRIVATE_COOKIE','X-Request-ID':'request-123'},cookies:'PRIVATE_COOKIES',data:'PRIVATE_BODY'},extra:{payment_token:'PRIVATE_EXTRA',cart_items:3},user:{email:'PRIVATE_USER@example.com'}});
  const send=async value=>{const response=await req(path,'POST',JSON.stringify({event_id:value.event_id})+'\n{"type":"event"}\n'+JSON.stringify(value));assert.equal(response.status,200,await response.text());return value};
- const first=await send(chain()),second=await send(chain('ValueError'));
+ const initial=chain();initial.request.query_string=queryString;initial.request.env={SERVER_NAME:'PRIVATE_ENV_SERVER',HTTP_HOST:'PRIVATE_ENV_HOST',APP_SECRET:'PRIVATE_ENV_SECRET'};
+ const first=await send(initial),second=await send(chain('ValueError'));
  let issues=await json(base+'/issues');assert.equal(issues.length,2,'same wrapper with distinct causes has distinct issues');
  assert.equal((await json(base+'/alerts')).filter(a=>a.kind==='new_issue').length,2,'both root causes alert');
  // GROUP-001: distinct roots and per-frame in_app are observable at public owner detail.
@@ -23,8 +25,19 @@ export async function fidelityFlow({req,json}) {
  assert.equal(detail.grouping.variant,'exception chain','GROUP-001 shows the whole-chain variant');assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true);assert.equal(detail.grouping.exceptions[0].frames[1].contributes,false,'GROUP-001 SDK not-in-app frame is excluded');assert.equal(detail.grouping.exceptions[0].frames[1].reason,'not in-app');
  // SDK-008: report excluded Sentry identity without retaining its value.
  assert.ok(detail.event.sentry.truncation.some(note=>note.path==='user'&&note.reason==='identity_policy_unavailable'),'SDK-008 names the unavailable identity policy at the owner detail door');
+ // SDK-010 request query strings are kept scrubbed and every exclusion is named.
+ const query=new URLSearchParams(detail.event.sentry.request.query_string);
+ assert.equal(query.get('page'),'2');assert.equal(query.get('filter'),'checkout failed');assert.deepEqual(query.getAll('tag'),['checkout','retry']);
+ assert.equal(query.get('api_key'),'[redacted]','encoded secret names are decoded before masking');assert.equal(query.get('authorization'),'[redacted]');
+ assert.equal(query.get('note'),'password=[redacted]');assert.equal(query.get('email'),'[email]');assert.equal(query.get('redirect'),'https://cedar.example/cart','ERR-003 scrubs URLs inside decoded query values');
+ for(const key of ['cookies','data','env']){
+  assert.equal(detail.event.sentry.request[key],undefined);
+  assert.ok(detail.event.sentry.truncation.some(note=>note.path==='request.'+key&&note.reason==='request_policy_excluded'),'excluded request '+key+' is named');
+ }
+ assert.equal(detail.event.sentry.user,undefined);
+ assert.ok(!detail.event.sentry.truncation.some(note=>note.path==='request.query_string'&&note.reason==='request_policy_excluded'));
  assert.equal(detail.event.sentry.exceptions.length,2);assert.equal(detail.event.sentry.exceptions[0].stacktrace.frames[0].vars.order_id,'order-123');assert.equal(detail.event.sentry.exceptions[0].stacktrace.frames[0].context_line,'charge(order)');assert.equal(detail.event.sentry.tags['browser.name'],'Chrome');assert.equal(detail.event.sentry.extra.cart_items,3);assert.equal(detail.event.sentry.request.method,'POST');assert.ok(detail.next);assert.equal(detail.previous,null);
- for(const canary of ['PRIVATE_PASSWORD','PRIVATE_API_KEY','PRIVATE_NESTED','PRIVATE_AUTH','PRIVATE_COOKIE','PRIVATE_BODY','PRIVATE_EXTRA','PRIVATE_USER','PRIVATE_URL'])assert.ok(!JSON.stringify(detail).includes(canary),canary+' scrubbed at owner read');
+ for(const canary of ['PRIVATE_PASSWORD','PRIVATE_API_KEY','PRIVATE_NESTED','PRIVATE_AUTH','PRIVATE_COOKIE','PRIVATE_BODY','PRIVATE_EXTRA','PRIVATE_USER','PRIVATE_URL','PRIVATE_QUERY','PRIVATE_ENV'])assert.ok(!JSON.stringify(detail).includes(canary),canary+' scrubbed at owner read');
  const packet=await json(base+'/issues/'+issue+'/packet');assert.equal(packet.events[0].event.sentry.exceptions.length,2);assert.ok(!JSON.stringify(packet).includes('charge(order)'));assert.ok(!JSON.stringify(packet).includes('order-123'),'locals excluded from agent packet');
  assert.equal((await req(eventBase,'GET',undefined,{Cookie:''})).status,401);
  const grant=await json(base+'/keys','POST',{kind:'agent'});assert.equal((await req(eventBase,'GET',undefined,{Cookie:'',Authorization:'Bearer '+grant.key})).status,403,'agent cannot acquire owner local-variable scope');
@@ -39,8 +52,13 @@ export async function fidelityFlow({req,json}) {
  const recursion=chain('RecursionError');recursion.exception.values=[{type:'RecursionError',value:'recursion',stacktrace:{frames:Array.from({length:1200},(_,i)=>({filename:'/app/recursion.py',function:'recurse',lineno:i+1}))}}];await send(recursion);
  const recursiveIssue=(await json(base+'/issue-search?q=error.type:RecursionError')).rows[0].id,recursiveList=await json(base+'/issues/'+recursiveIssue+'/events');const recursiveDetail=await json(base+'/issues/'+recursiveIssue+'/events/'+recursion.event_id+'?occurrence='+recursiveList.latest.occurrence);assert.equal(recursiveDetail.event.sentry.exceptions[0].stacktrace.frames.length,1000);assert.ok(recursiveDetail.event.sentry.truncation.some(t=>t.omitted===200));
  const java=chain('IllegalStateException');java.platform='java';java.exception.values[0].stacktrace.frames=[{filename:'Checkout.java',module:'com.cedar.Checkout',function:'charge',lineno:12}];await send(java);
+ const longQuery=chain('QueryBoundError');longQuery.request.query_string='diagnostic='+encodeURIComponent('🧭'.repeat(6000))+'&token=PRIVATE_QUERY_LONG';await send(longQuery);
+ const queryIssue=(await json(base+'/issue-search?q=error.type:QueryBoundError')).rows[0].id,queryRows=await json(base+'/issues/'+queryIssue+'/events');
+ const queryDetail=await json(base+'/issues/'+queryIssue+'/events/'+longQuery.event_id+'?occurrence='+queryRows.latest.occurrence),boundedQuery=new URLSearchParams(queryDetail.event.sentry.request.query_string).get('diagnostic');
+ assert.ok(boundedQuery.startsWith('🧭'));assert.ok(boundedQuery.endsWith('[truncated]'));assert.ok(!boundedQuery.includes('�'),'query trimming preserves UTF-8 characters');
+ assert.ok(queryDetail.event.sentry.truncation.some(note=>note.path==='request.query_string'&&note.reason==='value_bytes'&&note.omitted>0),'query bound has an explicit omission note');assert.ok(!JSON.stringify(queryDetail).includes('PRIVATE_QUERY_LONG'));
  const rules=base+'/grouping-rules';await json(rules,'PUT',{revision:0,policy:{version:1,stack:'',fingerprint:'error.type:KeyError -> inner-account'}});
  const ruled=await send(chain()),ruledSearch=await json(base+'/issue-search?q='+encodeURIComponent('error.type:KeyError')),ruledIssue=ruledSearch.rows.find(row=>row.count===1),ruledRows=await json(base+'/issues/'+ruledIssue.id+'/events'),ruledDetail=await json(base+'/issues/'+ruledIssue.id+'/events/'+ruled.event_id+'?occurrence='+ruledRows.latest.occurrence);
  assert.equal(ruledDetail.event.sentry.exceptions[1].type,'CheckoutError');assert.equal(ruledDetail.grouping.projectFingerprintRule,1,'GROUP-001 rule matches inner cause beneath unchanged wrapper');assert.equal(ruledDetail.grouping.variant,'custom fingerprint');assert.ok(ruledDetail.grouping.exceptions.every(cause=>cause.frames.every(frame=>!frame.contributes)),'GROUP-001 replacement fingerprint explains excluded frames');
- console.log('SDK-010 / GROUP-001 Sentry fidelity public flow passed: chains/groups/message events, root-cause alerts, retained selection/pagination/tags, SDK-008 identity exclusion diagnostics, privacy and agent scope, 1,000-frame retention and Java chain.');
+ console.log('SDK-010 request query strings are kept scrubbed and every exclusion is named; GROUP-001 fidelity flow passed: chains/groups/message events, root-cause alerts, retained selection/pagination/tags, privacy and agent scope, 1,000-frame retention and Java chain.');
 }

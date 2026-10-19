@@ -7,7 +7,7 @@ export const auditActions = [
  'project.create','credential.create','credential.revoke','origin.change','issue.triage','issue.assign','issue.bulk_triage','suppression.change',
  'grouping.preview','grouping.apply','grouping.undo','grouping.policy','filter.preview','filter.change','release.preview','release.policy','release.register','artifact.upload',
  'evidence.packet','evidence.export','archive.export','archive.restore','retention.preview_or_apply','erasure.preview','erasure.start','erasure.resume','owner.erasure','owner.successor',
- 'alert.destination.create','alert.destination.change','alert.destination.test','alert.rule.create','alert.rule.change','alert.delivery.resolve','notification.attempt',
+ 'alert.destination.create','alert.destination.change','alert.destination.test','alert.rule.create','alert.rule.change','alert.delivery.resolve','notification.attempt','automation.follow_up',
  'repair.create','repair.check','repair.fact','reproducer.create','reproducer.queue','reproducer.read','reproducer.finish','fix.propose','fix.approve','fix.advance','fix.provider_step',
  'feedback.withdraw','import.upload','import.plan','import.apply','import.status','import.reconcile','import.undo','import.resume','import.originals','import.settings','import.archive','import.restore_check','cutover.status',
  'auth.bootstrap','auth.claim','auth.magic_link','auth.confirm','auth.owner_signin','auth.one_click','auth.review_session','auth.signout','auth.invite','auth.invite_cancel','auth.operator_status','auth.operator_role','auth.session_revoke','auth.step_up','auth.domain_rule','auth.provider_unlink','auth.provider_relink','auth.identity_settings','auth.setup_complete','auth.email','auth.display_name','auth.oidc','auth.dependency',

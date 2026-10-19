@@ -171,7 +171,7 @@ and tool archives alongside import-kit originals; other native projects remain i
 
 When Business switches Sentry off, it uploads the final export and calls the
 door's `archive` grant action: Spool keeps the exact bytes in its own D1 as
-`business-archive/<tool>/<takenAt>` (migration `0055_import_door_archives.sql`),
+`business-archive/<tool>/<takenAt>` (migration `0056_import_door_archives.sql`),
 and `restore-check` parses them again with the Sentry reader and mapping with no
 native write. The owner-session importer answers both 404.
 

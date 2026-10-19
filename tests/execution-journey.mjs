@@ -13,6 +13,7 @@ import {reproduceProof,runner} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
 import {disconnectedGitHubSetup,executionPanel} from './execution/ui.mjs';
+import {executionFollowUp,attentionCaptures} from './execution/follow-up.mjs';
 // A captured failure reproduced in the isolated sandbox, carried through a fix
 // branch under an exact expiring grant, and measured after the deploy, through
 // public routes, the runner command and the issue page. GitHub is a double.
@@ -52,6 +53,8 @@ try{
  stage='capture-gap';results.gap=(await verdicts.gap()).reasons;
  stage='recurrence';results.verdicts=await verdicts.recurred();
  stage='expiry';results.expiry=await finishExpiry();
+ stage='follow-up';results.followUp=await executionFollowUp(app,github,reproduced);
+ browser=await launchBrowser();results.attentionCaptures=await attentionCaptures(app,browser,directory);await browser.close();browser=null;
  stage='archive';
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
@@ -63,7 +66,7 @@ try{
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
  await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
- const tables=['reproducers','reproducer_runs','reproducer_run_tokens','fix_workflows','fix_receipts','exposures'];
+ const tables=['reproducers','reproducer_runs','reproducer_run_tokens','fix_workflows','fix_receipts','exposures','follow_up_attention','follow_up_fix_steps'];
  const counts=async()=>Object.fromEntries(await Promise.all(tables.map(async table=>[table,(await app.db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project='shop'`).first()).n])));
  const planted=await counts();assert.ok(Object.values(planted).every(n=>n>0),JSON.stringify(planted));
  const preview=await app.json(`${p}/erasure`);
@@ -72,7 +75,7 @@ try{
  results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);
  await writeFile(resolve(directory,'results.json'),JSON.stringify(results,null,2)+'\n');
- console.log(`Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
+ console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
 }catch(error){console.error(JSON.stringify({journey:'execution',stage,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}
 finally{
  const outcomes=await Promise.allSettled([browser?.close(),app?.stop(),restored?.stop(),github?.stop()]);

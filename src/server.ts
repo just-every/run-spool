@@ -15,6 +15,8 @@ import { runtimeBindings, type Bindings } from './auth/bindings';
 import { ownerClaimResponse } from './editor/owner-claim.server';
 import { editorConfigResponse, editorDocument } from './editor/config.server';
 import { runAlerts } from './domain/alerts/dispatch';
+import { scanFollowUp } from './domain/follow-up/scan';
+import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
 import { staticAssetResponse } from './base/static-assets';
 import { admitted, setupStateResponse } from './base/setup-state';
 import { lobbyResponse } from './base/lobby';
@@ -28,8 +30,15 @@ import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door
 import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
- await deploymentTimeouts(env,event.scheduledTime);
- await runAlerts(env,event.scheduledTime);
+ try {
+  await deploymentTimeouts(env,event.scheduledTime);
+  await runAlerts(env,event.scheduledTime);
+ } finally {
+  // A broken dispatcher must not prevent independent operator follow-up.
+  await scanFollowUp(env,event.scheduledTime);
+  await queueNotices(env,event.scheduledTime);
+  await dispatchNotices(env,event.scheduledTime);
+ }
  // Accepted erasure jobs continue here after the client disconnects.
  await continueErasures(env.DB, Date.now() + 20_000);
 }

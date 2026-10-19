@@ -7,6 +7,7 @@ import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
 import {alertRuntime,event,rule,setup} from './alerts/runtime.mjs';
 import {suppressionEligibility} from './alerts/suppression-eligibility.mjs';
+import {alertFollowUp} from './alerts/follow-up.mjs';
 import {readArchive,makePart} from '../src/modules/portability/index.mjs';
 import {ContentVerifier} from '../src/modules/portability/format.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-proof-'));const inbox=await receiver(resolve(temp,'inbox.sqlite'));let app;
@@ -51,7 +52,7 @@ try {
  await app.json(deliveryPath+'/rules/'+webhook.id,'PUT',rule('webhook',{revision:2}));inbox.statuses.push(503);
  await app.json('/api/ingest/web','POST',event('uncertain',{frames:[{file:'https://app.example.com/uncertain.js',line:1,column:0,function:'uncertain'}]}),auth);await app.schedule(Date.now());
  const uncertain=(await app.json(deliveryPath+'/deliveries')).find(r=>r.state==='uncertain');assert.ok(uncertain);const attempts=inbox.requests.length;await app.schedule(Date.now()+5000);assert.equal(inbox.requests.length,attempts);
- await app.json(deliveryPath+'/deliveries/'+uncertain.id+'/resolve','POST',{state:'accepted',evidence:'receiver_confirmed'});assert.equal((await app.json(deliveryPath+'/deliveries')).find(r=>r.id===uncertain.id).state,'accepted');
+ await alertFollowUp(app,inbox,uncertain);assert.equal((await app.json(deliveryPath+'/deliveries')).find(r=>r.id===uncertain.id).state,'accepted');
  // Complete-window spikes use accepted server-received evidence and a durable cursor.
  const spike=await app.json(deliveryPath+'/rules','POST',rule('webhook',{name:'Spike',kinds:['spike']}));
  await app.close();app=await alertRuntime(inbox,{state:resolve(temp,'app')});
@@ -96,5 +97,5 @@ try {
  const restoredRule=(await app.json(deliveryPath+'/rules')).find(r=>r.id===webhook.id);await app.json(deliveryPath+'/rules/'+webhook.id,'PUT',rule('webhook',{revision:restoredRule.revision}));await app.schedule(Date.now());assert.equal(inbox.requests.length,sends);
  const key=await app.json('/api/projects/web/keys','POST',{kind:'ingest'});await app.json('/api/ingest/web','POST',event('post-restore',{frames:[{file:'https://app.example.com/after.js',line:1,column:0,function:'after'}]}),{Authorization:`Bearer ${key.key}`});await app.schedule(Date.now());assert.equal(inbox.requests.length,sends+1);
  const session=app.cookie;await app.request('/auth/signout','POST',{});assert.ok((await app.request(deliveryPath+'/rules','GET',undefined,{Cookie:session})).status>=400);
- console.log('Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
+ console.log('ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
 } finally {await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}
