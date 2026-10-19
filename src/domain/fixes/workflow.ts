@@ -4,6 +4,7 @@ import { reproducerView } from '../reproducers/view';
 import { connection, publicConnection } from './connection';
 import { reproducerFile } from './grant';
 import { GrantRefused, ProviderSession } from './provider';
+import { protectFixSession } from '../follow-up/fix-boundary';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 // Provider answers are stored only in the shapes Spool expects.
@@ -61,6 +62,16 @@ export async function advance(db: D1Database, env: any, row: any) {
  const link = connection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
+ await protectFixSession(db,row,session);
+ // A provider receipt may have committed immediately before interruption of
+ // the workflow cache update. Read that evidence before opening another PR.
+ if(!row.pull_number){
+  const previous=succeeded(await receipts(db,row.id),'open_draft_pull_request').at(-1);
+  if(previous&&Number.isSafeInteger(previous.detail.number)&&previous.detail.number>0){
+   row={...row,pull_number:previous.detail.number,pull_url:previous.detail.url,head_sha:commit(previous.detail.head)};
+   await s(db,'UPDATE fix_workflows SET pull_number=?,pull_url=?,head_sha=? WHERE id=? AND pull_number IS NULL',row.pull_number,row.pull_url,row.head_sha,row.id).run();
+  }
+ }
  if (!row.expires || Date.now() >= row.expires) await session.refuse('advance', 'The approved grant has expired; approve a renewed grant to continue.');
  const done = (step: string) => receipts(db, row.id).then(rows => succeeded(rows, step).length > 0);
  const update = (sql: string, ...args: any[]) => s(db, `UPDATE fix_workflows SET ${sql},updated=? WHERE id=?`, ...args, Date.now(), row.id).run();

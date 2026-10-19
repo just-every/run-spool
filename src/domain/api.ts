@@ -1,3 +1,4 @@
+import followUpRoutes from './follow-up/routes';
 import { auditRoutes } from './audit/routes';
 import { auditProjectBinding } from './audit/context';
 import { auditedExport } from './audit/export';
@@ -139,6 +140,7 @@ api.route('/api/projects',groupingRoutes);
 api.route('/api/projects',policyRoutes);
 api.route('/api/projects',bulkTriageRoutes);
 api.route('/api/projects/:project/alerting',alertRoutes);
+api.route('/api/projects/:project/follow-up',followUpRoutes);
 api.route('/api/projects/:project/repairs',repairRoutes);
 api.route('/api/projects/:project/reproducers',reproducerRoutes);
 api.route('/api/projects/:project/fixes',fixRoutes);
