@@ -699,7 +699,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "052e5ea88c1e7b73cca10c4813524a5f72580af8",
+          "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
           "path": "modules/owner-claim",
           "paths": [
             "idp.mjs",
@@ -1075,7 +1075,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "052e5ea88c1e7b73cca10c4813524a5f72580af8",
+          "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",
@@ -1169,6 +1169,7 @@
             "d1/reverse.ts",
             "d1/reviewed-source.ts",
             "d1/sets.ts",
+            "d1/staged-creation.ts",
             "d1/staging-admission.ts",
             "d1/staging-control.ts",
             "d1/staging-erasure.ts",
@@ -1613,6 +1614,10 @@
           {
             "path": "src/modules/import-kit/src/d1/sets.ts",
             "originPath": "d1/sets.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/d1/staged-creation.ts",
+            "originPath": "d1/staged-creation.ts"
           },
           {
             "path": "src/modules/import-kit/src/d1/staging-admission.ts",

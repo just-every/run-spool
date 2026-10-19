@@ -114,19 +114,25 @@ Owner history and undo must include jobs from either authority.
 4. **Settings and grants.** The door is off until a settings row enables it;
    the owner's settings action writes it with
    `writeImportDoorSettings(db, installationId, {enabled}, ownerPredicate)`.
-   This flag controls Business grants, not the owner's own imports. On an
-   install RER provisions for a Business plan, `RER_IMPORT_DOOR` is `on`: when it
-   is exactly `on`, call
-   `enableDoorAtFirstClaim(db, installationId, ownerPredicate)` from the path
-   that completes the first owner claim (bootstrap or signed) **and** from every
-   later owner path while the variable is `on`: the claim's already-initialized
-   answer, and owner sign-in or session start. Pass the door key and a predicate
-   that holds once that owner exists. The claim and the enable are separate
-   commits and the claim cannot complete twice, so the later calls are what heal
-   a failure between them; without them the door stays closed until the owner
-   turns it on in settings. It enables the door only while no settings row
-   exists, so never write a disabled row before the first claim on such an
-   install; it never reopens a door the owner turned off.
+   This flag controls Business grants, not the owner's own imports.
+   **Recommended consent path: owner opt-in.** On an install RER provisions for
+   a Business plan, `RER_IMPORT_DOOR` is `on`, and grants still stay closed
+   until the owner turns **Business imports** on at Move in (step 5's screen,
+   through that settings action). Never write an enabled row on the owner's
+   behalf. Until then every grant route answers 404 and the owner's own imports
+   work as usual.
+   `enableDoorAtFirstClaim(db, installationId, ownerPredicate)` remains
+   available for a seed that instead opens the door at the first owner claim
+   when the variable is exactly `on`: call it from the path that completes the
+   first owner claim (bootstrap or signed) **and** from every later owner path
+   while the variable is `on`: the claim's already-initialized answer, and
+   owner sign-in or session start. Pass the door key and a predicate that holds
+   once that owner exists. The claim and the enable are separate commits and
+   the claim cannot complete twice, so the later calls are what heal a failure
+   between them; without them the door stays closed until the owner turns it
+   on in settings. It enables the door only while no settings row exists, so
+   never write a disabled row before the first claim on such an install; it
+   never reopens a door the owner turned off.
    Self-host `rer deploy` never sets the variable. Read the grant mount's claim
    configuration from `RER_OWNER_CLAIM_ISSUER`, `RER_OWNER_CLAIM_INSTALLATION_ID`,
    `RER_OWNER_CLAIM_APP_ORIGIN`, `RER_OWNER_CLAIM_PUBLIC_KEYS` and the owner
@@ -148,7 +154,9 @@ Owner history and undo must include jobs from either authority.
    `index.ts`; see README.md.
 5. **Move-in screen.** Call POST `/api/operator/import/{uploads,plan,apply,status,
    reconcile,undo}` with the current owner cookie, exact `Origin` and normal
-   seed CSRF headers. Bodies and results are in [README.md](README.md). Upload
+   seed CSRF headers. Show the **Business imports** setting here (step 4): it
+   starts off, and the owner's switch is what opens the door to Business
+   grants. Bodies and results are in [README.md](README.md). Upload
    original bytes, show the returned counts, rejections, differences and each
    `CREDENTIAL_REMOVED` diagnostic (a credential value the door removed from that
    record), and each named source refusal's `details.reason`, then
@@ -173,8 +181,10 @@ Owner history and undo must include jobs from either authority.
    reads. Cover anonymous/non-owner and cross-origin refusal, no-write planning,
    fingerprint refusal, apply/reconcile/undo, native edit protection, session
    revocation during mutation, disabled/revoked grants, owner undo while Business
-   is off, the door opening at the first claim with `RER_IMPORT_DOOR=on` and
-   staying closed without it, and erasure of retained door custody. No test
+   is off, grants staying closed under `RER_IMPORT_DOOR=on` until the owner
+   turns Business imports on (or, if the seed uses `enableDoorAtFirstClaim`,
+   the door opening at the first claim and staying closed without the
+   variable), and erasure of retained door custody. No test
    skips or SQL bypasses.
 
 **Without owner-claim:** vendor the operator runtime, omitting the three optional

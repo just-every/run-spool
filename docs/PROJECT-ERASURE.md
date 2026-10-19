@@ -46,12 +46,17 @@ targets. Every deleted row gets its portability tombstone in the same atomic
 batch, and each batch drops in-flight transfer snapshots.
 
 A project created by Sentry organization import also has import-kit custody:
-the source records that produced it and the original export bytes. Its
-erasure runs as one import-kit batch (`eraseD1ImportTarget`) with the cascade:
-the project's source records become zero-effect tombstones, and every original
-export artifact that holds the project is withdrawn under
-`withdraw-affected-artifacts`. Another project from the same export keeps its
-native rows, but that export's original bytes become unavailable to it too.
+the source records that produced it and the original export bytes. Its native
+graph, and the door's private upload, plan and archive copies, are deleted by
+the same bounded steps as any project (a 150-issue import is thousands of
+statements with their restore tombstones, more than one D1 request carries).
+Once that commits, one import-kit transaction (`eraseD1ImportTarget`, with the
+project row already gone) turns the project's source records into zero-effect
+tombstones and withdraws every original export artifact that holds the project
+under `withdraw-affected-artifacts`. Only then may the blob phase mark the
+receipt complete; a failed step leaves the operation where it was and the next
+request retries it. Another project from the same export keeps its native rows,
+but that export's original bytes become unavailable to it too.
 
 Surviving project audit entries keep only their kind and time. Their project
 reference becomes null and their detail `{"erasure": "<random label>"}`; the

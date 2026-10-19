@@ -7,7 +7,7 @@ import { signIn, testOwner } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 
 // Base import-kit door conformance (modules/import-kit/src/door/ADOPTING.md,
-// rer 0.2.61; unchanged through rer 0.2.71), copied unchanged and run against both of Spool's door mounts.
+// rer 0.2.61; unchanged through rer 0.2.72), copied unchanged and run against both of Spool's door mounts.
 export async function checkDoor({request, bytes, name, nativeSnapshot,
   assertApplied, assertUndone}) {
   const hash = b => createHash('sha256').update(b).digest('hex');
@@ -114,7 +114,7 @@ try {
   body:JSON.stringify(body),
  });
  const doorJson=async(action,grantNamespace,body,extra)=>json(await doorRequest(action,grantNamespace,body,extra));
- async function upload(next) {
+ async function upload(next,uploadNamespace=namespace) {
   bytes=next;
   const bundleSha256=digest(bytes),totalChunks=Math.ceil(bytes.length/65_536);
   let uploadId,result;
@@ -123,20 +123,20 @@ try {
    const body={...uploadId?{uploadId}:{},name:'synthetic-sentry-organization.json',bundleSha256,
     totalBytes:bytes.length,totalChunks,index,chunkSha256:digest(chunk),base64:chunk.toString('base64')};
    if(index===0) {
-    const corrupt=await json(await doorRequest('uploads',namespace,{...body,chunkSha256:'0'.repeat(64)}),400);
+    const corrupt=await json(await doorRequest('uploads',uploadNamespace,{...body,chunkSha256:'0'.repeat(64)}),400);
     assert.equal(corrupt.error,'chunk_hash_or_size_mismatch','corrupt bytes cannot enter retained upload');
    }
-   result=await doorJson('uploads',namespace,body);
+   result=await doorJson('uploads',uploadNamespace,body);
    uploadId??=result.uploadId;
    assert.equal(result.uploadId,uploadId);
    assert.equal(result.complete,index===totalChunks-1);
    assert.equal(result.received.length,index+1);
    if(index===0) {
-    const duplicate=await doorJson('uploads',namespace,{...body,uploadId});
+    const duplicate=await doorJson('uploads',uploadNamespace,{...body,uploadId});
     assert.deepEqual(duplicate.received,result.received,'an identical chunk is idempotent with a fresh grant');
    }
   }
-  const inventory=await doorJson('uploads',namespace,{uploadId});
+  const inventory=await doorJson('uploads',uploadNamespace,{uploadId});
   assert.equal(inventory.complete,true);
   assert.equal(inventory.bundleSha256,bundleSha256);
   assert.deepEqual(inventory.received,result.received);
@@ -390,8 +390,11 @@ try {
  assert.equal((await doorJson('restore-check',namespace,{archiveId:archived.archiveId})).bundleSha256,archived.bundleSha256,'planning the upload leaves its archive');
  const eraseApproval={fingerprint:erasePlan.fingerprint,approvalRecordId:randomUUID(),approvedAt:new Date().toISOString()};
  await untilState(()=>doorJson('apply',namespace,{planId:erasePlan.planId,reviewedFingerprint:erasePlan.fingerprint},eraseApproval),'completed');
+ // Business's final export, archived under its own `sentry` namespace that no plan ever opens, names the same project in its bytes.
+ const finalUpload=await upload(variant(5),'sentry'),finalArchive=await doorJson('archive','sentry',{uploadId:finalUpload,tool:'sentry',takenAt:new Date().toISOString()});
  const erasePreview=await ownerJson(projectPath+'/erasure');
  assert.equal(erasePreview.hold,null);
+ assert.equal(erasePreview.deleted.ik_door_archives,2,'both archives naming the project, in either namespace, participate in project erasure');
  for(const table of ['ik_door_uploads','ik_door_chunks','ik_door_plans','ik_door_plan_chunks','ik_door_approvals','ik_door_scopes','ik_door_archives','ik_door_archive_chunks'])assert.ok(erasePreview.deleted[table]>0,`${table} participates in project erasure`);
  const accepted=await json(await ownerRequest(projectPath+'/erasure','POST',{confirm:imported[0].id,planHash:erasePreview.planHash}),202);
  const erased=await followErasure(async(path,method)=>{const response=await ownerRequest(path,method);assert.ok(response.ok);return response.json();},accepted);
@@ -399,6 +402,7 @@ try {
  assert.deepEqual(await nativeSnapshot(),beforeNative,'erasure removes imported graph and preserves the unrelated native project');
  await json(await doorRequest('status',namespace,{planId:erasePlan.planId}),404);
  assert.equal((await json(await doorRequest('restore-check',namespace,{archiveId:archived.archiveId}),404)).error,'archive_not_found','project erasure withdraws the archive with its namespace');
+ assert.equal((await json(await doorRequest('restore-check','sentry',{archiveId:finalArchive.archiveId}),404)).error,'archive_not_found','project erasure withdraws an archive naming the project from a namespace no plan opened');
  assert.deepEqual((await ownerJson(settingsPath)).history,[],'withdrawn private snapshots cannot be reopened from history');
 
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[kid]});

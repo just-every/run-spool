@@ -130,7 +130,10 @@ An install RER provisions for a Business plan the owner approved with the door
 opted in carries `RER_IMPORT_DOOR=on` alongside its `RER_OWNER_CLAIM_ISSUER`,
 `RER_OWNER_CLAIM_INSTALLATION_ID`, `RER_OWNER_CLAIM_APP_ORIGIN` and
 `RER_OWNER_CLAIM_PUBLIC_KEYS` trust, whatever its claim mode (bootstrap or
-signed). When the seed sees exactly `on`, it calls
+signed). The recommended consent path is owner opt-in: grants stay closed
+under `RER_IMPORT_DOOR=on` until the owner turns Business imports on at Move
+in, through the settings action above. A seed may instead open the door at the
+first owner claim: when it sees exactly `on`, it calls
 `enableDoorAtFirstClaim(database, installationId, ownerPredicate)` from the
 path that completes its first owner claim and again from every later owner path
 while the variable is `on`: the claim's already-initialized answer, and owner
@@ -214,12 +217,25 @@ All bodies are JSON. Quotas are admission limits, not a hosted capacity promise.
 | `uploads` | `{ uploadId?, name, bundleSha256, totalBytes, totalChunks, index, chunkSha256, base64 }`; decoded chunks are exactly 64 KiB except the final chunk. `totalChunks` must equal `ceil(totalBytes / 65536)`. Omit `uploadId` on the first chunk to receive a server-generated UUID. Reuse it and the same bundle metadata for subsequent chunks. Both chunk and complete bundle SHA-256 are checked before reporting completion. |
 | `uploads` | `{ uploadId }` returns received-chunk inventory for resuming. An identical duplicate chunk is idempotent with a fresh grant. |
 | `plan` | `{ uploadId, catchup?: boolean }` returns `planId`, `fingerprint`, server-derived counts, summary, rejected rows with reasons, `diagnostics` and differences including gone source ids. Planning makes no native target writes. |
-| `apply` | `{ planId, reviewedFingerprint }` creates or resumes the real kit job in bounded batches. Repeat with a fresh valid grant to continue. |
+| `apply` | `{ planId, reviewedFingerprint }` creates or resumes the real kit job in bounded batches. Repeat with a fresh valid grant to continue. A large source (a stored plan over 4 MiB, such as a multi-megabyte Notion export) is created in bounded staged steps within one request, and the answer may be the still `queued` job; an interrupted creation is never a job and the next `apply` resumes it from what was staged. |
 | `status` | `{ planId }` reads current job progress. |
 | `reconcile` | `{ planId }` derives source-id disposition/presence and native/provenance revision, value, attachment and count checks on the server. |
 | `undo` | `{ planId }` reverses the newest snapshot's attributed effects in bounded kit work, preserving native edits. |
 | `archive` | `{ uploadId, tool, takenAt }` keeps a fully uploaded bundle as the tool's archive; returns `archiveId`, `key`, `tool`, `takenAt`, `bundleSha256`, `bytes` and `counts`. Grant only. See "Archives". |
 | `restore-check` | `{ archiveId }` parses the archive with the namespace's reader and mapping and writes nothing native; returns the archive's fields with `bundleSha256`, `bytes` and `counts` recomputed from its bytes, and `rejected`. Grant only. |
+
+### Large sources
+
+A large reviewed plan does not push a door request past D1's 32 MiB RPC
+ceiling or its 1,000-statement budget: snapshot,
+upload and original reads are paged; job creation stages the plan (and the
+original it holds) a few MiB at a time and publishes the job in one small
+transaction that copies the staged rows inside D1; and later batches fence the
+plan's custody revision instead of resending it. No request carries a whole
+plan or a whole original. See the kit README, "Large plans: staged creation and
+revision fences". The seed's target adapter `planCodec`, when it has one, now
+retains a door job whose plan holds no original bytes (for example, an upload
+whose credential values were removed).
 
 ### Credentials and source refusals
 

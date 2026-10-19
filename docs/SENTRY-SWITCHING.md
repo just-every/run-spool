@@ -141,8 +141,9 @@ a door the owner turned off stays off until the owner turns it on again.
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 
-Spool vendors Base's import-kit door from `rer-v0.2.71`, byte for byte with no
-local divergence. Its
+Spool vendors Base's import-kit door from `rer-v0.2.72`, byte for byte with no
+local divergence; a multi-megabyte export's first apply creates its job in
+bounded staged steps and may answer a still `queued` job. Its
 [grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
 `POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo,archive,restore-check}`. A grant's
 namespace must be `sentry-org:<organization slug>`, `sentry` (the namespace
@@ -167,7 +168,9 @@ by**). Its owner-session Undo remains available
 with Business disabled or its grant key revoked. Undo protects native edits and
 reverses the newest snapshot first. Original bytes remain private to this Spool
 installation. Project erasure also withdraws affected door upload/plan snapshots
-and tool archives alongside import-kit originals; other native projects remain intact.
+and tool archives alongside import-kit originals, including an archive kept in
+Business's own `sentry` namespace, which it finds by the projects the
+archive's own bytes name; other native projects remain intact.
 
 When Business switches Sentry off, it uploads the final export and calls the
 door's `archive` grant action: Spool keeps the exact bytes in its own D1 as
