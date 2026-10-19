@@ -2597,7 +2597,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "8273d9e82adf4977234695fe8ff498b162319500fad681512dc833e0cd595ebb",
+      "sha256": "58f875fe0997671dacda7fcdd9d0506a493dd60627f71b69dcc2c984154152b5",
       "executable": false
     },
     ".gitignore": {
@@ -6892,12 +6892,16 @@
       "sha256": "8cc32ee1c6808674328723f57e34f3baf3ba4820400417c93d2006a3e5c13e6b",
       "executable": false
     },
+    "tests/agent-handoff/dev-output.mjs": {
+      "sha256": "5266498d0a9acf2f640423318934f18d26e1418770e56f02b7abedec885f36e4",
+      "executable": false
+    },
     "tests/agent-handoff/packet.mjs": {
       "sha256": "2c5bc1990ae3db744c6d5a977161bb0cb42a39978746aab58aa6cee05520dff2",
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "170877df6398df723306a723dae028db9b5b871b1ccfa2a6081de09a05ad853b",
+      "sha256": "c6c041fbc4baeb00338feae47832d995fa4f58b95b1d99a19a1b9fefa2ebf09b",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -7341,7 +7345,7 @@
       "executable": false
     },
     "tests/worker.mjs": {
-      "sha256": "e5773f02b3eb5c3d4331fa041613faab712997abba190b328f8510e29cc23140",
+      "sha256": "d999a08d673eb3e65e32b8d34703cd24cba84060810310d1d20144826ef7e0ea",
       "executable": false
     },
     "tsconfig.json": {

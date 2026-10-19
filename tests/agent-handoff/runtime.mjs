@@ -7,6 +7,7 @@ import {classifyCommandOutput} from '../command-diagnostics.mjs';
 import {commandCheckout} from '../command-runner.mjs';
 import {gate,testOwner,signIn} from '../auth.mjs';
 import {archiveProjection} from '../archive.mjs';
+import {keepDevOutput} from './dev-output.mjs';
 // The command harness clones HEAD. Overlay current tracked inputs and the new
 // agent package so this journey tests the candidate, including uncommitted edits.
 export async function handoffRuntime(port=15543,{destinations:declared}={}){
@@ -29,7 +30,7 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
   let active,cookie;
   // Foreground dev with the owner dev persona; stopping it is required before CLI transfers.
   async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');}
-  async function stopDev(){if(!active)return;active.child.kill('SIGINT');assert.equal((await active.closed).code,130);active=null;}
+  async function stopDev(){if(!active)return;const stopping=active;active=null;stopping.child.kill('SIGINT');const result=await stopping.closed;await keepDevOutput(result.output,settings,gate.key);assert.equal(result.code,130);}
   await startDev();
   async function request(path,method='GET',value,options={}){
    const headers={Origin:origin,...options.dev===false?{}:{'x-rer-dev-key':gate.key},...options.agent?{Authorization:'Bearer '+options.agent}:{Cookie:cookie},...value===undefined?{}:{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'},...options.headers};

@@ -61,6 +61,9 @@ jobs:
     env:
       # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
       RER_SERVERS_DISK_FLOOR_GIB: '4'
+      # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
+      # workerd crash) only under this flag; the kept server output below then carries it.
+      NODE_DEBUG: '@cloudflare:vite-plugin'
     strategy:
       fail-fast: false
       matrix:
@@ -110,6 +113,18 @@ jobs:
           DEBUG: pw:install
       - name: Run suites
         run: ${{ matrix.command }}
+      # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
+      # checkout's secrets redacted, for diagnosing a failed run.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-output-${{ matrix.shard }}
+          path: |
+            .artifacts/dev-server/
+            .artifacts/worker-output/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Check hosted output and hydration
         if: matrix.shard == 'owner-ui'
         # These are the post-verify:app checks from the pinned rer verify.
