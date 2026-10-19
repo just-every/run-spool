@@ -1,3 +1,4 @@
+import { canonical,hash } from '../privacy';
 import type { AlertEnvironment } from '../alerts/types';
 import { findDestination } from '../alerts/destinations.server';
 import { sender } from '../alerts/mail';
@@ -12,7 +13,7 @@ export async function deploymentTimeouts(env:AlertEnvironment,time:number) {
   const claim=await s(env.DB,"UPDATE deployment_notices SET state='uncertain',updated=? WHERE project=? AND deployment=? AND state='pending' RETURNING deployment",time,row.project,row.id).all();
   if(!claim.results.length)continue;
   let state='blocked';
-  try{const destination=await findDestination(env,row.project,row.destination,'mail'),mail=sender(env);state='uncertain';const result=await mail.send({deliveryId:'deployment-'+row.id,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool deployment deadline overdue',text:`Deployment ${row.id} in ${row.environment} passed its caller-supplied deadline without a final callback. Release: ${row.release}. Deadline: ${new Date(row.deadline).toISOString()}. No deployment failure has been inferred. Inspect the deployment history and record the outcome.`});state=result.status==='development'?'suppressed_locally':result.status;}catch{/* A send that started has unknown receipt; never send it twice. */}
+  try{const destination=await findDestination(env,row.project,row.destination,'mail'),mail=sender(env);state='uncertain';const result=await mail.send({deliveryId:'deployment-'+await hash(canonical([row.project,row.id])),from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool deployment deadline overdue',text:`Deployment ${row.id} in ${row.environment} passed its caller-supplied deadline without a final callback. Release: ${row.release}. Deadline: ${new Date(row.deadline).toISOString()}. No deployment failure has been inferred. Inspect the deployment history and record the outcome.`});state=result.status==='development'?'suppressed_locally':result.status;}catch{/* A send that started has unknown receipt; never send it twice. */}
   await s(env.DB,'UPDATE deployment_notices SET state=?,updated=? WHERE project=? AND deployment=?',state,time,row.project,row.id).run();
  }
 }
