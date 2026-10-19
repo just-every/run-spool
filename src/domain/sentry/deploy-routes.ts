@@ -1,3 +1,4 @@
+import { releaseOrderKeyStatement } from '../releases/order';
 import { releaseVersionKey,releaseIdentity } from '../releases/identity';
 import { mappingStatements } from '../path-mappings';
 import { Hono } from 'hono';
@@ -30,6 +31,7 @@ routes.post('/:project/releases',async c=>{
       stmt(db,'INSERT INTO releases(project,name,seq,build,created) SELECT ?,?,(SELECT COALESCE(MAX(seq),0)+1 FROM releases WHERE project=?),?,? WHERE NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?)',project,name,project,build,time,project,name),
       stmt(db,"INSERT INTO audit SELECT ?,?,'release_registered',json_object('name',name,'build',build,'seq',seq),? FROM releases WHERE project=? AND name=? AND changes()=1",crypto.randomUUID(),project,time,project,name),
       stmt(db,"INSERT INTO release_metadata(project,release,first_seen,environment,sdk,auto_created,version_key) SELECT project,name,created,?,'{}',0,? FROM releases WHERE project=? AND name=? ON CONFLICT(project,release) DO UPDATE SET auto_created=0",manifest?.environment??'unknown',releaseVersionKey(name),project,name),
+      releaseOrderKeyStatement(db,project,name),
       stmt(db,'INSERT INTO release_builds VALUES(?,?,?,1) ON CONFLICT(project,release,build) DO UPDATE SET registered=1',project,name,build),
       ...(manifest?[
        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=?) OR EXISTS(SELECT 1 FROM deployment_manifests WHERE project=? AND release=? AND environment=? AND commit_sha=? AND repository=? AND deployed_at=?) THEN 1 ELSE 0 END',project,name,manifest.environment,project,name,manifest.environment,manifest.commit_sha,manifest.repository,manifest.deployed_at),

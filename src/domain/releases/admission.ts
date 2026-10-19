@@ -1,3 +1,4 @@
+import { releaseOrderKeyStatement } from './order';
 import { normalize,scrub,type Envelope } from '../privacy';
 import { sentryRelease,releaseVersionKey } from './identity';
 import { readReleasePolicy,autoReleaseAllowed,releasePolicyFence } from './policy';
@@ -18,6 +19,7 @@ export async function prepareRelease(db:D1Database,project:string,input:Envelope
    const time=Date.now(),sdk=scrub(JSON.stringify(event.sentry?.sdk??{}));
    jobs.push(db.prepare('INSERT INTO releases(project,name,seq,build,created) SELECT ?,?,COALESCE(MAX(seq),0)+1,?,? FROM releases WHERE project=? HAVING NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?)').bind(project,event.release,event.build,time,project,project,event.release));
    jobs.push(db.prepare('INSERT INTO release_metadata(project,release,first_seen,environment,sdk,auto_created,version_key) SELECT ?,?,?,?,?,?,? ON CONFLICT(project,release) DO NOTHING').bind(project,event.release,existing?.created??time,event.environment,sdk,existing?0:1,releaseVersionKey(event.release)));
+   jobs.push(releaseOrderKeyStatement(db,project,event.release));
    jobs.push(db.prepare('INSERT INTO release_builds VALUES(?,?,?,0) ON CONFLICT DO NOTHING').bind(project,event.release,event.build));
   }
  }

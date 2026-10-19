@@ -30,7 +30,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,'deployment_actors','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,'deployment_actors','release_order_keys','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, deploymentExportRow(table, alertExportRow(table, row))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -104,6 +104,9 @@ for(const later of laterTables){later.tables.push(...Object.keys(deploymentTable
 laterTables.unshift({tables:Object.keys(deploymentTables),migrations:['0049_deployment_history.sql','0050_release_order_keys.sql']});
 for(const later of laterTables)later.migrations.push('0051_safe_audit.sql');
 laterTables.unshift({tables:[],migrations:['0051_safe_audit.sql']});
+// Derived release ordering is rebuilt after restore and excluded from archives.
+for(const later of laterTables)later.migrations.push('0052_release_order_cache.sql');
+laterTables.unshift({tables:[],migrations:['0052_release_order_cache.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

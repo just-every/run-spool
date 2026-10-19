@@ -21,24 +21,21 @@ export function compareReleases(a:OrderedRelease,b:OrderedRelease,order:ReleaseO
  return (a.first_seen??a.created)-(b.first_seen??b.created)||byteCompare(a.name,b.name);
 }
 
-/** Upgrade old cached keys before any policy-based list or comparison. Metadata
- * absent from older native installations takes its original registration time. */
+/** Derived ordering keys never create authoritative release metadata. The cache
+ * follows release deletion, including import undo, and is rebuilt after restore. */
+export const releaseOrderKeyStatement=(db:D1Database,project:string,name:string)=>db.prepare('INSERT INTO release_order_keys(project,release,version_key) VALUES(?,?,?) ON CONFLICT(project,release) DO UPDATE SET version_key=excluded.version_key').bind(project,name,releaseVersionKey(name));
 export async function ensureReleaseOrderKeys(db:D1Database,project:string){
- const rows=(await db.prepare('SELECT r.name,r.created,m.release metadata_release,m.version_key FROM releases r LEFT JOIN release_metadata m ON m.project=r.project AND m.release=r.name WHERE r.project=?').bind(project).all<{name:string;created:number;metadata_release:string|null;version_key:string|null}>()).results;
- const jobs=rows.flatMap(row=>{
-  const key=releaseVersionKey(row.name);
-  if(row.metadata_release===null)return [db.prepare("INSERT INTO release_metadata(project,release,first_seen,environment,sdk,auto_created,version_key) VALUES(?,?,?,'unknown','{}',0,?) ON CONFLICT(project,release) DO NOTHING").bind(project,row.name,row.created,key)];
-  return row.version_key===key?[]:[db.prepare('UPDATE release_metadata SET version_key=? WHERE project=? AND release=? AND version_key IS ?').bind(key,project,row.name,row.version_key)];
- });
+ const rows=(await db.prepare('SELECT r.name,k.release cached_release,k.version_key FROM releases r LEFT JOIN release_order_keys k ON k.project=r.project AND k.release=r.name WHERE r.project=?').bind(project).all<{name:string;cached_release:string|null;version_key:string|null}>()).results;
+ const jobs=rows.flatMap(row=>row.cached_release!==null&&row.version_key===releaseVersionKey(row.name)?[]:[releaseOrderKeyStatement(db,project,row.name)]);
  for(let i=0;i<jobs.length;i+=100)await db.batch(jobs.slice(i,i+100));
- // Reindexing also upgrades the former pair-dependent observed watermark;
- // resolved boundaries keep their existing release identity.
+ // Reindex the former pair-dependent observed watermark; resolved boundaries
+ // keep their existing release identity.
  if(jobs.length)await db.prepare(`UPDATE issue_resolutions SET observed_seq=${observedReleaseSequenceSql()} WHERE project=? AND EXISTS(SELECT 1 FROM issues i WHERE i.project=issue_resolutions.project AND i.id=issue_resolutions.issue AND i.algorithm='sentry-chain-v1')`).bind(project).run();
 }
 
 export const releasePolicyOrderSql=(project:string)=>`COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=${project}),'sentry')`;
 function releaseKeySql(release:string,order:string){
- const semantic=`(SELECT version_key FROM release_metadata WHERE project=${release}.project AND release=${release}.name)`;
+ const semantic=`(SELECT version_key FROM release_order_keys WHERE project=${release}.project AND release=${release}.name)`;
  return [
   `CASE WHEN ${order}='registered' THEN ${release}.seq ELSE 0 END`,
   `CASE WHEN ${order}='semver' AND ${semantic} IS NULL THEN 1 ELSE 0 END`,

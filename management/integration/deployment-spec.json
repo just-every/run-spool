@@ -312,6 +312,12 @@
       "name": "0051_safe_audit.sql",
       "sha256": "0d282c004611313e423af0c491097609682b35a84d59a0bd88f108c49e1d00b1",
       "sql": "-- Permanent facts have no native identity, credential, path, name or payload.\n-- Private bindings are deliberately separate and must be excluded from archives.\nCREATE TABLE audit_actor_links (\n kind TEXT NOT NULL,\n lookup_hash TEXT NOT NULL,\n label TEXT NOT NULL UNIQUE,\n owner_hash TEXT,\n project_hash TEXT,\n owner_id TEXT,\n project TEXT,\n created INTEGER NOT NULL,\n PRIMARY KEY(kind,lookup_hash)\n);\nCREATE INDEX audit_actor_links_owner ON audit_actor_links(owner_hash);\nCREATE INDEX audit_actor_links_project ON audit_actor_links(project_hash);\nCREATE TABLE spool_audit_events (\n sequence INTEGER PRIMARY KEY AUTOINCREMENT,\n id TEXT NOT NULL UNIQUE,\n created INTEGER NOT NULL CHECK(created>=0),\n source TEXT NOT NULL CHECK(source IN ('request','transaction','service','legacy')),\n actor_kind TEXT NOT NULL CHECK(actor_kind IN ('owner','agent','deploy','ingest','service','anonymous','unknown')),\n actor_label TEXT NOT NULL CHECK(length(actor_label)=38 AND substr(actor_label,1,6)='audit:'),\n action TEXT NOT NULL,\n subject_kind TEXT NOT NULL,\n subject_label TEXT NOT NULL CHECK(length(subject_label)=38 AND substr(subject_label,1,6)='audit:'),\n project_label TEXT CHECK(project_label IS NULL OR (length(project_label)=38 AND substr(project_label,1,6)='audit:')),\n outcome TEXT NOT NULL CHECK(outcome IN ('succeeded','accepted','suppressed','denied','conflict','invalid','failed','uncertain','started')),\n status INTEGER CHECK(status IS NULL OR (status>=100 AND status<=599))\n);\nCREATE INDEX spool_audit_events_project ON spool_audit_events(project_label,sequence);\nCREATE TRIGGER spool_audit_no_update BEFORE UPDATE ON spool_audit_events BEGIN SELECT RAISE(ABORT,'audit_immutable'); END;\nCREATE TRIGGER spool_audit_no_delete BEFORE DELETE ON spool_audit_events BEGIN SELECT RAISE(ABORT,'audit_immutable'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0052_release_order_cache.sql",
+      "sha256": "8f0cb67050123dc16335b08adff5a0375456942e2ee936aa8cb24165a5a2723e",
+      "sql": "-- Disposable derived keys must not create authoritative release metadata on reads.\nCREATE TABLE release_order_keys (\n project TEXT NOT NULL,\n release TEXT NOT NULL,\n version_key TEXT,\n PRIMARY KEY(project,release),\n FOREIGN KEY(project,release) REFERENCES releases(project,name) ON DELETE CASCADE\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

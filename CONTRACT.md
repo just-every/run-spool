@@ -44,7 +44,7 @@ Existing ERR-001 through ERR-010 and BASE-DATA-003 identities remain stable. Exp
 
   **Acceptance evidence:** Ingest privacy canaries and inspect stored events, issue views, packets, archives and delivery content; common secrets are removed while ordinary diagnostic content survives.
 
-- **ERR-004 — Separated authority.** Every private API/document checks the current owner session or its exact ingest, deploy or read-only project grant itself. Cookie writes enforce same origin. Revocation and identity fencing take effect on the next request; confidential maps are never public. Ingest cannot read, deploy can only register releases/upload artifacts, and read-only agent grants cannot mutate. TEAM-001 extends this model to collaborative membership without broadening existing credentials.
+- **ERR-004 — Separated authority.** Every private API/document checks the current owner session or its exact ingest, deploy or read-only project grant itself. Cookie writes enforce same origin. Revocation and identity fencing take effect on the next request; confidential maps are never public. Ingest cannot read, deploy can only register releases/upload artifacts and record deployment starts/callbacks, and read-only agent grants cannot mutate. TEAM-001 extends this model to collaborative membership without broadening existing credentials.
 
   **Acceptance evidence:** Call each private transport anonymously and with wrong-scope, foreign-project, revoked and fenced grants; denied writes change no state, and direct map URLs reveal no private bytes.
 
