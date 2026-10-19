@@ -1,3 +1,4 @@
+import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 export const alertArchiveTables=['alert_rules','alert_history'];
@@ -38,7 +39,7 @@ export function validateAlertArchive(data:any) {
    const r=rules.get(p.rule.id);assert(r?.project===a.project);integer(p.rule.revision,1);assert(p.rule.revision<=r.revision);
    integer(p.window.durationMs,60000);assert(p.window.durationMs<=86400000&&p.window.durationMs%60000===0);integer(p.window.threshold,2);integer(p.window.count,p.window.threshold);assert(p.window.count<=10000);
    const start=Date.parse(p.window.start),end=Date.parse(p.window.end);integer(start);assert(start%p.window.durationMs===0&&end-start===p.window.durationMs&&end===a.created&&new Date(start).toISOString()===p.window.start&&new Date(end).toISOString()===p.window.end);
-  } else {shape(p.release,['name','build','sequence']);assert(p.release.name===''?p.release.sequence===0&&typeof p.release.build==='string'&&/^[a-zA-Z0-9._:-]{1,100}$/.test(p.release.build):data.releases.some((r:any)=>r.project===a.project&&r.name===p.release.name&&(r.build===p.release.build||(data.release_builds??[]).some((b:any)=>b.project===a.project&&b.release===r.name&&b.build===p.release.build))&&r.seq===p.release.sequence));}
+  } else {shape(p.release,['name','build','sequence']);assert(p.release.name===''?p.release.sequence===0&&storedBuild(p.release.build)===p.release.build:data.releases.some((r:any)=>r.project===a.project&&r.name===p.release.name&&(r.build===p.release.build||(data.release_builds??[]).some((b:any)=>b.project===a.project&&b.release===r.name&&b.build===p.release.build))&&r.seq===p.release.sequence));}
  }
  const histories=new Set();
  for(const h of data.alert_history){
