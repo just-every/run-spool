@@ -125,5 +125,5 @@ try {
  assert.ok(!JSON.stringify(after).includes(canary));
  rows=await since(async()=>{await json('/api/projects','POST',{id:'audit-successor',name:'Successor'})});
  assert.notEqual(committed(rows,'project.create')[0].project_label,projectLabel,'AUDIT-001 a later project never inherits an erased alias');
- console.log('AUDIT-001 passed: atomic owner/deploy/ingest/runner transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, project erasure and 1440/390 history/export/error/denied/empty.');
+ console.log('AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.');
 } finally {await browser?.close();await target?.stop();await app.stop()}

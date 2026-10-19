@@ -32,6 +32,7 @@ await writeFile(harness,`
 import {withDevIdentity} from ${JSON.stringify(resolve('src/modules/operator-auth/dev/index.mjs'))};
 import {authConfig} from ${JSON.stringify(resolve('src/auth/session.server.ts'))};
 import api from ${JSON.stringify(resolve('src/domain/api.ts'))};
+import {wrapRequest} from ${JSON.stringify(resolve('src/domain/audit/request.ts'))};
 import {authenticationResponse} from ${JSON.stringify(resolve('src/auth/dispatch.server.ts'))};
 import {portability} from ${JSON.stringify(resolve('src/domain/portability.ts'))};
 import {exportArchive as legacyExport} from ${JSON.stringify(legacyFile)};
@@ -44,14 +45,15 @@ const application={async fetch(request,env,ctx){
   if(request.headers.get('x-test-storage-failure')==='yes'){
     const db=env.DB;
     const facade={prepare(sql){if(!sql.startsWith('SELECT 1 FROM credentials'))return db.prepare(sql);return {bind(){return {first(){throw new Error('D1_ERROR: synthetic storage read unavailable')}}}}},batch:db.batch.bind(db)};
-    return api.fetch(request,{...env,DB:facade},ctx);
+    return wrapRequest(request,{...env,DB:facade},()=>api.fetch(request,{...env,DB:facade},ctx));
   }
   if(request.headers.get('x-test-revoke-origin')==='yes'&&new URL(request.url).pathname.startsWith('/api/ingest/')){
     const db=env.DB;
     const facade={prepare(sql){const prepared=db.prepare(sql);if(sql!=='SELECT origin FROM browser_origins WHERE project=?')return prepared;return {bind(...args){const bound=prepared.bind(...args);return {async all(){const result=await bound.all();await db.prepare('DELETE FROM browser_origins WHERE project=? AND origin=?').bind(args[0],'http://127.0.0.1:15476').run();return result}}}}},batch:db.batch.bind(db)};
-    return api.fetch(request,{...env,DB:facade},ctx);
+    return wrapRequest(request,{...env,DB:facade},()=>api.fetch(request,{...env,DB:facade},ctx));
   }
-  return api.fetch(request,env,ctx);
+  // As in src/server.ts, every API request runs inside its audit scope.
+  return wrapRequest(request,env,()=>api.fetch(request,env,ctx));
 }};
 export default withDevIdentity(application,{config:authConfig});
 `);
