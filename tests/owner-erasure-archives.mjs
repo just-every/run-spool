@@ -13,7 +13,8 @@ import { runtime, restore } from './owner-erasure/helpers.mjs';
 // cannot sidestep the redaction fence. Recompute genuine archive checksums.
 async function capturedChildren(pre) {
  const events=pre.data.events;assert.ok(events.length);
- const manifest={...pre.manifest,tables:pre.manifest.tables.map(table=>({...table,count:table.name==='events'?events.length:0}))};
+ // Its safe-audit payload is dropped with the other rows; restore then treats it as a payload-free archive.
+ const manifest={...pre.manifest,payloads:[],tables:pre.manifest.tables.map(table=>({...table,count:table.name==='events'?events.length:0}))};
  const items=events.map((row,index)=>({kind:'row',table:'events',index,row,...manifest.tables.find(table=>table.name==='events').rowidAlias?{rowid:index+1}:{}}));
  const parts=[];for(let i=0;i<items.length;i+=200)parts.push(await makePart(parts.length,items.slice(i,i+200)));
  manifest.partCount=parts.length;

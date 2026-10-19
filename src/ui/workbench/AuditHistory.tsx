@@ -14,8 +14,8 @@ export function AuditHistory({request,run,busy}:{request:Request;run:Run;busy:bo
  const refresh=()=>perform(async()=>{const value=await request('/api/audit');setPage(value);setRows(value.rows);setStatus('Showing the latest organization history.');});
  return <section className="evidence" aria-labelledby="audit-history-heading">
   <h2 id="audit-history-heading">Organization audit</h2>
-  <p>Permanent action facts use private actor and subject aliases. Erasure removes their identity links.</p>
-  <p className="muted">Request entries describe HTTP responses. Transaction and service entries describe the facts recorded by those writers.</p>
+  <p>Permanent action facts use private actor and subject aliases. Erasure removes their identity links; archives carry the facts and a restore appends them after this installation's own.</p>
+  {page&&<p className="muted">{page.coverage}</p>}
   <div className="button-row">
    <button className="text-button" disabled={busy} onClick={refresh}>Refresh history</button>
    {page&&<><button className="text-button" disabled={busy} onClick={()=>perform(async()=>{const value=await request(`/api/audit/export?format=json&highWater=${page.highWater}`);download(value,'spool-audit.json');setStatus('JSON audit export prepared.');})}>Export JSON</button>

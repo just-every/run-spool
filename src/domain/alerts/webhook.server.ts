@@ -6,6 +6,8 @@ import { createWebhookProtocol } from '../../modules/integrations/core/webhook';
 import type { WireRequest } from '../../modules/integrations/core/types';
 import { authorizedDestination, destinationHash, findDestination, keyBytes } from './destinations.server';
 import { namespace, statement as s } from './types';
+import { auditSubject, serviceActor } from '../audit/identity';
+import { recordAudit } from '../audit/record';
 import type { AlertEnvironment, Intent } from './types';
 
 export function webhookService(env:AlertEnvironment,project:string,now:()=>number) {
@@ -40,7 +42,14 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
     JOIN alert_rules r ON r.id=i.rule_id AND r.project=i.project AND r.revision=i.rule_revision AND r.enabled=1 AND r.channel=i.channel AND r.destination=i.destination
     WHERE d.namespace=? AND d.id=? AND d.state='sending' AND d.claim=? AND d.claim_until>?`,namespace(project),intent.id,claim,now()).first<{claim_until:number}>();
    if(!authority||authority.claim_until<=now())throw new Error('delivery_authority');
-   return demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));
+   // The attempt is an effect outside this database: `started` before it, one outcome after.
+   const fact={source:'service' as const,actor:await serviceActor(env.DB,'webhook'),action:'notification.attempt' as const,subject:await auditSubject(env.DB,'delivery',intent.id)};
+   await recordAudit(env.DB,{...fact,outcome:'started'});
+   let response;
+   try{response=await demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));}
+   catch(error){await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error}
+   await recordAudit(env.DB,{...fact,outcome:response.status>=200&&response.status<300?'accepted':'failed'});
+   return response;
   }},
  });
 }

@@ -1,3 +1,4 @@
+import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
 import { regressionSql,newerReleaseSql } from './releases/order';
 import { readGroupingPolicy,groupingPolicyFence } from './grouping/policy';
@@ -30,7 +31,7 @@ function authority(c:any,scope:IngestScope){
   return stmt(c.env.DB,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL) AND (? IS NULL OR EXISTS(SELECT 1 FROM browser_origins WHERE project=? AND origin=?)) THEN 1 ELSE 0 END",scope.keyHash,scope.project,scope.foreign,scope.project,scope.foreign);
 }
 export async function ingestBatch(c:any,scope:IngestScope,jobs:D1PreparedStatement[]){
-  return c.env.DB.batch([authority(c,scope),inboundPolicyFence(c.env.DB,scope.project,scope.revision),...inboundDomainFences(c.env.DB,scope.project,scope.domain),...jobs,authority(c,scope),stmt(c.env.DB,'DELETE FROM spool_authority_guards')]);
+  return auditedBatch(c.env.DB,[authority(c,scope),inboundPolicyFence(c.env.DB,scope.project,scope.revision),...inboundDomainFences(c.env.DB,scope.project,scope.domain),...jobs,authority(c,scope),stmt(c.env.DB,'DELETE FROM spool_authority_guards')]);
 }
 export function outcomeStatement(db:D1Database,project:string,reason:string,count=1){return stmt(db,'INSERT INTO outcomes VALUES(?,?,?,?) ON CONFLICT(project,window,reason) DO UPDATE SET count=count+excluded.count',project,Math.floor(Date.now()/60000)*60000,reason,count)}
 export async function recordIngest(c:any,scope:IngestScope,reason:string,count=1){await ingestBatch(c,scope,[outcomeStatement(c.env.DB,scope.project,reason,count)])}

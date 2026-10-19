@@ -1,5 +1,6 @@
 import { AuthError } from '../modules/operator-auth/index.mjs';
 import type { ownerSession } from '../auth/session.server';
+import { auditContextStatements } from './audit/context';
 
 export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>;
 
@@ -14,7 +15,10 @@ const guard = (db: D1Database, session: OwnerSession) => db.prepare(`INSERT INTO
   AND o.status='active' AND o.role='owner') THEN 1 ELSE 0 END`).bind(session.id, session.operator.id, session.operator.version);
 
 export async function ownerBatch(db: D1Database, session: OwnerSession, statements: D1PreparedStatement[]) {
- try { return (await db.batch([guard(db, session), ...statements, guard(db, session), db.prepare('DELETE FROM spool_authority_guards')])).slice(1, -2); }
+ // The request's audit context opens and closes the batch: a journal row or an
+ // explicit commit inside it records the attributed fact in this transaction.
+ const [open, close] = auditContextStatements(db);
+ try { return (await db.batch([open, guard(db, session), ...statements, guard(db, session), db.prepare('DELETE FROM spool_authority_guards'), close])).slice(2, -3); }
  catch (error) { if (/CHECK constraint failed: ok=1/.test(String(error))) throw new AuthError('authority_changed', 409); throw error; }
 }
 

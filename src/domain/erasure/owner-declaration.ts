@@ -2,6 +2,7 @@ import { defineErasure, ErasureError } from '../../modules/erasure/index.mjs';
 import { capturePlan, captureStatements, ownerIdentifiers, ownerCaptureColumns, sqlQuote } from './owner-capture';
 import { portability } from '../portability';
 import { importCustodyRoots, unsupportedOwnerSurface } from './owner-scope';
+import { erasureCompletionFact } from './audit-fact';
 
 const child = (table: string, column = 'operator_id') => ({table,from:'oa_operators',on:{[column]:'id'}});
 const sessionChild = (table: string) => ({table,from:'oa_sessions',on:{session_id:'id'}});
@@ -70,7 +71,7 @@ export async function ownerDeclaration(db: D1Database) {
   const needles=await ownerIdentifiers(db,subject.id);
   // Also test JSON-decoded leaves: escaped Unicode must not evade completion. Under the plan's token rule every
   // whole-token occurrence is redacted and any other occurrence holds the plan, so none may remain at all.
-  return [...importCustodyRoots.map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)})`)),...Object.entries(ownerCaptureColumns).flatMap(([table,columns])=>columns.map(column=>guard(db,
+  return [await erasureCompletionFact(db),...importCustodyRoots.map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)})`)),...Object.entries(ownerCaptureColumns).flatMap(([table,columns])=>columns.map(column=>guard(db,
    `NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)} r WHERE EXISTS(SELECT 1 FROM json_each(?) n WHERE instr(CAST(r.${sqlQuote(column)} AS TEXT),n.value)>0 OR EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(r.${sqlQuote(column)}) THEN r.${sqlQuote(column)} ELSE 'null' END) j WHERE typeof(j.atom)='text' AND instr(j.atom,n.value)>0)))`,JSON.stringify(needles))))];
  },
  });

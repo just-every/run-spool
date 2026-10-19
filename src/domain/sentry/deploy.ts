@@ -1,3 +1,4 @@
+import { auditedBatch } from '../audit/context';
 import { deploymentActor } from '../deployments/actors';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { hash } from '../privacy.ts';
@@ -21,5 +22,5 @@ export async function authorizeDeploy(c:any,project:string):Promise<{actor:strin
   return {actor:await deploymentActor(c.env.DB,project,'deploy:'+digest),guard:()=>c.env.DB.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='deploy' AND revoked IS NULL AND ${mintedByCurrentPerson}) THEN 1 ELSE 0 END`).bind(digest,project)};
 }
 export async function deployBatch(c:any,authorization:{guard:()=>D1PreparedStatement},statements:D1PreparedStatement[]){
-  return c.env.DB.batch([authorization.guard(),...statements,authorization.guard(),c.env.DB.prepare('DELETE FROM spool_authority_guards')]);
+  return auditedBatch(c.env.DB,[authorization.guard(),...statements,authorization.guard(),c.env.DB.prepare('DELETE FROM spool_authority_guards')]);
 }

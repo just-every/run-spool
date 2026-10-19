@@ -47,6 +47,14 @@ try {
  for (const table of ['release_metadata', 'release_builds', 'release_policies', 'issue_resolutions']) assert.deepEqual(await rows(fresh, `SELECT * FROM "${table}"`), []);
  assert.deepEqual(await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name'), ledger, 'destination migration ledger remains intact');
  assert.deepEqual(await rows(fresh, "SELECT phase FROM rer_portability_jobs WHERE kind='import'"), [{phase: 'complete'}]);
+ // AUDIT-001: a previous format carries no safe history; any restored journal row gains one value-free legacy
+ // fact at its own time (tests/audit-history.mjs restores one with rows). The local restore is a service fact.
+ const journal = await rows(fresh, 'SELECT detail,created FROM audit ORDER BY created,id'), legacy = await rows(fresh, "SELECT * FROM spool_audit_events WHERE source='legacy' ORDER BY sequence");
+ assert.deepEqual(legacy.map(row => row.created), journal.map(row => row.created), 'AUDIT-001 restored journal chronology is kept, never rewritten');
+ assert.ok(legacy.every(row => row.actor_kind === 'unknown' && row.outcome === 'succeeded'));
+ for (const value of journal.flatMap(row => Object.values(JSON.parse(row.detail))).filter(value => typeof value === 'string' && value.length > 3)) assert.ok(!JSON.stringify(legacy).includes(value), 'AUDIT-001 legacy facts hold no journal value');
+ assert.deepEqual(await rows(fresh, "SELECT actor_kind,action FROM spool_audit_events WHERE source<>'legacy'"), [{actor_kind: 'service', action: 'archive.restore'}]);
+ assert.deepEqual(await rows(fresh, 'SELECT * FROM audit_restore_staging'), []);
  console.log('PASS old native archive restores into a fresh migrated target with all product rows and destination ledger intact');
 
  const occupied = await target('OCCUPIED');

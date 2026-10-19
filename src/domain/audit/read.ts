@@ -23,7 +23,7 @@ export async function auditPage(db: D1Database, encoded?: string, limit=50) {
  const rows=result.results.slice(0,limit).map(projectAuditRow),last=rows.at(-1);
  return {version:1,scope:'organization',rows,highWater:cursor.highWater,
   next:result.results.length>limit&&last?btoa(JSON.stringify({...cursor,before:last.sequence})):null,
-  coverage:'Request entries record HTTP outcomes. Transaction and service entries record the facts supplied by their writers.'};
+  coverage:'Request entries record HTTP outcomes, including denied and stale attempts. Transaction entries commit in the same database transaction as the change they describe. Service entries record background work, exports and notification attempts. Legacy entries keep the kind, time and project alias of journal rows written before attribution existed; their actor is unknown.'};
 }
 
 export async function auditExportPage(db: D1Database, highWater: number, after=0) {

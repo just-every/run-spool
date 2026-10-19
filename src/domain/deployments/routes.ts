@@ -8,6 +8,7 @@ import { jsonBody } from '../owner-router';
 import { findDestination } from '../alerts/destinations.server';
 import { sender } from '../alerts/mail';
 import { startInput,stepInput } from './input';
+import { auditCommit } from '../audit/context';
 const routes=new Hono<{Bindings:Bindings}>();
 const s=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 routes.get('/:project/deployments',async c=>{
@@ -29,6 +30,7 @@ routes.post('/:project/deployments',async c=>{
   s(db,'INSERT INTO deployment_runs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)',project,input.id,release,input.build,input.environment,input.repository,input.commit_sha,input.previous_commit,input.included_commits,input.deployed_at,input.deadline,input.destination,auth.actor,time),
   s(db,"INSERT INTO deployment_steps VALUES(?,?, 'start',1,'started',0,NULL,?,?,?,?)",project,input.id,input.deployed_at,time,auth.actor,digest),
   s(db,'UPDATE release_metadata SET auto_created=0 WHERE project=? AND release=?',project,release),
+  auditCommit(db),
  ]);
  return c.json({id:input.id},201);
 });
@@ -46,6 +48,7 @@ routes.post('/:project/deployments/:deployment/callbacks',async c=>{
  try{await deployBatch(c,auth,[
   s(db,'INSERT INTO spool_authority_guards SELECT CASE WHEN (SELECT MAX(sequence) FROM deployment_steps WHERE project=? AND deployment=?)=? THEN 1 ELSE 0 END',project,id,last.sequence),
   s(db,'INSERT INTO deployment_steps VALUES(?,?,?,?,?,?,?,?,?,?,?)',project,id,input.callback,last.sequence+1,input.state,input.exposure,input.rollback_release,input.occurred,Date.now(),auth.actor,digest),
+  auditCommit(db),
  ]);}catch(e){if(/constraint/.test(String(e))){const retry=await s(db,'SELECT digest FROM deployment_steps WHERE project=? AND deployment=? AND callback=?',project,id,input.callback).first<any>();if(retry?.digest===digest){await deployBatch(c,auth,[]);return c.json({id,duplicate:true})}return c.json({error:'Deployment changed; refresh history'},409)}throw e}
  return c.json({id,state:input.state});
 });

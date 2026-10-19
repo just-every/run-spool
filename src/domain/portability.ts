@@ -1,4 +1,4 @@
-import { safeAuditExcludedTables } from './audit/archive';
+import { safeAuditExcludedTables, auditPayload, SAFE_AUDIT_PAYLOAD } from './audit/archive';
 import { deploymentTables,deploymentExportRow } from './deployments/archive';
 import { releaseTables } from './releases/archive';
 import { groupingTables } from './grouping/archive';
@@ -35,13 +35,17 @@ export const portabilityPolicy = {
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
-export async function portability(db: D1Database) {
- const service = await createPortability({ db, policy: portabilityPolicy });
+// Current archives carry the safe audit chronology as a payload. Previous
+// formats have none; restoring one uses the payload-free policy, and the
+// restore commit gives its journal rows legacy facts instead.
+export async function portability(db: D1Database, safeAudit = true) {
+ const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
+ const service = await createPortability({ db, policy });
  return { ...service, db, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
-   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...portabilityPolicy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
+   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
    return checked.imports.finalize(id, options);
   },
  } };
@@ -107,6 +111,9 @@ laterTables.unshift({tables:[],migrations:['0051_safe_audit.sql']});
 // Derived release ordering is rebuilt after restore and excluded from archives.
 for(const later of laterTables)later.migrations.push('0052_release_order_cache.sql');
 laterTables.unshift({tables:[],migrations:['0052_release_order_cache.sql']});
+// 0053 adds only excluded audit context, staging and legacy-action tables.
+for(const later of laterTables)later.migrations.push('0053_audit_transactions.sql');
+laterTables.unshift({tables:[],migrations:['0053_audit_transactions.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -147,8 +154,8 @@ async function templateManifest(service:any){
  let manifest:any;for await(const record of readArchive(await archiveStream(service)))if(record.kind==='manifest')manifest=record;
  return manifest;
 }
-async function legacyRecords(service: any, value: unknown) {
- const legacy=await validateArchive(value);
+async function legacyRecords(input: any, value: unknown) {
+ const service=await portability(input.db,false),legacy=await validateArchive(value);
  const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
@@ -189,11 +196,14 @@ export async function restoreStream(service: any, source: ReadableStream<Uint8Ar
  // Only a current or later-additive archive carries the journal identity a later archive can extend.
  if(laterJournal&&(first?.kind!=='manifest'||isPreviousSchema(first.schema)))throw new PortabilityError('later_journal');
  if(first?.kind==='manifest'&&isPreviousSchema(first.schema)){
-  const previous=await readPreviousArchive(input);
-  const normalized=await normalizePreviousArchive(previous,await templateManifest(service));
-  return restoreRows(service,normalized.data,normalized.manifest);
+  const previous=await readPreviousArchive(input),legacy=await portability(service.db,false);
+  const normalized=await normalizePreviousArchive(previous,await templateManifest(legacy));
+  return restoreRows(legacy,normalized.data,normalized.manifest);
  }
- if (first?.kind === 'manifest') return importRecords(service, input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
+ if (first?.kind === 'manifest') {
+  const carried = Array.isArray(first.payloads) && first.payloads.some((payload: any) => payload?.name === SAFE_AUDIT_PAYLOAD);
+  return importRecords(carried ? service : await portability(service.db, false), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
+ }
  const legacyReader = input.getReader(); let count = 0, text = ''; const decoder = new TextDecoder();
  try {
   for (;;) { const next = await legacyReader.read(); if (next.done) break; count += next.value.length; if (count > 16 * 1024 * 1024) throw new Error('Legacy archive exceeds 16 MiB'); text += decoder.decode(next.value, { stream: true }); }

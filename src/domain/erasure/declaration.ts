@@ -1,4 +1,5 @@
 import { defineErasure } from '../../modules/erasure/index.mjs';
+import { erasureCompletionFact } from './audit-fact';
 
 // BASE-DATA-003 project erasure. The selected project and every row that
 // depends on it are deleted through Base erasure, so each deleted row also gets
@@ -44,7 +45,7 @@ export const projectErasure = defineErasure({
  ],
  // One erasure at a time, so pending audit entries always get their own label.
  hold: async ({ db }) => await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,
- statements: async ({ db, label }) => [db.prepare('UPDATE audit SET detail=json_object(\'erasure\',?) WHERE project IS NULL AND detail=?').bind(label, ERASED_AUDIT_PENDING)],
+ statements: async ({ db, label }) => [db.prepare('UPDATE audit SET detail=json_object(\'erasure\',?) WHERE project IS NULL AND detail=?').bind(label, ERASED_AUDIT_PENDING), await erasureCompletionFact(db)],
 });
 
 // Exceptions that are not tables: shown in the preview and the receipt.

@@ -14,7 +14,7 @@ const predicates = {
  artifacts: 'created<? AND NOT EXISTS(SELECT 1 FROM events WHERE events.project=artifacts.project AND events.release=artifacts.release AND events.build=artifacts.build)',
 };
 const transferInventory = "SELECT json_group_array(name) AS inventory FROM (SELECT name FROM sqlite_master WHERE type='table' AND (name GLOB 'rer_portability_snap_*' OR name GLOB 'rer_portability_stage_*') ORDER BY name)";
-async function erase(db: D1Database, source: string, table: OccurrenceTable, rows: Candidate[], project: string, cutoff: number, auditId: string) {
+async function erase(db: D1Database, source: string, table: OccurrenceTable, rows: Candidate[], project: string, cutoff: number) {
  const jobs: D1PreparedStatement[] = [];
  const match = occurrenceKeys[table].map(key => `${table}.${key}=json_extract(candidate.value,'$.${key}')`).join(' AND ');
  const eligible = `project=? AND ${predicates[table]}`;
@@ -31,7 +31,6 @@ async function erase(db: D1Database, source: string, table: OccurrenceTable, row
    ...withdrawAlertEvidence(db, project, cutoff, encoded, Date.now()),
    statement(db, `DELETE FROM sentry_import_targets WHERE kind='event' AND EXISTS(SELECT 1 FROM events WHERE ${eligible} AND sentry_import_targets.id=json_array(events.project,events.id) AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match}))`,project,cutoff,encoded));
   jobs.push(statement(db, `DELETE FROM ${table} WHERE ${eligible} AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE ${match})`, project, cutoff, encoded));
-  if (table === 'events') jobs.push(statement(db, "UPDATE audit SET detail=json_set(detail,'$.removed',json_extract(detail,'$.removed')+changes()) WHERE id=?", auditId));
  }
  return jobs;
 }
@@ -54,8 +53,8 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  }
  const copies = await db.prepare(transferInventory).first<{ inventory: string }>();
  const invalidation = await transfer.invalidateTransfersStatements();
- const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff, auditId);
- const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, cutoff, auditId);
+ const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff);
+ const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, cutoff);
  const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, cutoff, Date.now());
  const feedbackJobs = await feedbackRetentionStatements(db, before.source_identity, project, cutoff);
  // The source/epoch guard rejects a competing restore or retention. Each journal
@@ -67,11 +66,14 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   // rows. If transfer custody changed after discovery, the whole apply retries.
   guard(db, `(${transferInventory})=?`, copies!.inventory),
   ...invalidation,
-  statement(db, "INSERT INTO audit VALUES(?,?,'retention_gap',?,?)", auditId, project, JSON.stringify({ cutoff, removed: 0, dedupHorizon: cutoff }), Date.now()),
+  // The journal row is written once and never revised: it counts the events
+  // this batch removes, and the guard after the deletions proves none remain.
+  statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',(SELECT COUNT(*) FROM events WHERE project=? AND received<?),'dedupHorizon',?),?", auditId, project, cutoff, project, cutoff, cutoff, Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...feedbackJobs,
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
+  guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),
   ...headlines, ...mapJobs, ...exposureJobs,
   db.prepare('UPDATE rer_portability_state SET epoch=epoch+1 WHERE id=1'),
   db.prepare('INSERT INTO rer_portability_epochs SELECT source_identity,epoch FROM rer_portability_state WHERE id=1 ON CONFLICT(source) DO UPDATE SET epoch=MAX(epoch,excluded.epoch)'),
