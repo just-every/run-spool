@@ -1,3 +1,4 @@
+import type { CategoryFields } from '../filters/categories';
 import { canonical, hash, scrub } from '../privacy';
 import { SentryWireError, type WireObject } from '../sentry/wire';
 
@@ -7,7 +8,7 @@ export const feedbackCoverage = {
  discarded: ['contact', 'name', 'url', 'screenshots', 'attachments', 'other_metadata'],
  association: 'Only an event retained when feedback arrives can be attached; unknown references are never reassociated.',
 };
-export type FeedbackInput = { id: string; message: string; eventId: string | null; digest: string };
+export type FeedbackInput = CategoryFields & { id: string; message: string; eventId: string | null; digest: string };
 const eventId = (value: unknown): string => {
  if (typeof value !== 'string' || !/^[a-fA-F0-9]{32}$/.test(value)) throw new SentryWireError('invalid_feedback_event_id', 422);
  return value.toLowerCase();
@@ -33,5 +34,5 @@ export async function feedbackInput(raw: WireObject, kind: 'feedback' | 'user_re
  if (message.length > feedbackLimits.message) throw new SentryWireError('feedback_message_too_large', 413);
  const clean = scrub(message);
  if (!clean.trim()) throw new SentryWireError('invalid_feedback_message', 422);
- return { id, eventId: reference, message: clean, digest: await hash(canonical({ kind, value: raw })) };
+ return { id, eventId: reference, message: clean, browser: raw.contexts?.browser, urls: [raw.request?.url, raw.contexts?.feedback?.url].filter((url): url is string => typeof url === 'string'), ...(typeof raw.release === 'string' ? { release: raw.release } : {}), ...(typeof raw.environment === 'string' ? { environment: raw.environment } : {}), digest: await hash(canonical({ kind, value: raw })) };
 }

@@ -7,8 +7,10 @@ const uaRules: [BrowserName, RegExp][] = [
 ];
 const names: Record<string, BrowserName> = { chrome: 'chrome', chromium: 'chrome', firefox: 'firefox', safari: 'safari', 'mobile safari': 'safari', edge: 'edge', 'microsoft edge': 'edge', ie: 'ie', 'internet explorer': 'ie', opera: 'opera', 'samsung internet': 'samsung', samsung: 'samsung' };
 export function legacyBrowser(event: InboundEvent, userAgent: string, rules: LegacyBrowserRule[]): boolean {
- const value = event.sentry?.contexts?.browser;
- const context=value&&typeof value==='object'&&!Array.isArray(value)?value:undefined;
+ return legacyBrowserMetadata(userAgent, rules, event.sentry?.contexts?.browser);
+}
+export function legacyBrowserMetadata(userAgent: string, rules: LegacyBrowserRule[], value?: unknown): boolean {
+ const context=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string, unknown>:undefined;
  let browser: { name: BrowserName; version: string } | undefined;
  if (typeof context?.name === 'string' && names[context.name.toLowerCase()] && typeof context.version === 'string' && /^\d+(?:\.\d+)*$/.test(context.version)) browser = { name: names[context.name.toLowerCase()], version: context.version };
  if (!browser) for (const [name, pattern] of uaRules) {

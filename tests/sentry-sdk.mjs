@@ -1,3 +1,4 @@
+import { sdkInboundFilterFlow } from './inbound-filter-flow.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
@@ -25,7 +26,7 @@ try{
   const project=await request('/api/projects','POST',{id:'sdk',name:'SDK compatibility'});
   const deploy=await request('/api/projects/sdk/keys','POST',{kind:'deploy'});
   const sdkConfig={release:'browser@1.0.0',dist:'build-1',environment:'compatibility'};
-  const source=`import * as Sentry from '@sentry/browser';\nSentry.init({dsn:globalThis.__DSN__,...${JSON.stringify(sdkConfig)}});\nwindow.__SDK_READY__=true;\nwindow.sendFeedback=(message,associatedEventId)=>{Sentry.captureFeedback({message,associatedEventId,name:'Private Feedback Name',email:'feedback-private@example.com'});return Sentry.flush(10000)};\ndocument.querySelector('button').onclick=()=>setTimeout(function checkout(){\n  const account={};\n  return account.address.city;\n},0);\n`;
+  const source=`import * as Sentry from '@sentry/browser';\nSentry.init({dsn:globalThis.__DSN__,...${JSON.stringify(sdkConfig)}});\nwindow.__SDK_READY__=true;\nwindow.sendFilterError=(message)=>{Sentry.captureException(new Error(message));return Sentry.flush(10000)};\nwindow.sendFeedback=(message,associatedEventId)=>{Sentry.captureFeedback({message,associatedEventId,name:'Private Feedback Name',email:'feedback-private@example.com'});return Sentry.flush(10000)};\ndocument.querySelector('button').onclick=()=>setTimeout(function checkout(){\n  const account={};\n  return account.address.city;\n},0);\n`;
   const expectedLine=source.split('\n').findIndex(line=>line.includes('return account.address.city'))+1;
   const entry=resolve(temporary,'checkout.js'),bundle=resolve(temporary,'app.js');await writeFile(entry,source);
   process.env.SPOOL_FIXTURE_DEPLOY_KEY=deploy.key;
@@ -73,6 +74,7 @@ try{
     const feedback=await request('/api/projects/sdk/feedback');assert.ok(feedback.items.some(row=>row.eventId===captured.id&&row.issueId===issue.id));assert.ok(!JSON.stringify(feedback).includes('feedback-private@example.com'));assert.ok(!JSON.stringify(feedback).includes('Private Feedback Name'));
     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await context.close();
   }
+  await sdkInboundFilterFlow({request,origin,browser,temporary,require,applicationOrigin,dsns});
   const nodeEntry=resolve(temporary,'node-client.mjs');
   // This exact program/config runs twice. Only the DSN environment value differs.
   await writeFile(nodeEntry,`import * as Sentry from ${JSON.stringify(require.resolve('@sentry/node'))};\nSentry.init({dsn:process.env.FIXTURE_DSN,release:'node@1.0.0',dist:'node-build',environment:'compatibility'});\nSentry.setContext('sized',{value:'x'.repeat(40000)});\ntry{const account={};account.address.city}catch(error){const eventId=Sentry.captureException(error);await Sentry.flush(10000);Sentry.captureFeedback({message:'Node checkout feedback',associatedEventId:eventId,email:'node-feedback-private@example.com'})}\nconst flushed=await Sentry.flush(10000);await Sentry.close(10000);if(!flushed)process.exitCode=1;\n`);

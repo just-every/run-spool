@@ -24,6 +24,7 @@ export function InboundFilters({project,request,run,busy}:{project:string;reques
   <p>New-project defaults: {current.defaultOnFilters.map((id:string)=>current.filters.find((f:any)=>f.id===id)?.label).join(', ')}. Each can be turned off.</p>
   <p className="muted">Last 24 hours · {total('accepted')} accepted · {total('filtered')} filtered. Per-filter matches can overlap; filtered events never enter accepted usage.</p>
   <p>{current.patternSyntax}</p>
+  <details><summary>Filters by accepted category and unavailable fields</summary>{Object.entries<string>(current.categoryFilterCoverage).map(([category,description])=><p key={category}><strong>{category}</strong>: {description}</p>)}</details>
   {current.filters.map((filter:any)=>{const value=draft.filters[filter.id],list='values' in value;return <fieldset key={filter.id} className="filter-policy"><legend>{filter.label}</legend>
    <label className="checkbox"><input type="checkbox" checked={value.enabled} disabled={busy} onChange={e=>change(filter.id,{enabled:e.target.checked})}/> Enable {filter.label.toLowerCase()}</label>
    <p className="muted">{filter.recentMatches} recent matches{preview?` · Preview: ${preview.counts[filter.id]?.matches??0} matches; ${preview.counts[filter.id]?.unavailable??0} with unavailable evidence`:''}</p>

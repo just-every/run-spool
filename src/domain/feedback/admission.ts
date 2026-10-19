@@ -1,3 +1,4 @@
+import { filterCategory } from '../filters/categories';
 import { ingestBatch, ingestFailure, outcomeStatement, recordIngest, stmt, type IngestScope } from '../admission';
 import { tombstone } from '../../modules/portability/journal.mjs';
 import { state } from '../../modules/portability/storage.mjs';
@@ -11,6 +12,8 @@ export async function admitFeedback(c: any, scope: IngestScope, input: FeedbackI
   return c.json({ id: input.id, outcome: same ? 'duplicate' : 'conflict', coverage: feedbackCoverage }, same ? 200 : 409);
  };
  try {
+  const filters = await filterCategory(c, scope, input);
+  if (filters.length) return c.json({ id: input.id, outcome: 'filtered', filters, coverage: feedbackCoverage }, 202);
   const existing = await stmt(db, 'SELECT digest FROM feedback WHERE project=? AND id=?', project, input.id).first();
   if (existing) return duplicate(existing);
   const before = await state(db), key = await tombstone(before.source_identity, 'feedback', { project, id: input.id });

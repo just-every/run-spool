@@ -1,3 +1,4 @@
+import { categoryFilterCoverage } from './categories';
 import {hash,canonical} from '../privacy.ts';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerProjectRouter, ownerWrites, jsonBody } from '../owner-router.ts';
@@ -18,7 +19,7 @@ inboundFilterRoutes.get('/', async c => {
  const [snapshot, counts] = await Promise.all([readInboundPolicy(c.env.DB, project), recentInboundCounts(c.env.DB, project, since)]);
  return c.json({ ...snapshot, defaults: defaultInboundPolicy(), defaultOnFilters,
   filters: filterIds.map(id => ({ id, label: filterLabels[id], recentMatches: counts[id] })),
-  recentSince: since, browsers: browserNames, crawlerCatalogue, crawlerCatalogueUpdated,
+  categoryFilterCoverage, recentSince: since, browsers: browserNames, crawlerCatalogue, crawlerCatalogueUpdated,
   patternSyntax: 'Only * is a wildcard. Message patterns ignore case; releases and environments preserve case. Browser maximum versions include the specified version family. Wildcard domains match subdomains, not the apex. Legacy exact origins remain allowed.',
  });
 });
