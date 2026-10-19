@@ -294,6 +294,24 @@
       "name": "0048_import_door_scopes.sql",
       "sha256": "e212aeab4df11ed08f8ed0181c3be7bbae8d48e33b0f5f733705ce8f3556e04d",
       "sql": "-- import-kit importDoorScopesMigration (rer 0.2.61): binds each logical door namespace\n-- to its product destination.\nCREATE TABLE IF NOT EXISTS ik_door_scopes (\n    installation_id TEXT NOT NULL, namespace TEXT NOT NULL, destination TEXT NOT NULL,\n    PRIMARY KEY(installation_id,namespace));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0049_deployment_history.sql",
+      "sha256": "54148e4a42ed8b12e6a73974eac8cd0344d87692a2e41ecd01c54d2a6c8ab231",
+      "sql": "CREATE TABLE deployment_actors (project TEXT NOT NULL, authority TEXT NOT NULL, label TEXT NOT NULL UNIQUE, PRIMARY KEY(project,authority));\nCREATE TABLE deployment_runs (\n project TEXT NOT NULL REFERENCES projects(id), id TEXT NOT NULL, release TEXT NOT NULL,\n build TEXT NOT NULL, environment TEXT NOT NULL, repository TEXT NOT NULL, commit_sha TEXT NOT NULL,\n previous_commit TEXT, included_commits TEXT NOT NULL, started_at INTEGER NOT NULL, deadline INTEGER NOT NULL,\n destination TEXT NOT NULL, actor TEXT NOT NULL, created INTEGER NOT NULL, historical INTEGER NOT NULL DEFAULT 0,\n PRIMARY KEY(project,id), FOREIGN KEY(project,release) REFERENCES releases(project,name)\n);\nCREATE TABLE deployment_steps (\n project TEXT NOT NULL, deployment TEXT NOT NULL, callback TEXT NOT NULL, sequence INTEGER NOT NULL,\n state TEXT NOT NULL CHECK(state IN ('started','progress','succeeded','failed','timed_out','rolled_back')),\n exposure INTEGER NOT NULL CHECK(exposure BETWEEN 0 AND 100), rollback_release TEXT,\n occurred INTEGER NOT NULL, recorded INTEGER NOT NULL, actor TEXT NOT NULL, digest TEXT NOT NULL,\n PRIMARY KEY(project,deployment,callback), UNIQUE(project,deployment,sequence),\n FOREIGN KEY(project,deployment) REFERENCES deployment_runs(project,id)\n);\nCREATE TABLE deployment_notices (\n project TEXT NOT NULL, deployment TEXT NOT NULL, state TEXT NOT NULL,\n created INTEGER NOT NULL, updated INTEGER NOT NULL,\n PRIMARY KEY(project,deployment), FOREIGN KEY(project,deployment) REFERENCES deployment_runs(project,id)\n);\nCREATE INDEX deployment_due ON deployment_runs(historical,deadline,project,id);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0050_release_order_keys.sql",
+      "sha256": "3fb9e5a9dd1e0639973edd97e077872d07e4c5faebebd8834099c28cbf5d8db4",
+      "sql": "-- Older cached keys included build metadata and did not preserve every semver\n-- prerelease ordering. Runtime reindexes keys before reading/comparing releases.\nUPDATE release_metadata SET version_key=NULL;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0051_safe_audit.sql",
+      "sha256": "0d282c004611313e423af0c491097609682b35a84d59a0bd88f108c49e1d00b1",
+      "sql": "-- Permanent facts have no native identity, credential, path, name or payload.\n-- Private bindings are deliberately separate and must be excluded from archives.\nCREATE TABLE audit_actor_links (\n kind TEXT NOT NULL,\n lookup_hash TEXT NOT NULL,\n label TEXT NOT NULL UNIQUE,\n owner_hash TEXT,\n project_hash TEXT,\n owner_id TEXT,\n project TEXT,\n created INTEGER NOT NULL,\n PRIMARY KEY(kind,lookup_hash)\n);\nCREATE INDEX audit_actor_links_owner ON audit_actor_links(owner_hash);\nCREATE INDEX audit_actor_links_project ON audit_actor_links(project_hash);\nCREATE TABLE spool_audit_events (\n sequence INTEGER PRIMARY KEY AUTOINCREMENT,\n id TEXT NOT NULL UNIQUE,\n created INTEGER NOT NULL CHECK(created>=0),\n source TEXT NOT NULL CHECK(source IN ('request','transaction','service','legacy')),\n actor_kind TEXT NOT NULL CHECK(actor_kind IN ('owner','agent','deploy','ingest','service','anonymous','unknown')),\n actor_label TEXT NOT NULL CHECK(length(actor_label)=38 AND substr(actor_label,1,6)='audit:'),\n action TEXT NOT NULL,\n subject_kind TEXT NOT NULL,\n subject_label TEXT NOT NULL CHECK(length(subject_label)=38 AND substr(subject_label,1,6)='audit:'),\n project_label TEXT CHECK(project_label IS NULL OR (length(project_label)=38 AND substr(project_label,1,6)='audit:')),\n outcome TEXT NOT NULL CHECK(outcome IN ('succeeded','accepted','suppressed','denied','conflict','invalid','failed','uncertain','started')),\n status INTEGER CHECK(status IS NULL OR (status>=100 AND status<=599))\n);\nCREATE INDEX spool_audit_events_project ON spool_audit_events(project_label,sequence);\nCREATE TRIGGER spool_audit_no_update BEFORE UPDATE ON spool_audit_events BEGIN SELECT RAISE(ABORT,'audit_immutable'); END;\nCREATE TRIGGER spool_audit_no_delete BEFORE DELETE ON spool_audit_events BEGIN SELECT RAISE(ABORT,'audit_immutable'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
