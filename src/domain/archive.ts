@@ -1,3 +1,4 @@
+import { storedBuild } from './releases/build';
 import { deploymentTables,deploymentDefaults,validateDeploymentArchive } from './deployments/archive';
 import { releaseIdentity } from './releases/identity';
 import { releaseTables,releaseDefaults,releaseOutcomes,validateReleaseArchive } from './releases/archive';
@@ -70,7 +71,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
     for(const row of data[table]){shape(row,fields);if(Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.entries(row).some(([key,x])=>typeof x==='string'&&x.length>(table==='events'&&key==='payload'?4*1024*1024:300000)))throw new Error('Archive row shape');}
   }
   for(const row of v.data.projects){safeText(row.name);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive timestamp');}
-  for(const row of v.data.releases){releaseIdentity(row.name);identity(row.build,'build');if(!Number.isSafeInteger(row.seq)||row.seq<1)throw new Error('Archive release ordering');}
+  for(const row of v.data.releases){releaseIdentity(row.name);storedBuild(row.build);if(!Number.isSafeInteger(row.seq)||row.seq<1)throw new Error('Archive release ordering');}
   const projects=new Set(v.data.projects.map((r:any)=>identity(r.id,'project')));
   const issues=new Map(v.data.issues.map((r:any)=>[r.id,r]));
   const releases=new Map(v.data.releases.map((r:any)=>[r.project+':'+r.name,r]));

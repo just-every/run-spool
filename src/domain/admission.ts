@@ -91,7 +91,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       ...admissionAlerts(db,{alertId,project,issue,eventId:event.eventId,occurrence,release:event.release,build:event.build,sequence:0,time,origin:c.env.ALERT_PUBLIC_ORIGIN??c.env.AUTH_ORIGIN}),
       rememberUnsuppressedCapture(db,project,issue,event.eventId,occurrence,time),
       stmt(db,`UPDATE issues AS i SET count=count+1,last_seen=?,revision=revision+1,state=CASE WHEN state='resolved' AND EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()} AND NOT EXISTS(SELECT 1 FROM event_suppressions receipt WHERE receipt.project=incoming.project AND receipt.event=incoming.id AND receipt.occurrence=incoming.occurrence)) THEN 'open' ELSE state END WHERE id=?`,time,event.eventId,occurrence,issue),
-      stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode='current' AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
+      stmt(db,"UPDATE issue_resolutions SET seen_without_release=seen_without_release+1 WHERE project=? AND issue=? AND mode IN ('current','next','named') AND EXISTS(SELECT 1 FROM issues WHERE id=? AND state='resolved') AND ?=''",project,issue,issue,event.release),
       ...prepared.notes!.map(note=>outcomeStatement(db,project,'sentry_release_'+note)),
       outcomeStatement(db,project,'accepted'),
       ...sentryTrimming(db,project,event),

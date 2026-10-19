@@ -1,4 +1,5 @@
 import { identity } from '../privacy';
+import { storedBuild } from '../releases/build';
 import { deploymentInput } from '../operators/validation';
 export function timestamp(value:unknown) {
  const time=typeof value==='string'?Date.parse(value):NaN;
@@ -7,7 +8,7 @@ export function timestamp(value:unknown) {
 }
 export function startInput(b:any) {
  const manifest=deploymentInput({commitSha:b.commitSha,repository:b.repository,environment:b.environment,deployedAt:b.startedAt});
- const id=identity(b.id,'deployment'),build=identity(b.build,'build'),deadline=timestamp(b.deadline);
+ const id=identity(b.id,'deployment'),build=storedBuild(b.build),deadline=timestamp(b.deadline);
  if(deadline<manifest.deployed_at)throw new Error('Deadline must follow deployment start');
  const previous=b.previousCommit??null,commits=b.includedCommits;
  if(previous!==null&&!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(previous))throw new Error('Full previous commit SHA required');
