@@ -7,7 +7,7 @@ import { otlpFlow } from './otlp-flow.mjs';
 import { feedbackFlow } from './feedback-flow.mjs';
 import { clientReportFlow } from './client-report-flow.mjs';
 import assert from 'node:assert/strict';
-import { gzipSync } from 'node:zlib';
+import { gzipSync, deflateSync } from 'node:zlib';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 const worker=await startTestWorker(15522),{origin}=worker;
@@ -42,6 +42,27 @@ try{
   const counted=await json('/api/projects/wire/outcomes');for(const reason of ['sentry_unsupported_attachment','sentry_unsupported_session','sentry_unsupported_unknown'])assert.ok(counted.rows.some(row=>row.reason===reason));
   const gzip=gzipSync(Buffer.from(envelope({...event,event_id:'b'.repeat(32),extra:{value:'x'.repeat(40000)}})));assert.equal((await req(path,'POST',gzip,{'Content-Encoding':'gzip'})).status,200);
   assert.equal((await req(path,'POST',gzipSync(Buffer.alloc(1048577)),{'Content-Encoding':'gzip'})).status,413);
+  // SDK-011: compressed transports, attributable refusals and malformed-item isolation.
+  const deflated={...event,event_id:'f'.repeat(32),exception:{values:[{type:'DeflateError',value:'Checkout failed after deflate transport',stacktrace:event.exception.values[0].stacktrace}]}};
+  assert.equal((await req(path,'POST',deflateSync(Buffer.from(envelope(deflated))),{'Content-Encoding':'deflate'})).status,200,'SDK-011 accepts deflate');
+  assert.ok((await json('/api/projects/wire/issues')).some(issue=>issue.title.includes('DeflateError')),'SDK-011 deflate creates an issue');
+  assert.equal((await req(path,'POST',deflateSync(Buffer.alloc(1048577)),{'Content-Encoding':'deflate'})).status,413,'SDK-011 bounds expanded deflate');
+  for(const [unsupportedPath,auth] of [[path,{}],[`/api/${alias}/envelope/`,{'X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${key}`}]] ) {
+    const response=await req(unsupportedPath,'POST','unread body',{'Content-Encoding':'snappy',...auth});
+    assert.equal(response.status,415,'SDK-011 unsupported encoding');assert.equal(response.headers.get('X-Sentry-Error'),'unsupported_content_encoding');
+    const result=await response.json();assert.equal(result.reason,'unsupported_content_encoding');assert.equal(result.encoding,'snappy','SDK-011 names the encoding');
+  }
+  const encodingCount=async()=>((await json('/api/projects/wire/outcomes')).rows.find(row=>row.reason==='unsupported_content_encoding')?.count??0);
+  assert.equal(await encodingCount(),2,'SDK-011 counts query and header authorized 415s');
+  assert.equal((await req(`/api/${alias}/envelope/?sentry_key=wrong&sentry_version=7`,'POST','unread body',{'Content-Encoding':'snappy'})).status,401);
+  assert.equal(await encodingCount(),2,'SDK-011 invalid grants cannot attribute an outcome');
+  const acceptedCount=async()=>((await json('/api/projects/wire/outcomes')).rows.find(row=>row.reason==='accepted')?.count??0),beforeMixed=await acceptedCount();
+  const companion={...deflated,event_id:'9'.repeat(32)},mixed='{}\n'+JSON.stringify({type:'event',length:7})+'\nnotJSON\n'+JSON.stringify({type:'event'})+'\n'+JSON.stringify(companion);
+  const isolated=await req(path,'POST',mixed);assert.equal(isolated.status,200,'SDK-011 accepts the valid companion');
+  const isolatedResult=await isolated.json();assert.equal(isolatedResult.id,companion.event_id);assert.equal(isolatedResult.dropped.invalid_item,1,'SDK-011 names only the malformed item');
+  assert.equal(await acceptedCount(),beforeMixed+1,'SDK-011 malformed item consumes no accepted units');
+  assert.equal((await json('/api/projects/wire/outcomes')).rows.find(row=>row.reason==='invalid_item').count,1,'SDK-011 counts malformed item refusal');
+
   assert.equal((await req(`/api/${alias}/store/`,'POST',{...event,event_id:'d'.repeat(32)},{Cookie:'','X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${key}`})).status,200,'legacy JSON store uses the same admission');
   const conflictingDsn=JSON.stringify({dsn:new URL(other.dsn).toString().replace(new URL(other.dsn).pathname,`/${alias}`)})+'\n'+JSON.stringify({type:'event'})+'\n'+JSON.stringify({...event,event_id:'e'.repeat(32)});assert.equal((await req(path,'POST',conflictingDsn)).status,401,'envelope DSN cannot mask a conflicting query key');
   assert.equal((await req(path,'POST',envelope({...event,event_id:'c'.repeat(32)}),{'X-Sentry-Auth':'Sentry sentry_version=7,sentry_key=wrong'})).status,401);
@@ -58,5 +79,5 @@ try{
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
-  console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
+  console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, SDK-011 deflate/counted 415/item isolation, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}

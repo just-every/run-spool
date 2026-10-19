@@ -5,8 +5,8 @@ export interface SentryItem { header: WireObject; bytes: Uint8Array }
 export interface SentryEnvelope { header: WireObject; items: SentryItem[] }
 const decoder = new TextDecoder('utf-8', { fatal: true });
 export class SentryWireError extends Error {
-  reason: string; status: number;
-  constructor(reason: string, status = 400) { super(reason); this.reason = reason; this.status = status }
+  reason: string; status: number; encoding?: string;
+  constructor(reason: string, status = 400, encoding?: string) { super(reason); this.reason = reason; this.status = status; this.encoding = encoding }
 }
 export function objectJson(bytes: Uint8Array): WireObject {
   try {
@@ -31,19 +31,19 @@ async function boundedStream(stream: ReadableStream<Uint8Array>, limit: number):
 }
 export async function readSentryBytes(request: Request): Promise<Uint8Array> {
   const encoding = (request.headers.get('content-encoding') ?? 'identity').trim().toLowerCase();
-  if (!['identity', 'gzip'].includes(encoding)) throw new SentryWireError('unsupported_content_encoding', 415);
+  if (!['identity', 'gzip', 'deflate'].includes(encoding)) throw new SentryWireError('unsupported_content_encoding', 415, encoding.slice(0, 128));
   const length = request.headers.get('content-length');
-  const limit = encoding === 'gzip' ? wireLimits.compressed : wireLimits.expanded;
+  const limit = encoding === 'identity' ? wireLimits.expanded : wireLimits.compressed;
   if (length && (!/^\d+$/.test(length) || Number(length) > limit)) throw new SentryWireError('body_too_large', 413);
   if (!request.body) throw new SentryWireError('missing_body');
   const input = await boundedStream(request.body, limit);
   if (encoding === 'identity') return input;
   try {
     const compressed = new ReadableStream<BufferSource>({ start(controller) { controller.enqueue(input as Uint8Array<ArrayBuffer>); controller.close() } });
-    return await boundedStream(compressed.pipeThrough(new DecompressionStream('gzip')), wireLimits.expanded);
+    return await boundedStream(compressed.pipeThrough(new DecompressionStream(encoding as 'gzip' | 'deflate')), wireLimits.expanded);
   } catch (error) {
     if (error instanceof SentryWireError) throw error;
-    throw new SentryWireError('invalid_gzip');
+    throw new SentryWireError(`invalid_${encoding}`);
   }
 }
 export function parseEnvelope(bytes: Uint8Array): SentryEnvelope {

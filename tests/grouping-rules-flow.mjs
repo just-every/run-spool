@@ -35,6 +35,8 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
   const restoreCookie=await signIn(restored.origin);const result=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoreCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archived.text});assert.ok(result.ok,await result.text());
   const policyResponse=await fetch(restored.origin+root,{headers:{Cookie:restoreCookie}});assert.equal((await policyResponse.json()).revision,2);
   const restoredArchive=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoreCookie}}));assert.deepEqual(restoredArchive.data.grouping_policies,archived.data.grouping_policies);
+  const wireRefusals=archive=>archive.data.outcomes.filter(row=>['invalid_item','unsupported_content_encoding'].includes(row.reason));
+  assert.deepEqual(wireRefusals(restoredArchive),wireRefusals(archived),'SDK-011 refusal counts survive private archive restore');
  }finally{await restored.stop()}
  // The browser uses only the owner cookie; no private dev URL enters screenshots.
  const browser=await launchBrowser();

@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import type { Bindings } from '../../auth/bindings';
 import { canonical, hash, scrub } from '../privacy';
 import { authorizeIngest, admitEvent, recordIngest, ingestBatch, ingestFailure, outcomeStatement, type IngestScope } from '../admission';
@@ -8,8 +8,14 @@ import { convertSentry } from './convert.ts';
 import { feedbackInput } from '../feedback/input';
 import { admitFeedback } from '../feedback/admission';
 import { clientReportCounts } from './client-reports';
-import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason } from './wire.ts';
+import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason, type WireObject } from './wire.ts';
 const routes=new Hono<{Bindings:Bindings}>();
+async function sentryAuthority(c:Context<{Bindings:Bindings}>,envelope:WireObject={}) {
+  const key=sentryKey(c.req.raw,c.req.param('alias')!,envelope);
+  const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(c.req.param('alias')!).first<{project:string}>();
+  if(!row)throw new SentryWireError('invalid_ingest_key',401);
+  return authorizeIngest(c,row.project,key);
+}
 const paths=['/:alias/envelope/','/:alias/envelope','/:alias/store/','/:alias/store'];
 routes.on('OPTIONS',paths,async c=>{
   c.header('Vary','Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
@@ -24,13 +30,19 @@ routes.on('POST',paths,async c=>{
   c.header('Vary','Origin');c.header('Access-Control-Expose-Headers','Retry-After, X-Sentry-Rate-Limits, X-Sentry-Error');
   let scope:IngestScope|undefined;
   try{
-    const bytes=await readSentryBytes(c.req.raw),store=/\/store\/?$/.test(c.req.path);
+    let bytes:Uint8Array;
+    try{bytes=await readSentryBytes(c.req.raw)}catch(error){
+      // A refused encoding cannot expose envelope credentials. Header/query grants
+      // still authorize its outcome through the normal project/origin fences.
+      if(error instanceof SentryWireError&&error.status===415){
+        const auth=await sentryAuthority(c);if('response' in auth)return auth.response;scope=auth.scope;
+      }
+      throw error;
+    }
+    const store=/\/store\/?$/.test(c.req.path);
     // Parse ALL item byte boundaries before authenticating, counting or admitting anything.
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
-    const key=sentryKey(c.req.raw,c.req.param('alias')!,envelope.header);
-    const row=await c.env.DB.prepare('SELECT project FROM sentry_project_aliases WHERE id=?').bind(c.req.param('alias')!).first<{project:string}>();
-    if(!row)throw new SentryWireError('invalid_ingest_key',401);
-    const auth=await authorizeIngest(c,row.project,key);if('response' in auth)return auth.response;scope=auth.scope;
+    const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
     const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[];
     let clientReports=0,invalidReports=0;
     for(const item of envelope.items){
@@ -44,7 +56,11 @@ routes.on('POST',paths,async c=>{
         feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
       }
       if(item.header.type!=='event'){const reason=unsupportedReason(item.header.type);dropped.set(reason,(dropped.get(reason)??0)+1);continue}
-      const raw=objectJson(item.bytes);
+      let raw:WireObject;
+      try{raw=objectJson(item.bytes)}catch(error){
+        if(store||!(error instanceof SentryWireError))throw error;
+        dropped.set('invalid_item',(dropped.get('invalid_item')??0)+1);continue;
+      }
       if(raw.type==='feedback'){feedback.push(await feedbackInput(raw,'feedback',envelope.header.event_id));continue}
       if(raw.type!==undefined&&raw.type!=='error'){
         if(store)throw new SentryWireError('unsupported_event_type',422);
@@ -61,8 +77,8 @@ routes.on('POST',paths,async c=>{
     return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...clientReports?{clientReports:{received:clientReports-invalidReports,invalid:invalidReports,discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{}},200);
   }catch(error){
     if(error instanceof SentryWireError){
-      if(scope){try{await recordIngest(c,scope,error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}
-      c.header('X-Sentry-Error',error.reason);return c.json({outcome:'rejected',reason:error.reason,...error.reason==='missing_release_register_required'&&scope?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},error.status as any);
+      if(scope){try{await recordIngest(c,scope,error.status===415?'unsupported_content_encoding':error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}
+      c.header('X-Sentry-Error',error.reason);return c.json({outcome:'rejected',reason:error.reason,...error.encoding?{encoding:scrub(error.encoding)}:{},...error.reason==='missing_release_register_required'&&scope?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},error.status as any);
     }
     if(scope){if(String((error as Error).message).startsWith('D1'))return ingestFailure(c,scope,error);await recordIngest(c,scope,'invalid')}
     return c.json({outcome:'rejected',reason:scrub((error as Error).message)},400);
