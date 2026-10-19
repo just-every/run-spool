@@ -2639,7 +2639,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "27d5c47656e87862c7b8bd97f6e840a01bb92fbce0f05671219da258349effa9",
+      "sha256": "258366a7ed0d75400973996066d0aa6a46b5d49fea22cd1304395bda5282f44c",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2647,7 +2647,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "017222c4d857553cff3e2e9ae0714ef105fe39c83a61511b59e75061cf3d7b1c",
+      "sha256": "8de79dba636a922807545ac70f366b127dc763e328c84038757291249737117c",
       "executable": false
     },
     "DEMO.md": {
@@ -2923,7 +2923,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "ccd0602e7359682e3dff89c122f0633524861f7555406586dd97dcb6fbdea836",
+      "sha256": "924e19e01c827a1c97062acc5e21b1f95e169c854cc2ae68aec71c93b4fe7fe4",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -3235,7 +3235,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "c6439e676010a279ae64e2b156f38c349e31652a59966049230f43cd41ba45b2",
+      "sha256": "ed8fa34542ffa27e17a54418613ce5782f16ec3cade6b09779108b7a87208294",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -3451,11 +3451,11 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "7f1ef5f147497aac9c22301d68d1942dcae688b8603555e6c849b621b09706de",
+      "sha256": "f5896aa7b9617dda58d390db6bc919639b7d45e0c94b59ec54c3679544ce0d2e",
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "c6ddba7d7d6af590ec0b80fc46cdfd0d40cbb4382608dd8aa8a0a46a3927e515",
+      "sha256": "76f596484c50ab72039ccbca4ee192314cc48db42b3341864e421f7b7cba6b47",
       "executable": false
     },
     "rer-project.json": {
@@ -3695,7 +3695,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "dcd0f91b800fafa84acff50e3e110a8a44542bdf23209159373e88398fbae535",
+      "sha256": "eecdc12d5694c321cc137155109e792af2ed25389c839587435f059a185942cf",
       "executable": false
     },
     "src/auth/bindings.ts": {

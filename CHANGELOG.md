@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.5.1 — 2026-10-19
+
+Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). In a checkout of `main`, run `git pull` and `rer dev`; in a checkout of an earlier tag, run `git fetch --tags && git checkout v0.5.1` and `rer dev`. For a hosted installation, run `rer deploy` from the original deploying checkout. This release adds five additive migrations (`0049` through `0053`, 53 in total), which `rer dev` and `rer deploy` apply; keep the existing database, private settings, project keys and deployment receipts, and do not reset or restore into the populated installation.
+
+### What an owner gets
+
+- **An interrupted hosted restore no longer blocks the installation.** 0.5.0's known issue is fixed: a restore cut off mid-way (tab closed, connection dropped) now holds a five-minute inactivity lease instead of a permanent claim. Until it lapses another restore answers `import_running` with the time it becomes abortable; after that the next restore from `/setup` discards the stale staging and completes. No remove and redeploy is needed (rer 0.2.69, Base portability import lease).
+- **Deployment history (REL-001).** A deploy key or the owner can record a deployment's start, progress with exposure percentage, success, failure and rollback per environment, with its build, repository, commit and the ordered included commits, through `POST /api/projects/<project>/deployments` and its callbacks. Retried callbacks are idempotent and a changed retry is refused. A start that passes its owner-supplied deadline is marked timed out and sends one notice to the named email destination. **Releases → Deployment history** shows each deployment's steps. Commit ancestry is what CI recorded; Spool does not read the repository to confirm it ([Sentry releases](docs/SENTRY-RELEASES.md)).
+- **Action audit (AUDIT-001).** Every change Spool makes (owner triage and settings, deploy-key and ingest writes, run tokens, erasure, notifications, archive exports and restores) now commits one attributed, privacy-safe fact in the same database transaction: who or which service (as a permanent alias), what, on which subject, when and the outcome. Denied, stale or failed attempts record their real outcome and never claim completion. **Settings → Organization audit** pages through it and exports JSON or CSV. Private archives carry the safe history and restore appends it; erasing an actor or project removes the alias links and leaves earlier facts as they were.
+- **Scrubbing keeps identifiers whole.** UUIDs and W3C trace ids whose last groups are all digits were partly replaced with `[number]` by the card-number scrub; they are now read whole first.
+- The application pins rer 0.2.69, with Base portability, import-kit door, Lobby, run-site and one-click sign-in copies refreshed from it. Retained archives that carry RER Platform's `rer_migrations` ledger are placed by that ledger.
+- Releases: uploading a source map right after registering a release no longer races the registration on the Releases page.
+
+### This release's gate
+
+Gated on main at `86d2ad2`: a populated 0.5.0 installation upgraded in place applied `0049` through `0053` and kept every row (its 0.5.0 ingest key and inbound filter still applied); a 0.5.0 `rer export` archive of a database carrying RER Platform's `rer_migrations` ledger restored into a fresh installation with every table identical except the documented disabled alert rule; the README one-line install ran a separate browser app with the published SDK and the Sentry SDK side by side (mapped source, scrubbing with UUIDs kept whole, evidence packet, resolve then regression in a later release, read-only agent key, deployment history, organization audit, archive restored into a fresh copy) at 1440 and 390; and the same jobs ran on a fresh Cloudflare deployment with an emailed sign-in and a delivered new-issue alert email. The hosted backup restored after remove and redeploy, and a hosted restore cut off six seconds in was refused with `import_running` while its lease held, then the next restore completed without a redeploy.
+
+### Not in this release
+
+- **Homepage claims still ahead of the code:** "alternative to Sentry, Bugsnag and Rollbar": Sentry intake and import are bounded (below) and there is no Bugsnag or Rollbar import or SDK compatibility. "Export everything to one file": archives refuse a project above 10,000 events or 20 maps, exclude alert email destinations (restored alert rules are disabled), deployment callbacks and notices (restored deployment history is read-only) and the import door and its journal. "Node 22 and pnpm are all you need. Setup asks for your email": rer supplies pnpm and the pinned Node, and first `rer dev` chooses a local owner without asking. "Every feature, on your own computer": local development suppresses all mail, so sign-in, alert and deployment-timeout email need a hosted installation with a mail provider.
+- Deployment history takes no repository read-back (SRC-002) and no unmodified `sentry-cli` or build-plugin registration (SRC-003); member deployment authority waits for project roles (TEAM-001).
+- The audit covers Spool's own writes; Base-owned operator-auth and import-kit writes are attributed by their request observation, not inside Base's transaction. There is no organization-wide audit yet.
+- Project roles (TEAM-001) are not implemented; the owner acts as maintainer for grouping rules and filters.
+- Sentry intake stays bounded: no Brotli or zstd, no streaming size limits beyond the current 256 KiB compressed and 1 MiB expanded, and user identity diagnostics remain partial (SDK-008, SDK-011).
+- The Sentry importer is qualified with synthetic fixtures only; a real organization export has not been reconciled. No feature parity or completed migration is claimed.
+- Self-hosted `rer deploy` declares no import-door trust bindings (`RER_OWNER_CLAIM_*`), so Business grants stay unavailable there.
+- Per-project limits are unchanged: 120 outcomes a minute, 10,000 retained events, 20 flat source maps of 256 KiB; indexed maps and `sourceRoot` are not supported.
+- Hosted project erasure timing on D1 is not measured.
+- SDK 0.2.0 remains owner-held and unpublished; `npm install @just-every/spool` resolves to 0.1.0. The app release does not publish the SDK.
+
+### Known issues
+
+- **Retrying a cut-off hosted restore at once is refused for up to five minutes.** Right after a hosted restore is cut off, a retry can answer `Storage operation not confirmed` and then `import_running` until the cut-off restore's lease lapses (five minutes after its last activity); the page does not show that time. Wait, then restore again; it completes. The `/setup` error also offers an unrelated "Sign in again".
+- Imported issues carry no "imported" label in the issue list; the issue page marks them "Imported historical evidence".
+- The Sentry SDK's default deduplication drops an identical exception repeated within one process, so a single run reports it once; separate runs group into the same issue.
+
+### Migrations
+
+Five: `0049_deployment_history.sql` (deployment runs, steps, notices and actor labels), `0050_release_order_keys.sql` (clears the old cached release-ordering keys, which are recomputed on read), `0051_safe_audit.sql` (the append-only audit tables), `0052_release_order_cache.sql` (a separate table for those derived keys) and `0053_audit_transactions.sql` (the per-transaction audit context, and value-free legacy facts written once for journal rows that existed before the upgrade). No existing row is removed or rewritten except the cleared derived keys. Upgrading from 0.5.0 applies these five; upgrades from earlier releases also apply the migrations listed under those releases below.
+
 ## 0.5.0 — 2026-10-19
 
 Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). In a checkout of `main`, run `git pull` and `rer dev`; in a checkout of an earlier tag, run `git fetch --tags && git checkout v0.5.0` and `rer dev`. For a hosted installation, run `rer deploy` from the original deploying checkout. This release adds no migrations (48 total), so nothing changes in the database; keep the existing database, private settings, project keys and deployment receipts, and do not reset or restore into the populated installation.
