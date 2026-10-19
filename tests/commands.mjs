@@ -93,7 +93,15 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  await put('exports/truncated.jsonl',records.slice(0,-1).map(r=>JSON.stringify(r)).join('\n')+'\n');assert.notEqual((await command(['import','--input','exports/truncated.jsonl','--yes'],null)).code,0);
  assert.notEqual((await command(['import','--input','exports/unsafe.jsonl','--yes'],null)).code,0);await command(['import','--input','exports/data.jsonl','--yes']);await command(['export','--output','exports/restored.jsonl']);
  diagnostics.stage('restore');
- const restored=[];for await(const record of readArchive(new Response(await get('exports/restored.jsonl')).body))restored.push(record);assert.equal(restored.at(-1).contentHash,records.at(-1).contentHash);
+ const restored=[];for await(const record of readArchive(new Response(await get('exports/restored.jsonl')).body))restored.push(record);// AUDIT-001: the restore appends one attributed fact to the carried safe history,
+ // so the re-export keeps every row and object and every original fact, then that fact.
+ const items=rs=>rs.filter(r=>r.kind==='part').flatMap(r=>r.items);
+ const content=rs=>items(rs).filter(i=>i.kind!=='payload').map(i=>JSON.stringify(i));
+ const facts=rs=>Buffer.concat(items(rs).filter(i=>i.kind==='payload'&&i.name==='safe_audit').sort((a,b)=>a.offset-b.offset).map(i=>Buffer.from(i.data,'base64'))).toString('utf8').split('\n').filter(Boolean).map(line=>JSON.parse(line));
+ assert.deepEqual(content(restored),content(records),'restore keeps every row and object');
+ const carried=facts(records),kept=facts(restored);assert.ok(carried.length>0,'the archive carries safe audit history');
+ assert.deepEqual(kept.slice(0,carried.length),carried,'restore keeps the carried audit history');
+ assert.deepEqual(kept.slice(carried.length).map(fact=>[fact.action,fact.outcome]),[['archive.restore','succeeded']],'restore appends one attributed fact');
  await command(['setup','--owner-email',testOwner,'--port','15530']);
  diagnostics.stage('deploy-dry-run');
  await put('.test-no-provider.cjs',`const fs=require('node:fs');const loopback=value=>{try{const host=typeof value==='string'||value instanceof URL?new URL(value).hostname:value?.url?new URL(value.url).hostname:value?.hostname??value?.host;return ['localhost','127.0.0.1','::1','[::1]'].includes(host)}catch{return false}};const reject=()=>{fs.appendFileSync(process.env.SPOOL_PROVIDER_ATTEMPTS,'attempt\\n');throw Error('Provider transport forbidden in dry-run')};const originalFetch=globalThis.fetch;globalThis.fetch=(url,...rest)=>loopback(url)?originalFetch(url,...rest):reject();for(const name of ['node:http','node:https']){const module=require(name);for(const key of ['request','get']){const original=module[key];module[key]=function(input,...rest){return loopback(input)?original.call(this,input,...rest):reject()};}}`);

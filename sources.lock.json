@@ -7063,7 +7063,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "bdbc33e9e8bd8aac60b0c072c1e6fe1b659dc6275977821ea8b5a0b0b503129f",
+      "sha256": "89a362f9f3fac24d29ae5095e30cf019cb58ebc6213e6b19d0019d254c06e68f",
       "executable": false
     },
     "tests/deployment-history.mjs": {
