@@ -42,6 +42,9 @@ export const projectErasure = defineErasure({
   { table: 'rer_erasure_operations', reason: 'Erasure receipts keep counts and times only.' },
   { table: 'ik_door_settings', reason: 'Installation Business import opt-in stays with the owner.' },
   { table: 'ik_door_revoked_keys', reason: 'Revoked Business signing keys stay revoked.' },
+  // As in Base's own retirement: one nonce row per Business request, so erasing them inside the
+  // imported project's single import-kit batch would outgrow its 1,000-statement request.
+  { table: 'ik_door_grants', reason: 'Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.' },
  ],
  // One erasure at a time, so pending audit entries always get their own label.
  hold: async ({ db }) => await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,

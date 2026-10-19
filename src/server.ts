@@ -25,6 +25,7 @@ import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
 import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door.server';
+import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  await deploymentTimeouts(env,event.scheduledTime);
@@ -70,7 +71,9 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  }
  if (path === '/auth/owner-claim') return afterOwnerPath(env, await ownerClaimResponse(request, env));
  if (path === '/api/editor/config') return editorConfigResponse(request, env);
- // The import door (owner session and Business grants) runs before ordinary routing.
+ // Run Edit Run's signed cutover read and the import door (owner session and
+ // Business grants) run before ordinary routing.
+ if (path === cutoverStatusPath) return rerCutoverStatus(request, env);
  const importDoor = await importDoorResponse(request, env); if (importDoor) return importDoor;
  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
  const auth = await authenticationResponse(request, env);

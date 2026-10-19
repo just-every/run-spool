@@ -114,6 +114,9 @@ laterTables.unshift({tables:[],migrations:['0052_release_order_cache.sql']});
 // 0053 adds only excluded audit context, staging and legacy-action tables.
 for(const later of laterTables)later.migrations.push('0053_audit_transactions.sql');
 laterTables.unshift({tables:[],migrations:['0053_audit_transactions.sql']});
+// 0054 adds only the door's archive tables, which archives exclude (ik_%).
+for(const later of laterTables)later.migrations.push('0054_import_door_archives.sql');
+laterTables.unshift({tables:[],migrations:['0054_import_door_archives.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

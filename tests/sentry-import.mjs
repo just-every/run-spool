@@ -11,6 +11,8 @@ const worker=await startTestWorker(15523),{origin}=worker;
 const scratch=await mkdtemp(join(tmpdir(),'spool-sentry-import-'));
 try{
   let cookie=await signIn(origin);
+  // Without Run Edit Run's owner-claim trust there is no signer: the cutover read does not exist.
+  assert.equal((await fetch(origin+'/api/rer/cutover-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({since:new Date().toISOString()})})).status,404);
   const req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}});
   const json=async(path,method,value,headers)=>{const response=await req(path,method,value,headers);assert.ok(response.ok,`${method??'GET'} ${path}: HTTP ${response.status}`);return response.json()};
   // The documented CLI, through the import door, with the session in an environment variable.

@@ -48,7 +48,8 @@ Owner history and undo must include jobs from either authority.
      again (it refuses that schema at deploy), but
      `importDoorApplyFailureMigration` as one atomic batch, then
      `importDoorScopesMigration`. Until both are applied, the door answers 503
-     `import_door_schema_outdated`.
+     `import_door_schema_outdated`. Then `importDoorArchiveMigration`; until it
+     is applied, only `archive` and `restore-check` answer that 503.
 2. **Native adapter.** Supply the seed's real `D1TargetAdapter`, parser,
    `ImportMapping`, destination and actual owner principal. Read/write/remove
    guards must protect native revisions and values in the same D1 transaction.
@@ -157,7 +158,8 @@ Owner history and undo must include jobs from either authority.
    grant for this screen. Use `readImportDoorHistory` with the current owner
    predicate and the door key for approval metadata; local approvals are
    labelled `approved by`, Business approvals `approved via Business by`.
-6. **Erasure.** Include retained uploads/chunks, plan snapshots/chunks, approvals,
+6. **Erasure.** Include retained uploads/chunks, plan snapshots/chunks, archive
+   bytes (`ik_door_archive_chunks`, withdrawn whole) and headers, approvals,
    namespace lineage and destination bindings (`ik_door_scopes`), apply-failure
    facts (`ik_door_apply_failures`) and grant metadata in the seed's
    erasure/custody inventory,
@@ -244,7 +246,7 @@ scope, expiry and approval rules do not change.
 - **Door migrations.** Apply every door migration Base ships, each once, in
   order, in its own new numbered seed migration: today
   `importDoorApplyFailureMigration` (one atomic batch, foreign keys on), then
-  `importDoorScopesMigration`. Never re-apply an updated `importDoorSchema` to
+  `importDoorScopesMigration`, then `importDoorArchiveMigration`. Never re-apply an updated `importDoorSchema` to
   an installed door: its `CREATE TABLE IF NOT EXISTS` statements would skip
   changed tables, so its first statement refuses an earlier door's plan table
   and the deploy fails.

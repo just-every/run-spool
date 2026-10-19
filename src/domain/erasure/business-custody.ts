@@ -36,6 +36,8 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
   {table:'ik_door_apply_failures',from:'ik_door_plans',on:{plan_id:'id'}},
   {table:'ik_door_plan_chunks',from:'ik_door_plans',on:{plan_id:'id'}},
   {table:'ik_door_approvals',from:'ik_door_plans',on:{plan_id:'id'}},
-  {table:'ik_door_grants',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},
+  // A tool's archive is a third private copy of a bundle in the namespace: header and bytes go with it.
+  {table:'ik_door_archives',from:'ik_door_namespaces',where:'installation_id=? AND namespace=?',params:['installation_id','namespace']},
+  {table:'ik_door_archive_chunks',from:'ik_door_archives',on:{archive_id:'id'}},
  ];
 }
