@@ -5,8 +5,10 @@ import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/for
 export async function mappingArchive(text,edit=()=>{},previous=false){
  const records=text.trim().split('\n').map(JSON.parse),manifest=records[0];
  const rows=Object.fromEntries(manifest.tables.map(t=>[t.name,[]]));
- for(const part of records.filter(r=>r.kind==='part'))for(const item of part.items)rows[item.table].push(item.row);
+ for(const part of records.filter(r=>r.kind==='part'))for(const item of part.items)if(item.kind==='row')rows[item.table].push(item.row);
  edit(rows);
+ // Rebuilt from rows alone: no safe-audit payload.
+ manifest.payloads=[];
  if(previous){
   // The pre-mapping archive also predates bundle grouping and inbound policies.
   manifest.tables=manifest.tables.filter(t=>!['deployment_path_mappings','grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(t.name));

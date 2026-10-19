@@ -5,7 +5,7 @@ import { ContentVerifier, ArchiveVerifier } from '../src/modules/portability/for
 import { archiveProjection } from './archive.mjs';
 async function encode(original,edit){
  const data=structuredClone(original.data);edit(data);
- const manifest={...original.manifest,tables:original.manifest.tables.map(t=>({...t,count:data[t.name].length}))};
+ const manifest={...original.manifest,payloads:[],tables:original.manifest.tables.map(t=>({...t,count:data[t.name].length}))};
  const items=[];for(const t of manifest.tables)for(const [index,row] of data[t.name].entries())items.push({kind:'row',table:t.name,index,row,...t.rowidAlias?{rowid:index+1}:{}});
  const parts=[];for(let i=0;i<items.length;i+=100)parts.push(await makePart(parts.length,items.slice(i,i+100)));manifest.partCount=parts.length;
  const content=new ContentVerifier(manifest),binding=new ArchiveVerifier(manifest);for(const part of parts){binding.add(part);for(const item of part.items)content.add(item)}

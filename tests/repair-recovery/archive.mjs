@@ -15,14 +15,15 @@ const laterTables=[...repairTables,...operatorTables,...executionTables,'groupin
 export async function preRepairArchive(text){
  const records=[];for await(const record of readArchive(new Response(text).body))records.push(record);
  const [manifest]=records,data=Object.fromEntries(manifest.tables.map(table=>[table.name,[]]));
- for(const part of records.filter(record=>record.kind==='part'))for(const item of part.items)data[item.table].push(item);
+ for(const part of records.filter(record=>record.kind==='part'))for(const item of part.items)if(item.kind==='row')data[item.table].push(item);
  data.audit=data.audit.filter(item=>!item.row.kind.startsWith('repair_')).map((item,index)=>({...item,index}));
  const tables=manifest.tables.filter(table=>!laterTables.includes(table.name)).map(table=>({...table,count:data[table.name].length}));
  const items=tables.flatMap(table=>data[table.name]),parts=[];
  for(let offset=0;offset<items.length;offset+=500)parts.push(await makePart(parts.length,items.slice(offset,offset+500)));
  // Archives from before 0016 predate the recorded migration list as well.
  const {migrations:_recorded,...previous}=manifest;
- const earlier={...previous,tables,partCount:parts.length,schema:await sha256(canonicalJson(tables.map(({name,sql})=>({name,sql}))))};
+ // Rebuilt from rows alone, it carries no safe-audit payload, as a previous format.
+ const earlier={...previous,payloads:[],tables,partCount:parts.length,schema:await sha256(canonicalJson(tables.map(({name,sql})=>({name,sql}))))};
  const verifier=new ContentVerifier(earlier),binding=new ArchiveVerifier(earlier);for(const item of items)verifier.add(item);for(const part of parts)binding.add(part);
  return [earlier,...parts,{kind:'closing',partCount:parts.length,contentHash:verifier.digest(),archiveHash:binding.digest()}].map(record=>canonicalJson(record)+'\n').join('');
 }

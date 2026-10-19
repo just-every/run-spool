@@ -7,7 +7,7 @@ import {bounded,gap} from './packet.mjs';
 // Grow a real public archive, then restore it into an empty installation. This
 // bypasses no admission logic and does not consume 84 live minute windows.
 export async function archiveText(snapshot,data){
- const items=[];const manifest={...snapshot.manifest,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString(),tables:snapshot.manifest.tables.map(table=>({...table,count:data[table.name].length}))};
+ const items=[];const manifest={...snapshot.manifest,payloads:[],sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString(),tables:snapshot.manifest.tables.map(table=>({...table,count:data[table.name].length}))};
  for(const table of manifest.tables)for(const [index,row] of data[table.name].entries())items.push({kind:'row',table:table.name,index,row,...table.rowidAlias?{rowid:index+1}:{}});
  const parts=[];for(let n=0;n<items.length;n+=100)parts.push(await makePart(parts.length,items.slice(n,n+100)));
  manifest.partCount=parts.length;const verifier=new ContentVerifier(manifest),binding=new ArchiveVerifier(manifest);for(const part of parts){binding.add(part);for(const item of part.items)verifier.add(item);}

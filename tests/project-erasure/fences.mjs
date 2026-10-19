@@ -13,7 +13,7 @@ async function childArchive(pre,project,erased){
  const gone=row=>erased.includes(row.project);
  const data=Object.fromEntries(Object.entries(pre.data).map(([table,rows])=>[table,rows.filter(row=>table==='projects'?!erased.includes(row.id):table==='events'?row.project===project||!gone(row):!gone(row))]));
  data.events=data.events.filter(row=>row.project===project);assert.ok(data.events.length,'the pre-erasure archive holds the project events');
- const manifest={...pre.manifest,epoch:pre.manifest.epoch+1_000_000_000,tables:pre.manifest.tables.map(table=>({...table,count:data[table.name].length}))},items=[];
+ const manifest={...pre.manifest,payloads:[],epoch:pre.manifest.epoch+1_000_000_000,tables:pre.manifest.tables.map(table=>({...table,count:data[table.name].length}))},items=[];
  for(const table of manifest.tables)for(const [index,row] of data[table.name].entries())items.push({kind:'row',table:table.name,index,row,...table.rowidAlias?{rowid:index+1}:{}});
  const parts=[];for(let n=0;n<items.length;n+=200)parts.push(await makePart(parts.length,items.slice(n,n+200)));
  manifest.partCount=parts.length;const content=new ContentVerifier(manifest),binding=new ArchiveVerifier(manifest);

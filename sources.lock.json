@@ -6889,7 +6889,7 @@
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
-      "sha256": "83be3f8660d3f44e4d1edf6ceab21e705e6b4f4c6be8ad1825f46283b632be83",
+      "sha256": "d6a96ae5e533f2c8619bfe3c4c8e0c02138dd77e7ae377628938c45b1e58fe35",
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
@@ -7129,7 +7129,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "59a649b4c2ccc47c0cc958f70ccd71dd8256c43a2dbe9c47d7d0446ee3819781",
+      "sha256": "857bfdf592f6c1b3f8030826de9dc63b0287fca69ac27e73f12e1bc8139af8af",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -7145,7 +7145,7 @@
       "executable": false
     },
     "tests/operator-archive.mjs": {
-      "sha256": "6101c208fa68661deffb16418aa753c778df9747928c1332fe2904d8f6a6d4b5",
+      "sha256": "ce516fc379344cfb759ca614dd6e334f4218857cba8d346db41bf01c785a28bb",
       "executable": false
     },
     "tests/operator-flow.mjs": {
@@ -7233,7 +7233,7 @@
       "executable": false
     },
     "tests/project-erasure/fences.mjs": {
-      "sha256": "cddea67260608561936422e5207f617aa334d6b9db3cfe94f9fbed28c4d7a24a",
+      "sha256": "5a069b3759f2b02a9538616db584406fe2b65e9bc446a1a2e7317d798b62cf38",
       "executable": false
     },
     "tests/project-erasure/fixture.mjs": {
@@ -7269,7 +7269,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "69558b7012c380255f79cce1d889c7d89f2c38f36dedd16ad9abf006c7a1c9a5",
+      "sha256": "615d47923aa196df2512d9c0c0b66613b91ad1c16d8b7a5196ab6099168de641",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
