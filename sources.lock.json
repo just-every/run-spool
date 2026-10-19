@@ -2619,7 +2619,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "2e791a0517fd30d5c2639ebf99aa15001f8c4ba942aafb7a7b4ed9e8f99c7c1f",
+      "sha256": "2699bf0d62dbb64684fd80add42a84b5ce554aeccb97eb8ea4cc118edc17fc88",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2647,7 +2647,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5320668349151b3598edc1f6567a49d95da98039ffcac858d81ba172d3027016",
+      "sha256": "5d1974f12406c1ae8e3a460a40836d1a9b2cc97738db1042b7891a5c865b34ea",
       "executable": false
     },
     "DEMO.md": {
@@ -4547,7 +4547,7 @@
       "executable": false
     },
     "src/domain/sentry/evidence.ts": {
-      "sha256": "4481b92c740fd8c769824c7a0d2c9932553e457377689c76fb33cc894153ef35",
+      "sha256": "fd677d5c1235c799ef4a2d8f09ceef9c73386b00db85398a9ebb3164babcb1b2",
       "executable": false
     },
     "src/domain/sentry/grouping.ts": {
@@ -4556,6 +4556,10 @@
     },
     "src/domain/sentry/map-metadata.ts": {
       "sha256": "f26fd0f623178a78cb6abef3a4089b04792410746798ddbeb2abcaf9189d90c5",
+      "executable": false
+    },
+    "src/domain/sentry/query.ts": {
+      "sha256": "9abac30c6e437ba7977349b47b810913f28c9d2edf46c13abe1963ab6d1d9b45",
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
@@ -6923,7 +6927,7 @@
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
-      "sha256": "9ae983fe0b24990f026f5c0dd9fecdc105c2b6c72d4b0bf7f2d9870d922aa3ac",
+      "sha256": "1e800927419ffae938d2b3723f89e4c3232a0cc6664df02b6d17815de4bfcfc6",
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
@@ -7175,7 +7179,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "0c63211c6cc2346cf0075a631297b214761a5d6ccfce1bf2ea4846c5059a62b8",
+      "sha256": "06c3802d9bfbded8645574dec311cf21f3006de5514b83aba04436c348c0e5fa",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
