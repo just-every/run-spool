@@ -43,7 +43,8 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
   query(db, `SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND (reason IN (${LOSS_REASONS.map(() => '?').join(',')}) OR reason GLOB 'client_discarded:error:*') GROUP BY reason ORDER BY reason`, repair.project, Math.floor(start / 60000) * 60000, ...LOSS_REASONS).all<any>(),
   query(db, "SELECT COUNT(*) total FROM audit WHERE project=? AND kind='retention_gap' AND json_extract(detail,'$.cutoff')>?", repair.project, start).first<any>(),
   query(db, `SELECT 1 FROM grouping_corrections c,json_each(c.plan,'$.moves') m WHERE c.project=? AND c.state IN ('applied','undone')
-   AND (json_extract(m.value,'$.from')=? OR json_extract(m.value,'$.to')=?) LIMIT 1`, repair.project, repair.issue, repair.issue).first(),
+   AND (json_extract(m.value,'$.from')=? OR json_extract(m.value,'$.to')=?)
+   UNION ALL SELECT 1 FROM audit WHERE project=? AND kind='grouping_rules_changed' AND created>=? LIMIT 1`, repair.project, repair.issue, repair.issue, repair.project, repair.created).first(),
  ]);
  const row = (event: any) => ({ id: event.id, release: event.release, sequence: event.release_seq, received: event.received });
  const evidence = {
@@ -52,7 +53,7 @@ export async function observe(db: D1Database, repair: any, now = Date.now()): Pr
   olderReleaseEvents: { count: olderTotal.total, events: older.results.map(row), counted: false as const },
   releaseEvents: captured.total, mapStored: !!map, loss: losses.results.map(({ reason, count }) => ({ reason, count })),
  };
- const reasons: Reason[] = grouping ? [{ code: 'grouping_changed', reason: 'Operator corrections changed this group, including any later undo. Retained admission and repair-associated occurrences still count; future default grouping does not establish coverage of the corrected group.' }] : [];
+ const reasons: Reason[] = grouping ? [{ code: 'grouping_changed', reason: 'Operator corrections or project grouping policy changes affect this group, including any later undo. Retained admission and repair-associated occurrences still count; future default grouping does not establish coverage of the corrected group.' }] : [];
  if (evidence.recurrence.count) return { verdict: 'recurred', reasons: [{ code: 'recurred', reason: `A retained occurrence associated with this group at admission, currently, or during this repair arrived in release ${release.name} (sequence ${seq}) or a later registered release after ${release.name} was registered.` }, ...reasons], evidence, limits: VERDICT_LIMITS };
  if (!evidence.releaseEvents) reasons.push({ code: 'no_capture_from_release', reason: `No event at all has arrived from release ${release.name}, so capture is not shown to be wired for it.` });
  if (repair.exercised === null) reasons.push({ code: 'flow_not_exercised', reason: `No one has recorded that the affected flow was exercised in release ${release.name} after the deploy.` });

@@ -72,7 +72,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
     if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
-    if(event.sentry)event=normalize({...event,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}});
+    event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const jobs=[...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),

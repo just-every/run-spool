@@ -73,15 +73,16 @@ export async function issuePacket(db: D1Database, project: string, id: string) {
   // Explicit envelope input prevents unknown stored properties from becoming
   // output; normalization preserves the admission privacy contract.
   const event = normalize({ version: stored.version, ...(stored.language ? {language:stored.language} : {}), eventId: stored.eventId, release: stored.release, build: stored.build, environment: stored.environment,
-   type: stored.type, message: stored.message, ...(stored.exceptionSource !== undefined ? {exceptionSource:stored.exceptionSource} : {}), ...(stored.sentry ? {sentry:stored.sentry} : {}), frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
+   type: stored.type, message: stored.message, ...(stored.exceptionSource !== undefined ? {exceptionSource:stored.exceptionSource} : {}), ...(stored.sentry ? {sentry:stored.sentry} : {}), ...(stored.grouping ? {grouping:stored.grouping} : {}), frames: stored.frames.map((frame: any) => ({ file: frame.file, line: frame.line, column: frame.column, function: frame.function, ...(frame.debugId ? { debugId: frame.debugId } : {}) })), breadcrumbs: stored.breadcrumbs, ...(stored.dropped !== undefined ? { dropped: stored.dropped } : {}) });
   const atAdmission = diagnosticProjection(JSON.parse(row.diagnostic));
   const [currentLookup,basis] = await Promise.all([
    row.historical === 1 ? atAdmission : diagnose(event).then(diagnosticProjection),
    row.original_basis??admissionBasis(event,issue,routes.results),
   ]);
   const fingerprint=row.original_fingerprint??(row.historical?issue.fingerprint:await hash(basis));
-  const projectedEvent=event.sentry?{...event,sentry:agentSentryEvidence(event.sentry)}:event;
-  return { originalGrouping:{ruleRevision:event.sentry?.grouping?.revision??0,issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??(row.historical?issue.algorithm:grouping(event).algorithm),basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event:projectedEvent, atAdmission, currentLookup,
+  const {grouping:nativePolicy,...nativeEvent}=event;
+  const projectedEvent=event.sentry?{...event,sentry:agentSentryEvidence(event.sentry)}:nativeEvent;
+  return { originalGrouping:{...(!event.sentry?grouping(event):{}),ruleRevision:event.sentry?.grouping?.revision??event.grouping?.revision??0,issue:row.original_issue??(row.historical?row.issue:await hash(project+':'+fingerprint)),algorithm:row.original_algorithm??(row.historical?issue.algorithm:grouping(event).algorithm),basis:row.historical?null:JSON.parse(basis),fingerprint},currentGrouping:{issue:row.issue,correction:row.correction??null,direction:row.direction??null},suppression:row.suppression_reasons?JSON.parse(row.suppression_reasons).map((r:any)=>({id:text(r.id),revision:number(r.revision),field:text(r.field),mode:text(r.mode),value:text(r.value,160)})):[],occurrence:row.occurrence, id: text(row.id), received: number(row.received), historical: row.historical === 1, digest: text(row.digest), event:projectedEvent, atAdmission, currentLookup,
    repositorySources: await repositoryLinks(event,currentLookup,row.historical === 1),
    release: release(row), build: text(row.build), environment: text(row.environment) };
  })));

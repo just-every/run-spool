@@ -6,12 +6,13 @@ import { bundleFile } from './grouping-path';
 export { bundleFile } from './grouping-path';
 
 export function bundleBasis(event: Envelope): string {
- if(event.sentry)return grouping(event).basis;
+ const info=grouping(event);
+ if(event.sentry||('defaultBasis' in info&&info.basis!==info.defaultBasis))return info.basis;
  return basisWithFile(event,bundleFile(event.frames[0]!.file));
 }
 function basisWithFile(event: Envelope,file: string): string {
  const top=event.frames[0]!;
- return grouping(event.language ? event : {...event,frames:[{...top,file}]}).basis;
+ return grouping(event.language ? event : {...event,grouping:undefined,frames:[{...top,file}]}).basis;
 }
 // Read persisted admissions under the original rule, including its mistaken
 // lowercase suffixes. Their recorded route and issue hashes still have to
@@ -25,7 +26,7 @@ export const bundleDefaults = (data:any) => ({grouping_routes:[],...data});
 
 export async function captureGrouping(db:D1Database,project:string,event:Envelope) {
  const raw=grouping(event);
- if(event.sentry)return {...raw,fingerprint:await hash(raw.basis),route:null};
+ if(event.sentry||('defaultBasis' in raw&&raw.basis!==raw.defaultBasis))return {...raw,fingerprint:await hash(raw.basis),route:null};
  const normalized=bundleBasis(event);
  if(normalized===raw.basis)return {...raw,fingerprint:await hash(raw.basis),route:null};
  const key=await hash(normalized);
@@ -53,8 +54,8 @@ export async function captureGrouping(db:D1Database,project:string,event:Envelop
 
 /** Recover the original admission basis without changing old v1 evidence. */
 export async function admissionBasis(event:Envelope,issue:{id:string;fingerprint:string},routes:GroupingRoute[]) {
- const raw=grouping(event).basis;
- if(event.sentry)return raw;
+ const info=grouping(event),raw=info.basis;
+ if(event.sentry||('defaultBasis' in info&&raw!==info.defaultBasis))return raw;
  if(await hash(raw)===issue.fingerprint)return raw;
  const key=await hash(recordedBundleBasis(event));
  return routes.find(route=>route.issue===issue.id&&route.fingerprint===key)?.basis??raw;
