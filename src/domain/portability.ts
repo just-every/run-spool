@@ -114,6 +114,8 @@ laterTables.unshift({tables:[],migrations:['0052_release_order_cache.sql']});
 // 0053 adds only excluded audit context, staging and legacy-action tables.
 for(const later of laterTables)later.migrations.push('0053_audit_transactions.sql');
 laterTables.unshift({tables:[],migrations:['0053_audit_transactions.sql']});
+for(const later of laterTables)later.migrations.push('0054_release_resolution_dist.sql');
+laterTables.unshift({tables:[],migrations:['0054_release_resolution_dist.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -121,7 +123,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)))) continue;
-  const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name));
+  const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};

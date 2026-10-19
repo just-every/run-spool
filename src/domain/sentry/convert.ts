@@ -2,8 +2,8 @@ import { sentryRelease } from '../releases/identity.ts';
 import { normalize, type Envelope, type Frame } from '../privacy.ts';
 import { sanitizeSentry } from './evidence';
 import { SentryWireError, type WireObject } from './wire.ts';
-/** Missing dist has a fixed, explicitly registered identity; it never means latest. */
-export const absentDist = 'sentry-no-dist';
+import { sentryDistBuild } from '../releases/build.ts';
+export { absentDist } from '../releases/build.ts';
 /** The first thirty located frames remain the bounded source-map diagnostic view. */
 export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope {
  if(value.type!==undefined&&value.type!=='error')throw new SentryWireError('unsupported_event_type',422);
@@ -28,5 +28,5 @@ export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope
   if(frames.length===30)break;
  }
  const breadcrumbs=(sentry.breadcrumbs??[]).filter(crumb=>typeof crumb.message==='string').slice(-20).map(crumb=>`${typeof crumb.category==='string'?crumb.category.slice(0,100)+': ':''}${crumb.message}`);
- return normalize({version:1,...(language?{language}:{}),eventId:eventId.toLowerCase(),release:releaseIdentity.name,build:value.dist??absentDist,environment:value.environment??'production',type:exception?.type??(exceptions.length?'Error':'Message'),message:exception?.value??sentry.logentry?.formatted??sentry.message??sentry.logentry?.message??'',frames,breadcrumbs,sentry});
+ return normalize({version:1,...(language?{language}:{}),eventId:eventId.toLowerCase(),release:releaseIdentity.name,build:sentryDistBuild(value.dist),environment:value.environment??'production',type:exception?.type??(exceptions.length?'Error':'Message'),message:exception?.value??sentry.logentry?.formatted??sentry.message??sentry.logentry?.message??'',frames,breadcrumbs,sentry});
 }

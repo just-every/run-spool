@@ -1,3 +1,4 @@
+import { storedBuild } from '../releases/build';
 import { releaseOrderKeyStatement } from '../releases/order';
 import { releaseVersionKey,releaseIdentity } from '../releases/identity';
 import { mappingStatements } from '../path-mappings';
@@ -24,7 +25,7 @@ async function failure(c:any,project:string,error:unknown){
 }
 routes.post('/:project/releases',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,32768),name=releaseIdentity(b.name),build=identity(b.build,'build'),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
+  const b=await readBody(c.req.raw,32768),name=releaseIdentity(b.name),build=storedBuild(b.build),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
   try{
     const result=await deployBatch(c,auth,[
       stmt(db,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?) OR EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name AND m.auto_created=1) OR EXISTS(SELECT 1 FROM release_builds b WHERE b.project=releases.project AND b.release=releases.name AND b.build=?))) THEN 1 ELSE 0 END",project,name,project,name,build,build),
@@ -46,7 +47,7 @@ routes.post('/:project/releases',async c=>{
 });
 routes.post('/:project/artifacts',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,300000),release=releaseIdentity(b.release),build=identity(b.build,'build'),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
+  const b=await readBody(c.req.raw,300000),release=releaseIdentity(b.release),build=storedBuild(b.build),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
   const payload=validateMap(JSON.parse(canonical(metadata.map))),digest=await hash(payload),db=c.env.DB;
   try{
     const existing=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();

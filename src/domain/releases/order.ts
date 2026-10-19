@@ -70,5 +70,5 @@ export function newerReleaseSql(project:string,event:string,boundary:string){
 }
 export function regressionSql(issue='i',event='incoming'){
  const resolution=`(SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id)`;
- return `(EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='plain') OR (${issue}.latest_release_seq IS NOT NULL AND ${newerReleaseSql(issue+'.project',event,`COALESCE(${resolution},${issue}.resolved_seq)`)}))`;
+ return `(EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='plain') OR (${issue}.latest_release_seq IS NOT NULL AND (${newerReleaseSql(issue+'.project',event,`COALESCE(${resolution},${issue}.resolved_seq)`)} OR (${event}.release<>'' AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='named' AND resolution.boundary_seq=${event}.release_seq)))))`;
 }

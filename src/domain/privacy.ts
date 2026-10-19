@@ -1,6 +1,7 @@
 import { nativeGroupingInfo } from './grouping/native.ts';
 import { validateGroupingSnapshot, type GroupingSnapshot } from './grouping/rules.ts';
 import { releaseIdentity } from './releases/identity.ts';
+import { absentDist } from './releases/build.ts';
 import { sanitizeSentry, type SentryEvidence } from './sentry/evidence.ts';
 import { sentryGroupingInfo } from './sentry/grouping.ts';
 import { parseStack, goFunction } from './stacks.ts';
@@ -41,7 +42,7 @@ export function normalize(v: any): Envelope {
   if (Object.keys(v).some(k => !allowed.has(k))) throw new Error('Unsupported envelope field');
   if (v.dropped !== undefined && (!Number.isSafeInteger(v.dropped) || v.dropped < 1 || v.dropped > 1e9)) throw new Error('Invalid dropped count');
   if ((v.breadcrumbs ?? []).length > 20 || (v.breadcrumbs ?? []).some((b:any)=>typeof b!=='string')) throw new Error('Invalid breadcrumbs');
-  return { version: 1, ...(language ? {language} : {}), eventId: identity(v.eventId,'eventId'),release:v.sentry?(v.release===''?'':releaseIdentity(v.release)):identity(v.release,'release'),build:identity(v.build,'build'),environment:identity(v.environment,'environment'),type:v.sentry ? (typeof v.type==='string'?scrub(v.type):'Error') : language==='go' ? goType(v.type) : identity(v.type,'type'),message:scrub(v.message),frames:v.frames.map((f:any)=>{
+  return { version: 1, ...(language ? {language} : {}), eventId: identity(v.eventId,'eventId'),release:v.sentry?(v.release===''?'':releaseIdentity(v.release)):identity(v.release,'release'),build:v.sentry&&v.sentry.dist===undefined&&v.build===absentDist?absentDist:identity(v.build,'build'),environment:identity(v.environment,'environment'),type:v.sentry ? (typeof v.type==='string'?scrub(v.type):'Error') : language==='go' ? goType(v.type) : identity(v.type,'type'),message:scrub(v.message),frames:v.frames.map((f:any)=>{
     if (!f || typeof f.file!=='string' || typeof f.function!=='string' || !Number.isSafeInteger(f.line) || f.line<1 || f.line>1e7 || (!(language && (f.column === undefined || f.column === null)) && (!Number.isSafeInteger(f.column) || f.column<0 || f.column>1e7)) || Object.keys(f).some(k=>!['file','line','column','function','debugId'].includes(k))) throw new Error('Invalid frame');
     const path=framePath(f.file,language);
     return {file:path,line:f.line,column:f.column ?? null,function:scrub(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};

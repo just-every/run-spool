@@ -1,7 +1,7 @@
 import { sha256, canonicalJson } from '../../modules/import-kit/src/provenance/identity.ts';
 import type { ImportMapping, MappingResult, SourceBundle, SourceRecord } from '../../modules/import-kit/src/types.ts';
 import { identity, scrub } from '../privacy.ts';
-import { absentDist } from '../sentry/convert.ts';
+import { absentDist } from '../releases/build.ts';
 import { apiEvent } from './event.ts';
 import { mappingVersion, sourceText } from './source.ts';
 export const nativeProject=(organization:string,slug:string)=>`sentry-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
