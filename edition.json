@@ -699,7 +699,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "2505cf7436e9be1b2e1e539c9ff5126fc58006da",
+          "revision": "d1e9ca8cb648295259289901f524b2834463f4ee",
           "path": "modules/owner-claim",
           "paths": [
             "idp.mjs",
@@ -1075,7 +1075,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "2505cf7436e9be1b2e1e539c9ff5126fc58006da",
+          "revision": "d1e9ca8cb648295259289901f524b2834463f4ee",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",
@@ -1218,6 +1218,7 @@
             "door/operator.ts",
             "door/planning.ts",
             "door/protocol.ts",
+            "door/refusals.ts",
             "door/schema.ts",
             "door/store.ts",
             "door/types.ts",
@@ -1228,6 +1229,7 @@
             "plan/size.ts",
             "provenance/canonical-hash.ts",
             "provenance/canonical-stream.ts",
+            "provenance/credential-names.ts",
             "provenance/credentials.ts",
             "provenance/identity.ts",
             "provenance/json-snapshot.ts",
@@ -1808,6 +1810,10 @@
             "originPath": "door/protocol.ts"
           },
           {
+            "path": "src/modules/import-kit/src/door/refusals.ts",
+            "originPath": "door/refusals.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/door/schema.ts",
             "originPath": "door/schema.ts"
           },
@@ -1846,6 +1852,10 @@
           {
             "path": "src/modules/import-kit/src/provenance/canonical-stream.ts",
             "originPath": "provenance/canonical-stream.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/provenance/credential-names.ts",
+            "originPath": "provenance/credential-names.ts"
           },
           {
             "path": "src/modules/import-kit/src/provenance/credentials.ts",

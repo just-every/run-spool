@@ -141,7 +141,7 @@ a door the owner turned off stays off until the owner turns it on again.
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 
-Spool vendors Base's import-kit door from `rer-v0.2.66`. Its
+Spool vendors Base's import-kit door from `rer-v0.2.69`. Its
 [grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
 `POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. A grant's
 namespace must be `sentry-org:<organization slug>`, `sentry` (the namespace

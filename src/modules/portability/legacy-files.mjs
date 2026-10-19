@@ -6,13 +6,16 @@ import { readLegacyArchive, ArchiveVerifier } from './format.mjs';
 import { fileRecords, exportArchive } from './files.mjs';
 import { ensureLegacyAudit, legacyTargetState, requireLegacyEmpty } from './legacy-safety.mjs';
 import { insist, PortabilityError } from './storage.mjs';
+import { ledgerReader } from './ledgers.mjs';
 
 export async function recoverLegacyArchive({db,buckets,policy:input,migrations},path,output,transient,acknowledged) {
  insist(acknowledged===true,'legacy_acknowledgement_required',409);
  insist(typeof output==='string' && output!==path,'legacy_output_required',409);
  insist(!(await lstat(output).catch(error=>{if(error.code==='ENOENT')return null;throw error;})),'legacy_output_exists',409);
- // Whole-file verification precedes even staging/audit schema writes.
- for await(const _record of fileRecords(path,readLegacyArchive)){}
+ // Whole-file verification precedes even staging/audit schema writes. It also
+ // reads the archive's own migration ledger, if any, for placement (bridge.mjs).
+ const ledger=ledgerReader();
+ for await(const record of fileRecords(path,readLegacyArchive))ledger.add(record);
  const context={db,buckets,config:policy(input),migrations},target=await legacyTargetState(db,migrations);
  await requireLegacyEmpty(context,target);
  let id,manifest,closing,integrity,status,complete=false;
@@ -26,7 +29,7 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
      event:'legacy_v1_unverified_restore',acknowledgedUnverifiedMetadata:true,
      sourceIdentity:record.sourceIdentity,exportedAt:record.exportedAt,
      recoveryOutput:output,...target,
-    });
+    },ledger.ledgers());
     // A refused schema writes nothing, not even the audit table.
     await ensureLegacyAudit(db);
    }else if(record.kind==='part') {integrity.add(record);await uploadPart(context,id,record.index,record);}
@@ -38,6 +41,6 @@ export async function recoverLegacyArchive({db,buckets,policy:input,migrations},
  // A failure here must be reported; the durable restore audit remains intact.
  try {
   const recovered=await exportArchive(await createPortability({db,buckets,policy:input}),output,transient);
-  return {...recovered,legacyRecovery:true,unverifiedMetadata:true,restoredContentHash:closing.contentHash,...(status.bridged?{bridged:status.bridged}:{})};
+  return {...recovered,legacyRecovery:true,unverifiedMetadata:true,restoredContentHash:closing.contentHash,...(status.bridged?{bridged:status.bridged}:{}),...(status.safetyChanges?{safetyChanges:status.safetyChanges}:{})};
  }catch{throw new PortabilityError('legacy_restored_export_failed',500);}
 }

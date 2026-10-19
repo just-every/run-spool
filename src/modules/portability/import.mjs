@@ -1,5 +1,7 @@
 import { all, statement, state, guard, job, save, partQueries, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
 import { stagePart } from './import-staging.mjs';
+import { normalizeStaged } from './import-safety.mjs';
+import { ensureImportLeases, createImportLease, importLeaseStatus, importRunning, withImportLease } from './import-lease.mjs';
 import { refuseProviderData } from './provider-data.mjs';
 import { refuseDevData } from './dev-data.mjs';
 import { catalogue, validateRow, bindCell, writableColumns } from './catalogue.mjs';
@@ -11,18 +13,21 @@ import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
 import { additiveBridge, sameSchemaMigrations, appliedMigrations } from './bridge.mjs';
+import { checkArchivedLedgers, archivedHistory } from './ledgers.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
-export async function createImport(context,manifest,actor='direct',legacyRecovery) {
-  const {db,config,buckets}=context;await checkManifest(manifest);
+// ledgers: the rows of each migration ledger table the archive carries, as the
+// caller read them from it ({table:rows}); uploadPart binds them to its parts.
+export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers) {
+  const {db,config,buckets}=context;await checkManifest(manifest);checkArchivedLedgers(manifest,ledgers);
   insist(manifest.product===config.product,'wrong_product');
   // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
   await appliedMigrations(db);await state(db);
   const original=manifest;manifest=await restorableManifest(original);
   const skippedTables=original.tables.filter(table=>platformTable(table.name)).map(table=>table.name);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
-  const same=manifest.schema===cat.identity;
-  const bridge=same || upgrade?undefined:await additiveBridge(db,manifest,cat,context.migrations);
-  if(same && !upgrade)await sameSchemaMigrations(db,manifest,cat,context.migrations);
+  const same=manifest.schema===cat.identity,history=()=>archivedHistory(original,ledgers);
+  const bridge=same || upgrade?undefined:await additiveBridge(db,manifest,cat,context.migrations,history);
+  if(same && !upgrade)await sameSchemaMigrations(db,manifest,cat,context.migrations,history);
   if(!bridge)insist(canonicalJson(manifest.tables.map(x=>x.name))===canonicalJson(cat.tables.map(x=>x.name)),'table_inventory');
   if(!upgrade && !bridge)for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name);
@@ -35,26 +40,36 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   insist(canonicalJson(manifest.requiredConfiguration)===canonicalJson(config.requiredConfiguration),'configuration_inventory');
   for(const o of manifest.objects) insist(buckets[o.bucket] && config.buckets[o.bucket] && o.key.startsWith(config.buckets[o.bucket].prefix??''),'bucket_inventory');
   insist(canonicalJson(manifest.payloads.map(x=>x.name))===canonicalJson(Object.keys(config.extraPayloads).sort()),'payload_inventory');
+  await ensureImportLeases(db);
+  const previous=(await state(db)).import_job;
+  if(previous) {
+    if(!(await importLeaseStatus(db,await job(db,previous,'import'))).stale)throw await importRunning(db,previous);
+    await abortImport(context,previous,{staleOnly:true});
+  }
   const id=crypto.randomUUID(),copies=Object.fromEntries(targets.map((t,i)=>[t.name,'rer_portability_stage_'+id.replaceAll('-','')+'_'+i]));
-  const row={id,kind:'import',actor,phase:'staging',completed:0,metadata:{manifest:original,...(skippedTables.length?{restoreManifest:manifest,skippedTables}:{}),copies,targets,triggers:cat.triggers,...(bridge?{bridge}:{}),...(legacyRecovery?{legacyRecovery}: {})}};
+  const row={id,kind:'import',actor,phase:'staging',completed:0,metadata:{manifest:original,...(skippedTables.length?{restoreManifest:manifest,skippedTables}:{}),copies,targets,triggers:cat.triggers,...(bridge?{bridge}:{}),...(legacyRecovery?{legacyRecovery}: {}),...(ledgers?{ledgers}:{})}};
   try {
     await db.batch([guard(db,'(SELECT import_job FROM rer_portability_state WHERE id=1) IS NULL'),
       statement(db,'UPDATE rer_portability_state SET import_job=? WHERE id=1',id),
       ...targets.flatMap(t=>createCopy(db,t,copies[t.name])),
-      statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'import',actor,row.phase,canonicalJson(row.metadata)),db.prepare('DELETE FROM rer_portability_guard')]);
-  }catch(e){if((await state(db)).import_job)throw new (await import('./storage.mjs')).PortabilityError('import_running',409);throw e;}
+      statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'import',actor,row.phase,canonicalJson(row.metadata)),createImportLease(db,id),db.prepare('DELETE FROM rer_portability_guard')]);
+  }catch(e){const running=(await state(db)).import_job;if(running)throw await importRunning(db,running);throw e;}
   return id;
 }
 export async function uploadPart(context,id,index,part) {
+  return withImportLease(context,id,leased=>uploadLeasedPart(leased,id,index,part));
+}
+async function uploadLeasedPart(context,id,index,part) {
   const {db,config}=context,row=await job(db,id,'import');await checkPart(part,index,config.partBytes);
   const previous=await statement(db,'SELECT sha256 FROM rer_portability_parts WHERE job=? AND idx=?',id,index).first();
-  if(previous){insist(previous.sha256===part.sha256,'part_conflict',409);return importStatus(context,id);}
+  if(previous){insist(previous.sha256===part.sha256,'part_conflict',409);return importStatus(context,id,{includeLease:false});}
   insist(row.phase==='staging','import_phase',409);insist(index===row.completed && index<row.metadata.manifest.partCount,'part_order',409);
   const inserts=[],groups=new Map(),manifest=row.metadata.manifest,upgrade=config.acceptedSchemas[manifest.schema];
   for(const item of part.items) {
     if(item.kind==='row') {
       const table=manifest.tables.find(x=>x.name===item.table);insist(table && Number.isSafeInteger(item.index) && item.index>=0 && item.index<table.count,'row_inventory');
       validateRow(table,item.row,manifest.excludedColumns[table.name]??[]);
+      if(row.metadata.ledgers?.[table.name])insist(canonicalJson(item.row)===canonicalJson(row.metadata.ledgers[table.name][item.index]),'ledger_inventory');
       if(platformTable(table.name))continue;
       const target=row.metadata.targets.find(x=>x.name===table.name);
       const data=upgrade?upgrade.upgradeRow(table.name,structuredClone(item.row)):item.row;
@@ -88,7 +103,7 @@ export async function uploadPart(context,id,index,part) {
   }
   try{await stagePart(context,row,part,[...inserts,...partQueries(id,part).slice(1)],stagedCounts);}
   catch(e){const duplicate=await statement(db,'SELECT sha256 FROM rer_portability_parts WHERE job=? AND idx=?',id,index).first();if(!duplicate || duplicate.sha256!==part.sha256)throw e;}
-  return importStatus(context,id);
+  return importStatus(context,id,{includeLease:false});
 }
 const binaryKey=entry=>canonicalJson(entry.bucket===undefined?['payload',entry.name]:['object',entry.bucket,entry.key]);
 function binaryStream(context,id,entry,indexes) {
@@ -129,7 +144,11 @@ async function removeOwned(context,id) {
   for(const o of owned)await context.buckets[o.bucket].delete(o.key);
   await run(context.db,'DELETE FROM rer_portability_owned WHERE job=?',id);
 }
-export async function finalizeImport(context,id,{contentHash,archiveHash,laterJournal}={}) {
+export async function finalizeImport(context,id,options={}) {
+  if((await job(context.db,id,'import')).phase==='complete')return importStatus(context,id);
+  return withImportLease(context,id,leased=>finalizeLeasedImport(leased,id,options));
+}
+async function finalizeLeasedImport(context,id,{contentHash,archiveHash,laterJournal}={}) {
   const {db,config}=context,row=await job(db,id,'import');
   if(row.phase==='complete')return importStatus(context,id);
   insist(['staging','applying'].includes(row.phase),'import_phase',409);
@@ -158,6 +177,7 @@ export async function finalizeImport(context,id,{contentHash,archiveHash,laterJo
   await bucketsEmpty(context,row);
   await refuseDevData(db,row.metadata.copies,row.metadata.targets);
   await refuseProviderData(db,row.metadata.copies,row.metadata.targets);
+  await normalizeStaged(context,row);
   if(config.validateStaged) {
     const read=async table=>{insist(row.metadata.copies[table],'staged_table');const target=row.metadata.targets.find(t=>t.name===table);return (await readCopy(db,target,row.metadata.copies[table],0,row.metadata.manifest.tables.find(t=>t.name===table)?.count??0)).map(x=>x.row);};
     insist(await config.validateStaged({db,tables:{...row.metadata.copies},read,manifest})!==false,'staged_validation');
@@ -187,16 +207,27 @@ export async function finalizeImport(context,id,{contentHash,archiveHash,laterJo
   }catch(e){
     // D1 may have committed even when its acknowledgement failed.
     if((await job(db,id)).phase==='complete')return importStatus(context,id);
+    if(!await context.importLease.owned())throw new (await import('./storage.mjs')).PortabilityError('import_lease_expired',409);
     await removeOwned(context,id);row.phase='staging';await db.batch([save(db,row),db.prepare('UPDATE rer_portability_state SET applying=0 WHERE id=1')]);throw e;
   }
   return importStatus(context,id);
 }
-export async function importStatus(context,id) {
-  const row=await job(context.db,id,'import');return {id,kind:'import',phase:row.phase,completed:row.completed,total:row.metadata.manifest.partCount,
-    contentHash:row.metadata.contentHash??null,requiredConfiguration:row.phase==='complete'?row.metadata.manifest.requiredConfiguration:[],...(row.metadata.bridge?{bridged:row.metadata.bridge}:{}),...(row.metadata.skippedTables?{skippedTables:row.metadata.skippedTables}:{})};
+// Upload receipts stay idempotent; the status door exposes the moving lease.
+export async function importStatus(context,id,{includeLease=true}={}) {
+  const row=await job(context.db,id,'import');return {id,kind:'import',phase:row.phase,completed:row.completed,total:row.metadata.manifest.partCount,...(includeLease?await importLeaseStatus(context.db,row):{}),
+    contentHash:row.metadata.contentHash??null,requiredConfiguration:row.phase==='complete'?row.metadata.manifest.requiredConfiguration:[],...(row.metadata.bridge?{bridged:row.metadata.bridge}:{}),...(row.metadata.skippedTables?{skippedTables:row.metadata.skippedTables}:{}),...(row.metadata.safetyChanges?{safetyChanges:row.metadata.safetyChanges}:{})};
 }
-export async function abortImport(context,id) {
+export async function activeImport(context,actor='direct') {
+  const id=(await state(context.db)).import_job;
+  return id && (await job(context.db,id,'import')).actor===actor?importStatus(context,id):null;
+}
+export async function abortImport(context,id,options={}) {
   const row=await job(context.db,id,'import');insist(row.phase!=='complete','import_complete',409);
+  if(row.phase==='aborted')return importStatus(context,id);
+  return withImportLease(context,id,leased=>abortLeasedImport(leased,row),{abort:true,...options});
+}
+async function abortLeasedImport(context,row) {
+  const id=row.id;
   await removeOwned(context,id);await cleanCopies(context.db,row);row.phase='aborted';
   await context.db.batch([save(context.db,row),statement(context.db,'UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1 AND import_job=?',id)]);
   return importStatus(context,id);
@@ -207,5 +238,5 @@ export async function abortImport(context,id) {
 export async function abortAbandonedImport(context) {
   const id=(await state(context.db)).import_job;
   if(!id)return null;
-  await abortImport(context,id);return id;
+  await abortImport(context,id,{soleOperator:true});return id;
 }

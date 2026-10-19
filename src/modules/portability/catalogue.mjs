@@ -3,18 +3,40 @@ import { canonicalJson, sha256, base64, unbase64, utf8 } from './hash.mjs';
 import { platformTables, platformTable, identifier, matches } from './bookkeeping.mjs';
 /** Platform bookkeeping is mandatory; operator identity remains a seed choice. */
 export const excludedTables=Object.freeze([...platformTables,'oa_%','oc_%']);
-const fields=['product','excludeTables','includeTables','derivedTables','secretColumns','exportRow','replaceableTables','requiredConfiguration','validateStaged','acceptedSchemas','buckets','extraPayloads','partBytes'];
+const fields=['product','excludeTables','includeTables','derivedTables','secretColumns','exportRow','importSafety','importRow','replaceableTables','requiredConfiguration','validateStaged','acceptedSchemas','buckets','extraPayloads','partBytes'];
 const name=value=>typeof value==='string' && value.length>0 && value.length<=512 && !/[\x00-\x1f]/.test(value);
 const names=value=>Array.isArray(value) && value.every(name) && new Set(value).size===value.length;
+const record=value=>value && typeof value==='object' && !Array.isArray(value) && [Object.prototype,null].includes(Object.getPrototypeOf(value));
+const safeCell=value=>{
+  if(value===null || typeof value==='string' || (typeof value==='number' && Number.isFinite(value)))return true;
+  if(!record(value) || Object.keys(value).length!==1 || typeof value.blob!=='string')return false;
+  try{unbase64(value.blob);return true;}catch{return false;}
+};
 export function policy(input) {
   insist(input && typeof input==='object' && Object.keys(input).every(k=>fields.includes(k)) && name(input.product),'invalid_policy');
-  const result={excludeTables:[],includeTables:[],derivedTables:[],secretColumns:{},replaceableTables:[],requiredConfiguration:[],acceptedSchemas:{},buckets:{},extraPayloads:{},partBytes:16*1024*1024,...input};
+  const result={excludeTables:[],includeTables:[],derivedTables:[],secretColumns:{},importSafety:{},replaceableTables:[],requiredConfiguration:[],acceptedSchemas:{},buckets:{},extraPayloads:{},partBytes:16*1024*1024,...input};
   for(const key of ['excludeTables','includeTables','derivedTables','replaceableTables','requiredConfiguration']) insist(names(result[key]),'invalid_policy_'+key);
   for(const table of result.includeTables) if(platformTable(table)) {
     const error=new PortabilityError('platform_table:'+table);
     error.message='includeTables cannot include platform-owned table "'+table+'".';throw error;
   }
-  for(const key of ['exportRow','validateStaged']) insist(result[key]===undefined || typeof result[key]==='function','invalid_policy_'+key);
+  for(const key of ['exportRow','importRow','validateStaged']) insist(result[key]===undefined || typeof result[key]==='function','invalid_policy_'+key);
+  insist(record(result.importSafety),'invalid_policy_importSafety');
+  const safety=Object.create(null);
+  for(const [table,columns] of Object.entries(result.importSafety)) {
+    insist(name(table) && record(columns) && Object.keys(columns).length>0,'invalid_import_safety:'+table);
+    const declared=Object.create(null);
+    for(const [column,values] of Object.entries(columns)) {
+      insist(name(column) && Array.isArray(values) && values.length>0,'invalid_import_safety:'+table+':'+column);
+      const cells=Array.from(values,value=>record(value)?{...value}:value);
+      insist(cells.every(safeCell) && new Set(cells.map(canonicalJson)).size===cells.length,'invalid_import_safety:'+table+':'+column);
+      // The hook's closure cannot expand the declaration while it runs.
+      declared[column]=Object.freeze(cells.map(value=>value && typeof value==='object'?Object.freeze({...value}):value));
+    }
+    safety[table]=Object.freeze(declared);
+  }
+  insist(Boolean(result.importRow)===(Object.keys(safety).length>0),'invalid_policy_importSafety_pair');
+  result.importSafety=Object.freeze(safety);
   insist(Number.isSafeInteger(result.partBytes) && result.partBytes>=1024 && result.partBytes<=16*1024*1024,'invalid_part_limit');
   for(const [table,columns] of Object.entries(result.secretColumns)) insist(name(table) && names(columns),'invalid_secret_columns');
   for(const [identity,entry] of Object.entries(result.acceptedSchemas)) insist(/^[a-f0-9]{64}$/.test(identity) && typeof entry.upgradeRow==='function','invalid_accepted_schema');
@@ -62,6 +84,14 @@ export async function catalogue(db,config) {
   for(const [table,list] of Object.entries(config.secretColumns)) {
     const entry=tables.find(t=>t.name===table); insist(entry,'secret_table_missing:'+table);
     for(const key of list) {const column=entry.columns.find(c=>c.name===key);insist(column && !column.notnull && !column.pk && !column.generated,'invalid_secret_column:'+table+':'+key);}
+  }
+  for(const [table,columns] of Object.entries(config.importSafety)) {
+    const entry=tables.find(t=>t.name===table);insist(entry,'import_safety_table_missing:'+table);
+    for(const [key,values] of Object.entries(columns)) {
+      const column=entry.columns.find(c=>c.name===key);
+      insist(column && !column.generated && !column.pk,'invalid_import_safety_column:'+table+':'+key);
+      for(const value of values)validateRow({...entry,columns:[column]},{[key]:value});
+    }
   }
   for(const table of [...config.replaceableTables,...config.includeTables]) insist(tables.some(x=>x.name===table),'policy_table_missing:'+table);
   for(const spec of Object.values(config.buckets)) if(spec.objectReferences) {

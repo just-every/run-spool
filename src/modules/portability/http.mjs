@@ -25,6 +25,7 @@ export async function createPortabilityHandler({db,buckets,policy,appOrigin,base
       if(id)insist(await service.actor(id)===actor,'job_not_found',404);
       insist(['exports','imports'].includes(collection) && route.length<=4,'route_not_found',404);
       const api=service[collection];
+      if(collection==='imports' && request.method==='GET' && !id)return json({active:await api.active(actor)});
       if(request.method==='POST' && !id) {
         const body=await boundedJson(request,maxBodyBytes);
         if(collection==='imports'){insist(body.confirmed===true,'confirmation_required');return json({id:await api.create(body.manifest,actor)},201);}
@@ -37,6 +38,6 @@ export async function createPortabilityHandler({db,buckets,policy,appOrigin,base
       if(collection==='imports' && request.method==='PUT' && id && action==='parts' && /^(0|[1-9]\d*)$/.test(index??''))return json(await api.uploadPart(id,Number(index),await boundedJson(request,maxBodyBytes)));
       if(collection==='imports' && request.method==='POST' && id && action==='finalize' && !index)return json(await api.finalize(id,await boundedJson(request,maxBodyBytes)));
       throw new PortabilityError('route_not_found',404);
-    }catch(e){return json({error:e instanceof PortabilityError?e.code:'operation_failed'},e instanceof PortabilityError?e.status:500);}
+    }catch(e){return json({error:e instanceof PortabilityError?e.code:'operation_failed',...(e instanceof PortabilityError && e.code==='import_running'?{jobId:e.jobId,abortableAt:e.abortableAt}:{})},e instanceof PortabilityError?e.status:500);}
   };
 }

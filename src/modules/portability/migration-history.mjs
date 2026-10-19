@@ -4,10 +4,11 @@ import { policy, schemaIdentity } from './catalogue.mjs';
 // Replays a chosen set of the destination's migrations, in its applied order,
 // into a scratch database and returns the resulting archive schema identity.
 // Node runners only: restore uses it to place an older archive within the
-// destination's history (see bridge.mjs). plan: [{name,statements}].
+// destination's history (see bridge.mjs). plan: [{name,statements,sha256?}],
+// sha256 being the migration file's hash where the runner read the file.
 export function migrationReplay(plan,input) {
   const config=policy(input);
-  return {names:plan.map(migration=>migration.name),statements:name=>plan.find(m=>m.name===name).statements,async schemaAfter(names) {
+  return {names:plan.map(migration=>migration.name),statements:name=>plan.find(m=>m.name===name).statements,sha256:name=>plan.find(m=>m.name===name).sha256,async schemaAfter(names) {
     const scratch=new DatabaseSync(':memory:');
     const db={prepare:sql=>{const query=scratch.prepare(sql);let values=[];return {bind(...args){values=args;return this;},async all(){return {results:query.all(...values)};}};}};
     try {
