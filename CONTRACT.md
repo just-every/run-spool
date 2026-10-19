@@ -516,8 +516,8 @@ Release 0.5.0 (19 October 2026) was gated on main at `e43ae42`: a populated 0.4.
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 3 | 37 | 16 | 56 |
-| All | 14 | 38 | 16 | 68 |
+| Target and push further | 4 | 36 | 16 | 56 |
+| All | 15 | 37 | 16 | 68 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
