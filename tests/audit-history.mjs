@@ -7,7 +7,8 @@ import {archiveProjection} from './archive.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 const app=await startTestWorker(15555),origin=app.origin;let browser;
 try {
- const cookie=await signIn(origin),req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}}),json=async(...args)=>{const r=await req(...args);assert.ok(r.ok,`${args[0]} HTTP ${r.status}`);return r.json()};
+ // Independent transport connections also make the explicit runtime restart unambiguous.
+ const cookie=await signIn(origin),req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,Connection:'close',...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}}),json=async(...args)=>{const r=await req(...args);assert.ok(r.ok,`${args[0]} HTTP ${r.status}`);return r.json()};
  const canary='private-audit-canary',project=await json('/api/projects','POST',{id:canary,name:'Private audit project canary'}),p='/api/projects/'+project.id;
  const destination=await json(p+'/alerting/destinations','POST',{label:'Audit owner mailbox',recipient:'audit-owner@example.test'});await json(p+'/alerting/destinations/'+destination.id+'/test','POST',{});
  const agent=await json(p+'/keys','POST',{kind:'agent'}),deploy=await json(p+'/keys','POST',{kind:'deploy'});
