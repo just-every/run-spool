@@ -2572,6 +2572,10 @@
       "sha256": "cafa39941a9adb906f2e85d7d6c22d6ff9a6df65715e6902805c4e3d0d5d367c",
       "executable": false
     },
+    ".github/assets/release/spool-issue-page-1600.png": {
+      "sha256": "4aad46ad4f8b1124ea05b19694c50cfd3f0999bf39d10dc58afb511cb6912b57",
+      "executable": false
+    },
     ".github/workflows/command-journey.yml": {
       "sha256": "13a60a40ac747541990d161d01537b97e29570a28ccde8fa53365ee23f198c60",
       "executable": false
