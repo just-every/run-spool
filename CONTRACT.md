@@ -537,7 +537,7 @@ Correction custody also applies to ERR-008 and ERR-009. Repair recurrence includ
 
 ## Status
 
-Judged from the code and tests at commit `8691ce02657b01d863ab9d78e513c661b004009a` (20 October 2026). Implementation rounds own the rows below; clause and acceptance prose was reconciled against the same main head. The earlier audit remains historical context.
+Judged from the code and tests at commit `c48444b8554983e99af827163b26fb07a4d12a08` (20 October 2026). Implementation rounds own the rows below; clause and acceptance prose was reconciled against the same main head. The earlier audit remains historical context.
 
 Evidence paths are repository-relative. Missing rows deliberately contain no implementation citation. Existing test files are proof specifications; their presence alone is not a run result. New acceptance journeys are targets, not invented test files. The older audit's exposure-verification row was done for its bounded local behavior; AI-004 is partial because it now also requires an agent and live rate comparison. Its previously missing email-test row is partial in ALERT-003 after reading current main.
 
