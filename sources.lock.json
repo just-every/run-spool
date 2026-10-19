@@ -2609,7 +2609,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "2d62259af5e68aa2eb56fe7daf84d191586cab1309169151d984278758275b5f",
+      "sha256": "8c64d6b9b1110388ff55205e8c5d792d6197a9b112dab878037ee01977fdc74f",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2617,7 +2617,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "e0e187b4b75b23ad6f3bdaba43655dd357eb2a3122db747182d804fb768ad0fb",
+      "sha256": "03caafb08fa9b1defb5f7e50f38fbd51231f6a527e7f87adb44e064f3113500f",
       "executable": false
     },
     "base-copies.json": {
@@ -2637,7 +2637,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "526b0cfba0099d27bcad0b80bd04abe0f34af9b4341dfaf183812c3a35a1fc27",
+      "sha256": "6cbd3facb66e1b3e39dcaf4f47fb88e6c463a44628bfa0ae0e70ea823ff721ce",
       "executable": false
     },
     "DEMO.md": {
@@ -2869,7 +2869,7 @@
       "executable": false
     },
     "docs/agents.md": {
-      "sha256": "16b6be2d7ed50d3745862bf64f56104895a4b2f0d81a3920794fad52a4c4fb05",
+      "sha256": "1bf0de5100c83fb086efe392feaa2d99bd6fc8acb2bee2c8148e0e1aacd5cb57",
       "executable": false
     },
     "docs/ALERT-IMPLEMENTATION.md": {
@@ -2885,7 +2885,7 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "89058834fba9123e2df258286bb0463fc3c3e68d83301c5e597508bba9244e08",
+      "sha256": "42d958c3ec437199513731bf3daed2d1a6639404f360cfee94fc513750351180",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
@@ -2905,7 +2905,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "7c75385aa0183ff4347ff2f518bd067c42979d388aa49f68975c2281af6df4f5",
+      "sha256": "5581b6fd1acdd8f67b3c506fd1b76b3365413c9d13f887a899ba32215ac6f602",
       "executable": false
     },
     "docs/INBOUND-FILTERS.md": {
@@ -2913,7 +2913,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "50ed8d8f0511f34f581b9623345b11561ca83b9de7cc20b756f0759f4c3892c2",
+      "sha256": "eec9034af16342fc55a31e1cb0893cb5b92d9e99c91e129f7a148415621bc948",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -2969,7 +2969,7 @@
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
-      "sha256": "69f7000b75fd9b488c810497df93973026a1b9a736173d6802e7ea611b19c5af",
+      "sha256": "89beb7c64b8c825c9b80294925442b8533c315948b94cf4b22339a196aa9a3ec",
       "executable": false
     },
     "DUPLICATE-TRANSPORT.md": {
@@ -3193,7 +3193,7 @@
       "executable": false
     },
     "ONBOARDING.md": {
-      "sha256": "c7fbc1a91256957951c93034fae49cfb85ad160c4e68eed155a6f8fd7f656565",
+      "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
     },
     "OPERATIONS.json": {
@@ -3201,7 +3201,7 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "a55da1303fec1e9945ab5431e4b753d29e6468a9552fbdb7e44466be4c368008",
+      "sha256": "c9b24196183c638b539b2381bb2e444f5f2b7f2ecfaf432183aac4aae404c89f",
       "executable": false
     },
     "package.json": {
@@ -3421,7 +3421,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "be76115b01e306bd643e6448debd860bf8ecd59c2c74b4de549b591894911a6b",
+      "sha256": "0c096415a06831c5f17a2c3113b4039e9b98d53f316f0f96854bdba5a1ca0688",
       "executable": false
     },
     "RELEASE.json": {
@@ -3437,7 +3437,7 @@
       "executable": false
     },
     "RUN-LOCALLY.md": {
-      "sha256": "25a8feb4d6c6b3edcd3945d1ae0b5ca886d616512fd6e5080e6c0b2ff33dbead",
+      "sha256": "c84ae5fd724e1c5c63b6c190b2bfc7fde04e943f0f1bcb8f9c22bc80909b5908",
       "executable": false
     },
     "scripts/build-capture.mjs": {
@@ -6965,7 +6965,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "2629b704b324de624cddc285953389785206ddade9aa1143262f824ec2aa609c",
+      "sha256": "084ce8059b37b71354d05bd008769a550813d685d880399d36305cf5c6b1c77e",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
