@@ -69,6 +69,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
   Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
   Prove member deployment authority inherited from REL-001; the current owner proxy ends when membership ships.
 
+  ALERT-004 alternate-operator responsibility is inherited here: until member roles ship, the installation owner is accountable and configures the alternate destination (default No alternate). Team roles must preserve an accountable alternate operator, visible broken-destination and overdue follow-up, and nonrecursive deduplication.
 
 - **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgment window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
@@ -235,14 +236,17 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
 
+  Every new ALERT-004 integration action and channel inherits an accountable owner, due condition, durable queued/running/blocked/failed/uncertain/completed/canceled state, inspectable attempts, one durable follow-up, and explicit reconciliation or authorized resend for unknown effects before shipping.
 
 - **ALERT-003 — Destination tests, digests and snoozing. Status: partial.** Add and test each channel, inspect its named delivery states, enable only after reviewing its result, schedule a US-timezone digest, snooze through a burst and expiry, and inspect one digest/resumption plus unchanged issue evidence for test sends.
 
   Current evidence: `src/domain/alerts/destination-management.server.ts`; `tests/alerts-ui.mjs` Main now tests page-managed email destinations. Cross-channel tests, digests, recipient confirmation and timed snoozing remain missing.
 
-- **ALERT-004 — Durable follow-up and visible automation failure. Status: partial.** Interrupt before and after the send boundary, restart, expire a lease, revoke a rule and lose a provider response; inspect durable state, deduplication, operator follow-up and explicit reconciliation, then restore without replay.
+- **ALERT-004 — Durable follow-up and visible automation failure. Status: done.** Interrupt before and after the send boundary, restart, expire a lease, revoke a rule and lose a provider response; inspect durable state, deduplication, operator follow-up and explicit reconciliation, then restore without replay.
 
-  Current evidence: `src/domain/alerts/dispatch.ts`; `src/domain/fixes/workflow.ts`; `tests/alerts-runtime.mjs`; `tests/alerts-immediate.mjs`; `tests/execution-journey.mjs` Durable bounded alert/fix histories exist; alternate failure notification and universal overdue/lease follow-up are incomplete.
+  The installation owner is the accountable owner and alternate operator until TEAM-001. A project may configure one existing alternate destination, default No alternate. A send pending for five minutes, an open unacknowledged alert after 24 hours, a deployment deadline or an expired fix lease leaves one durable Needs attention row and one permanent AUDIT-001 follow-up fact. Alternate notices have stored source/destination deduplication keys; their own failure never creates another notice. The attention view shows due conditions, source state, attempts and alternate notice outcomes. Unknown effects require explicit reconciliation or owner-authorized resend; a fix resend requires the owner to Advance the workflow, and reconciliation of a known provider mutation requires its recorded result. Follow-up configuration, queues, attempts and step fences are operational stores excluded from archives; the safe audit chronology survives and restored history does not dispatch. ALERT-002, TRACK-001, INT-001 and AI-003/AI-004 inherit the same owner/due/state/attempts and follow-up obligation for their future integration and agent actions.
+
+  Current evidence: `tests/alerts-runtime.mjs` and `tests/execution-journey.mjs` exercise ALERT-004 interrupted delivery, uncertain provider response, expired lease, repeated scheduled scans, one safe audit follow-up, nonrecursive alternate notices, explicit reconciliation/resend, inert restore and 1440/390 Needs attention. Provider behavior is qualified with network-edge test receivers; no real external channel certification is claimed.
 
 - **ALERT-005 — Chat and paging triage actions and link unfurls. Status: missing.** From a Slack alert and a Teams alert, a linked member resolves one issue, archives another until escalating and assigns a third to a team; confirm state, timeline, audit and the updated message. An unlinked user and a read-only member are refused with no change. Paste an issue link and confirm the unfurl for an authorized member and none for an unauthorized one. Acknowledge and resolve a PagerDuty and an Oncall incident and confirm the issue follows, then resolve in Spool and confirm the incident resolves. Replay a signed action (one effect) and forge one (refused).
 
@@ -262,6 +266,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
 
+  Tracker actions inherit ALERT-004 before shipping: an accountable owner, due condition, durable state and inspectable attempts, deduplicated follow-up, and reconciliation or authorized resend for uncertain effects.
 
 - **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples and the imported scrubbing rules and inbound filters, dual-run unchanged SDKs, including services that send no release, mobile builds with SDK-default releases, a Python service with `brotli` installed and mobile crashes with screenshots, and reconcile per-item-type counts, affected users and crash-free rates with Sentry at the buyer's production volume through a deploy-incident burst, with no deficit attributed to retained capacity or a fixed per-minute budget, then cut over; inspect unsupported mappings and guarded undo preserving native edits. Before migration completion, import and preview the versioned GROUP-001 stack/fingerprint rules with provenance and immutable original membership; import history never activates live effects without explicit approval.
 
@@ -329,6 +334,8 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
+  Integration actions inherit ALERT-004 before shipping: an accountable owner, due condition, durable state and inspectable attempts, deduplicated follow-up, and reconciliation or authorized resend for uncertain effects.
+
 ## Push further
 
   Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
@@ -351,10 +358,13 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
 
+  Agent fix steps inherit ALERT-004: an accountable owner, due condition, durable state and inspectable provider attempts; an expired lease or unknown provider response leaves one follow-up and blocks automatic repetition until explicit reconciliation or authorized resend.
 
 - **AI-004 — Prove the released repair from live rates. Status: partial.** Deploy a reviewed fix to only part of traffic, generate known healthy and failing flow exposure, introduce old-version errors and capture gaps, then restore coverage and recur; inspect rate comparison, inconclusive/reached/recurred states and one accountable recurrence follow-up.
 
   Current evidence: `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs` Current proof already compares baseline rates with a confidence bound, affected cohorts, rollout and capture gaps; autonomous production measurement, an ongoing watch and real-account acceptance remain missing.
+
+  Agent verification steps inherit ALERT-004 before shipping: an accountable owner, due condition, durable state and inspectable attempts, deduplicated overdue follow-up, and explicit reconciliation or authorized resend for unknown effects.
 
 - **AI-005 — Explain grouping proposals before applying. Status: partial.** Give the agent deceptively similar and rebuilt failures, inspect a proposal with counterexamples and rate/alert differences, reject then approve another, undo it and verify preserved originals and grouping-change coverage gaps.
 
