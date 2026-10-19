@@ -35,7 +35,7 @@ operation. The successor reads counts and times at
 access. Receipts clear the subject and contain no stored identity value.
 
 If the first deletion batch refuses a changed plan or authority, the untouched
-operation is cancelled and ordinary surviving sessions, sign-in and writes can
+operation is canceled and ordinary surviving sessions, sign-in and writes can
 continue. Cancellation is conditional on no committed step or retained work;
 an operation that has deleted anything remains resumable. The write freeze
 continues through the finalization phase until the receipt is complete.
@@ -94,7 +94,7 @@ and future incoming captures are outside this declared operation.
 
 Structural row keys, event grouping inputs, domain-rule creator attribution,
 unsupported captured surfaces and unreadable content are refused rather than
-altering structural identities or deleting neighbouring records. The displayed
+altering structural identities or deleting neighboring records. The displayed
 hold must be resolved through an appropriate supported workflow first.
 
 ## Shared import custody is a current boundary
