@@ -19,7 +19,7 @@ export async function ownerDeclaration(db: D1Database) {
  const columns=(await db.prepare('PRAGMA table_info(credentials)').all()).results as any[];
  const attributed=columns.some(column=>column.name==='minted_by');
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
- edges:[child('oa_tokens'),child('oa_tokens','issuer_id'),child('oa_sessions'),
+ edges:[child('audit_actor_links','owner_id'),{table:'deployment_actors',from:'oa_operators',where:'? IS NOT NULL',params:['id']},child('oa_tokens'),child('oa_tokens','issuer_id'),child('oa_sessions'),
   {table:'oa_sessions',from:'oa_tokens',on:{source_token_id:'id'}},
   ...['oa_owner_signins','oa_external_identities','oa_invitation_cancellations','oa_step_up_challenges','oa_credentials'].map(table => child(table)),
   ...['oa_provider_sessions','oa_provider_session_pins'].map(sessionChild),
@@ -38,7 +38,7 @@ export async function ownerDeclaration(db: D1Database) {
   {table:'oc_owner_claims',from:'oa_operators',on:{operator_id:'id'},set:{email:'',operator_id:'',session_id:'',jti:'retired-owner-claim'},reason:'Managed claim is irreversibly retired; initialization never reopens.'},
  ],
  audit:[{table:'oa_auth_audit',column:'actor_id',of:'oa_operators',clear:{value:''}}],
- retain:[{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
+ retain:[{table:'spool_audit_events',reason:'Permanent safe facts remain under random labels; the former owner bindings are deleted.'},{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
   {table:'oc_idp_grants',reason:'Provider claim uniqueness remains with personal claim values retired.'},
   {table:'rer_erasure_operations',reason:'Completed receipts contain only counts and times.'}],
  hold:async ({db,subject}: any) => {

@@ -1,3 +1,4 @@
+import { releaseVersionKey } from './releases/identity';
 import { normalize, scrub } from './privacy';
 
 // Admission scrubs text before it is stored. Rows stored under an earlier
@@ -19,6 +20,7 @@ export function ownerAlert(row: any) {
  return { ...row, payload: alertBody(row.payload) };
 }
 const exportText: Record<string, (row: any) => any> = {
+ release_metadata: row => ({...row,version_key:releaseVersionKey(row.release)}),
  feedback: row => ({ ...row, message: scrub(row.message) }),
  projects: row => ({ ...row, name: scrub(row.name) }),
  issues: row => ({ ...row, title: scrub(row.title) }),

@@ -6,6 +6,7 @@ import { issueProjection } from '../agent-projection';
 import { ownerIssue } from '../stored-text';
 import { hash } from '../privacy';
 import { eventQuery } from './query';
+import { ensureReleaseOrderKeys } from '../releases/order';
 const routes=new Hono<any>();
 // Independently enforce the read door; mounting this router never supplies authority.
 const authorize=async(c:any,next:any)=>{
@@ -23,6 +24,7 @@ async function search(c:any,exporting=false){
  if(!['all','open','acknowledged','resolved','suppressed'].includes(state))throw new Error('Invalid issue status');
  if(!['priority','latest','occurrences'].includes(sort))throw new Error('Invalid issue sort');
  const query=eventQuery(q),where=['i.project=?'],args:any[]=[project];
+ if(query.usesLatest)await ensureReleaseOrderKeys(c.env.DB,project);
  if(state!=='all'){where.push('i.state=?');args.push(state)}
  if(q||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
  const filtered=`SELECT i.*, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,(SELECT json_group_array(DISTINCT release) FROM events WHERE project=i.project AND issue=i.id) releases FROM issues i WHERE ${where.join(' AND ')}`;

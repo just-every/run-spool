@@ -1,3 +1,4 @@
+import { AuditHistory } from './AuditHistory';
 import { ReleasePolicy } from './ReleasePolicy';
 import { GroupingRules } from './GroupingRules';
 import { useEffect, useState } from 'react';
@@ -28,6 +29,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&<InboundFilters key={project} {...{project,request,run,busy}}/>}
     <BusinessImports {...{ request, run, busy }} />
+    <AuditHistory {...{request,run,busy}} />
     <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />
     {!!project && <RetentionSettings {...{ project, request, run, busy, refresh }} />}
     {!!project && <ProjectErasure key={project} {...{ project, request, run, busy }} />}

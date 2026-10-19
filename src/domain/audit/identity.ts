@@ -1,0 +1,47 @@
+import { hash } from '../privacy';
+import type { ActorKind, AuditActor, SubjectKind } from './types';
+
+export const randomAuditLabel = () => 'audit:' + crypto.randomUUID().replaceAll('-','');
+export const authorityHash = (kind: string, authority: string) => hash('spool-audit\u0000' + kind + '\u0000' + authority);
+type Binding = { kind: string; authority: string; owner?: string | null; project?: string | null };
+
+/** Only call with server-established authority; this function never authorizes. */
+export async function auditLabel(db: D1Database, binding: Binding): Promise<string> {
+ const [lookup,owner,project] = await Promise.all([
+  authorityHash(binding.kind,binding.authority), binding.owner ? authorityHash('owner',binding.owner) : null,
+  binding.project ? authorityHash('project',binding.project) : null,
+ ]);
+ // A request admitted before erasure must never recreate a deleted identity
+ // link afterwards. Bind only while the native owner/project still exists.
+ const conditions:string[]=[],params:string[]=[];
+ if(binding.owner){conditions.push("EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND status='active')");params.push(binding.owner);}
+ if(binding.project){conditions.push('EXISTS(SELECT 1 FROM projects WHERE id=?)');params.push(binding.project);}
+ const predicate=conditions.length?conditions.join(' AND '):'1';
+ const result=await db.batch([
+  db.prepare(`INSERT INTO audit_actor_links(kind,lookup_hash,label,owner_hash,project_hash,owner_id,project,created) SELECT ?,?,?,?,?,?,?,? WHERE ${predicate} ON CONFLICT(kind,lookup_hash) DO NOTHING`)
+   .bind(binding.kind,lookup,randomAuditLabel(),owner,project,binding.owner??null,binding.project??null,Date.now(),...params),
+  db.prepare(`SELECT label FROM audit_actor_links WHERE kind=? AND lookup_hash=? AND ${predicate}`).bind(binding.kind,lookup,...params),
+ ]);
+ const row=result[1].results[0] as {label:string}|undefined;
+ // Erased or nonexistent authority has no durable mapping. The observation
+ // may still be retained under a fresh, intentionally unbound alias.
+ return row?.label??randomAuditLabel();
+}
+
+export async function auditActor(db: D1Database, binding: Binding & { kind: Exclude<ActorKind,'anonymous'|'unknown'> }): Promise<AuditActor> {
+ return {kind:binding.kind,label:await auditLabel(db,{...binding,owner:binding.kind==='owner'?binding.authority:binding.owner})};
+}
+export function unidentifiedActor(kind: 'anonymous' | 'unknown' = 'anonymous'): AuditActor { return {kind,label:randomAuditLabel()}; }
+export const serviceNames = ['alerts','mail','webhook','erasure','reproducer','fix-provider','portability-cli','business-import','legacy-import'] as const;
+export const serviceActor = (db: D1Database, service: typeof serviceNames[number]) => auditActor(db,{kind:'service',authority:service});
+export const auditSubject = async (db: D1Database, kind: SubjectKind, authority: string, project?: string) =>
+ ({kind,label:await auditLabel(db,{kind:'subject:'+kind,authority,project})});
+export const projectAuditLabel = (db: D1Database, project: string) => auditLabel(db,{kind:'subject:project',authority:project,project});
+
+/** Include these in the erasure transaction; labels on permanent rows stay unchanged. */
+export async function eraseActorLinks(db: D1Database, owner: string): Promise<D1PreparedStatement> {
+ return db.prepare('DELETE FROM audit_actor_links WHERE owner_hash=?').bind(await authorityHash('owner',owner));
+}
+export async function eraseProjectLinks(db: D1Database, project: string): Promise<D1PreparedStatement> {
+ return db.prepare('DELETE FROM audit_actor_links WHERE project_hash=?').bind(await authorityHash('project',project));
+}

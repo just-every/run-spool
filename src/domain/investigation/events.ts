@@ -6,6 +6,7 @@ import { diagnosticProjection } from '../agent-projection';
 import { admissionBasis, type GroupingRoute } from '../bundle-grouping';
 import { sentryGroupingInfo } from '../sentry/grouping';
 import { eventQuery } from './query';
+import { ensureReleaseOrderKeys } from '../releases/order';
 import { createRepositoryLinker } from '../repository-links';
 
 const routes = new Hono<any>();
@@ -23,7 +24,8 @@ function scope(c:any) {
  return {query,where:`e.project=? AND e.issue=? AND (${query.sql})`,args};
 }
 routes.get('/:project/issues/:issue/events',async c=>{
- const {where,args}=scope(c),db=c.env.DB,q=c.req.query('q')??'',order=c.req.query('order')??'newest';
+ const {query,where,args}=scope(c),db=c.env.DB,q=c.req.query('q')??'',order=c.req.query('order')??'newest';
+ if(query.usesLatest)await ensureReleaseOrderKeys(db,c.req.param('project'));
  if(!['oldest','newest'].includes(order))throw new Error('Event order must be oldest or newest');
  const signature=await hash(JSON.stringify([c.req.param('project'),c.req.param('issue'),q,order]));
  let cursor:any;
@@ -46,7 +48,8 @@ routes.get('/:project/issues/:issue/events',async c=>{
   tags:{events:available.total,rows:tagRows.map((row:any)=>({...row,percent:available.total?100*row.count/available.total:0})),complete:tags.results.length<=1000,limit:1000}});
 });
 routes.get('/:project/issues/:issue/events/:event',async c=>{
- const {where,args}=scope(c),db=c.env.DB,occurrence=c.req.query('occurrence');
+ const {query,where,args}=scope(c),db=c.env.DB,occurrence=c.req.query('occurrence');
+ if(query.usesLatest)await ensureReleaseOrderKeys(db,c.req.param('project'));
  if(!occurrence)throw new Error('Exact occurrence required');
  const row=await db.prepare(`SELECT e.*,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence WHERE ${where} AND e.id=? AND e.occurrence=?`).bind(...args,c.req.param('event'),occurrence).first();
  if(!row)return c.json({error:'Event not found in this issue and query'},404);

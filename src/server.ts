@@ -1,3 +1,5 @@
+import { wrapRequest } from './domain/audit/request';
+import { deploymentTimeouts } from './domain/deployments/timeouts';
 import { withDemo } from './modules/demo/index.mjs';
 import { seedDemo } from './demo';
 import start from '@tanstack/react-start/server-entry';
@@ -25,6 +27,7 @@ import type { AlertEnvironment } from './domain/alerts/types';
 import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+ await deploymentTimeouts(env,event.scheduledTime);
  await runAlerts(env,event.scheduledTime);
  // Accepted erasure jobs continue here after the client disconnects.
  await continueErasures(env.DB, Date.now() + 20_000);
@@ -38,7 +41,7 @@ function refused(error: unknown) {
 export default withDemo({
  scheduled,
  async fetch(request, bindings, execution) {
-  return handle(request, bindings, execution).catch(refused);
+  return wrapRequest(request,runtimeBindings(bindings),()=>handle(request, bindings, execution)).catch(refused);
  },
 } satisfies ExportedHandler<Bindings & AlertEnvironment>, { seed: seedDemo });
 /** Claim answers (first, refused or already initialized) and every sign-in or

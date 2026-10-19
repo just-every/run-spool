@@ -55,7 +55,7 @@ export async function startTestWorker(port, bindings={}) {
   }catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   const health=await fetch(origin+'/health');
   try{assert.equal(health.status,200,'Emitted Worker health succeeds')}finally{await health.body?.cancel()}
-  return {origin,stop,diagnostic:()=>output.summary()};
+  return {origin,stop,restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
  }catch(failure){
   output.add(String(failure));
   const result=await finishProductRun({failure,output,artifactDirectory,runId,cleanup:[['test-worker',stop]]});

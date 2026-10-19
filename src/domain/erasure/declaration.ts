@@ -15,7 +15,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
-  ...['release_policies','release_metadata','release_builds','issue_resolutions','grouping_policies', 'feedback', 'inbound_filter_policies', 'events', 'issues', 'releases', 'artifacts', 'outcomes', 'credentials', 'browser_origins', 'browser_origin_guards', 'sentry_project_aliases',
+  ...['audit_actor_links','deployment_steps','deployment_notices','deployment_runs','deployment_actors','release_policies','release_metadata','release_builds','issue_resolutions','grouping_policies', 'feedback', 'inbound_filter_policies', 'events', 'issues', 'releases', 'artifacts', 'outcomes', 'credentials', 'browser_origins', 'browser_origin_guards', 'sentry_project_aliases',
    'grouping_routes', 'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_destinations', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
    'reproducers', 'reproducer_runs', 'reproducer_run_tokens', 'fix_workflows', 'fix_leases', 'fix_receipts', 'exposures'].map(fromProject),
   { table: 'alert_mail_attempts', from: 'alert_mail_jobs', on: { delivery_id: 'id' } },
@@ -34,6 +34,7 @@ export const projectErasure = defineErasure({
   { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
  ],
  retain: [
+  {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},
   { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },
   { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },
   { table: 'oc_owner_claims', reason: 'The managed owner-claim ledger stays with the installation.' },

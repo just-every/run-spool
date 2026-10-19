@@ -1,3 +1,4 @@
+import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -22,7 +23,7 @@ try {
  const sole=await app.json('/api/owner/erasure');assert.equal(sole.hold,'verified_successor_required');
  let before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(sole))).status,409);
- assert.deepEqual(await snapshot(app),before,'sole owner refusal changes no data');
+ assertAuditAppendOnly(await snapshot(app),before,'sole owner refusal changes no data');
  // A mistyped first invitation is retired when the owner invites the real successor, so it cannot hold erasure.
  await app.json('/api/owner/erasure/successor',{email:'sucessor@spool.test',displayName:'Successor Person'},202);
  const next=await successor(app);
@@ -62,16 +63,18 @@ try {
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
   assert.equal((await app.request('/api/owner/erasure',value,headers)).status,status);
-  assert.deepEqual(await snapshot(app),before,'denied destructive transport is nonmutating');
+  assertAuditAppendOnly(await snapshot(app),before,'denied destructive transport is nonmutating');
  }
  await app.DB.prepare('UPDATE repairs SET note=note||? WHERE project=?').bind(' more Test owner','personal-capture').run();
  before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
- assert.deepEqual(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
+ assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
  const latest=await app.json('/api/owner/erasure');
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
+ assert.deepEqual(after.spool_audit_events.filter(row=>row.sequence<=before.spool_audit_events.at(-1)?.sequence),before.spool_audit_events,'AUDIT-001 actor erasure never rewrites prior safe chronology');
+ assert.ok(after.audit_actor_links.every(row=>row.owner_id!==owner.id),'AUDIT-001 actor bindings are erased');
  for(const needle of needles)assert.ok(!JSON.stringify(after).includes(needle),`all stored cells erased for ${needle}`);
  assert.deepEqual(after.oa_operators.find(row=>row.id===otherId),before.oa_operators.find(row=>row.id===otherId),'unrelated operator identical');
  for(const row of independent.results)assert.deepEqual(after.oa_sessions.find(item=>item.id===row.id),row,'independent other-person session preserved');
@@ -109,7 +112,7 @@ try {
  const planned=await door.plan(Buffer.from(JSON.stringify(sentryExport())));
  assert.equal((await door.apply(planned.planId,planned.fingerprint)).job.state,'completed');
  const held=await app.json('/api/owner/erasure');assert.equal(held.hold,'shared_import_custody');
- before=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(held))).status,409);assert.deepEqual(await snapshot(app),before,'shared originals and their other-person bytes remain identical on refusal');
+ before=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(held))).status,409);assertAuditAppendOnly(await snapshot(app),before,'shared originals and their other-person bytes remain identical on refusal');
  evidence.checks.push('shared import originals and principal custody explicitly held without mutation');
  await app.close();app=null;
  evidence.authorityRaces=await authorityRaces();

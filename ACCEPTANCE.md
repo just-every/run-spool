@@ -66,6 +66,10 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/auth/session.server.ts`; `src/domain/owner-authority.ts`; `tests/owner-erasure.mjs` Only one active owner and isolated projects exist. Successor invitation is transfer, not team membership.
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+  Prove member deployment authority inherited from REL-001; the current owner proxy ends when membership ships.
+
+
 - **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgement window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
   Current evidence: `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.
@@ -115,6 +119,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 - **SDK-008 — Sentry user identity policy, affected users and end-user erasure. Status: partial.** With an unmodified Sentry browser SDK and Python SDK and only the DSN changed, send errors to one issue from three identified users (`setUser` with id, with email only and with username only) and from two anonymous visitors whose browser SDK sends `ip_address: "{{auto}}"`. Under keep: the issue stream's Users column and issue detail show 5 affected users, matching Sentry's count in the MIG-001 dual run, `user.email:<one of them>` finds exactly that user's issues, the user facet lists the five keys with counts, and a read-only collaborator sees the count but no values. Change the policy to hash with its preview and audit entry: counts stay 5, no raw email or IP exists in storage, issue views, packets, exports or the archive, and a raw email search finds nothing. Under drop: no identity is stored and the Users column shows unavailable with its reason, never 0. Erase one user by email: the count-only preview names the matching records, and afterwards the value is gone from search, facets, issue views, exports and the next archive, the receipt and audit carry no value, and restoring an older archive is refused.
 
   Current evidence: `src/domain/privacy.ts`; `src/domain/exposure/proof.ts`; `src/domain/sentry/convert.ts`; `tests/execution/exposure.mjs` A native optional random installation `client` identifier is pattern-checked and counted as distinct affected users, with unattributed events counted separately, in repair exposure proof. The Sentry `user` interface is excluded with an `identity_policy_unavailable` note at owner event detail; public-door SDK-008 proof checks the note, absence of the submitted identity and no note when no user was sent. Keep/hash/drop policy, the shared affected-user figure, user search keys, role scope and end-user erasure remain absent.
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
 
 - **SDK-009 — Release identity from unmodified Sentry SDKs: no release, automatic releases, ordering and plain Resolve. Status: partial.** With only the DSN changed, send errors from an unmodified Python SDK with no release, from a Python SDK with an auto-detected git-SHA release, and from iOS and Android SDKs with their default `bundle@version+build` release, none of them registered. Confirm all are accepted and create issues and alerts, the two releases appear as auto-created with first-seen time and creating SDK, and the release-less events count in issue totals and search and are named as "no release" in release-scoped views. Register one of those releases afterwards through `sentry-cli releases new` and `set-commits` and confirm it enriches the same release. Plain-resolve one issue and send the same error in the same release: it is Regressed and one regression alert fires. Resolve another issue in the next release across two auto-created semver releases (`app@1.2.0`, `app@1.10.0`) and two SHA releases: regression follows the stated order, an older-release event does not regress it, and a release-less event is counted on the issue without reopening it. Create a mixed history first seen in this order: `1.2.0`, `abc123`, `1.10.0`, `1.2.0-rc.1`, `def456`. Under default first-seen order, every list and export returns that order and latest is `def456`. Under semver order, every list and export returns `1.2.0-rc.1`, `1.2.0`, `1.10.0`, `abc123`, `def456`, and latest is `def456`. Repeat calls under each setting, sort every permutation of the five releases to the same result, and check all comparison triples for transitivity. Include equal first-seen timestamps and semver names with equal precedence but different build metadata to prove the first-seen and byte-order tie breaks. Confirm `release:latest`, release comparisons and regression use the chosen order. Send an event with an invalid release name and confirm it is accepted as release "none" with its counted note. Switch the project to "registered sequence only" with its preview and confirm an unregistered release and a missing release are each refused with the named reason and counted in project outcomes, usage and the MIG-001 dual run.
 
@@ -166,17 +173,25 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/repository-links.ts`; `src/domain/operators/deployments.ts`; `src/ui/workbench/RepositorySource.tsx`; `tests/repository-source-flow.mjs`; `docs/REPOSITORY-SOURCE.md` Explicit owner/deploy-recorded manifest and path mappings link Python/Go reported coordinates and mapped JavaScript originals to full-SHA GitHub, GitLab and Bitbucket file/line URLs. Missing/unsafe/unmatched evidence is visibly unmapped; links are labelled unverified and no source is fetched. Provider grants, access revocation, automatic mappings, suspect commits, CODEOWNERS, PR comments and real-account qualification remain absent. Existing GitHub draft-PR read-back uses a provider double.
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+  REL-001 connected included-commit read-back is proved here, without treating caller-recorded commits as fetched ancestry.
+
+
 - **SRC-003 — sentry-cli and Sentry build-plugin compatibility. Status: missing.** In GitHub Actions and GitLab CI, run each listed sentry-cli subcommand and each listed bundler, Next.js, Gradle, Xcode, Fastlane, React Native and Dart integration unmodified except for URL, slugs and token. Capture a real failure from each built app and confirm the release, commits, deploy, maps and symbols are registered and frames are original. Run the Next.js and React Native uploads for three consecutive releases of a production-sized build and confirm no upload is refused for artifact count or for a map within SRC-004's size limit. Run an unsupported flag (named failure) and repeat an upload with an ingest or read-only token (refused, nothing stored).
 
   Current evidence: No implementation evidence yet.
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+  REL-001 unmodified CLI/plugin registration and enrichment is proved here, retaining the auto-created release and original first-seen time.
+
 
 - **SRC-004 — Published source map and debug-file capacity. Status: partial.** Build a production Next.js App Router app (more than 100 chunks, a vendor chunk map over 2 MiB) and a React Native Hermes release, and upload with unmodified `withSentryConfig` and `@sentry/react-native` for three consecutive releases. Confirm every map is stored, and that an error in a vendor-chunk frame and an app frame in the third release shows original source. Upload an indexed map, a map with `sourceRoot` and a 50 MiB map, and confirm each resolves. Upload a 40 MiB dSYM and a ProGuard mapping, and confirm they symbolicate and deobfuscate. Confirm no upload is refused for artifact count. Set an artifact storage cap and confirm the next upload names each refused file and the cap in CI output and the release view. Advance the clock past retention for a release with no retained events and confirm its maps expire with a named gap. Opt one project into source fetching from an allowed origin, confirm a frame resolves from the fetched map, and confirm a private-network URL is refused.
 
   Current evidence: `src/domain/artifacts.ts`; `src/domain/sentry/deploy-routes.ts`; `packages/sdk/src/sourcemaps/cli.mjs`; `tests/sdk-package.mjs`; `tests/triage-journey.mjs` Flat Source Map V3 upload with debug-ID and SHA-256 identity, and lookup, work. A project can hold at most 20 artifacts for its whole life (`artifact_budget` in `migrations/core/0008_occurrence_identity.sql`, returned as `429 Artifact budget exhausted`), each map at most 256 KiB with 100 sources and 128 KiB of mappings; indexed maps are refused and `sourceRoot` is not applied. Debug files, chunked assembly, streamed storage, per-file failure reasons, use-based artifact retention and source fetching are absent.
 
-- **REL-001 — Release and deployment history. Status: partial.** Report started/completed/failed deployments from CI, repeat callbacks, abandon one, roll back production and inspect included commits, timeout follow-up and regression ordering for delayed old events. Let a Sentry SDK event auto-create a release, then register the same name with commits and a deploy through `sentry-cli`, and confirm release history shows one enriched release with its original first-seen time.
+- **REL-001 — Release and deployment history. Status: done.** Journey **REL-001** enters native owner and deploy-key doors to record start, progress, success, failure, rollback and ordered included commit SHAs across environments. Repeated callbacks preserve one fact; conflicting callbacks and terminal changes are refused. Evaluate an abandoned caller-deadlined start twice: history has one overdue fact and one notification attempt through the selected existing email destination, truthfully suppressed in local development. Exercise shared first-seen/semver/registered list/latest/regression order, delayed old events, auto-release enrichment preserving first-seen, foreign/revoked denials, inert archive restore and table erasure. Inspect empty/started/succeeded/failed/timed-out/rollback history and owner recording at 1440/390.
 
-  Current evidence: `src/domain/sentry/deploy-routes.ts`; `src/domain/operators/deployments.ts`; `src/domain/releases/`; `tests/operator-flow.mjs`; `tests/release-identity-flow.mjs` Completed manifests, registered sequence and Sentry auto-created release history with native registration enrichment exist. Included-commit history, sentry-cli enrichment, started/timeout workflows, full rollout history and SDK-009's consistent total order remain incomplete.
+  Evidence: `tests/deployment-history.mjs` (REL-001), `tests/release-identity-flow.mjs`, `src/domain/deployments/`, `src/domain/releases/order.ts`. SRC-003 carries the unmodified CLI/plugin journey, SRC-002 connected included-commit read-back and TEAM-001 member authority in their own text and acceptance, under ct's 19 October ruling. Caller-recorded SHAs do not prove connected ancestry.
 
 - **REL-002 — Suspect change and release comparisons. Status: partial.** Deploy two commits while retaining old clients, trigger first/regressed errors and an unrelated spike, inspect candidate reasons and comparable release rates, then reject a false suspect without changing occurrences.
 
@@ -208,6 +223,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/alerts/mail.ts`; `src/domain/alerts/webhook.server.ts`; `src/domain/alerts/destination-management.server.ts`; `tests/alerts-egress.mjs`; `tests/alerts-ui.mjs` Page-managed email and signed generic webhooks exist; native Slack/Teams/Oncall/PagerDuty adapters and real delivery qualification are missing.
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
+
 - **ALERT-003 — Destination tests, digests and snoozing. Status: partial.** Add and test each channel, inspect its named delivery states, enable only after reviewing its result, schedule a US-timezone digest, snooze through a burst and expiry, and inspect one digest/resumption plus unchanged issue evidence for test sends.
 
   Current evidence: `src/domain/alerts/destination-management.server.ts`; `tests/alerts-ui.mjs` Main now tests page-managed email destinations. Cross-channel tests, digests, recipient confirmation and timed snoozing remain missing.
@@ -222,11 +240,17 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Delivery integrations
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
+
 - **TRACK-001 — Vector, Jira and Linear issue sync. Status: partial.** Create a ticket from a Spool issue in each tracker, repeat the action, resolve/reopen on both sides, sync a Jira assignee and comment both ways, create a Jira ticket from an alert rule, reject a stale/forged callback and disconnect; confirm one ticket, consistent links and visible conflict rather than silent overwrite.
 
   Current evidence: `src/domain/repairs/routes.ts`; `src/domain/fixes/workflow.ts`; `tests/repair-recovery.mjs` Manual repair links and draft PR history exist; tracker creation and status synchronization do not.
 
 ### Migration and portability
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
 
 - **MIG-001 — Sentry organization migration. Status: partial.** With a real buyer export/API account, preview/reconcile all named collections, apply/resume, compare issue/event/artifact samples and the imported scrubbing rules and inbound filters, dual-run unchanged SDKs, including services that send no release, mobile builds with SDK-default releases, a Python service with `brotli` installed and mobile crashes with screenshots, and reconcile per-item-type counts, affected users and crash-free rates with Sentry at the buyer's production volume through a deploy-incident burst, with no deficit attributed to retained capacity or a fixed per-minute budget, then cut over; inspect unsupported mappings and guarded undo preserving native edits. Before migration completion, import and preview the versioned GROUP-001 stack/fingerprint rules with provenance and immutable original membership; import history never activates live effects without explicit approval.
 
@@ -266,9 +290,15 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs` Manual cutoff, tombstones and explicit gaps exist; scheduled/plan retention, residency choice and legal holds do not.
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
+
 - **GOV-003 — Published retention, retained volume and sustained intake rate. Status: partial.** With unmodified Sentry browser (Next.js) and Python (Django) SDKs and only the DSN changed, send 60,000 errors to one project over a simulated month, including a burst of 5,000 in one minute, once with spike protection off and once at its default. Confirm none is refused for retained capacity or a fixed per-minute budget, that any refusal with spike protection on is counted only as `spike_protected`, and that every accepted event is searchable within 60 seconds and counted. Continue past 160,000 retained events and confirm new errors, including a brand-new crash, are still accepted. Send more than 10,000 in one minute and confirm `server_rate_limited` 429s with `Retry-After` and counted outcomes. Advance the clock past the 90-day window and confirm the oldest events expire automatically with a named gap while new events are accepted. Set a monthly budget below the volume and confirm refusals start only at that budget, as `over_budget`. Archive and export the 160,000-event project, restore it into an empty destination and reconcile counts, then erase one user within 300 seconds and the project within 16 minutes.
 
   Current evidence: `src/domain/retention.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure-cap.mjs` An owner-run retention cutoff with occurrence tombstones, deduplication horizon and named retention gaps exists, and over-limit intake returns 429 with `Retry-After` and a counted outcome. Today `src/domain/admission.ts` and `migrations/core/0008_occurrence_identity.sql` refuse every new event once a project retains 10,000 (`retained_event_budget`) and above 120 a minute (`minute_budget`), and `src/domain/archive.ts` refuses a project archive above 10,000 events. Automatic expiry, published windows and plan volume, the published sustained rate and the named volume reasons are absent.
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
 
 - **BILL-001 — Predictable USD usage and ingestion budgets. Status: partial.** Run representative volume through a project budget, reconcile usage and displayed USD forecast, trigger warning/cap outcomes and a spike-protection cap, confirm filtered events consume no quota, send Sentry SDK client reports and reconcile discarded counts by reason and category, exceed one DSN key's rate limit while a second key keeps ingesting, send an envelope with one oversized item and confirm it is counted as refused under SDK-011 without consuming quota, adjust sampling, set a monthly budget below a month's volume and confirm refusals start only at that budget as `over_budget` with nothing refused for retained count, and complete a buyer-controlled billing sandbox invoice with tax and cancellation handling.
 
@@ -278,11 +308,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.
 
-- **AUDIT-001 — Permanent privacy-safe action audit. Status: partial.** Perform owner/member/agent and denied actions, restart/export/restore, erase an actor/project and inspect retained nonpersonal chronology, correct outcomes and absence of secret/erased identifiers.
+- **AUDIT-001 — Permanent privacy-safe action audit. Status: partial.** Journey **AUDIT-001** uses native owner/service/denied/stale doors, fixed snapshot cursor history and JSON/CSV export, restarts the Worker and erases an actor/project with canaries. Permanent facts retain safe actor/subject aliases, time, action and truthful outcome; erasure deletes private attribution links without rewriting old facts as a successor. Inspect organization history/export/error at 1440/390.
 
-  Current evidence: `src/domain/owner-authority.ts`; `src/domain/erasure`; `tests/project-erasure.mjs`; `tests/owner-erasure.mjs` Current destructive/triage and workflow audit exists; organization-wide audit UI/export and future provider paths are incomplete.
-
-### Deployment integrations
+  Current proof: `tests/audit-history.mjs` (AUDIT-001), `tests/owner-erasure.mjs`, `src/domain/audit/`, `migrations/core/0051_safe_audit.sql`. HTTP facts explicitly describe response outcomes; email notification attempts have service facts. Remaining: atomic facts for all existing writers, full auth/import/provider/background attribution, value-free legacy audit and immutable retention detail, and append-preserving private archive/restore. Safe history currently has its own JSON/CSV export and is explicitly excluded from installation archives; no restore-completeness claim is made. TEAM-001, SRC-002/003, TRACK-001, ALERT-002/005, INT-001, SDK-008, GOV-002/003 and AI-001/003 inherit all audit obligations in their own entries.
 
 - **INT-001 — Vercel and Netlify deployment connectors. Status: missing.** Deploy preview and production from each provider, upload artifacts, trigger a mapped error, fail/roll back a deployment and replay a callback; inspect one deployment identity and immediate disconnect/erasure fences.
 
@@ -290,9 +318,15 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ## Push further
 
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
+
 - **AI-001 — Controlled coding-agent handoff. Status: partial.** In each named agent client, request one issue packet, inspect its untrusted labels and missing coverage, refuse cross-project/mutation/prompt-injection requests, revoke the grant and confirm the next HTTP/CLI/MCP call is denied.
 
   Current evidence: `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs` Generic read-only CLI/MCP is implemented; named client qualification and model-egress controls for automated work are incomplete.
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
 
 - **AI-002 — Generate and test the smallest reproduction. Status: partial.** Approve a real captured failure, inspect a minimal failing case and competing-cause experiment, run malicious telemetry/timeout/missing-artifact cases, and repeat against the fixed release; failed setup cannot become not-reproduced success.
 
@@ -301,6 +335,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 - **AI-003 — Minimal code repair as a tested pull request. Status: partial.** Authorize a scoped repair, observe a real source patch and regression failure-before/pass-after in a buyer repository, open one draft PR/MR, cancel/expire/revoke between steps and inspect durable results without unauthorized writes or duplicate branches.
 
   Current evidence: `src/domain/fixes/workflow.ts`; `src/domain/fixes/provider.ts`; `tests/execution-journey.mjs` Current GitHub double journey opens a data-only artifact PR and observes merge/checks; generated code fixes, real repository acceptance and GitLab are absent.
+
+  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
+
 
 - **AI-004 — Prove the released repair from live rates. Status: partial.** Deploy a reviewed fix to only part of traffic, generate known healthy and failing flow exposure, introduce old-version errors and capture gaps, then restore coverage and recur; inspect rate comparison, inconclusive/reached/recurred states and one accountable recurrence follow-up.
 
