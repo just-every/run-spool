@@ -479,6 +479,8 @@ Evidence paths are repository-relative. Missing rows deliberately contain no imp
 
 Release 0.4.0 (19 October 2026) was gated on main at `8b81bef`: a 0.3.1 upgrade applying migrations 0044-0048 with data kept, 0.3.1 browser and CLI archives restored into fresh installations, the synthetic Sentry export moved in through the import door beside new Sentry-SDK errors, and the hosted email sign-in and new-issue alert email. The published rows above claim no more than that gate and the Verify run on the release commit; ERR-010 stays partial because native-device, integration and real-account acceptance remain open.
 
+Release 0.5.0 (19 October 2026) was gated on main at `e43ae42`: a populated 0.4.0 upgrade with every row kept (no new migrations), a 0.4.0 `rer export` archive carrying a platform migration ledger restored into a fresh installation, a fresh one-line install running a separate browser app with the published SDK and the Sentry SDK side by side (mapped source, regression in a later release, scrubbing, evidence packet, read-only agent key, archive restore), and the same jobs on a fresh hosted deploy with emailed sign-in, a delivered new-issue alert email and a backup restored after remove and redeploy. SDK-006 and GROUP-001 are done on the evidence recorded in their rows; the published rows claim no more than that gate and the Verify run on the release commit.
+
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |

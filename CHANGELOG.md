@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.5.0 — 2026-10-19
+
+Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). In a checkout of `main`, run `git pull` and `rer dev`; in a checkout of an earlier tag, run `git fetch --tags && git checkout v0.5.0` and `rer dev`. For a hosted installation, run `rer deploy` from the original deploying checkout. This release adds no migrations (48 total), so nothing changes in the database; keep the existing database, private settings, project keys and deployment receipts, and do not reset or restore into the populated installation.
+
+### What an owner gets
+
+- **Inbound filters cover every accepted kind of report.** Settings → **Inbound filters** now apply before every category Spool accepts, not only errors. Allowed domains (Origin/Referer) are checked for every request; trusted IP, crawler, legacy-browser and localhost checks also apply to Sentry feedback and client reports; error-only rules (messages, browser extensions, hydration and chunk-load errors) stay on errors. Filter counts match what unmodified Sentry browser and Node SDKs actually send, including their automatic client reports, and Settings names the fields a category does not carry ([inbound filters](docs/INBOUND-FILTERS.md)).
+- **Grouping rules for native JavaScript, Python and Go errors.** Project Settings previews stack and fingerprint rules across every retained event and saves them as immutable versions for later native and Sentry intake. Each event explains its grouping from the exact rule version it was admitted under, and library frames collapse in the event view. From an issue, split selected occurrences into a new issue or merge them into another, with a preview, an audit entry and undo; original membership is kept. Saving rules never moves existing occurrences ([grouping rules](docs/GROUPING-RULES.md)).
+- **Sturdier Sentry intake.** Deflate-encoded envelopes are accepted beside gzip; an unsupported encoding returns 415 naming it and is counted; a malformed event item inside a correctly framed envelope is counted as `invalid_item` while the valid errors beside it are still admitted.
+- **Business imports open at the owner's first claim on RER Business installations.** An installation RER provisions for an approved Business plan carries `RER_IMPORT_DOOR=on` with its owner-claim trust bindings; there the owner's first claim opens the Business import door, and a door the owner later turns off stays off. Self-hosted `rer deploy` never sets the variable, so nothing changes on your own Cloudflare account. The door also accepts RER's Business export namespace `sentry`.
+- The application pins rer 0.2.66, with refreshed Base import-door and owner-claim copies.
+
+### This release's gate
+
+Run on `main` at `e43ae42` before this record was written, at 1440 and 390. Locally, a fresh one-line `npx -y @runeditrun/rer dev just-every/run-spool` install created a project from `/setup` and received **Send test error**. A separate browser app on its own origin, using the published `@just-every/spool` 0.1.0 beside the Sentry browser SDK, threw a real TypeError in Chromium: Spool mapped the minified frame to `src/account.ts:42` through maps uploaded with `npx spool-sourcemaps`, while the Sentry SDK's copy reached a second project. Resolving the issue and shipping the next release reopened it as "Regressed in shop@1.1.0". A Node error carrying an email, a password and a token was stored scrubbed, with no raw value anywhere in the database. The evidence packet downloaded; a read-only agent key read issues and packets through `spool-agent` and was refused every write, the other project and the archive; the Settings archive restored into a fresh installation from `/setup` with both projects, the regression and the mapped stack. A populated 0.4.0 installation (all three key kinds, releases, a private map, native and Sentry SDK events, resolved and suppressed issues, grouping rules, inbound filters, an alert rule and a platform migration ledger) was upgraded to this commit with `rer dev`: every row of every table was kept, its 0.4.0 keys still ingested and its 0.4.0 inbound filter still applied. A `rer export` archive written by 0.4.0 from that database restored with `rer import` into a fresh installation of this commit. Hosted, a fresh `rer deploy` to Cloudflare with SendGrid signed the owner in by an emailed link; the same app jobs ran against it; the new-issue alert email reached a real mailbox and its link opened the issue; then a Settings backup, `rer deploy --remove`, a fresh `rer deploy` and a restore from `/setup` brought the projects and issues back. These are the only acceptance claims of this release.
+
+### Not in this release
+
+- **Homepage claims still ahead of the code:** "alternative to Sentry, Bugsnag and Rollbar": Sentry intake and import are bounded (below) and there is no Bugsnag or Rollbar import or SDK compatibility. "Export everything to one file": archives refuse a project above 10,000 events or 20 maps, exclude alert email destinations (restored alert rules are disabled) and exclude the import door and its journal. "Node 22 and pnpm are all you need. Setup asks for your email": rer supplies pnpm and the pinned Node, and first `rer dev` chooses a local owner without asking. "Every feature, on your own computer": local development suppresses all mail, so sign-in and alert email need a hosted installation with a mail provider.
+- Project roles (TEAM-001) are not implemented; the owner acts as maintainer for grouping rules and filters.
+- Sentry intake stays bounded: no Brotli or zstd, no streaming size limits beyond the current 256 KiB compressed and 1 MiB expanded, and user identity diagnostics remain partial (SDK-008, SDK-011).
+- The Sentry importer is qualified with synthetic fixtures only; a real organization export has not been reconciled. No feature parity or completed migration is claimed.
+- Self-hosted `rer deploy` declares no import-door trust bindings (`RER_OWNER_CLAIM_*`), so Business grants stay unavailable there; the owner's importer uses the door without them.
+- Per-project limits are unchanged: 120 outcomes a minute, 10,000 retained events, 20 flat source maps of 256 KiB; indexed maps and `sourceRoot` are not supported.
+- Hosted project erasure timing on D1 is not measured.
+- SDK 0.2.0 remains owner-held and unpublished; `npm install @just-every/spool` resolves to 0.1.0. The app release does not publish the SDK.
+
+### Known issues
+
+- **An interrupted hosted restore blocks later restores.** If the browser tab closes or the connection drops while `/setup` is restoring an archive into a hosted installation, the unfinished restore stays registered and every later restore is refused with `import_running` (the page also offers an unrelated "Sign in again"). The installation is still empty, so recover by running `rer deploy --remove --yes` and `rer deploy` from the deploying checkout, then restore again and keep the page open until the workbench appears.
+- Imported issues carry no "imported" label in the issue list; the issue page marks them "Imported historical evidence".
+- The Sentry SDK's default deduplication drops an identical exception repeated within one process, so a single run reports it once; separate runs group into the same issue.
+
+### Migrations
+
+None. The database stays at 48 migrations (`migrations/core/0001` through `0048_import_door_scopes.sql`); upgrading from 0.4.0 applies nothing. Upgrades from earlier releases apply the migrations listed under those releases below.
+
 ## 0.4.0 — 2026-10-19
 
 Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). Then run `git pull` and `rer dev` in the existing checkout, or `rer deploy` from the original deploying checkout for a hosted installation. Keep the existing database, private settings, project keys and deployment receipts; do not reset or restore into the populated installation.
