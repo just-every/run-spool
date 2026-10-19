@@ -57,6 +57,8 @@ export const forms = [
  ['GitHub ghs_ short', 'token ghs_QQCNRYabcdefghijklmnop', ['ghs_QQCNRY']],
  ['Google API key', 'maps failed synthetic-example-AIzaQRCNRYabcdefghijklmnopqrstuvwxyz0123456', ['AIzaQRCNRY']],
  ['npm token', 'publish failed npm_QSCNRYabcdefghijklmnopqrstuvwxyz012345', ['npm_QSCNRY']],
+ // Digit runs that are numbers (cards) are still scrubbed, whole and in groups.
+ ['card number, spaced and hyphenated', 'charge declined for 4242 4242 4242 4242 and 5555-5555-5555-4444 and 4000056655665556', ['4242 4242', '5555-5555', '4000056655665556']],
  ['AWS key after underscore, ASIA key', 'key_' + aws + 'QX7QTCNRY4ZZ2WJP ' + awsSession + 'QX7QTCNRY4ZZ2WJQ expired', [aws + 'QX7QTCNRY4ZZ2WJP', awsSession + 'QX7QTCNRY4ZZ2WJQ']],
 ];
 // Ordinary text that must reach every path unchanged.
@@ -67,5 +69,10 @@ export const ordinary = [
  ['tokens count', 'tokens: 4096 of 8192 used'],
  ['tokenCount', 'tokenCount: 4096'],
  ['URL without credentials', 'Failed to fetch https://api.example.com/v2/items/7'],
+ // Identifiers whose groups happen to be all digits are not numbers (spool-scrubfix, 19 Oct).
+ ['UUID, last group all digits', 'receipt 8f3a1c2e-5b7d-4e9a-8123-158309874643 not found'],
+ ['UUID, every group digits', 'receipt rcpt_12345678-1234-4123-8123-123456789012 and urn:uuid:12345678-5b7d-4e9a-b2c3-158309874643'],
+ ['UUID, upper case, digit middle', 'order 8F3A1C2E-5B7D-4E9A-8123-158309874643 shipped; x 12345678-1234-4123-8123-ABCDEFABCDEF y'],
+ ['trace, span, ULID and hex ids', 'traceparent 00-4bf92f3577b34da6a3ce929d0e0e4736-1234567890123456-01 trace 4bf92f3577b34da6a3ce929d0e0e4736 span 00f067aa0ba902b7 ulid 01ARZ3NDEKTSV4RRFFQ69G5FAV'],
  ['stack trace', "TypeError: Cannot read properties of undefined (reading 'token')\n    at refreshSession (/app/src/session.js:42:13)\n    at async Router.handle (/app/node_modules/express/lib/router.js:284:7)"],
 ];

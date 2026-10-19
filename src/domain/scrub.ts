@@ -1,4 +1,5 @@
 import { REDACTED, keyedSecrets } from './scrub-keyed.ts';
+import { scrubNumbers } from './scrub-number.ts';
 // D1 stores UTF-8: repair orphan UTF-16 units before crossing that boundary.
 export const bounded=(value:string,limit=1000)=>value.slice(0,limit).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,'�');
 
@@ -27,9 +28,8 @@ export function scrubText(value: string, limit: number): string {
     .replace(credentialPath,`$1${REDACTED}`)
     .replace(/https?:\/\/[^\s)]+/gi, value => { try { const u = new URL(value); return `${u.origin}${u.pathname}` } catch { return '[url]' } })
     .replace(bareTokens,REDACTED);
-  return bounded(keyedSecrets(text).replace(legacyResidue,(match,marker:string,word:string)=>/^[a-z]+$/.test(word)?match:`${marker} ${REDACTED}`)
+  return bounded(scrubNumbers(keyedSecrets(text).replace(legacyResidue,(match,marker:string,word:string)=>/^[a-z]+$/.test(word)?match:`${marker} ${REDACTED}`)
     .replace(/\b(bearer)\s+([^\s,;]+)/gi,(match,word:string,credential:string)=>credential===REDACTED||bearerWord.test(credential)?match:`${word} ${REDACTED}`)
     .replace(/\b(Basic)\s+([A-Za-z0-9+/_-]{4,}={0,2})(?![A-Za-z0-9+/=_-])/g,(match,word:string,credential:string)=>basicCredential(credential)?`${word} ${REDACTED}`:match)
-    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email]')
-    .replace(/\b(?:\d[ -]*?){13,19}\b/g, '[number]'),limit);
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email]')),limit);
 }
