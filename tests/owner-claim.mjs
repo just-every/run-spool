@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {assertAuditAppendOnly} from './audit-state.mjs';
 import {createHash, generateKeyPairSync, randomUUID, sign} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {admissionRuntime, freePort} from './admission-runtime.mjs';
@@ -37,15 +38,17 @@ const doorEnabled = async (app, cookie) => {
 };
 async function snapshot(app, excludeClaim = false) {
  const {results: tables} = await app.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").all();
- const rows = await app.DB.batch(tables.filter(({name}) => !excludeClaim || name !== 'oc_owner_claims').map(({name}) => app.DB.prepare(`SELECT * FROM "${name}" ORDER BY rowid`)));
- return JSON.stringify(rows.map(row => row.results));
+ const selected=tables.filter(({name}) => !excludeClaim || name !== 'oc_owner_claims');
+ const rows = await app.DB.batch(selected.map(({name}) => app.DB.prepare(`SELECT * FROM "${name}" ORDER BY rowid`)));
+ return Object.fromEntries(selected.map(({name},index)=>[name,rows[index].results]));
 }
+const unchangedClaim=(actual,expected,message)=>assertAuditAppendOnly(actual,expected,message,['spool_audit_events','audit_actor_links']);
 let app;
 try {
  app = await admissionRuntime(bindings, {port});
  const empty = await snapshot(app);
  assert.equal((await app.call('/auth/owner-claim')).status, 200);
- assert.ok(await snapshot(app) === empty, 'confirmation performs no durable mutation');
+ unchangedClaim(await snapshot(app),empty,'confirmation changes no auth or product state');
  const invalid = [
   {token: claim({}, wrongKey)}, {token: claim({aud: 'https://other.example.test'})},
   {token: claim({iss: 'https://other.example.test'})}, {token: claim({email: 'other@example.test'})},
@@ -54,11 +57,11 @@ try {
  for (const body of invalid) {
   const response = await app.call('/auth/owner-claim', body);
   assert.equal(response.status, 403); assert.equal(response.headers.get('set-cookie'), null);
-  assert.ok(await snapshot(app) === empty, 'invalid signed claim never writes auth or product state');
+  unchangedClaim(await snapshot(app),empty,'invalid signed claim changes no auth or product state');
  }
  const foreign = await app.call('/auth/owner-claim', {token: claim()}, {Origin: 'https://attacker.example.test'});
  assert.equal(foreign.status, 403); assert.equal(foreign.headers.get('set-cookie'), null);
- assert.ok(await snapshot(app) === empty, 'invalid request origin never writes');
+ unchangedClaim(await snapshot(app),empty,'invalid request origin changes no auth or product state');
  const accepted = await app.call('/auth/owner-claim', {token: claim(), displayName: 'Spool owner'});
  assert.equal(accepted.status, 303);
  const cookie = accepted.headers.get('set-cookie')?.split(';')[0]; assert.ok(cookie);
@@ -70,7 +73,7 @@ try {
  assert.equal((await app.call('/api/projects', undefined, {Cookie: cookie})).status, 200, 'native admission survives restart');
  const second = await app.call('/auth/owner-claim', {token: claim(), displayName: 'Second owner'});
  assert.equal(second.status, 409); assert.equal(second.headers.get('set-cookie'), null);
- assert.ok(await snapshot(app) === claimed, 'a second signed claim leaves all durable state unchanged');
+ unchangedClaim(await snapshot(app),claimed,'a second signed claim leaves auth and product state unchanged');
  assert.equal((await app.call('/auth/bootstrap', {token: testSetupToken, displayName: 'Second owner'})).status, 409);
  await app.close(); app = null;
 
@@ -80,10 +83,10 @@ try {
  assert.equal((await app.call('/api/projects', {id: 'preserved', name: 'Existing evidence'}, {Cookie: existingCookie})).status, 201);
  const previous = await snapshot(app, true);
  await app.applyClaimMigration();
- assert.ok(await snapshot(app, true) === previous, 'additive migration preserves every existing row');
+ assert.deepEqual(await snapshot(app,true),previous,'additive migration preserves every existing row');
  const refused = await app.call('/auth/owner-claim', {token: claim()});
  assert.equal(refused.status, 409); assert.equal(refused.headers.get('set-cookie'), null);
- assert.ok(await snapshot(app, true) === previous, 'refusal preserves installed data');
+ unchangedClaim(await snapshot(app,true),previous,'refusal preserves installed data');
  assert.equal((await app.call('/api/projects', undefined, {Cookie: existingCookie})).status, 200, 'existing owner session remains valid');
  await app.close(); app = null;
 

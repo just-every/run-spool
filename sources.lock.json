@@ -6960,6 +6960,10 @@
       "sha256": "d27316f70f7df641a7c34084628600e2c8694e0bff1beae2e8ca97d554f7f45d",
       "executable": false
     },
+    "tests/audit-state.mjs": {
+      "sha256": "040da837c14bb037e02f03f918978e45adca429d5bc7767d8008ece86432f72d",
+      "executable": false
+    },
     "tests/auth.mjs": {
       "sha256": "8a05b90a511889064609d56b783aec83e3c304f4ed8c20a93e0a3ddb6b5857dd",
       "executable": false
@@ -7113,11 +7117,11 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "0e42fd86b1261a7b935d9e8d9c154600912e9a7e0cc9d0aac736075c836374ab",
+      "sha256": "90dd459b85cdf1e4531a5c20aef3b843b57b2cfe58891213b9cd9563aef2f3df",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "820991948f6f04d9066da961c52b5b84445fc0efd0927b67c88ffea1b31d99cc",
+      "sha256": "40887b8aa4331686500c92aecbe1cd3da6416c9f2eaf054e70627c1cbb716a06",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -7149,7 +7153,7 @@
       "executable": false
     },
     "tests/owner-claim.mjs": {
-      "sha256": "a59c118e25b65979f5199c998aeaa32e973451ac06fe65c7ad465df2d4514dfc",
+      "sha256": "07f67af8e121fc661dbcd06672a890c39278a5968851a10ff91037108c012844",
       "executable": false
     },
     "tests/owner-editor.mjs": {
@@ -7181,7 +7185,7 @@
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
-      "sha256": "ad6d8e07c898007c173335ad6a9e9c549a68187b86ea417f5edac2aa882df631",
+      "sha256": "a20180272d4c6f7700cbe8b94298c94e9bea25a3fdb492d203bf1f0d234f61f3",
       "executable": false
     },
     "tests/preview-session.mjs": {
