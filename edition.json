@@ -699,7 +699,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "3478fc15bb18c2f74def8e8906bd308320c7953b",
+          "revision": "2505cf7436e9be1b2e1e539c9ff5126fc58006da",
           "path": "modules/owner-claim",
           "paths": [
             "idp.mjs",
@@ -1075,7 +1075,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "3478fc15bb18c2f74def8e8906bd308320c7953b",
+          "revision": "2505cf7436e9be1b2e1e539c9ff5126fc58006da",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",

@@ -124,20 +124,31 @@ See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Py
 
 In Settings, open the **Business imports** row to enable the import door. It is
 **off by default**. It uses the installation's existing owner-claim issuer,
-installation ID, app origin and public key ring; no second trust configuration
-or owner identity is created. Without those bindings (`RER_OWNER_CLAIM_*`) the
+installation ID, app origin and public key ring, whatever the claim mode
+(bootstrap or signed); no second trust configuration or owner identity is
+created. Without those bindings (`RER_OWNER_CLAIM_*`) the
 row says trust configuration is required. `rer deploy` does not declare them for
 a self-hosted installation, so there Business grants stay unavailable; the
-owner's importer above uses the same door without them. Disabling the door immediately stops Business
+owner's importer above uses the same door without them.
+
+An installation RER provisions for a Business plan the owner approved also
+carries `RER_IMPORT_DOOR=on`. There the owner's first claim opens the door
+(Base's `enableDoorAtFirstClaim`), and every later claim answer, sign-in and
+owner import repeats the same call, which only creates the settings row while
+none exists. So a later claim, or a claim by someone else, changes nothing, and
+a door the owner turned off stays off until the owner turns it on again.
+`rer deploy` never sets the variable. Disabling the door immediately stops Business
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 
-Spool vendors Base's import-kit door from `rer-v0.2.61`. Its
+Spool vendors Base's import-kit door from `rer-v0.2.66`. Its
 [grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
 `POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. A grant's
-namespace must be `sentry-org:<organization slug>` (or a namespace an earlier
-import already holds); any other namespace is refused with 403
-`unknown_import_source` before anything is written. The upload is the same
+namespace must be `sentry-org:<organization slug>`, `sentry` (the namespace
+RER's Business export names, one per installation; a later bundle there is a
+catch-up of the earlier one), or a namespace an earlier import already holds;
+any other namespace is refused with 403 `unknown_import_source` before anything
+is written. The upload is the same
 owner-generated Sentry organization bundle documented above, chunked with
 SHA-256 checks. The parser retains Spool's 2 MiB / 500-record limits and
 uses the existing native Sentry mapping. Planning retains private upload/review

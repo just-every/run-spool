@@ -1,8 +1,8 @@
 {
-  "key": "8b55587956d14892fb5837352d7b5c855ea5352a1a69a69cafd354c5c951f463",
+  "key": "93562d64731aeca6d6d2f2a79bc95e6ff292102e46419d6e758cdca1e5e9ec37",
   "origin": {
     "repository": "https://github.com/runeditrun/base.git",
-    "revision": "3478fc15bb18c2f74def8e8906bd308320c7953b",
+    "revision": "2505cf7436e9be1b2e1e539c9ff5126fc58006da",
     "path": "modules/owner-claim",
     "paths": [
       "idp.mjs",

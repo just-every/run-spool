@@ -291,6 +291,13 @@
       "why": "Public ES256 verification keys indexed by key ID; no private signing key belongs in Spool."
     },
     {
+      "name": "RER_IMPORT_DOOR",
+      "required": false,
+      "requiredWhen": "RER provisions the install for a Business plan the owner approved; self-host rer deploy never sets it.",
+      "secret": false,
+      "why": "Exactly on: the owner's first claim opens the Business import door, which the owner can turn off in Settings. Any other value leaves it off."
+    },
+    {
       "name": "RER_MANAGEMENT_ORIGIN",
       "required": false,
       "requiredWhen": "Enabling the optional owner editor.",
