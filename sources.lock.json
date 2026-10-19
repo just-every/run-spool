@@ -2609,7 +2609,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "dd84c842023fd454a9182a9af2f9a2b4c9c19ff32e43b78358870dc4acc52539",
+      "sha256": "1b44d72e1e561516dd49db6e64ca73ce6ef39c6868cc3b6f2eb810090d1b2a40",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2637,7 +2637,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "85df9bf317cd42c369aecf517c4efa902eea7065d24d3f9b214fe2be2e11c054",
+      "sha256": "017222c4d857553cff3e2e9ae0714ef105fe39c83a61511b59e75061cf3d7b1c",
       "executable": false
     },
     "DEMO.md": {
@@ -3206,6 +3206,10 @@
     },
     "migrations/core/0052_release_order_cache.sql": {
       "sha256": "8f0cb67050123dc16335b08adff5a0375456942e2ee936aa8cb24165a5a2723e",
+      "executable": false
+    },
+    "migrations/core/0053_audit_transactions.sql": {
+      "sha256": "583ec06ee4d73c7c071650604b0141153efb483af0207d332295568e335389da",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -3936,6 +3940,14 @@
       "sha256": "4b403bb195114c778fb5daf7801f915ed3b251fdeee20fbb3bd86f640e3cb3f1",
       "executable": false
     },
+    "src/domain/audit/context.ts": {
+      "sha256": "f9761c30f19a72bbeaa0a303fe65af8d8828573ddc1cd262239ab588f2a253cd",
+      "executable": false
+    },
+    "src/domain/audit/export.ts": {
+      "sha256": "eeb2533adc7f18a8aa2a0b26be17d762e6e8af392b0e94fe2d1a07c2ee814205",
+      "executable": false
+    },
     "src/domain/audit/identity.ts": {
       "sha256": "d1e846323ecc4d4286e6c9c9d568271444ece6b4630b9e56c7d7e1f115e0a260",
       "executable": false
@@ -4006,6 +4018,10 @@
     },
     "src/domain/erasure/archive.ts": {
       "sha256": "67d2b50bf9411172bb0ca435ec9bd256983aa6fc6713ef159180f5c24bbdb31d",
+      "executable": false
+    },
+    "src/domain/erasure/audit-fact.ts": {
+      "sha256": "1a930b8b75f3128ceda1266ea1a9edda65956130e419560e09a60d5453934331",
       "executable": false
     },
     "src/domain/erasure/business-custody.ts": {
@@ -6965,7 +6981,7 @@
       "executable": false
     },
     "tests/audit-history.mjs": {
-      "sha256": "4a273361760a5fed286c858cce8e3efca78821c9205aaaded0ac6fad19d7867e",
+      "sha256": "1b4e326d7dac37f626cf45f4e7410a2e83d054756ece13a077a390b570ab66ea",
       "executable": false
     },
     "tests/audit-state.mjs": {
@@ -6981,7 +6997,7 @@
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {
-      "sha256": "ed43548f96c618a59c99cf7ccdda49ed6b4da6a66bbfec644f33062487ed8823",
+      "sha256": "c10eaed588b6b386006961fe7dd365db5492afee16420821ed76f3b9173274e9",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
@@ -7141,7 +7157,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "0f6aa3360fbb75e1ae6221c6ad514e0c643752b39495696bfc7fc2d69487213f",
+      "sha256": "6a17cb72d40417c4cba57a4df5796b4871c165055c6b22a14617cf7b0e2d2a70",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -7169,11 +7185,11 @@
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {
-      "sha256": "579c72c10b60ca562136dd78577b374f8e479da9bcf7c6912ee79f869b25cfed",
+      "sha256": "ea5773b58fe4ad8493a5d80668a1d80b0953c638b0b2eff7b32c5913c71c856b",
       "executable": false
     },
     "tests/owner-erasure-authority.mjs": {
-      "sha256": "192600a5fa978916e7bf73fa0283673adc4f9ecf911b20e1e489d48ca6d92ad9",
+      "sha256": "3faae4e1cfa52489eeb8ed65d1b88a99ed21a8b0241b0142da948f5ca4c40dab",
       "executable": false
     },
     "tests/owner-erasure-finalization.mjs": {
