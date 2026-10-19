@@ -175,8 +175,9 @@ all project grants, outbox, private settings and transient runtime state are
 excluded. Remote transfer is unsupported by the maintained references and fails visibly.
 
 Real deployment uses the owner-account procedure and its private credentials.
-`rer deploy --dry-run` validates and builds locally without a
-provider request. The default environment is `production`; select another with
+`rer deploy --dry-run` validates and builds without deploying. With the
+Cloudflare credentials it also reads the target's secret bindings; without
+them it stops with exit 3 and names every input a real deploy still needs. The default environment is `production`; select another with
 `--environment NAME`. Local validation does not establish provider acceptance,
 hosted health or mail delivery.
 

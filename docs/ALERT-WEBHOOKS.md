@@ -76,7 +76,7 @@ The binding is Base's egress service (`src/modules/egress-service`, a separate W
 ]
 ```
 
-Until the egress Worker exists, `rer deploy` refuses with `service-worker-missing` for `service:egress-service-<environment>`; `rer deploy --dry-run` validates the declaration either way without contacting a provider. Upgrading the egress service needs a new grant from its new receipt. Call the deployment's webhooks installed only after the live probe (OWNER-STEPS.md P1 to P9) passes on that deployment.
+Until the egress Worker exists, `rer deploy` refuses with `service-worker-missing` for `service:egress-service-<environment>`; `rer deploy --dry-run` validates the declaration either way without deploying. Upgrading the egress service needs a new grant from its new receipt. Call the deployment's webhooks installed only after the live probe (OWNER-STEPS.md P1 to P9) passes on that deployment.
 
 ### What the egress service guarantees, and what it does not
 

@@ -11,6 +11,7 @@ Back up first: export a private archive before updating (Settings → **Download
 - **Sturdier Sentry intake.** Deflate-encoded envelopes are accepted beside gzip; an unsupported encoding returns 415 naming it and is counted; a malformed event item inside a correctly framed envelope is counted as `invalid_item` while the valid errors beside it are still admitted.
 - **Business imports open at the owner's first claim on RER Business installations.** An installation RER provisions for an approved Business plan carries `RER_IMPORT_DOOR=on` with its owner-claim trust bindings; there the owner's first claim opens the Business import door, and a door the owner later turns off stays off. Self-hosted `rer deploy` never sets the variable, so nothing changes on your own Cloudflare account. The door also accepts RER's Business export namespace `sentry`.
 - The application pins rer 0.2.66, with refreshed Base import-door and owner-claim copies.
+- `rer deploy --dry-run` without Cloudflare credentials now builds and then stops with exit 3, naming every input a real deploy still needs (rer's behaviour since 0.2.58); with the credentials it also checks the target's secret bindings. The guides describe this.
 
 ### This release's gate
 

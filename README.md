@@ -75,7 +75,7 @@ Spool uses the rer version pinned in [package.json](package.json) and supports R
 
 Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender. Stop local dev with `rer dev --stop`, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --env-file .rer/deploy/production.env --environment production` prints a private, one-use owner link using the hosting guide's private settings file, the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.
 
-To remove it, export anything you need and run `rer deploy --remove --yes` from the original deploying checkout, retaining its private deployment record and using the same account credentials. The default environment is `production`; add `--environment <name>` for another environment. Removal deletes the Worker and its database. The hosting guide also covers updates and restoring archives. `rer deploy --dry-run` validates the package locally without provider requests.
+To remove it, export anything you need and run `rer deploy --remove --yes` from the original deploying checkout, retaining its private deployment record and using the same account credentials. The default environment is `production`; add `--environment <name>` for another environment. Removal deletes the Worker and its database. The hosting guide also covers updates and restoring archives. `rer deploy --dry-run` builds and validates the package without deploying; with the Cloudflare credentials it also reads the target's secret bindings, and without them it stops with exit 3 after naming every input a real deploy still needs.
 
 ## Capture protocol
 

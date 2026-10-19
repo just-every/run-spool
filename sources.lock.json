@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "3e827da87ae6aed8bebf811e186eef51cb9fa216db39585027be348b136f21fe",
+      "sha256": "27d5c47656e87862c7b8bd97f6e840a01bb92fbce0f05671219da258349effa9",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2877,7 +2877,7 @@
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
-      "sha256": "fae51b47873e0449a0fa62f0c40917e490941c3bfa9ebcc130af0290cd86529e",
+      "sha256": "7447f239ba61928d06d762fc9de48d85941694a15f97f510e0aa356efb93352c",
       "executable": false
     },
     "docs/BULK-TRIAGE.md": {
@@ -3201,7 +3201,7 @@
       "executable": false
     },
     "OPERATIONS.md": {
-      "sha256": "c9b24196183c638b539b2381bb2e444f5f2b7f2ecfaf432183aac4aae404c89f",
+      "sha256": "454cc87d5bd010010d3e29a85577081bff872be216d261fdd2d4737dc244e83c",
       "executable": false
     },
     "package.json": {
@@ -3421,7 +3421,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "4b2f8bb719bf76e0771dcd48c1344e5fc293c568ab4200ed4f59bc115ffe566d",
+      "sha256": "7f1ef5f147497aac9c22301d68d1942dcae688b8603555e6c849b621b09706de",
       "executable": false
     },
     "RELEASE.json": {
@@ -3437,7 +3437,7 @@
       "executable": false
     },
     "RUN-LOCALLY.md": {
-      "sha256": "c84ae5fd724e1c5c63b6c190b2bfc7fde04e943f0f1bcb8f9c22bc80909b5908",
+      "sha256": "250d9c6249d752fbee02340f6efc5f02a2ddbbf37692c8f7d0a491fb82ae6fb6",
       "executable": false
     },
     "scripts/build-capture.mjs": {
@@ -6921,7 +6921,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "b2f71dd8fc12830d0548b39ee1f1104c8fa2eb88ff34233d2a8e8772f2a18ebe",
+      "sha256": "bdbc33e9e8bd8aac60b0c072c1e6fe1b659dc6275977821ea8b5a0b0b503129f",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
