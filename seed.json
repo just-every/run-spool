@@ -326,9 +326,10 @@
       "/errors-capture.js",
       "/design/",
       "/assets/",
-      "/auth/owner-claim"
+      "/auth/owner-claim",
+      "/api/rer/cutover-status"
     ],
-    "notes": "Owner documents redirect unauthenticated requests to /sign-in. Bootstrap requires the one-time setup token; confirmation requires a valid sign-in token; ingest requires the project scoped Bearer key. Other auth and private API handlers enforce their own session or grant checks. /__dev/outbox is available only in explicit loopback development mode with host and request-context checks and the checkout private dev-key header or exchanged gate cookie. Deploy dry-run builds and validates Worker/assets, migrations and deploy.json without provider calls. Actual deploy-kit owner-account deployment needs explicit owner authorization, account credentials and mail configuration; live provider acceptance remains unperformed. Optional signed owner claim validates trusted deployment authority and creates only the first owner. Editor configuration independently requires a native owner session; project grants cannot authorize it."
+    "notes": "Owner documents redirect unauthenticated requests to /sign-in. Bootstrap requires the one-time setup token; confirmation requires a valid sign-in token; ingest requires the project scoped Bearer key. Other auth and private API handlers enforce their own session or grant checks. /__dev/outbox is available only in explicit loopback development mode with host and request-context checks and the checkout private dev-key header or exchanged gate cookie. Deploy dry-run builds and validates Worker/assets, migrations and deploy.json without provider calls. Actual deploy-kit owner-account deployment needs explicit owner authorization, account credentials and mail configuration; live provider acceptance remains unperformed. Optional signed owner claim validates trusted deployment authority and creates only the first owner. /api/rer/cutover-status is POST only and needs a short-lived installation-scoped ES256 Run Edit Run grant of action cutover-status under the owner-claim key ring; it answers event and issue counts and the newest event time only, and 404 without that trust. Editor configuration independently requires a native owner session; project grants cannot authorize it."
   },
   "extensionPoints": {
     "contributions": [],

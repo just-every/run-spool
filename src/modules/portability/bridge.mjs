@@ -1,7 +1,7 @@
 import { all, quote, insist } from './storage.mjs';
 import { canonicalJson } from './hash.mjs';
 import { tokens, identifier, folded } from './generated.mjs';
-import { changesData, reachingTables } from './migration-statements.mjs';
+import { laterData } from './backfills.mjs';
 import { destinationLedger } from './ledgers.mjs';
 
 // Applied product migrations in the ledger's own order (ledgers.mjs). A
@@ -18,8 +18,9 @@ export async function appliedMigrations(db) {
 // migrations it records or, for archives that predate that record, of those
 // its own migration ledger records or, without one, of an earlier prefix.
 // Restored rows never pass through a later migration, so one that writes or
-// rewrites restorable data is refused, whether or not it changes the schema.
-async function placement(manifest,cat,replay,ledger,history) {
+// rewrites restorable data is refused, whether or not it changes the schema,
+// unless its statement is replayed at finalize (backfills.mjs).
+async function placement(db,manifest,cat,replay,ledger,history) {
   const applied=ledger.map(m=>m.name);
   insist(canonicalJson(replay.names)===canonicalJson(applied) && await replay.schemaAfter(applied)===cat.identity,'schema_mismatch');
   const recorded=manifest.migrations ?? archivedApplied(history?.(),ledger,replay);
@@ -44,12 +45,14 @@ async function placement(manifest,cat,replay,ledger,history) {
   // such tables (a newly added module's own) change no restored row, unless a
   // trigger from any applied migration carries their writes into one that is
   // restorable. Trigger DDL itself changes no row, nor does an UPDATE or DELETE
-  // of a table the archive holds no rows of (migration-statements.mjs).
-  const restorable=cat.tables.map(t=>t.name).filter(name=>manifest.tables.some(t=>t.name===name));
-  const reached=reachingTables(applied.flatMap(name=>replay.statements(name)),restorable);
-  const empty=restorable.filter(name=>!manifest.tables.find(t=>t.name===name).count);
-  for(const name of unapplied)insist(!replay.statements(name).some(sql=>changesData(sql,reached,empty)),'schema_mismatch:migration_data:'+name);
-  return {earlier};
+  // of a table the archive holds no rows of (migration-statements.mjs). A data
+  // statement that writes only tables outside the catalogue is admitted
+  // whatever it reads; a backfill of a table the archive lacks is replayed.
+  const catalogue=cat.tables.map(t=>t.name),archived=catalogue.filter(name=>manifest.tables.some(t=>t.name===name));
+  const empty=archived.filter(name=>!manifest.tables.find(t=>t.name===name).count);
+  const tables=(await all(db,"SELECT name FROM sqlite_master WHERE type IN ('table','view')")).map(t=>t.name);
+  const replays=laterData({applied,unapplied,replay,catalogue,archived,empty,tables,secrets:manifest.excludedColumns??{}});
+  return {earlier,replays};
 }
 // An archive without a migration record that carries its source's migration
 // ledger (an old archive from before that ledger became bookkeeping) records
@@ -77,7 +80,8 @@ export async function sameSchemaMigrations(db,manifest,cat,migrations,history) {
   if(!applied)return;
   insist(!manifest.migrations || manifest.migrations.every(name=>applied.includes(name)),'schema_mismatch:migrations');
   if(!migrations){insist(!manifest.migrations || applied.every(name=>manifest.migrations.includes(name)),'schema_mismatch:migrations');return;}
-  await placement(manifest,cat,await migrations(),ledger,history);
+  // Same schema: every catalogue table is archived, so nothing is replayed.
+  await placement(db,manifest,cat,await migrations(),ledger,history);
 }
 // An archive made before later migrations restores only when those migrations
 // are additive: new tables, new columns that take a default, or indexes (which
@@ -86,7 +90,7 @@ export async function additiveBridge(db,manifest,cat,migrations,history) {
   insist(migrations,'schema_mismatch');
   const replay=await migrations(),ledger=await destinationLedger(db)??[],applied=ledger.map(m=>m.name);
   insist(!manifest.migrations || manifest.migrations.every(name=>applied.includes(name)),'schema_mismatch:migrations');
-  const {earlier}=await placement(manifest,cat,replay,ledger,history);
+  const {earlier,replays}=await placement(db,manifest,cat,replay,ledger,history);
   const columns={};
   for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name),label=':'+table.name;
@@ -99,8 +103,10 @@ export async function additiveBridge(db,manifest,cat,migrations,history) {
     insist(appended(table.sql,target.sql,added.map(c=>c.name)),'schema_mismatch:definition'+label);
     columns[table.name]=added.map(c=>c.name);
   }
+  // replays: the statements finalize runs (backfills.mjs); replayed: the job's record of them.
   return {fromSchema:manifest.schema,toSchema:cat.identity,migrations:applied.filter(name=>!earlier.includes(name)),
-    tables:cat.tables.filter(t=>!manifest.tables.some(x=>x.name===t.name)).map(t=>t.name),columns};
+    tables:cat.tables.filter(t=>!manifest.tables.some(x=>x.name===t.name)).map(t=>t.name),columns,
+    ...(replays.length?{replays,replayed:replays.map(({migration,statement,table})=>({migration,statement,table,rows:null}))}:{})};
 }
 // The destination definition is the archived one with only the added column
 // definitions inserted, as ALTER TABLE ADD COLUMN writes it: no other column,

@@ -35,7 +35,8 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
   const signedIn=await requestActor(new Request(request.url,{headers:{cookie:cookies.join('; '),host:new URL(request.url).host}}),env);
   return signedIn.kind==='owner'?signedIn:door.actor;
  }
- if(new URL(request.url).pathname.startsWith('/api/rer/import/'))return serviceActor(env.DB,'business-import');
+ // Business grants: the import door and the signed cutover read.
+ if(new URL(request.url).pathname.startsWith('/api/rer/'))return serviceActor(env.DB,'business-import');
  return door.actor;
 }
 

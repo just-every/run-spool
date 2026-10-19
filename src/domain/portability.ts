@@ -119,6 +119,9 @@ for(const later of laterTables)later.migrations.push('0054_release_resolution_di
 laterTables.unshift({tables:[],migrations:['0054_release_resolution_dist.sql']});
 for(const later of laterTables)later.migrations.push('0055_follow_up.sql');
 laterTables.unshift({tables:[],migrations:['0055_follow_up.sql']});
+// 0056 adds only the door's archive tables, which archives exclude (ik_%).
+for(const later of laterTables)later.migrations.push('0056_import_door_archives.sql');
+laterTables.unshift({tables:[],migrations:['0056_import_door_archives.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

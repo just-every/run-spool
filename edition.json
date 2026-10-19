@@ -699,7 +699,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "d1e9ca8cb648295259289901f524b2834463f4ee",
+          "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
           "path": "modules/owner-claim",
           "paths": [
             "idp.mjs",
@@ -1075,7 +1075,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "d1e9ca8cb648295259289901f524b2834463f4ee",
+          "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e",
           "path": "modules/import-kit/src",
           "paths": [
             "d1/apply.ts",
@@ -1169,6 +1169,7 @@
             "d1/reverse.ts",
             "d1/reviewed-source.ts",
             "d1/sets.ts",
+            "d1/staged-creation.ts",
             "d1/staging-admission.ts",
             "d1/staging-control.ts",
             "d1/staging-erasure.ts",
@@ -1207,6 +1208,7 @@
             "door/ADOPTING.md",
             "door/README.md",
             "door/admission.ts",
+            "door/archive.ts",
             "door/authority.ts",
             "door/failures.ts",
             "door/grants.ts",
@@ -1614,6 +1616,10 @@
             "originPath": "d1/sets.ts"
           },
           {
+            "path": "src/modules/import-kit/src/d1/staged-creation.ts",
+            "originPath": "d1/staged-creation.ts"
+          },
+          {
             "path": "src/modules/import-kit/src/d1/staging-admission.ts",
             "originPath": "d1/staging-admission.ts"
           },
@@ -1764,6 +1770,10 @@
           {
             "path": "src/modules/import-kit/src/door/admission.ts",
             "originPath": "door/admission.ts"
+          },
+          {
+            "path": "src/modules/import-kit/src/door/archive.ts",
+            "originPath": "door/archive.ts"
           },
           {
             "path": "src/modules/import-kit/src/door/authority.ts",

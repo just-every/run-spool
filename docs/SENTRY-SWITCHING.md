@@ -141,9 +141,11 @@ a door the owner turned off stays off until the owner turns it on again.
 requests. **Revoke key** permanently revokes a signing key for this door, including
 otherwise valid unexpired grants; rotate to a new key ID to restore access.
 
-Spool vendors Base's import-kit door from `rer-v0.2.69`. Its
+Spool vendors Base's import-kit door from `rer-v0.2.72`, byte for byte with no
+local divergence; a multi-megabyte export's first apply creates its job in
+bounded staged steps and may answer a still `queued` job. Its
 [grant and HTTP contract](../src/modules/import-kit/src/door/README.md) covers
-`POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo}`. A grant's
+`POST /api/rer/import/{uploads,plan,apply,status,reconcile,undo,archive,restore-check}`. A grant's
 namespace must be `sentry-org:<organization slug>`, `sentry` (the namespace
 RER's Business export names, one per installation; a later bundle there is a
 catch-up of the earlier one), or a namespace an earlier import already holds;
@@ -166,4 +168,27 @@ by**). Its owner-session Undo remains available
 with Business disabled or its grant key revoked. Undo protects native edits and
 reverses the newest snapshot first. Original bytes remain private to this Spool
 installation. Project erasure also withdraws affected door upload/plan snapshots
-alongside import-kit originals; other native projects remain intact.
+and tool archives alongside import-kit originals, including an archive kept in
+Business's own `sentry` namespace, which it finds by the projects the
+archive's own bytes name; other native projects remain intact.
+
+When Business switches Sentry off, it uploads the final export and calls the
+door's `archive` grant action: Spool keeps the exact bytes in its own D1 as
+`business-archive/<tool>/<takenAt>` (migration `0056_import_door_archives.sql`),
+and `restore-check` parses them again with the Sentry reader and mapping with no
+native write. The owner-session importer answers both 404.
+
+### Cutover read
+
+`POST /api/rer/cutover-status` with `{"since": "<ISO time>"}` is Business's
+read for the DSN switch and its difference report. It answers
+`{events_since, last_event_at, created_since: {issues, events}}`: the events
+Spool's ingest received since `since` (imported Sentry history never counts),
+the newest received event's time, and the issues and events created in Spool
+rather than imported since then. It returns counts and a time only, never a
+project, issue, title, payload, name, email or key, and writes nothing. It needs
+an RER-signed grant of action `cutover-status` for this installation under the
+owner-claim key ring (Base's `verifyRerGrant`). Without that trust it answers
+404; without a grant 401; another action, an expired grant, another
+installation, owner or audience, a wrong key, or a key revoked under **Revoke
+key** 403; a malformed body 400; any method but POST 405.

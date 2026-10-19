@@ -7,7 +7,7 @@ import { signIn, testOwner } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 
 // Base import-kit door conformance (modules/import-kit/src/door/ADOPTING.md,
-// rer 0.2.61), copied unchanged and run against both of Spool's door mounts.
+// rer 0.2.61; unchanged through rer 0.2.72), copied unchanged and run against both of Spool's door mounts.
 export async function checkDoor({request, bytes, name, nativeSnapshot,
   assertApplied, assertUndone}) {
   const hash = b => createHash('sha256').update(b).digest('hex');
@@ -114,7 +114,7 @@ try {
   body:JSON.stringify(body),
  });
  const doorJson=async(action,grantNamespace,body,extra)=>json(await doorRequest(action,grantNamespace,body,extra));
- async function upload(next) {
+ async function upload(next,uploadNamespace=namespace) {
   bytes=next;
   const bundleSha256=digest(bytes),totalChunks=Math.ceil(bytes.length/65_536);
   let uploadId,result;
@@ -123,20 +123,20 @@ try {
    const body={...uploadId?{uploadId}:{},name:'synthetic-sentry-organization.json',bundleSha256,
     totalBytes:bytes.length,totalChunks,index,chunkSha256:digest(chunk),base64:chunk.toString('base64')};
    if(index===0) {
-    const corrupt=await json(await doorRequest('uploads',namespace,{...body,chunkSha256:'0'.repeat(64)}),400);
+    const corrupt=await json(await doorRequest('uploads',uploadNamespace,{...body,chunkSha256:'0'.repeat(64)}),400);
     assert.equal(corrupt.error,'chunk_hash_or_size_mismatch','corrupt bytes cannot enter retained upload');
    }
-   result=await doorJson('uploads',namespace,body);
+   result=await doorJson('uploads',uploadNamespace,body);
    uploadId??=result.uploadId;
    assert.equal(result.uploadId,uploadId);
    assert.equal(result.complete,index===totalChunks-1);
    assert.equal(result.received.length,index+1);
    if(index===0) {
-    const duplicate=await doorJson('uploads',namespace,{...body,uploadId});
+    const duplicate=await doorJson('uploads',uploadNamespace,{...body,uploadId});
     assert.deepEqual(duplicate.received,result.received,'an identical chunk is idempotent with a fresh grant');
    }
   }
-  const inventory=await doorJson('uploads',namespace,{uploadId});
+  const inventory=await doorJson('uploads',uploadNamespace,{uploadId});
   assert.equal(inventory.complete,true);
   assert.equal(inventory.bundleSha256,bundleSha256);
   assert.deepEqual(inventory.received,result.received);
@@ -177,7 +177,62 @@ try {
  assert.deepEqual(initial.history,[]);
  assert.equal((await json(await doorRequest('uploads',namespace,{}),404)).error,'not_found');
  assert.equal((await ownerJson(settingsPath,'POST',{enabled:true})).enabled,true);
- await json(await ownerRequest('/api/projects','POST',{id:'native-business-control',name:'Untouched owner project'}),201);
+ const control=await json(await ownerRequest('/api/projects','POST',{id:'native-business-control',name:'Untouched owner project'}),201);
+
+ // Run Edit Run's signed cutover read (PLAN section 2, Spool): counts and a time
+ // only, under its own grant action, for the embed check and difference report.
+ const cutoverPath='/api/rer/cutover-status';
+ async function rerGrant(payload={},{signingKey=keys.privateKey,header={}}={}) {
+  const iat=Math.floor(Date.now()/1000);
+  const body=Object.fromEntries(Object.entries({v:1,iss:issuer,aud:origin,installationId,email:testOwner,jti:randomUUID(),iat,exp:iat+300,action:'cutover-status',...payload}).filter(([,value])=>value!==undefined));
+  const message=encode({alg:'ES256',typ:'rer-import-grant+jwt',kid,...header})+'.'+encode(body);
+  const signature=await webcrypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},signingKey,Buffer.from(message));
+  return message+'.'+Buffer.from(signature).toString('base64url');
+ }
+ const cutoverRequest=async(body,token,method='POST')=>fetch(origin+cutoverPath,{method,
+  headers:{'Content-Type':'application/json',...token?{Authorization:`Bearer ${token}`}:{}},...method==='POST'?{body:JSON.stringify(body)}:{}});
+ const cutoverRead=async since=>{
+  const response=await cutoverRequest({since},await rerGrant());
+  const text=await response.clone().text();
+  for(const secret of [testOwner,control.ingestKey,control.id,'Untouched owner project','Cutover canary','fixture-org','web@1.0.0'])assert.ok(!text.includes(secret),'the cutover read carries counts and times only');
+  const status=await json(response);
+  assert.deepEqual(Object.keys(status).sort(),['created_since','events_since','last_event_at']);
+  assert.deepEqual(Object.keys(status.created_since).sort(),['events','issues']);
+  return status;
+ };
+ const epoch='1970-01-01T00:00:00.000Z',beforeCapture=new Date().toISOString();
+ assert.deepEqual(await cutoverRead(epoch),{events_since:0,last_event_at:null,created_since:{issues:0,events:0}});
+ await json(await ownerRequest(`/api/projects/${control.id}/releases`,'POST',{name:'control@1.0.0',build:'web'}),201);
+ const captured=await fetch(`${origin}/api/ingest/${control.id}`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${control.ingestKey}`},
+  body:JSON.stringify({version:1,eventId:'cutover-live-event',release:'control@1.0.0',build:'web',environment:'production',type:'TypeError',message:'Cutover canary',frames:[{file:'https://control.example/app.js',function:'run',line:1,column:1}],breadcrumbs:[]})});
+ assert.ok(captured.ok,`live capture: HTTP ${captured.status}`);
+ const liveIssue=(await captured.json()).issue;
+ const beforeRead=await nativeSnapshot();
+ const live=await cutoverRead(beforeCapture);
+ assert.deepEqual({...live,last_event_at:undefined},{events_since:1,last_event_at:undefined,created_since:{issues:1,events:1}});
+ assert.ok(Date.parse(live.last_event_at)>=Date.parse(beforeCapture),'the newest event Spool received');
+ assert.ok(!JSON.stringify(live).includes(liveIssue));
+ assert.deepEqual(await cutoverRead(new Date(Date.now()+60_000).toISOString()),{events_since:0,last_event_at:live.last_event_at,created_since:{issues:0,events:0}});
+ // Refusals: a non-POST, no grant, and every grant that is not this installation's own cutover-status grant.
+ assert.equal((await json(await cutoverRequest(undefined,await rerGrant(),'GET'),405)).error,'method_not_allowed');
+ assert.equal((await json(await cutoverRequest({since:beforeCapture}),401)).error,'grant_required');
+ const otherKeys=await webcrypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},false,['sign','verify']);
+ const past=Math.floor(Date.now()/1000)-600;
+ for(const [label,token] of [
+  ['another action',await rerGrant({action:'runner-status'})],
+  ['an import door action',await rerGrant({action:'status'})],
+  ['a door grant',await rerGrant({namespace,maxBytes:1,maxChunks:1,maxRecords:1})],
+  ['an expired grant',await rerGrant({iat:past,exp:past+300})],
+  ['another installation',await rerGrant({installationId:'another-spool-install'})],
+  ['another owner',await rerGrant({email:'someone-else@example.com'})],
+  ['another audience',await rerGrant({aud:'https://spool.example'})],
+  ['a wrong key',await rerGrant({},{signingKey:otherKeys.privateKey})],
+  ['an unknown key id',await rerGrant({},{header:{kid:'unknown-key'}})],
+ ])assert.equal((await json(await cutoverRequest({since:beforeCapture},token),403)).error,'invalid_grant',label);
+ for(const body of [{},{since:'yesterday'},{since:beforeCapture,project:control.id},[beforeCapture]])
+  assert.equal((await json(await cutoverRequest(body,await rerGrant()),400)).error,'invalid_since');
+ assert.deepEqual(await nativeSnapshot(),beforeRead,'the cutover read writes nothing native');
+
  const [beforeProjects,beforeNative]=await Promise.all([ownerJson('/api/projects'),nativeSnapshot()]);
  // Only namespaces from Spool's server-side allow-list reach the door.
  const unlisted=await json(await doorRequest('uploads','business-fixture',{}),403);
@@ -240,6 +295,8 @@ try {
  assert.equal(history.state,'completed');
  assert.equal(history.caption,status.caption);
  assert.match(history.caption,/approved via Business by/);
+ // Imported Sentry history is the vendor's, never counted as created or received in Spool.
+ assert.deepEqual(await cutoverRead(epoch),{...live,events_since:1,created_since:{issues:1,events:1}});
  const imported=projects.filter(project=>!beforeProjects.some(before=>before.id===project.id));
  assert.equal(imported.length,1);
  const projectPath=`/api/projects/${imported[0].id}`;
@@ -312,17 +369,40 @@ try {
  await conformance(async(action,body,review)=>{bytes=variant(3);return doorRequest(action,namespace,body,action==='apply'?review:{})},variant(3));
 
  // Project erasure withdraws the door's duplicate raw custody as well as kit originals.
- const erasePlan=await doorJson('plan',namespace,{uploadId:await upload(variant(4))});
+ // The tool's archive: the exact uploaded bytes, kept apart from plan and catch-up, test-restored with no native write.
+ const eraseUpload=await upload(variant(4)),takenAt=new Date().toISOString(),beforeArchive=await nativeSnapshot();
+ const archived=await doorJson('archive',namespace,{uploadId:eraseUpload,tool:'sentry',takenAt});
+ assert.equal(archived.key,`business-archive/sentry/${takenAt}`);
+ assert.equal(archived.bundleSha256,digest(bytes));
+ assert.equal(archived.bytes,bytes.length);
+ assert.equal(archived.counts.rejected,0);
+ assert.deepEqual(await doorJson('archive',namespace,{uploadId:eraseUpload,tool:'sentry',takenAt}),archived,'the same archive request answers the same archive');
+ assert.equal((await json(await doorRequest('archive',namespace,{uploadId:eraseUpload,tool:'sentry',takenAt:new Date(Date.now()+1000).toISOString()}),409)).error,'archive_exists');
+ assert.equal((await fetch(`${origin}/api/operator/import/archive`,{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json','X-Import-Source':namespace},body:JSON.stringify({uploadId:eraseUpload,tool:'sentry',takenAt})})).status,404,'archives are Business grant actions only');
+ const restoreChecked=await doorJson('restore-check',namespace,{archiveId:archived.archiveId});
+ assert.equal(restoreChecked.archiveId,archived.archiveId);
+ assert.equal(restoreChecked.bundleSha256,archived.bundleSha256);
+ assert.equal(restoreChecked.bytes,archived.bytes);
+ assert.deepEqual(restoreChecked.counts,archived.counts);
+ assert.deepEqual(restoreChecked.rejected,[]);
+ assert.deepEqual(await nativeSnapshot(),beforeArchive,'archive and restore-check write nothing native');
+ const erasePlan=await doorJson('plan',namespace,{uploadId:eraseUpload});
+ assert.equal((await doorJson('restore-check',namespace,{archiveId:archived.archiveId})).bundleSha256,archived.bundleSha256,'planning the upload leaves its archive');
  const eraseApproval={fingerprint:erasePlan.fingerprint,approvalRecordId:randomUUID(),approvedAt:new Date().toISOString()};
  await untilState(()=>doorJson('apply',namespace,{planId:erasePlan.planId,reviewedFingerprint:erasePlan.fingerprint},eraseApproval),'completed');
+ // Business's final export, archived under its own `sentry` namespace that no plan ever opens, names the same project in its bytes.
+ const finalUpload=await upload(variant(5),'sentry'),finalArchive=await doorJson('archive','sentry',{uploadId:finalUpload,tool:'sentry',takenAt:new Date().toISOString()});
  const erasePreview=await ownerJson(projectPath+'/erasure');
  assert.equal(erasePreview.hold,null);
- for(const table of ['ik_door_uploads','ik_door_chunks','ik_door_plans','ik_door_plan_chunks','ik_door_approvals','ik_door_scopes'])assert.ok(erasePreview.deleted[table]>0,`${table} participates in project erasure`);
+ assert.equal(erasePreview.deleted.ik_door_archives,2,'both archives naming the project, in either namespace, participate in project erasure');
+ for(const table of ['ik_door_uploads','ik_door_chunks','ik_door_plans','ik_door_plan_chunks','ik_door_approvals','ik_door_scopes','ik_door_archives','ik_door_archive_chunks'])assert.ok(erasePreview.deleted[table]>0,`${table} participates in project erasure`);
  const accepted=await json(await ownerRequest(projectPath+'/erasure','POST',{confirm:imported[0].id,planHash:erasePreview.planHash}),202);
  const erased=await followErasure(async(path,method)=>{const response=await ownerRequest(path,method);assert.ok(response.ok);return response.json();},accepted);
  assert.equal(erased.phase,'complete');
  assert.deepEqual(await nativeSnapshot(),beforeNative,'erasure removes imported graph and preserves the unrelated native project');
  await json(await doorRequest('status',namespace,{planId:erasePlan.planId}),404);
+ assert.equal((await json(await doorRequest('restore-check',namespace,{archiveId:archived.archiveId}),404)).error,'archive_not_found','project erasure withdraws the archive with its namespace');
+ assert.equal((await json(await doorRequest('restore-check','sentry',{archiveId:finalArchive.archiveId}),404)).error,'archive_not_found','project erasure withdraws an archive naming the project from a namespace no plan opened');
  assert.deepEqual((await ownerJson(settingsPath)).history,[],'withdrawn private snapshots cannot be reopened from history');
 
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[kid]});
@@ -333,8 +413,9 @@ try {
  assert.deepEqual(revoked.keys,[{kid,revoked:true}],'revocation survives later settings writes and re-enablement');
  const refused=await json(await doorRequest('uploads',namespace,{}),403);
  assert.equal(refused.error,'grant_replayed_revoked_or_expired','fresh correctly signed grants from a revoked key fail closed');
+ assert.equal((await json(await cutoverRequest({since:epoch},await rerGrant()),403)).error,'invalid_grant','the cutover read refuses a revoked key');
  assert.deepEqual(await nativeSnapshot(),beforeNative);
- console.log('Business import public HTTP journey passed: owner opt-in, namespace allow-list, checked chunks, no-write review, signed approval, native reconciliation, Base door conformance through the owner and Business mounts, both undo doors, project erasure of door custody and durable key revocation. Synthetic export only.');
+ console.log('Business import public HTTP journey passed: owner opt-in, namespace allow-list, checked chunks, no-write review, signed approval, native reconciliation, Base door conformance through the owner and Business mounts, both undo doors, the tool archive and its restore check, project erasure of door custody, the signed cutover read with its refusals, and durable key revocation. Synthetic export only.');
 } finally {
  await worker.stop();
 }

@@ -8,6 +8,7 @@ import { appliedMigrations } from './bridge.mjs';
 import { capturePayload, payloadRange } from './payloads.mjs';
 import { dropProviderData } from './provider-data.mjs';
 import { dropDevData } from './dev-data.mjs';
+import { revokePolicyApprovals, refusePolicyApprovals } from './policy-data.mjs';
 export async function createExport(context,actor='direct') {
   const {db,config,buckets}=context,s=await state(db);insist(!s.applying,'import_applying',409);
   const cat=await catalogue(db,config),id=crypto.randomUUID(),objects=[];
@@ -28,7 +29,8 @@ export async function createExport(context,actor='direct') {
     ...cat.tables.flatMap(t=>createCopy(db,t,copies[t.name],true)),statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'export',actor,row.phase,canonicalJson(row.metadata)),db.prepare('DELETE FROM rer_portability_guard')]);
   try {
     await dropDevData(db,cat.tables,copies);
-  await dropProviderData(db,cat.tables,copies);
+    await dropProviderData(db,cat.tables,copies);
+    await revokePolicyApprovals(db,copies);
     for(const t of manifest.tables) t.count=(await statement(db,`SELECT COUNT(*) AS n FROM ${quote(copies[t.name])}`).first()).n;
     for(const [name,producer] of Object.entries(config.extraPayloads).sort()) {
       const descriptor=await capturePayload(db,id,manifest.payloads.length,await producer.produce());manifest.payloads.push({name,...descriptor});
@@ -52,6 +54,8 @@ async function nextItems(context,row) {
     const table=manifest.tables[cursor.table];
     if(!row.metadata.normalized?.includes(table.name)) {
       await normalizeCopy(context,table,copies[table.name]);
+      // A product row transform cannot re-enable a delegation after scrubbing.
+      if(table.name==='oa_policy_approvals')await refusePolicyApprovals(db,copies);
       row.metadata.normalized??=[];row.metadata.normalized.push(table.name);await save(db,row).run();
     }
     const records=await readCopy(db,table,copies[table.name],cursor.row,Math.min(1000,Math.ceil(partBytes/128)),true);
