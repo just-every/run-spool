@@ -10,7 +10,10 @@ server-only. A trusted installation provisions `AUTH_ORIGIN`, `OWNER_EMAIL`,
 `SESSION_SECRET`, `SETUP_TOKEN`, `RER_OWNER_CLAIM_ISSUER`,
 `RER_OWNER_CLAIM_INSTALLATION_ID`, `RER_OWNER_CLAIM_APP_ORIGIN`, and
 `RER_OWNER_CLAIM_PUBLIC_KEYS`. The last binding is a JSON object mapping key IDs to
-public ES256/P-256 JWKs. No private signing key belongs in the application.
+public ES256/P-256 JWKs. No private signing key belongs in the application. An
+install RER provisions for an approved Business plan also carries
+`RER_IMPORT_DOOR=on`, which opens the Business import door at the owner's first
+claim ([Sentry switching](docs/SENTRY-SWITCHING.md#optional-business-import-door)).
 
 `POST /auth/owner-claim` is mounted before the normal authentication dispatcher.
 It accepts the signed token in the request body, validates the issuer, exact

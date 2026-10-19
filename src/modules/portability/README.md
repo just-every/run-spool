@@ -1,5 +1,22 @@
 # Portable installation data
 
+To bring existing data into a seed, sign in as the owner and use its import
+screen. First step: open this path on the destination app:
+
+```text
+/app/import
+```
+
+Upload a supported source export, review the plan and its differences, then
+approve that exact plan to apply it. Reconcile the result against native data;
+use Undo from the same history when needed. Base's reference accepts people JSON
+here, not installation `.rer` archives. Editions adopt this same door
+with their own supported readers and native adapters.
+
+Use this module to back up and restore this installation, separately from
+bringing records in through the reviewed import door. Its restore has no door
+plan or Undo, and the door does not accept its `.rer` archives.
+
 This dependency-free source module exports and restores one installation's D1
 tables, R2 objects and optional named byte payloads. It is generalised from the
 Penny and Orbit seeds, with atomic graph restoration from Lamp. Products retain

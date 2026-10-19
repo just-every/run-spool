@@ -22,7 +22,7 @@ import { continueErasures } from './domain/erasure/service';
 import { ownerErasureResponse } from './domain/erasure/owner-routes';
 import { AuthError } from './modules/operator-auth/index.mjs';
 import type { AlertEnvironment } from './domain/alerts/types';
-import { importDoorResponse } from './domain/sentry-import/door.server';
+import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
  await runAlerts(env,event.scheduledTime);
@@ -41,6 +41,14 @@ export default withDemo({
   return handle(request, bindings, execution).catch(refused);
  },
 } satisfies ExportedHandler<Bindings & AlertEnvironment>, { seed: seedDemo });
+/** Claim answers (first, refused or already initialized) and every sign-in or
+ * session start are owner paths: on a Business-provisioned install the door
+ * opens at the first claim (see openDoorAtClaim). The claim has already
+ * committed, so a failure here is logged and healed by the next owner path. */
+async function afterOwnerPath(env: Bindings, response: Response): Promise<Response> {
+ try { await openDoorAtClaim(env); } catch (error) { console.error('import door: first-claim enable failed', error); }
+ return response;
+}
 async function handle(request: Request, bindings: Bindings & AlertEnvironment, execution: ExecutionContext): Promise<Response> {
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
@@ -57,12 +65,13 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
   const grant = await agentProject(request, env.DB);
   if (grant && !agentReadPath(request, grant)) return Response.json({ error: 'Agent keys are read-only and limited to their project.' }, { status: 403 });
  }
- if (path === '/auth/owner-claim') return ownerClaimResponse(request, env);
+ if (path === '/auth/owner-claim') return afterOwnerPath(env, await ownerClaimResponse(request, env));
  if (path === '/api/editor/config') return editorConfigResponse(request, env);
  // The import door (owner session and Business grants) runs before ordinary routing.
  const importDoor = await importDoorResponse(request, env); if (importDoor) return importDoor;
  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
- const auth = await authenticationResponse(request, env); if (auth) return auth;
+ const auth = await authenticationResponse(request, env);
+ if (auth) return path === '/auth/bootstrap' || auth.headers.has('set-cookie') ? afterOwnerPath(env, auth) : auth;
  return dispatch(request, () => api.fetch(request, env, execution), async () => {
   if (!applicationDocument(path)) {
    if (!await ownerSession(request, env)) return new Response('Not found', { status: 404 });
