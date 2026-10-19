@@ -2895,7 +2895,7 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "42d958c3ec437199513731bf3daed2d1a6639404f360cfee94fc513750351180",
+      "sha256": "95a93107de27bda73aa0fde74d093644ec128321dad36479033738eb2a7d2447",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
@@ -2903,7 +2903,7 @@
       "executable": false
     },
     "docs/EVENT-INVESTIGATION.md": {
-      "sha256": "af83b3b5bc47b154fc145d47a3355b03fc0c2556b73b13cd4066d2543189b95c",
+      "sha256": "14a8b8d4cc76a10a03ea564821adcaea7c563b383bcc76824aed16601198ab34",
       "executable": false
     },
     "docs/FEEDBACK.md": {
@@ -2919,7 +2919,7 @@
       "executable": false
     },
     "docs/INBOUND-FILTERS.md": {
-      "sha256": "6827feb75249d6eccf5ac58ee62160595f31427505f0e8cadf3d4e4161a89aad",
+      "sha256": "b209ed651ca2e2af863b9ea4aee8076213054f1e215987713bdea41b7bc363dc",
       "executable": false
     },
     "docs/install.md": {
@@ -2931,7 +2931,7 @@
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
-      "sha256": "e5ff8b8e1beefc2c8ee05d324c747657ed3f63c3f430067588fa41f26f383912",
+      "sha256": "33e005803404de084a24100bb8178856a862655d82a830f3d9f577bace288bae",
       "executable": false
     },
     "docs/OTLP-INTAKE.md": {
@@ -2939,23 +2939,23 @@
       "executable": false
     },
     "docs/overview.md": {
-      "sha256": "f28d2a4fb77e44061f9e43d3fc8eb85cfab4b1e69bb522501510659d27eeb3ff",
+      "sha256": "9b9b2ec9f80bd79e9da718adc0960cb58a6fe853cf0d4a2643e2292f6a0fa1a9",
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
-      "sha256": "cc1e2533214878f3bd54e89e19d2c14bb812ff12f7bebf712655f937cef4b54a",
+      "sha256": "1c8c292db7a28938c66d92d796befbb9bbd10802f6ebab2a0e31a449ccbddbbd",
       "executable": false
     },
     "docs/PROJECT-ERASURE.md": {
-      "sha256": "a07bec4b1fd8e680fafed537bfaa4cab07c13ca4ed22563f4df7dca99ee33e88",
+      "sha256": "5fc1f9024b1ca6278fb387d1dc7739bc876f453bc374e2337b0f4ee870b69654",
       "executable": false
     },
     "docs/REPOSITORY-SOURCE.md": {
-      "sha256": "5a9c7e60588aa929251bbb8c0b40239e677d8c33fa7dfe9b764871cdce6f6b0c",
+      "sha256": "deae3eabeae82cdd581343d1ac592e3691293e4f4a6bdc52e60540dd7b4d0fab",
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "978fe31677e583d829f7650d6be60b8f8f2365356a8b8acec90df3eb4ed95ecf",
+      "sha256": "c7bc2607696e3fe876394a8d309bd51148bc67db27570732edfdefe6c094fa05",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -2979,7 +2979,7 @@
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
-      "sha256": "89beb7c64b8c825c9b80294925442b8533c315948b94cf4b22339a196aa9a3ec",
+      "sha256": "62912443ba12405305a28582ff25f8ace53ad2c9b82a4d6327b222dc7666d695",
       "executable": false
     },
     "DUPLICATE-TRANSPORT.md": {

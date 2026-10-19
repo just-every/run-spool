@@ -1,6 +1,6 @@
 # Project inbound filters
 
-Settings exposes server-side inbound filters for browser extensions, legacy browser versions, localhost/loopback, the published crawler user-agent catalogue, React hydration, chunk/dynamic import failures, IPv4/IPv6 addresses/CIDRs, message patterns, releases, environments and exact/wildcard browser domains. New projects start with extensions and crawlers on; each default can be disabled. Localhost is off so a local application's first capture remains usable.
+Settings exposes server-side inbound filters for browser extensions, legacy browser versions, localhost/loopback, the published crawler user-agent catalog, React hydration, chunk/dynamic import failures, IPv4/IPv6 addresses/CIDRs, message patterns, releases, environments and exact/wildcard browser domains. New projects start with extensions and crawlers on; each default can be disabled. Localhost is off so a local application's first capture remains usable.
 
 Each filter shows its last-24-hour match count. Preview pages through the entire retained corpus; missing historical transport metadata is explicitly unavailable, including all client IP addresses. Settings aggregates every preview page before allowing Save. Policies use revision checks and same-origin owner authority; the admission transaction fences that exact policy. A concurrent change refuses stale intake rather than storing under a different policy.
 

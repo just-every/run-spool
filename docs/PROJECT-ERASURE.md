@@ -69,7 +69,7 @@ new project: its tombstone would refuse every later archive holding it.
 - Receipts keep counts and times only; portability tombstones are keyed hashes.
 - Older archives are refused by this installation, and by a fresh installation
   that first restores the newer archive. A brand-new installation given only an
-  older archive cannot recognise the erasure; give it the newer archive too
+  older archive cannot recognize the erasure; give it the newer archive too
   (`rer import --input OLDER --journal NEWER`), which refuses the older one.
 - Already downloaded archives, delivered mail, provider records, D1 Time Travel
   and backups, raw database imports and destination secrets
@@ -78,7 +78,7 @@ new project: its tombstone would refuse every later archive holding it.
 ## Measured
 
 `tests/project-erasure.mjs` runs the Settings journey, progress and completion
-at 1440 and 390, including imported custody, anonymised audit, unrelated data
+at 1440 and 390, including imported custody, anonymized audit, unrelated data
 and old-archive fences. `tests/project-erasure-cap.mjs` separately restores
 10,000 retained occurrences, requires a prompt 202 acceptance, follows the same
 job to completion within the unchanged 300-second cap, and scans D1 and a fresh

@@ -67,7 +67,7 @@ Paste this prompt into your agent:
 
 When the agent reports a branch or pull request, record it yourself in the issue's Repairs panel with its checks, then mark approval, merge, the registered release it shipped in and that you exercised the affected flow. The agent grant stays read-only and cannot record a repair. The next packet carries this history and the computed verdict (`recurred`, `inconclusive` with reasons, or `no_recurrence_after_exercise`), so a later attempt starts from what was already tried.
 
-Your agent can also wire Spool into the application it works on. Ask it to add Spool's own SDK and initialise it once, with the ingest key from the app's own configuration rather than its source. An ingest key can only send events to its project; the agent key stays read-only.
+Your agent can also wire Spool into the application it works on. Ask it to add Spool's own SDK and initialize it once, with the ingest key from the app's own configuration rather than its source. An ingest key can only send events to its project; the agent key stays read-only.
 
 ```sh
 npm install @just-every/spool

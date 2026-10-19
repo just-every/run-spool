@@ -24,9 +24,9 @@ Spool decides the outcome by comparing that observation with the captured event,
 
 ### Trust boundary
 
-The modules a reproducer runs come from your project's own authenticated source-map upload. A verdict is therefore labelled **reproduced by your uploaded source** (in the API, `label` and `basis` on each run): it says what that source did in the sandbox, not that the source is honest. Code in the upload can still shape its own throw: it can throw an error whose name, message or `stack` it set itself, or patch globals that its own async functions then depend on, and such a throw is reported as it happened. Treat a verdict as proof only about code you trust; it is not proof against hostile uploaded code. The sandbox's guarantees are about isolation: uploaded code gets no network, no secrets, no files and no bindings, and it cannot author the harness's observation outside its own call.
+The modules a reproducer runs come from your project's own authenticated source-map upload. A verdict is therefore labeled **reproduced by your uploaded source** (in the API, `label` and `basis` on each run): it says what that source did in the sandbox, not that the source is honest. Code in the upload can still shape its own throw: it can throw an error whose name, message or `stack` it set itself, or patch globals that its own async functions then depend on, and such a throw is reported as it happened. Treat a verdict as proof only about code you trust; it is not proof against hostile uploaded code. The sandbox's guarantees are about isolation: uploaded code gets no network, no secrets, no files and no bindings, and it cannot author the harness's observation outside its own call.
 
-Run the same reproducer against a later registered release whose map carries the same file to check a fix's behaviour: **Not reproduced** there is independent evidence that the fixed code behaves differently.
+Run the same reproducer against a later registered release whose map carries the same file to check a fix's behavior: **Not reproduced** there is independent evidence that the fixed code behaves differently.
 
 The sandbox runs on the machine where you run the command. Spool's own Worker never executes reproducer code, and the workerd Worker Loader binding that would let it is not part of the Base deployment contract.
 
