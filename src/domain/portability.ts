@@ -1,3 +1,5 @@
+import { safeAuditExcludedTables } from './audit/archive';
+import { deploymentTables,deploymentExportRow } from './deployments/archive';
 import { releaseTables } from './releases/archive';
 import { groupingTables } from './grouping/archive';
 import {inboundFilterTables} from './filters/archive';
@@ -28,8 +30,8 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, alertExportRow(table, row)),
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,'deployment_actors','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
+ exportRow: (table: string, row: any) => scrubExportRow(table, deploymentExportRow(table, alertExportRow(table, row))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -98,6 +100,10 @@ laterTables.unshift({tables:Object.keys(releaseTables),migrations:['0043_sentry_
 const importDoorMigrations=['0044_import_preparation_steps.sql','0045_import_custody_replace.sql','0046_import_erasure_progress.sql','0047_import_door_apply_failures.sql','0048_import_door_scopes.sql'];
 for(const later of laterTables)later.migrations.push(...importDoorMigrations);
 laterTables.unshift({tables:[],migrations:importDoorMigrations});
+for(const later of laterTables){later.tables.push(...Object.keys(deploymentTables));later.migrations.push('0049_deployment_history.sql','0050_release_order_keys.sql')}
+laterTables.unshift({tables:Object.keys(deploymentTables),migrations:['0049_deployment_history.sql','0050_release_order_keys.sql']});
+for(const later of laterTables)later.migrations.push('0051_safe_audit.sql');
+laterTables.unshift({tables:[],migrations:['0051_safe_audit.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

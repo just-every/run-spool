@@ -12,10 +12,11 @@ export function releaseIdentity(value:unknown):string{
  throw new Error('Invalid release');
 }
 export function releaseVersionKey(name:string):string|null{
- const version=name.slice(name.lastIndexOf('@')+1),m=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?(?:\+(\d+))?$/.exec(version);
- if(!m||m[4]?.split('.').some(v=>/^0\d+$/.test(v)||!v))return null;
+ const version=name.slice(name.lastIndexOf('@')+1),m=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?(?:\+([0-9A-Za-z.-]+))?$/.exec(version);
+ if(!m||m[4]?.split('.').some(v=>/^0\d+$/.test(v)||!v)||m[5]?.split('.').some(v=>!v))return null;
  const numeric=(v:string)=>String(v.length).padStart(3,'0')+':'+v;
  // Numeric prerelease components sort before text; an absent prerelease sorts last.
- const pre=m[4]?m[4].split('.').map(v=>/^\d+$/.test(v)?'0'+numeric(v):'1'+v).join('.')+'!':'~';
- return [numeric(m[1]),numeric(m[2]),numeric(m[3]),pre,numeric(m[5]??'0')].join('|');
+ // Hex text and low delimiters preserve identifier-prefix and list-prefix order.
+ const pre=m[4]?m[4].split('.').map(v=>(/^\d+$/.test(v)?'0'+numeric(v):'1'+Array.from(v,c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join(''))+'!').join('')+'#':'~';
+ return [numeric(m[1]),numeric(m[2]),numeric(m[3]),pre].join('|');
 }

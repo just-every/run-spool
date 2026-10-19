@@ -1,3 +1,4 @@
+import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import assert from 'node:assert/strict';
 import { runtime, successor, snapshot, eraseInput, confirmLatest } from './owner-erasure/helpers.mjs';
 
@@ -15,7 +16,7 @@ export async function interruptedFinalization() {
   assert.equal(paused.phase,'blobs');assert.ok(paused.step>0);assert.equal(paused.subject,null);
   const before=await snapshot(app);
   await assert.rejects(()=>app.DB.prepare('UPDATE projects SET name=? WHERE id=?').bind(owner.email+' and Quinn Otherperson','finalization-proof').run(),/owner_erasure_in_progress/);
-  assert.deepEqual(await snapshot(app),before,'a paused finalization still refuses captured-data writes atomically');
+  assertAuditAppendOnly(await snapshot(app),before,'a paused finalization still refuses captured-data writes atomically');
   await app.DB.prepare('DROP TRIGGER fixture_interrupt_finalization').run();
   await app.restart();
   const tick=await fetch(app.origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json');assert.equal(tick.status,200,await tick.text());

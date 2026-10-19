@@ -1,3 +1,4 @@
+import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -34,7 +35,7 @@ export async function authorityRaces() {
      party==='capture'&&table==='projects'?rows.map(row=>row.id==='race-proof'?{...row,name:row.name+' changed'}:row):
      // Base creates the installation's portability identity on first use; a refusal may create it but never advance its epoch.
      table==='rer_portability_state'&&!rows.length&&after[table].length===1?[{...after[table][0],epoch:0,applying:0,import_job:null}]:rows;
-    assert.deepEqual(after[table],expected,`${party} refusal preserves ${table} apart from the injected change`);
+    if(['spool_audit_events','audit_actor_links','deployment_actors'].includes(table))assertAuditAppendOnly({[table]:after[table]},{[table]:expected},'refusal appends only safe observations');else assert.deepEqual(after[table],expected,`${party} refusal preserves ${table} apart from the injected change`);
    }
    assert.equal(after.rer_erasure_operations.length,0,'refused first step releases the durable freeze');
    await app.DB.prepare('DROP TRIGGER fixture_change_plan').run();
@@ -84,7 +85,7 @@ export async function heldScopes(app,otherId) {
   try {
    const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,test.hold,JSON.stringify(preview));
    const before=await snapshot(app),response=await app.request('/api/owner/erasure',eraseInput(preview));
-   assert.equal(response.status,409);assert.deepEqual(await snapshot(app),before,test.hold+' changes no stored row');
+   assert.equal(response.status,409);assertAuditAppendOnly(await snapshot(app),before,test.hold+' changes no stored row');
    results.push({hold:test.hold,status:response.status,unchanged:true});
   } finally {await test.clear();}
  }

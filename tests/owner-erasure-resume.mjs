@@ -1,3 +1,4 @@
+import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { runtime, successor, snapshot, eraseInput, confirmLatest } from './owner-erasure/helpers.mjs';
@@ -26,7 +27,7 @@ export async function interruptedErasure() {
   const frozen=await snapshot(app);
   await assert.rejects(()=>app.DB.prepare('UPDATE projects SET name=? WHERE id=?').bind('delayed write Test owner','resume-proof').run(),/owner_erasure_in_progress/);
   await assert.rejects(()=>app.DB.prepare("INSERT INTO credentials(hash,project,kind,created,minted_by,minted_version) VALUES(?,'resume-proof','agent',?,?,?)").bind(randomUUID(),Date.now(),owner.id,owner.version).run(),/owner_erasure_in_progress|credential_authority_changed/);
-  assert.deepEqual(await snapshot(app),frozen,'paused operation rejects delayed writes atomically');
+  assertAuditAppendOnly(await snapshot(app),frozen,'paused operation rejects delayed writes atomically');
   await app.DB.prepare('DROP TRIGGER fixture_interrupt_second_batch').run();
   await app.restart();
   const tick=await fetch(app.origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json');
@@ -40,7 +41,7 @@ export async function interruptedErasure() {
   // Simulate the INSERT of an already-admitted mint after deletion and after
   // the temporary freeze has gone. The durable authority guard must reject it.
   await assert.rejects(()=>app.DB.prepare("INSERT INTO credentials(hash,project,kind,created,minted_by,minted_version) VALUES(?,'resume-proof','agent',?,?,?)").bind(randomUUID(),Date.now(),owner.id,owner.version).run(),/credential_authority_changed/);
-  assert.deepEqual(await snapshot(app),before,'late predecessor mint is nonmutating after completion');
+  assertAuditAppendOnly(await snapshot(app),before,'late predecessor mint is nonmutating after completion');
   assert.equal((await app.call('/auth/magic-link',{email:next.email})).status,202);
   app.cookie=await confirmLatest(app,next.email);
   const receipts=await app.json('/api/owner/erasure/receipts');assert.equal(receipts.length,1);assert.equal(receipts[0].id,interrupted.id);assert.equal(receipts[0].phase,'complete');

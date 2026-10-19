@@ -1,3 +1,4 @@
+import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
 import { runtime, successor, snapshot, eraseInput, archive } from './owner-erasure/helpers.mjs';
@@ -68,7 +69,7 @@ export async function delayedOwnerWrites() {
   const before=await snapshot(app),responses=await Promise.all(pending.map(request=>request.release()));
   const route=index=>`${requests[index][2]?.method??'POST'} ${requests[index][0]}`;
   assert.deepEqual(responses.map((response,index)=>({route:route(index),...response})),requests.map((_,index)=>({route:route(index),status:409,body:{error:'authority_changed'}})),'every admitted predecessor owner write is refused after handoff');
-  assert.deepEqual(await snapshot(app),before,'delayed predecessor owner writes change no row');
+  assertAuditAppendOnly(await snapshot(app),before,'delayed predecessor owner writes change no row');
   return {phase:receipt.phase,refused:responses.length,storedRows:'unchanged'};
  } finally {for(const request of pending)request.close();await app.close();}
 }
@@ -84,7 +85,7 @@ export async function delayedRestore() {
   const preview=await app.json('/api/owner/erasure'),receipt=await app.json('/api/owner/erasure',eraseInput(preview));assert.equal(receipt.phase,'complete');
   const before=await snapshot(app),response=await pending.release();
   assert.deepEqual(response,{status:409,body:{error:'authority_changed'}},'an admitted predecessor restore is refused after handoff');
-  assert.deepEqual(await snapshot(app),before,'a delayed predecessor restore changes no row');
+  assertAuditAppendOnly(await snapshot(app),before,'a delayed predecessor restore changes no row');
   return {phase:receipt.phase,refused:1,storedRows:'unchanged'};
  } finally {pending?.close();await app.close();}
 }
@@ -108,7 +109,7 @@ export async function delayedRepairWrites() {
   const preview=await app.json('/api/owner/erasure'),receipt=await app.json('/api/owner/erasure',eraseInput(preview));assert.equal(receipt.phase,'complete');
   const before=await snapshot(app),responses=await Promise.all(pending.map(request=>request.release()));
   for(const response of responses)assert.deepEqual(response,{status:409,body:{error:'authority_changed'}},'an admitted predecessor repair write is refused after handoff');
-  assert.deepEqual(await snapshot(app),before,'delayed predecessor repair writes change no row');
+  assertAuditAppendOnly(await snapshot(app),before,'delayed predecessor repair writes change no row');
   return {phase:receipt.phase,refused:responses.length,storedRows:'unchanged'};
  } finally {for(const request of pending)request.close();await app.close();}
 }

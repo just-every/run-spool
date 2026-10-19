@@ -1,3 +1,5 @@
+import { serviceActor,auditSubject } from '../audit/identity';
+import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { validateConfig, validateMessage } from '../../modules/mail/src/core/validation.mjs';
@@ -10,7 +12,14 @@ export function sender(env:AlertEnvironment) {
  if(env.MAIL_PROVIDER==='development') {
   if(env.RER_DEMO !== '1' && !localDevelopmentEnabled(env))throw new Error('mail_unconfigured');
  } else validateConfig(productionMailConfig(env));
- const result=operatorMail(env);if(!result)throw new Error('mail_unconfigured');return result;
+ const result=operatorMail(env);if(!result)throw new Error('mail_unconfigured');
+ return {...result,async send(message:Parameters<typeof result.send>[0]) {
+  const actor=await serviceActor(env.DB,'mail'),subject=await auditSubject(env.DB,'delivery',message.deliveryId);
+  const fact={source:'service' as const,actor,subject,action:'notification.attempt' as const};
+  await recordAudit(env.DB,{...fact,outcome:'started'});
+  try{const reply=await result.send(message);await recordAudit(env.DB,{...fact,outcome:reply.status==='development'?'suppressed':reply.status==='accepted'?'accepted':reply.status==='uncertain'?'uncertain':'failed'});return reply}
+  catch(error){await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error}
+ }};
 }
 export async function expandMail(env:AlertEnvironment,intent:Intent,time:number) {
  const destination=await authorizedDestination(env,intent);sender(env);

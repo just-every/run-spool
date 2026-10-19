@@ -54,3 +54,15 @@ export async function restore(app,text) {
  const response=await fetch(app.origin+'/api/restore',{method:'POST',headers:{Origin:app.origin,Cookie:app.cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:text});
  return {status:response.status,body:await response.json()};
 }
+
+// Denied actions now append their safe audit observation. All business rows and
+// every pre-existing audit/link row must still be byte-for-byte unchanged.
+export function assertAuditAppendOnly(actual,expected,message) {
+ for(const [table,rows] of Object.entries(expected)) {
+  if(['spool_audit_events','audit_actor_links','deployment_actors'].includes(table)) {
+   assert.deepEqual(actual[table].slice(0,rows.length),rows,message+' (prior '+table+')');
+   if(table==='spool_audit_events')for(const row of actual[table].slice(rows.length)){assert.equal(row.source,'request');assert.ok(['denied','conflict','invalid','failed','succeeded','accepted'].includes(row.outcome));}
+  } else assert.deepEqual(actual[table],rows,message+' ('+table+')');
+ }
+ assert.deepEqual(Object.keys(actual),Object.keys(expected));
+}
