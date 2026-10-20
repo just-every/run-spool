@@ -64,7 +64,6 @@ export function GroupingProposals({ project, request, run, busy, refresh, refres
         <button className="text-button" disabled={busy} onClick={() => decide('reject')}>Reject grouping proposal</button>
       </div>}
       {selected.state === 'approved' && !preview && <><p>Approved proposals require an explicit apply or rules save.</p>{selected.preview && <button className="text-button" disabled={busy} onClick={() => selected.preview.plan ? setPreview(selected.preview) : onRulePreview(selected.preview)}>Open approved preview</button>}</>}
-      {selected.kind === 'rule' && selected.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => action(async () => { const rollback = await request(`${root}/grouping-rules/preview`, 'POST', { policy: selected.explanation.policy.before }); onRulePreview(rollback); setNotice('Previous rule version opened for review. Save explicitly to roll back.'); })}>Preview previous rule version</button>}
       {selected.state === 'stale' && <p>This proposal no longer matches the recorded issue or rule revisions. Ask the agent for a new proposal using current evidence.</p>}
       {preview && <CorrectionReview preview={preview} busy={busy} onCancel={() => setPreview(null)} onApply={() => action(async () => {
         await request(`${root}/corrections/${encodeURIComponent(preview.id)}/apply`, 'POST', { confirm: true });

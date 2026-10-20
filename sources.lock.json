@@ -6945,7 +6945,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
-      "sha256": "f299ec36cee9fa01d88e751f919522047674b37875b26864b99e424b535fcd0a",
+      "sha256": "3fd7c70adacc8b650a31f036372e1c5967fde5e0321a934b17a392a145576e50",
       "executable": false
     },
     "src/ui/workbench/GroupingRulePreview.tsx": {
