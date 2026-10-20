@@ -5,7 +5,7 @@ function RecordedEvidence({ rows, empty }: { rows: any[]; empty: string }) {
 }
 
 function Variants({ rows, inside }: { rows: any[]; inside?: boolean }) {
-  if (!rows.length) return <p>No {inside ? 'differing variants inside the selected group' : 'look-alike events outside the selected group'} in this retained window.</p>;
+  if (!rows.length) return <p>No {inside ? 'differing variants inside the selected group' : 'look-alike events outside the selected group'} in the retained evidence.</p>;
   return <ul>{rows.map((row, index) => <li key={row.event ?? index}>
     <p>Event <code>{row.event}</code>{row.issue && <> · issue <code>{row.issue}</code></>}{row.occurrence && <> · occurrence <code>{row.occurrence}</code></>}</p>
     <pre>{JSON.stringify(row.variant, null, 2)}</pre>
@@ -15,6 +15,7 @@ function Variants({ rows, inside }: { rows: any[]; inside?: boolean }) {
 
 export function GroupingExplanation({ explanation }: { explanation: any }) {
   return <div className="grouping-explanation">
+    <p>Spool computed these effects from retained evidence. Decided proposals keep the review snapshot; subsequent repair observations remain in the issue packet.</p>
     <h4>Exact affected events ({explanation.affected.length})</h4>
     {explanation.affected.length ? <ol>{explanation.affected.map((row: any) => <li key={`${row.event}:${row.occurrence}`}>
       <p>Event <code>{row.event}</code> · occurrence <code>{row.occurrence}</code></p>

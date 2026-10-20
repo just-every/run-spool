@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7ef01e362cabd29bae18b228d6c7364961efc8b79de00fc27f41ec043b398201",
+      "sha256": "7e904e639bd7564e76959600cfe871fc15ab28d84f0b926138164e10b2b7cd0c",
       "executable": false
     },
     "DEMO.md": {
@@ -4413,7 +4413,7 @@
       "executable": false
     },
     "src/domain/proposals/routes.ts": {
-      "sha256": "da2712a493f225d1e6c67d697012ab75107a5e022b7e465dc23dd9bbc07124fb",
+      "sha256": "95dee5026fe8c79762cf58913d6fdd73b01ae9527db0e49534bd672bd1e0558d",
       "executable": false
     },
     "src/domain/releases/admission.ts": {
@@ -6941,7 +6941,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "53e086627ea7066c8b89bd1a5aa77943444493d182562ffbade40ed6dc5c1b7c",
+      "sha256": "bd2bd7c276baaec2f88a2990c5e3ea8c660d67359265dab23e07f823c71a0af6",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {

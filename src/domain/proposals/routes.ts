@@ -31,14 +31,16 @@ routes.get('/',async c=>{
 });
 routes.post('/',async c=>{
  if(!c.get('proposalAgent'))return c.json({error:'An agent grant submits inert proposals; owner decisions use approve or reject'},403);
- const db=c.env.DB,project=c.req.param('project')!,input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
+ const db=c.env.DB,project=c.req.param('project')!;
+ const bearer=c.req.header('authorization')!.replace(/^Bearer /i,''),digest=await hash(bearer);
+ const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
+ const actor=await auditActor(db,{kind:'service',authority:digest,owner:source.minted_by,project});attributeAuditScope(actor);
+ const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
  try{preview=await proposalPreview(db,project,input,id);revisions=await issueRevisions(db,project,input,preview)}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
  const explanation=canonical(await explainProposal(db,{project,input},preview));
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB; narrow the proposal'},400);
- const bearer=c.req.header('authorization')!.replace(/^Bearer /i,''),digest=await hash(bearer);
- const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
- const actor=await auditActor(db,{kind:'service',authority:digest,owner:source.minted_by,project});attributeAuditScope(actor);
+
  const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};
  try{await auditedBatch(db,[
   guard(db,`EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)})`,digest,project),
