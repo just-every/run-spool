@@ -3481,7 +3481,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "944d26a74a80ce2ff3e6c482a982af7356c69747a1bd61a2949f3bda9be88385",
+      "sha256": "9acc5ee0f0bd13c72c5c27371d6438d400764e5c0ea63cc7e41df9ea299ca483",
       "executable": false
     },
     "RELEASE.json": {
@@ -6857,7 +6857,7 @@
       "executable": false
     },
     "src/ui/workbench/AgentHandoff.tsx": {
-      "sha256": "0d7a90279b29a19c5218a917f8b8c3c6ce9777d08f5fec184cf41514923748d2",
+      "sha256": "2f1f4eada7286c7258f0e684ff0e2a6ce1468bd3f457580beb5ed34c0c7adc4f",
       "executable": false
     },
     "src/ui/workbench/ArchiveSettings.tsx": {

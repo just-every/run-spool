@@ -47,7 +47,7 @@ export function AgentHandoff({ project, agentKey, onDismiss }: {
     <p>Run these lines in Bash. Replace the CLI path with its absolute path in your Spool checkout and <code>ISSUE_ID</code> with the issue’s ID. The command works from your application’s repository; enter credentials only at the hidden prompts.</p>
     <pre>{setupLines}</pre>
     {isLoopback && <p className="agent-handoff-guidance">Local <code>rer dev</code> agent keys also need this checkout’s private gate. From the printed <code>RER_OPEN</code> link, privately copy only the fragment value after <code>rer-dev=</code> and before any <code>&amp;</code> into <code>SPOOL_DEV_KEY</code> in your agent terminal’s environment. The CLI sends it only to loopback. The gate can also open the owner persona: never put it in a browser app or shared configuration. <a className="inline-link" href="/docs/agents#local-agent-access">Private input instructions</a>.</p>}
-    <p className="agent-handoff-guidance">The agent key reads only this project and cannot write. Deployed Spool refuses dev-minted keys; create a fresh agent key there. Private archives exclude project grants.</p>
+    <p className="agent-handoff-guidance">The agent key reads this project’s evidence and can submit inert grouping proposals. Only the owner can reject, approve or apply a grouping change. Deployed Spool refuses dev-minted keys; create a fresh agent key there. Private archives exclude project grants.</p>
     <h3>Paste-in prompt</h3>
     <pre>{pastePrompt}</pre>
     <div className="button-row">
