@@ -19,6 +19,10 @@ export async function capArchive(app,issue){
  // maps. Clear unrelated history rather than inventing a second application.
  const seed=data.events.find(row=>row.project==='a'&&row.issue===issue),group=data.issues.find(row=>row.id===issue);assert.ok(seed&&group);
  for(const [table,rows] of Object.entries(data))data[table]=rows.filter(row=>table==='projects'?row.id==='a':row.project==='a');
+ // This cap fixture replaces all occurrences and drops unrelated issues; their
+ // proposal investigation history cannot name the replacement corpus. The
+ // unmodified proposal round trip is covered by operator-flow/product-runtime.
+ data.grouping_proposals=[];
  data.issues=[group];data.issue_resolutions=data.issue_resolutions.filter(row=>row.issue===issue);data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_history=[];
  // Capture facts follow the retained issue; excluded issues cannot leave
  // dangling history in this intentionally sliced archive.

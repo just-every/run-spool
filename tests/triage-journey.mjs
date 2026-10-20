@@ -20,7 +20,15 @@ try {
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
- async function capture(scenario,width){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);const path=`${scenario}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:true,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario,width,path});}
+ async function capture(scenario,width){
+  await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
+  const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
+  if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
+  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  await shot(scenario);
+  if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}}
+ }
+
  {
   const visitor=await browser.newContext({viewport:{width,height:900}}),lobby=await visitor.newPage();
   lobby.on('pageerror',error=>pageErrors.push(error.message));await lobby.goto(origin+'/');
