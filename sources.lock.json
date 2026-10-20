@@ -4381,7 +4381,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "77f834b100083db2bcdfecadcaf22a23e44c0893ed39a0e25f75b8124beec4f8",
+      "sha256": "59d1e5ba80f5458c08f34ff704b8df5b8a3aeb07ab418425c99b7d21feaa2692",
       "executable": false
     },
     "src/domain/privacy.ts": {

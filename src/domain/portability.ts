@@ -126,9 +126,12 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Every set that adds no archived table matches the same schema; an archive that records its migrations takes the
+ // one holding every such migration it lacks (0.5.1 archives lack 0054, 0055 and 0056), never only the newest.
+ const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
-  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)))) continue;
+  if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
   const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
