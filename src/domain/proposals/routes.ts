@@ -47,7 +47,7 @@ routes.post('/',async c=>{
   guard(db,`EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)})`,digest,project),
   ...revisionGuards(db,project,revisions),
   ...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[]),
-  s(db,'INSERT INTO grouping_proposals VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',id,project,input.kind,'proposed',row.actor,row.input,row.explanation,row.revisions,null,null,time,time),auditCommit(db),s(db,'DELETE FROM operator_guards')
+  s(db,'INSERT INTO grouping_proposals(id,project,kind,state,actor,input,explanation,revisions,correction,rule_revision,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',id,project,input.kind,'proposed',row.actor,row.input,row.explanation,row.revisions,null,null,time,time),auditCommit(db),s(db,'DELETE FROM operator_guards')
  ]);}catch(e){if(/grouping_proposal_budget/.test(String(e)))return c.json({error:'Project holds at most 50 grouping proposals'},409);if(/operator_guards/.test(String(e)))return c.json({error:'Authority or issue revision conflict'},409);throw e}
  return c.json(summary(row),201);
 });
