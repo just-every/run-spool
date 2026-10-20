@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "07ff226aa65ea886df8ea2345dcb277755db9efa76680c3e24704e9280da21c1",
+      "sha256": "4cb48f69d2e9d06e3d5a4f0ad2d6dfb512e9dab07c133b793492eed55c7324f2",
       "executable": false
     },
     "DEMO.md": {
@@ -3213,27 +3213,27 @@
       "executable": false
     },
     "docs/retained-verification/alert003/attention-1440.png": {
-      "sha256": "21c1aae77cf61c8da75617f9a8425521f949ec091cc715923997b9c15ff81309",
+      "sha256": "780ac202a7c7820d3bb851b762e86720bd48cbc3e381c11332c21d57e22e9445",
       "executable": false
     },
     "docs/retained-verification/alert003/attention-390.png": {
-      "sha256": "68fba80ebec5178686719529c37c740058a31abb5ed9f75b161cf6862808edbe",
+      "sha256": "d4fcceb51c064568b24eb19d82880d630fbd24a15bd14812740c0c94d125e886",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-1440.png": {
-      "sha256": "1783d8e30f1b9c68bb054e115e287c91256f03f5eca3066216651e549ca3aa03",
+      "sha256": "2b8595255797ba3be0299825af2ad0823aba8861df85194bec6108e149763fa4",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-390.png": {
-      "sha256": "dc74bc126438190c142d27802d161d312df1cce05f9bfcff83a83523edf8a59e",
+      "sha256": "a6e827c95dd570057e11927a0169fb82d049e16150b504c7fd6eadeb12b4f388",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-1440.png": {
-      "sha256": "aae72b214b9e1e40a0670a48edd847a7225f8e8f03cb24ad4b7ce5aba4dc942a",
+      "sha256": "ee3ba6091dee144a52eb422e8ea0e966d5853b5d2fb6c4872d3361df0351c8f0",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-390.png": {
-      "sha256": "215946276c6ae0dfff8b2547f5c9da6b018f3750c27c94d68643cffe40916d19",
+      "sha256": "f7df9d57d1fc345786c5e4aa5a2fbcdb9e5f642f5197ea37772746ee1e21bef8",
       "executable": false
     },
     "docs/retained-verification/alert003/controls-empty-1440.png": {
@@ -3245,11 +3245,11 @@
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-1440.png": {
-      "sha256": "d56582a91fd4a323b99db80114a284266bb5efb799f5e00c1aa2bd18d6a88336",
+      "sha256": "f4ca95a5870eabaa430bd8f32c9da42fd4a340a99b758230cd41d36026024f9e",
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-390.png": {
-      "sha256": "4706a2c1613a674c792266d8ec80d3c53266e74306e61ef081bba1e41ff1663a",
+      "sha256": "a09279a3ae240691f6da9570c10ab30c599d54ca3c6849b3425b1032985f30c1",
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-1440.png": {
@@ -3277,19 +3277,19 @@
       "executable": false
     },
     "docs/retained-verification/alert003/digest-1440.png": {
-      "sha256": "6193f29b7972fc3980aa67e792eb894e23a0d5f00e7226043caeba9a7dac0699",
+      "sha256": "6cbfba06d6d4f88f9b0e0595b047e5d4b8835b6a2f8bf307525824cacfee9d2e",
       "executable": false
     },
     "docs/retained-verification/alert003/digest-390.png": {
-      "sha256": "3b24540a987b84be3835a71273d76300bd76dface19b851116dc254120df3fbc",
+      "sha256": "69046b6588819149fffb185c85a008a77b2e9572c95e5a4fe2c6dc1d46fded6e",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-1440.png": {
-      "sha256": "775cc1ef3f1e7819bbe381b3394d5ce00cb3ab442305f0b723011da056e38431",
+      "sha256": "37329df6641ed1e77432916100c7c7ad7f7cdf01d517730cd8520d08b57da8b6",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-390.png": {
-      "sha256": "deff5beffdba94629fe54c59968f477d8b6fad1991554c4b95407c6d3b2268a7",
+      "sha256": "8a34a9aade856c061109968d8268542021a4bd3345d355f78805b53ba9557200",
       "executable": false
     },
     "docs/retained-verification/alert003/failing-1440.png": {
@@ -3305,23 +3305,23 @@
       "executable": false
     },
     "docs/retained-verification/alert003/passing-390.png": {
-      "sha256": "46412915897fb1412b73ef0d5229986a44916abc5e88cb0b37d6db196a642094",
+      "sha256": "056b9c92913c40b4edcaac91e7cc01c68b064859c9bf23e87877645cf9b5e90d",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-1440.png": {
-      "sha256": "dd4a5b33a9a51715ecb8de3614dc964894105b276f456c2dde8a4be3dac61a4e",
+      "sha256": "5b5fb96939b4d02bd252f0fc15644eada576489c163ba83fac94ee15ad64f32f",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-390.png": {
-      "sha256": "8fcb3e30a7d730a48fe9e2c3596eea0a1b09c77d866d7c3a4d2b3beed5340384",
+      "sha256": "f75820c01f2b924daf181dcb6f2ca9491a2ca06cabce8afe2a2ac44d9ba7ed25",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-1440.png": {
-      "sha256": "232e32d5e66bbe44eef895f81cd77a662f4f95a93f41f55154464751f61b9043",
+      "sha256": "6f11678827c5fd3e2d9561222a6c8569386a3a9e147f409f537690ab7253f47b",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-390.png": {
-      "sha256": "f7b7108a500fc6eacca94eca9d43db56b17e169912856172ad5f67deac7ab381",
+      "sha256": "1c2791528aadc92c1ca1cd93b011c50abdd6bd88ad4e38d6ba05e2989291b993",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
