@@ -18,8 +18,9 @@ export async function testDestination(env:AlertEnvironment,session:OwnerSession,
  const {destinations}=await import('./destinations.server');const channel=saved?'mail':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
  if(!channel)throw new Error('Destination not found');
  const destination=await findDestination(env,project,id,channel),fingerprint=await testFingerprint(env,project,id,channel),time=Date.now(),testId=crypto.randomUUID();
+ // Claiming the operational send slot is not a second completed owner change.
  const claim=await ownerBatch(env.DB,session,[s(env.DB,`INSERT INTO alert_destination_tests VALUES(?,?,?,?,'running','Test send started',?,NULL)
- ON CONFLICT(project,destination) DO UPDATE SET fingerprint=excluded.fingerprint,id=excluded.id,state='running',detail=excluded.detail,tested_at=excluded.tested_at,reviewed_at=NULL WHERE alert_destination_tests.tested_at<=? RETURNING id`,project,id,fingerprint,testId,time,time-60000),auditCommit(env.DB,'changes()>0')]);
+ ON CONFLICT(project,destination) DO UPDATE SET fingerprint=excluded.fingerprint,id=excluded.id,state='running',detail=excluded.detail,tested_at=excluded.tested_at,reviewed_at=NULL WHERE alert_destination_tests.tested_at<=? RETURNING id`,project,id,fingerprint,testId,time,time-60000)]);
  if(!claim[0].results.length)throw new Error('Wait one minute before testing this destination again');
  let state='failing',detail='Test failed before a response; check the destination before testing again.';
  try {

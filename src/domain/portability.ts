@@ -173,7 +173,7 @@ async function templateManifest(service:any){
 }
 async function legacyRecords(input: any, value: unknown) {
  const service=await portability(input.db,false),legacy=await validateArchive(value);
- const data:Record<string,any[]>={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
+ const data:Record<string,any[]>={...legacy,...Object.fromEntries(deliveryTables.map(table=>[table,[]])),alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
 }
