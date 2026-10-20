@@ -35,5 +35,6 @@ export async function operatorRetentionAndErasure({req,json}){
  const project='grouping-corpus',path=`/api/projects/${project}/erasure`,plan=await json(path);
  for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'])assert.ok(plan.deleted[table]>0,'erasure traverses populated operator custody');
  const receipt=await followErasure(json,await json(path,'POST',{confirm:project,planHash:plan.planHash}));assert.equal(receipt.phase,'complete');
+ const proposalPath='/api/projects/agent-grouping/erasure',proposalPlan=await json(proposalPath);assert.ok(proposalPlan.deleted.grouping_proposals>0,'Erasure lists populated agent proposals');const proposalReceipt=await followErasure(json,await json(proposalPath,'POST',{confirm:'agent-grouping',planHash:proposalPlan.planHash}));assert.equal(proposalReceipt.phase,'complete');
  const after=await archiveProjection(await req('/api/archive'));for(const rows of Object.values(after.data))for(const row of rows)assert.notEqual(row.project,project,'erased operator project leaves no project row');assert.ok(!JSON.stringify(after.data).includes(project),'audit anonymization removes erased operator identifiers');
 }

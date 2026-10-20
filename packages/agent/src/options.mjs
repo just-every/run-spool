@@ -5,6 +5,8 @@ export class AgentError extends Error {
 export const HELP = `spool-agent issues [--state open|all] [--limit n]
 spool-agent packet <issue> [--format markdown|json]
 spool-agent outcomes
+spool-agent propose (--file <path> | --stdin) [--format markdown|json]
+spool-agent proposals [--format markdown|json]
 spool-agent mcp
 Key: SPOOL_AGENT_KEY, --key-file <path>, or --key-stdin (HTTP only).
 Key options and --timeout-ms may appear before or after the command.
@@ -21,7 +23,7 @@ export function parseArgs(args) {
     if (['--help', '-h'].includes(flag)) return { help: true };
     if (!flag.startsWith('--')) {
       if (!options.command) {
-        if (!['issues', 'packet', 'outcomes', 'mcp'].includes(flag)) throw new AgentError('Choose issues, packet, outcomes, or mcp; use --help.');
+        if (!['issues', 'packet', 'outcomes', 'propose', 'proposals', 'mcp'].includes(flag)) throw new AgentError('Choose issues, packet, outcomes, propose, proposals, or mcp; use --help.');
         options.command = flag;
       } else if (options.command === 'packet' && options.issue === undefined) options.issue = flag;
       else throw new AgentError('Unexpected argument; use --help.');
@@ -30,19 +32,25 @@ export function parseArgs(args) {
     if (seen.has(flag)) throw new AgentError('Duplicate option.');
     seen.add(flag);
     if (flag === '--key-stdin') { options.keyStdin = true; continue; }
-    const allowed = ['--key-file', '--timeout-ms', ...(options.command === 'issues' ? ['--state', '--limit'] : []), ...(options.command === 'packet' ? ['--format'] : [])];
+    if (flag === '--stdin' && options.command === 'propose') { options.proposalStdin = true; continue; }
+    const allowed = ['--key-file', '--timeout-ms', ...(options.command === 'issues' ? ['--state', '--limit'] : []), ...(['packet', 'propose', 'proposals'].includes(options.command) ? ['--format'] : []), ...(options.command === 'propose' ? ['--file'] : [])];
     if (!allowed.includes(flag) || index === args.length || args[index].startsWith('--')) throw new AgentError('Unknown or incomplete option; use --help.');
     const value = args[index++];
     if (flag === '--key-file') options.keyFile = value;
+    if (flag === '--file') options.proposalFile = value;
     if (flag === '--timeout-ms') options.timeout = positiveInteger(value, 120000);
     if (flag === '--limit') options.limit = positiveInteger(value, 100);
     if (flag === '--state') { if (!['open', 'all'].includes(value)) throw new AgentError('State must be open or all.'); options.state = value; }
     if (flag === '--format') { if (!['markdown', 'json'].includes(value)) throw new AgentError('Format must be markdown or json.'); options.format = value; }
   }
-  if (!options.command) throw new AgentError('Choose issues, packet, outcomes, or mcp; use --help.');
+  if (!options.command) throw new AgentError('Choose issues, packet, outcomes, propose, proposals, or mcp; use --help.');
   if (options.keyFile && options.keyStdin) throw new AgentError('Choose one key input.');
   if (options.command === 'mcp' && options.keyStdin) throw new AgentError('MCP reserves stdin for protocol; use environment or key file.');
   if (options.command === 'packet') validateIssue(options.issue);
+  if (options.command === 'propose') {
+    if (Boolean(options.proposalFile) === Boolean(options.proposalStdin)) throw new AgentError('Choose one proposal input: --file or --stdin.');
+    if (options.proposalStdin && options.keyStdin) throw new AgentError('Proposal stdin requires a key from environment or file.');
+  }
   return options;
 }
 

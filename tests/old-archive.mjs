@@ -22,6 +22,8 @@ const require = createRequire(import.meta.url);
 const {Miniflare, convertV4MiniflareOptions, Log, LogLevel} = require(require.resolve('miniflare', {paths: [require.resolve('wrangler/package.json')]}));
 const {unstable_splitSqlQuery} = require('wrangler');
 const migrations = JSON.parse(await readFile('management/integration/deployment-spec.json', 'utf8')).migrations;
+// Published tag bytes, fetched independently of this checkout's history.
+const released = JSON.parse(await readFile('tests/fixtures/deployment-spec-v0.6.0.json', 'utf8')).migrations;
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-old-archive-'));
 let runtime;
 const rows = async (db, sql) => (await db.prepare(sql).all()).results;
@@ -30,21 +32,43 @@ try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
- async function target(binding) {
+ async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
-  const statements = unstable_splitSqlQuery(migrations.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+  const statements = unstable_splitSqlQuery(schema.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
   await db.batch(statements.map(sql => db.prepare(sql)));
   await db.prepare(ledgerTable.sql).run();
-  await db.batch(migrations.map(m => db.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name, m.sha256)));
+  await db.batch(schema.map(m => db.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name, m.sha256)));
   return db;
  }
+ // Populate the actual released schema through the existing archive door,
+ // before the additive proposal migration exists. The sole harness adapter is
+ // an empty collection for a table that the released schema did not yet have.
+ const upgrade = await target('UPGRADE', released);
+ const stagedValidation = transfer.portabilityPolicy.validateStaged;
+ transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => table === 'grouping_proposals' ? Promise.resolve([]) : context.read(table)});
+ try { await transfer.restoreStream(await transfer.portability(upgrade), new Response(archive).body); }
+ finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
+ for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `released baseline is populated through restore: ${table}`);
+ const oldTables = await rows(upgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+ const beforeUpgrade = new Map(await Promise.all(oldTables.map(async ({name}) => [name, canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`))])));
+ const added = migrations.filter(migration => !released.some(old => old.name === migration.name));
+ assert.ok(added.length, 'the test applies the unreleased migration to the populated release');
+ const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+ await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
+ for (const {name,sql} of oldTables) {
+  assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
+ }
+ assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
+ console.log('PASS populated published release upgrades without rewriting any pre-existing row or table');
+
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');
  await transfer.restoreStream(await transfer.portability(fresh), new Response(archive).body);
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(fresh, `SELECT * FROM "${table}"`)), canonicalRows(data), `old archive retains every row in ${table}`);
- for (const table of ['release_metadata', 'release_builds', 'release_policies', 'issue_resolutions']) assert.deepEqual(await rows(fresh, `SELECT * FROM "${table}"`), []);
+ for (const table of ['release_metadata', 'release_builds', 'release_policies', 'issue_resolutions', 'grouping_proposals']) assert.deepEqual(await rows(fresh, `SELECT * FROM "${table}"`), []);
  assert.deepEqual(await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name'), ledger, 'destination migration ledger remains intact');
  assert.deepEqual(await rows(fresh, "SELECT phase FROM rer_portability_jobs WHERE kind='import'"), [{phase: 'complete'}]);
  // AUDIT-001: a previous format carries no safe history; any restored journal row gains one value-free legacy
@@ -78,7 +102,7 @@ try {
  await transfer.restoreStream(await transfer.portability(roundtrip), new Response(current).body);
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(roundtrip, `SELECT * FROM "${table}"`)), canonicalRows(data));
  for (const name of Object.keys(expected)) assert.equal(platformTable(name), false);
- for (const name of ['projects', 'releases', 'issues', 'events', 'artifacts', 'audit', 'alerts', 'alert_destinations', 'alert_mail_jobs', 'feedback', 'grouping_policies', 'repairs', 'repair_checks', 'rer_erasure_operations', 'rer_dependency_installation', 'rer_dependency_link']) assert.equal(platformTable(name), false, `${name} is person-owned`);
+ for (const name of ['projects', 'releases', 'issues', 'events', 'artifacts', 'audit', 'alerts', 'alert_destinations', 'alert_mail_jobs', 'feedback', 'grouping_policies', 'grouping_proposals', 'repairs', 'repair_checks', 'rer_erasure_operations', 'rer_dependency_installation', 'rer_dependency_link']) assert.equal(platformTable(name), false, `${name} is person-owned`);
  assert.throws(() => policy({...transfer.portabilityPolicy, includeTables: ['rer_migrations']}));
  console.log('PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables');
 } finally {

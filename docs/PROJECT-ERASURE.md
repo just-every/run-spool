@@ -114,3 +114,5 @@ The adopted Base version retains that qualified-key fix.
 The adopted portability copy runs the restore fence, including an explicit
 later journal, before any destination occupancy check, so an older archive is
 refused by the erasure fence rather than by `target_not_empty`.
+
+AI-005 grouping proposals and their server-computed review snapshots are project investigation data. The erasure inventory explicitly deletes `grouping_proposals`, including rejected, approved, applied, undone and stale advice. Restored advice remains inert.

@@ -5,7 +5,7 @@ export const subjectKinds = ['installation','project','credential','issue','poli
 export type SubjectKind = typeof subjectKinds[number];
 export const auditActions = [
  'project.create','credential.create','credential.revoke','origin.change','issue.triage','issue.assign','issue.bulk_triage','suppression.change',
- 'grouping.preview','grouping.apply','grouping.undo','grouping.policy','filter.preview','filter.change','release.preview','release.policy','release.register','artifact.upload',
+ 'grouping.propose','grouping.proposals','grouping.approve','grouping.reject','grouping.preview','grouping.apply','grouping.undo','grouping.policy','filter.preview','filter.change','release.preview','release.policy','release.register','artifact.upload',
  'evidence.packet','evidence.export','archive.export','archive.restore','retention.preview_or_apply','erasure.preview','erasure.start','erasure.resume','owner.erasure','owner.successor',
  'alert.destination.create','alert.destination.change','alert.destination.test','alert.rule.create','alert.rule.change','alert.delivery.resolve','notification.attempt','automation.follow_up',
  'repair.create','repair.check','repair.fact','reproducer.create','reproducer.queue','reproducer.read','reproducer.finish','fix.propose','fix.approve','fix.advance','fix.provider_step',

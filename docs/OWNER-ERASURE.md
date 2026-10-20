@@ -125,3 +125,5 @@ bypass the application fence.
 This does not remove downloaded archives, delivered email, identity-provider
 records, `OWNER_EMAIL`/alert destination deployment configuration, D1 Time Travel
 or provider/external backups. The owner must separately retire those copies.
+
+AI-005 owner erasure deletes `grouping_proposals` and its private server-computed review snapshots. Safe AUDIT-001 chronology retains only unlinkable actor/subject aliases, action, time and outcome.

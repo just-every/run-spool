@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Details } from './Details';
 import { Field, type Request, type Run } from './shared';
 
-type CorrectionPreview = {
+export type CorrectionPreview = {
   id: string;
   plan: {
     issues: Array<{ id: string; revision: number; count: number; after: number }>;
@@ -11,7 +11,7 @@ type CorrectionPreview = {
   newIssue: { id: string; before: number; after: number } | null;
 };
 
-function CorrectionReview({ preview, busy, onApply, onCancel }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void }) {
+export function CorrectionReview({ preview, busy, onApply, onCancel }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void }) {
   const moves = preview.plan.moves;
   return <div className="callout correction-review">
     <h3>Review exact moves</h3>
@@ -32,8 +32,8 @@ function CorrectionReview({ preview, busy, onApply, onCancel }: { preview: Corre
   </div>;
 }
 
-function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries: any[]; issueId: string; busy: boolean; onUndo: (id: string) => void }) {
-  const relevant = entries.filter(entry => entry.plan.issues.some((item: any) => item.id === issueId) || entry.plan.target === issueId);
+export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries: any[]; issueId?: string; busy: boolean; onUndo: (id: string) => void }) {
+  const relevant = entries.filter(entry => !issueId || entry.plan.issues.some((item: any) => item.id === issueId) || entry.plan.target === issueId);
   return <>
     <h3>Correction history</h3>
     {relevant.map(entry => <Details key={entry.id} title={`${entry.kind} · ${entry.state}`} triggerLabel={`${entry.kind} · ${entry.state}`}>

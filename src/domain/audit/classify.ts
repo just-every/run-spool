@@ -5,6 +5,10 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/grouping-proposals$/,methods:['POST'],action:'grouping.propose',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/grouping-proposals(?:\/(?<subject>[^/]+))?$/,methods:['GET'],action:'grouping.proposals',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/grouping-proposals\/(?<subject>[^/]+)\/approve$/,methods:['POST'],action:'grouping.approve',kind:'correction'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/grouping-proposals\/(?<subject>[^/]+)\/reject$/,methods:['POST'],action:'grouping.reject',kind:'correction'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/deployments$/,methods:['POST'],action:'deployment.start',kind:'release'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/deployments\/(?<subject>[^/]+)\/callbacks$/,methods:['POST'],action:'deployment.callback',kind:'run'},
  {pattern:/^\/api\/projects$/,methods:['POST'],action:'project.create',kind:'installation'},

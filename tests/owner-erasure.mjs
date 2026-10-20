@@ -49,6 +49,8 @@ try {
  await app.json('/api/projects/personal-capture/artifacts',{release:'r1',build:'b1',debugId:'map',map:{version:3,sources:['src/app.js'],sourcesContent:[`Test owner / ${testOwner} / ${owner.id} / ${other}`],names:[],mappings:'AAAA'}},201);
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
+ const proposalKey=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201),proposalPacket=await app.json('/api/projects/personal-capture/issues/'+captured.issue+'/packet');
+ await app.json('/api/projects/personal-capture/grouping-proposals',{kind:'split',source:captured.issue,revision:proposalPacket.issue.revision,events:['personal-event'],variants:[{stack:JSON.stringify(event.frames),release:'r1',route:''}],rationale:`Test owner / ${owner.id} / ${other}`,window:{start:Date.now()-60000,end:Date.now()+1}},201,{Cookie:'',Authorization:'Bearer '+proposalKey.key});
  const feedbackDsn=new URL(project.dsn),feedbackBody={event_id:'e'.repeat(32),type:'feedback',contexts:{feedback:{message:`Test owner / ${owner.id} / ${other}`}}};
  const feedbackResponse=await fetch(app.origin+`/api/${feedbackDsn.pathname.slice(1)}/envelope/?sentry_key=${feedbackDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"feedback"}\n'+JSON.stringify(feedbackBody)});assert.equal(feedbackResponse.status,200);await feedbackResponse.body?.cancel();
  await app.json('/api/projects/personal-capture/repairs',{issue:captured.issue,link:'https://code.test/pull/1',note:`Test owner and ${other}`},201);
@@ -58,7 +60,7 @@ try {
  evidence.holds=await heldScopes(app,otherId);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.oa_operators===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0);
+ assert.ok(preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {

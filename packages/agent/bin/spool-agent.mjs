@@ -3,6 +3,7 @@ import { AgentError, HELP, parseArgs } from '../src/options.mjs';
 import { configuration, request } from '../src/transport.mjs';
 import { markdown } from '../src/format.mjs';
 import { packetMarkdown } from '../src/packet-markdown.mjs';
+import { readProposal } from '../src/proposal.mjs';
 
 try {
   const options = parseArgs(process.argv.slice(2));
@@ -14,8 +15,9 @@ try {
       const { startMcp } = await import('../src/mcp.mjs');
       await startMcp(config);
     } else {
-      const operation = { issues: 'list_issues', packet: 'get_packet', outcomes: 'get_outcomes' }[options.command];
-      const value = await request(config, operation, options);
+      const operation = { issues: 'list_issues', packet: 'get_packet', outcomes: 'get_outcomes', propose: 'propose_grouping', proposals: 'list_grouping_proposals' }[options.command];
+      const input = options.command === 'propose' ? await readProposal(options) : options;
+      const value = await request(config, operation, input);
       process.stdout.write(options.format === 'json' ? `${JSON.stringify(value, null, 2)}\n` : options.command === 'packet' ? packetMarkdown(value) : markdown(value));
     }
   }

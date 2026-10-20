@@ -31,7 +31,7 @@
 
 # Spool · See exactly what broke
 
-Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent read-only access to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
+Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent evidence access and inert grouping-proposal submission to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
 Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.6.0](https://github.com/just-every/run-spool/tree/v0.6.0). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 

@@ -77,5 +77,50 @@ export async function operatorFlow({req,json}){
  await admit({...base,eventId:'deployment-known',environment:'production'});let observed=await packet(groups[0].results[0].issue);assert.equal(observed.deployments.last.manifest.commit_sha,manifest.commitSha);
  await admit({...base,eventId:'deployment-unknown',environment:'staging'});observed=await packet(groups[0].results[0].issue);assert.equal(observed.deployments.last.manifest,null,'production binding cannot attribute staging');
  await admit({...base,eventId:'rollback',environment:'production'});observed=await packet(groups[0].results[0].issue);assert.equal(observed.deployments.last.release,base.release);assert.equal(observed.deployments.last.manifest.commit_sha,manifest.commitSha);
+ await agentProposalFlow({req,json},corpus);
  return {project:project.id,correctedIssue:guarded.plan.target,correction:guarded.id};
+}
+
+async function agentProposalFlow({req,json},corpus){
+ const name='AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible';
+ const project=await json('/api/projects','POST',{id:'agent-grouping',name:'Release grouping investigation'}),root='/api/projects/'+project.id,endpoint=root+'/grouping-proposals';
+ const grant=await json(root+'/keys','POST',{kind:'agent'}),deploy=await json(root+'/keys','POST',{kind:'deploy'}),agent={Cookie:'',Authorization:'Bearer '+grant.key};
+ const ingest=event=>json('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+project.ingestKey});
+ const event={...structuredClone(corpus.cases.find(c=>c.id==='minified-false-merge').events[0].event),release:'grouping-r1',build:'grouping-b1',eventId:'proposal-first'};
+ await json(root+'/releases','POST',{name:event.release,build:event.build});
+ const first=await ingest(event),packet=()=>json(`${root}/issues/${first.issue}/packet`);
+ const repair=await json(root+'/repairs','POST',{issue:first.issue,link:'https://example.test/repairs/grouping',note:'Preserve recurrence through a rebuilt release'});
+ await json(root+'/releases','POST',{name:'grouping-r2',build:'grouping-b2'});
+ await json(root+'/repairs/'+repair.id+'/facts','POST',{revision:repair.revision,fact:'deployed',release:'grouping-r2'});
+ const recurrence={...event,eventId:'proposal-recurred',release:'grouping-r2',build:'grouping-b2'};await ingest(recurrence);
+ const deceptive={...recurrence,eventId:'proposal-deceptive',frames:event.frames.map((frame,index)=>index?frame:{...frame,column:frame.column+30})};await ingest(deceptive);
+ const rebuilt={...recurrence,eventId:'proposal-rebuilt',frames:event.frames.map(frame=>({...frame,file:'https://assets.example.test/rebuilt.js',line:frame.line+100}))},other=await ingest(rebuilt);
+ assert.notEqual(first.issue,other.issue,'A rebuilt stack can split the same failure');
+ let original=await packet();await json(root+'/issues/'+first.issue+'/assignment','PATCH',{revision:original.issue.revision,label:'Runtime engineer'});
+ let destination=await json(root+'/issues/'+other.issue+'/packet');await json(root+'/issues/'+other.issue+'/assignment','PATCH',{revision:destination.issue.revision,label:'Release engineer'});
+ const destinationId=(await json(root+'/alerting/destinations','POST',{label:'Grouping investigation',recipient:'grouping-alerts@example.test'})).id;
+ const rule=await json(root+'/alerting/rules','POST',{name:'Two matching failures',enabled:true,channel:'mail',destination:destinationId,kinds:['spike','new_issue'],windowMs:60000,threshold:2});
+ const input=async(kind='split')=>{const p=await packet(),target=await json(root+'/issues/'+other.issue+'/packet');return {kind,source:first.issue,revision:p.issue.revision,...kind==='split'?{events:['proposal-recurred','proposal-deceptive']}:{target:other.issue,targetRevision:target.issue.revision},variants:[{stack:JSON.stringify(p.events.find(e=>e.id==='proposal-first').event.frames),release:'grouping-r1',route:'/checkout'}],rationale:'These similar checkout failures may be one incident; compare the rebuilt release. token=private-canary alice@example.test',window:{start:Date.now()-60000,end:Date.now()+1}}};
+ const projectRows=async()=>{const a=await archiveProjection(await req('/api/archive'));return Object.fromEntries(Object.entries(a.data).filter(([table])=>table!=='grouping_proposals').map(([table,rows])=>[table,rows]));};
+ const before=await projectRows(),rejected=await json(endpoint,'POST',await input('merge'),agent);
+ assert.match(rejected.label,/^proposed by agent audit:[a-f0-9]{32}$/);assert.ok(!Object.hasOwn(rejected,'explanation'),'Agent grant gains no explanation read beyond packets');assert.ok(!JSON.stringify(rejected).includes('private-canary'));assert.ok(!JSON.stringify(rejected).includes('alice@example.test'));
+ assert.deepEqual(await projectRows(),before,'A proposed record changes no archive grouping, alert, assignment, suppression, accepted counter or repair projection');
+ let detail=await json(endpoint+'/'+rejected.id);assert.ok(detail.explanation.counterexamples.inside.length);assert.ok(detail.explanation.counterexamples.outside.some(e=>e.event==='proposal-first'));assert.equal(detail.explanation.ownership.length,2);assert.deepEqual(new Set(detail.explanation.ownership.map(r=>r.label)),new Set(['Runtime engineer','Release engineer']));
+ await json(endpoint+'/'+rejected.id+'/reject','POST',{});assert.equal((await json(endpoint+'/'+rejected.id)).state,'rejected');assert.deepEqual(await projectRows(),before,'Reject changes no application projection');
+ const proposed=await json(endpoint,'POST',await input(),agent);detail=await json(endpoint+'/'+proposed.id);
+ assert.equal(detail.explanation.affected.length,2);assert.deepEqual(new Set(detail.explanation.affected.map(e=>e.event)),new Set(['proposal-recurred','proposal-deceptive']));assert.equal(detail.explanation.rates.find(r=>r.issue===first.issue).delta,-2);assert.equal(detail.explanation.trace,'trace identity unavailable');
+ const condition=detail.explanation.alerts.rules.find(r=>r.id===rule.id).issues.find(i=>i.issue===first.issue);assert.equal(condition.before,3);assert.equal(condition.after,1);assert.equal(condition.conditionBefore,true);assert.equal(condition.conditionAfter,false);assert.ok(detail.explanation.alerts.open.length);
+ const observation=detail.explanation.repair.observations.find(r=>r.id===repair.id);assert.equal(observation.observation.verdict,'recurred');
+ for(const token of [project.ingestKey,deploy.key])for(const [path,body] of [[endpoint,await input()],[endpoint+'/'+proposed.id+'/approve',{}],[endpoint+'/'+proposed.id+'/reject',{}]])assert.ok([401,403].includes((await req(path,'POST',body,{Cookie:'',Authorization:'Bearer '+token})).status));
+ const approved=await json(endpoint+'/'+proposed.id+'/approve','POST',{});assert.equal(approved.state,'approved');assert.deepEqual(approved.preview.plan.moves.map(m=>m.event),detail.explanation.affected.map(m=>m.event));assert.deepEqual(await projectRows(),{...before,grouping_corrections:(await archiveProjection(await req('/api/archive'))).data.grouping_corrections},'Approval creates only the existing explicit correction preview');
+ assert.equal((await req(root+'/corrections/'+approved.correction+'/apply','POST',{confirm:false})).status,400);
+ original=await packet();await json(root+'/corrections/'+approved.correction+'/apply','POST',{confirm:true});assert.equal((await json(endpoint+'/'+proposed.id)).state,'applied');
+ const after=await json(root+'/repairs?issue='+first.issue);assert.equal(after.repairs[0].observation.verdict,'recurred');assert.ok(after.repairs[0].observation.reasons.some(r=>r.code==='grouping_changed'));
+ await json(root+'/corrections/'+approved.correction+'/undo','POST',{confirm:true});assert.equal((await json(endpoint+'/'+proposed.id)).state,'undone');
+ const undone=await packet();assert.equal(undone.issue.count,original.issue.count);for(const old of original.events){const now=undone.events.find(e=>e.id===old.id);assert.deepEqual(now.event,old.event);assert.equal(now.originalGrouping.issue,first.issue);}
+ const repairAfterUndo=(await json(root+'/repairs?issue='+first.issue)).repairs[0];assert.equal(repairAfterUndo.observation.verdict,'recurred');assert.ok(repairAfterUndo.observation.reasons.some(r=>r.code==='grouping_changed'));
+ const stale=await json(endpoint,'POST',await input(),agent),current=await packet();await json(root+'/issues/'+first.issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Later owner decision'});assert.equal((await req(endpoint+'/'+stale.id+'/approve','POST',{})).status,409);assert.equal((await json(endpoint+'/'+stale.id)).state,'stale');
+ const untouched=await json(endpoint,'POST',await input('merge'),agent);assert.equal((await json(endpoint+'/'+untouched.id)).state,'proposed');
+ const safe=(await json('/api/audit?limit=100')).rows;assert.ok(safe.some(r=>r.action==='grouping.propose'&&r.actor_kind==='service'&&r.actor_label===proposed.actor));assert.ok(!JSON.stringify(safe).includes('private-canary'));
+ console.log(name+' passed.');
 }

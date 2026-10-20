@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { AgentError, positiveInteger, validateIssue } from './options.mjs';
 import { redact } from './format.mjs';
+import { PROPOSAL_BYTES } from './proposal.mjs';
 
 export function isLoopback(url) {
   return url.hostname === 'localhost' || url.hostname === '[::1]' || /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname);
@@ -41,20 +42,23 @@ export function endpoint(config, operation, args = {}) {
     if (args.limit !== undefined) url.searchParams.set('limit', String(positiveInteger(args.limit, 100)));
   } else if (operation === 'get_packet') url.pathname += `/issues/${encodeURIComponent(validateIssue(args.issue))}/packet`;
   else if (operation === 'get_outcomes') url.pathname += '/outcomes';
-  else throw new AgentError('Unknown read operation.');
+  else if (['propose_grouping', 'list_grouping_proposals'].includes(operation)) url.pathname += '/grouping-proposals';
+  else throw new AgentError('Unknown operation.');
   return url;
 }
 
 export async function request(config, operation, args) {
   const url = endpoint(config, operation, args);
+  const body = operation === 'propose_grouping' ? JSON.stringify(args) : undefined;
+  if (body !== undefined && Buffer.byteLength(body) > PROPOSAL_BYTES) throw new AgentError('Proposal exceeds 32768 UTF-8 bytes.');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.timeout);
   try {
     const response = await fetch(url, {
-      method: 'GET', redirect: 'manual', signal: controller.signal,
-      headers: { authorization: `Bearer ${config.key}`, accept: 'application/json', ...(config.devKey ? { 'x-rer-dev-key': config.devKey } : {}) },
+      method: body === undefined ? 'GET' : 'POST', body, redirect: 'manual', signal: controller.signal,
+      headers: { authorization: `Bearer ${config.key}`, accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...(config.devKey ? { 'x-rer-dev-key': config.devKey } : {}) },
     });
-    // Refuse same-origin redirects too: they could expand the exact project/read route.
+    // Refuse same-origin redirects too: they could expand the exact project scope.
     if (response.status >= 300 && response.status < 400) throw new AgentError('Redirect refused.');
     if (response.status === 401) throw new AgentError('Not authorized.', 2);
     if (response.status === 403 || response.status === 404) throw new AgentError('Not found or out of scope.', 3);

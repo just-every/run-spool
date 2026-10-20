@@ -1,3 +1,4 @@
+import proposalRoutes from './proposals/routes';
 import followUpRoutes from './follow-up/routes';
 import { auditRoutes } from './audit/routes';
 import { auditProjectBinding } from './audit/context';
@@ -72,7 +73,7 @@ api.use('*',async(c,next)=>{c.header('Cache-Control','no-store');c.header('X-Con
   const grant=await agentProject(c.req.raw,c.env.DB);
   c.set('project',grant);
   // This precedes every independently mounted ingest, deploy and import router.
-  if(grant&&!agentReadPath(c.req.raw,grant))return deniedResponse(c.req.raw,c.json({error:'Agent keys are read-only and limited to their project.'},403));
+  if(grant&&!agentReadPath(c.req.raw,grant))return deniedResponse(c.req.raw,c.json({error:'Agent grants are limited to project evidence and inert grouping proposals.'},403));
   await next()});
 api.onError((err,c)=>{
   if(['REVIEW_FINGERPRINT_MISMATCH','NATIVE_EDIT_CONFLICT','OPERATION_KEY_CONFLICT','DUPLICATE_SOURCE_CONFLICT','IMPORT_ATOMIC_GUARD','REVERSAL_MODE_CONFLICT','UNDO_REQUIRES_COMPLETED_IMPORT'].includes(err.message))return c.json({error:err.message},409);
@@ -119,6 +120,7 @@ api.route('/api/imports/sentry',sentryImportRoutes);
 api.route('/api/imports/business',businessImportRoutes);
 api.route('/api/projects/:project/erasure',projectErasureRoutes);
 api.route('/api/erasures',erasureReceiptRoutes);
+api.route('/api/projects/:project/grouping-proposals',proposalRoutes);
 api.use('/api',async(c,next)=>{if(!await ownerSession(c.req.raw,c.env))return c.json({error:'Sign in required'},401);await next()});
 api.use('/api/*',async(c,next)=>{
   if(c.req.path.startsWith('/api/ingest/'))return next();

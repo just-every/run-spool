@@ -144,3 +144,11 @@ span.frame-function{font-family:var(--font-text)}
 .bulk-triage .issue-search-actions{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.bulk-triage li{overflow-wrap:anywhere}.issue-select{display:flex;align-items:center;gap:8px;min-height:44px;width:fit-content}.issue-select input{width:20px;height:20px;accent-color:var(--ink)}
 
 .repository-source{display:block;min-width:0;overflow-wrap:anywhere}.repository-source a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* Proposal evidence reuses the workbench's ruled sections and preview controls. */
+.grouping-proposals :is(code,li,p),.correction-review li{overflow-wrap:anywhere}
+.grouping-explanation pre,.proposal-input{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;font-size:13px}
+.grouping-explanation h4{margin:20px 0 8px;font-size:16px}
+.grouping-explanation :is(ul,ol){padding-left:22px}
+.grouping-explanation li+li{margin-top:12px}
+.grouping-proposals .callout{min-width:0}

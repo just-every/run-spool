@@ -1,3 +1,4 @@
+import { proposalTables, proposalExportRow } from './proposals/archive';
 import {followUpExcludedTables} from './follow-up/types';
 import { safeAuditExcludedTables, auditPayload, SAFE_AUDIT_PAYLOAD } from './audit/archive';
 import { deploymentTables,deploymentExportRow } from './deployments/archive';
@@ -32,7 +33,7 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, deploymentExportRow(table, alertExportRow(table, row))),
+ exportRow: (table: string, row: any) => scrubExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -122,6 +123,8 @@ laterTables.unshift({tables:[],migrations:['0055_follow_up.sql']});
 // 0056 adds only the door's archive tables, which archives exclude (ik_%).
 for(const later of laterTables)later.migrations.push('0056_import_door_archives.sql');
 laterTables.unshift({tables:[],migrations:['0056_import_door_archives.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(proposalTables));later.migrations.push('0057_grouping_proposals.sql')}
+laterTables.unshift({tables:Object.keys(proposalTables),migrations:['0057_grouping_proposals.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
