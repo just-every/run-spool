@@ -572,7 +572,7 @@ Correction custody also applies to ERR-008 and ERR-009. Repair recurrence includ
 
 ## Status
 
-Judged from the code and tests at commit `5445d34c0a8c2ab152e7d25fbc5fd52ab7668816` (21 October 2026). Implementation rounds own the rows below; clause and acceptance prose was reconciled against the same candidate. The earlier audit remains historical context.
+Judged from the code and tests at commit `f9305633d1b16c5bfb77bc392ac54f3cec7a2034` (21 October 2026). Implementation rounds own the rows below; clause and acceptance prose was reconciled against the same candidate. The earlier audit remains historical context.
 
 Evidence paths are repository-relative. Missing rows deliberately contain no implementation citation. Existing test files are proof specifications; their presence alone is not a run result. New acceptance journeys are targets, not invented test files. The older audit's exposure-verification row was done for its bounded local behavior; AI-004 is partial because it now also requires an agent and live rate comparison. ALERT-003 remains partial solely for the named real-provider Event Webhook capacity block; its code and signed-fixture scope is recorded below.
 
