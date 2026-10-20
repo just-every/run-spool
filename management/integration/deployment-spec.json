@@ -342,6 +342,12 @@
       "name": "0056_import_door_archives.sql",
       "sha256": "3d211c7cad31efa042e607437e41f77fb2407566cddd1aa9d27eb98988eb56a7",
       "sql": "-- import-kit importDoorArchiveMigration (rer 0.2.71): a tool's final export kept as its\n-- archive (the door's `archive` and `restore-check` grant actions). Additive.\nCREATE TABLE IF NOT EXISTS ik_door_archives (\n    id TEXT PRIMARY KEY, installation_id TEXT NOT NULL, namespace TEXT NOT NULL,\n    upload_id TEXT NOT NULL, tool TEXT NOT NULL, taken_at TEXT NOT NULL, name TEXT NOT NULL,\n    bundle_sha256 TEXT NOT NULL, total_bytes INTEGER NOT NULL, total_chunks INTEGER NOT NULL,\n    counts_json TEXT NOT NULL, UNIQUE(installation_id,namespace,upload_id));\nCREATE TABLE IF NOT EXISTS ik_door_archive_chunks (\n    archive_id TEXT NOT NULL REFERENCES ik_door_archives(id), ordinal INTEGER NOT NULL,\n    sha256 TEXT NOT NULL, size INTEGER NOT NULL, base64 TEXT NOT NULL,\n    PRIMARY KEY(archive_id,ordinal));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0057_grouping_proposals.sql",
+      "sha256": "c01c7cf2933883220c7ecb69e041f109aaaf05f44ae58190a081060800a79163",
+      "sql": "-- Inert agent-authored advice. Only existing owner correction/rule doors apply changes.\nCREATE TABLE grouping_proposals (\n id TEXT PRIMARY KEY,\n project TEXT NOT NULL REFERENCES projects(id),\n kind TEXT NOT NULL CHECK(kind IN ('split','merge','rule')),\n state TEXT NOT NULL CHECK(state IN ('proposed','rejected','approved','applied','undone','stale')),\n actor TEXT NOT NULL CHECK(length(actor)=38 AND substr(actor,1,6)='audit:'),\n input TEXT NOT NULL CHECK(json_valid(input) AND length(CAST(input AS BLOB))<=32768),\n explanation TEXT NOT NULL CHECK(json_valid(explanation) AND length(CAST(explanation AS BLOB))<=2097152),\n revisions TEXT NOT NULL CHECK(json_valid(revisions)),\n correction TEXT,\n rule_revision INTEGER,\n created INTEGER NOT NULL,\n updated INTEGER NOT NULL\n);\nCREATE INDEX grouping_proposals_project ON grouping_proposals(project,created);\nCREATE TRIGGER grouping_proposal_budget BEFORE INSERT ON grouping_proposals\nWHEN (SELECT COUNT(*) FROM grouping_proposals WHERE project=NEW.project)>=50\nBEGIN SELECT RAISE(ABORT,'grouping_proposal_budget'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

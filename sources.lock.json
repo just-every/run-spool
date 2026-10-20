@@ -3017,7 +3017,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "4857166663b09173507020961c8ee8d957a31a21398306a1267f0527f1deb7b3",
+      "sha256": "53ff2151eb07f7a702272e6d32a9d1e8b5c01a062c77cf3bdebf4dfe7cf02968",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -7381,7 +7381,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "d149b479b347bdd0a69034153e31b363fa5a6e7ad196d53847226901211367b3",
+      "sha256": "6d45055c244537e9ce3e4fe7b62dc9960094375fdd84cbc2ab66a8d80c6434dc",
       "executable": false
     },
     "tests/operator-archive.mjs": {
