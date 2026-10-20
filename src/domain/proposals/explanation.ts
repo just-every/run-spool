@@ -1,8 +1,9 @@
-import { normalize, scrub } from '../privacy';
+import { normalize } from '../privacy';
 import { previewCorrection } from '../operators/grouping';
 import { previewGroupingPolicy } from '../grouping/routes';
 import { readGroupingPolicy } from '../grouping/policy';
 import { observe } from '../repairs/observation';
+import { scrubProposalSnapshot } from './text';
 import { s } from '../operators/common';
 export async function proposalPreview(db:D1Database,project:string,input:any,id:string){
  if(input.kind!=='rule')return previewCorrection(db,project,input,id);
@@ -18,7 +19,7 @@ export async function issueRevisions(db:D1Database,project:string,input:any,prev
  if(!rows.some(r=>r.id===input.source&&r.revision===input.revision)||input.target&&!rows.some(r=>r.id===input.target&&r.revision===input.targetRevision))throw new Error('Issue revision conflict');
  return rows;
 }
-export const variantOf=(row:any):Record<string,string>=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames.length?e.frames:e.sentry?.exceptions??[]),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:'')}};
+export const variantOf=(row:any):Record<string,string>=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:'')}};
 export async function explainProposal(db:D1Database,row:any,preview:any){
  const input=typeof row.input==='string'?JSON.parse(row.input):row.input,project=row.project;
  const all=(await s(db,`SELECT e.*,EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence) suppressed,EXISTS(SELECT 1 FROM event_grouping g WHERE g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence) corrected FROM events e WHERE project=? ORDER BY id`,project).all<any>()).results;
@@ -48,6 +49,5 @@ export async function explainProposal(db:D1Database,row:any,preview:any){
  const observations=await Promise.all(repairs.map(async repair=>({id:repair.id,issue:repair.issue,created:repair.created,observation:await observe(db,repair,input.window.end),correctionAuditTimes:(await s(db,"SELECT created,kind FROM audit WHERE project=? AND kind IN ('grouping_applied','grouping_undone') AND created>=? ORDER BY created,id",project,repair.created).all()).results})));
  const policy=input.kind==='rule'?{before:(await readGroupingPolicy(db,project)).policy,after:input.policy,revision:input.policyRevision}:null;
  const explanation={policy,affected,counterexamples:{inside,outside},window:input.window,rates:ids.map(rate),ownership:ids.map(issue=>({issue,label:issues.find(i=>i.id===issue)?.label??null})),alerts:{rules:alertRules,open,behavior:'Corrections create no alerts or accepted units. Existing alerts and prior decisions are preserved. Moved occurrences leave spike eligibility, including after undo; suppression policies are unchanged. Rule activation affects future capture only.'},repair:{observations,behavior:'Witnessed recurrence is preserved through original membership and correction audit times. Apply and undo introduce a grouping-change coverage gap; regrouping cannot establish better repair verification. Rule changes preserve recurrence and also add this gap.'},trace:'trace identity unavailable',behavior:input.kind==='rule'?'Exact native-rule comparison; retained events and their rates do not move on activation. Candidate destinations describe future intake.':'Exact correction moves; original payloads, membership evidence and prior decisions are preserved.'};
- return scrubExplanation(explanation);
+ return scrubProposalSnapshot(explanation);
 }
-export function scrubExplanation(value:any):any{if(typeof value==='string')return scrub(value);if(Array.isArray(value))return value.map(scrubExplanation);if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,scrubExplanation(item)]));return value;}

@@ -1,4 +1,6 @@
-import { canonical, identity, scrub } from '../privacy';
+import { canonical, identity } from '../privacy';
+import { scrubText } from '../scrub';
+import { scrubStack, scrubProposalSnapshot } from './text';
 import { safeAlias } from '../audit/types';
 import { normalizeProposal } from './input';
 import { validateGroupingPolicy } from '../grouping/rules';
@@ -65,7 +67,7 @@ export function validateProposalArchive(data:any) {
 
 // Reapply today's scrubber when saved intent leaves storage, as with events.
 export function proposalExportRow(table:string,row:any) {
- return table==='grouping_proposals'?{...row,input:canonical(normalizeProposal(JSON.parse(row.input))),explanation:canonical(scrubSnapshot(JSON.parse(row.explanation)))}:row;
+ return table==='grouping_proposals'?{...row,input:canonical(normalizeProposal(JSON.parse(row.input))),explanation:canonical(scrubProposalSnapshot(JSON.parse(row.explanation)))}:row;
 }
 
 const explanationLimit=2*1024*1024;
@@ -73,26 +75,20 @@ function fields(value:any,names:string[]) {
  insist(value && typeof value==='object' && !Array.isArray(value) && Object.keys(value).sort().join()===names.sort().join(),'explanation shape');
 }
 function list(value:any,max=10000):asserts value is any[] {insist(Array.isArray(value) && value.length<=max,'explanation list');}
-function text(value:any,max=explanationLimit) {insist(typeof value==='string' && value.length<=max && scrub(value)===value,'explanation text');}
-function scrubSnapshot(value:any):any {
- if(typeof value==='string')return scrub(value);
- if(Array.isArray(value))return value.map(scrubSnapshot);
- if(value && typeof value==='object')return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,scrubSnapshot(item)]));
- return value;
-}
+function text(value:any,max=explanationLimit) {insist(typeof value==='string' && value.length<=max && scrubText(value,max)===value,'explanation text');}
 
 // A historical review contains bounded summaries and identifiers, never raw
 // event payloads. Missing retained occurrences are valid historical evidence.
 function validateProposalExplanation(encoded:any,data:any,project:string,input:any) {
  insist(typeof encoded==='string' && new TextEncoder().encode(encoded).length<=explanationLimit,'explanation budget');
  const review=JSON.parse(encoded);
- insist(canonical(review)===encoded && canonical(scrubSnapshot(review))===encoded,'explanation encoding');
+ insist(canonical(review)===encoded && canonical(scrubProposalSnapshot(review))===encoded,'explanation encoding');
  fields(review,['policy','affected','counterexamples','window','rates','ownership','alerts','repair','trace','behavior']);
  if(input.kind==='rule'){fields(review.policy,['before','after','revision']);validateGroupingPolicy(review.policy.before);validateGroupingPolicy(review.policy.after);insist(review.policy.revision===input.policyRevision && canonical(review.policy.after)===canonical(input.policy),'explanation policy');}else insist(review.policy===null,'explanation policy');
  const issue=(id:any)=>{insist(digest(id),'explanation issue');const row=data.issues.find((row:any)=>row.id===id);insist(!row || row.project===project,'explanation issue reference');};
  const event=(id:any,occurrence?:any)=>{identity(id,'event');if(occurrence!==undefined)validateOccurrence(occurrence);};
  const window=(value:any)=>{fields(value,['start','end']);insist(Number.isSafeInteger(value.start) && Number.isSafeInteger(value.end),'explanation window');};
- const variant=(value:any)=>{fields(value,['stack','release','route']);text(value.stack);text(value.release,200);text(value.route);};
+ const variant=(value:any)=>{fields(value,['stack','release','route']);insist(typeof value.stack==='string'&&scrubStack(value.stack)===value.stack,'explanation stack');text(value.release,200);text(value.route);};
  const counter=(value:any,rate=false)=>{
   fields(value,['issue','before','after','delta',...(rate?['perMinuteBefore','perMinuteAfter']:['conditionBefore','conditionAfter'])]);issue(value.issue);
   insist(integer(value.before) && integer(value.after) && value.before<=10000 && value.after<=10000 && value.delta===value.after-value.before,'explanation count');

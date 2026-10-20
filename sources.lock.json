@@ -4397,15 +4397,15 @@
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
-      "sha256": "08510e9edb98aca03c22265d911bba9ea1e4aa7198d03043591052f2a965c542",
+      "sha256": "4831e94cd55432243516297ab597ea6ec7d8aea3d53472c525beb026b89f02b2",
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "c77c41c13210e35ba174745133d94e8c114f6086ee57703394d4376d8ef8117b",
+      "sha256": "917e096ddb41a3fcb68db62010bf372480cb85a2d03702c9fff1c5e01b345c84",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
-      "sha256": "b69023c340aadc65845fc9fa92b9f5eb6087875a226696f4c2678adaa404a477",
+      "sha256": "92ced0e92e3ba5efce51a1f3cebc9c744020df2540a8b100ec426929c18fefb9",
       "executable": false
     },
     "src/domain/proposals/lifecycle.ts": {
@@ -4414,6 +4414,10 @@
     },
     "src/domain/proposals/routes.ts": {
       "sha256": "95dee5026fe8c79762cf58913d6fdd73b01ae9527db0e49534bd672bd1e0558d",
+      "executable": false
+    },
+    "src/domain/proposals/text.ts": {
+      "sha256": "493f28f6c2f0b2af77793e4d2467aaeb779067470e20fefe894474c8470156ae",
       "executable": false
     },
     "src/domain/releases/admission.ts": {
