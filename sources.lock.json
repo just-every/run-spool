@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c5d5232dadaf70a82c39b77078cfce6d0b4c03d206f080b59274d2ae5c7ade55",
+      "sha256": "bc720065302007ecb721976da5a99e6da7c25b31e6c8dacb705a9c956254a59b",
       "executable": false
     },
     "DEMO.md": {
@@ -3213,27 +3213,27 @@
       "executable": false
     },
     "docs/retained-verification/alert003/attention-1440.png": {
-      "sha256": "780ac202a7c7820d3bb851b762e86720bd48cbc3e381c11332c21d57e22e9445",
+      "sha256": "2e24f574627243fd788719a62c05a1b5399100117ce7b8b9498a5ff8d4772f58",
       "executable": false
     },
     "docs/retained-verification/alert003/attention-390.png": {
-      "sha256": "d4fcceb51c064568b24eb19d82880d630fbd24a15bd14812740c0c94d125e886",
+      "sha256": "fb40a4db02d0be8c281ef00919d9d6c1a141289578a87be6fd964b9fbdcb469a",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-1440.png": {
-      "sha256": "2b8595255797ba3be0299825af2ad0823aba8861df85194bec6108e149763fa4",
+      "sha256": "9b91eda9c09dec0fc133a1234e6949eedb11a7bed1c36d50c66ad9b00741f9db",
       "executable": false
     },
     "docs/retained-verification/alert003/bounced-390.png": {
-      "sha256": "a6e827c95dd570057e11927a0169fb82d049e16150b504c7fd6eadeb12b4f388",
+      "sha256": "00410f4d91da362f585378b23883cc693850deebb95fc51bb3d54b562a32400f",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-1440.png": {
-      "sha256": "ee3ba6091dee144a52eb422e8ea0e966d5853b5d2fb6c4872d3361df0351c8f0",
+      "sha256": "4d823d931be32dac8d9c2bacf770521934c813318e7eeeba9c42cffecf0c529e",
       "executable": false
     },
     "docs/retained-verification/alert003/complained-390.png": {
-      "sha256": "f7df9d57d1fc345786c5e4aa5a2fbcdb9e5f642f5197ea37772746ee1e21bef8",
+      "sha256": "279e25cf32fe0e61661b73ad2ab7d7d337680e71ded60e24290af474c83370c2",
       "executable": false
     },
     "docs/retained-verification/alert003/controls-empty-1440.png": {
@@ -3245,11 +3245,11 @@
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-1440.png": {
-      "sha256": "f4ca95a5870eabaa430bd8f32c9da42fd4a340a99b758230cd41d36026024f9e",
+      "sha256": "6f83dd319d417af728f39285ee7c542c5b821e8ba94265d33ee10155b924e4a3",
       "executable": false
     },
     "docs/retained-verification/alert003/delivered-390.png": {
-      "sha256": "a09279a3ae240691f6da9570c10ab30c599d54ca3c6849b3425b1032985f30c1",
+      "sha256": "3515c485809b042b75c88e89d9d58d91f512cd5b41b83e257397850f1ae49df5",
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-1440.png": {
@@ -3277,19 +3277,19 @@
       "executable": false
     },
     "docs/retained-verification/alert003/digest-1440.png": {
-      "sha256": "6cbfba06d6d4f88f9b0e0595b047e5d4b8835b6a2f8bf307525824cacfee9d2e",
+      "sha256": "4dd7a3aab075e48edac9f8fc6126de093732ce7f498c6673e2470888e3c000ee",
       "executable": false
     },
     "docs/retained-verification/alert003/digest-390.png": {
-      "sha256": "69046b6588819149fffb185c85a008a77b2e9572c95e5a4fe2c6dc1d46fded6e",
+      "sha256": "24e99667eaa8faa11d4bd561fa313f5d33310bec226e28a172dd9a2d52fd95f9",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-1440.png": {
-      "sha256": "37329df6641ed1e77432916100c7c7ad7f7cdf01d517730cd8520d08b57da8b6",
+      "sha256": "83e7d6414f43dbe61daab2ad7d4d0e13a5ed1c59612bea568fb3069b8f072d0a",
       "executable": false
     },
     "docs/retained-verification/alert003/expired-390.png": {
-      "sha256": "8a34a9aade856c061109968d8268542021a4bd3345d355f78805b53ba9557200",
+      "sha256": "5592f1e760d3789d10c979d799edd71bdd75b0e507b02dcddd5f59a192a783d3",
       "executable": false
     },
     "docs/retained-verification/alert003/failing-1440.png": {
@@ -3301,7 +3301,7 @@
       "executable": false
     },
     "docs/retained-verification/alert003/passing-1440.png": {
-      "sha256": "1fd0bf022e6346aa1575491614d9d320d2d48c043e7cc0d9ca2debecc407f565",
+      "sha256": "f526776e8a6ccb1d49523db8e58d0bce739afba7c4c2e2e4e2a9afa975b8db42",
       "executable": false
     },
     "docs/retained-verification/alert003/passing-390.png": {
@@ -3309,19 +3309,19 @@
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-1440.png": {
-      "sha256": "5b5fb96939b4d02bd252f0fc15644eada576489c163ba83fac94ee15ad64f32f",
+      "sha256": "ed3d2d2d878ffe0b3fa3395a37f5c083737008efd9f4125e9231f9b18bcc13f4",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-390.png": {
-      "sha256": "f75820c01f2b924daf181dcb6f2ca9491a2ca06cabce8afe2a2ac44d9ba7ed25",
+      "sha256": "9be19289d3cf04df1c1af40217d8aa51d1056cc6c27ed5ab8b424d3d80fa42e4",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-1440.png": {
-      "sha256": "6f11678827c5fd3e2d9561222a6c8569386a3a9e147f409f537690ab7253f47b",
+      "sha256": "0463ff3b36c747e6ad57e5be12c2c274cf00d5bc763cd8f23f6cae3f76485f0f",
       "executable": false
     },
     "docs/retained-verification/alert003/snoozed-delivery-390.png": {
-      "sha256": "1c2791528aadc92c1ca1cd93b011c50abdd6bd88ad4e38d6ba05e2989291b993",
+      "sha256": "4979fb4a978bb35d9a2bd0d9a281e40eb819070698f89ffc5e3926166276ae5d",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -4289,7 +4289,7 @@
       "executable": false
     },
     "src/domain/alerts/destination-tests.server.ts": {
-      "sha256": "afa428ff9ed261e2e5b94820f306a2b36118c170e271e3de5f3baeccaaf5bd29",
+      "sha256": "517f601d98ff36c87045bd1e42dc44634c761cff7e05340067a10248152379f9",
       "executable": false
     },
     "src/domain/alerts/destinations.server.ts": {
@@ -4781,7 +4781,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "0f2c3dc091334644185524d01b9ea89a8ac00f7ad1feffd6a0fce1ed9155a210",
+      "sha256": "0a6d08d64419cf6400d36f316e19974961dcfbc896d2b30e9a7d980c37724edb",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -7593,7 +7593,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "0294a64379339fe8b80da1d0fb45e5f1ed3c84478ed08bf837eaf2cf8427ad52",
+      "sha256": "f83565c53a043b40971fa646c2443fffa2fae3caa529e03f790a84bf94e4c5a7",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -7769,7 +7769,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "40128a3ca7672bb4864c9cd7033fd1f52d671aab679a6e1722c6968e8baa2340",
+      "sha256": "e34cbfba04fc3a6bd2084de3dcd0d19d7236bbe3b814858d36fdc34ebe0adcb6",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
