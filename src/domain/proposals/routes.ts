@@ -58,7 +58,7 @@ routes.get('/:id',async c=>{
  if(['proposed','approved'].includes(row.state)&&await proposalStale(db,row))return c.json({...parsed(row),state:'stale'});
  if(!['proposed','approved'].includes(row.state))return c.json(parsed(row));
  const preview=await proposalPreview(db,row.project,JSON.parse(row.input),row.id);
- return c.json({...parsed(row),explanation:await explainProposal(db,row,preview),...(row.state==='approved'?{preview}:{})});
+ return c.json({...parsed(row),...(row.state==='approved'?{preview}:{})});
 });
 routes.post('/:id/:action',async c=>{
  const session=c.get('proposalOwner');if(!session)return c.json({error:'Only the owner may approve or reject'},403);
@@ -71,12 +71,12 @@ routes.post('/:id/:action',async c=>{
   return c.json({error:'Stale issue or rule revision; request a new proposal'},409);
  }
  const input=JSON.parse(row.input),preview=await proposalPreview(db,project,input,row.id),state=action==='approve'?'approved':'rejected',time=Date.now();
- const explanation=canonical(await explainProposal(db,row,preview));
+ const review=await explainProposal(db,row,preview),explanation=canonical(review),revisions=await issueRevisions(db,project,input,preview,review);
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB'},400);
- const jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_proposals WHERE project=? AND id=? AND state=?)',project,row.id,row.state),...revisionGuards(db,project,JSON.parse(row.revisions)),...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[])];
+ const jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_proposals WHERE project=? AND id=? AND state=?)',project,row.id,row.state),...revisionGuards(db,project,JSON.parse(row.revisions)),...revisionGuards(db,project,revisions),...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[])];
  if(action==='approve'&&row.kind!=='rule')jobs.push(s(db,"UPDATE grouping_proposals SET state='stale',correction=NULL,updated=? WHERE project=? AND correction IN (SELECT id FROM grouping_corrections WHERE project=? AND state='preview')",time,project,project),s(db,"DELETE FROM grouping_corrections WHERE project=? AND state='preview'",project),s(db,"INSERT INTO grouping_corrections VALUES(?,?,?,'preview',?,?,?)",preview.id,project,row.kind,JSON.stringify(preview.plan),time,time));
- jobs.push(s(db,'UPDATE grouping_proposals SET state=?,correction=?,explanation=?,updated=? WHERE project=? AND id=?',state,action==='approve'&&row.kind!=='rule'?preview.id:null,explanation,time,project,row.id),auditCommit(db),s(db,'DELETE FROM operator_guards'));
+ jobs.push(s(db,'UPDATE grouping_proposals SET state=?,correction=?,explanation=?,revisions=?,updated=? WHERE project=? AND id=?',state,action==='approve'&&row.kind!=='rule'?preview.id:null,explanation,canonical(revisions),time,project,row.id),auditCommit(db),s(db,'DELETE FROM operator_guards'));
  try{await ownerBatch(db,session,jobs)}catch(e){if(/operator_guards/.test(String(e)))return c.json({error:'Issue or proposal revision conflict'},409);throw e}
- return c.json({...parsed({...row,state,correction:action==='approve'&&row.kind!=='rule'?preview.id:null,updated:time}),explanation:await explainProposal(db,row,preview),...(action==='approve'?{preview}:{})});
+ return c.json({...parsed({...row,state,revisions:canonical(revisions),explanation,correction:action==='approve'&&row.kind!=='rule'?preview.id:null,updated:time}),explanation:await explainProposal(db,row,preview),...(action==='approve'?{preview}:{})});
 });
 export default routes;

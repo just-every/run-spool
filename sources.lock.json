@@ -4413,7 +4413,7 @@
       "executable": false
     },
     "src/domain/proposals/routes.ts": {
-      "sha256": "aa414e6923e55249c94b99305194895b2b5a3ec844798594ccc7557a072c1cf4",
+      "sha256": "585e362b4cc99163b04a08f44b3da9a4534bf7b404033e8a89f3173e6c42869c",
       "executable": false
     },
     "src/domain/proposals/text.ts": {
