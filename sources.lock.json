@@ -4277,7 +4277,7 @@
       "executable": false
     },
     "src/domain/grouping/routes.ts": {
-      "sha256": "3df33a6b71b5534ea495d3038995e7b1997687c15867555e8ba7b6cfc4f4935b",
+      "sha256": "f85e2cb44728a364f90c864f7592859149a3adbb3ae86bd9b84d5047441ae66d",
       "executable": false
     },
     "src/domain/grouping/rules.ts": {
@@ -4397,11 +4397,11 @@
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
-      "sha256": "522848625be159c6755222edd2e30415c043bb68f1978881b627b9f78315596a",
+      "sha256": "08510e9edb98aca03c22265d911bba9ea1e4aa7198d03043591052f2a965c542",
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "0de1ea5080b75f54f0881df0e33c39df5d68130a29a73b176a0c1f84b69ce5a5",
+      "sha256": "c77c41c13210e35ba174745133d94e8c114f6086ee57703394d4376d8ef8117b",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -4409,7 +4409,7 @@
       "executable": false
     },
     "src/domain/proposals/lifecycle.ts": {
-      "sha256": "afd091feaf779d00d7a99cc4a9bb373f66bbe9d8b0fe0877b9664fe2ff97011d",
+      "sha256": "5936e2373e452f7516c9e86720bb29e39a6fe0baa5fc9ee14008d071d447ea86",
       "executable": false
     },
     "src/domain/proposals/routes.ts": {
@@ -6945,7 +6945,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
-      "sha256": "3fd7c70adacc8b650a31f036372e1c5967fde5e0321a934b17a392a145576e50",
+      "sha256": "f299ec36cee9fa01d88e751f919522047674b37875b26864b99e424b535fcd0a",
       "executable": false
     },
     "src/ui/workbench/GroupingRulePreview.tsx": {

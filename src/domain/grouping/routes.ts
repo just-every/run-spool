@@ -11,7 +11,10 @@ groupingRoutes.onError((error,c)=>{if(error instanceof AuthError)return c.json({
 groupingRoutes.get('/',async c=>c.json(await readGroupingPolicy(c.env.DB,c.req.param('project')!)));
 groupingRoutes.get('/versions',async c=>{
  const rows=await c.env.DB.prepare("SELECT detail,created FROM audit WHERE project=? AND kind='grouping_rules_changed' ORDER BY json_extract(detail,'$.revision')").bind(c.req.param('project')!).all<any>();
- return c.json({versions:rows.results.map(row=>({...JSON.parse(row.detail),activated:row.created}))});
+ const versions=rows.results.map(row=>({...JSON.parse(row.detail),activated:row.created}));
+ const proposals=await c.env.DB.prepare("SELECT explanation,created FROM grouping_proposals WHERE project=? AND kind='rule' AND state IN ('approved','applied','undone') ORDER BY created").bind(c.req.param('project')!).all<any>();
+ for(const row of proposals.results){const saved=JSON.parse(row.explanation).policy,existing=versions.find(v=>v.revision===saved.revision);if(existing&&!existing.policy)existing.policy=saved.before;}
+ return c.json({versions});
 });
 export async function previewGroupingPolicy(db:D1Database,project:string,policy:any,after=''){
  const snapshot=await readGroupingPolicy(db,project);

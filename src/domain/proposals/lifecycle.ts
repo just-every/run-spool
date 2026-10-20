@@ -17,7 +17,7 @@ export async function ruleProposalStatements(db:D1Database,project:string,policy
    if(input.policyRevision!==revision||await proposalStale(db,row))throw new Error('Proposal issue revision conflict');
    jobs.push(guard(db,'EXISTS(SELECT 1 FROM grouping_policies WHERE project=? AND revision=?)',project,revision+1),...revisionGuards(db,project,JSON.parse(row.revisions)),s(db,"UPDATE grouping_proposals SET state='applied',rule_revision=?,updated=? WHERE project=? AND id=?",revision+1,Date.now(),project,row.id));
   }else if(row.state==='applied'){
-   const previous=row.rule_revision===1?{version:1,stack:'',fingerprint:''}:JSON.parse((await s(db,"SELECT detail FROM audit WHERE project=? AND kind='grouping_rules_changed' AND json_extract(detail,'$.revision')=?",project,row.rule_revision-1).first<any>())?.detail??'{}').policy;
+   const previous=JSON.parse(row.explanation).policy.before;
    if(previous&&canonical(previous)===canonical(policy))jobs.push(s(db,"UPDATE grouping_proposals SET state='undone',updated=? WHERE project=? AND id=?",Date.now(),project,row.id));
   }
  }

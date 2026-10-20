@@ -1,6 +1,7 @@
 import { canonical, identity, scrub } from '../privacy';
 import { safeAlias } from '../audit/types';
 import { normalizeProposal } from './input';
+import { validateGroupingPolicy } from '../grouping/rules';
 import { validateOccurrence } from '../occurrences';
 
 export const proposalTables = {grouping_proposals:['id','project','kind','state','actor','input','explanation','revisions','correction','rule_revision','created','updated']};
@@ -86,7 +87,8 @@ function validateProposalExplanation(encoded:any,data:any,project:string,input:a
  insist(typeof encoded==='string' && new TextEncoder().encode(encoded).length<=explanationLimit,'explanation budget');
  const review=JSON.parse(encoded);
  insist(canonical(review)===encoded && canonical(scrubSnapshot(review))===encoded,'explanation encoding');
- fields(review,['affected','counterexamples','window','rates','ownership','alerts','repair','trace','behavior']);
+ fields(review,['policy','affected','counterexamples','window','rates','ownership','alerts','repair','trace','behavior']);
+ if(input.kind==='rule'){fields(review.policy,['before','after','revision']);validateGroupingPolicy(review.policy.before);validateGroupingPolicy(review.policy.after);insist(review.policy.revision===input.policyRevision && canonical(review.policy.after)===canonical(input.policy),'explanation policy');}else insist(review.policy===null,'explanation policy');
  const issue=(id:any)=>{insist(digest(id),'explanation issue');const row=data.issues.find((row:any)=>row.id===id);insist(!row || row.project===project,'explanation issue reference');};
  const event=(id:any,occurrence?:any)=>{identity(id,'event');if(occurrence!==undefined)validateOccurrence(occurrence);};
  const window=(value:any)=>{fields(value,['start','end']);insist(Number.isSafeInteger(value.start) && Number.isSafeInteger(value.end),'explanation window');};
