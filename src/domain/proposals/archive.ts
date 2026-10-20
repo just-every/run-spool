@@ -26,18 +26,18 @@ export function validateProposalArchive(data:any) {
   insist(canonical(input)===row.input && input.kind===row.kind,'input');
   validateProposalExplanation(row.explanation,data,row.project,input);
   const revisions=JSON.parse(row.revisions);
-  insist(Array.isArray(revisions) && revisions.length>=1 && revisions.length<=10002 && canonical(revisions)===row.revisions,'revisions');
+  insist(Array.isArray(revisions) && revisions.length>=1 && revisions.length<=20002 && canonical(revisions)===row.revisions,'revisions');
   const snapshot=new Map<string,number>();
   for(const saved of revisions) {
-   insist(saved && typeof saved==='object' && !Array.isArray(saved) && Object.keys(saved).sort().join()==='id,revision' && digest(saved.id) && integer(saved.revision) && saved.revision>=1 && !snapshot.has(saved.id),'revision shape');
+   insist(saved && typeof saved==='object' && !Array.isArray(saved) && Object.keys(saved).sort().join()==='id,revision' && digest(saved.id) && integer(saved.revision) && !snapshot.has(saved.id),'revision shape');
    const issue=issues.get(saved.id);
-   insist(issue?.project===row.project && saved.revision<=issue.revision,'issue reference');
+   const candidate=JSON.parse(row.explanation).affected.some((m:any)=>m.to===saved.id);
+   insist(saved.revision===0?candidate&&(!issue||issue.project===row.project):issue?.project===row.project&&saved.revision<=issue.revision,'issue reference');
    snapshot.set(saved.id,saved.revision);
   }
   insist(snapshot.get(input.source)===input.revision,'source revision');
-  if(input.kind==='merge')insist(snapshot.size===2 && snapshot.get(input.target)===input.targetRevision,'target revision');
+  if(input.kind==='merge')insist(snapshot.size>=2 && snapshot.get(input.target)===input.targetRevision,'target revision');
   if(input.kind==='split') {
-   insist(snapshot.size===1,'split revision');
    for(const id of input.events) {
     // Retention may have removed selected occurrences; existing IDs must still
     // belong to this project. A missing occurrence cannot be applied on restore.

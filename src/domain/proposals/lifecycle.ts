@@ -1,6 +1,6 @@
 import { canonical } from '../privacy';
 import { guard, s } from '../operators/common';
-const staleRevisionSql="EXISTS(SELECT 1 FROM json_each(?) r LEFT JOIN issues i ON i.project=? AND i.id=json_extract(r.value,'$.id') WHERE i.id IS NULL OR i.revision<>json_extract(r.value,'$.revision'))";
+const staleRevisionSql="EXISTS(SELECT 1 FROM json_each(?) r LEFT JOIN issues i ON i.project=? AND i.id=json_extract(r.value,'$.id') WHERE (json_extract(r.value,'$.revision')=0 AND i.id IS NOT NULL) OR (json_extract(r.value,'$.revision')>0 AND (i.id IS NULL OR i.revision<>json_extract(r.value,'$.revision'))))";
 export const revisionGuards=(db:D1Database,project:string,revisions:any[])=>[guard(db,'NOT '+staleRevisionSql,JSON.stringify(revisions),project)];
 export async function proposalStale(db:D1Database,row:any){
  const revisions=JSON.parse(row.revisions),input=JSON.parse(row.input);

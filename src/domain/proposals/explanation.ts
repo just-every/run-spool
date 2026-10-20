@@ -13,11 +13,11 @@ export async function proposalPreview(db:D1Database,project:string,input:any,id:
  do{page=await previewGroupingPolicy(db,project,input.policy,after);rows.push(...page.rows);after=page.next;}while(after);
  return {...page,rows,scanned:rows.length,next:null};
 }
-export async function issueRevisions(db:D1Database,project:string,input:any,preview:any){
- const ids=[...new Set<string>([input.source,...input.target?[input.target]:[],...(input.kind==='rule'?preview.rows.filter((r:any)=>r.changed).flatMap((r:any)=>[r.issue,r.destination]):[])])];
+export async function issueRevisions(db:D1Database,project:string,input:any,preview:any,explanation:any){
+ const ids=[...new Set<string>([input.source,...input.target?[input.target]:[],...explanation.affected.flatMap((r:any)=>[r.from,r.to]),...explanation.counterexamples.outside.map((r:any)=>r.issue)])].sort();
  const rows=(await s(db,'SELECT id,revision FROM issues WHERE project=? AND id IN (SELECT value FROM json_each(?)) ORDER BY id',project,JSON.stringify(ids)).all<any>()).results;
  if(!rows.some(r=>r.id===input.source&&r.revision===input.revision)||input.target&&!rows.some(r=>r.id===input.target&&r.revision===input.targetRevision))throw new Error('Issue revision conflict');
- return rows;
+ return ids.map(id=>({id,revision:rows.find(r=>r.id===id)?.revision??0}));
 }
 export const variantOf=(row:any):Record<string,string>=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:'')}};
 export async function explainProposal(db:D1Database,row:any,preview:any){

@@ -1,3 +1,4 @@
+import { revisionGuards } from '../proposals/lifecycle';
 import { Hono } from 'hono';
 import { hash, normalize } from '../privacy';
 import { admissionBasis, type GroupingRoute } from '../bundle-grouping';
@@ -46,6 +47,8 @@ routes.post('/:project/corrections/:id/:action',async c=>{
  const row=await s(db,'SELECT * FROM grouping_corrections WHERE project=? AND id=?',project,id).first<any>();if(!row)return c.json({error:'Preview not found'},404);
  if(row.state!==(undo?'applied':'preview'))return c.json({error:'Correction state conflict'},409);
  const p:Plan=JSON.parse(row.plan),jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_corrections WHERE project=? AND id=? AND state=?)',project,id,row.state),...p.issues.map(i=>revision(db,project,i,undo))];
+ const proposal=await s(db,"SELECT revisions FROM grouping_proposals WHERE project=? AND correction=? AND state=?",project,id,undo?'applied':'approved').first<any>();
+ if(proposal)jobs.push(...revisionGuards(db,project,JSON.parse(proposal.revisions).map((r:any)=>({...r,revision:r.revision+(undo&&(p.issues.some(i=>i.id===r.id)||p.kind==='split'&&p.target===r.id)?1:0)}))));
  if(p.kind==='split'){
   if(undo)jobs.push(guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=1 AND count=?)',project,p.target,p.moves.length));
   else jobs.push(s(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen,latest_release_seq) SELECT ?,project,?,algorithm,title,'open',0,0,first_seen,last_seen,latest_release_seq FROM issues WHERE project=? AND id=?",p.target,p.fingerprint,project,p.issues[0].id));

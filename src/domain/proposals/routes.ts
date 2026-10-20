@@ -37,8 +37,9 @@ routes.post('/',async c=>{
  const actor=await auditActor(db,{kind:'service',authority:digest,owner:source.minted_by,project});attributeAuditScope(actor);
  const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
- try{preview=await proposalPreview(db,project,input,id);revisions=await issueRevisions(db,project,input,preview)}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
- const explanation=canonical(await explainProposal(db,{project,input},preview));
+ try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
+ const review=await explainProposal(db,{project,input},preview),explanation=canonical(review);
+ revisions=await issueRevisions(db,project,input,preview,review);
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB; narrow the proposal'},400);
 
  const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};
