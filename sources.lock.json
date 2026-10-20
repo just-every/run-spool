@@ -2976,6 +2976,14 @@
       "sha256": "ce10862bb6eca471c9a62184c62525a764557ecc953fcbeffb1688c907664cb6",
       "executable": false
     },
+    "docs/retained-verification/ai005/conflict-1440.png": {
+      "sha256": "0af1b8addd054d0f840be99c9c2aee1c22dfead659ca0f47b10171e30c402633",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/conflict-390.png": {
+      "sha256": "ed745e73d5c59f021ec05dd2d88e0c30f93baa8d28baaaf4ef72db59c0c77261",
+      "executable": false
+    },
     "docs/retained-verification/ai005/grouping-proposal-applied-1440.jpg": {
       "sha256": "c0940e16cdefcb11fbe844986781f15c6936a8f53fa1e1f1835324e2585df2c3",
       "executable": false
@@ -3190,6 +3198,14 @@
     },
     "docs/retained-verification/ai005/grouping-rule-undone-390.jpg": {
       "sha256": "2f37e14a207dd7f672ab4aebbcb8cc8d0f6e34bf2a3defad7fc8e5e5c2402bc5",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/native-conflict-1440.png": {
+      "sha256": "6d821fb58ea2b6bb02bb8652dc6620e3ea64fc4cecfe6f3f9893c19424df4e93",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/native-conflict-390.png": {
+      "sha256": "5f84819e748c27147141a42fc00beb7a6bce9960ec15515283498503d579b9ea",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
