@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "96ac14b5c7d5fdeb5c4f8fb34399500ddfefd38291e2a7916585a19f20de629d",
+      "sha256": "626ee205b47ffaa63d22ade27bf7c23a9196396cca30d78fa4e4bca0b6b60c55",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "06ea2901331f7670a83ca7b71e4fc6c34ce9d51cc73d04a700dcfed5247b2d2b",
+      "sha256": "8351861b7aef642c158b39d12630a85d9b66e1030ffff57dc833ef7c32f872c6",
       "executable": false
     },
     "DEMO.md": {
@@ -2966,6 +2966,230 @@
     },
     "docs/REPRODUCE-AND-FIX.md": {
       "sha256": "c7bc2607696e3fe876394a8d309bd51148bc67db27570732edfdefe6c094fa05",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/agent-handoff-1440.png": {
+      "sha256": "a13abea3d0a43ac7ae3736c4634b2563881d49528db28bda66d6c1b9dbcac273",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/agent-handoff-390.png": {
+      "sha256": "ce10862bb6eca471c9a62184c62525a764557ecc953fcbeffb1688c907664cb6",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-applied-1440.jpg": {
+      "sha256": "360ffeed0f1886be943ad14fca309f1d72163d3c6e5ebbd84a8c150f471168e7",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-applied-390.jpg": {
+      "sha256": "a5e015d798fc8aa72b4770f020bda136f439c927b93ce0f8fe83b72fd3507706",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-1440.jpg": {
+      "sha256": "46a204cf61ae0e8d4f2600abb41871792e87bce47584e1872d87f0211e96c332",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-390.jpg": {
+      "sha256": "d6cd1e0197c592b10a08ee1d3e317b5a4a2a635a7061f22c172884fb05f65d41",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-decision-1440.jpg": {
+      "sha256": "cc36ed69130a252ff3186266b553ff74f8ece9fbd020217dca2151009d69e1e6",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-decision-390.jpg": {
+      "sha256": "2371fe21acb2ca9b3bcfe10fa02472700868ae1057b2e50c0892b9e0f556b79e",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-1-1440.jpg": {
+      "sha256": "133b2906d253a29f37975de0ce6a7e2a83f9c8c72a2d98f1222043f9b8ecbe92",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-1-390.jpg": {
+      "sha256": "4e9d0383a968ee836b6e68b32d40295a4485a0861640b0997178c94d7551338d",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-2-1440.jpg": {
+      "sha256": "3ac2dc0d248fb5e634718896133c658b9ece74f35ea994ec3328ea33d2aa8e20",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-2-390.jpg": {
+      "sha256": "7358ad9ebe514505f8e788c02dfbcbab55bfc5d1218fcb34ce55622ff7147fdb",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-3-1440.jpg": {
+      "sha256": "2a84b7bd569f269a90beec8f13e9c15670467d6844ed6465166f1955f972ffdb",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-3-390.jpg": {
+      "sha256": "e6f1c8a47e7ef949f48932e644ef80c871ef3b5c0a4ab4483c7c13a5270ef409",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-4-1440.jpg": {
+      "sha256": "515b54a727c8cc0bbed7a0f311c72ce81e0fc42ebd85da80125889122d9e8317",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-4-390.jpg": {
+      "sha256": "896e9ff1e4c1919bd123a2d4f1346779524f06741bd04891a1628fd722bb3205",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-5-1440.jpg": {
+      "sha256": "96da4e89933130c18397383395606ae278c4e0aae2eeeef35d84acbe22b304f2",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-5-390.jpg": {
+      "sha256": "480cd7a3b5c6b8b33b9aae7dd22846e746259137f1ab4e7ae617a07114f33941",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-6-1440.jpg": {
+      "sha256": "edcf64f65fd79f92a29312f3db260ecb5bbf172a4c69b348c357e77a5f243438",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-6-390.jpg": {
+      "sha256": "d3ce8417aa72a1c4be3eedf1fcca869a184cb59b41c11b6f4959d790cc4b56f0",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-7-1440.jpg": {
+      "sha256": "333e8c2f5b4f2c8900dd993c07271f84c229085f8a714a091745778a68afd2a2",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-approved-effect-7-390.jpg": {
+      "sha256": "d037233452f0531630044a10a1b4185c8af0e97360f8fd85b61f3ec25e08b911",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-denied-1440.jpg": {
+      "sha256": "15c5a67bdb57b906118e21d2a12163be671a14d4daa95b12eaba3c4f04bb546d",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-denied-390.jpg": {
+      "sha256": "ad974fc9a5886223c8d105c1de6f4f615ab3029baa2ebd74036ef410e7468add",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-empty-1440.jpg": {
+      "sha256": "c489775e45ca353b4b141f345200506e828713a98635100ebc85945984dc0ebc",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-empty-390.jpg": {
+      "sha256": "d5cb7ea2fb8f6c29dee89d78f86df864b77cbe788f47145eb3185e3ee1635e7b",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-1440.jpg": {
+      "sha256": "7fc4d69b66414c41da35159c4a1bc2654dcaaf9f370fe2a02cf15b1208fa7e57",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-390.jpg": {
+      "sha256": "1de07625bdc420db27961b629bf01edd393757efa37c16276f03d186319275f6",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-decision-1440.jpg": {
+      "sha256": "577f9a8708e211aa9df714eca7ebf1de42a8ba5a6a7c19a168de2f36f4a641d6",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-decision-390.jpg": {
+      "sha256": "6d1b83b3d1dba3a40bf40ea7f4963c501588aeed1d6698db1b4442bdbded8850",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-1-1440.jpg": {
+      "sha256": "ddae3b623b8bcda10983b45cd7ce1de0d0bb15762de585e232cf8c8405fe15b2",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-1-390.jpg": {
+      "sha256": "9aa84750b38b52fe6585e997c504c5eab69c84144217dc52812c43b822d80fd9",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-2-1440.jpg": {
+      "sha256": "d6e60cedd71e96bb781a4ed8253ec5ed3c871c4683bad19ef037bb6041285352",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-2-390.jpg": {
+      "sha256": "92fad54c467ec89b7a30969060b0c669e2c48c7256badb88fd4ce189d654338d",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-3-1440.jpg": {
+      "sha256": "02f8d029ce04069b82efc0200d880d0bd763ffbf204d69098dd803cd66a84989",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-3-390.jpg": {
+      "sha256": "e6f1c8a47e7ef949f48932e644ef80c871ef3b5c0a4ab4483c7c13a5270ef409",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-4-1440.jpg": {
+      "sha256": "c60977e4aa27fd66cff354a8ec7217c7965a0453582937eae5cad9264c0052d4",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-4-390.jpg": {
+      "sha256": "71d2f3c4a2c68d698d3f6bc13d9d0facdc98efb777d6f27541e1552bc3207307",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-5-1440.jpg": {
+      "sha256": "7c0a3f99de46cf12d6e079ff6a67ca0d66b0ca7772bed045ade58e084f92edd8",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-5-390.jpg": {
+      "sha256": "b79bcbfc9e68e572a5cb8f5ff35d179204c7948251ef8bd94536aaa7f6d26ec7",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-6-1440.jpg": {
+      "sha256": "74e91deb371f395ffb5c87a2606c3f991f44df3a2cec70151e1d76b3c64bc52e",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-6-390.jpg": {
+      "sha256": "d75d50fced4018041c1f7c807a0c1b989cd4bc3804bdb33493642207dd7faa00",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-7-1440.jpg": {
+      "sha256": "3a15266ecdfa464d02e8c6a83077a43b4429e20602134326eba1e254de8b8088",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-proposed-effect-7-390.jpg": {
+      "sha256": "d037233452f0531630044a10a1b4185c8af0e97360f8fd85b61f3ec25e08b911",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-rejected-1440.jpg": {
+      "sha256": "24c748627a396f6812185af4d3389749b0caaa32717bc4b165b4733f2c5fce75",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-rejected-390.jpg": {
+      "sha256": "c369c1c6ebddbbb6bfb018a1a511dbd292790e164295e9f8a0d0274b58353d38",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-stale-1440.jpg": {
+      "sha256": "aae8e2214397275cf4cd6cb72692bd99ea2b1205a5bc1925344e631ae7861c32",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-stale-390.jpg": {
+      "sha256": "d446d2bb9f88bfb7368ee9256e481f90e49756379c6c4dd258593cdeed8b907f",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-undone-1440.jpg": {
+      "sha256": "9554f548af4c2d93f106b8fed28f29f407a4e49dcd4c2146a77cb59a955b1965",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-proposal-undone-390.jpg": {
+      "sha256": "2ab8331dd7e81901447315eb36a9c16e036f7122af02b47a014ce5d4a9f3d8b9",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-applied-1440.jpg": {
+      "sha256": "d9ec46abc2e7b800e0341ae1750b1ba60087e89279cb981c5682117da8ec2971",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-applied-390.jpg": {
+      "sha256": "4f0a167d1db34a086eb081ed458c70efe8ed5b04b9055d0c7eac4bc000285943",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-approved-1440.jpg": {
+      "sha256": "36d2cf215d3e505f17dd7359ee289cbcbbc7f6815e23f22bfecd5b703afca70a",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-approved-390.jpg": {
+      "sha256": "b33efb7ca355ef4ee033fa9361200f25c3005beafd1b49bec9c0af39b493bbdb",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-undone-1440.jpg": {
+      "sha256": "f742e18cfc453364a623cb349cd8adc1c01de1f622ce82eac17710bdacef0dbd",
+      "executable": false
+    },
+    "docs/retained-verification/ai005/grouping-rule-undone-390.jpg": {
+      "sha256": "2f37e14a207dd7f672ab4aebbcb8cc8d0f6e34bf2a3defad7fc8e5e5c2402bc5",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
