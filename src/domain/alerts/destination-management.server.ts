@@ -9,6 +9,15 @@ import { statement as s, type AlertEnvironment } from './types';
 export async function saveDestination(env:AlertEnvironment,session:OwnerSession,project:string,previous:string|undefined,input:any) {
  if(!input||Object.keys(input).sort().join()!=='label,recipient'||typeof input.label!=='string'||!input.label.trim()||input.label.length>100||scrub(input.label)!==input.label||/[\x00-\x1f\x7f]/.test(input.label)||typeof input.recipient!=='string')throw new Error('Use a destination name and one email address');
  const recipient=parseAddress(input.recipient.trim()).email,id=`ui-${crypto.randomUUID()}`,time=Date.now();
+ // A label edit keeps recipient identity, enabled rules and queued work intact.
+ if(previous){
+  const current=await s(env.DB,'SELECT recipient FROM alert_destinations WHERE project=? AND id=?',project,previous).first<{recipient:string}>();
+  if(current?.recipient===recipient){
+   const changed=await ownerBatch(env.DB,session,[s(env.DB,'UPDATE alert_destinations SET label=? WHERE project=? AND id=? AND recipient=? RETURNING id',input.label.trim(),project,previous,recipient),auditCommit(env.DB,'changes()>0')]);
+   if(!changed[0].results.length)throw new Error('Destination changed in another page; refresh and try again');
+   return {id:previous};
+  }
+ }
  // A changed address gets a new immutable identity. Old queued work cannot be
  // redirected to a new recipient or continue using the previous recipient.
  const result=await ownerBatch(env.DB,session,[

@@ -22,7 +22,13 @@ export async function deliveryFlow(inbox){
   assert.equal((await app.request(base+'/rules','POST',rule('mail',{destination:d.id}))).status,400);
   await app.json(base+'/destinations/'+d.id+'/review','POST',{testId:test.id});
   const mailRule=await app.json(base+'/rules','POST',rule('mail',{destination:d.id}));
+  const renamed=await app.json(base+'/destinations/'+d.id,'PUT',{label:'Operations mailbox',recipient:'fixture@example.com'});
+  assert.equal(renamed.id,d.id);assert.equal((await app.json(base+'/rules')).find(r=>r.id===mailRule.id).enabled,1,'label edits keep enabled rules running');
+  // Pre-upgrade rules have no test ledger. Absence must not shut an enabled rule down.
+  await app.db.prepare('DELETE FROM alert_destination_tests WHERE project=? AND destination=?').bind('web',d.id).run();
   const created=await app.json('/api/ingest/web','POST',event('delivery-fixture'),auth);
+  assert.equal((await app.json(base+'/rules')).find(r=>r.id===mailRule.id).enabled,1);
+  await testAndReview(app.json,base,d.id);
   let delivery=(await app.json(base+'/deliveries')).find(r=>r.channel==='mail');assert.equal(delivery.state,'accepted');assert.equal(delivery.recipient_state,null);
   let timestamp=Math.floor(Date.now()/1000)-5;
   const provider=(type,id=crypto.randomUUID(),extra={})=>({email:'fixture@example.com',sg_event_id:id,sg_message_id:'signed-fixture-message',timestamp:timestamp++,event:type,rer_delivery_id:delivery.id,...extra});
