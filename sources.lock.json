@@ -7605,11 +7605,11 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "90dd459b85cdf1e4531a5c20aef3b843b57b2cfe58891213b9cd9563aef2f3df",
+      "sha256": "f908898b0c55e9b110509e2ba9230627b080eed61b170c69bbba398d3ed3052d",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "be54199977d6d84a9951e6e72ed616eb00cf4a17ec390dc4450115462b9245b1",
+      "sha256": "40128a3ca7672bb4864c9cd7033fd1f52d671aab679a6e1722c6968e8baa2340",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
