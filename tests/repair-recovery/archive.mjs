@@ -7,7 +7,7 @@ import {canonical} from '../../src/domain/privacy.ts';
 // identity links (0020), operator custody (0031), execution (0032), and
 // stable bundle grouping routes (0035) and inbound filter policies (0039).
 const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_dependency_installation','rer_dependency_link'];
-const operatorTables=['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'];
+const operatorTables=['grouping_proposals','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'];
 const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
 const laterTables=[...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'];
 // The archive an installation without repair history exports: the same rows in
