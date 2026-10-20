@@ -21,6 +21,6 @@ Spool records JavaScript, Python and Go exception locations. JavaScript source m
 - [Run it on your computer](install.md) takes you from a fresh checkout to your first project.
 - [Connect your app](capture.md) adds capture to your application and uploads source maps.
 - [Investigating an issue](triage.md) walks through the Issues list and an issue's stack trace.
-- [Hand it to your coding agent](agents.md) sets up a read-only agent key.
+- [Hand it to your coding agent](agents.md) sets up an agent key for evidence and inert grouping proposals.
 
 See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.

@@ -2889,7 +2889,7 @@
       "executable": false
     },
     "docs/agents.md": {
-      "sha256": "1bf0de5100c83fb086efe392feaa2d99bd6fc8acb2bee2c8148e0e1aacd5cb57",
+      "sha256": "adf62b155472524f3183ffd22d601a7eedab8f1e9109a9aad0777e7df3d4b17c",
       "executable": false
     },
     "docs/ALERT-IMPLEMENTATION.md": {
@@ -2949,7 +2949,7 @@
       "executable": false
     },
     "docs/overview.md": {
-      "sha256": "9b9b2ec9f80bd79e9da718adc0960cb58a6fe853cf0d4a2643e2292f6a0fa1a9",
+      "sha256": "b0d063dc0d914abac43da964cc1a5777928181191c099b3ae9049d25594838c2",
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
@@ -7061,7 +7061,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "f4ee80d7a6d346acaae735a045cb6c48344ba3d27a8dd81f4b63ea70aa909b70",
+      "sha256": "a3d7a70cca2787b0b84d9ab60f4f3c501c3d1361dbaf36126bade32ab4286992",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -7141,7 +7141,7 @@
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "32929a4aa31d6a8f9beef6b694031c45d401d05f88f59bc593d464102e328369",
+      "sha256": "dd65873bf17ee118968bf87e2a738f5af31896331743f6381637aa2d9f9d2855",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
