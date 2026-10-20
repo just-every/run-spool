@@ -4409,7 +4409,7 @@
       "executable": false
     },
     "src/domain/proposals/lifecycle.ts": {
-      "sha256": "4bee0287c87fb6e05af584f856690c3fa38b46b3d0e74fb1e3413b90ab33a888",
+      "sha256": "afd091feaf779d00d7a99cc4a9bb373f66bbe9d8b0fe0877b9664fe2ff97011d",
       "executable": false
     },
     "src/domain/proposals/routes.ts": {

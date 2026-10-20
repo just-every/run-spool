@@ -1,9 +1,10 @@
 import { canonical } from '../privacy';
 import { guard, s } from '../operators/common';
-export const revisionGuards=(db:D1Database,project:string,revisions:any[])=>revisions.map(r=>guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',project,r.id,r.revision));
+const staleRevisionSql="EXISTS(SELECT 1 FROM json_each(?) r LEFT JOIN issues i ON i.project=? AND i.id=json_extract(r.value,'$.id') WHERE i.id IS NULL OR i.revision<>json_extract(r.value,'$.revision'))";
+export const revisionGuards=(db:D1Database,project:string,revisions:any[])=>[guard(db,'NOT '+staleRevisionSql,JSON.stringify(revisions),project)];
 export async function proposalStale(db:D1Database,row:any){
  const revisions=JSON.parse(row.revisions),input=JSON.parse(row.input);
- for(const r of revisions){const issue=await s(db,'SELECT revision FROM issues WHERE project=? AND id=?',row.project,r.id).first<any>();if(!issue||issue.revision!==r.revision)return true;}
+ if(await s(db,'SELECT 1 WHERE '+staleRevisionSql,JSON.stringify(revisions),row.project).first())return true;
  if(input.kind==='rule'){const p=await s(db,'SELECT revision FROM grouping_policies WHERE project=?',row.project).first<any>();if((p?.revision??0)!==input.policyRevision)return true;}
  if(row.state==='approved'&&row.kind!=='rule'&&!await s(db,"SELECT 1 FROM grouping_corrections WHERE project=? AND id=? AND state='preview'",row.project,row.correction).first())return true;
  return false;
