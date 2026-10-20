@@ -28,6 +28,12 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const undone=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.equal(undone.issue.count,before.issue.count);await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();await capture('operator-undone');
  // Agent proposals use real grants and owner review controls; no application response is substituted.
  const root=`/api/projects/${project}`,endpoint=root+'/grouping-proposals';
+ const contextPacket=await api(`${root}/issues/${issue}/packet`);
+ await api(`${root}/issues/${issue}/assignment`,'PATCH',{revision:contextPacket.issue.revision,label:'Dispatch on-call'});
+ const repair=await api(root+'/repairs','POST',{issue,link:'https://code.example.test/dispatch/repair',note:'Compare the rebuilt dispatch failure before changing its group.'});
+ await api(`${root}/repairs/${repair.id}/facts`,'POST',{revision:repair.revision,fact:'deployed',release:contextPacket.events[0].event.release});
+ const destination=await api(root+'/alerting/destinations','POST',{label:'Dispatch on-call',recipient:'dispatch-alerts@example.test'});
+ await api(root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2});
  const grant=await api(root+'/keys','POST',{kind:'agent'});
  const propose=async(kind='split')=>{
   const packet=await api(`${root}/issues/${issue}/packet`),now=Date.now();

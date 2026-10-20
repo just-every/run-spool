@@ -7393,7 +7393,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "d0f8b823beeddeebfbf5cbaab7223fc620e83ad78352ee814daa5970c8400218",
+      "sha256": "6cb071ce5c61ac068905604f0d67aa415a0deb10d29d9b528e2fdeb8337ede40",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -7581,7 +7581,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "8aff79ee1ccc212170ab6ac373900b6185ef413345da4308de77fba40ea859a8",
+      "sha256": "dedfb8ed095cb21744111ebde2816bc601a13b2b3acdb0c654e0f76cc7f01175",
       "executable": false
     },
     "tests/worker-options.mjs": {
