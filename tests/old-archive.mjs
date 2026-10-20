@@ -62,7 +62,7 @@ try {
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
- console.log('PASS populated published release upgrades without rewriting any pre-existing row or table');
+ console.log('PASS populated published release upgrades without rewriting any pre-existing row or table: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
 
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');

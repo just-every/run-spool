@@ -7381,7 +7381,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "6d45055c244537e9ce3e4fe7b62dc9960094375fdd84cbc2ab66a8d80c6434dc",
+      "sha256": "fbcc65e2237e911c6ac414e9418855e2381f5e62ec90e86a0b19d34820f5cbfc",
       "executable": false
     },
     "tests/operator-archive.mjs": {
