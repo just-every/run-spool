@@ -76,6 +76,9 @@ const auth: Record<string,AuditAction> = {
 };
 export function classifyRequest(request: Request): Door | null {
  const path=new URL(request.url).pathname;
+ // Unauthenticated provider forgeries must leave no storage write. Verified
+ // delivery events record their service fact inside the projection transaction.
+ if (/^\/api\/alert-events\/sendgrid\/[a-zA-Z0-9._-]+$/.test(path))return null;
  if (path==='/api/audit'||path.startsWith('/api/audit/')) return null; // This router records its own refusals/exports.
  if (path.startsWith('/auth/')) return {action:Object.hasOwn(auth,path.slice(6))?auth[path.slice(6)]:(path.startsWith('/auth/oidc/')?'auth.oidc':path.startsWith('/auth/dependencies/')?'auth.dependency':'private.action'),kind:'identity',subject:'native-auth'};
  for (const rule of rules) {

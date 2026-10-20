@@ -1,3 +1,4 @@
+import {testAndReview} from './alerts/runtime.mjs';
 import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
@@ -33,6 +34,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const repair=await api(root+'/repairs','POST',{issue,link:'https://code.example.test/dispatch/repair',note:'Compare the rebuilt dispatch failure before changing its group.'});
  await api(`${root}/repairs/${repair.id}/facts`,'POST',{revision:repair.revision,fact:'deployed',release:contextPacket.events[0].event.release});
  const destination=await api(root+'/alerting/destinations','POST',{label:'Dispatch on-call',recipient:'dispatch-alerts@example.test'});
+ await testAndReview(api,root+'/alerting',destination.id);
  await api(root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2});
  const grant=await api(root+'/keys','POST',{kind:'agent'});
  const propose=async(kind='split')=>{

@@ -43,11 +43,11 @@ try {
   return db;
  }
  // Populate the actual released schema through the existing archive door,
- // before the additive proposal migration exists. The sole harness adapter is
- // an empty collection for a table that the released schema did not yet have.
+ // before the additive proposal/delivery migrations exist. The harness adapter
+ // supplies empty collections only for tables absent from that released schema.
  const upgrade = await target('UPGRADE', released);
  const stagedValidation = transfer.portabilityPolicy.validateStaged;
- transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => table === 'grouping_proposals' ? Promise.resolve([]) : context.read(table)});
+ transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => ['grouping_proposals','alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'].includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreStream(await transfer.portability(upgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `released baseline is populated through restore: ${table}`);

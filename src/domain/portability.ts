@@ -125,6 +125,9 @@ for(const later of laterTables)later.migrations.push('0056_import_door_archives.
 laterTables.unshift({tables:[],migrations:['0056_import_door_archives.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(proposalTables));later.migrations.push('0057_grouping_proposals.sql')}
 laterTables.unshift({tables:Object.keys(proposalTables),migrations:['0057_grouping_proposals.sql']});
+const deliveryTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];
+for(const later of laterTables){later.tables.push(...deliveryTables);later.migrations.push('0058_alert_delivery.sql')}
+laterTables.unshift({tables:deliveryTables,migrations:['0058_alert_delivery.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

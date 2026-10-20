@@ -14,7 +14,10 @@ import { privateRuntimePath } from './auth/private-runtime.server';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { ownerClaimResponse } from './editor/owner-claim.server';
 import { editorConfigResponse, editorDocument } from './editor/config.server';
+import { providerEventResponse } from './domain/alerts/provider-events.server';
 import { runAlerts } from './domain/alerts/dispatch';
+import { queueDigests } from './domain/alerts/digests';
+import { scheduledMail } from './domain/alerts/scheduled-mail';
 import { scanFollowUp } from './domain/follow-up/scan';
 import { queueNotices, dispatchNotices } from './domain/follow-up/notices';
 import { staticAssetResponse } from './base/static-assets';
@@ -36,6 +39,8 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
  } finally {
   // A broken dispatcher must not prevent independent operator follow-up.
   await scanFollowUp(env,event.scheduledTime);
+  await queueDigests(env,event.scheduledTime);
+  await scheduledMail(env,event.scheduledTime);
   await queueNotices(env,event.scheduledTime);
   await dispatchNotices(env,event.scheduledTime);
  }
@@ -66,6 +71,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
+ const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
  const asset = await staticAssetResponse(request, env); if (asset) return asset;
  const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
  // Admit the root before reading a native session; owners keep the workbench at /.

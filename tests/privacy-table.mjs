@@ -9,7 +9,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { alertRuntime, rule } from './alerts/runtime.mjs';
+import { alertRuntime, rule, prepareDestinations } from './alerts/runtime.mjs';
 import { receiver } from './alerts/receiver.mjs';
 import { forms, ordinary } from './privacy-table/forms.mjs';
 const root = process.cwd();
@@ -36,6 +36,7 @@ const app = await alertRuntime(rcv, { state: resolve(stateDir, 'state') });
 try {
   const project = await app.json('/api/projects', 'POST', { id: 'web', name: 'Privacy table' });
   await app.json('/api/projects/web/releases', 'POST', { name: 'r1', build: 'b1' });
+  await prepareDestinations(app);
   for (const ch of ['mail', 'webhook']) await app.json('/api/projects/web/alerting/rules', 'POST', rule(ch, { kinds: ['new_issue', 'regression'] }));
   const issues = {};
   for (const [i, [name, text]] of forms.entries()) {

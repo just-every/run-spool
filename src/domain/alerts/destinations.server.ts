@@ -41,5 +41,6 @@ export async function destinationChoices(env:AlertEnvironment,project:string) {
  }catch{}
  const saved=(await s(env.DB,'SELECT id,label,recipient FROM alert_destinations WHERE project=? ORDER BY created,id',project).all<any>()).results;
  const rows:Destination[]=[...destinations(env).filter(d=>d.project===project),...saved.map(d=>({...d,project,channel:'mail' as const,editable:true}))];
- return rows.map(d=>({id:d.id,label:d.label,channel:d.channel,editable:!!d.editable,...(d.editable?{recipient:d.recipient}:{}),configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}));
+ const tests=(await s(env.DB,'SELECT * FROM alert_destination_tests WHERE project=?',project).all<any>()).results;
+ return Promise.all(rows.map(async d=>{const fingerprint=hashConfigured?await destinationHash(env,JSON.stringify([d.channel,d.recipient??d.url,d.key??null,env.MAIL_PROVIDER??null,env.MAIL_FROM??null])):null;return ({id:d.id,label:d.label,channel:d.channel,editable:!!d.editable,...(d.editable?{recipient:d.recipient}:{}),test:tests.find(t=>t.destination===d.id&&t.fingerprint===fingerprint)??null,configured:hashConfigured&&(d.channel==='webhook'?!!env.INTEGRATION_EGRESS:mailConfigured)}); }));
 }

@@ -49,6 +49,17 @@ export async function scanFollowUp(env:Environment,time:number) {
    FROM follow_up_fix_steps f WHERE f.state IN ('uncertain','rejected')
   ) candidate WHERE NOT EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.project=candidate.project AND a.source=candidate.source AND a.source_id=candidate.source_id)
   ORDER BY due,project,source,source_id`,time,time,time,time,time).all<Candidate>()).results;
+ const additional=(await s(env.DB,`  SELECT z.project,'alert' source,'snooze:'||z.id source_id,z.until due,'overdue' state,'snooze_expired_backlog' reason
+  FROM alert_snoozes z WHERE z.historical=0 AND z.until<=? AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)
+  UNION ALL
+  SELECT x.project,'alert','held:'||x.delivery_id,x.created,'overdue','held_alert_backlog'
+  FROM alert_suppressed x JOIN alert_history h ON h.id=x.delivery_id WHERE x.released_at IS NULL AND h.historical=0
+  UNION ALL
+  SELECT m.project,'alert','scheduled:'||m.id,m.created,'failed',COALESCE(m.code,'scheduled_mail_failed') FROM alert_scheduled_mail m WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
+  UNION ALL
+  SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN ('accepted','duplicate') AND o.count>0
+`,time).all<Candidate>()).results;
+ candidates.push(...additional);
  // Do not bound this scan to the first N failures: durable failures would starve
  // every later source forever. Existing project/workflow admission bounds work.
  const seen=new Set<string>();
@@ -62,6 +73,10 @@ export async function scanFollowUp(env:Environment,time:number) {
   WHERE source='fix' AND historical=0 AND state<>'uncertain' AND EXISTS(SELECT 1 FROM follow_up_fix_steps f WHERE f.workflow=source_id AND f.state='uncertain')`,time).run();
  await s(env.DB,`UPDATE follow_up_attention SET state=(SELECT CASE n.state WHEN 'uncertain' THEN 'uncertain' WHEN 'blocked' THEN 'blocked' WHEN 'rejected' THEN 'failed' ELSE 'overdue' END FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id),updated=?,revision=revision+1
   WHERE source='deployment' AND historical=0 AND state='queued' AND EXISTS(SELECT 1 FROM deployment_notices n WHERE n.project=follow_up_attention.project AND n.deployment=source_id AND n.state<>'pending')`,time).run();
+ await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state<>'completed' AND (
+  (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE 'held:'||x.delivery_id=source_id AND x.released_at IS NOT NULL)) OR
+  (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE 'snooze:'||z.id=source_id AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
+ )`,time).run();
  // Source completion closes work without fabricating delivery of an uncertain
  // effect. An uncertain transport is closed only by an explicit owner decision.
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain') AND (

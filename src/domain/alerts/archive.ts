@@ -1,12 +1,13 @@
+import {deliveryArchiveTables,deliveryExportRow,validateDeliveryArchive} from './delivery-archive';
 import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
-export const alertArchiveTables=['alert_rules','alert_history'];
-export const alertExcludedTables=['alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertArchiveTables=['alert_rules','alert_history',...deliveryArchiveTables];
+export const alertExcludedTables=['alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};
- return row;
+ return deliveryExportRow(table,row);
 }
 const kinds=['new_issue','regression','spike'];
 function assert(ok:unknown):asserts ok {if(!ok)throw new Error('Invalid alert archive');}
@@ -15,6 +16,7 @@ function integer(value:any,min=0){assert(Number.isSafeInteger(value)&&value>=min
 function label(value:any){assert(typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,200}$/.test(value));}
 function safe(value:any,max=1000){assert(typeof value==='string'&&value.length<=max&&scrub(value)===value);}
 export function validateAlertArchive(data:any) {
+ validateDeliveryArchive(data);
  const projects=new Set(data.projects.map((r:any)=>r.id)),issues=new Map<string,any>(data.issues.map((r:any)=>[r.id,r])),rules=new Map<string,any>(),alerts=new Map<string,any>();
  assert(Array.isArray(data.alert_rules)&&Array.isArray(data.alert_history));
  for(const r of data.alert_rules){
@@ -45,7 +47,7 @@ export function validateAlertArchive(data:any) {
  for(const h of data.alert_history){
   shape(h,['id','project','alert_id','rule_id','rule_revision','channel','destination','state','code','attempts','created','updated','historical']);label(h.id);label(h.destination);integer(h.rule_revision,1);integer(h.attempts);integer(h.created);integer(h.updated);
   assert(!histories.has(h.id)&&h.historical===1&&alerts.get(h.alert_id)?.project===h.project&&rules.get(h.rule_id)?.project===h.project&&h.rule_revision<=rules.get(h.rule_id).revision&&['mail','webhook'].includes(h.channel));histories.add(h.id);
-  assert(['pending','queued','sending','accepted','rejected','retrying','uncertain','blocked','cancelled','captured_locally'].includes(h.state));assert(h.code===null||typeof h.code==='string'&&/^[a-z][a-z0-9_]{0,63}$/.test(h.code));
+  assert(['pending','queued','sending','accepted','rejected','retrying','uncertain','blocked','cancelled','captured_locally','snoozed'].includes(h.state));assert(h.code===null||typeof h.code==='string'&&/^[a-z][a-z0-9_]{0,63}$/.test(h.code));
   assert(h.id===`${h.alert_id}.${h.rule_id}.${h.rule_revision}`);
  }
  const auditFields:Record<string,string[]>={alert_rule_created:['rule','revision'],alert_rule_revised:['rule','revision'],alert_history_unavailable:['rule','revision','from','cutoff'],alert_delivery_resolved:['delivery','state','evidence']};

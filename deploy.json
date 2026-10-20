@@ -43,6 +43,11 @@
     {
       "binding": "ALERT_DESTINATION_HASH_KEY",
       "environment": "ALERT_DESTINATION_HASH_KEY"
+    },
+    {
+      "binding": "SENDGRID_EVENT_PUBLIC_KEY",
+      "environment": "SENDGRID_EVENT_PUBLIC_KEY",
+      "optional": true
     }
   ],
   "crons": [

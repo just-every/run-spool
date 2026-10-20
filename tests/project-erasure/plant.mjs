@@ -1,3 +1,4 @@
+import {testAndReview} from '../alerts/runtime.mjs';
 import {plantLegacyAlertMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -34,7 +35,8 @@ export async function plantCanary(app){
  const {job}=await door.apply(planned.planId,planned.fingerprint);
  assert.equal(job.state,'completed');
  const project=importedProject;assert.ok((await app.json('/api/projects')).some(row=>row.id===project),'import created the canary project');
- for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:true,channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2});
+ await testAndReview(app.json,`/api/projects/${project}/alerting`,'erase-mail');
+ for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:channel==='mail',channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2});
  const keys={ingest:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'ingest'})).key,agent:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'})).key,deploy:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key};
  await app.json(`/api/projects/${project}/releases`,'POST',{name:'r1',build:'b1'});
  await app.json(`/api/projects/${project}/artifacts`,'POST',{release:'r1',build:'b1',debugId:'erase-map',map:sourceMap()});
@@ -45,7 +47,7 @@ export async function plantCanary(app){
  // the unconfigured webhook, so the later state checks start just after a tick.
  let history=[];
  const ticked=async()=>{const run=(await (await fetch(app.origin+'/health')).json()).alerts?.lastScheduledRun;return !!run&&Date.parse(run)>ingested};
- for(let n=0;n<150;n++){history=await app.json(`/api/projects/${project}/alerting/deliveries`);if(history.some(row=>row.channel==='mail'&&row.state==='accepted')&&history.some(row=>row.channel==='webhook')&&await ticked())break;await delay(1000);}
+ for(let n=0;n<150;n++){history=await app.json(`/api/projects/${project}/alerting/deliveries`);if(history.some(row=>row.channel==='mail'&&row.state==='accepted')&&await ticked())break;await delay(1000);}
  assert.ok(history.some(row=>row.channel==='mail'&&row.state==='accepted'),'the local mail alert succeeded without sending');
  await plantLegacyAlertMail(app.checkout.root,project);
  const legacy=await legacyMailRows(app.origin);assert.ok(legacy.some(row=>row.message.includes(canary.RECIPIENT.toLowerCase())),'legacy mail contains the recipient before erasure');

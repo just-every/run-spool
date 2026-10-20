@@ -28,8 +28,14 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  FROM alerts a JOIN alert_rules r ON r.project=a.project
  WHERE a.id=? AND r.enabled=1 AND a.payload IS NOT NULL AND (a.kind<>'spike' OR json_extract(a.payload,'$.rule.revision')=r.revision) AND EXISTS(SELECT 1 FROM json_each(r.kinds) WHERE value=a.kind)
  ${onlyRule?'AND r.id=?':''} ON CONFLICT(id) DO NOTHING`,time,alertId,...(onlyRule?[onlyRule]:[])),
+ s(db,`INSERT INTO alert_suppressed(delivery_id,project,snooze_id,reason,created)
+ SELECT i.id,i.project,z.id,'snooze',? FROM alert_intents i JOIN alerts a ON a.id=i.alert_id
+ JOIN alert_snoozes z ON z.project=i.project AND z.historical=0 AND z.resumed_at IS NULL AND z.until>?
+  AND (z.scope='project' OR z.scope='issue' AND z.target=a.issue OR z.scope='rule' AND z.target=i.rule_id)
+ WHERE i.alert_id=? AND i.expanded=0 ON CONFLICT(delivery_id) DO NOTHING`,time,time,alertId),
+ s(db,`UPDATE alert_intents SET state='snoozed',code='snooze' WHERE alert_id=? AND expanded=0 AND id IN(SELECT delivery_id FROM alert_suppressed WHERE released_at IS NULL)`,alertId),
  s(db,`INSERT INTO alert_history(id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,updated)
- SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,'pending',created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
+ SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];
 }
 export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
  const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;

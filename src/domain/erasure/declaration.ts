@@ -17,9 +17,10 @@ export const projectErasure = defineErasure({
  root: { table: 'projects' },
  edges: [
   ...['follow_up_settings','follow_up_feed_custody','follow_up_attention','follow_up_notices','follow_up_attempts','follow_up_fix_steps','follow_up_deployment_attempts','release_order_keys','audit_actor_links','deployment_steps','deployment_notices','deployment_runs','deployment_actors','release_policies','release_metadata','release_builds','issue_resolutions','grouping_policies','grouping_proposals', 'feedback', 'inbound_filter_policies', 'events', 'issues', 'releases', 'artifacts', 'outcomes', 'credentials', 'browser_origins', 'browser_origin_guards', 'sentry_project_aliases',
-   'grouping_routes', 'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_destinations', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
+   'grouping_routes', 'grouping_corrections', 'event_grouping', 'issue_assignments', 'suppression_policies', 'event_suppressions', 'deployment_path_mappings', 'deployment_manifests', 'alerts', 'alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','alert_destination_tests','alert_destinations', 'alert_rules', 'alert_cursors', 'alert_expansion_cursors', 'alert_history', 'alert_intents', 'alert_mail_jobs', 'repairs', 'repair_checks',
    'reproducers', 'reproducer_runs', 'reproducer_run_tokens', 'fix_workflows', 'fix_leases', 'fix_receipts', 'exposures'].map(fromProject),
   { table: 'alert_mail_attempts', from: 'alert_mail_jobs', on: { delivery_id: 'id' } },
+  ...['rer_mail_event_receipts','rer_mail_event_states'].map(table=>({table,from:'projects',on:{event_namespace:'id'}})),
   // Development mail captured for this project's alert deliveries.
   { table: 'rer_mail_development_outbox', from: 'alert_mail_jobs', where: "CASE WHEN json_valid(message) THEN json_extract(message,'$.deliveryId') END=?", params: ['id'] },
   // The dev-minted mark of a deleted project credential.

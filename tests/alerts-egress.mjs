@@ -49,10 +49,13 @@ const destinations=[
 let app;
 try{
  app=await alertRuntime(mail,{destinations,egressBridge:async wire=>{const host=new URL(wire.url).hostname;try{const response=await egress.send(wire);outcomes.push({host,status:response.status});return response;}catch(error){outcomes.push({host,error:error.code});throw error;}}});
- const auth=await setup(app);
- for(const destination of ['webhook-v1','redirect-v1','private-v1'])await app.json('/api/projects/web/alerting/rules','POST',rule('webhook',{name:destination,destination,kinds:['new_issue']}));
+ const auth=await app.json('/api/projects','POST',{id:'web',name:'Web app'}).then(p=>({Authorization:`Bearer ${p.ingestKey}`}));await app.json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});
+ const valid=await app.json('/api/projects/web/alerting/destinations/webhook-v1/test','POST',{});assert.equal(valid.state,'passing');await app.json('/api/projects/web/alerting/destinations/webhook-v1/review','POST',{testId:valid.id});
+ receiver.requests.length=0;outcomes.length=0;
+ for(const destination of ['webhook-v1'])await app.json('/api/projects/web/alerting/rules','POST',rule('webhook',{name:destination,destination,kinds:['new_issue']}));
  await app.json('/api/ingest/web','POST',event('egress-1'),auth);
  await app.schedule(Date.now());
+ for(const id of ['redirect-v1','private-v1']){const failed=await app.json('/api/projects/web/alerting/destinations/'+id+'/test','POST',{});assert.equal(failed.state,'failing');assert.equal((await app.request('/api/projects/web/alerting/rules','POST',rule('webhook',{destination:id}))).status,400)}
  const deliveries=await app.json('/api/projects/web/alerting/deliveries'),state=id=>deliveries.find(row=>row.destination===id)?.state;
  // One signed alert arrives once at the real TLS receiver, and the log says delivered.
  const delivered=receiver.requests.filter(row=>row.host===hosts.delivered);
@@ -65,8 +68,9 @@ try{
  // A redirect is not followed, and the delivery is uncertain.
  assert.deepEqual(outcomes.filter(row=>row.host===hosts.redirect),[{host:hosts.redirect,status:302}]);
  assert.equal(receiver.requests.filter(row=>row.host===hosts.redirect).length,1,'only the redirecting receiver was asked');
- assert.equal(state('redirect-v1'),'uncertain','a redirect is recorded as uncertain');
- assert.equal(state('private-v1'),'uncertain','a refused send is never replayed');
+ assert.equal(state('redirect-v1'),undefined,'a failed test cannot enable a rule');
+ assert.equal(state('private-v1'),undefined,'a refused destination cannot enable a rule');
+ assert.match(deliveries[0].code,/http_204_signature_sent/);
  // A later scheduled run sends nothing again.
  const sent=receiver.requests.length,tried=outcomes.length;await app.schedule(Date.now()+60_000);
  assert.equal(receiver.requests.length,sent,'no replay to the receiver');assert.equal(outcomes.length,tried,'no further egress call');

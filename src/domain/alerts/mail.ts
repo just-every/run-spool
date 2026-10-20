@@ -39,7 +39,7 @@ export async function recoverMail(env:AlertEnvironment,time:number) {
 export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[]) {
  const started=Date.now(),clock=()=>time+Date.now()-started;
  await recoverMail(env,time);
- const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
+ const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
   let mail;
   try {
@@ -56,7 +56,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   ]);
   if(!results[0].results.length)continue;
   // This final durable authorization check prevents a queued revoked revision from starting an effect.
-  const authority=await s(env.DB,`SELECT j.claim_until FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id JOIN alert_rules r ON r.id=i.rule_id AND r.revision=i.rule_revision AND r.enabled=1 WHERE j.id=? AND j.claim=? AND j.state='sending' AND j.claim_until>?`,job.id,claim,clock()).first<{claim_until:number}>();
+  const authority=await s(env.DB,`SELECT j.claim_until FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id JOIN alert_rules r ON r.id=i.rule_id AND r.revision=i.rule_revision AND r.enabled=1 WHERE i.state<>'snoozed' AND j.id=? AND j.claim=? AND j.state='sending' AND j.claim_until>?`,job.id,claim,clock()).first<{claim_until:number}>();
   if(!authority||authority.claim_until<=clock()){
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }

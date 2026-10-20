@@ -1,3 +1,4 @@
+import {deliveryFlow} from './alerts/delivery-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -5,7 +6,7 @@ import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
-import {alertRuntime,event,rule,setup} from './alerts/runtime.mjs';
+import {alertRuntime,event,rule,setup,prepareDestinations} from './alerts/runtime.mjs';
 import {suppressionEligibility} from './alerts/suppression-eligibility.mjs';
 import {alertFollowUp} from './alerts/follow-up.mjs';
 import {readArchive,makePart} from '../src/modules/portability/index.mjs';
@@ -94,8 +95,10 @@ try {
  assert.ok((await app.request('/api/restore','POST',poison.map(r=>JSON.stringify(r)).join('\n')+'\n',{'X-Confirm-Restore':'yes'})).status>=400);
  assert.equal((await app.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'})).status,200);
  await app.schedule(Date.now()+120000);assert.equal(inbox.requests.length,sends);assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM alert_mail_jobs').first()).n,0);assert.ok((await app.json(deliveryPath+'/rules')).every(r=>!r.enabled));
+ await prepareDestinations(app);
  const restoredRule=(await app.json(deliveryPath+'/rules')).find(r=>r.id===webhook.id);await app.json(deliveryPath+'/rules/'+webhook.id,'PUT',rule('webhook',{revision:restoredRule.revision}));await app.schedule(Date.now());assert.equal(inbox.requests.length,sends);
  const key=await app.json('/api/projects/web/keys','POST',{kind:'ingest'});await app.json('/api/ingest/web','POST',event('post-restore',{frames:[{file:'https://app.example.com/after.js',line:1,column:0,function:'after'}]}),{Authorization:`Bearer ${key.key}`});await app.schedule(Date.now());assert.equal(inbox.requests.length,sends+1);
  const session=app.cookie;await app.request('/auth/signout','POST',{});assert.ok((await app.request(deliveryPath+'/rules','GET',undefined,{Cookie:session})).status>=400);
+ await app.close();app=null;await deliveryFlow(inbox);
  console.log('ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
 } finally {await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

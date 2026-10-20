@@ -13,6 +13,7 @@ export async function openGate(context, origin) {
  assert.equal(response.status(), 204, 'the key opens local admission');
 }
 export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: testOwner, RER_DEV_KEY: testDevKey,
+ ALERT_DESTINATION_HASH_KEY: Buffer.alloc(32,45).toString('base64'),
  SESSION_SECRET: 'synthetic-test-spool-session-secret-at-least-32-characters', SETUP_TOKEN: testSetupToken,
  MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' });
 export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {

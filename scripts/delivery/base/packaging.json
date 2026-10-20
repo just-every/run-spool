@@ -77,7 +77,8 @@
       ],
       "optionalSecretNames": [
         "MAIL_API_KEY",
-        "ALERT_DESTINATIONS"
+        "ALERT_DESTINATIONS",
+        "SENDGRID_EVENT_PUBLIC_KEY"
       ],
       "providerEffects": [
         "outbound-mail",

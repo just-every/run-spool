@@ -9,9 +9,9 @@ import {alertRuntime,event,rule,setup,relayUrl} from './alerts/runtime.mjs';
 import {testOwner} from './auth.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-edge-')),inbox=await receiver(resolve(temp,'receiver.sqlite'));let app;
 try {
- app=await alertRuntime(inbox,{egress:false});const auth=await setup(app);
+ app=await alertRuntime(inbox);const auth=await setup(app);
  await app.json('/api/projects/web/alerting/rules','POST',rule('webhook'));
- await app.json('/api/ingest/web','POST',event('blocked'),auth);await app.schedule(Date.now());
+ await app.json('/api/ingest/web','POST',event('blocked'),{...auth,'x-fixture-unconfigured':'egress'});await app.json('/__fixture/schedule','POST',{time:Date.now(),disableEgress:true});
  const blocked=await app.json('/api/projects/web/alerting/deliveries');assert.equal(blocked.length,1);assert.equal(blocked[0].state,'blocked');assert.equal(inbox.requests.length,0);
  await app.close();app=await alertRuntime(inbox,{destinationUrl:'https://127.0.0.1/private'});await setup(app);
  assert.equal((await app.json('/api/projects/web/alerting/destinations')).configuration,'blocked');assert.equal((await app.request('/api/projects/web/alerting/rules','POST',rule('webhook'))).status,400);assert.equal(inbox.requests.length,0);

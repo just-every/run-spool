@@ -46,7 +46,7 @@ export async function normalizePreviousArchive(previous:Awaited<ReturnType<typeo
  }
  const upgraded=Object.fromEntries(Object.entries(previous.data).map(([table,rows])=>[table,rows.map(row=>Object.hasOwn(row,'occurrence')?row:upgradeOccurrence(table,row))]));
  const legacy=await validateArchiveRows(bundleDefaults(operatorDefaults(legacyIssueReleases(legacyImportDefaults(upgraded)))));
- const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
+ const data={...legacy,alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_provider_events:[],alert_digest_settings:[],alert_snoozes:[],alert_suppressed:[],alert_scheduled_mail:[],alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  return {data,manifest:{...current,sourceIdentity:previous.manifest.sourceIdentity,epoch:previous.manifest.epoch,journal:previous.manifest.journal,exportedAt:previous.manifest.exportedAt}};
 }
 

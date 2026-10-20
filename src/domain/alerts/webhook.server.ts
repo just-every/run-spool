@@ -48,6 +48,7 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
    let response;
    try{response=await demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));}
    catch(error){await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error}
+   await s(env.DB,`UPDATE alert_history SET code=? WHERE id=? AND project=?`,'http_'+response.status+'_signature_sent',intent.id,project).run();
    await recordAudit(env.DB,{...fact,outcome:response.status>=200&&response.status<300?'accepted':'failed'});
    return response;
   }},

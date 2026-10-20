@@ -2,7 +2,7 @@
 
 Target scope approved 16 October 2026: a US development team can replace Sentry, Datadog Error Tracking, Rollbar or Bugsnag for web/server/mobile capture, team investigation, release health, alerting, migration and verified repair. CONTRACT.md defines the full target; these journeys specify how a build round proves each clause through the shipped product. They do not claim every journey already runs.
 
-The implementation and Status rows were reconciled against main at `3a5e47072e10e637bef632c02b79e7c8f49657a4` (18 October 2026). Status meanings match CONTRACT.md: done for the stated implemented bounded behavior, partial for a working subset, missing for no implementation proof. Citations point to existing source/tests, not newly invented programs. Local results and provider doubles qualify only their tested boundary. Real SDK/device, buyer-export, repository and hosted provider acceptance remains separate.
+The implementation and Status rows were reconciled against candidate `b893cc0f9617fb4fb3d472226b79dee5ee346d53` (21 October 2026). Status meanings match CONTRACT.md: done for the stated implemented bounded behavior, partial for a working subset, missing for no implementation proof. Citations point to existing source/tests, not newly invented programs. Local results and provider doubles qualify only their tested boundary. Real SDK/device, buyer-export, repository and hosted provider acceptance remains separate.
 
 ## Required verification by clause
 
@@ -48,6 +48,8 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs` This is the retained Base portability replacement: source/maps are portable; installation authority and executable grants are not. Scheduled policies are GOV-002; streaming archives above 10,000 events or 20 artifacts per project are GOV-003 and SRC-004.
 
+  ERR-009 delivery validators (`src/domain/alerts/delivery-archive.ts`) carry alert_provider_events, alert_digest_settings, alert_snoozes, alert_suppressed and alert_scheduled_mail as investigation/configuration data. Restored schedules and quiet hours are disabled; restored snoozes and scheduled mail are historical and never send. Raw recipient receipts and passing-test authority do not travel. Project and installation-owner erasure declare all new stores.
+
 - **ERR-010 — Release gates. Status: partial.** Run the named implemented journeys on the emitted Worker, inspect 1440/390 end states, then qualify each supported runtime/device and configured real provider with a buyer-controlled account.
 
   Current evidence: `tests/triage-journey.mjs`; `tests/agent-handoff.mjs`; `tests/repair-recovery.mjs`; `tests/execution-journey.mjs` Local journeys exist; full target, hosted/provider and native-device acceptance remain open.
@@ -73,6 +75,8 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   ALERT-004 alternate-operator responsibility is inherited here: until member roles ship, the installation owner is accountable and configures the alternate destination (default No alternate). Team roles must preserve an accountable alternate operator, visible broken-destination and overdue follow-up, and nonrecursive deduplication.
 
+  ALERT-003 team digests and team snooze inherit this clause before team roles ship: buyer-timezone daily/weekly error digests, required snooze expiry, one durable resumption notice, counted/listed suppressed alerts, and loss/backlog visible through maintenance and quiet hours. The installation owner acts for these scopes until this clause is implemented.
+
 - **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgment window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
   Current evidence: `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.
@@ -91,7 +95,10 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
+  ALERT-003 personal digests inherit this clause before member notifications ship: each member's daily/weekly schedules, timezone, channel selection and unsubscribe controls must preserve one digest per calendar period and loss/backlog reporting. The current personal digest belongs to the installation owner only.
+
 ### Capture and release health
+
 
 - **SDK-001 — Multi-language SDKs and DSN-compatible intake. Status: partial.** For every named runtime, execute an unmodified Sentry SDK with only its DSN changed plus Spool setup, with its default integrations and the sessions, tracing, logs, replay (browser/mobile), feedback widget and attachment options the Sentry setup wizard enables; capture handled/unhandled failures and flush/restart; reconcile persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes per SDK-007 through the public UI/API. Run the guided setup on a fresh Next.js and Django app and send one check-in with and without a connected Uptime heartbeat. With a standard ad-blocker list enabled in the browser, deploy a Next.js app first with Sentry's `tunnelRoute` (setup shows the named limitation), then with the Spool tunnel handler, then with the first-party ingest subdomain, and confirm every browser error arrives in the last two and reconciles in the MIG-001 dual run. Replace a site's Sentry loader script tag with the Spool loader configured with the same key settings and confirm lazy loading, `Sentry.onLoad` and an error capture.
 
@@ -251,15 +258,27 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Every new ALERT-004 integration action and channel inherits an accountable owner, due condition, durable queued/running/blocked/failed/uncertain/completed/canceled state, inspectable attempts, one durable follow-up, and explicit reconciliation or authorized resend for unknown effects before shipping.
 
+  ALERT-003 delivery-state and reviewed-test obligations apply to every future adapter before shipping: Slack and Teams posted with message identifier; PagerDuty and Oncall triggered, acknowledged and resolved; Discord's channel webhook carries HTTP status and signature observations where supported. Every adapter keeps provider acknowledgment distinct from recipient receipt.
+
 - **ALERT-003 — Destination tests, digests and snoozing. Status: partial.** Add and test each channel, inspect its named delivery states, enable only after reviewing its result, schedule a US-timezone digest, snooze through a burst and expiry, and inspect one digest/resumption plus unchanged issue evidence for test sends.
 
   Current evidence: `src/domain/alerts/destination-management.server.ts`; `tests/alerts-ui.mjs` Main now tests page-managed email destinations. Cross-channel tests, digests, recipient confirmation and timed snoozing remain missing.
+
+  Existing email and signed-webhook destinations require a recorded passing test and explicit owner review before a rule can be enabled. Tests say TEST and preserve the complete archive row projection, including issues, alerts, assignments and counters. Changed recipients disable their rules and require a new reviewed test. Provider acceptance is separate from recipient receipt; no event yet is explicit. Signed SendGrid Event Webhooks join the mail delivery custom argument, reject forged/unsigned/unknown deliveries before storing any event, and deduplicate event IDs. History retains each processed/delivered/deferred/bounce/dropped/spamreport event; deferred and dropped retain their own names. Complaint and the other provider-event transitions are currently signed-fixture proof, labelled fixture on screen. A webhook records that its signature header was sent and the HTTP status observed; receiver signature verification is not claimed.
+
+  Project timezone is a validated IANA name, default UTC. Daily and Monday-ending weekly schedules use completed calendar periods and durable period keys across DST and overlapping ticks, through the existing mail sender. Digests show new/regressed/unowned totals and a bounded issue list, capture-receipt usage/loss, ALERT-004 failed/overdue automation and the held-alert backlog, with scrubbed text and no event payload. Personal means the installation owner until TEAM-005; team digests and team snooze inherit TEAM-001. Issue/rule snooze and project maintenance require expiry; capture continues, suppressed deliveries remain counted/listed, and one durable owner resumption notice is queued per expiry. Quiet hours also preserve loss and backlog in digests and Needs attention. Expired held deliveries require explicit owner release. Archives carry digest settings, provider-event rows, snoozes, held-delivery rows and digest/resumption history as inert investigation/configuration data; raw recipient receipts, destination tests and active jobs are excluded. Restored settings disable schedules and quiet hours; restored snoozes and scheduled mail never send. Project/owner erasure declares all new stores.
+
+  Journey **ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss** extends `tests/alerts-runtime.mjs`, `tests/alerts-egress.mjs` and `tests/alerts-ui.mjs`; migration `0058_alert_delivery.sql`, `src/domain/alerts/`, `src/ui/alerts/`, and `docs/ALERT-DELIVERY.md`. Retained 1440/390 states: `docs/retained-verification/alert003/`.
+
+  **Gap:** provider events proven only by signed fixture; real delivered/bounced needs one free Event Webhook slot on the held SendGrid account. SendGrid returned HTTP 400 at the multiple-webhooks create endpoint: the account has reached its current billing plan limit. No webhook was created or changed.
 
 - **ALERT-004 — Durable follow-up and visible automation failure. Status: done.** Interrupt before and after the send boundary, restart, expire a lease, revoke a rule and lose a provider response; inspect durable state, deduplication, operator follow-up and explicit reconciliation, then restore without replay.
 
   The installation owner is the accountable owner and alternate operator until TEAM-001. A project may configure one existing alternate destination, default No alternate. A send pending for five minutes, an open unacknowledged alert after 24 hours, a deployment deadline or an expired fix lease leaves one durable Needs attention row and one permanent AUDIT-001 follow-up fact. Alternate notices have stored source/destination deduplication keys; their own failure never creates another notice. The attention view shows due conditions, source state, attempts and alternate notice outcomes. Unknown effects require explicit reconciliation or owner-authorized resend; a fix resend requires the owner to Advance the workflow, and reconciliation of a known provider mutation requires its recorded result. Follow-up configuration, queues, attempts and step fences are operational stores excluded from archives; the safe audit chronology survives and restored history does not dispatch. ALERT-002, TRACK-001, INT-001 and AI-003/AI-004 inherit the same owner/due/state/attempts and follow-up obligation for their future integration and agent actions.
 
   Current evidence: `tests/alerts-runtime.mjs` and `tests/execution-journey.mjs` exercise ALERT-004 interrupted delivery, uncertain provider response, expired lease, repeated scheduled scans, one safe audit follow-up, nonrecursive alternate notices, explicit reconciliation/resend, inert restore and 1440/390 Needs attention. Provider behavior is qualified with network-edge test receivers; no real external channel certification is claimed.
+
+  ALERT-003 snooze expiry, held backlog, capture loss and digest/resumption send failures use the same durable Needs attention and deduplicated follow-up semantics. Snooze, maintenance and quiet hours never erase loss or backlog; restored digest/snooze history remains inert.
 
 - **ALERT-005 — Chat and paging triage actions and link unfurls. Status: missing.** From a Slack alert and a Teams alert, a linked member resolves one issue, archives another until escalating and assigns a third to a team; confirm state, timeline, audit and the updated message. An unlinked user and a read-only member are refused with no change. Paste an issue link and confirm the unfurl for an authorized member and none for an unauthorized one. Acknowledge and resolve a PagerDuty and an Oncall incident and confirm the issue follows, then resolve in Spool and confirm the incident resolves. Replay a signed action (one effect) and forge one (refused).
 

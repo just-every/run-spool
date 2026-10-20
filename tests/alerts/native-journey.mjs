@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {legacyMailRows} from '../legacy-mail.mjs';
-import {event,rule} from './runtime.mjs';
+import {event,rule,testAndReview} from './runtime.mjs';
 const alerts='/api/projects/web/alerting';
 
 export async function prepareNativeAlerts(app,kinds) {
  const project=await app.json('/api/projects','POST',{id:'web',name:'Production proof'});
  await app.json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});
+ await testAndReview(app.json,alerts,'mail-v1');
  const created=await app.json(alerts+'/rules','POST',rule('mail',{kinds,threshold:10}));
  return {rule:created.id,headers:{Authorization:`Bearer ${project.ingestKey}`}};
 }

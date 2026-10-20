@@ -23,7 +23,10 @@ routes.get('/',async c=>{
   else attempts=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_deployment_attempts WHERE project=? AND deployment=? ORDER BY number',project,row.source_id).all()).results;
   const notices=(await s(db,'SELECT id,destination,channel,state,attempts,code,next_at FROM follow_up_notices WHERE attention=? ORDER BY id',row.id).all<any>()).results;
   for(const notice of notices)notice.log=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_attempts WHERE notice=? ORDER BY number',notice.id).all()).results;
-  enriched.push({...row,attempts,notices});
+  const loss=/^loss:(\d+):(.+)$/.exec(row.source_id);
+  const captureLoss=loss?Number((await s(db,'SELECT count FROM outcomes WHERE project=? AND window=? AND reason=?',project,Number(loss[1]),loss[2]).first<any>())?.count??0):null;
+  const held=row.source_id.startsWith('snooze:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND snooze_id=? AND released_at IS NULL',project,row.source_id.slice(7)).first<any>():row.source_id.startsWith('held:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND delivery_id=? AND released_at IS NULL',project,row.source_id.slice(5)).first<any>():null;
+  enriched.push({...row,attempts,notices,capture_loss:captureLoss,held_alerts:held?.n??null});
  }
  return c.json({alternate:{destination:config?.destination??null,channel:config?.channel??null,state:config?.destination?'configured':'none',configured,label},rows:enriched});
 });
