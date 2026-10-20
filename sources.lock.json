@@ -4333,7 +4333,7 @@
       "executable": false
     },
     "src/domain/operators/grouping.ts": {
-      "sha256": "b7c0f6deec863c5a745e319f7452d7ab76b115723f375f8a497cf300efe8cbc8",
+      "sha256": "cd8a485612dfa689dfe23e203140ba4612a30fe1c5c0a4e6d8c6d470109c0c8b",
       "executable": false
     },
     "src/domain/operators/headlines.ts": {
@@ -4401,7 +4401,7 @@
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "1a84f26694d47fe7e378303482fbdbd474067d873e684a5b8046242020d20022",
+      "sha256": "0de1ea5080b75f54f0881df0e33c39df5d68130a29a73b176a0c1f84b69ce5a5",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -4413,7 +4413,7 @@
       "executable": false
     },
     "src/domain/proposals/routes.ts": {
-      "sha256": "c2bb2adad18e20ebe12d1ae43bcd69ffb0832789ad3755172c223ce6d8847883",
+      "sha256": "da2712a493f225d1e6c67d697012ab75107a5e022b7e465dc23dd9bbc07124fb",
       "executable": false
     },
     "src/domain/releases/admission.ts": {

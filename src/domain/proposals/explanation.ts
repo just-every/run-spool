@@ -18,7 +18,7 @@ export async function issueRevisions(db:D1Database,project:string,input:any,prev
  if(!rows.some(r=>r.id===input.source&&r.revision===input.revision)||input.target&&!rows.some(r=>r.id===input.target&&r.revision===input.targetRevision))throw new Error('Issue revision conflict');
  return rows;
 }
-export const variantOf=(row:any)=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames.length?e.frames:e.sentry?.exceptions??[]),release:e.release,route:e.sentry?.transaction??e.sentry?.request?.url??''}};
+export const variantOf=(row:any):Record<string,string>=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames.length?e.frames:e.sentry?.exceptions??[]),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:'')}};
 export async function explainProposal(db:D1Database,row:any,preview:any){
  const input=typeof row.input==='string'?JSON.parse(row.input):row.input,project=row.project;
  const all=(await s(db,`SELECT e.*,EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence) suppressed,EXISTS(SELECT 1 FROM event_grouping g WHERE g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence) corrected FROM events e WHERE project=? ORDER BY id`,project).all<any>()).results;

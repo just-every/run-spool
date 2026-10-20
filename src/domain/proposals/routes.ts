@@ -16,14 +16,14 @@ const routes=new Hono<any>();
 const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),label:`proposed by agent ${row.actor}`});
 const summary=(row:any)=>{const r=parsed(row);return {id:r.id,kind:r.kind,state:r.state,actor:r.actor,label:r.label,input:r.input,revisions:r.revisions,created:r.created,updated:r.updated}};
 routes.use('*',async(c,next)=>{
- const project=c.req.param('project'),session=await ownerSession(c.req.raw,c.env),agent=await agentProject(c.req.raw,c.env.DB);
+ const project=c.req.param('project')!,session=await ownerSession(c.req.raw,c.env),agent=await agentProject(c.req.raw,c.env.DB);
  if(!session&&agent!==project)return c.json({error:'Owner session or own-project agent grant required'},401);
  if(session&&!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
  if(!await s(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);
  c.set('proposalOwner',session);c.set('proposalAgent',agent===project);await next();
 });
 routes.get('/',async c=>{
- const db=c.env.DB,project=c.req.param('project'),rows=(await s(db,'SELECT * FROM grouping_proposals WHERE project=? ORDER BY created DESC,id',project).all<any>()).results;
+ const db=c.env.DB,project=c.req.param('project')!,rows=(await s(db,'SELECT * FROM grouping_proposals WHERE project=? ORDER BY created DESC,id',project).all<any>()).results;
  return c.json(await Promise.all(rows.map(async row=>{
   if(['proposed','approved'].includes(row.state)&&await proposalStale(db,row))row={...row,state:'stale'};
   return c.get('proposalOwner')?parsed(row):summary(row);
@@ -31,7 +31,7 @@ routes.get('/',async c=>{
 });
 routes.post('/',async c=>{
  if(!c.get('proposalAgent'))return c.json({error:'An agent grant submits inert proposals; owner decisions use approve or reject'},403);
- const db=c.env.DB,project=c.req.param('project'),input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
+ const db=c.env.DB,project=c.req.param('project')!,input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
  try{preview=await proposalPreview(db,project,input,id);revisions=await issueRevisions(db,project,input,preview)}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
  const explanation=canonical(await explainProposal(db,{project,input},preview));
@@ -50,7 +50,7 @@ routes.post('/',async c=>{
 });
 routes.get('/:id',async c=>{
  if(!c.get('proposalOwner'))return c.json({error:'Owner-only proposal explanation'},403);
- const db=c.env.DB,row=await s(db,'SELECT * FROM grouping_proposals WHERE project=? AND id=?',c.req.param('project'),c.req.param('id')).first<any>();
+ const db=c.env.DB,row=await s(db,'SELECT * FROM grouping_proposals WHERE project=? AND id=?',c.req.param('project')!,c.req.param('id')).first<any>();
  if(!row)return c.json({error:'Proposal not found'},404);
  if(['proposed','approved'].includes(row.state)&&await proposalStale(db,row))return c.json({...parsed(row),state:'stale'});
  if(!['proposed','approved'].includes(row.state))return c.json(parsed(row));
@@ -60,7 +60,7 @@ routes.get('/:id',async c=>{
 routes.post('/:id/:action',async c=>{
  const session=c.get('proposalOwner');if(!session)return c.json({error:'Only the owner may approve or reject'},403);
  const action=c.req.param('action');if(!['approve','reject'].includes(action))return c.notFound();
- const db=c.env.DB,project=c.req.param('project'),row=await s(db,'SELECT * FROM grouping_proposals WHERE project=? AND id=?',project,c.req.param('id')).first<any>();
+ const db=c.env.DB,project=c.req.param('project')!,row=await s(db,'SELECT * FROM grouping_proposals WHERE project=? AND id=?',project,c.req.param('id')).first<any>();
  if(!row)return c.json({error:'Proposal not found'},404);
  if(row.state!=='proposed')return c.json({error:'Proposal state conflict'},409);
  if(await proposalStale(db,row)){

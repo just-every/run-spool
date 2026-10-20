@@ -9,7 +9,7 @@ type Snapshot={id:string;revision:number;count:number;after:number};
 type Plan={version:1;project:string;kind:'split'|'merge';moves:Move[];issues:Snapshot[];target:string;fingerprint:string|null};
 const revision=(db:D1Database,project:string,item:Snapshot,undo=false)=>guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=? AND count=?)',project,item.id,item.revision+(undo?1:0),undo?item.after:item.count);
 routes.get('/:project/corrections',async c=>{const auth=await authorize(c);if('response' in auth)return auth.response;return c.json((await s(c.env.DB,'SELECT * FROM grouping_corrections WHERE project=? ORDER BY created DESC,id',c.req.param('project')).all()).results.map((row:any)=>({...row,plan:JSON.parse(row.plan)})))});
-export async function previewCorrection(db:D1Database,project:string,b:any,id=crypto.randomUUID()){
+export async function previewCorrection(db:D1Database,project:string,b:any,id:string=crypto.randomUUID()){
 
  if(!['split','merge'].includes(b.kind)||typeof b.source!=='string'||!Number.isSafeInteger(b.revision))throw new Error('Invalid correction');
  const source=await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,b.source).first<any>();
