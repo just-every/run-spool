@@ -34,6 +34,8 @@ export const prefixStatement = (db: D1Database, prefix: string, project: string,
  * migration 0059 numbered existing data, so a restore of an older archive yields
  * the IDs its upgraded source holds. Rows of issues an import undo removed go. */
 export async function ensureShortIds(db: D1Database, project?: string) {
+ // An erasure deletes in several steps; never give a project being erased a new prefix or ID.
+ if (await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first()) return;
  const scope = project === undefined ? '' : ' AND i.project=?', args = project === undefined ? [] : [project];
  const projects = (await db.prepare(`SELECT id,created FROM projects i WHERE NOT EXISTS(SELECT 1 FROM short_id_prefixes p WHERE p.project=i.id)${project === undefined ? '' : ' AND i.id=?'} ORDER BY created,id`).bind(...args).all<{ id: string; created: number }>()).results;
  const missing = await db.prepare(`SELECT 1 FROM issues i WHERE NOT EXISTS(SELECT 1 FROM issue_short_ids s WHERE s.project=i.project AND s.assigned=i.id)${scope} LIMIT 1`).bind(...args).first();
