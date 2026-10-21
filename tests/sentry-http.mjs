@@ -1,4 +1,4 @@
-import { releaseIdentityFlow } from './release-identity-flow.mjs';
+import { releaseIdentityFlow, team004Flow } from './release-identity-flow.mjs';
 import { groupingRulesFlow } from './grouping-rules-flow.mjs';
 import { investigationFlow } from './investigation-flow.mjs';
 import { fidelityFlow } from './fidelity-flow.mjs';
@@ -76,6 +76,7 @@ try{
   await fidelityFlow({req,json,origin});
   await groupingRulesFlow({req,json,origin,cookie});
   await releaseIdentityFlow({req,json,origin,cookie});
+  await team004Flow({req,json,origin,cookie});
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});

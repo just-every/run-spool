@@ -3,6 +3,7 @@ import { statement as s } from './types';
 import { routeStatements } from './admission';
 import { issueLink, publicOrigin } from './payload';
 import { hash } from '../privacy';
+import { primaryShortIdSql } from '../short-ids/lookup';
 const eligible="e.historical=0 AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence) AND NOT EXISTS(SELECT 1 FROM event_grouping g WHERE g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence)";
 const windowCount=`(SELECT COUNT(*) FROM events e WHERE e.project=issues.project AND e.issue=issues.id AND ${eligible} AND e.received>=? AND e.received<?)`;
 export async function evaluateSpikes(env:AlertEnvironment,time:number) {
@@ -22,7 +23,7 @@ export async function evaluateSpikes(env:AlertEnvironment,time:number) {
     // The cursor fences erased window evidence, but retention can also change a
     // headline from an earlier occurrence outside this wholly retained window.
     // Read that diagnostic text in the admission transaction, never before it.
-    jobs.push(s(env.DB,`INSERT INTO alerts(id,project,issue,kind,created,payload) SELECT ?,project,id,'spike',?,json_set(?,'$.title',title,'$.window.count',${windowCount})
+    jobs.push(s(env.DB,`INSERT INTO alerts(id,project,issue,kind,created,payload) SELECT ?,project,id,'spike',?,json_set(?,'$.title',title,'$.window.count',${windowCount},'$.shortId',${primaryShortIdSql('issues')})
      FROM issues WHERE id=? AND project=? AND algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1') AND state<>'suppressed'
      AND ${windowCount}>=?
      AND EXISTS(SELECT 1 FROM alert_cursors c JOIN alert_rules r ON r.id=c.rule_id AND r.revision=c.revision WHERE c.rule_id=? AND c.revision=? AND c.next_start=? AND r.enabled=1)

@@ -62,6 +62,11 @@ try{
   const current=(await json(`/api/projects/${importedProject.id}/issues`))[0];await json(`/api/projects/${importedProject.id}/issues/${current.id}`,'PATCH',{state:'acknowledged',revision:current.revision});
   await assert.rejects(cli('undo','--organization','fixture-org','--plan',secondPlan.planId),error=>/HTTP 409/.test(error.message),'guarded undo refuses to overwrite a native edit');
   assert.equal((await json(`/api/projects/${importedProject.id}/issues`))[0].state,'acknowledged','guarded undo preserves native edit');
+  // TEAM-004: imported history has a short ID; a commit citing it is logged inaccessible and changes nothing.
+  const imported=(await json(`/api/projects/${importedProject.id}/issues`))[0];assert.match(imported.short_id,/^[A-Z0-9-]+-1$/);
+  await json(`/api/projects/${importedProject.id}/releases`,'POST',{name:'native-cite',build:'b1',commits:[{sha:'e'.repeat(40),message:`Fixes ${imported.short_id.toLowerCase()}`,author:{name:'Importer',email:'importer@example.test'}}]});
+  assert.deepEqual((await json(`/api/projects/${importedProject.id}/commits/link-log`)).rows.map(r=>[r.citation,r.reason]),[[`Fixes ${imported.short_id.toLowerCase()}`,'inaccessible']]);
+  assert.deepEqual((await json(`/api/projects/${importedProject.id}/issues`))[0],imported,'a citation of imported history changes nothing');
   const nativeArchive=await (await req('/api/archive')).arrayBuffer();
   await req('/auth/signout','POST',{});
   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);

@@ -21,15 +21,19 @@ export function useProjectData(project: string, view: View, selected: string | u
   useEffect(() => {
     setPacket(null); setPanels(null); setPacketStatus('idle'); if (!project || !selected) return;
     let alive = true; setPacketStatus('loading');
-    setPanels(loadIssuePanels(project, selected, request));
+    // A short ID deep link learns its issue from the packet before the panels start.
+    const stored = /^[a-f0-9]{64}$/.test(selected);
+    if (stored) setPanels(loadIssuePanels(project, selected, request));
     request(`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(selected)}/packet`).then(result => {
       if (!alive) return;
-      if (result.project !== project || result.issue?.id !== selected || result.issue?.project !== project) throw new Error('Issue evidence belongs to another destination.');
+      if (!stored && result.issue?.project === project) setPanels(loadIssuePanels(project, result.issue.id, request));
+      // A short ID or alias deep link reads its current issue (TEAM-004).
+      if (result.project !== project || (result.issue?.id !== selected && result.shortIdRequest?.requested !== selected) || result.issue?.project !== project) throw new Error('Issue evidence belongs to another destination.');
       setPacket(result); setPacketStatus('ready');
     }).catch(() => { if (alive) setPacketStatus('error'); });
     return () => { alive = false; };
   }, [project, selected, refreshCount, request]);
   const scoped = data?.project === project ? data : null;
   return { issues: issues.rows, releases: scoped?.releases ?? [], keys: scoped?.keys ?? [], outcomes: scoped?.outcomes ?? null,
-    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: issues.failed || failed, panels, packet: packet?.project === project && packet?.issue?.id === selected ? packet : null, packetStatus };
+    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: issues.failed || failed, panels, packet: packet?.project === project && (packet?.issue?.id === selected || packet?.shortIdRequest?.requested === selected) ? packet : null, packetStatus };
 }

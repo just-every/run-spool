@@ -7,6 +7,7 @@ import { retentionAlertStatements } from './alerts/spikes';
 import { withdrawAlertEvidence, RETAINED_HEADLINE } from './alerts/retention';
 import { retentionExposureStatements } from './exposure/retention';
 import { feedbackRetentionStatements } from './feedback/custody';
+import { commitRetentionStatements } from './commits/retention';
 
 type Candidate = Record<string, string>;
 const predicates = {
@@ -71,6 +72,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',(SELECT COUNT(*) FROM events WHERE project=? AND received<?),'dedupHorizon',?),?", auditId, project, cutoff, project, cutoff, cutoff, Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...feedbackJobs,
+  ...commitRetentionStatements(db,project,cutoff,Date.now()),
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
   guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),

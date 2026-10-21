@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 // Unique canaries for one journey. Each is plain text that the scrubber keeps,
 // so its absence afterwards is erasure, not redaction.
 const run=createHash('sha256').update(crypto.randomUUID()).digest('hex').slice(0,10).toUpperCase();
-export const canary=Object.fromEntries(['NAME','EVENT','MAP','RECIPIENT','LABEL','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','CAP','MOBILE','FEEDBACK'].map(kind=>[kind,`ERASECANARY${kind}${run}`]));
+export const canary=Object.fromEntries(['NAME','EVENT','MAP','RECIPIENT','LABEL','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','CAP','MOBILE','FEEDBACK','COMMIT','AUTHOR'].map(kind=>[kind,`ERASECANARY${kind}${run}`]));
 export const organization='erase-org',slug='canary-web';
 export const capProject=`cap-${run.toLowerCase()}`,mobileProject=`mobile-${run.toLowerCase()}`;
 // The same derivation the importer uses for a Sentry project's native identifier.

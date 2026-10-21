@@ -23,7 +23,7 @@ try{
  stage='plant';const planted=await plantCanary(app),mobile=await plantMobile(app);
  const needles=[...Object.values(canary),importedProject,mobile.project];
  const before=scanDatabase(app.checkout.root,Object.values(canary));
- for(const kind of ['NAME','EVENT','MAP','RECIPIENT','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','MOBILE','FEEDBACK'])assert.ok(before.found.some(row=>row.needle===canary[kind]),`canary ${kind} is planted in D1`);
+ for(const kind of ['NAME','EVENT','MAP','RECIPIENT','TITLE','REPAIR','IMPORTTITLE','ORIGINAL','MOBILE','FEEDBACK','COMMIT','AUTHOR'])assert.ok(before.found.some(row=>row.needle===canary[kind]),`canary ${kind} is planted in D1`);
  const pre=await app.archive();assert.deepEqual(scanText(pre.text,[canary.NAME,canary.EVENT,canary.MAP]).length,3,'the pre-erasure archive holds the canaries');
  // The other project from the same Sentry export is unrelated and must stay exactly as it was.
  const erased=[importedProject,mobile.project];

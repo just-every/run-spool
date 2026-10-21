@@ -27,7 +27,10 @@ try {
  await app.schedule(Date.now());
  let logs=await app.json(deliveryPath+'/deliveries');assert.equal(logs.length,2);assert.ok(logs.some(r=>r.channel==='mail'&&r.state==='accepted'));assert.ok(logs.some(r=>r.channel==='webhook'&&r.state==='accepted'));assert.equal(inbox.effects(),1);
  const outbox=await app.db.prepare("SELECT COUNT(*) n FROM rer_mail_development_outbox WHERE message LIKE '%Spool new issue%'").first();assert.equal(outbox.n,0);
- const payload=JSON.parse(inbox.requests[0].body);assert.equal(payload.issueId,admitted.issue);assert.equal(payload.release.name,'r1');assert.ok(!inbox.requests[0].body.includes('HIDDEN_ALERT_CANARY'));
+ const payload=JSON.parse(inbox.requests[0].body);assert.equal(payload.issueId,admitted.issue);assert.equal(payload.release.name,'r1');
+ // TEAM-004: the webhook body and the alert email name the issue's short ID.
+ const shortId=(await app.json('/api/projects/web/issues')).find(row=>row.id===admitted.issue).short_id;assert.match(shortId,/^WEB-[0-9A-Z]+$/);assert.equal(payload.shortId,shortId);
+ assert.ok(JSON.parse((await app.db.prepare("SELECT message FROM alert_mail_jobs WHERE project='web' ORDER BY id LIMIT 1").first()).message).text.includes('Short ID: '+shortId));assert.ok(!inbox.requests[0].body.includes('HIDDEN_ALERT_CANARY'));
  for(const secret of ['alert-owner@example.com','synthetic-key-no-provider-call',app.bindings.ALERT_DESTINATION_HASH_KEY])assert.ok(!JSON.stringify(await app.json(deliveryPath+'/destinations')).includes(secret));
  // A forced admission failure rolls back the actual issue/feed/intent transaction.
  await app.db.prepare("CREATE TRIGGER fixture_reject BEFORE INSERT ON events WHEN NEW.id='rollback' BEGIN SELECT RAISE(ABORT,'fixture_failure'); END").run();

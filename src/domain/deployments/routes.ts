@@ -9,6 +9,10 @@ import { findDestination } from '../alerts/destinations.server';
 import { sender } from '../alerts/mail';
 import { startInput,stepInput } from './input';
 import { auditCommit } from '../audit/context';
+import { commitsInput } from '../commits/input';
+import { commitStatements, citationSummary } from '../commits/register';
+import { readReleasePolicy } from '../releases/policy';
+import { ensureShortIds } from '../short-ids/assign';
 const routes=new Hono<{Bindings:Bindings}>();
 const s=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 routes.get('/:project/deployments',async c=>{
@@ -19,11 +23,12 @@ routes.get('/:project/deployments',async c=>{
 });
 routes.post('/:project/deployments',async c=>{
  const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
- const b=await jsonBody(c.req.raw,65536),input=startInput(b),release=releaseIdentity(b.release),db=c.env.DB;
+ const b=await jsonBody(c.req.raw,524288),input=startInput(b),release=releaseIdentity(b.release),db=c.env.DB,commits=commitsInput(b.includedCommits);
  const old=await s(db,'SELECT * FROM deployment_runs WHERE project=? AND id=?',project,input.id).first<any>();
  const values={release,build:input.build,environment:input.environment,repository:input.repository,commit_sha:input.commit_sha,previous_commit:input.previous_commit,included_commits:input.included_commits,started_at:input.deployed_at,deadline:input.deadline,destination:input.destination};
  if(old){await deployBatch(c,auth,[]);return Object.entries(values).every(([key,value])=>old[key]===value)?c.json({id:input.id},200):c.json({error:'Deployment identity conflicts'},409)}
  await findDestination(c.env,project,input.destination,'mail');sender(c.env);
+ if(commits.length){await readReleasePolicy(db,project);await ensureShortIds(db,project)}
  const time=Date.now(),digest=await hash(canonical(values));
  await deployBatch(c,auth,[
   s(db,'INSERT INTO spool_authority_guards SELECT CASE WHEN EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_builds WHERE project=? AND release=? AND build=? AND registered=1))) THEN 1 ELSE 0 END',project,release,input.build,project,release,input.build),
@@ -31,8 +36,9 @@ routes.post('/:project/deployments',async c=>{
   s(db,"INSERT INTO deployment_steps VALUES(?,?, 'start',1,'started',0,NULL,?,?,?,?)",project,input.id,input.deployed_at,time,auth.actor,digest),
   s(db,'UPDATE release_metadata SET auto_created=0 WHERE project=? AND release=?',project,release),
   auditCommit(db),
+  ...commitStatements(db,project,release,'deployment',commits,time),
  ]);
- return c.json({id:input.id},201);
+ return c.json({id:input.id,...commits.length?{citations:await citationSummary(db,project,commits)}:{}},201);
 });
 routes.post('/:project/deployments/:deployment/callbacks',async c=>{
  const project=c.req.param('project'),id=c.req.param('deployment'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;

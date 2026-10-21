@@ -11,6 +11,7 @@ import { parseSentryOrganization, mappingVersion, sourceText } from './source';
 import { organizationMapping } from './mapping';
 import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
+import { ensureShortIds } from '../short-ids/assign';
 
 /** Spool's one import pipeline: the owner's Sentry importer (owner session,
  * `/api/operator/import/*`) and Business (signed grants, `/api/rer/import/*`)
@@ -110,7 +111,8 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
 
 export async function importDoorResponse(request: Request, env: ManagedBindings) {
  const path = new URL(request.url).pathname;
- if (path.startsWith(grantPrefix)) return grantResponse(request, env);
- if (path.startsWith(operatorPrefix)) return operatorResponse(request, env);
- return null;
+ const response = path.startsWith(grantPrefix) ? await grantResponse(request, env) : path.startsWith(operatorPrefix) ? await operatorResponse(request, env) : null;
+ // Imported issues take short IDs in first-seen order; issues an undo removed release theirs (TEAM-004).
+ if (response?.ok && request.method === 'POST') await ensureShortIds(env.DB);
+ return response;
 }

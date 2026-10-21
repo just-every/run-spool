@@ -10,6 +10,8 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
+ // TEAM-004: a cited commit's author is matched like any captured value, as whole tokens.
+ commits: ['author_name','author_email','message'],
 };
 const jsonColumns = new Set(['payload','diagnostic','spec','observation','checks','grant_spec','detail']);
 const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';

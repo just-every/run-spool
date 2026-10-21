@@ -152,3 +152,14 @@ span.frame-function{font-family:var(--font-text)}
 .grouping-explanation :is(ul,ol){padding-left:22px}
 .grouping-explanation li+li{margin-top:12px}
 .grouping-proposals .callout{min-width:0}
+
+/* TEAM-004 short IDs and the commit timeline. */
+.short-id{display:inline-block;margin:0 8px 6px 0;padding:1px 8px;border:var(--inner-border);border-radius:var(--radius-input);font:600 13px/1.5 var(--font-code);letter-spacing:.02em;white-space:nowrap}
+.issue-status .short-id{margin-bottom:0}
+.timeline{margin:12px 0;padding:0;list-style:none;border:var(--inner-border);border-radius:var(--radius-input)}
+.timeline>li{padding:12px 14px;overflow-wrap:anywhere}
+.timeline>li+li{border-top:var(--hairline-border)}
+.timeline p{margin:0 0 4px}
+.commit-message{font:400 14px/1.5 var(--font-code)}
+.short-id-aliases{margin-bottom:16px}
+.link-log q,.link-log code{white-space:nowrap}

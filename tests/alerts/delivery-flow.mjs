@@ -51,7 +51,10 @@ export async function deliveryFlow(inbox){
   await app.json(base+'/snoozes','POST',{scope:'issue',target:created.issue,until:expiry});
   for(let n=0;n<3;n++)await app.json('/api/ingest/web','POST',event('snooze-'+n,{frames:[{file:`https://app.example.com/burst-${n}.js`,line:1,column:0,function:'burst'}]}),auth);
   assert.equal((await app.json(base+'/controls')).snoozes.find(r=>r.id===z.id).suppressed,4);assert.equal((await app.json(base+'/deliveries')).filter(r=>r.state==='snoozed').length,4);
-  const settings={timezone:'America/New_York',destination:d.id,daily:true,weekly:true,personal_daily:true,personal_weekly:false,hour:9,quiet_start:22,quiet_end:7};
+  // Web's one quiet hour avoids every time this run reaches (now, and 09:00-10:59 New York for the digests), so the
+  // post-expiry delivery below is never held by the wall clock. The other project proves quiet hours hold work.
+  const newYorkHour=time=>Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',hourCycle:'h23'}).format(time)),nyHour=newYorkHour(Date.now()),quietStart=[3,4,5,6].map(d=>(nyHour+d)%24).find(h=>h!==9&&h!==10);
+  const settings={timezone:'America/New_York',destination:d.id,daily:true,weekly:true,personal_daily:true,personal_weekly:false,hour:9,quiet_start:quietStart,quiet_end:(quietStart+1)%24};
   assert.equal((await app.request(base+'/digest-settings','PUT',{...settings,timezone:'invalid/timezone'})).status,400);
   await app.json(base+'/digest-settings','PUT',settings);
   const invalid=await app.request('/api/ingest/web','POST',{version:1,eventId:'loss-during-snooze'},auth);assert.ok(invalid.status>=400);
@@ -63,8 +66,10 @@ export async function deliveryFlow(inbox){
   const resumed=await app.json('/api/ingest/web','POST',event('after-snooze-expiry',{frames:[{file:'https://app.example.com/resumed.js',line:1,column:0,function:'resumed'}]}),auth);
   assert.ok((await app.json(base+'/deliveries')).some(d=>d.issue===resumed.issue&&d.channel==='mail'&&d.state==='accepted'),'an expired snooze never suppresses later work again');assert.equal((await app.json(base+'/controls')).held.filter(h=>!h.released_at).length,4);
 
-  const nextMorning=Date.parse(new Date(Date.now()+86400000).toISOString().slice(0,10)+'T14:00:00Z'),digestReceipts=await app.json('/api/projects/web/outcomes');await app.schedule(nextMorning);
-  const dayDigest=(await app.json(base+'/controls')).digests.find(d=>d.kind==='daily'&&d.scope==='project');assert.ok(dayDigest);for(const receipt of digestReceipts.rows)assert.ok(dayDigest.body.includes(`${receipt.reason}: ${receipt.count}`),'digest preserves capture receipts during snooze');
+  // The completed New York daily period this digest reports ends at the first 09:00 after now, so it holds this run whatever the wall clock.
+  let periodEnd=Math.floor(Date.now()/3600000+1)*3600000;while(newYorkHour(periodEnd)!==9)periodEnd+=3600000;
+  const nextMorning=periodEnd+3600000,digestReceipts=await app.json('/api/projects/web/outcomes');await app.schedule(nextMorning);
+  const dayDigest=(await app.json(base+'/controls')).digests.find(d=>d.kind==='daily'&&d.scope==='project');assert.ok(dayDigest);for(const receipt of digestReceipts.rows)assert.ok(dayDigest.body.includes(`${receipt.reason}: ${receipt.count}`),'digest preserves capture receipts during snooze');assert.match(dayDigest.body,/\nWEB-[0-9A-Z]+ [a-f0-9]{64}: /,'TEAM-004 digest work names short IDs');
   assert.ok((await app.json('/api/projects/web/follow-up')).rows.some(r=>r.reason.startsWith('capture_loss_')&&r.capture_loss>0));
   // New York falls back on 1 November: this completed daily period has 25 hours.
   const dst=Date.parse('2026-11-02T14:00:00Z');await Promise.all([app.schedule(dst),app.schedule(dst+1000)]);await app.schedule(dst+3600000);

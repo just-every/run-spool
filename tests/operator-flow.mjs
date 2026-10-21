@@ -31,12 +31,20 @@ export async function operatorFlow({req,json}){
  assert.deepEqual(await receipts(),before,'correction creates no loss counters, alert or delivery history');
  const moved=await readArchive();for(const e of originalEvents){const now=moved.data.events.find(r=>r.project===e.project&&r.id===e.id);assert.deepEqual({...now,issue:e.issue},e,'payload, digest, diagnostic, timestamps, occurrence and historical flag are immutable')}
  const retry=await admit(falseMerge.case.events[1].event);assert.equal(retry.outcome,'duplicate');assert.equal(retry.issue,preview.plan.target);
+ // TEAM-004: the original keeps its short ID, the split-out issue takes the next one, and undo returns it to the original.
+ const shortIds=async()=>Object.fromEntries((await json(`${p}/issues`)).map(i=>[i.id,i.short_id])),splitIds=await shortIds();
+ assert.ok(splitIds[source]&&splitIds[preview.plan.target]&&splitIds[source]!==splitIds[preview.plan.target]);assert.equal((await packet(splitIds[preview.plan.target])).issue.id,preview.plan.target);assert.equal((await packet(splitIds[source])).issue.id,source);
  await json(`${p}/corrections/${preview.id}/undo`,'POST',{confirm:true});assert.equal((await packet(source)).issue.count,current.issue.count);
+ assert.equal((await packet(splitIds[source])).issue.short_id,splitIds[source],'the original ID never moves');assert.equal((await packet(splitIds[preview.plan.target])).issue.id,source,'undo: the split-out ID resolves where its occurrences returned');
  const from=falseSplit.results[1].issue,to=falseSplit.results[0].issue,a=await packet(from),b=await packet(to);
  const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:to,targetRevision:b.issue.revision});
  assert.deepEqual(merge.plan.issues.map(i=>[i.count,i.after]),[[a.issue.count,0],[b.issue.count,b.issue.count+a.issue.count]]);
  await json(`${p}/corrections/${merge.id}/apply`,'POST',{confirm:true});assert.equal((await packet(to)).issue.count,b.issue.count+a.issue.count);
+ // TEAM-004: the absorbed short ID is an alias of the survivor in packets and search; guarded undo restores it.
+ const merged=await packet(a.issue.short_id.toLowerCase());assert.deepEqual([merged.issue.id,merged.shortIdRequest.alias,merged.issue.short_id_aliases],[to,true,[a.issue.short_id]]);
+ assert.deepEqual((await json(`${p}/issue-search?q=${a.issue.short_id}`)).rows.map(r=>r.id),[to]);assert.equal((await packet(from)).issue.short_id_resolves_to,b.issue.short_id);
  await json(`${p}/corrections/${merge.id}/undo`,'POST',{confirm:true});assert.equal((await packet(from)).issue.count,a.issue.count);
+ const unmerged=await packet(a.issue.short_id);assert.deepEqual([unmerged.issue.id,unmerged.shortIdRequest.alias,unmerged.issue.short_id_aliases],[from,false,[]],'undo restores the pre-merge mapping');
  // Stale previews and stale undo cannot overwrite newer triage or assignment.
  current=await packet(source);const stale=await json(`${p}/corrections/preview`,'POST',{kind:'split',source,revision:current.issue.revision,events:[selected]});
  await json(`${p}/issues/${source}/assignment`,'PATCH',{revision:current.issue.revision,label:'Triage operator'});

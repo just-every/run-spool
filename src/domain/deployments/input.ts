@@ -10,7 +10,8 @@ export function startInput(b:any) {
  const manifest=deploymentInput({commitSha:b.commitSha,repository:b.repository,environment:b.environment,deployedAt:b.startedAt});
  const id=identity(b.id,'deployment'),build=storedBuild(b.build),deadline=timestamp(b.deadline);
  if(deadline<manifest.deployed_at)throw new Error('Deadline must follow deployment start');
- const previous=b.previousCommit??null,commits=b.includedCommits;
+ // A commit may carry its message and author (TEAM-004); the run records the SHAs.
+ const previous=b.previousCommit??null,commits=Array.isArray(b.includedCommits)?b.includedCommits.map((value:any)=>value&&typeof value==='object'&&!Array.isArray(value)?value.sha:value):b.includedCommits;
  if(previous!==null&&!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(previous))throw new Error('Full previous commit SHA required');
  if(!Array.isArray(commits)||commits.length<1||commits.length>500||commits.some(v=>typeof v!=='string'||!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(v))||new Set(commits).size!==commits.length||commits.at(-1)!==manifest.commit_sha)throw new Error('Supply the ordered included commit SHAs ending at the deployment commit (1–500); ancestry is caller recorded');
  const destination=identity(b.destination,'email destination');

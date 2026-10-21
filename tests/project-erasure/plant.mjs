@@ -39,6 +39,8 @@ export async function plantCanary(app){
  for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:channel==='mail',channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2});
  const keys={ingest:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'ingest'})).key,agent:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'})).key,deploy:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key};
  await app.json(`/api/projects/${project}/releases`,'POST',{name:'r1',build:'b1'});
+ // TEAM-004: a deploy-key commit whose message and author are personal data.
+ await app.json(`/api/projects/${project}/releases`,'POST',{name:'r2',build:'b2',commits:[{sha:'c'.repeat(40),message:`Refactor ${canary.COMMIT}`,author:{name:`Author ${canary.AUTHOR}`,email:`${canary.AUTHOR.toLowerCase()}@private.example`}}]},{agent:keys.deploy});
  await app.json(`/api/projects/${project}/artifacts`,'POST',{release:'r1',build:'b1',debugId:'erase-map',map:sourceMap()});
  await app.json(`/api/projects/${project}/browser-origins`,'POST',{origin:'https://canary.example'});
  const ingested=Date.now(),first=await ingest(app,project,keys.ingest,event('erase-title',canary.TITLE));

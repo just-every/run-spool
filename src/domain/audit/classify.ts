@@ -29,6 +29,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/release-policy\/preview$/,methods:['POST'],action:'release.preview',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/release-policy$/,methods:['PUT'],action:'release.policy',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/releases$/,methods:['POST'],action:'release.register',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/commits\/sharing$/,methods:['PUT'],action:'commit.sharing',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/artifacts$/,methods:['POST'],action:'artifact.upload',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/packet$/,action:'evidence.packet',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issue-export$/,action:'evidence.export',kind:'project'},

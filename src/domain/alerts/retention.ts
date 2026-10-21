@@ -36,3 +36,23 @@ export function withdrawAlertEvidence(db: D1Database, project: string, cutoff: n
    `DELETE FROM ${table} WHERE namespace=? AND id IN (${deliveries})`, 'spool.' + project, project)),
  ];
 }
+
+export const SHARED_COMMIT_MARK = '\n\nCommit author and message, shared by the project owner:\n';
+/** A shared alert carried a commit's author and message; once retention removes them from
+ * the commit, its private copies lose them too and an unsent delivery stops. */
+export function withdrawCommitIdentity(db: D1Database, project: string, time: number) {
+ const expired = `json_extract(%,'$.resolution.commit') IN (SELECT sha FROM commits WHERE project=? AND expired IS NOT NULL) AND json_type(%,'$.resolution.author') IS NOT NULL`;
+ const carried = (column: string) => expired.replaceAll('%', column);
+ const deliveries = `SELECT id FROM alert_intents WHERE project=? AND ${carried('body')}`;
+ const text = "json_extract(message,'$.text')", mark = `instr(${text},?)`;
+ return [
+  s(db, `UPDATE alert_mail_jobs SET message=json_set(message,'$.text',substr(${text},1,${mark}-1)),claim=NULL,claim_until=NULL,code='retention_removed',
+   state=CASE WHEN state IN ('queued','blocked') THEN 'blocked' WHEN state='sending' THEN 'uncertain' ELSE state END
+   WHERE project=? AND ${mark}>0 AND id IN (${deliveries})`, SHARED_COMMIT_MARK, project, SHARED_COMMIT_MARK, project, project),
+  s(db, `DELETE FROM rer_mail_development_outbox WHERE json_valid(message) AND json_extract(message,'$.deliveryId') IN (${deliveries})`, project, project),
+  ...['integration_deliveries', 'integration_replays'].map(table => s(db, `DELETE FROM ${table} WHERE namespace=? AND id IN (${deliveries})`, 'spool.' + project, project, project)),
+  s(db, `UPDATE alert_history SET code='retention_removed',updated=?,state=CASE WHEN state IN ('pending','queued','retrying','blocked') THEN 'cancelled' WHEN state='sending' THEN 'uncertain' ELSE state END WHERE project=? AND id IN (${deliveries})`, time, project, project, project),
+  s(db, `UPDATE alert_intents SET body=json_remove(body,'$.resolution.author','$.resolution.message'),state=CASE WHEN state IN ('pending','blocked','queued','snoozed') THEN 'cancelled' ELSE state END,code=CASE WHEN state IN ('pending','blocked','queued','snoozed') THEN 'retention_removed' ELSE code END WHERE project=? AND ${carried('body')}`, project, project),
+  s(db, `UPDATE alerts SET payload=json_remove(payload,'$.resolution.author','$.resolution.message') WHERE project=? AND ${carried('payload')}`, project, project),
+ ];
+}

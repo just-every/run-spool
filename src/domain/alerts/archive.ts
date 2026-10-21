@@ -2,6 +2,7 @@ import {deliveryArchiveTables,deliveryExportRow,validateDeliveryArchive} from '.
 import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
+import { isShortId } from '../short-ids/format';
 export const alertArchiveTables=['alert_rules','alert_history',...deliveryArchiveTables];
 export const alertExcludedTables=['alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
@@ -30,7 +31,11 @@ export function validateAlertArchive(data:any) {
   shape(a,['id','project','issue','kind','created','payload']);label(a.id);integer(a.created);assert(projects.has(a.project)&&issues.get(a.issue)?.project===a.project&&kinds.includes(a.kind)&&!alerts.has(a.id));alerts.set(a.id,a);
   if(a.payload===null){assert(a.kind!=='spike');continue;}
   assert(typeof a.payload==='string'&&a.payload.length<8192);const p=JSON.parse(a.payload);
-  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...(a.kind==='spike'?['window','rule']:[])]);
+  // TEAM-004 alerts name the issue's short ID and, after a commit resolution, its commit.
+  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
+  assert(p.shortId===undefined||p.shortId===null||isShortId(p.shortId)&&p.shortId===p.shortId.toUpperCase());
+  if(p.resolution!==undefined&&p.resolution!==null){const r=p.resolution;shape(r,['release','commit','pr',...('author' in r?['author','message']:[])]);assert(a.kind==='regression'&&typeof r.release==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(r.commit)&&r.pr===null);
+   if('author' in r){shape(r.author,['name','email']);assert([r.author.name,r.author.email,r.message].every(v=>v===null||typeof v==='string'&&v.length<=1000))}}
   assert(p.schema==='spool.alert.v1'&&p.alertId===a.id&&p.kind===a.kind&&p.projectId===a.project&&p.issueId===a.issue&&p.occurredAt===new Date(a.created).toISOString());safe(p.title);
   if(p.issueUrl!==null){assert(typeof p.issueUrl==='string');const origin=publicOrigin(new URL(p.issueUrl).origin);
    // Existing archives retain the original alert bytes, including pre-canonical links.

@@ -21,6 +21,9 @@ import { fenceLegacyOccurrences } from './occurrences';
 import { scrubExportRow } from './stored-text';
 import { isPreviousSchema, readPreviousArchive, normalizePreviousArchive, retireArchiveSetupToken } from './archive-compat';
 import { linkArchiveTables, linkMigrations, emptyLinkTables } from './link-archive';
+import { shortIdTables } from './short-ids/archive';
+import { commitTables } from './commits/archive';
+import { ensureShortIds } from './short-ids/assign';
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
@@ -128,6 +131,9 @@ laterTables.unshift({tables:Object.keys(proposalTables),migrations:['0057_groupi
 const deliveryTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];
 for(const later of laterTables){later.tables.push(...deliveryTables);later.migrations.push('0058_alert_delivery.sql')}
 laterTables.unshift({tables:deliveryTables,migrations:['0058_alert_delivery.sql']});
+const citationTables=[...Object.keys(shortIdTables),...Object.keys(commitTables)];
+for(const later of laterTables){later.tables.push(...citationTables);later.migrations.push('0059_short_ids_commit_citations.sql')}
+laterTables.unshift({tables:citationTables,migrations:['0059_short_ids_commit_citations.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -202,6 +208,13 @@ export async function laterJournalOf(source: ReadableStream<Uint8Array>): Promis
  return later;
 }
 export async function restoreStream(service: any, source: ReadableStream<Uint8Array>, laterJournal?: LaterJournal) {
+ await restoreArchive(service, source, laterJournal);
+ // An archive made before short IDs restores its issues without them: they are numbered
+ // now, in first-seen order, as migration 0059 numbered the source. Current archives keep theirs.
+ await ensureShortIds(service.db);
+}
+/** The archive restore alone, as releases before short IDs ran it. */
+export async function restoreArchive(service: any, source: ReadableStream<Uint8Array>, laterJournal?: LaterJournal) {
  const [probe, input] = source.tee();
  const reader = probe.getReader(); let prefix = '', done = false;
  try {

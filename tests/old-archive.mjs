@@ -8,6 +8,8 @@ import {build} from 'esbuild';
 import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
+// TEAM-004 stores (migration 0059) that the released schema lacks.
+const citationTables = ['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
@@ -47,8 +49,9 @@ try {
  // supplies empty collections only for tables absent from that released schema.
  const upgrade = await target('UPGRADE', released);
  const stagedValidation = transfer.portabilityPolicy.validateStaged;
- transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => ['grouping_proposals','alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'].includes(table) ? Promise.resolve([]) : context.read(table)});
- try { await transfer.restoreStream(await transfer.portability(upgrade), new Response(archive).body); }
+ transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => ['grouping_proposals','alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail',...citationTables].includes(table) ? Promise.resolve([]) : context.read(table)});
+ // The released restore had no short-ID numbering step; its schema has no short-ID tables.
+ try { await transfer.restoreArchive(await transfer.portability(upgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `released baseline is populated through restore: ${table}`);
  const oldTables = await rows(upgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
@@ -62,6 +65,10 @@ try {
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
+ // TEAM-004: migration 0059 gives every existing issue a short ID in first-seen order, per project prefix.
+ const upgradedIds = await rows(upgrade, 'SELECT * FROM issue_short_ids ORDER BY project,number');
+ assert.ok(upgradedIds.length > 0 && upgradedIds.length === (await rows(upgrade, 'SELECT id FROM issues')).length && upgradedIds.every(row => row.issue === row.assigned), 'every upgraded issue has its own short ID');
+ assert.deepEqual((await rows(upgrade, 'SELECT project FROM short_id_prefixes ORDER BY project')).map(row => row.project), (await rows(upgrade, 'SELECT id FROM projects ORDER BY id')).map(row => row.id));
  console.log('PASS populated published release upgrades without rewriting any pre-existing row or table: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
 
  const fresh = await target('FRESH');
@@ -69,6 +76,8 @@ try {
  await transfer.restoreStream(await transfer.portability(fresh), new Response(archive).body);
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(fresh, `SELECT * FROM "${table}"`)), canonicalRows(data), `old archive retains every row in ${table}`);
  for (const table of ['release_metadata', 'release_builds', 'release_policies', 'issue_resolutions', 'grouping_proposals']) assert.deepEqual(await rows(fresh, `SELECT * FROM "${table}"`), []);
+ // TEAM-004: restore numbers the old archive's issues exactly as the migration numbered its upgraded source.
+ for (const table of ['short_id_prefixes', 'issue_short_ids']) assert.deepEqual(await rows(fresh, `SELECT * FROM ${table} ORDER BY 1`), await rows(upgrade, `SELECT * FROM ${table} ORDER BY 1`), `restore and upgrade agree on ${table}`);
  assert.deepEqual(await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name'), ledger, 'destination migration ledger remains intact');
  assert.deepEqual(await rows(fresh, "SELECT phase FROM rer_portability_jobs WHERE kind='import'"), [{phase: 'complete'}]);
  // AUDIT-001: a previous format carries no safe history; any restored journal row gains one value-free legacy

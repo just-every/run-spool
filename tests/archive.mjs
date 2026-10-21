@@ -4,6 +4,9 @@ import { ContentVerifier, ArchiveVerifier } from '../src/modules/portability/for
 import { readArchive } from '../src/modules/portability/index.mjs';
 import { createHash } from 'node:crypto';
 import { canonical } from '../src/domain/privacy.ts';
+import { base32, prefixBase } from '../src/domain/short-ids/format.ts';
+// TEAM-004 stores (migration 0059); an older archive has none of them.
+const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'];
 // Current transport and every occurrence identity stay intact for roundtrips.
 export async function archiveProjection(response) {
  const text=await response.text(),records=[];
@@ -15,7 +18,7 @@ export async function archiveProjection(response) {
 // Deliberate native compatibility fixture, never the current roundtrip format.
 export function nativeArchive(data,version=2) {
  const rows=structuredClone(data);
- for(const table of ['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','grouping_proposals','grouping_routes','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'])delete rows[table];
+ for(const table of ['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','grouping_proposals','grouping_routes','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests',...citationTables])delete rows[table];
  for(const name of ['release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'])delete rows[name];delete rows.grouping_policies;delete rows.feedback;delete rows.inbound_filter_policies;delete rows.sentry_project_aliases;delete rows.sentry_import_targets;delete rows.alert_rules;delete rows.alert_history;delete rows.repairs;delete rows.repair_checks;delete rows.rer_erasure_operations;delete rows.rer_dependency_installation;delete rows.rer_dependency_link;for(const table of ['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'])delete rows[table];
  rows.events=rows.events.map(({occurrence,historical,...row})=>{if(historical)throw new Error('Historical imports require current Base JSONL');return row});
  rows.artifacts=rows.artifacts.map(({occurrence,...row})=>row);
@@ -35,6 +38,10 @@ export function assertLegacyUpgrade(actual,previous) {
  expected.issues=expected.issues.map(row=>{const ceiling=Math.max(0,...expected.releases.filter(release=>release.project===row.project).map(release=>release.seq));return {...row,latest_release_seq:ceiling,resolved_seq:row.state==='resolved'?Math.max(row.resolved_seq??0,ceiling):row.resolved_seq}});
  expected.alerts=expected.alerts.map(row=>({...row,payload:null}));expected.alert_rules=[];expected.alert_history=[];expected.repairs=[];expected.repair_checks=[];expected.rer_erasure_operations=[];expected.sentry_import_targets=[];expected.rer_dependency_installation=[];expected.rer_dependency_link=[];for(const table of ['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'])expected[table]=[];
  expected.sentry_project_aliases=expected.projects.map((project,index)=>({id:index+1,project:project.id}));
+ // Upgrade (migration 0059) and restore number old projects and issues alike: prefixes in creation order, issues in first-seen order.
+ for(const table of citationTables)expected[table]=[];const bases=new Map(),byTime=(a,b,time)=>a[time]-b[time]||(a.id<b.id?-1:a.id>b.id?1:0);
+ for(const project of [...expected.projects].sort((a,b)=>byTime(a,b,'created'))){const base=prefixBase(project.id),n=(bases.get(base)??0)+1,prefix=n===1?base:`${base}_${n}`,issues=expected.issues.filter(issue=>issue.project===project.id).sort((a,b)=>byTime(a,b,'first_seen'));bases.set(base,n);
+  expected.short_id_prefixes.push({prefix,project:project.id,next:issues.length+1,created:project.created});issues.forEach((issue,index)=>expected.issue_short_ids.push({short_id:`${prefix}-${base32(index+1)}`,project:project.id,issue:issue.id,assigned:issue.id,number:index+1,created:issue.first_seen}));}
  const sorted=data=>Object.fromEntries(Object.entries(data).map(([table,rows])=>[table,rows.map(row=>canonical(row)).sort()]));
  assert.ok(isDeepStrictEqual(sorted(actual),sorted(expected)),'every original field and row survives; migrated event/map identities are legacy');
 }

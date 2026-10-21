@@ -9,7 +9,9 @@ export function eventQuery(query: string) {
   const split=term.indexOf(':'),key=split<0?'text':term.slice(0,split),value=(split<0?term:term.slice(split+1)).replace(/^"|"$/g,'');
   if(!value)throw new Error(`Search value required for ${key}`);
   switch(key){
-   case 'text': contains(`json_extract(e.payload,'$.message')||' '||json_extract(e.payload,'$.type')||' '||e.issue||' '||json_extract(e.payload,'$.frames')||' '||COALESCE(json_extract(e.payload,'$.sentry.exceptions'),'')`,value);break;
+   case 'text': contains(`json_extract(e.payload,'$.message')||' '||json_extract(e.payload,'$.type')||' '||e.issue||' '||json_extract(e.payload,'$.frames')||' '||COALESCE(json_extract(e.payload,'$.sentry.exceptions'),'')`,value);
+    // TEAM-004: an exact short ID or alias, in any case, finds the issue it resolves to.
+    clauses.push(`(${clauses.pop()} OR EXISTS(SELECT 1 FROM issue_short_ids s WHERE s.short_id=upper(?) AND s.project=e.project AND s.issue=e.issue))`);args.push(value);break;
    case '!has':if(value!=='release')throw new Error('Only !has:release is supported');clauses.push("e.release=''");break;
    case 'has':if(value!=='release')throw new Error('Only has:release is supported');clauses.push("e.release<>''");break;
    case 'release': usesLatest ||= value==='latest';clauses.push(value==='latest'?`e.release=${latestReleaseSql('e.project')}`:'e.release=?');if(value!=='latest')args.push(value);break;

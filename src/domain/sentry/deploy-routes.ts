@@ -9,6 +9,10 @@ import { canonical, hash, identity } from '../privacy';
 import { validateMap } from '../artifacts';
 import { authorizeDeploy, deployBatch } from './deploy.ts';
 import { sourceMapMetadata } from './map-metadata.ts';
+import { commitsInput } from '../commits/input';
+import { commitStatements, citationSummary } from '../commits/register';
+import { readReleasePolicy } from '../releases/policy';
+import { ensureShortIds } from '../short-ids/assign';
 const routes=new Hono<{Bindings:Bindings}>();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function readBody(request:Request,limit:number){
@@ -25,7 +29,9 @@ async function failure(c:any,project:string,error:unknown){
 }
 routes.post('/:project/releases',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,32768),name=releaseIdentity(b.name),build=storedBuild(b.build),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest);
+  // Included commits (TEAM-004) may each carry a message and author; bare SHAs carry no citation.
+  const b=await readBody(c.req.raw,524288),name=releaseIdentity(b.name),build=storedBuild(b.build),db=c.env.DB,time=Date.now(),manifest=b.manifest===undefined?null:deploymentInput(b.manifest),commits=commitsInput(b.commits);
+  if(commits.length){await readReleasePolicy(db,project);await ensureShortIds(db,project)}
   try{
     const result=await deployBatch(c,auth,[
       stmt(db,"INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM releases WHERE project=? AND name=?) OR EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name AND m.auto_created=1) OR EXISTS(SELECT 1 FROM release_builds b WHERE b.project=releases.project AND b.release=releases.name AND b.build=?))) THEN 1 ELSE 0 END",project,name,project,name,build,build),
@@ -40,9 +46,10 @@ routes.post('/:project/releases',async c=>{
        ...mappingStatements(db,project,name,build,manifest.environment,manifest.pathMappings),
        stmt(db,"INSERT INTO audit SELECT ?,?,'deployment_registered',?,? WHERE changes()=1",crypto.randomUUID(),project,JSON.stringify({release:name,environment:manifest.environment}),time),
       ]:[]),
+      ...commitStatements(db,project,name,'release',commits,time),
     ]);
     const row=await stmt(db,'SELECT name,build,seq FROM releases WHERE project=? AND name=?',project,name).first();
-    return c.json({...row,manifest},result[2].meta.changes?201:200);
+    return c.json({...row,manifest,...commits.length?{citations:await citationSummary(db,project,commits)}:{}},result[2].meta.changes?201:200);
   }catch(error){return failure(c,project,error)}
 });
 routes.post('/:project/artifacts',async c=>{

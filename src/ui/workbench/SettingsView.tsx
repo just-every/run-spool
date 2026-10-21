@@ -1,5 +1,6 @@
 import { AuditHistory } from './AuditHistory';
 import { ReleasePolicy } from './ReleasePolicy';
+import { CommitSharing } from './CommitSharing';
 import { GroupingRules } from './GroupingRules';
 import { GroupingProposals } from './GroupingProposals';
 import { useEffect, useState } from 'react';
@@ -30,6 +31,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&<GroupingRules key={`grouping:${project}`} {...{project,request,run,busy}} approvedPreview={rulePreview?.project===project?rulePreview.preview:null} onSaved={()=>{setProposalVersion(value=>value+1);refresh();}}/>}
     {!!project&&<GroupingProposals key={`proposals:${project}`} {...{project,request,run,busy,refresh}} refreshVersion={proposalVersion} onRulePreview={preview=>setRulePreview({project,preview})}/>}
     {!!project&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
+    {!!project&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}
     <SchedulerStatus />
     {!!project&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&<InboundFilters key={project} {...{project,request,run,busy}}/>}

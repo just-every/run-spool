@@ -12,12 +12,24 @@ export function releaseProjection(value: any) {
  const row = object(value);
  return row ? { name: text(row.name), build: text(row.build), sequence: number(row.sequence) } : null;
 }
-export function alertPayload(value: any) {
+const shared = (value: unknown, limit: number) => typeof value === 'string' ? value.slice(0, limit) : null;
+// Commit author and message leave the owner session only by the owner's sharing choice.
+function commitResolution(value: any, share: boolean) {
+ const row = object(value);
+ if (!row) return null;
+ const author = object(row.author);
+ return { release: text(row.release), commit: text(row.commit), pr: row.pr == null ? null : text(row.pr),
+  // The owner chose to share these as sent; scrubbing would mask the very address shared.
+  ...(share && 'author' in row ? { author: author ? { name: shared(author.name, 200), email: shared(author.email, 320) } : null, message: shared(row.message, 1000) } : {}) };
+}
+export function alertPayload(value: any, share = false) {
  const row = object(value);
  if (!row) return null;
  const window = object(row.window);
  const rule = object(row.rule);
  return {
+  ...(typeof row.shortId === 'string' ? { shortId: text(row.shortId) } : {}),
+  ...(row.resolution ? { resolution: commitResolution(row.resolution, share) } : {}),
   schema: text(row.schema), alertId: text(row.alertId), kind: text(row.kind), projectId: text(row.projectId),
   issueId: text(row.issueId), occurredAt: text(row.occurredAt), ...(typeof row.title === 'string' ? { title: text(row.title, 1000) } : {}),
   release: releaseProjection(row.release),
@@ -35,6 +47,7 @@ export function issueProjection(row: any) {
  let releases: unknown = [];
  try { releases = typeof row.releases === 'string' ? JSON.parse(row.releases) : row.releases; } catch { /* No known release list. */ }
  return {
+  short_id:row.short_id==null?null:text(row.short_id),short_id_aliases:Array.isArray(row.short_id_aliases)?row.short_id_aliases.map((value:unknown)=>text(value)):[],short_id_resolves_to:row.short_id_resolves_to==null?null:text(row.short_id_resolves_to),
   resolution_mode:row.resolution_mode===undefined?null:text(row.resolution_mode),resolution_release:row.resolution_release==null?null:text(row.resolution_release),seen_without_release:number(row.seen_without_release),id: text(row.id), project: text(row.project), fingerprint: text(row.fingerprint), algorithm: text(row.algorithm),
   title: text(row.title, 1000), state: text(row.state), revision: number(row.revision), count: number(row.count),
   first_seen: number(row.first_seen), last_seen: number(row.last_seen), resolved_seq: number(row.resolved_seq), latest_release_seq: number(row.latest_release_seq),
@@ -46,7 +59,7 @@ export function issueProjection(row: any) {
 }
 export function alertProjection(row: any) {
  return { id: text(row.id), project: text(row.project), issue: text(row.issue), kind: text(row.kind), created: number(row.created),
-  payload: row.payload === null ? null : JSON.stringify(alertPayload(row.payload)),
+  payload: row.payload === null ? null : JSON.stringify(alertPayload(row.payload, row.commit_sharing === 1)),
   delivery_count: number(row.delivery_count), routing_state: text(row.routing_state) };
 }
 export function outcomeProjection(row: any) {

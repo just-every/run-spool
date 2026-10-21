@@ -5,6 +5,7 @@ import type { Bindings } from '../../auth/bindings';
 import { readD1ImportJob, resumeD1Import, undoD1Import, readD1ImportOriginals, readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';
 import { sourceText } from './source.ts';
 import { ownerImportContext } from './context';
+import { ensureShortIds } from '../short-ids/assign';
 // Sentry organization imports run through the import door (door.server.ts).
 // These routes only keep jobs the owner-session importer created before it:
 // their journal, private originals, resume and guarded undo.
@@ -29,8 +30,10 @@ routes.get('/:organization/:job/originals',async c=>{
 routes.post('/:organization/:job/:action',async c=>{
   const auth=await owner(c,true);if(auth.response)return auth.response;
   const scope=ownerImportContext(c.env,auth.session,`sentry-org:${sourceText(c.req.param('organization'),'organization')}`),action=c.req.param('action');
-  if(action==='resume')return c.json({job:await resumeD1Import(c.req.param('job'),scope)});
-  if(action==='undo')return c.json({job:await undoD1Import(c.req.param('job'),scope)});
-  return c.notFound();
+  if(!['resume','undo'].includes(action))return c.notFound();
+  const job=action==='resume'?await resumeD1Import(c.req.param('job'),scope):await undoD1Import(c.req.param('job'),scope);
+  // Imported issues take short IDs; issues an undo removed release theirs (TEAM-004).
+  await ensureShortIds(c.env.DB);
+  return c.json({job});
 });
 export default routes;

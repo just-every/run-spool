@@ -3,6 +3,8 @@ import { originalMembership } from '../operators/provenance';
 import { statement as s } from './types';
 import { issueLink, publicOrigin } from './payload';
 import { captureFact } from './capture-history';
+import { primaryShortIdSql } from '../short-ids/lookup';
+import { commitResolutionSql } from '../commits/sharing';
 // Lifetime facts survive retention. Without them, a legacy retention gap is
 // unknown history, never proof that a later capture is the issue's first.
 const firstUnsuppressedAlert = `NOT EXISTS(SELECT 1 FROM alerts previous WHERE previous.project=i.project AND previous.issue=i.id AND previous.kind='new_issue')
@@ -40,7 +42,7 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
 export function admissionAlerts(db:D1Database,input:{alertId:string;project:string;issue:string;eventId:string;occurrence:string;release:string;build:string;sequence:number;time:number;origin?:string}) {
  const {alertId:id,project,issue,eventId,occurrence,release,build,time}=input;
  return [s(db,`WITH candidate AS (
-  SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,
+  SELECT i.project,i.id,i.title,i.state,i.latest_release_seq,i.resolved_seq,${primaryShortIdSql('i')} short_id,${commitResolutionSql('i')} resolution,
    (SELECT release_seq FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=?) current_sequence,
    EXISTS(SELECT 1 FROM events incoming WHERE incoming.project=i.project AND incoming.id=? AND incoming.occurrence=? AND ${regressionSql()}) regresses,
    (${firstUnsuppressedAlert}) AS first_capture,
@@ -52,7 +54,7 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
  INSERT INTO alerts(id,project,issue,kind,created,payload)
  SELECT ?,project,id,CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,?,
   json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN first_capture THEN 'new_issue' ELSE 'regression' END,
-   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?)
+   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution))
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
   AND (first_capture=1 OR (state='resolved' AND regresses=1))`,
  eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue)),...routeStatements(db,id,time)];

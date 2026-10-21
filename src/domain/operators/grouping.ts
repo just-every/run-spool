@@ -4,6 +4,7 @@ import { hash, normalize } from '../privacy';
 import { admissionBasis, type GroupingRoute } from '../bundle-grouping';
 import { authorize, body, s, guard, audit, write, conflict } from './common';
 import { correctionHeadlines } from './headlines';
+import { shortIdCorrection } from '../short-ids/corrections';
 const routes=new Hono<any>();
 type Move={event:string;occurrence:string;from:string;to:string};
 type Snapshot={id:string;revision:number;count:number;after:number};
@@ -71,6 +72,7 @@ routes.post('/:project/corrections/:id/:action',async c=>{
  }
  const affected=[...p.issues.map(i=>i.id),...(p.kind==='split'?[p.target]:[])],headlines=await correctionHeadlines(db,project,affected,p.moves,undo);
  for(const issue of affected)jobs.push(s(db,`UPDATE issues SET title=?,count=(SELECT COUNT(*) FROM events WHERE project=? AND issue=?),first_seen=COALESCE((SELECT MIN(received) FROM events WHERE project=? AND issue=?),first_seen),last_seen=COALESCE((SELECT MAX(received) FROM events WHERE project=? AND issue=?),last_seen),latest_release_seq=MAX(COALESCE(latest_release_seq,0),COALESCE((SELECT MAX(release_seq) FROM events WHERE project=? AND issue=?),0)),revision=revision+1 WHERE project=? AND id=?`,headlines.get(issue),project,issue,project,issue,project,issue,project,issue,project,issue));
+ jobs.push(...shortIdCorrection(db,project,id,p,undo,Date.now()));
  jobs.push(s(db,"UPDATE grouping_proposals SET state=?,updated=? WHERE project=? AND correction=? AND state=?",undo?'undone':'applied',Date.now(),project,id,undo?'applied':'approved'));
  jobs.push(s(db,'UPDATE grouping_corrections SET state=?,updated=? WHERE project=? AND id=?',undo?'undone':'applied',Date.now(),project,id),audit(db,project,undo?'grouping_undone':'grouping_applied',{correction:id}));
  try{await write(c,auth.session,jobs);return c.json({id,state:undo?'undone':'applied',moves:p.moves})}catch(e){return conflict(c,e)}

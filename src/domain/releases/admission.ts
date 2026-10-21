@@ -2,6 +2,7 @@ import { releaseOrderKeyStatement } from './order';
 import { normalize,scrub,type Envelope } from '../privacy';
 import { sentryRelease,releaseVersionKey } from './identity';
 import { readReleasePolicy,autoReleaseAllowed,releasePolicyFence } from './policy';
+import { shaReleaseStatement } from '../commits/register';
 export async function prepareRelease(db:D1Database,project:string,input:Envelope,sentryIntake:boolean){
  const snapshot=await readReleasePolicy(db,project),sentry=sentryIntake&&!!input.sentry,jobs:D1PreparedStatement[]=[],notes:string[]=input.sentry?.truncation.some(n=>n.path==='release'&&n.reason==='invalid_release_name')?['invalid_release_name']:[];let event=input;
  const existing=event.release?await db.prepare('SELECT * FROM releases WHERE project=? AND name=?').bind(project,event.release).first<any>():null;
@@ -21,6 +22,7 @@ export async function prepareRelease(db:D1Database,project:string,input:Envelope
    jobs.push(db.prepare('INSERT INTO release_metadata(project,release,first_seen,environment,sdk,auto_created,version_key) SELECT ?,?,?,?,?,?,? ON CONFLICT(project,release) DO NOTHING').bind(project,event.release,existing?.created??time,event.environment,sdk,existing?0:1,releaseVersionKey(event.release)));
    jobs.push(releaseOrderKeyStatement(db,project,event.release));
    jobs.push(db.prepare('INSERT INTO release_builds VALUES(?,?,?,0) ON CONFLICT DO NOTHING').bind(project,event.release,event.build));
+   if(!existing&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(event.release))jobs.push(shaReleaseStatement(db,project,event.release,time));
   }
  }
  return {event,jobs:[releasePolicyFence(db,project,snapshot.revision),...jobs],notes};

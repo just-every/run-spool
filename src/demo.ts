@@ -6,6 +6,7 @@ import { historySeed } from './demo/history';
 import { demoProject } from './demo/environment';
 import { groups, releases, sampleEvent } from './demo/data';
 import { seedWorkspace, seedRecentCapture } from './demo/workspace';
+import { ensureShortIds } from './domain/short-ids/assign';
 
 /** Historical sample evidence through Spool's native import store adapter.
  * No admission budget is bypassed and no alert is fabricated for old events.
@@ -50,4 +51,6 @@ export async function seedDemo(env: Bindings, { ownerEmail, now }: { ownerEmail:
  }
  await history.flush();
  await seedRecentCapture(env);
+ // Sample issues come in through the import adapter and take short IDs like imported history.
+ await ensureShortIds(db);
 }

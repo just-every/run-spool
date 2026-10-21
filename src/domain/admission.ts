@@ -12,6 +12,7 @@ import { admissionAlerts, receivedAtSql } from './alerts/admission';
 import { startCaptureHistory, rememberUnsuppressedCapture } from './alerts/capture-history';
 import { dispatchAdmitted } from './alerts/dispatch';
 import { mintAdmission } from './dev-credentials';
+import { assignShortId } from './short-ids/assign';
 export const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export interface IngestScope { project:string; keyHash:string; foreign:string|null; revision:number; policy:InboundPolicy; domain:DomainDecision }
 export async function authorizeIngest(c:any,project:string,key:string|undefined):Promise<{scope:IngestScope}|{response:Response}>{
@@ -79,6 +80,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const jobs=[...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
+      ...assignShortId(db,project,issue,time),
       ...(route?[
        stmt(db,'INSERT INTO grouping_routes VALUES(?,?,?,?) ON CONFLICT(project,fingerprint) DO NOTHING',project,route.fingerprint,issue,basis),
        stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM grouping_routes WHERE project=? AND fingerprint=? AND issue=? AND basis=?) THEN 1 ELSE 0 END',project,route.fingerprint,issue,basis),
