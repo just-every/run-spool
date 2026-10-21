@@ -72,4 +72,14 @@ export async function chunkFlow({origin, api, keys, temporary}) {
  assert.equal(unreadable.state, 'not_found', 'the failed assembly discarded its chunks, so the client must upload them again');
  assert.equal((await stored()).length, 20, 'integrity failures store nothing');
  assert.equal((await api(base + '/releases')).some(row => row.name === 'integrity@1.0.0'), false);
+ const tooBig = Buffer.alloc(options.chunkSize + 1, 1), oversized = new FormData();
+ oversized.append('file_gzip', new Blob([gzipSync(tooBig)]), createHash('sha1').update(tooBig).digest('hex'));
+ const before = (await api(base + '/erasure')).deleted.sentry_upload_chunks ?? 0;
+ const oversize = await fetch(`${origin}/api/0/organizations/acme/chunk-upload/`, {method: 'POST', headers: {Authorization: 'Bearer ' + keys.chunks}, body: oversized});
+ assert.equal(oversize.status, 400); assert.match((await oversize.json()).detail, /larger than the advertised/);
+ assert.equal((await api(base + '/erasure')).deleted.sentry_upload_chunks ?? 0, before, 'oversize chunk stores no bytes');
+ assert.equal((await stored()).length, 20);
+ assert.equal((await api(base + '/releases')).some(row => row.name === 'integrity@1.0.0'), false);
+ console.log('Sentry integrity: wrong chunk checksum=400; wrong bundle checksum=200/error; missing chunk=200/not_found; oversize chunk=400; no added artifacts/releases/staging');
+
 }

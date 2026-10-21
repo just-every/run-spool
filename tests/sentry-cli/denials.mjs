@@ -69,7 +69,7 @@ export async function hostileBundleFlow({origin, api}) {
   assert.deepEqual((await api('/api/projects/hostile/sentry-uploads')).artifacts, [], label + ': no artifact, including the earlier valid map');
   assert.deepEqual(await api('/api/projects/hostile/releases'), [], label + ': no release');
   const inventory = await api('/api/projects/hostile/erasure');
-  assert.equal(inventory.deleted.sentry_upload_chunks, 0, label + ': staged bytes discarded');
+  assert.equal(inventory.deleted.sentry_upload_chunks ?? 0, 0, label + ': staged bytes discarded');
   const retry = await fetch(root + '/artifactbundle/assemble/', {method: 'POST', headers: {...headers, 'Content-Type': 'application/json'}, body: JSON.stringify(request)});
   assert.equal(retry.status, 200); assert.equal((await retry.json()).state, 'not_found', label + ': no successful assembly receipt');
   console.log(`ZIP refusal: ${label}; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0`);

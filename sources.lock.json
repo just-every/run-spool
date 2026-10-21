@@ -8189,7 +8189,7 @@
       "executable": false
     },
     "tests/sentry-cli/chunk-flow.mjs": {
-      "sha256": "0ad4d4d9e06b2e8cd0da9ee8aa3dd0ee24fc9ce0ebc0eddda92927072d53abf4",
+      "sha256": "05429abfbc834993e231be3c7f841d9887978a5eab70e4a7a893fde57479af89",
       "executable": false
     },
     "tests/sentry-cli/cli.mjs": {
@@ -8201,7 +8201,7 @@
       "executable": false
     },
     "tests/sentry-cli/denials.mjs": {
-      "sha256": "633078df8f092943240bfd0fa18ef5c46f6273a253e2fd5d98682236ed6170ce",
+      "sha256": "9429668a6f5b07338a14d0c844e6eebc9d6d226debce736bc468bd295a17f188",
       "executable": false
     },
     "tests/sentry-cli/durable.mjs": {
