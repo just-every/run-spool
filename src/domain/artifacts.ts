@@ -3,6 +3,7 @@ import { TraceMap, originalPositionFor, decodedMappings, traceSegment } from '@j
 import { scrub, type Envelope } from './privacy';
 import { sourceMapFile } from './source-map-path';
 import { functionScopes, type FunctionScopes } from './source-map-functions';
+import { artifactNameKey, frameArtifactNames } from './sentry-cli/names';
 export function validateMap(map:any): string {
   if (!map || map.version!==3 || !Array.isArray(map.sources) || !map.sources.length || map.sources.length>100 || map.sources.some((s:any)=>typeof s!=='string') || !Array.isArray(map.names) || map.names.length>10000 || map.names.some((s:any)=>typeof s!=='string') || typeof map.mappings!=='string' || 'sections' in map) throw new Error('Unsupported map (flat Source Map V3 only)');
   if (map.sourcesContent && (!Array.isArray(map.sourcesContent) || map.sourcesContent.some((s:any)=>s!==null&&typeof s!=='string'))) throw new Error('Invalid source content');
@@ -29,16 +30,29 @@ export function createDiagnoser(db:D1Database, project:string) {
   const artifacts = new Map<string, Promise<any>>();
   const identities = new Map<string, Promise<any>>();
   const scopes = new Map<string, FunctionScopes>();
+  const names = new Map<string, Promise<string|null>>();
+  const byName = (event:Envelope, file:string) => {
+    const key = JSON.stringify([event.release,event.build,file]);
+    if (!names.has(key)) names.set(key,(async()=>{
+      const candidates = await Promise.all(frameArtifactNames(file).map(artifactNameKey));
+      if (!candidates.length) return null;
+      const found = await db.prepare('SELECT debug FROM artifacts WHERE project=? AND release=? AND build=? AND debug IN (SELECT value FROM json_each(?)) ORDER BY debug LIMIT 1').bind(project,event.release,event.build,JSON.stringify(candidates)).first<{debug:string}>();
+      return found?.debug ?? null;
+    })());
+    return names.get(key)!;
+  };
   return async (event:Envelope): Promise<any[]> => {
     if (event.language) return sourceDiagnostics(db,project,event);
     return Promise.all(event.frames.map(async frame=>{
-      if(!frame.debugId) return {generated:frame,status:'missing_debug_id'};
-      const key = JSON.stringify([event.release,event.build,frame.debugId]);
-      if (!artifacts.has(key)) artifacts.set(key,db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,frame.debugId).first<any>());
+      // Without a debug ID, a release/dist artifact named by the frame's file URL (`~/static/app.js`) identifies the map.
+      const debugId = frame.debugId ?? await byName(event,frame.file);
+      if(!debugId) return {generated:frame,status:'missing_debug_id'};
+      const key = JSON.stringify([event.release,event.build,debugId]);
+      if (!artifacts.has(key)) artifacts.set(key,db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,debugId).first<any>());
       const row = await artifacts.get(key);
       if(!row) {
-        if (!identities.has(frame.debugId)) identities.set(frame.debugId,db.prepare('SELECT 1 FROM artifacts WHERE project=? AND debug=?').bind(project,frame.debugId).first());
-        const elsewhere = await identities.get(frame.debugId);
+        if (!identities.has(debugId)) identities.set(debugId,db.prepare('SELECT 1 FROM artifacts WHERE project=? AND debug=?').bind(project,debugId).first());
+        const elsewhere = await identities.get(debugId);
         return {generated:frame,status:elsewhere?'identity_mismatch':'missing_artifact'};
       }
       try {
