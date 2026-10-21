@@ -268,9 +268,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   ALERT-003 delivery-state and reviewed-test obligations apply to every future adapter before shipping: Slack and Teams posted with message identifier; PagerDuty and Oncall triggered, acknowledged and resolved; Discord's channel webhook carries HTTP status and signature observations where supported. Every adapter keeps provider acknowledgment distinct from recipient receipt.
 
-- **ALERT-003 — Destination tests, digests and snoozing. Status: partial.** Add and test each channel, inspect its named delivery states, enable only after reviewing its result, schedule a US-timezone digest, snooze through a burst and expiry, and inspect one digest/resumption plus unchanged issue evidence for test sends.
+- **ALERT-003 — Destination tests, digests and snoozing. Status: done.** Add and test each channel, inspect its named delivery states, enable only after reviewing its result, schedule a US-timezone digest, snooze through a burst and expiry, and inspect one digest/resumption plus unchanged issue evidence for test sends.
 
-  Current evidence: `src/domain/alerts/destination-management.server.ts`; `tests/alerts-ui.mjs` Main now tests page-managed email destinations. Cross-channel tests, digests, recipient confirmation and timed snoozing remain missing.
+  Current evidence: `src/domain/alerts/`; `src/ui/alerts/`; migration `migrations/core/0058_alert_delivery.sql`; `tests/alerts-runtime.mjs`; `tests/alerts-egress.mjs`; `tests/alerts-ui.mjs`; `docs/ALERT-DELIVERY.md`, and the real provider receipt below.
 
   Existing email and signed-webhook destinations require a recorded passing test and explicit owner review before a rule can be enabled. Tests say TEST and preserve the complete archive row projection, including issues, alerts, assignments and counters. Changed recipients disable their rules and require a new reviewed test. Previously enabled rules keep running until the recipient changes; disabled rules visibly explain the passing-test and owner-review requirement. Provider acceptance is separate from recipient receipt; no event yet is explicit. Signed SendGrid Event Webhooks join the mail delivery custom argument, reject forged/unsigned/unknown deliveries before storing any event, and deduplicate event IDs. History retains each processed/delivered/deferred/bounce/dropped/spamreport event; deferred and dropped retain their own names. Complaint and the other provider-event transitions are currently signed-fixture proof, labelled fixture on screen. A webhook records that its signature header was sent and the HTTP status observed; receiver signature verification is not claimed.
 
@@ -278,7 +278,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Journey **ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss** extends `tests/alerts-runtime.mjs`, `tests/alerts-egress.mjs` and `tests/alerts-ui.mjs`; migration `migrations/core/0058_alert_delivery.sql`, `src/domain/alerts/`, `src/ui/alerts/`, and `docs/ALERT-DELIVERY.md`. Retained 1440/390 states: `docs/retained-verification/alert003/`.
 
-  **Gap:** provider events proven only by signed fixture; real delivered/bounced needs one free Event Webhook slot on the held SendGrid account. SendGrid returned HTTP 400 at the multiple-webhooks create endpoint: the account has reached its current billing plan limit. No webhook was created or changed.
+  **Real provider receipt (21 October 2026):** after the SendGrid Event Webhook was repointed to the RunEditRun mail-event relay at 01:33Z, exactly one real production email went out through Base's mail sender with the Spool seed marker (provider HTTP 202 at 02:42:33Z), and its delivered event, signed with SendGrid's production key (fingerprint prefix `09bf2526d0e6`) and verified by the pinned `verifySendGridWebhook`, reached the registered seed test target at 02:42:48Z: event-ID SHA256 `ca9c500bac89bc611799fa37b1fb7e04dec3fe5c96b3ae8ed6aab37c3f36c528`, provider submission-ID hash `e8b0883f…2d4d5`, marker `gr-mailrelay-proof-1-85d6f2dea6f745c1`. The seed registry was restored empty and the scratch target deleted; no further mail is sent. Bounce and complaint remain signed-fixture transitions. The relay's request, HTTP 5xx and forwarding-failure counters for 01:33–02:33Z are unverified (its Workers logs are not enabled); no zero-failure claim is made.
 
 - **ALERT-004 — Durable follow-up and visible automation failure. Status: done.** Interrupt before and after the send boundary, restart, expire a lease, revoke a rule and lose a provider response; inspect durable state, deduplication, operator follow-up and explicit reconciliation, then restore without replay.
 
@@ -463,7 +463,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 9 | 32 | 15 | 56 |
-| All | 20 | 33 | 15 | 68 |
+| Target and push further | 10 | 31 | 15 | 56 |
+| All | 21 | 32 | 15 | 68 |
 
-**Clause status: 68 clauses — 20 done, 33 partial, 15 missing.**
+**Clause status: 68 clauses — 21 done, 32 partial, 15 missing.**
