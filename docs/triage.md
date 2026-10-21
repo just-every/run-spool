@@ -29,6 +29,11 @@ a release does not prove that it was deployed.
 
 An issue URL identifies its project and group, for example
 `/projects/storefront/issues/<issue-id>`. **Copy link** copies that destination.
+Every issue also has a short ID such as `STOREFRONT-1A3`, shown in the list and
+on the issue: search for it, or open `/projects/storefront/issues/STOREFRONT-1A3`.
+After a merge the absorbed issue's short ID opens the surviving issue. A commit
+whose message says `Fixes STOREFRONT-1A3`, registered with a release, links here
+and resolves the issue in that release ([short IDs and commits](SHORT-IDS.md)).
 Refresh and browser Back/Forward preserve it. Anyone opening it needs the owner
 session for this installation; sign-in returns to the requested page. A project
 read grant reads API evidence and does not grant owner access to the UI.

@@ -124,6 +124,11 @@ export async function team004Flow({req,json,origin,cookie}){
   const sharedA=await packet('CHECKOUT-WEB-1',asAgent);assert.equal(sharedA.commits.sharing,'sha_only');assert.deepEqual(Object.keys(sharedA.commits.rows[0]).sort(),['citation','linked','pr','release','resolved','sha','shortId']);
   for(const surface of [sharedA,await json(base+'/alerts','GET',undefined,asAgent),await json(base+'/issue-export?format=json')])assert.ok(!JSON.stringify(surface).includes(author.email)&&!JSON.stringify(surface).includes('empty cart guard'),'author and message stay on owner surfaces by default');
   await shoot('regressed','/projects/checkout-web/issues/'+A.id,async page=>{const section=await timeline(page);await section.getByText('Regressed',{exact:true}).waitFor();return section});
+  // An SDK-auto-created release given commits by a later deploy-key registration resolves in that same release.
+  const auto=(await json(base+'/releases')).find(r=>r.name==='web@1.2.0');assert.equal(auto.auto_created,1);
+  await json(base+'/releases','POST',{name:'web@1.2.0',build:'web-12',commits:[{sha:'b8'.repeat(20),message:'Fixes CHECKOUT-WEB-1 again with a retry budget',author}]},asDeploy);
+  const enriched=(await json(base+'/releases')).find(r=>r.name==='web@1.2.0');assert.deepEqual([enriched.auto_created,enriched.first_seen,enriched.seq],[0,auto.first_seen,auto.seq]);
+  assert.deepEqual([(await issues()).CheckoutError.state,(await packet(A.id)).issue.resolution_release],['resolved','web@1.2.0'],'resolved in the enriched auto-created release');
   // The owner's audited choice shares author and message; the deploy key cannot make it.
   assert.equal((await req(base+'/commits/sharing','PUT',{share:true,revision:0},asDeploy)).status,401);
   const sharing=page=>page.locator('section').filter({has:page.getByRole('heading',{name:'Commit author and message',exact:true})});
