@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 import {writeEmitter} from './sentry-cli/sdk.mjs';
-import {denialFlow} from './sentry-cli/denials.mjs';
+import {denialFlow, hostileBundleFlow} from './sentry-cli/denials.mjs';
 import {releaseFlow} from './sentry-cli/release-flow.mjs';
 import {mapFlow} from './sentry-cli/map-flow.mjs';
 import {pluginFlow} from './sentry-cli/plugin-flow.mjs';
@@ -30,6 +30,7 @@ try {
  const keys = {deploy: (await key('web', 'deploy')).key, ingest: (await key('web', 'ingest')).key, agent: (await key('web', 'agent')).key, revoked: revoked.key, other: (await key('other', 'deploy')).key, chunks: (await key('chunks', 'deploy')).key};
  const emitter = await writeEmitter(temporary), context = {origin, api, req, keys, dsn: web.dsn, otherDsn: other.dsn, emitter, temporary};
  await denialFlow(context);
+ await hostileBundleFlow(context);
  await releaseFlow(context);
  await mapFlow(context);
  await pluginFlow(context);

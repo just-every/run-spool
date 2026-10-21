@@ -35,14 +35,19 @@ export function listZip(bytes: Uint8Array, limits: { entries: number; entryBytes
   if (at + 46 > bytes.byteLength || u32(view, at) !== 0x02014b50) throw new ZipError('central directory is damaged');
   const flags = u16(view, at + 8), method = u16(view, at + 10), compressed = u32(view, at + 20), size = u32(view, at + 24);
   const nameLength = u16(view, at + 28), extraLength = u16(view, at + 30), commentLength = u16(view, at + 32), local = u32(view, at + 42);
+  const type = (u32(view, at + 38) >>> 16) & 0xf000;
   const name = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(at + 46, at + 46 + nameLength));
   at += 46 + nameLength + extraLength + commentLength;
-  if (name.endsWith('/')) continue;
+  // Validate every central-directory entry, including directories that are not returned to the caller.
+  // Missing Unix type bits are common in ZIPs; an explicit type may only be a regular file or directory.
+  if (type !== 0 && type !== 0x8000 && type !== 0x4000) throw new ZipError('unsupported entry type');
+  const path = name.replaceAll('\\', '/');
+  if (!path || path.startsWith('/') || /^[A-Za-z]:/.test(path) || path.split('/').some(part => part === '..') || /[\u0000-\u001f\\]/.test(name)) throw new ZipError('unsafe entry name');
   if (flags & 1) throw new ZipError('encrypted entries are not supported');
   if (compressed === 0xffffffff || size === 0xffffffff) throw new ZipError('ZIP64 entries are not supported');
-  if (!name || name.startsWith('/') || name.split('/').some(part => part === '..') || /[\u0000-\u001f\\]/.test(name)) throw new ZipError('unsafe entry name');
   if (names.has(name)) throw new ZipError('duplicate entry name');
   names.add(name);
+  if (name.endsWith('/') || type === 0x4000) continue;
   if (method !== 0 && method !== 8) throw new ZipError(`entry compression method ${method} is not supported`);
   if (size > limits.entryBytes) { entries.push({ name, size, read: async () => { throw new ZipError(`entry is ${size} bytes; at most ${limits.entryBytes} are read`); } }); continue; }
   entries.push({ name, size, read: async () => {

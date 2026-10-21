@@ -25,7 +25,7 @@ export async function durableFlow({origin, api, req, keys}) {
  assert.equal(exported.sentry_deploys.filter(row => row.project === 'web').length, 2, 'both reported deploys are archived');
  assert.ok(exported.artifacts.some(row => row.project === 'web'));
  assert.ok(exported.release_commits.some(row => row.project === 'web' && row.release === 'checkout@1.0.0'));
- assert.ok(!archive.text.includes(keys.deploy), 'no deploy key travels in the archive');
+ for (const key of Object.values(keys)) assert.ok(!archive.text.includes(key), 'no project token travels in the archive');
 
  const target = await startTestWorker(15612);
  try {
