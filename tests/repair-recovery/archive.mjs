@@ -10,7 +10,9 @@ const repairTables=['repair_checks','repairs','rer_erasure_operations','rer_depe
 const operatorTables=['grouping_proposals','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'];
 const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
 const deliveryTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];
-const laterTables=[...deliveryTables,...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'];
+// TEAM-004 short IDs and commit citations (0059) arrive after repairs too; restore numbers the older archive's issues afresh.
+const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'];
+const laterTables=[...deliveryTables,...citationTables,...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.
 export async function preRepairArchive(text){
@@ -28,7 +30,7 @@ export async function preRepairArchive(text){
  const verifier=new ContentVerifier(earlier),binding=new ArchiveVerifier(earlier);for(const item of items)verifier.add(item);for(const part of parts)binding.add(part);
  return [earlier,...parts,{kind:'closing',partCount:parts.length,contentHash:verifier.digest(),archiveHash:binding.digest()}].map(record=>canonicalJson(record)+'\n').join('');
 }
-const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...repairTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
+const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...repairTables,...citationTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
 // Part 4: a pre-repair archive restores with empty repair tables; a populated
 // archive restores repairs, checks and every verdict input intact.
 export async function archiveProof(app,{issue,repair,cutoff}){

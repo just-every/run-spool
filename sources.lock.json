@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d12ff33fd7d38ad7ba274e92055f2015f0cf233541590c90a612cdaa79089aa4",
+      "sha256": "ea2aa9e2c97c6c78229534a0daea5fb78f0da8d047de3927648623be4a8a18b2",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -7717,7 +7717,7 @@
       "executable": false
     },
     "tests/alerts/delivery-flow.mjs": {
-      "sha256": "6c90270f21f5c86fd011782d61b4ba925c47e77c51808fa34e5c5a83704bd315",
+      "sha256": "f0b4e93d80a3c6ad17057f9e7d1e2c3fe57c5e5f1c729121bf4c00a64b2544a0",
       "executable": false
     },
     "tests/alerts/follow-up.mjs": {
@@ -7921,7 +7921,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "e34cbfba04fc3a6bd2084de3dcd0d19d7236bbe3b814858d36fdc34ebe0adcb6",
+      "sha256": "117228bbc9cb75696a9651943e03caaa9d3fb94ee24e1da2e8150c4567a6adce",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -8061,7 +8061,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "f76d45457f20117f78c4096c2d8a06d8027154b06e30a20aabbab6dfb49afb12",
+      "sha256": "f25a1c57a424d2a29eedea6e9b597b00b5c38315adc2978229ba52090e6f9bd9",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
@@ -8069,7 +8069,7 @@
       "executable": false
     },
     "tests/repair-recovery/packet.mjs": {
-      "sha256": "67fe1fddc3b1e892e3fd8cb3a74c3cbf385172033603bee8236ebce89bae3829",
+      "sha256": "e15e7a8b1b244b58408ecf4ae24fbe8890a8f222d5f781b119f1c0d26248909c",
       "executable": false
     },
     "tests/repair-recovery/recording.mjs": {

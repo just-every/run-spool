@@ -66,9 +66,10 @@ export async function deliveryFlow(inbox){
   const resumed=await app.json('/api/ingest/web','POST',event('after-snooze-expiry',{frames:[{file:'https://app.example.com/resumed.js',line:1,column:0,function:'resumed'}]}),auth);
   assert.ok((await app.json(base+'/deliveries')).some(d=>d.issue===resumed.issue&&d.channel==='mail'&&d.state==='accepted'),'an expired snooze never suppresses later work again');assert.equal((await app.json(base+'/controls')).held.filter(h=>!h.released_at).length,4);
 
-  // The completed New York daily period this digest reports ends at the first 09:00 after now, so it holds this run whatever the wall clock.
-  let periodEnd=Math.floor(Date.now()/3600000+1)*3600000;while(newYorkHour(periodEnd)!==9)periodEnd+=3600000;
-  const nextMorning=periodEnd+3600000,digestReceipts=await app.json('/api/projects/web/outcomes');await app.schedule(nextMorning);
+  // A daily digest reports the completed New York calendar day; schedule it for 10:00 the day after this run's own day, whatever the wall clock.
+  const newYorkDay=time=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York'}).format(time),runDay=newYorkDay(Date.now());
+  let nextMorning=Math.floor(Date.now()/3600000+1)*3600000;while(newYorkDay(nextMorning)===runDay||newYorkHour(nextMorning)!==10)nextMorning+=3600000;
+  const digestReceipts=await app.json('/api/projects/web/outcomes');await app.schedule(nextMorning);
   const dayDigest=(await app.json(base+'/controls')).digests.find(d=>d.kind==='daily'&&d.scope==='project');assert.ok(dayDigest);for(const receipt of digestReceipts.rows)assert.ok(dayDigest.body.includes(`${receipt.reason}: ${receipt.count}`),'digest preserves capture receipts during snooze');assert.match(dayDigest.body,/\nWEB-[0-9A-Z]+ [a-f0-9]{64}: /,'TEAM-004 digest work names short IDs');
   assert.ok((await app.json('/api/projects/web/follow-up')).rows.some(r=>r.reason.startsWith('capture_loss_')&&r.capture_loss>0));
   // New York falls back on 1 November: this completed daily period has 25 hours.

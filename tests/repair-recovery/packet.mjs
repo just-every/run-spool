@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {cli,clientEnvironment} from '../agent-handoff/clients.mjs';
 const previousKeys=['version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','releaseHistory','links','bounds','gaps'];
-// Before any repair, the deployment-aware packet carries an empty repair list.
+// Before any repair, the deployment-aware packet carries an empty repair list (and TEAM-004's empty, SHA-only commit section).
 export function packetBeforeRepair(packet){
- assert.deepEqual(Object.keys(packet).filter(key=>key!=='repairs'),previousKeys);assert.deepEqual(packet.repairs,[]);
+ assert.deepEqual(Object.keys(packet).filter(key=>!['repairs','commits'].includes(key)),previousKeys);assert.deepEqual(packet.repairs,[]);assert.deepEqual(packet.commits,{sharing:'sha_only',rows:[]});
  assert.deepEqual(packet.verification,{state:'inconclusive',reason:'No independently measured workflow exposure or postdeploy proof'});
  assert.ok(!packet.gaps.some(row=>row.code==='repairs_omitted'));
 }
