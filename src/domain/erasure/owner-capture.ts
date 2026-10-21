@@ -12,6 +12,8 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
  // TEAM-004: a cited commit's author is matched like any captured value, as whole tokens.
  commits: ['author_name','author_email','message'],
+ // SRC-003: free text a CI job sent with a release or a deploy.
+ sentry_releases: ['url'], sentry_deploys: ['name','url'],
 };
 const jsonColumns = new Set(['payload','diagnostic','spec','observation','checks','grant_spec','detail']);
 const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';

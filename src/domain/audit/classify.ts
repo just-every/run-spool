@@ -71,6 +71,17 @@ const rules: Rule[] = [
  {pattern:/^\/api\/ingest\/(?<project>[^/]+)$/,action:'capture.native',kind:'project'},
  {pattern:/^\/api\/[^/]+\/(?:store|envelope)\/?$/,action:'capture.sentry',kind:'installation'},
  {pattern:/^\/api\/otlp\//,action:'capture.otlp',kind:'installation'},
+ // SRC-003: the Sentry API doors unmodified sentry-cli and build plugins call. A deploy key proves the project;
+ // the organization slug is never an identity, so only the release version or project slug becomes a subject.
+ {pattern:/^\/api\/0\/organizations\/[^/]+\/chunk-upload\/?$/,methods:['POST'],action:'cli.chunk',kind:'installation'},
+ {pattern:/^\/api\/0\/organizations\/[^/]+\/artifactbundle\/assemble\/?$/,methods:['POST'],action:'cli.assemble',kind:'installation'},
+ {pattern:/^\/api\/0\/projects\/[^/]+\/(?<project>[^/]+)\/files\/difs\/assemble\/?$/,methods:['POST'],action:'cli.debug_files',kind:'project'},
+ {pattern:/^\/api\/0\/projects\/[^/]+\/(?<project>[^/]+)\/releases\/?$/,methods:['POST'],action:'cli.release',kind:'project'},
+ {pattern:/^\/api\/0\/organizations\/[^/]+\/releases\/?$/,methods:['POST'],action:'cli.release',kind:'installation'},
+ {pattern:/^\/api\/0\/organizations\/[^/]+\/releases\/(?<subject>[^/]+)\/?$/,methods:['PUT'],action:'cli.release',kind:'release'},
+ {pattern:/^\/api\/0\/organizations\/[^/]+\/releases\/(?<subject>[^/]+)\/deploys\/?$/,methods:['POST'],action:'cli.deploy',kind:'release'},
+ {pattern:/^\/api\/0\//,methods:['GET','HEAD'],action:'cli.read',kind:'installation'},
+ {pattern:/^\/api\/0\//,action:'cli.unsupported',kind:'installation'},
 ];
 const auth: Record<string,AuditAction> = {
  'bootstrap':'auth.bootstrap','owner-claim':'auth.claim','magic-link':'auth.magic_link','confirm':'auth.confirm','owner-signin':'auth.owner_signin','one-click':'auth.one_click','review-session':'auth.review_session','signout':'auth.signout','invite':'auth.invite','invite/cancel':'auth.invite_cancel','operator/status':'auth.operator_status','operator/role':'auth.operator_role','session/revoke':'auth.session_revoke','step-up':'auth.step_up','domain-rules':'auth.domain_rule','providers/unlink':'auth.provider_unlink','providers/relink':'auth.provider_relink','settings/identity':'auth.identity_settings','setup-complete':'auth.setup_complete','email':'auth.email','display-name':'auth.display_name',

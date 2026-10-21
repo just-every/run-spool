@@ -23,6 +23,7 @@ import { isPreviousSchema, readPreviousArchive, normalizePreviousArchive, retire
 import { linkArchiveTables, linkMigrations, emptyLinkTables } from './link-archive';
 import { shortIdTables } from './short-ids/archive';
 import { commitTables } from './commits/archive';
+import { sentryCliTables, sentryCliExcludedTables } from './sentry-cli/archive';
 import { ensureShortIds } from './short-ids/assign';
 
 function stagedValidation(later: string[] = []) {
@@ -35,7 +36,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -134,6 +135,9 @@ laterTables.unshift({tables:deliveryTables,migrations:['0058_alert_delivery.sql'
 const citationTables=[...Object.keys(shortIdTables),...Object.keys(commitTables)];
 for(const later of laterTables){later.tables.push(...citationTables);later.migrations.push('0059_short_ids_commit_citations.sql')}
 laterTables.unshift({tables:citationTables,migrations:['0059_short_ids_commit_citations.sql']});
+const cliTables=Object.keys(sentryCliTables);
+for(const later of laterTables){later.tables.push(...cliTables);later.migrations.push('0060_sentry_cli.sql')}
+laterTables.unshift({tables:cliTables,migrations:['0060_sentry_cli.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

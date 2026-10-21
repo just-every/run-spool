@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { canonical } from '../src/domain/privacy.ts';
 import { base32, prefixBase } from '../src/domain/short-ids/format.ts';
 // TEAM-004 stores (migration 0059); an older archive has none of them.
-const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'];
+const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 // Current transport and every occurrence identity stay intact for roundtrips.
 export async function archiveProjection(response) {
  const text=await response.text(),records=[];

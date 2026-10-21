@@ -8,8 +8,10 @@ export { absentDist } from '../releases/build.ts';
 export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope {
  if(value.type!==undefined&&value.type!=='error')throw new SentryWireError('unsupported_event_type',422);
  const language=['python','go'].includes(value.platform)?value.platform:undefined;
- const eventId=value.event_id??envelopeId;
- if(typeof eventId!=='string'||!/^[a-fA-F0-9]{32}$/.test(eventId)||(envelopeId!==undefined&&envelopeId!==eventId))throw new SentryWireError('invalid_event_id');
+ // sentry-cli send-event writes the canonical hyphenated UUID; it names the same 128-bit identity as 32 hex digits.
+ const plain=(id:unknown)=>typeof id==='string'&&/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(id)?id.replaceAll('-',''):id;
+ const eventId=plain(value.event_id??envelopeId);
+ if(typeof eventId!=='string'||!/^[a-fA-F0-9]{32}$/.test(eventId)||(envelopeId!==undefined&&plain(envelopeId)!==eventId))throw new SentryWireError('invalid_event_id');
  const releaseIdentity=sentryRelease(value.release);
  const exceptions=Array.isArray(value.exception?.values)?value.exception.values:[];
  const crumbs=Array.isArray(value.breadcrumbs)?value.breadcrumbs:value.breadcrumbs?.values;

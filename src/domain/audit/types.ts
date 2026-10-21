@@ -11,7 +11,7 @@ export const auditActions = [
  'repair.create','repair.check','repair.fact','reproducer.create','reproducer.queue','reproducer.read','reproducer.finish','fix.propose','fix.approve','fix.advance','fix.provider_step',
  'feedback.withdraw','import.upload','import.plan','import.apply','import.status','import.reconcile','import.undo','import.resume','import.originals','import.settings','import.archive','import.restore_check','cutover.status',
  'auth.bootstrap','auth.claim','auth.magic_link','auth.confirm','auth.owner_signin','auth.one_click','auth.review_session','auth.signout','auth.invite','auth.invite_cancel','auth.operator_status','auth.operator_role','auth.session_revoke','auth.step_up','auth.domain_rule','auth.provider_unlink','auth.provider_relink','auth.identity_settings','auth.setup_complete','auth.email','auth.display_name','auth.oidc','auth.dependency',
- 'deployment.start','deployment.callback','deployment.timeout','erasure.complete','capture.native','capture.sentry','capture.otlp','capture.exposure','audit.read','audit.export','private.action',
+ 'deployment.start','deployment.callback','deployment.timeout','cli.chunk','cli.assemble','cli.release','cli.deploy','cli.debug_files','cli.read','cli.unsupported','erasure.complete','capture.native','capture.sentry','capture.otlp','capture.exposure','audit.read','audit.export','private.action',
 ] as const;
 export type AuditAction = typeof auditActions[number];
 export const outcomes = ['succeeded','accepted','suppressed','denied','conflict','invalid','failed','uncertain','started'] as const;
