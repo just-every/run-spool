@@ -201,7 +201,7 @@ async function team004DeliveryRetention(){
   const project=await app.json('/api/projects','POST',{id:'web',name:'Cedar checkout delivery retention'}),base='/api/projects/web',delivery=base+'/alerting',auth={Cookie:'',Authorization:'Bearer '+project.ingestKey};
   const deploy=await app.json(base+'/keys','POST',{kind:'deploy'}),asDeploy={Cookie:'',Authorization:'Bearer '+deploy.key};
   await app.json(base+'/releases','POST',{name:'web@1.0.0',build:'web-10'},asDeploy);
-  const capture=async(label,release,build)=>app.json('/api/ingest/web','POST',{version:1,eventId:`team004-${label}-${release}`,release,build,environment:'production',type:'CheckoutError',message:`Checkout ${label} failed`,frames:[{file:`https://checkout.example.test/${label}.js`,function:label,line:7,column:0}]},auth);
+  let serial=0;const capture=async(label,release,build)=>app.json('/api/ingest/web','POST',{version:1,eventId:`team004-${label}-${++serial}`,release,build,environment:'production',type:'CheckoutError',message:`Checkout ${label} failed`,frames:[{file:`https://checkout.example.test/${label}.js`,function:label,line:7,column:0}]},auth);
   const fixtures=[];
   for(const [label,sha] of [['default','d1'.repeat(20)],['shared','d2'.repeat(20)],['pending','d3'.repeat(20)]]){
    const admitted=await capture(label,'web@1.0.0','web-10'),issue=(await app.json(base+'/issues')).find(r=>r.id===admitted.issue);
