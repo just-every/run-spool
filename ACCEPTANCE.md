@@ -2,7 +2,7 @@
 
 Target scope approved 16 October 2026: a US development team can replace Sentry, Datadog Error Tracking, Rollbar or Bugsnag for web/server/mobile capture, team investigation, release health, alerting, migration and verified repair. CONTRACT.md defines the full target; these journeys specify how a build round proves each clause through the shipped product. They do not claim every journey already runs.
 
-The implementation and Status rows were reconciled against candidate `b893cc0f9617fb4fb3d472226b79dee5ee346d53` (21 October 2026). Status meanings match CONTRACT.md: done for the stated implemented bounded behavior, partial for a working subset, missing for no implementation proof. Citations point to existing source/tests, not newly invented programs. Local results and provider doubles qualify only their tested boundary. Real SDK/device, buyer-export, repository and hosted provider acceptance remains separate.
+The implementation and Status rows were reconciled against candidate `395846ca5e1ef97e69c89f858c8bfdbdd210ca1d` (21 October 2026). Status meanings match CONTRACT.md: done for the stated implemented bounded behavior, partial for a working subset, missing for no implementation proof. Citations point to existing source/tests, not newly invented programs. Local results and provider doubles qualify only their tested boundary. Real SDK/device, buyer-export, repository and hosted provider acceptance remains separate.
 
 ## Required verification by clause
 
