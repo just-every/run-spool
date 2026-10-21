@@ -30,7 +30,8 @@ export async function createDeploy(c: Context, who: CliAuthority, version: strin
   if ((count?.n ?? 0) >= deployLimit) return cliError(c, 429, `A release records at most ${deployLimit} deploys.`);
   const time = Date.now();
   await deployBatch(c, auth, [
-   s(db, 'INSERT INTO sentry_deploys(project,id,release,environment,name,url,started,finished,actor,created) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(project,id) DO NOTHING', project, id, release, body.environment, name, url, started, finished, auth.actor, time),
+   s(db, 'INSERT INTO deployment_actors VALUES(?,?,?) ON CONFLICT(project,authority) DO NOTHING', project, auth.actorKey, auth.actor),
+   s(db, 'INSERT INTO sentry_deploys(project,id,release,environment,name,url,started,finished,actor,created) SELECT ?,?,?,?,?,?,?,?,label,? FROM deployment_actors WHERE project=? AND authority=? ON CONFLICT(project,id) DO NOTHING', project, id, release, body.environment, name, url, started, finished, time, project, auth.actorKey),
    auditCommit(db, 'changes()>0'),
    s(db, 'UPDATE release_metadata SET auto_created=0 WHERE project=? AND release=?', project, release),
   ]);

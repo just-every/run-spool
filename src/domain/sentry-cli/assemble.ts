@@ -31,7 +31,6 @@ async function storeBundle(c: Context, who: CliAuthority, bundle: Bundle, releas
  const db = c.env.DB as D1Database, { project, auth } = who, time = Date.now();
  const build = dist === null ? absentDist : dist;
  await deployBatch(c, auth, [...registrationStatements(db, project, release, build, time), registerBuildStatement(db, project, release, build), auditCommit(db)]);
- let inflated = 0;
  const byMap = new Map<string, string>();
  for (const file of bundle.files) {
   const reference = file.type === 'minified_source' ? file.headers['sourcemap'] : undefined, minified = normalizeArtifactName(file.url);
@@ -46,14 +45,9 @@ async function storeBundle(c: Context, who: CliAuthority, bundle: Bundle, releas
    if (!minified) { results.push({ file: file.url, status: 'refused', code: 'unmatched_map', reason: 'the map has no debug ID and no uploaded script names it in its sourcemap header, so Spool cannot say which file it maps' }); continue; }
    debugId = await artifactNameKey(minified);
   }
-  if (inflated + file.entry.size > 64 * 1024 * 1024) { results.push({ file: file.url, status: 'refused', code: 'bundle_budget', reason: 'the bundle holds more than 64 MiB of maps; upload it in smaller bundles' }); continue; }
   if (file.entry.size > mapByteLimit) { results.push({ file: file.url, status: 'refused', code: 'too_large', reason: `${file.entry.size} bytes; at most 256 KiB of map are stored today (SRC-004 capacity is not implemented yet)` }); continue; }
-  let bytes: Uint8Array;
-  try { bytes = await file.entry.read(); } catch (error) {
-   results.push({ file: file.url, status: 'refused', code: file.entry.size > 4 * 1024 * 1024 ? 'too_large' : 'malformed_bundle', reason: error instanceof ZipError ? error.message : 'unreadable' });
-   continue;
-  }
-  inflated += bytes.byteLength;
+  // readBundle has validated every entry before the first write; this returns its cached bytes.
+  const bytes = await file.entry.read();
   results.push(await storeMap(c, who, { file: file.url, bytes, debugId, release, build }));
  }
  return { release, results };
@@ -72,14 +66,14 @@ export async function assembleArtifactBundle(c: Context, who: CliAuthority, body
  } catch (error) { return cliError(c, 400, error instanceof CliRefusal ? error.detail : 'Invalid dist: use 1 to 100 letters, digits and . _ : -'); }
  // A receipt answers only the same bytes asked for under the same release and dist.
  const receipt = await sha1Hex(new TextEncoder().encode([body.checksum, release ?? '', dist ?? ''].join('\n')));
- const done = await s(db, "SELECT 1 FROM sentry_assemblies WHERE project=? AND kind='artifact_bundle' AND checksum=? AND state='ok'", project, receipt).first();
+ const done = await s(db, "SELECT 1 FROM sentry_assemblies WHERE project=? AND kind='artifact_bundle' AND checksum=? AND state='ok' AND created>?", project, receipt, Date.now() - receiptLifetime).first();
  if (done) { await deployBatch(c, auth, []); return reply(c, 'ok'); }
  const missing = await missingChunks(db, project, wanted);
  if (missing.length) return reply(c, 'not_found', { missingChunks: missing });
  const record = async (state: 'ok' | 'error', detail: string | null) => {
   await deployBatch(c, auth, [
    s(db, 'DELETE FROM sentry_upload_chunks WHERE project=? AND sha1 IN (SELECT value FROM json_each(?))', project, JSON.stringify(wanted)),
-   s(db, 'DELETE FROM sentry_assemblies WHERE created<?', Date.now() - receiptLifetime),
+   s(db, 'DELETE FROM sentry_assemblies WHERE created<=?', Date.now() - receiptLifetime),
    s(db, "INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,?,?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET state=excluded.state,detail=excluded.detail,created=excluded.created", project, receipt, state, detail, Date.now()),
    auditCommit(db),
   ]);
@@ -89,7 +83,7 @@ export async function assembleArtifactBundle(c: Context, who: CliAuthority, body
  if (!bytes) return record('error', `The chunks join to more than the ${maxFileSize}-byte bundle limit this server accepts.`);
  if (await sha1Hex(bytes) !== body.checksum) return record('error', 'The assembled bundle does not match its checksum; upload it again.');
  let bundle: Bundle;
- try { bundle = await readBundle(bytes); } catch (error) { return record('error', error instanceof ZipError ? `The artifact bundle is unreadable: ${error.message}.` : 'The artifact bundle is unreadable.'); }
+ try { bundle = await readBundle(bytes); } catch (error) { return record('error', error instanceof ZipError ? `The artifact bundle is unreadable: ${error.message} [malformed_bundle].` : 'The artifact bundle is unreadable [malformed_bundle].'); }
  if (release && bundle.release && bundle.release !== release || dist !== null && bundle.dist !== null && bundle.dist !== dist) return record('error', 'The bundle manifest names a different release or dist than the request.');
  try {
   const effectiveDist = dist ?? (bundle.dist ? storedBuild(bundle.dist) : null);

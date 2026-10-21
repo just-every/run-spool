@@ -5053,11 +5053,11 @@
       "executable": false
     },
     "src/domain/sentry-cli/assemble.ts": {
-      "sha256": "212b58e22efd5b55b58e0a1d10503440f9dc8988aaeabfccf79608c25cfb7707",
+      "sha256": "16fdd300f431ff765f882290bba76b0f2d34651caf12441d6569000734c5faf7",
       "executable": false
     },
     "src/domain/sentry-cli/auth.ts": {
-      "sha256": "b8826d0c0fede53e957186b3522b1a7982c3d0375becc14c4279780ba45deb29",
+      "sha256": "5378523e69301e4416e2a9c893686e17724a115604c2159f5e489d2b275e3650",
       "executable": false
     },
     "src/domain/sentry-cli/base64.ts": {
@@ -5065,7 +5065,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/bundle.ts": {
-      "sha256": "2036617afa193605485cd01f43014a1f3f15525de3bed6c77ffa1600a661d305",
+      "sha256": "b0021e3e496109e377ea97b51312d1e3a46bbdb819d70548a0fc0172aff684a4",
       "executable": false
     },
     "src/domain/sentry-cli/chunks.ts": {
@@ -5077,7 +5077,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/deploys.ts": {
-      "sha256": "6fd097b6213e955d2f92a243b583b1112f17d951d65a2c948c0c482b658365f9",
+      "sha256": "2f44cc7dda18a250e7d83590c2f3dc5493d7835a4939b83c25beb50b4bbd3b18",
       "executable": false
     },
     "src/domain/sentry-cli/errors.ts": {
@@ -5109,7 +5109,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/zip.ts": {
-      "sha256": "6b720fe58c1d568b5faf9ea2e687d142649b8e89e45e3bff9a86145b249fdc8f",
+      "sha256": "41827270839a86a88ed3ab203ab5af91dd9f48bf5787f9ce66674ba4a35e83cd",
       "executable": false
     },
     "src/domain/sentry-import/archive.ts": {
@@ -8181,7 +8181,7 @@
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
-      "sha256": "b4bfe0f9de1931d99bb8da2fd1f7819167616346043a1a08e5436b1fe7ea56cd",
+      "sha256": "e1ed62a51594d3fd8a545e984e5e078d1e6a3b4703e2cf38f5983573b5594502",
       "executable": false
     },
     "tests/sentry-cli/bundlers.mjs": {
@@ -8201,7 +8201,7 @@
       "executable": false
     },
     "tests/sentry-cli/denials.mjs": {
-      "sha256": "9429668a6f5b07338a14d0c844e6eebc9d6d226debce736bc468bd295a17f188",
+      "sha256": "427fb1a4ff4e13a7f5fb5e87aa9cd687b683f507d6f1550c7ba5b6e910bd08bb",
       "executable": false
     },
     "tests/sentry-cli/durable.mjs": {

@@ -1,5 +1,5 @@
 import { listZip, ZipError, type ZipEntry } from './zip';
-import { bundleFileLimit, manifestLimit, mapByteLimit } from './limits';
+import { bundleFileLimit, manifestLimit } from './limits';
 
 export type BundleFile = { path: string; url: string; type: string; headers: Record<string, string>; entry: ZipEntry };
 export type Bundle = { release: string | null; dist: string | null; files: BundleFile[] };
@@ -8,7 +8,10 @@ const text = (value: unknown) => typeof value === 'string' ? value : null;
 /** The artifact bundle sentry-cli assembles: manifest.json naming each file's URL, type and headers
  * (`debug-id`, `sourcemap`), plus the files themselves. Nothing here is stored; callers decide per file. */
 export async function readBundle(bytes: Uint8Array): Promise<Bundle> {
- const entries = listZip(bytes, { entries: bundleFileLimit + 1, entryBytes: mapByteLimit });
+ const entries = listZip(bytes, { entries: bundleFileLimit + 1, entryBytes: 64 * 1024 * 1024 });
+ // Validate data as well as metadata, including entries the manifest never references.
+ // The parser caps the whole inflated archive and caches each read: no second inflation.
+ for (const entry of entries) await entry.read();
  const byName = new Map(entries.map(entry => [entry.name, entry]));
  const manifestEntry = byName.get('manifest.json');
  if (!manifestEntry) throw new ZipError('the bundle has no manifest.json');

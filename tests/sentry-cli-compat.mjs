@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {mkdtemp, rm} from 'node:fs/promises';
+import {mkdtemp, realpath, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {startTestWorker} from './worker.mjs';
@@ -17,7 +17,7 @@ import {durableFlow} from './sentry-cli/durable.mjs';
 // organization and project slugs and the auth token are set, as a team's existing CI would set them.
 // The plugins run the newer `sentry` CLI in this process; its state and telemetry stay out of the checkout and the network.
 process.env.SENTRY_CLI_NO_TELEMETRY = '1'; process.env.SENTRY_CLI_NO_UPDATE_CHECK = '1'; process.env.NO_PROXY = '127.0.0.1'; process.env.no_proxy = '127.0.0.1';
-const app = await startTestWorker(15611), origin = app.origin, temporary = await mkdtemp(resolve(tmpdir(), 'spool-sentry-cli-'));
+const app = await startTestWorker(15611), origin = app.origin, temporary = await realpath(await mkdtemp(resolve(tmpdir(), 'spool-sentry-cli-')));
 process.env.SENTRY_CONFIG_DIR = resolve(temporary, 'sentry-config');
 try {
  const cookie = await signIn(origin);
