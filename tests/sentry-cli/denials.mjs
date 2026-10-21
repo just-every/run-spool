@@ -94,9 +94,11 @@ export async function authorityFlow({origin, req, keys}) {
   ['GET', '/organizations/acme/repos/'], ['GET', '/organizations/acme/releases/denied/previous-with-commits/'],
   ['POST', '/organizations/acme/unsupported/'],
  ];
+ // Auth refuses before consuming a POST body. The local HTTP/1 listener closes that
+ // connection; do not let undici pool it for the next independent denial probe.
  const requests = [
-  ['bearer only', (path, method, body, headers) => fetch(origin + path, {method, headers: {'Content-Type': 'application/json', ...headers}, ...body ? {body: JSON.stringify(body)} : {}})],
-  ['owner cookie and Origin', req],
+  ['bearer only', (path, method, body, headers) => fetch(origin + path, {method, headers: {'Content-Type': 'application/json', Connection: 'close', ...headers}, ...body ? {body: JSON.stringify(body)} : {}})],
+  ['owner cookie and Origin', (path, method, body, headers) => req(path, method, body, {Connection: 'close', ...headers})],
  ];
  for (const [context, request] of requests) {
  for (const [label, token, expected] of [['ingest', keys.ingest, 401], ['agent', keys.agent, 403], ['revoked', keys.revoked, 401], ['unknown', '0'.repeat(64), 401], ['absent', null, 401], ['malformed', 'invalid token', 401]]) {

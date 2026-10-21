@@ -8201,7 +8201,7 @@
       "executable": false
     },
     "tests/sentry-cli/denials.mjs": {
-      "sha256": "427fb1a4ff4e13a7f5fb5e87aa9cd687b683f507d6f1550c7ba5b6e910bd08bb",
+      "sha256": "cae9efba59b2fc3aa3571a054d923c4259520ebdb90957117eb37148aac8dfd0",
       "executable": false
     },
     "tests/sentry-cli/durable.mjs": {
