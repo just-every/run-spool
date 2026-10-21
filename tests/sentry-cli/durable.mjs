@@ -22,7 +22,7 @@ export async function durableFlow({origin, api, req, keys}) {
  assert.ok(!('sentry_upload_chunks' in exported) && !('sentry_assemblies' in exported), 'staging and receipts are not archived');
  const finalized = exported.sentry_releases.find(row => row.project === 'web' && row.release === 'checkout@1.0.0');
  assert.ok(finalized?.released, 'the finalization time is archived');
- assert.equal(exported.sentry_deploys.filter(row => row.project === 'web').length, 1);
+ assert.equal(exported.sentry_deploys.filter(row => row.project === 'web').length, 2, 'both reported deploys are archived');
  assert.ok(exported.artifacts.some(row => row.project === 'web'));
  assert.ok(exported.release_commits.some(row => row.project === 'web' && row.release === 'checkout@1.0.0'));
  assert.ok(!archive.text.includes(keys.deploy), 'no deploy key travels in the archive');

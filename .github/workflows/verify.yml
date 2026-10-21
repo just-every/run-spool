@@ -76,6 +76,8 @@ jobs:
             command: pnpm test:alerts && pnpm test:alerts-ui
           - shard: sdk
             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+          - shard: sentry-cli
+            command: pnpm test:sentry:cli
           - shard: agent-handoff
             command: pnpm test:agent-handoff && pnpm test:privacy
           - shard: repair-recovery

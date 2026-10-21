@@ -6,7 +6,7 @@ import type { CliAuthority } from './auth';
 import { cliError } from './errors';
 import { readBundle, type Bundle } from './bundle';
 import { joinChunks, missingChunks } from './chunks';
-import { chunkSize, maxFileSize } from './limits';
+import { chunkSize, mapByteLimit, maxFileSize, receiptLifetime } from './limits';
 import { sha1Hex } from './base64';
 import { storeMap, type FileResult } from './maps';
 import { registerBuildStatement, registrationStatements, releaseName } from './release';
@@ -47,6 +47,7 @@ async function storeBundle(c: Context, who: CliAuthority, bundle: Bundle, releas
    debugId = await artifactNameKey(minified);
   }
   if (inflated + file.entry.size > 64 * 1024 * 1024) { results.push({ file: file.url, status: 'refused', code: 'bundle_budget', reason: 'the bundle holds more than 64 MiB of maps; upload it in smaller bundles' }); continue; }
+  if (file.entry.size > mapByteLimit) { results.push({ file: file.url, status: 'refused', code: 'too_large', reason: `${file.entry.size} bytes; at most 256 KiB of map are stored today (SRC-004 capacity is not implemented yet)` }); continue; }
   let bytes: Uint8Array;
   try { bytes = await file.entry.read(); } catch (error) {
    results.push({ file: file.url, status: 'refused', code: file.entry.size > 4 * 1024 * 1024 ? 'too_large' : 'malformed_bundle', reason: error instanceof ZipError ? error.message : 'unreadable' });
@@ -69,14 +70,17 @@ export async function assembleArtifactBundle(c: Context, who: CliAuthority, body
   if (body.version !== undefined && body.version !== null && body.version !== '') release = releaseName(body.version);
   if (body.dist !== undefined && body.dist !== null && body.dist !== '') dist = storedBuild(body.dist);
  } catch (error) { return cliError(c, 400, error instanceof CliRefusal ? error.detail : 'Invalid dist: use 1 to 100 letters, digits and . _ : -'); }
- const done = await s(db, "SELECT 1 FROM sentry_assemblies WHERE project=? AND kind='artifact_bundle' AND checksum=? AND state='ok'", project, body.checksum).first();
+ // A receipt answers only the same bytes asked for under the same release and dist.
+ const receipt = await sha1Hex(new TextEncoder().encode([body.checksum, release ?? '', dist ?? ''].join('\n')));
+ const done = await s(db, "SELECT 1 FROM sentry_assemblies WHERE project=? AND kind='artifact_bundle' AND checksum=? AND state='ok'", project, receipt).first();
  if (done) { await deployBatch(c, auth, []); return reply(c, 'ok'); }
  const missing = await missingChunks(db, project, wanted);
  if (missing.length) return reply(c, 'not_found', { missingChunks: missing });
  const record = async (state: 'ok' | 'error', detail: string | null) => {
   await deployBatch(c, auth, [
    s(db, 'DELETE FROM sentry_upload_chunks WHERE project=? AND sha1 IN (SELECT value FROM json_each(?))', project, JSON.stringify(wanted)),
-   s(db, "INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,?,?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET state=excluded.state,detail=excluded.detail,created=excluded.created", project, body.checksum, state, detail, Date.now()),
+   s(db, 'DELETE FROM sentry_assemblies WHERE created<?', Date.now() - receiptLifetime),
+   s(db, "INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,?,?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET state=excluded.state,detail=excluded.detail,created=excluded.created", project, receipt, state, detail, Date.now()),
    auditCommit(db),
   ]);
   return state === 'ok' ? reply(c, 'ok') : reply(c, 'error', { detail });

@@ -3,7 +3,7 @@ import { auditCommit } from '../audit/context';
 import { deployBatch } from '../sentry/deploy';
 import type { CliAuthority } from './auth';
 import { cliError } from './errors';
-import { chunkSize, maxRequestSize, stagedLifetime, stagedLimit } from './limits';
+import { chunkSize, chunksPerRequest, maxRequestSize, stagedLifetime, stagedLimit } from './limits';
 import { fromBase64, sha1Hex, toBase64 } from './base64';
 
 const s = (db: D1Database, sql: string, ...args: unknown[]) => db.prepare(sql).bind(...args);
@@ -34,6 +34,7 @@ export async function receiveChunks(c: Context, who: CliAuthority): Promise<Resp
  try { form = await c.req.formData(); } catch { return cliError(c, 400, 'The chunk upload body could not be read.'); }
  const db = c.env.DB as D1Database, rows: { sha1: string; data: string; size: number }[] = [];
  for (const [name, value] of form.entries()) {
+  if (rows.length >= chunksPerRequest) return cliError(c, 400, `At most ${chunksPerRequest} chunks are accepted per request, as the options endpoint advertises.`);
   if (name !== 'file_gzip' || typeof value === 'string') return cliError(c, 400, 'Only gzip-compressed file_gzip chunks are accepted.');
   const sha1 = value.name;
   if (!/^[0-9a-f]{40}$/.test(sha1)) return cliError(c, 400, 'A chunk is named by the SHA-1 of its bytes.');

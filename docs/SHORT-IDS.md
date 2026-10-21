@@ -32,4 +32,4 @@ A retention cutoff removes the author and message of every commit received befor
 
 ## Provider sources
 
-GitHub pull request and GitLab merge request citations, merge commits and connected-repository SHA association arrive with SRC-002, and `sentry-cli releases set-commits` with SRC-003. Both feed this same parser, link log and resolution; no real provider receipt is claimed until those clauses ship.
+GitHub pull request and GitLab merge request citations, merge commits and connected-repository SHA association arrive with SRC-002, and `sentry-cli releases set-commits` with SRC-003. Both feed this same parser, link log and resolution. SRC-003's unmodified `sentry-cli releases set-commits` (`--auto`, `--commit` and `--local`, which send the commits of the client's git checkout) now does ([SENTRY-CLI.md](SENTRY-CLI.md)); no real provider receipt is claimed until SRC-002 ships.

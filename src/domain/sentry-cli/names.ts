@@ -13,13 +13,13 @@ export async function artifactNameKey(normalized: string): Promise<string> {
  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('artifact-name\n' + normalized));
  return 'url:' + Array.from(new Uint8Array(digest).subarray(0, 20), byte => byte.toString(16).padStart(2, '0')).join('');
 }
-/** Names a frame's file could have been uploaded under: its URL path, or for a local path its path and basename. */
+/** The one name a frame's file can have been uploaded under: its URL path, or its absolute path, after the `~`. A
+ * name is never guessed from a file's last component, so a map is never applied to a different file. */
 export function frameArtifactNames(file: string): string[] {
  const exact = normalizeArtifactName(file);
  if (exact) return [exact];
  if (!file.startsWith('/') || /[\u0000-\u001f\u007f]/.test(file)) return [];
- const clean = file.split(/[?#]/)[0], base = clean.slice(clean.lastIndexOf('/') + 1);
- return [...new Set(['~' + clean, base ? '~/' + base : ''].filter(Boolean))];
+ return ['~' + file.split(/[?#]/)[0]];
 }
 /** Resolves the `sourcemap` header of a minified file against that file's own artifact name. */
 export function siblingName(minified: string, reference: string): string | null {

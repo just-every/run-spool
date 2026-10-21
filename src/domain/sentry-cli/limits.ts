@@ -13,3 +13,5 @@ export const accepted = ['artifact_bundles', 'debug_files'];
 export const manifestLimit = 1024 * 1024;
 export const bundleFileLimit = 2000;
 export const mapByteLimit = 4 * 1024 * 1024;
+/** Assembly receipts only make a repeated upload cheap; they are kept thirty days. */
+export const receiptLifetime = 30 * 24 * 3600000;

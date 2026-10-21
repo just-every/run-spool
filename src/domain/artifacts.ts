@@ -31,9 +31,14 @@ export function createDiagnoser(db:D1Database, project:string) {
   const identities = new Map<string, Promise<any>>();
   const scopes = new Map<string, FunctionScopes>();
   const names = new Map<string, Promise<string|null>>();
+  const named = new Map<string, Promise<boolean>>();
   const byName = (event:Envelope, file:string) => {
     const key = JSON.stringify([event.release,event.build,file]);
     if (!names.has(key)) names.set(key,(async()=>{
+      // Most releases hold no URL-named map: one lookup per release and dist spares the per-file ones.
+      const scope = JSON.stringify([event.release,event.build]);
+      if (!named.has(scope)) named.set(scope,db.prepare("SELECT 1 FROM artifacts WHERE project=? AND release=? AND build=? AND debug LIKE 'url:%' LIMIT 1").bind(project,event.release,event.build).first().then(Boolean));
+      if (!await named.get(scope)) return null;
       const candidates = await Promise.all(frameArtifactNames(file).map(artifactNameKey));
       if (!candidates.length) return null;
       const found = await db.prepare('SELECT debug FROM artifacts WHERE project=? AND release=? AND build=? AND debug IN (SELECT value FROM json_each(?)) ORDER BY debug LIMIT 1').bind(project,event.release,event.build,JSON.stringify(candidates)).first<{debug:string}>();

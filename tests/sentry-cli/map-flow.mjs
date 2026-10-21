@@ -55,7 +55,8 @@ export async function mapFlow({origin, api, keys, dsn, temporary}) {
  // Release/dist mode: nothing injected, so the map is named by the URL of the script that points at it.
  const plain = resolve(temporary, 'plain'), plainRelease = 'checkout@3.0.0';
  const plainApp = await buildApp(plain, {name: 'storefront', release: plainRelease, dist: 'web-2', source, sdkPath});
- const plainUpload = await cli(['sourcemaps', 'upload', '--release', plainRelease, '--dist', 'web-2', resolve(plain, 'dist')]);
+ // A Node frame names its file by absolute path, so the upload's URL prefix is that directory.
+ const plainUpload = await cli(['sourcemaps', 'upload', '--release', plainRelease, '--dist', 'web-2', '--url-prefix', '~' + resolve(plain, 'dist'), resolve(plain, 'dist')]);
  assert.equal(plainUpload.code, 0, plainUpload.output);
  artifacts = await stored();
  assert.equal(artifacts.filter(row => row.release === plainRelease && row.debug.startsWith('url:')).length, 1, 'the release/dist map is stored under its URL identity');

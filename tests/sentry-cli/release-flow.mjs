@@ -46,6 +46,9 @@ export async function releaseFlow({origin, api, keys, dsn, otherDsn, emitter, te
  assert.match(listed.output, /production\s+\|\s+build-7/);
  const deploys = JSON.parse(find(await api('/api/projects/web/releases'), 'checkout@1.0.0').cli_deploys);
  assert.equal(deploys.length, 1); assert.equal(deploys[0].environment, 'production');
+ const topLevel = await cli(['deploys', 'new', '-r', 'checkout@1.0.0', '-e', 'staging', '-n', 'canary']);
+ assert.equal(topLevel.code, 0, topLevel.output); assert.match(topLevel.output, /Created new deploy canary for 'staging'/);
+ assert.deepEqual(JSON.parse(find(await api('/api/projects/web/releases'), 'checkout@1.0.0').cli_deploys).map(row => row.environment).sort(), ['production', 'staging']);
  const missing = await cli(['releases', 'deploys', 'nonexistent@9.9.9', 'new', '-e', 'production']);
  assert.notEqual(missing.code, 0); assert.match(missing.output, /Release not found/);
 
