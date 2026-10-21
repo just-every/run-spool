@@ -14,9 +14,9 @@ export function sharedCommit(row: any, share: boolean) {
 }
 
 // A regression of an issue whose current resolution came from a commit names that commit:
-// SHA, release and PR always; author and message only by the owner's sharing choice.
+// SHA, citation, release and PR always; author and message only by the owner's sharing choice.
 export const commitResolutionSql = (issue: string) => `(SELECT CASE WHEN ${sharingSql('l.project')} AND c.expired IS NULL
-  THEN json_object('release',l.release,'commit',l.sha,'pr',l.pr,'author',json_object('name',c.author_name,'email',c.author_email),'message',substr(c.message,1,1000))
-  ELSE json_object('release',l.release,'commit',l.sha,'pr',l.pr) END
+  THEN json_object('release',l.release,'commit',l.sha,'citation',l.citation,'pr',l.pr,'author',json_object('name',c.author_name,'email',c.author_email),'message',substr(c.message,1,1000))
+  ELSE json_object('release',l.release,'commit',l.sha,'citation',l.citation,'pr',l.pr) END
  FROM commit_links l JOIN commits c ON c.project=l.project AND c.sha=l.sha JOIN issue_resolutions z ON z.project=l.project AND z.issue=l.issue
  WHERE l.project=${issue}.project AND l.issue=${issue}.id AND z.mode='named' AND z.updated=l.resolved ORDER BY l.resolved DESC,l.sha LIMIT 1)`;

@@ -34,7 +34,8 @@ export function validateAlertArchive(data:any) {
   // TEAM-004 alerts name the issue's short ID and, after a commit resolution, its commit.
   shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
   assert(p.shortId===undefined||p.shortId===null||isShortId(p.shortId)&&p.shortId===p.shortId.toUpperCase());
-  if(p.resolution!==undefined&&p.resolution!==null){const r=p.resolution;shape(r,['release','commit','pr',...('author' in r?['author','message']:[])]);assert(a.kind==='regression'&&typeof r.release==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(r.commit)&&r.pr===null);
+  if(p.resolution!==undefined&&p.resolution!==null){const r=p.resolution;shape(r,['release','commit','pr',...('citation' in r?['citation']:[]),...('author' in r?['author','message']:[])]);assert(a.kind==='regression'&&typeof r.release==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(r.commit)&&r.pr===null);
+   if('citation' in r){safe(r.citation,200);assert(/^(?:fixes|resolves|closes):?[ \t]+\S+$/i.test(r.citation))}
    if('author' in r){shape(r.author,['name','email']);assert([r.author.name,r.author.email,r.message].every(v=>v===null||typeof v==='string'&&v.length<=1000))}}
   assert(p.schema==='spool.alert.v1'&&p.alertId===a.id&&p.kind===a.kind&&p.projectId===a.project&&p.issueId===a.issue&&p.occurredAt===new Date(a.created).toISOString());safe(p.title);
   if(p.issueUrl!==null){assert(typeof p.issueUrl==='string');const origin=publicOrigin(new URL(p.issueUrl).origin);

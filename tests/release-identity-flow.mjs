@@ -2,11 +2,15 @@ import {followErasure} from './project-erasure/follow.mjs';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
+import {mkdir,mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {launchBrowser} from './browser-launch.mjs';
 import {archiveProjection} from './archive.mjs';
 import {startTestWorker} from './worker.mjs';
-import {signIn} from './auth.mjs';
+import {signIn,testOwner} from './auth.mjs';
+import {alertRuntime,rule,prepareDestinations} from './alerts/runtime.mjs';
+import {receiver} from './alerts/receiver.mjs';
 export async function releaseIdentityFlow({req,json,origin,cookie}){
  const project=await json('/api/projects','POST',{id:'release-identity',name:'Cedar checkout releases'}),base='/api/projects/release-identity';
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
@@ -120,8 +124,10 @@ export async function team004Flow({req,json,origin,cookie}){
   // ERR-006 under SDK-009 order: an older release cannot regress; a newer one does, with one alert.
   await send(project,'CheckoutError','web@1.0.0');assert.equal((await issues()).CheckoutError.state,'resolved','an older-release occurrence cannot reopen');
   await send(project,'CheckoutError','web@1.2.0');assert.equal((await issues()).CheckoutError.state,'open','a newer-release occurrence regresses');
-  let alerts=(await json(base+'/alerts')).filter(a=>a.kind==='regression'&&a.issue===A.id);assert.equal(alerts.length,1);const alertA=JSON.parse(alerts[0].payload);assert.equal(alertA.shortId,'CHECKOUT-WEB-1');assert.deepEqual(alertA.resolution,{release:'web@1.1.0',commit:S1,pr:null},'alert carries the SHA and no author or message by default');
+  let alerts=(await json(base+'/alerts')).filter(a=>a.kind==='regression'&&a.issue===A.id);assert.equal(alerts.length,1);const alertA=JSON.parse(alerts[0].payload);assert.equal(alertA.shortId,'CHECKOUT-WEB-1');assert.deepEqual(alertA.resolution,{release:'web@1.1.0',commit:S1,citation:'fixes checkout-web-1',pr:null},'alert carries the SHA and no author or message by default');
   const sharedA=await packet('CHECKOUT-WEB-1',asAgent);assert.equal(sharedA.commits.sharing,'sha_only');assert.deepEqual(Object.keys(sharedA.commits.rows[0]).sort(),['citation','linked','pr','release','resolved','sha','shortId']);
+  const exportedA=(await json(base+'/issue-export?format=json')).rows.find(r=>r.id===A.id);assert.equal(exportedA.resolution_citation,'fixes checkout-web-1');assert.equal(exportedA.resolution_commit,S1);
+  const defaultCsv=await (await req(base+'/issue-export?format=csv')).text();assert.ok(defaultCsv.split('\r\n')[0].split(',').includes('resolution_citation')&&defaultCsv.includes('"fixes checkout-web-1"'),'CSV exports the literal resolution citation');
   for(const surface of [sharedA,await json(base+'/alerts','GET',undefined,asAgent),await json(base+'/issue-export?format=json')])assert.ok(!JSON.stringify(surface).includes(author.email)&&!JSON.stringify(surface).includes('empty cart guard'),'author and message stay on owner surfaces by default');
   await shoot('regressed','/projects/checkout-web/issues/'+A.id,async page=>{const section=await timeline(page);await section.getByText('Regressed',{exact:true}).waitFor();return section});
   // An SDK-auto-created release given commits by a later deploy-key registration resolves in that same release.
@@ -154,6 +160,23 @@ export async function team004Flow({req,json,origin,cookie}){
   assert.deepEqual((await json(base+'/issue-search?q='+E.short_id)).rows.map(r=>r.id),[F.id],'search follows the alias');
   await json(base+'/releases','POST',{name:'web@1.4.0',build:'web-14',commits:[{sha:S7,message:'Fixes '+E.short_id,author}]},asDeploy);assert.deepEqual((await json(base+'/commits/issues/'+F.id)).links.map(l=>[l.shortId,l.release]),[[E.short_id,'web@1.4.0']],'a citation of the alias links the survivor');
   await shoot('merged-alias','/projects/checkout-web/issues/'+E.short_id,async page=>{await page.getByText(`${E.short_id} is an alias of ${F.short_id}`,{exact:false}).waitFor();return page.locator('.issue')});
+  // S1 / G1: a SHA release admitted after its commit's registration associates it without re-resolving.
+  await send(project,'InventoryError','web@1.4.0');const G=(await issues()).InventoryError,laterSha='c8'.repeat(20);
+  await json(base+'/releases','POST',{name:'web@1.5.0',build:'web-15',commits:[{sha:laterSha,message:`Fixes ${G.short_id} with inventory reconciliation`,author}]},asDeploy);
+  const earlierResolution=(await packet(G.id)).issue,earlierLink=await json(base+'/commits/issues/'+G.id);
+  assert.deepEqual([earlierResolution.state,earlierResolution.resolution_release,earlierLink.links[0].sha],['resolved','web@1.5.0',laterSha]);
+  await send(project,'ShaAdmissionError',laterSha);
+  const associated=await archiveProjection(await req('/api/archive'));
+  assert.ok(associated.data.release_commits.some(r=>r.project==='checkout-web'&&r.release===laterSha&&r.sha===laterSha&&r.source==='sha_release'),'later SDK SHA release has the sha_release association');
+  assert.equal((await json(base+'/releases')).find(r=>r.name===laterSha).auto_created,1);
+  assert.deepEqual(await json(base+'/commits/issues/'+G.id),earlierLink,'association keeps the earlier resolving link');
+  assert.deepEqual([(await packet(G.id)).issue.resolution_release,(await packet(G.id)).issue.revision],['web@1.5.0',earlierResolution.revision],'association preserves resolution and its revision');
+  const regressions=async()=> (await json(base+'/alerts')).filter(a=>a.issue===G.id&&a.kind==='regression');
+  await send(project,'InventoryError','web@1.4.0');assert.equal((await issues()).InventoryError.state,'resolved');assert.equal((await regressions()).length,0,'older release still cannot regress');
+  await send(project,'InventoryError',laterSha);await send(project,'InventoryError',laterSha);
+  assert.equal((await issues()).InventoryError.state,'open');assert.equal((await regressions()).length,1,'the later SHA release regresses once');
+  assert.equal((await packet(G.id)).issue.resolution_release,'web@1.5.0','regression keeps the original resolution');
+  console.log('TEAM-004 S1 / G1 passed: later SHA-release association, earlier resolution and revision kept, older-release protection, one SHA-release regression.');
   // Private archive restore keeps every short ID, alias, link and resolution, and re-runs nothing.
   const archive=await archiveProjection(await req('/api/archive')),stores=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'];
   for(const table of stores)assert.ok(archive.data[table].some(r=>r.project==='checkout-web'),`archive carries ${table}`);assert.ok(archive.data.commits.some(r=>r.author_email===author.email),'the private archive carries author and message');
@@ -165,5 +188,81 @@ export async function team004Flow({req,json,origin,cookie}){
   const erased=await archiveProjection(await req('/api/archive'));for(const table of stores)assert.ok(erased.data[table].every(r=>r.project!=='checkout-web'),`project erasure removes ${table}`);
   assert.equal((await json('/api/projects','POST',{id:'checkout_web',name:'Cedar checkout reborn'})).shortIdPrefix,'CHECKOUT-WEB_2','an erased project’s prefix is never reused');
  }finally{await browser.close()}
+ await team004DeliveryRetention();
  console.log('TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440/390 screens.');
+}
+
+// S2 / G2 uses the emitted app and existing signed receiver/provider edges. All changes
+// go through owner/deploy/ingest doors; SQL only reads private delivery copies for assertions.
+async function team004DeliveryRetention(){
+ const temporary=await mkdtemp(join(tmpdir(),'spool-team004-delivery-')),inbox=await receiver(join(temporary,'receiver.sqlite'));let app;
+ try{
+  app=await alertRuntime(inbox,{mail:'sendgrid',captureMail:true});
+  const project=await app.json('/api/projects','POST',{id:'web',name:'Cedar checkout delivery retention'}),base='/api/projects/web',delivery=base+'/alerting',auth={Cookie:'',Authorization:'Bearer '+project.ingestKey};
+  const deploy=await app.json(base+'/keys','POST',{kind:'deploy'}),asDeploy={Cookie:'',Authorization:'Bearer '+deploy.key};
+  await app.json(base+'/releases','POST',{name:'web@1.0.0',build:'web-10'},asDeploy);
+  const capture=async(label,release,build)=>app.json('/api/ingest/web','POST',{version:1,eventId:`team004-${label}-${release}`,release,build,environment:'production',type:'CheckoutError',message:`Checkout ${label} failed`,frames:[{file:`https://checkout.example.test/${label}.js`,function:label,line:7,column:0}]},auth);
+  const fixtures=[];
+  for(const [label,sha] of [['default','d1'.repeat(20)],['shared','d2'.repeat(20)],['pending','d3'.repeat(20)]]){
+   const admitted=await capture(label,'web@1.0.0','web-10'),issue=(await app.json(base+'/issues')).find(r=>r.id===admitted.issue);
+   fixtures.push({label,sha,issue:issue.id,shortId:issue.short_id,citation:`Fixes ${issue.short_id}`});
+  }
+  const after=async time=>{const cutoff=time+1;await new Promise(resolve=>setTimeout(resolve,Math.max(0,cutoff-Date.now())));return cutoff};
+  // Remove the original occurrences before registering commits. The final cutoff then
+  // removes commit identity alone, keeping regression evidence and the mail's SHA/citation.
+  const original=await archiveProjection(await app.request('/api/archive'));
+  await app.json(base+'/retention','POST',{cutoff:await after(Math.max(...original.data.events.map(r=>r.received))),apply:true});
+  const author={name:'Dana Delivery',email:'dana.delivery@example.test'},privateMessage='retained checkout delivery detail',scrubCanary='COMMIT_SCRUB_CANARY_004';
+  await app.json(base+'/releases','POST',{name:'web@1.1.0',build:'web-11',commits:fixtures.map(f=>({sha:f.sha,message:`${f.citation}: ${privateMessage} ${f.label}\n\npassword=${scrubCanary}`,author}))},asDeploy);
+  const commits=await archiveProjection(await app.request('/api/archive')),cutoff=await after(Math.max(...commits.data.commits.map(r=>r.received)));
+  assert.ok(!commits.text.includes(scrubCanary),'commit messages are scrubbed before persistence');
+  await app.json(base+'/releases','POST',{name:'web@1.2.0',build:'web-12'},asDeploy);
+  const mail=await app.json(delivery+'/destinations','POST',{label:'Release owner',recipient:testOwner});
+  await prepareDestinations(app);
+  for(const channel of ['mail','webhook'])await app.json(delivery+'/rules','POST',rule(channel,{kinds:['regression'],...(channel==='mail'?{destination:mail.id}:{})}));
+  const copies=async f=>{
+   const histories=(await app.json(delivery+'/deliveries')).filter(r=>r.issue===f.issue&&r.kind==='regression');assert.equal(histories.length,2);
+   const mail=histories.find(r=>r.channel==='mail'),webhook=histories.find(r=>r.channel==='webhook');assert.ok(mail&&webhook);
+   const job=await app.db.prepare('SELECT message,state,code FROM alert_mail_jobs WHERE id=?').bind(mail.id).first();assert.ok(job);
+   const wire=inbox.requests.find(r=>r.headers['webhook-id']===webhook.id);assert.ok(wire,'signed receiver observed this delivery');
+   return {mail,webhook,job,message:JSON.parse(job.message),body:JSON.parse(wire.body)};
+  };
+  const expected=f=>({release:'web@1.1.0',commit:f.sha,citation:f.citation,pr:null});
+  const [plain,shared,pending]=fixtures;
+  await capture(plain.label,'web@1.2.0','web-12');const defaultCopies=await copies(plain);
+  assert.deepEqual(defaultCopies.body.resolution,expected(plain),'default webhook keeps SHA, release and literal citation only');
+  assert.ok(defaultCopies.message.text.includes(plain.sha)&&defaultCopies.message.text.includes(plain.citation)&&defaultCopies.message.text.includes('web@1.1.0'));
+  assert.ok(!defaultCopies.message.text.includes(author.email)&&!defaultCopies.message.text.includes(privateMessage)&&!defaultCopies.message.text.includes('Commit author and message'));
+  const sharing=await app.json(base+'/commits/sharing');await app.json(base+'/commits/sharing','PUT',{share:true,revision:sharing.revision});
+  await capture(shared.label,'web@1.2.0','web-12');const sharedCopies=await copies(shared);
+  assert.deepEqual(sharedCopies.body.resolution,{...expected(shared),author,message:commits.data.commits.find(r=>r.sha===shared.sha).message});
+  assert.ok(sharedCopies.message.text.includes('Commit author and message, shared by the project owner:')&&sharedCopies.message.text.includes(author.email)&&sharedCopies.message.text.includes(privateMessage));
+  const outboxBefore=(await app.db.prepare('SELECT id,message FROM rer_mail_development_outbox').all()).results.filter(r=>JSON.parse(r.message).deliveryId===sharedCopies.mail.id);
+  assert.equal(outboxBefore.length,1,'controlled provider edge retained a real fixture mail copy');assert.ok(outboxBefore[0].message.includes(author.email)&&outboxBefore[0].message.includes('Short ID: '+shared.shortId));
+  assert.equal(sharedCopies.mail.state,'accepted');assert.equal(sharedCopies.webhook.state,'accepted');
+  inbox.mailStatuses.push(429);inbox.statuses.push(429);await capture(pending.label,'web@1.2.0','web-12');const pendingCopies=await copies(pending);
+  assert.equal(pendingCopies.job.state,'queued');assert.equal(pendingCopies.webhook.state,'retrying');assert.deepEqual(pendingCopies.body.resolution.author,author);assert.ok(pendingCopies.message.text.includes(author.email));
+  for(const f of [shared,pending]){
+   const exported=(await app.json(base+'/issue-export?format=json')).rows.find(r=>r.id===f.issue);assert.equal(exported.resolution_citation,f.citation);assert.ok(exported.resolution_author.includes(author.email)&&exported.resolution_message.includes(privateMessage));
+  }
+  const sharedIds=[sharedCopies,pendingCopies].flatMap(c=>[c.mail.id,c.webhook.id]),webhookIds=[sharedCopies.webhook.id,pendingCopies.webhook.id];
+  const integrationCopies=async()=> (await app.db.prepare("SELECT id,envelope FROM integration_deliveries WHERE namespace='spool.web'").all()).results.filter(r=>webhookIds.includes(r.id));
+  assert.equal((await integrationCopies()).length,2,'accepted and pending webhook envelopes exist before retention');
+  await app.json(base+'/retention','POST',{cutoff,apply:true});
+  for(const c of [sharedCopies,pendingCopies]){
+   const job=await app.db.prepare('SELECT message,code,state FROM alert_mail_jobs WHERE id=?').bind(c.mail.id).first();assert.ok(job);assert.equal(job.code,'retention_removed');
+   const text=JSON.parse(job.message).text;assert.ok(text.includes(c.body.resolution.commit)&&text.includes(c.body.resolution.citation)&&text.includes('web@1.1.0'),'retention keeps the mail resolution while removing only the shared block');
+   assert.ok(!text.includes(author.email)&&!text.includes(privateMessage)&&!text.includes('Commit author and message'));
+  }
+  assert.equal((await integrationCopies()).length,0,'accepted and pending webhook copies are removed');
+  const replays=(await app.db.prepare("SELECT id FROM integration_replays WHERE namespace='spool.web'").all()).results;assert.ok(replays.every(r=>!webhookIds.includes(r.id)));
+  const outboxAfter=(await app.db.prepare('SELECT message FROM rer_mail_development_outbox').all()).results;assert.ok(outboxAfter.every(r=>!sharedIds.includes(JSON.parse(r.message).deliveryId)&&!r.message.includes(author.email)&&!r.message.includes(privateMessage)),'retention removes shared mail outbox text');
+  const histories=await app.json(delivery+'/deliveries');for(const id of [pendingCopies.mail.id,pendingCopies.webhook.id]){const h=histories.find(r=>r.id===id);assert.equal(h.state,'cancelled');assert.equal(h.code,'retention_removed')}
+  const intents=(await app.db.prepare('SELECT id,body,state,code FROM alert_intents').all()).results.filter(r=>sharedIds.includes(r.id));assert.equal(intents.length,4);
+  for(const i of intents){assert.ok(!i.body.includes(author.email)&&!i.body.includes(privateMessage));if([pendingCopies.mail.id,pendingCopies.webhook.id].includes(i.id)){assert.equal(i.state,'cancelled');assert.equal(i.code,'retention_removed')}}
+  const clean=await archiveProjection(await app.request('/api/archive'));for(const value of [author.email,author.name,privateMessage,scrubCanary])assert.ok(!clean.text.includes(value),'fresh archive removes '+value);
+  for(const f of fixtures){assert.ok(clean.data.release_commits.some(r=>r.sha===f.sha&&r.release==='web@1.1.0'));assert.ok(clean.data.commit_links.some(r=>r.sha===f.sha&&r.citation===f.citation&&r.release==='web@1.1.0'));assert.ok(clean.data.events.some(r=>r.issue===f.issue&&r.received>=cutoff),'regression event stays retained')}
+  const attempts=inbox.requests.length,mailCount=inbox.mailCount;await app.schedule(Date.now()+60000);assert.equal(inbox.requests.length,attempts);assert.equal(inbox.mailCount,mailCount,'retention-removed deliveries never retry');
+  console.log('TEAM-004 S2 / G2 passed: reviewed email/signed-webhook regression rules; default SHA/release/citation and shared author/message bodies; nonempty fixture outbox; owner cutoff removes shared mail/outbox text and webhook copies, cancels pending deliveries retention_removed; clean archive, shared exports and scrub canary.');
+ }finally{await app?.close();await inbox.close();await rm(temporary,{recursive:true,force:true})}
 }
