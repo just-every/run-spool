@@ -2,7 +2,7 @@
 
 Recorded 21 October 2026 on a Linux x86_64 cloud container (Node 22.22.0) against the emitted Spool Worker. No GitHub Actions, GitLab CI, macOS tool or provider account was used, and no credential other than throwaway test-local deploy keys. Each client below was the released package, driven with only the Spool URL, organization and project slugs and a project deploy key changed.
 
-## In the repository: `tests/sentry-cli-compat.mjs`
+## Journey that runs on every push: `tests/sentry-cli-compat.mjs`
 
 Runs on every push. It uses `@sentry/cli` 3.8.1 and the unmodified `@sentry/node` SDK, `@sentry/vite-plugin`, `@sentry/esbuild-plugin`, `@sentry/rollup-plugin` and `@sentry/webpack-plugin` 11.8.0 (which run the `sentry` 0.45.0 CLI):
 

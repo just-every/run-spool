@@ -3333,7 +3333,7 @@
       "executable": false
     },
     "docs/retained-verification/src003/README.md": {
-      "sha256": "b83f15861f97133afef215ad8153fff0b1b52ec9c06f1723723588455db7b44e",
+      "sha256": "12943e12253224586c7132e92c87b8db3a5705233b752ae1668334e61e7f9d9f",
       "executable": false
     },
     "docs/retained-verification/team004/empty-link-log-1440.png": {
@@ -8209,7 +8209,7 @@
       "executable": false
     },
     "tests/sentry-cli/fixtures.mjs": {
-      "sha256": "4840161709843198d64a730a0d0cf9c375417d860c42c92041b40dad64e15d1a",
+      "sha256": "2cd78920b439dc5fa5684a0614f67d82f3d68cc9a20cb8be4fc4c6e192eec618",
       "executable": false
     },
     "tests/sentry-cli/map-flow.mjs": {

@@ -8,7 +8,7 @@ import {build} from 'esbuild';
 export function gitHistory(dir, messages) {
  const git = (...args) => execFileSync('git', args, {cwd: dir, encoding: 'utf8', env: {...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null'}}).trim();
  git('init', '-q', '-b', 'main'); git('config', 'user.email', 'dev@example.test'); git('config', 'user.name', 'Dev One');
- git('remote', 'add', 'origin', 'https://github.com/acme/checkout.git');
+ git('remote', 'add', 'origin', 'https://git.example.test/acme/checkout.git');
  const shas = [];
  messages.forEach((message, index) => { execFileSync('sh', ['-c', `echo ${index} > file${index}`], {cwd: dir}); git('add', '-A'); git('commit', '-q', '-m', message); shas.push(git('rev-parse', 'HEAD')); });
  return shas;
