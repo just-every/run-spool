@@ -7,11 +7,13 @@ import {runCli} from './cli.mjs';
 /** Native debug files, send-event and the endpoints Spool does not serve, as an unmodified client meets them. */
 export async function debugFlow({origin, api, keys, dsn, temporary}) {
  const cli = (args, options = {}) => runCli(args, {origin, token: keys.deploy, ...options});
- // A genuine ELF/DWARF file compiled from a few checked-in lines of C, with a GNU build ID.
+ // Genuine compiler debug information: ELF/DWARF with a GNU build ID on Linux,
+ // or the compiler's dSYM/DWARF on macOS (whose linker does not accept --build-id).
  const dir = resolve(temporary, 'native'); await mkdir(dir, {recursive: true});
  await writeFile(resolve(dir, 'app.c'), '#include <stdio.h>\nint add(int a, int b) { return a + b; }\nint main(void) { printf("%d\\n", add(1, 2)); return 0; }\n');
- execFileSync('gcc', ['-g', '-Wl,--build-id', '-o', resolve(dir, 'app'), resolve(dir, 'app.c')]);
- const check = await cli(['debug-files', 'check', resolve(dir, 'app')]);
+ execFileSync('gcc', ['-g', ...process.platform === 'darwin' ? [] : ['-Wl,--build-id'], '-o', resolve(dir, 'app'), resolve(dir, 'app.c')]);
+ const debugFile = process.platform === 'darwin' ? resolve(dir, 'app.dSYM/Contents/Resources/DWARF/app') : resolve(dir, 'app');
+ const check = await cli(['debug-files', 'check', debugFile]);
  assert.equal(check.code, 0, check.output); assert.match(check.output, /Debug ID: [0-9a-f-]{36}/);
 
  const before = await api('/api/projects/web/sentry-uploads');
@@ -21,7 +23,7 @@ export async function debugFlow({origin, api, keys, dsn, temporary}) {
  assert.deepEqual(await api('/api/projects/web/sentry-uploads'), before, 'nothing was staged or stored');
 
  // bundle-sources is a local command: it needs no server and its output is a real source bundle.
- const bundled = await cli(['debug-files', 'bundle-sources', resolve(dir, 'app')]);
+ const bundled = await cli(['debug-files', 'bundle-sources', '--output', dir, debugFile]);
  assert.equal(bundled.code, 0, bundled.output);
  assert.ok((await stat(resolve(dir, 'app.src.zip'))).size > 0);
 
