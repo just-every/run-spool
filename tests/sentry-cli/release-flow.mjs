@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {gitHistory} from './fixtures.mjs';
+import {gitHistory, fixtureAuthor} from './fixtures.mjs';
 import {runCli} from './cli.mjs';
 import {runNode} from './sdk.mjs';
 
@@ -69,7 +69,7 @@ export async function releaseFlow({origin, api, keys, dsn, otherDsn, emitter, te
  const timeline = await api(`/api/projects/web/commits/issues/${own.id}`);
  assert.equal(timeline.state, 'resolved');
  assert.equal(timeline.links.length, 1);
- assert.deepEqual({sha: timeline.links[0].sha, release: timeline.links[0].release, author: timeline.links[0].author}, {sha: shas.at(-1), release: 'checkout@1.0.0', author: {name: 'Dev One', email: 'dev@example.test'}});
+ assert.deepEqual({sha: timeline.links[0].sha, release: timeline.links[0].release, author: timeline.links[0].author}, {sha: shas.at(-1), release: 'checkout@1.0.0', author: fixtureAuthor});
  const log = await api('/api/projects/web/commits/link-log');
  assert.deepEqual(log.rows.map(row => [row.citation.toLowerCase(), row.reason]).sort(), [[`closes ${foreign.short_id}`.toLowerCase(), 'other_project'], ['resolves nope-404', 'unknown']].sort());
  assert.equal((await issues('other')).find(row => row.id === foreign.id).state, 'open', 'another project\'s issue is untouched');

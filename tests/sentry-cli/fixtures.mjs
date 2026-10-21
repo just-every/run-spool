@@ -4,6 +4,8 @@ import {mkdir, writeFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {build} from 'esbuild';
 
+export const fixtureAuthor = {name: process.env.GIT_AUTHOR_NAME ?? 'Dev One', email: process.env.GIT_AUTHOR_EMAIL ?? 'dev@example.test'};
+
 /** A real git history, so `releases set-commits` reads commits from the checkout as it does in CI. */
 export function gitHistory(dir, messages) {
  const git = (...args) => execFileSync('git', args, {cwd: dir, encoding: 'utf8', env: {...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null'}}).trim();

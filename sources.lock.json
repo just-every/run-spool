@@ -8209,7 +8209,7 @@
       "executable": false
     },
     "tests/sentry-cli/fixtures.mjs": {
-      "sha256": "2cd78920b439dc5fa5684a0614f67d82f3d68cc9a20cb8be4fc4c6e192eec618",
+      "sha256": "4c88fa337a75aea0029e1ec8f81f266b87bd4d12c36874d124c06cd48270d791",
       "executable": false
     },
     "tests/sentry-cli/map-flow.mjs": {
@@ -8221,7 +8221,7 @@
       "executable": false
     },
     "tests/sentry-cli/release-flow.mjs": {
-      "sha256": "25639c3096a7e474f53be5f056c7454d855d83d0c05c773556de65167d8cd725",
+      "sha256": "7b86b7d9137c320b9915c9423b91a70061fef0517040da0cb0b4f958975154af",
       "executable": false
     },
     "tests/sentry-cli/sdk.mjs": {
