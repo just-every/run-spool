@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "87172043d50452b31995576b2477c6d1a58b25402a575fd2c3d6d7f4c7142059",
+      "sha256": "bebede9f05bf234e6eb0f0784c86aacc346b57e8ad4eae2b0a8f2cdee94ee876",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a3ab1882a488a29b4806490eb49a9219ac601a2d5c00f7c4f45aee36e3927438",
+      "sha256": "0821d1271e9e6011b9de00b0cc7b177ade59b8cb509d80fd20a3d58717bae7f9",
       "executable": false
     },
     "DEMO.md": {
@@ -3425,7 +3425,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "1d9919941ae3580f63c8c19b55ec9e6134db614354e654b7e91d9c6a20dfaf61",
+      "sha256": "4451f15d5e419fd24e8ca39f35ab7c2b9efabca6bf9b88c6df9f7c100cbbd8c7",
       "executable": false
     },
     "docs/SHORT-IDS.md": {

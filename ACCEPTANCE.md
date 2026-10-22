@@ -190,7 +190,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs` Uncompressed, `gzip` and `deflate` bodies are accepted with bounded decompression. Public-door SDK-011 proof checks deflate issue creation and expanded-size refusal, unsupported encodings named in 415 responses and counted with header/query ingest grants, and malformed event JSON refused as `invalid_item` while a valid companion is admitted without extra accepted units. The whole request remains capped at 256 KiB compressed, 1 MiB expanded and 100 items; `br`/`zstd`, Sentry-equal limits, oversized-item isolation, streamed heavy-item storage and full usage/dual-run reconciliation remain absent.
 
-- **SDK-012 — Unmodified server-runtime SDKs: Python, Go, Java/JVM, Ruby, PHP, .NET, Rust and Elixir. Status: partial.**
+- **SDK-012 — Unmodified server-runtime SDKs: Python, Go, Java/JVM, Ruby, PHP, .NET, Rust and Elixir. Status: done.**
   - Q1 to Q7 for each of the eight runtimes.
   - **P1 (inherited from SDK-009):** unmodified Python no-release and inferred-SHA intake, including a release-less alert and release-scoped no-release counts.
   - **P2 (inherited from SDK-010):** the unmodified Python SDK with default integrations:
@@ -203,20 +203,20 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Constructed envelopes qualify conversion only.
 
-  Current evidence, by acceptance point (journeys are scripts; names below are their assertion labels):
-  1. Python, Go, Java, Ruby, PHP, .NET and Rust, unmodified SDK, DSN only, each with tracing, logs and an attachment; a cron check-in from every runtime but Rust; client-report discards from Python, Go, Java, .NET and Rust; a session from .NET; feedback from Java and .NET (each runtime's `required` item list in `tests/runtimes/<runtime>.mjs` asserts what its SDK sent): `tests/sdk-runtimes.mjs <runtime>` ("Spool outcomes reconcile with SDK-sent items", "every SDK error event is a persisted occurrence", "the restarted process groups into the same issue", "unhandled failure persisted as unhandled", "refused or undeliverable events create nothing"), one parallel Verify job per runtime (`runtime (<name>)`). The reference collector and the Spool run use the same program.
-  2. SDK-009 Python: `tests/runtimes/python.mjs` verify ("release-less capture creates no pretend release", "SDK-inferred git SHA is the release").
-  3. SDK-010 Python and Java: `tests/runtimes/python.mjs` verify (locals, SDK context and default integrations, `ExceptionGroup`, Django request URL, method, query and headers over a real WSGI request, "Django request headers are kept") and `tests/runtimes/java.mjs` verify (Caused by plus suppressed chain).
-  Real runs also fixed three intake gaps: sentry-go `exception` arrays and RFC 3339 client-report timestamps (`tests/client-report-flow.mjs`), sentry-ruby `type: "event"`.
+  Current evidence, by acceptance point (journeys are scripts; names below are their assertion labels): `tests/sdk-runtimes.mjs <runtime>` runs each unmodified SDK program twice, against a local reference collector and against Spool with only the DSN changed, in the push Verify jobs `runtime (python)`, `runtime (go)`, `runtime (java)`, `runtime (ruby)`, `runtime (php)`, `runtime (dotnet)`, `runtime (rust)` and `runtime (elixir)`.
+  - **Q1:** "every SDK error event is a persisted occurrence" and "handled exception chain … persisted" through the public API, and the handled issue read through the UI at 1440 and 390 (`tests/runtimes/screens.mjs`, screen `<runtime>-issue`).
+  - **Q2:** "unhandled failure persisted as unhandled": `mechanism.handled` false as each SDK sent it; sentry-go v0.50.0 marks a recovered panic only with level `fatal` (`RecoverWithContext`, `client.go:805`), which Spool keeps.
+  - **Q3:** "the restarted process groups into the same issue" (handled, crash, handled across three processes) with "every SDK error event is a persisted occurrence" (no duplicate).
+  - **Q4:** "Spool outcomes reconcile with SDK-sent items", each runtime's `required` items asserted as sent: tracing, logs and an attachment everywhere; sessions from Python (application mode), Java (`Sentry.startSession`, its release read through external configuration), Ruby (request mode, the crash run's Rack request through the SDK middleware), .NET (`AutoSessionTracking`) and Rust (`auto_session_tracking`); no session is offered by sentry-go v0.50.0 (no session API), sentry/sentry 4.34.0 (no session item type, `src/EventType.php`) or sentry 14.0.0 for Elixir (no session option, `lib/sentry/config.ex`).
+  - **Q5:** "release and dist equal what the SDK sent" (`SENTRY_RELEASE` and `SENTRY_DIST` as each SDK reads them, the absent dist as none) and "release … is created automatically" with its creating SDK.
+  - **Q6:** the `client_discarded:<category>:<reason>` rows of the same reconciliation in project outcomes, BILL-001's usage door (`/api/projects/:project/outcomes`, shown in capture receipts), for Python, Go, Java, .NET, Rust and Elixir (a sampled-out message on the SDK's 30-second report timer, `lib/sentry/client_report/sender.ex:23`; a `before_send` exclusion records none, `lib/sentry/client.ex:102`). Named instead: sentry/sentry 4.34.0 sends none (a `before_send` drop is only logged, `src/Client.php:354-366`, and the SDK never calls its `ClientReportAggregator`); sentry-ruby 7.1.0 sends none from this process (`Sentry.close` forces the report flush, `lib/sentry-ruby.rb:303`, before it stops the worker, `:312`, that records the discard, `lib/sentry/client.rb:252`; sending synchronously delivers it but then raises out of `Sentry.close` on a refused or unreachable intake, `lib/sentry/transport.rb:188`).
+  - **Q7:** "refused or undeliverable events create nothing" (a wrong key and an unreachable intake; the program exits normally).
+  - **P1:** `tests/runtimes/python.mjs` verify: "release-less capture creates no pretend release", "the release-less event raises one new-issue alert", "release-less alert names no release", "SDK-inferred git SHA is the release", "inferred release is created automatically", "the release-less event counts in the issue total", "release-scoped no-release count" (`noReleaseEvents`, `!has:release`, `release:<sha>`), and the Releases and Alerts screens (`python-releases`, `python-alerts`) at 1440 and 390.
+  - **P2:** `tests/runtimes/python.mjs`: the handled `raise ValueError(...) from` chain (`ZeroDivisionError`, `ValueError`), `group.py` `ExceptionGroup` with every member, default `include_local_variables` ("an ordinary local survives", `password` and `api_key` redacted), SDK context and default integrations, and Django request data over a real WSGI request ("Django request headers are kept", cookie removed, secret query masked).
+  - **J1:** `tests/runtimes/java.mjs` verify: a `Caused by` chain with a suppressed exception keeps all three with their `chained` and `suppressed` relations.
+  Real runs also fixed four intake gaps: sentry-go `exception` arrays and RFC 3339 client-report timestamps (`tests/client-report-flow.mjs`), sentry-ruby `type: "event"`, and sentry-elixir's protocol version 5 in `X-Sentry-Auth` (`src/domain/sentry/auth.ts`).
 
-  Remaining Gap (SDK-012 stays partial):
-  - Elixir is not run: no job runs the `sentry` Hex package.
-  - Q4 with sessions: a session item is asserted only for .NET; session tracking in the other server SDKs that offer it is not enabled, so their sessions are not reconciled.
-  - Q6: Ruby and PHP emit no client report, so their `before_send` discard is not observed in BILL-001 usage, and no SDK version or source line is named for its absence.
-  - Q5: the release and dist Spool stored are compared with what the SDK sent, and the release checked as auto-created, only for the Python inferred SHA; no other runtime's release or dist is asserted.
-  - Q1: occurrences are read through the public API only, not through the UI.
-  - P1: the Python release-less alert and release-scoped no-release counts are not asserted (the journey checks the issue's attention payload and `!has:release`).
-  - The Rust SDK sends native-style frames without file and line (SDK-002 symbolication).
+  Outside this clause: persisted session, trace, log and attachment outcomes (SDK-025), check-ins (SDK-024), and the Rust SDK's native-style frames without file and line (SDK-002 symbolication).
 
 - **SDK-013 — Unmodified Electron SDK. Status: missing.** Errors in the `@sentry/electron` main and renderer processes pass Q1 to Q7 in a packaged app run under a virtual display in a push or scheduled job. Native minidumps remain SDK-002 and SDK-011.
 
@@ -568,7 +568,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 
 ## External acceptance and engineering obligations
 
-- SDK-001/002/006/007/009/010/011 require actual supported runtime SDK executions, every named Sentry envelope item type, event field, content encoding and published size limit from unmodified SDKs, and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility; the unmodified Python, Go, Java, Ruby, PHP, .NET and Rust runs are in `tests/sdk-runtimes.mjs`, and the device runtimes remain unrun.
+- SDK-001/002/006/007/009/010/011 require actual supported runtime SDK executions, every named Sentry envelope item type, event field, content encoding and published size limit from unmodified SDKs, and native device crash/symbol pipelines. Constructed Python/Go envelopes, browser/Node SDK results and a DSN subset do not establish broad compatibility; the unmodified Python, Go, Java, Ruby, PHP, .NET, Rust and Elixir runs are in `tests/sdk-runtimes.mjs`, and the device runtimes remain unrun.
 - MIG-001 through MIG-005 require real buyer-controlled exports/API reconciliation with each named source. Current synthetic Sentry organization bundles establish only their adapter behavior; document omissions and do not replay imported work.
 - ALERT-002/003/005 and TEAM-005 require separately configured mail/chat/paging accounts and recipient checks. A production webhook requires an enforcing egress service; URL preflight or a test transport does not qualify its DNS pinning, TLS or caller/destination controls. Mail/API acknowledgment is not recipient receipt. Local dev suppresses mail.
 - SRC-002, SRC-003, API-002, CTX-003, TRACK-001, INT-001 and AI-003 require buyer-controlled provider applications, least-privilege setup and real repository/tracker/deployment results. TEAM-004's provider receipts (a real GitHub PR, GitLab MR and `sentry-cli releases set-commits` citation) are carried by SRC-002 and SRC-003. The current GitHub provider double creates a data artifact PR; it proves neither generated source repair nor live repository writes. Owner-recorded repair links remain inert text.
@@ -580,7 +580,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 9 | 37 | 24 | 70 |
-| All | 20 | 38 | 24 | 82 |
+| Target and push further | 10 | 36 | 24 | 70 |
+| All | 21 | 37 | 24 | 82 |
 
-**Clause status: 82 clauses — 20 done, 38 partial, 24 missing.**
+**Clause status: 82 clauses — 21 done, 37 partial, 24 missing.**
