@@ -51,6 +51,8 @@ export default {
   const django=await execute('rt-python-django','django_app.py');
   const request=django.issues[0].events[0].event.sentry.request;
   assert.ok(request.url.endsWith('/checkout'));assert.equal(request.method,'GET');assert.ok(request.query_string.includes('page=2'));assert.ok(!JSON.stringify(request).includes('synthetic-spool-3'),'secret query value masked');assert.ok(!JSON.stringify(request).includes('synthetic-spool-cookie'),'cookie value removed');
+  const headers=Object.fromEntries(Object.entries(request.headers??{}).map(([name,value])=>[name.toLowerCase(),value]));
+  assert.equal(headers['user-agent'],'spool-runtime-qualification','Django request headers are kept');
   assert.ok(django.issues[0].events[0].event.sentry.sdk.integrations.includes('django'),'Django integration is a default');
  },
 };

@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- `@just-every/spool/tunnel` (`spoolTunnel`, `nodeTunnel`) and `@just-every/spool/next` (`spoolTunnelRoute`): server-side tunnels for the Sentry browser SDK's `tunnel` option, so browser capture survives ad-blockers. An envelope is forwarded only when its DSN is one the tunnel was configured with.
-- `spool-setup` bin: detects Next.js or Django, prints the change as a `git apply` patch, writes it with `--apply`, installs the SDK with `--install` and sends a test event; other frameworks get guidance.
+- `@just-every/spool/tunnel` (`spoolTunnel`, `nodeTunnel`) and `@just-every/spool/next` (`spoolTunnelRoute`): server-side tunnels for the Sentry browser SDK's `tunnel` option, so browser capture survives ad-blockers. An envelope is forwarded only when its DSN is one the tunnel was configured with. Redirects are never followed (502), only `POST` is accepted, an abandoned upload or odd request never ends the host process, and the 1 MiB limit is enforced while the body is read and inflated.
+- `spool-setup` bin: detects Next.js or Django, prints the change as a `git apply` patch, writes it with `--apply`, installs the SDK with `--install` and sends a test event first; a DSN Spool does not accept, a secret-key or malformed DSN, or a project file linking outside the project writes nothing. Other frameworks get guidance.
 
 ## 0.2.0
 
