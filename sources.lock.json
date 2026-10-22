@@ -8312,6 +8312,22 @@
       "sha256": "bafcb48941fd26986a3e6ef35dc94d5ba5e1d5282210e06f2bb82a021237f5fa",
       "executable": false
     },
+    "tests/runtimes/rust.mjs": {
+      "sha256": "081df815f2e66ea78394cab65190018f8af7cde94ec32eaa9c625e7eb931280e",
+      "executable": false
+    },
+    "tests/runtimes/rust/Cargo.lock": {
+      "sha256": "7b7be7e42ee70bf49b821e6291278f22411836509207d5505cb5ea74008b51a3",
+      "executable": false
+    },
+    "tests/runtimes/rust/Cargo.toml": {
+      "sha256": "587a67203d0e68e6eb9873188c95627fe072635af343044dda50d5f557a40280",
+      "executable": false
+    },
+    "tests/runtimes/rust/src/main.rs": {
+      "sha256": "b4faf6973624e840cb3f2c37c5bf972f628798995d6dd10de15a69c6126fbf88",
+      "executable": false
+    },
     "tests/sdk-package.mjs": {
       "sha256": "ebc353f1ba8e312964f79eb2c7954b82bed40eebecf894a406cf8200d60363a5",
       "executable": false
