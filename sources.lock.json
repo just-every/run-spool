@@ -3840,6 +3840,10 @@
       "sha256": "3c55f73a05d44f5194aec41c34b9e5fb050346b5c68c26fadec617428d3eaa00",
       "executable": false
     },
+    "packages/sdk/src/tunnel-body.ts": {
+      "sha256": "15a4d32ef860bb2d44bee48040744859c3af470f76792b330030b332ec5ee201",
+      "executable": false
+    },
     "packages/sdk/src/tunnel.ts": {
       "sha256": "41fcaf6c8a75fb7453141ba337aa1ff6b635f3ff185da94489e479c9bc6f53ee",
       "executable": false
@@ -8422,6 +8426,10 @@
     },
     "tests/tunnel-flow.mjs": {
       "sha256": "0e3c0a7479d05ab8dc9c3e00e24feaaaac89eb3996b8ead5f326925cd7129491",
+      "executable": false
+    },
+    "tests/tunnel/server.mjs": {
+      "sha256": "621b54d31417a5b7d1ff22ebf16dc54e199c232291e36e43106ab40dbd7ffe8c",
       "executable": false
     },
     "tests/tunnel/server.py": {
