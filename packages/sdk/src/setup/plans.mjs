@@ -1,4 +1,5 @@
 // What `spool-setup` does for each framework: the packages to install, the files to create or extend, and the notes to read.
+import { nextBuild, nextConfig } from './next-build.mjs';
 const pythonCommand = options => options.python ?? 'python3';
 
 function nextPlan(found, options) {
@@ -7,14 +8,16 @@ function nextPlan(found, options) {
   return {
     installs: [{ command: found.manager, args: [...add, '@sentry/nextjs', spool] }],
     files: [
+      { path: 'next.config.mjs', refuseShared: true, content: nextConfig },
+      { path: 'spool-build.mjs', refuseShared: true, content: nextBuild },
       { path: `${found.appDir}/monitoring/route.js`, content: "import { spoolTunnelRoute } from '@just-every/spool/next';\n\n// Sentry's own `tunnelRoute` rewrite only reaches sentry.io; this route forwards to your Spool project instead.\nexport const { POST } = spoolTunnelRoute({ dsn: process.env.SPOOL_DSN });\n" },
-      { path: `${root}instrumentation-client.js`, content: "import * as Sentry from '@sentry/nextjs';\n\nSentry.init({\n  dsn: process.env.NEXT_PUBLIC_SPOOL_DSN,\n  tunnel: '/monitoring',\n  release: process.env.NEXT_PUBLIC_SPOOL_RELEASE,\n  environment: process.env.NEXT_PUBLIC_SPOOL_ENVIRONMENT ?? 'production',\n});\n" },
+      { path: `${root}instrumentation-client.js`, content: "import * as Sentry from '@sentry/nextjs';\n\nSentry.init({\n  dsn: process.env.NEXT_PUBLIC_SPOOL_DSN,\n  tunnel: '/monitoring',\n  release: process.env.NEXT_PUBLIC_SPOOL_RELEASE,\n  dist: process.env.NEXT_PUBLIC_SPOOL_BUILD,\n  environment: process.env.NEXT_PUBLIC_SPOOL_ENVIRONMENT ?? 'production',\n});\n" },
       { path: '.env.local', append: true, marker: 'SPOOL_DSN=', content: `SPOOL_DSN=${options.dsn}\nNEXT_PUBLIC_SPOOL_DSN=${options.dsn}\n` },
     ],
     notes: [
       'Browser errors go through /monitoring on your own origin, so ad-blockers that block the default ingest request do not stop them. Sentry\'s `tunnelRoute` option is not used: it can only rewrite to sentry.io.',
       'Set NEXT_PUBLIC_SPOOL_RELEASE in CI to name the release; unset, the events carry no release, which Spool accepts.',
-      'Source maps: run `npx spool-sourcemaps` on your build output in CI (see docs/SENTRY-SWITCHING.md).',
+      'Production source maps: review next.config.mjs (merge productionBrowserSourceMaps into an existing Next config if needed). Run node --env-file=.env.local spool-build.mjs in CI with SPOOL_ENDPOINT, SPOOL_PROJECT, NEXT_PUBLIC_SPOOL_RELEASE, SPOOL_BUILD, NEXT_PUBLIC_SPOOL_BUILD (equal to SPOOL_BUILD), and SPOOL_DEPLOY_KEY. It builds with webpack and uploads application route maps through spool-sourcemaps; shared framework maps stay outside this bounded upload. Never commit the deploy key.',
     ],
   };
 }

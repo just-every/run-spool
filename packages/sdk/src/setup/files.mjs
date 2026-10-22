@@ -117,7 +117,7 @@ export function planChanges(root, files) {
       let old;
       if (target) try { old = utf8.decode(target.bytes); } catch { refuse(`${file.path} is not UTF-8 text`); }
       const change = changeOf(file, old);
-      if (change.kind === 'append' && target.id.nlink > 1n) refuse(`${file.path} shares its data with another file (a hard link); spool-setup does not change it`);
+      if ((change.kind === 'append' || file.refuseShared) && target?.id.nlink > 1n) refuse(`${file.path} shares its data with another file (a hard link); spool-setup does not change it`);
       return { ...change, folders, name, target };
     });
   } catch (error) { throw error instanceof Refused ? new Error(`${error.message}. Nothing was written.`) : error; }

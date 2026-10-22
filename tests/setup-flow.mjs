@@ -1,4 +1,4 @@
-// The guided setup command, as a user gets it: the packed `spool-setup` bin run on fresh Django and Next.js apps.
+// [SDK-020] The guided setup command, as a user gets it: the packed `spool-setup` bin run on fresh Django and Next.js apps.
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer, request as httpRequest } from 'node:http';
@@ -9,6 +9,7 @@ import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 import { launchBrowser } from './browser-launch.mjs';
+import { readScreens } from './runtimes/screens.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
@@ -90,6 +91,7 @@ try {
   await writeFile(resolve(django, 'requirements.txt'), 'django==5.2.8\n');
   git(django, 'init', '-q'); git(django, 'add', '-A'); git(django, 'commit', '-q', '-m', 'fresh app');
   const dry = await wizard(['--dsn', project.dsn, '--dir', django, '--no-test-event', '--python', python]);
+  assert.match(dry.stdout, /Python has no source maps/);
   assert.equal(dry.status, 0, dry.stderr); assert.match(dry.stdout, /Detected django/); assert.match(dry.stdout, /diff --git a\/shop\/settings\.py/); assert.match(dry.stdout, /Nothing written/);
   assert.equal(git(django, 'status', '--porcelain'), '', 'the dry run changes nothing');
   const patch = dry.stdout.slice(dry.stdout.indexOf('diff --git')).split('\nRun:')[0] + '\n';
@@ -120,22 +122,65 @@ try {
   await writeFile(resolve(next, 'app/layout.js'), 'export default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
   await writeFile(resolve(next, 'app/page.js'), "'use client';\nexport default function Page() { return <button onClick={() => { throw new Error('next setup failure'); }}>Throw</button>; }\n");
   execFileSync('npm', ['install', '--no-audit', '--no-fund'], { cwd: next, stdio: 'ignore' });
+  await writeFile(resolve(next, '.gitignore'), 'node_modules/\n.next/\n');
+  git(next, 'init', '-q'); git(next, 'add', '-A'); git(next, 'commit', '-q', '-m', 'fresh app');
+  for (const file of ['next.config.mjs', 'spool-build.mjs']) for (const shape of ['link', 'hard link']) {
+    await (shape === 'link' ? symlink(outside, resolve(next, file)) : link(outside, resolve(next, file)));
+    const refused = await wizard(['--dsn', project.dsn, '--dir', next, '--apply', '--no-test-event']);
+    assert.equal(refused.status, 1, file + ' ' + shape + ' refused');
+    assert.equal(await readFile(outside, 'utf8'), 'OUTSIDE=1\n');
+    assert.equal(await readdir(resolve(next, 'app')).then(files => files.includes('monitoring')), false, 'refusal writes no other configuration');
+    await rm(resolve(next, file));
+  }
+  const nextDry = await wizard(['--dsn', project.dsn, '--dir', next, '--no-test-event']);
+  assert.equal(nextDry.status, 0, nextDry.stderr);
+  const nextPatch = nextDry.stdout.slice(nextDry.stdout.indexOf('diff --git')).split('\nRun:')[0] + '\n';
+  await writeFile(resolve(temporary, 'next.patch'), nextPatch); git(next, 'apply', resolve(temporary, 'next.patch'));
+  const nextFiles = ['next.config.mjs', 'spool-build.mjs', 'app/monitoring/route.js', 'instrumentation-client.js', '.env.local'];
+  const nextReviewed = await Promise.all(nextFiles.map(file => readFile(resolve(next, file), 'utf8')));
+  git(next, 'checkout', '-q', '.'); git(next, 'clean', '-fdq');
   const nextRun = await wizard(['--dsn', project.dsn, '--dir', next, '--apply', '--install', '--spool-package', packed.tarball, '--no-test-event'], { stdio: ['ignore', 'pipe', 'inherit'] });
   assert.equal(nextRun.status, 0); assert.match(nextRun.stdout, /Detected next/); assert.match(nextRun.stdout, /tunnelRoute/);
-  for (const file of ['app/monitoring/route.js', 'instrumentation-client.js', '.env.local']) assert.ok((await readFile(resolve(next, file), 'utf8')).length > 0, file);
-  const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' };
-  execFileSync(process.execPath, [nextBin, 'build'], { cwd: next, env, stdio: 'pipe' });
+  assert.deepEqual(await Promise.all(nextFiles.map(file => readFile(resolve(next, file), 'utf8'))), nextReviewed, 'Next apply equals every reviewed byte, including source-map configuration');
+  const deploy = await request('/api/projects/setup/keys', 'POST', { kind: 'deploy' });
+  const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', CIRCLE_NODE_TOTAL: '2', NEXT_PUBLIC_SPOOL_RELEASE: 'synthetic-spool-setup-1', SPOOL_BUILD: 'synthetic-spool-1', NEXT_PUBLIC_SPOOL_BUILD: 'synthetic-spool-1', SPOOL_ENDPOINT: origin, SPOOL_PROJECT: 'setup', SPOOL_DEPLOY_KEY: deploy.key };
+  execFileSync(process.execPath, [nextBin, 'build', '--webpack'], { cwd: next, env, stdio: 'pipe' });
   const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
+  const startNext = async () => {
   nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: next, env, stdio: ['ignore', 'pipe', 'inherit'] });
   children.push(nextServer);
   await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
+  };
+  await startNext();
   await request('/api/projects/setup/browser-origins', 'POST', { origin: nextOrigin });
   const engine = FiltersEngine.parse(await readFile('tests/fixtures/adblock/easyprivacy-sentry.txt', 'utf8'));
   browser = await launchBrowser();
   const context = await browser.newContext(), page = await context.newPage(), blocked = [];
   await context.route('**/*', route => { const r = route.request(); const verdict = engine.match(AdRequest.fromRawDetails({ url: r.url(), sourceUrl: page.url() || nextOrigin, type: r.resourceType() === 'fetch' ? 'xmlhttprequest' : r.resourceType() })); if (verdict.match) { blocked.push(r.url()); return route.abort('blockedbyclient'); } return route.continue(); });
-  await page.goto(nextOrigin); await page.waitForLoadState('networkidle'); await page.getByRole('button').click(); await context.close();
-  await arrives('next setup failure');
+  const failure = async () => {
+    await page.goto(nextOrigin); await page.waitForLoadState('networkidle');
+    await Promise.all([page.waitForResponse(response => response.url() === nextOrigin + '/monitoring' && response.request().method() === 'POST'), page.getByRole('button').click()]);
+    await arrives('next setup failure');
+    const issue = (await issues()).find(row => row.title.includes('next setup failure'));
+    return { issue, packet: await request('/api/projects/setup/issues/' + issue.id + '/packet') };
+  };
+  const before = await failure();
+  assert.ok(before.packet.events.every(event => event.atAdmission.every(frame => frame.status !== 'mapped')), 'before upload the real production failure is unmapped');
+  await readScreens(origin, cookie, [{ name: 'setup-before', path: '/projects/setup/issues/' + before.issue.id, check: page => page.locator('.missing-map').first().waitFor() }]);
+  const stopped = new Promise(done => nextServer.once('exit', done)); nextServer.kill(); await stopped;
+  const built = await new Promise((done, fail) => {
+    const child = spawn(process.execPath, ['--env-file=.env.local', 'spool-build.mjs'], { cwd: next, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    let output = ''; child.stdout.on('data', chunk => output += chunk); child.stderr.on('data', chunk => output += chunk);
+    child.once('error', fail); child.once('exit', code => done({ code, output }));
+  });
+  assert.equal(built.code, 0, built.output);
+  await startNext();
+  const after = await failure();
+  const mapped = after.packet.events.flatMap(event => event.atAdmission).find(frame => frame.status === 'mapped' && /app\/page\.js$/.test(frame.original.file));
+  assert.ok(mapped, 'setup build uploads the application map used at admission');
+  assert.equal(mapped.original.line, 2, 'real thrown error maps to original line');
+  await readScreens(origin, cookie, [{ name: 'setup-mapped', path: '/projects/setup/issues/' + after.issue.id, check: page => page.getByText(/app\/page\.js:2:/).first().waitFor() }]);
+  await context.close();
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
   console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters), a link or hard link to a file outside the project, a link swapped in during the test event and a settings module that is not a dotted name write nothing.' }));
 } finally {

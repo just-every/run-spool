@@ -358,6 +358,8 @@ Existing ERR-001 through ERR-010 and BASE-DATA-003 identities remain stable. Exp
   - **G4:** a bad DSN or an unsafe path writes nothing.
   - **G5:** the seven framework guides are published.
 
+  *Status:* done. G2 is a JavaScript-framework point, proven on Next.js by the [SDK-020] packed setup journey in `tests/setup-flow.mjs`; Django states that Python has no source maps to configure.
+
 - **SDK-021 — Tunnel handlers and ad-blocker delivery.** Sentry's Next.js `tunnelRoute` rewrite only targets Sentry's hosted ingest, so Spool ships two handlers for the SDK's standard `tunnel` option:
   - a drop-in Next.js tunnel route handler;
   - a generic server tunnel handler (Node and Python).
@@ -681,7 +683,7 @@ Correction custody also applies to ERR-008 and ERR-009. Repair recurrence includ
 
 ## Status
 
-Judged from the code and tests at commit `395846ca5e1ef97e69c89f858c8bfdbdd210ca1d` (21 October 2026); later commits change no source, only `tests/alerts/delivery-flow.mjs`, `tests/multilingual/archive.mjs`, `tests/repair-recovery/archive.mjs` and `tests/repair-recovery/packet.mjs` (fixtures adapted to TEAM-004's packet key and 0059 tables, and a wall-clock-independent digest period), the TEAM-004 retained screenshots, `sources.lock.json` and these documents. This describes c7 through `32c9dc3b6a5373d7fcc3af82e813ad6119467a06`; c8 (`ed75b5e36e8d84b4f5a68ef36b92b60c0c979b97`) also changes source to add the resolution citation to alert bodies, the alert archive validator and issue exports (`src/domain/commits/sharing.ts`, `src/domain/alerts/payload.ts`, `src/domain/alerts/archive.ts`, `src/domain/investigation/search.ts`), adds the TEAM-004 S1/S2 assertions to `tests/release-identity-flow.mjs` with a fixture mail-capture option in `tests/alerts/runtime.mjs`, and was independently re-judged by audit ct-72. Implementation rounds own the rows below; clause and acceptance prose was reconciled against the same candidate. The earlier audit remains historical context.
+Judged from the code and tests at commit `c0fc455` (23 October 2026). SDK-020 setup source and its extended public journey were read and run for this judgment; unrelated clauses retain their recorded evidence and gaps. The prior judgment and release history remain recorded in git.
 
 Evidence paths are repository-relative. Missing rows deliberately contain no implementation citation. Existing test files are proof specifications; their presence alone is not a run result. New acceptance journeys are targets, not invented test files. The older audit's exposure-verification row was done for its bounded local behavior; AI-004 is partial because it now also requires an agent and live rate comparison. ALERT-003 stays partial: its row records one real production-signed delivered receipt, bounce and complaint remain signed-fixture transitions, and the relay's first-hour traffic counters stay unverified.
 
@@ -696,8 +698,8 @@ Release 0.6.0 (20 October 2026) was gated on `94d607d` (main `77b289b` with the 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 10 | 36 | 24 | 70 |
-| All | 21 | 37 | 24 | 82 |
+| Target and push further | 11 | 35 | 24 | 70 |
+| All | 22 | 36 | 24 | 82 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -735,7 +737,7 @@ Release 0.6.0 (20 October 2026) was gated on `94d607d` (main `77b289b` with the 
 | `SDK-017` | Unmodified React Native SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-018` | Unmodified Flutter SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-019` | Unmodified Kotlin Multiplatform SDK | target | missing |  | No implementation proof yet. |
-| `SDK-020` | Guided setup command and published framework setup | target | partial | `packages/sdk/src/setup/`; `tests/setup-flow.mjs`; `docs/SENTRY-SWITCHING.md` | `spool-setup` for Next.js and Django (G1, G3, G4) and the seven published framework guides (G5). Remaining: G2, setup does not write source-map configuration (it names `spool-sourcemaps`), so no real error is mapped through it. Setup refuses, writing nothing, links and hard-linked files on the paths it writes and non-dotted settings modules, and needs no-follow opens (macOS, Linux, WSL2). |
+| `SDK-020` | Guided setup command and published framework setup | target | done | G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`. | G2 is the JavaScript-framework point, proven on Next.js: the original app/page.js line maps after the generated production build invokes spool-sourcemaps; the same application/release without upload is unmapped. Django states Python has no source maps to configure. Other framework generators remain guidance; no real provider, device or consent was used. |
 | `SDK-021` | Tunnel handlers and ad-blocker delivery | target | partial | `packages/sdk/src/tunnel.ts`; `packages/sdk/src/next.ts`; `packages/tunnel-python/spool_tunnel.py`; `tests/tunnel-flow.mjs`; `docs/SENTRY-SWITCHING.md` | Node, Next.js and Python tunnels with the DSN check, forwarded origin, rate-limit reply and bounded body; the default route blocked and the tunnel delivered under the EasyPrivacy Sentry rules in the Ghostery engine. Remaining: a real ad-blocker browser extension and the MIG-001 dual run are unexercised. Client address through a tunnel: tunnels forward `X-Forwarded-For`, but Spool honours no forwarded address (SDK-008). Default ADOPTED pending ct (ct ASK open: which tunnels Spool may trust): deny by default; no tunnel is trusted, `{{auto}}` resolves only from the connecting address, so events through a tunnel carry the tunnel server's address. |
 | `SDK-022` | First-party ingest subdomain | target | missing |  | No implementation proof yet. The hosted deployment, the DNS zone and managed TLS are engineering work recorded in the clause. |
 | `SDK-023` | JavaScript Loader Script per DSN key | target | missing |  | No implementation proof yet. |

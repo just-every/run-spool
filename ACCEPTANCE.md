@@ -246,7 +246,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet.
 
-- **SDK-020 — Guided setup command and published framework setup. Status: partial.**
+- **SDK-020 — Guided setup command and published framework setup. Status: done.**
   - **G1:** run the command on a fresh Next.js app and on a fresh Django app; the applied change equals the reviewed diff.
   - **G2:** the source-map configuration is written and maps a real error.
   - **G3:** the test event is accepted, and only Spool's receipt counts it.
@@ -257,9 +257,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
   1. G1, G3 and G4: Guided setup on a fresh Next.js and Django app, reviewable `git apply` patch equal to the applied change, SDK installed, test event accepted, the configured apps report real failures, other frameworks get guidance, bad DSNs refused: `tests/setup-flow.mjs`. The test event is sent before anything is written and counts only Spool's own receipt for it; a wrong key, a redirect, a host that is not Spool, a secret key (never printed or written), control characters, a project file that is a link or a hard link to a file outside the project, a link swapped in while the test event's receipt is held, and a settings module that is not a dotted name each write nothing ("A refused setup writes nothing", "hard link: refused", "link swapped in: refused", "a settings module that is not a dotted name is refused"; the dry run prints no patch for the last).
   2. G5: Framework setup published for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core: `docs/SENTRY-SWITCHING.md#framework-setup` (run through a framework only for Next.js and Django).
 
-  Remaining Gap (SDK-020 stays partial):
-  - G2: setup does not write source-map configuration (it names `spool-sourcemaps`), so no real error is mapped through it.
-  - Python and Go setup, and Express and the other published frameworks, are guidance only. Setup refuses, writing nothing, a project whose paths it would write contain a link (even one inside the project) or whose file to change has another hard link, and a settings module that is not a dotted ASCII name; it runs where Node offers no-follow opens (macOS, Linux, WSL2).
+  3. G2: `tests/setup-flow.mjs` ([SDK-020] packed setup journey) applies the reviewed Next.js source-map configuration, builds the production app and delivers its real uncaught error. Before the upload the stored occurrence and issue UI show generated coordinates; the generated `spool-build.mjs` invokes the existing `spool-sourcemaps` uploader, and a subsequent occurrence resolves to original `app/page.js:2` through the public API and UI at 1440 and 390. Retained screens: `docs/retained-verification/sdk020/`. The source-map files also refuse links and shared hard links with no other write.
+
+  G2 reading (ASK SDK-020): a JavaScript-framework point, proven on Next.js. Django states that Python has no source maps to configure. Other framework generators remain guidance, not additional acceptance points. No real provider, device or consent was used.
 
 - **SDK-021 — Tunnel handlers and ad-blocker delivery. Status: partial.** With a standard ad-blocker list enabled in a browser, deploy a Next.js app first with `tunnelRoute` (setup shows the named limitation), then with the Spool tunnel handler. Confirm every browser error arrives through the handler and reconciles in the MIG-001 dual run.
 
@@ -580,7 +580,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 10 | 36 | 24 | 70 |
-| All | 21 | 37 | 24 | 82 |
+| Target and push further | 11 | 35 | 24 | 70 |
+| All | 22 | 36 | 24 | 82 |
 
-**Clause status: 82 clauses — 21 done, 37 partial, 24 missing.**
+**Clause status: 82 clauses — 22 done, 36 partial, 24 missing.**
