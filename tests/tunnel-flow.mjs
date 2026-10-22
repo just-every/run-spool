@@ -157,7 +157,11 @@ try {
   await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
   await bounded('next', nextOrigin, nextServer);
   await request('/api/projects/tunnel/browser-origins', 'POST', { origin: nextOrigin });
-  const nextPage = await newPage(); await nextPage.goto(nextOrigin); await nextPage.waitForLoadState('networkidle'); await nextPage.getByRole('button').click(); await nextPage.context().close();
+  // The click returns before the SDK's post of its error has left the browser (every request first waits in the list's
+  // route above), and closing the context cancels it: the page closes only once the tunnel has answered for that envelope.
+  const nextPage = await newPage(); await nextPage.goto(nextOrigin); await nextPage.waitForLoadState('networkidle');
+  const tunnelled = nextPage.waitForResponse(response => response.url() === `${nextOrigin}/monitoring` && (response.request().postData() ?? '').includes('next checkout failure'));
+  await nextPage.getByRole('button').click(); assert.equal((await tunnelled).status(), 200, 'the Next tunnel forwards the click’s error'); await nextPage.context().close();
   await arrives('next checkout failure');
 
 
