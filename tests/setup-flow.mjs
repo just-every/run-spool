@@ -89,7 +89,7 @@ try {
   browser = await launchBrowser();
   const context = await browser.newContext(), page = await context.newPage(), blocked = [];
   await context.route('**/*', route => { const r = route.request(); const verdict = engine.match(AdRequest.fromRawDetails({ url: r.url(), sourceUrl: page.url() || nextOrigin, type: r.resourceType() === 'fetch' ? 'xmlhttprequest' : r.resourceType() })); if (verdict.match) { blocked.push(r.url()); return route.abort('blockedbyclient'); } return route.continue(); });
-  await page.goto(nextOrigin); await page.getByRole('button').click(); await context.close();
+  await page.goto(nextOrigin); await page.waitForLoadState('networkidle'); await page.getByRole('button').click(); await context.close();
   await arrives('next setup failure');
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
   console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; bad DSNs refused.' }));

@@ -8397,7 +8397,7 @@
       "executable": false
     },
     "tests/setup-flow.mjs": {
-      "sha256": "8394f8a7f5cfe07eeff5a5e48e08ed1df4ad8ed35a1f35d588299f8bf789d6bf",
+      "sha256": "6bb9463cabeb6486622ed8b622748c2a4e652459f0bb162f21bc065450f82829",
       "executable": false
     },
     "tests/setup-journey.mjs": {
@@ -8421,7 +8421,7 @@
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
-      "sha256": "a428da35b54137797af023640be1e80fcf52b17beae8368f926bf133a45711d7",
+      "sha256": "736280419ea1d00412845a722dd752d9f7b2135bf6edaa250e2c42e5d0e09089",
       "executable": false
     },
     "tests/tunnel/server.py": {

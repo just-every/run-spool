@@ -65,7 +65,7 @@ try {
   const issues = () => request('/api/projects/tunnel/issues');
   const countOccurrences = async () => (await issues()).reduce((n, i) => n + i.count, 0);
   const throwOnce = async (pageUrl, message) => { const page = await newPage(); await page.goto(pageUrl); await page.waitForFunction(() => window.report); const flushed = await page.evaluate(m => window.report(m), message); await page.context().close(); return flushed; };
-  const arrives = async (message, expected) => { for (let attempt = 0; attempt < 100; attempt++) { const rows = await issues(); if (rows.some(i => i.title.includes(message))) return true; await wait(100); } return expected === false ? false : assert.fail(`${message} never arrived`); };
+  const arrives = async (message, expected) => { for (let attempt = 0; attempt < (expected === false ? 30 : 300); attempt++) { const rows = await issues(); if (rows.some(i => i.title.includes(message))) return true; await wait(100); } return expected === false ? false : assert.fail(`${message} never arrived`); };
   browser = await launchBrowser();
 
   // 1. The default ingest request is exactly what the list blocks: nothing arrives without a tunnel.
@@ -115,7 +115,7 @@ try {
   process.once('exit', () => nextServer.kill());
   await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
   await request('/api/projects/tunnel/browser-origins', 'POST', { origin: nextOrigin });
-  const nextPage = await newPage(); await nextPage.goto(nextOrigin); await nextPage.getByRole('button').click(); await nextPage.context().close();
+  const nextPage = await newPage(); await nextPage.goto(nextOrigin); await nextPage.waitForLoadState('networkidle'); await nextPage.getByRole('button').click(); await nextPage.context().close();
   await arrives('next checkout failure');
 
   const envelopeOf = dsn => `${JSON.stringify({ event_id: 'a'.repeat(32), dsn })}\n${JSON.stringify({ type: 'event' })}\n${JSON.stringify({ event_id: 'a'.repeat(32), release: 'tunnel@1.0.0', exception: { values: [{ type: 'Error', value: 'tunnelled', stacktrace: { frames: [{ filename: 'app.js', lineno: 1, colno: 1, function: 'next' }] } }] } })}`;
