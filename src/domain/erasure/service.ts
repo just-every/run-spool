@@ -98,13 +98,23 @@ export async function resumeProjectErasure(db: D1Database, id: string) {
  return erasure.deleteBlobs(id, { until: 0 });
 }
 
-/** Scheduled continuation also finishes jobs after the client disconnects. */
+// One bounded owner step, then, once its rows are gone, the blob phase under the sweep's deadline.
+async function stepOwnerErasure(db: D1Database, id: string, until: number) {
+ const erasure = await ownerErasureService(db), after = await erasure.run(id, { until: 0, rows: STEP_ROWS });
+ return after.phase === 'blobs' ? erasure.run(id, { until, rows: STEP_ROWS }) : after;
+}
+
+/** Scheduled continuation also finishes jobs after the client disconnects. It
+ * shares the runtime with requests, so it commits one bounded step at a time
+ * and gives waiting requests their turn after each: a local runtime (one
+ * thread, D1 in process) answers no other request while the sweep's D1 calls
+ * run, and closes a request it has held past its 15-second header timeout. */
 export async function continueErasures(db: D1Database, until: number) {
  const open = (await db.prepare("SELECT id,entity FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string; entity: string }>()).results;
  for (const { id,entity } of open) {
   while (Date.now() <= until) {
    try {
-    const receipt = entity === 'installation-owner' ? await (await ownerErasureService(db)).run(id, { until, rows: STEP_ROWS }) : await resumeProjectErasure(db, id);
+    const receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until) : await resumeProjectErasure(db, id);
     if (receipt.phase === 'complete') break;
    } catch (error) {
     // A client or another scheduled invocation owns this step. Its atomic
@@ -112,6 +122,7 @@ export async function continueErasures(db: D1Database, until: number) {
     if (error instanceof ErasureError && error.code === 'erasure_busy') break;
     throw error;
    }
+   await new Promise(resolve => setTimeout(resolve, 0));
   }
  }
 }
