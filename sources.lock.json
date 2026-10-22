@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "49e6243c8b7cdfada3b807b5123b93cf059675ad9345e945a8b0515a0962eebf",
+      "sha256": "8630cea30d98c02d10acaea9096e13e3d00fe8a589d093865354ea5fa00d0ff5",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "399a4bfd9eafdf5abd73c9ebb71d9312e1b9f70b830f7f49732df15fd50d0d87",
+      "sha256": "ed034c6d811893cdfaa9744ae8baf6f67332b3769f1ef2d6d776c78f70a79990",
       "executable": false
     },
     "DEMO.md": {
@@ -3404,6 +3404,46 @@
       "sha256": "0e5319a101cd85702ce7bbec6513d66f36aabfc2f5179ef643399bacf308adf9",
       "executable": false
     },
+    "docs/retained-verification/sdk013/electron-diagnostics-1440.png": {
+      "sha256": "82a9b17e23e271fd24be53deb519e68a032abe497e3af761c61a6208402f0305",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-diagnostics-390.png": {
+      "sha256": "d528b297b47b99a991645815a8b1b6c5683b9d73d69363f18859b75da14ca40b",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-issue-1440.png": {
+      "sha256": "4602eb3486287775033013f8d67f53f60bb4d24dd1d4a0827cb8453af1f95f3a",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-issue-390.png": {
+      "sha256": "371164f7b12de332ab50061e6dcb2e5b14e92134bd12f650e99cd4addef4d225",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-MainUnhandledError-1440.png": {
+      "sha256": "82bbc41fd3fb3ad0ada2f1eff931f6c7325717366dd45cb3a6af35677966b45c",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-MainUnhandledError-390.png": {
+      "sha256": "ff986ef4cf1a64994a4224f413051be94054bb12286e26439b2742e205842e36",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-RendererHandledError-1440.png": {
+      "sha256": "c50c477c6397a0e736122c529f3d3595342eadc1e6cac65fcb8e87c6cd3914d1",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-RendererHandledError-390.png": {
+      "sha256": "1ecf5a2446af854a39862d829e4d41d24ab8fbb3566c76dc25b5bca76b06735f",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-RendererUnhandledError-1440.png": {
+      "sha256": "3718a884f4caababe7bce9b893e4fd98d084006324b55c2ea19f4d6245efb7c1",
+      "executable": false
+    },
+    "docs/retained-verification/sdk013/electron-RendererUnhandledError-390.png": {
+      "sha256": "f362d580e4f9db2cc47e9135c838fef37193af9f1836749063735c27c9483232",
+      "executable": false
+    },
     "docs/retained-verification/sdk020/setup-before-1440.png": {
       "sha256": "83d48cb7590d3083b5eef948fcacdeb2b94edaa75a8060083c107f8a4da74d1c",
       "executable": false
@@ -3513,7 +3553,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "62c0405398916c2b2ab1e6d1f007a9bedf5aa10b8484cc9c4f0f91b09a79ada3",
+      "sha256": "52ad991bb7e8a3633d2c26cfd039346d910fbecd0d01cbcbf6257a28887756f4",
       "executable": false
     },
     "docs/SHORT-IDS.md": {

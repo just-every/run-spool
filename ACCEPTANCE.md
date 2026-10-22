@@ -221,9 +221,17 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Outside this clause: persisted session, trace, log and attachment outcomes (SDK-025), check-ins (SDK-024), and the Rust SDK's native-style frames without file and line (SDK-002 symbolication).
 
-- **SDK-013 — Unmodified Electron SDK. Status: missing.** Errors in the `@sentry/electron` main and renderer processes pass Q1 to Q7 in a packaged app run under a virtual display in a push or scheduled job. Native minidumps remain SDK-002 and SDK-011.
+- **SDK-013 — Unmodified Electron SDK. Status: done.** Errors in the `@sentry/electron` main and renderer processes pass Q1 to Q7 in a packaged app run under a virtual display in a push or scheduled job. Native minidumps remain SDK-002 and SDK-011.
 
-  Current evidence: The [SDK-013] packaged-app fixture and Q1–Q7 assertions are implemented in the existing runtime journey, pending its first Linux push Verify result. No acceptance point has yet been claimed. Electron is never launched on macOS. Native minidumps are disabled for both collectors; SDK-002 and SDK-011 remain unchanged.
+  Current evidence: [SDK-013] `tests/sdk-runtimes.mjs electron`, push Verify `runtime (electron)`, runs one packaged app twice with only its DSN changed. The first Linux proof is job 120145163135 in run 39870933106. Exact versions: @sentry/electron 8.3.0, Electron 45.0.0 and @electron/packager 20.3.0. The app is packaged into an unpacked Linux directory with ASAR, run under Xvfb, and never launched on macOS. Native minidumps remain SDK-002 and SDK-011.
+  - Q1: `tests/runtimes/electron/main.cjs` and `tests/runtimes/electron/renderer.cjs` capture their own handled failures; the generic journey asserts every reference error is a persisted occurrence. Main and renderer issues are read through the public API and UI at 1440 and 390.
+  - Q2: the same app raises a real main uncaught exception through the default integration and a renderer timer error through the default global handler. `tests/runtimes/electron.mjs` asserts both exception types persist with `mechanism.handled:false`.
+  - Q3: handled, crash, handled across packaged-app relaunches; the generic journey and Electron adapter assert both handled groups count two, both unhandled groups count one, and all six occurrence IDs are unique.
+  - Q4: the runtime journey reconciles every reference item exactly with Spool outcomes. The first proof sends six errors, six logs, six transactions, five sessions, four attachments, five feedback items, three replay events, three replay recordings and six client reports. Errors and feedback persist; other telemetry is counted by category and reason, with storage remaining SDK-025. Main/renderer defaults stay enabled except `SentryMinidump`, explicitly disabled identically for both collectors; ordinary main sessions remain enabled. Replay is enabled in the renderer. No native minidump or abnormal-session recovery claim is made.
+  - Q5: the generic journey compares release/dist with SDK-sent identities and asserts automatic creation with the creating SDK.
+  - Q6: SDK-generated `before_send` discards reconcile into BILL-001's project outcomes usage door, six discarded errors in the first proof.
+  - Q7: the same packaged app with a refused key and an undeliverable DSN exits normally, and the public issue counts remain unchanged.
+  The SDK's supported online `makeElectronTransport` is used for both collectors. This qualifies flush/relaunch grouping; durable offline transport recovery is not claimed. Network requests are restricted to the DSN origin; fixture IPC and local files remain local. Retained screens: `docs/retained-verification/sdk013/`. Gap: none for this bounded JavaScript qualification. No real provider, device or consent was used.
 
 - **SDK-014 — Unmodified Unity SDK. Status: missing.** A Unity player build with the Sentry Unity SDK passes Q1 to Q7. The CI job needs an activated Unity license. Obtaining one is engineering work recorded here, not a waiver.
 
@@ -583,7 +591,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 12 | 34 | 24 | 70 |
-| All | 23 | 35 | 24 | 82 |
+| Target and push further | 13 | 34 | 23 | 70 |
+| All | 24 | 35 | 23 | 82 |
 
-**Clause status: 82 clauses — 23 done, 35 partial, 24 missing.**
+**Clause status: 82 clauses — 24 done, 35 partial, 23 missing.**
