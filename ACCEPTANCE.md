@@ -12,7 +12,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 - **ERR-001 — Bounded admission. Status: done.** Send valid, invalid, oversize, foreign-project and conflicting-retry envelopes through public ingest; inspect the outcome and unchanged rows for refusals. Exceed the per-minute and retained-event limits and confirm the explicit 429, `Retry-After` and counted reason, with no partial rows.
 
-  Current evidence: `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` Python/Go tests use constructed envelopes; broad runtime SDK compatibility is SDK-001. Removing the 120-a-minute and 10,000-retained limits is GOV-003.
+  Current evidence: `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` Python/Go tests use constructed envelopes; broad runtime SDK compatibility is SDK-001 and SDK-012 to SDK-019. Removing the 120-a-minute and 10,000-retained limits is GOV-003.
 
 - **ERR-002 — Atomic acceptance. Status: done.** Ingest an event twice, then change its raw secret under the same ID; inspect one occurrence and aggregate increment, one local alert and an explicit conflict without partial rows.
 
@@ -104,32 +104,25 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 ### Capture and release health
 
 
-- **SDK-001 — Multi-language SDKs and DSN-compatible intake. Status: partial.** For every named runtime, execute an unmodified Sentry SDK with only its DSN changed plus Spool setup, with its default integrations and the sessions, tracing, logs, replay (browser/mobile), feedback widget and attachment options the Sentry setup wizard enables; capture handled/unhandled failures and flush/restart; reconcile persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes per SDK-007 through the public UI/API. Run the guided setup on a fresh Next.js and Django app and send one check-in with and without a connected Uptime heartbeat. With a standard ad-blocker list enabled in the browser, deploy a Next.js app first with Sentry's `tunnelRoute` (setup shows the named limitation), then with the Spool tunnel handler, then with the first-party ingest subdomain, and confirm every browser error arrives in the last two and reconciles in the MIG-001 dual run. Replace a site's Sentry loader script tag with the Spool loader configured with the same key settings and confirm lazy loading, `Sentry.onLoad` and an error capture.
+- **SDK-001 — Multi-language SDKs and DSN-compatible intake: browser JavaScript and Node.js. Status: partial.** Apply the qualification run to `@sentry/browser`, in Chromium at 1440 and 390 with build-plugin source maps resolving the original line, the feedback widget and replay enabled, and to `@sentry/node`. SDK-009 runtime qualification for Node is inherited here: unmodified Node no-release and inferred-SHA intake, including release-less alerts and release-scoped no-release counts.
 
-  Current evidence, by acceptance point (journeys are scripts; names below are their assertion labels). Proved:
-  1. Browser and Node, unmodified SDK, DSN only: `tests/sentry-sdk.mjs` (browser at 1440 and 390 with build-plugin source maps, Node gzip capture and flush, `captureFeedback` attached to its issue).
-  2. Python, Go, Java, Ruby, PHP, .NET and Rust, unmodified SDK, DSN only, each with tracing, logs and an attachment; a cron check-in from every runtime but Rust; client-report discards from Python, Go, Java, .NET and Rust; a session from .NET; feedback from Java and .NET (each runtime's `required` item list in `tests/runtimes/<runtime>.mjs` asserts what its SDK sent): `tests/sdk-runtimes.mjs <runtime>` ("Spool outcomes reconcile with SDK-sent items", "every SDK error event is a persisted occurrence", "the restarted process groups into the same issue", "unhandled failure persisted as unhandled", "refused or undeliverable events create nothing"), one parallel Verify job per runtime (`runtime (<name>)`). The reference collector and the Spool run use the same program.
-  3. SDK-009 Python and Node: `tests/runtimes/python.mjs` verify ("release-less capture creates no pretend release", "SDK-inferred git SHA is the release"); Node in `tests/release-identity-flow.mjs`.
-  4. SDK-010 Python and Java: `tests/runtimes/python.mjs` verify (locals, SDK context and default integrations, `ExceptionGroup`, Django request URL, method, query and headers over a real WSGI request, "Django request headers are kept") and `tests/runtimes/java.mjs` verify (Caused by plus suppressed chain).
-  5. Guided setup on a fresh Next.js and Django app, reviewable `git apply` patch equal to the applied change, SDK installed, test event accepted, the configured apps report real failures, other frameworks get guidance, bad DSNs refused: `tests/setup-flow.mjs`. The test event is sent before anything is written and counts only Spool's own receipt for it; a wrong key, a redirect, a host that is not Spool, a secret key (never printed or written), control characters, a project file that is a link or a hard link to a file outside the project, a link swapped in while the test event's receipt is held, and a settings module that is not a dotted name each write nothing ("A refused setup writes nothing", "hard link: refused", "link swapped in: refused", "a settings module that is not a dotted name is refused"; the dry run prints no patch for the last).
-  6. Framework setup published for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core: `docs/SENTRY-SWITCHING.md#framework-setup` (run through a framework only for Next.js and Django).
-  7. Tunnels for the SDK `tunnel` option (Node, Next.js route handler, Python): envelope DSN checked against the project, another project refused with nothing forwarded, browser origin and agent forwarded, Spool's rate-limit reply returned, Spool's allowed origins still enforced, Sentry's `tunnelRoute` rewrites shown to reach only sentry.io, setup names that limitation: `tests/tunnel-flow.mjs` and `tests/setup-flow.mjs`. Hostile requests (`tests/tunnel-flow.mjs`, all three tunnels): a TRACE and an abandoned upload leave the host serving and no upstream 301/302/303/307/308 is followed or relayed (step 7), and the 1 MiB limit holds while the body is read and inflated: the same 255 KiB of gzip expanding to 256 MiB is refused with under 32 MiB of peak host memory on the Node, Python and Next.js (`next build`/`next start`) hosts ("Bounded body": "refuses an envelope over 1 MiB once decoded", "refuses it within 32 MiB of peak memory"; the cost is the serving process's own peak after the request minus its resident memory before it, and the journey prints each host's figures).
-  8. Blocked default route and delivered tunnel under the EasyPrivacy Sentry rules, enforced by the Ghostery engine on a real `@sentry/browser` page and a real `next build`/`next start` app: `tests/tunnel-flow.mjs`. An excerpt of the list and an engine, not a browser extension.
-  Real runs also fixed three intake gaps: sentry-go `exception` arrays and RFC 3339 client-report timestamps (`tests/client-report-flow.mjs`), sentry-ruby `type: "event"`.
+  - **SDK-001 qualification run** (applied by SDK-001 and SDK-012 to SDK-019 to each runtime they name). The run is a push Verify job or a named scheduled workflow. It runs one unmodified Sentry SDK program at a pinned SDK version twice: once against a reference collector and once against Spool, with only the DSN changed. Each run uses default integrations plus the options the Sentry setup wizard enables for that platform: sessions, tracing, logs, replay (browser and mobile), the feedback widget or feedback API, and attachments. Where an SDK version lacks an option, the evidence names that version and option.
+    - **Q1 handled:** a captured exception is a persisted occurrence, read through the public API and UI.
+    - **Q2 unhandled:** an uncaught failure or crash is persisted as unhandled.
+    - **Q3 flush/restart:** after a flush and a process or app restart, the same failure groups into the same issue without a duplicate occurrence.
+    - **Q4 item reconciliation:** every item the reference collector received has exactly one Spool outcome under SDK-007, either persisted or counted by category and reason in capability diagnostics. Nothing is silently dropped.
+    - **Q5 release:** the release and dist (or "none") equal what the SDK sent, and the release is auto-created under SDK-009.
+    - **Q6 discards:** client-report discards appear in BILL-001 usage.
+    - **Q7 refusal:** refused or undeliverable events create nothing.
 
-  Remaining Gap (SDK-001 stays partial):
-  - Persisted session, trace, replay, log, attachment and check-in outcomes: Spool counts each as `sentry_unsupported_<category>` (reconciled exactly in point 2) but does not store them; they belong to SDK-005, SDK-007, CTX-001, CTX-002 and API-001. Browser and Node reconcile issues and feedback only.
-  - Check-ins reach no Uptime heartbeat and are not reported as unrouted in capability diagnostics (SDK-007, Uptime connection): the check-in with and without a connected heartbeat is unproved.
-  - Client address through a tunnel: tunnels forward `X-Forwarded-For`, but Spool honours no forwarded address (SDK-008). Default ADOPTED pending ct (ct ASK open: which tunnels Spool may trust): deny by default; no tunnel is trusted, `{{auto}}` resolves only from the connecting address, so events through a tunnel carry the tunnel server's address.
-  - Loader script per DSN key (lazy loading, `Sentry.onLoad`, key settings) and the first-party ingest subdomain with managed TLS: not built, and the subdomain needs a hosted account that was not authorized. The MIG-001 dual-run reconciliation (blocked) and a real ad-blocker extension are unexercised.
-  - Setup does not write source-map configuration (it names `spool-sourcemaps`); Python and Go setup, and Express and the other published frameworks, are guidance only. Setup refuses, writing nothing, a project whose paths it would write contain a link (even one inside the project) or whose file to change has another hard link, and a settings module that is not a dotted ASCII name; it runs where Node offers no-follow opens (macOS, Linux, WSL2).
-  - Unexercised items on runtimes that were run: the Rust program sends no check-in; a session item is asserted only for .NET, so session tracking in the other SDKs that offer it is unproved; Ruby and PHP emit no client report, so their `before_send` discard is not observed.
-  - Runtimes not run: Elixir (no toolchain on the qualification host), Electron, Unity, Kotlin Multiplatform, iOS, Android, React Native and Flutter, including the SDK-009 Apple, Android, React Native and Flutter release identities (devices and licensed tooling, SDK-002). The Rust SDK sends native-style frames without file and line (SDK-002 symbolication).
-  - Nothing here claims a real provider, device or hosted deployment.
+    Persisted session, trace, replay, log, attachment and widget outcomes for every runtime belong to SDK-025.
 
-  SDK-009 runtime qualification is inherited here: run unmodified Python and Node no-release and inferred-SHA intake, and Apple, Android, React Native and Flutter default package/version/build release identities with only the DSN changed, including release-less alerts and release-scoped no-release counts.
+  Current evidence: `tests/sentry-sdk.mjs`, `tests/release-identity-flow.mjs`, `tests/client-report-sdk.mjs` (push Verify, sdk shard). What these tests show:
+  - browser Q1, Q2, Q5 and Q7 plus `captureFeedback`;
+  - Node Q1, gzip, flush/close, feedback and Q6;
+  - SDK-009 Node no-release and inferred SHA.
 
-  SDK-010 real-runtime qualification is inherited here: change only the DSN on unmodified Python and Java SDKs with default integrations and exercise exception causes/groups, local variables, SDK context, Django request data and Java suppressed/Caused by chains. Constructed Python/Java envelopes qualify conversion only; the existing Node and browser runs do not imply broader runtime qualification.
+  Gap: Node Q2, Q3 for both, Q4 with sessions, tracing, logs and replay enabled, and browser lifecycle client reports.
 
 - **SDK-002 — Native crashes and symbolication. Status: missing.** Build signed test iOS/Android and React Native/Flutter apps, crash and hang on real devices, relaunch offline/online, upload matching/mismatched symbols from CI through the unmodified Gradle plugin, Xcode build phase, Fastlane action and Dart plugin, and inspect one deobfuscated issue without duplicate sessions; crash an Electron app and symbolicate its minidump. Upload a 40 MiB dSYM and the next release's ProGuard mapping and confirm both symbolicate. Before any additional intake category ships, it inherits SDK-006: enforce Origin/Referer and all applicable available transport/category filters before acceptance, name unavailable fields, and preserve truthful filtered and client-discard accounting.
 
@@ -167,11 +160,11 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   SDK-010 user identity and opt-in request capture inherit the identity/privacy policy here: user id, email and IP for users affected, request cookies, bodies and environment must remain subject to field policy and preview before capture. Until SDK-003 and this policy ship, user is excluded with identity_policy_unavailable and those request fields with request_policy_excluded; no identity capture is implied by event fidelity.
 
-- **SDK-009 — Release identity from unmodified Sentry SDKs: no release, automatic releases, ordering and plain Resolve. Status: done.** With only the DSN changed, send unmodified Node SDK errors with no release and with an inferred SHA release; constructed envelopes exercise the wider release formats. SDK-001 inherits the Python and device qualification journey. Confirm all are accepted and create issues and alerts, the two releases appear as auto-created with first-seen time and creating SDK, and the release-less events count in issue totals and search and are named as "no release" in release-scoped views. Register one of those releases afterwards through the native release API and confirm it enriches the same release; SRC-003 inherits the sentry-cli and build-plugin journey. Plain-resolve one issue and send the same error in the same release: it is Regressed and one regression alert fires. Resolve another issue in the next release across two auto-created semver releases (`app@1.2.0`, `app@1.10.0`) and two SHA releases: regression follows the stated order, an older-release event does not regress it, and a release-less event is counted on the issue without reopening it. Create a mixed history first seen in this order: `1.2.0`, `abc123`, `1.10.0`, `1.2.0-rc.1`, `def456`. Under default first-seen order, every list and export returns that order and latest is `def456`. Under semver order, every list and export returns `1.2.0-rc.1`, `1.2.0`, `1.10.0`, `abc123`, `def456`, and latest is `def456`. Repeat calls under each setting, sort every permutation of the five releases to the same result, and check all comparison triples for transitivity. Include equal first-seen timestamps and semver names with equal precedence but different build metadata to prove the first-seen and byte-order tie breaks. Confirm `release:latest`, release comparisons and regression use the chosen order. Send an event with an invalid release name and confirm it is accepted as release "none" with its counted note. Switch the project to "registered sequence only" with its preview and confirm an unregistered release and a missing release are each refused with the named reason and counted in project outcomes, usage and the MIG-001 dual run.
+- **SDK-009 — Release identity from unmodified Sentry SDKs: no release, automatic releases, ordering and plain Resolve. Status: done.** With only the DSN changed, send unmodified Node SDK errors with no release and with an inferred SHA release; constructed envelopes exercise the wider release formats. SDK-012 inherits the Python journey; SDK-015 to SDK-018 inherit the Apple, Android, React Native and Flutter release identities. Confirm all are accepted and create issues and alerts, the two releases appear as auto-created with first-seen time and creating SDK, and the release-less events count in issue totals and search and are named as "no release" in release-scoped views. Register one of those releases afterwards through the native release API and confirm it enriches the same release; SRC-003 inherits the sentry-cli and build-plugin journey. Plain-resolve one issue and send the same error in the same release: it is Regressed and one regression alert fires. Resolve another issue in the next release across two auto-created semver releases (`app@1.2.0`, `app@1.10.0`) and two SHA releases: regression follows the stated order, an older-release event does not regress it, and a release-less event is counted on the issue without reopening it. Create a mixed history first seen in this order: `1.2.0`, `abc123`, `1.10.0`, `1.2.0-rc.1`, `def456`. Under default first-seen order, every list and export returns that order and latest is `def456`. Under semver order, every list and export returns `1.2.0-rc.1`, `1.2.0`, `1.10.0`, `abc123`, `def456`, and latest is `def456`. Repeat calls under each setting, sort every permutation of the five releases to the same result, and check all comparison triples for transitivity. Include equal first-seen timestamps and semver names with equal precedence but different build metadata to prove the first-seen and byte-order tie breaks. Confirm `release:latest`, release comparisons and regression use the chosen order. Send an event with an invalid release name and confirm it is accepted as release "none" with its counted note. Switch the project to "registered sequence only" with its preview and confirm an unregistered release and a missing release are each refused with the named reason and counted in project outcomes, usage and the MIG-001 dual run.
 
-  Current evidence: `tests/release-identity-flow.mjs` and `tests/bulk-triage-flow.mjs` exercise SDK-009 through owner HTTP and the emitted app, including no-dist/explicit-dist separation, automatic semver and SHA releases, next/named single and bulk resolution, older and release-less protection, policy-bound previews, and 1440/390 pickers. The shared total order is implemented by `src/domain/releases/order.ts`; local unmodified Node SDK capture qualifies no release and inferred SHA. Sessions (SDK-005), unmodified CLI/plugins (SRC-003), linked commits (SRC-002/TEAM-004), release-less alert conditions (ALERT-001), broader runtimes/devices (SDK-001), migration reconciliation (MIG-001) and chat Resolve (ALERT-005) retain their inherited journeys in their own text. Owner acts as maintainer until TEAM-001.
+  Current evidence: `tests/release-identity-flow.mjs` and `tests/bulk-triage-flow.mjs` exercise SDK-009 through owner HTTP and the emitted app, including no-dist/explicit-dist separation, automatic semver and SHA releases, next/named single and bulk resolution, older and release-less protection, policy-bound previews, and 1440/390 pickers. The shared total order is implemented by `src/domain/releases/order.ts`; local unmodified Node SDK capture qualifies no release and inferred SHA. Sessions (SDK-005), unmodified CLI/plugins (SRC-003), linked commits (SRC-002/TEAM-004), release-less alert conditions (ALERT-001), broader runtimes/devices (SDK-012 to SDK-019), migration reconciliation (MIG-001) and chat Resolve (ALERT-005) retain their inherited journeys in their own text. Owner acts as maintainer until TEAM-001.
 
-- **SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request. Status: done.** Exercise the following conversion journeys through admitted envelopes, with unmodified Node/browser intake. SDK-001 inherits the unmodified Python/Java default-integration journey with only the DSN changed.
+- **SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request. Status: done.** Exercise the following conversion journeys through admitted envelopes, with unmodified Node/browser intake. SDK-012 inherits the unmodified Python/Java default-integration journey with only the DSN changed.
   - A Python `raise ValueError(...) from KeyError(...)` whose frame locals hold a `password` and an ordinary value. Confirm both exceptions appear in issue detail with their own frames, SDK-sent source context lines and local variables. Confirm the `password` local is masked in storage, issue views, packets and exports while the ordinary local survives.
   - The same wrapper exception with two different root causes. Confirm two issues and two ALERT-001 new-issue alerts.
   - A Python `ExceptionGroup` with two children, and an `asyncio.TaskGroup` failure. Confirm each is accepted and the children appear under Related Exceptions.
@@ -182,7 +175,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
   - A 1,200-frame recursion. Confirm 1,000 frames are kept with "200 frames omitted" shown.
   - Copy the raw stack trace of the Python chain. Confirm the copied text shows both tracebacks with no masked value revealed.
 
-  Current capture excludes user identity, request cookies, bodies and environment with named processing notes until SDK-003/SDK-008 opt-in field policies and previews exist. Query strings are retained after decoded secret-name masking and ERR-003 scrubbing, bounded to 16 KiB with a named trimming note. SDK-003 inherits custom server rules; AI-001 previewed agent field selection; SDK-011 transport/item limits; SDK-001 full unmodified Python/Java qualification; ERR-005/SRC-004 the wider map projection. These inherited capabilities keep their own status and acceptance; no user identity or raw request opt-in is implemented here.
+  Current capture excludes user identity, request cookies, bodies and environment with named processing notes until SDK-003/SDK-008 opt-in field policies and previews exist. Query strings are retained after decoded secret-name masking and ERR-003 scrubbing, bounded to 16 KiB with a named trimming note. SDK-003 inherits custom server rules; AI-001 previewed agent field selection; SDK-011 transport/item limits; SDK-012 full unmodified Python/Java qualification; ERR-005/SRC-004 the wider map projection. These inherited capabilities keep their own status and acceptance; no user identity or raw request opt-in is implemented here.
 
   Current evidence: `tests/fidelity-flow.mjs` (SDK-010 request query strings are kept scrubbed and every exclusion is named) covers decoded query secrets and repeated diagnostic parameters, named exclusions, archive/packet privacy, causes/groups, 1,000-frame retention and named middle omission. Existing local Node/browser intake is qualified; constructed Python/Java envelopes qualify conversion. ERR-007 packets exclude source and locals until AI-001 previewed selection.
 
@@ -196,6 +189,105 @@ For every new flow, exercise the public UI/API/command rather than direct databa
   - Lower one project's attachment limit with its preview. Confirm a larger screenshot is refused alone and counted.
 
   Current evidence: `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs` Uncompressed, `gzip` and `deflate` bodies are accepted with bounded decompression. Public-door SDK-011 proof checks deflate issue creation and expanded-size refusal, unsupported encodings named in 415 responses and counted with header/query ingest grants, and malformed event JSON refused as `invalid_item` while a valid companion is admitted without extra accepted units. The whole request remains capped at 256 KiB compressed, 1 MiB expanded and 100 items; `br`/`zstd`, Sentry-equal limits, oversized-item isolation, streamed heavy-item storage and full usage/dual-run reconciliation remain absent.
+
+- **SDK-012 — Unmodified server-runtime SDKs: Python, Go, Java/JVM, Ruby, PHP, .NET, Rust and Elixir. Status: partial.**
+  - Q1 to Q7 for each of the eight runtimes.
+  - **P1 (inherited from SDK-009):** unmodified Python no-release and inferred-SHA intake, including a release-less alert and release-scoped no-release counts.
+  - **P2 (inherited from SDK-010):** the unmodified Python SDK with default integrations:
+    - `raise … from`;
+    - an `ExceptionGroup`;
+    - default `include_local_variables`;
+    - SDK context;
+    - Django request data over a real request.
+  - **J1 (inherited from SDK-010):** unmodified Java `Caused by` and suppressed chains.
+
+  Constructed envelopes qualify conversion only.
+
+  Current evidence, by acceptance point (journeys are scripts; names below are their assertion labels):
+  1. Python, Go, Java, Ruby, PHP, .NET and Rust, unmodified SDK, DSN only, each with tracing, logs and an attachment; a cron check-in from every runtime but Rust; client-report discards from Python, Go, Java, .NET and Rust; a session from .NET; feedback from Java and .NET (each runtime's `required` item list in `tests/runtimes/<runtime>.mjs` asserts what its SDK sent): `tests/sdk-runtimes.mjs <runtime>` ("Spool outcomes reconcile with SDK-sent items", "every SDK error event is a persisted occurrence", "the restarted process groups into the same issue", "unhandled failure persisted as unhandled", "refused or undeliverable events create nothing"), one parallel Verify job per runtime (`runtime (<name>)`). The reference collector and the Spool run use the same program.
+  2. SDK-009 Python: `tests/runtimes/python.mjs` verify ("release-less capture creates no pretend release", "SDK-inferred git SHA is the release").
+  3. SDK-010 Python and Java: `tests/runtimes/python.mjs` verify (locals, SDK context and default integrations, `ExceptionGroup`, Django request URL, method, query and headers over a real WSGI request, "Django request headers are kept") and `tests/runtimes/java.mjs` verify (Caused by plus suppressed chain).
+  Real runs also fixed three intake gaps: sentry-go `exception` arrays and RFC 3339 client-report timestamps (`tests/client-report-flow.mjs`), sentry-ruby `type: "event"`.
+
+  Remaining Gap (SDK-012 stays partial):
+  - Elixir is not run: no job runs the `sentry` Hex package.
+  - Q4 with sessions: a session item is asserted only for .NET; session tracking in the other server SDKs that offer it is not enabled, so their sessions are not reconciled.
+  - Q6: Ruby and PHP emit no client report, so their `before_send` discard is not observed in BILL-001 usage, and no SDK version or source line is named for its absence.
+  - Q5: the release and dist Spool stored are compared with what the SDK sent, and the release checked as auto-created, only for the Python inferred SHA; no other runtime's release or dist is asserted.
+  - Q1: occurrences are read through the public API only, not through the UI.
+  - P1: the Python release-less alert and release-scoped no-release counts are not asserted (the journey checks the issue's attention payload and `!has:release`).
+  - The Rust SDK sends native-style frames without file and line (SDK-002 symbolication).
+
+- **SDK-013 — Unmodified Electron SDK. Status: missing.** Errors in the `@sentry/electron` main and renderer processes pass Q1 to Q7 in a packaged app run under a virtual display in a push or scheduled job. Native minidumps remain SDK-002 and SDK-011.
+
+  Current evidence: No implementation evidence yet.
+
+- **SDK-014 — Unmodified Unity SDK. Status: missing.** A Unity player build with the Sentry Unity SDK passes Q1 to Q7. The CI job needs an activated Unity license. Obtaining one is engineering work recorded here, not a waiver.
+
+  Current evidence: No implementation evidence yet. The CI job needs an activated Unity license; obtaining one is engineering work, not a waiver.
+
+- **SDK-015 — Unmodified iOS (Apple) SDK. Status: missing.** A `sentry-cocoa` test app passes Q1 to Q7 on an iOS simulator or device in a named macOS job, with mobile replay, feedback and screenshot or view-hierarchy attachments, and a crash sent on the next launch (Q3). SDK-009 inherited: the default `CFBundleIdentifier@CFBundleShortVersionString+CFBundleVersion` release is auto-created, with release-less alerts and release-scoped no-release counts. Real-device crash and symbol pipelines stay with SDK-002.
+
+  Current evidence: No implementation evidence yet. A named macOS job with an iOS simulator or device is engineering work.
+
+- **SDK-016 — Unmodified Android SDK. Status: missing.** A `sentry-android` test app passes Q1 to Q7 on an emulator or device in a named job, with mobile replay, feedback and attachments. SDK-009 inherited: the default `package@versionName+versionCode` release is auto-created, with release-less alerts and release-scoped no-release counts.
+
+  Current evidence: No implementation evidence yet. A named job with an Android emulator or device is engineering work.
+
+- **SDK-017 — Unmodified React Native SDK. Status: missing.** A `@sentry/react-native` app passes Q1 to Q7 on both iOS and Android, for JS-layer and native-layer errors. SDK-009 inherited: the React Native default release identity, with release-less alerts and release-scoped no-release counts.
+
+  Current evidence: No implementation evidence yet. iOS and Android jobs are engineering work.
+
+- **SDK-018 — Unmodified Flutter SDK. Status: missing.** A `sentry_flutter` app passes Q1 to Q7 on both iOS and Android, for Dart and platform errors. SDK-009 inherited: the Flutter default release identity, with release-less alerts and release-scoped no-release counts.
+
+  Current evidence: No implementation evidence yet. iOS and Android jobs are engineering work.
+
+- **SDK-019 — Unmodified Kotlin Multiplatform SDK. Status: missing.** A shared module using `sentry-kotlin-multiplatform` passes Q1 to Q7 from its JVM/Android and iOS targets.
+
+  Current evidence: No implementation evidence yet.
+
+- **SDK-020 — Guided setup command and published framework setup. Status: partial.**
+  - **G1:** run the command on a fresh Next.js app and on a fresh Django app; the applied change equals the reviewed diff.
+  - **G2:** the source-map configuration is written and maps a real error.
+  - **G3:** the test event is accepted, and only Spool's receipt counts it.
+  - **G4:** a bad DSN or an unsafe path writes nothing.
+  - **G5:** the seven framework guides are published.
+
+  Current evidence, by acceptance point:
+  1. G1, G3 and G4: Guided setup on a fresh Next.js and Django app, reviewable `git apply` patch equal to the applied change, SDK installed, test event accepted, the configured apps report real failures, other frameworks get guidance, bad DSNs refused: `tests/setup-flow.mjs`. The test event is sent before anything is written and counts only Spool's own receipt for it; a wrong key, a redirect, a host that is not Spool, a secret key (never printed or written), control characters, a project file that is a link or a hard link to a file outside the project, a link swapped in while the test event's receipt is held, and a settings module that is not a dotted name each write nothing ("A refused setup writes nothing", "hard link: refused", "link swapped in: refused", "a settings module that is not a dotted name is refused"; the dry run prints no patch for the last).
+  2. G5: Framework setup published for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core: `docs/SENTRY-SWITCHING.md#framework-setup` (run through a framework only for Next.js and Django).
+
+  Remaining Gap (SDK-020 stays partial):
+  - G2: setup does not write source-map configuration (it names `spool-sourcemaps`), so no real error is mapped through it.
+  - Python and Go setup, and Express and the other published frameworks, are guidance only. Setup refuses, writing nothing, a project whose paths it would write contain a link (even one inside the project) or whose file to change has another hard link, and a settings module that is not a dotted ASCII name; it runs where Node offers no-follow opens (macOS, Linux, WSL2).
+
+- **SDK-021 — Tunnel handlers and ad-blocker delivery. Status: partial.** With a standard ad-blocker list enabled in a browser, deploy a Next.js app first with `tunnelRoute` (setup shows the named limitation), then with the Spool tunnel handler. Confirm every browser error arrives through the handler and reconciles in the MIG-001 dual run.
+
+  Current evidence:
+  1. Tunnels for the SDK `tunnel` option (Node, Next.js route handler, Python): envelope DSN checked against the project, another project refused with nothing forwarded, browser origin and agent forwarded, Spool's rate-limit reply returned, Spool's allowed origins still enforced, Sentry's `tunnelRoute` rewrites shown to reach only sentry.io, setup names that limitation: `tests/tunnel-flow.mjs` and `tests/setup-flow.mjs`. Hostile requests (`tests/tunnel-flow.mjs`, all three tunnels): a TRACE and an abandoned upload leave the host serving and no upstream 301/302/303/307/308 is followed or relayed (step 7), and the 1 MiB limit holds while the body is read and inflated: the same 255 KiB of gzip expanding to 256 MiB is refused with under 32 MiB of peak host memory on the Node, Python and Next.js (`next build`/`next start`) hosts ("Bounded body": "refuses an envelope over 1 MiB once decoded", "refuses it within 32 MiB of peak memory"; the cost is the serving process's own peak after the request minus its resident memory before it, and the journey prints each host's figures).
+  2. Blocked default route and delivered tunnel under the EasyPrivacy Sentry rules, enforced by the Ghostery engine on a real `@sentry/browser` page and a real `next build`/`next start` app: `tests/tunnel-flow.mjs`. An excerpt of the list and an engine, not a browser extension.
+
+  Remaining Gap (SDK-021 stays partial):
+  - A real ad-blocker browser extension and the MIG-001 dual-run reconciliation (blocked) are unexercised.
+  - Client address through a tunnel: tunnels forward `X-Forwarded-For`, but Spool honours no forwarded address (SDK-008). Default ADOPTED pending ct (ct ASK open: which tunnels Spool may trust): deny by default; no tunnel is trusted, `{{auto}}` resolves only from the connecting address, so events through a tunnel carry the tunnel server's address.
+
+- **SDK-022 — First-party ingest subdomain. Status: missing.** Repeat the SDK-021 ad-blocker deployment with the subdomain DSN. Confirm every browser error arrives and reconciles in the MIG-001 dual run.
+
+  Current evidence: No implementation evidence yet. The hosted deployment, the DNS zone and managed TLS for the buyer's subdomain are engineering work recorded in this clause; no hosted account was authorized for it.
+
+- **SDK-023 — JavaScript Loader Script per DSN key. Status: missing.** Replace a site's Sentry loader tag with the Spool loader, configured with the same key settings. Confirm lazy loading, `Sentry.onLoad` and an error capture.
+
+  Current evidence: No implementation evidence yet.
+
+- **SDK-024 — Cron check-ins routed to Uptime. Status: missing.** Send one check-in with a connected Uptime heartbeat and one without.
+
+  Current evidence: No implementation evidence yet. Check-ins from the SDK-012 runs are counted as `sentry_unsupported_check_in` in project outcomes; none reaches an Uptime heartbeat or is reported as unrouted in capability diagnostics.
+
+- **SDK-025 — Persisted non-error outcomes for every SDK-001 runtime. Status: partial.** As each owning clause ships storage, rerun every family's qualification run and reconcile the persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes.
+
+  Current evidence: `tests/sentry-sdk.mjs` (browser and Node `captureFeedback` attached to its issue), `tests/client-report-flow.mjs` (client-report discards kept by reason and category), `tests/sdk-runtimes.mjs` (Java and .NET feedback attached to its issue).
+
+  Remaining Gap: session, trace, replay, log and attachment items are counted as `sentry_unsupported_<category>` (reconciled exactly in the SDK-012 runs) but not stored; they belong to SDK-005, SDK-007, CTX-001, CTX-002 and API-001.
 
 ### Investigation and source
 
@@ -488,7 +580,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 9 | 33 | 14 | 56 |
-| All | 20 | 34 | 14 | 68 |
+| Target and push further | 9 | 37 | 24 | 70 |
+| All | 20 | 38 | 24 | 82 |
 
-**Clause status: 68 clauses — 20 done, 34 partial, 14 missing.**
+**Clause status: 82 clauses — 20 done, 38 partial, 24 missing.**
