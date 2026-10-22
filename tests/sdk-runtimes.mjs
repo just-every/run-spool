@@ -7,10 +7,10 @@ import {signIn} from './auth.mjs';
 import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
 import {readScreens} from './runtimes/screens.mjs';
 
-// [SDK-001] [SDK-012] Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
+// [SDK-001] [SDK-012] [SDK-013] Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
 // reference collector, once against Spool with only the DSN changed. Spool's public API
 // must then account for every envelope item the SDK itself produced.
-const available={node:'./runtimes/node.mjs',python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs',rust:'./runtimes/rust.mjs',elixir:'./runtimes/elixir.mjs'};
+const available={electron:'./runtimes/electron.mjs',node:'./runtimes/node.mjs',python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs',rust:'./runtimes/rust.mjs',elixir:'./runtimes/elixir.mjs'};
 const names=process.argv.slice(2).length?process.argv.slice(2):Object.keys(available);
 for(const name of names)assert.ok(available[name],`unknown runtime ${name}`);
 const sequence=['handled','crash','handled'];

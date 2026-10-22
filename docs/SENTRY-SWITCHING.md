@@ -72,6 +72,8 @@ The Python journey also covers the inherited release and fidelity checks: an eve
 
 Browser JavaScript uses unmodified @sentry/browser 11.6.0 at 1440 and 390 with default integrations, sessions, tracing, logs, attachments, replay and the actual feedback widget. The same program runs against the reference collector and Spool; every item reconciles, handled and automatic failures group across reloads without duplicate occurrences, and the build-plugin map resolves the original line. Actual window hiding emits the SDK's client report, whose bounded reason and exact quantity are read from capture receipts before reloading. Unsupported telemetry is counted; its storage remains SDK-025. Node's matching qualification is `tests/sdk-runtimes.mjs node`; the browser journey is `tests/sentry-sdk.mjs`.
 
+Electron qualification is implemented as a packaged Linux app under Xvfb, awaiting its first push Verify result. It pins @sentry/electron 8.3.0, Electron 45.0.0 and @electron/packager 20.3.0, and uses the SDK's official online `makeElectronTransport`. Native minidumps are disabled identically for both collectors; their qualification remains SDK-002/SDK-011. This pending fixture is not yet a compatibility claim.
+
 Not run here: Unity, iOS, Android, React Native, Flutter, Kotlin Multiplatform and Electron (SDK-013 to SDK-019). The device runtimes need simulators, emulators or devices, and Unity a licence.
 
 ## Guided setup

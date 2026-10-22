@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "82ca966f1daa2cbeaf2f21b0431d0e5d2295f595fbfb4eba1aa8c795e71de7e2",
+      "sha256": "ea61f78c239fcc621459d4b1241b6997d3a71f71d894135c008e76f38434d195",
       "executable": false
     },
     ".gitignore": {
@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "04f5cb7f3986792f8ace1319b203f85dd668f200343665a3d7b175ed8c13db02",
+      "sha256": "49e6243c8b7cdfada3b807b5123b93cf059675ad9345e945a8b0515a0962eebf",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8a50f12d464d3a166751d0e6aebd68b3db83bfd2fc0ca967a9565d1ac954e921",
+      "sha256": "399a4bfd9eafdf5abd73c9ebb71d9312e1b9f70b830f7f49732df15fd50d0d87",
       "executable": false
     },
     "DEMO.md": {
@@ -3513,7 +3513,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "6ee02e311ea1de6e221c1010a7690dcb7ea4ed0fcbe09dce821f981c9763d83d",
+      "sha256": "62c0405398916c2b2ab1e6d1f007a9bedf5aa10b8484cc9c4f0f91b09a79ada3",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -8336,6 +8336,26 @@
       "sha256": "d15470648d1479f57f2e078e7d285f6c0ff1b0564511a8523be97a9c17bd0efe",
       "executable": false
     },
+    "tests/runtimes/electron.mjs": {
+      "sha256": "22ae825a6ded271e8010ba1bfba90a8156e9e174954c39e57425a7b700e82526",
+      "executable": false
+    },
+    "tests/runtimes/electron/index.html": {
+      "sha256": "3ef327623e8763445a2df1a74dbfc5fc127046ba144ab3a338d18472b3d3ce2b",
+      "executable": false
+    },
+    "tests/runtimes/electron/main.cjs": {
+      "sha256": "6fb6001c0499cd38b934c99a6903347943a40edbc29fd91a77d127400bdf2bc1",
+      "executable": false
+    },
+    "tests/runtimes/electron/package.json": {
+      "sha256": "5f574fe230c1c78a2b1b5eb3c964aaf440534f4cfc3ac98e956dc28f6688fbe4",
+      "executable": false
+    },
+    "tests/runtimes/electron/renderer.cjs": {
+      "sha256": "655e83e5f18f19f2a2d8296bd207ec1908c53127c9bb5b01b43d944c7478b525",
+      "executable": false
+    },
     "tests/runtimes/elixir.mjs": {
       "sha256": "54ce3cd6fe130093baaf80fe2c3106821c0acaf9256a5b69c85bfaf7d3dc5d37",
       "executable": false
@@ -8473,7 +8493,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "af61165b7ab6afd6d7bf9c047abaabfc29984b0080d13d8359fd4bd97d8abac5",
+      "sha256": "794e1eff1dc0df1351f1fe4c77c14cf57d3e43b3397f05e8e7ae1b6534720dcb",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {

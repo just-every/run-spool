@@ -223,7 +223,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 - **SDK-013 — Unmodified Electron SDK. Status: missing.** Errors in the `@sentry/electron` main and renderer processes pass Q1 to Q7 in a packaged app run under a virtual display in a push or scheduled job. Native minidumps remain SDK-002 and SDK-011.
 
-  Current evidence: No implementation evidence yet.
+  Current evidence: The [SDK-013] packaged-app fixture and Q1–Q7 assertions are implemented in the existing runtime journey, pending its first Linux push Verify result. No acceptance point has yet been claimed. Electron is never launched on macOS. Native minidumps are disabled for both collectors; SDK-002 and SDK-011 remain unchanged.
 
 - **SDK-014 — Unmodified Unity SDK. Status: missing.** A Unity player build with the Sentry Unity SDK passes Q1 to Q7. The CI job needs an activated Unity license. Obtaining one is engineering work recorded here, not a waiver.
 

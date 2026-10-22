@@ -1,0 +1,8 @@
+{
+  "name": "synthetic-spool-electron-1",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.cjs",
+  "dependencies": { "@sentry/electron": "8.3.0" },
+  "devDependencies": { "electron": "45.0.0", "@electron/packager": "20.3.0" }
+}

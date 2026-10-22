@@ -58,13 +58,13 @@ jobs:
     name: runtime (${{ matrix.runtime }})
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
     env:
       RER_SERVERS_DISK_FLOOR_GIB: '4'
     strategy:
       fail-fast: false
       matrix:
-        runtime: [python, go, java, ruby, php, dotnet, rust, elixir, node]
+        runtime: [electron, python, go, java, ruby, php, dotnet, rust, elixir, node]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -125,10 +125,25 @@ jobs:
       # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
       # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
       - run: pnpm exec playwright install chromium
+      - if: matrix.runtime == 'electron'
+        name: Install Electron virtual display
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb xauth
       - name: Run ${{ matrix.runtime }} SDK journey
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
-        run: node tests/sdk-runtimes.mjs ${{ matrix.runtime }}
+        run: |
+          if [ "${{ matrix.runtime }}" = electron ]; then
+            xvfb-run -a node tests/sdk-runtimes.mjs electron
+          else
+            node tests/sdk-runtimes.mjs "${{ matrix.runtime }}"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: matrix.runtime == 'electron' && success()
+        with:
+          name: electron-screens
+          path: .artifacts/runtimes/
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
