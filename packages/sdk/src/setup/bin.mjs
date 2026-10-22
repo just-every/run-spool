@@ -15,16 +15,33 @@ function parse(args) {
     else if (flags.has(arg)) options[flags.get(arg)] = true;
     else throw new Error(`Unknown option ${arg}\n${usage}`);
   }
-  const url = (() => { try { return new URL(options.dsn); } catch { return undefined; } })();
-  if (!url || !['http:', 'https:'].includes(url.protocol) || !url.username || !/^[1-9][0-9]{0,15}$/.test(url.pathname.slice(1))) throw new Error(`--dsn must be a Spool project DSN (key@host/number)\n${usage}`);
+  options.dsn = publicDsn(options.dsn);
   return options;
+}
+
+// The DSN is checked before anything is printed or written, and only its canonical public form is ever used.
+function publicDsn(value) {
+  // URL parsing drops tabs and newlines silently; refused here so they can never reach a written file.
+  if (/[\u0000-\u0020\u007f]/.test(value ?? '')) throw new Error(`--dsn must not contain spaces or control characters\n${usage}`);
+  const url = (() => { try { return new URL(value); } catch { return undefined; } })();
+  if (url?.password) throw new Error('--dsn carries a secret key. Use the project\'s public DSN (key@host/number); the secret was not printed or written.');
+  if (!url || !['http:', 'https:'].includes(url.protocol) || !url.username || url.search || url.hash || !/^[1-9][0-9]{0,15}$/.test(url.pathname.slice(1))) throw new Error(`--dsn must be a Spool project DSN (key@host/number)\n${usage}`);
+  return `${url.protocol}//${url.username}@${url.host}${url.pathname}`;
 }
 
 export async function setup(args, out = console.log) {
   const options = parse(args), dir = resolve(options.dir), found = await detect(dir), steps = plan(found, options);
   out(`Detected ${found.framework}.`);
-  const changes = [];
-  for (const file of steps.files) changes.push(await resolveChange(dir, file));
+  const changes = await Promise.all(steps.files.map(file => resolveChange(dir, file)));
+  // The test event goes first: a DSN Spool does not accept leaves the app untouched.
+  if (!options.noTestEvent) {
+    const result = await sendTestEvent(options.dsn);
+    if (!result.accepted) {
+      out(`${result.status === 200 ? 'The DSN host did not answer as Spool' : 'Spool refused the test event'} (HTTP ${result.status}): ${result.body.slice(0, 200).replace(/[\u0000-\u001f\u007f]/g, ' ')}`);
+      throw new Error('test event not accepted; nothing written');
+    }
+    out(`Test event ${result.eventId} accepted by Spool.`);
+  }
   for (const change of changes) if (change.kind === 'present') out(`${change.path}: already configured`); else if (change.kind === 'exists') out(`${change.path}: exists and differs; merge by hand`);
   const patch = patchOf(changes);
   if (patch) out(patch.trimEnd());
@@ -32,11 +49,6 @@ export async function setup(args, out = console.log) {
   if (options.apply) { await writeChanges(dir, changes); out(`Wrote ${changes.filter(change => ['create', 'append'].includes(change.kind)).length} file(s).`); } else if (patch) out('Nothing written; rerun with --apply to write this patch.');
   if (options.install) for (const install of steps.installs) { const result = spawnSync(install.command, install.args, { cwd: dir, stdio: 'inherit' }); if (result.status !== 0) throw new Error(`${install.command} failed`); }
   for (const note of steps.notes) out(`Note: ${note}`);
-  if (!options.noTestEvent) {
-    const result = await sendTestEvent(options.dsn);
-    out(result.status === 200 ? `Test event ${result.eventId} accepted by Spool.` : `Spool refused the test event (HTTP ${result.status}): ${result.body.slice(0, 200)}`);
-    if (result.status !== 200) throw new Error('test event refused');
-  }
   return { framework: found.framework, changes: changes.map(({ path, kind }) => ({ path, kind })) };
 }
 

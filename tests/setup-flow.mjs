@@ -1,7 +1,8 @@
 // The guided setup command, as a user gets it: the packed `spool-setup` bin run on fresh Django and Next.js apps.
 import assert from 'node:assert/strict';
-import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFileSync, spawn } from 'node:child_process';
+import { createServer } from 'node:http';
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
@@ -11,7 +12,7 @@ import { launchBrowser } from './browser-launch.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
-let worker, browser, server, nextServer;
+let worker, browser, server, nextServer, elsewhere;
 const children = [];
 try {
   await mkdir(tool);
@@ -19,7 +20,12 @@ try {
   await writeFile(resolve(tool, 'package.json'), JSON.stringify({ name: 'tool', private: true, type: 'module' }));
   execFileSync('npm', ['install', packed.tarball, '--offline', '--no-audit', '--no-fund', '--ignore-scripts'], { cwd: tool, stdio: 'ignore' });
   const bin = resolve(tool, 'node_modules/@just-every/spool/dist/setup.js');
-  const wizard = (args, options = {}) => spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8', ...options });
+  // Asynchronous, so the journey's own network-edge fakes keep answering while the command runs.
+  const wizard = (args, { stdio = 'pipe' } = {}) => new Promise((done, fail) => {
+    const child = spawn(process.execPath, [bin, ...args], { stdio }), out = { stdout: '', stderr: '' };
+    child.stdout?.on('data', chunk => out.stdout += chunk); child.stderr?.on('data', chunk => out.stderr += chunk);
+    child.once('error', fail); child.once('close', status => done({ status, ...out }));
+  });
   worker = await startTestWorker(15572); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };
   const project = await request('/api/projects', 'POST', { id: 'setup', name: 'Guided setup' });
@@ -28,13 +34,35 @@ try {
   const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=synthetic-spool@example.test', '-c', 'user.name=synthetic-spool', ...args], { cwd, encoding: 'utf8' });
 
   // Refusals first: a malformed DSN, an unsupported framework, and a DSN Spool does not know.
-  assert.equal(wizard(['--dsn', 'not-a-dsn']).status, 1);
+  assert.equal((await wizard(['--dsn', 'not-a-dsn'])).status, 1);
   const rails = resolve(temporary, 'rails-app'); await mkdir(rails); await writeFile(resolve(rails, 'Gemfile'), "source 'https://rubygems.org'\ngem 'rails'\n");
-  const guided = wizard(['--dsn', project.dsn, '--dir', rails, '--no-test-event']);
+  const guided = await wizard(['--dsn', project.dsn, '--dir', rails, '--no-test-event']);
   assert.equal(guided.status, 0); assert.match(guided.stdout, /Detected rails/); assert.match(guided.stdout, /sentry-rails/); assert.ok(!guided.stdout.includes('diff --git'), 'frameworks without a generator get guidance, not a patch');
   const forged = project.dsn.replace(/\/\/./, m => '//' + (project.dsn[7] === '0' ? '1' : '0'));
-  const refused = wizard(['--dsn', forged, '--dir', rails]);
+  const refused = await wizard(['--dsn', forged, '--dir', rails]);
   assert.equal(refused.status, 1); assert.match(refused.stdout, /refused the test event \(HTTP 401\)/);
+
+  // A refused setup writes nothing: a DSN Spool does not accept, one that redirects or names a host that is not Spool,
+  // a secret key (never printed or written), control characters, and a project file that links outside the project.
+  const settingsOnly = async name => { const root = resolve(temporary, name); await mkdir(resolve(root, 'shop'), { recursive: true }); await writeFile(resolve(root, 'manage.py'), "os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')\n"); await writeFile(resolve(root, 'shop/settings.py'), 'DEBUG = True\n'); return root; };
+  const untouched = async (root, label, extra = []) => { assert.deepEqual((await readdir(root)).sort(), ['manage.py', 'shop', ...extra].sort(), `${label}: no file created`); assert.equal(await readFile(resolve(root, 'shop/settings.py'), 'utf8'), 'DEBUG = True\n', `${label}: settings unchanged`); };
+  // Network-edge fakes: /7 redirects to Spool's own intake (307 keeps the POST), /8 answers 200 without being Spool.
+  const key = new URL(project.dsn).username, alias = new URL(project.dsn).pathname.slice(1);
+  elsewhere = createServer(async (req, res) => { for await (const _ of req); if (req.url.startsWith('/api/7/')) { res.statusCode = 307; res.setHeader('location', `${origin}/api/${alias}/envelope/`); } res.end('{}'); });
+  const elsewherePort = await new Promise(done => elsewhere.listen(0, '127.0.0.1', () => done(elsewhere.address().port)));
+  const issuesBefore = (await issues()).length;
+  for (const [label, dsn, extra = []] of [['wrong key', forged], ['redirect', `http://${key}@127.0.0.1:${elsewherePort}/7`], ['not Spool', `http://${key}@127.0.0.1:${elsewherePort}/8`], ['secret key', project.dsn.replace('@', ':synthetic-spool-secret@')], ['secret key without a test event', project.dsn.replace('@', ':synthetic-spool-secret@'), ['--no-test-event']], ['newline', `${project.dsn}#\nINJECTED=1`, ['--no-test-event']]]) {
+    const root = await settingsOnly(label.replaceAll(' ', '-')), run = await wizard(['--dsn', dsn, '--dir', root, '--apply', ...extra]);
+    assert.equal(run.status, 1, `${label}: refused`); assert.doesNotMatch(run.stdout, /accepted by Spool/);
+    assert.ok(!(run.stdout + run.stderr).includes('synthetic-spool-secret'), `${label}: no secret printed`);
+    await untouched(root, label);
+  }
+  assert.equal((await issues()).length, issuesBefore, 'a redirected test event never reaches Spool');
+  const linked = await settingsOnly('linked'), outside = resolve(temporary, 'outside.env');
+  await writeFile(outside, 'OUTSIDE=1\n'); await symlink(outside, resolve(linked, '.env'));
+  const throughLink = await wizard(['--dsn', project.dsn, '--dir', linked, '--apply', '--no-test-event']);
+  assert.equal(throughLink.status, 1); assert.match(throughLink.stderr, /link that leaves/);
+  assert.equal(await readFile(outside, 'utf8'), 'OUTSIDE=1\n', 'nothing written through a link that leaves the project'); await untouched(linked, 'linked', ['.env']);
 
   // Django: a fresh project, a reviewable patch first, then the same change applied with the SDK installed.
   const django = resolve(temporary, 'django-app'); await mkdir(django);
@@ -44,7 +72,7 @@ try {
   execFileSync(python, ['-m', 'django', 'startproject', 'shop', '.'], { cwd: django });
   await writeFile(resolve(django, 'requirements.txt'), 'django==5.2.8\n');
   git(django, 'init', '-q'); git(django, 'add', '-A'); git(django, 'commit', '-q', '-m', 'fresh app');
-  const dry = wizard(['--dsn', project.dsn, '--dir', django, '--no-test-event', '--python', python]);
+  const dry = await wizard(['--dsn', project.dsn, '--dir', django, '--no-test-event', '--python', python]);
   assert.equal(dry.status, 0, dry.stderr); assert.match(dry.stdout, /Detected django/); assert.match(dry.stdout, /diff --git a\/shop\/settings\.py/); assert.match(dry.stdout, /Nothing written/);
   assert.equal(git(django, 'status', '--porcelain'), '', 'the dry run changes nothing');
   const patch = dry.stdout.slice(dry.stdout.indexOf('diff --git')).split('\nRun:')[0] + '\n';
@@ -53,12 +81,12 @@ try {
   git(django, 'apply', resolve(temporary, 'django.patch'));
   const reviewed = { settings: await readFile(resolve(django, 'shop/settings.py'), 'utf8'), env: await readFile(resolve(django, '.env'), 'utf8'), requirements: await readFile(resolve(django, 'requirements.txt'), 'utf8') };
   git(django, 'checkout', '-q', '.'); git(django, 'clean', '-fdq');
-  const applied = wizard(['--dsn', project.dsn, '--dir', django, '--apply', '--install', '--python', python], { stdio: ['ignore', 'pipe', 'inherit'] });
+  const applied = await wizard(['--dsn', project.dsn, '--dir', django, '--apply', '--install', '--python', python], { stdio: ['ignore', 'pipe', 'inherit'] });
   assert.equal(applied.status, 0); assert.match(applied.stdout, /Test event [0-9a-f]{32} accepted by Spool/);
   assert.equal(await readFile(resolve(django, 'shop/settings.py'), 'utf8'), reviewed.settings, 'applying the change writes exactly the reviewed patch');
   assert.equal(await readFile(resolve(django, '.env'), 'utf8'), reviewed.env); assert.equal(await readFile(resolve(django, 'requirements.txt'), 'utf8'), reviewed.requirements);
   execFileSync(python, ['-c', 'import sentry_sdk'], { stdio: 'ignore' });
-  const again = wizard(['--dsn', project.dsn, '--dir', django, '--apply', '--no-test-event']);
+  const again = await wizard(['--dsn', project.dsn, '--dir', django, '--apply', '--no-test-event']);
   assert.match(again.stdout, /already configured/); assert.equal((await readFile(resolve(django, 'shop/settings.py'), 'utf8')), reviewed.settings, 'setup is idempotent');
   await arrives('Spool setup test event');
   // The configured app reports a real request failure through the Django integration, with no further setup.
@@ -75,7 +103,7 @@ try {
   await writeFile(resolve(next, 'app/layout.js'), 'export default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
   await writeFile(resolve(next, 'app/page.js'), "'use client';\nexport default function Page() { return <button onClick={() => { throw new Error('next setup failure'); }}>Throw</button>; }\n");
   execFileSync('npm', ['install', '--no-audit', '--no-fund'], { cwd: next, stdio: 'ignore' });
-  const nextRun = wizard(['--dsn', project.dsn, '--dir', next, '--apply', '--install', '--spool-package', packed.tarball, '--no-test-event'], { stdio: ['ignore', 'pipe', 'inherit'] });
+  const nextRun = await wizard(['--dsn', project.dsn, '--dir', next, '--apply', '--install', '--spool-package', packed.tarball, '--no-test-event'], { stdio: ['ignore', 'pipe', 'inherit'] });
   assert.equal(nextRun.status, 0); assert.match(nextRun.stdout, /Detected next/); assert.match(nextRun.stdout, /tunnelRoute/);
   for (const file of ['app/monitoring/route.js', 'instrumentation-client.js', '.env.local']) assert.ok((await readFile(resolve(next, file), 'utf8')).length > 0, file);
   const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1' };
@@ -92,9 +120,9 @@ try {
   await page.goto(nextOrigin); await page.waitForLoadState('networkidle'); await page.getByRole('button').click(); await context.close();
   await arrives('next setup failure');
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
-  console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; bad DSNs refused.' }));
+  console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters) and links leaving the project write nothing.' }));
 } finally {
   await browser?.close();
   for (const child of children) child.kill();
-  await worker?.stop(); await rm(temporary, { recursive: true, force: true });
+  elsewhere?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }

@@ -1,11 +1,24 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { dirname, join, sep } from 'node:path';
 
 const read = path => readFile(path, 'utf8').catch(() => undefined);
 const lines = content => content.length ? content.replace(/\n$/, '').split('\n') : [];
 
+/** Refuses a path whose file or nearest existing folder resolves outside the project root, or is a dangling link. */
+async function within(dir, path) {
+  const root = await realpath(dir);
+  for (let probe = join(dir, path); ; probe = dirname(probe)) {
+    const exists = await lstat(probe).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; });
+    if (!exists) continue;
+    const real = await realpath(probe).catch(() => undefined);
+    if (real !== root && !real?.startsWith(root + sep)) throw new Error(`${path} is a link that leaves ${dir}; spool-setup writes only inside the project. Nothing was written.`);
+    return;
+  }
+}
+
 /** The change one file gets: created when absent, appended to when present and `append` is set, else left alone. */
 export async function resolveChange(dir, file) {
+  await within(dir, file.path);
   const old = await read(join(dir, file.path));
   if (old === undefined) return { ...file, old: '', next: file.content, kind: 'create' };
   if (old.includes(file.marker ?? file.content)) return { ...file, old, next: old, kind: 'present' };
