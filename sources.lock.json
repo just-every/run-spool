@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "61a0946cacdf9b5afff0e71023f9a30ec01e3bb962a2b978a75dd0f1ba7f511f",
+      "sha256": "af2a84ab8b5e196bbe4249d89712d3ee4df37fe0e60ea1c59190de19ecce9993",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "16b73d5fa8dbc39f0311ae29acdf4a234da76288bc46719721af0ad06f2f3145",
+      "sha256": "9a037233452186a6f710f2d8bdcd242d2381998e78245dc93d3aec83a32f9967",
       "executable": false
     },
     "DEMO.md": {
@@ -3425,7 +3425,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "36cbcf29ffa3784cd3f8f569e45e647ced9e00944edc0bf4b1b4b99baf646441",
+      "sha256": "1d9919941ae3580f63c8c19b55ec9e6134db614354e654b7e91d9c6a20dfaf61",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -3769,7 +3769,7 @@
       "executable": false
     },
     "packages/sdk/CHANGELOG.md": {
-      "sha256": "153ee518e86395a572dd2e35ed5007978b37f0a3356e0b1c243b161bc1b0cbc5",
+      "sha256": "eb6c68fada307b35d39c0bea2301170bca58f06b619077a7a2e2494a6c1de4b8",
       "executable": false
     },
     "packages/sdk/package.json": {
@@ -3797,19 +3797,23 @@
       "executable": false
     },
     "packages/sdk/src/setup/bin.mjs": {
-      "sha256": "ae53efea93147220645d950a3bc6a8e908bf60422eeb24d8fb95b26efa8b4bf1",
+      "sha256": "efd7b5f2d7e2de14124579dbecb3e1714495d391b856086d2d16954c4d68ba29",
       "executable": false
     },
     "packages/sdk/src/setup/detect.mjs": {
-      "sha256": "e1be077be59f9530e98c41dc27a3abc9f64affd44ae948343c502046d7fa359b",
+      "sha256": "81172d2bb40412fb9fa9d5d3dfee5812fc100fdab07d1e71db3849dc4455cd89",
       "executable": false
     },
     "packages/sdk/src/setup/event.mjs": {
       "sha256": "37909b88c943162f2c1a4dc2679ec2a51f1ed833bbedc1ee7f27d0c48949f533",
       "executable": false
     },
+    "packages/sdk/src/setup/files.mjs": {
+      "sha256": "20d49b7dcf0c7c6787cdaab5853bb947ece20247a0f2bcce6c7d8dcc76e9508f",
+      "executable": false
+    },
     "packages/sdk/src/setup/patch.mjs": {
-      "sha256": "9020c0a96cbc59951b834d85bdd048bd91a62b550173884c33a70dc326ca1cf6",
+      "sha256": "da3bf9c76476b25fb313e2afb958f91e5413aeea366e28e480c4b960704854b7",
       "executable": false
     },
     "packages/sdk/src/setup/plans.mjs": {
@@ -8401,7 +8405,7 @@
       "executable": false
     },
     "tests/setup-flow.mjs": {
-      "sha256": "4120ac000ebba89407f11435a3ea018217e653e64fef2b4527305ac67433af82",
+      "sha256": "57848484e46cd49aaac54cca404fffb982050396a207484eafe934db8c50c7f4",
       "executable": false
     },
     "tests/setup-journey.mjs": {
@@ -8425,15 +8429,15 @@
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
-      "sha256": "0e3c0a7479d05ab8dc9c3e00e24feaaaac89eb3996b8ead5f326925cd7129491",
+      "sha256": "69dfebdce152843377fb6ccbd730d5d2e8477b8534ed4aede426f9d8470421d9",
       "executable": false
     },
     "tests/tunnel/server.mjs": {
-      "sha256": "621b54d31417a5b7d1ff22ebf16dc54e199c232291e36e43106ab40dbd7ffe8c",
+      "sha256": "6730dc8e6bf461d8e18d0539db07325b0866e121a81a651d9bc1a4ccfb1c319a",
       "executable": false
     },
     "tests/tunnel/server.py": {
-      "sha256": "f96b5f2af8a9efdaa4290090eed74b3bb29484e8c2c8b0ec22522a5c41dc6a6d",
+      "sha256": "cb97c783d8cd0eb2b287d319b181fc3324c2bf5c4c1419b92b90b5c3725113e3",
       "executable": false
     },
     "tests/worker-options.mjs": {
