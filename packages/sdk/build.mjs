@@ -11,17 +11,17 @@ const root = dirname(fileURLToPath(import.meta.url)), dist = join(root, 'dist'),
 await rm(dist, { recursive: true, force: true });
 await rm(join(root, 'build'), { recursive: true, force: true });
 const common = { bundle: true, format: 'esm', target: 'es2022', legalComments: 'eof', write: true, logLevel: 'warning' };
-await build({ ...common, entryPoints: { browser: 'src/browser.ts', worker: 'src/worker.ts' }, absWorkingDir: root, outdir: dist, platform: 'neutral', minify: true });
+await build({ ...common, entryPoints: { browser: 'src/browser.ts', worker: 'src/worker.ts', tunnel: 'src/tunnel.ts', next: 'src/next.ts' }, absWorkingDir: root, outdir: dist, platform: 'neutral', minify: true });
 await build({ ...common, entryPoints: { node: 'src/node.ts' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true });
 // The source-map tools parse bundles; their two parser libraries are bundled so the package has no dependencies.
 await build({ ...common, entryPoints: { vite: 'src/sourcemaps/plugin.mjs', sourcemaps: 'src/sourcemaps/bin.mjs' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true, splitting: true, chunkNames: 'shared-[hash]' });
 
 const tsc = resolve(root, '../../node_modules/typescript/bin/tsc');
 execFileSync(process.execPath, [tsc, '-p', join(root, 'tsconfig.json')], { stdio: 'inherit' });
-for (const name of ['browser.d.ts', 'node.d.ts', 'worker.d.ts', 'types.d.ts']) {
+for (const name of ['browser.d.ts', 'node.d.ts', 'worker.d.ts', 'tunnel.d.ts', 'next.d.ts', 'types.d.ts']) {
   const text = await readFile(join(types, name), 'utf8');
   if (/from '\.\.\//.test(text)) throw new Error(`${name} exposes a type from outside the package`);
-  await writeFile(join(dist, name), text.replaceAll("from './types.ts'", "from './types.js'"));
+  await writeFile(join(dist, name), text.replaceAll("from './types.ts'", "from './types.js'").replaceAll("from './tunnel.ts'", "from './tunnel.js'"));
 }
 await copyFile(join(root, 'src/vite.d.ts'), join(dist, 'vite.d.ts'));
 await copyFile(join(root, '../../LICENSE'), join(root, 'LICENSE'));

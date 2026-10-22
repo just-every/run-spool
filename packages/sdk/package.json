@@ -12,6 +12,8 @@
     "./browser": { "types": "./dist/browser.d.ts", "default": "./dist/browser.js" },
     "./node": { "types": "./dist/node.d.ts", "default": "./dist/node.js" },
     "./worker": { "types": "./dist/worker.d.ts", "default": "./dist/worker.js" },
+    "./tunnel": { "types": "./dist/tunnel.d.ts", "default": "./dist/tunnel.js" },
+    "./next": { "types": "./dist/next.d.ts", "default": "./dist/next.js" },
     "./vite": { "types": "./dist/vite.d.ts", "default": "./dist/vite.js" },
     "./rollup": { "types": "./dist/vite.d.ts", "default": "./dist/vite.js" },
     "./package.json": "./package.json"

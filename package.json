@@ -61,6 +61,7 @@
     "test:execution": "node tests/execution-journey.mjs",
     "test:languages": "node tests/multilingual.mjs",
     "test:runtimes": "node tests/sdk-runtimes.mjs",
+    "test:tunnel": "node tests/tunnel-flow.mjs",
     "integration:sync": "node scripts/sync-integration.mjs --write",
     "integration:check": "node scripts/sync-integration.mjs --check"
   },
@@ -77,6 +78,7 @@
     "@axe-core/playwright": "4.13.0",
     "@cloudflare/vite-plugin": "1.54.5",
     "@cloudflare/workers-types": "5.20260908.1",
+    "@ghostery/adblocker": "2.20.1",
     "@playwright/test": "1.63.0",
     "@runeditrun/rer": "0.2.72",
     "@sentry/browser": "11.6.0",

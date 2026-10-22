@@ -147,6 +147,8 @@ jobs:
             command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
           - shard: sentry-cli
             command: pnpm test:sentry:cli
+          - shard: tunnel
+            command: pnpm test:tunnel
           - shard: agent-handoff
             command: pnpm test:agent-handoff && pnpm test:privacy
           - shard: repair-recovery

@@ -1,0 +1,11 @@
+[Adblock Plus 1.1]
+! Excerpt of EasyPrivacy (https://easylist.to/easylist/easyprivacy.txt, version 202610220306, 22 Oct 2026 03:06 UTC):
+! every network rule in that list that targets Sentry ingest or the Sentry SDK. EasyPrivacy is dual-licensed
+! GPLv3 and CC BY-SA 3.0; see https://easylist.to/pages/licence.html
+/?sentry_key=
+/?sentry_version=
+/api/sentry/tunnel$xmlhttprequest
+||getsentry.com^$third-party,domain=~sentry.dev|~sentry.io
+||sentry-cdn.com^$third-party,domain=~sentry.dev|~sentry.io
+||sentry-cdn.top^$third-party
+||sentry.io^$third-party

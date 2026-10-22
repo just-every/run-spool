@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": { "noEmit": false, "declaration": true, "emitDeclarationOnly": true, "rewriteRelativeImportExtensions": true, "rootDir": "../..", "outDir": "build/types" },
-  "include": ["src/browser.ts", "src/node.ts", "src/worker.ts"]
+  "include": ["src/browser.ts", "src/node.ts", "src/worker.ts", "src/tunnel.ts", "src/next.ts"]
 }
