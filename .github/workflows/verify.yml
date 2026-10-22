@@ -201,7 +201,9 @@ jobs:
         with:
           name: verify-build
           path: .
-      - run: pnpm exec playwright install --with-deps chromium
+      # Only the browser: the runner image's Chrome already brings its system libraries, and
+      # apt from the image's mirror has run past the 10-minute job limit.
+      - run: pnpm exec playwright install chromium
         env:
           DEBUG: pw:install
       - name: Run suites

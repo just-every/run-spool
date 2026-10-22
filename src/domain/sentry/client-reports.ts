@@ -11,11 +11,12 @@ export function isClientReportOutcome(reason: unknown): reason is string {
  const parts = reason.split(':');
  return parts.length === 3 && parts[0] === 'client_discarded' && token.test(parts[1]) && token.test(parts[2]) && scrub(reason) === reason;
 }
-// Sentry's protocol takes the timestamp as Unix seconds or RFC 3339 text; sentry-go sends text.
-const rfc3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$/;
+// Sentry's protocol takes the timestamp as Unix seconds or RFC 3339 text; sentry-go sends text, and
+// sentry-elixir sends it without a zone, which Sentry reads as UTC.
+const rfc3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})?$/;
 function validTimestamp(value: unknown): boolean {
  if (typeof value === 'number') return Number.isFinite(value) && value >= 0;
- return typeof value === 'string' && rfc3339.test(value) && Number.isFinite(Date.parse(value));
+ return typeof value === 'string' && rfc3339.test(value) && Number.isFinite(Date.parse(/(Z|[+-]\d{2}:\d{2})$/.test(value) ? value : value + 'Z'));
 }
 export function clientReportCounts(bytes: Uint8Array): Map<string, number> {
  const invalid = () => new SentryWireError('client_report_invalid', 422);

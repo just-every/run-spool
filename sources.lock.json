@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "b45dd8b384bbba9e3032189c619d4b951bcf8f3190e7280c4fb99716ca52a339",
+      "sha256": "88055587fbbc4dfb46f7c532adb83e516c5f121403e2601a09dcb1daf7312c73",
       "executable": false
     },
     ".gitignore": {
@@ -5201,7 +5201,7 @@
       "executable": false
     },
     "src/domain/sentry/client-reports.ts": {
-      "sha256": "cf393d0fbbe68f01f0e9fe05ee76b02c0798f192aa28b1eebdf63b0020868c3d",
+      "sha256": "b65e6ff301203b8aa2e9043a541e5a62707d33ad5502e8ca568d2d636a439dee",
       "executable": false
     },
     "src/domain/sentry/convert.ts": {
