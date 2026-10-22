@@ -4,12 +4,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
-import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run} from './runtimes/harness.mjs';
+import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
+import {readScreens} from './runtimes/screens.mjs';
 
 // Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
 // reference collector, once against Spool with only the DSN changed. Spool's public API
 // must then account for every envelope item the SDK itself produced.
-const available={python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs',rust:'./runtimes/rust.mjs'};
+const available={python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs',rust:'./runtimes/rust.mjs',elixir:'./runtimes/elixir.mjs'};
 const names=process.argv.slice(2).length?process.argv.slice(2):Object.keys(available);
 for(const name of names)assert.ok(available[name],`unknown runtime ${name}`);
 const sequence=['handled','crash','handled'];
@@ -17,11 +18,13 @@ const temporary=await mkdtemp(join(tmpdir(),'spool-runtimes-'));
 let worker;
 try{
  worker=await startTestWorker(15540);
- const {origin}=worker,app=api(origin,await signIn(origin));
+ const {origin}=worker,cookie=await signIn(origin),app=api(origin,cookie);
  for(const name of names){
   const runtime=(await import(available[name])).default,dir=join(temporary,name);
   await runtime.prepare(dir);
-  const execute=async(dsn,modes=sequence)=>{const results=[];for(const mode of modes){const c=runtime.command(mode,dir,dsn);results.push({mode,...await run(c.command,c.args,{cwd:c.cwd,env:c.env,unset:c.unset})})}return results};
+  // Each SDK reads its release (and, where it supports one, its dist) from the standard variables.
+  const identity={SENTRY_RELEASE:`synthetic-spool-${name}@1.0.0`,SENTRY_DIST:'synthetic-spool-1'};
+  const execute=async(dsn,modes=sequence)=>{const results=[];for(const mode of modes){const c=runtime.command(mode,dir,dsn);results.push({mode,...await run(c.command,c.args,{cwd:c.cwd,env:{...identity,...c.env},unset:c.unset})})}return results};
   const reference=await referenceCollector();
   const referenceRuns=await execute(reference.dsn);await reference.close();
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
@@ -43,6 +46,14 @@ try{
   const crashed=details.find(d=>d.events.some(e=>unhandled(e.event.sentry)));
   assert.ok(crashed,`${name}: unhandled failure persisted as unhandled`);
   for(const {events} of details)for(const {event} of events){assert.equal(event.environment,'compatibility');assert.ok(event.sentry.sdk.name.startsWith(runtime.sdk),`${name}: SDK identity ${event.sentry.sdk?.name}`);assert.ok(event.sentry.sdk.version,`${name}: SDK version kept`)}
+  // Release and dist as the SDK sent them; a sent release is created automatically (SDK-009).
+  const sent=sentIdentities(reference.sent),stored=new Set(details.flatMap(d=>d.events.map(e=>JSON.stringify([e.release,e.event.build]))));
+  assert.deepEqual([...stored].sort(),[...sent].sort(),`${name}: release and dist equal what the SDK sent`);
+  const releases=await app.json(`/api/projects/${project.id}/releases`);
+  for(const [release] of [...sent].map(value=>JSON.parse(value)))if(release)assert.ok(releases.some(r=>r.name===release&&r.auto_created===1&&JSON.parse(r.creating_sdk).name.startsWith(runtime.sdk)),`${name}: release ${release} is created automatically`);
+  // The handled occurrence reads the same through the UI, at desktop and phone width.
+  const outer=runtime.chain.at(-1);
+  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:page=>page.locator('article.exception h3').filter({hasText:outer}).first().waitFor()}]);
   // Failure handling: a wrong key or an unreachable intake never breaks the application.
   const before=await app.json(`/api/projects/${project.id}/issues`);
   const url=new URL(project.dsn);
@@ -50,7 +61,7 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  if(runtime.verify)await runtime.verify({app,project,details,dir,origin});
-  console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes)}));
+  if(runtime.verify)await runtime.verify({app,project,details,dir,origin,cookie});
+  console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes),identity:[...sent]}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}

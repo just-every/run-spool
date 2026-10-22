@@ -7,7 +7,7 @@ const target=dir=>process.env.CARGO_TARGET_DIR??resolve(dir,'target');
 const here=resolve(import.meta.dirname,'rust');
 export default {
  name:'rust',sdk:'sentry.rust',version:'sentry 0.49.3',
- required:['event','transaction','log','attachment','client_report'],
+ required:['event','session','transaction','log','attachment','client_report'],
  chain:['CauseError','CheckoutError'],
  async prepare(dir){
   await cp(here,dir,{recursive:true,filter:path=>!path.includes('/target')});

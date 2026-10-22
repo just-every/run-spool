@@ -6,7 +6,7 @@ const here=resolve(import.meta.dirname,'ruby');
 const bundle=dir=>({BUNDLE_PATH:resolve(dir,'vendor'),BUNDLE_GEMFILE:resolve(dir,'Gemfile')});
 export default {
  name:'ruby',sdk:'sentry.ruby',version:'sentry-ruby 7.1.0',
- required:['event','transaction','log','attachment','check_in'],
+ required:['event','sessions','transaction','log','attachment','check_in','client_report'],
  chain:['ZeroDivisionError','ArgumentError'],
  async prepare(dir){
   await cp(here,dir,{recursive:true});

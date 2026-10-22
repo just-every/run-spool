@@ -18,6 +18,8 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
     enable_logs=True,
 )
+# A command-line program tracks one application-mode session (release health needs a release).
+sentry_sdk.start_session()
 mode = sys.argv[1]
 
 
@@ -42,6 +44,7 @@ with sentry_sdk.start_transaction(name="checkout", op="task"):
             sentry_sdk.capture_exception()
         sentry_sdk.capture_message("synthetic-spool-discard")
         capture_checkin(monitor_slug="nightly-sync", status="ok", duration=1)
+        sentry_sdk.end_session()
         sentry_sdk.flush()
     else:
         charge("synthetic-spool-note")

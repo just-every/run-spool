@@ -30,6 +30,8 @@ public class App {
         return "synthetic-spool-discard".equals(message) ? null : event;
       });
     });
+    // A command-line program tracks one application session (release health needs a release).
+    Sentry.startSession();
     if (args[0].equals("suppressed")) {
       IllegalStateException failure = new IllegalStateException("checkout quantity rejected", new ArithmeticException("division by zero"));
       failure.addSuppressed(new java.io.IOException("synthetic-spool-close-failed"));
@@ -54,6 +56,7 @@ public class App {
       Sentry.captureMessage("synthetic-spool-discard");
       Sentry.captureCheckIn(new CheckIn(new SentryId(), "nightly-sync", CheckInStatus.OK));
       transaction.finish();
+      Sentry.endSession();
       Sentry.close();
       return;
     }

@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: [python, go, java, ruby, php, dotnet, rust]
+        runtime: [python, go, java, ruby, php, dotnet, rust, elixir]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -110,6 +110,11 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - if: matrix.runtime == 'elixir'
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27'
+          elixir-version: '1.18'
       - if: matrix.runtime == 'rust'
         uses: actions/cache@v4
         with:
@@ -117,6 +122,8 @@ jobs:
             ~/.cargo/registry
             ${{ runner.temp }}/cargo-target
           key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
+      # Each journey also reads its issue through the UI at 1440 and 390.
+      - run: pnpm exec playwright install --with-deps chromium
       - name: Run ${{ matrix.runtime }} SDK journey
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
@@ -127,6 +134,7 @@ jobs:
           name: server-output-runtime-${{ matrix.runtime }}
           path: |
             .artifacts/worker-output/
+            .artifacts/runtimes/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

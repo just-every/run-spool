@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "2e2f5f64e232356a015fdbc49e3cad064ca1408428f47cfb5bda522d93874295",
+      "sha256": "e3fbb557fb489af832f17f62777354f63e5851a6433be14cf978ffc207442276",
       "executable": false
     },
     ".gitignore": {
@@ -8236,6 +8236,26 @@
       "sha256": "d15470648d1479f57f2e078e7d285f6c0ff1b0564511a8523be97a9c17bd0efe",
       "executable": false
     },
+    "tests/runtimes/elixir.mjs": {
+      "sha256": "54ce3cd6fe130093baaf80fe2c3106821c0acaf9256a5b69c85bfaf7d3dc5d37",
+      "executable": false
+    },
+    "tests/runtimes/elixir/app.exs": {
+      "sha256": "5b8eb2b0913d3ecad42402628385cfce0852ebb7e49c022fd6811c9a8a4ca8e4",
+      "executable": false
+    },
+    "tests/runtimes/elixir/config/config.exs": {
+      "sha256": "db1ee3ed2ec43fd8b1658adcfc88f1edff9e26776d0a93de40a04904aaf822d1",
+      "executable": false
+    },
+    "tests/runtimes/elixir/config/runtime.exs": {
+      "sha256": "c823a28f55314dd282ab69b65df83ad63afdfcd563c0bd6b8dc40d80a0eb388f",
+      "executable": false
+    },
+    "tests/runtimes/elixir/mix.exs": {
+      "sha256": "25e0af99df9c22a2f5f896b71d622a40ee7f4f2a6fb8a1b89bdbc0910ecfd602",
+      "executable": false
+    },
     "tests/runtimes/go.mjs": {
       "sha256": "b4a80c00b7a01f3ad72f472fccdbb6f84a8f8cf6e60abcfb390e7c56523d61b1",
       "executable": false
@@ -8253,15 +8273,15 @@
       "executable": false
     },
     "tests/runtimes/harness.mjs": {
-      "sha256": "46ae2c4c76068860b9c6d26dfc6b1d8c70689aafb08fad1d70fe62576f6105a6",
+      "sha256": "8c4f94e7331386ac4cc829a036e7487ebbf1248f7487fe572fc1d6760c72b8ae",
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "fd25579160f2d0966addf9d22a8c5c650fdede126d31cad7b2e1a97b7910d0d3",
+      "sha256": "b616fd7668439d71716b4eeb221795e0b6d5c3ae0f62cb5c8564c200f8782ed0",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
-      "sha256": "0a11d160235f228a6e8bef933e9ca3e4e1db73de40faea8480b997c1d3482866",
+      "sha256": "61a90ef54b388b2dc16af7766444e022b0104b2ccccf99b2a04e517bb83691a4",
       "executable": false
     },
     "tests/runtimes/java/pom.xml": {
@@ -8281,11 +8301,11 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "0f55db78ee6285ce8b2e864126f8946553ebcba47749bd1d61912261c1204089",
+      "sha256": "5cfcf65d4188523d3285994e6028f09cad7ce77c3faedfe5582d79285eaf0daa",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
-      "sha256": "0ed6299de20ee3916e63237e5ca37ccac743eb833c24bc638b0e4865869a7a4f",
+      "sha256": "ee78ea9cb9dbea083eaf53d31475de52259c6dd29347c02feae4148a76f65cf2",
       "executable": false
     },
     "tests/runtimes/python/django_app.py": {
@@ -8309,11 +8329,11 @@
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
-      "sha256": "7e66be1030f7bbc3aa715eb8f91cf3462c5ecadb229f9aa34dcd765000facb58",
+      "sha256": "b68f8dcbbd1b8e710e83d4e5efb0f7f0d756b44c3addd88dd98ef15b044c9245",
       "executable": false
     },
     "tests/runtimes/ruby/app.rb": {
-      "sha256": "7412e56fed26683e66a75dc4ddc3a66e980a0f74707650005c6da72bd8853a8c",
+      "sha256": "2e86bfc5c24fe673a5c129026eaef1a8daf1f21e769b75c854c90914db735de3",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
@@ -8321,7 +8341,7 @@
       "executable": false
     },
     "tests/runtimes/rust.mjs": {
-      "sha256": "081df815f2e66ea78394cab65190018f8af7cde94ec32eaa9c625e7eb931280e",
+      "sha256": "77cb8bdd763d19cc1a23c8bbeef134e566293db9beca003305347ad8d6b926ce",
       "executable": false
     },
     "tests/runtimes/rust/Cargo.lock": {
@@ -8333,7 +8353,11 @@
       "executable": false
     },
     "tests/runtimes/rust/src/main.rs": {
-      "sha256": "b4faf6973624e840cb3f2c37c5bf972f628798995d6dd10de15a69c6126fbf88",
+      "sha256": "419496916612f3a335d6f5aea352d6399f47682c8d26b286491a63acd074e7a6",
+      "executable": false
+    },
+    "tests/runtimes/screens.mjs": {
+      "sha256": "9df20f0653b90a2844aaa0e097686d02a5ab9575b4cf30ed3d7d4b2b31efd3db",
       "executable": false
     },
     "tests/sdk-package.mjs": {
@@ -8341,7 +8365,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "b9276f3ead7167eebaa29e8e65c9b4584b3582dd079940120e60fdff5d78e508",
+      "sha256": "ebee0b4fda1638e6118b69300427b2edd5bedd24c2327ef7c7c308f7ea40d5f4",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {

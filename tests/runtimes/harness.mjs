@@ -3,6 +3,7 @@ import {createServer} from 'node:http';
 import {spawn} from 'node:child_process';
 import {brotliDecompressSync,gunzipSync,inflateSync} from 'node:zlib';
 import {objectJson,parseEnvelope,unsupportedReason} from '../../src/domain/sentry/wire.ts';
+import {absentDist} from '../../src/domain/releases/build.ts';
 
 // Reference collector: the same unmodified SDK program first sends to this plain HTTP
 // server, so the test knows exactly which envelope items the SDK itself produced.
@@ -48,6 +49,11 @@ export function expectedOutcomes(sent){
   else add(unsupportedReason(item.type));
  }
  return expected;
+}
+
+// The release and dist each SDK error event carried ("" and the absent-dist build when none).
+export function sentIdentities(sent){
+ return new Set(sent.filter(item=>item.type==='event').map(item=>{const event=objectJson(item.bytes);return JSON.stringify([event.release??'',event.dist==null?absentDist:event.dist])}));
 }
 
 export function api(origin,cookie){

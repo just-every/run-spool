@@ -24,6 +24,7 @@ fn main() {
     let mode = std::env::args().nth(1).unwrap();
     let mut options = sentry::ClientOptions::new()
         .traces_sample_rate(1.0)
+        .auto_session_tracking(true)
         .before_send(|event| {
             if event.message.as_deref() == Some("synthetic-spool-discard") { None } else { Some(event) }
         });
