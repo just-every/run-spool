@@ -3,8 +3,9 @@ import { SentryWireError, type WireObject } from './wire.ts';
 export function sentryKey(request: Request, alias: string, envelope: WireObject = {}): string {
   if (!/^[1-9][0-9]{0,15}$/.test(alias)) throw new SentryWireError('invalid_project_alias', 401);
   const url = new URL(request.url), keys: string[] = [];
+  // Sentry protocol versions 5 to 7: current SDKs send 7, the Elixir SDK still sends 5.
   const accept = (key: unknown, version: unknown) => {
-    if (typeof key !== 'string' || !/^[a-zA-Z0-9_]{1,128}$/.test(key) || String(version) !== '7') throw new SentryWireError('invalid_sentry_auth', 401);
+    if (typeof key !== 'string' || !/^[a-zA-Z0-9_]{1,128}$/.test(key) || !/^[5-7]$/.test(String(version))) throw new SentryWireError('invalid_sentry_auth', 401);
     keys.push(key);
   };
   if (url.searchParams.has('sentry_key') || url.searchParams.has('sentry_version')) {
