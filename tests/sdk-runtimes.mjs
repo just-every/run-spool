@@ -21,7 +21,7 @@ try{
  for(const name of names){
   const runtime=(await import(available[name])).default,dir=join(temporary,name);
   await runtime.prepare(dir);
-  const execute=async(dsn,modes=sequence)=>{const results=[];for(const mode of modes){const c=runtime.command(mode,dir,dsn);results.push({mode,...await run(c.command,c.args,{cwd:c.cwd,env:c.env})})}return results};
+  const execute=async(dsn,modes=sequence)=>{const results=[];for(const mode of modes){const c=runtime.command(mode,dir,dsn);results.push({mode,...await run(c.command,c.args,{cwd:c.cwd,env:c.env,unset:c.unset})})}return results};
   const reference=await referenceCollector();
   const referenceRuns=await execute(reference.dsn);await reference.close();
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
@@ -50,7 +50,7 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  if(runtime.verify)await runtime.verify({app,project,details,reference,run,dir,execute});
+  if(runtime.verify)await runtime.verify({app,project,details,dir,origin});
   console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes)}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}

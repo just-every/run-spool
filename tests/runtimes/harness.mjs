@@ -20,9 +20,10 @@ export async function referenceCollector(){
  return {dsn:`http://reference@127.0.0.1:${port}/1`,sent,close:()=>new Promise(resolve=>server.close(resolve))};
 }
 
-export function run(command,args,{cwd,env={},timeout=900_000}={}){
+export function run(command,args,{cwd,env={},unset=[],timeout=900_000}={}){
  return new Promise((resolve,reject)=>{
-  const child=spawn(command,args,{cwd,env:{...process.env,...env},stdio:['ignore','pipe','pipe'],detached:false});
+  const inherited={...process.env};for(const name of unset)delete inherited[name];
+  const child=spawn(command,args,{cwd,env:{...inherited,...env},stdio:['ignore','pipe','pipe'],detached:false});
   let stdout='',stderr='';child.stdout.on('data',d=>stdout=(stdout+d).slice(-20000));child.stderr.on('data',d=>stderr=(stderr+d).slice(-20000));
   const timer=setTimeout(()=>child.kill('SIGKILL'),timeout);
   child.once('error',error=>{clearTimeout(timer);reject(error)});

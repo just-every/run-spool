@@ -30,6 +30,13 @@ public class App {
         return "synthetic-spool-discard".equals(message) ? null : event;
       });
     });
+    if (args[0].equals("suppressed")) {
+      IllegalStateException failure = new IllegalStateException("checkout quantity rejected", new ArithmeticException("division by zero"));
+      failure.addSuppressed(new java.io.IOException("synthetic-spool-close-failed"));
+      Sentry.captureException(failure);
+      Sentry.close();
+      return;
+    }
     ITransaction transaction = Sentry.startTransaction("checkout", "task");
     ISpan span = transaction.startChild("db", "load cart");
     Sentry.logger().info("cart loaded");
