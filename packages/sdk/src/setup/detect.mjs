@@ -14,8 +14,12 @@ export async function detect(dir) {
   }
   if (deps.express) return { framework: 'express' };
   if (deps.react) return { framework: 'react' };
-  const manage = await text(join(dir, 'manage.py')), settings = /DJANGO_SETTINGS_MODULE['"],\s*['"]([\w.]+)['"]/.exec(manage);
-  if (settings) return { framework: 'django', settings: settings[1].replaceAll('.', '/') + '.py', requirements: await exists(join(dir, 'requirements.txt')) };
+  const manage = await text(join(dir, 'manage.py')), settings = /DJANGO_SETTINGS_MODULE['"],\s*['"]([^'"\n]*)['"]/.exec(manage)?.[1];
+  if (settings !== undefined) {
+    // A dotted module of ASCII identifiers (JavaScript's \w): anything else is refused, never rewritten into another path.
+    if (!/^[A-Za-z_]\w*(\.[A-Za-z_]\w*)*$/.test(settings)) throw new Error(`manage.py names DJANGO_SETTINGS_MODULE ${JSON.stringify(settings)}, which is not a dotted module of ASCII letters, digits and underscores; add the Sentry init to your settings by hand. Nothing was written.`);
+    return { framework: 'django', settings: settings.replaceAll('.', '/') + '.py', requirements: await exists(join(dir, 'requirements.txt')) };
+  }
   const python = (await text(join(dir, 'requirements.txt'))) + (await text(join(dir, 'pyproject.toml')));
   if (/fastapi/i.test(python)) return { framework: 'fastapi' };
   if (/spring-boot/.test((await text(join(dir, 'pom.xml'))) + (await text(join(dir, 'build.gradle'))) + (await text(join(dir, 'build.gradle.kts'))))) return { framework: 'spring' };

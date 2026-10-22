@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { resolve } from 'node:path';
 import { detect } from './detect.mjs';
 import { sendTestEvent } from './event.mjs';
-import { patchOf, resolveChange, writeChanges } from './patch.mjs';
+import { planChanges, projectRoot, writeChanges } from './files.mjs';
+import { patchOf } from './patch.mjs';
 import { plan } from './plans.mjs';
 
 const usage = 'Usage: spool-setup --dsn DSN [--dir DIR] [--apply] [--install] [--no-test-event] [--python PYTHON] [--spool-package SPEC]\n  Without --apply it prints the change as a patch and writes nothing.';
@@ -30,9 +30,10 @@ function publicDsn(value) {
 }
 
 export async function setup(args, out = console.log) {
-  const options = parse(args), dir = resolve(options.dir), found = await detect(dir), steps = plan(found, options);
+  const options = parse(args), root = projectRoot(options.dir), found = await detect(root.path), steps = plan(found, options);
   out(`Detected ${found.framework}.`);
-  const changes = await Promise.all(steps.files.map(file => resolveChange(dir, file)));
+  // Read now, and checked again when written: links, shared hard links and odd paths stop the command here.
+  const changes = planChanges(root, steps.files);
   // The test event goes first: a DSN Spool does not accept leaves the app untouched.
   if (!options.noTestEvent) {
     const result = await sendTestEvent(options.dsn);
@@ -46,8 +47,8 @@ export async function setup(args, out = console.log) {
   const patch = patchOf(changes);
   if (patch) out(patch.trimEnd());
   for (const install of steps.installs) out(`${options.install ? 'Running' : 'Run'}: ${install.command} ${install.args.join(' ')}`);
-  if (options.apply) { await writeChanges(dir, changes); out(`Wrote ${changes.filter(change => ['create', 'append'].includes(change.kind)).length} file(s).`); } else if (patch) out('Nothing written; rerun with --apply to write this patch.');
-  if (options.install) for (const install of steps.installs) { const result = spawnSync(install.command, install.args, { cwd: dir, stdio: 'inherit' }); if (result.status !== 0) throw new Error(`${install.command} failed`); }
+  if (options.apply) { writeChanges(root, changes); out(`Wrote ${changes.filter(change => ['create', 'append'].includes(change.kind)).length} file(s).`); } else if (patch) out('Nothing written; rerun with --apply to write this patch.');
+  if (options.install) for (const install of steps.installs) { const result = spawnSync(install.command, install.args, { cwd: root.path, stdio: 'inherit' }); if (result.status !== 0) throw new Error(`${install.command} failed`); }
   for (const note of steps.notes) out(`Note: ${note}`);
   return { framework: found.framework, changes: changes.map(({ path, kind }) => ({ path, kind })) };
 }

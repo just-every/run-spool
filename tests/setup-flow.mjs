@@ -1,8 +1,8 @@
 // The guided setup command, as a user gets it: the packed `spool-setup` bin run on fresh Django and Next.js apps.
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { createServer } from 'node:http';
-import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { createServer, request as httpRequest } from 'node:http';
+import { link, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
@@ -12,7 +12,7 @@ import { launchBrowser } from './browser-launch.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
-let worker, browser, server, nextServer, elsewhere;
+let worker, browser, server, nextServer, elsewhere, hop;
 const children = [];
 try {
   await mkdir(tool);
@@ -58,11 +58,28 @@ try {
     await untouched(root, label);
   }
   assert.equal((await issues()).length, issuesBefore, 'a redirected test event never reaches Spool');
-  const linked = await settingsOnly('linked'), outside = resolve(temporary, 'outside.env');
-  await writeFile(outside, 'OUTSIDE=1\n'); await symlink(outside, resolve(linked, '.env'));
-  const throughLink = await wizard(['--dsn', project.dsn, '--dir', linked, '--apply', '--no-test-event']);
-  assert.equal(throughLink.status, 1); assert.match(throughLink.stderr, /link that leaves/);
-  assert.equal(await readFile(outside, 'utf8'), 'OUTSIDE=1\n', 'nothing written through a link that leaves the project'); await untouched(linked, 'linked', ['.env']);
+  // A project file that is a link or a hard link to a file outside the project is never written through, and neither is
+  // a link swapped in while the test event is in flight: a network-edge hop relays it to Spool and holds Spool's answer
+  // until the link is in place (another project, so this project's issues stay as they are).
+  const outside = resolve(temporary, 'outside.env');
+  await writeFile(outside, 'OUTSIDE=1\n');
+  const later = await request('/api/projects', 'POST', { id: 'setup-later', name: 'Link swapped in' }), spool = new URL(origin);
+  let swap;
+  hop = createServer((req, res) => req.pipe(httpRequest({ host: spool.hostname, port: spool.port, method: req.method, path: req.url, headers: req.headers }, async answer => {
+    const chunks = []; for await (const chunk of answer) chunks.push(chunk);
+    await swap(); res.writeHead(answer.statusCode, answer.headers).end(Buffer.concat(chunks));
+  })));
+  const hopPort = await new Promise(done => hop.listen(0, '127.0.0.1', () => done(hop.address().port)));
+  for (const [shape, arrange, held] of [['link', root => symlink(outside, resolve(root, '.env'))], ['hard link', root => link(outside, resolve(root, '.env'))], ['link swapped in', root => { swap = () => symlink(outside, resolve(root, '.env')); }, true]]) {
+    const root = await settingsOnly(shape.replaceAll(' ', '-')); await arrange(root);
+    const run = await wizard(['--dsn', held ? later.dsn.replace(/@[^/]+\//, `@127.0.0.1:${hopPort}/`) : project.dsn, '--dir', root, '--apply', ...held ? [] : ['--no-test-event']]);
+    assert.equal(run.status, 1, `${shape}: refused`); assert.match(run.stderr, /\.env (is a link|shares its data)/); if (held) assert.match(run.stdout, /accepted by Spool/);
+    assert.equal(await readFile(outside, 'utf8'), 'OUTSIDE=1\n', `${shape}: nothing written to the file outside the project`); await untouched(root, shape, ['.env']);
+  }
+  // A settings module that is not a dotted name gets no patch and no write (a patch git apply would refuse, before).
+  const dotted = await settingsOnly('dotted'); await writeFile(resolve(dotted, 'manage.py'), "os.environ.setdefault('DJANGO_SETTINGS_MODULE', '..shop.settings')\n");
+  for (const apply of [[], ['--apply']]) { const run = await wizard(['--dsn', project.dsn, '--dir', dotted, '--no-test-event', ...apply]); assert.equal(run.status, 1, 'a settings module that is not a dotted name is refused'); assert.ok(!run.stdout.includes('diff --git'), 'no patch for a settings module that is not a dotted name'); }
+  await untouched(dotted, 'dotted');
 
   // Django: a fresh project, a reviewable patch first, then the same change applied with the SDK installed.
   const django = resolve(temporary, 'django-app'); await mkdir(django);
@@ -120,9 +137,9 @@ try {
   await page.goto(nextOrigin); await page.waitForLoadState('networkidle'); await page.getByRole('button').click(); await context.close();
   await arrives('next setup failure');
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
-  console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters) and links leaving the project write nothing.' }));
+  console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters), a link or hard link to a file outside the project, a link swapped in during the test event and a settings module that is not a dotted name write nothing.' }));
 } finally {
   await browser?.close();
   for (const child of children) child.kill();
-  elsewhere?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
+  elsewhere?.close(); hop?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }
