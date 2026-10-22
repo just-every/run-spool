@@ -122,8 +122,9 @@ jobs:
             ~/.cargo/registry
             ${{ runner.temp }}/cargo-target
           key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
-      # Each journey also reads its issue through the UI at 1440 and 390.
-      - run: pnpm exec playwright install --with-deps chromium
+      # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
+      # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
+      - run: pnpm exec playwright install chromium
       - name: Run ${{ matrix.runtime }} SDK journey
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target

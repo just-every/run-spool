@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "e3fbb557fb489af832f17f62777354f63e5851a6433be14cf978ffc207442276",
+      "sha256": "b45dd8b384bbba9e3032189c619d4b951bcf8f3190e7280c4fb99716ca52a339",
       "executable": false
     },
     ".gitignore": {
@@ -8281,7 +8281,7 @@
       "executable": false
     },
     "tests/runtimes/java/App.java": {
-      "sha256": "61a90ef54b388b2dc16af7766444e022b0104b2ccccf99b2a04e517bb83691a4",
+      "sha256": "a38fd55504d7607fa0794d01e337555a7b677ae2a577326868d1e0f15985df88",
       "executable": false
     },
     "tests/runtimes/java/pom.xml": {

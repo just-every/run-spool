@@ -22,6 +22,8 @@ public class App {
   public static void main(String[] args) throws Exception {
     Sentry.init(options -> {
       options.setDsn(System.getenv("SPOOL_FIXTURE_DSN"));
+      // Read SENTRY_RELEASE and SENTRY_DIST, as the SDK does only when external configuration is on.
+      options.setEnableExternalConfiguration(true);
       options.setEnvironment("compatibility");
       options.setTracesSampleRate(1.0);
       options.getLogs().setEnabled(true);
