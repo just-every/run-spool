@@ -104,7 +104,13 @@ export async function clientReportFlow({ req, json, origin }) {
  assert.equal(count(afterMixed, 'client_discarded:error:before_send'), 163);
  assert.equal(count(afterMixed, 'client_discarded:error:must_not_persist'), 0, 'one malformed report contributes none of its partial rows');
 
+ // sentry-go sends the report timestamp as RFC 3339 text; other SDKs send Unix seconds.
+ const textStamped = await send([['client_report', { ...report([{ reason: 'rfc3339_text', category: 'error', quantity: 3 }]), timestamp: '2026-10-22T12:47:05.132012+10:00' }]]);
+ assert.equal(textStamped.status, 200);
+ assert.equal((await textStamped.json()).clientReports.received, 1);
+ assert.equal(count((await outcomes()).rows, 'client_discarded:error:rfc3339_text'), 3);
  const invalidReports = [
+  ...['yesterday', '2026-10-22 12:47:05', '2026-13-45T99:00:00Z'].map(timestamp => ({ ...report([{ reason: 'sample_rate', category: 'error', quantity: 1 }]), timestamp })),
   ...[0, 1.5, '4', Number.MAX_SAFE_INTEGER + 1].map(quantity => report([{ reason: 'sample_rate', category: 'error', quantity }])),
   report([{ reason: 'person@example.test', category: 'error', quantity: 1 }]),
   report([{ reason: 'sample_rate\n', category: 'error', quantity: 1 }]),

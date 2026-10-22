@@ -13,7 +13,8 @@ export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope
  const eventId=plain(value.event_id??envelopeId);
  if(typeof eventId!=='string'||!/^[a-fA-F0-9]{32}$/.test(eventId)||(envelopeId!==undefined&&plain(envelopeId)!==eventId))throw new SentryWireError('invalid_event_id');
  const releaseIdentity=sentryRelease(value.release);
- const exceptions=Array.isArray(value.exception?.values)?value.exception.values:[];
+ // sentry-go sends `exception` as the bare array the protocol also allows; other SDKs wrap it in `values`.
+ const exceptions=Array.isArray(value.exception?.values)?value.exception.values:Array.isArray(value.exception)?value.exception:[];
  const crumbs=Array.isArray(value.breadcrumbs)?value.breadcrumbs:value.breadcrumbs?.values;
  const sentry=sanitizeSentry({...value,grouping:undefined,release:releaseIdentity.name||undefined,version:1,environment:value.environment??'production',level:value.level??(exceptions.length?'error':'info'),exceptions,threads:Array.isArray(value.threads)?value.threads:value.threads?.values,breadcrumbs:Array.isArray(crumbs)?crumbs:[],truncation:releaseIdentity.note?[{path:'release',reason:releaseIdentity.note}]:[]});
  const exception=sentry.exceptions.at(-1);
