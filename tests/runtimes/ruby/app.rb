@@ -7,9 +7,6 @@ Sentry.init do |config|
   config.dsn = ENV.fetch('SPOOL_FIXTURE_DSN')
   config.environment = 'compatibility'
   config.traces_sample_rate = 1.0
-  # Send in the calling thread, so the before_send discard is recorded before Sentry.close
-  # flushes the client report (the default worker thread may record it after that flush).
-  config.background_worker_threads = 0
   config.before_send = lambda do |event, _hint|
     event.message == 'synthetic-spool-discard' ? nil : event
   end
@@ -39,12 +36,11 @@ if ARGV[0] == 'handled'
   end
   Sentry.capture_message('synthetic-spool-discard')
   Sentry.capture_check_in('nightly-sync', :ok, duration: 1)
-  # Request-mode release health: Rack requests through the SDK middleware are session-tracked.
-  Rack::MockRequest.new(Sentry::Rack::CaptureExceptions.new(->(_env) { [200, {}, ['ok']] })).get('/cart')
   transaction.finish
   Sentry.close
 else
-  # Ruby has no global crash hook; web apps report unhandled errors through the Rack middleware.
+  # Ruby has no global crash hook; web apps report unhandled errors through the Rack middleware,
+  # which also tracks the request's session (request-mode release health).
   app = Sentry::Rack::CaptureExceptions.new(->(_env) { charge('synthetic-spool-note') })
   transaction.finish
   Rack::MockRequest.new(app).get('/checkout')

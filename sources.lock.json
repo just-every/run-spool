@@ -8329,11 +8329,11 @@
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
-      "sha256": "b68f8dcbbd1b8e710e83d4e5efb0f7f0d756b44c3addd88dd98ef15b044c9245",
+      "sha256": "615c1747c9712cdfa353d82a201c68779aab4ef1efa53d113a017b44dc25b17f",
       "executable": false
     },
     "tests/runtimes/ruby/app.rb": {
-      "sha256": "2e86bfc5c24fe673a5c129026eaef1a8daf1f21e769b75c854c90914db735de3",
+      "sha256": "f81ee5a2f34137f1c127fa63c8464251c60a666f86bd9d593dbe653632869959",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
