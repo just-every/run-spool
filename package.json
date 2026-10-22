@@ -60,6 +60,7 @@
     "reproduce": "node scripts/reproduce/runner.mjs",
     "test:execution": "node tests/execution-journey.mjs",
     "test:languages": "node tests/multilingual.mjs",
+    "test:runtimes": "node tests/sdk-runtimes.mjs",
     "integration:sync": "node scripts/sync-integration.mjs --write",
     "integration:check": "node scripts/sync-integration.mjs --check"
   },
