@@ -133,8 +133,8 @@ export function writeChanges(root, changes) {
     for (const change of writes) stage(root, change, made, log);
     for (const entry of log.filter(entry => entry.change)) swap(root, entry);
   } catch (error) {
-    const kept = undo(root, log);
-    throw new Error(`${error.message}. ${kept.length ? `Not undone, because it moved or changed meanwhile: ${kept.join('; ')}.` : 'Nothing was written.'}`);
+    const kept = undo(root, log), outcome = kept.length ? `Not undone, because it moved or changed meanwhile: ${kept.join('; ')}.` : log.some(entry => entry.renamed) ? 'Every change it had made was undone.' : 'Nothing was written.';
+    throw new Error(`${error.message}. ${outcome}`);
   } finally { process.chdir(home); }
 }
 

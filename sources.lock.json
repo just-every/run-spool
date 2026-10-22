@@ -3809,7 +3809,7 @@
       "executable": false
     },
     "packages/sdk/src/setup/files.mjs": {
-      "sha256": "20d49b7dcf0c7c6787cdaab5853bb947ece20247a0f2bcce6c7d8dcc76e9508f",
+      "sha256": "d74f4b34326c573bcaf1138dad3e4c63b5ddff63b602ee83df06952538fcc742",
       "executable": false
     },
     "packages/sdk/src/setup/patch.mjs": {
