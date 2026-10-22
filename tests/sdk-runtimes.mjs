@@ -9,7 +9,7 @@ import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,refer
 // Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
 // reference collector, once against Spool with only the DSN changed. Spool's public API
 // must then account for every envelope item the SDK itself produced.
-const available={python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs'};
+const available={python:'./runtimes/python.mjs',go:'./runtimes/go.mjs',java:'./runtimes/java.mjs',ruby:'./runtimes/ruby.mjs',php:'./runtimes/php.mjs',dotnet:'./runtimes/dotnet.mjs',rust:'./runtimes/rust.mjs'};
 const names=process.argv.slice(2).length?process.argv.slice(2):Object.keys(available);
 for(const name of names)assert.ok(available[name],`unknown runtime ${name}`);
 const sequence=['handled','crash','handled'];

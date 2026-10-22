@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: [python, go, java, ruby, php, dotnet]
+        runtime: [python, go, java, ruby, php, dotnet, rust]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -110,7 +110,16 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - if: matrix.runtime == 'rust'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ${{ runner.temp }}/cargo-target
+          key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
       - name: Run ${{ matrix.runtime }} SDK journey
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
         run: node tests/sdk-runtimes.mjs ${{ matrix.runtime }}
       - uses: actions/upload-artifact@v4
         if: failure()

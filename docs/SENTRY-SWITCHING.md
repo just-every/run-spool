@@ -8,7 +8,7 @@ For JavaScript applications starting without Sentry, Spool's own SDK, [`@just-ev
 
 The Sentry error envelope and legacy store endpoints convert exceptions into Spool's existing admission path: project key, exact browser origin, registered release/build, scrubbing, duplicate identity, grouping, bounded storage, diagnosis and alerts. Unsupported items are counted under a fixed taxonomy and discarded. No unsupported payloads are retained. Text feedback from modern feedback events/items and legacy user_report is retained separately under [Text feedback](FEEDBACK.md), with exact occurrence association, owner review and withdrawal. Contact, screenshots and other attachments are excluded. Sessions, tracing/spans, attachments, client reports, replay, profiles, check-ins, logs and metrics do not become product data.
 
-The full verify runs unmodified `@sentry/browser` and `@sentry/node` 11.6.0 with their default integrations. The same program and SDK configuration use a local reference collector DSN and then a Spool DSN; only the DSN changes. Browser capture checks mapped source coordinates at 1440 and 390, and Node capture awaits flush. Exact-head results belong in the completion evidence; package pins alone do not prove runtime behavior. These programs make no Sentry account or service calls.
+The full verify runs unmodified `@sentry/browser` and `@sentry/node` 11.6.0 with their default integrations, and one parallel job per server runtime runs an unmodified Sentry SDK program (see [Runtime qualification](#runtime-qualification)). The same program and SDK configuration use a local reference collector DSN and then a Spool DSN; only the DSN changes. Browser capture checks mapped source coordinates at 1440 and 390, and Node capture awaits flush. Exact-head results belong in the completion evidence; package pins alone do not prove runtime behavior. These programs make no Sentry account or service calls.
 
 Transport limits are 256 KiB compressed (gzip or deflate), 1 MiB expanded/uncompressed, 100 envelope items and 8 KiB per header. Item lengths are bytes; zero-length and binary unsupported items are valid. The entire framing is checked before any event is admitted. Supported encodings are identity, gzip and deflate. Unsupported encodings return 415 with the encoding named; header/query-authenticated refusals are counted as `unsupported_content_encoding`. Within a correctly framed envelope, malformed event JSON is counted and returned as `invalid_item`; valid companion errors are still admitted. Malformed envelope framing and whole-request size failures still reject the whole request. Brotli and zstd remain unsupported. Query auth, `X-Sentry-Auth`, Bearer auth if supplied, and envelope DSN credentials must agree. The public key grants ingest only and a numeric DSN project alias is bound to one native project. Invalid, revoked or wrong-project keys and unauthorized browser origins cannot admit events. Ingest keys remain valid until revoked.
 
@@ -49,6 +49,60 @@ The outermost reported exception supplies the stack. Frames are reversed from Se
 6. Trigger a real exception from the deployed/minified app on its own origin. Open the Spool issue, inspect its original path/line/column and compare it to source. Node applications must await `Sentry.flush()` before exiting. An SDK flush confirms transport handling, not acceptance; verify the owner issue packet and outcomes. Release rejections show a reason and Register link in Spool. Registering does not retroactively admit a dropped event; reproduce an actual exception after registration.
 
 Keep the SDK's former DSN available for reversal. Reverting configuration is separate from undoing imported history and does not move events captured after the switch back to Sentry.
+
+## Runtime qualification
+
+Each runtime below runs one real, unmodified Sentry SDK program in Verify: first against a plain reference collector, which records every envelope item the SDK itself produced, then against Spool with only the DSN changed. Each program starts a transaction with a span, writes a structured log, adds an attachment, captures a handled exception with a cause, a message that its `before_send` discards, and a cron check-in, flushes, crashes through the SDK's own unhandled-error path, and is started again. The journey then reconciles Spool's public API with what the SDK sent: every error is a persisted occurrence (the restarted process groups into the same issue), the crash is stored as unhandled, and the project outcomes equal the SDK's own item counts (accepted errors, `feedback_accepted`, `client_discarded:<category>:<reason>`, and `sentry_unsupported_<category>` for sessions, traces, logs, attachments and check-ins that do not yet become product data). A wrong key or an unreachable intake never fails the application.
+
+| Runtime | SDK run | Unhandled path | Also sent |
+| --- | --- | --- | --- |
+| Python | sentry-sdk 2.72.0 | `excepthook` | client report; no feedback API in this SDK |
+| Go | sentry-go v0.50.0 | recovered panic, level `fatal` (no handled flag) | client report |
+| Java | io.sentry:sentry 8.61.0 | `UncaughtExceptionHandler` | feedback attached to its issue; client report |
+| Ruby | sentry-ruby 7.1.0 | Rack `CaptureExceptions` (Ruby has no global crash hook) | no client report is emitted |
+| PHP | sentry/sentry 4.34.0 | the registered error and exception handlers | no client report or session is emitted |
+| .NET | Sentry 6.12.1 | `AppDomain` unhandled exception | sessions, feedback attached to its issue, client report |
+| Rust | sentry 0.49.3 | panic integration | client report; native-style frames without file and line (SDK-002 symbolication) |
+
+Real runs found and fixed three intake gaps, now covered by these journeys: sentry-go sends `exception` as a bare array, sentry-go sends client-report timestamps as RFC 3339 text, and sentry-ruby labels its error events `type: "event"`.
+
+The Python journey also covers the inherited release and fidelity checks: an event with no release (no environment variable, not a git checkout) is accepted, creates no release and raises a release-less alert; the SDK infers the release from a git checkout and Spool creates it; an `ExceptionGroup` keeps every member; locals keep ordinary values and redact `password` and `api_key`; and a real Django request over WSGI keeps its URL, method and headers with the cookie removed and the secret query value masked. The Java journey sends a `Caused by` chain with a suppressed exception and keeps all three, each with its relation.
+
+Not run here: Elixir, Unity, iOS, Android, React Native, Flutter, Kotlin Multiplatform and Electron. The device runtimes need real devices (SDK-002); the others have not been run through Spool yet.
+
+## Guided setup
+
+`npx -p @just-every/spool spool-setup --dsn <project DSN> --dir <app>` detects the framework from the app's own manifests, prints the change as a patch that `git apply` accepts, and writes nothing. Add `--apply` to write exactly that patch, `--install` to run the package install (`--python` and `--spool-package` choose the interpreter and the Spool package spec), and `--no-test-event` to skip the final step: a test event sent through Spool's public intake, reported as accepted or refused. Rerunning is idempotent.
+
+- **Next.js** (app router): installs `@sentry/nextjs` and `@just-every/spool`, creates `instrumentation-client.js` (DSN, `tunnel: '/monitoring'`, optional release from `NEXT_PUBLIC_SPOOL_RELEASE`), the `app/monitoring/route.js` tunnel handler and `.env.local`.
+- **Django**: installs `sentry-sdk`, appends the `sentry_sdk.init` block to the settings module, `sentry-sdk` to `requirements.txt` and the DSN to `.env`.
+- Express, React, FastAPI, Spring, Rails, Laravel and ASP.NET Core: the command names the framework and prints the setup steps below; it writes nothing.
+
+Source maps are not written by the command: run `npx spool-sourcemaps` in CI (see above).
+
+## Browser capture past ad-blockers
+
+Ad-blocker lists block the Sentry SDK's default ingest request (EasyPrivacy has `/?sentry_key=` and `/?sentry_version=`), and Sentry's Next.js `tunnelRoute` option only rewrites to `https://o<org>.ingest.sentry.io`, so it cannot carry events to Spool. Spool ships three tunnels for the SDK's standard `tunnel` option; change only that option to a same-origin path:
+
+- Node and Express: `import { nodeTunnel } from '@just-every/spool/tunnel'; app.post('/monitoring', nodeTunnel({ dsn: process.env.SPOOL_DSN }))`. `spoolTunnel` is the same handler over a Fetch `Request`/`Response`.
+- Next.js: `export const { POST } = spoolTunnelRoute({ dsn: process.env.SPOOL_DSN });` from `@just-every/spool/next`, in `app/monitoring/route.js`.
+- Python: [`packages/tunnel-python/spool_tunnel.py`](../packages/tunnel-python/README.md), a standard-library WSGI app and `forward()` function.
+
+Each tunnel reads the envelope's DSN header and forwards only when it names a DSN the tunnel was configured with; another key, host or project is refused (403) and nothing is forwarded. It forwards the browser's `Origin`, `Referer` and `User-Agent`, so Spool's allowed origins and inbound filters still decide, returns Spool's `X-Sentry-Rate-Limits`, and forwards the client address as `X-Forwarded-For`. Spool does not yet honour a forwarded address from a trusted tunnel (SDK-008), so events carry the tunnel server's own address until it does. The `tunnel-flow` journey runs a real `@sentry/browser` page and a fresh Next.js app (`next build`, `next start`) under the EasyPrivacy Sentry rules in the Ghostery blocking engine; this is an engine and an excerpt of the list, not a browser extension.
+
+## Framework setup
+
+The runtime SDK underneath each framework is the one qualified above. Change only the DSN and read it from the environment (`SPOOL_DSN`):
+
+- **React/Next.js**: `spool-setup`, above. React without Next: `Sentry.init({ dsn, tunnel })` from `@sentry/react` before rendering.
+- **Express**: `@sentry/node`; call `Sentry.init({ dsn: process.env.SPOOL_DSN })` from a file you import first, then `Sentry.setupExpressErrorHandler(app)` after your routes.
+- **Django / FastAPI**: `sentry_sdk.init(dsn=os.environ["SPOOL_DSN"])` before the app is created; the Django, FastAPI and Starlette integrations are defaults. Django request data is run through a real WSGI request above.
+- **Spring**: `io.sentry:sentry-spring-boot-starter-jakarta` with `sentry.dsn=${SPOOL_DSN}`.
+- **Rails**: `sentry-ruby` and `sentry-rails`, `config.dsn = ENV["SPOOL_DSN"]` in an initializer.
+- **Laravel**: `sentry/sentry-laravel`, `php artisan sentry:publish --dsn=$SPOOL_DSN`.
+- **ASP.NET Core**: the `Sentry.AspNetCore` package and `UseSentry(o => o.Dsn = ...)`.
+
+Only Next.js and Django are run through their framework here; the others rely on the qualified runtime SDK and the framework integration the SDK's own documentation names.
 
 ## Export format and scope
 

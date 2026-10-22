@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `@just-every/spool/tunnel` (`spoolTunnel`, `nodeTunnel`) and `@just-every/spool/next` (`spoolTunnelRoute`): server-side tunnels for the Sentry browser SDK's `tunnel` option, so browser capture survives ad-blockers. An envelope is forwarded only when its DSN is one the tunnel was configured with.
+- `spool-setup` bin: detects Next.js or Django, prints the change as a `git apply` patch, writes it with `--apply`, installs the SDK with `--install` and sends a test event; other frameworks get guidance.
+
 ## 0.2.0
 
 2026-10-15 — unpublished, owner-held source release. npm currently serves 0.1.0. The Spool app's 0.2.0 release does not publish this SDK.

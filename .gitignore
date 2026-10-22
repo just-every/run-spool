@@ -18,3 +18,4 @@ packages/sdk/build
 packages/sdk/LICENSE
 
 .rer/demo/
+tests/runtimes/rust/target/
