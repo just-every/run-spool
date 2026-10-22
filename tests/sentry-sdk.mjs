@@ -1,3 +1,5 @@
+// [SDK-001] Browser and Node qualification through the public intake, API and UI.
+import { qualifyBrowser } from './runtimes/browser.mjs';
 import { sdkInboundFilterFlow } from './inbound-filter-flow.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
@@ -26,7 +28,7 @@ try{
   const project=await request('/api/projects','POST',{id:'sdk',name:'SDK compatibility'});
   const deploy=await request('/api/projects/sdk/keys','POST',{kind:'deploy'});
   const sdkConfig={release:'browser@1.0.0',dist:'build-1',environment:'compatibility'};
-  const source=`import * as Sentry from '@sentry/browser';\nSentry.init({dsn:globalThis.__DSN__,...${JSON.stringify(sdkConfig)}});\nwindow.__SDK_READY__=true;\nwindow.sendFilterError=(message)=>{Sentry.captureException(new Error(message));return Sentry.flush(10000)};\nwindow.sendFeedback=(message,associatedEventId)=>{Sentry.captureFeedback({message,associatedEventId,name:'Private Feedback Name',email:'feedback-private@example.com'});return Sentry.flush(10000)};\ndocument.querySelector('button').onclick=()=>setTimeout(function checkout(){\n  const account={};\n  return account.address.city;\n},0);\n`;
+  const source=await readFile('tests/runtimes/browser/app.js','utf8');
   const expectedLine=source.split('\n').findIndex(line=>line.includes('return account.address.city'))+1;
   const entry=resolve(temporary,'checkout.js'),bundle=resolve(temporary,'app.js');await writeFile(entry,source);
   process.env.SPOOL_FIXTURE_DEPLOY_KEY=deploy.key;
@@ -40,7 +42,7 @@ try{
   const referenceOrigin=await listen(collector),referenceDsn=referenceOrigin.replace('://','://reference@')+'/1';
   const dsns={reference:referenceDsn,spool:project.dsn};
   assert.ok(project.dsn,'Project creation returns numeric scoped DSN');
-  application=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/app.js'||url.pathname==='/sdk.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(resolve(temporary,url.pathname.slice(1))));return}const dsn=dsns[url.searchParams.get('target')];if(!dsn){res.writeHead(404);res.end();return}res.setHeader('Content-Type','text/html');res.end(`<!doctype html><meta name="viewport" content="width=device-width"><title>Unmodified SDK application</title><button>Throw checkout exception</button><script>globalThis.__DSN__=${JSON.stringify(dsn)}</script><script type="importmap">{"imports":{"@sentry/browser":"/sdk.js"}}</script><script type="module" src="/app.js"></script>`)}catch{res.writeHead(500);res.end()}});
+  application=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/empty'){res.setHeader('Content-Type','text/html');res.end('<!doctype html><title>Navigation complete</title>');return}if(url.pathname==='/app.js'||url.pathname==='/sdk.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(resolve(temporary,url.pathname.slice(1))));return}const dsn=dsns[url.searchParams.get('target')];if(!dsn){res.writeHead(404);res.end();return}res.setHeader('Content-Type','text/html');res.end(`<!doctype html><meta name="viewport" content="width=device-width"><title>Unmodified SDK application</title><button>Throw checkout exception</button><script>globalThis.__DSN__=${JSON.stringify(dsn)};globalThis.__SDK_CONFIG__=${JSON.stringify(sdkConfig)}</script><script type="importmap">{"imports":{"@sentry/browser":"/sdk.js"}}</script><script type="module" src="/app.js"></script>`)}catch{res.writeHead(500);res.end()}});
   const applicationOrigin=await listen(application);await request('/api/projects/sdk/browser-origins','POST',{origin:applicationOrigin});
   browser=await launchBrowser();
   for(const width of [1440,390]){
@@ -49,7 +51,7 @@ try{
     dsns.rejected=(await request('/api/projects','POST',{id:rejectedProject,name:'Release rejection'})).dsn;
     await request(`/api/projects/${rejectedProject}/release-policy`,'PUT',{revision:0,policy:{version:1,order:'registered',pattern:'*'}});
     await request(`/api/projects/${rejectedProject}/browser-origins`,'POST',{origin:applicationOrigin});
-    await page.goto(applicationOrigin+'/?target=rejected');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button').click();
+    await page.goto(applicationOrigin+'/?target=rejected');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button',{name:'Throw checkout exception',exact:true}).click();
     let rejectedReceipt;
     for(let attempt=0;attempt<100;attempt++){rejectedReceipt=(await request(`/api/projects/${rejectedProject}/outcomes`)).rows.find(row=>row.reason==='unregistered_release_or_build');if(rejectedReceipt)break;await new Promise(r=>setTimeout(r,50))}
     assert.ok(rejectedReceipt,'real SDK rejection persists its reason');
@@ -58,11 +60,11 @@ try{
     assert.equal((await request(`/api/projects/${rejectedProject}/issues`)).length,0,'Register navigation does not fabricate acceptance');await rejectionOwner.close();
     const referenceCount=captures.flatMap(c=>c.envelope.items).filter(i=>i.header.type==='event').length;
     const beforeGroups=await request('/api/projects/sdk/issues');const beforeCount=beforeGroups.reduce((sum,row)=>sum+row.count,0);
-    await page.goto(applicationOrigin+'/?target=reference');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button').click();
+    await page.goto(applicationOrigin+'/?target=reference');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button',{name:'Throw checkout exception',exact:true}).click();
     for(let attempt=0;attempt<100&&captures.flatMap(c=>c.envelope.items).filter(i=>i.header.type==='event').length<=referenceCount;attempt++)await new Promise(r=>setTimeout(r,50));
     assert.ok(captures.flatMap(c=>c.envelope.items).filter(i=>i.header.type==='event').length>referenceCount,'this reference throw reached the network collector');
     const reference=captures.flatMap(c=>c.envelope.items).filter(i=>i.header.type==='event').map(i=>objectJson(i.bytes)).at(-1);assert.ok(reference?.debug_meta?.images?.length,'unmodified SDK emits debug metadata');assert.ok(reference.sdk.integrations.length>1,'default integrations remain active');
-    await page.goto(applicationOrigin+'/?target=spool');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button').click();
+    await page.goto(applicationOrigin+'/?target=spool');await page.waitForFunction(()=>window.__SDK_READY__);await page.getByRole('button',{name:'Throw checkout exception',exact:true}).click();
     let issue,packet;
     for(let attempt=0;attempt<100;attempt++){issue=(await request('/api/projects/sdk/issues')).find(row=>row.title.includes('TypeError'));if(issue){packet=await request(`/api/projects/sdk/issues/${issue.id}/packet`);if(issue.count>beforeCount&&packet.events.some(e=>e.event.environment==='compatibility'))break}await new Promise(r=>setTimeout(r,100))}
     assert.ok(issue?.count>beforeCount,'this browser throw was admitted');
@@ -74,6 +76,10 @@ try{
     const feedback=await request('/api/projects/sdk/feedback');assert.ok(feedback.items.some(row=>row.eventId===captured.id&&row.issueId===issue.id));assert.ok(!JSON.stringify(feedback).includes('feedback-private@example.com'));assert.ok(!JSON.stringify(feedback).includes('Private Feedback Name'));
     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await context.close();
   }
+  await qualifyBrowser({browser,origin,cookie,request,applicationOrigin,dsns,expectedLine,upload:async project=>{
+    process.env.SPOOL_FIXTURE_DEPLOY_KEY=(await request(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key;
+    try{await sourceMapCli(['--endpoint',origin,'--project',project,'--release',sdkConfig.release,'--build',sdkConfig.dist,'--key-env','SPOOL_FIXTURE_DEPLOY_KEY',bundle])}finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY}
+  }});
   await sdkInboundFilterFlow({request,origin,browser,temporary,require,applicationOrigin,dsns});
   const nodeEntry=resolve(temporary,'node-client.mjs');
   // This exact program/config runs twice. Only the DSN environment value differs.

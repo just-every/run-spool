@@ -104,7 +104,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 ### Capture and release health
 
 
-- **SDK-001 — Multi-language SDKs and DSN-compatible intake: browser JavaScript and Node.js. Status: partial.** Apply the qualification run to `@sentry/browser`, in Chromium at 1440 and 390 with build-plugin source maps resolving the original line, the feedback widget and replay enabled, and to `@sentry/node`. SDK-009 runtime qualification for Node is inherited here: unmodified Node no-release and inferred-SHA intake, including release-less alerts and release-scoped no-release counts.
+- **SDK-001 — Multi-language SDKs and DSN-compatible intake: browser JavaScript and Node.js. Status: done.** Apply the qualification run to `@sentry/browser`, in Chromium at 1440 and 390 with build-plugin source maps resolving the original line, the feedback widget and replay enabled, and to `@sentry/node`. SDK-009 runtime qualification for Node is inherited here: unmodified Node no-release and inferred-SHA intake, including release-less alerts and release-scoped no-release counts.
 
   - **SDK-001 qualification run** (applied by SDK-001 and SDK-012 to SDK-019 to each runtime they name). The run is a push Verify job or a named scheduled workflow. It runs one unmodified Sentry SDK program at a pinned SDK version twice: once against a reference collector and once against Spool, with only the DSN changed. Each run uses default integrations plus the options the Sentry setup wizard enables for that platform: sessions, tracing, logs, replay (browser and mobile), the feedback widget or feedback API, and attachments. Where an SDK version lacks an option, the evidence names that version and option.
     - **Q1 handled:** a captured exception is a persisted occurrence, read through the public API and UI.
@@ -117,12 +117,15 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
     Persisted session, trace, replay, log, attachment and widget outcomes for every runtime belong to SDK-025.
 
-  Current evidence: `tests/sentry-sdk.mjs`, `tests/release-identity-flow.mjs`, `tests/client-report-sdk.mjs` (push Verify, sdk shard). What these tests show:
-  - browser Q1, Q2, Q5 and Q7 plus `captureFeedback`;
-  - Node Q1, gzip, flush/close, feedback and Q6;
-  - SDK-009 Node no-release and inferred SHA.
-
-  Gap: Node Q2, Q3 for both, Q4 with sessions, tracing, logs and replay enabled, and browser lifecycle client reports.
+  Current evidence: [SDK-001] `tests/sdk-runtimes.mjs node` (push Verify `runtime (node)`) and `tests/sentry-sdk.mjs` (push Verify sdk shard), using unmodified `@sentry/node` and `@sentry/browser` 11.6.0. Each qualification program runs against the reference collector and Spool with only its DSN changed.
+  - Q1/Q2: `tests/runtimes/node/app.mjs` uses manual capture and the default uncaught-exception integration; `tests/runtimes/browser/app.js` uses manual capture and the default global handler. Both persist through the public API; the issue UI is read at 1440 and 390.
+  - Q3: `tests/sdk-runtimes.mjs` asserts the restarted Node process groups into the same issue; `tests/runtimes/browser.mjs` asserts handled and automatic failures group across reloads, with unique occurrence IDs and exact reference error counts.
+  - Q4: the same journeys reconcile every reference item with persisted or category/reason-counted outcomes. Default integrations remain active; Node sends sessions, spans, logs, attachments and feedback; the browser also sends transactions, replay events/recordings and the actual feedback widget submission. Sessions, tracing, logs, replay and attachments remain counted as unsupported, with storage owned by SDK-025.
+  - Q5: both journeys compare release/dist with the SDK-sent identity and assert automatic release creation. `tests/sentry-sdk.mjs` resolves the real browser failure to its original source line with the build-plugin map and CLI upload, at 1440 and 390.
+  - Q6: Node flush reports and browser lifecycle reports reconcile into `client_discarded:error:before_send` through BILL-001's project outcomes usage door. `tests/client-report-sdk.mjs` minimizes the actual headless window after releasing the pinned Playwright session's focus lock; the SDK's own visibility listener emits the report. Before reloading, its bounded reason and exact quantity must appear in the reference collector or Spool outcomes. No synthetic DOM event or constructed report is used.
+  - Q7: `tests/sdk-runtimes.mjs` proves wrong-key and undeliverable Node events create nothing; `tests/sentry-sdk.mjs` retains browser release refusal and filter assertions with no accepted occurrence.
+  - Inherited SDK-009 Node duties: `tests/runtimes/node.mjs` proves no-release and inferred-SHA intake, a release-less alert and release-scoped no-release counts, with Releases and Alerts UI reads at both widths. Existing gzip, feedback, release identity and inbound-filter assertions remain in `tests/sentry-sdk.mjs` and `tests/release-identity-flow.mjs`.
+  Retained screens: `docs/retained-verification/sdk001/`. Gap: none for this bounded qualification. No real provider, device or consent was used.
 
 - **SDK-002 — Native crashes and symbolication. Status: missing.** Build signed test iOS/Android and React Native/Flutter apps, crash and hang on real devices, relaunch offline/online, upload matching/mismatched symbols from CI through the unmodified Gradle plugin, Xcode build phase, Fastlane action and Dart plugin, and inspect one deobfuscated issue without duplicate sessions; crash an Electron app and symbolicate its minidump. Upload a 40 MiB dSYM and the next release's ProGuard mapping and confirm both symbolicate. Before any additional intake category ships, it inherits SDK-006: enforce Origin/Referer and all applicable available transport/category filters before acceptance, name unavailable fields, and preserve truthful filtered and client-discard accounting.
 
@@ -580,7 +583,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 11 | 35 | 24 | 70 |
-| All | 22 | 36 | 24 | 82 |
+| Target and push further | 12 | 34 | 24 | 70 |
+| All | 23 | 35 | 24 | 82 |
 
-**Clause status: 82 clauses — 22 done, 36 partial, 24 missing.**
+**Clause status: 82 clauses — 23 done, 35 partial, 24 missing.**

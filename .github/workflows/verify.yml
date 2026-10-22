@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: [python, go, java, ruby, php, dotnet, rust, elixir]
+        runtime: [python, go, java, ruby, php, dotnet, rust, elixir, node]
     steps:
       - uses: actions/checkout@v4
         with:

@@ -1,3 +1,4 @@
+import {parseEnvelope} from '../src/domain/sentry/wire.ts';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
@@ -15,4 +16,32 @@ export async function emitClientReport(dsn) {
   child.stdin.end(JSON.stringify({dsn}));
  });
  assert.equal(result.code,0,result.err);assert.equal(result.out,'ok');
+}
+
+// [SDK-001] Headless-shell pages have separate visible windows. Minimize the
+// real headless window with focus emulation off; never synthesize a DOM event.
+export async function browserLifecycleReport(page,navigate) {
+ // Pinned Playwright in-process API: the original session owns its visibility lock.
+ // A secondary newCDPSession cannot release another session's capturer handle.
+ const cdp=page._connection.toImpl(page).delegate._mainFrameSession._client;
+ console.log('[SDK-001] lifecycle: original session');
+ const {windowId}=await cdp.send('Browser.getWindowForTarget');
+ await cdp.send('Emulation.setFocusEmulationEnabled',{enabled:false});
+ console.log('[SDK-001] lifecycle: focus released');
+ const outgoing=page.waitForRequest(request=>{
+  if(request.method()!=='POST'||!new URL(request.url()).pathname.includes('/envelope/'))return false;
+  return parseEnvelope(request.postDataBuffer()).items.some(item=>item.header.type==='client_report');
+ },{timeout:15000});
+ let request;
+ try{
+  await cdp.send('Browser.setWindowBounds',{windowId,bounds:{windowState:'minimized'}});
+  console.log('[SDK-001] lifecycle: window minimized');
+  [,request]=await Promise.all([page.waitForFunction(()=>document.visibilityState==='hidden',null,{polling:50,timeout:15000}),outgoing]);
+  console.log('[SDK-001] lifecycle: report sent');
+ }finally{
+  await cdp.send('Browser.setWindowBounds',{windowId,bounds:{windowState:'normal'}});
+  await cdp.send('Emulation.setFocusEmulationEnabled',{enabled:true});
+ }
+ const report=parseEnvelope(request.postDataBuffer()).items.find(item=>item.header.type==='client_report');
+ await navigate();return report;
 }

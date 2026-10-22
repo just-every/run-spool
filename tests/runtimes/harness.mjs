@@ -10,6 +10,9 @@ import {absentDist} from '../../src/domain/releases/build.ts';
 export async function referenceCollector(){
  const sent=[];
  const server=createServer(async(req,res)=>{
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type,sentry-trace,baggage');
+  if(req.method==='OPTIONS'){res.end();return}
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
   let bytes=Buffer.concat(chunks);const encoding=req.headers['content-encoding'];
   if(encoding==='gzip')bytes=gunzipSync(bytes);else if(encoding==='deflate')bytes=inflateSync(bytes);else if(encoding==='br')bytes=brotliDecompressSync(bytes);
