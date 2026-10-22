@@ -1,12 +1,12 @@
 import { sentryRelease } from '../releases/identity.ts';
 import { normalize, type Envelope, type Frame } from '../privacy.ts';
 import { sanitizeSentry } from './evidence';
-import { SentryWireError, type WireObject } from './wire.ts';
+import { SentryWireError, isErrorEventType, type WireObject } from './wire.ts';
 import { sentryDistBuild } from '../releases/build.ts';
 export { absentDist } from '../releases/build.ts';
 /** The first thirty located frames remain the bounded source-map diagnostic view. */
 export function convertSentry(value: WireObject, envelopeId?: unknown): Envelope {
- if(value.type!==undefined&&value.type!=='error')throw new SentryWireError('unsupported_event_type',422);
+ if(value.type!==undefined&&!isErrorEventType(value.type))throw new SentryWireError('unsupported_event_type',422);
  const language=['python','go'].includes(value.platform)?value.platform:undefined;
  // sentry-cli send-event writes the canonical hyphenated UUID; it names the same 128-bit identity as 32 hex digits.
  const plain=(id:unknown)=>typeof id==='string'&&/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(id)?id.replaceAll('-',''):id;

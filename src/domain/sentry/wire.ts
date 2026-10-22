@@ -78,4 +78,6 @@ const categories: Record<string, string> = {
   profile: 'profile', profile_chunk: 'profile', feedback: 'feedback', user_report: 'feedback', check_in: 'check_in',
   log: 'other_telemetry', logs: 'other_telemetry', metrics: 'other_telemetry', statsd: 'other_telemetry', security: 'other_telemetry',
 };
+// sentry-ruby labels its error events `type: "event"` inside the payload; Sentry's own intake takes it as an error.
+export function isErrorEventType(type: unknown): boolean { return type === 'error' || type === 'event' }
 export function unsupportedReason(type: string): string { return `sentry_unsupported_${Object.hasOwn(categories, type) ? categories[type] : 'unknown'}` }

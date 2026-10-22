@@ -9,7 +9,7 @@ import { convertSentry } from './convert.ts';
 import { feedbackInput } from '../feedback/input';
 import { admitFeedback } from '../feedback/admission';
 import { clientReportCounts } from './client-reports';
-import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason, type WireObject } from './wire.ts';
+import { SentryWireError, readSentryBytes, parseEnvelope, objectJson, unsupportedReason, isErrorEventType, type WireObject } from './wire.ts';
 const routes=new Hono<{Bindings:Bindings}>();
 async function sentryAuthority(c:Context<{Bindings:Bindings}>,envelope:WireObject={}) {
   const key=sentryKey(c.req.raw,c.req.param('alias')!,envelope);
@@ -63,7 +63,7 @@ routes.on('POST',paths,async c=>{
         dropped.set('invalid_item',(dropped.get('invalid_item')??0)+1);continue;
       }
       if(raw.type==='feedback'){feedback.push(await feedbackInput(raw,'feedback',envelope.header.event_id));continue}
-      if(raw.type!==undefined&&raw.type!=='error'){
+      if(raw.type!==undefined&&!isErrorEventType(raw.type)){
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
       }

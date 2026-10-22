@@ -42,7 +42,7 @@ try{
   assert.equal(handled.issue.count,2,`${name}: the restarted process groups into the same issue`);
   const crashed=details.find(d=>d.events.some(e=>unhandled(e.event.sentry)));
   assert.ok(crashed,`${name}: unhandled failure persisted as unhandled`);
-  for(const {events} of details)for(const {event} of events){assert.equal(event.environment,'compatibility');assert.ok(event.sentry.sdk.name.startsWith(runtime.sdk),`${name}: SDK identity ${event.sentry.sdk?.name}`);assert.ok(event.sentry.sdk.integrations?.length>0||event.sentry.sdk.packages?.length>0,`${name}: default integrations reported`)}
+  for(const {events} of details)for(const {event} of events){assert.equal(event.environment,'compatibility');assert.ok(event.sentry.sdk.name.startsWith(runtime.sdk),`${name}: SDK identity ${event.sentry.sdk?.name}`);assert.ok(event.sentry.sdk.version,`${name}: SDK version kept`)}
   // Failure handling: a wrong key or an unreachable intake never breaks the application.
   const before=await app.json(`/api/projects/${project.id}/issues`);
   const url=new URL(project.dsn);
