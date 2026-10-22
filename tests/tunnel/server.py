@@ -1,5 +1,7 @@
-"""Test server for the Python tunnel: static files from a directory, plus the tunnel at POST /monitoring."""
+"""Test server for the Python tunnel: static files from a directory, the tunnel at POST /monitoring and this process's
+peak resident memory (KiB) at /peak-rss, so the journey can bound what one request costs the host."""
 import os
+import resource
 import sys
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
@@ -14,6 +16,10 @@ types = {".html": "text/html", ".js": "text/javascript"}
 def app(environ, start_response):
     if environ["PATH_INFO"] == "/monitoring":
         return tunnel.wsgi(environ, start_response)
+    if environ["PATH_INFO"] == "/peak-rss":
+        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        start_response("200 OK", [("content-type", "text/plain")])
+        return [str(peak // 1024 if sys.platform == "darwin" else peak).encode()]
     path = os.path.join(root, os.path.basename(environ["PATH_INFO"]))
     if not os.path.isfile(path):
         start_response("404 Not Found", [])

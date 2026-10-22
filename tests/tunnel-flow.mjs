@@ -3,11 +3,12 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
+import { connect } from 'node:net';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { gzipSync } from 'node:zlib';
 import { build } from 'esbuild';
 import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
@@ -16,15 +17,13 @@ import { launchBrowser } from './browser-launch.mjs';
 
 const require = createRequire(import.meta.url), wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-tunnel-')), app = resolve(temporary, 'app'), site = resolve(temporary, 'site');
-let worker, browser, python, nodeServer, capture, nextServer;
+let worker, browser, python, nodeServer, capture, nextServer, redirector, foreign;
 const listen = server => new Promise(done => server.listen(0, '127.0.0.1', () => done(server.address().port)));
 try {
   await mkdir(app); await mkdir(site);
   const packed = JSON.parse(execFileSync(process.execPath, ['packages/sdk/build.mjs', '--pack'], { encoding: 'utf8' }).trim().split('\n').at(-1));
   await writeFile(resolve(app, 'package.json'), JSON.stringify({ name: 'fresh-app', private: true, type: 'module' }));
   execFileSync('npm', ['install', packed.tarball, '--offline', '--no-audit', '--no-fund', '--ignore-scripts'], { cwd: app, stdio: 'ignore' });
-  const sdk = name => import(pathToFileURL(resolve(app, 'node_modules/@just-every/spool/dist', name)).href);
-  const { nodeTunnel } = await sdk('tunnel.js');
 
   worker = await startTestWorker(15571); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };
@@ -34,6 +33,13 @@ try {
   const seen = [];
   capture = createServer(async (req, res) => { const chunks = []; for await (const chunk of req) chunks.push(chunk); seen.push({ url: req.url, headers: req.headers, body: Buffer.concat(chunks) }); res.setHeader('x-sentry-rate-limits', '60:replay'); res.statusCode = 200; res.end('{}'); });
   const capturePort = await listen(capture), captureDsn = `http://synthetic-spool-1@127.0.0.1:${capturePort}/9`;
+  // An upstream that redirects to another host, which would accept anything and records what reaches it (network-edge fakes).
+  const foreignHits = [];
+  foreign = createServer(async (req, res) => { for await (const _ of req); foreignHits.push(req.url); res.end('synthetic-spool-foreign-body'); });
+  const foreignPort = await new Promise(done => foreign.listen(0, () => done(foreign.address().port)));
+  let redirectStatus = 302;
+  redirector = createServer(async (req, res) => { for await (const _ of req); res.statusCode = redirectStatus; res.setHeader('location', `http://localhost:${foreignPort}${req.url}`); res.end(); });
+  const redirectDsn = `http://synthetic-spool-2@127.0.0.1:${await listen(redirector)}/9`;
 
   // One real browser SDK program; only the DSN and the `tunnel` option differ between pages.
   await writeFile(resolve(app, 'page.js'), `import * as Sentry from '@sentry/browser';\nSentry.init({dsn:globalThis.__DSN__,tunnel:globalThis.__TUNNEL__,release:'tunnel@1.0.0',environment:'tunnel'});\nwindow.report=message=>{Sentry.captureException(new Error(message));return Sentry.flush(5000)};\n`);
@@ -42,15 +48,12 @@ try {
   await writeFile(resolve(site, 'direct.html'), html(project.dsn));
   await writeFile(resolve(site, 'tunnel.html'), html(project.dsn, '/monitoring'));
 
-  // Node (Express-style) server with the tunnel at /monitoring.
-  const tunnelNode = nodeTunnel({ dsn: [project.dsn, captureDsn] });
-  nodeServer = createServer(async (req, res) => {
-    if (req.url === '/monitoring') return tunnelNode(req, res);
-    try { res.setHeader('Content-Type', req.url.endsWith('.js') ? 'text/javascript' : 'text/html'); res.end(await readFile(resolve(site, req.url.slice(1)))); } catch { res.statusCode = 404; res.end(); }
-  });
-  const nodeOrigin = `http://127.0.0.1:${await listen(nodeServer)}`;
+  // Node http server with the installed package's nodeTunnel at /monitoring, in its own process like the Python one.
+  nodeServer = spawn(process.execPath, ['tests/tunnel/server.mjs', resolve(app, 'node_modules/@just-every/spool/dist/tunnel.js'), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
+  process.once('exit', () => nodeServer.kill());
+  const nodeOrigin = `http://127.0.0.1:${await new Promise((done, fail) => { nodeServer.once('error', fail); nodeServer.stdout.once('data', port => done(String(port).trim())); })}`;
   const pythonPort = 20000 + Math.floor(Math.random() * 20000), pythonOrigin = `http://127.0.0.1:${pythonPort}`;
-  python = spawn('python3', ['tests/tunnel/server.py', String(pythonPort), site, project.dsn, captureDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
+  python = spawn('python3', ['tests/tunnel/server.py', String(pythonPort), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
   process.once('exit', () => python.kill());
   await new Promise((done, fail) => { python.once('error', fail); python.stdout.once('data', done); });
 
@@ -96,7 +99,7 @@ try {
   execFileSync('npm', ['install', '--no-audit', '--no-fund', packed.tarball], { cwd: nextDir, stdio: 'ignore' });
   await writeFile(resolve(nextDir, 'app/layout.js'), "export default function Layout({ children }) { return <html lang=\"en\"><body>{children}</body></html>; }\n");
   await writeFile(resolve(nextDir, 'app/page.js'), "'use client';\nexport default function Page() { return <button onClick={() => { throw new Error('next checkout failure'); }}>Throw</button>; }\n");
-  const nextEnv = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', NEXT_PUBLIC_SPOOL_DSN: project.dsn, SPOOL_TUNNEL_DSNS: `${project.dsn} ${captureDsn}` };
+  const nextEnv = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', NEXT_PUBLIC_SPOOL_DSN: project.dsn, SPOOL_TUNNEL_DSNS: `${project.dsn} ${captureDsn} ${redirectDsn}` };
   const nextBin = resolve(nextDir, 'node_modules/next/dist/bin/next');
   const nextBuild = () => execFileSync(process.execPath, [nextBin, 'build'], { cwd: nextDir, env: nextEnv, stdio: 'pipe' });
   // 4a. Sentry's tunnelRoute: the generated rewrites only target sentry.io, so it cannot carry events to a Spool DSN.
@@ -141,7 +144,33 @@ try {
     assert.equal(forwarded.headers['user-agent'], 'tunnel-journey-browser'); assert.equal(forwarded.headers.origin, nodeOrigin); assert.equal(forwarded.headers.referer, `${base}/page`);
     assert.equal(forwarded.headers['x-forwarded-for'], '203.0.113.7');
   }
-  console.log(JSON.stringify({ passed: true, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted.' }));
+
+  // 7. Hostile requests. A TRACE and an upload the client abandons end that request only: each host keeps serving.
+  const raw = (base, text, hold = 2000) => new Promise(done => { const socket = connect(Number(new URL(base).port), '127.0.0.1', () => socket.write(text)); socket.on('data', () => {}); socket.on('error', done); socket.on('close', done); setTimeout(() => socket.destroy(), hold); });
+  const tunnels = [nodeOrigin, pythonOrigin, nextOrigin];
+  for (const base of tunnels) {
+    await raw(base, 'TRACE /monitoring HTTP/1.1\r\nHost: tunnel\r\nConnection: close\r\n\r\n');
+    await raw(base, 'POST /monitoring HTTP/1.1\r\nHost: tunnel\r\nContent-Length: 100000\r\n\r\nsynthetic-spool-partial', 200);
+    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${base} keeps serving after a TRACE and an aborted upload`);
+  }
+  assert.equal(nodeServer.exitCode, null, 'the Node host process is still running');
+  // No redirect is followed or relayed: the envelope goes to the configured Spool origin or nowhere.
+  for (const base of tunnels) for (redirectStatus of [301, 302, 303, 307, 308]) {
+    const reply = await post(`${base}/monitoring`, envelopeOf(redirectDsn));
+    assert.equal(reply.status, 502, `${base} refuses an upstream ${redirectStatus}`); assert.ok(!(await reply.text()).includes('synthetic-spool-foreign-body'), 'the redirected host’s body is never relayed');
+  }
+  assert.deepEqual(foreignHits, [], 'nothing reaches the host a redirect names');
+  // The 1 MiB limit holds while the body is read and inflated: 255 KiB of gzip that expands to 256 MiB is refused,
+  // costing each host under 32 MiB of peak memory (unbounded decoding cost 267-796 MiB).
+  const bomb = gzipSync(Buffer.concat([Buffer.from(JSON.stringify({ dsn: captureDsn }) + '\n'), Buffer.alloc(256 * 1024 * 1024)]), { level: 9 });
+  const peak = async base => Number(await (await fetch(`${base}/peak-rss`)).text());
+  for (const base of tunnels) {
+    const before = base === nextOrigin ? 0 : await peak(base);
+    assert.equal((await post(`${base}/monitoring`, bomb, { 'Content-Encoding': 'gzip' })).status, 413, `${base} refuses an envelope over 1 MiB once decoded`);
+    if (base !== nextOrigin) assert.ok((await peak(base)) - before < 32 * 1024, `${base} refuses it within 32 MiB of peak memory`);
+    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${base} keeps serving after the refusal`);
+  }
+  console.log(JSON.stringify({ passed: true, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB.' }));
 } finally {
-  await browser?.close(); python?.kill(); nextServer?.kill(); nodeServer?.close(); capture?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
+  await browser?.close(); python?.kill(); nextServer?.kill(); nodeServer?.kill(); capture?.close(); redirector?.close(); foreign?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }

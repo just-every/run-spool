@@ -8,7 +8,6 @@ instead and this module forwards it to the Spool project it is configured for. S
     # WSGI (Flask, Django, Pyramid, plain wsgiref): mount tunnel.wsgi at the tunnel path, POST only.
     # Any other framework: status, headers, body = tunnel.forward(body, request_headers, client_address)
 """
-import gzip
 import json
 import urllib.error
 import urllib.request
@@ -32,29 +31,42 @@ def _refuse(status, error):
     return status, {"content-type": "application/json"}, json.dumps({"error": error}).encode()
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """A redirect is never followed: the envelope goes to the configured Spool origin or nowhere."""
+
+    def redirect_request(self, *args):
+        return None
+
+
+def _decode(body, encoding):
+    """The decoded envelope, inflated at most one byte past LIMIT so a decompression bomb is never expanded."""
+    if encoding == "identity":
+        return body
+    inflater = zlib.decompressobj({"gzip": 16 + zlib.MAX_WBITS, "deflate": zlib.MAX_WBITS}[encoding])
+    plain = inflater.decompress(body, LIMIT + 1)
+    if len(plain) <= LIMIT and not inflater.eof:
+        raise zlib.error("truncated")
+    return plain
+
+
 class Tunnel:
-    def __init__(self, dsn, opener=None):
+    def __init__(self, dsn):
         """`dsn` is one Spool project DSN or a list of them; an envelope naming any other is refused."""
         self.allowed = [_target(value) for value in ([dsn] if isinstance(dsn, str) else dsn)]
         if not self.allowed:
             raise ValueError("At least one Spool DSN is required")
-        self.opener = opener or urllib.request.build_opener()
+        self.opener = urllib.request.build_opener(_NoRedirect)
 
     def forward(self, body, headers, client_address=None):
         """Forward one envelope. `headers` maps lower-case request header names to values."""
         if not body or len(body) > LIMIT:
             return _refuse(413 if body else 400, "Envelope too large" if body else "Empty envelope")
         encoding = (headers.get("content-encoding") or "identity").lower()
+        if encoding not in ("gzip", "deflate", "identity"):
+            return _refuse(415, "Unsupported content encoding")
         try:
-            if encoding == "gzip":
-                plain = gzip.decompress(body)
-            elif encoding == "deflate":
-                plain = zlib.decompress(body)
-            elif encoding == "identity":
-                plain = body
-            else:
-                return _refuse(415, "Unsupported content encoding")
-        except (OSError, zlib.error):
+            plain = _decode(body, encoding)
+        except zlib.error:
             return _refuse(400, "Envelope could not be decoded")
         if len(plain) > LIMIT:
             return _refuse(413, "Envelope too large")
@@ -76,14 +88,26 @@ class Tunnel:
             response = failure
         except OSError:
             return _refuse(502, "Spool could not be reached")
+        with response:
+            status = response.status if hasattr(response, "status") else response.code
+            if 300 <= status < 400:
+                return _refuse(502, "Spool answered with a redirect, which the tunnel does not follow")
+            reply = response.read(LIMIT + 1)
+        if len(reply) > LIMIT:
+            return _refuse(502, "Spool could not be reached")
         returned = {name: response.headers[name] for name in RETURNED if response.headers.get(name)}
-        return response.status if hasattr(response, "status") else response.code, returned, response.read()
+        return status, returned, reply
 
     def wsgi(self, environ, start_response):
+        length = environ.get("CONTENT_LENGTH") or "0"
         if environ["REQUEST_METHOD"] != "POST":
             status, headers, body = _refuse(405, "Tunnel accepts POST only")
+        elif not length.isdigit():
+            status, headers, body = _refuse(400, "Envelope length is not a number")
+        elif int(length) > LIMIT:
+            status, headers, body = _refuse(413, "Envelope too large")
         else:
-            size = min(int(environ.get("CONTENT_LENGTH") or 0), LIMIT + 1)
+            size = int(length)
             headers_in = {key[5:].replace("_", "-").lower(): value for key, value in environ.items() if key.startswith("HTTP_")}
             headers_in["content-type"] = environ.get("CONTENT_TYPE", "")
             forwarded = headers_in.get("x-forwarded-for", "").split(",")[0].strip()
