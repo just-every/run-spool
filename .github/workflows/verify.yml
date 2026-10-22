@@ -149,6 +149,8 @@ jobs:
             command: pnpm test:sentry:cli
           - shard: tunnel
             command: pnpm test:tunnel
+          - shard: wizard
+            command: pnpm test:wizard
           - shard: agent-handoff
             command: pnpm test:agent-handoff && pnpm test:privacy
           - shard: repair-recovery

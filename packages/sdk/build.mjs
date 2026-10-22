@@ -14,7 +14,7 @@ const common = { bundle: true, format: 'esm', target: 'es2022', legalComments: '
 await build({ ...common, entryPoints: { browser: 'src/browser.ts', worker: 'src/worker.ts', tunnel: 'src/tunnel.ts', next: 'src/next.ts' }, absWorkingDir: root, outdir: dist, platform: 'neutral', minify: true });
 await build({ ...common, entryPoints: { node: 'src/node.ts' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true });
 // The source-map tools parse bundles; their two parser libraries are bundled so the package has no dependencies.
-await build({ ...common, entryPoints: { vite: 'src/sourcemaps/plugin.mjs', sourcemaps: 'src/sourcemaps/bin.mjs' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true, splitting: true, chunkNames: 'shared-[hash]' });
+await build({ ...common, entryPoints: { vite: 'src/sourcemaps/plugin.mjs', sourcemaps: 'src/sourcemaps/bin.mjs', setup: 'src/setup/bin.mjs' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true, splitting: true, chunkNames: 'shared-[hash]' });
 
 const tsc = resolve(root, '../../node_modules/typescript/bin/tsc');
 execFileSync(process.execPath, [tsc, '-p', join(root, 'tsconfig.json')], { stdio: 'inherit' });

@@ -62,6 +62,7 @@
     "test:languages": "node tests/multilingual.mjs",
     "test:runtimes": "node tests/sdk-runtimes.mjs",
     "test:tunnel": "node tests/tunnel-flow.mjs",
+    "test:wizard": "node tests/setup-flow.mjs",
     "integration:sync": "node scripts/sync-integration.mjs --write",
     "integration:check": "node scripts/sync-integration.mjs --check"
   },

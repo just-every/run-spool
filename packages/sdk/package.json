@@ -18,7 +18,7 @@
     "./rollup": { "types": "./dist/vite.d.ts", "default": "./dist/vite.js" },
     "./package.json": "./package.json"
   },
-  "bin": { "spool-sourcemaps": "./dist/sourcemaps.js" },
+  "bin": { "spool-sourcemaps": "./dist/sourcemaps.js", "spool-setup": "./dist/setup.js" },
   "engines": { "node": ">=20" },
   "publishConfig": { "access": "public" }
 }
