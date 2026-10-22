@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "bebede9f05bf234e6eb0f0784c86aacc346b57e8ad4eae2b0a8f2cdee94ee876",
+      "sha256": "95c2e696d273ccd75e925b17a213cf3899bf6a5c05f6f9c2d66f0f279fc970d0",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "0821d1271e9e6011b9de00b0cc7b177ade59b8cb509d80fd20a3d58717bae7f9",
+      "sha256": "5b237959821001a1798df0d4e1c1cddc14e36cf77afbeace00408c076b66ed7c",
       "executable": false
     },
     "DEMO.md": {
@@ -3425,7 +3425,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "4451f15d5e419fd24e8ca39f35ab7c2b9efabca6bf9b88c6df9f7c100cbbd8c7",
+      "sha256": "253318a006163f9d26b23422f4051aa5c2ee427991161ddec330397ede2b4e6d",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -8241,7 +8241,7 @@
       "executable": false
     },
     "tests/runtimes/elixir/app.exs": {
-      "sha256": "5b8eb2b0913d3ecad42402628385cfce0852ebb7e49c022fd6811c9a8a4ca8e4",
+      "sha256": "e48c9d528aadb16842fa50edffd4499b63267e2be8f6fa60b00a343b5ec38eb4",
       "executable": false
     },
     "tests/runtimes/elixir/config/config.exs": {

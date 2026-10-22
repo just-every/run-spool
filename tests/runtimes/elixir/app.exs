@@ -3,7 +3,13 @@ require Logger
 require OpenTelemetry.Tracer, as: Tracer
 
 defmodule Checkout do
+  # Sentry context is per process, so the process that runs the checkout attaches the cart.
+  # sentry 14.0.0's logger handler turns a crashed process's caller context into capture
+  # options (lib/sentry/logger_utils.ex:30), and an attachment there makes
+  # Sentry.Event.create_event/1 raise (lib/sentry/event.ex:196), which the handler swallows
+  # (lib/sentry/logger_handler.ex:475): an attachment held by the caller loses the crash.
   def charge(_note) do
+    Sentry.Context.add_attachment(%Sentry.Attachment{filename: "cart.txt", data: "synthetic-spool-attachment"})
     password = "synthetic-spool-1"
     _ = password
     div(10, String.to_integer("0"))
@@ -11,7 +17,6 @@ defmodule Checkout do
 end
 
 [mode] = System.argv()
-Sentry.Context.add_attachment(%Sentry.Attachment{filename: "cart.txt", data: "synthetic-spool-attachment"})
 
 Tracer.with_span "checkout" do
   Tracer.with_span "load cart" do
