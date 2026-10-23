@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "89ce821def973de8ebb81412872404ac772653382a2a0e568bf7dce61eaed6d8",
+      "sha256": "6ea9e57a2439bfdcea0dbaec4ccfc81441bb8367543d23707acc55e7d12ef818",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1bd290bc7e0371c442468f144b2ca5c0c037cbdbf5dd7db83335a1977aa757b0",
+      "sha256": "f3f121f5565f21fe8127e6929bbae3b4f033848e789f6fb4a280ff3412403827",
       "executable": false
     },
     "DEMO.md": {
@@ -3593,7 +3593,7 @@
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
-      "sha256": "9b3a4d98e3c1c9c1a2b854b47409469538f9f4f1e82dac877948b0c959a6f7ed",
+      "sha256": "da5a6e4c918477136c1d91eb49d488872e9bf74809e3f883507b5103816a4b32",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
