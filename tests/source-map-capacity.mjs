@@ -24,6 +24,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  for(const [n,map,line,column] of [
   [1,{version:3,sections:[{offset:{line:2,column:5},map:flat}]},3,5],
   [2,flat,1,0],
+  [13,{...flat,sourcesContent:null},1,0],
   [3,{...flat,sourcesContent:[flat.sourcesContent[0]+'/*'+'x'.repeat(300000)+'*/']},1,0],
  ]){
   const debugId=`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
@@ -41,12 +42,26 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  ceiling.sourcesContent[0]+='x';const overLimit=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000005',map:ceiling});assert.equal(overLimit.status,400);await overLimit.body?.cancel();
  // Reject malformed offsets and ignore indexes before parser allocation or persistence.
  const invalid=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000009',map:{version:3,sections:[{offset:{line:10000000,column:0},map:flat}]}});assert.equal(invalid.status,400);await invalid.body?.cancel();
+ const longRoot=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000010',map:{version:3,sourceRoot:'x'.repeat(4096),sources:Array.from({length:1000},(_,i)=>'synthetic-spool-'+i+'.js'),names:[],mappings:'AAAA'}});assert.equal(longRoot.status,400,'[SRC-004] overlong source roots are refused before resolution can multiply them across sources');await longRoot.body?.cancel();
+ const legacyRoot=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000012',map:{...flat,sourceRoot:'x'.repeat(4096)}});assert.equal(legacyRoot.status,201,'flat maps within the previous parser bounds retain their accepted path grammar');await legacyRoot.body?.cancel();
  const storage=await request(base+'/artifact-storage');
  const context=await browser.newContext(),page=await context.newPage();await browserSignIn(page,origin);await page.goto(origin+'/projects/'+id+'/releases');
- await page.getByLabel('Artifact storage cap (bytes, optional)').fill(String(storage.bytes));await page.getByRole('button',{name:'Save artifact cap',exact:true}).click();
+ const capField=page.getByLabel('Artifact storage cap (bytes, optional)');
+ await capField.fill('42');
+ await page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name:/^Issues/}).click();await page.getByRole('link',{name:'Releases',exact:true}).click();
+ await capField.waitFor();assert.equal(await capField.inputValue(),'42','[SRC-004] an unsaved cap draft survives in-app navigation');
+ await page.getByLabel('Release name',{exact:true}).fill('synthetic-spool-draft@1');await page.getByLabel('Build identifier',{exact:true}).fill('b2');
+ const storageRefresh=page.waitForResponse(r=>r.url().endsWith('/artifact-storage')&&r.request().method()==='GET');
+ await page.getByRole('button',{name:'Register release',exact:true}).click();await(await storageRefresh).finished();
+ await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
+ assert.equal(await capField.inputValue(),'42','[SRC-004] refreshing releases preserves an unsaved cap draft');
+ await capField.fill(String(storage.bytes));await page.getByRole('button',{name:'Save artifact cap',exact:true}).click();
  await page.waitForFunction(async ({base,bytes})=>(await(await fetch(base+'/artifact-storage')).json()).artifact_storage_cap===bytes,{base,bytes:storage.bytes});
  result=await cli('capacity@2');assert.notEqual(result.code,0);assert.match(result.output,/storage cap [0-9]+ bytes/);
  for(const file of files)assert.ok(result.output.includes(file),'each refused file is named');
+ const longName='synthetic-spool/'.repeat(30)+'last.js.map';
+ const namedRefusal=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000011',file:longName,map:flat});assert.equal(namedRefusal.status,429);assert.ok((await namedRefusal.json()).error.includes(longName),'the full refused chunk path is returned');
+ assert.ok((await request(base+'/sentry-uploads')).assemblies.some(row=>row.detail?.includes(longName)),'the release view retains the full refused chunk path');
  const cap=await request(base+'/artifact-storage');assert.equal(cap.artifact_storage_cap,storage.bytes);
  const denied=await fetch(origin+base+'/artifact-storage',{method:'PUT',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({revision:cap.revision,artifact_storage_cap:null})});assert.equal(denied.status,401);await denied.body?.cancel();
  for(const width of [1440,390]){
@@ -55,6 +70,8 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
   const out=process.env.SPOOL_PROOF_DIR??'.artifacts/src004';await mkdir(out,{recursive:true});await page.screenshot({path:resolve(out,`release-${width}.png`),fullPage:true});
+  await page.locator('#source-map-setup-heading').evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,`storage-${width}.png`)});
+  await page.getByText(/storage cap [0-9]+ bytes/).first().evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,`refusal-${width}.png`)});
  }
  await context.close();
  console.log('[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');

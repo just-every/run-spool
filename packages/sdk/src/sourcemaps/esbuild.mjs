@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {dirname,relative,resolve} from 'node:path';
 import {injectDebugId} from './inject.mjs';
@@ -18,7 +19,7 @@ export function spoolSourceMaps(options){
     const artifact=injectDebugId(file.text,map.text);
     const name=relative(resolve(build.initialOptions.absWorkingDir??process.cwd(),build.initialOptions.outdir??dirname(build.initialOptions.outfile??file.path)),file.path)+'.map';
     artifacts.push({file:name,...artifact});
-    file.contents=new TextEncoder().encode(artifact.code);map.contents=new TextEncoder().encode(JSON.stringify(artifact.map));
+    for(const [output,text] of [[file,artifact.code],[map,JSON.stringify(artifact.map)]]){const contents=new TextEncoder().encode(text);output.contents=contents;Object.defineProperty(output,'text',{get:()=>text});output.hash=createHash('sha256').update(contents).digest('base64url');}
    }
    await uploadSourceMaps(options,artifacts);
    if(shouldWrite)for(const file of files){await mkdir(dirname(file.path),{recursive:true});await writeFile(file.path,file.contents);}

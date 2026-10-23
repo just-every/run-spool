@@ -77,7 +77,7 @@ routes.post('/:project/artifacts',async c=>{
     }catch(error){
       const retry=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();
       if(retry){const current=await authorizeDeploy(c,project);if('response' in current)return current.response;await deployBatch(c,current,[]);return retry.digest===digest?c.json({digest,bytes:new TextEncoder().encode(payload).length},200):c.json({error:'Artifact identity conflicts'},409)}
-      if(String(error).includes('artifact_storage_cap')){const file=typeof b.file==='string'?b.file.slice(0,256):debug;const detail=file+': '+await artifactCapReason(db,project);await deployBatch(c,auth,[stmt(db,"INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,'error',?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET detail=excluded.detail,created=excluded.created",project,(await hash(release+'\n'+build+'\n'+file)).slice(0,40),detail,Date.now())]);return c.json({error:detail,file},429)}
+      if(String(error).includes('artifact_storage_cap')){const file=typeof b.file==='string'?b.file.slice(0,1024):debug;const detail=file+': '+await artifactCapReason(db,project);await deployBatch(c,auth,[stmt(db,"INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,'error',?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET detail=excluded.detail,created=excluded.created",project,(await hash(release+'\n'+build+'\n'+file)).slice(0,40),detail,Date.now())]);return c.json({error:detail,file},429)}
       throw error;
     }
   }catch(error){return failure(c,project,error)}
