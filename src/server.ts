@@ -1,3 +1,4 @@
+import { reportDialogResponse } from './domain/report-dialog/public.server';
 import { loaderResponse } from './domain/loader/public.server';
 import { wrapRequest } from './domain/audit/request';
 import { deploymentTimeouts } from './domain/deployments/timeouts';
@@ -73,6 +74,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
  const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
+ const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;
  const asset = await staticAssetResponse(request, env); if (asset) return asset;
  const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;

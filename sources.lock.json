@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "ce36d7c934e86677e764f3082ab7806dbd9fbe54f067c038300c4b1f521bc41e",
+      "sha256": "cda9cca2f710e1c4d06d1ace3b987885205b15f027e5dbc04178ffbfd582830b",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "98edd460b8e0f74b1bd92297c33e917fcaa5b151921eca3cfc643659efc0eab4",
+      "sha256": "db550b2be8c815cf41cac79848dc568942c6594d670e5c663923487367bfb27a",
       "executable": false
     },
     "DEMO.md": {
@@ -2925,7 +2925,7 @@
       "executable": false
     },
     "docs/FEEDBACK.md": {
-      "sha256": "670e5a7c699f89bfd0d9a4f3418adaa82b312a7a159748ed13c051238dfff524",
+      "sha256": "c743567052fcb322de7ea742503a37242f1e5e07a7c79a585eacd488963a87f7",
       "executable": false
     },
     "docs/GROUPING-RULES.md": {
@@ -3406,6 +3406,58 @@
     },
     "docs/retained-verification/sdk001/node-releases-390.png": {
       "sha256": "0e5319a101cd85702ce7bbec6513d66f36aabfc2f5179ef643399bacf308adf9",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-dialog-1440.png": {
+      "sha256": "b8af92e272f9e81b047bac88b34102d26bcb03699200fdf72a8425b3d04eebe3",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-dialog-390.png": {
+      "sha256": "02cd040d267248b67e4b88c02ab68e79735e2d8e43c3ec315c52179c56d7e6a8",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-issue-feedback-1440.png": {
+      "sha256": "21b05eb8a407032cb696cdd5cc0d8dbe30e99c0bf7481bcf858312a0ff872e83",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-issue-feedback-390.png": {
+      "sha256": "543ea27837bf070f950e027c89c924e6201410e1a533ccab34adfe384e851469",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-sent-1440.png": {
+      "sha256": "5cd503dc7befa17c5541e5a2e75b871cf21516b4bf0c81a59a1a9f97360b67ff",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/browser-sent-390.png": {
+      "sha256": "166e9125a80cbb13503797905938ddf3c1958d3eb68be4032dede2bce725797b",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-dialog-1440.png": {
+      "sha256": "7d7ed866ff09d925b475d885eead38ff52336af0d6ffe95fdafde0072ec78824",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-dialog-390.png": {
+      "sha256": "c1bb6f22bf7c70346da6941d230d348b6a41acb283f64ef32560577eef5b2cc1",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-issue-feedback-1440.png": {
+      "sha256": "c71836bd23c257b0ff48a1d0837630dc6709814db0a10f0ffac9e35be90ec38a",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-issue-feedback-390.png": {
+      "sha256": "cd64c9c50ece7bff74081102946f2c70441b436d2d0f7a3c693d1d8e3805509e",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-sent-1440.png": {
+      "sha256": "77c03288dcbe7677c585d6abce84b9247159182e57767e0c0e1c65696f776205",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/loader-sent-390.png": {
+      "sha256": "5e9296c808b5dd3a8e96e35ae51f092bface3a8fb3606457388def3b77e4afe0",
+      "executable": false
+    },
+    "docs/retained-verification/sdk004/README.md": {
+      "sha256": "e224cceb7c952e41e4b666c36a71783b1253c16ea5e1a1995115f61bc9ded682",
       "executable": false
     },
     "docs/retained-verification/sdk013/electron-diagnostics-1440.png": {
@@ -5286,6 +5338,18 @@
     },
     "src/domain/repairs/view.ts": {
       "sha256": "3b2f04652408d59359617be9c77fe8bf2b496865783ed5cf5aeee02b9bc0cbf9",
+      "executable": false
+    },
+    "src/domain/report-dialog/client.ts": {
+      "sha256": "c16c3b3a92c547e1a50e7e9159f9bcd259c18a877aca3fd3fe9f2c0110b40a42",
+      "executable": false
+    },
+    "src/domain/report-dialog/public.server.ts": {
+      "sha256": "9556106ab862bbfb711730ba42d224cd72b21493e5817aff3b80df24546c8ed3",
+      "executable": false
+    },
+    "src/domain/report-dialog/style.ts": {
+      "sha256": "e1c3f101b702bf8d7abb4a0125e8b5cdfe591e5da5371e44d6463118b97dbbd0",
       "executable": false
     },
     "src/domain/repository-links.ts": {
@@ -7597,7 +7661,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "7a58d1ecfaaaf860d209980b807aea0a4d1af6e597c0b34794f80f165abd820c",
+      "sha256": "fc197144956fd41742c2ed517833b0b87dc814b5aba06c0ec08422c9d4f600bc",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -8484,6 +8548,10 @@
       "sha256": "494e6ec94121edaa3a3450978b03366e52a05bc189836dfeece033f442827be3",
       "executable": false
     },
+    "tests/report-dialog-flow.mjs": {
+      "sha256": "dbc1b73a762b687e0c0cdecb0316b0458fde62aedc10eddd979f9c3b33ee673b",
+      "executable": false
+    },
     "tests/repository-source-flow.mjs": {
       "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34",
       "executable": false
@@ -8501,7 +8569,7 @@
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "a41d84242609752abf98bf27e606fb716812b4e7c64575d4cd7ed3cc64236e3d",
+      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
@@ -8733,7 +8801,7 @@
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
-      "sha256": "be5bf4c15d85376ce942338352094eda3d390f09f58d78f01957d922c2105e41",
+      "sha256": "7a5ca71a575ea27112168dbecaf2e244d92db33b0238c37a1d7096558cb147cc",
       "executable": false
     },
     "tests/setup-flow.mjs": {

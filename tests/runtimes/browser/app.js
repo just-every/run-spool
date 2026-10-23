@@ -27,6 +27,7 @@ Sentry.getClient().on('beforeEnvelope', envelope => {
   window.__SPOOL_SENT__.push(...envelope[1].map(item => item[0].type));
 });
 Sentry.getClient().on('afterSendEvent', (event, response) => window.__SPOOL_RESPONSES__.push({type:event.type??'event',status:response?.statusCode}));
+window.openReportDialog = options => Sentry.showReportDialog(options);
 window.sendFilterError = message => { Sentry.captureException(new Error(message)); return Sentry.flush(10000); };
 window.sendFeedback = (message, associatedEventId) => {
   Sentry.captureFeedback({ message, associatedEventId, name: 'Private Feedback Name', email: 'feedback-private@example.com' });
