@@ -17,3 +17,7 @@ Copy search link preserves filters and ordering. Viewing/unseen remains local to
 All three doors require the owner session or a current read-only agent/service grant for exactly that project. Foreign-project grants, deploy grants and ingest keys receive the same 401 refusal before reading project records. Owner writes and the feedback inbox retain their existing owner authority. Invalid cursors, changed query/order or unsupported filters return 400; an authorized missing project/issue returns 404. The limit is 25 rows per page, using receipt timestamp and ID as a stable tie-breaker in the selected direction. Pass `next` unchanged to the same door/query. Totals cover the current retained matching corpus; pages are not snapshots, so refresh after intake, retention or withdrawal. Erasure removes the project and retires its grants.
 
 Attachments and viewing audit/downloads, release/session and audit APIs, streaming exports/archives and the 160,000-event acceptance remain unqualified. These read doors add no storage or schema migration.
+
+### Observed session report
+
+SDK-005 adds the bounded version-1 `/api/projects/:project/release-health` read door and matching JSON download under the same owner/exact-project read authority. It reports aggregate observed health and uncertainty, not a paginated session-record or release-record API. See [session report shapes and denominators](SENTRY-SESSIONS.md#read-and-export). General release/session record pagination remains an API-001 gap.

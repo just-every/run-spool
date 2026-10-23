@@ -49,6 +49,9 @@ try {
  await app.json('/api/projects/personal-capture/artifacts',{release:'r1',build:'b1',debugId:'map',map:{version:3,sources:['src/app.js'],sourcesContent:[`Test owner / ${testOwner} / ${owner.id} / ${other}`],names:[],mappings:'AAAA'}},201);
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
+ // [SDK-005] Session hashes and their private project key leave with installation-owner erasure.
+ const sessionDsn=new URL(project.dsn),sessionValue={sid:randomUUID().replaceAll('-',''),started:new Date().toISOString(),status:'exited',did:'synthetic-spool-session-owner',attrs:{release:'r1',environment:'test'}};
+ const sessionResponse=await fetch(app.origin+`/api/${sessionDsn.pathname.slice(1)}/envelope/?sentry_key=${sessionDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"session"}\n'+JSON.stringify(sessionValue)});assert.equal(sessionResponse.status,200);assert.equal((await sessionResponse.json()).sessions.session_stored,1);
  // [ALERT-002] Installation erasure removes reconnect-only Slack secrets.
  await app.json('/api/projects/personal-capture/alerting/destinations',{kind:'slack',label:'Synthetic owner Slack',channelId:'synthetic-spool-channel',token:'synthetic-spool-'+randomUUID()},201);
  // [REL-002] An owner-authored suspect judgment is erased with its author.
@@ -66,7 +69,7 @@ try {
  evidence.holds=await heldScopes(app,otherId);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ assert.ok(preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -78,7 +81,7 @@ try {
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
  const latest=await app.json('/api/owner/erasure');
- const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');
+ const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
  assert.deepEqual(after.spool_audit_events.filter(row=>row.sequence<=before.spool_audit_events.at(-1)?.sequence),before.spool_audit_events,'AUDIT-001 actor erasure never rewrites prior safe chronology');

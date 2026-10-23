@@ -1,3 +1,4 @@
+import {sessionTables} from './sessions/archive';
 import { suspectTables } from './suspects/archive';
 import { loaderTables } from './loader/archive';
 import { proposalTables, proposalExportRow } from './proposals/archive';
@@ -153,6 +154,8 @@ for(const later of laterTables){later.tables.push(...Object.keys(suspectTables))
 laterTables.unshift({tables:Object.keys(suspectTables),migrations:['0070_suspect_decisions.sql']});
 for(const later of laterTables){later.tables.push('slack_delivery_meta');later.migrations.push('0071_slack_destinations.sql')}
 laterTables.unshift({tables:['slack_delivery_meta'],migrations:['0071_slack_destinations.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(sessionTables));later.migrations.push('0072_release_sessions.sql')}
+laterTables.unshift({tables:Object.keys(sessionTables),migrations:['0072_release_sessions.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

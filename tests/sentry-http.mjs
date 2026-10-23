@@ -39,7 +39,7 @@ try{
   assert.equal((await req(path,'POST',envelope(event))).status,200);assert.equal((await req(path,'POST',envelope({...event,message:'different raw input'}))).status,409);
   const groups=await json('/api/projects/wire/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,1);
   const packet=await json(`/api/projects/wire/issues/${groups[0].id}/packet`);assert.equal(packet.events[0].event.frames[0].line,2);assert.equal(packet.events[0].event.frames[0].column,2);assert.equal(packet.events[0].event.frames[0].debugId,'fixture-debug');for(const privateValue of ['PRIVATE_EVENT','PRIVATE_URL','PRIVATE_COOKIE','private@example.com','unexpected-vendor-kind'])assert.ok(!JSON.stringify(packet).includes(privateValue));
-  const counted=await json('/api/projects/wire/outcomes');for(const reason of ['sentry_unsupported_attachment','sentry_unsupported_session','sentry_unsupported_unknown'])assert.ok(counted.rows.some(row=>row.reason===reason));
+  const counted=await json('/api/projects/wire/outcomes');for(const reason of ['sentry_unsupported_attachment','session_invalid','sentry_unsupported_unknown'])assert.ok(counted.rows.some(row=>row.reason===reason));
   const gzip=gzipSync(Buffer.from(envelope({...event,event_id:'b'.repeat(32),extra:{value:'x'.repeat(40000)}})));assert.equal((await req(path,'POST',gzip,{'Content-Encoding':'gzip'})).status,200);
   assert.equal((await req(path,'POST',gzipSync(Buffer.alloc(1048577)),{'Content-Encoding':'gzip'})).status,413);
   // SDK-011: compressed transports, attributable refusals and malformed-item isolation.
