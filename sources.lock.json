@@ -3757,7 +3757,7 @@
       "executable": false
     },
     "docs/SENTRY-IDENTITY.md": {
-      "sha256": "45e1b8dd7842100f6c86410d1bf8f7a9bdf8d12292ec7a841ea36ae50994ad64",
+      "sha256": "b3078cf94574bbca47058aa0859260998bb4dcb3b27d551ef0f611e585a692ec",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -5281,7 +5281,7 @@
       "executable": false
     },
     "src/domain/identities/policy.ts": {
-      "sha256": "7492739efa305a176f07fa7012067a998d71077b09f2a3c51a2db44d8e932e56",
+      "sha256": "932252685480d67246d437caca6a38d04aaec3de631a9fa3edb3f10b03b9a607",
       "executable": false
     },
     "src/domain/identities/read.ts": {
@@ -8673,7 +8673,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "22aab1c779e4c66904d8778b62509e0e9fe27f5c3b64324e1dbf650235720015",
+      "sha256": "bb63a897b1bdaf6c4cfb991a7d5756e5b9080fc30c4d249ac078e0c709f5dc40",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
