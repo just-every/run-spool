@@ -3633,7 +3633,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "10742003ee26c2925b5afb33a6a7716ae6e555027bd3c0f7e8442047481c70b9",
+      "sha256": "1adf2655a0556538f6de3258e2aadb6b5e291bf292c2df3b028f5e079c57cea5",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3884,6 +3884,10 @@
       "sha256": "c0e4d3dc92c83111da2e35266e2ea724eda424997f043ddb875a665f4c05456d",
       "executable": false
     },
+    "migrations/core/0068_artifact_build_sets.sql": {
+      "sha256": "4ce2404df1c5d64116abca7867b1627219c1ace30d7b74c3872d0c1aa7de18f1",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
@@ -4001,7 +4005,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/cli.mjs": {
-      "sha256": "47c705cb8b92dcb013e177b8ac342e4e9812710bf1bdd1ff5a8aa827a94bf631",
+      "sha256": "7c99c5b769190c7274047935fca53a25a5af67c931d1b34d5b1a620ca1e9e0e1",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/esbuild.mjs": {
@@ -4013,7 +4017,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/plugin.mjs": {
-      "sha256": "a818ea9ec7f63754c00c7f7ae44f2bf6c14b827b567f10b8333845902d6c5d4c",
+      "sha256": "1f09e5dfdf166b0421ac80ea9899655f3dc68254c91a4486027feff4f509e39e",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/position.mjs": {
@@ -4021,7 +4025,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/upload.mjs": {
-      "sha256": "749b84f66107dd360dd6e3e3278370f452505cee84e9f8c5b2c76f6918c4d749",
+      "sha256": "b8c49e71c9e1d2476e2681128ae0b1f81022c0f669e4471b5c60d3217bcd6f76",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/webpack.mjs": {
@@ -4041,7 +4045,7 @@
       "executable": false
     },
     "packages/sdk/src/vite.d.ts": {
-      "sha256": "d4bb2c0a149727b67b0c1cdcef32ca61fc1ed647f1887edda96f1f6061d79500",
+      "sha256": "11e9e533dd5c218acbb34f25b2d8b90060ab36dd62c6aed9d4dd3f87c1f93ad9",
       "executable": false
     },
     "packages/sdk/src/webpack.d.ts": {
@@ -4697,7 +4701,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "a6912a25f35d72f7a1f09df9972be087c9557dd85ad152aaea045e6b9c42ca10",
+      "sha256": "2c58a7fb9b47cd3c25d8ab03a29930a1ae735b4a5a71c0593cb97132b015a1c3",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -4825,7 +4829,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "d02b29a1bf3dff7e55e82e3ea7fd9749366726f6655d8a33db9f0c167a0abd5b",
+      "sha256": "e2221cdde01b980f2c5b5a62949eda9d1a2f97cd65a7dd5118bfaec393bd6921",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -4837,7 +4841,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
-      "sha256": "7b5188be5e50cbd8d9cb0f185a384dae298507f850ef52182755da21d08766bb",
+      "sha256": "4682c07b4b3e832df90cd0d9ba32598a1df7c742b7f4251abc78b34fb0d586ca",
       "executable": false
     },
     "src/domain/erasure/owner-operation.ts": {
@@ -4849,7 +4853,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-scope.ts": {
-      "sha256": "1a35d49066b0d759723a0533494476402976f7a6ec282cdc49f2160f7cb92198",
+      "sha256": "edbb6b39e941e43724235a8a936611e89c42528f0769cbc27594e2de34c26f45",
       "executable": false
     },
     "src/domain/erasure/owner-service.ts": {
@@ -5165,7 +5169,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "b18bad3b96c3bf9243927d2731421b7f641f99f58a071cafc3a2f11ec57a66eb",
+      "sha256": "dc74bf1ec315f60c16e69617edb5e937ebb51e47eb24e7ef1f3f6dd090e2d22a",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -5349,7 +5353,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/owner.ts": {
-      "sha256": "f370233a4871e7fb92686f62cae52e6abcda259326c59da7bacca01d92f4f255",
+      "sha256": "c245924ff8542da4789c9296d98bdd2c365386c7cf3e3794142aad54229fa5d0",
       "executable": false
     },
     "src/domain/sentry-cli/release.ts": {
@@ -5417,7 +5421,7 @@
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
-      "sha256": "5368a85fcbeb7904ed56313ac5f038fc4f27cbc26117de1893b2af832d29e9dd",
+      "sha256": "700367ac06204ed8db42958e97a84642856ed7ceef2d6888794f2f13f25b9c4b",
       "executable": false
     },
     "src/domain/sentry/deploy.ts": {
@@ -5482,6 +5486,10 @@
     },
     "src/domain/short-ids/lookup.ts": {
       "sha256": "f1444ed41b47a047f3a309f70f9bae81965d4e90586b31c3fa2739223a916c36",
+      "executable": false
+    },
+    "src/domain/source-map-builds.ts": {
+      "sha256": "701dec9180be235417ae572c00a1e770a50032e0057ac837f7161d66189ac910",
       "executable": false
     },
     "src/domain/source-map-functions.ts": {
@@ -7961,7 +7969,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "3baf1e7c30ca28375546c8847d41b52c32b6577ee65bdae7fa5c295b05fb6bd8",
+      "sha256": "1a38aa57dbc192c0057812c04d18ada6e06b20f7c180c73a9361ba3359df4817",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -8085,7 +8093,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "7c9bab1642e6629e2c57233229410306e2a91b1691dce5c63ff571059651b894",
+      "sha256": "0d1278f8e4594de2848046ca87d4a105c670dada63223a1c74756e7430d330c7",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -8277,7 +8285,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "9702bb10ebcb397e848abfff184a421fd953468c6a729bd73fb4a1b26c8f21ca",
+      "sha256": "9ecb76abe67e7e835c67016ca7fe6cfdb470f947a75ca3d7635fda0d5f5dbb74",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -8289,7 +8297,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "71b0ae774109ff05d9efaad7ba78d614c91d7e3034fb7116eeafadfb8269f0ea",
+      "sha256": "093edb340e2227af60bdb227ecde9725e0700593e1753c3f389d0d62d9db5710",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -8629,7 +8637,7 @@
       "executable": false
     },
     "tests/sdk-package.mjs": {
-      "sha256": "2b1e810234f28d0d72edfc72fd4d66807310377b473c8b1dc077e0b2612e02a8",
+      "sha256": "3f5c8981d7128049ded7183fb33b62faee7b11d5ee99e818f6496722d6f16b18",
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
@@ -8710,6 +8718,10 @@
     },
     "tests/source-map-capacity.mjs": {
       "sha256": "d9d7d05fae37f6a6815c54d79594a640be83c390351ccf36e367f975aeced225",
+      "executable": false
+    },
+    "tests/source-map-plugins.mjs": {
+      "sha256": "a20a5183a87b3ac420952d9d5cfebc7ddadbc6aa310ff5d5580383a981c3060b",
       "executable": false
     },
     "tests/triage-app.mjs": {

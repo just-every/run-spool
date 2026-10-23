@@ -15,7 +15,7 @@ export function spoolSourceMaps(options) {
         // Rollup may already have materialized the map asset before this hook.
         const mapAsset = bundle[`${chunk.fileName}.map`];
         if (mapAsset?.type === 'asset') mapAsset.source = JSON.stringify(artifact.map);
-        artifacts.push(artifact);
+        artifacts.push({file:chunk.fileName+'.map',...artifact});
       }
       const result = await uploadSourceMaps(options, artifacts);
       this.info(`Uploaded ${result.uploaded} source map${result.uploaded === 1 ? '' : 's'}.`);
