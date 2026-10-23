@@ -1,12 +1,14 @@
+import { savedSlack } from './slack-destinations.server';
+import { sendSlack } from './slack.server';
 import {auditCommit} from '../audit/context';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
-import { findDestination, destinationHash, keyBytes } from './destinations.server';
+import { findDestination, destinationHash, destinationFingerprint, keyBytes } from './destinations.server';
 import { sender } from './mail';
 import { createWebhookProtocol } from '../../modules/integrations/core/webhook';
 import { statement as s, type AlertEnvironment } from './types';
 export async function testFingerprint(env:AlertEnvironment,project:string,id:string,channel:string){
  const d=await findDestination(env,project,id,channel);
- return destinationHash(env,JSON.stringify([d.channel,d.recipient??d.url,d.key??null,env.MAIL_PROVIDER??null,env.MAIL_FROM??null]));
+ return destinationFingerprint(env,d);
 }
 export async function requireReviewedTest(env:AlertEnvironment,project:string,id:string,channel:string){
  const hash=await testFingerprint(env,project,id,channel);
@@ -15,7 +17,7 @@ export async function requireReviewedTest(env:AlertEnvironment,project:string,id
 }
 export async function testDestination(env:AlertEnvironment,session:OwnerSession,project:string,id:string){
  const saved=await s(env.DB,'SELECT 1 FROM alert_destinations WHERE project=? AND id=?',project,id).first();
- const {destinations}=await import('./destinations.server');const channel=saved?'mail':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
+ const {destinations}=await import('./destinations.server');const channel=saved?'mail':await savedSlack(env,project,id)?'webhook':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
  if(!channel)throw new Error('Destination not found');
  const destination=await findDestination(env,project,id,channel),fingerprint=await testFingerprint(env,project,id,channel),time=Date.now(),testId=crypto.randomUUID();
  // Claiming the operational send slot is not a second completed owner change.
@@ -28,6 +30,8 @@ export async function testDestination(env:AlertEnvironment,session:OwnerSession,
    const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.`});
    state=['accepted','development'].includes(result.status)?'passing':'failing';
    detail=result.status==='development'?'Local development suppresses mail; this passing local test sent no email.':result.status==='accepted'?'Provider accepted this TEST. Check the mailbox; acceptance does not confirm recipient receipt.':`TEST result: ${result.status}. Recipient receipt is unconfirmed.`;
+  }else if(destination.kind==='slack'){
+   const result=await sendSlack(env,destination,{test:true},Date.now);state=result.outcome.kind==='accepted'?'passing':'failing';detail=result.messageId?`Slack posted TEST · message identifier ${result.messageId}. Provider acknowledgment; recipient receipt unconfirmed.`:`Slack TEST failed: ${result.outcome.code}. Recipient receipt unconfirmed.`;
   }else{
    if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');
    const protocol=createWebhookProtocol({resolveDestination:async()=>destination.url!,signingKey:async()=>keyBytes(destination.key)});
@@ -35,7 +39,7 @@ export async function testDestination(env:AlertEnvironment,session:OwnerSession,
    const response=await env.INTEGRATION_EGRESS.send(wire);state=response.status>=200&&response.status<300?'passing':'failing';
    detail=`TEST signature header sent; receiver answered HTTP ${response.status}. Receiver signature verification is not established.`;
   }
- }catch{/* Persist the observed failure; never retry an uncertain effect automatically. */}
+ }catch(error){if(destination.kind==='slack')detail=(error as Error).message==='egress_unconfigured'?'Slack TEST refused: egress_unconfigured.':'Slack TEST failed: timeout or transport failure; recipient receipt unconfirmed.';/* Persist the observed failure; never retry an uncertain effect automatically. */}
  await ownerBatch(env.DB,session,[s(env.DB,'UPDATE alert_destination_tests SET state=?,detail=? WHERE project=? AND destination=? AND id=?',state,detail,project,id,testId),auditCommit(env.DB,'changes()>0')]);
  return {id:testId,state,message:detail};
 }

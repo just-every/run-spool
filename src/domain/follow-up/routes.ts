@@ -33,7 +33,7 @@ routes.get('/',async c=>{
 routes.put('/alternate',async c=>{
  const body=await jsonBody(c.req.raw,1024),project=c.req.param('project')!,env=runtimeBindings(c.env);
  if(body.destination!==null&&(typeof body.destination!=='string'||!['mail','webhook'].includes(body.channel)))throw new Error('Choose a project destination or no alternate.');
- if(body.destination!==null)await findDestination(env,project,body.destination,body.channel);
+ if(body.destination!==null&&(await findDestination(env,project,body.destination,body.channel)).kind==='slack')throw new Error('Slack destinations currently route issue alerts only; choose email or a signed webhook for alternate notices.');
  await ownerWrites(c,[
   s(env.DB,'INSERT INTO follow_up_settings(project,destination,channel,updated) VALUES(?,?,?,?) ON CONFLICT(project) DO UPDATE SET destination=excluded.destination,channel=excluded.channel,revision=revision+1,updated=excluded.updated',project,body.destination,body.destination===null?null:body.channel,Date.now()),
   auditCommit(env.DB),

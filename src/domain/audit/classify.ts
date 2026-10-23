@@ -45,7 +45,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/owner\/erasure\/successor$/,action:'owner.successor',kind:'installation'},
  {pattern:/^\/api\/owner\/erasure(?:\/receipts)?$/,action:'owner.erasure',kind:'installation'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations$/,methods:['POST'],action:'alert.destination.create',kind:'project'},
- {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations\/(?<subject>[^/]+)$/,methods:['PUT'],action:'alert.destination.change',kind:'destination'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations\/(?<subject>[^/]+)$/,methods:['PUT','DELETE'],action:'alert.destination.change',kind:'destination'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations\/(?<subject>[^/]+)\/test$/,action:'alert.destination.test',kind:'destination'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/rules$/,methods:['POST'],action:'alert.rule.create',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/rules\/(?<subject>[^/]+)$/,methods:['PUT'],action:'alert.rule.change',kind:'rule'},

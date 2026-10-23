@@ -384,6 +384,12 @@
       "name": "0063_suspect_decisions.sql",
       "sha256": "2b097c0c16c68961f25b09544e235728e91179d19f47a729953d494f4b3c893e",
       "sql": "-- REL-002: owner judgments on labelled release/commit correlations. No occurrence changes.\nCREATE TABLE suspect_decisions (\n project TEXT NOT NULL,\n issue TEXT NOT NULL,\n release TEXT NOT NULL,\n sha TEXT NOT NULL,\n judgment TEXT NOT NULL CHECK(judgment IN ('confirmed','rejected')),\n note TEXT NOT NULL CHECK(length(note) BETWEEN 1 AND 600),\n revision INTEGER NOT NULL CHECK(revision>=1),\n updated INTEGER NOT NULL,\n operator_id TEXT NOT NULL,\n PRIMARY KEY(project,issue,release,sha)\n);\nCREATE INDEX suspect_decisions_owner ON suspect_decisions(operator_id);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0064_slack_destinations.sql",
+      "sha256": "671b529a20093e75116ccc46442dc498b5963f87c56a78463004de290789696a",
+      "sql": "-- ALERT-002: private reconnect-only Slack configuration, plus safe historical acknowledgment.\nCREATE TABLE slack_destinations (\n id TEXT PRIMARY KEY,\n project TEXT NOT NULL,\n label TEXT NOT NULL CHECK(length(label) BETWEEN 1 AND 100),\n channel_id TEXT NOT NULL CHECK(length(channel_id) BETWEEN 1 AND 100),\n bot_token TEXT NOT NULL CHECK(length(bot_token) BETWEEN 16 AND 512),\n created INTEGER NOT NULL\n);\nCREATE INDEX slack_destinations_project ON slack_destinations(project);\nCREATE TRIGGER slack_destination_capacity BEFORE INSERT ON slack_destinations WHEN (SELECT COUNT(*) FROM slack_destinations WHERE project=NEW.project)>=20 BEGIN SELECT RAISE(ABORT,'slack_destination_budget'); END;\nCREATE TABLE slack_delivery_meta (\n project TEXT NOT NULL,\n delivery_id TEXT NOT NULL PRIMARY KEY,\n message_id TEXT\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

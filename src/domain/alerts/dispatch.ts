@@ -1,3 +1,4 @@
+import { findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
 import { queueDigests } from './digests';
 import { scheduledMail } from './scheduled-mail';
@@ -13,7 +14,7 @@ export async function synchronizeHistory(env:AlertEnvironment,time:number) {
  await env.DB.batch([
   s(env.DB,`UPDATE alert_history SET state=CASE WHEN EXISTS(SELECT 1 FROM alert_suppressed x JOIN alert_intents i ON i.id=x.delivery_id WHERE x.delivery_id=alert_history.id AND x.released_at IS NULL AND i.state='snoozed') THEN 'snoozed' ELSE COALESCE((SELECT CASE WHEN d.state='queued' AND d.attempts>0 THEN 'retrying' WHEN d.state='rejected' AND json_extract((SELECT outcome FROM integration_attempts WHERE namespace=d.namespace AND delivery_id=d.id ORDER BY number DESC LIMIT 1),'$.code')='preflight_failed' THEN 'blocked' ELSE d.state END FROM integration_deliveries d WHERE d.namespace='spool.'||alert_history.project AND d.id=alert_history.id),(SELECT CASE WHEN state='queued' AND attempts>0 THEN 'retrying' ELSE state END FROM alert_mail_jobs WHERE id=alert_history.id),(SELECT state FROM alert_intents WHERE id=alert_history.id),state) END,
    attempts=COALESCE((SELECT attempts FROM integration_deliveries WHERE namespace='spool.'||alert_history.project AND id=alert_history.id),(SELECT attempts FROM alert_mail_jobs WHERE id=alert_history.id),attempts),
-   code=CASE WHEN channel='webhook' AND code LIKE 'http_%_signature_sent' THEN code ELSE COALESCE((SELECT json_extract(outcome,'$.code') FROM integration_resolutions WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY at DESC LIMIT 1),(SELECT json_extract(outcome,'$.code') FROM integration_attempts WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY number DESC LIMIT 1),(SELECT code FROM alert_mail_jobs WHERE id=alert_history.id),(SELECT code FROM alert_intents WHERE id=alert_history.id)) END,updated=? WHERE historical=0 AND code IS NOT 'retention_removed'`,time),
+   code=CASE WHEN channel='webhook' AND (code LIKE 'http_%_signature_sent' OR code LIKE 'slack_%') THEN code ELSE COALESCE((SELECT json_extract(outcome,'$.code') FROM integration_resolutions WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY at DESC LIMIT 1),(SELECT json_extract(outcome,'$.code') FROM integration_attempts WHERE namespace='spool.'||alert_history.project AND delivery_id=alert_history.id ORDER BY number DESC LIMIT 1),(SELECT code FROM alert_mail_jobs WHERE id=alert_history.id),(SELECT code FROM alert_intents WHERE id=alert_history.id)) END,updated=? WHERE historical=0 AND code IS NOT 'retention_removed'`,time),
  ]);
 }
 // Expansion is idempotent: mail jobs and webhook deliveries are keyed by the intent id, and every send first takes a
@@ -24,11 +25,13 @@ async function expandIntent(env:AlertEnvironment,service:ReturnType<typeof webho
   // An intent routed before a scrubber change is delivered with today's scrub.
   const body=alertBody(intent.body)!;
   if(body!==intent.body){await s(env.DB,'UPDATE alert_intents SET body=? WHERE id=? AND body=?',body,intent.id,intent.body).run();intent.body=body;}
+  if(intent.channel==='webhook'&&(await findDestination(env,intent.project,intent.destination,'webhook')).kind==='slack')await s(env.DB,'INSERT INTO slack_delivery_meta(project,delivery_id,message_id) VALUES(?,?,NULL) ON CONFLICT(delivery_id) DO NOTHING',intent.project,intent.id).run();
   if(intent.channel==='webhook')await service.enqueue({id:intent.id,tenant:namespace(intent.project),destinationId:intent.destination,event:intent.event,protocol:'webhook',body:intent.body});
   else await expandMail(env,intent,time);
   await s(env.DB,`UPDATE alert_intents SET expanded=1,state='queued',code=NULL WHERE id=? AND state IN ('pending','blocked')`,intent.id).run();
- } catch {
-  await s(env.DB,`UPDATE alert_intents SET state='blocked',code='configuration_or_authority' WHERE id=? AND expanded=0 AND state IN ('pending','blocked')`,intent.id).run();
+ } catch(error) {
+  const reason=(error as Error).message==='egress_unconfigured'?'egress_unconfigured':'configuration_or_authority';
+  await s(env.DB,`UPDATE alert_intents SET state='blocked',code=? WHERE id=? AND expanded=0 AND state IN ('pending','blocked')`,reason,intent.id).run();
  }
 }
 /** Sends the new-issue and regression alerts one admitted event routed now, instead of at the next scheduled run. */

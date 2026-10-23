@@ -72,5 +72,6 @@ try {
   const html=await page.content();assert.ok(!html.includes('alert-owner@example.com'));assert.ok(!html.includes(app.bindings.ALERT_DESTINATION_HASH_KEY));
   await mkdir('.artifacts/alerts',{recursive:true});await page.screenshot({path:`.artifacts/alerts/journey-${width}.png`,fullPage:true});await context.close();await app.close();app=null;
  }
+ await (await import('./slack-ui.mjs')).slackUI(browser,inbox);
  assert.deepEqual(errors,[]);console.log('ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.');
 }finally{await browser?.close();await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}
