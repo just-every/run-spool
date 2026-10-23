@@ -127,7 +127,39 @@ jobs:
       - run: pnpm exec playwright install chromium
       - if: matrix.runtime == 'electron'
         name: Install Electron virtual display
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb xauth
+        run: |
+          # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
+          # Three 60s attempts plus kill grace/backoff fit within the existing cap.
+          mirrors=(http://azure.archive.ubuntu.com/ubuntu http://mirrors.edge.kernel.org/ubuntu http://us-east-1.ec2.archive.ubuntu.com/ubuntu)
+          sudo mkdir -p /var/tmp/spool-electron-apt/archives
+          cat <<'APT' | sudo tee /var/tmp/spool-electron-apt/apt.conf > /dev/null
+          Dir::Cache::archives "/var/tmp/spool-electron-apt/archives";
+          APT::Keep-Downloaded-Packages "true";
+          APT::Update::Error-Mode "any";
+          Acquire::Retries "2";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          APT
+          started=$SECONDS
+          for attempt in 1 2 3; do
+            mirror=${mirrors[attempt - 1]}
+            sudo sed -i -E "s@^(URIs:[[:space:]]*)https?://(([a-z0-9.-]+\.)?archive\.ubuntu\.com|security\.ubuntu\.com|mirrors\.edge\.kernel\.org)/ubuntu/?@\1${mirror}/@" /etc/apt/sources.list.d/ubuntu.sources
+            printf 'Electron apt: display attempt %s/3 (60s deadline; mirror %s)\n' "$attempt" "$mirror"
+            if sudo env APT_CONFIG=/var/tmp/spool-electron-apt/apt.conf timeout --kill-after=5s 60s bash -ec '
+              dpkg --configure -a
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xvfb xauth
+            '; then
+              printf 'Electron apt: display complete (attempts=%s mirror=%s seconds=%s)\n' "$attempt" "$mirror" "$((SECONDS - started))"
+              exit 0
+            else
+              status=$?
+              printf 'Electron apt: display attempt %s/3 failed (mirror %s, exit %s, seconds=%s)\n' "$attempt" "$mirror" "$status" "$((SECONDS - started))" >&2
+            fi
+            if (( attempt < 3 )); then sleep "$((attempt * 2))"; fi
+          done
+          printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
+          exit 1
       - name: Run ${{ matrix.runtime }} SDK journey
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
