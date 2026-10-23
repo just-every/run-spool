@@ -1,9 +1,5 @@
 import { ownerProjectRouter, ownerWrites, jsonBody } from './owner-router';
 import { auditCommit } from './audit/context';
-export const artifactStorageTables = { artifact_storage_settings: ['project','artifact_storage_cap','revision','updated'] };
-export function validateArtifactStorage(data: any) {
- for(const row of data.artifact_storage_settings) if((row.artifact_storage_cap!==null&&(!Number.isSafeInteger(row.artifact_storage_cap)||row.artifact_storage_cap<0))||!Number.isSafeInteger(row.revision)||row.revision<1||!Number.isSafeInteger(row.updated)||row.updated<0)throw new Error('Archive artifact storage setting');
-}
 export async function artifactStorage(db:D1Database, project:string) {
  const setting=await db.prepare('SELECT artifact_storage_cap,revision FROM artifact_storage_settings WHERE project=?').bind(project).first<{artifact_storage_cap:number|null;revision:number}>();
  const usage=await db.prepare('SELECT COUNT(*) count,COALESCE(SUM(length(CAST(payload AS BLOB))),0) bytes FROM artifacts WHERE project=?').bind(project).first<{count:number;bytes:number}>();

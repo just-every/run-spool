@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fa3be02c2c266b5cef94501d6b0f6433c5dd07a4120c488a4b8b8ed2274c5c83",
+      "sha256": "29c38d5686af7124612d9ad834d9fdb0dbab7c63d2da902cff0c9112bec6ea79",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2637,7 +2637,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "384ccf2fdeb09af7d2353504812e6744834c3ee6e5f77e4068ce3ae74efba78d",
+      "sha256": "c026037a87fa346f6826ae939a8edefe8bcc0265dd092d28b7d684d528a68a3d",
       "executable": false
     },
     "base-copies.json": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8230c43ae8c1fdfde83764d32a454426e64108c98874a8330162079ca7a859e9",
+      "sha256": "eae73d6a6759f9e071b79933fbb99a807613ec40ad02356af00c993c2d4353fd",
       "executable": false
     },
     "DEMO.md": {
@@ -3573,7 +3573,7 @@
       "executable": false
     },
     "docs/SENTRY-CLI.md": {
-      "sha256": "1790de5c3b94be8768081f4f98134c56cd57f2ea0fa9a6be39de2f0648694a0c",
+      "sha256": "6063558dbc27c430288b47c739214116cfeb7a2701da8c2d909a9ef05f9b3af4",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -3590,6 +3590,10 @@
     },
     "docs/site.json": {
       "sha256": "54df54495eb16c6734b7ab1ba251dc4c218c1074bf9e752a095af9044e37940d",
+      "executable": false
+    },
+    "docs/SOURCE-MAPS.md": {
+      "sha256": "b5754cc96b487dad682d0699f4fb5768125b7d887fcbffed0c6b7510560f9fc7",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
@@ -4677,7 +4681,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "b0fb94e762a9f29fc3a5c98afec475a261962d47453971397ef2a8c5947ffcea",
+      "sha256": "a6912a25f35d72f7a1f09df9972be087c9557dd85ad152aaea045e6b9c42ca10",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -5472,8 +5476,12 @@
       "sha256": "71b145e3b00cfc992758025a92e5ff16644d6b8b915e44443587453432da36a7",
       "executable": false
     },
+    "src/domain/source-map-storage-archive.ts": {
+      "sha256": "86e43106da05160d6a2e26342847e7f3eed7bc87feb5914ef08112867743da55",
+      "executable": false
+    },
     "src/domain/source-map-storage.ts": {
-      "sha256": "3d31f8de32a717d04de3998f3b22dd508ec474228f87a128f64ade63c5c94107",
+      "sha256": "48b3e6d9e8f054ba95fe0e0a71e958de543030148cbdacdf116fb0cd1eeea3f9",
       "executable": false
     },
     "src/domain/stacks-go.ts": {
