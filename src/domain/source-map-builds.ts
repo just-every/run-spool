@@ -2,6 +2,7 @@ import {auditCommit} from './audit/context';
 export const sourceMapBuildTables={source_map_builds:['project','release','build','expected','created'],source_map_build_files:['project','release','build','name','debug','digest']};
 export function requiredMapNames(value:unknown):string[]{
  if(!Array.isArray(value)||!value.length||value.length>2000||value.some(n=>typeof n!=='string'||!n||n.length>1024||/[\u0000-\u001f\u007f]/.test(n)))throw new Error('Expected one to 2000 required map names');
+ if(new TextEncoder().encode(JSON.stringify(value)).length>262144)throw new Error('Required map set exceeds the 256 KiB portable declaration limit');
  if(new Set(value).size!==value.length)throw new Error('Duplicate required map name');
  return [...value].sort();
 }

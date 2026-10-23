@@ -4009,7 +4009,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/esbuild.mjs": {
-      "sha256": "20787058c2a7ac86b340440c23a95b7a850b94416b88433a615771457bcefa59",
+      "sha256": "9f6f325df7c16f8be2c9f391e03cf714c8b2551d1dc4199a688b8db53d747504",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/inject.mjs": {
@@ -4029,7 +4029,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/webpack.mjs": {
-      "sha256": "ea5ecf59541e6b9770461a98b9e451dba0ddbf004e21a03dba5720b77b9a5438",
+      "sha256": "b6f73f930b99272c68915b17a732e96b7d97d34cf95f78acb2129f79a52d8863",
       "executable": false
     },
     "packages/sdk/src/tunnel-body.ts": {
@@ -4705,7 +4705,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "9ea4dd278dfec54d14522b5bbaa29213fad1c7c43d9545daa59cdd3b5488ce18",
+      "sha256": "53939eda765a6895f459783cd2fde1cf037459ff1865f6fb3a91ca932132f9f9",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -5421,7 +5421,7 @@
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
-      "sha256": "700367ac06204ed8db42958e97a84642856ed7ceef2d6888794f2f13f25b9c4b",
+      "sha256": "f733650621de30b96c3f93fae4fabf462e842c05b6486d84c3f0eb763167c8c3",
       "executable": false
     },
     "src/domain/sentry/deploy.ts": {
@@ -5489,7 +5489,7 @@
       "executable": false
     },
     "src/domain/source-map-builds.ts": {
-      "sha256": "701dec9180be235417ae572c00a1e770a50032e0057ac837f7161d66189ac910",
+      "sha256": "43b41239855d27830051438f70a43c6e5ec4c741eeb018e567b111f1cd7b6d92",
       "executable": false
     },
     "src/domain/source-map-functions.ts": {
@@ -7969,7 +7969,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "1a38aa57dbc192c0057812c04d18ada6e06b20f7c180c73a9361ba3359df4817",
+      "sha256": "d168b3c743a5b6c9995e247584f426ca5f6958e65fe24400da6633fe0f24295b",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -8717,11 +8717,11 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "d9d7d05fae37f6a6815c54d79594a640be83c390351ccf36e367f975aeced225",
+      "sha256": "5130ac5933ff5e3cf3f6025c5418d92e49853617aa8a8c822325004dab8e3aae",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
-      "sha256": "a20a5183a87b3ac420952d9d5cfebc7ddadbc6aa310ff5d5580383a981c3060b",
+      "sha256": "69e747bef2477debdfb3865568de45177580cbb3914a30f43af75b019c6f657b",
       "executable": false
     },
     "tests/triage-app.mjs": {
