@@ -34,6 +34,12 @@ try {
  rows=await since(async()=>{for(const headers of [{Cookie:''},{Cookie:'',Authorization:'Bearer '+agent.key},{Origin:'https://foreign.example'}])assert.ok([401,403].includes((await req(p+'/releases','POST',{name:'denied',build:'b1'},headers)).status))});
  assert.deepEqual(rows.map(r=>[r.source,r.outcome]),[['request','denied'],['request','denied'],['request','denied']]);
  assert.deepEqual([...new Set(rows.map(r=>r.actor_kind))].sort(),['agent','anonymous','owner']);
+ // Unauthenticated refusals bind no alias for the identifiers they name, and repeating them adds no permanent rows.
+ const stored=async()=>{const db=await app.db();return Object.fromEntries(await Promise.all(['spool_audit_events','audit_actor_links'].map(async table=>[table,(await db.prepare(`SELECT COUNT(*) n FROM ${table}`).first()).n])))};
+ const refuse=async count=>{for(let i=0;i<count;i++)assert.equal((await req('/api/sandbox/runs/'+crypto.randomUUID(),'GET',undefined,{Cookie:''})).status,401)};
+ const unrefused=await stored();await refuse(10);const sampled=await stored();await refuse(120);
+ assert.equal(sampled.audit_actor_links,unrefused.audit_actor_links,'refused unauthenticated requests bind no alias');
+ assert.deepEqual(await stored(),sampled,'repeated unauthenticated refusals add no permanent rows');
  rows=await since(async()=>{assert.ok((await req(p+'/releases','POST',{name:'audit@1.0.0',build:'web'},{Cookie:'',Authorization:'Bearer '+deploy.key})).ok);await json(p+'/releases','POST',{name:'audit@1.0.1',build:'web'})});
  assert.deepEqual(committed(rows,'release.register').map(r=>[r.actor_kind,r.project_label]),[['deploy',projectLabel],['owner',projectLabel]]);
  rows=await since(async()=>{await json(p+'/release-policy','PUT',{revision:0,policy:{version:1,order:'semver',pattern:'*'}});assert.equal((await req(p+'/release-policy','PUT',{revision:0,policy:{version:1,order:'semver',pattern:'*'}})).status,409)});

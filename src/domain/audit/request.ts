@@ -4,10 +4,10 @@ import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { hash } from '../privacy';
 import { mintAdmission } from '../dev-credentials';
 import { mintedByCurrentPerson } from '../credential-fence';
-import { auditActor, auditSubject, projectAuditLabel, serviceActor, unidentifiedActor } from './identity';
+import { auditActor, auditLabel, boundAuditLabel, projectAuditLabel, randomAuditLabel, serviceActor, subjectBinding, unidentifiedActor } from './identity';
 import { currentAuditScope, runAuditScope, type AuditScope } from './context';
 import { classifyRequest } from './classify';
-import { recordAudit, responseOutcome } from './record';
+import { recordAudit, responseOutcome, unverified } from './record';
 import type { AuditActor, AuditFact } from './types';
 
 /** Attribution follows existing auth admission, never supplies authority. */
@@ -49,10 +49,14 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
 export async function wrapRequest(request: Request, env: Bindings, next: () => Promise<Response>): Promise<Response> {
  const door=classifyRequest(request); if(!door)return next();
  const actor=await requestActor(request,env);
- const [subject,projectLabel]=await Promise.all([
-  auditSubject(env.DB,door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project),
+ // A request no session or credential admitted only reads the alias of the object it names;
+ // the binding waits for its handler to admit it, so refused guesses leave no durable mapping.
+ const binding=subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project);
+ const [bound,projectLabel]=await Promise.all([
+  unverified(actor)?boundAuditLabel(env.DB,binding):auditLabel(env.DB,binding),
   door.project?projectAuditLabel(env.DB,door.project):null,
  ]);
+ const subject={kind:door.kind,label:bound??randomAuditLabel()};
  let scope: AuditScope={actor,action:door.action,subject,projectLabel};
  const observe=async(status:number)=>{
   const fact: AuditFact={source:'request',actor:scope.actor,action:door.action,subject,projectLabel,outcome:responseOutcome(status),status};
@@ -65,6 +69,7 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
   throw error;
  }
  scope={...scope,actor:await admittedActor(request,env,scope,response)};
+ if(bound===undefined&&response.status<400)await auditLabel(env.DB,binding,subject.label);
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
  if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400))await observe(response.status);
