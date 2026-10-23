@@ -119,7 +119,7 @@ try {
  for(const needle of needles)assert.ok(!post.text.includes(needle),'fresh archive contains no self identifiers');
  assert.equal((await restore(app,pre.text)).body.error,'erasure_epoch');
  fresh=await runtime();
- assert.equal((await restore(fresh,post.text)).status,200,'redacted rows remain restorable');
+ const restoredPost=await restore(fresh,post.text);assert.equal(restoredPost.status,200,'redacted rows remain restorable: '+JSON.stringify(restoredPost.body));
  assert.equal((await restore(fresh,pre.text)).body.error,'erasure_epoch','fresh destination receiving later journal refuses old captures');
  evidence.native={planned:latest.deleted,redacted:latest.redacted,deleted:receipt.deleted,phase:receipt.phase,independentSessionsPreserved:independent.results.length,independentTokensPreserved:independentTokens.results.length,otherCanaries:Object.fromEntries(['projects','issues','events','artifacts','repairs','feedback','rer_mail_development_outbox'].map(table=>[table,{before:JSON.stringify(before[table]).split(other).length-1,after:JSON.stringify(after[table]).split(other).length-1}]))};
  console.log('Owner erasure native: '+JSON.stringify(evidence.native));
