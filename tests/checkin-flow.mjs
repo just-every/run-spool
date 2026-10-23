@@ -120,11 +120,11 @@ await Sentry.flush(10000);await Sentry.close(10000);
    const context = await browser.newContext({ viewport: { width, height: 1000 } }), owner = await context.newPage();
    try {
     await browserSignIn(owner, origin);
-    const check = async (name, scope) => {
+    const check = async (name, scope, shot) => {
      assert.equal(await owner.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `${name} at ${width}: no horizontal overflow`);
      assert.deepEqual((await (scope ? new AxeBuilder({ page: owner }).include(scope) : new AxeBuilder({ page: owner })).analyze()).violations.filter(v => ['serious', 'critical'].includes(v.impact)), [], `${name} at ${width}: no serious Axe finding`);
      assert.deepEqual(await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label'))), [], 'no icon-only control on the touched screen');
-     await owner.screenshot({ path: `.artifacts/sdk024/${name}-${width}.png`, fullPage: true });
+     await shot.screenshot({ path: `.artifacts/sdk024/${name}-${width}.png` });
     };
     await owner.goto(`${origin}/projects/${id}/settings`);
     const panel = owner.getByRole('region', { name: 'Cron check-ins', exact: true });
@@ -134,13 +134,13 @@ await Sentry.flush(10000);await Sentry.close(10000);
     await panel.getByRole('button', { name: 'Connect monitor', exact: true }).click();
     await panel.getByRole('status').filter({ hasText: `Connected ${ui}.` }).waitFor();
     assert.ok(!(await owner.content()).includes('syntheticspooltoken000'), 'the capability URL is not rendered after save');
-    await check('check-in-settings');
+    await check('check-in-settings', undefined, panel);
     await panel.getByRole('button', { name: `Remove ${ui}`, exact: true }).click(); await panel.getByRole('status').filter({ hasText: `Removed ${ui}.` }).waitFor();
     await owner.goto(`${origin}/projects/${id}/capture`); await owner.getByText('Cron check-in forwarded to Uptime', { exact: false }).waitFor(); await owner.getByText('Cron check-in unrouted', { exact: false }).first().waitFor();
-    await check('check-in-receipts');
+    await check('check-in-receipts', undefined, owner.locator('dl').filter({ hasText: 'Cron check-in' }).first());
     await owner.goto(`${origin}/projects/${id}/issues/${issue.id}`); await owner.getByRole('heading', { name: 'Cron check-ins on this trace', exact: true }).waitFor(); await owner.getByText(connected).first().waitFor();
     // The issue view's existing SDK-context blocks are not part of this change; the new section is what is checked here.
-    await check('check-in-occurrence', '[aria-label="Cron check-ins on this trace"]');
+    await check('check-in-occurrence', '[aria-label="Cron check-ins on this trace"]', owner.getByRole('region', { name: 'Cron check-ins on this trace' }));
    } finally { await context.close(); }
   }
 
