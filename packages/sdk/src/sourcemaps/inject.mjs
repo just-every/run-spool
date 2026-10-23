@@ -1,9 +1,11 @@
+import { AnyMap, encodedMap } from '@jridgewell/trace-mapping';
 import { createHash } from 'node:crypto';
 import { bundlePosition, insertRegistration } from './position.mjs';
 const debugPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** Standard Sentry debug registration, consumed by the unmodified SDK. */
 export function injectDebugId(code, inputMap) {
-  const map = typeof inputMap === 'string' ? JSON.parse(inputMap) : structuredClone(inputMap);
+  let map = typeof inputMap === 'string' ? JSON.parse(inputMap) : structuredClone(inputMap);
+  if(map?.version===3&&Array.isArray(map.sections)){const debug=map.debug_id??map.debugId;map={...encodedMap(new AnyMap(map)),...(debug?{debug_id:debug}:{})};}
   if (!map || map.version !== 3 || !Array.isArray(map.sources) || !Array.isArray(map.names) || typeof map.mappings !== 'string' || map.sections) throw new Error('Flat Source Map V3 required');
   const declared = map.debug_id ?? map.debugId;
   if (declared !== undefined && (typeof declared !== 'string' || !debugPattern.test(declared))) throw new Error('Invalid source map debug ID');

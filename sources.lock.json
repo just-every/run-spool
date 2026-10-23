@@ -3997,7 +3997,7 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/inject.mjs": {
-      "sha256": "269ae8ab84da1649630a9eae3a01ede00504ba3fa5d2bd4dcab7e9007eabfa72",
+      "sha256": "4f980a4caf2a6cfe238b2952cc3688fca76042bc4a55ae6cbf770b84f50ce476",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/plugin.mjs": {
@@ -4681,7 +4681,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "3ae2ea835260320cb5c926af3db68da20d318a3fe2ffbf105f36ffa4b417c5e3",
+      "sha256": "20130f80fe69278bf3ca686104a97a1a91b85421e99e4091733b038f084a0660",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -5285,7 +5285,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/assemble.ts": {
-      "sha256": "16fdd300f431ff765f882290bba76b0f2d34651caf12441d6569000734c5faf7",
+      "sha256": "e84a166bd33501798b73a8cabd99242fda958b02fad63de29b5f3531d16d9a6c",
       "executable": false
     },
     "src/domain/sentry-cli/auth.ts": {
@@ -5317,7 +5317,7 @@
       "executable": false
     },
     "src/domain/sentry-cli/limits.ts": {
-      "sha256": "023fc57bcf718138bdb900ae70c95ef2e6e43b38da331caef69d1db294d24197",
+      "sha256": "8f4aadfe99375aac8aa7acdbdcbcef9b565b6f917e8a05a32a54eef48e1c01e7",
       "executable": false
     },
     "src/domain/sentry-cli/maps.ts": {
@@ -5425,7 +5425,7 @@
       "executable": false
     },
     "src/domain/sentry/map-metadata.ts": {
-      "sha256": "f26fd0f623178a78cb6abef3a4089b04792410746798ddbeb2abcaf9189d90c5",
+      "sha256": "dcde5effc639566fcaecd3b9b6f47a795cd04d1b6191c168516b850abe9e4806",
       "executable": false
     },
     "src/domain/sentry/query.ts": {
@@ -8605,7 +8605,7 @@
       "executable": false
     },
     "tests/sdk-package.mjs": {
-      "sha256": "ebc353f1ba8e312964f79eb2c7954b82bed40eebecf894a406cf8200d60363a5",
+      "sha256": "2b1e810234f28d0d72edfc72fd4d66807310377b473c8b1dc077e0b2612e02a8",
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
@@ -8645,7 +8645,7 @@
       "executable": false
     },
     "tests/sentry-cli/map-flow.mjs": {
-      "sha256": "02fe7c783f88a8ebbf8ec09a2005821b497154004cc5cb24121f9a4c384147bf",
+      "sha256": "69d6b689123269e95a16ce7a0c5c73414a0433f83df359ede8e9afc83759e91c",
       "executable": false
     },
     "tests/sentry-cli/plugin-flow.mjs": {
@@ -8682,6 +8682,10 @@
     },
     "tests/source-import.mjs": {
       "sha256": "ac729052c9774405dcfdec854c43c41d1c5877f0d6bbbe0b86a8c953c5ed5504",
+      "executable": false
+    },
+    "tests/source-map-capacity.mjs": {
+      "sha256": "d9d7d05fae37f6a6815c54d79594a640be83c390351ccf36e367f975aeced225",
       "executable": false
     },
     "tests/triage-app.mjs": {

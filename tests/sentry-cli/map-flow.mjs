@@ -71,7 +71,7 @@ export async function mapFlow({origin, api, keys, dsn, temporary}) {
 
  // A failed file is named in the client's own output and fails the build; the files that fit are still stored.
  const mixed = resolve(temporary, 'mixed'), mixedRelease = 'mixed@1.0.0';
- await writeScript(mixed, 'small', flatMap('small', 2000)); await writeScript(mixed, 'large', flatMap('large', 300000));
+ await writeScript(mixed, 'small', flatMap('small', 2000)); await writeScript(mixed, 'large', flatMap('large', 1100000));
  assert.equal((await cli(['sourcemaps', 'inject', mixed])).code, 0);
  const refused = await cli(['sourcemaps', 'upload', '--release', mixedRelease, '--dist', 'd1', mixed]);
  assert.notEqual(refused.code, 0, 'a refused map fails the client command');
