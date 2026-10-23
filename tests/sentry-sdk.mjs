@@ -1,7 +1,8 @@
 import { loaderPage } from './loader-page.mjs';
 import { loaderFlow } from './loader-flow.mjs';
+import { reportDialogFlow } from './report-dialog-flow.mjs';
 import { checkInFlow } from './checkin-flow.mjs';
-// [SDK-001] [SDK-023] [SDK-024] Browser and Node qualification through the public intake, API and UI.
+// [SDK-001] [SDK-004] [SDK-023] [SDK-024] Browser and Node qualification through the public intake, API and UI.
 import { qualifyBrowser } from './runtimes/browser.mjs';
 import { sdkInboundFilterFlow } from './inbound-filter-flow.mjs';
 import assert from 'node:assert/strict';
@@ -94,6 +95,7 @@ try{
   assert.ok(captures.some(c=>c.gzip&&c.envelope.items.some(i=>i.header.type==='event')),'real Node SDK uses gzip for its large enriched event');
   const issues=await request('/api/projects/sdk/issues');let nodeEvent;for(const issue of issues){const packet=await request(`/api/projects/sdk/issues/${issue.id}/packet`);nodeEvent??=packet.events.find(event=>event.event.release==='node@1.0.0')}
   assert.ok((await request('/api/projects/sdk/feedback')).items.some(row=>row.message==='Node checkout feedback'&&row.issueId),'real Node SDK feedback attaches to its occurrence');assert.ok(nodeEvent,'real Node capture+close reaches native evidence');assert.ok(nodeEvent.event.sentry.contexts.sized.value.startsWith('x'));assert.ok(nodeEvent.event.sentry.contexts.sized.value.includes('[truncated]'));assert.ok(nodeEvent.event.sentry.truncation.some(row=>row.path==='contexts.sized.value'&&row.reason==='value_bytes'));
+  await reportDialogFlow({browser,origin,cookie,request,applicationOrigin,dsns});
   await checkInFlow({browser});
   console.log(JSON.stringify({passed:true,browser:require('@sentry/browser/package.json').version,node:require('@sentry/node/package.json').version,proof:'Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush.'}));
 }finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY;await browser?.close();await close(application);await close(collector);await worker?.stop();await rm(temporary,{recursive:true,force:true})}

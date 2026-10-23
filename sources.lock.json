@@ -2925,7 +2925,7 @@
       "executable": false
     },
     "docs/FEEDBACK.md": {
-      "sha256": "670e5a7c699f89bfd0d9a4f3418adaa82b312a7a159748ed13c051238dfff524",
+      "sha256": "c743567052fcb322de7ea742503a37242f1e5e07a7c79a585eacd488963a87f7",
       "executable": false
     },
     "docs/GROUPING-RULES.md": {
@@ -5288,6 +5288,18 @@
       "sha256": "3b2f04652408d59359617be9c77fe8bf2b496865783ed5cf5aeee02b9bc0cbf9",
       "executable": false
     },
+    "src/domain/report-dialog/client.ts": {
+      "sha256": "c16c3b3a92c547e1a50e7e9159f9bcd259c18a877aca3fd3fe9f2c0110b40a42",
+      "executable": false
+    },
+    "src/domain/report-dialog/public.server.ts": {
+      "sha256": "9556106ab862bbfb711730ba42d224cd72b21493e5817aff3b80df24546c8ed3",
+      "executable": false
+    },
+    "src/domain/report-dialog/style.ts": {
+      "sha256": "e1c3f101b702bf8d7abb4a0125e8b5cdfe591e5da5371e44d6463118b97dbbd0",
+      "executable": false
+    },
     "src/domain/repository-links.ts": {
       "sha256": "6bba9239f3bbf75158f35bb986e7bd6934b3665db27ca63c77ce4ea2795d5c61",
       "executable": false
@@ -7609,7 +7621,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "7a58d1ecfaaaf860d209980b807aea0a4d1af6e597c0b34794f80f165abd820c",
+      "sha256": "fc197144956fd41742c2ed517833b0b87dc814b5aba06c0ec08422c9d4f600bc",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -8500,6 +8512,10 @@
       "sha256": "494e6ec94121edaa3a3450978b03366e52a05bc189836dfeece033f442827be3",
       "executable": false
     },
+    "tests/report-dialog-flow.mjs": {
+      "sha256": "dbc1b73a762b687e0c0cdecb0316b0458fde62aedc10eddd979f9c3b33ee673b",
+      "executable": false
+    },
     "tests/repository-source-flow.mjs": {
       "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34",
       "executable": false
@@ -8517,7 +8533,7 @@
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "a41d84242609752abf98bf27e606fb716812b4e7c64575d4cd7ed3cc64236e3d",
+      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
@@ -8749,7 +8765,7 @@
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
-      "sha256": "be5bf4c15d85376ce942338352094eda3d390f09f58d78f01957d922c2105e41",
+      "sha256": "7a5ca71a575ea27112168dbecaf2e244d92db33b0238c37a1d7096558cb147cc",
       "executable": false
     },
     "tests/setup-flow.mjs": {
