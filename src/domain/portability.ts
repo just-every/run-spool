@@ -151,6 +151,8 @@ for(const later of laterTables)later.migrations.push('0069_checkin_routes.sql');
 laterTables.unshift({tables:[],migrations:['0069_checkin_routes.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(suspectTables));later.migrations.push('0070_suspect_decisions.sql')}
 laterTables.unshift({tables:Object.keys(suspectTables),migrations:['0070_suspect_decisions.sql']});
+for(const later of laterTables){later.tables.push('slack_delivery_meta');later.migrations.push('0071_slack_destinations.sql')}
+laterTables.unshift({tables:['slack_delivery_meta'],migrations:['0071_slack_destinations.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

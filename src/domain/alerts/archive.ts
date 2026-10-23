@@ -1,10 +1,11 @@
+import { slackHistoryTables, validateSlackHistory } from './slack-archive';
 import {deliveryArchiveTables,deliveryExportRow,validateDeliveryArchive} from './delivery-archive';
 import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
-export const alertArchiveTables=['alert_rules','alert_history',...deliveryArchiveTables];
-export const alertExcludedTables=['alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertArchiveTables=['alert_rules','alert_history',...deliveryArchiveTables,...slackHistoryTables];
+export const alertExcludedTables=['slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};
@@ -17,7 +18,9 @@ function integer(value:any,min=0){assert(Number.isSafeInteger(value)&&value>=min
 function label(value:any){assert(typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,200}$/.test(value));}
 function safe(value:any,max=1000){assert(typeof value==='string'&&value.length<=max&&scrub(value)===value);}
 export function validateAlertArchive(data:any) {
+ data.slack_delivery_meta??=[];
  validateDeliveryArchive(data);
+ validateSlackHistory(data);
  const projects=new Set(data.projects.map((r:any)=>r.id)),issues=new Map<string,any>(data.issues.map((r:any)=>[r.id,r])),rules=new Map<string,any>(),alerts=new Map<string,any>();
  assert(Array.isArray(data.alert_rules)&&Array.isArray(data.alert_history));
  for(const r of data.alert_rules){

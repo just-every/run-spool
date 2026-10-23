@@ -1,3 +1,4 @@
+import { revokeSlack } from './slack-destinations.server';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
@@ -29,6 +30,7 @@ controlsRoutes(routes,input);
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});
+routes.delete('/destinations/:destination',async c=>c.json(await revokeSlack(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination')!)));
 routes.post('/destinations/:destination/test',async c=>c.json(await testDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'))));
 routes.post('/destinations/:destination/review',async c=>c.json(await reviewTest(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),(await input(c)).testId)));
 routes.get('/rules',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_rules WHERE project=? ORDER BY created,id',c.req.param('project')!).all()).results));
@@ -64,12 +66,12 @@ routes.put('/rules/:rule',async c=>{
  if(!results[0].results.length)return c.json({error:'Revision conflict'},409);
  await synchronizeHistory(c.env,time);return c.json({id,revision:b.revision+1});
 });
-routes.get('/deliveries',async c=>c.json((await s(c.env.DB,`SELECT h.*,(SELECT state FROM alert_provider_events e WHERE e.project=h.project AND e.delivery_id=h.id AND e.state IS NOT NULL ORDER BY CASE WHEN state IN ('delivered','bounced','complained','dropped') THEN 1 ELSE 0 END DESC,occurred_at DESC,CASE state WHEN 'complained' THEN 4 WHEN 'bounced' THEN 3 WHEN 'dropped' THEN 2 ELSE 1 END DESC,event_id DESC LIMIT 1) recipient_state,(SELECT provenance FROM alert_provider_events e WHERE e.project=h.project AND e.delivery_id=h.id AND e.state IS NOT NULL ORDER BY CASE WHEN state IN ('delivered','bounced','complained','dropped') THEN 1 ELSE 0 END DESC,occurred_at DESC,CASE state WHEN 'complained' THEN 4 WHEN 'bounced' THEN 3 WHEN 'dropped' THEN 2 ELSE 1 END DESC,event_id DESC LIMIT 1) provenance,a.issue,a.kind,json_extract(a.payload,\'$.title\') title FROM alert_history h LEFT JOIN alerts a ON a.id=h.alert_id AND a.project=h.project WHERE h.project=? ORDER BY h.created DESC,h.id LIMIT 100`,c.req.param('project')!).all()).results));
+routes.get('/deliveries',async c=>c.json((await s(c.env.DB,`SELECT h.*,(SELECT message_id FROM slack_delivery_meta sm WHERE sm.project=h.project AND sm.delivery_id=h.id) message_id,EXISTS(SELECT 1 FROM slack_delivery_meta sm WHERE sm.project=h.project AND sm.delivery_id=h.id) slack,(SELECT state FROM alert_provider_events e WHERE e.project=h.project AND e.delivery_id=h.id AND e.state IS NOT NULL ORDER BY CASE WHEN state IN ('delivered','bounced','complained','dropped') THEN 1 ELSE 0 END DESC,occurred_at DESC,CASE state WHEN 'complained' THEN 4 WHEN 'bounced' THEN 3 WHEN 'dropped' THEN 2 ELSE 1 END DESC,event_id DESC LIMIT 1) recipient_state,(SELECT provenance FROM alert_provider_events e WHERE e.project=h.project AND e.delivery_id=h.id AND e.state IS NOT NULL ORDER BY CASE WHEN state IN ('delivered','bounced','complained','dropped') THEN 1 ELSE 0 END DESC,occurred_at DESC,CASE state WHEN 'complained' THEN 4 WHEN 'bounced' THEN 3 WHEN 'dropped' THEN 2 ELSE 1 END DESC,event_id DESC LIMIT 1) provenance,a.issue,a.kind,json_extract(a.payload,\'$.title\') title FROM alert_history h LEFT JOIN alerts a ON a.id=h.alert_id AND a.project=h.project WHERE h.project=? ORDER BY h.created DESC,h.id LIMIT 100`,c.req.param('project')!).all()).results));
 routes.get('/deliveries/:delivery',async c=>{
  const p=c.req.param('project')!,id=c.req.param('delivery');
  const row=await s(c.env.DB,'SELECT * FROM alert_history WHERE project=? AND id=?',p,id).first<any>();if(!row)return c.json({error:'Delivery not found'},404);
  const attempts=row.historical?[]:row.channel==='webhook'?await new IntegrationsRepository(new D1SqlDatabase(c.env.DB),namespace(p)).log(id):(await s(c.env.DB,`SELECT a.number,a.started,a.finished,a.state,a.code FROM alert_mail_attempts a JOIN alert_mail_jobs j ON j.id=a.delivery_id WHERE j.project=? AND j.id=? ORDER BY a.number`,p,id).all()).results;
- const events=(await s(c.env.DB,'SELECT * FROM alert_provider_events WHERE project=? AND delivery_id=? ORDER BY occurred_at,event_id',p,id).all()).results;return c.json({delivery:row,attempts,events});
+ const events=(await s(c.env.DB,'SELECT * FROM alert_provider_events WHERE project=? AND delivery_id=? ORDER BY occurred_at,event_id',p,id).all()).results;const slack=await s(c.env.DB,'SELECT message_id FROM slack_delivery_meta WHERE project=? AND delivery_id=?',p,id).first();return c.json({delivery:row,attempts,events,...slack?{slack}:{}});
 });
 routes.post('/deliveries/:delivery/resolve',async c=>{
  const p=c.req.param('project')!,id=c.req.param('delivery'),b=await input(c);

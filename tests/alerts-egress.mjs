@@ -76,3 +76,7 @@ try{
  assert.equal(receiver.requests.length,sent,'no replay to the receiver');assert.equal(outcomes.length,tried,'no further egress call');
  console.log(`Alert egress delivery passed: signed delivery through the egress service transport, private-address refusal without connection, redirect not followed (${egress.connects.length} pinned connections).`);
 }finally{await app?.close();await receiver.close();await mail.close();await certs.cleanup();await rm(directory,{recursive:true,force:true});}
+
+// [ALERT-002] Native Slack shares the same durable delivery and egress door.
+const slackDir=await mkdtemp(resolve(tmpdir(),'spool-slack-edge-')),slackMail=await mailbox(join(slackDir,'mail.sqlite'));
+try{await (await import('./slack-flow.mjs')).slackFlow(slackMail)}finally{await slackMail.close();await rm(slackDir,{recursive:true,force:true})}

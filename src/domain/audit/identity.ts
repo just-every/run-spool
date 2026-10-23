@@ -35,7 +35,7 @@ export async function auditActor(db: D1Database, binding: Binding & { kind: Excl
  return {kind:binding.kind,label:await auditLabel(db,{...binding,owner:binding.kind==='owner'?binding.authority:binding.owner})};
 }
 export function unidentifiedActor(kind: 'anonymous' | 'unknown' = 'anonymous'): AuditActor { return {kind,label:randomAuditLabel()}; }
-export const serviceNames = ['alerts','mail','webhook','erasure','reproducer','fix-provider','portability-cli','business-import','legacy-import','deployment-deadline'] as const;
+export const serviceNames = ['alerts','mail','webhook','slack','erasure','reproducer','fix-provider','portability-cli','business-import','legacy-import','deployment-deadline'] as const;
 export const serviceActor = (db: D1Database, service: typeof serviceNames[number]) => auditActor(db,{kind:'service',authority:service});
 /** An alias an earlier admitted request bound; reading it creates nothing. */
 export async function boundAuditLabel(db: D1Database, binding: Binding): Promise<string | undefined> {

@@ -1,3 +1,5 @@
+import { sendSlack, slackEndpoint } from './slack.server';
+import type { WireResponse, Outcome } from '../../modules/integrations/core/types';
 import { demoEffect } from '../../modules/demo/index.mjs';
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import { IntegrationsRepository } from '../../modules/integrations/core/repository';
@@ -12,7 +14,7 @@ import type { AlertEnvironment, Intent } from './types';
 
 export function webhookService(env:AlertEnvironment,project:string,now:()=>number) {
  const repository=new IntegrationsRepository(new D1SqlDatabase(env.DB),namespace(project));
- const claims=new WeakMap<WireRequest,string>();
+ const claims=new WeakMap<WireRequest,string>(),slackReplies=new WeakMap<WireResponse,Outcome>();
  const protocol=createWebhookProtocol({
   async resolveDestination(id){if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');return (await findDestination(env,project,id,'webhook')).url!},
   async signingKey(envelope){
@@ -26,15 +28,22 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
    // Bind this exact request to the attempt that prepared it. This stays local;
    // neither the signed interface nor Base's copied transport is changed.
    const attempt=await repository.get(envelope.id);
-   const wire=await protocol.prepare(envelope,time);
+   const destination=await findDestination(env,project,envelope.destinationId,'webhook');
+   let wire:WireRequest;
+   if(destination.kind==='slack'){
+    if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');
+    const intent=await s(env.DB,"SELECT * FROM alert_intents WHERE project=? AND id=? AND destination=? AND channel='webhook'",project,envelope.id,envelope.destinationId).first<Intent>();
+    if(!intent||intent.body!==envelope.body||intent.event!==envelope.event||envelope.tenant!==namespace(project))throw new Error('delivery_authority');await authorizedDestination(env,intent);
+    wire={url:slackEndpoint,headers:{'content-type':'application/json','webhook-id':envelope.id},body:envelope.body};
+   }else wire=await protocol.prepare(envelope,time);
    if(attempt?.state==='sending'&&attempt.claim)claims.set(wire,attempt.claim);
    return wire;
-  }}],
+  },classify(response,time){return slackReplies.get(response)??protocol.classify(response,time)}}],
   transport:{async send(request){
    if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');
    const claim=claims.get(request);if(!claim)throw new Error('delivery_authority');
    const intent=await s(env.DB,'SELECT * FROM alert_intents WHERE project=? AND id=?',project,request.headers['webhook-id']).first<Intent>();
-   if(!intent)throw new Error('delivery_authority');await authorizedDestination(env,intent);
+   if(!intent)throw new Error('delivery_authority');const destination=await authorizedDestination(env,intent);
    // Consumer authorization can yield after Base's last claim check. Fence again
    // after those awaits, and check the clock after the final database round trip.
    const authority=await s(env.DB,`SELECT d.claim_until FROM integration_deliveries d
@@ -43,11 +52,13 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
     WHERE d.namespace=? AND d.id=? AND d.state='sending' AND d.claim=? AND d.claim_until>?`,namespace(project),intent.id,claim,now()).first<{claim_until:number}>();
    if(!authority||authority.claim_until<=now())throw new Error('delivery_authority');
    // The attempt is an effect outside this database: `started` before it, one outcome after.
-   const fact={source:'service' as const,actor:await serviceActor(env.DB,'webhook'),action:'notification.attempt' as const,subject:await auditSubject(env.DB,'delivery',intent.id)};
+   const fact={source:'service' as const,actor:await serviceActor(env.DB,destination.kind==='slack'?'slack':'webhook'),action:'notification.attempt' as const,subject:await auditSubject(env.DB,'delivery',intent.id)};
    await recordAudit(env.DB,{...fact,outcome:'started'});
    let response;
-   try{response=await demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));}
-   catch(error){await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error}
+   try{
+    if(destination.kind==='slack'){const result=await sendSlack(env,destination,JSON.parse(intent.body),now);response=result.response;slackReplies.set(response,result.outcome);await s(env.DB,'UPDATE alert_history SET code=? WHERE project=? AND id=?',result.outcome.code,project,intent.id).run();if(result.messageId)await s(env.DB,'UPDATE slack_delivery_meta SET message_id=? WHERE project=? AND delivery_id=?',result.messageId,project,intent.id).run();await recordAudit(env.DB,{...fact,outcome:result.outcome.kind==='accepted'?'accepted':result.outcome.kind==='uncertain'?'uncertain':'failed'});return response;}
+    response=await demoEffect(() => env.INTEGRATION_EGRESS!.send(request), () => ({ status: 204, headers: {}, body: '' }));
+   }catch(error){if(destination.kind==='slack')await s(env.DB,'UPDATE alert_history SET code=? WHERE project=? AND id=?',(error as Error).message==='slack_timeout'?'slack_timeout':'slack_transport_failed',project,intent.id).run();await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error}
    await s(env.DB,`UPDATE alert_history SET code=? WHERE id=? AND project=?`,'http_'+response.status+'_signature_sent',intent.id,project).run();
    await recordAudit(env.DB,{...fact,outcome:response.status>=200&&response.status<300?'accepted':'failed'});
    return response;
