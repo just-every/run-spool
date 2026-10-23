@@ -40,7 +40,7 @@ export function validateMap(map:any): string {
  }
  function checkCoordinates(traced:ReturnType<typeof AnyMap>){
   const decoded=decodedMappings(traced);
-  if(decoded.length>20000)throw new Error('Map parser budget');
+  if(decoded.length>20000||decoded.reduce((total,line)=>total+line.length,0)>50000)throw new Error('Map parser budget');
   for(const line of decoded)for(const segment of line)if(![1,4,5].includes(segment.length)||segment.some(n=>!bounded(n))||(segment.length>=4&&(segment[1]!>=traced.sources.length||segment[2]!>=10000000))||(segment.length===5&&segment[4]!>=traced.names.length))throw new Error('Invalid decoded mapping');
  }
  check(map);checkCoordinates(new AnyMap(map));return text;
@@ -72,11 +72,13 @@ export function createDiagnoser(db:D1Database, project:string) {
   };
   return async (event:Envelope): Promise<any[]> => {
     if (event.language) return sourceDiagnostics(db,project,event);
-    return Promise.all(event.frames.map(async frame=>{
+    const results=[];
+    for(const frame of event.frames){results.push(await (async()=>{
       // Without a debug ID, a release/dist artifact named by the frame's file URL (`~/static/app.js`) identifies the map.
       const debugId = frame.debugId ?? await byName(event,frame.file);
       if(!debugId) return {generated:frame,status:'missing_debug_id'};
       const key = JSON.stringify([event.release,event.build,debugId]);
+      if (!artifacts.has(key) && artifacts.size>=8) artifacts.delete(artifacts.keys().next().value!);
       if (!artifacts.has(key)) artifacts.set(key,db.prepare('SELECT payload,digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?').bind(project,event.release,event.build,debugId).first<any>());
       const row = await artifacts.get(key);
       if(!row) {
@@ -93,11 +95,13 @@ export function createDiagnoser(db:D1Database, project:string) {
         let name: string | null = null;
         if (typeof source === 'string') {
           const key = `${row.digest}:${sourceIndex}`;
+          if (!scopes.has(key) && scopes.size>=8) scopes.delete(scopes.keys().next().value!);
           if (!scopes.has(key)) scopes.set(key,functionScopes(source,sourceMapFile(original.source??'')));
           name = scopes.get(key)!(original.line,original.column!);
         }
         return {generated:frame,status:'mapped',original:{file:sourceMapFile(original.source??''),line:original.line,column:original.column,function:scrub(name??frame.function)},artifactDigest:row.digest};
       } catch { return {generated:frame,status:'invalid_artifact',artifactDigest:row.digest} }
-    }));
+    })());}
+    return results;
   };
 }

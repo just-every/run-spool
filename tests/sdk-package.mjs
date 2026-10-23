@@ -1,4 +1,4 @@
-// The published SDK, as a user gets it: the packed tarball installed into a fresh app, sending through Spool's public ingest door.
+// [SRC-001][SRC-004] The published SDK, as a user gets it: the packed tarball installed into a fresh app, sending through Spool's public ingest door.
 import {sourceMapPlugins} from './source-map-plugins.mjs';
 import {sourceMapCapacity} from './source-map-capacity.mjs';
 import assert from 'node:assert/strict';
