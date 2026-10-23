@@ -1,0 +1,13 @@
+# Suspect changes and engineer judgments
+
+An issue's **Suspect changes** section lists the release of its first retained occurrence and the releases in its latest 20 retained reactivation alerts, together with commits recorded for each release. Each candidate names its occurrence or reactivation record, the inclusion receipt and any recorded deployment window. These are labelled correlations, never demonstrated causes or inferred repository ancestry. A release with no recorded commits has a release-only candidate. Retention and imported history can limit the available basis.
+
+Spool's current commit receipts contain no changed-file lists. Changed-source matching says it is unavailable; no frame path or repository relationship is guessed. At most 100 candidates are shown, with the available count and reactivation bound stated.
+
+The owner can **Confirm suspect** or **Reject suspect**, with an evidence note of 1–600 characters. Notes are scrubbed. The current revision fences conflicting decisions. Each successful judgment has one audited entry and changes no occurrence, count, grouping, alert or issue status. The latest judgment is shown as an engineer judgment, not as proof of cause. Default ADOPTED: candidates and judgments remain data only; nothing is sent to an agent automatically. The current packet has no judgment projection: explicit agent provenance and later learning remain gaps.
+
+The same section compares occurrence and distinct-issue counts per release over one receipt window (default 24 hours; bounded to 90 days). Older-release failures stay alongside the new release. Release-less occurrences are excluded and counted. Without observed session denominators, it states **Sessions unavailable (SDK-005): rates cannot be compared.** Adoption cohorts, comparable rates, rate-change attribution, matching beyond recorded frame paths and agent learning (AI-006) remain unqualified.
+
+Owner-only HTTP: `GET /api/projects/:project/suspects/issues/:issue` accepts millisecond `from` and exclusive `to`; `PUT` on the same path accepts `release`, `sha` (null for a release-only candidate), `judgment` (`confirmed` or `rejected`), `note`, and the current `revision` (0 for the first judgment). Same-origin owner writes are required; project grants cannot judge. Invalid notes/window fields return 400, stale or unavailable candidates 409, and an absent issue 404.
+
+Migration `0063_suspect_decisions.sql` is additive. Private archives carry inert judgments; project erasure removes them and installation-owner erasure removes authored judgments. The published-schema upgrade and historical archive generators retain their previous inventories and rows.

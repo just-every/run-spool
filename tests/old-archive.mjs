@@ -9,7 +9,7 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const citationTables = ['loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables = ['suspect_decisions','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
@@ -67,6 +67,7 @@ try {
   assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
+ assert.deepEqual(await rows(upgrade, 'SELECT * FROM suspect_decisions'), [], 'populated upgrade invents no suspect judgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM checkin_routes'), [], 'existing projects start with cron check-in forwarding off');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM loader_settings'), [], 'existing capture keys start with lazy, optional-capture-off defaults');

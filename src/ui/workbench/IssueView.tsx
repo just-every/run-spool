@@ -1,3 +1,4 @@
+import {SuspectChanges} from './SuspectChanges';
 import {ResolutionPicker} from './ResolutionPicker';
 import { RepositorySource } from './RepositorySource';
 import { CommitTimeline } from './CommitTimeline';
@@ -64,6 +65,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
+    <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={packet}/>
     <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>
     {rail}
     <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{event?.event.release ?? 'Unavailable'}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>

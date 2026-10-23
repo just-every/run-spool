@@ -1,3 +1,4 @@
+import { suspectTables } from './suspects/archive';
 import { loaderTables } from './loader/archive';
 import { proposalTables, proposalExportRow } from './proposals/archive';
 import {followUpExcludedTables} from './follow-up/types';
@@ -144,6 +145,8 @@ laterTables.unshift({tables:Object.keys(loaderTables),migrations:['0061_loader_s
 // 0062 adds only check-in connections and links; both are excluded, so an archive never carries a heartbeat capability URL.
 for(const later of laterTables)later.migrations.push('0062_checkin_routes.sql');
 laterTables.unshift({tables:[],migrations:['0062_checkin_routes.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(suspectTables));later.migrations.push('0063_suspect_decisions.sql')}
+laterTables.unshift({tables:Object.keys(suspectTables),migrations:['0063_suspect_decisions.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
