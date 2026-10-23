@@ -3933,7 +3933,7 @@
       "executable": false
     },
     "packages/sdk/build.mjs": {
-      "sha256": "dfba490a2ac34f89ce088d02729c7c3234c6b7a8f2a24f02848423a2e4307362",
+      "sha256": "ad315f14997b1e6c4ec425c9d5d1c563e962f8c5c6b3596b74aa88f37e387f4d",
       "executable": false
     },
     "packages/sdk/CHANGELOG.md": {
@@ -3941,7 +3941,7 @@
       "executable": false
     },
     "packages/sdk/package.json": {
-      "sha256": "7a7fbe8d2bb4d15dc26138275928c71c61641816623d7269a12f17dd2e84f389",
+      "sha256": "1e654ecb6ae8ab4fe950894ffdad846bca5517c439dbbc6d414a1d45fbf7e4b8",
       "executable": false
     },
     "packages/sdk/README.md": {
@@ -3954,6 +3954,10 @@
     },
     "packages/sdk/src/core.ts": {
       "sha256": "03e549599c6e912418a346c2eaeb43dfd33a8464eeba0c5f8b097d380945161f",
+      "executable": false
+    },
+    "packages/sdk/src/esbuild.d.ts": {
+      "sha256": "662beb9509bd3d3b9633ce5f8e27e64230411fc2808bca5b8158384d2b8d6844",
       "executable": false
     },
     "packages/sdk/src/next.ts": {
@@ -4000,6 +4004,10 @@
       "sha256": "47c705cb8b92dcb013e177b8ac342e4e9812710bf1bdd1ff5a8aa827a94bf631",
       "executable": false
     },
+    "packages/sdk/src/sourcemaps/esbuild.mjs": {
+      "sha256": "20787058c2a7ac86b340440c23a95b7a850b94416b88433a615771457bcefa59",
+      "executable": false
+    },
     "packages/sdk/src/sourcemaps/inject.mjs": {
       "sha256": "4f980a4caf2a6cfe238b2952cc3688fca76042bc4a55ae6cbf770b84f50ce476",
       "executable": false
@@ -4016,6 +4024,10 @@
       "sha256": "749b84f66107dd360dd6e3e3278370f452505cee84e9f8c5b2c76f6918c4d749",
       "executable": false
     },
+    "packages/sdk/src/sourcemaps/webpack.mjs": {
+      "sha256": "ea5ecf59541e6b9770461a98b9e451dba0ddbf004e21a03dba5720b77b9a5438",
+      "executable": false
+    },
     "packages/sdk/src/tunnel-body.ts": {
       "sha256": "15a4d32ef860bb2d44bee48040744859c3af470f76792b330030b332ec5ee201",
       "executable": false
@@ -4030,6 +4042,10 @@
     },
     "packages/sdk/src/vite.d.ts": {
       "sha256": "d4bb2c0a149727b67b0c1cdcef32ca61fc1ed647f1887edda96f1f6061d79500",
+      "executable": false
+    },
+    "packages/sdk/src/webpack.d.ts": {
+      "sha256": "a50dcc901d9ce11803d4c93f6a91fc0cb6338155b46a4f1e8c6b1ef053af601b",
       "executable": false
     },
     "packages/sdk/src/worker.ts": {
