@@ -7997,7 +7997,7 @@
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "dd65873bf17ee118968bf87e2a738f5af31896331743f6381637aa2d9f9d2855",
+      "sha256": "79ae98b54c3a1adc82f87d572ca5aa49efd5d5ac726ebe736d0f76620835feea",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
