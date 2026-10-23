@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "424940e7c3eb1cdfe2d7da95e46f67bb0fe25c605bbe207c46852a0fe861b645",
+      "sha256": "b5c9950720565686538a0834e8afc297604d0278f6ab3a9244f2c7dec8d0f25c",
       "executable": false
     },
     ".gitignore": {
@@ -4589,7 +4589,7 @@
       "executable": false
     },
     "src/demo/workspace.ts": {
-      "sha256": "5566590164e5e72755586bb52a66e3264479c14b229e359e8cf6c17c32cba8aa",
+      "sha256": "6e45ea9cd24b5dbaaf6bbbcb72704e7107d08254aaaa4315f373cf86eb0c0e83",
       "executable": false
     },
     "src/domain/admission.ts": {
@@ -8150,6 +8150,10 @@
     },
     "tests/commands.mjs": {
       "sha256": "89a362f9f3fac24d29ae5095e30cf019cb58ebc6213e6b19d0019d254c06e68f",
+      "executable": false
+    },
+    "tests/demo-capture.mjs": {
+      "sha256": "df42d84ba609b8451e5c02cd9fc0b14055c75da459cf889edcde831a787de750",
       "executable": false
     },
     "tests/deployment-history.mjs": {

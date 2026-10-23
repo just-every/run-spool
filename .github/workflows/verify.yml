@@ -203,7 +203,7 @@ jobs:
       matrix:
         include:
           - shard: runtime
-            command: node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+            command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
           - shard: owner-ui
             command: pnpm test:accessibility && pnpm test:admission
           - shard: alerts

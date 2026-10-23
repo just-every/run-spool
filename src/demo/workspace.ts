@@ -2,8 +2,9 @@ import { validateMap } from '../domain/artifacts';
 import { deploymentInput } from '../domain/operators/validation';
 import { ruleInput } from '../domain/alerts/rules';
 import api from '../domain/api';
+import { wrapRequest } from '../domain/audit/request';
 import { hash } from '../domain/privacy';
-import type { Bindings } from '../auth/bindings';
+import { runtimeBindings, type Bindings } from '../auth/bindings';
 import { demoEnvironment, demoProject } from './environment';
 import { groups, releases, sampleEvent } from './data';
 
@@ -47,7 +48,7 @@ export async function seedWorkspace(env: Bindings, start: number) {
 
 /** Recent samples pass the same admission and silent delivery path as incoming SDK events. */
 export async function seedRecentCapture(env: Bindings) {
- const configured = demoEnvironment(env), db = env.DB;
+ const configured = runtimeBindings(env), db = env.DB;
  const key = crypto.randomUUID(), keyHash = await hash(key);
  await db.prepare("INSERT INTO credentials(hash,project,kind,created) VALUES(?,?,'ingest',?)").bind(keyHash, demoProject, Date.now()).run();
  try {
@@ -55,7 +56,10 @@ export async function seedRecentCapture(env: Bindings) {
   const execution = { waitUntil(task: Promise<unknown>) { tasks.push(task); }, passThroughOnException() { throw new Error('Demo seed cannot pass through'); }, props: {} };
   for (const [index, group] of groups.slice(0, 3).entries()) {
    const event = { ...sampleEvent(group, index, group.count - 1), eventId: `cedar-live-${index}`, environment: 'production' };
-   const response = await api.fetch(new Request(`${env.AUTH_ORIGIN}/api/ingest/${demoProject}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(event) }), configured, execution);
+   const request = new Request(`${configured.AUTH_ORIGIN}/api/ingest/${demoProject}`, { method: 'POST', headers: { Host: new URL(configured.AUTH_ORIGIN).host, 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(event) });
+   // The demo hook runs before the outer HTTP audit scope. Enter the normal
+   // ingest door directly, without recursively invoking withDemo.
+   const response = await wrapRequest(request, configured, async () => api.fetch(request, configured, execution));
    if (!response.ok) throw new Error(`Demo recent capture failed: ${response.status}`);
    await response.body?.cancel();
   }
