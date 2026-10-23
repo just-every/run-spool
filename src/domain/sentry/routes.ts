@@ -1,3 +1,4 @@
+import { admitSessions } from '../sessions/intake';
 import { filterCategory } from '../filters/categories';
 import { Hono, type Context } from 'hono';
 import type { Bindings } from '../../auth/bindings';
@@ -45,7 +46,7 @@ routes.on('POST',paths,async c=>{
     // Parse ALL item byte boundaries before authenticating, counting or admitting anything.
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
     const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
-    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[],checkIns:typeof envelope.items=[];
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
     let clientReports=0,invalidReports=0,filteredReports=0;
     for(const item of envelope.items){
       if(item.header.type==='client_report'){
@@ -57,6 +58,7 @@ routes.on('POST',paths,async c=>{
       if(item.header.type==='feedback'||item.header.type==='user_report'){
         feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
       }
+      if(item.header.type==='session'||item.header.type==='sessions'){sessions.push(item);continue}
       if(item.header.type==='check_in'){checkIns.push(item);continue}
       if(item.header.type!=='event'){const reason=unsupportedReason(item.header.type);dropped.set(reason,(dropped.get(reason)??0)+1);continue}
       let raw:WireObject;
@@ -77,8 +79,9 @@ routes.on('POST',paths,async c=>{
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
+    const sessionCounts=sessions.length?await admitSessions(c,scope,sessions,envelope.header.sdk):{};
     const checkInCounts=checkIns.length?await admitCheckIns(c,scope,checkIns):{};
-    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{}},200);
+    return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{},...sessions.length?{sessions:sessionCounts}:{}},200);
   }catch(error){
     if(error instanceof SentryWireError){
       if(scope){try{await recordIngest(c,scope,error.status===415?'unsupported_content_encoding':error.reason.includes('feedback')?error.status===413?'feedback_oversized':'feedback_invalid':error.reason==='missing_release_register_required'?error.reason:error.status===413?'oversized':'invalid')}catch(failure){return ingestFailure(c,scope,failure)}}

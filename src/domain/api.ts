@@ -1,3 +1,4 @@
+import sessionRoutes from './sessions/routes';
 import { suspectRoutes } from './suspects/routes';
 import { loaderRoutes } from './loader/routes';
 import { checkInRoutes } from './checkins/routes';
@@ -67,6 +68,7 @@ const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;pro
 api.route('/api/audit',auditRoutes);
 // These bounded read doors independently enforce exact-project authority.
 api.route('/api/projects',recordRoutes);
+api.route('/api/projects',sessionRoutes);
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function ingestRejection(c:any,response:Response) {

@@ -8,8 +8,10 @@ const maximumQuantity = 2147483647;
 export function isClientReportOutcome(reason: unknown): reason is string {
  if (reason === 'client_report_invalid') return true;
  if (typeof reason !== 'string') return false;
+ // These are protocol tokens, not a free-text credential assignment. Validate
+ // leaves separately so session:before_send retains its bounded loss reason.
  const parts = reason.split(':');
- return parts.length === 3 && parts[0] === 'client_discarded' && token.test(parts[1]) && token.test(parts[2]) && scrub(reason) === reason;
+ return parts.length === 3 && parts[0] === 'client_discarded' && token.test(parts[1]) && token.test(parts[2]) && scrub(parts[1]) === parts[1] && scrub(parts[2]) === parts[2];
 }
 // Sentry's protocol takes the timestamp as Unix seconds or RFC 3339 text; sentry-go sends text, and
 // sentry-elixir sends it without a zone, which Sentry reads as UTC.

@@ -1,3 +1,4 @@
+import {isClientReportOutcome} from './sentry/client-reports';
 import { file, scrub } from './privacy';
 
 // Stored/imported objects are not an authority to expand an agent's read surface.
@@ -63,7 +64,7 @@ export function alertProjection(row: any) {
   delivery_count: number(row.delivery_count), routing_state: text(row.routing_state) };
 }
 export function outcomeProjection(row: any) {
- return { reason: text(row.reason, 120), count: number(row.count) };
+ return { reason: isClientReportOutcome(row.reason)?row.reason:text(row.reason, 120), count: number(row.count) };
 }
 export function frameProjection(row: any) {
  return { file: file(typeof row?.file === 'string' ? row.file : ''), line: number(row?.line), column: number(row?.column), function: text(row?.function, 1000),
