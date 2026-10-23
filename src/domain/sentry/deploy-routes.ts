@@ -1,3 +1,4 @@
+import { buildSetStatements, buildFileStatement, readBuildSet } from '../source-map-builds';
 import { artifactStorageRoutes, artifactCapReason } from '../source-map-storage';
 import { storedBuild } from '../releases/build';
 import { releaseOrderKeyStatement } from '../releases/order';
@@ -49,6 +50,7 @@ routes.post('/:project/releases',async c=>{
        stmt(db,"INSERT INTO audit SELECT ?,?,'deployment_registered',?,? WHERE changes()=1",crypto.randomUUID(),project,JSON.stringify({release:name,environment:manifest.environment}),time),
       ]:[]),
       ...commitStatements(db,project,name,'release',commits,time),
+      ...buildSetStatements(db,project,name,build,b.requiredArtifacts),
     ]);
     const row=await stmt(db,'SELECT name,build,seq FROM releases WHERE project=? AND name=?',project,name).first();
     return c.json({...row,manifest,...commits.length?{citations:await citationSummary(db,project,commits)}:{}},result[2].meta.changes?201:200);
@@ -58,14 +60,16 @@ routes.post('/:project/artifacts',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
   const b=await readBody(c.req.raw,2 * 1024 * 1024),release=releaseIdentity(b.release),build=storedBuild(b.build),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
   const payload=validateMap(JSON.parse(canonical(metadata.map))),digest=await hash(payload),db=c.env.DB;
+  if(b.checksum!==undefined&&b.checksum!==digest)return c.json({error:`${b.file??debug}: checksum mismatch`},400);
   try{
     const existing=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();
-    if(existing){await deployBatch(c,auth,[]);return existing.digest===digest?c.json({digest,bytes:new TextEncoder().encode(payload).length},200):c.json({error:'Artifact identity conflicts'},409)}
+    if(existing){await deployBatch(c,auth,existing.digest===digest?buildFileStatement(db,project,release,build,b.file,debug,digest):[]);return existing.digest===digest?c.json({digest,bytes:new TextEncoder().encode(payload).length},200):c.json({error:'Artifact identity conflicts'},409)}
     try{
       await deployBatch(c,auth,[
         stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM releases WHERE project=? AND name=? AND (build=? OR EXISTS(SELECT 1 FROM release_builds b WHERE b.project=releases.project AND b.release=releases.name AND b.build=?))) THEN 1 ELSE 0 END',project,release,build,build),
         stmt(db,'INSERT INTO artifacts(project,release,build,debug,payload,digest,created,occurrence) VALUES(?,?,?,?,?,?,?,?)',project,release,build,debug,payload,digest,Date.now(),crypto.randomUUID()),
         stmt(db,'INSERT INTO audit VALUES(?,?,?,?,?)',crypto.randomUUID(),project,'artifact_uploaded',JSON.stringify({release,build,debug,digest}),Date.now()),
+        ...buildFileStatement(db,project,release,build,b.file,debug,digest),
         stmt(db,'UPDATE release_metadata SET auto_created=0 WHERE project=? AND release=?',project,release),
         stmt(db,'INSERT INTO release_builds VALUES(?,?,?,1) ON CONFLICT(project,release,build) DO UPDATE SET registered=1',project,release,build),
       ]);
@@ -78,4 +82,5 @@ routes.post('/:project/artifacts',async c=>{
     }
   }catch(error){return failure(c,project,error)}
 });
+routes.post('/:project/artifact-builds/verify',async c=>{const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;const b=await readBody(c.req.raw,2048),set=await readBuildSet(c.env.DB,project,releaseIdentity(b.release),storedBuild(b.build));await deployBatch(c,auth,[]);if(!set)return c.json({error:'No required artifact set declared'},404);return set.missing.length?c.json({...set,error:'Incomplete build: '+set.missing.join(', ')},409):c.json(set)});
 export default routes;

@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 /** CI-only module: secrets are resolved by environment name, never serialized into builds. */
 export function deployConfiguration(options) {
   const endpoint = new URL(options.endpoint);
@@ -19,14 +20,21 @@ export async function uploadSourceMaps(options, artifacts) {
     if (!response.ok) { const detail=await response.json().catch(()=>({})); throw new Error(`Spool ${path} refused (HTTP ${response.status}): ${detail.error??'upload refused'}`); }
     return response.json();
   };
-  await post('releases', { name: config.release, build: config.build });
+  const nameOf=artifact=>artifact.name??artifact.file??artifact.debugId;
+  const requiredArtifacts=[...new Set([...(options.requiredMaps??[]),...artifacts.map(nameOf)])].sort();
+  await post('releases', { name: config.release, build: config.build,requiredArtifacts });
   const results = [], failures=[];
   for (const artifact of artifacts) {
     if (Buffer.byteLength(JSON.stringify(artifact.map)) > 1024 * 1024) throw new Error('Source map exceeds 1 MiB');
-    try { const result = await post('artifacts', { release: config.release, build: config.build, debugId: artifact.debugId, file: artifact.file??artifact.debugId, map: artifact.map });
+    const {debug_id:_snake,debugId:_camel,...map}=artifact.map;
+    const canonical=value=>value===null||typeof value!=='object'?JSON.stringify(value):Array.isArray(value)?'['+value.map(canonical).join(',')+']':'{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonical(value[key])).join(',')+'}';
+    const checksum=createHash('sha256').update(canonical(JSON.parse(JSON.stringify(map)))).digest('hex');
+    try { const result = await post('artifacts', { release: config.release, build: config.build, debugId: artifact.debugId, file:nameOf(artifact),checksum, map: artifact.map });
+    if(result.digest!==checksum)throw new Error(`${nameOf(artifact)}: stored checksum mismatch`);
     results.push({ debugId: artifact.debugId, digest: result.digest });
     } catch(error){failures.push(`${artifact.file??artifact.debugId}: ${error.message}`)}
   }
+  try{await post('artifact-builds/verify',{release:config.release,build:config.build})}catch(error){failures.push(error.message)}
   if(failures.length)throw new Error(failures.join('\n'));
   return { uploaded: results.length, artifacts: results };
 }
