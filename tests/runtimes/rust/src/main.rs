@@ -46,5 +46,9 @@ fn main() {
         return;
     }
     transaction.finish();
+    // The log batcher runs on its own thread; drain it before the deliberate crash.
+    if let Some(client) = sentry::Hub::current().client() {
+        client.flush(Some(std::time::Duration::from_secs(5)));
+    }
     panic!("checkout quantity rejected");
 }
