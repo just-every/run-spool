@@ -34,7 +34,7 @@ try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
@@ -80,6 +80,25 @@ try {
  assert.ok(upgradedIds.length > 0 && upgradedIds.length === (await rows(upgrade, 'SELECT id FROM issues')).length && upgradedIds.every(row => row.issue === row.assigned), 'every upgraded issue has its own short ID');
  assert.deepEqual((await rows(upgrade, 'SELECT project FROM short_id_prefixes ORDER BY project')).map(row => row.project), (await rows(upgrade, 'SELECT id FROM projects ORDER BY id')).map(row => row.id));
  console.log('PASS populated published release upgrades without rewriting any pre-existing row or table: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
+
+ // c17: apply only 0069 onward to a populated installation at current main's 0068.
+ const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
+ const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
+ const newTables = ['checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','identity_policies','event_identities'];
+ transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
+ try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
+ finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
+ const currentTables = await rows(currentUpgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
+ const currentRows = new Map(await Promise.all(currentTables.map(async ({name}) => [name, canonicalRows(await rows(currentUpgrade, `SELECT * FROM "${name}"`))])));
+ assert.ok(currentRows.get('projects').length && currentRows.get('events').length, '0068 installation has populated evidence');
+ const from0068 = migrations.filter(m => m.name > '0068_artifact_build_sets.sql');
+ assert.equal(from0068.length, 5, 'all five c15 additive migrations follow 0068');
+ await currentUpgrade.batch(unstable_splitSqlQuery(from0068.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim())).map(sql => currentUpgrade.prepare(sql)));
+ for (const {name,sql} of currentTables) {
+  assert.deepEqual(canonicalRows(await rows(currentUpgrade, `SELECT * FROM "${name}"`)), currentRows.get(name), `0068 upgrade preserves every row: ${name}`);
+  assert.equal((await currentUpgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `0068 upgrade preserves schema: ${name}`);
+ }
+ console.log('PASS populated 0068 upgrade: ' + currentTables.length + ' tables preserved; five additive migrations applied');
 
  const fresh = await target('FRESH');
  const ledger = await rows(fresh, 'SELECT * FROM rer_migrations ORDER BY name');

@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d7ad836324b13b729b12a8ee31691b89187dc532247b772b297e5ed8bc554b65",
+      "sha256": "d679248d5e1aacb7837047d4b4526458ff295b49eb2dd383d866f8b5dd0cb9c3",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "35053cb71860f4f1222d23fd70d211039f060dc6be497c9fab9ecc1ffc52f5d2",
+      "sha256": "34733bcd93d211737d0413826a5c2003f5ee4b023f098d3e6159e8c2b6de5062",
       "executable": false
     },
     "DEMO.md": {
@@ -8437,7 +8437,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "95104fc81af47992883ba3d5dcda4cc0351b74bf5c6300bab8ebf3e20c2de4d7",
+      "sha256": "d0404e706e033121f3da57643c1b148c766ca81a5755875bc1eea8fb1d93bbf5",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
@@ -8493,7 +8493,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "5b002723665202d0bd935216803cd1b927e16f22a80b8a1c9b1ad8694e42206e",
+      "sha256": "3dca3d240fbecb893266ad54cc85bbf7df85db0e7efe01bc9b1cbcf374d4b519",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -8917,7 +8917,7 @@
       "executable": false
     },
     "tests/session-flow.mjs": {
-      "sha256": "5b242b5cc0a1164ac9ba92517cbc4a2e451fd0f2e2c476cfbea00c51fac4f8d1",
+      "sha256": "0d9590e65a60eeacb0e4b2aa3173fb14c566d6128cf0dcdff1edc5c66fa09ff7",
       "executable": false
     },
     "tests/setup-flow.mjs": {
@@ -8933,7 +8933,7 @@
       "executable": false
     },
     "tests/slack-ui.mjs": {
-      "sha256": "ec5161db3894f13219738fdd788781383a2fb625135185ff0ce2c9f787d0c65c",
+      "sha256": "f6498f24c10cbaa6a4097030abf45a092bc68a654e598e39f08711d2d638d637",
       "executable": false
     },
     "tests/source-import.mjs": {
