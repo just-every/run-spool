@@ -16,6 +16,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  fromProject('artifact_storage_settings'),
   // TEAM-004 short IDs and commit citations, including commit author and message.
   ...['loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'].map(fromProject),
   // SRC-003: staged upload chunks, assembly receipts and the CLI's release and deploy records.

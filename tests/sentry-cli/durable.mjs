@@ -19,6 +19,8 @@ export async function durableFlow({origin, api, req, keys}) {
 
  const archive = await archiveProjection(await req('/api/archive'));
  const exported = archive.data;
+ const cap=await api('/api/projects/chunks/artifact-storage');
+ assert.equal(exported.artifact_storage_settings.find(row=>row.project==='chunks').artifact_storage_cap,cap.artifact_storage_cap,'[SRC-004] byte cap is archived');
  assert.ok(!('sentry_upload_chunks' in exported) && !('sentry_assemblies' in exported), 'staging and receipts are not archived');
  const finalized = exported.sentry_releases.find(row => row.project === 'web' && row.release === 'checkout@1.0.0');
  assert.ok(finalized?.released, 'the finalization time is archived');
@@ -34,6 +36,7 @@ export async function durableFlow({origin, api, req, keys}) {
   const rows = await restored.json('/api/projects/web/releases'), original = (await api('/api/projects/web/releases')).find(row => row.name === 'checkout@1.0.0');
   const copy = rows.find(row => row.name === 'checkout@1.0.0');
   assert.deepEqual([copy.finalized, copy.commit_count, copy.cli_deploys, copy.seq, copy.first_seen], [original.finalized, original.commit_count, original.cli_deploys, original.seq, original.first_seen], 'the release restores with its CLI records and original identity');
+  assert.equal((await restored.json('/api/projects/chunks/artifact-storage')).artifact_storage_cap,cap.artifact_storage_cap,'[SRC-004] byte cap survives restore');
   const uploads = await restored.json('/api/projects/web/sentry-uploads');
   assert.deepEqual(uploads.artifacts.map(row => row.digest).sort(), (await api('/api/projects/web/sentry-uploads')).artifacts.map(row => row.digest).sort());
   assert.deepEqual(uploads.assemblies, [], 'receipts do not restore');
@@ -50,5 +53,5 @@ export async function durableFlow({origin, api, req, keys}) {
  assert.ok(large.deleted.sentry_releases > 0 && large.deleted.sentry_deploys > 0, 'the preview counts the CLI release and deploy records');
  await followErasure(api, await api('/api/projects/web/erasure', 'POST', {confirm: 'web', planHash: large.planHash}));
  const after = (await archiveProjection(await req('/api/archive'))).data;
- for (const table of ['sentry_releases', 'sentry_deploys', 'artifacts']) assert.ok(after[table].every(row => !['web', 'chunks'].includes(row.project)), `${table}: erased projects leave no row`);
+ for (const table of ['artifact_storage_settings','sentry_releases', 'sentry_deploys', 'artifacts']) assert.ok(after[table].every(row => !['web', 'chunks'].includes(row.project)), `${table}: erased projects leave no row`);
 }

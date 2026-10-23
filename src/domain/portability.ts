@@ -141,6 +141,8 @@ for(const later of laterTables){later.tables.push(...cliTables);later.migrations
 laterTables.unshift({tables:cliTables,migrations:['0060_sentry_cli.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(loaderTables));later.migrations.push('0061_loader_settings.sql')}
 laterTables.unshift({tables:Object.keys(loaderTables),migrations:['0061_loader_settings.sql']});
+for(const later of laterTables){later.tables.push('artifact_storage_settings');later.migrations.push('0067_artifact_storage.sql')}
+laterTables.unshift({tables:['artifact_storage_settings'],migrations:['0067_artifact_storage.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

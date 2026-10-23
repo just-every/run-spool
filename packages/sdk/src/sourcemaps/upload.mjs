@@ -11,20 +11,22 @@ export function deployConfiguration(options) {
 }
 export async function uploadSourceMaps(options, artifacts) {
   const config = deployConfiguration(options);
-  if (!Array.isArray(artifacts) || !artifacts.length || artifacts.length > 20) throw new Error('Supply between one and twenty source maps');
+  if (!Array.isArray(artifacts) || !artifacts.length || artifacts.length > 2000) throw new Error('Supply between one and 2000 source maps per upload');
   const post = async (path, payload) => {
     let response;
     try { response = await fetch(`${config.endpoint}/api/projects/${encodeURIComponent(config.project)}/${path}`, { method:'POST', redirect:'error', headers:{'Content-Type':'application/json',Authorization:`Bearer ${config.key}`},body:JSON.stringify(payload) }) }
     catch { throw new Error('Spool upload transport failed') }
-    if (!response.ok) throw new Error(`Spool ${path} refused (HTTP ${response.status})`);
+    if (!response.ok) { const detail=await response.json().catch(()=>({})); throw new Error(`Spool ${path} refused (HTTP ${response.status}): ${detail.error??'upload refused'}`); }
     return response.json();
   };
   await post('releases', { name: config.release, build: config.build });
-  const results = [];
+  const results = [], failures=[];
   for (const artifact of artifacts) {
-    if (Buffer.byteLength(JSON.stringify(artifact.map)) > 262144) throw new Error('Source map exceeds 256 KiB');
-    const result = await post('artifacts', { release: config.release, build: config.build, debugId: artifact.debugId, map: artifact.map });
+    if (Buffer.byteLength(JSON.stringify(artifact.map)) > 1024 * 1024) throw new Error('Source map exceeds 1 MiB');
+    try { const result = await post('artifacts', { release: config.release, build: config.build, debugId: artifact.debugId, file: artifact.file??artifact.debugId, map: artifact.map });
     results.push({ debugId: artifact.debugId, digest: result.digest });
+    } catch(error){failures.push(`${artifact.file??artifact.debugId}: ${error.message}`)}
   }
+  if(failures.length)throw new Error(failures.join('\n'));
   return { uploaded: results.length, artifacts: results };
 }

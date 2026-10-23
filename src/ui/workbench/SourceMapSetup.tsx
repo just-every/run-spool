@@ -6,6 +6,8 @@ import { bundlers, shellQuote, sourceMapInstructions, type Bundler } from './sou
 export function SourceMapSetup({ project, releases, request, run, busy, refresh }: {
   project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void;
 }) {
+  const [storage,setStorage]=useState<any>(null),[cap,setCap]=useState(''),[uploads,setUploads]=useState<any>(null);
+  useEffect(()=>{let live=true;Promise.all([request(`/api/projects/${encodeURIComponent(project)}/artifact-storage`),request(`/api/projects/${encodeURIComponent(project)}/sentry-uploads`)]).then(([setting,rows])=>{if(live){setStorage(setting);setCap(setting.artifact_storage_cap===null?'':String(setting.artifact_storage_cap));setUploads(rows)}}).catch(()=>{if(live){setStorage(null);setUploads(null)}});return()=>{live=false}},[project,request,releases]);
   const [endpoint, setEndpoint] = useState(''), [deployKey, setDeployKey] = useState('');
   const [bundler, setBundler] = useDraft<Bundler>(`${project}.map-bundler`, 'vite');
   const [release, setRelease] = useDraft(`${project}.map-setup-release`, releases[0]?.name ?? '');
@@ -20,6 +22,9 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h2 id="source-map-setup-heading">Set up original-source mapping</h2>
     <p>A source map connects a built JavaScript file’s line and column to the same code in your original source.</p>
     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
+    <h3>Artifact storage</h3>
+    {storage ? <><p>{storage.count} maps use {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" type="number" min="0" step="1" value={cap} onChange={e=>setCap(e.target.value)} /><button className="text-button" disabled={busy||(cap!==''&&(!Number.isSafeInteger(Number(cap))||Number(cap)<0))} onClick={()=>void run(async()=>{const setting=await request(`/api/projects/${encodeURIComponent(project)}/artifact-storage`,'PUT',{revision:storage.revision,artifact_storage_cap:cap===''?null:Number(cap)});setStorage(setting);refresh()})}>Save artifact cap</button></div></> : <p role="status">Artifact storage setting unavailable.</p>}
+    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{row.release} / {row.build} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
     <h3>1. Match your application’s release</h3>
     <p>Use exactly the <code>release</code> and <code>build</code> from your SDK’s <code>init</code>. A new release is registered automatically when the upload runs.</p>
     <div className="form-grid">
@@ -49,7 +54,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>
-      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. Maps must be flat V3, at most 256 KiB each, with at most 20 per project.</li>
+      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. CLI uploads accept flat or indexed V3 maps up to 1 MiB each, without a lifetime map count. Check the project byte cap above. The prepared-map picker below retains its smaller flat-map limit.</li>
       <li>Missing map or debug ID: confirm the served bundle ends in <code>//# debugId=…</code> and its adjacent map’s <code>debug_id</code> matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.</li>
       <li>Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.</li>
     </ul>

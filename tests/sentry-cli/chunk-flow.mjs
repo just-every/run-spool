@@ -49,14 +49,20 @@ export async function chunkFlow({origin, api, keys, temporary}) {
  const receipt = (await api(base + '/sentry-uploads')).assemblies;
  assert.ok(receipt.some(row => row.state === 'ok'), 'the assembly is recorded as complete');
 
- // The project keeps 20 maps today: the twenty-first is named in the client output and the cap is explicit.
+ // [SRC-004] No lifetime count; a buyer-set byte cap refuses every next file by name.
  const more = resolve(temporary, 'more');
- for (let index = 0; index < 9; index++) await writeScript(more, `more${index}`, flatMap(`more${index}`, 3000));
+ for (let index = 0; index < 15; index++) await writeScript(more, `more${index}`, flatMap(`more${index}`, 3000));
  assert.equal((await cli(['sourcemaps', 'inject', more])).code, 0);
- const capped = await cli(['sourcemaps', 'upload', '--release', 'chunked@1.0.0', '--dist', 'c1', more]);
+ const uncapped = await cli(['sourcemaps', 'upload', '--release', 'chunked@1.0.0', '--dist', 'c1', more]);
+ assert.equal(uncapped.code,0,uncapped.output);
+ assert.equal((await stored()).length,27,'more than 25 maps survive in one project');
+ const storage=await api(base+'/artifact-storage');
+ await api(base+'/artifact-storage','PUT',{revision:storage.revision,artifact_storage_cap:storage.bytes});
+ const capped = await cli(['sourcemaps', 'upload', '--release', 'chunked@2.0.0', '--dist', 'c1', more]);
  assert.notEqual(capped.code, 0);
- assert.match(capped.output, /1 of 9 source maps were not stored[\s\S]*\[storage_cap\]/);
- assert.equal((await stored()).length, 20, 'eight more fit and the next is refused by name');
+ assert.match(capped.output, /15 of 15 source maps were not stored[\s\S]*storage cap [0-9]+ bytes[\s\S]*\[storage_cap\]/);
+ for(let index=0;index<15;index++)assert.ok(capped.output.includes(`more${index}.js.map`),'every refused map is named');
+ assert.equal((await stored()).length,27,'the cap refuses uploads without deleting existing maps');
 
  // Integrity: a chunk that does not hash to its name, and an assembly whose checksum does not match, store nothing.
  const post = (path, body) => fetch(origin + '/api/0/organizations/acme' + path, {method: 'POST', headers: {Authorization: 'Bearer ' + keys.chunks, 'Content-Type': 'application/json'}, body: JSON.stringify(body)});
@@ -70,7 +76,7 @@ export async function chunkFlow({origin, api, keys, temporary}) {
  assert.equal(mismatch.state, 'error'); assert.match(mismatch.detail, /does not match its checksum/);
  const unreadable = await (await post('/artifactbundle/assemble/', {...request, checksum: sha1})).json();
  assert.equal(unreadable.state, 'not_found', 'the failed assembly discarded its chunks, so the client must upload them again');
- assert.equal((await stored()).length, 20, 'integrity failures store nothing');
+ assert.equal((await stored()).length, 27, 'integrity failures store nothing');
  assert.equal((await api(base + '/releases')).some(row => row.name === 'integrity@1.0.0'), false);
  const tooBig = Buffer.alloc(options.chunkSize + 1, 1), oversized = new FormData();
  oversized.append('file_gzip', new Blob([gzipSync(tooBig)]), createHash('sha1').update(tooBig).digest('hex'));
@@ -78,7 +84,7 @@ export async function chunkFlow({origin, api, keys, temporary}) {
  const oversize = await fetch(`${origin}/api/0/organizations/acme/chunk-upload/`, {method: 'POST', headers: {Authorization: 'Bearer ' + keys.chunks}, body: oversized});
  assert.equal(oversize.status, 400); assert.match((await oversize.json()).detail, /larger than the advertised/);
  assert.equal((await api(base + '/erasure')).deleted.sentry_upload_chunks ?? 0, before, 'oversize chunk stores no bytes');
- assert.equal((await stored()).length, 20);
+ assert.equal((await stored()).length, 27);
  assert.equal((await api(base + '/releases')).some(row => row.name === 'integrity@1.0.0'), false);
  console.log('Sentry integrity: wrong chunk checksum=400; wrong bundle checksum=200/error; missing chunk=200/not_found; oversize chunk=400; no added artifacts/releases/staging');
 
