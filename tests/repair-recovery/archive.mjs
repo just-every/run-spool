@@ -12,7 +12,8 @@ const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_rece
 const deliveryTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];
 // TEAM-004 short IDs and commit citations (0059) arrive after repairs too; restore numbers the older archive's issues afresh.
 const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
-const loaderTables=['loader_settings'];
+// c16's artifact custody tables also postdate the pre-repair archive.
+const loaderTables=['loader_settings','artifact_storage_settings','source_map_builds','source_map_build_files'];
 const laterTables=[...loaderTables,...deliveryTables,...citationTables,...repairTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'];
 // The archive an installation without repair history exports: the same rows in
 // the inventory before migration 0016, with Base's own schema and content hashes.

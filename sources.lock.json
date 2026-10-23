@@ -8373,7 +8373,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "47b9524a435b4574f66260ae07ef2ef40b17deb9ba12ebd8e08d1a3e1eaca104",
+      "sha256": "140b5f9867c6457ea5099e80abbf0de28f36ecdd3b0ea5f85f7d544e8a019e24",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
@@ -8425,7 +8425,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "49701db58f67594c31e786ac3089e3dfc0dc4620e92dba1ae20c767d948657dd",
+      "sha256": "9c38d7ca6bd24655dd1ca0e52f1e03214e80dfa145221133730cf5218a73720a",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
