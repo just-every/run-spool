@@ -19,6 +19,7 @@ import { ownerSession, ownerWrite } from '../auth/session.server';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
 import alertRoutes from './alerts/routes';
+import recordRoutes from './investigation/records';
 import investigationRoutes from './investigation/search';
 import eventRoutes from './investigation/events';
 import groupingRoutes from './operators/grouping';
@@ -63,6 +64,8 @@ import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority'
 
 const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
 api.route('/api/audit',auditRoutes);
+// These bounded read doors independently enforce exact-project authority.
+api.route('/api/projects',recordRoutes);
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function ingestRejection(c:any,response:Response) {

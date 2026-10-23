@@ -2925,7 +2925,7 @@
       "executable": false
     },
     "docs/FEEDBACK.md": {
-      "sha256": "c743567052fcb322de7ea742503a37242f1e5e07a7c79a585eacd488963a87f7",
+      "sha256": "f631e109fa5d6a0357b737c0203d783006f890abe630e698e9ac8b5db85a3b6d",
       "executable": false
     },
     "docs/GROUPING-RULES.md": {
@@ -2945,7 +2945,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "de77a6e932337fbeae54831bae19480259b116775fc83a8b7efe37425514a8e4",
+      "sha256": "7a8af3984d17f25009ac5f72ab265a14642a5b93c79188b6681c616ad580488d",
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
@@ -4605,7 +4605,7 @@
       "executable": false
     },
     "src/domain/agent-access.ts": {
-      "sha256": "2835fd21403ece4b816c01756fe920cd5d87942d775cab650378d5ac89f83e43",
+      "sha256": "6b9cc9ebd39c2104d38ab70e4b1396b15b65e77427d5fff1f87b03a41a3ce28e",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -4701,7 +4701,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "ae410f5f00c754cca8fdcb9f205270f6c56af3db8a3396fbc0b4e44af02ba1bb",
+      "sha256": "387c13030e18b87fa951bfb51b53470c12437d7bae8986981c1e37e96fb0dc4d",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -5082,6 +5082,10 @@
     },
     "src/domain/investigation/query.ts": {
       "sha256": "5c5bee762606c0ebc7ea9ad3c742314c30cfd8133f375c8104ab971bb53e57e6",
+      "executable": false
+    },
+    "src/domain/investigation/records.ts": {
+      "sha256": "3bf86289baf0a4fc3a4c1c5dc777f8c9f2a934009393e767323b2dfad1e904a6",
       "executable": false
     },
     "src/domain/investigation/search.ts": {
@@ -8309,7 +8313,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "b6fbf610347295511ee510b6054712375a30d02002a99cacdb9aa58292a168ed",
+      "sha256": "2db8b3524deb2a8744871944a3fb65b61bcc52cc0c0b90a00fe70510c64cd22c",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -8470,6 +8474,10 @@
     },
     "tests/project-erasure/ui.mjs": {
       "sha256": "375b5d0323664bd14f2e6db1d4c1a69b45c19abe0f00e38fc979a764111f0295",
+      "executable": false
+    },
+    "tests/records-flow.mjs": {
+      "sha256": "3302ecbb0d80ff311aee759580e92b105b49af8b18f6e444712d8903f777f420",
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
