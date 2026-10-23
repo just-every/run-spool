@@ -29,11 +29,11 @@ try {
  const signin=inbox.relayRequests[0];assert.equal(signin.body.to,testOwner);assert.match(signin.body.text,/\/auth\/confirm\?token=/);
  const sentBeforeHint=inbox.relayRequests.length;
  for(const path of ['/signin','/sign-in']) {
-  const hinted=await app.request(path+'?login_hint='+encodeURIComponent('James@Spool.example')+'&returnTo=%2Fsetup');
+  const hinted=await app.request(path+'?login_hint='+encodeURIComponent('James@Spool.example')+'&returnTo=%2Fsetup','GET',undefined,{Cookie:''});
   assert.equal(hinted.status,200);assert.match(await hinted.text(),/name="email"[^>]*value="james@spool.example"/);
  }
  for(const hint of ['not-an-email','<script>','owner@example.com" autofocus="']) {
-  const page=await app.request('/signin?login_hint='+encodeURIComponent(hint));assert.match(await page.text(),/name="email"[^>]*value=""/);
+  const page=await app.request('/signin?login_hint='+encodeURIComponent(hint),'GET',undefined,{Cookie:''});assert.match(await page.text(),/name="email"[^>]*value=""/);
  }
  assert.equal(inbox.relayRequests.length,sentBeforeHint,'a login hint never requests mail');
  await app.json('/api/projects/web/alerting/rules','POST',rule('mail'));inbox.mailStatuses.push(429);

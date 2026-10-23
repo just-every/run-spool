@@ -37,7 +37,7 @@ try {
  assert.equal((await app.request('/api/ingest/web','POST',event('rollback',{frames:[{file:'https://app.example.com/rollback.js',line:2,column:0,function:'rollback'}]}),auth)).status,503);
  await app.db.prepare('DROP TRIGGER fixture_reject').run();await app.schedule(Date.now());assert.equal((await app.json(deliveryPath+'/deliveries')).length,2);assert.equal(inbox.effects(),1);
  // Receiver authenticates raw bytes and retains replay protection over restart.
- const wire=inbox.requests[0];const send=(body,headers=wire.headers)=>fetch(inbox.url+'/hook',{method:'POST',headers:{...headers,host:new URL(inbox.url).host,'content-length':String(Buffer.byteLength(body))},body});
+ const wire=inbox.requests[0];const send=(body,headers=wire.headers)=>{const wireHeaders=new Headers(headers);wireHeaders.set('host',new URL(inbox.url).host);wireHeaders.set('content-length',String(Buffer.byteLength(body)));return fetch(inbox.url+'/hook',{method:'POST',headers:wireHeaders,body})};
  assert.equal((await send(wire.body+' ')).status,400);assert.equal((await send(wire.body,{...wire.headers,'webhook-tenant':'spool.other'})).status,400);assert.equal((await send(wire.body,{...wire.headers,'webhook-timestamp':'1'})).status,400);assert.equal((await send(Buffer.from([0x80]))).status,400);
  inbox.restart();assert.equal((await send(wire.body)).status,204);assert.equal(inbox.effects(),1);
  const agent=await app.json('/api/projects/web/keys','POST',{kind:'agent'});

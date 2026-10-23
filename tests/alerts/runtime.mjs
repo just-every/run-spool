@@ -50,7 +50,7 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
   const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});
   // A restore can outlast another connection's idle lifetime. Do not let the
   // global fetch pool reuse that socket, or one from a disposed fixture runtime.
-  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
+  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
   const json=async(...args)=>{const r=await request(...args);assert.ok(r.ok,`Alert fixture ${args[0]} failed with HTTP ${r.status}: ${r.ok?'':await r.text()}`);return r.json()};
   return {origin,db,request,json,bindings,get cookie(){return cookie},set cookie(value){cookie=value},schedule:time=>json('/__fixture/schedule','POST',{time}),
    async close(){await runtime.dispose();await rm(temporary,{recursive:true,force:true})}};
