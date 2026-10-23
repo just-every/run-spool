@@ -687,7 +687,7 @@ Correction custody also applies to ERR-008 and ERR-009. Repair recurrence includ
 
 ## Status
 
-Judged from the code and tests at commit `0853094` (23 October 2026). SDK-020 setup and SDK-001 Node/browser journeys were read and run locally; SDK-013 packaged Electron Q1–Q7 passed Linux push job 120145163135. Unrelated clauses retain their recorded evidence and gaps. The prior judgment and release history remain recorded in git.
+Judged from the code and tests at commit `bd066868aab1937a7a09b17a13bed5d9c6badba2` (23 October 2026). SDK-020 setup and SDK-001 Node/browser retain their local proof; SDK-013 packaged Electron Q1–Q7 is qualified by `tests/sdk-runtimes.mjs electron` and `tests/runtimes/electron.mjs` in Linux push `runtime (electron)`. The shared .NET program now drains its log immediately and pending telemetry before the genuine uncaught failure; its runtime proof is CI-only. Unrelated clauses retain their recorded evidence and gaps. The prior judgment and release history remain recorded in git.
 
 Evidence paths are repository-relative. Missing rows deliberately contain no implementation citation. Existing test files are proof specifications; their presence alone is not a run result. New acceptance journeys are targets, not invented test files. The older audit's exposure-verification row was done for its bounded local behavior; AI-004 is partial because it now also requires an agent and live rate comparison. ALERT-003 stays partial: its row records one real production-signed delivered receipt, bounce and complaint remain signed-fixture transitions, and the relay's first-hour traffic counters stay unverified.
 
