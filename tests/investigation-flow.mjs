@@ -1,3 +1,5 @@
+// [API-001] Retained records through versioned, exact-project read doors.
+import { recordReadFlow } from './records-flow.mjs';
 import { repositorySourceFlow } from './repository-source-flow.mjs';
 import { bulkTriageFlow } from './bulk-triage-flow.mjs';
 import assert from 'node:assert/strict';
@@ -24,6 +26,7 @@ export async function investigationFlow({req,json,origin}){
  const grant=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:`Bearer ${grant.key}`};
  assert.equal((await req(base+'/issue-search?'+query,'GET',undefined,auth)).status,200);
  assert.ok([401,403].includes((await req('/api/projects/wire/issue-export','GET',undefined,auth)).status));
+ await recordReadFlow({req,json});
  await bulkTriageFlow({req,json,base});
  await repositorySourceFlow({req,json});
  const browser=await launchBrowser();
