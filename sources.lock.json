@@ -8541,7 +8541,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "bb63a897b1bdaf6c4cfb991a7d5756e5b9080fc30c4d249ac078e0c709f5dc40",
+      "sha256": "7086f9b3db384bb6f76077a504d6b80258123eb01474752334080fa02c26e1cc",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
