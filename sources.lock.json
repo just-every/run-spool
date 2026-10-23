@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "6ea9e57a2439bfdcea0dbaec4ccfc81441bb8367543d23707acc55e7d12ef818",
+      "sha256": "3d5945d53542d272117258284ff51b40ebcce4b4387153fd1cf6370e3b20509f",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f3f121f5565f21fe8127e6929bbae3b4f033848e789f6fb4a280ff3412403827",
+      "sha256": "f7658d9e6d5e111010c9b02c6884a18de07f627b75cfdeb80d5a4da3d96fd6af",
       "executable": false
     },
     "DEMO.md": {
@@ -2910,6 +2910,10 @@
     },
     "docs/capture.md": {
       "sha256": "df8d35ae44d4e9c5e6c6d4643c902096d545b70d567d50643c9bd4e02ae0d60b",
+      "executable": false
+    },
+    "docs/CHECK-INS.md": {
+      "sha256": "b4eee7a582c75819f7eff6fcfacffa42b183317e69dc68874b411180748704c6",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
@@ -3581,7 +3585,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "b43c87972479f542560f2bd93f4886f88b724f939f35249123673afdaabbbc53",
+      "sha256": "028c8c3b4cd440709ff7403f4ecb8957c345e51d08ac58f4d6b9380065b19d7a",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -8165,7 +8169,7 @@
       "executable": false
     },
     "tests/checkin-flow.mjs": {
-      "sha256": "4e3abc2719d9a10321555a1b571da715322a3abc4fe54f245101baa9a3ebf9e9",
+      "sha256": "889a685056e3431cef674dd88a43644c7634ff0e28ab5d5fd276f025f57ad600",
       "executable": false
     },
     "tests/client-report-flow.mjs": {
