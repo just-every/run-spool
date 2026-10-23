@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d567fcb9501cd20b4565d85819d536635b369bb47c62340db760c69f48dc93a4",
+      "sha256": "be90c4c3b7e73f9f9ef2c7ea30906c458bf35bdc4d62e19e7e509c5d8acffaec",
       "executable": false
     },
     "DEMO.md": {
@@ -3553,7 +3553,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "960ddfe81386aba96555fa76fa858bde1d5c30cfb0525762882d2557345c47c1",
+      "sha256": "b43c87972479f542560f2bd93f4886f88b724f939f35249123673afdaabbbc53",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -8193,7 +8193,7 @@
       "executable": false
     },
     "tests/loader-flow.mjs": {
-      "sha256": "b2c27029633450feedebda900365d9d6453beb70fca095d8b5e15e14639cb749",
+      "sha256": "cf76fc46fb4e49786d141529098d53649ffc9d00b03931151fd0237ab1fa7e57",
       "executable": false
     },
     "tests/loader-page.mjs": {
