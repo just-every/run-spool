@@ -8677,7 +8677,7 @@
       "executable": false
     },
     "tests/runtimes/rust/src/main.rs": {
-      "sha256": "419496916612f3a335d6f5aea352d6399f47682c8d26b286491a63acd074e7a6",
+      "sha256": "c6e39299f9e5a9da942cfe001c7a193450ee9be038610698a4fd3e5cd16ee3ec",
       "executable": false
     },
     "tests/runtimes/screens.mjs": {
