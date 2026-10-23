@@ -1,4 +1,5 @@
 import { loaderRoutes } from './loader/routes';
+import { checkInRoutes } from './checkins/routes';
 import proposalRoutes from './proposals/routes';
 import followUpRoutes from './follow-up/routes';
 import { auditRoutes } from './audit/routes';
@@ -143,6 +144,7 @@ api.use('/api/*',async(c,next)=>{
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
+api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);
 api.route('/api/projects/:project/inbound-filters',inboundFilterRoutes);
 api.route('/api/projects/:project/grouping-rules',projectGroupingRoutes);

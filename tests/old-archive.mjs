@@ -68,6 +68,7 @@ try {
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
+ assert.deepEqual(await rows(upgrade, 'SELECT * FROM checkin_routes'), [], 'existing projects start with cron check-in forwarding off');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM loader_settings'), [], 'existing capture keys start with lazy, optional-capture-off defaults');
  assert.equal((await upgrade.prepare("SELECT COUNT(*) n FROM credentials WHERE project=? AND kind='ingest' AND revoked IS NULL").bind(existingProject).first()).n, 1, 'the populated upgrade keeps the active capture key');
  // TEAM-004: migration 0059 gives every existing issue a short ID in first-seen order, per project prefix.
