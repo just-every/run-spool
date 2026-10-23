@@ -5597,7 +5597,7 @@
       "executable": false
     },
     "src/domain/sessions/item.ts": {
-      "sha256": "d710573a4d00d1bcda7a69f97d5a3ec6336a0a4d766098791c5647e6d7050885",
+      "sha256": "dcd756fd30e34ccefdfdb2ced3bd61d1abfd266a10b6c30f25a5a594b5ffc097",
       "executable": false
     },
     "src/domain/sessions/routes.ts": {
