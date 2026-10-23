@@ -1,3 +1,4 @@
+import {AffectedUsers} from './AffectedUsers';
 import {SuspectChanges} from './SuspectChanges';
 import {ResolutionPicker} from './ResolutionPicker';
 import { RepositorySource } from './RepositorySource';
@@ -65,6 +66,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       <Details title="Issue and source evidence"><p>Source maps and recorded repository path mappings enrich the current lookup. Original receipt records remain unchanged.</p><pre>{JSON.stringify({ issue: group, grouping: packet.grouping, events: packet.events }, null, 2)}</pre></Details>
     </section>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
+    <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
     <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={packet}/>
     <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>
     {rail}

@@ -1,3 +1,4 @@
+import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
 import sessionRoutes from './sessions/routes';
 import { suspectRoutes } from './suspects/routes';
 import { loaderRoutes } from './loader/routes';
@@ -69,6 +70,7 @@ api.route('/api/audit',auditRoutes);
 // These bounded read doors independently enforce exact-project authority.
 api.route('/api/projects',recordRoutes);
 api.route('/api/projects',sessionRoutes);
+api.route('/api/projects',identityReadRoutes);
 const now=()=>Date.now();
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function ingestRejection(c:any,response:Response) {
@@ -150,6 +152,7 @@ api.use('/api/*',async(c,next)=>{
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
+api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/suspects',suspectRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);

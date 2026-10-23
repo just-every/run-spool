@@ -8,7 +8,7 @@ import {authBindings} from './auth.mjs';
 import {finishProductRun,migrationFailure,workerOutput} from './product-diagnostics.mjs';
 import {emittedWorkerOptions} from './worker-options.mjs';
 
-export async function startTestWorker(port, bindings={}, {beforeMigration}={}) {
+export async function startTestWorker(port, bindings={}, {beforeMigration,deferMigration}={}) {
  let temporary,native,stopping,migrate;
  const origin=`http://127.0.0.1:${port}`,summary=workerOutput();
  const artifactDirectory=resolve('.artifacts'),runId=Date.now();
@@ -53,7 +53,10 @@ export async function startTestWorker(port, bindings={}, {beforeMigration}={}) {
    const {unstable_splitSqlQuery}=require('wrangler');
    const allFiles=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();
    if(beforeMigration)assert.ok(allFiles.includes(beforeMigration),'upgrade boundary is an actual migration');
-   const files=allFiles.filter(file=>!beforeMigration||file<beforeMigration);
+   if(deferMigration)assert.ok(allFiles.includes(deferMigration),'deferred feature migration is actual');
+   // The current Worker requires its other additive features. Defer only the
+   // feature under test; old-archive separately proves the complete published-schema upgrade.
+   const files=allFiles.filter(file=>(!beforeMigration||file<beforeMigration)&&file!==deferMigration);
    // Populated-upgrade journeys run the actual emitted Worker against its previous
    // schema, then apply an actual additive migration to that same live database.
    migrate=async name=>{

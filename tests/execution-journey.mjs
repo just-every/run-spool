@@ -14,7 +14,7 @@ import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
 import {disconnectedGitHubSetup,executionPanel} from './execution/ui.mjs';
 import {executionFollowUp,attentionCaptures} from './execution/follow-up.mjs';
-// A captured failure reproduced in the isolated sandbox, carried through a fix
+// [SDK-008] A captured failure reproduced in the isolated sandbox, carried through a fix
 // branch under an exact expiring grant, and measured after the deploy, through
 // public routes, the runner command and the issue page. GitHub is a double.
 const directory=resolve('.artifacts/execution');await mkdir(directory,{recursive:true});

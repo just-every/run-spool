@@ -1,3 +1,4 @@
+import {prepareEventIdentity} from '../identities/intake';
 import { admitSessions } from '../sessions/intake';
 import { filterCategory } from '../filters/categories';
 import { Hono, type Context } from 'hono';
@@ -71,11 +72,12 @@ routes.on('POST',paths,async c=>{
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
       }
-      events.push({event:convertSentry(raw,envelope.header.event_id),digest:await hash(canonical(raw))});
+      const identity=await prepareEventIdentity(c.env.DB,scope.project,raw.user);
+      events.push({event:convertSentry(raw,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined),digest:await hash(canonical(raw)),identity});
     }
     if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     let id:string|undefined;
-    for(const {event,digest} of events){const response=await admitEvent(c,scope,event,digest,true);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
+    for(const {event,digest,identity} of events){const response=await admitEvent(c,scope,event,digest,true,identity);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}

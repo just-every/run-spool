@@ -1,3 +1,4 @@
+import {affectedUsers} from './identities/read';
 import { agentSentryEvidence } from './sentry/agent-evidence';
 import { createRepositoryLinker } from './repository-links';
 import { admissionBasis, type GroupingRoute } from './bundle-grouping';
@@ -116,7 +117,9 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
  if (repairs.available > repairs.repairs.length) baseGaps.push({ code: 'repairs_omitted', reason: `Only the newest ${repairs.repairs.length} of ${repairs.available} owner-recorded repairs are included.`, available: repairs.available, included: repairs.repairs.length });
  if (!first) baseGaps.push({ code: 'release_history_unavailable', reason: 'No retained event establishes the first or last release. An issue release watermark is conservative and is not an observed occurrence.' });
  const root = `/api/projects/${encodeURIComponent(project)}`;
+ const identity=await affectedUsers(db,project,id);
  const packet = {
+  affectedUsers:identity,
   version: 1, project, issue, events,
   ...(requested ? { shortIdRequest: { requested: text(requested.id), shortId: text(requested.shortId), alias: requested.alias } } : {}),
   // TEAM-004: cited commits and the release each resolved in; author and message only by the owner's sharing choice.

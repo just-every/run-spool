@@ -9,7 +9,7 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const citationTables = ['project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables = ['identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
@@ -67,7 +67,7 @@ try {
   assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
- for(const table of ['project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
+ for(const table of ['identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_destinations'), [], 'populated upgrade connects no Slack destination');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_delivery_meta'), [], 'populated upgrade invents no Slack acknowledgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM suspect_decisions'), [], 'populated upgrade invents no suspect judgment');

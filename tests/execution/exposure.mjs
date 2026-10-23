@@ -4,6 +4,7 @@ const p='/api/projects/shop';
 export const report=(app,ingest,release,clientId,flows,capture=true)=>app.request('/api/ingest/shop/exposure','POST',{version:1,release:release.name,build:release.build,environment:'production',client:clientId,flows,capture},{Authorization:'Bearer '+ingest,Cookie:''}).then(async r=>{const body=await r.json();return {status:r.status,...body};});
 const proof=async(app,issue,id)=>(await app.json(`${p}/fixes?issue=${issue}`)).workflows.find(row=>row.id===id).exposure;
 
+// [SDK-008] Native affected-user counts share the existing exposure cohort.
 // Before the fix: 30 users reached checkout in the broken release; the six
 // who failed are the affected cohort. That is the baseline failure rate.
 // Before the deploy only one affected user has reported it; the rest arrive later.
@@ -18,6 +19,7 @@ export async function exposureVerdicts(app,ingest,{issue,id,r2,fixture}){
  const steps={};
  const first=await proof(app,issue,id);steps.deployedNoTraffic=first.verdict;
  assert.equal(first.verdict,'inconclusive');assert.deepEqual(first.reasons.map(r=>r.code),['no_exposure']);assert.equal(first.denominators.cohort.affectedUsers,6);
+ const identities=await app.json(`${p}/issues/${issue}/affected-users`);assert.equal(identities.affectedUsers,first.denominators.cohort.affectedUsers,'SDK-008 native issue users reconcile with the repair exposure cohort');const packet=await app.json(`${p}/issues/${issue}/packet`);assert.equal(packet.affectedUsers.affectedUsers,identities.affectedUsers);
  return {
   // One affected user was the whole baseline and is the only one exposed: one quiet user proves nothing.
   async tiny(){
