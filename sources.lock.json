@@ -3601,7 +3601,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "146e1ba6fc9238b71d044238f1a075cdb8f5ff560fe66c2b03edf3e014ab568e",
+      "sha256": "f7cb45fd8227925270cca42063762294fb85d84d65392a7aad5b37b98e8be85f",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -8193,11 +8193,15 @@
       "executable": false
     },
     "tests/loader-flow.mjs": {
-      "sha256": "789d28eeb1025e9bbb76ae3133f315510c26bff83d0262dabcd62c761d069bbd",
+      "sha256": "b2c27029633450feedebda900365d9d6453beb70fca095d8b5e15e14639cb749",
       "executable": false
     },
     "tests/loader-page.mjs": {
       "sha256": "23d3e2c2c88ee0e6667da8629f90b3c621b41fe0fbbe380364ccaca1c67a394d",
+      "executable": false
+    },
+    "tests/loader-upgrade.mjs": {
+      "sha256": "a941116dfb31cc4c029d78d64b596b002f2d810ab819cad7de3497161406173a",
       "executable": false
     },
     "tests/local-runtime.mjs": {
@@ -8673,7 +8677,7 @@
       "executable": false
     },
     "tests/worker.mjs": {
-      "sha256": "d999a08d673eb3e65e32b8d34703cd24cba84060810310d1d20144826ef7e0ea",
+      "sha256": "296dd95b5fc6e6027b8f32adb85b9710e40f9dc598b5a448e6d6d03ab27d11ce",
       "executable": false
     },
     "tsconfig.json": {

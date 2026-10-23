@@ -1,3 +1,5 @@
+import { absentDist } from '../src/domain/releases/build.ts';
+import { loaderUpgrade } from './loader-upgrade.mjs';
 // [SDK-023] Replace a site's loader tag, exercising the official SDK over the real Worker.
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
@@ -13,6 +15,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  await request(`/api/projects/${project.id}/browser-origins`, 'POST', { origin: applicationOrigin });
  const key = new URL(project.dsn).username, keyHash = await hash(key), keyPath = `/api/projects/${project.id}/keys/${keyHash}/loader`;
  let current = await request(keyPath);
+ const defaults = current.settings;
  const fixture = { key, project, origin, settings: current.settings };
  dsns.loader = fixture;
  const scriptPath = `/sdk/${key}.min.js`;
@@ -29,7 +32,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   assert.equal(await occurrences(), expected, 'each loader/direct capture is one occurrence');
  };
  await mkdir('.artifacts/sdk023', { recursive: true });
- let count = 0;
+ let count = 0; const releaseLess = new Set();
  for (const width of [1440, 390]) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage();
   const external = []; await context.route('**/*', async route => { if (![origin, applicationOrigin].includes(new URL(route.request().url()).origin)) { external.push(route.request().url()); await route.abort(); } else await route.continue(); });
@@ -53,7 +56,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   const owner = await context.newPage(); await browserSignIn(owner, origin);
   await owner.goto(`${origin}/projects/${project.id}/issues/${group.id}`);
   await owner.getByRole('heading', { name: /synthetic-spool-checkout/ }).first().waitFor();
-  await owner.screenshot({ path: `.artifacts/sdk023/loader-error-${width}.png`, fullPage: true });
+  await owner.screenshot({ path: `.artifacts/sdk023/loader-error-${width}.png`, fullPage: false });
   // Eager opt-out and both callbacks see a client initialized for the same DSN.
   await page.goto(applicationOrigin + '/loader?mode=eager');
   await page.waitForFunction(() => window.loaderReady === 1 && window.hookReady === 1);
@@ -75,7 +78,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   const events = await request(`/api/projects/${project.id}/issues/${group.id}/events`);
   for (const event of events.rows) {
    const detail = await request(`/api/projects/${project.id}/issues/${group.id}/events/${event.id}?occurrence=${event.occurrence}`);
-   assert.equal(detail.event.release, 'synthetic-spool-loader@1'); assert.equal(detail.event.build, 'synthetic-spool-1');
+   assert.equal(detail.event.release, releaseLess.has(event.id) ? '' : 'synthetic-spool-loader@1'); assert.equal(detail.event.build, releaseLess.has(event.id) ? absentDist : 'synthetic-spool-1');
   }
   // Maintainer changes the existing key settings through the actual dialog.
   await owner.goto(`${origin}/projects/${project.id}/settings`);
@@ -92,14 +95,21 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   assert.deepEqual(axe.violations.filter(v => ['serious', 'critical'].includes(v.impact)), [], 'key settings has no serious Axe finding');
   const icons = await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label')));
   assert.deepEqual(icons, [], 'no icon-only control on the touched settings screen');
-  await owner.screenshot({ path: `.artifacts/sdk023/key-settings-${width}.png`, fullPage: true });
+  await owner.screenshot({ path: `.artifacts/sdk023/key-settings-${width}.png`, fullPage: false });
   await page.goto(applicationOrigin + '/loader?mode=lazy'); await page.waitForFunction(() => window.Sentry.getClient?.());
   assert.ok(await page.evaluate(() => window.Sentry.getClient().getIntegrationByName('Feedback')), 'changed key settings enable the official feedback integration on reload');
   // Feedback has been explicitly enabled; turn it off for next width's lazy-default proof.
   current = await request(keyPath); await request(keyPath, 'PUT', { revision: current.revision, settings: { ...current.settings, feedback: false } });
   // With no release supplied, the loader still creates and counts an ordinary occurrence.
+  const priorEvents = new Set((await request(`/api/projects/${project.id}/issues/${group.id}/events`)).rows.map(row => row.id));
   await page.goto(applicationOrigin + '/loader?mode=no-release');
   await page.getByRole('button', { name: 'Capture checkout error', exact: true }).click(); await page.waitForFunction(() => window.Sentry.getClient?.()); await page.evaluate(() => window.Sentry.flush(10000)); await waitForCount(++count);
+  const noRelease = (await request(`/api/projects/${project.id}/issues/${group.id}/events`)).rows.filter(row => !priorEvents.has(row.id));
+  assert.equal(noRelease.length, 1, 'one release-less loader occurrence joins the same issue');
+  for (const row of noRelease) {
+   const detail = await request(`/api/projects/${project.id}/issues/${group.id}/events/${row.id}?occurrence=${row.occurrence}`);
+   assert.equal(detail.event.release, ''); assert.equal(detail.event.build, absentDist); releaseLess.add(row.id);
+  }
   assert.deepEqual(external, [], 'the loader and its optional integrations make no CDN or provider request');
   await owner.close(); await context.close();
  }
@@ -132,6 +142,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  assert.equal(receipt.phase, 'complete');
  const after = await fetch(origin + '/api/archive', { headers: { Cookie: cookie, Origin: origin } });
  assert.ok(!(await after.text()).includes(keyHash), 'project erasure removes the key settings');
+ await loaderUpgrade({browser,applicationOrigin,dsns,defaults});
  console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440, 390], icons: 'no icon-only control on the touched screen', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
  return { archive, project, keyHash, settings: disabled.settings };
 }

@@ -8,8 +8,8 @@ import {authBindings} from './auth.mjs';
 import {finishProductRun,migrationFailure,workerOutput} from './product-diagnostics.mjs';
 import {emittedWorkerOptions} from './worker-options.mjs';
 
-export async function startTestWorker(port, bindings={}) {
- let temporary,native,stopping;
+export async function startTestWorker(port, bindings={}, {beforeMigration}={}) {
+ let temporary,native,stopping,migrate;
  const origin=`http://127.0.0.1:${port}`,summary=workerOutput();
  const artifactDirectory=resolve('.artifacts'),runId=Date.now();
  // The redacted summary above goes into test errors; the Worker's own text, from synthetic
@@ -51,7 +51,17 @@ export async function startTestWorker(port, bindings={}) {
    const db=await native.getD1Database(database.binding);registerLegacyMail(origin,db);
    assert.equal((await db.prepare('PRAGMA foreign_keys').first()).foreign_keys,1,'D1 enforces foreign keys');
    const {unstable_splitSqlQuery}=require('wrangler');
-   const files=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();
+   const allFiles=(await readdir('migrations/core')).filter(file=>file.endsWith('.sql')).sort();
+   if(beforeMigration)assert.ok(allFiles.includes(beforeMigration),'upgrade boundary is an actual migration');
+   const files=allFiles.filter(file=>!beforeMigration||file<beforeMigration);
+   // Populated-upgrade journeys run the actual emitted Worker against its previous
+   // schema, then apply an actual additive migration to that same live database.
+   migrate=async name=>{
+    assert.ok(allFiles.includes(name),'only an actual migration can be applied');
+    const target=await native.getD1Database(database.binding);
+    const queries=unstable_splitSqlQuery(await readFile(resolve('migrations/core',name),'utf8')).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
+    await target.batch(queries.map(sql=>target.prepare(sql)));
+   };
    assert.ok(files.length,'Actual core migrations are required');
    const sql=(await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')))).join('\n');
    // Only this standalone no-op is skipped, after proving enforcement above.
@@ -61,7 +71,7 @@ export async function startTestWorker(port, bindings={}) {
   }catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   const health=await fetch(origin+'/health');
   try{assert.equal(health.status,200,'Emitted Worker health succeeds')}finally{await health.body?.cancel()}
-  return {origin,stop,restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
+  return {origin,stop,migrate,restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
  }catch(failure){
   output.add(String(failure));
   const result=await finishProductRun({failure,output,artifactDirectory,runId,cleanup:[['test-worker',stop]]});
