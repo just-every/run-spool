@@ -37,7 +37,7 @@ try {
  await chunkFlow(context);
  await debugFlow(context);
  await durableFlow(context);
- console.log('SRC-003 sentry-cli journey passed: denials, release/commit/deploy enrichment, debug-ID and release/dist maps, the Vite, esbuild, Rollup and webpack plugins, chunk interruption and resume, refusals by name, archive, restore and erasure.');
+ console.log('[SRC-004] SRC-003 sentry-cli journey passed: denials, release/commit/deploy enrichment, debug-ID and release/dist maps, the Vite, esbuild, Rollup and webpack plugins, chunk interruption and resume, refusals by name, archive, restore and erasure.');
 } finally {
  await app.stop();
  await rm(temporary, {recursive: true, force: true});

@@ -30,6 +30,9 @@ function functionName(node: any, parent: any): string {
 // Input is private source text from the already bounded flat map. Retain only
 // function ranges/names, never the AST, source text or a global parser cache.
 export function functionScopes(source: string, filename: string): FunctionScopes {
+  // Location lookup still uses the full bounded map. Optional name enrichment
+  // must not build a large AST from a vendor source embedded in that map.
+  if (source.length > 131072) return () => null;
   const scopes: Scope[] = [];
   try {
     const plugins: ParserPlugin[] = [];

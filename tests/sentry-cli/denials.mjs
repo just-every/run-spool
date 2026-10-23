@@ -21,7 +21,7 @@ export async function denialFlow({origin, api, req, keys, temporary}) {
  for (const project of ['web', 'other']) {
   assert.deepEqual(await api(`/api/projects/${project}/releases`), [], `${project}: no release was stored`);
   const stored = await api(`/api/projects/${project}/sentry-uploads`);
-  assert.deepEqual(stored, {artifacts: [], assemblies: []}, `${project}: no map or assembly was stored`);
+  assert.deepEqual(stored, {artifacts: [], assemblies: [], builds: []}, `${project}: no map or assembly was stored`);
  }
 }
 
