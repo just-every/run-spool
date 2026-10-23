@@ -8473,7 +8473,7 @@
       "executable": false
     },
     "tests/managed-sign-in.mjs": {
-      "sha256": "a5b881d7b66bb51cd179f3776d8f16163577868487e9fcffb01c537a7e9a30d5",
+      "sha256": "79731d401eb3d6575181eb926366c543710504c616e6372b80f3e3f31d7265bd",
       "executable": false
     },
     "tests/multilingual.mjs": {
@@ -8981,7 +8981,7 @@
       "executable": false
     },
     "tests/worker.mjs": {
-      "sha256": "b518cb580876edab41214591c32124de28631e5f7ce4d5a24917b46c784bfe94",
+      "sha256": "8c94238adb3d432187a010941e8cb4a32f2f93935689ff18042ef8cad99eda41",
       "executable": false
     },
     "tsconfig.json": {

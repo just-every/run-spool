@@ -73,7 +73,17 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
    await db.batch(queries.map(sql=>db.prepare(sql)));
   }catch(error){error.migration=migrationFailure({status:null,stderr:error?.cause?.message??error?.message});throw error}
   const health=await fetch(origin+'/health');
-  try{assert.equal(health.status,200,'Emitted Worker health succeeds')}finally{await health.body?.cancel()}
+  try {
+   if (health.status !== 200) {
+    // Report the fixed readiness queries' native D1 errors, without bindings or row data.
+    const db = await native.getD1Database(database.binding);
+    for (const table of ['projects', 'alert_scheduler']) {
+     try { await db.prepare('SELECT COUNT(*) FROM ' + table).first(); }
+     catch (error) { output.add(`Readiness ${table}: ${error?.cause?.message ?? error?.message}\n`); }
+    }
+   }
+   assert.equal(health.status,200,'Emitted Worker health succeeds');
+  } finally { await health.body?.cancel(); }
   return {origin,stop,migrate,db:()=>native.getD1Database(database.binding),restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
  }catch(failure){
   output.add(String(failure));

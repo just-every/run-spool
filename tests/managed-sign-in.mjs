@@ -29,6 +29,12 @@ try {
    const page = await context.newPage();
    const entry = new URL(signIn.path, app.origin);
    entry.searchParams.set('login_hint', testOwner);
+   for (const path of ['/signin', '/sign-in']) for (const method of ['GET', 'HEAD']) {
+    const response = await context.request.fetch(app.origin + path + '?login_hint=' + encodeURIComponent(testOwner), {method, maxRedirects:0});
+    assert.equal(response.status(), 200, 'signed-out visitors keep the form');
+    assert.equal(response.headers()['cache-control'], 'no-store');
+    if (method === 'GET') assert.ok((await response.text()).includes('value="' + testOwner + '"'), 'both aliases preserve the login hint');
+   }
    assert.equal((await page.goto(entry.href)).status(), 200);
    const email = page.getByRole('textbox', {name:'Owner email', exact:true});
    assert.equal(await email.inputValue(), testOwner, 'the declared sign-in page prefills the owner');
