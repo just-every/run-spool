@@ -42,6 +42,10 @@ try {
  }
  const project=await api('/api/projects','POST',{id:'cedar',name:'Cedar Dispatch'});
  await page.goto(origin+'/projects/cedar/issues');await page.getByRole('heading',{name:'Waiting for your first event',exact:true}).waitFor();
+ if(width===390)await page.getByRole('button',{name:/^Menu/}).click();
+ await capture('owner-name',width);
+ assert.equal(await page.locator('.team p').innerText(),'Test owner');
+ if(width===390)await page.getByRole('button',{name:/^Menu/}).click();
  await capture('waiting',width);
  await page.getByRole('button',{name:'Set up capture',exact:true}).click();assert.equal(await page.locator('.right').count(),0);
  await page.getByRole('button',{name:'Register your first release',exact:true}).click();

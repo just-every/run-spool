@@ -47,6 +47,13 @@ try {
    await page.getByRole('button', {name:'Confirm', exact:true}).click();
    await page.waitForURL(app.origin + '/setup');
    assert.equal((await context.request.get(app.origin + '/api/projects')).status(), 200, 'confirmation signs in the native owner');
+   for (const path of ['/signin', '/sign-in']) for (const method of ['GET', 'HEAD']) {
+    const response = await context.request.fetch(app.origin + path + '?login_hint=' + encodeURIComponent(testOwner) + '&returnTo=https://foreign.example', {method, maxRedirects:0});
+    assert.equal(response.status(), 303, 'signed-in owners go directly to the workspace');
+    assert.equal(response.headers().location, '/app');
+    assert.equal(response.headers()['cache-control'], 'no-store');
+    assert.equal((await response.body()).length, 0, 'no sign-in form precedes the redirect');
+   }
   } finally {await context.close()}
  }
  console.log('Managed Open app sign-in passed: declared path, owner email prefill, no-JS email delivery and native confirmation at 1440/390.');
