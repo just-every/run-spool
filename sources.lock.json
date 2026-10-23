@@ -3461,23 +3461,31 @@
       "executable": false
     },
     "docs/retained-verification/sdk023/key-settings-1440.png": {
-      "sha256": "7d8ee7d6519e988b32c09dcb64b8784e31bd11197353dd57b0dda74067c20552",
+      "sha256": "c1ccb0fc6b22a2501948a7c3f8b08b93cee8e40c2b7fe6da6b799db523b16fc2",
       "executable": false
     },
     "docs/retained-verification/sdk023/key-settings-390.png": {
-      "sha256": "bfd6501a968cac92cc577be1856ffcd169654348daa541554d36e938b1d046c2",
+      "sha256": "8674de767b7b2cd6b6cba67ab98dc28a16786b346a2719f4ad431a578f355757",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/key-settings-top-1440.png": {
+      "sha256": "c1ccb0fc6b22a2501948a7c3f8b08b93cee8e40c2b7fe6da6b799db523b16fc2",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/key-settings-top-390.png": {
+      "sha256": "815e09ac9a0e9149d69b82cc44cc8dec1423769e0009b55afba76f277ade7764",
       "executable": false
     },
     "docs/retained-verification/sdk023/loader-error-1440.png": {
-      "sha256": "94e402a2a570501f80e56d9425619b3f1904800da0f15a593e05683aa0ea9496",
+      "sha256": "97e5a26fc2de58ded06a3424e5370930dae53b19256e1b6b7e25a4ae6c0feb42",
       "executable": false
     },
     "docs/retained-verification/sdk023/loader-error-390.png": {
-      "sha256": "d911f2faa799072d29fa97cb1a2b4aab3aabf9ff7d46043e5d31c3fcd5779b3f",
+      "sha256": "25e58db5ff7508d1e00c0c677d90fe089ee99f6383b0489cdecfd842b74d7263",
       "executable": false
     },
     "docs/retained-verification/sdk023/README.md": {
-      "sha256": "76c49cbacae40ef6962bbd6d7ea2c0ff3134707c241b22830dd288578490198f",
+      "sha256": "a56c622d1cf4b741f27b0f1511aa5d4cd29f5b472c4b0242621efbee1ff7328b",
       "executable": false
     },
     "docs/retained-verification/src003/README.md": {
