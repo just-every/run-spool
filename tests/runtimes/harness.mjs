@@ -49,6 +49,7 @@ export function expectedOutcomes(sent){
   if(item.type==='event')add('accepted');
   else if(item.type==='client_report'){for(const row of objectJson(item.bytes).discarded_events??[])add(`client_discarded:${row.category}:${row.reason}`,row.quantity)}
   else if(item.type==='feedback'||item.type==='user_report')add('feedback_accepted');
+  else if(item.type==='check_in')add('check_in_unrouted');
   else add(unsupportedReason(item.type));
  }
  return expected;

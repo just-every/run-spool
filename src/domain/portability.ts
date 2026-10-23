@@ -37,7 +37,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -145,6 +145,9 @@ for(const later of laterTables){later.tables.push('artifact_storage_settings');l
 laterTables.unshift({tables:['artifact_storage_settings'],migrations:['0067_artifact_storage.sql']});
 for(const later of laterTables){later.tables.push('source_map_builds','source_map_build_files');later.migrations.push('0068_artifact_build_sets.sql')}
 laterTables.unshift({tables:['source_map_builds','source_map_build_files'],migrations:['0068_artifact_build_sets.sql']});
+// 0062 adds only check-in connections and links; both are excluded, so an archive never carries a heartbeat capability URL.
+for(const later of laterTables)later.migrations.push('0069_checkin_routes.sql');
+laterTables.unshift({tables:[],migrations:['0069_checkin_routes.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

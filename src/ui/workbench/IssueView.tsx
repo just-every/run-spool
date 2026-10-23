@@ -8,6 +8,7 @@ import { Details } from './Details';
 import { EventExplorer } from './EventExplorer';
 import { FeedbackPanel } from './FeedbackPanel';
 import { SentryEvent } from './SentryEvent';
+import { CheckInLink } from './CheckInLink';
 import { OperatorPanel } from './OperatorPanel';
 import { RepairPanel } from './RepairPanel';
 import { ExecutionPanel } from './ExecutionPanel';
@@ -42,6 +43,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {!!group.short_id_aliases?.length && <p className="metadata short-id-aliases">Also answers to {group.short_id_aliases.join(', ')}.</p>}
       {group.short_id_resolves_to && <p className="callout">{group.short_id} now resolves to {group.short_id_resolves_to}, where these occurrences were merged.</p>}
       {selectedEvent&&<p className="metadata">Selected event <code>{selectedEvent.id}</code> · received {date(selectedEvent.received)}</p>}
+      <CheckInLink checkIns={event?.checkIns}/>
       {event?.event.sentry&&<SentryEvent data={event.event.sentry} grouping={selectedEvent?.grouping??event.originalGrouping}/>}
       {event&&!event.event.sentry&&<Details title="Event grouping information" triggerLabel="Grouping information"><p>The recorded policy revision lists each contributing or excluded native frame. Historical corrections preserve original membership.</p><pre>{JSON.stringify(selectedEvent?.grouping??event.originalGrouping,null,2)}</pre></Details>}
       <h2 className="stack-heading">{event?.event.sentry?'Primary exception source lookup':'Stack trace'}</h2>
