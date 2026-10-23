@@ -45,7 +45,7 @@ async function storeBundle(c: Context, who: CliAuthority, bundle: Bundle, releas
    if (!minified) { results.push({ file: file.url, status: 'refused', code: 'unmatched_map', reason: 'the map has no debug ID and no uploaded script names it in its sourcemap header, so Spool cannot say which file it maps' }); continue; }
    debugId = await artifactNameKey(minified);
   }
-  if (file.entry.size > mapByteLimit) { results.push({ file: file.url, status: 'refused', code: 'too_large', reason: `${file.entry.size} bytes; at most 256 KiB of map are stored today (SRC-004 capacity is not implemented yet)` }); continue; }
+  if (file.entry.size > mapByteLimit) { results.push({ file: file.url, status: 'refused', code: 'too_large', reason: `${file.entry.size} bytes; at most 1 MiB of map is stored` }); continue; }
   // readBundle has validated every entry before the first write; this returns its cached bytes.
   const bytes = await file.entry.read();
   results.push(await storeMap(c, who, { file: file.url, bytes, debugId, release, build }));

@@ -1,4 +1,5 @@
 // The published SDK, as a user gets it: the packed tarball installed into a fresh app, sending through Spool's public ingest door.
+import {sourceMapCapacity} from './source-map-capacity.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -191,6 +192,7 @@ try {
   const handle = () => { try { throw new Error('edge failure'); } catch (error) { workerSdk.captureException(error, { ...config, build: undefined }, { waitUntil: work => kept.push(work) }); return new Response('Internal error', { status: 500 }); } };
   assert.equal(handle().status, 500);
   assert.equal((await kept[0]).reason, 'invalid_options', 'a missing option settles as rejected instead of throwing');
+  await sourceMapCapacity({origin,request,app,browser});
   console.log(JSON.stringify({ passed: true, proof: 'Packed tarball installed offline into a fresh app: browser init with plugin-mapped frame and scrubbed breadcrumb, the same page without crypto.randomUUID, a fetch wrapper reporting refused sends without a feedback loop, a noisy location capped while another location’s error arrives and every drop counted on its issue, Node uncaught exception (and an odd-shaped one) reported then exit 1 with the app error, even with a never-settling fetch and a second throw, Worker catch block kept with a missing option.' }));
 } finally {
   delete process.env.FRESH_APP_DEPLOY_KEY;
