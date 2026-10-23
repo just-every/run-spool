@@ -286,9 +286,17 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: No implementation evidence yet. The hosted deployment, the DNS zone and managed TLS for the buyer's subdomain are engineering work recorded in this clause; no hosted account was authorized for it.
 
-- **SDK-023 — JavaScript Loader Script per DSN key. Status: missing.** Replace a site's Sentry loader tag with the Spool loader, configured with the same key settings. Confirm lazy loading, `Sentry.onLoad` and an error capture.
+- **SDK-023 — JavaScript Loader Script per DSN key. Status: done.** Replace a site's Sentry loader tag with the Spool loader, configured with the same key settings. Confirm lazy loading, `Sentry.onLoad` and an error capture.
 
-  Current evidence: No implementation evidence yet.
+  Current evidence, in `tests/sentry-sdk.mjs` ([SDK-023] `loaderFlow`, push `verify (sdk)`), with `tests/loader-flow.mjs` and `tests/loader-page.mjs`:
+  - Per-key script and key settings: `/sdk/<public-ingest-key>.min.js`, the shipped pinned official browser SDK bundled locally, SDK version plus explicit tracing/replay rates and feedback settings in the existing key dialog. Reload honors feedback, BrowserTracing and Replay integrations and selected rates. Optional capture defaults to off; unsupported telemetry keeps its existing outcomes and storage duties.
+  - Lazy delivery: no bundle request before capture; non-capture calls queue; a capture stub and an actual uncaught error each load one SDK and become occurrences through public API/UI. `data-lazy="no"`, `forceLoad`, `Sentry.onLoad` and `window.sentryOnLoad` run with the key's initialized client; later callbacks run immediately once.
+  - Uniform refusal: disabled, revoked and unknown keys give the same 404 without a script or DSN; only the selected key's public DSN/options travel. SDK-006 Origin/Referer and allowed-domain intake remain unchanged. No script answer cache or per-visitor state is kept.
+  - SDK-009 receiving duty: direct and loader captures of the same error group together, retain their release/dist and count once. A loader event without release is accepted and counted as no release and no dist, without inventing a release.
+  - Custody: migration `0061_loader_settings.sql`; `tests/loader-upgrade.mjs` keeps the existing project/key/occurrence and captures once with that key after upgrade using default lazy settings. `tests/old-archive.mjs` preserves every populated released row/schema. Public archive/restore retains key settings inertly without a raw key or credential; project erasure removes them.
+  - UI: `docs/retained-verification/sdk023/`, key dialog and occurrence at 1440/390, no horizontal overflow or serious/critical Axe finding; no icon-only control on the touched settings screen.
+
+  Ct carve approved 23 October 2026: SDK-023's acceptance is its DONE bar; “MIG-001 lists each Sentry loader key with its settings and the replacement script tag.” moves verbatim to MIG-001 and remains its real-organization Gap. Defaults ADOPTED: Spool's own path, no Sentry key reuse, optional capture off. Unqualified: pre-load automatic instrumentation, older SDK tracks, hosted legacy report dialog; feedback screenshots are disabled. No real provider call, device or consent was used.
 
 - **SDK-024 — Cron check-ins routed to Uptime. Status: missing.** Send one check-in with a connected Uptime heartbeat and one without.
 
@@ -437,6 +445,8 @@ For every new flow, exercise the public UI/API/command rather than direct databa
   Current evidence: `src/domain/sentry-import/source.ts`; `src/domain/sentry-import/mapping.ts`; `tests/sentry-import.mjs`; `tests/sentry-sdk.mjs` Custom bounded synthetic organization bundles and browser/Node DSNs work; real Sentry export/API reconciliation and full collection mapping are unproved.
 
   SDK-009 migration reconciliation is inherited here: reconcile automatic release/dist identity, release-less counts and named strict-policy refusals in the Sentry dual run and usage, without duplicating releases on later registration.
+
+  Loader inventory duty (ct carve, 23 October 2026): MIG-001 lists each Sentry loader key with its settings and the replacement script tag. Real-organization proof remains a MIG-001 Gap.
 
 - **MIG-002 — Datadog Error Tracking migration. Status: missing.** Import a real Datadog buyer project, review mappings and exceptions, reconcile sampled issue/event/history records and monitor rules, dual-run one service and cut over with no imported alert replay or duplicate native events.
 
@@ -591,7 +601,7 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 13 | 34 | 23 | 70 |
-| All | 24 | 35 | 23 | 82 |
+| Target and push further | 14 | 34 | 22 | 70 |
+| All | 25 | 35 | 22 | 82 |
 
-**Clause status: 82 clauses — 24 done, 35 partial, 23 missing.**
+**Clause status: 82 clauses — 25 done, 35 partial, 22 missing.**

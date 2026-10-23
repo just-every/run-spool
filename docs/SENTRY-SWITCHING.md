@@ -54,7 +54,7 @@ Keep the SDK's former DSN available for reversal. Reverting configuration is sep
 
 Replace `js.sentry-cdn.com/<key>.min.js` with Spool's own `/sdk/<public-ingest-key>.min.js` tag. Use the Spool capture key, not a Sentry key. In **Settings → Project keys → Details**, select the SDK version Spool actually ships and carry over the site's tracing, replay and feedback settings; their Spool defaults are off. [Browser loader setup](capture.md#use-a-browser-loader-tag) documents lazy loading, both load hooks, `forceLoad`, eager loading and release/dist initialization. The SDK is bundled with Spool and makes no automatic CDN request. Unknown, disabled and revoked loader keys reveal no script or DSN; intake keeps the existing allowed-origin policy.
 
-The loader acceptance is account-free. The real organization's loader-key/settings inventory and replacement tags remain the blocked MIG-001 migration duty (ASK SDK-023; default ADOPTED: SDK-023's stated loader acceptance is its DONE bar). No real provider call, device or consent was used.
+The loader acceptance is account-free. The real organization's loader-key/settings inventory and replacement tags remain the blocked MIG-001 migration duty (ct carve approved 23 October 2026: SDK-023's stated loader acceptance is its DONE bar). No real provider call, device or consent was used.
 
 ## Runtime qualification
 

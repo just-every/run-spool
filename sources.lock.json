@@ -2629,7 +2629,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8630cea30d98c02d10acaea9096e13e3d00fe8a589d093865354ea5fa00d0ff5",
+      "sha256": "fa3be02c2c266b5cef94501d6b0f6433c5dd07a4120c488a4b8b8ed2274c5c83",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "be90c4c3b7e73f9f9ef2c7ea30906c458bf35bdc4d62e19e7e509c5d8acffaec",
+      "sha256": "5629737a33a828ebdc552b4741c705c5c43dcebada00595e7b0c3f76ec150045",
       "executable": false
     },
     "DEMO.md": {
@@ -3458,6 +3458,26 @@
     },
     "docs/retained-verification/sdk020/setup-mapped-390.png": {
       "sha256": "efd374c18e1ba20f06c1ee375fc576b41b2628962c2e1ed1232e4d920b1335bb",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/key-settings-1440.png": {
+      "sha256": "7d8ee7d6519e988b32c09dcb64b8784e31bd11197353dd57b0dda74067c20552",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/key-settings-390.png": {
+      "sha256": "bfd6501a968cac92cc577be1856ffcd169654348daa541554d36e938b1d046c2",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/loader-error-1440.png": {
+      "sha256": "94e402a2a570501f80e56d9425619b3f1904800da0f15a593e05683aa0ea9496",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/loader-error-390.png": {
+      "sha256": "d911f2faa799072d29fa97cb1a2b4aab3aabf9ff7d46043e5d31c3fcd5779b3f",
+      "executable": false
+    },
+    "docs/retained-verification/sdk023/README.md": {
+      "sha256": "76c49cbacae40ef6962bbd6d7ea2c0ff3134707c241b22830dd288578490198f",
       "executable": false
     },
     "docs/retained-verification/src003/README.md": {
