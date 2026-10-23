@@ -44,5 +44,13 @@ export async function investigationFlow({req,json,origin}){
   await page.getByRole('button',{name:'Clear filters',exact:true}).click();await page.getByRole('status').filter({hasText:'108 issues'}).waitFor();
   await context.close();
  }}finally{await browser.close()}
+ // Frame locals and SDK source lines are owner evidence: an agent's query matches only what its packet shows.
+ const dsn=new URL(p.dsn),local='synthetic-spool-1',line='synthetic-spool-2';
+ assert.equal((await req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:'7'.repeat(32),release:'checkout-2026',dist:'web',exception:{values:[{type:'LedgerError',value:'Ledger closed',stacktrace:{frames:[{filename:'https://checkout.example/ledger.js',function:'closeLedger',lineno:3,colno:5,pre_context:[line],context_line:line,post_context:[line],vars:{strategy:local}}]}}]}})).status,200);
+ for(const q of [local,'stack:'+local,'function:'+local,line,'stack:'+line]){
+  assert.equal((await json(base+'/issue-search?q='+encodeURIComponent(q))).total,1,'owner search reaches frame locals and source lines');
+  for(const door of ['issue-search','issue-export'])assert.equal((await json(`${base}/${door}?q=${encodeURIComponent(q)}`,'GET',undefined,auth)).total,0,'agent search and export match only what the agent packet shows');
+ }
+ assert.equal((await json(base+'/issue-search?q='+encodeURIComponent('stack:closeLedger'),'GET',undefined,auth)).total,1,'agent search still matches packet frames');
  console.log('Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.');
 }

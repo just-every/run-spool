@@ -5021,11 +5021,11 @@
       "executable": false
     },
     "src/domain/investigation/query.ts": {
-      "sha256": "b75133a5e284ba7983a5c0e3da46f6d678be393761fb41170a4925148ed9f850",
+      "sha256": "5c5bee762606c0ebc7ea9ad3c742314c30cfd8133f375c8104ab971bb53e57e6",
       "executable": false
     },
     "src/domain/investigation/search.ts": {
-      "sha256": "f8da006b83ede3090c63712ea446f8a78ded23753d7287bb47424ce83fb815be",
+      "sha256": "7cee761014e9f2cc1142b5c39d6fc928ca928f214877a0d9810a682bef0895a2",
       "executable": false
     },
     "src/domain/issue-attention.ts": {
@@ -8209,7 +8209,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "20daabf2540f6368abcc797d9bec01cf36c62cf8dcc40c272c25958d4e8b49ba",
+      "sha256": "215353ed3f2e624f40fa573fa2043c8fabd51f5e98d124bd0bfa096a3a227dc6",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
