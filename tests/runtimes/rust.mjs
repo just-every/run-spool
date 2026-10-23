@@ -13,5 +13,11 @@ export default {
   await cp(here,dir,{recursive:true,filter:path=>!path.includes('/target')});
   await runOk('cargo',['build','--release','--quiet'],{cwd:dir});
  },
- command(mode,dir,dsn,cwd=dir){return {command:resolve(target(dir),'release/spool-runtime-rust'),args:[mode],cwd,env:{SPOOL_FIXTURE_DSN:dsn}}},
+ command(mode,dir,dsn,cwd=dir){
+  if(!['127.0.0.1','localhost','[::1]'].includes(new URL(dsn).hostname))throw new Error('Rust fixture requires a loopback collector');
+  // sentry-rust turns proxy environment values into explicit reqwest proxies,
+  // which ignore NO_PROXY. Only this loopback-only child bypasses that proxy;
+  // its SDK options stay identical for the reference collector and Spool.
+  return {command:resolve(target(dir),'release/spool-runtime-rust'),args:[mode],cwd,env:{SPOOL_FIXTURE_DSN:dsn,HTTP_PROXY:'',HTTPS_PROXY:'',http_proxy:'',https_proxy:'',ALL_PROXY:'',all_proxy:''}};
+ },
 };
