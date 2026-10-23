@@ -8373,7 +8373,7 @@
       "executable": false
     },
     "tests/runtimes/dotnet/Program.cs": {
-      "sha256": "d15470648d1479f57f2e078e7d285f6c0ff1b0564511a8523be97a9c17bd0efe",
+      "sha256": "e35cd328982f88c7de7e70d5c6cf8488917c96ab2ca9a77846cc24c6418eacfb",
       "executable": false
     },
     "tests/runtimes/electron.mjs": {
