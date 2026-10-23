@@ -19,3 +19,6 @@ try {
 if (!existing?.equals(output)) {
   await writeFile(outfile, output, {flag: constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW});
 }
+
+// Ship the pinned official browser SDK locally; loader pages never fetch a CDN.
+await build({stdin:{contents:"export * from '@sentry/browser';",resolveDir:process.cwd()},outfile:'public/spool-sentry-sdk.js',bundle:true,minify:true,format:'iife',globalName:'__SpoolSentrySDK',platform:'browser',target:'es2022'});

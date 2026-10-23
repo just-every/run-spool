@@ -1,3 +1,4 @@
+import { loaderTables, loaderDefaults, validateLoaderArchive } from './loader/archive';
 import { proposalTables, proposalDefaults, validateProposalArchive } from './proposals/archive';
 import { shortIdTables, shortIdDefaults, validateShortIdArchive } from './short-ids/archive';
 import { commitTables, commitDefaults, commitAuditKinds, validateCommitArchive } from './commits/archive';
@@ -25,7 +26,7 @@ export const tables:Record<string,string[]>= {
   issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq'],
   events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received','occurrence','historical'],
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
-  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables
 };
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
@@ -55,7 +56,7 @@ export async function validateArchive(v:any) {
   shape(v,['version','migration','data','checksum']);
   const legacy=v.version===1&&v.migration==='0001_errors';
   if(!v || (!legacy&&(v.version!==2||v.migration!=='0003_browser_origins'))||!v.data||await hash(canonical({version:v.version,migration:v.migration,data:v.data}))!==v.checksum)throw new Error('Archive identity/checksum mismatch');
-  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)&&!Object.hasOwn(groupingTables,name)&&!Object.hasOwn(releaseTables,name)&&!Object.hasOwn(deploymentTables,name)&&!Object.hasOwn(proposalTables,name)&&!Object.hasOwn(shortIdTables,name)&&!Object.hasOwn(commitTables,name)&&!Object.hasOwn(sentryCliTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
+  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)&&!Object.hasOwn(groupingTables,name)&&!Object.hasOwn(releaseTables,name)&&!Object.hasOwn(deploymentTables,name)&&!Object.hasOwn(proposalTables,name)&&!Object.hasOwn(shortIdTables,name)&&!Object.hasOwn(commitTables,name)&&!Object.hasOwn(sentryCliTables,name)&&!Object.hasOwn(loaderTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
   const inputTables=legacy?Object.fromEntries(Object.entries(oldTables).filter(([name])=>name!=='browser_origins')):oldTables;
   if(Object.keys(v.data).sort().join()!==Object.keys(inputTables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(inputTables)) {
@@ -67,6 +68,7 @@ export async function validateArchive(v:any) {
 }
 export async function validateArchiveRows(data:any,legacy=false) {
   // Native v1/v2 and the exact pre-alert schemas have no feedback collection.
+  data=loaderDefaults(data);
   data=sentryCliDefaults(commitDefaults(shortIdDefaults(proposalDefaults(deploymentDefaults(releaseDefaults(groupingDefaults(inboundFilterDefaults(feedbackDefaults(data)))))))));
   const v={data};
   if(Object.keys(data).sort().join()!==Object.keys(tables).sort().join())throw new Error('Archive tables mismatch');
@@ -101,6 +103,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   validateShortIdArchive(v.data);
   validateCommitArchive(v.data);
   validateSentryCliArchive(v.data);
+  validateLoaderArchive(v.data);
   validateDeploymentArchive(v.data);
   await validateReleaseArchive(v.data);
   await validateGroupingArchive(v.data);

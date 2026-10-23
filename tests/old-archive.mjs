@@ -9,7 +9,7 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const citationTables = ['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables = ['loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
@@ -54,6 +54,9 @@ try {
  try { await transfer.restoreArchive(await transfer.portability(upgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
  for (const [table, data] of Object.entries(expected)) assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${table}"`)), canonicalRows(data), `released baseline is populated through restore: ${table}`);
+ // An existing capture key predates the loader migration; migrations preserve it too.
+ const existingProject = (await rows(upgrade, 'SELECT id FROM projects ORDER BY created,id'))[0].id;
+ await upgrade.prepare("INSERT INTO credentials(hash,project,kind,created,revoked) VALUES(?,?,'ingest',1,NULL)").bind('a'.repeat(64), existingProject).run();
  const oldTables = await rows(upgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
  const beforeUpgrade = new Map(await Promise.all(oldTables.map(async ({name}) => [name, canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`))])));
  const added = migrations.filter(migration => !released.some(old => old.name === migration.name));
@@ -65,6 +68,8 @@ try {
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
+ assert.deepEqual(await rows(upgrade, 'SELECT * FROM loader_settings'), [], 'existing capture keys start with lazy, optional-capture-off defaults');
+ assert.equal((await upgrade.prepare("SELECT COUNT(*) n FROM credentials WHERE project=? AND kind='ingest' AND revoked IS NULL").bind(existingProject).first()).n, 1, 'the populated upgrade keeps the active capture key');
  // TEAM-004: migration 0059 gives every existing issue a short ID in first-seen order, per project prefix.
  const upgradedIds = await rows(upgrade, 'SELECT * FROM issue_short_ids ORDER BY project,number');
  assert.ok(upgradedIds.length > 0 && upgradedIds.length === (await rows(upgrade, 'SELECT id FROM issues')).length && upgradedIds.every(row => row.issue === row.assigned), 'every upgraded issue has its own short ID');

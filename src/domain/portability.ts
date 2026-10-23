@@ -1,3 +1,4 @@
+import { loaderTables } from './loader/archive';
 import { proposalTables, proposalExportRow } from './proposals/archive';
 import {followUpExcludedTables} from './follow-up/types';
 import { safeAuditExcludedTables, auditPayload, SAFE_AUDIT_PAYLOAD } from './audit/archive';
@@ -138,6 +139,8 @@ laterTables.unshift({tables:citationTables,migrations:['0059_short_ids_commit_ci
 const cliTables=Object.keys(sentryCliTables);
 for(const later of laterTables){later.tables.push(...cliTables);later.migrations.push('0060_sentry_cli.sql')}
 laterTables.unshift({tables:cliTables,migrations:['0060_sentry_cli.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(loaderTables));later.migrations.push('0061_loader_settings.sql')}
+laterTables.unshift({tables:Object.keys(loaderTables),migrations:['0061_loader_settings.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

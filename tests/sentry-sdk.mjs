@@ -1,4 +1,6 @@
-// [SDK-001] Browser and Node qualification through the public intake, API and UI.
+import { loaderPage } from './loader-page.mjs';
+import { loaderFlow } from './loader-flow.mjs';
+// [SDK-001] [SDK-023] Browser and Node qualification through the public intake, API and UI.
 import { qualifyBrowser } from './runtimes/browser.mjs';
 import { sdkInboundFilterFlow } from './inbound-filter-flow.mjs';
 import assert from 'node:assert/strict';
@@ -42,7 +44,7 @@ try{
   const referenceOrigin=await listen(collector),referenceDsn=referenceOrigin.replace('://','://reference@')+'/1';
   const dsns={reference:referenceDsn,spool:project.dsn};
   assert.ok(project.dsn,'Project creation returns numeric scoped DSN');
-  application=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/empty'){res.setHeader('Content-Type','text/html');res.end('<!doctype html><title>Navigation complete</title>');return}if(url.pathname==='/app.js'||url.pathname==='/sdk.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(resolve(temporary,url.pathname.slice(1))));return}const dsn=dsns[url.searchParams.get('target')];if(!dsn){res.writeHead(404);res.end();return}res.setHeader('Content-Type','text/html');res.end(`<!doctype html><meta name="viewport" content="width=device-width"><title>Unmodified SDK application</title><button>Throw checkout exception</button><script>globalThis.__DSN__=${JSON.stringify(dsn)};globalThis.__SDK_CONFIG__=${JSON.stringify(sdkConfig)}</script><script type="importmap">{"imports":{"@sentry/browser":"/sdk.js"}}</script><script type="module" src="/app.js"></script>`)}catch{res.writeHead(500);res.end()}});
+  application=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(loaderPage(url,res,dsns.loader))return;if(url.pathname==='/empty'){res.setHeader('Content-Type','text/html');res.end('<!doctype html><title>Navigation complete</title>');return}if(url.pathname==='/app.js'||url.pathname==='/sdk.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(resolve(temporary,url.pathname.slice(1))));return}const dsn=dsns[url.searchParams.get('target')];if(!dsn){res.writeHead(404);res.end();return}res.setHeader('Content-Type','text/html');res.end(`<!doctype html><meta name="viewport" content="width=device-width"><title>Unmodified SDK application</title><button>Throw checkout exception</button><script>globalThis.__DSN__=${JSON.stringify(dsn)};globalThis.__SDK_CONFIG__=${JSON.stringify(sdkConfig)}</script><script type="importmap">{"imports":{"@sentry/browser":"/sdk.js"}}</script><script type="module" src="/app.js"></script>`)}catch{res.writeHead(500);res.end()}});
   const applicationOrigin=await listen(application);await request('/api/projects/sdk/browser-origins','POST',{origin:applicationOrigin});
   browser=await launchBrowser();
   for(const width of [1440,390]){
@@ -80,6 +82,7 @@ try{
     process.env.SPOOL_FIXTURE_DEPLOY_KEY=(await request(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key;
     try{await sourceMapCli(['--endpoint',origin,'--project',project,'--release',sdkConfig.release,'--build',sdkConfig.dist,'--key-env','SPOOL_FIXTURE_DEPLOY_KEY',bundle])}finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY}
   }});
+  await loaderFlow({browser,origin,cookie,request,applicationOrigin,dsns});
   await sdkInboundFilterFlow({request,origin,browser,temporary,require,applicationOrigin,dsns});
   const nodeEntry=resolve(temporary,'node-client.mjs');
   // This exact program/config runs twice. Only the DSN environment value differs.

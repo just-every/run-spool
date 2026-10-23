@@ -19,3 +19,5 @@ packages/sdk/LICENSE
 
 .rer/demo/
 tests/runtimes/rust/target/
+
+public/spool-sentry-sdk.js

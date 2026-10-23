@@ -82,3 +82,21 @@ Deployed Spool refuses every dev-minted key, including ingest and deploy keys. S
 Spool also accepts JavaScript errors from the unmodified Sentry browser and Node SDKs. Replace only the DSN with the one Spool shows for your project, and keep your release and dist settings. Spool keeps the exceptions and their stack traces; it does not keep sessions, traces, replays or attachments. The [switching guide](SENTRY-SWITCHING.md) has the details.
 
 See [supported languages](SUPPORTED-LANGUAGES.md) for the exact native/Sentry Python and Go grammars, limits, repository path mapping, privacy and unavailable symbolication.
+
+### Use a browser loader tag
+
+For an existing Sentry Loader Script installation, open **Settings → Project keys → Details** for its capture key. Set the shipped SDK version, tracing sample rate, replay session/error sample rates and feedback option there. Spool currently ships the same official `@sentry/browser` 11.6.0 it qualifies directly. All three rates start at zero and feedback starts off; choose any higher rate explicitly. Paste that key's public DSN client key into the unsaved tag field to fill:
+
+```html
+<script src="https://YOUR_SPOOL_ORIGIN/sdk/YOUR_INGEST_KEY.min.js" crossorigin="anonymous"></script>
+```
+
+The SDK bundle is built into Spool and served from its own origin. No CDN fetch is needed. The default loader buffers `init`, `addBreadcrumb`, `captureMessage`, `captureException`, `captureEvent`, `withScope` and `showReportDialog`. An error, unhandled rejection or capture/report-dialog call loads the SDK once; non-capture calls stay queued. `Sentry.forceLoad()` or `data-lazy="no"` loads immediately. Enabling tracing, replay or feedback also loads immediately. Automatic breadcrumbs before SDK initialization are unavailable.
+
+Define `window.sentryOnLoad` before the tag or call `Sentry.onLoad(callback)` after it. Each callback runs once, with a client initialized for that key. Later `onLoad` registrations run immediately. To keep release identity, call `Sentry.init({release: 'web@1.2.0', dist: 'build-42'})` in the callback; the loader retains the key's DSN and settings. Events without a release use ordinary Sentry intake: they are accepted and counted without inventing a release. Matching release/dist events group and count like directly bundled browser SDK events.
+
+Settings apply on the next script load. Disabling the loader and revoking its capture key are separate actions: disabled, revoked and unknown loader keys all answer 404 with no script or DSN. Disabling a loader does not revoke an SDK already loaded by a page. The script contains only the public DSN and that key's options. It is not an origin authorization mechanism: SDK-006 Origin/Referer and allowed-domain enforcement remain at the unchanged intake door. Spool keeps no answer cache or per-visitor state for the script.
+
+Migration `0061_loader_settings.sql` adds configuration without rewriting existing keys. Private archives retain settings and their one-way key hashes, exclude raw keys and credentials, and restore the settings inertly; create new capture keys after restore. Project erasure removes the settings. Maintainer edits use the existing owner permission, same-origin, revision and audit fences (owner remains maintainer until TEAM-001).
+
+Not qualified here: older SDK version tracks, pre-load automatic instrumentation, the hosted legacy report-dialog endpoint, screenshots (disabled for the feedback widget), or a real Sentry organization loader-key inventory and replacement-tag listing. That listing remains MIG-001. Traces and replay still have their named unsupported outcomes; their storage remains with SDK-005/SDK-007/CTX-001/CTX-002/SDK-025. No provider account, device or consent is used.
