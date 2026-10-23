@@ -45,12 +45,19 @@ export async function investigationFlow({req,json,origin}){
   await context.close();
  }}finally{await browser.close()}
  // Frame locals and SDK source lines are owner evidence: an agent's query matches only what its packet shows.
- const dsn=new URL(p.dsn),local='synthetic-spool-1',line='synthetic-spool-2';
- assert.equal((await req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:'7'.repeat(32),release:'checkout-2026',dist:'web',exception:{values:[{type:'LedgerError',value:'Ledger closed',stacktrace:{frames:[{filename:'https://checkout.example/ledger.js',function:'closeLedger',lineno:3,colno:5,pre_context:[line],context_line:line,post_context:[line],vars:{strategy:local}}]}}]}})).status,200);
+ const dsn=new URL(p.dsn),store=`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,local='synthetic-spool-1',line='synthetic-spool-2';
+ assert.equal((await req(store,'POST',{event_id:'7'.repeat(32),release:'checkout-2026',dist:'web',exception:{values:[{type:'LedgerError',value:'Ledger closed',stacktrace:{frames:[{filename:'https://checkout.example/ledger.js',function:'closeLedger',lineno:3,colno:5,pre_context:[line],context_line:line,post_context:[line],vars:{strategy:local}}]}}]}})).status,200);
  for(const q of [local,'stack:'+local,'function:'+local,line,'stack:'+line]){
   assert.equal((await json(base+'/issue-search?q='+encodeURIComponent(q))).total,1,'owner search reaches frame locals and source lines');
   for(const door of ['issue-search','issue-export'])assert.equal((await json(`${base}/${door}?q=${encodeURIComponent(q)}`,'GET',undefined,auth)).total,0,'agent search and export match only what the agent packet shows');
  }
  assert.equal((await json(base+'/issue-search?q='+encodeURIComponent('stack:closeLedger'),'GET',undefined,auth)).total,1,'agent search still matches packet frames');
+ // Captured text stays inert in a spreadsheet: no exported cell opens as a formula, and each title keeps its text.
+ const formulas=['=1+1&"','@SUM(1)','+1','-1',' =2','\t=3'];
+ for(const [i,type] of formulas.entries())assert.equal((await req(store,'POST',{event_id:String(i+1).repeat(32),release:'checkout-2026',dist:'web',exception:{values:[{type,value:'synthetic-spool-3 confirmed"',stacktrace:{frames:[{filename:'https://checkout.example/sheet.js',function:'exportSheet',lineno:i+1,colno:1}]}}]}})).status,200);
+ const sheet=(await (await req(base+'/issue-export?format=csv&q=synthetic-spool-3')).text()).split('\r\n').slice(1).map(row=>row.match(/"(?:[^"]|"")*"/g).map(cell=>cell.slice(1,-1).replaceAll('""','"')));
+ assert.equal(sheet.length,formulas.length);
+ for(const cell of sheet.flat())assert.doesNotMatch(cell,/^[\s\p{Cc}]*[=+\-@]/u,'exported cells never open as spreadsheet formulas');
+ for(const type of formulas)assert.ok(sheet.some(row=>row[2].includes(type.trim()+': synthetic-spool-3 confirmed"')),'exported titles keep the captured text');
  console.log('Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.');
 }

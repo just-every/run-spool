@@ -11,6 +11,9 @@ import { ensureShortIds } from '../short-ids/assign';
 import { decodeShortIds, shortIdColumnsSql } from '../short-ids/lookup';
 import { commitResolutionSql, commitSharing } from '../commits/sharing';
 const routes=new Hono<any>();
+// Spreadsheets evaluate a cell that opens with a formula sign, even after blanks or control
+// characters; a leading apostrophe keeps captured text inert while the stored value stays as sent.
+const inert=(text:string)=>/^[\s\p{Cc}]*[=+\-@]/u.test(text)?"'"+text:text;
 // Independently enforce the read door; mounting this router never supplies authority.
 const authorize=async(c:any,next:any)=>{
  const project=c.req.param('project'),grant=await agentProject(c.req.raw,c.env.DB);
@@ -46,7 +49,7 @@ async function search(c:any,exporting=false){
   // An export leaves the owner session: the resolving commit's SHA and release, its author and message only when shared.
   const share=(await commitSharing(db,project)).share,resolutions=new Map<string,any>((await db.prepare(`SELECT i.id,${commitResolutionSql('i')} resolution FROM issues i WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))`).bind(project,JSON.stringify(rows.map((r:any)=>r.id))).all()).results.map((r:any)=>[r.id,r.resolution?JSON.parse(r.resolution):null]));
   for(const r of rows as any[]){const resolution=resolutions.get(r.id);r.resolution_commit=resolution?.commit??null;r.resolution_citation=resolution?.citation??null;r.resolution_release=resolution?.release??null;if(share){r.resolution_author=resolution?.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):null;r.resolution_message=resolution?.message??null}}
-  const keys=['short_id','id','title','state','count','first_seen','last_seen','last_release','resolution_commit','resolution_citation','resolution_release',...share?['resolution_author','resolution_message']:[]];const cell=(v:any)=>'"'+String(v??'').replaceAll('"','""')+'"';return new Response(format==='csv'?[keys.join(','),...rows.map((r:any)=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'):JSON.stringify({version:1,project,query:{q,status:state,release,sort},total:total.total,rows,bounds:{limit:10000,complete:true},coverage:'Retained issue aggregates; counts include all retained occurrences of matched issues.'}),{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-issues.${format}"`,'Cache-Control':'no-store'}})}
+  const keys=['short_id','id','title','state','count','first_seen','last_seen','last_release','resolution_commit','resolution_citation','resolution_release',...share?['resolution_author','resolution_message']:[]];const cell=(v:any)=>'"'+inert(String(v??'')).replaceAll('"','""')+'"';return new Response(format==='csv'?[keys.join(','),...rows.map((r:any)=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'):JSON.stringify({version:1,project,query:{q,status:state,release,sort},total:total.total,rows,bounds:{limit:10000,complete:true},coverage:'Retained issue aggregates; counts include all retained occurrences of matched issues.'}),{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-issues.${format}"`,'Cache-Control':'no-store'}})}
  const eventPredicate=query.sql+(release!=='all'?' AND e.release=?':''),eventArgs=[...query.args,...release!=='all'?[release]:[]];
  const [statuses,releases,environments,tags]=await Promise.all([
  statement('SELECT state value,COUNT(*) count FROM ranked GROUP BY state').all(),
