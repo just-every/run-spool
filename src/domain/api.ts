@@ -1,3 +1,4 @@
+import { suspectRoutes } from './suspects/routes';
 import { loaderRoutes } from './loader/routes';
 import { checkInRoutes } from './checkins/routes';
 import proposalRoutes from './proposals/routes';
@@ -148,6 +149,7 @@ api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
+api.route('/api/projects/:project/suspects',suspectRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);
 api.route('/api/projects/:project/inbound-filters',inboundFilterRoutes);
 api.route('/api/projects/:project/grouping-rules',projectGroupingRoutes);

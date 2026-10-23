@@ -1,3 +1,4 @@
+import {suspectFlow} from './suspect-flow.mjs';
 import {releaseOrderFlow} from './release-order-flow.mjs';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
@@ -7,7 +8,7 @@ import {archiveProjection} from './archive.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 
-// REL-001: real emitted Worker, owner/deploy HTTP doors, native scheduled event and browser UI.
+// [REL-001] [REL-002]: real emitted Worker, owner/deploy HTTP doors, native scheduled event and browser UI.
 const app=await startTestWorker(15553),origin=app.origin;
 let browser;
 try {
@@ -39,6 +40,7 @@ try {
  await screens('all-states');
  // Use the owner form to record a run and its completion.
  const context=await browser.newContext({viewport:{width:390,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/releases');const panel=page.locator('#deployment-history');await panel.getByLabel('Deployment ID',{exact:true}).fill('owner-ui');await panel.getByLabel('Deployment release',{exact:true}).selectOption('checkout@2.0.0');await panel.getByLabel('Repository HTTPS URL',{exact:true}).fill('https://example.test/cedar/checkout');await panel.getByLabel('Deployment commit SHA',{exact:true}).fill(sha);await panel.getByLabel('Included commit SHAs, oldest first',{exact:true}).fill(sha);await panel.getByLabel('Owner deadline',{exact:true}).fill(await page.evaluate(()=>{const dt=new Date(Date.now()+3600000);return new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16)}));await panel.getByLabel('Deadline email destination',{exact:true}).selectOption(dest.id);await panel.getByRole('button',{name:'Start deployment',exact:true}).click();await panel.getByRole('status').filter({hasText:'Deployment started.'}).waitFor();await panel.getByLabel('Deployment to update',{exact:true}).selectOption('owner-ui');await panel.getByLabel('Deployment outcome',{exact:true}).selectOption('succeeded');await panel.getByLabel('Exposure percent',{exact:true}).fill('100');await panel.getByRole('button',{name:'Record deployment outcome',exact:true}).click();await panel.getByRole('status').filter({hasText:'Deployment outcome recorded.'}).waitFor();await context.close();
+ await suspectFlow({req,json,origin,browser});
  const other=await json('/api/projects','POST',{id:'deployment-foreign',name:'Isolated service'});
  await json('/api/projects/'+other.id+'/releases','POST',{name:'checkout@2.0.0',build:'web-2'});const otherDestination=await json('/api/projects/'+other.id+'/alerting/destinations','POST',{label:'Other release owner',recipient:'other-release-owner@example.test'});await json('/api/projects/'+other.id+'/deployments','POST',start('owner-abandoned',{deadline:new Date(now-1).toISOString(),destination:otherDestination.id}));assert.ok((await fetch(origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json')).ok);const notices=(await json('/api/audit/export?format=json')).rows.filter(r=>r.action==='notification.attempt'&&r.outcome==='started');assert.equal(notices.length,3);assert.equal(new Set(notices.map(r=>r.subject_label)).size,3,'REL-001 equal deployment IDs in different projects are separate notification identities');
  for(const headers of [{Cookie:''},{Cookie:'',Authorization:'Bearer '+agent.key},{Origin:'https://foreign.example'}])assert.ok([401,403].includes((await req(root,'POST',start('denied'),headers)).status));

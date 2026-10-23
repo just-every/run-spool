@@ -5,6 +5,7 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/suspects\/issues\/(?<subject>[^/]+)$/,methods:['PUT'],action:'issue.suspect',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/check-in-routes\/[^/]+$/,methods:['PUT','DELETE'],action:'checkin.route',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/loader$/,methods:['PUT'],action:'credential.loader',kind:'credential'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/grouping-proposals$/,methods:['POST'],action:'grouping.propose',kind:'project'},

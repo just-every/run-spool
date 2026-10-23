@@ -390,6 +390,12 @@
       "name": "0069_checkin_routes.sql",
       "sha256": "3db8c7df076c112e88e37092f2406218a287cdcfa6684723ebd187336af3c8e6",
       "sql": "-- SDK-024: per-project monitor-slug connections to an Uptime heartbeat capability URL, and a\n-- bounded trace link for check-ins. Neither table is archived: archives never carry a capability\n-- URL, so a restored project starts with no connection and sends nothing until the owner\n-- reconnects. Existing projects have no row, which means forwarding off.\nCREATE TABLE checkin_routes (\n project TEXT NOT NULL,\n slug TEXT NOT NULL CHECK(length(slug) BETWEEN 1 AND 64),\n url TEXT NOT NULL CHECK(length(url) BETWEEN 1 AND 2048),\n enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),\n revision INTEGER NOT NULL CHECK(revision>=1),\n updated INTEGER NOT NULL,\n PRIMARY KEY(project,slug)\n);\nCREATE TABLE checkin_links (\n project TEXT NOT NULL,\n check_in_id TEXT NOT NULL CHECK(length(check_in_id) BETWEEN 1 AND 64),\n trace_id TEXT NOT NULL CHECK(length(trace_id)=32),\n slug TEXT NOT NULL,\n status TEXT NOT NULL CHECK(status IN ('in_progress','ok','error')),\n outcome TEXT NOT NULL,\n received INTEGER NOT NULL,\n PRIMARY KEY(project,check_in_id)\n);\nCREATE INDEX checkin_links_trace ON checkin_links(project,trace_id,received DESC);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0070_suspect_decisions.sql",
+      "sha256": "2b097c0c16c68961f25b09544e235728e91179d19f47a729953d494f4b3c893e",
+      "sql": "-- REL-002: owner judgments on labelled release/commit correlations. No occurrence changes.\nCREATE TABLE suspect_decisions (\n project TEXT NOT NULL,\n issue TEXT NOT NULL,\n release TEXT NOT NULL,\n sha TEXT NOT NULL,\n judgment TEXT NOT NULL CHECK(judgment IN ('confirmed','rejected')),\n note TEXT NOT NULL CHECK(length(note) BETWEEN 1 AND 600),\n revision INTEGER NOT NULL CHECK(revision>=1),\n updated INTEGER NOT NULL,\n operator_id TEXT NOT NULL,\n PRIMARY KEY(project,issue,release,sha)\n);\nCREATE INDEX suspect_decisions_owner ON suspect_decisions(operator_id);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
