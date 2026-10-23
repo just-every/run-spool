@@ -689,7 +689,7 @@ Correction custody also applies to ERR-008 and ERR-009. Repair recurrence includ
 
 ## Status
 
-Judged from the code and tests at commit `d0832974748a7d42b0d4fd2a8477e0892cdf8b8e` (23 October 2026). SDK-020 setup and SDK-001 Node/browser retain their local proof; SDK-013 packaged Electron Q1–Q7 is qualified by `tests/sdk-runtimes.mjs electron` and `tests/runtimes/electron.mjs` in Linux push `runtime (electron)`. The shared .NET program now drains its log immediately and pending telemetry before the genuine uncaught failure; its runtime proof is CI-only. SDK-023 loader, settings, custody and browser journeys were read and run against the emitted Worker; ct's 23 October carve retains the loader-key listing duty in MIG-001. Unrelated clauses retain their recorded evidence and gaps. The prior judgment and release history remain recorded in git.
+Judged from the code and tests at commit `64d67f55cf7f55a50b5fd0a043d3b5089b9d6b21` (23 October 2026). SDK-020 setup and SDK-001 Node/browser retain their local proof; SDK-013 packaged Electron Q1–Q7 is qualified by `tests/sdk-runtimes.mjs electron` and `tests/runtimes/electron.mjs` in Linux push `runtime (electron)`. The shared .NET program now drains its log immediately and pending telemetry before the genuine uncaught failure; its runtime proof is CI-only. SDK-023 loader, settings, custody and browser journeys were read and run against the emitted Worker; ct's 23 October carve retains the loader-key listing duty in MIG-001. Unrelated clauses retain their recorded evidence and gaps. The prior judgment and release history remain recorded in git.
 
 Evidence paths are repository-relative. Missing rows deliberately contain no implementation citation. Existing test files are proof specifications; their presence alone is not a run result. New acceptance journeys are targets, not invented test files. The older audit's exposure-verification row was done for its bounded local behavior; AI-004 is partial because it now also requires an agent and live rate comparison. ALERT-003 stays partial: its row records one real production-signed delivered receipt, bounce and complaint remain signed-fixture transitions, and the relay's first-hour traffic counters stay unverified.
 
@@ -703,15 +703,15 @@ Release 0.6.0 (20 October 2026) was gated on `94d607d` (main `77b289b` with the 
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 11 | 1 | 0 | 12 |
-| Target and push further | 14 | 34 | 22 | 70 |
-| All | 25 | 35 | 22 | 82 |
+| Published | 10 | 2 | 0 | 12 |
+| Target and push further | 14 | 35 | 21 | 70 |
+| All | 24 | 37 | 21 | 82 |
 
-**Clause status: 82 clauses — 25 done, 35 partial, 22 missing.**
+**Clause status: 82 clauses — 24 done, 37 partial, 21 missing.**
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
-| `ERR-001` | Bounded admission | published | done | `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` | Python/Go tests use constructed envelopes; broad runtime SDK compatibility is SDK-001 and SDK-012 to SDK-019. Removing the 120-a-minute and 10,000-retained limits is GOV-003. |
+| `ERR-001` | Bounded admission | published | partial | `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` | The retained-event preflight 429 in `src/domain/admission.ts` omits the required `Retry-After` header. Python/Go tests use constructed envelopes; broad runtime SDK compatibility is SDK-001 and SDK-012 to SDK-019. Removing the 120-a-minute and 10,000-retained limits is GOV-003. |
 | `ERR-002` | Atomic acceptance | published | done | `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs` |  |
 | `ERR-003` | Scrub before storage | published | done | `src/domain/privacy.ts`; `src/domain/scrub.ts`; `tests/privacy-table.mjs` | Coverage is the present native/Sentry projection; new context and replay controls remain unfinished. |
 | `ERR-004` | Separated authority | published | done | `src/domain/api.ts`; `src/domain/credential-fence.ts`; `src/domain/agent-access.ts`; `tests/agent-handoff.mjs`; `tests/dev-credentials.mjs` |  |
@@ -776,7 +776,7 @@ Release 0.6.0 (20 October 2026) was gated on `94d607d` (main `77b289b` with the 
 | `MIG-004` | Bugsnag migration | target | missing |  | No implementation proof yet: bugsnag migration. |
 | `MIG-005` | Up-and-comer switching paths | target | missing |  | No implementation proof yet: up-and-comer switching paths. |
 | `API-001` | Public APIs, attachments and full export | target | partial | `src/domain/investigation/search.ts`; `src/domain/agent-access.ts`; `tests/investigation-flow.mjs`; `docs/INVESTIGATION.md`; `src/domain/packet.ts`; `src/domain/archive.ts` | Versioned cursor-paginated issue query and matching bounded JSON/CSV exports now enforce owner or exact-project read authority, with explicit bounds/refusals. Rer-dev query/download proof passed at 1440/390; screenshots: `../shots/API-001/`. Occurrence/report/attachment APIs, attachment viewing audit and streaming exports/archives at GOV-003 volume remain absent. |
-| `API-002` | Sentry Web API and Terraform compatibility | target | missing |  | No implementation proof yet: sentry Web API and Terraform compatibility. |
+| `API-002` | Sentry Web API and Terraform compatibility | target | partial | `src/domain/sentry-cli/routes.ts`; `src/domain/sentry-cli/release.ts`; `tests/sentry-cli-compat.mjs`; `tests/sentry-cli/release-flow.mjs` (releaseFlow: unmodified release creation, enrichment, finalization, commits and deployment registration/listing). | Deploy-key release and deployment endpoints ship. Organization/team/member/project/key/issue/event/alert APIs, Sentry role-scoped tokens, cursor Link pagination and unmodified Terraform plan/apply/import remain absent. |
 | `GOV-001` | Enterprise identity and administration | target | partial | `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs` | Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not. |
 | `GOV-002` | Retention, residency and data custody | target | partial | `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs` | Manual cutoff, tombstones and explicit gaps exist; scheduled/plan retention, residency choice and legal holds do not. |
 | `GOV-003` | Published retention, retained volume and sustained intake rate | target | partial | `src/domain/retention.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure-cap.mjs` | An owner-run retention cutoff with occurrence tombstones, deduplication horizon and named retention gaps exists, and over-limit intake returns 429 with `Retry-After` and a counted outcome. Today `src/domain/admission.ts` and `migrations/core/0008_occurrence_identity.sql` refuse every new event once a project retains 10,000 (`retained_event_budget`) and above 120 a minute (`minute_budget`), and `src/domain/archive.ts` refuses a project archive above 10,000 events. Automatic expiry, published windows and plan volume, the published sustained rate and the named volume reasons are absent. |
