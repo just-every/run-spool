@@ -1,0 +1,33 @@
+# Sentry user identity policy
+
+Settings → **User identity policy** controls `user.id`, `email`, `username` and literal `ip_address` for later Sentry error intake. Each field can **keep**, **hash** or **drop**. All four default to **drop**, preserving the previous exclusion of the user interface. Keep and hash require an explicit owner choice. This conservative default differs from the target clause's keep-as-sent default; that sentence stays unchanged and awaits ct. Other fields (`name`, `geo`, `segment`, custom data and broader `sendDefaultPii` fields) remain dropped.
+
+The owner sees a count-only preview of retained Sentry events, identity records, stricter conversions, known users and unattributed events before saving. No value appears in the preview. A changed revision or retained-record count refuses a stale preview. Saved-search conversion is unavailable because user search keys are not built. A successful change creates one `identity_policy_changed` journal entry and one attributed transaction fact, without changing any occurrence, issue grouping or count.
+
+An individual value is a bounded scalar: id/username at most 256 characters, email 320, literal IP 80; control characters are refused as identity. Kept fields still obey Spool's credential scrubber. Email and literal IP are explicitly permitted PII under keep; credential-shaped or keyed-secret text is excluded. Hash stores only HMAC-SHA256 under SDK-005's existing random per-project key; no second key is created. Equal retained values have equal hashes within a project. The key is never in a read API or packet and travels only in the private archive.
+
+Retained keep→hash→drop conversion completes in the same owner transaction as the policy change. Precomputed keyed hashes allow conversion of the full retained corpus without a partly converted background job. Drop removes both value and field hash. Later keep choices cannot recover dropped data or turn an old hash back into a raw value; they affect new intake. An intake prepared under an earlier revision cannot commit after the policy changes.
+
+## Connecting addresses and affected users
+
+`{{auto}}` is never resolved from `Forwarded`, `X-Forwarded-For`, `CF-Connecting-IP`, Origin, Referer or an SDK-021 tunnel. This Worker does not expose the connecting socket address, so the placeholder is **unavailable** when the IP field is kept/hashed. Under drop it is never resolved. Literal IPv4 and IPv6 supplied by the SDK follow the chosen policy. This leaves the acceptance case's five users from three identities plus two auto-address visitors unqualified; the measured count is three known and two unattributed. The qualification also submits two separate literal-IP users, proving five known keys plus the two unresolved auto visitors without claiming they are the same acceptance case.
+
+The issue's existing owner view shows distinct affected users, occurrences with no key, and up to 25 newest owner-only identity records. The key is the first retained id, email, username or literal IP after policy. Native Spool events retain ERR-003's bounded random `client` identifier; the exposure journey reconciles that existing cohort with the new issue count. With no key the figure is unavailable with its reason, never zero. Read-only project grants and agent packets carry counts and reasons only, never values or field hashes. The issue stream, alerts and broader shared figures remain gaps.
+
+## HTTP and custody
+
+Owner-only same-origin project doors:
+
+- `GET /api/projects/:project/identity-policy` → revision, four-field policy, defaults and connecting-address coverage.
+- `POST .../identity-policy/preview` with `{policy}` → revision, token and count-only effects.
+- `PUT .../identity-policy` with `{revision,policy,token}` → committed revision and conversion count. Stale preview: 409; invalid field choices/body: 400; non-owner: refused.
+
+`GET /api/projects/:project/issues/:issue/affected-users` is version 1. It returns `affectedUsers` (null when unavailable), event/unattributed counts, reason and definition. Only the owner session receives `rows` of the newest 25 occurrence identities with field mode/value; read-only exact-project grants get counts only. Foreign/deploy/ingest authority is refused before issue disclosure.
+
+Migration 0066 adds policies and occurrence-bound identity records. Existing populated rows are preserved and no identity is invented during upgrade. Private archive/restore retains policy, the shared key and the data that policy permits. Restore validates keyed value integrity and strictness. Event deletion cascades to its identity record; project and installation-owner erasure remove policies, identities and the key. No active credential or outbound work is restored. End-user erasure by email is not built.
+
+`tests/sentry-sdk.mjs` [SDK-008] extends `tests/identity-flow.mjs`: one unmodified browser program (11.6.0) and one pinned Python program (2.72.0), run with only DSN changed against a local reference collector and Spool. It proves explicit keep, raw-value-free count previews, stale refusal, retained hash/drop conversion, later intake, owner values, count-only grants/packets, literal addresses, unresolved auto visitors, archive/restore and project erasure. `tests/execution/exposure.mjs` reconciles native affected users; `tests/old-archive.mjs` and `tests/owner-erasure.mjs` cover populated upgrade and owner custody. Retained 1440/390 views are under `docs/retained-verification/sdk008/`; no icon-only controls were found.
+
+SDK sources: JavaScript core `scope.js:109–120`, `utils/scopeData.js:64–84` and `envelope.js:33–40` preserve explicit user fields into an error. Browser `client.js:20–28` has an `infer_ip` hint; it does not resolve an explicitly supplied error-event `{{auto}}`. The session-only helper is `@sentry/core/build/esm/utils/ipAddress.js:1–14`. Python [scope.py:818–824,1571–1575](https://github.com/getsentry/sentry-python/blob/2.72.0/sentry_sdk/scope.py#L818) applies `set_user`; [scrubber.py:52–80,129–135](https://github.com/getsentry/sentry-python/blob/2.72.0/sentry_sdk/scrubber.py#L52) removes the IP when default PII is off. The test explicitly enables the unmodified Python SDK's PII option; it uses only synthetic identities.
+
+Remaining gaps: keep-as-sent default ruling, auto connecting address and SDK-021 tunnel trust, per-field session DID policy (SDK-005 stays hash-only), name/geo/segment/custom/default-PII fields, user search and facets, project member identity roles, end-user erasure by email, TEAM-001 organization floor, MIG-001 settings import, shared issue-stream/alert figures and broader cohort qualification. No real provider, device, consent, owner account, Uptime or Slack installation was used.

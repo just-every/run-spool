@@ -161,7 +161,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
   await app.close(); app = undefined;
 
   // A project that predates the migration upgrades with forwarding off and keeps working.
-  upgrade = await startTestWorker(15525, {}, { beforeMigration: '0062_checkin_routes.sql' });
+  upgrade = await startTestWorker(15525, {}, { deferMigration: '0062_checkin_routes.sql' });
   const upgradeCookie = await signIn(upgrade.origin), call = async (path, method = 'GET', body) => { const response = await fetch(upgrade.origin + path, { method, headers: { Origin: upgrade.origin, Cookie: upgradeCookie, 'content-type': 'application/json' }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: ${response.status}`); return response.json(); };
   const old = await call('/api/projects', 'POST', { id: 'synthetic-spool-upgrade-cron', name: 'Existing project' }), oldDsn = new URL(old.dsn);
   const send = body => fetch(`${upgrade.origin}/api/${oldDsn.pathname.slice(1)}/envelope/?sentry_key=${oldDsn.username}&sentry_version=7`, { method: 'POST', body }).then(async response => ({ status: response.status, body: await response.json() }));

@@ -35,6 +35,8 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/commits\/sharing$/,methods:['PUT'],action:'commit.sharing',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/artifacts$/,methods:['POST'],action:'artifact.upload',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/packet$/,action:'evidence.packet',kind:'issue'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/identity-policy\/preview$/,action:'identity.preview',kind:'policy'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/identity-policy$/,methods:['PUT'],action:'identity.policy',kind:'policy'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issue-export$/,action:'evidence.export',kind:'project'},
  {pattern:/^\/api\/archive$/,action:'archive.export',kind:'installation'},
  {pattern:/^\/api\/restore$/,action:'archive.restore',kind:'installation'},

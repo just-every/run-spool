@@ -24,7 +24,7 @@ export async function fidelityFlow({req,json}) {
  const detail=await json(eventBase+'/'+list.oldest.id+'?occurrence='+list.oldest.occurrence);
  assert.equal(detail.grouping.variant,'exception chain','GROUP-001 shows the whole-chain variant');assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true);assert.equal(detail.grouping.exceptions[0].frames[1].contributes,false,'GROUP-001 SDK not-in-app frame is excluded');assert.equal(detail.grouping.exceptions[0].frames[1].reason,'not in-app');
  // SDK-008: report excluded Sentry identity without retaining its value.
- assert.ok(detail.event.sentry.truncation.some(note=>note.path==='user'&&note.reason==='identity_policy_unavailable'),'SDK-008 names the unavailable identity policy at the owner detail door');
+ assert.ok(detail.event.sentry.truncation.some(note=>note.path==='user'&&note.reason==='identity_policy_drop'),'SDK-008 names the default-drop identity policy at the owner detail door');
  // SDK-010 request query strings are kept scrubbed and every exclusion is named.
  const query=new URLSearchParams(detail.event.sentry.request.query_string);
  assert.equal(query.get('page'),'2');assert.equal(query.get('filter'),'checkout failed');assert.deepEqual(query.getAll('tag'),['checkout','retry']);

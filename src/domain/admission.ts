@@ -1,3 +1,4 @@
+import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
 import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
 import { regressionSql,newerReleaseSql } from './releases/order';
@@ -55,7 +56,7 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
  return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
-export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false):Promise<Response>{
+export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity):Promise<Response>{
   let event=normalize(input);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
@@ -87,6 +88,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
       ]:[]),
       startCaptureHistory(db,project,issue,time),
       stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,${releaseSequence},?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,...releaseArgs,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
+      ...identity?eventIdentityStatements(db,identity,event.eventId,occurrence):[],
       stmt(db,`INSERT INTO event_suppressions SELECT e.project,e.id,e.occurrence,(SELECT json_group_array(json_object('id',p.id,'revision',p.revision,'field',p.field,'mode',p.mode,'value',p.value)) FROM suppression_policies p WHERE ${policyMatch}) FROM events e WHERE e.project=? AND e.id=? AND EXISTS(SELECT 1 FROM suppression_policies p WHERE ${policyMatch})`,...matchArgs(project,fingerprint,event.release,event.message),project,event.eventId,...matchArgs(project,fingerprint,event.release,event.message)),
       stmt(db,"INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) VALUES(?,?,'current',0,?,NULL,0) ON CONFLICT(project,issue) DO NOTHING",project,issue,time),
       stmt(db,`UPDATE issue_resolutions SET observed_seq=(SELECT CASE WHEN ${newerReleaseSql('issue_resolutions.project','incoming','issue_resolutions.observed_seq')} THEN incoming.release_seq ELSE issue_resolutions.observed_seq END FROM events incoming WHERE incoming.project=issue_resolutions.project AND incoming.id=? AND incoming.occurrence=?) WHERE project=? AND issue=?`,event.eventId,occurrence,project,issue),

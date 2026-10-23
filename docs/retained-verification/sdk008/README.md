@@ -1,0 +1,7 @@
+# Four-field Sentry identity policy
+
+`tests/sentry-sdk.mjs` [SDK-008] calls `tests/identity-flow.mjs`. Unmodified browser 11.6.0 and Python 2.72.0 programs run against a reference collector and Spool with only DSN changed. The journey keeps three explicit identity types, two literal IPs and two unresolved `{{auto}}` visitors; known count 5, unattributed 2 per first round. It previews, rejects stale approval, converts retained values to keyed hashes and then drops them, while replaying the same programs for later-intake proof. Grants and packets return counts only; private restore and project erasure preserve custody. `tests/execution/exposure.mjs` reconciles native client counts with repair exposure.
+
+Existing Settings and issue sections at 1440 and 390: keep, count-only conversion preview, hash and unavailable-under-drop. No horizontal overflow, serious/critical Axe finding or icon-only control. Literal IP proof does not qualify the five-user acceptance using two auto-address visitors. The connecting socket address is unavailable and no forwarded header/tunnel is trusted. Default ADOPTED: all four fields drop; keep/hash are explicit owner choices, while the clause's keep default remains an open Gap. Full search, roles, organization floor and end-user erasure remain gaps.
+
+The wider issue journey caught a 40-character SHA release widening the suspect table at 390. The table now uses the existing responsive card layout and wraps release names; the same public case passes after waiting for all issue sections to settle.

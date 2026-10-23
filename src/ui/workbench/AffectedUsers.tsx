@@ -1,0 +1,7 @@
+import {useEffect,useState} from 'react';
+import type {Request} from './shared';
+export function AffectedUsers({project,issue,request,refresh}:{project:string;issue:string;request:Request;refresh:unknown}){
+ const [data,setData]=useState<any>(null),[error,setError]=useState('');
+ useEffect(()=>{let live=true;request(`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}/affected-users`).then(v=>live&&setData(v)).catch(e=>live&&setError(e.message));return()=>{live=false}},[project,issue,request,refresh]);
+ return <section className="evidence" aria-label="Affected users"><h2>Affected users</h2>{error&&<p role="alert">{error}</p>}{data?<><p>{data.affectedUsers===null?data.reason:`${data.affectedUsers} distinct affected users`} · {data.unattributed} of {data.events} occurrences have no retained user key.</p><p className="muted">{data.definition} Identity values below are owner-only; packets and read-only grants carry counts only. At most 25 newest occurrence identities are shown.</p>{data.rows?.length>0&&<details><summary>Owner identity values</summary><ul>{data.rows.map((r:any)=><li key={r.occurrence}><code>{r.event}</code> · {Object.entries(r.values).map(([field,v]:any)=><span key={field}>{field} ({v.mode}): <code style={{overflowWrap:'anywhere'}}>{v.value}</code>{' '}</span>)}{!Object.keys(r.values).length&&r.reason}</li>)}</ul></details>}</>:<p>Loading affected users…</p>}</section>;
+}

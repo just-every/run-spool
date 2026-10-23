@@ -6,7 +6,7 @@ import { hash } from '../src/domain/privacy.ts';
 export async function loaderUpgrade({browser, applicationOrigin, dsns, defaults}) {
  let worker, context;
  try {
-  worker=await startTestWorker(15524,{}, {beforeMigration:'0061_loader_settings.sql'});
+  worker=await startTestWorker(15524,{}, {deferMigration:'0061_loader_settings.sql'});
   const {origin}=worker, cookie=await signIn(origin);
   const request=async(path,method='GET',body)=>{
    const response=await fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json'},...body?{body:JSON.stringify(body)}:{}});
