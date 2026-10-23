@@ -5,3 +5,5 @@
 Existing Settings and issue sections at 1440 and 390: keep, count-only conversion preview, hash and unavailable-under-drop. No horizontal overflow, serious/critical Axe finding or icon-only control. Literal IP proof does not qualify the five-user acceptance using two auto-address visitors. The connecting socket address is unavailable and no forwarded header/tunnel is trusted. Default ADOPTED: all four fields drop; keep/hash are explicit owner choices, while the clause's keep default remains an open Gap. Full search, roles, organization floor and end-user erasure remain gaps.
 
 The wider issue journey caught a 40-character SHA release widening the suspect table at 390. The table now uses the existing responsive card layout and wraps release names; the same public case passes after waiting for all issue sections to settle.
+
+Pristine main `64d67f55cf7f55a50b5fd0a043d3b5089b9d6b21` returned 404 at the identity-policy and affected-users doors and excluded the submitted Sentry identity. The candidate exposes owner policy/preview and scoped count doors; the same SDK captures are retained only under an explicit choice.

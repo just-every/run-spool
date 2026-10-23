@@ -2657,7 +2657,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c4f646da3ca15f349af310cd4b587f23c42162a7c69e7902cef0e131e158cd2",
+      "sha256": "3a8f2c50beeec6751548a93ca34924dc99986c7cb2d641d1d1a604db686539ff",
       "executable": false
     },
     "DEMO.md": {
@@ -3553,7 +3553,7 @@
       "executable": false
     },
     "docs/retained-verification/sdk008/README.md": {
-      "sha256": "591a12429850ee1f11829be5b6a07bc56faa28cdfbefa2d6e79631c5d230f5be",
+      "sha256": "b7ba095ef2afdae00f2df7dd98fa29d291e9011b40ded0f96ba86e6b2ed19e3d",
       "executable": false
     },
     "docs/retained-verification/sdk013/electron-diagnostics-1440.png": {
