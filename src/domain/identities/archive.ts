@@ -15,5 +15,5 @@ export async function validateIdentityArchive(data:any){
   }
   if(r.user_key!==(identityFields.map(f=>(values as any)[f]?.hash).find(Boolean)??null))throw new Error('Archive affected user key');
  }
- for(const r of data.audit.filter((r:any)=>r.kind==='identity_policy_changed')){const d=JSON.parse(r.detail),current=policies.get(r.project);if(!current||!Number.isSafeInteger(d.revision)||d.revision<1||d.revision>current.revision||!Number.isSafeInteger(d.converted)||d.converted<0||!/^[a-f0-9]{64}$/.test(d.policyDigest)||d.revision===current.revision&&d.policyDigest!==await hash(canonical(current.policy)))throw new Error('Archive identity policy audit')}
+ for(const r of data.audit.filter((r:any)=>r.kind==='identity_policy_changed')){const d=JSON.parse(r.detail),current=policies.get(r.project);if(!Number.isSafeInteger(d.revision)||d.revision<1||current&&d.revision>current.revision||!Number.isSafeInteger(d.converted)||d.converted<0||!/^[a-f0-9]{64}$/.test(d.policyDigest)||current&&d.revision===current.revision&&d.policyDigest!==await hash(canonical(current.policy)))throw new Error('Archive identity policy audit')}
 }
