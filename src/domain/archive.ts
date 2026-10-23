@@ -1,4 +1,4 @@
-import { artifactStorageTables, validateArtifactStorage } from './source-map-storage';
+import { artifactStorageTables, validateArtifactStorage } from './source-map-storage-archive';
 import { loaderTables, loaderDefaults, validateLoaderArchive } from './loader/archive';
 import { proposalTables, proposalDefaults, validateProposalArchive } from './proposals/archive';
 import { shortIdTables, shortIdDefaults, validateShortIdArchive } from './short-ids/archive';

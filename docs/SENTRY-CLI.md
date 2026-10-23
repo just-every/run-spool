@@ -33,7 +33,7 @@ The Sentry plugins read the same variables (and take `url`, `org`, `project`, `a
 
 ## Limits today
 
-Spool stores flat Source Map V3 maps of at most 256 KiB, 100 sources and 10,000 names, 20 per project (ERR-005 as published). The options endpoint advertises 512 KiB chunks, four chunks per request, a 16 MiB bundle and concurrency four. SRC-004's larger capacity, indexed maps and `sourceRoot` handling are not implemented, so larger production builds are refused file by file.
+Spool stores flat or indexed Source Map V3 maps of at most 1 MiB, 1,000 sources and 10,000 names, without a lifetime artifact count; an owner-set project byte cap limits new uploads. The options endpoint advertises 512 KiB chunks, four chunks per request, a 16 MiB bundle and concurrency four. Indexed section offsets and `sourceRoot` resolve locally. SRC-004's 190 MiB maps, 2 GiB debug files and streaming storage remain gaps; files beyond the bounded storage are refused by name. See [SOURCE-MAPS.md](SOURCE-MAPS.md) for parser bounds and custody.
 
 Before storing files, Spool validates every ZIP entry, including entries not named by the manifest, within a total expanded-data limit of 64 MiB. Structurally valid maps over the stored-map capacity still receive the per-file refusals above while maps that fit are stored.
 
