@@ -56,6 +56,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   const owner = await context.newPage(); await browserSignIn(owner, origin);
   await owner.goto(`${origin}/projects/${project.id}/issues/${group.id}`);
   await owner.getByRole('heading', { name: /synthetic-spool-checkout/ }).first().waitFor();
+  const occurrence = owner.locator('article.exception h3').filter({hasText:'synthetic-spool-checkout'}).first(); await occurrence.waitFor(); await occurrence.scrollIntoViewIfNeeded();
   await owner.screenshot({ path: `.artifacts/sdk023/loader-error-${width}.png`, fullPage: false });
   // Eager opt-out and both callbacks see a client initialized for the same DSN.
   await page.goto(applicationOrigin + '/loader?mode=eager');
@@ -96,6 +97,8 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   const icons = await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label')));
   assert.deepEqual(icons, [], 'no icon-only control on the touched settings screen');
   await owner.screenshot({ path: `.artifacts/sdk023/key-settings-${width}.png`, fullPage: false });
+  await dialog.evaluate(element => { element.scrollTop = 0; });
+  await owner.screenshot({ path: `.artifacts/sdk023/key-settings-top-${width}.png`, fullPage: false });
   await page.goto(applicationOrigin + '/loader?mode=lazy'); await page.waitForFunction(() => window.Sentry.getClient?.());
   assert.ok(await page.evaluate(() => window.Sentry.getClient().getIntegrationByName('Feedback')), 'changed key settings enable the official feedback integration on reload');
   // Feedback has been explicitly enabled; turn it off for next width's lazy-default proof.
@@ -113,6 +116,15 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   assert.deepEqual(external, [], 'the loader and its optional integrations make no CDN or provider request');
   await owner.close(); await context.close();
  }
+ // All per-key optional settings reach the shipped SDK; rates are explicitly chosen by the maintainer.
+ current = await request(keyPath);
+ const selected = { ...current.settings, tracesSampleRate: 0.2, replaysSessionSampleRate: 0.1, replaysOnErrorSampleRate: 1 };
+ await request(keyPath, 'PUT', { revision: current.revision, settings: selected });
+ const optionsContext = await browser.newContext(), optionsPage = await optionsContext.newPage();
+ await optionsPage.goto(applicationOrigin + '/loader?mode=lazy'); await optionsPage.waitForFunction(() => window.Sentry.getClient?.());
+ const actual = await optionsPage.evaluate(() => { const client = Sentry.getClient(), options = client.getOptions(); return { tracesSampleRate: options.tracesSampleRate, replaysSessionSampleRate: options.replaysSessionSampleRate, replaysOnErrorSampleRate: options.replaysOnErrorSampleRate, tracing: !!client.getIntegrationByName('BrowserTracing'), replay: !!client.getIntegrationByName('Replay') }; });
+ assert.deepEqual(actual, { tracesSampleRate: selected.tracesSampleRate, replaysSessionSampleRate: selected.replaysSessionSampleRate, replaysOnErrorSampleRate: selected.replaysOnErrorSampleRate, tracing: true, replay: true }, 'per-key tracing and replay options configure the official integrations');
+ await optionsPage.evaluate(async () => { await Sentry.getReplay().stop(); await Sentry.close(10000); }); await optionsContext.close();
  const releases = await request(`/api/projects/${project.id}/releases`); assert.ok(releases.some(r => r.auto_created === 1));
  const usage = await request(`/api/projects/${project.id}/outcomes`); assert.equal(usage.rows.find(r => r.reason === 'accepted').count, count, 'every loader and direct event is counted exactly once');
  const disabled = await request(keyPath); await request(keyPath, 'PUT', { revision: disabled.revision, settings: { ...disabled.settings, enabled: false } });
