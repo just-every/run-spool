@@ -372,6 +372,12 @@
       "name": "0061_loader_settings.sql",
       "sha256": "40d4a92001462127411c2716fe65a952360c1bac0ec6eceaedd6992c10ff9f66",
       "sql": "-- Public per-key loader configuration, never the raw ingest key. Existing keys\n-- have no row and read conservative defaults; no existing row is rewritten.\n-- Settings restore as inert configuration: archives never restore credentials.\nCREATE TABLE loader_settings (\n project TEXT NOT NULL,\n key_hash TEXT NOT NULL CHECK(length(key_hash)=64),\n revision INTEGER NOT NULL CHECK(revision>=1),\n settings TEXT NOT NULL CHECK(json_valid(settings)),\n updated INTEGER NOT NULL,\n PRIMARY KEY(project,key_hash)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0067_artifact_storage.sql",
+      "sha256": "c0e4d3dc92c83111da2e35266e2ea724eda424997f043ddb875a665f4c05456d",
+      "sql": "-- Replace the lifetime count with an optional owner-set stored-byte cap.\nCREATE TABLE artifact_storage_settings(project TEXT PRIMARY KEY REFERENCES projects(id),artifact_storage_cap INTEGER CHECK(artifact_storage_cap IS NULL OR artifact_storage_cap>=0),revision INTEGER NOT NULL CHECK(revision>0),updated INTEGER NOT NULL);\nDROP TRIGGER artifact_capacity;\nCREATE TRIGGER artifact_storage_capacity BEFORE INSERT ON artifacts\nWHEN NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)\nAND (SELECT artifact_storage_cap FROM artifact_storage_settings WHERE project=NEW.project) IS NOT NULL\nAND COALESCE((SELECT SUM(length(CAST(payload AS BLOB))) FROM artifacts WHERE project=NEW.project),0)+length(CAST(NEW.payload AS BLOB))>(SELECT artifact_storage_cap FROM artifact_storage_settings WHERE project=NEW.project)\nBEGIN SELECT RAISE(ABORT,'artifact_storage_cap'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

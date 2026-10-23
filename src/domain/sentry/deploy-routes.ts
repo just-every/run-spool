@@ -1,3 +1,4 @@
+import { artifactStorageRoutes, artifactCapReason } from '../source-map-storage';
 import { storedBuild } from '../releases/build';
 import { releaseOrderKeyStatement } from '../releases/order';
 import { releaseVersionKey,releaseIdentity } from '../releases/identity';
@@ -14,6 +15,7 @@ import { commitStatements, citationSummary } from '../commits/register';
 import { readReleasePolicy } from '../releases/policy';
 import { ensureShortIds } from '../short-ids/assign';
 const routes=new Hono<{Bindings:Bindings}>();
+routes.route('/:project/artifact-storage',artifactStorageRoutes);
 const stmt=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 async function readBody(request:Request,limit:number){
   const reader=request.body?.getReader();if(!reader)throw new Error('Missing body');let size=0;const parts:Uint8Array[]=[];
@@ -23,7 +25,7 @@ async function readBody(request:Request,limit:number){
 async function failure(c:any,project:string,error:unknown){
   const auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
   const message=String((error as Error).message);
-  if(message.includes('artifact_budget'))return c.json({error:'Artifact budget exhausted'},429);
+  if(message.includes('artifact_storage_cap'))return c.json({error:await artifactCapReason(c.env.DB,project)},429);
   if(message.includes('CHECK constraint failed')||message.includes('UNIQUE constraint failed'))return c.json({error:'Existing release or artifact conflicts'},409);
   throw error;
 }
@@ -54,7 +56,7 @@ routes.post('/:project/releases',async c=>{
 });
 routes.post('/:project/artifacts',async c=>{
   const project=c.req.param('project'),auth=await authorizeDeploy(c,project);if('response' in auth)return auth.response;
-  const b=await readBody(c.req.raw,300000),release=releaseIdentity(b.release),build=storedBuild(b.build),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
+  const b=await readBody(c.req.raw,2 * 1024 * 1024),release=releaseIdentity(b.release),build=storedBuild(b.build),metadata=sourceMapMetadata(b.map,b.debugId),debug=metadata.debugId;
   const payload=validateMap(JSON.parse(canonical(metadata.map))),digest=await hash(payload),db=c.env.DB;
   try{
     const existing=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();
@@ -71,6 +73,7 @@ routes.post('/:project/artifacts',async c=>{
     }catch(error){
       const retry=await stmt(db,'SELECT digest FROM artifacts WHERE project=? AND release=? AND build=? AND debug=?',project,release,build,debug).first<{digest:string}>();
       if(retry){const current=await authorizeDeploy(c,project);if('response' in current)return current.response;await deployBatch(c,current,[]);return retry.digest===digest?c.json({digest,bytes:new TextEncoder().encode(payload).length},200):c.json({error:'Artifact identity conflicts'},409)}
+      if(String(error).includes('artifact_storage_cap')){const file=typeof b.file==='string'?b.file.slice(0,256):debug;const detail=file+': '+await artifactCapReason(db,project);await deployBatch(c,auth,[stmt(db,"INSERT INTO sentry_assemblies(project,kind,checksum,state,detail,created) VALUES(?,'artifact_bundle',?,'error',?,?) ON CONFLICT(project,kind,checksum) DO UPDATE SET detail=excluded.detail,created=excluded.created",project,(await hash(release+'\n'+build+'\n'+file)).slice(0,40),detail,Date.now())]);return c.json({error:detail,file},429)}
       throw error;
     }
   }catch(error){return failure(c,project,error)}
