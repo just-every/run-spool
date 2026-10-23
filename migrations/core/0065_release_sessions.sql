@@ -1,5 +1,5 @@
 -- SDK-005: observed sessions only. Raw session did/IP/user-agent are never retained.
-CREATE TABLE project_identity_keys(project TEXT PRIMARY KEY,key TEXT NOT NULL CHECK(length(key)=64));
+CREATE TABLE project_identity_keys(project TEXT NOT NULL UNIQUE,key TEXT NOT NULL CHECK(length(key)=64),PRIMARY KEY(project,key));
 CREATE TABLE health_sessions(
  project TEXT NOT NULL,sid TEXT NOT NULL,release TEXT NOT NULL,environment TEXT NOT NULL,
  started INTEGER NOT NULL,updated INTEGER NOT NULL,status TEXT NOT NULL CHECK(status IN ('ok','exited','errored','crashed','abnormal','unhandled')),

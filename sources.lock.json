@@ -3757,7 +3757,7 @@
       "executable": false
     },
     "docs/SENTRY-IDENTITY.md": {
-      "sha256": "272ae4a11c974c9f548e369a56d75aab476bd4c26629c111db97f9b413ec53c2",
+      "sha256": "fe1a59c29a668ba04ee0554d99a4a2c797bfddc27a1a6c1a7d0fc4b3953f6574",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -3821,7 +3821,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "69e26967a0908ba8745091bd4a371c90dbfd3b1db970a0a9658a08c6bb005e6c",
+      "sha256": "8a05248c7a5e786085bf7db64954695161dbd33a5dad945e39c6eaeb476001b3",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4081,11 +4081,11 @@
       "executable": false
     },
     "migrations/core/0065_release_sessions.sql": {
-      "sha256": "f551e2a4a8de8070c88e5ea69a2a8b899845a20eba372d933c7400ad201de73d",
+      "sha256": "5e7a7679a9aec7cfa7c0261ccad3d3ad73a5a85b372f89993a10bf1ef5f37f6b",
       "executable": false
     },
     "migrations/core/0066_identity_policy.sql": {
-      "sha256": "150ae8a2b99fa137f5102a37c5fd5fe9e9dafbfa8ee91862b734470f9ee0c703",
+      "sha256": "56f03da41ed3b0881290f8b59d9de25edb65b94dfdd03f82cea7771c72e5fcfc",
       "executable": false
     },
     "ONBOARDING.md": {
