@@ -112,6 +112,9 @@ try {
  app.cookie=await confirmLatest(app,next.email);
  assert.ok(app.cookie);await app.json('/api/projects');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
+ // SDK-008: the successor chooses a new policy above the erased policy's safe revision floor.
+ const nextIdentityPolicy={id:'hash',email:'hash',username:'hash',ip_address:'hash'},nextIdentityPreview=await app.json('/api/projects/personal-capture/identity-policy/preview',{policy:nextIdentityPolicy});
+ const nextIdentityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:nextIdentityPolicy,revision:nextIdentityPreview.revision,token:nextIdentityPreview.token},{},'PUT');assert.equal(nextIdentityWrite.status,200);const nextIdentity=await nextIdentityWrite.json();assert.ok(nextIdentity.revision>identityPreview.revision+1,'successor does not reuse an erased policy revision');
  const post=await archive(app);
  for(const needle of needles)assert.ok(!post.text.includes(needle),'fresh archive contains no self identifiers');
  assert.equal((await restore(app,pre.text)).body.error,'erasure_epoch');
