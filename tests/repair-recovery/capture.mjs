@@ -16,6 +16,6 @@ export async function captureApp(app,browser,project,release,build){
    await page.getByRole('button',{name:button}).click();await page.waitForFunction(()=>window.captureOutcome);
    const outcome=await page.evaluate(()=>window.captureOutcome);assert.equal(outcome.outcome,'accepted',`${button} in ${releaseName} accepted`);return outcome;
   },
-  async stop(){await page.close();await dispatch.stop();},
+  async stop(){try{if(!page.isClosed())await page.close()}catch(error){if(!page.isClosed())throw error}finally{await dispatch.stop()}},
  };
 }

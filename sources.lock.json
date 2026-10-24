@@ -8681,11 +8681,11 @@
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
-      "sha256": "99c9e05969c6cd1096f00a18a4fd437f5a598c0bfacf67243a8e0a3aa321c1c9",
+      "sha256": "873e3881968dfed481f4e57da9e097eecfdd180ae22ca0ff8e759527a8b0d5ee",
       "executable": false
     },
     "tests/repair-recovery/packet.mjs": {
-      "sha256": "e15e7a8b1b244b58408ecf4ae24fbe8890a8f222d5f781b119f1c0d26248909c",
+      "sha256": "496ec632938adff4a1a820179b17eea1dea44e9d59da171b19067a9b02038bff",
       "executable": false
     },
     "tests/repair-recovery/recording.mjs": {

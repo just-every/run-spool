@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import {cli,clientEnvironment} from '../agent-handoff/clients.mjs';
-const previousKeys=['version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','releaseHistory','links','bounds','gaps'];
+const previousKeys=['affectedUsers','version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','retentionPolicy','releaseHistory','links','bounds','gaps'];
 // Before any repair, the deployment-aware packet carries an empty repair list (and TEAM-004's empty, SHA-only commit section).
 export function packetBeforeRepair(packet){
  assert.deepEqual(Object.keys(packet).filter(key=>!['repairs','commits'].includes(key)),previousKeys);assert.deepEqual(packet.repairs,[]);assert.deepEqual(packet.commits,{sharing:'sha_only',rows:[]});
+ assert.deepEqual(Object.keys(packet.affectedUsers).sort(),['affectedUsers','definition','events','reason','unattributed']);assert.equal(packet.affectedUsers.events,packet.bounds.availableEvents);assert.ok(Number.isSafeInteger(packet.affectedUsers.unattributed));assert.match(packet.affectedUsers.definition,/keyed project hashes/);
+ assert.deepEqual(packet.retentionPolicy.windows,{events:90,artifacts:90,feedback:90,exposures:90,commits:90,sessions:90});assert.equal(packet.retentionPolicy.held,false);assert.match(packet.retentionPolicy.note,/historical comparisons/);assert.ok(!Object.hasOwn(packet.retentionPolicy,'reason'));
  assert.deepEqual(packet.verification,{state:'inconclusive',reason:'No independently measured workflow exposure or postdeploy proof'});
  assert.ok(!packet.gaps.some(row=>row.code==='repairs_omitted'));
 }
