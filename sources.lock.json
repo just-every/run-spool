@@ -3577,7 +3577,7 @@
       "executable": false
     },
     "docs/RETENTION.md": {
-      "sha256": "cb251caa4f04937f5e69e9c13e7460dc233fdab92d26a6af88fe0f5bc704f5d1",
+      "sha256": "a53ce4e62fe560ef679e82c454259c57f6596a55867c6ddd7887956226e359f1",
       "executable": false
     },
     "docs/REVIEW-INBOX.md": {
@@ -3657,7 +3657,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "d9645a802a835eeee8b074c0e373a323807000d9e8777648a0f3914ef090c207",
+      "sha256": "d95e3cf0f216f204ef2cfbad5f25234295bda15913269798d322ea88c27252fb",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3933,7 +3933,7 @@
       "executable": false
     },
     "migrations/core/0074_retention_policy.sql": {
-      "sha256": "7b42b4bb6731696a9a9da84dd148423f453c1bca1d1097763779688a3c684e64",
+      "sha256": "3a28aa65162c985b487fbbc8ae30b23c286712485b956766351092bbadbc2c60",
       "executable": false
     },
     "migrations/core/0075_retention_schedule.sql": {
@@ -5437,7 +5437,7 @@
       "executable": false
     },
     "src/domain/retention-schedule.ts": {
-      "sha256": "ae61e55e2d08d5df5597a7006806d1ff6403e5b56aadf50ebea6c0ba87e05560",
+      "sha256": "708fad073ad7f8b9142b19828d1f54e00d0d5d48dbcdab2a590a02927eef781a",
       "executable": false
     },
     "src/domain/retention.ts": {
@@ -8713,7 +8713,7 @@
       "executable": false
     },
     "tests/retention-flow.mjs": {
-      "sha256": "98bb5418587619260eb847747bdc1725e7fad444ad1baf9f75647f6cd2e43a88",
+      "sha256": "4cbf296b86f5b0ad7d7c89cbf9b79641c2af09bfd907ef9a997da97ffaae6bdf",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {

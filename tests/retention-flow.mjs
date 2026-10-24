@@ -1,3 +1,5 @@
+import {archiveProjection} from './archive.mjs';
+import {archiveText} from './agent-handoff/caps.mjs';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate,signIn} from './auth.mjs';
@@ -35,11 +37,15 @@ export async function retentionFlow(app,browser,directory){
  assert.equal((await request(`/api/projects/${p}/retention`,'POST',{cutoff:Date.now(),apply:true})).status,409,'[GOV-002] held cutoff refuses deletion');
  assert.equal((await json(`/api/projects/${p}/issues/${admitted.issue}/packet`)).events.length,1);
  assert.equal((await json(`/api/projects/${p}/issues/${admitted.issue}/packet`)).retentionPolicy.held,true);
- const archive=await (await request('/api/archive')).text();assert.ok(archive.includes('synthetic-spool-17 legal preservation'));
+ const snapshot=await archiveProjection(await request('/api/archive')),aged=structuredClone(snapshot.data),old=Date.now()-93*86400000,oldSid=crypto.randomUUID().replaceAll('-','');
+ aged.health_sessions.push({project:p,sid:oldSid,release:'r1',environment:'test',started:old,updated:old,status:'exited',errors:0,user_hash:null});aged.health_aggregates.push({project:p,release:'r1',environment:'test',started:Math.floor(old/60000)*60000,status:'exited',quantity:1});
+ const archive=await archiveText(snapshot,aged);assert.ok(archive.includes('synthetic-spool-17 legal preservation'));
  const restored=await startTestWorker(15549);
  try{
   const cookie=await signIn(restored.origin),req=(url,method='GET',body)=>fetch(restored.origin+url,{method,headers:{Origin:restored.origin,Cookie:cookie,...body?{'Content-Type':'application/json','x-confirm-restore':'yes'}:{}},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}}),get=async(...args)=>{const response=await req(...args);assert.ok(response.ok,`[GOV-002] restore door ${args[0]} ${response.status}`);return response.json()};
   await get('/api/restore','POST',archive);const roundtrip=await get(path);assert.deepEqual(roundtrip.windows,current.windows);assert.equal(roundtrip.held,true);assert.equal(roundtrip.reason,current.reason);
+  const ingest=await get(`/api/projects/${p}/keys`,'POST',{kind:'ingest'}),dsn=new URL(ingest.dsn),session={sid:crypto.randomUUID().replaceAll('-',''),started:new Date().toISOString(),timestamp:new Date().toISOString(),status:'ok',errors:0,attrs:{release:'r1',environment:'test'}};
+  const admittedSession=await get(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify(session));assert.equal(admittedSession.sessions.session_stored,1);const heldDb=await restored.db();assert.ok(await heldDb.prepare('SELECT 1 FROM health_sessions WHERE project=? AND sid=?').bind(p,oldSid).first(),'[GOV-002] held old session survives opportunistic intake expiry');assert.equal((await heldDb.prepare('SELECT COUNT(*) n FROM health_aggregates WHERE project=?').bind(p).first()).n,1,'[GOV-002] held old aggregate survives opportunistic intake expiry');
   const erasure=await get(`/api/projects/${p}/erasure`);assert.equal(erasure.hold,null,'legal hold does not block erasure');let receipt=await get(`/api/projects/${p}/erasure`,'POST',{confirm:p,planHash:erasure.planHash});for(let n=0;n<50&&receipt.phase!=='complete';n++)receipt=await get(`/api/erasures/${receipt.id}/resume`,'POST',{});assert.equal(receipt.phase,'complete');assert.equal((await (await restored.db()).prepare('SELECT COUNT(*) n FROM retention_policies WHERE project=?').bind(p).first()).n,0,'[GOV-002] erasure deletes held policy');
  }finally{await restored.stop()}
  await json(path+'/hold','PUT',{held:false,reason:'synthetic-spool-17 release for expiry',revision:current.revision});

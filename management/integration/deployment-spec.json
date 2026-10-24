@@ -418,8 +418,8 @@
     {
       "binding": "DB",
       "name": "0074_retention_policy.sql",
-      "sha256": "7b42b4bb6731696a9a9da84dd148423f453c1bca1d1097763779688a3c684e64",
-      "sql": "-- Owner policy is distinct from expiry execution and never blocks erasure.\nCREATE TABLE retention_policies(\n project TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),\n windows TEXT NOT NULL,held INTEGER NOT NULL CHECK(held IN(0,1)),reason TEXT NOT NULL,updated INTEGER NOT NULL,\n PRIMARY KEY(project,generation)\n);\n"
+      "sha256": "3a28aa65162c985b487fbbc8ae30b23c286712485b956766351092bbadbc2c60",
+      "sql": "-- Owner policy is distinct from expiry execution and never blocks erasure.\nCREATE TABLE retention_policies(\n project TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),\n windows TEXT NOT NULL,held INTEGER NOT NULL CHECK(held IN(0,1)),reason TEXT NOT NULL,updated INTEGER NOT NULL,\n PRIMARY KEY(project,generation)\n);\n-- Preserve the existing SDK intake and its budgets. Its opportunistic session\n-- cleanup is expiry too: held rows survive that cleanup, while erasure and\n-- validated restore retain their own independent authority.\nCREATE TRIGGER retention_held_session_expiry BEFORE DELETE ON health_sessions\nWHEN EXISTS(SELECT 1 FROM retention_policies WHERE project=OLD.project AND held=1)\n AND EXISTS(SELECT 1 FROM audit_context WHERE slot=1 AND action='capture.sentry')\nBEGIN SELECT RAISE(IGNORE); END;\nCREATE TRIGGER retention_held_aggregate_expiry BEFORE DELETE ON health_aggregates\nWHEN EXISTS(SELECT 1 FROM retention_policies WHERE project=OLD.project AND held=1)\n AND EXISTS(SELECT 1 FROM audit_context WHERE slot=1 AND action='capture.sentry')\nBEGIN SELECT RAISE(IGNORE); END;\n"
     },
     {
       "binding": "DB",
