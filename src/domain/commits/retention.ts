@@ -5,7 +5,7 @@ import { withdrawCommitIdentity } from '../alerts/retention';
  * including the copies a shared alert carried. */
 export function commitRetentionStatements(db: D1Database, project: string, cutoff: number, time: number, limit?:number) {
  return [
-  db.prepare('UPDATE commits SET message=NULL,author_name=NULL,author_email=NULL,expired=? WHERE project=? AND received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL AND rowid IN (SELECT rowid FROM commits WHERE project=? AND received<? AND expired IS NULL ORDER BY received LIMIT ?)').bind(cutoff, project, cutoff, project, cutoff, limit??10000),
+  db.prepare('UPDATE commits SET message=NULL,author_name=NULL,author_email=NULL,expired=? WHERE project=? AND received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL AND rowid IN (SELECT rowid FROM commits WHERE project=? AND received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL ORDER BY received LIMIT ?)').bind(cutoff, project, cutoff, project, cutoff, limit??10000),
   ...withdrawCommitIdentity(db, project, time),
  ];
 }

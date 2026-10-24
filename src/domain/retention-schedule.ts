@@ -7,7 +7,7 @@ export async function retentionRemaining(db:D1Database,project:string,c:Retentio
  const counts=await Promise.all(queries.map(async([table,where,values])=>(await db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project=? AND ${where}`).bind(project,...values).first<any>())!.n));return counts.reduce((a,b)=>a+b,0);
 }
 // A minute cron visits at most five due projects. Each visit removes at most
-// fifty rows per supported type; a pending visit resumes on the next cron.
+// fifty rows per type plus linked feedback (project cap 1,000); pending work resumes next cron.
 export async function scheduledRetention(db:D1Database,time:number){
  const day=Math.floor(time/86400000);
  const projects=(await db.prepare(`SELECT p.id FROM projects p LEFT JOIN retention_policies policy ON policy.project=p.id LEFT JOIN retention_runs r ON r.project=p.id
