@@ -1,6 +1,9 @@
+import {mkdir} from 'node:fs/promises';
+import AxeBuilder from '@axe-core/playwright';
+import {launchBrowser} from './browser-launch.mjs';
 import assert from 'node:assert/strict';
 import {startTestWorker} from './worker.mjs';
-import {signIn} from './auth.mjs';
+import {signIn,openGate} from './auth.mjs';
 export async function retentionScheduleFlow(){
  const worker=await startTestWorker(15548);
  try{
@@ -19,6 +22,7 @@ export async function retentionScheduleFlow(){
   let next=await worker.scheduled(time);assert.ok(next.ok);await next.body?.cancel();state=await json(`/api/projects/${p}/retention-policy`);assert.equal(state.lastRun.status,'complete');assert.equal(state.lastRun.remaining,0);const packet=await json(`/api/projects/${p}/issues/${before[0].id}/packet`);assert.equal(packet.events.length,0);assert.ok(packet.gaps.some(g=>g.code==='retention_gap'));
   const db=await worker.db(),facts=await db.prepare("SELECT COUNT(*) n FROM audit WHERE project=? AND kind='retention_gap'").bind(p).first();assert.equal(facts.n,2);assert.ok((await db.prepare("SELECT COUNT(*) n FROM spool_audit_events WHERE action='retention.scheduled' AND actor_kind='service' AND outcome='succeeded'").first()).n>=2);
   next=await worker.scheduled(time);assert.ok(next.ok);await next.body?.cancel();assert.deepEqual(await db.prepare("SELECT COUNT(*) n FROM audit WHERE project=? AND kind='retention_gap'").bind(p).first(),facts,'[GOV-003] completed same-day rerun is a no-op');
+  await mkdir('.artifacts/gov003',{recursive:true});const browser=await launchBrowser();try{for(const width of [1440,390]){const context=await browser.newContext({viewport:{width,height:1000}});try{await openGate(context,worker.origin);await context.addCookies(cookie.split('; ').filter(Boolean).map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:worker.origin})));const page=await context.newPage();await page.goto(worker.origin+`/projects/${p}/settings`);const panel=page.getByRole('region',{name:'Project retention'});await panel.getByText(/Last expiry run:.*complete.*0 rows pending/).waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);const axe=await new AxeBuilder({page}).include('[aria-label="Project retention"]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(axe.violations.map(v=>v.id),[]);await panel.screenshot({path:`.artifacts/gov003/last-run-${width}.png`})}finally{await context.close()}}}finally{await browser.close()}
   console.log('[GOV-003] native scheduled clock seam: concurrent intake, held project, fifty-row batch, remainder resume, named gap, service audit and same-day no-op passed');
  }finally{await worker.stop()}
 }
