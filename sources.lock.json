@@ -2893,7 +2893,7 @@
       "executable": false
     },
     "docs/ALERT-DELIVERY.md": {
-      "sha256": "a5ddb84d5cf3fadf90546a2f5673383bb72d5b37758bdf67f53c5f6d46151d9d",
+      "sha256": "66a8b075494b81d4bdedcea78f143ad73c4cfa50abad28c57079524fcaf88d0c",
       "executable": false
     },
     "docs/ALERT-IMPLEMENTATION.md": {
@@ -2901,7 +2901,7 @@
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
-      "sha256": "553cb062354ab96502192b25a136e755d93c52d27c7f1e709383f875566f8b0b",
+      "sha256": "6e899b15f8739648fa8ad1e0bda1b75cefe7a7044a89d33013360e280efc7b04",
       "executable": false
     },
     "docs/BULK-TRIAGE.md": {

@@ -10,7 +10,7 @@ For `spike`, `release` is null, `rule` is `{id, revision}`, and `window` is `{st
 
 ## Manage email destinations
 
-1. Select your project, open **Settings**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
+1. Select your project, open **Alerts → Rules**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
 2. Choose **Test <name>** and check the mailbox. Hosted Spool reports provider acceptance, not confirmed receipt. Local development suppresses mail and says so explicitly. Tests are limited to one per destination per minute.
 3. Create a rule below, select that destination and choose its alert events. New issues and later-release regressions send after capture; volume spikes use the minute scheduler.
 4. To change the address, choose **Edit <name>**, update it and choose **Save destination**. Its rules move to a new revision. Queued sends to the old address stop; an already executing send cannot be retracted. Test the new address.
