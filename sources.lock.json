@@ -4429,7 +4429,7 @@
       "executable": false
     },
     "scripts/installer/local.mjs": {
-      "sha256": "5fa3f10275128d2955a05a23b0bf181552342df29468fffd9951108bc4950ef3",
+      "sha256": "453caf967e539250c078fb4832227b404282b221f2e13976a8a36e8b112acd63",
       "executable": false
     },
     "scripts/installer/portability-worker.mjs": {

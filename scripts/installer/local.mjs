@@ -26,7 +26,8 @@ export const commandAdapter = createCommandAdapter(adapter, {
  site: { entry: 'src/site/pages.tsx', output: 'dist/site', declaration: 'deploy-site.json', config: 'vite.site.config.ts' },
  setup: { manifestFile: 'rer-setup.json' }, browserModule: 'scripts/installer/ui/seed.mjs',
  // The production build regenerates the TanStack route tree; preview's fixed-build receipt ignores it.
- generatedOutputs: ['src/routeTree.gen.ts'],
+ // build:app also runs scripts/build-capture.mjs, which bundles the official Sentry SDK.
+ generatedOutputs: ['src/routeTree.gen.ts', 'public/spool-sentry-sdk.js'],
  // Local dev identity: the local-only Worker entry, the build output rer build scans for the dev layer, and its local owner journey.
  devIdentity: { entry: 'src/server.dev.ts', output: ['dist'], emailLinkTest: 'tests/owner-erasure.mjs' },
  localOnlyKeys: ['RER_DEV_ORIGIN', 'RER_DEV_IDENTITY'],
