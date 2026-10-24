@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.7.0 — 2026-10-24
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. Update an existing checkout with `git pull --ff-only` and `rer dev`; from an earlier tag, fetch tags and check out `v0.7.0`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This update adds 15 migrations after 0.6.0; do not reset or restore into a populated installation.
+
+### What an owner gets
+
+- Issue short IDs and recorded commit and pull-request citations for release resolution, plus owner-reviewed, inert agent grouping proposals with explicit apply and undo.
+- Expanded qualification of unmodified browser, Node, server-runtime and Electron SDK intake; a guided setup command and a per-key JavaScript loader. The contract keeps each runtime and capture boundary explicit.
+- Bounded indexed source maps, larger individual maps, an optional project storage cap, and build publication checks. Source-map publication supports the documented bundler integrations.
+- A hosted browser feedback dialog, observed release sessions, an explicit four-field identity policy, suspect-release judgments, retained-record reads, and optional cron and Slack connections. Their broader product and provider obligations remain partial.
+- Owner retention policies, legal holds and a review inbox, with scheduled expiry and restored-history safeguards. Holds pause expiry; they never prevent owner erasure.
+- The published rer 0.2.80 package, current command diagnostics and the repaired Slack destination refresh behavior. No product requirement or assessment changes in this release round: 25 done, 36 partial and 21 missing of 82.
+
+### Not in this release
+
+- Full team membership and permissions, mobile crash SDKs, traces and replays, Bugsnag or Rollbar compatibility, and completed Sentry migration or feature parity.
+- Live Slack or Uptime provider certification, automated production repair acceptance, and the larger event-volume targets still marked partial in the contract.
+- A new npm publication of the Spool SDK. This application release does not publish that package.
+
+### Known issues
+
+- Managed-to-native migration-ledger qualification remains held separately. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from. No per-installation ledger conversion is included.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the 0.6.0 record unchanged and does not invent the missing earlier record.
+
+### Migrations
+
+Only additions since 0.6.0: `0057_grouping_proposals`, `0058_alert_delivery`, `0059_short_ids_commit_citations`, `0060_sentry_cli`, `0061_loader_settings`, `0067_artifact_storage`, `0068_artifact_build_sets`, `0069_checkin_routes`, `0070_suspect_decisions`, `0071_slack_destinations`, `0072_release_sessions`, `0073_identity_policy`, `0074_retention_policy`, `0075_retention_schedule` and `0076_review_inbox`. Previously applied migration files are unchanged.
+
 ## 0.6.0 — 2026-10-20
 
 Back up first: export a private archive before updating (Settings → **Download private archive**, or stop local dev and run `rer export --output exports/spool.rer`). In a checkout of `main`, run `git pull` and `rer dev`; in a checkout of an earlier tag, run `git fetch --tags && git checkout v0.6.0` and `rer dev`. For a hosted installation, run `rer deploy` from the original deploying checkout. This release adds three migrations (`0054` through `0056`, 56 in total), which `rer dev` and `rer deploy` apply; keep the existing database, private settings, project keys and deployment receipts, and do not reset or restore into the populated installation.
