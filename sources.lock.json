@@ -7889,7 +7889,7 @@
       "executable": false
     },
     "src/ui/workbench/AffectedUsers.tsx": {
-      "sha256": "f04b397050bc72456c9a79bdc04c1896385a3357f30c424bc69933bff1853372",
+      "sha256": "d22d7af54f5b02908475bca31684850561e8a578263b22e640cebba357f4baf3",
       "executable": false
     },
     "src/ui/workbench/AgentHandoff.css": {
@@ -8017,7 +8017,7 @@
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
-      "sha256": "f3a93be59ae42a750228607b536adb01a2aeac9952cf9bb035f751829b474a16",
+      "sha256": "299b067cb1859b913fd3cfde7623f010feb244f747223e062addb78de124d153",
       "executable": false
     },
     "src/ui/workbench/inbound-filters.css": {
