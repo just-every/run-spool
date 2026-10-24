@@ -67,7 +67,14 @@ async function stop(){const active=miniflare;miniflare=null;try{if(active)await 
 // This removes Wrangler's extra local proxy hop, with no API retries.
 // --wrangler-proxy retains the failing control; Connection:close did not reliably fix it.
 let cookie='',requestSequence=0;
-async function req(path,method='GET',value,headers={}){const requestId=requestSequence+1;const response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});Object.defineProperty(response,'fixtureRequest',{value:requestId});return response}
+async function req(path,method='GET',value,headers={}){
+ const requestId=requestSequence+1;
+ let response;
+ try {
+  response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),'X-Fixture-Request':String(++requestSequence),Origin:origin,...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
+ } catch(error) {error.productRequest={method,path,ordinal:requestId};throw error}
+ Object.defineProperty(response,'fixtureRequest',{value:requestId});return response;
+}
 async function json(path,method,value,headers){const r=await req(path,method,value,headers);try{assert.ok(r.ok,'product HTTP request succeeds');return await (path==='/api/archive'?archiveProjection(r):r.json())}catch(error){error.productRequest={method:method??'GET',status:r.status,ordinal:r.fixtureRequest};throw error}}
 async function login(options){cookie=await signIn(origin,options)}
 async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}

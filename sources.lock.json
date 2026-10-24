@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "b5c9950720565686538a0834e8afc297604d0278f6ab3a9244f2c7dec8d0f25c",
+      "sha256": "703f028f588feb04a1e7280409451654b4d3f7533cf3be447f12874c46dd0295",
       "executable": false
     },
     ".gitignore": {
@@ -8409,11 +8409,11 @@
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
-      "sha256": "056a8eeca57a65eef832c85363515d8559a19976816af2950511cecb2360855f",
+      "sha256": "15a8be7f04c386ca00c65840c8ae6aa013cc8a1709d522d0277127d5b052ddb1",
       "executable": false
     },
     "tests/editor-navigation.mjs": {
-      "sha256": "c2122cead56e2ac25a1f47ef551dd44a4981728f28ff04250617f0636a1f21af",
+      "sha256": "ab56a2506577540f4ebc1a35e3a388510ddbf1f44d3e3eca6f815b5e572b96ef",
       "executable": false
     },
     "tests/execution-journey.mjs": {
@@ -8573,7 +8573,7 @@
       "executable": false
     },
     "tests/owner-editor.mjs": {
-      "sha256": "83c88fe4d4578fae49297f7073adf29f9bb6a843d2ea41665ab9486e641d408f",
+      "sha256": "9cc70ebe8c76b14a9a85169671e8e4e23931696720593b0f967087fae824e301",
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {
@@ -8621,11 +8621,11 @@
       "executable": false
     },
     "tests/product-diagnostics.mjs": {
-      "sha256": "c61e097e034f9d602b774866da430b6a45f4618c47dda2725e32bf6767fffad4",
+      "sha256": "a6e96adc71c7bccadb8d50835e4964ca502170710d6529c70198c01fc48e49d3",
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "140b5f9867c6457ea5099e80abbf0de28f36ecdd3b0ea5f85f7d544e8a019e24",
+      "sha256": "4ab51f5e117e88cad436ec530e011ac05c053eb1c3c424b3927213aeb305b468",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
 import {workbenchLink} from './navigation.mjs';
 
 /** Drive only public browser history and the management protocol's visible controls. */
@@ -15,7 +17,17 @@ export async function editorNavigation(page, frame) {
   const text = `${before} · preview ${++preview}`;
   await management.getByLabel('Preview text', {exact: true}).fill(text);
   await management.getByRole('button', {name: 'Preview text edit', exact: true}).click();
-  await management.locator('output[data-status="applied"]').waitFor();
+  try {await management.locator('output[data-status="applied"]').waitFor();}
+  catch (error) {
+   try {
+    const diagnostic = await management.locator('output').evaluate(output => ({status:output.dataset.status,text:output.textContent,messages:window.editorProtocolMessages}));
+    const folder = resolve(process.env.SPOOL_EDITOR_EVIDENCE ?? '.artifacts/wave-b');
+    await mkdir(folder,{recursive:true});
+    await writeFile(resolve(folder,`editor-navigation-${page.viewportSize()?.width}-${preview}.json`),JSON.stringify(diagnostic,null,2)+'\n');
+    console.error('Editor navigation failed:',JSON.stringify(diagnostic));
+   } catch (diagnosticError) {console.error('Editor navigation diagnostic unavailable:',diagnosticError.name);}
+   throw error;
+  }
   assert.equal(await page.getByRole('heading', {level: 1}).first().innerText(), text, 'preview reaches the rendered native leaf');
   await management.getByRole('button', {name: 'Undo preview'}).click();
   await management.locator('output[data-status="undone"]').waitFor();

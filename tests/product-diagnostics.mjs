@@ -1,5 +1,6 @@
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
+import {scrub} from '../src/domain/scrub.ts';
 
 const categories=['sql-syntax','foreign-key','sql-constraint','sql-missing-object','config','runtime','spawn','unknown'];
 export function migrationFailure(result) {
@@ -12,18 +13,26 @@ export function migrationFailure(result) {
  return {category,status:Number.isInteger(result.status)?result.status:null};
 }
 
-// No exception messages, operands containing strings, request paths, or raw logs.
+// No operands, request bodies, credentials, or raw Worker logs. Transport diagnostics
+// retain only the fixture request path and scrubbed native cause.
 export function safeFailure(error) {
  const types=['AssertionError','TimeoutError','SyntaxError','TypeError','Error'];
  const result={type:types.includes(error?.name)?error.name:'Error'};
  const location=String(error?.stack??'').match(/\btests\/(?:product-runtime|browser-origins-runtime|operator-flow|bundle-grouping-flow|worker|product-diagnostics|auth|archive)\.mjs:\d+:\d+(?=\)?(?:\n|$))/)?.[0];
  if(location)result.location=location;
- const codes=['ENOENT','EACCES','EEXIST','ENOTDIR','ENOSPC','ERR_ASSERTION','ECONNRESET','ECONNREFUSED'];
+ const codes=['ENOENT','EACCES','EEXIST','ENOTDIR','ENOSPC','ERR_ASSERTION','ECONNRESET','ECONNREFUSED','UND_ERR_SOCKET','UND_ERR_CONNECT_TIMEOUT'];
  if(codes.includes(error?.code))result.code=error.code;
+ if(error?.cause){
+  result.cause={};
+  if(typeof error.cause.code==='string')result.cause.code=scrub(error.cause.code);
+  if(typeof error.cause.message==='string')result.cause.message=scrub(error.cause.message);
+ }
  for(const field of ['actual','expected'])if(typeof error?.[field]==='boolean'||(typeof error?.[field]==='number'&&Number.isFinite(error[field])))result[field]=error[field];
  const request=error?.productRequest;
- if(request&&['GET','POST','PATCH','DELETE'].includes(request.method)&&Number.isInteger(request.status)){
-  result.http={method:request.method,status:request.status};
+ if(request&&['GET','POST','PATCH','DELETE'].includes(request.method)){
+  result.http={method:request.method};
+  if(Number.isInteger(request.status))result.http.status=request.status;
+  if(typeof request.path==='string')result.http.path=request.path.split('?')[0];
   if(Number.isSafeInteger(request.ordinal))result.http.ordinal=request.ordinal;
  }
  if(categories.includes(error?.migration?.category))result.migration={category:error.migration.category,status:Number.isInteger(error.migration.status)?error.migration.status:null};

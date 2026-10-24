@@ -264,6 +264,8 @@ jobs:
           path: |
             .artifacts/dev-server/
             .artifacts/worker-output/
+            .artifacts/wave-b/
+            .artifacts/latest-product-worker.log
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

@@ -23,8 +23,10 @@ const params = new URL(location.href).searchParams;
 const origin = params.get('parentOrigin'), installationId = params.get('installation');
 const panel = document.querySelector('section'), result = document.querySelector('output');
 const input = document.querySelector('#text'), apply = document.querySelector('#apply'), undo = document.querySelector('#undo');
+const messages = window.editorProtocolMessages = [];
+const record = (direction, message) => {messages.push({direction,type:message.type,status:message.status,revision:message.revision,sameSession:message.sessionId===sessionId});if(messages.length>30)messages.shift();};
 let sessionId, target, pagePath, revision = 0, open = false, reading = false;
-const send = (type, values = {}) => parent.postMessage({...values,protocol:'rer-editor',version:1,installationId,type,...(sessionId?{sessionId}:{})}, origin);
+const send = (type, values = {}) => {const message={...values,protocol:'rer-editor',version:1,installationId,type,...(sessionId?{sessionId}:{})};record('sent',message);parent.postMessage(message,origin);};
 const status = (value, message) => {result.dataset.status = value; result.textContent = message;};
 function regions() {
  if (!sessionId) return;
@@ -45,6 +47,7 @@ addEventListener('message', event => {
  if(event.source !== parent || event.origin !== origin)return;
  const message = event.data;
  if (!message || message.protocol !== 'rer-editor' || message.version !== 1 || message.installationId !== installationId) return;
+ record('received',message);
  if (message.type === 'protocol-offer') {sessionId = message.sessionId; target = undefined; apply.disabled = true; undo.disabled = true; send('protocol-accept'); return;}
  if (message.sessionId !== sessionId) return;
  if (message.type === 'protocol-connected') {

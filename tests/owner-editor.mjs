@@ -78,6 +78,9 @@ try {
    const handle = await frame.elementHandle();
    await Promise.all([page.waitForResponse(response => response.url().endsWith('/api/editor/config')), page.evaluate(() => window.dispatchEvent(new Event('focus')))]);
    assert.ok(await handle.evaluate(node => node.isConnected), 'equivalent focus refresh preserves the open iframe');
+   // Returning from a missing route starts the issue search again. Let that
+   // authenticated read render its action before revoking the session.
+   await page.getByRole('button', {name: 'Check for events', exact: true}).waitFor({state: 'visible'});
    assert.equal((await app.call('/auth/signout', {}, {Cookie: signedIn})).status, 204);
    // Keep the floating editor open while exercising the host's keyboard action.
    await page.getByRole('button', {name: 'Check for events', exact: true}).press('Enter');
