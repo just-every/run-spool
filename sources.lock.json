@@ -8157,7 +8157,7 @@
       "executable": false
     },
     "src/ui/workbench/RetentionPolicy.tsx": {
-      "sha256": "ba5d9af0239c5983c6e548d9d8cf75a1a4e643bd52e774c30bec906dd9e0a1ba",
+      "sha256": "07e0e135ef42cd8fc6b5141d694ed4a0f0be3bfa01c7a4424c98b58022a683fe",
       "executable": false
     },
     "src/ui/workbench/RetentionSettings.tsx": {
@@ -8229,7 +8229,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "8d5d29624bed43e39c96c27cf3c794d79d1548eeac0c1a0dbfe955d46a84d99e",
+      "sha256": "f86f9ad7a2c7f6f25fee35c9aa7d24946ed418b31fade5ed328312fbc9c9b2aa",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
@@ -8713,7 +8713,7 @@
       "executable": false
     },
     "tests/retention-flow.mjs": {
-      "sha256": "f1adf14defba4aaca4cd04c0a07705ffcda81073143fb69da199c3bf1f697bf1",
+      "sha256": "d97119098ae495e16be01b8ed852733589be75e9600ace61febd316ceb745861",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {

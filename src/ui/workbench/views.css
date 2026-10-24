@@ -168,3 +168,5 @@ span.frame-function{font-family:var(--font-text)}
 @media(max-width:600px){.issue-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .bulk-triage .callout>.highlight-button{margin-right:12px}
+
+.retention-preview{width:100%;border-collapse:collapse}.retention-preview th,.retention-preview td{padding:8px 12px;text-align:left;vertical-align:top}.retention-preview td:nth-child(n+3){min-width:140px}
