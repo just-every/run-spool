@@ -8677,7 +8677,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "9c38d7ca6bd24655dd1ca0e52f1e03214e80dfa145221133730cf5218a73720a",
+      "sha256": "00aef8bf27c7e2ac3eb99f5a6ccfedce7b6a53ddc700f381b0e63bb1d4711822",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
