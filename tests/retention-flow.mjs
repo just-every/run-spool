@@ -18,6 +18,9 @@ export async function retentionFlow(app,browser,directory){
  assert.equal((await request(path,'PUT',input)).status,400,'[GOV-002] shortening requires exact typed confirmation');
  await json(path,'PUT',{...input,confirmation:'SHORTEN RETENTION'});
  assert.equal((await request(path,'PUT',{...input,confirmation:'SHORTEN RETENTION'})).status,409,'stale preview cannot change policy');
+ const saved=await json(path),sessionWindows={...saved.windows,sessions:30},sessionPreview=await json(path+'/preview','POST',{windows:sessionWindows}),dsnBefore=new URL(project.dsn),oldSessionTime=new Date(Date.now()-60*86400000).toISOString();
+ await json(`/api/${dsnBefore.pathname.slice(1)}/envelope/?sentry_key=${dsnBefore.username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),started:oldSessionTime,timestamp:oldSessionTime,status:'exited',errors:0,attrs:{release:'r1',environment:'test'}}));
+ assert.equal((await request(path,'PUT',{...sessionPreview,confirmation:'SHORTEN RETENTION'})).status,409,'[GOV-002] newly admitted eligible session invalidates shortening preview');const freshSessionPreview=await json(path+'/preview','POST',{windows:sessionWindows});assert.equal(freshSessionPreview.rows.find(row=>row.type==='sessions').count,1);await json(path,'PUT',{...freshSessionPreview,confirmation:'SHORTEN RETENTION'});
  const captures=[];
  for(const width of [1440,390]){
   let current=await json(path);if(current.windows.feedback!==90){const pr=await json(path+'/preview','POST',{windows:{...current.windows,feedback:90}});await json(path,'PUT',{...pr,confirmation:''})}
