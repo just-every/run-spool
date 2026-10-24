@@ -110,7 +110,8 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  // secret bindings, naming the Cloudflare inputs and everything else a real deploy needs, sign-in mail included.
  const unconfigured=await command(['deploy','--dry-run'],3);assert.match(unconfigured.output,/Your application is built/,'dry run builds before it refuses');assert.match(unconfigured.output,/CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/,'dry run names the Cloudflare inputs');assert.match(unconfigured.output,/production sign-in mail: [^\n]*MAIL_API_KEY/,'dry run names the sign-in mail a real deploy needs');
  const localSettings=await get('.dev.vars');
- await put('.test-deploy.env','MAIL_FROM=auth@spool.test\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
+ // rer 0.2.80 refuses reserved/placeholder senders (exit 4) before building; use a real-shaped synthetic sender.
+ await put('.test-deploy.env','MAIL_FROM=synthetic-spool-1@mail.runeditrun.com\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
  try { const mailed=await command(['deploy','--dry-run','--env-file','.test-deploy.env'],3);assert.match(mailed.output,/CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/,'mail settings alone do not reach the target');assert.doesNotMatch(mailed.output,/production sign-in mail:/,'supplied sign-in mail is no longer named as missing'); } finally {await rm(resolve(root,'.test-deploy.env'));if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
  assert.equal(await get('.dev.vars'),localSettings,'production dry-run preserves local settings');
  assert.equal(await exists('.test-provider-attempts'),false,'deploy dry-run performs no provider HTTP calls');await rm(resolve(root,'.test-no-provider.cjs'));

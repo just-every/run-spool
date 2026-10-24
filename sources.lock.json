@@ -8401,7 +8401,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "89a362f9f3fac24d29ae5095e30cf019cb58ebc6213e6b19d0019d254c06e68f",
+      "sha256": "fdde14ee0fb96ffca0b950e587d59aa3cb2ac5d9f9b2bd056efdda4a0c1cb171",
       "executable": false
     },
     "tests/demo-capture.mjs": {
