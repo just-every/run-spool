@@ -1,3 +1,5 @@
+import {reviewRoutes} from './review/routes';
+import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
 import sessionRoutes from './sessions/routes';
 import { suspectRoutes } from './suspects/routes';
@@ -152,6 +154,8 @@ api.use('/api/*',async(c,next)=>{
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
+api.route('/api/projects/:project/review',reviewRoutes);
+api.route('/api/projects/:project/retention-policy',retentionPolicyRoutes);
 api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/suspects',suspectRoutes);

@@ -414,6 +414,24 @@
       "name": "0073_identity_policy.sql",
       "sha256": "56f03da41ed3b0881290f8b59d9de25edb65b94dfdd03f82cea7771c72e5fcfc",
       "sql": "-- SDK-008: explicit project choices; absence is drop for all four fields.\nCREATE TABLE identity_policies(project TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL,policy TEXT NOT NULL,updated INTEGER NOT NULL,PRIMARY KEY(project,revision));\nCREATE TABLE event_identities(\n project TEXT NOT NULL,event TEXT NOT NULL,occurrence TEXT NOT NULL,payload TEXT NOT NULL,user_key TEXT,reason TEXT NOT NULL,\n PRIMARY KEY(project,event,occurrence),FOREIGN KEY(project,event) REFERENCES events(project,id) ON DELETE CASCADE\n);\nCREATE INDEX event_identities_users ON event_identities(project,user_key);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0074_retention_policy.sql",
+      "sha256": "7b42b4bb6731696a9a9da84dd148423f453c1bca1d1097763779688a3c684e64",
+      "sql": "-- Owner policy is distinct from expiry execution and never blocks erasure.\nCREATE TABLE retention_policies(\n project TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),\n windows TEXT NOT NULL,held INTEGER NOT NULL CHECK(held IN(0,1)),reason TEXT NOT NULL,updated INTEGER NOT NULL,\n PRIMARY KEY(project,generation)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0075_retention_schedule.sql",
+      "sha256": "f6f354cfb9e709c59cb7c4e9bed2ecd18deb0bb4af681c3c25f2eb93babeb834",
+      "sql": "-- Local execution cursor; never exported as project data.\nCREATE TABLE retention_runs(\n project TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,last_day INTEGER,last_run INTEGER,\n lease_until INTEGER NOT NULL DEFAULT 0,status TEXT NOT NULL CHECK(status IN('running','pending','complete','failed')),\n remaining INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(project,generation)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0076_review_inbox.sql",
+      "sha256": "1150492192c7f812dc2fecb7cc9d15be00720084d444a6ee9c200ca19835132f",
+      "sql": "-- Review stores an alert boundary, never an owner identity or issue mutation.\nCREATE TABLE review_stamps(project TEXT NOT NULL,issue TEXT NOT NULL,generation TEXT NOT NULL,alert TEXT NOT NULL,reviewed INTEGER NOT NULL,UNIQUE(project,issue),PRIMARY KEY(project,issue,generation));\nCREATE TABLE review_views(project TEXT NOT NULL,id TEXT NOT NULL,generation TEXT NOT NULL,query TEXT NOT NULL,UNIQUE(project,id),PRIMARY KEY(project,id,generation));\nCREATE TRIGGER review_view_capacity BEFORE INSERT ON review_views WHEN NOT EXISTS(SELECT 1 FROM review_views WHERE project=NEW.project AND id=NEW.id) AND (SELECT COUNT(*) FROM review_views WHERE project=NEW.project)>=25 BEGIN SELECT RAISE(ABORT,'review_view_capacity'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

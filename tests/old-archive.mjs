@@ -9,7 +9,7 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const citationTables = ['identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables = ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
@@ -67,7 +67,7 @@ try {
   assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
   assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
  }
- for(const table of ['identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
+ for(const table of ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_destinations'), [], 'populated upgrade connects no Slack destination');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_delivery_meta'), [], 'populated upgrade invents no Slack acknowledgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM suspect_decisions'), [], 'populated upgrade invents no suspect judgment');
@@ -84,14 +84,14 @@ try {
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
  const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
- const newTables = ['checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','identity_policies','event_identities'];
+ const newTables = ['retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
  transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
  const currentTables = await rows(currentUpgrade, "SELECT name,sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name");
  const currentRows = new Map(await Promise.all(currentTables.map(async ({name}) => [name, canonicalRows(await rows(currentUpgrade, `SELECT * FROM "${name}"`))])));
  assert.ok(currentRows.get('projects').length && currentRows.get('events').length, '0068 installation has populated evidence');
- const from0068 = migrations.filter(m => m.name > '0068_artifact_build_sets.sql');
+ const from0068 = migrations.filter(m => m.name > '0068_artifact_build_sets.sql' && m.name <= '0073_identity_policy.sql');
  assert.equal(from0068.length, 5, 'all five c15 additive migrations follow 0068');
  await currentUpgrade.batch(unstable_splitSqlQuery(from0068.map(m => m.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim())).map(sql => currentUpgrade.prepare(sql)));
  for (const {name,sql} of currentTables) {

@@ -605,3 +605,9 @@ Program presence and dependency pins are not passing results. Completion reporti
 | All | 25 | 36 | 21 | 82 |
 
 **Clause status: 82 clauses — 25 done, 36 partial, 21 missing.**
+
+GOV-002 evidence: `tests/agent-handoff.mjs` → `retentionFlow` proves policy bounds, dry-run/cutoff reconciliation, typed shortening, hold/release, packet note, archive restore and held erasure; Settings at 1440/390. `tests/project-erasure.mjs` includes a held policy in the declared erasure graph. GOV-002 remains partial (residency, plan windows and session aggregates).
+
+GOV-003 evidence: `tests/agent-handoff.mjs` → `retentionScheduleFlow` drives the emitted Worker scheduled door with its native clock seam; intake remains accepted, a held project survives, batches resume, a named gap and service audit remain, and a same-day rerun is a no-op. GOV-003 remains partial; admission caps, sustained rate, large/streaming archives and artifact/aggregate expiry remain gaps.
+
+FIND-001 evidence: `tests/bulk-triage-flow.mjs` → `reviewInboxFlow` proves pending count, one/selection review, atomic stale refusal, unchanged issue data, regression reopening, validated owner-only 25-view cap, unprivileged links, archive restore and erasure, plus 1440/390 owner UI. FIND-001 remains partial for team search, shared views and priority.

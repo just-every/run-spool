@@ -1,3 +1,4 @@
+import {readRetentionPolicy} from './retention-policy';
 import {affectedUsers} from './identities/read';
 import { agentSentryEvidence } from './sentry/agent-evidence';
 import { createRepositoryLinker } from './repository-links';
@@ -103,6 +104,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   query(db, commitLinkSql('?', '?'), project, id).all<any>(),
   commitSharing(db, project),
  ]);
+ const retentionPolicy=await readRetentionPolicy(db,project);
  const retention = auditRows.results.map(row => {
   const detail = object(row.detail);
   return { id: text(row.id), project: text(row.project), kind: 'retention_gap', created: number(row.created),
@@ -132,6 +134,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
    ? { algorithm: issue.algorithm, basis: 'exported organization, project and issue identity', limitations: 'Preserves exported groups; imported history does not join live capture or trigger alerts' }
    : { algorithm: issue.algorithm, basis: 'language (JavaScript legacy basis preserved) + exception type + first file/function/line; message and release excluded', bundleRouting: 'JavaScript content-hash suffixes use a persisted stable file key; reported frames and original issue anchors are preserved', limitations: 'other path, function or line changes can split groups; no semantic merge claim' },
   deployments: {first:deployments[0],last:deployments[1]},
+  retentionPolicy: {windows:retentionPolicy.windows,held:retentionPolicy.held,note:retentionPolicy.held?'Legal hold pauses expiry only; erasure remains available.':'Project windows govern expiry; historical comparisons across cutoffs are incomplete.'},
   releaseHistory: { basis: 'retained events ordered by received time, then event id; not the original history before retention or import', first: release(first), last: release(last) },
   links: { issue: `/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(id)}`, packet: `${root}/issues/${encodeURIComponent(id)}/packet`, outcomes: `${root}/outcomes` },
   bounds: { byteCap: PACKET_BYTE_CAP, eventLimit: EVENT_LIMIT, availableEvents: totals.available, includedEvents: events.length, omittedEvents: 0, order: 'newest received first; oldest removed first' },

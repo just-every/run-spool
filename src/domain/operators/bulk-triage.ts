@@ -1,3 +1,4 @@
+import {reviewBulk} from '../review/bulk';
 import { readReleasePolicy,releasePolicyFence } from '../releases/policy';
 import { currentReleaseSequenceSql } from '../releases/order';
 import { resolutionInput,resolutionTarget,resolutionTargetFence,resolutionDescription } from '../releases/resolution';
@@ -11,6 +12,7 @@ const states = ['open', 'acknowledged', 'resolved'];
 routes.post('/:project/bulk-triage', async c => {
  const auth = await authorize(c); if ('response' in auth) return auth.response;
  const project = c.req.param('project'), input = await body(c);
+ if(input?.action==='reviewed')return reviewBulk(c,auth.session,input);
  if (!input || !states.includes(input.state) || !Array.isArray(input.issues) || input.issues.length < 1 || input.issues.length > 100 || typeof input.apply !== 'boolean' || Object.keys(input).some(key => !['state','issues','apply','preview','resolution','release'].includes(key))) throw new Error('Select 1 to 100 issues and a valid triage action');
  const resolution=resolutionInput(input);
  const ids = new Set<string>();

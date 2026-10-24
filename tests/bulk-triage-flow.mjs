@@ -1,5 +1,6 @@
+import {reviewInboxFlow} from './review-inbox-flow.mjs';
 import assert from 'node:assert/strict';
-export async function bulkTriageFlow({req,json,base}) {
+export async function bulkTriageFlow({req,json,base,origin}) {
  const rows=(await json(base+'/issue-search')).rows.slice(0,3),issues=rows.map(({id,revision})=>({id,revision}));
  const input={issues,state:'acknowledged',apply:false};
  const preview=await json(base+'/bulk-triage','POST',input);
@@ -23,6 +24,7 @@ export async function bulkTriageFlow({req,json,base}) {
  assert.equal((await req(base+'/bulk-triage','POST',{...next,apply:true,preview:confirmed.preview})).status,409,'retry cannot repeat the action');
  await sdk009BulkResolution({req,json});
  const exported=await json(base+'/issue-export?status=acknowledged');assert.equal(exported.total,3);
+ await reviewInboxFlow({req,json,origin});
  console.log('Bulk triage public flow passed: preview, atomic stale refusal, action binding, project/owner/origin scope, apply, revision and query export.');
 }
 

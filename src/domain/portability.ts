@@ -1,3 +1,5 @@
+import {reviewTables} from './review/model';
+import {retentionTables} from './retention-policy';
 import {identityTables} from './identities/archive';
 import {sessionTables} from './sessions/archive';
 import { suspectTables } from './suspects/archive';
@@ -40,7 +42,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -148,7 +150,7 @@ for(const later of laterTables){later.tables.push('artifact_storage_settings');l
 laterTables.unshift({tables:['artifact_storage_settings'],migrations:['0067_artifact_storage.sql']});
 for(const later of laterTables){later.tables.push('source_map_builds','source_map_build_files');later.migrations.push('0068_artifact_build_sets.sql')}
 laterTables.unshift({tables:['source_map_builds','source_map_build_files'],migrations:['0068_artifact_build_sets.sql']});
-// 0062 adds only check-in connections and links; both are excluded, so an archive never carries a heartbeat capability URL.
+// 0069 adds only check-in connections and links; both are excluded, so an archive never carries a heartbeat capability URL.
 for(const later of laterTables)later.migrations.push('0069_checkin_routes.sql');
 laterTables.unshift({tables:[],migrations:['0069_checkin_routes.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(suspectTables));later.migrations.push('0070_suspect_decisions.sql')}
@@ -159,6 +161,12 @@ for(const later of laterTables){later.tables.push(...Object.keys(sessionTables))
 laterTables.unshift({tables:Object.keys(sessionTables),migrations:['0072_release_sessions.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(identityTables));later.migrations.push('0073_identity_policy.sql')}
 laterTables.unshift({tables:Object.keys(identityTables),migrations:['0073_identity_policy.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(retentionTables));later.migrations.push('0074_retention_policy.sql')}
+laterTables.unshift({tables:Object.keys(retentionTables),migrations:['0074_retention_policy.sql']});
+for(const later of laterTables)later.migrations.push('0075_retention_schedule.sql');
+laterTables.unshift({tables:[],migrations:['0075_retention_schedule.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(reviewTables));later.migrations.push('0076_review_inbox.sql')}
+laterTables.unshift({tables:Object.keys(reviewTables),migrations:['0076_review_inbox.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

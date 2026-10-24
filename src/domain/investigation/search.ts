@@ -1,3 +1,4 @@
+import {pendingReview} from '../review/model';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
 import { agentProject } from '../agent-access';
@@ -33,14 +34,15 @@ async function search(c:any,exporting=false){
  if(query.usesLatest)await ensureReleaseOrderKeys(c.env.DB,project);
  await ensureShortIds(c.env.DB,project);
  if(state!=='all'){where.push('i.state=?');args.push(state)}
- if(q||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
- const filtered=`SELECT i.*, ${shortIdColumnsSql('i')}, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,(SELECT json_group_array(DISTINCT release) FROM events WHERE project=i.project AND issue=i.id) releases FROM issues i WHERE ${where.join(' AND ')}`;
+ if(query.reviewPending)where.push(pendingReview('i'));
+ if(query.hasEventTerms||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
+ const filtered=`SELECT i.*, ${pendingReview('i')} review_pending, ${shortIdColumnsSql('i')}, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,(SELECT json_group_array(DISTINCT release) FROM events WHERE project=i.project AND issue=i.id) releases FROM issues i WHERE ${where.join(' AND ')}`;
  const cte=`WITH filtered AS (${filtered}), ranked AS (SELECT *,${sort==='occurrences'?'count':sort==='priority'?"CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END":'last_seen'} rank FROM filtered)`;
  const db=c.env.DB,statement=(sql:string,...extra:any[])=>db.prepare(cte+' '+sql).bind(...args,...extra);
  const signature=await hash(JSON.stringify([project,q,state,release,sort]));
  let cursor:any=null;
  if(c.req.query('cursor')){try{cursor=JSON.parse(atob(c.req.query('cursor')))}catch{throw new Error('Invalid search cursor')}if(cursor?.signature!==signature||!Number.isFinite(cursor.rank)||!Number.isFinite(cursor.last_seen)||typeof cursor.id!=='string')throw new Error('Search cursor belongs to another query')}
- const total=await statement('SELECT COUNT(*) total FROM ranked').first() as any;
+ const total=await statement('SELECT COUNT(*) total,COALESCE(SUM(review_pending),0) reviewPending FROM ranked').first() as any;
  if(exporting&&total.total>10000)return c.json({error:'query_export_limit',matched:total.total,limit:10000,action:'Narrow the query or paginate the issue-search API.'},413);
  const size=exporting?10000:25;
  const page=await statement(`SELECT * FROM ranked ${cursor&&!exporting?'WHERE (rank,last_seen,id)<(?,?,?)':''} ORDER BY rank DESC,last_seen DESC,id DESC LIMIT ?`,...cursor&&!exporting?[cursor.rank,cursor.last_seen,cursor.id]:[],size+1).all();
@@ -57,7 +59,7 @@ async function search(c:any,exporting=false){
  statement(`SELECT e.environment value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project WHERE ${eventPredicate} GROUP BY e.environment ORDER BY count DESC,value`,...eventArgs).all(),
  statement(`SELECT t.key,CAST(t.value AS TEXT) value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project,json_each(e.payload,'$.sentry.tags') t WHERE ${eventPredicate} GROUP BY t.key,t.value ORDER BY t.key,count DESC,value LIMIT 1001`,...eventArgs).all(),
  ]);
- return c.json({version:1,rows,total:total.total,next:page.results.length>size?btoa(JSON.stringify({signature,rank:last.rank,last_seen:last.last_seen,id:last.id})):null,facets:{statuses:statuses.results,releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority means active regressions, then new issues; viewing is browser-local.'});
+ return c.json({version:1,rows,total:total.total,reviewPending:total.reviewPending,next:page.results.length>size?btoa(JSON.stringify({signature,rank:last.rank,last_seen:last.last_seen,id:last.id})):null,facets:{statuses:statuses.results,releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority means active regressions, then new issues; viewing is browser-local.'});
 }
 routes.get('/:project/issue-search',c=>search(c));
 routes.get('/:project/issue-export',c=>search(c,true));

@@ -69,7 +69,7 @@ span.frame-function{font-family:var(--font-text)}
 /* Issue list and other tables: hairline rows inside one ruled card. */
 .issue-browser-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:12px 24px}
 .issue-browser-heading h2{margin:0}
-.issue-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}
+.issue-counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:20px 0}
 .issue-counts>div{padding:14px 16px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-input)}
 .issue-counts span{display:block;font-size:14px}
 .issue-counts strong{display:block;margin-top:4px;font:700 32px/1.1 var(--font-display);font-variant-numeric:lining-nums tabular-nums}
@@ -163,3 +163,6 @@ span.frame-function{font-family:var(--font-text)}
 .commit-message{font:400 14px/1.5 var(--font-code)}
 .short-id-aliases{margin-bottom:16px}
 .link-log q,.link-log code{white-space:nowrap}
+
+.issue-browser>.issue-search-actions,.issue-browser [aria-label="Saved issue views"] .issue-search-actions{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:12px 0}
+@media(max-width:600px){.issue-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}

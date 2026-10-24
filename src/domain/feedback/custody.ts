@@ -23,17 +23,23 @@ export async function withdrawalStatements(db: D1Database, project: string, id: 
 
 // Delete before an event cascade, so every removed report gets its own key
 // fence as well as the event's occurrence fence. Standalone reports use cutoff.
-const eligible = `project=? AND (received<? OR EXISTS(SELECT 1 FROM events e WHERE e.project=feedback.project AND e.id=feedback.event_id AND e.occurrence=feedback.occurrence AND e.received<?))`;
-export async function feedbackRetentionStatements(db: D1Database, source: string, project: string, cutoff: number) {
- const rows = (await s(db, `SELECT id FROM feedback WHERE ${eligible}`, project, cutoff, cutoff).all()).results as { id: string }[];
+const baseEligible = `project=? AND (received<? OR EXISTS(SELECT 1 FROM events e WHERE e.project=feedback.project AND e.id=feedback.event_id AND e.occurrence=feedback.occurrence AND e.received<?))`;
+export async function feedbackRetentionStatements(db: D1Database, source: string, project: string, cutoff: number, eventCutoff=cutoff, selected?:string, limit?:number) {
+ let eligible=selected?baseEligible.replace('e.received<?',"e.received<? AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE e.id=json_extract(candidate.value,'$.id') AND e.occurrence=json_extract(candidate.value,'$.occurrence'))"):baseEligible;
+ const values:any[]=selected?[project,cutoff,eventCutoff,selected]:[project,cutoff,eventCutoff];
+ if(limit&&selected){
+  eligible+=` AND (id IN (SELECT id FROM feedback WHERE project=? AND received<? ORDER BY received,id LIMIT ?) OR EXISTS(SELECT 1 FROM events e WHERE e.project=feedback.project AND e.id=feedback.event_id AND e.occurrence=feedback.occurrence AND EXISTS(SELECT 1 FROM json_each(?) candidate WHERE e.id=json_extract(candidate.value,'$.id') AND e.occurrence=json_extract(candidate.value,'$.occurrence'))))`;
+  values.push(project,cutoff,limit,selected);
+ }
+ const rows = (await s(db, `SELECT id FROM feedback WHERE ${eligible} ORDER BY received,id LIMIT ?`, ...values, 10000).all()).results as { id: string }[];
  // A new report can bind an old event between discovery and the retention
  // batch. Refuse that stale plan rather than leaving an orphaned description.
- const jobs: D1PreparedStatement[] = [guard(db, `(SELECT COUNT(*) FROM feedback WHERE ${eligible})=?`, project, cutoff, cutoff, rows.length)];
+ const jobs: D1PreparedStatement[] = [guard(db, `(SELECT COUNT(*) FROM feedback WHERE ${eligible})=?`, ...values, rows.length)];
  for (let offset = 0; offset < rows.length; offset += 50) {
   const candidates = await Promise.all(rows.slice(offset, offset + 50).map(async row => ({ id: row.id, tombstone: await tombstone(source, 'feedback', { project, id: row.id }) })));
   const encoded = JSON.stringify(candidates);
-  jobs.push(s(db, `INSERT OR IGNORE INTO rer_portability_journal SELECT ?,json_extract(candidate.value,'$.tombstone') FROM json_each(?) candidate WHERE EXISTS(SELECT 1 FROM feedback WHERE ${eligible} AND feedback.id=json_extract(candidate.value,'$.id'))`, source, encoded, project, cutoff, cutoff));
-  jobs.push(s(db, `DELETE FROM feedback WHERE ${eligible} AND id IN (SELECT json_extract(value,'$.id') FROM json_each(?))`, project, cutoff, cutoff, encoded));
+  jobs.push(s(db, `INSERT OR IGNORE INTO rer_portability_journal SELECT ?,json_extract(candidate.value,'$.tombstone') FROM json_each(?) candidate WHERE EXISTS(SELECT 1 FROM feedback WHERE ${eligible} AND feedback.id=json_extract(candidate.value,'$.id'))`, source, encoded, ...values));
+  jobs.push(s(db, `DELETE FROM feedback WHERE ${eligible} AND id IN (SELECT json_extract(value,'$.id') FROM json_each(?))`, ...values, encoded));
  }
  return jobs;
 }

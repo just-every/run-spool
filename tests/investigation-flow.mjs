@@ -27,7 +27,7 @@ export async function investigationFlow({req,json,origin}){
  assert.equal((await req(base+'/issue-search?'+query,'GET',undefined,auth)).status,200);
  assert.ok([401,403].includes((await req('/api/projects/wire/issue-export','GET',undefined,auth)).status));
  await recordReadFlow({req,json});
- await bulkTriageFlow({req,json,base});
+ await bulkTriageFlow({req,json,base,origin});
  await repositorySourceFlow({req,json});
  const browser=await launchBrowser();
  try{const cookie=await signIn(origin,{bootstrap:false});for(const width of [1440,390]){

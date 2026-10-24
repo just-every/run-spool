@@ -1,3 +1,5 @@
+import {AuthError} from '../modules/operator-auth/index.mjs';
+import {readRetentionPolicy,retentionPolicyFence,type RetentionWindows} from './retention-policy';
 import { tombstone } from '../modules/portability/journal.mjs';
 import { state, statement, guard } from '../modules/portability/storage.mjs';
 import { occurrenceKey, occurrenceKeys, type OccurrenceTable } from './occurrences';
@@ -36,11 +38,16 @@ async function erase(db: D1Database, source: string, table: OccurrenceTable, row
  return jobs;
 }
 
-export async function applyRetention(db: D1Database, project: string, cutoff: number) {
+export async function applyRetention(db: D1Database, project: string, cutoff: number, cutoffs?: RetentionWindows, limit?: number) {
+ const policy=await readRetentionPolicy(db,project);
+ if(policy.held)throw new AuthError('Retention is paused by a legal hold',409);
+ const windows=cutoffs??{events:cutoff,artifacts:cutoff,feedback:cutoff,exposures:cutoff,commits:cutoff,sessions:cutoff};
  const transfer = await portability(db), before = await state(db), auditId = crypto.randomUUID();
- const events = (await statement(db, 'SELECT project,id,occurrence FROM events WHERE project=? AND received<?', project, cutoff).all()).results as Candidate[];
- const maps = (await statement(db, 'SELECT project,release,build,debug,occurrence FROM artifacts WHERE project=? AND created<?', project, cutoff).all()).results as Candidate[];
- const retained = (await statement(db, 'SELECT id,occurrence,issue,payload FROM events WHERE project=? AND received>=? ORDER BY received,id', project, cutoff).all()).results as any[];
+ const events = (await statement(db, 'SELECT project,id,occurrence FROM events WHERE project=? AND received<? ORDER BY received,id LIMIT ?', project, cutoff, limit??10000).all()).results as Candidate[];
+ const selected=JSON.stringify(events);
+ const selectedMatch="EXISTS(SELECT 1 FROM json_each(?) candidate WHERE events.id=json_extract(candidate.value,'$.id') AND events.occurrence=json_extract(candidate.value,'$.occurrence'))";
+ const maps = (await statement(db, 'SELECT project,release,build,debug,occurrence FROM artifacts WHERE project=? AND created<?', project, limit?0:windows.artifacts).all()).results as Candidate[];
+ const retained = (await statement(db, `SELECT id,occurrence,issue,payload FROM events WHERE project=? AND ${limit?'NOT '+selectedMatch:'received>=?'} ORDER BY received,id`, project, limit?selected:cutoff).all()).results as any[];
  // Resolve membership in the write transaction: a correction can move a
  // retained headline after this read. Never reattach its text to its old issue.
  const headlines: D1PreparedStatement[] = [];
@@ -55,28 +62,34 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  const copies = await db.prepare(transferInventory).first<{ inventory: string }>();
  const invalidation = await transfer.invalidateTransfersStatements();
  const eventJobs = await erase(db, before.source_identity, 'events', events, project, cutoff);
- const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, cutoff);
- const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, cutoff, Date.now());
- const feedbackJobs = await feedbackRetentionStatements(db, before.source_identity, project, cutoff);
+ const mapJobs = await erase(db, before.source_identity, 'artifacts', maps, project, windows.artifacts);
+ const exposureJobs = await retentionExposureStatements(db, before.source_identity, project, windows.exposures, Date.now(), limit);
+ const feedbackJobs = await feedbackRetentionStatements(db, before.source_identity, project, windows.feedback, cutoff, limit?selected:undefined, limit);
  // The source/epoch guard rejects a competing restore or retention. Each journal
  // INSERT and DELETE uses the same occurrence and predicate inside this batch.
  // A concurrently admitted map reference therefore preserves both map and fence.
+ const sessionFence=await tombstone(before.source_identity,'rer_portability_state',{id:1});
  const result = await db.batch([
+  retentionPolicyFence(db,project,policy.generation),
+  guard(db,'NOT EXISTS(SELECT 1 FROM retention_policies WHERE project=? AND held=1)',project),
   guard(db, 'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NULL AND source_identity=? AND epoch=?)', before.source_identity, before.epoch),
   // A newly created export must not leave an unlisted snapshot holding erased
   // rows. If transfer custody changed after discovery, the whole apply retries.
   guard(db, `(${transferInventory})=?`, copies!.inventory),
   ...invalidation,
+  ...(limit?[guard(db,`(SELECT COUNT(*) FROM events WHERE project=? AND received<? AND ${selectedMatch})=?`,project,cutoff,selected,events.length)]:[]),
   // The journal row is written once and never revised: it counts the events
   // this batch removes, and the guard after the deletions proves none remain.
-  statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',(SELECT COUNT(*) FROM events WHERE project=? AND received<?),'dedupHorizon',?),?", auditId, project, cutoff, project, cutoff, cutoff, Date.now()),
+  statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',?,'dedupHorizon',?),?", auditId, project, cutoff, events.length, cutoff, Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...feedbackJobs,
-  ...commitRetentionStatements(db,project,cutoff,Date.now()),
+  ...commitRetentionStatements(db,project,windows.commits,Date.now(),limit),
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
-  guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),
+  limit?guard(db,`NOT EXISTS(SELECT 1 FROM events WHERE project=? AND ${selectedMatch})`,project,selected):guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),
   ...headlines, ...mapJobs, ...exposureJobs,
+  statement(db,'INSERT OR IGNORE INTO rer_portability_journal SELECT ?,? WHERE EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND updated<?)',before.source_identity,sessionFence,project,windows.sessions),
+  statement(db,'DELETE FROM health_sessions WHERE rowid IN (SELECT rowid FROM health_sessions WHERE project=? AND updated<? ORDER BY updated,sid LIMIT ?)',project,windows.sessions,limit??50000),
   db.prepare('UPDATE rer_portability_state SET epoch=epoch+1 WHERE id=1'),
   db.prepare('INSERT INTO rer_portability_epochs SELECT source_identity,epoch FROM rer_portability_state WHERE id=1 ON CONFLICT(source) DO UPDATE SET epoch=MAX(epoch,excluded.epoch)'),
   statement(db, "SELECT json_extract(detail,'$.removed') AS removed FROM audit WHERE id=?", auditId),

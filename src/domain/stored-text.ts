@@ -20,6 +20,7 @@ export function ownerAlert(row: any) {
  return { ...row, payload: alertBody(row.payload) };
 }
 const exportText: Record<string, (row: any) => any> = {
+ retention_policies: row => ({...row,reason:scrub(row.reason)}),
  suspect_decisions: row => ({...row,note:scrub(row.note)}),
  release_metadata: row => ({...row,version_key:releaseVersionKey(row.release)}),
  feedback: row => ({ ...row, message: scrub(row.message) }),
