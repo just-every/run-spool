@@ -84,7 +84,7 @@ span.frame-function{font-family:var(--font-text)}
 .issue-table tbody th{width:44%;font-weight:400}
 .issue-open{display:block;margin-bottom:6px;font:500 14px/1.45 var(--font-code);overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
 .issue-table .attention-badge{margin-right:6px}
-.unseen-issue>th{box-shadow:inset 4px 0 0 var(--ink)}
+.unseen-issue>th{font-weight:700}
 .unseen-label{font-size:12px;font-weight:600}
 .data-table td:last-child{text-align:right}
 .pagination{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:16px}
@@ -166,3 +166,5 @@ span.frame-function{font-family:var(--font-text)}
 
 .issue-browser>.issue-search-actions,.issue-browser [aria-label="Saved issue views"] .issue-search-actions{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:12px 0}
 @media(max-width:600px){.issue-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.bulk-triage .callout>.highlight-button{margin-right:12px}

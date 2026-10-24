@@ -8229,7 +8229,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "4b1f795c5783d8113aa49cfcaf61b684677488adc334d1b84e4f6040b8e1586f",
+      "sha256": "8d5d29624bed43e39c96c27cf3c794d79d1548eeac0c1a0dbfe955d46a84d99e",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
