@@ -2628,6 +2628,10 @@
       "sha256": "a0e27aeeac42d6102f4ff2bce40d8fb011c07e5cb28eff3c9d77e68df29e5dd6",
       "executable": false
     },
+    ".publish-check/config.json": {
+      "sha256": "a78dc84aa19a0ec92015e1a10c611867b84085c9a6f5146771ea51ec4ef3433c",
+      "executable": false
+    },
     "ACCEPTANCE.md": {
       "sha256": "3843989fc159b55f2a8dd91cf43fddb70b6804d32a135e72aa4fef73d7b249a7",
       "executable": false
