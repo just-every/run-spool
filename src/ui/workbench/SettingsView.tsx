@@ -1,3 +1,4 @@
+import {SlackDestinationForm} from '../alerts/SlackDestinationForm';
 import {IdentityPolicy} from './IdentityPolicy';
 import { LoaderSettings } from './LoaderSettings';
 import { CheckInRoutes } from './CheckInRoutes';
@@ -34,6 +35,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&<section className="evidence"><CheckInRoutes key={`check-ins:${project}`} {...{project,request,run,busy}}/></section>}
     {!!project&&<GroupingRules key={`grouping:${project}`} {...{project,request,run,busy}} approvedPreview={rulePreview?.project===project?rulePreview.preview:null} onSaved={()=>{setProposalVersion(value=>value+1);refresh();}}/>}
     {!!project&&<GroupingProposals key={`proposals:${project}`} {...{project,request,run,busy,refresh}} refreshVersion={proposalVersion} onRulePreview={preview=>setRulePreview({project,preview})}/>}
+    {!!project&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}
     {!!project&&<IdentityPolicy key={`identity:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}

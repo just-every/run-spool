@@ -10,7 +10,7 @@ For `spike`, `release` is null, `rule` is `{id, revision}`, and `window` is `{st
 
 ## Manage email destinations
 
-1. Select your project, open **Alerts → Rules**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
+1. Select your project, open **Settings**, and enter a **Destination name** and **Destination email**. Choose **Add destination**. No server settings or redeploy is needed.
 2. Choose **Test <name>** and check the mailbox. Hosted Spool reports provider acceptance, not confirmed receipt. Local development suppresses mail and says so explicitly. Tests are limited to one per destination per minute.
 3. Create a rule below, select that destination and choose its alert events. New issues and later-release regressions send after capture; volume spikes use the minute scheduler.
 4. To change the address, choose **Edit <name>**, update it and choose **Save destination**. Its rules move to a new revision. Queued sends to the old address stop; an already executing send cannot be retracted. Test the new address.
@@ -101,7 +101,7 @@ See [delivery tests, event states, timezone digests and snoozes](ALERT-DELIVERY.
 
 ## Slack bot destination (ALERT-002)
 
-The existing Alerts → Rules page can connect a named Slack channel using a bot token and channel identifier. Use the least privilege `chat:write` bot scope and join the bot to the chosen channel as Slack requires. A reviewed test is required before enabling a rule. The preview states exactly what the test posts; its result includes Slack's message timestamp. This is provider acknowledgment, never evidence that a person read the message.
+The existing Settings page can connect a named Slack channel using a bot token and channel identifier. Use the least privilege `chat:write` bot scope and join the bot to the chosen channel as Slack requires. A reviewed test is required before enabling a rule. The preview states exactly what the test posts; its result includes Slack's message timestamp. This is provider acknowledgment, never evidence that a person read the message.
 
 Spool calls only `https://slack.com/api/chat.postMessage`, through `INTEGRATION_EGRESS`. No ordinary fetch path exists. The message contains the sanitized issue summary and exact issue link already available to generic webhooks; Markdown interpretation, link parsing and unfurls are disabled. No interactive action or Slack app endpoint is installed. The adapter checks both HTTP status and Slack's `ok` field, and retains a successful `ts` as the message identifier. See Slack's [chat.postMessage API](https://docs.slack.dev/reference/methods/chat.postMessage/).
 

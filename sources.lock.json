@@ -2893,7 +2893,7 @@
       "executable": false
     },
     "docs/ALERT-DELIVERY.md": {
-      "sha256": "4d56d450c5384edc39963a7cc2bd8e6c708114806dc1833be2daf994193e5c4d",
+      "sha256": "a5ddb84d5cf3fadf90546a2f5673383bb72d5b37758bdf67f53c5f6d46151d9d",
       "executable": false
     },
     "docs/ALERT-IMPLEMENTATION.md": {
@@ -2901,7 +2901,7 @@
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
-      "sha256": "eefc1cef3643ca623936715b9a591fd6e5c4b6cfeeb9e3002fa1c7c3ab7731ce",
+      "sha256": "553cb062354ab96502192b25a136e755d93c52d27c7f1e709383f875566f8b0b",
       "executable": false
     },
     "docs/BULK-TRIAGE.md": {
@@ -7753,7 +7753,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
-      "sha256": "b39223e734adb118c77c5f1e37c3ebfb642328967625f4d26637168577606ad3",
+      "sha256": "f9ffca3b6b28770bf69802bb46c27543832c9ad86be863f615f18c6be6986ca0",
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
@@ -7777,7 +7777,7 @@
       "executable": false
     },
     "src/ui/alerts/SlackDestinationForm.tsx": {
-      "sha256": "69b174ad6942907bbb47ef71667b50e79a56937d6201d81189a09acb0b7c4a55",
+      "sha256": "01ffe1a4b8a9684fd7a20c7bb1ca11b81792d7b84113c50364937eef501e42d7",
       "executable": false
     },
     "src/ui/BrowserOrigins.tsx": {
@@ -8137,7 +8137,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "660b33954625f345671ef1cbbfd1911098bafc98c3763099920d2365d585ce47",
+      "sha256": "b7899de9cd689f698fbf19aec334a875c3c0133c12c8132d8c0322583970b4ed",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -8933,7 +8933,7 @@
       "executable": false
     },
     "tests/slack-ui.mjs": {
-      "sha256": "f6498f24c10cbaa6a4097030abf45a092bc68a654e598e39f08711d2d638d637",
+      "sha256": "3361393921ece87520acecdb678ad9d348766323e7ab7767f8c6ed4bdf23719d",
       "executable": false
     },
     "tests/source-import.mjs": {
