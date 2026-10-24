@@ -8157,7 +8157,7 @@
       "executable": false
     },
     "src/ui/workbench/SuspectChanges.tsx": {
-      "sha256": "8da33c170f3fb7f3303280396d4f546166a20a34ce1ba89edd456580ff996f67",
+      "sha256": "b3eec32094a9323d7104876e7ab9b9a3300daadd5993a146a652cc7400df583e",
       "executable": false
     },
     "src/ui/workbench/useIssueSearch.ts": {
