@@ -1,24 +1,24 @@
 # Run it on your computer
 
-Spool needs **Node 22 or later** and git, on macOS, Linux or Windows with WSL2. Install Node from [nodejs.org](https://nodejs.org/en/download) if needed, reopen your terminal and check `node --version`; or skip that and run `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool`, which brings its own Node. On WSL2, install Node and git inside WSL2. Node must be on PATH before rer can start; rer then supplies this project's pinned Node 22.20.0 runtime and pnpm 10.12.4. You do not need pnpm on PATH.
+Spool runs on macOS, Linux or Windows with WSL2; on WSL2, run everything inside WSL2. Git is required; rer brings Node and pnpm. It supplies this project's pinned Node 22.20.0 runtime and pnpm 10.12.4, so you do not need either on PATH.
 
 ## Install and start
 
-One line, as on the [Run page](https://run-spool.com/run), installs rer, gets Spool and starts it:
+One line, as on the [Run page](https://run-spool.com/run), installs rer, clones Spool into `run-spool` and starts it:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-spool
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
 
-To start it again later, run `cd run-spool && rer dev`.
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same. If the installer prints a line that puts `rer` on your PATH, run that line too. To start it again later, run the same line from the same folder, or `cd run-spool && rer dev`.
 
-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.6.0`. For that release, replace the clone command with `git clone --branch v0.6.0 https://github.com/just-every/run-spool.git spool` and follow the instructions shipped with the tag.
+These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.6.0`. For that release, clone it yourself with `git clone --branch v0.6.0 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
 
 `rer dev` installs everything, prepares the local database and prints `RER_OPEN`. First start chooses `owner@run-spool.test` for the `run-spool` folder above without asking for an email; it does this with piped input too. Another folder name produces `owner@<sanitized-folder-name>.test`. An existing installation keeps its owner. Open `RER_OPEN` in a browser on this computer to enter signed in as the owner. Keep it private: it carries this checkout's dev key. Local sign-in sends no real email.
 
 For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
 
-To choose your real email before first start, run `npx -y @runeditrun/rer setup just-every/run-spool` (interactive `rer setup`) instead of going straight to `rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
+To choose your real email before first start, run the same line with `setup` in place of `dev` (interactive `rer setup`) instead of going straight to `rer dev`. If dev already made a temporary owner, stop dev first and supply `OWNER_EMAIL` through the answers file to replace that temporary address while keeping its data. Saved answers are reused, so an existing address is not prompted again. Keep addresses and secrets out of shell arguments.
 
 For non-interactive setup, work from the Spool checkout and create an ignored private answers file:
 

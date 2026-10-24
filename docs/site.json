@@ -9,6 +9,11 @@
           "label": "Overview"
         },
         {
+          "slug": "getting-started",
+          "source": "docs/getting-started.md",
+          "label": "Getting started"
+        },
+        {
           "slug": "install",
           "source": "docs/install.md",
           "label": "Run it on your computer"

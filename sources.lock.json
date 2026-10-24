@@ -2928,6 +2928,10 @@
       "sha256": "f631e109fa5d6a0357b737c0203d783006f890abe630e698e9ac8b5db85a3b6d",
       "executable": false
     },
+    "docs/getting-started.md": {
+      "sha256": "0fa1cb59b235affa9c56f3d8ff8dba158a05fe281118708be292da10df793731",
+      "executable": false
+    },
     "docs/GROUPING-RULES.md": {
       "sha256": "3e757d157d9cfd77bfac274b73383c4018e3b1de6c9d49f001bcb6dd385a3ddb",
       "executable": false
@@ -2941,7 +2945,7 @@
       "executable": false
     },
     "docs/install.md": {
-      "sha256": "d5af5cec196be01798e0a7116513dd8234659e1c752dcb016c8c3b55cf17f28e",
+      "sha256": "3ce1be13db94dd2e86e98626f2fd3037fd9acb5be0c9299ec7c24021acbda16e",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -3609,7 +3613,7 @@
       "executable": false
     },
     "docs/site.json": {
-      "sha256": "54df54495eb16c6734b7ab1ba251dc4c218c1074bf9e752a095af9044e37940d",
+      "sha256": "c7fc878721714a34388982737c17770febbad251deb7bf497f781db162e1aaaf",
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
