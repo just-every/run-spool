@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.1 — 2026-10-24
+
+This is the first published release after 0.6.0. Version 0.7.0 was tagged but never published: local preview refused the undeclared SDK asset written by the production build. Version 0.7.1 declares that generated output, so local preview and first run after the production build can reach readiness.
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. On main, update with `git pull --ff-only` and `rer dev`; from an earlier tag, run `git fetch --tags && git checkout v0.7.1` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. Upgrading from 0.6.0 applies the 15 migrations listed in the 0.7.0 section below; previously applied migrations stay unchanged. Do not reset or restore into a populated installation.
+
+Everything owners get, the remaining product boundaries and the migration list are in the unchanged 0.7.0 section below. This patch adds no feature, clause or migration after 0.7.0 and keeps rer pinned to 0.2.80.
+
+### Known issues
+
+- Managed-to-native migration-ledger qualification remains held separately. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from. No per-installation ledger conversion is included.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
 ## 0.7.0 — 2026-10-24
 
 Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. Update an existing checkout with `git pull --ff-only` and `rer dev`; from an earlier tag, fetch tags and check out `v0.7.0`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This update adds 15 migrations after 0.6.0; do not reset or restore into a populated installation.

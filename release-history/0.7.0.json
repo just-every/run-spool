@@ -1,0 +1,43 @@
+{
+  "version": "0.7.0",
+  "previousVersion": "0.6.0",
+  "contractChanges": {
+    "TEAM-004": "Done: issue short IDs and recorded commit and pull-request resolution citations.",
+    "SDK-001": "Done for unmodified browser JavaScript and Node.js SDK intake; other runtime and capture obligations have their own clauses.",
+    "SDK-012": "Done: the named unmodified server-runtime SDK programs are qualified through their declared intake doors.",
+    "SDK-013": "Done: the unmodified Electron SDK has its own runtime qualification.",
+    "SDK-020": "Done: the documented guided setup command and framework setup flow.",
+    "SDK-023": "Done: a per-key JavaScript loader with explicit defaults and capture choices.",
+    "AI-005": "Done: bounded inert grouping proposals, owner review, explicit apply and undo, and private restore custody.",
+    "SRC-003": "Partial: sentry-cli and build-plugin compatibility; the wider contract remains explicit.",
+    "SDK-004": "Partial: the hosted crash-report dialog; broader feedback obligations remain.",
+    "SDK-005": "Partial: observed sessions and bounded release health; broader rollout and telemetry gaps remain.",
+    "SDK-008": "Partial: explicit four-field identity policy and stricter conversion; broader identity diagnostics remain.",
+    "ALERT-002": "Partial: durable native Slack routing is qualified at the network edge, without live provider certification.",
+    "REL-002": "Partial: release correlations and audited suspect judgments, without claiming demonstrated cause.",
+    "GOV-002": "Partial: retention policies and holds; holds pause expiry and never prevent erasure.",
+    "GOV-003": "Partial: bounded scheduled expiry; larger event-volume targets remain unfinished.",
+    "FIND-001": "Partial: owner review inbox and saved views, with remaining search obligations retained."
+  },
+  "extensionPointChanges": [],
+  "migrations": [
+    "migrations/core/0057_grouping_proposals.sql",
+    "migrations/core/0058_alert_delivery.sql",
+    "migrations/core/0059_short_ids_commit_citations.sql",
+    "migrations/core/0060_sentry_cli.sql",
+    "migrations/core/0061_loader_settings.sql",
+    "migrations/core/0067_artifact_storage.sql",
+    "migrations/core/0068_artifact_build_sets.sql",
+    "migrations/core/0069_checkin_routes.sql",
+    "migrations/core/0070_suspect_decisions.sql",
+    "migrations/core/0071_slack_destinations.sql",
+    "migrations/core/0072_release_sessions.sql",
+    "migrations/core/0073_identity_policy.sql",
+    "migrations/core/0074_retention_policy.sql",
+    "migrations/core/0075_retention_schedule.sql",
+    "migrations/core/0076_review_inbox.sql"
+  ],
+  "breaking": false,
+  "agentUpdateInstructions": "From 0.6.0: export a private archive first, with local dev stopped. Keep the existing database, settings, project keys and deployment receipt. On main use git pull --ff-only; from an earlier tag fetch tags and check out v0.7.0. Run rer dev locally, or rer deploy from the original deploying checkout for a hosted installation. Fifteen added migrations apply (71 total); previously applied migration files are unchanged. Do not reset or restore into a populated installation. Import private archives only into an empty destination. If schema_mismatch refuses an older archive, restore into the release you exported from. Managed-to-native ledger qualification remains held separately; this release adds no per-installation ledger conversion. The application pins rer 0.2.80. This app release does not publish the Spool SDK.",
+  "publicReleaseNotes": "Spool 0.7.0 collects the work since 0.6.0: issue short IDs and recorded commit resolution, reviewed inert agent grouping proposals, expanded unmodified SDK qualification, guided setup and the per-key JavaScript loader. Source maps gain bounded indexed-map support, larger individual files, an optional project byte cap and publication checks. Hosted feedback, observed sessions, identity policy, suspect judgments, optional cron and Slack connections, retention policies and a review inbox remain bounded by their contract gaps. The application pins rer 0.2.80. Back up first; upgrading from 0.6.0 adds fifteen migrations and preserves existing data. Team, mobile, broad telemetry and live provider obligations remain incomplete, and this app release does not publish the SDK. Known issues: Managed-to-native ledger qualification remains held; if an older archive is refused with schema_mismatch, restore into the release you exported from. A cut-off hosted restore can retain its five-minute lease. The historical 0.5.1 release record is absent and has not been invented. Product screenshot: .github/assets/release/spool-issue-page-1600.png"
+}
