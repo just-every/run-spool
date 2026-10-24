@@ -8,8 +8,8 @@ export const testSetupToken = 'synthetic-test-spool-setup-token-ordinary-owner-c
 export const testDevKey = 'spool-test-dev-key-abcdefghijklmnopqrstuvwxyz0123456789';
 export const gate = { key: testDevKey };
 // Trade the key for the gate cookie in a browser context, as the RER_OPEN page does (works without JavaScript).
-export async function openGate(context, origin) {
- const response = await context.request.post(origin + '/__dev/key', { data: { key: gate.key } });
+export async function openGate(context, origin, key = gate.key) {
+ const response = await context.request.post(origin + '/__dev/key', { data: { key } });
  assert.equal(response.status(), 204, 'the key opens local admission');
 }
 export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: testOwner, RER_DEV_KEY: testDevKey,
