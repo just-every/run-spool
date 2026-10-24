@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { canonical } from '../src/domain/privacy.ts';
 import { base32, prefixBase } from '../src/domain/short-ids/format.ts';
 // TEAM-004 stores (migration 0059); an older archive has none of them.
-const citationTables=['source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables=['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 // Current transport and every occurrence identity stay intact for roundtrips.
 export async function archiveProjection(response) {
  const text=await response.text(),records=[];
@@ -24,7 +24,7 @@ export function nativeArchive(data,version=2) {
  rows.artifacts=rows.artifacts.map(({occurrence,...row})=>row);
  rows.issues=rows.issues.map(({latest_release_seq,...row})=>row);
  rows.alerts=rows.alerts.filter(row=>row.kind!=='spike').map(({payload,...row})=>row);
- rows.audit=rows.audit.filter(row=>!['release_policy_changed','grouping_rules_changed','feedback_withdrawn','inbound_filters_changed','grouping_applied','grouping_undone','issue_assigned','suppression_changed','deployment_registered'].includes(row.kind)&&!row.kind.startsWith('alert_')&&!row.kind.startsWith('repair_')&&!row.kind.startsWith('reproducer_')&&!row.kind.startsWith('fix_'));
+ rows.audit=rows.audit.filter(row=>!['issues_reviewed','retention_policy_changed','retention_hold_changed','identity_policy_changed','suspect_judged','release_policy_changed','grouping_rules_changed','feedback_withdrawn','inbound_filters_changed','grouping_applied','grouping_undone','issue_assigned','suppression_changed','deployment_registered'].includes(row.kind)&&!row.kind.startsWith('alert_')&&!row.kind.startsWith('repair_')&&!row.kind.startsWith('reproducer_')&&!row.kind.startsWith('fix_'));
  if(version===1)delete rows.browser_origins;
  const value={version,migration:version===1?'0001_errors':'0003_browser_origins',data:rows};
  return {...value,checksum:createHash('sha256').update(canonical(value)).digest('hex')};

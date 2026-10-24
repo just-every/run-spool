@@ -1,3 +1,6 @@
+import {createServer} from 'node:http';
+import {gunzipSync,inflateSync,brotliDecompressSync} from 'node:zlib';
+import {parseEnvelope,objectJson} from '../src/domain/sentry/wire.ts';
 import assert from 'node:assert/strict';
 import {writeFile,mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -75,11 +78,25 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
  channel('http.client.request.start').subscribe(({request})=>{if(request.getHeader('host')===endpoint.host&&request.path.startsWith('/api'+endpoint.pathname+'/envelope'))request.once('response',response=>responses.push(response.statusCode));});
  Sentry.init({dsn:input.dsn,transportOptions:{headers:input.headers}});
  Sentry.captureEvent(input.event);if(!await Sentry.flush(10000))process.exitCode=1;await Sentry.close(10000);process.stdout.write(JSON.stringify({responses}));`);
- const send=async(dsn,event,headers={})=>new Promise((done,reject)=>{
-  const child=spawn(process.execPath,[entry],{env:{...process.env,FILTER_CASE:JSON.stringify({dsn,event,headers:{'CF-Connecting-IP':'203.0.113.42','Origin':'https://cedar.example',...headers}})},stdio:['ignore','pipe','ignore']});
-  let output='';child.stdout.on('data',chunk=>output+=chunk);
-  child.once('error',reject);child.once('exit',code=>{if(code!==0)return reject(new Error('SDK-006 Node SDK flush failed'));try{const result=JSON.parse(output);assert.ok(result.responses.length,'SDK-006 observes actual normal-transport responses');done(result.responses)}catch(error){reject(error)}});
- });
+ // Record only item metadata at a loopback network edge, then forward the
+ // unchanged SDK bytes. Automatic sessions can carry an SDK-inferred release
+ // on CI; reconcile those real items instead of assuming one item per capture.
+ const send=async(dsn,event,headers={})=>{
+  const original=new URL(dsn),items=[];
+  const edge=createServer(async(req,res)=>{try{
+   const chunks=[];for await(const chunk of req)chunks.push(chunk);const bytes=Buffer.concat(chunks),encoding=req.headers['content-encoding'];
+   const decoded=encoding==='gzip'?gunzipSync(bytes):encoding==='deflate'?inflateSync(bytes):encoding==='br'?brotliDecompressSync(bytes):bytes;
+   for(const item of parseEnvelope(decoded).items){const value=objectJson(item.bytes);items.push({type:item.header.type,release:value.attrs?.release})}
+   const forwarded=new Headers();for(const [key,value] of Object.entries(req.headers))if(value!==undefined&&!['host','content-length','transfer-encoding','connection'].includes(key))forwarded.set(key,Array.isArray(value)?value.join(','):value);
+   const response=await fetch(new URL(req.url,original.protocol+'//'+original.host),{method:req.method,headers:forwarded,body:bytes,redirect:'manual'});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
+  }catch(error){res.writeHead(502);res.end('Synthetic transport edge failed')}});
+  await new Promise(resolve=>edge.listen(0,'127.0.0.1',resolve));const endpoint=new URL(dsn);endpoint.hostname='127.0.0.1';endpoint.port=String(edge.address().port);
+  try{return await new Promise((done,reject)=>{
+   const child=spawn(process.execPath,[entry],{env:{...process.env,SENTRY_RELEASE:'synthetic-spool-21',FILTER_CASE:JSON.stringify({dsn:endpoint.href,event,headers:{'CF-Connecting-IP':'203.0.113.42','Origin':'https://cedar.example',...headers}})},stdio:['ignore','pipe','ignore']});
+   let output='';child.stdout.on('data',chunk=>output+=chunk);
+   child.once('error',reject);child.once('exit',code=>{if(code!==0)return reject(new Error('SDK-006 Node SDK flush failed'));try{const result=JSON.parse(output);assert.ok(result.responses.length,'SDK-006 observes actual normal-transport responses');done(Object.assign(result.responses,{items}))}catch(error){reject(error)}});
+  })}finally{await new Promise(resolve=>edge.close(resolve))}
+ };
  for(const width of [1440,390]) {
   const id=`sdk-filters-${width}`,base=`/api/projects/${id}`,root=base+'/inbound-filters';
   const project=await request('/api/projects','POST',{id,name:'Cedar checkout inbound filters'});
@@ -116,11 +133,12 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
     ['messages',exception('CheckoutError','ignore me','app.js')],
     ['releases',{release:'drop-old'}],['environments',{environment:'noise'}],
    ];
-   for(const [filter,patch,headers] of cases){const prior=(await request(root)).filters.find(f=>f.id===filter).recentMatches;await send(project.dsn,event(patch),headers);assert.equal((await request(root)).filters.find(f=>f.id===filter).recentMatches,prior+1,`SDK-006 real SDK ${filter}`)}
-   assert.equal((await request(base+'/outcomes')).rows.find(r=>r.reason==='filtered').count,cases.length,'SDK-006 exactly one filtered event per matching capture');
+   let filteredItems=0;
+   for(const [filter,patch,headers] of cases){const prior=(await request(root)).filters.find(f=>f.id===filter).recentMatches,responses=await send(project.dsn,event(patch),headers);const expected=responses.items.filter(item=>item.type==='event'||['crawlers','ip_addresses'].includes(filter)&&(item.type==='client_report'||item.type==='feedback'||['session','sessions'].includes(item.type)&&!!item.release)).length;assert.ok(expected>0);filteredItems+=expected;assert.equal((await request(root)).filters.find(f=>f.id===filter).recentMatches,prior+expected,`SDK-006 real SDK ${filter}: every observed applicable item`)}
+   assert.equal((await request(base+'/outcomes')).rows.find(r=>r.reason==='filtered').count,filteredItems,'SDK-006 filtered items reconcile exactly with SDK wire categories');
    let refusedRequests=0;
    for(const headers of [{Origin:'https://foreign.example'},{Referer:'https://foreign.example/cart'}]){const responses=await send(project.dsn,event(),headers);assert.ok(responses.length);assert.ok(responses.every(status=>status===403),'SDK-006 every real SDK request from a refused domain is denied, including automatic client reports');refusedRequests+=responses.length;}
-   const expectedFiltered=cases.length+refusedRequests;assert.equal((await request(root)).filters.find(f=>f.id==='allowed_domains').recentMatches,refusedRequests,'SDK-006 exact domain counter reconciles with observed SDK transport, including client reports');
+   const expectedFiltered=filteredItems+refusedRequests;assert.equal((await request(root)).filters.find(f=>f.id==='allowed_domains').recentMatches,refusedRequests,'SDK-006 exact domain counter reconciles with observed SDK transport, including client reports');
    assert.equal((await request(base+'/issues')).reduce((sum,row)=>sum+row.count,0),before,'SDK-006 filtered real SDK events create no occurrence');assert.equal((await request(base+'/alerts')).length,alerts,'SDK-006 filtered real SDK events create no alert');
    let usage=(await request(base+'/outcomes')).rows;assert.equal(usage.find(r=>r.reason==='accepted').count,1);assert.equal(usage.find(r=>r.reason==='filtered').count,expectedFiltered,'SDK-006 filtered units exactly reconcile with observed SDK requests');
    await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).click();await panel.getByText('Filter policy and usage refreshed',{exact:true}).waitFor();

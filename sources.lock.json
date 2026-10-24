@@ -3576,6 +3576,14 @@
       "sha256": "4cf16cc7aabd23dcefb536120f5ca71a02196fe74117b9f03feef82950ab237a",
       "executable": false
     },
+    "docs/RETENTION.md": {
+      "sha256": "cb251caa4f04937f5e69e9c13e7460dc233fdab92d26a6af88fe0f5bc704f5d1",
+      "executable": false
+    },
+    "docs/REVIEW-INBOX.md": {
+      "sha256": "e8e61b3f32c90f9da21a198f7c145d5e4a173e53ea252ff161ecfdc0d48ef568",
+      "executable": false
+    },
     "docs/SENTRY-CLI.md": {
       "sha256": "6063558dbc27c430288b47c739214116cfeb7a2701da8c2d909a9ef05f9b3af4",
       "executable": false
@@ -3922,6 +3930,18 @@
     },
     "migrations/core/0073_identity_policy.sql": {
       "sha256": "56f03da41ed3b0881290f8b59d9de25edb65b94dfdd03f82cea7771c72e5fcfc",
+      "executable": false
+    },
+    "migrations/core/0074_retention_policy.sql": {
+      "sha256": "7b42b4bb6731696a9a9da84dd148423f453c1bca1d1097763779688a3c684e64",
+      "executable": false
+    },
+    "migrations/core/0075_retention_schedule.sql": {
+      "sha256": "f6f354cfb9e709c59cb7c4e9bed2ecd18deb0bb4af681c3c25f2eb93babeb834",
+      "executable": false
+    },
+    "migrations/core/0076_review_inbox.sql": {
+      "sha256": "1150492192c7f812dc2fecb7cc9d15be00720084d444a6ee9c200ca19835132f",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5161,7 +5181,7 @@
       "executable": false
     },
     "src/domain/investigation/search.ts": {
-      "sha256": "df686436e395a250669ef8a09c0624e7acf9cd88a0197631da25a031b3d0f716",
+      "sha256": "c84503df54bbfc96c6948a7276dcba6ff2e9591ad2429964a5558cde09eaa544",
       "executable": false
     },
     "src/domain/issue-attention.ts": {
@@ -5408,8 +5428,32 @@
       "sha256": "b49c2085aebb60ad6a72026de495651afba3955a05963c2d80847f7b4035080f",
       "executable": false
     },
+    "src/domain/retention-policy.ts": {
+      "sha256": "5b519feb54a930763d338bac3d19f27c6cab06ae1fa0a5e52286f09a729e1b0b",
+      "executable": false
+    },
+    "src/domain/retention-routes.ts": {
+      "sha256": "76d70f848964539d0e1f8ab51cddc3c47456ef7c23dd13f99804ffdbc33329d9",
+      "executable": false
+    },
+    "src/domain/retention-schedule.ts": {
+      "sha256": "31ca708d291f0eff74aaf0d65f38391854959d08482d241be5d22cfa55f12712",
+      "executable": false
+    },
     "src/domain/retention.ts": {
       "sha256": "fdce01e2b61a4aa833400efae32faab3338458c352126763d258e3b05225afc2",
+      "executable": false
+    },
+    "src/domain/review/bulk.ts": {
+      "sha256": "7f154d60ef3be5fba1e1e6baef7e643fd4b40ade3ae978936946c7d6925dee61",
+      "executable": false
+    },
+    "src/domain/review/model.ts": {
+      "sha256": "99e3f9a20741dfb842ca194b3f4ebac88c4ccbb082a69396d9b6db441b4cea02",
+      "executable": false
+    },
+    "src/domain/review/routes.ts": {
+      "sha256": "ac7b333566dc08d1f528ee24152896c7150ae94bae4b59b5b896d8f2367dfc69",
       "executable": false
     },
     "src/domain/scrub-keyed.ts": {
@@ -5597,7 +5641,7 @@
       "executable": false
     },
     "src/domain/sessions/item.ts": {
-      "sha256": "dcd756fd30e34ccefdfdb2ced3bd61d1abfd266a10b6c30f25a5a594b5ffc097",
+      "sha256": "c15e039573e59fd6b04916c37311703b6d1d66044992d6fa3ec994dae72295bc",
       "executable": false
     },
     "src/domain/sessions/routes.ts": {
@@ -8029,7 +8073,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
-      "sha256": "c38b741e954dce0418096bd22cc9043db46330105bf8bec62aa509a41cc008d2",
+      "sha256": "9c349bd49dee40d94b859536417cb52ba01d251d513786bc6009f89dc9cdf8d5",
       "executable": false
     },
     "src/ui/workbench/issuePanels.ts": {
@@ -8112,8 +8156,16 @@
       "sha256": "499f951d978bdc16514da1e073fadd0a2670409e7af807c0ea3044d168b638e4",
       "executable": false
     },
+    "src/ui/workbench/RetentionPolicy.tsx": {
+      "sha256": "ba5d9af0239c5983c6e548d9d8cf75a1a4e643bd52e774c30bec906dd9e0a1ba",
+      "executable": false
+    },
     "src/ui/workbench/RetentionSettings.tsx": {
       "sha256": "d9a05ec86544a9be159c2a9ad5007f119944da1e900352701ec4c786a2874737",
+      "executable": false
+    },
+    "src/ui/workbench/ReviewViews.tsx": {
+      "sha256": "70de99b198c290f51a2619b706182f1cddbd257efd7119465656cc29f8371416",
       "executable": false
     },
     "src/ui/workbench/SchedulerStatus.tsx": {
@@ -8277,7 +8329,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "0d1278f8e4594de2848046ca87d4a105c670dada63223a1c74756e7430d330c7",
+      "sha256": "ff9c265286ae930dbbfb2e22935778c1ae864b0f07493b1e76cc64988c763125",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -8441,7 +8493,7 @@
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
-      "sha256": "57fccf8839723f83a4c379bb9913aa3a66802d59cb672873f1a81140bb5f7e0f",
+      "sha256": "cddc25a4b1d8277c3b7ab80f73c1623f3830ec1ff1773c1edd877308a707fadc",
       "executable": false
     },
     "tests/investigation-flow.mjs": {
@@ -8658,6 +8710,18 @@
     },
     "tests/repository-source-flow.mjs": {
       "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34",
+      "executable": false
+    },
+    "tests/retention-flow.mjs": {
+      "sha256": "98bb5418587619260eb847747bdc1725e7fad444ad1baf9f75647f6cd2e43a88",
+      "executable": false
+    },
+    "tests/retention-schedule-flow.mjs": {
+      "sha256": "d16f4f25c0b2bfa052afec5ce1a53a4be4ee5decd3b5d9c942e01ced4ead9106",
+      "executable": false
+    },
+    "tests/review-inbox-flow.mjs": {
+      "sha256": "224137163eb791680506fb736304521118e54ac497844a902b5a322e5f1c030d",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {

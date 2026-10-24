@@ -7,7 +7,7 @@ export async function retentionFlow(app,browser,directory){
  const project=await json('/api/projects','POST',{id:p,name:'synthetic-spool-17'});
  await json(`/api/projects/${p}/releases`,'POST',{name:'r1',build:'b1'});
  const event={version:1,eventId:'synthetic-spool-17',type:'Error',message:'synthetic-spool-17',release:'r1',build:'b1',environment:'test',frames:[{file:'https://app.example/bundle.js',line:1,column:0,function:'syntheticSpool'}],breadcrumbs:[]};
- const admitted=await json(`/api/ingest/${p}`,'POST',event,{Authorization:'Bearer '+project.ingestKey});
+ const admitted=await json(`/api/ingest/${p}`,'POST',event,app.checkout?{agent:project.ingestKey}:{Authorization:'Bearer '+project.ingestKey});
  const initial=await json(path);assert.deepEqual(Object.values(initial.windows),Array(6).fill(90));assert.equal(initial.held,false);assert.ok(initial.preview.storage.estimatedBytes>0);
  for(const days of [29,91]){const response=await request(path+'/preview','POST',{windows:{...initial.windows,events:days}});assert.equal(response.status,400);await response.body?.cancel()}
  const shorter={...initial.windows,events:30},preview=await json(path+'/preview','POST',{windows:shorter});
@@ -24,7 +24,7 @@ export async function retentionFlow(app,browser,directory){
    await openGate(context,app.origin);await context.addCookies(app.cookie.split('; ').filter(Boolean).map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
    const page=await context.newPage();await page.goto(app.origin+`/projects/${p}/settings`);const panel=page.getByRole('region',{name:'Project retention'});await panel.getByRole('heading',{name:'Retention windows'}).waitFor();
    await panel.getByLabel('Feedback (days)',{exact:true}).fill('60');await panel.getByRole('button',{name:'Preview windows',exact:true}).click();await panel.getByLabel('Type SHORTEN RETENTION',{exact:true}).waitFor();
-   assert.equal(await panel.getByRole('button',{name:'Save windows',exact:true}).isDisabled(),true);await panel.getByLabel('Type SHORTEN RETENTION',{exact:true}).fill('SHORTEN RETENTION');await panel.getByRole('button',{name:'Save windows',exact:true}).click();await panel.getByLabel('Type SHORTEN RETENTION',{exact:true}).waitFor({state:'hidden'});
+   assert.equal(await panel.getByRole('button',{name:'Save windows',exact:true}).isDisabled(),true);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);const previewCapture=directory+`/gov002-preview-${width}.png`;await panel.screenshot({path:previewCapture});captures.push(previewCapture);await panel.getByLabel('Type SHORTEN RETENTION',{exact:true}).fill('SHORTEN RETENTION');await panel.getByRole('button',{name:'Save windows',exact:true}).click();await panel.getByLabel('Type SHORTEN RETENTION',{exact:true}).waitFor({state:'hidden'});
    await panel.getByLabel('Reason for legal hold',{exact:true}).fill('synthetic-spool-17 legal preservation');await panel.getByRole('button',{name:'Set legal hold',exact:true}).click();await panel.getByRole('heading',{name:'Legal hold: active',exact:true}).waitFor();
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);const axe=await new AxeBuilder({page}).include('[aria-label="Project retention"]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(axe.violations.map(v=>v.id),[]);
    await panel.scrollIntoViewIfNeeded();const file=directory+`/gov002-retention-${width}.png`;await panel.screenshot({path:file});captures.push(file);

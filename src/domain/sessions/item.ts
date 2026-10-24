@@ -19,8 +19,10 @@ export function parseSessions(item:SentryItem):SessionRow[]{
    if(!total||total>1000000)throw invalid();
   }return rows;
  }
- if(typeof v.sid!=='string'||! /^(?:[a-f0-9]{32}|[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/i.test(v.sid)||!['ok','exited','errored','crashed','abnormal','unhandled'].includes(v.status)||!integer(v.errors??0)||v.init!==undefined&&typeof v.init!=='boolean'||v.duration!==undefined&&(typeof v.duration!=='number'||!Number.isFinite(v.duration)||v.duration<0))throw invalid();
+ // The session protocol defaults omitted status to ok; the .NET SDK omits it.
+ const status=v.status===undefined?'ok':v.status;
+ if(typeof v.sid!=='string'||! /^(?:[a-f0-9]{32}|[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/i.test(v.sid)||!['ok','exited','errored','crashed','abnormal','unhandled'].includes(status)||!integer(v.errors??0)||v.init!==undefined&&typeof v.init!=='boolean'||v.duration!==undefined&&(typeof v.duration!=='number'||!Number.isFinite(v.duration)||v.duration<0))throw invalid();
  if(v.did!==undefined&&v.did!==null&&(typeof v.did!=='string'&&typeof v.did!=='number'||String(v.did).length>1000))throw invalid();
  const started=sessionTime(v.started),updated=v.timestamp===undefined?started:sessionTime(v.timestamp);if(updated<started)throw invalid();
- return [{sid:v.sid.replaceAll('-','').toLowerCase(),release,environment,started,updated,status:v.status,errors:v.errors??0,...v.did!==undefined&&v.did!==null&&String(v.did)?{did:String(v.did)}:{},quantity:1}];
+ return [{sid:v.sid.replaceAll('-','').toLowerCase(),release,environment,started,updated,status,errors:v.errors??0,...v.did!==undefined&&v.did!==null&&String(v.did)?{did:String(v.did)}:{},quantity:1}];
 }
