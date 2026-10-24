@@ -7825,7 +7825,7 @@
       "executable": false
     },
     "src/ui/alerts/SlackDestinationForm.tsx": {
-      "sha256": "610e777c3575ed8a300d7fcbf18d6669be7727247c0003229cb62d240188d2cd",
+      "sha256": "e87aa157f4403a5f3fbdbd85b8f953f778363e6c0731984377cfff7f00475299",
       "executable": false
     },
     "src/ui/BrowserOrigins.tsx": {
