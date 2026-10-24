@@ -8313,7 +8313,7 @@
       "executable": false
     },
     "tests/alerts/native-runtime.mjs": {
-      "sha256": "0954206fa5fd9ad47b31f59a17c81fd89303d44aef8a6d82b31fdac523dd29b6",
+      "sha256": "b445b3d3e17c1dfc10f16d974547d81e7bd9e3d9577c7bd6a8ab89bc48e12a07",
       "executable": false
     },
     "tests/alerts/receiver.mjs": {

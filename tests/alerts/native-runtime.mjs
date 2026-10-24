@@ -28,8 +28,8 @@ export async function nativeAlertRuntime() {
   const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   const cookie=await signIn(origin);
-  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:JSON.stringify(body)}:{})});
-  const json=async(...args)=>{const response=await request(...args);assert.ok(response.ok,`Native public request ${args[0]}: HTTP ${response.status}`);return response.json()};
+  const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
+  const json=async(...args)=>{const response=await request(...args);assert.ok(response.ok,`Native public request ${new URL(args[0],origin).pathname}: HTTP ${response.status}`);return response.json()};
   return {origin,cookie,request,json,db,
    tick:()=>fetch(origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json'),
    async close(){await runtime.dispose();await rm(temporary,{recursive:true,force:true})}};
