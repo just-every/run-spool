@@ -12,7 +12,7 @@ import {policy} from '../src/modules/portability/catalogue.mjs';
 const citationTables = ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
-const archive = await readFile('tests/fixtures/archive-fc75a7ac.rer', 'utf8');
+const archive = await readFile('tests/fixtures/archive-fc75a7ac.ndjson', 'utf8');
 const records = [];
 for await (const record of readArchive(new Response(archive).body)) records.push(record);
 const manifest = records[0];

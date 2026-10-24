@@ -8465,10 +8465,10 @@
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
-      "sha256": "5486bd2a098a95ee77f7d47fcd0a7af6afda16394ad5181a51e3a5263f94cbb5",
+      "sha256": "86f063d3329cb06cbd4edec976038ee5bbc578e72181d4bf7c4c9b295763c980",
       "executable": false
     },
-    "tests/fixtures/archive-fc75a7ac.rer": {
+    "tests/fixtures/archive-fc75a7ac.ndjson": {
       "sha256": "484253855070f882ef38e9b95f8912d4c87dce6c5b17c2cfb3076f4874e1dbbe",
       "executable": false
     },
@@ -8549,7 +8549,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "33640fd506ca2f876fcb733742dfec1921028ba1d219dfee4fdd7f0e5bc1d97b",
+      "sha256": "6658317346ef225494bbcd88cefce4ac9f9aff1f65d6a0724b7846abb31fd1cf",
       "executable": false
     },
     "tests/operator-archive.mjs": {

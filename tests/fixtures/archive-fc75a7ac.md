@@ -1,4 +1,4 @@
-`archive-fc75a7ac.rer` is the unchanged native portability v2 archive produced by
+`archive-fc75a7ac.ndjson` is the unchanged native portability v2 archive produced by
 run-spool fc75a7ac74dc4e31dec7b62d928dc490b93c6114, before the RER 0.2.60 upgrade.
 It was exported from disposable real D1 by the platform's 18 October 2026
 catalogue-pin qualification, before applying the next migration.
