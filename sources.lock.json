@@ -8077,7 +8077,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleaseHealth.tsx": {
-      "sha256": "afa4caf052596af9dc5f18e47700d0d2b0825283e8fd04305b19869331baf581",
+      "sha256": "6d53865792ed720d1a02bb896073203f588f40d9945b62fbf3cfeae205bed362",
       "executable": false
     },
     "src/ui/workbench/ReleasePolicy.tsx": {
@@ -8133,7 +8133,7 @@
       "executable": false
     },
     "src/ui/workbench/SessionRates.tsx": {
-      "sha256": "78939d696d118b5cd58e4e0e7fb7cc5e240da300f67e127e700a93c07788a3b0",
+      "sha256": "ea3f9abd9af5974c4d9a27e6e939768f4b5a51ce0408cc7070ff5f0f513802d5",
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
