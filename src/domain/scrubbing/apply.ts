@@ -74,13 +74,16 @@ export async function applyScrubbingDocument<T>(document:T,installation:Scrubbin
    if(secretName.test(key)&&!identityField(current))defaultPaths.add(key);
    scan(part,current,depth+1);
   }
- };scan(cloned,'',0);
+ };
+ // Complete each scope before the next. Methods see original values; stronger
+ // additional/default masking still applies to every field that remains.
+ for(const rule of installation.rules)await applyRule(rule,true);
+ for(const selector of installation.sensitiveFields)await applyField(selector,installation,true);
+ for(const rule of project.rules)await applyRule(rule,false);
+ for(const selector of project.sensitiveFields)await applyField(selector,project,false);
+ scan(cloned,'',0);
  for(const name of defaultPaths){
   for(const ref of namedFields(cloned,name))if(present(ref)&&!identityField(ref.path))record(name,await transform(cloned,ref,'mask',undefined,hashValue,preview),true);
  }
- for(const selector of installation.sensitiveFields)await applyField(selector,installation,true);
- for(const rule of installation.rules)await applyRule(rule,true);
- for(const selector of project.sensitiveFields)await applyField(selector,project,false);
- for(const rule of project.rules)await applyRule(rule,false);
  return {document:cloned,matches:[...counts].map(([selector,paths])=>({selector,fields:paths.size}))};
 }

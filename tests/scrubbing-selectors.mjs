@@ -9,9 +9,9 @@ const hash=value=>assert.match(value,/^[a-f0-9]{64}$/,'SDK-003 hash is a complet
 const absent=(value,needles)=>{for(const needle of needles)assert.ok(!JSON.stringify(value).includes(needle),'SDK-003 matched original is absent from owner evidence')};
 
 export async function scrubbingSelectors({origin,cookie,request}){
- const policy={version:1,sensitiveFields:[],safeFields:[],rules:[
+ const policy={version:1,sensitiveFields:['password'],safeFields:[],rules:[
   custom('params','$logentry.params','remove'),custom('exception','$exception.value','mask'),
-  custom('named-local','$frame.vars.direct_note','mask'),custom('locals','$frame.vars.**','hash'),
+  custom('named-local','$frame.vars.direct_note','mask'),custom('remove-secret-local','$frame.vars.password','remove'),custom('locals','$frame.vars.**','hash'),
   custom('context','$frame.context','replace','synthetic-spool-replaced-line'),custom('headers','$request.headers.x-checkout','remove'),
   custom('extra','$extra.key','hash'),custom('checkout','$contexts.checkout.note','replace','synthetic-spool-replaced-note'),
   custom('tags','$tags.checkout','mask'),custom('crumb-message','$breadcrumbs.message','mask'),custom('crumb-data','$breadcrumbs.data.note','remove'),
@@ -32,7 +32,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
   exception:{values:[{type:'SyntheticSpoolError',value:privateValue('exception'),stacktrace:{frames:[{
    filename:'/synthetic-spool/checkout.py',function:'syntheticSpoolCheckout',lineno:12,in_app:true,
    pre_context:['synthetic-spool-ordinary-pre',privateValue('pre-line')],context_line:privateValue('context-line'),post_context:[privateValue('post-line'),'synthetic-spool-ordinary-post'],
-   vars:{direct_note:privateValue('direct-local'),order_note:privateValue('hashed-local'),nested:{note:privateValue('nested-local'),quantity:2},quantity:0},
+   vars:{password:privateValue('removed-password'),direct_note:privateValue('direct-local'),order_note:privateValue('hashed-local'),nested:{note:privateValue('nested-local'),quantity:2},quantity:0},
   }]}}]},
   logentry:{message:'synthetic-spool-ordinary-template %s',formatted:'synthetic-spool-ordinary-formatted',params:['synthetic-spool-ordinary-first',privateValue('param-one'),privateValue('param-two'),'synthetic-spool-ordinary-last']},
   request:{url:'https://synthetic-spool.test/checkout',method:'POST',headers:{'x-checkout':privateValue('header'),'x-ordinary':'synthetic-spool-ordinary-header'}},
@@ -53,7 +53,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
   assert.equal(detail.event.message,'[redacted]');assert.equal(value.exceptions[0].value,'[redacted]','exception and derived message aliases are scrubbed together');
   assert.deepEqual(value.logentry.params,['synthetic-spool-ordinary-first','synthetic-spool-ordinary-last'],'parameter removal preserves every nonmatching parameter in order');
   assert.equal(value.logentry.message,'synthetic-spool-ordinary-template %s');assert.equal(value.logentry.formatted,'synthetic-spool-ordinary-formatted');
-  assert.equal(frame.vars.direct_note,'[redacted]');hash(frame.vars.order_note);hash(frame.vars.nested);assert.equal(frame.vars.quantity,0);
+  assert.equal(Object.hasOwn(frame.vars,'password'),false,'a custom removal runs before default secret-name masking');assert.equal(frame.vars.direct_note,'[redacted]');hash(frame.vars.order_note);hash(frame.vars.nested);assert.equal(frame.vars.quantity,0);
   assert.deepEqual(frame.pre_context,['synthetic-spool-ordinary-pre','synthetic-spool-replaced-line']);assert.equal(frame.context_line,'synthetic-spool-replaced-line');assert.deepEqual(frame.post_context,['synthetic-spool-replaced-line','synthetic-spool-ordinary-post']);
   assert.equal(frame.filename,'/synthetic-spool/checkout.py');assert.equal(frame.function,'syntheticSpoolCheckout');assert.equal(frame.lineno,12);
   assert.equal(Object.hasOwn(value.request.headers,'x-checkout'),false);assert.equal(value.request.headers['x-ordinary'],'synthetic-spool-ordinary-header');
