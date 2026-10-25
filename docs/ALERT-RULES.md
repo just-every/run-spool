@@ -8,7 +8,7 @@ Affected users are distinct retained SDK-008 user keys. Events without a key are
 
 ## Preview and enabling
 
-Preview shows retained matches, transitions and their windows, the installation owner and destination. It samples at most 100 retained issue/windows over 90 days and names this coverage bound. Enabling requires the exact reviewed draft and current identity-policy revision. Any edit or policy revision invalidates the preview. Enabling starts future complete windows; history is never dispatched.
+Preview shows retained matches, transitions and their windows, the installation owner and destination. Transition and decision responses keep the issue identity for API clients and add `issue_short_id` and `issue_title` for display. Recorded decisions include the same names. It samples at most 100 retained issue/windows over 90 days and names this coverage bound. Enabling requires the exact reviewed draft and current identity-policy revision. Any edit or policy revision invalidates the preview. Enabling starts future complete windows; history is never dispatched.
 
 Rules and their filters travel in owner archives, disabled. Queues, previews, cursors and decision work records are operational and excluded. Fired decisions remain with safe historical alert payloads. Project and owner erasure remove configuration and operational stores.
 

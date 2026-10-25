@@ -87,11 +87,11 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  }
  const canSubmit = !!name.trim() && !!kinds.length && !!destination && (releaseMode !== 'named' || !!release);
  const thresholdLabel = metric === 'users' ? 'Affected user threshold (more than)' : metric === 'session_percent' ? 'Session error threshold (%)' : metric === 'baseline' ? 'Baseline multiplier' : 'Accepted occurrence threshold';
- return <section className="evidence"><h2>Per-project rules</h2>
+ return <section className="evidence alert-rules"><h2>Per-project rules</h2>
   {!destinations.length && <p className="callout">Add an email destination above before creating a rule.</p>}
   <ul className="alert-records">{rules.map(rule => <li key={rule.id}><div>
    <strong>{rule.name}</strong><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}</p>
-   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">Test the destination before enabling this rule.</p>}
+   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">This destination needs a passing test and your review before this rule can be enabled.</p>}
    <Details title={`Rule ${rule.name}`}><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}.</p></Details>
   </div><button className="text-button" disabled={!!busy} onClick={() => edit(rule)}>Edit {rule.name}</button></li>)}</ul>
   <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
