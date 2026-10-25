@@ -8613,7 +8613,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "6658317346ef225494bbcd88cefce4ac9f9aff1f65d6a0724b7846abb31fd1cf",
+      "sha256": "889003fb51ec7f8a7ae53c7ad784020e564f719cbea1daf7eafd45b49cba4f18",
       "executable": false
     },
     "tests/operator-archive.mjs": {
