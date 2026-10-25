@@ -9041,7 +9041,7 @@
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {
-      "sha256": "05fee05792865a4cd04b9e0410d4175a884141ed48526dbef50ba13827e07d23",
+      "sha256": "a9e69aba9e1dc6fd3fc3d183b589c8abca257b5953e97d53e8df76c0862e0b5a",
       "executable": false
     },
     "tests/sdk-package.mjs": {
@@ -9109,7 +9109,7 @@
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
-      "sha256": "0d24b2275f00bbdf27d411ca0cb4abfa6a76fc6114638d503d5f98fa31240b8d",
+      "sha256": "5b717a4e70fbdc2d4bde1aa3c2b7612a6b8139ce73fcbc0d630fe4259b3a435b",
       "executable": false
     },
     "tests/session-flow.mjs": {
