@@ -45,7 +45,8 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
   root: string; draftKey:string; scope: Scope; request: Request; run: Run; busy: boolean;
 }) {
   const [current, setCurrent] = useState<Current | null>(null);
-  const [draft, setDraft] = useDraft<Draft | null>(draftKey,null);
+  const [keptDraft, setDraft] = useDraft<Draft | null>(draftKey,null);
+  const draft=keptDraft??(current?{...draftOf(current.policy),revision:current.revision}:null);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [error, setError] = useState('');
   const [refused,setRefused]=useState<{code:string;target?:RefusalTarget}|null>(null);
@@ -58,7 +59,7 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
     live.current = true;
     request(root).then((value: Current) => {
       if (!live.current) return;
-      setCurrent(value); setDraft(previous=>previous??{...draftOf(value.policy),revision:value.revision}); setError('');
+      setCurrent(value); setError('');
     }).catch(error => { if (live.current) setError(message(error)); });
     return () => { live.current = false; generation.current++; };
   }, [root, request]);
@@ -102,7 +103,7 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
       setPreview(null);
       const value: Current = await request(root, 'PUT', {revision: approved.revision, policy: policyOf(draft), token: approved.token});
       if (!live.current) return;
-      setCurrent({...current, ...value}); setDraft(null); setDraft({...draftOf(value.policy),revision:value.revision});
+      setCurrent({...current, ...value}); setDraft(null);
       setStatus('Saved');
     });
   };
@@ -111,7 +112,7 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
     {error ? <><p role="alert">Scrubbing rules could not be loaded: {error}</p>
       <button className="text-button" disabled={disabled} onClick={() => action(async () => {
         const value: Current = await request(root);
-        if (live.current) {setCurrent(value); setDraft(null); setDraft({...draftOf(value.policy),revision:value.revision}); setStatus('Scrubbing rules loaded.');}
+        if (live.current) {setCurrent(value); setDraft(null); setStatus('Scrubbing rules loaded.');}
       })}>Retry scrubbing rules</button></> : <p role="status">Loading scrubbing rules…</p>}
   </>;
 
