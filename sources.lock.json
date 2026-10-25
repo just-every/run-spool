@@ -9037,11 +9037,11 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "d9bfa09a9b8f41b2278d362aceb0f1296d3d33460f9a0e854f64547cba1118db",
+      "sha256": "a2d90ee9bc194a57aac3147318540d26475f983c12a0c89bb486fcc7bd1f7236",
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {
-      "sha256": "a9e69aba9e1dc6fd3fc3d183b589c8abca257b5953e97d53e8df76c0862e0b5a",
+      "sha256": "17f60d2f5e2b7d7b575f8aadf5a1f13ee925f7ffd565348300481318282a5fe4",
       "executable": false
     },
     "tests/sdk-package.mjs": {

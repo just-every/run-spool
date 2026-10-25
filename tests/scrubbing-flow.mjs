@@ -89,6 +89,11 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
     const actual=(await request(root)).policy;assert.deepEqual(actual.sensitiveFields,policy.sensitiveFields);assert.deepEqual(actual.safeFields,policy.safeFields);
     assert.deepEqual(actual.rules.map(({id,...rule})=>rule),policy.rules.map(({id,...rule})=>rule),'owner settings save the previewed selectors, patterns and methods');
    }
+   await panel.getByLabel('Rule scope',{exact:true}).selectOption('installation');
+   await panel.getByLabel('Additional sensitive fields',{exact:true}).waitFor();
+   const installationResponse=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/scrubbing/preview'&&response.request().method()==='POST');
+   await panel.getByRole('button',{name:'Preview scrubbing',exact:true}).click();const installationSample=await (await installationResponse).json();assert.equal(installationSample.refusal,null);absent(installationSample,[seed.tenant,seed.installation],'installation Settings preview');
+   await panel.locator('[aria-label="Scrubbing preview"] pre').waitFor();await capture(page,'installation-preview',width);
   }finally{await context.close()}
  }
  const current=(await request(root)).policy,staleProject=await request(root+'/preview','POST',{policy:current});

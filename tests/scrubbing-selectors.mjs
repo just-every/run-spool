@@ -16,7 +16,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
   custom('extra','$extra.key','hash'),custom('checkout','$contexts.checkout.note','replace','synthetic-spool-replaced-note'),
   custom('tags','$tags.checkout','mask'),custom('crumb-message','$breadcrumbs.message','mask'),custom('crumb-data','$breadcrumbs.data.note','remove'),
   builtin('email','email','remove'),builtin('ipv4','ip_address','replace','synthetic-spool-replaced-ip'),
-  builtin('card','credit_card','remove'),builtin('ssn','us_ssn','hash'),
+  builtin('card','credit_card','remove'),builtin('ssn','us_ssn','hash'),builtin('password_probe','password','remove'),builtin('auth_probe','auth_token','mask'),
   {id:'synthetic-spool-otlp',selector:'$message',pattern:'regex',regex:'synthetic-spool-otlp-private-',method:'mask'},
  ]};
  const setup=async id=>{
@@ -27,7 +27,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
  };
  const project=await setup('synthetic-spool-selectors'),other=await setup('synthetic-spool-selectors-other');
  // Published test-number shapes, assembled to keep complete card/SSN literals out of source.
- const examples={email:'synthetic-spool-person@example.test',ipv4:'192.0.2.44',card:'4'+'1'.repeat(15),ssn:['219','09','9999'].join('-')};
+ const examples={email:'synthetic-spool-person@example.test',ipv4:'192.0.2.44',card:'4'+'1'.repeat(15),ssn:['219','09','9999'].join('-'),password_probe:'password=synthetic-spool-private-password',auth_probe:'bearer synthetic-spool-private-auth'};
  const sentry=()=>({event_id:crypto.randomUUID().replaceAll('-',''),platform:'python',release:'synthetic-spool-selectors@1',dist:'synthetic-spool-build',environment:'compatibility',
   exception:{values:[{type:'SyntheticSpoolError',value:privateValue('exception'),stacktrace:{frames:[{
    filename:'/synthetic-spool/checkout.py',function:'syntheticSpoolCheckout',lineno:12,in_app:true,
@@ -63,7 +63,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
   assert.equal(value.breadcrumbs[0].message,'[redacted]');assert.equal(Object.hasOwn(value.breadcrumbs[0].data,'note'),false);assert.equal(value.breadcrumbs[0].data.ordinary,'synthetic-spool-ordinary-data');assert.equal(value.breadcrumbs[1].message,'synthetic-spool-ordinary-breadcrumb');
   assert.equal(detail.event.breadcrumbs[0],'[redacted]','derived native breadcrumb is scrubbed with the SDK breadcrumb');
   assert.equal(Object.hasOwn(value.extra,'email'),false,'email remove rule removes the selected field');
-  assert.equal(value.extra.ipv4,'synthetic-spool-replaced-ip');assert.equal(Object.hasOwn(value.extra,'card'),false,'card remove rule removes the selected field');hash(value.extra.ssn);
+  assert.equal(value.extra.ipv4,'synthetic-spool-replaced-ip');assert.equal(Object.hasOwn(value.extra,'card'),false,'card remove rule removes the selected field');hash(value.extra.ssn);assert.equal(Object.hasOwn(value.extra,'password_probe'),false);assert.equal(value.extra.auth_probe,'[redacted]');
   absent(detail,[...Object.values(examples),...['exception','direct-local','hashed-local','nested-local','pre-line','context-line','post-line','param-one','param-two','header','stable-hash','checkout','tag','breadcrumb','crumb-data'].map(privateValue)]);
  }
  assert.equal(one.event.sentry.extra.key,two.event.sentry.extra.key,'hashing the same value is stable within a project');
