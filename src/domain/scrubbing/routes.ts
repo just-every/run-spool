@@ -13,7 +13,7 @@ installationScrubbingRoutes.use('*',async(c,next)=>{
  if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,env))return c.json({error:'Same-origin required'},403);
  c.set('ownerSession',session);await next();
 });
-for(const routes of [projectScrubbingRoutes,installationScrubbingRoutes]){
+for(const routes of [projectScrubbingRoutes,installationScrubbingRoutes] as Hono<any>[]){
  const project=(c:any):string|null=>c.req.param('project')??null;
  routes.get('/',async c=>c.json(await scrubbingSnapshot(c.env.DB,project(c))));
  routes.post('/preview',async c=>{
