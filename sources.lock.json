@@ -8237,7 +8237,7 @@
       "executable": false
     },
     "src/ui/workbench/useLiveRead.ts": {
-      "sha256": "412acd9bd64faab0f1886a3767b61ff4f4cf59df14c004778e09aaed35a849e6",
+      "sha256": "3b64de4bcdff4c16be95342ace81922526353ab86a21fb22caf1bfb730138d91",
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {
@@ -8649,7 +8649,7 @@
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
-      "sha256": "21d99dc6028642ed03ca90fba88e349137b6832d7536e6a52fb2aa5dc3916bf0",
+      "sha256": "39e465985a82c4d968db98b3de5ecaffd7994131d1b43ef1b887bcc08c568190",
       "executable": false
     },
     "tests/project-erasure.mjs": {
@@ -9001,7 +9001,7 @@
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
-      "sha256": "ff030e7b0a81ab235edee94779aae95dc489c4eb5eafa0b5fe7a8d746468ac8c",
+      "sha256": "7a41d3fa8e0f2f865e0387aebc6e50ce61b3d8c8c751cb59acd0420935357c19",
       "executable": false
     },
     "tests/session-flow.mjs": {

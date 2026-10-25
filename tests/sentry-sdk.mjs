@@ -75,9 +75,12 @@ try{
     for(let attempt=0;attempt<100;attempt++){issue=(await request('/api/projects/sdk/issues')).find(row=>row.title.includes('TypeError'));if(issue){packet=await request(`/api/projects/sdk/issues/${issue.id}/packet`);if(issue.count>beforeCount&&packet.events.some(e=>e.event.environment==='compatibility'))break}await new Promise(r=>setTimeout(r,100))}
     assert.ok(issue?.count>beforeCount,'this browser throw was admitted');
     assert.ok(issue,'browser default global handler creates a native issue');const captured=packet.events.find(e=>e.event.environment==='compatibility');assert.equal(captured.atAdmission[0].status,'mapped');assert.equal(captured.atAdmission[0].original.line,expectedLine);assert.equal(captured.event.release,reference.release);assert.equal(captured.event.build,reference.dist);
-    const owner=await context.newPage();await browserSignIn(owner,origin);await owner.goto(`${origin}/projects/sdk/issues/${issue.id}`);await owner.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor();
+    const owner=await context.newPage();await browserSignIn(owner,origin);await Promise.all([owner.waitForResponse(response=>response.url().includes('/feedback?issue=')&&response.ok(),{timeout:30000}),owner.goto(`${origin}/projects/sdk/issues/${issue.id}`)]);await owner.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor();
     await page.evaluate(({id,width})=>window.sendFeedback(`Checkout report ${width}: payment confirmation never appeared`,id),{id:captured.id,width});
-    await owner.waitForResponse(response=>response.url().includes('/feedback?issue=')&&response.ok(),{timeout:30000});
+    await Promise.all([
+      owner.waitForResponse(response=>response.url().includes('/feedback?issue=')&&response.ok(),{timeout:30000}),
+      owner.evaluate(()=>window.dispatchEvent(new Event('focus')))
+    ]);
     await owner.getByText(`Checkout report ${width}: payment confirmation never appeared`,{exact:true}).waitFor();
     const feedback=await request('/api/projects/sdk/feedback');assert.ok(feedback.items.some(row=>row.eventId===captured.id&&row.issueId===issue.id));assert.ok(!JSON.stringify(feedback).includes('feedback-private@example.com'));assert.ok(!JSON.stringify(feedback).includes('Private Feedback Name'));
     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);

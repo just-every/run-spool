@@ -15,6 +15,7 @@ export function useLiveRead(read: (signal: AbortSignal, background: boolean) => 
       finally { running = false; }
     }
     const schedule = () => { timer = window.setInterval(() => { if (document.visibilityState === 'visible') void update(true); }, interval); };
+    const focused = () => { if (document.visibilityState === 'visible') void update(true); };
     const visible = () => {
       clearInterval(timer);
       if (document.visibilityState === 'visible') { void update(true); schedule(); }
@@ -23,7 +24,8 @@ export function useLiveRead(read: (signal: AbortSignal, background: boolean) => 
     if (live) {
       if (document.visibilityState === 'visible') schedule();
       document.addEventListener('visibilitychange', visible);
+      window.addEventListener('focus', focused);
     }
-    return () => { controller.abort(); clearInterval(timer); document.removeEventListener('visibilitychange', visible); };
+    return () => { controller.abort(); clearInterval(timer); document.removeEventListener('visibilitychange', visible); window.removeEventListener('focus', focused); };
   }, [...dependencies, interval, live, enabled]);
 }
