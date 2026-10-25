@@ -1,3 +1,4 @@
+import {baselineJourney} from './alerts/baseline-journey.mjs';
 import {conditionsJourney} from './alerts/conditions-journey.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
@@ -7,7 +8,7 @@ import {prepareNativeAlerts,newIssue,regression,spike,capture,verifyNoReplay} fr
 
 await test('native scheduled event delivers a new issue with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();
- try{const fixture=await prepareNativeAlerts(app,['new_issue']);await newIssue(app,fixture);await verifyNoReplay(app);await conditionsJourney(app,fixture)}finally{await app.close()}
+ try{const fixture=await prepareNativeAlerts(app,['new_issue']);await newIssue(app,fixture);await verifyNoReplay(app);await conditionsJourney(app,fixture);await baselineJourney(app,fixture)}finally{await app.close()}
 });
 await test('native scheduled event delivers a later-release regression with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();

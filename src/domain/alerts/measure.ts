@@ -15,7 +15,9 @@ export async function sessionMeasure(db:D1Database,project:string,config:RuleCon
  return {denominator:a.total+b.total,affected:a.affected+b.affected};
 }
 export async function captureLoss(db:D1Database,project:string,start:number,end:number){
- return (await s(db,`SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND window<? AND count>0 AND (reason IN ('rejected','invalid','oversized','rate_limited','budget','sdk_dropped','retention') OR reason LIKE 'client_discarded:error:%' OR reason LIKE 'client_discarded:default:%' OR reason LIKE 'exposure_%') GROUP BY reason`,project,Math.floor(start/60000)*60000,end).all<any>()).results;
+ const rows=(await s(db,`SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND window<? AND count>0 AND (reason IN ('unauthorized','rejected','invalid','oversized','rate_limited','budget','storage_failure','unregistered_release_or_build','missing_release_register_required','sdk_dropped','retention') OR reason LIKE 'client_discarded:error:%' OR reason LIKE 'client_discarded:default:%' OR reason LIKE 'exposure_%') GROUP BY reason`,project,Math.floor(start/60000)*60000,end).all<any>()).results;
+ const dropped=await s(db,"SELECT SUM(COALESCE(json_extract(payload,'$.dropped'),0)) count FROM events WHERE project=? AND received>=? AND received<? AND historical=0",project,start,end).first<any>();
+ if(dropped?.count)rows.push({reason:'sdk_dropped',count:dropped.count});return rows;
 }
 export async function decision(db:D1Database,project:string,config:RuleConfig,issue:string,start:number,end:number,threshold:number){
  const m=await eventMeasure(db,project,config,start,end,issue),base={start,end,issue,count:m.count,users:m.users,unattributed:m.unattributed,threshold,metric:config.metric};
