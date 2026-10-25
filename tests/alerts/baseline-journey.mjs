@@ -20,11 +20,11 @@ async function scenario(app,name,start){
   const result=await app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(time+100,project,id).run();
   assert.equal(result.meta.changes,1,'each replayed receipt came from accepted public intake');
  }
- async function window(time,target,background){
+ async function window(time,target,background,sampleRate=0.5){
   for(let i=0;i<target;i++){
    const id=(++serial).toString(16).padStart(32,'0');
    const event={event_id:id,release:'r1',dist:'b1',environment:name,level:'error',fingerprint:['synthetic-spool-34-target'],
-    sdk:{name:'synthetic-spool',version:'1',sample_rate:0.5},
+    sdk:{name:'synthetic-spool',version:'1',sample_rate:sampleRate},
     exception:{values:[{type:'Error',value:'Synthetic baseline target',stacktrace:{frames:[{filename:'https://synthetic-spool.test/target.js',function:'baselineTarget',lineno:1,colno:1}]}}]}};
    const response=await app.request(sentryPath,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event));
    assert.equal(response.status,200,'Sentry baseline sample is accepted');await response.json();
@@ -81,6 +81,14 @@ export async function baselineJourney(app,fixture){
  assert.equal(normalDecision.denominator,10,'the denominator names actual accepted traffic');
  assert.equal(normalDecision.history.length,2,'two complete comparable weeks establish the baseline');
  assert.equal((await normal.spikes()).length,0,'normal traffic creates no spike');
+
+ const malformed=await scenario(app,'malformed-sampling',start);
+ await malformed.window(start-week,2,8,1);await malformed.window(start-2*week,2,8,1);await malformed.window(start,2,8,'0.25-not-a-number');
+ const malformedRule=await malformed.enable(),malformedDecision=await malformed.evaluate(malformedRule);
+ assert.equal(malformedDecision.sampleRate,1,'numeric-prefix sample-rate strings are not numeric metadata');
+ close(malformedDecision.value,0.2,'malformed sample rate preserves the observed rate');
+ assert.equal(malformedDecision.fired,false,'malformed metadata cannot invent an anomaly');
+ assert.equal((await malformed.deliveries(malformedRule)).length,0,'malformed sampling produces no false delivery');
 
  const burst=await scenario(app,'burst',start);await histories(burst);await burst.window(start,6,6);
  const burstRule=await burst.enable(),burstDecision=await burst.evaluate(burstRule);

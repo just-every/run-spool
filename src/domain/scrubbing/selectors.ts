@@ -8,8 +8,8 @@ const roots = (doc: unknown): Record<string, unknown>[] => {
  const root = object(doc) ? doc : null;
  return root ? [root,...(object(root.sentry) ? [root.sentry] : [])] : [];
 };
-const entries = (value: unknown, prefix: string): FieldRef[] => object(value) ? Object.keys(value).map(key=>at(value,key,`${prefix}.${key}`)) : [];
-const matchKey = (value: unknown, name: string, prefix: string): FieldRef[] => entries(value,prefix).filter(ref=>String(ref.key).toLowerCase()===name.toLowerCase());
+const entries = (value: unknown, prefix: string): FieldRef[] => object(value) ? Object.keys(value).map(key=>at(value,key,`${prefix}.${key}`)) : Array.isArray(value) ? value.flatMap(pair=>Array.isArray(pair)&&pair.length===2&&typeof pair[0]==='string'?[at(pair,1,`${prefix}.${pair[0]}`)]:[]) : [];
+const matchKey = (value: unknown, name: string, prefix: string): FieldRef[] => entries(value,prefix).filter(ref=>ref.path.slice(prefix.length+1).toLowerCase()===name.toLowerCase());
 // Resolve from the original object so the returned reference can be mutated.
 function resolvePath(value: unknown, prefix: string, path: string): FieldRef[] {
  const exact=matchKey(value,path,prefix);

@@ -22,7 +22,7 @@ export async function previewRule(env:AlertEnvironment,session:OwnerSession,proj
  if(b.kinds.includes('spike'))for(const row of rows)decisions.push(await decision(env.DB,project,config,row.issue,row.start,row.start+b.windowMs,b.threshold));
  const transitions=decisions.filter(d=>d.fired);
  if(JSON.parse(b.kinds).some((k:string)=>k!=='spike')){
-  const facts=(await s(env.DB,`SELECT a.issue,a.kind,a.created,e.payload FROM alerts a JOIN events e ON e.project=a.project AND e.id=json_extract(a.payload,'$.trigger.event') AND e.occurrence=json_extract(a.payload,'$.trigger.occurrence') WHERE a.project=? AND a.kind IN (SELECT value FROM json_each(?)) AND ${f.sql} GROUP BY a.id ORDER BY a.created DESC LIMIT 100`,project,b.kinds,...f.args).all<any>()).results;
+  const facts=(await s(env.DB,`SELECT a.issue,a.kind,a.created,e.payload FROM alerts a JOIN events e ON e.project=a.project AND e.id=json_extract(a.payload,'$.trigger.event') AND e.occurrence=json_extract(a.payload,'$.trigger.occurrence') WHERE a.project=? AND a.kind IN (SELECT value FROM json_each(?)) AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql} GROUP BY a.id ORDER BY a.created DESC LIMIT 100`,project,b.kinds,from,end,...f.args).all<any>()).results;
   for(const fact of facts)transitions.push({start:Math.floor(fact.created/b.windowMs)*b.windowMs,end:Math.floor(fact.created/b.windowMs)*b.windowMs+b.windowMs,issue:fact.issue,count:1,reason:fact.kind,fired:true} as any);
  }
  const scrubbing=await scrubbingSnapshot(env.DB,project),revisions={project:scrubbing.revision,installation:scrubbing.installationRevision};

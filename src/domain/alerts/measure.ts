@@ -3,7 +3,7 @@ import { eligibleEvent,eventFilter,userKey,type RuleConfig } from './filters';
 export async function eventMeasure(db:D1Database,project:string,config:RuleConfig,start:number,end:number,issue?:string){
  const f=eventFilter(config),where=`e.project=? AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql}${issue?' AND e.issue=?':''}`;
  // sample_rate is SDK-supplied metadata, never inferred from a quiet feed.
- const rate="CASE WHEN CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL)>0 AND CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL)<=1 THEN CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL) ELSE 1 END";
+ const rate="CASE WHEN json_type(e.payload,'$.sentry.sdk.sample_rate') IN ('real','integer') AND CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL)>0 AND CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL)<=1 THEN CAST(json_extract(e.payload,'$.sentry.sdk.sample_rate') AS REAL) ELSE 1 END";
  return (await s(db,`SELECT COUNT(*) count,COUNT(DISTINCT ${userKey}) users,COALESCE(SUM(CASE WHEN ${userKey} IS NULL THEN 1 ELSE 0 END),0) unattributed,COALESCE(SUM(1.0/(${rate})),0) scaled,MIN(${rate}) sampleRate FROM events e LEFT JOIN event_identities x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE ${where}`,project,start,end,...f.args,...issue?[issue]:[]).first<any>())!;
 }
 export async function sessionMeasure(db:D1Database,project:string,config:RuleConfig,start:number,end:number){

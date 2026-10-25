@@ -10,6 +10,16 @@ export async function conditionsJourney(app,fixture){
   const event_id=id.toString(16).padStart(32,'0');await send('event',{event_id,...release?{release}:{},environment,level,tags:{tenant},sdk:{name:'synthetic-spool',version:'1',sample_rate:sample},...user?{user:{id:user}}:{},exception:{values:[{type:'Error',value:'Synthetic alert conditions',stacktrace:{frames:[{filename:`https://synthetic-spool.test/${group}.js`,function:group,lineno:1,colno:1}]}}]}});
   return (await app.db.prepare('SELECT issue FROM events WHERE project=? AND id=?').bind('web',event_id).first()).issue;
  };
+ const untouched=await app.json(base+'/rules');
+ const noToken=await app.request(base+'/rules','POST',rule('mail',{name:'Synthetic missing preview',enabled:true}));
+ assert.equal(noToken.status,400,'an enabled raw POST without a preview token is refused');await noToken.body.cancel();
+ assert.deepEqual(await app.json(base+'/rules'),untouched,'a missing-token POST writes no rule');
+ const disabledDraft=rule('mail',{name:'Synthetic disabled draft',enabled:false});
+ const disabledRule=await app.json(base+'/rules','POST',disabledDraft);
+ const disabledRows=await app.json(base+'/rules');
+ const noReenable=await app.request(base+'/rules/'+disabledRule.id,'PUT',{...disabledDraft,enabled:true,revision:disabledRule.revision});
+ assert.equal(noReenable.status,400,'a raw re-enable PUT without a preview token is refused');await noReenable.body.cancel();
+ assert.deepEqual(await app.json(base+'/rules'),disabledRows,'a missing-token re-enable leaves rules unchanged');
  const userRule=rule('mail',{kinds:['spike'],threshold:3,config:config('users',{environment:'rules'})});
  let preview=await app.json(base+'/rules/preview','POST',userRule);assert.match(preview.refusal,/policy.*drops/i,'identity policy refusal precedes enable');assert.equal(preview.token,null);
  const sessionRule=rule('mail',{kinds:['spike'],threshold:30,config:config('session_percent',{environment:'sessions'})});
@@ -39,6 +49,14 @@ export async function conditionsJourney(app,fixture){
   const regressions=(await app.json('/api/projects/web/alerts')).filter(x=>x.issue===target&&x.kind==='regression');assert.equal(regressions.length,1,'plain Resolve regresses exactly once in same release or with no release');
  }
  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'suppressed',revision:row.revision});const suppressed=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'open',revision:suppressed.revision});await error(id++,{environment:'filtered',release:'',group:'included'});assert.equal((await app.json('/api/projects/web/alerts')).filter(x=>x.issue===a&&x.kind==='reactivation').length,1);
+ const scheduled=await app.json(base+'/rules','POST',rule('mail',{name:'Synthetic scheduled filters',kinds:['spike'],threshold:2,config:config('count',{environment:'scheduled',level:'error',release:'r1',tags:{tenant:'approved'}})}));
+ let scheduledIssue;
+ for(const extra of [{},{},{environment:'elsewhere'},{level:'info'},{release:''},{tenant:'outside'}])scheduledIssue=await error(id++,{environment:'scheduled',group:'scheduled',...extra});
+ await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND issue=?").bind(start+100,scheduledIssue).run();
+ await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,scheduled.id).run();await schedule(end);
+ const measured=JSON.parse((await app.json(base+'/decisions')).find(row=>row.rule_id===scheduled.id&&row.issue===scheduledIssue&&row.start===start).reason);
+ assert.equal(measured.count,2,'scheduled filters exclude each environment severity release and tag nonmatch');
+ assert.equal((await app.json(base+'/deliveries')).filter(row=>row.rule_id===scheduled.id).length,1,'the matching scheduled window routes exactly one delivery');
  const policyPreview=await app.json(base+'/rules/preview','POST',userRule);
  const currentPolicy=await app.json('/api/projects/web/identity-policy'),nextPolicy={...currentPolicy.policy,username:'hash'},nextPreview=await app.json('/api/projects/web/identity-policy/preview','POST',{policy:nextPolicy});
  await app.json('/api/projects/web/identity-policy','PUT',{revision:currentPolicy.revision,policy:nextPolicy,token:nextPreview.token});
