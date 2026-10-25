@@ -29,7 +29,7 @@ export async function nativeAlertRuntime() {
   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   const cookie=await signIn(origin);
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
-  const json=async(...args)=>{const response=await request(...args);assert.ok(response.ok,`Native public request ${new URL(args[0],origin).pathname}: HTTP ${response.status}`);return response.json()};
+  const json=async(...args)=>{if(['POST','PUT'].includes(args[1])&&/\/alerting\/rules(?:\/[^/]+)?$/.test(args[0])&&args[2]?.enabled&&!args[2].previewToken){const path=args[0],base=path.replace(/\/rules.*$/,'/rules'),ruleId=path===base?null:path.split('/').at(-1),preview=await request(base+'/preview','POST',{...args[2],...(ruleId?{ruleId}:{})});assert.ok(preview.ok,await preview.clone().text());args[2]={...args[2],previewToken:(await preview.json()).token};}const response=await request(...args);assert.ok(response.ok,`Native public request ${new URL(args[0],origin).pathname}: HTTP ${response.status}`);return response.json()};
   return {origin,cookie,request,json,db,
    tick:()=>fetch(origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json'),
    async close(){await runtime.dispose();await rm(temporary,{recursive:true,force:true})}};

@@ -167,6 +167,8 @@ for(const later of laterTables)later.migrations.push('0075_retention_schedule.sq
 laterTables.unshift({tables:[],migrations:['0075_retention_schedule.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(reviewTables));later.migrations.push('0076_review_inbox.sql')}
 laterTables.unshift({tables:Object.keys(reviewTables),migrations:['0076_review_inbox.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0077_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0077_alert_conditions.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

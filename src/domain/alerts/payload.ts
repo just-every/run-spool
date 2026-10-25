@@ -1,6 +1,6 @@
 import { SHARED_COMMIT_MARK } from './retention';
 import type { AlertKind } from './types';
-export const events:Record<AlertKind,string> = {new_issue:'spool.issue.new',regression:'spool.issue.regressed',spike:'spool.issue.spike'};
+export const events:Record<AlertKind,string> = {new_issue:'spool.issue.new',regression:'spool.issue.regressed',reactivation:'spool.issue.reactivated',spike:'spool.issue.spike'};
 export function publicOrigin(value?:string):string|null {
  if (!value) return null;
  try { const u=new URL(value); return u.protocol==='https:' && u.origin===value && !u.username && !u.password ? u.origin : null; } catch { return null; }

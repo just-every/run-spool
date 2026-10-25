@@ -4,6 +4,7 @@ import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import type { Bindings } from '../../auth/bindings';
+import { previewRule,previewGuard,configSql } from './preview';
 import { ruleInput } from './rules';
 import { destinationChoices, findDestination } from './destinations.server';
 import { namespace, statement as s } from './types';
@@ -33,13 +34,17 @@ routes.put('/destinations/:destination',async c=>{const result=await saveDestina
 routes.delete('/destinations/:destination',async c=>c.json(await revokeSlack(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination')!)));
 routes.post('/destinations/:destination/test',async c=>c.json(await testDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'))));
 routes.post('/destinations/:destination/review',async c=>c.json(await reviewTest(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),(await input(c)).testId)));
-routes.get('/rules',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_rules WHERE project=? ORDER BY created,id',c.req.param('project')!).all()).results));
+routes.post('/rules/preview',async c=>c.json(await previewRule(c.env,c.get('alertSession'),c.req.param('project')!,await input(c))));
+routes.get('/decisions',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_decisions WHERE project=? ORDER BY end DESC,id LIMIT 100',c.req.param('project')!).all()).results));
+routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,${configSql} config FROM alert_rules r WHERE project=? ORDER BY created,id`,c.req.param('project')!).all()).results));
 routes.post('/rules',async c=>{
  const p=c.req.param('project')!,b=ruleInput(await input(c),c.env,p,false),id=crypto.randomUUID(),time=Date.now();
  await findDestination(c.env,p,b.destination,b.channel);
- const testGuard=b.enabled?await requireReviewedTest(c.env,p,b.destination,b.channel):null;
+ const testGuard=b.enabled?await requireReviewedTest(c.env,p,b.destination,b.channel):null,preview=await previewGuard(c.env,p,null,b);
  await ownerBatch(c.env.DB,c.get('alertSession'),[
+  ...preview,
   s(c.env.DB,'INSERT INTO alert_rules VALUES(?,?,1,?,?,?,?,?,?,?,?,?)',id,p,b.name,Number(b.enabled),b.channel,b.destination,b.kinds,b.windowMs,b.threshold,time,time),
+  s(c.env.DB,'INSERT INTO alert_rule_configs VALUES(?,?,1,?)',id,p,b.config),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE id=? AND enabled=1 AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike')`,Math.ceil(time/b.windowMs)*b.windowMs,id),
   s(c.env.DB,`INSERT INTO audit VALUES(?,?,'alert_rule_created',?,?)`,crypto.randomUUID(),p,JSON.stringify({rule:id,revision:1}),time),
   ...(testGuard?[testGuard]:[]),
@@ -47,6 +52,8 @@ routes.post('/rules',async c=>{
 });
 routes.put('/rules/:rule',async c=>{
  const p=c.req.param('project')!,id=c.req.param('rule'),b=ruleInput(await input(c),c.env,p,true),time=Date.now(),change=crypto.randomUUID();
+ const previousRevision=await s(c.env.DB,'SELECT revision FROM alert_rules WHERE project=? AND id=?',p,id).first<any>();if(previousRevision?.revision!==b.revision)return c.json({error:'Revision conflict'},409);
+ const preview=await previewGuard(c.env,p,id!,b);
  let testGuard:D1PreparedStatement|null=null;
  if(b.enabled){await findDestination(c.env,p,b.destination,b.channel);testGuard=await requireReviewedTest(c.env,p,b.destination,b.channel)}
  else {
@@ -58,6 +65,8 @@ routes.put('/rules/:rule',async c=>{
   s(c.env.DB,`INSERT INTO audit SELECT ?,?,'alert_rule_revised',?,? WHERE changes()=1`,change,p,JSON.stringify({rule:id,revision:b.revision+1}),time),
   s(c.env.DB,`DELETE FROM alert_cursors WHERE project=? AND rule_id=? AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,change),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND EXISTS(SELECT 1 FROM audit WHERE id=?) AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike') ON CONFLICT(rule_id) DO NOTHING`,Math.ceil(time/b.windowMs)*b.windowMs,p,id,b.revision+1,change),
+  ...preview,
+  s(c.env.DB,`INSERT INTO alert_rule_configs SELECT id,project,revision,? FROM alert_rules WHERE id=? AND project=? AND revision=? AND EXISTS(SELECT 1 FROM audit WHERE id=?) ON CONFLICT(rule_id) DO UPDATE SET revision=excluded.revision,config=excluded.config`,b.config,id,p,b.revision+1,change),
   // Retention withdrawal is irreversible: its reason also fences stale expansion.
   s(c.env.DB,`UPDATE alert_intents SET state='cancelled',code='rule_revised' WHERE project=? AND rule_id=? AND rule_revision=? AND expanded=0 AND code IS NOT 'retention_removed' AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
   s(c.env.DB,`UPDATE alert_mail_jobs SET state='blocked',code='rule_revised' WHERE state='queued' AND id IN(SELECT id FROM alert_intents WHERE project=? AND rule_id=? AND rule_revision=?) AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),

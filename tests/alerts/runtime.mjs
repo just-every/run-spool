@@ -51,7 +51,7 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
   // A restore can outlast another connection's idle lifetime. Do not let the
   // global fetch pool reuse that socket, or one from a disposed fixture runtime.
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
-  const json=async(...args)=>{const r=await request(...args);assert.ok(r.ok,`Alert fixture ${args[0]} failed with HTTP ${r.status}: ${r.ok?'':await r.text()}`);return r.json()};
+  const json=async(...args)=>{if(['POST','PUT'].includes(args[1])&&/\/alerting\/rules(?:\/[^/]+)?$/.test(args[0])&&args[2]?.enabled&&!args[2].previewToken){const path=args[0],base=path.replace(/\/rules.*$/,'/rules'),ruleId=path===base?null:path.split('/').at(-1),preview=await request(base+'/preview','POST',{...args[2],...(ruleId?{ruleId}:{})});assert.ok(preview.ok,await preview.clone().text());args[2]={...args[2],previewToken:(await preview.json()).token};}const r=await request(...args);assert.ok(r.ok,`Alert fixture ${args[0]} failed with HTTP ${r.status}: ${r.ok?'':await r.text()}`);return r.json()};
   return {origin,db,request,json,bindings,get cookie(){return cookie},set cookie(value){cookie=value},schedule:time=>json('/__fixture/schedule','POST',{time}),
    async close(){await runtime.dispose();await rm(temporary,{recursive:true,force:true})}};
  }catch(error){await runtime?.dispose();await rm(temporary,{recursive:true,force:true});throw error;}
