@@ -25,7 +25,7 @@ export async function capArchive(app,issue){
  data.grouping_proposals=[];
  data.issues=[group];data.issue_resolutions=data.issue_resolutions.filter(row=>row.issue===issue);
  // Dropped issues take their short IDs with them; the kept issue keeps its own (TEAM-004).
- data.issue_short_ids=data.issue_short_ids.filter(row=>row.issue===issue&&row.assigned===issue);data.issue_short_id_moves=[];data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_history=[];
+ data.issue_short_ids=data.issue_short_ids.filter(row=>row.issue===issue&&row.assigned===issue);data.issue_short_id_moves=[];data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_rule_configs=[];data.alert_history=[];
  // Capture facts follow the retained issue; excluded issues cannot leave
  // dangling history in this intentionally sliced archive.
  data.audit=data.audit.filter(row=>!row.kind.startsWith('alert_')&&(!['capture_history_started','capture_unsuppressed'].includes(row.kind)||JSON.parse(row.detail).issue===issue));
