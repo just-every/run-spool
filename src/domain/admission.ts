@@ -62,7 +62,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
-    const privacy=await prepareScrubbing(db,project,event);event=normalize(privacy.document);
+    const privacy=await prepareScrubbing(db,project,event,identity?.scrubbingKey);event=normalize(privacy.document);
     const matches=matchInbound(event,scope.policy,inboundMetadata(event,{origin:c.req.header('origin'),referer:c.req.header('referer'),userAgent:c.req.header('user-agent'),clientIp:c.req.header('cf-connecting-ip'),domainAllowed:scope.domain.allowed}));
     if(matches.length){await ingestBatch(c,scope,[outcomeStatement(db,project,'filtered'),...matches.map(id=>outcomeStatement(db,project,'filtered:'+id))]);return c.json({outcome:'filtered',reason:'inbound_filter',filters:matches},202)}
     const existing=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();

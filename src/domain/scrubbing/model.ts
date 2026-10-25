@@ -14,10 +14,10 @@ export async function scrubbingSnapshot(db:D1Database,project:string|null){
 export function scrubbingFence(db:D1Database,project:string|null,revision:number){
  return db.prepare('INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN COALESCE((SELECT revision FROM scrubbing_policies WHERE id=?),0)=? THEN 1 ELSE 0 END').bind(policyId(project),revision);
 }
-export async function prepareScrubbing<T>(db:D1Database,project:string,document:T){
+export async function prepareScrubbing<T>(db:D1Database,project:string,document:T,sharedKey?:Awaited<ReturnType<typeof prepareIdentityKey>>|null){
  const snapshot=await scrubbingSnapshot(db,project),active=snapshot.policy.rules.length+snapshot.policy.sensitiveFields.length+snapshot.installationPolicy.rules.length+snapshot.installationPolicy.sensitiveFields.length;
- const key=active?await prepareIdentityKey(db,project):null;
+ const key=active?(sharedKey??await prepareIdentityKey(db,project)):null;
  const applied=active?await applyScrubbingDocument(document,snapshot.installationPolicy,snapshot.policy,value=>identityHash(key!.key,'scrubbing:'+value)):{document,matches:[]};
- return {...applied,jobs:[scrubbingFence(db,null,snapshot.installationRevision),scrubbingFence(db,project,snapshot.revision),...key?.jobs??[]]};
+ return {...applied,key,jobs:[scrubbingFence(db,null,snapshot.installationRevision),scrubbingFence(db,project,snapshot.revision),...key?.jobs??[]]};
 }
 export const policyDigest=(policy:ScrubbingPolicy)=>hash(canonical(policy));
