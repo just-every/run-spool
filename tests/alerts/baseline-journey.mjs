@@ -37,11 +37,14 @@ async function scenario(app,name,start){
    await receipt(id,time);
   }
  }
- async function loss(time){
-  const response=await app.request(`/api/ingest/${project}`,'POST',{version:1},headers);
-  assert.equal(response.status,400,'malformed public intake records real capture loss');await response.json();
-  const changed=await app.db.prepare("UPDATE outcomes SET window=? WHERE project=? AND reason='invalid'").bind(time,project).run();
-  assert.equal(changed.meta.changes,1,'the rejected receipt supplies the replayed loss window');
+ async function loss(time,clientReport=false){
+  const reason=clientReport?'client_discarded:error:network_error':'invalid';
+  const response=clientReport
+   ?await app.request(sentryPath,'POST','{}\n{"type":"client_report"}\n'+JSON.stringify({timestamp:Date.now()/1000,discarded_events:[{reason:'network_error',category:'error',quantity:3}]}))
+   :await app.request(`/api/ingest/${project}`,'POST',{version:1},headers);
+  assert.equal(response.status,clientReport?200:400,'public intake records actual capture loss');await response.json();
+  const changed=await app.db.prepare('UPDATE outcomes SET window=? WHERE project=? AND reason=?').bind(time,project,reason).run();
+  assert.equal(changed.meta.changes,1,'the public capture outcome supplies the replayed loss window');
  }
  async function enable(){
   const issues=await app.json(root+'/issues');
@@ -108,11 +111,11 @@ export async function baselineJourney(app,fixture){
  assert.equal(lowDecision.denominator,9);assert.match(lowDecision.reason,/low traffic/i);
  assert.equal((await low.spikes()).length,0,'low traffic creates no spike');
 
- const currentLoss=await scenario(app,'current-loss',start);await histories(currentLoss);await currentLoss.window(start,6,6);await currentLoss.loss(start);
+ const currentLoss=await scenario(app,'current-loss',start);await histories(currentLoss);await currentLoss.window(start,6,6);await currentLoss.loss(start,true);
  const currentLossRule=await currentLoss.enable(),lossDecision=await currentLoss.evaluate(currentLossRule);
  assert.equal(lossDecision.fired,false,'current capture loss withholds a doubled rate');
  close(lossDecision.value,2/3,'loss does not hide the observed anomaly');
- assert.ok(lossDecision.loss.some(row=>row.reason==='invalid'&&row.count===1),'the rejected capture is named in the decision');
+ assert.ok(lossDecision.loss.some(row=>row.reason==='client_discarded:error:network_error'&&row.count===3),'SDK client-report discards are named in the decision');
  assert.match(lossDecision.reason,/capture loss/i);assert.equal((await currentLoss.spikes()).length,0);
 
  const historicLoss=await scenario(app,'historic-loss',start);await histories(historicLoss);
