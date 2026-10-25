@@ -57,6 +57,13 @@ try {
  const identityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:identityPolicy,revision:identityPreview.revision,token:identityPreview.token},{},'PUT');assert.equal(identityWrite.status,200);await identityWrite.body.cancel();
  const identityValue={event_id:randomUUID().replaceAll('-',''),release:'r1',dist:'b1',environment:'test',user:{email:testOwner},exception:{values:[{type:'IdentityError',value:'Owner identity custody',stacktrace:{frames:[{filename:'identity.js',lineno:1,colno:1,function:'capture'}]}}]}};
  const identityResponse=await fetch(app.origin+`/api/${sessionDsn.pathname.slice(1)}/envelope/?sentry_key=${sessionDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"event"}\n'+JSON.stringify(identityValue)});assert.equal(identityResponse.status,200);await identityResponse.body.cancel();
+ // [SDK-003] Both scopes, their safe change history and unused previews leave with the owner.
+ const scrubbingPolicy={version:1,sensitiveFields:['synthetic_spool_private'],safeFields:[],rules:[]};
+ for(const root of ['/api/scrubbing','/api/projects/personal-capture/scrubbing']){
+  const preview=await app.json(root+'/preview',{policy:scrubbingPolicy});
+  const saved=await app.request(root,{revision:preview.revision,policy:scrubbingPolicy,token:preview.token},{},'PUT');assert.equal(saved.status,200);await saved.body.cancel();
+ }
+ await app.json('/api/projects/personal-capture/scrubbing/preview',{policy:scrubbingPolicy});
  // [ALERT-001] Configuration and unused preview authority leave with the owner.
  const alertRoot='/api/projects/personal-capture/alerting',alertDestination=await app.json(alertRoot+'/destinations',{label:'Synthetic owner rules',recipient:'synthetic-spool-1@mail.runeditrun.com'},201);
  const alertDraft={name:'Synthetic owner rule',enabled:false,channel:'mail',destination:alertDestination.id,kinds:['new_issue'],windowMs:60000,threshold:2,config:{metric:'count',filters:{environment:'test'},tagKeys:[]}};
@@ -79,7 +86,7 @@ try {
  evidence.holds=await heldScopes(app,otherId);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -91,7 +98,7 @@ try {
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
  const latest=await app.json('/api/owner/erasure');
- const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
+ const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
  assert.deepEqual(after.spool_audit_events.filter(row=>row.sequence<=before.spool_audit_events.at(-1)?.sequence),before.spool_audit_events,'AUDIT-001 actor erasure never rewrites prior safe chronology');

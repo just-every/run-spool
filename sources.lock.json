@@ -3608,6 +3608,10 @@
       "sha256": "9591dd0416f7f4f07c96ab8b07312a963d2438c9f7b0aa90e0f2f6aa840de7b8",
       "executable": false
     },
+    "docs/SENTRY-SCRUBBING.md": {
+      "sha256": "9b4acf8788dee7ae21bcd8eb15198d4aecfef1b3887ab788071b9c214357cae8",
+      "executable": false
+    },
     "docs/SENTRY-SESSIONS.md": {
       "sha256": "4d6618739ef901b59eadf5418b24282662600e244d6b8d76851086a6b317c5e1",
       "executable": false
@@ -4677,7 +4681,7 @@
       "executable": false
     },
     "src/domain/admission.ts": {
-      "sha256": "08e1d1b029df80bc55086b19bd750196e495c69c314a1021ab3d965c367bfd89",
+      "sha256": "287a7ff81ff75962abb7dee4789ea72d7cceb589fe9460f724e6a7ea5581995e",
       "executable": false
     },
     "src/domain/agent-access.ts": {
@@ -4753,7 +4757,7 @@
       "executable": false
     },
     "src/domain/alerts/preview.ts": {
-      "sha256": "458c84a56b9884edb13e1f3b7309b91058bd6b0775b326021ba380d5b80d2fc1",
+      "sha256": "fe32c69e67ccf95d9e0da7ee0c2f04acfbd277c292fd434cb7894a4564c81679",
       "executable": false
     },
     "src/domain/alerts/provider-events.server.ts": {
@@ -5189,7 +5193,7 @@
       "executable": false
     },
     "src/domain/identities/intake.ts": {
-      "sha256": "fb3280ee7645ec4c9a59ae923e3de9fa271811ce19a95a0de713b0e5b4376d8f",
+      "sha256": "8bb3beb2f259f6caa1211296f3550f401c5c4f2e9d6dffbea0d798513b5c0bd4",
       "executable": false
     },
     "src/domain/identities/key.ts": {
@@ -5521,7 +5525,7 @@
       "executable": false
     },
     "src/domain/scrubbing/model.ts": {
-      "sha256": "ec340a1e77b2d7503e4b099336a3445f3d39a91fe76486dc8dc906903590030c",
+      "sha256": "c6dd96befa768e274aa0a780ae64688f2fce9dc98ee18649b3f232fbc97a4713",
       "executable": false
     },
     "src/domain/scrubbing/patterns.ts": {
@@ -5537,11 +5541,11 @@
       "executable": false
     },
     "src/domain/scrubbing/routes.ts": {
-      "sha256": "31993a10031a2923cc9bad1014301b390691989a1ffa6a3c5ab4c2e0aafac520",
+      "sha256": "3e34709551da63b51a393f01147cf284442d29c6223e2cc12a568d54ec6121f5",
       "executable": false
     },
     "src/domain/scrubbing/selectors.ts": {
-      "sha256": "f61f5c89bb130f8059000a47a83173be0bf7a3202944ec04a87aaf24ed9efcdc",
+      "sha256": "e0c3c7ffabec6ffaa153f8f91effd80ac5facc5cc85c1672e00583bd0ff2f793",
       "executable": false
     },
     "src/domain/sentry-cli/archive.ts": {
@@ -8713,7 +8717,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "fc23a744c7a41cf13ea0b344a52f74eef8d645eb0213af833d3085133cf2d9e3",
+      "sha256": "ef4d9bf4b154c7612ec3586954473c51fa97f056992265a84e9344de717582b7",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
@@ -8749,7 +8753,7 @@
       "executable": false
     },
     "tests/project-erasure.mjs": {
-      "sha256": "3ca12b860eaa12a68294b28c4ce1809a99e64ec05c9bd78780a9517a7f52d6a8",
+      "sha256": "25328bb8b23203b3d1f7f51655ca0b7f94484b98f30361e064f2425eacb16d93",
       "executable": false
     },
     "tests/project-erasure/doors.mjs": {
@@ -8769,7 +8773,7 @@
       "executable": false
     },
     "tests/project-erasure/plant.mjs": {
-      "sha256": "dc24d5b13bec7fca7a2c85c17367094721571b99b851f7b3bcb9bbdae3aeade5",
+      "sha256": "e9582c7a5c32d674990f4293e717413f2b9cd6271cb87e36d65ccb6e64943598",
       "executable": false
     },
     "tests/project-erasure/scan.mjs": {
@@ -9033,7 +9037,7 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "b83daf52a0ddec282b9caf51d1383ca51df187fcc15baf775f8bf462ee292329",
+      "sha256": "d9bfa09a9b8f41b2278d362aceb0f1296d3d33460f9a0e854f64547cba1118db",
       "executable": false
     },
     "tests/sdk-package.mjs": {

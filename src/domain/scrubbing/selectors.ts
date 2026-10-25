@@ -84,7 +84,7 @@ export function selectorFields(doc:unknown,selector:string):FieldRef[]{
       }
       else if(key.startsWith('data.'))add(resolvePath(object(crumb)?crumb.data:undefined,`${p}breadcrumbs.${j}.data`,key.slice(5)));
     }
-    else if(section==='logentry')add(resolvePath(root.logentry,`${p}logentry`,key));
+    else if(section==='logentry'){const params=object(root.logentry)?root.logentry.params:undefined;if(key==='params'&&Array.isArray(params))for(const [index] of params.entries())add([at(params,index,`${p}logentry.params.${index}`)]);else add(resolvePath(root.logentry,`${p}logentry`,key));}
     else if(section==='request.headers')add(resolvePath(object(root.request)?root.request.headers:undefined,`${p}request.headers`,key));
     else if(section==='log.attributes'){add(resolvePath(object(root.log)?root.log.attributes:root.attributes,`${p}${object(root.log)?'log.':''}attributes`,key));if(object(root.extra))add(resolvePath(root.extra.log_attributes,`${p}extra.log_attributes`,key));}
     else add(resolvePath(root[section],`${p}${section}`,key));

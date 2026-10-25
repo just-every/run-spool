@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {browserSignIn} from './auth.mjs';
+import {startTestWorker} from './worker.mjs';
+import {signIn,browserSignIn} from './auth.mjs';
 import {archiveProjection} from './archive.mjs';
 import {issueDetails,run} from './runtimes/harness.mjs';
 
@@ -106,10 +107,18 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
  const otherId=await send(other.dsn,{message:'synthetic-spool-other-project',extra:{tenant_private:otherValues.tenant,order_note:'synthetic-spool-other-order'},contexts:{installation:{note:otherValues.installation}}}),otherDetail=(await read(other.id,otherId)).detail;
  absent(otherDetail,[otherValues.tenant,otherValues.installation],'second project owner detail');assert.equal(otherDetail.event.sentry.extra.order_note,'synthetic-spool-other-order','project sensitive fields do not leak into another project');
  assert.deepEqual((await read(project.id,seedId)).detail.event,before.detail.event,'policy activation leaves earlier retained evidence unchanged');
+ const rejectedRule=await request(root+'/preview','POST',{policy:{...current,rules:[{id:'synthetic-spool-weaken',selector:'$contexts.installation.note',pattern:'regex',regex:'.',method:'replace',replacement:'synthetic-spool-open'}]}});assert.ok(rejectedRule.refusal);assert.equal(rejectedRule.token,null);
+ for(const regex of ['(a+)+','(a)\\1','a*a*']){const refused=await request(root+'/preview','POST',{policy:{...current,rules:[{id:'synthetic-spool-unsafe',selector:'$message',pattern:'regex',regex,method:'mask'}]}});assert.ok(refused.refusal);assert.equal(refused.token,null)}
  const exported=await request(base+'/issue-export?format=json');absent(exported,protectedValues(after),'project issue export');assert.ok(JSON.stringify(exported).includes(seed.message),'earlier issue title remains unchanged in project export');
  const archiveResponse=await raw('/api/archive');assert.equal(archiveResponse.status,200);const archive=await archiveProjection(archiveResponse);
  absent(archive.text,[...protectedValues(after),otherValues.tenant,otherValues.installation],'private archive');
  assert.ok(archive.data.events.some(row=>row.project===project.id&&row.id===seedId&&JSON.stringify(row).includes(seed.extra)),'private export retains the pre-policy occurrence unchanged');
+ const restored=await startTestWorker(15592);
+ try{
+  const restoredCookie=await signIn(restored.origin),response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','x-confirm-restore':'yes'},body:archive.text});
+  assert.equal(response.status,200,'SDK-003 populated policy archive restores');await response.body.cancel();
+  for(const path of ['/api/scrubbing',root]){const r=await fetch(restored.origin+path,{headers:{Cookie:restoredCookie}});assert.equal(r.status,200);assert.deepEqual((await r.json()).policy,(await request(path)).policy)}
+ }finally{await restored.stop()}
  for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{

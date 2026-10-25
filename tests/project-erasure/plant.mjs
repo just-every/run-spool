@@ -36,6 +36,10 @@ export async function plantCanary(app){
  const {job}=await door.apply(planned.planId,planned.fingerprint);
  assert.equal(job.state,'completed');
  const project=importedProject;assert.ok((await app.json('/api/projects')).some(row=>row.id===project),'import created the canary project');
+ const scrubbingRoot=`/api/projects/${project}/scrubbing`,scrubbingPolicy={version:1,sensitiveFields:['synthetic_spool_private'],safeFields:[],rules:[]},scrubbingPreview=await app.json(scrubbingRoot+'/preview','POST',{policy:scrubbingPolicy});
+ await app.json(scrubbingRoot,'PUT',{revision:scrubbingPreview.revision,policy:scrubbingPolicy,token:scrubbingPreview.token});
+ await app.json(scrubbingRoot+'/preview','POST',{policy:scrubbingPolicy});
+
  await testAndReview(app.json,`/api/projects/${project}/alerting`,'erase-mail');
  for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',await reviewRule(app.json,`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:channel==='mail',channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2}));
  const keys={ingest:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'ingest'})).key,agent:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'})).key,deploy:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key};
