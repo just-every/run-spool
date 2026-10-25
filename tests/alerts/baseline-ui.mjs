@@ -23,11 +23,11 @@ export async function baselineUI(browser){
      await page.getByRole('button',{name:'Rules',exact:true}).click();
      const recorded=page.locator('details').filter({has:page.locator('summary').filter({hasText:/^Recorded window decisions/})});
      await recorded.locator(':scope > summary').click();
-     const sample=recorded.locator(':scope > section').filter({hasText:target.issue});
-     await sample.locator('details > summary').filter({hasText:/^Window decisions/}).click();
+     const sample=recorded.locator(':scope > ul > li').filter({hasText:issue.short_id});
+     await sample.locator('details > summary').filter({hasText:/^Decision details/}).click();
      const text=await sample.innerText();
      assert.ok(text.includes(reason.reason),'the stored baseline decision reason is visible');
-     assert.ok(text.includes(String(reason.baseline))&&text.includes(String(reason.threshold)),'the stored baseline and threshold are visible');
+     assert.ok(text.includes(reason.baseline.toFixed(4))&&text.includes(String(reason.threshold)),'the stored baseline and threshold are visible');
      assert.ok(text.includes(reason.fired?'Fired':'Withheld'),'the stored fired or withheld state is visible');
      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
      await sample.screenshot({path:`.artifacts/alerts/baseline-${name}-${width}.png`});

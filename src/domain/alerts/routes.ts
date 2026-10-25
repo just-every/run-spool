@@ -1,3 +1,4 @@
+import {primaryShortIdSql} from '../short-ids/lookup';
 import { revokeSlack } from './slack-destinations.server';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
@@ -35,7 +36,7 @@ routes.delete('/destinations/:destination',async c=>c.json(await revokeSlack(c.e
 routes.post('/destinations/:destination/test',async c=>c.json(await testDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'))));
 routes.post('/destinations/:destination/review',async c=>c.json(await reviewTest(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),(await input(c)).testId)));
 routes.post('/rules/preview',async c=>c.json(await previewRule(c.env,c.get('alertSession'),c.req.param('project')!,await input(c))));
-routes.get('/decisions',async c=>c.json((await s(c.env.DB,'SELECT * FROM alert_decisions WHERE project=? ORDER BY end DESC,id LIMIT 100',c.req.param('project')!).all()).results));
+routes.get('/decisions',async c=>c.json((await s(c.env.DB,`SELECT d.*,i.title issue_title,${primaryShortIdSql('i')} issue_short_id FROM alert_decisions d LEFT JOIN issues i ON i.id=d.issue AND i.project=d.project WHERE d.project=? ORDER BY d.end DESC,d.id LIMIT 100`,c.req.param('project')!).all()).results));
 routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,${configSql} config FROM alert_rules r WHERE project=? ORDER BY created,id`,c.req.param('project')!).all()).results));
 routes.post('/rules',async c=>{
  const p=c.req.param('project')!,b=ruleInput(await input(c),c.env,p,false),id=crypto.randomUUID(),time=Date.now();

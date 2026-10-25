@@ -1,3 +1,4 @@
+import {ScrubbingRefusal,refusalCode,refusalMessage} from './refusal';
 import {Hono} from 'hono';
 import {ownerProjectRouter,ownerWrites,jsonBody} from '../owner-router';
 import {ownerSession,ownerWrite} from '../../auth/session.server';
@@ -22,11 +23,11 @@ for(const routes of [projectScrubbingRoutes,installationScrubbingRoutes] as Hono
    const policy=scrubbingPolicy(b.policy,p===null?undefined:current.installationPolicy),preview=await scrubbingPreview(db,p,policy,current.installationPolicy),token=crypto.randomUUID();
    await ownerWrites(c,[scrubbingFence(db,p,current.revision),scrubbingFence(db,null,current.installationRevision),db.prepare('DELETE FROM scrubbing_previews WHERE created<?').bind(Date.now()-86400000),db.prepare('INSERT INTO scrubbing_previews VALUES(?,?,?,?,?,?,?)').bind(token,p,policyId(p),current.revision,current.installationRevision,await policyDigest(policy),Date.now())]);
    return c.json({...preview,token,refusal:null,revision:current.revision,installationRevision:current.installationRevision});
-  }catch(error){return c.json({token:null,refusal:(error as Error).message,revision:current.revision,installationRevision:current.installationRevision,matches:[],sample:[],coverage:{scanned:0,total:0}})}
+  }catch(error){return c.json({token:null,refusal:refusalCode(error),refusalTarget:error instanceof ScrubbingRefusal?error.target:undefined,revision:current.revision,installationRevision:current.installationRevision,matches:[],sample:[],coverage:null})}
  });
  routes.put('/',async c=>{
   const p=project(c),db=c.env.DB,b=await jsonBody(c.req.raw,32768),current=await scrubbingSnapshot(db,p);
-  let policy;try{policy=scrubbingPolicy(b.policy,p===null?undefined:current.installationPolicy)}catch(error){return c.json({error:(error as Error).message},400)}
+  let policy;try{policy=scrubbingPolicy(b.policy,p===null?undefined:current.installationPolicy)}catch(error){return c.json({error:refusalMessage(refusalCode(error),error instanceof ScrubbingRefusal?error.target:undefined),refusal:refusalCode(error),refusalTarget:error instanceof ScrubbingRefusal?error.target:undefined},400)}
   const digest=await policyDigest(policy),preview=typeof b.token==='string'?await db.prepare('SELECT 1 FROM scrubbing_previews WHERE id=? AND scope=? AND revision=? AND installation_revision=? AND digest=? AND created>=?').bind(b.token,policyId(p),current.revision,current.installationRevision,digest,Date.now()-86400000).first():null;
   if(b.revision!==current.revision||!preview)return c.json({error:'Scrubbing preview is stale; preview the current policy again'},409);
   const revision=current.revision+1,time=Date.now(),detail=JSON.stringify({rules:policy.rules.map(r=>({id:r.id,selector:r.selector,method:r.method})),sensitiveFields:policy.sensitiveFields,safeFields:policy.safeFields});

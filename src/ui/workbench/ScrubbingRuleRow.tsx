@@ -23,15 +23,15 @@ const methods: [ScrubbingRule['method'], string][] = [
   ['remove', 'Remove'], ['mask', 'Mask'], ['hash', 'Hash'], ['replace', 'Replace'],
 ];
 
-export function ScrubbingRuleRow({rule, index, disabled, onChange, onRemove}: {
-  rule: ScrubbingRule; index: number; disabled: boolean;
+export function ScrubbingRuleRow({rule, index, disabled, onChange, onRemove, refusal}: {
+  rule: ScrubbingRule; index: number; disabled: boolean; refusal?:string;
   onChange: (rule: ScrubbingRule) => void; onRemove: () => void;
 }) {
   return <div className="callout" role="group" aria-label={`Scrubbing rule ${index + 1}`}>
     <h3>Rule {index + 1}</h3>
     <div className="form-grid">
       <label className="form-field">Rule selector
-        <input aria-label="Rule selector" value={rule.selector} disabled={disabled}
+        <input aria-label="Rule selector" placeholder="$frame.vars.order_note" value={rule.selector} disabled={disabled}
           onChange={event => onChange({...rule, selector: event.target.value})}/>
       </label>
       <label className="form-field">Rule pattern
@@ -58,6 +58,7 @@ export function ScrubbingRuleRow({rule, index, disabled, onChange, onRemove}: {
           onChange={event => onChange({...rule, replacement: event.target.value})}/>
       </label>}
     </div>
+    {refusal&&<p role="alert">{refusal}</p>}
     <div className="button-row"><button className="text-button" disabled={disabled} onClick={onRemove}>Remove rule {index + 1}</button></div>
   </div>;
 }

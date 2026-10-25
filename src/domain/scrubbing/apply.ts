@@ -1,8 +1,9 @@
+import {ScrubbingRefusal,refusalCode} from './refusal';
 import type {ScrubbingPolicy,ScrubbingRule} from './policy';
 import {patternMatches} from './patterns';
 import {identityField,namedFields,selectorFields,type FieldRef} from './selectors';
 
-type Result<T>={document:T;matches:{selector:string;fields:number}[]};
+type Result<T>={document:T;matches:{selector:string;fields:number}[];fields:{path:string;selector:string;method:ScrubbingRule['method']}[]};
 const secretName=/^(?:password|passwd|pwd|secret|api[_-]?key|auth(?:orization)?[_-]?token|access[_-]?token|refresh[_-]?token|private[_-]?key|client[_-]?secret)$/i;
 const value=(ref:FieldRef):unknown=>(ref.parent as any)[ref.key];
 const present=(ref:FieldRef):boolean=>Object.prototype.hasOwnProperty.call(ref.parent,ref.key);
@@ -38,14 +39,14 @@ async function transform(doc:unknown,ref:FieldRef,method:ScrubbingRule['method']
 }
 export async function applyScrubbingDocument<T>(document:T,installation:ScrubbingPolicy,project:ScrubbingPolicy,hashValue:(value:string)=>Promise<string>,options?:{preview?:boolean}):Promise<Result<T>> {
  const cloned=structuredClone(document);
- const counts=new Map<string,Set<string>>();
+ const counts=new Map<string,Set<string>>(),fields=new Map<string,{path:string;selector:string;method:ScrubbingRule['method']}>();
  const protectedPaths=new Set<string>();
  const preview=options?.preview===true;
  const protectedOverlap=(path:string)=>[...protectedPaths].some(existing=>path===existing||path.startsWith(`${existing}.`)||existing.startsWith(`${path}.`));
- const record=(selector:string,changed:FieldRef[],protect:boolean)=>{
+ const record=(selector:string,changed:FieldRef[],protect:boolean,method:ScrubbingRule['method']='mask')=>{
   if(!changed.length)return;
   let paths=counts.get(selector);if(!paths){paths=new Set();counts.set(selector,paths)}
-  for(const ref of changed){paths.add(ref.path);if(protect)protectedPaths.add(ref.path)}
+  for(const ref of changed){paths.add(ref.path);fields.set(ref.path,{path:ref.path,selector,method});if(protect)protectedPaths.add(ref.path)}
  };
  const applyField=async(selector:string,policy:ScrubbingPolicy,protect:boolean)=>{
   const safe=new Set(policy.safeFields.flatMap(field=>refs(cloned,field).map(ref=>ref.path)));
@@ -59,8 +60,8 @@ export async function applyScrubbingDocument<T>(document:T,installation:Scrubbin
   // not shift later references before they are visited.
   for(const ref of selectorFields(cloned,rule.selector).reverse()){
    if(!present(ref)||identityField(ref.path)||!protect&&protectedOverlap(ref.path))continue;
-   if(!patternMatches(comparable(value(ref)),rule.pattern,rule.regex))continue;
-   record(rule.selector,await transform(cloned,ref,rule.method,rule.replacement,hashValue,preview),protect);
+   try{if(!patternMatches(comparable(value(ref)),rule.pattern,rule.regex))continue}catch(error){throw new ScrubbingRefusal(refusalCode(error),{kind:'rule',ruleId:rule.id})}
+   record(rule.selector,await transform(cloned,ref,rule.method,rule.replacement,hashValue,preview),protect,rule.method);
   }
  };
  // Default named-secret protection is independent of either policy's safe list.
@@ -85,5 +86,5 @@ export async function applyScrubbingDocument<T>(document:T,installation:Scrubbin
  for(const name of defaultPaths){
   for(const ref of namedFields(cloned,name))if(present(ref)&&!identityField(ref.path))record(name,await transform(cloned,ref,'mask',undefined,hashValue,preview),true);
  }
- return {document:cloned,matches:[...counts].map(([selector,paths])=>({selector,fields:paths.size}))};
+ return {document:cloned,fields:[...fields.values()],matches:[...counts].map(([selector,paths])=>({selector,fields:paths.size}))};
 }

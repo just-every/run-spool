@@ -58,7 +58,7 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
   assert.equal(preview.refusal,null);assert.ok(preview.token);assert.ok(preview.coverage.scanned>0);assert.ok(preview.sample.length>0);
   absent(preview,protectedValues(seed),'project preview');
   for(const selector of policy.rules.map(rule=>rule.selector))assert.ok(preview.matches.some(match=>match.selector===selector&&match.fields>0),'SDK-003 preview counts each matched custom selector');
-  assert.ok(JSON.stringify(preview.sample).includes('synthetic-spool-approved-order'),'safe field survives this scope’s additional sensitive field');
+  assert.ok(preview.sample.every(sample=>sample.fields.every(field=>field.path!=='sentry.extra.order_note')),'the safe field is absent from matched sample fields');
  };
  const capture=async(page,name,width)=>{
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`SDK-003 ${name} at ${width}: no horizontal overflow`);
@@ -79,10 +79,19 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
      await row.getByLabel('Custom regular expression',{exact:true}).fill(rule.regex);await row.getByLabel('Scrubbing method',{exact:true}).selectOption('mask');
     }
    }
+   const draftSensitive=await panel.getByLabel('Additional sensitive fields',{exact:true}).inputValue();
+   await panel.getByLabel('Additional sensitive fields',{exact:true}).fill(draftSensitive+'\nsynthetic_spool_draft');
+   await panel.getByLabel('Rule scope',{exact:true}).selectOption('installation');
+   await panel.getByLabel('Additional sensitive fields',{exact:true}).waitFor();
+   await panel.getByLabel('Rule scope',{exact:true}).selectOption('project');
+   assert.equal(await panel.getByLabel('Additional sensitive fields',{exact:true}).inputValue(),draftSensitive+'\nsynthetic_spool_draft','scrubbing draft survives a scope round trip');
+   await panel.getByLabel('Additional sensitive fields',{exact:true}).fill(draftSensitive);
    assert.equal(await panel.getByRole('button',{name:'Save scrubbing rules',exact:true}).isDisabled(),true,'a fresh preview is required');
    const pending=page.waitForResponse(response=>new URL(response.url()).pathname===root+'/preview'&&response.request().method()==='POST');
    await panel.getByRole('button',{name:'Preview scrubbing',exact:true}).click();const preview=await (await pending).json();previewSafe(preview);
-   await panel.locator('[aria-label="Scrubbing preview"] pre').waitFor();await capture(page,'settings-preview',width);
+   await panel.locator('[aria-label="Scrubbing preview"] [aria-label="Sample matched fields"]').first().waitFor();
+   assert.deepEqual(await panel.locator('[data-field-path]').evaluateAll(rows=>rows.map(row=>row.dataset.fieldPath)),preview.sample.flatMap(sample=>sample.fields.slice(0,10).map(field=>field.path)),'sample lists exactly the matched API paths');
+   await capture(page,'settings-preview',width);
    if(width===1440){
     const saved=page.waitForResponse(response=>new URL(response.url()).pathname===root&&response.request().method()==='PUT');
     await panel.getByRole('button',{name:'Save scrubbing rules',exact:true}).click();assert.equal((await saved).status(),200);
@@ -93,13 +102,37 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
    await panel.getByLabel('Additional sensitive fields',{exact:true}).waitFor();
    const installationResponse=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/scrubbing/preview'&&response.request().method()==='POST');
    await panel.getByRole('button',{name:'Preview scrubbing',exact:true}).click();const installationSample=await (await installationResponse).json();assert.equal(installationSample.refusal,null);absent(installationSample,[seed.tenant,seed.installation],'installation Settings preview');
-   await panel.locator('[aria-label="Scrubbing preview"] pre').waitFor();await capture(page,'installation-preview',width);
+   await panel.locator('[aria-label="Scrubbing preview"] [aria-label="Sample matched fields"]').first().waitFor();await capture(page,'installation-preview',width);
+   await panel.getByLabel('Rule scope',{exact:true}).selectOption('project');
+   await panel.getByRole('button',{name:'Add scrubbing rule',exact:true}).click();
+   const badRow=panel.getByRole('group',{name:/Scrubbing rule/}).last();
+   await badRow.getByLabel('Rule selector',{exact:true}).fill('$tags.tenant');
+   await badRow.getByLabel('Rule pattern',{exact:true}).selectOption('regex');
+   await badRow.getByLabel('Custom regular expression',{exact:true}).fill('acme-[0-9]+');
+   const refusedResponse=page.waitForResponse(response=>new URL(response.url()).pathname===root+'/preview'&&response.request().method()==='POST');
+   await panel.getByRole('button',{name:'Preview scrubbing',exact:true}).click();
+   const refused=await (await refusedResponse).json();
+   assert.equal(refused.coverage,null,'a refused preview has unavailable coverage');
+   await badRow.getByRole('alert').waitFor();
+   assert.doesNotMatch(await badRow.getByRole('alert').innerText(),/[a-z]+(_[a-z]+)+/,'refusal is a sentence under its rule');
+   assert.equal(await panel.locator('[aria-label="Scrubbing preview"] [aria-label="Sample matched fields"]').count(),0,'refusal has no sample');
+   assert.ok(!(await panel.locator('[aria-label="Scrubbing preview"]').innerText()).includes('Coverage:'),'refusal has no coverage block');
+   await badRow.getByRole('button',{name:/Remove rule/}).click();
+
   }finally{await context.close()}
  }
  const current=(await request(root)).policy,staleProject=await request(root+'/preview','POST',{policy:current});
  await save(root,{...current,sensitiveFields:[...current.sensitiveFields,'synthetic_spool_stale']});
  await denied(root,'PUT',{revision:staleProject.revision,policy:current,token:staleProject.token},{},409);
  const logRule=rule('synthetic-spool-log','$log.attributes.order_note');await save(root,{...(await request(root)).policy,rules:[...(await request(root)).policy.rules,logRule]});
+ const pairTag='synthetic-spool-private-pair-tag-'+crypto.randomUUID(),pairHeader='synthetic-spool-private-pair-header-'+crypto.randomUUID();
+ const withPairRules=(await request(root)).policy;
+ await save(root,{...withPairRules,rules:[...withPairRules.rules,{...rule('synthetic-spool-pair-header','$request.headers.x-private'),method:'remove'}]});
+ const pairId=crypto.randomUUID().replaceAll('-',''),dsn=new URL(project.dsn);
+ const pairResponse=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_version=7&sentry_key='+encodeURIComponent(dsn.username),{method:'POST',body:'{}\n{"type":"event"}\n'+JSON.stringify({event_id:pairId,message:'Synthetic pair-array control',tags:[['checkout_note',pairTag]],request:{headers:[['x-private',pairHeader]]}})});
+ assert.equal(pairResponse.status,200,'accepted Sentry pair-array event');await pairResponse.body.cancel();
+ const pairDetail=(await read(project.id,pairId)).detail;
+ absent(pairDetail,[pairTag,pairHeader],'pair-array owner event door');
  const after=values('after'),logValue='synthetic-spool-private-log-note',logBody='synthetic-spool-private-log-body',logId='synthetic-spool-located-log';
  const afterId=await send(project.dsn,event(after),{body:logBody,attributes:{'code.file.path':'synthetic-spool-log.js','code.function.name':'writeLog','code.line.number':1,'code.column.number':1,'spool.event_id':logId,'spool.build':'synthetic-spool-build','order_note':logValue}}),{issue,detail}=await read(project.id,afterId);
  const logDetail=(await read(project.id,logId)).detail;absent(logDetail,[logValue,logBody],'real SDK log storage');assert.equal(logDetail.event.sentry.extra.log_attributes.order_note,'[redacted]');
@@ -116,7 +149,7 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
  for(const regex of ['(a+)+','(a)\\1','a*a*']){const refused=await request(root+'/preview','POST',{policy:{...current,rules:[{id:'synthetic-spool-unsafe',selector:'$message',pattern:'regex',regex,method:'mask'}]}});assert.ok(refused.refusal);assert.equal(refused.token,null)}
  const exported=await request(base+'/issue-export?format=json');absent(exported,protectedValues(after),'project issue export');assert.ok(JSON.stringify(exported).includes(seed.message),'earlier issue title remains unchanged in project export');
  const archiveResponse=await raw('/api/archive');assert.equal(archiveResponse.status,200);const archive=await archiveProjection(archiveResponse);
- absent(archive.text,[...protectedValues(after),otherValues.tenant,otherValues.installation],'private archive');
+ absent(archive.text,[...protectedValues(after),otherValues.tenant,otherValues.installation,pairTag,pairHeader],'private archive');
  assert.ok(archive.data.events.some(row=>row.project===project.id&&row.id===seedId&&JSON.stringify(row).includes(seed.extra)),'private export retains the pre-policy occurrence unchanged');
  const restored=await startTestWorker(15592);
  try{

@@ -1,3 +1,4 @@
+import {destinationLabel,ruleConfig,ruleSummary} from './RuleSummary';
 import {RuleDecisions} from './RuleDecisions';
 import { useRef, useState } from 'react';
 import { alertApi, status } from './client';
@@ -33,14 +34,6 @@ function configFor(draft: Draft) {
   },
   tagKeys,
  };
-}
-function ruleConfig(rule: any) {
- return typeof rule.config === 'string' ? JSON.parse(rule.config) : rule.config ?? { metric: 'count', filters: {}, tagKeys: [] };
-}
-function metricSummary(rule: any) {
- if (!JSON.parse(rule.kinds).includes('spike')) return '';
- const metric = ruleConfig(rule).metric as Metric;
- return ` · ${metrics[metric]} ${metric === 'users' ? '>' : '≥'} ${rule.threshold}${metric === 'session_percent' ? '%' : metric === 'baseline' ? '×' : ''} / ${rule.window_ms / 60000} minutes`;
 }
 export function AlertRules({ project, rules, destinations, refresh }: Props) {
  const [savedDraft, setDraft] = useDraft(`${project}.alert-rule`, initial);
@@ -94,13 +87,12 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  }
  const canSubmit = !!name.trim() && !!kinds.length && !!destination && (releaseMode !== 'named' || !!release);
  const thresholdLabel = metric === 'users' ? 'Affected user threshold (more than)' : metric === 'session_percent' ? 'Session error threshold (%)' : metric === 'baseline' ? 'Baseline multiplier' : 'Accepted occurrence threshold';
- return <section className="evidence"><h2>Per-project rules</h2><p>New issues, regressions and reactivations route when captured. Spikes use complete fixed windows. Suppressed issues do not produce spikes.</p>
+ return <section className="evidence"><h2>Per-project rules</h2>
   {!destinations.length && <p className="callout">Add an email destination above before creating a rule.</p>}
   <ul className="alert-records">{rules.map(rule => <li key={rule.id}><div>
-   <strong>{rule.name}</strong><p>{destinations.find(d => d.id === rule.destination)?.kind === 'slack' ? 'Slack' : rule.channel === 'mail' ? 'Email' : 'Webhook'} · {rule.enabled ? 'Enabled' : 'Disabled'}</p>
-   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">This destination needs a passing test and your review before this rule can be enabled.</p>}
-   <p>{JSON.parse(rule.kinds).map(status).join(', ')}{metricSummary(rule)}</p>
-   <Details title={`Rule ${rule.name}`}><pre>{JSON.stringify(rule, null, 2)}</pre></Details>
+   <strong>{rule.name}</strong><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}</p>
+   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">Test the destination before enabling this rule.</p>}
+   <Details title={`Rule ${rule.name}`}><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}.</p></Details>
   </div><button className="text-button" disabled={!!busy} onClick={() => edit(rule)}>Edit {rule.name}</button></li>)}</ul>
   <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
   <form className="form-grid" onSubmit={e => { e.preventDefault(); const action = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value'); void (action === 'preview' ? sample() : save()); }}>
@@ -108,7 +100,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    <label className="form-field">Destination<select aria-label="Destination" required value={destination} disabled={!!busy} onChange={e => change({ destination: e.target.value })}>
     <option value="">Choose destination</option>
     {editing && !selected && destination && <option value={destination}>Previously selected destination · unavailable</option>}
-    {destinations.map(d => <option key={d.id} value={d.id}>{d.label} · {d.kind === 'slack' ? 'Slack' : d.channel === 'mail' ? 'Email' : 'Webhook'}{d.configured ? '' : ' · blocked'}</option>)}
+    {destinations.map(d => <option key={d.id} value={d.id}>{destinationLabel(d)}{d.configured ? '' : ' · blocked'}</option>)}
    </select></label>
    <fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
     <input type="checkbox" checked={kinds.includes(kind)} disabled={!!busy} onChange={e => change({ kinds: e.target.checked ? [...kinds, kind] : kinds.filter(k => k !== kind) })}/>{label}
@@ -119,10 +111,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
     </select></label>
     <Field label="Complete window (minutes)" type="number" required min={1} max={1440} value={windowMinutes} disabled={!!busy} onChange={e => change({ windowMinutes: Number(e.target.value) })}/>
     <Field label={thresholdLabel} type="number" required min={2} max={metric === 'session_percent' ? 100 : 10000} value={threshold} disabled={!!busy} onChange={e => change({ threshold: Number(e.target.value) })}/>
-    <p className="muted">{metric === 'users' ? 'Triggers when distinct affected users exceed the threshold. The project must retain user identity.'
-     : metric === 'session_percent' ? 'Triggers at or above the percentage of observed sessions with errors. Only environment and release filters are supported.'
-     : metric === 'baseline' ? 'Compares this issue’s share of accepted project events with the same hour of the week in at least two prior weeks. Each window needs at least 10 accepted events.'
-     : 'Triggers at or above the accepted occurrence threshold.'}</p>
+
    </>}
    <details className="form-more"><summary>Filters{filterLabels.length ? ` (${filterLabels.length})` : ''}</summary><div className="form-grid">
     <Field label="Environment" maxLength={100} value={environment} disabled={!!busy} placeholder="Any environment" onChange={e => change({ environment: e.target.value })}/>
@@ -139,9 +128,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    {filterLabels.length > 0 && <p aria-label="Applied rule filters">{filterLabels.map(label => <span className="state-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', margin: '0 8px 8px 0' }} key={String(label)}>{label}</span>)}</p>}
    <label className="alert-check"><input type="checkbox" checked={enabled} disabled={!!busy} onChange={e => change({ enabled: e.target.checked })}/>Enabled</label>
    {selected && needsTest(selected) && <p className="callout">Test this destination and review its passing result before enabling.</p>}
-   <p className="muted">Saving creates a new revision and stops queued work from the old revision. An already executing request cannot be retracted.</p>
-   {preview && <RulePreview preview={preview}/>}
-   {!preview && enabled && <p className="muted">Preview the current draft before saving an enabled rule.</p>}
+   {preview && <RulePreview preview={preview} project={project} destinations={destinations}/>}
    <div className="button-row" style={{ gridColumn: '1 / -1', flexWrap: 'wrap' }}>
     <button type="submit" value="preview" className="text-button" disabled={!!busy || !canSubmit}>{busy === 'preview' ? 'Previewing…' : 'Preview rule'}</button>
     <button type="submit" value="save" className="primary-button" disabled={!!busy || !canSubmit || enabled && (!preview?.token || !!preview.refusal)}>{busy === 'save' ? 'Saving…' : editing ? 'Save rule' : 'Create rule'}</button>

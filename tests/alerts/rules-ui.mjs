@@ -46,7 +46,11 @@ export async function rulesUI(page, app, width) {
   const region = page.getByRole('region', { name: 'Rule preview', exact: true });
   await region.waitFor();
   assert.ok((await region.innerText()).includes(preview.owner));
-  assert.ok((await region.innerText()).includes(preview.destination));
+  const chosen=await page.getByRole('combobox',{name:'Destination',exact:true}).locator('option:checked').innerText();
+  const text=await region.innerText();
+  assert.ok(text.includes(chosen),'preview names the chosen destination');
+  assert.ok(!text.includes(preview.destination),'preview never displays a destination id');
+  assert.doesNotMatch(text,/[0-9a-f]{64}/,'preview names issues rather than their hashes');
   return { preview, region, input: reply.request().postDataJSON() };
  }
  const refused = await previewRule();

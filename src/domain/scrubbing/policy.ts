@@ -1,3 +1,4 @@
+import {ScrubbingRefusal,refusalCode} from './refusal';
 import {isSelector} from './selectors';
 import {safeRegex,type PatternName} from './patterns';
 
@@ -26,10 +27,11 @@ export function scrubbingPolicy(value:unknown,installation?:ScrubbingPolicy):Scr
  if(!obj(value)||value.version!==1||!Array.isArray(value.sensitiveFields)||!Array.isArray(value.safeFields)||!Array.isArray(value.rules))throw new Error('invalid_scrubbing_policy');
  if(Object.keys(value).some(key=>!['version','sensitiveFields','safeFields','rules'].includes(key)))throw new Error('invalid_scrubbing_policy');
  if(value.sensitiveFields.length+value.safeFields.length>40)throw new Error('scrubbing_field_limit');
- if(!value.sensitiveFields.every(field)||!value.safeFields.every(field))throw new Error('invalid_scrubbing_field');
+ for(const [kind,list] of [['sensitive',value.sensitiveFields],['safe',value.safeFields]] as const)for(const name of list)if(!field(name))throw new ScrubbingRefusal('invalid_scrubbing_field',{kind,field:typeof name==='string'?name:undefined});
  if(value.rules.length>20)throw new Error('scrubbing_rule_limit');
  const ids=new Set<string>();
  const rules=value.rules.map((raw:unknown)=>{
+  try{
   if(!obj(raw)||Object.keys(raw).some(key=>!['id','selector','pattern','regex','method','replacement'].includes(key))||
    typeof raw.id!=='string'||!/^[\w-]{1,64}$/.test(raw.id)||ids.has(raw.id)||
    typeof raw.selector!=='string'||!isSelector(raw.selector)||
@@ -44,12 +46,13 @@ export function scrubbingPolicy(value:unknown,installation?:ScrubbingPolicy):Scr
    if(typeof raw.replacement!=='string'||raw.replacement.length>256)throw new Error('replacement_required');
   }else if(raw.replacement!==undefined)throw new Error('replacement_not_allowed');
   return raw as unknown as ScrubbingRule;
+  }catch(error){throw new ScrubbingRefusal(refusalCode(error),{kind:'rule',ruleId:obj(raw)&&typeof raw.id==='string'?raw.id:undefined})}
  });
  const result:ScrubbingPolicy={version:1,sensitiveFields:[...value.sensitiveFields],safeFields:[...value.safeFields],rules};
  if(installation){
   const protectedSelectors=[...installation.sensitiveFields,...installation.rules.map(rule=>rule.selector)];
-  for(const safe of result.safeFields)if(protectedSelectors.some(protectedField=>overlap(safe,protectedField)))throw new Error('project_safe_conflicts_with_installation');
-  for(const rule of result.rules)if(protectedSelectors.some(protectedField=>overlap(rule.selector,protectedField)))throw new Error('project_rule_conflicts_with_installation');
+  for(const safe of result.safeFields)if(protectedSelectors.some(protectedField=>overlap(safe,protectedField)))throw new ScrubbingRefusal('project_safe_conflicts_with_installation',{kind:'safe',field:safe});
+  for(const rule of result.rules)if(protectedSelectors.some(protectedField=>overlap(rule.selector,protectedField)))throw new ScrubbingRefusal('project_rule_conflicts_with_installation',{kind:'rule',ruleId:rule.id});
  }
  return result;
 }

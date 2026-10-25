@@ -14,3 +14,5 @@
 .alerts-view legend{padding:0 6px;font-weight:600}
 .alerts-view .form-grid>p{grid-column:1/-1}
 @media(max-width:600px){.alert-records>li{display:block}.alert-records button{margin-top:8px}}
+
+@media(max-width:600px){.alerts-view summary,.alerts-view .text-button{min-height:44px}.alerts-view summary{display:flex;align-items:center}}
