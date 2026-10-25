@@ -90,7 +90,7 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
       if (result.revision !== current.revision || result.installationRevision !== current.installationRevision) {
         setCurrent({...current, revision: result.revision, installationRevision: result.installationRevision});
       }
-      setStatus(result.refusal ? 'Not previewed' : result.token
+      setStatus(result.refusal ? '' : result.token
         ? 'Preview ready'
         : 'Preview has no save token. Preview again before saving.');
     });
@@ -151,7 +151,7 @@ function ScrubbingEditor({root, scope, request, run, busy, draftKey}: {
       <button className="primary-button" disabled={disabled || !canSave} onClick={savePolicy}>Save scrubbing rules</button>
     </div>
     {error && <p role="alert">{error}</p>}
-    {(status || JSON.stringify(draftOf(current.policy))!==JSON.stringify({sensitive:draft.sensitive,safe:draft.safe,rules:draft.rules})) && <p role="status">{status || 'Unsaved changes. Preview scrubbing before saving.'}</p>}
+    {(status || !preview && JSON.stringify(draftOf(current.policy))!==JSON.stringify({sensitive:draft.sensitive,safe:draft.safe,rules:draft.rules})) && <p role="status">{status || 'Unsaved changes. Preview scrubbing before saving.'}</p>}
     {preview && <ScrubbingPreview preview={preview.result} scope={scope}/>}
   </>;
 }
