@@ -7849,7 +7849,7 @@
       "executable": false
     },
     "src/ui/alerts/Alerts.tsx": {
-      "sha256": "76eb9629f41ef048c0165755c5e8c191124b08d7f2b3a391cf1366839710ffe6",
+      "sha256": "1b1bd759bb6060aede7f8018b0bbd655231b2e78d59225e22e14d557ee8e349e",
       "executable": false
     },
     "src/ui/alerts/client.ts": {
@@ -8345,11 +8345,15 @@
       "executable": false
     },
     "tests/alerts-ui.mjs": {
-      "sha256": "718ddeb1cb2201ce889ed91b9f217214f4c7edeabbc88a38b6cde997ca54c8b4",
+      "sha256": "a9f34209f4b59cb062de098d2e72265173ee69b7b94b4cd1d38f3d8b769813e5",
       "executable": false
     },
     "tests/alerts/baseline-journey.mjs": {
       "sha256": "bcfb0ad35c1429ff3fbc754f4d50fe8ceffc7515d44c9c92f46e0e56626df941",
+      "executable": false
+    },
+    "tests/alerts/baseline-ui.mjs": {
+      "sha256": "5ce0f5a6439112dfc2706e0daea68b21bc3e5945eaded27d1bd0d892830a3617",
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {
