@@ -74,14 +74,21 @@ async function convert(raw: Record<string, any>,scrub?:Scrub): Promise<{event:En
   } catch { throw invalid() }
 }
 
-/** Accept only complete SDK log containers whose records all carry an explicit location. */
+/** Only the explicit Spool event binding opts a log batch into located admission. */
 export async function prepareLocatedLogs(bytes: Uint8Array,scrub?:Scrub): Promise<PreparedLog[] | null> {
   const container = objectJson(bytes);
+  // Ordinary SDK log batches may be versionless and carry partial source
+  // coordinates. They retain their named unsupported outcome; source fields
+  // alone do not authorize conversion into a native occurrence.
+  if (!Array.isArray(container.items) || !container.items.some((item: unknown) => {
+    const attributes = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, any>).attributes : undefined;
+    return attributes && typeof attributes === 'object' && !Array.isArray(attributes) && Object.hasOwn(attributes, 'spool.event_id');
+  })) return null;
   if (container.version !== 2 || !Array.isArray(container.items) || !container.items.length || container.items.length > 100) throw invalid();
   if (container.items.some((item: unknown) => {
     const attributes = item && typeof item === 'object' && !Array.isArray(item) ? (item as Record<string, any>).attributes : undefined;
-    return !attributes || typeof attributes !== 'object' || Array.isArray(attributes) || !locationKeys.some(key => Object.hasOwn(attributes, key));
-  })) return null;
+    return !attributes || typeof attributes !== 'object' || Array.isArray(attributes) || !locationKeys.every(key => Object.hasOwn(attributes, key));
+  })) throw invalid();
   const result: PreparedLog[] = [];
   for (const item of container.items) {
     const raw = record(item);

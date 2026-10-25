@@ -3609,7 +3609,7 @@
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
-      "sha256": "1b40b9697475705702871d7a5c56916f7d7875c671c2f5c91af7ee204aaaa589",
+      "sha256": "edca53eef21c8048291fd7b394ad2c2fd56a490f0a2c010c59dcee1cefdb404a",
       "executable": false
     },
     "docs/SENTRY-SESSIONS.md": {
@@ -5693,7 +5693,7 @@
       "executable": false
     },
     "src/domain/sentry/located-log.ts": {
-      "sha256": "d5189b78f528dd17dc692bad0c812e372306354918264dd77781db453451c23d",
+      "sha256": "9a47f9bdd001fdee2cde82beae296bf88a5e685f304779ebd541aefc5169b280",
       "executable": false
     },
     "src/domain/sentry/map-metadata.ts": {
