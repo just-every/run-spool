@@ -68,7 +68,7 @@ export async function applyScrubbingDocument<T>(document:T,installation:Scrubbin
  const defaultPaths=new Set<string>();
  const scan=(node:unknown,path:string,depth:number)=>{
   if(depth>24)return;
-  if(Array.isArray(node)){node.forEach((part,i)=>scan(part,`${path}.${i}`,depth+1));return}
+  if(Array.isArray(node)){node.forEach((part,i)=>{if(Array.isArray(part)&&part.length===2&&typeof part[0]==='string'){const current=path?`${path}.${part[0]}`:part[0];if(secretName.test(part[0])&&!identityField(current))defaultPaths.add(part[0]);scan(part[1],current,depth+1)}else scan(part,`${path}.${i}`,depth+1)});return}
   if(!node||typeof node!=='object')return;
   for(const [key,part] of Object.entries(node)){
    const current=path?`${path}.${key}`:key;

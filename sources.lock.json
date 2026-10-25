@@ -5517,7 +5517,7 @@
       "executable": false
     },
     "src/domain/scrubbing/apply.ts": {
-      "sha256": "f0129bac2de2f090bb9dd6f186ed9fba7429c22dfc7dd9e45d293daf3426b6c4",
+      "sha256": "4c00e1433036000d4b2ee37f66d1b2e4c998c824f0060bc2da1bc412e3425770",
       "executable": false
     },
     "src/domain/scrubbing/archive.ts": {
@@ -5549,7 +5549,7 @@
       "executable": false
     },
     "src/domain/scrubbing/selectors.ts": {
-      "sha256": "3db62507a3879e4c801850253e1815a3b895ff1929fbbcf68713e6f0cf8ba491",
+      "sha256": "7fcf303c486a947c3c1064b26c4ee74cbfb0bbb505825c6a3759d8da1551e96b",
       "executable": false
     },
     "src/domain/sentry-cli/archive.ts": {
@@ -8285,7 +8285,7 @@
       "executable": false
     },
     "src/ui/workbench/ScrubbingRules.tsx": {
-      "sha256": "bee545e08fa29e7d068798497494491bfff5b553eeb0a8d56c5ca7d96e3ebde3",
+      "sha256": "676b714efd772574c826845ea77740ffdca8fb00649e7da07c564f76726ee0f1",
       "executable": false
     },
     "src/ui/workbench/sdk.css": {
@@ -9049,7 +9049,7 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "25afe6d4cd1786a884a6fd5efd20b1eab4a61ed83ecee7f085254b0556bfe693",
+      "sha256": "65e56e7235970bad3c72f9483145fdcc88077daa5f6da51d502c28aa568cb21a",
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {

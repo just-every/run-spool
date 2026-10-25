@@ -98,7 +98,7 @@ export function namedFields(doc:unknown,name:string):FieldRef[]{
  const out:FieldRef[]=[];const lower=name.toLowerCase();
  const visit=(value:unknown,path:string,depth:number)=>{
   if(depth>24)return;
-  if(Array.isArray(value)){value.forEach((v,i)=>visit(v,`${path}.${i}`,depth+1));return}
+  if(Array.isArray(value)){value.forEach((v,i)=>{if(Array.isArray(v)&&v.length===2&&typeof v[0]==='string'){const p=path?`${path}.${v[0]}`:v[0];if(v[0].toLowerCase()===lower)out.push(at(v,1,p));visit(v[1],p,depth+1)}else visit(v,`${path}.${i}`,depth+1)});return}
   if(!object(value))return;
   for(const key of Object.keys(value)){
    const p=path?`${path}.${key}`:key;
