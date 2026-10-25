@@ -38,7 +38,7 @@ export async function scrubbingSelectors({origin,cookie,request}){
   request:{url:'https://synthetic-spool.test/checkout',method:'POST',headers:{'x-checkout':privateValue('header'),'x-ordinary':'synthetic-spool-ordinary-header'}},
   extra:{key:privateValue('stable-hash'),ordinary:'synthetic-spool-ordinary-extra',...examples},
   contexts:{checkout:{note:privateValue('checkout'),ordinary:'synthetic-spool-ordinary-context'}},tags:{checkout:privateValue('tag'),ordinary:'synthetic-spool-ordinary-tag'},
-  breadcrumbs:[{category:'checkout',message:privateValue('breadcrumb'),data:{note:privateValue('crumb-data'),ordinary:'synthetic-spool-ordinary-data'}},{message:'synthetic-spool-ordinary-breadcrumb'}],
+  breadcrumbs:[{message:privateValue('breadcrumb'),data:{note:privateValue('crumb-data'),ordinary:'synthetic-spool-ordinary-data'}},{message:'synthetic-spool-ordinary-breadcrumb'}],
  });
  const send=async project=>{
   const value=sentry(),dsn=new URL(project.dsn),response=await fetch(origin+`/api${dsn.pathname}/store/?`+new URLSearchParams({sentry_key:dsn.username,sentry_version:'7'}),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value)});
