@@ -18,7 +18,20 @@ async function check(page,directory,width,name,captures){
  const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(row=>row.id),[],`${name} at ${width}: axe`);
  const path=`${directory}/repair-${name}-${width}.png`;await page.screenshot({path,fullPage:true});captures.push(path);
 }
-const focusVisible=page=>page.evaluate(()=>{const style=getComputedStyle(document.activeElement);return style.outlineStyle!=='none'&&parseFloat(style.outlineWidth)>0;});
+const focusVisible=page=>page.evaluate(()=>{
+ const field=document.activeElement;
+ if(!(field instanceof HTMLElement)||!field.matches(':focus-visible'))return false;
+ const visible=(width,style,color)=>parseFloat(width)>0&&!['none','hidden'].includes(style)&&color!=='transparent'&&!/^rgba\([^)]*,\s*0(?:\.0*)?\)$|\/\s*0(?:\.0*)?%?\)$/.test(color);
+ const style=getComputedStyle(field);
+ if(visible(style.outlineWidth,style.outlineStyle,style.outlineColor))return true;
+ if(!field.matches('input,textarea,select'))return false;
+ const borders=()=>{const style=getComputedStyle(field);return ['Top','Right','Bottom','Left'].map(side=>({width:style['border'+side+'Width'],style:style['border'+side+'Style'],color:style['border'+side+'Color']}));};
+ const focused=borders();
+ try{
+  field.blur();const unfocused=borders();
+  return focused.some((border,index)=>visible(border.width,border.style,border.color)&&(border.width!==unfocused[index].width||border.color!==unfocused[index].color));
+ }finally{field.focus({preventScroll:true});}
+});
 async function verdict(page,text){await page.locator('.repairs .verdict').filter({hasText:text}).first().waitFor();}
 async function refresh(page){await page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000});}
 export async function repairPanel(app,browser,directory){

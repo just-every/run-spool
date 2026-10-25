@@ -36,7 +36,7 @@ div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) min
 .issue-summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:24px;margin-bottom:20px;padding-bottom:20px;border-bottom:var(--rule)}
 .issue-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
 .metadata{font:400 14px/1.5 var(--font-code);overflow-wrap:anywhere}
-.issue-count{text-align:center;font-size:13px}
+.issue-count{text-align:center;font-size:var(--font-small)}
 .issue-count strong{display:block;font:700 40px/1 var(--font-display)}
 .phone-download{display:none}
 .triage{padding-left:24px;border-left:var(--rule)}
@@ -50,7 +50,7 @@ div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) min
 .frame-function{display:block;margin-top:2px;font:400 13px/1.45 var(--font-code);color:var(--ink-soft);overflow-wrap:anywhere}
 span.frame-function{font-family:var(--font-text)}
 .mark-bar .frame-function{color:var(--ink)}
-.frame-source{font-size:13px;white-space:nowrap}
+.frame-source{font-size:var(--font-small);white-space:nowrap}
 .issue-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0}
 .issue-facts>div{padding:14px 16px;border:var(--card-border);border-radius:var(--radius-input)}
 .issue-facts dt{font-weight:500}
@@ -84,8 +84,9 @@ span.frame-function{font-family:var(--font-text)}
 .issue-table tbody th{width:44%;font-weight:400}
 .issue-open{display:block;margin-bottom:6px;font:500 14px/1.45 var(--font-code);overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
 .issue-table .attention-badge{margin-right:6px}
+.unseen-issue{background:var(--mark-tint)}
 .unseen-issue>th{font-weight:700}
-.unseen-label{font-size:12px;font-weight:600}
+.unseen-label{font-size:var(--font-small);font-weight:600}
 .data-table td:last-child{text-align:right}
 .pagination{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:16px}
 .issue-filter-empty{padding:20px 0}
@@ -110,6 +111,8 @@ span.frame-function{font-family:var(--font-text)}
 @media(max-width:900px){.issue-filters{grid-template-columns:1fr 1fr}.issue-filters>:first-child{grid-column:1/-1}}
 @media(max-width:760px){
  .evidence h2{font-size:26px}
+ /* Inline masks clip wrapped glyphs; keep the empty-state ink above the flat marker. */
+ .empty-state .mark{-webkit-mask:none;mask:none}
  .issue{padding:16px}
  .issue-summary{grid-template-columns:minmax(0,1fr) auto;gap:16px}
  .issue-summary{margin-bottom:14px;padding-bottom:14px}
@@ -120,7 +123,7 @@ span.frame-function{font-family:var(--font-text)}
  .phone-download{display:inline-flex;grid-column:1/-1;width:100%;min-height:48px;margin-top:2px}
  .packet .rail-download{display:none}
  .stack-row{grid-template-columns:18px minmax(0,1fr);gap:4px 10px;padding:8px 10px}
- .frame-source{grid-column:2;font-size:12px}
+ .frame-source{grid-column:2}
  .issue-facts{grid-template-columns:1fr;gap:12px}
  .issue-counts{gap:8px}
  .issue-counts>div{padding:10px}
@@ -134,7 +137,7 @@ span.frame-function{font-family:var(--font-text)}
  .issue-table tbody tr:last-child,.data-table tbody tr:last-child{border-bottom:0}
  .issue-table tbody th,.data-table tbody th{grid-column:1/-1;width:auto}
  .issue-table :is(th,td),.data-table :is(th,td){display:block;min-width:0;padding:6px 4px;border:0!important}
- .issue-table td::before,.data-table td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;font-size:12px;font-weight:600}
+ .issue-table td::before,.data-table td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;font-size:var(--font-small);font-weight:600}
  .issue-table td:last-child{grid-column:1/-1}
  .data-table td:last-child{text-align:left}
  .details-dialog{padding:16px}
@@ -147,7 +150,7 @@ span.frame-function{font-family:var(--font-text)}
 
 /* Proposal evidence reuses the workbench's ruled sections and preview controls. */
 .grouping-proposals :is(code,li,p),.correction-review li{overflow-wrap:anywhere}
-.grouping-explanation pre,.proposal-input{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;font-size:13px}
+.grouping-explanation pre,.proposal-input{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;font-size:var(--font-small)}
 .grouping-explanation h4{margin:20px 0 8px;font-size:16px}
 .grouping-explanation :is(ul,ol){padding-left:22px}
 .grouping-explanation li+li{margin-top:12px}
