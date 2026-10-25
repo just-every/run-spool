@@ -8421,7 +8421,7 @@
       "executable": false
     },
     "tests/alerts/baseline-ui.mjs": {
-      "sha256": "af7bdc521758ba0c7a362d8e12f289b337a40ab438297628b229e88d200c5c26",
+      "sha256": "2284d351243b149f91fda87687d5e35548dbb330e6d283b57e4d94ab6032c2ec",
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {
