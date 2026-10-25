@@ -1,4 +1,5 @@
 import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
 import { runtime, successor, snapshot, eraseInput, archive } from './owner-erasure/helpers.mjs';
@@ -36,7 +37,7 @@ export async function delayedOwnerWrites() {
   await app.json('/api/projects/inflight-owner/browser-origins',{origin:'https://app.test'},201);
   const alertRule={name:'Owner mail',enabled:true,channel:'mail',destination:'owner-mail',kinds:['new_issue'],windowMs:60000,threshold:2};
   const tested=await app.json('/api/projects/inflight-owner/alerting/destinations/owner-mail/test',{});await app.json('/api/projects/inflight-owner/alerting/destinations/owner-mail/review',{testId:tested.id});
-  const rule=await app.json('/api/projects/inflight-owner/alerting/rules',alertRule,201);
+  const rule=await app.json('/api/projects/inflight-owner/alerting/rules',await reviewRule((path,_method,body)=>app.json(path,body),'/api/projects/inflight-owner/alerting/rules','POST',alertRule),201);
   const now=Date.now();
   await app.DB.batch([
    app.DB.prepare("INSERT INTO alerts(id,project,issue,kind,created) VALUES('inflight-alert','inflight-owner',?,'new_issue',?)").bind(issue.id,now),

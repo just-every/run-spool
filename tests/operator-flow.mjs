@@ -1,4 +1,5 @@
 import {testAndReview} from './alerts/runtime.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { archiveProjection } from './archive.mjs';
@@ -109,7 +110,7 @@ async function agentProposalFlow({req,json},corpus){
  let destination=await json(root+'/issues/'+other.issue+'/packet');await json(root+'/issues/'+other.issue+'/assignment','PATCH',{revision:destination.issue.revision,label:'Release engineer'});
  const destinationId=(await json(root+'/alerting/destinations','POST',{label:'Grouping investigation',recipient:'grouping-alerts@example.test'})).id;
  await testAndReview(json,root+'/alerting',destinationId);
- const rule=await json(root+'/alerting/rules','POST',{name:'Two matching failures',enabled:true,channel:'mail',destination:destinationId,kinds:['spike','new_issue'],windowMs:60000,threshold:2});
+ const rule=await json(root+'/alerting/rules','POST',await reviewRule(json,root+'/alerting/rules','POST',{name:'Two matching failures',enabled:true,channel:'mail',destination:destinationId,kinds:['spike','new_issue'],windowMs:60000,threshold:2}));
  const input=async(kind='split')=>{const p=await packet(),target=await json(root+'/issues/'+other.issue+'/packet');return {kind,source:first.issue,revision:p.issue.revision,...kind==='split'?{events:['proposal-recurred','proposal-deceptive']}:{target:other.issue,targetRevision:target.issue.revision},variants:['grouping-r1','grouping-r2'].map(release=>({stack:JSON.stringify(p.events.find(e=>e.id==='proposal-first').event.frames),release,route:'/checkout'})),rationale:'These similar checkout failures may be one incident; compare the rebuilt release. token=private-canary alice@example.test',window:{start:Date.now()-60000,end:Date.now()+1}}};
  const projectRows=async()=>{const a=await archiveProjection(await req('/api/archive'));return Object.fromEntries(Object.entries(a.data).filter(([table])=>table!=='grouping_proposals').map(([table,rows])=>[table,rows]));};
  const before=await projectRows(),historical=await input('merge');historical.window={start:Date.now()-120000,end:Date.now()-60000};const rejected=await json(endpoint,'POST',historical,agent);
