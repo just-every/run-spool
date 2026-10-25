@@ -7889,11 +7889,11 @@
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "b4916578540a69e1f033546a3ce172f5e0fe65174a4a4fb634c70a51a4e4c16f",
+      "sha256": "b148efdcd622391059eda0e35937dc4a8f2a7e6840911fa239b63b4a01468123",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
-      "sha256": "883b80fa04e353503d407a5a170e39eab481f3ab5b863f31862e1c436b0b88c8",
+      "sha256": "b420a73f32d9410f01a85192fc0a3a527d6268a1dba6d7d53cae1981833c250e",
       "executable": false
     },
     "src/ui/alerts/Alerts.tsx": {
