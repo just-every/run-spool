@@ -1,5 +1,5 @@
 /* First run: one ruled card, a sunk introduction beside the project form. */
-.setup-shell{max-width:1440px;min-height:100vh;margin:0 auto;padding:40px var(--gutter) 64px}
+.setup-shell{--font-floor:var(--font-small);max-width:1440px;min-height:100vh;margin:0 auto;padding:40px var(--gutter) 64px}
 .setup-brand{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin-bottom:40px;padding-bottom:16px;border-bottom:var(--rule)}
 .setup-tagline{font-size:16px}
 .setup-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card)}
