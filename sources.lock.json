@@ -8253,7 +8253,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "93663eee8a803c941d94e53be47dd9ae11f88377af7146ba9768b42566918f09",
+      "sha256": "c3975585a91bdcdaf9370d13fce72d41ebda891319746bf7e41e242177f67be2",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
