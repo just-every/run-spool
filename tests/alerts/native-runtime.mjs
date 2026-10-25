@@ -23,16 +23,26 @@ export async function nativeAlertRuntime() {
   options.workers[0].config.triggers=triggers;
   runtime=new miniflare.Miniflare(options);
   await runtime.ready;
-  const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
+  let db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   const {unstable_splitSqlQuery}=require('wrangler');
   const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   const cookie=await signIn(origin);
-  const request=async(path,method='GET',body,headers={})=>{try{return await fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});}catch(error){throw new Error(`Native HTTP ${method} ${path.split('?')[0]} failed`,{cause:error})}};
+  // Own each HTTP connection: a closed native test response must not return a
+  // socket to Node's global pool for the next request or runtime generation.
+  const request=async(path,method='GET',body,headers={})=>{try{return await fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});}catch(error){throw new Error(`Native HTTP ${method} ${path.split('?')[0]} failed`,{cause:error})}};
   const json=async(...args)=>{if(['POST','PUT'].includes(args[1])&&!args[0].endsWith('/preview')&&/\/alerting\/rules(?:\/[^/]+)?$/.test(args[0])&&args[2]?.enabled&&!args[2].previewToken){const path=args[0],base=path.replace(/\/rules.*$/,'/rules'),ruleId=path===base?null:path.split('/').at(-1),preview=await request(base+'/preview','POST',{...args[2],...(ruleId?{ruleId}:{})});assert.ok(preview.ok,await preview.clone().text());args[2]={...args[2],previewToken:(await preview.json()).token};}const response=await request(...args);assert.ok(response.ok,`Native public request ${new URL(args[0],origin).pathname}: HTTP ${response.status}`);return response.json()};
-  return {origin,cookie,request,json,db,
-   tick:time=>fetch(origin+'/cdn-cgi/local/scheduled?'+(time?'time='+time+'&':'')+'cron=*+*+*+*+*&format=json'),
-   async restart(){await runtime.dispose();runtime=new miniflare.Miniflare(options);await runtime.ready;},
+  return {origin,cookie,request,json,get db(){return db},
+   async tick(time){
+    // Consume the scheduled response before a caller can dispose its runtime.
+    const response=await request('/cdn-cgi/local/scheduled?'+(time?'time='+time+'&':'')+'cron=*+*+*+*+*&format=json');
+    return new Response(await response.arrayBuffer(),{status:response.status,headers:response.headers});
+   },
+   async restart(){
+    await runtime.dispose();runtime=new miniflare.Miniflare(options);await runtime.ready;
+    // D1 proxies belong to one Miniflare generation and are poisoned on dispose.
+    db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
+   },
    async close(){await runtime.dispose();await rm(temporary,{recursive:true,force:true})}};
  }catch(error){await runtime?.dispose();await rm(temporary,{recursive:true,force:true});throw error;}
 }
