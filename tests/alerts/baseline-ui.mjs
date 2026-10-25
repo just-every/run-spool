@@ -27,7 +27,8 @@ export async function baselineUI(browser){
      await sample.locator('details > summary').filter({hasText:/^Decision details/}).click();
      const text=await sample.innerText();
      assert.ok(text.includes(reason.reason),'the stored baseline decision reason is visible');
-     assert.ok(text.includes(reason.baseline.toFixed(4))&&text.includes(String(reason.threshold)),'the stored baseline and threshold are visible');
+     const shown=/baseline\s+([0-9.]+)\s*×\s*([0-9.]+)/i.exec(text);assert.ok(shown,'the baseline and multiplier are visible');
+     assert.deepEqual([Number(shown[1]),Number(shown[2])],[Number(reason.baseline.toFixed(4)),reason.threshold],'the stored baseline and threshold match at the displayed precision');
      assert.ok(text.includes(reason.fired?'Fired':'Withheld'),'the stored fired or withheld state is visible');
      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
      await sample.screenshot({path:`.artifacts/alerts/baseline-${name}-${width}.png`});

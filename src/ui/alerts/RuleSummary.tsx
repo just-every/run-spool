@@ -1,5 +1,5 @@
 export const installationOwner='Installation owner';
-export const destinationLabel=(destination:any)=>destination?`${destination.label} · ${destination.kind==='slack'?'Slack':destination.channel==='mail'?'Email':'Webhook'}`:'Removed destination';
+export const destinationLabel=(destination:any)=>destination?`${destination.label} · ${destination.kind==='slack'?'Slack':destination.channel==='mail'?'Email':'Webhook'}${destination.configured===false?' · blocked':''}`:'Removed destination';
 export const ruleConfig=(rule:any)=>typeof rule.config==='string'?JSON.parse(rule.config):rule.config??{metric:'count',filters:{},tagKeys:[]};
 export function filterSummary(filters:any){return [filters.environment&&`Environment: ${filters.environment}`,filters.level&&`Severity: ${filters.level}`,filters.release!==undefined&&`Release: ${filters.release||'No release'}`,...Object.entries(filters.tags??{}).map(([key,value])=>`${key}: ${value}`)].filter(Boolean).join(' · ')}
 export function metricSummary(rule:any){

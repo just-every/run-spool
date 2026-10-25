@@ -8,13 +8,13 @@ const rate=(value:number|null|undefined)=>value==null?'unavailable':value.toFixe
 const plainReason=(reason:string)=>{const discarded=/^client_discarded:([^:]+):([^:]+)$/.exec(reason);return discarded?`${status(discarded[1])} · ${status(discarded[2])}`:receiptLabel(reason)};
 export function DecisionRow({sample,project,ruleName}:{sample:Sample;project:string;ruleName?:string}){
  const route=useDestination(),metric=sample.metric;
- const measurement=metric==='baseline'?`Current rate ${rate(sample.value)} · baseline ${rate(sample.baseline)} × ${sample.threshold} · ${sample.denominator} project events · sample rate ${sample.sampleRate}`:metric==='users'?`${sample.users} affected users, ${sample.unattributed} events without a user key; more than ${sample.threshold} required`:metric==='session_percent'?`${sample.affected} affected of ${sample.denominator} observed sessions (${Number(sample.value??0).toFixed(2)}%); threshold ${sample.threshold}%`:metric==='count'?`${sample.count} accepted occurrences; threshold ${sample.threshold}`:'';
- const extra=!!(sample.history?.length||sample.excluded?.length||sample.loss?.length);
+ const measurement=metric==='baseline'?`${sample.reason?.startsWith('Sample-scaled issue rate')?'':`Current rate ${rate(sample.value)} · baseline ${rate(sample.baseline)} × ${sample.threshold} · `}${sample.denominator} project events · sample rate ${sample.sampleRate}`:'';
+ const extra=sample.start!==undefined||!!(sample.history?.length||sample.excluded?.length||sample.loss?.length);
+
  return <li><div>
  <strong>{sample.issue_short_id} {sample.issue_title??'Removed issue'}</strong>
- <p className="muted">{ruleName&&`${ruleName} · `}{sample.fired?'Fired':'Withheld'} · {sample.reason&&status(sample.reason)}{sample.end!==undefined&&` · ${date(sample.end)}`}</p>
- {(measurement||extra)&&<details><summary>Decision details</summary>
- {measurement&&<p>{measurement}</p>}
+ <p className="muted">{ruleName&&`${ruleName} · `}{sample.fired?'Fired':'Withheld'} · {sample.reason&&status(sample.reason)}{measurement&&` · ${measurement}`}{sample.end!==undefined&&` · ${date(sample.end)}`}</p>
+ {extra&&<details><summary>Decision details</summary>
  {sample.start!==undefined&&sample.end!==undefined&&<p>{date(sample.start)} – {date(sample.end)}</p>}
  {sample.history?.map((row,index)=><p key={'h'+index}>{date(row.start!)} · comparable rate {rate(row.rate)}</p>)}
  {sample.excluded?.map((row,index)=><p key={'e'+index}>{date(row.start!)} · excluded: {row.reasons?.map(plainReason).join(', ')}</p>)}

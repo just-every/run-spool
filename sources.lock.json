@@ -5517,7 +5517,7 @@
       "executable": false
     },
     "src/domain/scrubbing/apply.ts": {
-      "sha256": "c5f79ce82f2981d673dd8326d4969647399b830d088029e246547240d01ed072",
+      "sha256": "f0129bac2de2f090bb9dd6f186ed9fba7429c22dfc7dd9e45d293daf3426b6c4",
       "executable": false
     },
     "src/domain/scrubbing/archive.ts": {
@@ -7889,7 +7889,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "b148efdcd622391059eda0e35937dc4a8f2a7e6840911fa239b63b4a01468123",
+      "sha256": "ffda04dceddec3a2f6999a692a43ab561112d1b16ad9bce8d3e9a4000b2596a7",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
@@ -7913,11 +7913,11 @@
       "executable": false
     },
     "src/ui/alerts/RulePreview.tsx": {
-      "sha256": "69513bfa864ba783bc758a95cae16de2cde476091f87acb6750a7bf0a3420b47",
+      "sha256": "4c3dcfa35487516dc54d5411d406a3246538e466cd1c3d22d8aa503af6b384a5",
       "executable": false
     },
     "src/ui/alerts/RuleSummary.tsx": {
-      "sha256": "b4ed061a8009bd0e7216a5b0c5c92ac22820fdf02684743346b645d8a335bb6e",
+      "sha256": "5a43f9e58bdea469bf79bd07f5169b71b8876fe7713438adc8d28caed7a8929d",
       "executable": false
     },
     "src/ui/alerts/SlackDestinationForm.tsx": {
@@ -8421,7 +8421,7 @@
       "executable": false
     },
     "tests/alerts/baseline-ui.mjs": {
-      "sha256": "af7bdc521758ba0c7a362d8e12f289b337a40ab438297628b229e88d200c5c26",
+      "sha256": "2284d351243b149f91fda87687d5e35548dbb330e6d283b57e4d94ab6032c2ec",
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {
