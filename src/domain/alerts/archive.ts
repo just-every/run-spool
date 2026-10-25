@@ -1,3 +1,4 @@
+import {validateDecision} from './decision-archive';
 import { ruleConfig } from './filters';
 import { slackHistoryTables, validateSlackHistory } from './slack-archive';
 import {deliveryArchiveTables,deliveryExportRow,validateDeliveryArchive} from './delivery-archive';
@@ -37,7 +38,8 @@ export function validateAlertArchive(data:any) {
   if(a.payload===null){assert(a.kind!=='spike');continue;}
   assert(typeof a.payload==='string'&&a.payload.length<8192);const p=JSON.parse(a.payload);
   // TEAM-004 alerts name the issue's short ID and, after a commit resolution, its commit.
-  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
+  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution','trigger'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
+  if(p.trigger){shape(p.trigger,['event','occurrence']);label(p.trigger.event);label(p.trigger.occurrence);}
   assert(p.shortId===undefined||p.shortId===null||isShortId(p.shortId)&&p.shortId===p.shortId.toUpperCase());
   if(p.resolution!==undefined&&p.resolution!==null){const r=p.resolution;shape(r,['release','commit','pr',...('citation' in r?['citation']:[]),...('author' in r?['author','message']:[])]);assert(a.kind==='regression'&&typeof r.release==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(r.commit)&&r.pr===null);
    if('citation' in r){safe(r.citation,200);assert(/^(?:fixes|resolves|closes):?[ \t]+\S+$/i.test(r.citation))}
@@ -48,7 +50,7 @@ export function validateAlertArchive(data:any) {
    const previous=origin?`${origin}/?project=${encodeURIComponent(a.project)}&issue=${encodeURIComponent(a.issue)}`:null;
    assert(origin&&(p.issueUrl===issueLink(origin,a.project,a.issue)||p.issueUrl===previous));}
   if(a.kind==='spike'){
-   assert(p.release===null);shape(p.window,['start','end','durationMs','count','threshold',...p.window.decision?['decision']:[]]);if(p.window.decision){const d=p.window.decision;assert(d.fired===true&&typeof d.reason==='string'&&d.reason.length<2000&&['count','users','session_percent','baseline'].includes(d.metric));}shape(p.rule,['id','revision']);
+   assert(p.release===null);shape(p.window,['start','end','durationMs','count','threshold',...p.window.decision?['decision']:[]]);if(p.window.decision)validateDecision(p.window.decision);shape(p.rule,['id','revision']);
    const r=rules.get(p.rule.id);assert(r?.project===a.project);integer(p.rule.revision,1);assert(p.rule.revision<=r.revision);
    integer(p.window.durationMs,60000);assert(p.window.durationMs<=86400000&&p.window.durationMs%60000===0);integer(p.window.threshold,2);integer(p.window.count,p.window.decision?0:p.window.threshold);assert(p.window.count<=10000);
    const start=Date.parse(p.window.start),end=Date.parse(p.window.end);integer(start);assert(start%p.window.durationMs===0&&end-start===p.window.durationMs&&end===a.created&&new Date(start).toISOString()===p.window.start&&new Date(end).toISOString()===p.window.end);

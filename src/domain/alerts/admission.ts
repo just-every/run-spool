@@ -55,8 +55,8 @@ export function admissionAlerts(db:D1Database,input:{alertId:string;project:stri
  INSERT INTO alerts(id,project,issue,kind,created,payload)
  SELECT ?,project,id,CASE WHEN first_capture THEN 'new_issue' WHEN reactivated THEN 'reactivation' ELSE 'regression' END,?,
   json_object('schema','spool.alert.v1','alertId',?,'kind',CASE WHEN first_capture THEN 'new_issue' WHEN reactivated THEN 'reactivation' ELSE 'regression' END,
-   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution))
+   'projectId',project,'issueId',id,'occurredAt',?,'title',title,'release',json_object('name',?,'build',?,'sequence',current_sequence),'issueUrl',?,'shortId',short_id,'resolution',json(resolution),'trigger',json_object('event',?,'occurrence',?))
  FROM candidate WHERE current_unsuppressed=1 AND state<>'suppressed'
   AND (first_capture=1 OR reactivated=1 OR (state='resolved' AND regresses=1))`,
- eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue)),...routeStatements(db,id,time,undefined,{eventId,occurrence}),s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)];
+ eventId,occurrence,eventId,occurrence,eventId,occurrence,eventId,occurrence,issue,project,id,time,id,new Date(time).toISOString(),release,build,issueLink(publicOrigin(input.origin),project,issue),eventId,occurrence),...routeStatements(db,id,time,undefined,{eventId,occurrence}),s(db,"DELETE FROM alert_reactivation_markers WHERE project=? AND issue=? AND EXISTS(SELECT 1 FROM alerts WHERE id=? AND kind='reactivation')",project,issue,id)];
 }

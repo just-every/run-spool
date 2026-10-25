@@ -21,12 +21,12 @@ export async function previewRule(env:AlertEnvironment,session:OwnerSession,proj
  if(b.kinds.includes('spike'))for(const row of rows)decisions.push(await decision(env.DB,project,config,row.issue,row.start,row.start+b.windowMs,b.threshold));
  const transitions=decisions.filter(d=>d.fired);
  if(JSON.parse(b.kinds).some((k:string)=>k!=='spike')){
-  const facts=(await s(env.DB,`SELECT a.issue,a.kind,a.created,e.payload FROM alerts a JOIN events e ON e.project=a.project AND e.issue=a.issue AND e.received>=a.created-1000 AND e.received<=a.created+1000 WHERE a.project=? AND a.kind IN (SELECT value FROM json_each(?)) AND ${f.sql} GROUP BY a.id ORDER BY a.created DESC LIMIT 100`,project,b.kinds,...f.args).all<any>()).results;
+  const facts=(await s(env.DB,`SELECT a.issue,a.kind,a.created,e.payload FROM alerts a JOIN events e ON e.project=a.project AND e.id=json_extract(a.payload,'$.trigger.event') AND e.occurrence=json_extract(a.payload,'$.trigger.occurrence') WHERE a.project=? AND a.kind IN (SELECT value FROM json_each(?)) AND ${f.sql} GROUP BY a.id ORDER BY a.created DESC LIMIT 100`,project,b.kinds,...f.args).all<any>()).results;
   for(const fact of facts)transitions.push({start:Math.floor(fact.created/b.windowMs)*b.windowMs,end:Math.floor(fact.created/b.windowMs)*b.windowMs+b.windowMs,issue:fact.issue,count:1,reason:fact.kind,fired:true} as any);
  }
  const token=refusal?null:crypto.randomUUID();
  await ownerBatch(env.DB,session,[identityPolicyFence(env.DB,project,policy.revision),s(env.DB,'DELETE FROM alert_rule_previews WHERE project=? AND created<?',project,time-86400000),...token?[s(env.DB,'INSERT INTO alert_rule_previews VALUES(?,?,?,?,?,?)',token,project,ruleId??null,await ruleDigest(b),policy.revision,time)]:[]]);
- return {token,refusal,owner:'Installation owner',destination:b.destination,window:{from,to:end,durationMs:b.windowMs},matchedEvents:rows.reduce((n,r)=>n+r.count,0),transitions,decisions,coverage:'Retained complete windows, at most 100 issue/windows; historical imports never dispatch'};
+ return {token,refusal,owner:'Installation owner',destination:b.destination,window:{from,to:end,durationMs:b.windowMs},matchedEvents:rows.reduce((n,r)=>n+r.count,0),transitions,decisions,coverage:'Retained complete windows, at most 100 issue/windows; transition history requires its retained trigger occurrence; historical imports never dispatch'};
 }
 export async function previewGuard(env:AlertEnvironment,project:string,id:string|null,b:any){
  if(!b.enabled)return [];

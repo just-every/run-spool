@@ -1,3 +1,4 @@
+import {RuleDecisions} from './RuleDecisions';
 import { useRef, useState } from 'react';
 import { alertApi, status } from './client';
 import { Details } from '../workbench/Details';
@@ -101,7 +102,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    <p>{JSON.parse(rule.kinds).map(status).join(', ')}{metricSummary(rule)}</p>
    <Details title={`Rule ${rule.name}`}><pre>{JSON.stringify(rule, null, 2)}</pre></Details>
   </div><button className="text-button" disabled={!!busy} onClick={() => edit(rule)}>Edit {rule.name}</button></li>)}</ul>
-  <h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
+  <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
   <form className="form-grid" onSubmit={e => { e.preventDefault(); const action = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value'); void (action === 'preview' ? sample() : save()); }}>
    <Field label="Rule name" required maxLength={100} value={name} disabled={!!busy} onChange={e => change({ name: e.target.value })}/>
    <label className="form-field">Destination<select required value={destination} disabled={!!busy} onChange={e => change({ destination: e.target.value })}>
