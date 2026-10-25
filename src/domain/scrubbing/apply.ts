@@ -29,7 +29,7 @@ async function transform(doc:unknown,ref:FieldRef,method:ScrubbingRule['method']
  const old=value(ref);
  const next=preview?'[matched]':method==='mask'?'[redacted]':method==='replace'?replacement:method==='hash'?await hashValue(comparable(old)):undefined;
  for(const item of group){
-  if(!preview&&method==='remove'){
+  if(method==='remove'){
    if(Array.isArray(item.parent)) (item.parent as unknown[]).splice(Number(item.key),1);
    else if(item.path==='message') (item.parent as Record<string,unknown>)[item.key as string]='';
    else delete (item.parent as Record<string,unknown>)[item.key as string];
