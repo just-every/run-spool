@@ -3,6 +3,7 @@ import {rule} from './runtime.mjs';
 const base='/api/projects/web/alerting';
 const config=(metric,filters={})=>({metric,filters,tagKeys:['tenant']});
 export async function conditionsJourney(app,fixture){
+ const schedule=async time=>{const response=await app.tick(time);assert.equal(response.status,200,'native condition evaluation succeeds');assert.equal((await response.json()).outcome,'ok')};
  const width=60000,start=Math.floor(Date.now()/width)*width,end=start+width,dsn=new URL(fixture.dsn);
  const send=async(type,value)=>{const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
  const error=async(id,{user,environment='rules',release='r1',level='error',tenant='approved',group='rules',sample=1}={})=>{
@@ -21,12 +22,12 @@ export async function conditionsJourney(app,fixture){
  for(let i=0;i<4;i++)await error(id++,{user:'synthetic-spool-'+i});await error(id++);
  const users=await app.json(base+'/rules','POST',userRule);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-width,users.id).run();
- await app.tick(end);let decisions=(await app.json(base+'/decisions')).filter(d=>d.rule_id===users.id).map(d=>JSON.parse(d.reason));
+ await schedule(end);let decisions=(await app.json(base+'/decisions')).filter(d=>d.rule_id===users.id).map(d=>JSON.parse(d.reason));
  assert.equal(decisions.filter(d=>d.fired).length,1,'four distinct users fire once, three do not');assert.equal(decisions.find(d=>d.fired).users,4);assert.equal(decisions.find(d=>d.fired).unattributed,1,'events without identity remain named');
  const before=(await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length;
- await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,users.id).run();await app.restart();await app.tick(end);assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length,before,'durable window key deduplicates re-evaluation and restart');
+ await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,users.id).run();await app.restart();await schedule(end);assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length,before,'durable window key deduplicates re-evaluation and restart');
  for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date().toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
- const sessions=await app.json(base+'/rules','POST',sessionRule);await error(id++,{environment:'sessions'});await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await app.tick(end);
+ const sessions=await app.json(base+'/rules','POST',sessionRule);await error(id++,{environment:'sessions'});await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await schedule(end);
  const percent=JSON.parse((await app.json(base+'/decisions')).find(d=>d.rule_id===sessions.id).reason);assert.deepEqual([percent.affected,percent.denominator,percent.value,percent.fired],[3,10,30,true],'three affected of ten observed sessions');
  const filtered=await app.json(base+'/rules','POST',rule('mail',{kinds:['new_issue','regression','reactivation'],config:config('count',{environment:'filtered',level:'error',release:'',tags:{tenant:'approved'}})}));
  for(const extra of [{environment:'elsewhere'},{level:'info'},{release:'r1'},{tenant:'outside'}])await error(id++,{environment:'filtered',release:'',group:'excluded-'+id,...extra});
