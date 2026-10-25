@@ -4,7 +4,9 @@ import { sanitizeSentry } from './evidence.ts';
 import { objectJson, SentryWireError } from './wire.ts';
 
 type LogAttribute = { type: 'string' | 'boolean' | 'integer' | 'double' | 'array'; value: unknown; unit?: string };
-type PreparedLog = { event: Envelope; digest: string };
+type Privacy={document:any;jobs:D1PreparedStatement[]};
+type PreparedLog = { event: Envelope; digest: string;privacy?:Privacy };
+type Scrub=(document:any)=>Promise<Privacy>;
 const locationKeys = ['code.file.path', 'code.function.name', 'code.line.number', 'code.column.number'];
 const invalid = () => new SentryWireError('invalid_item');
 const record = (value: unknown): Record<string, any> => {
@@ -44,7 +46,7 @@ function typed(values: Record<string, unknown>, key: string, type: LogAttribute[
   return attr.value;
 }
 
-function convert(raw: Record<string, any>): Envelope {
+async function convert(raw: Record<string, any>,scrub?:Scrub): Promise<{event:Envelope;privacy?:Privacy}> {
   if (typeof raw.timestamp !== 'number' || !Number.isFinite(raw.timestamp) || raw.timestamp <= 0 ||
       typeof raw.body !== 'string' || typeof raw.level !== 'string' ||
       !['trace', 'debug', 'info', 'warn', 'error', 'fatal'].includes(raw.level)) throw invalid();
@@ -58,21 +60,22 @@ function convert(raw: Record<string, any>): Envelope {
   const build = typed(wireAttributes, 'spool.build', 'string');
   const environment = typed(wireAttributes, 'sentry.environment', 'string');
   const eventId = typed(wireAttributes, 'spool.event_id', 'string');
+  const privacy=await scrub?.({message:raw.body,log:{attributes:values}}),body=privacy?.document.message??raw.body,kept=privacy?.document.log.attributes??values;
   try {
     releaseIdentity(release);
-    const native = normalize({version:1,eventId,release,build,environment,type:'Log',message:raw.body,frames:[{file,function:fn,line,column:column-1}],breadcrumbs:[]});
+    const native = normalize({version:1,eventId,release,build,environment,type:'Log',message:body,frames:[{file,function:fn,line,column:column-1}],breadcrumbs:[]});
     const location = native.frames[0];
     const sdkName = values['sentry.sdk.name'], sdkVersion = values['sentry.sdk.version'];
     const sdk = {...(typeof sdkName === 'string' ? {name:sdkName} : {}), ...(typeof sdkVersion === 'string' ? {version:sdkVersion} : {})};
-    const sentry = sanitizeSentry({version:1,exceptions:[],truncation:[],platform:'javascript',level:raw.level==='warn'?'warning':raw.level,message:raw.body,release,environment,sdk,
+    const sentry = sanitizeSentry({version:1,exceptions:[],truncation:[],platform:'javascript',level:raw.level==='warn'?'warning':raw.level,message:body,release,environment,sdk,
       stacktrace:{frames:[{filename:location.file,function:location.function,lineno:location.line,colno:location.column!+1}]},
-      extra:{log_attributes:Object.fromEntries(Object.entries(values).filter(([key])=>!/(?:trace|span)[_.]?(?:id|context)/i.test(key)&&!/^(?:sentry\.)?user[._]/i.test(key)))}});
-    return normalize({...native,sentry});
+      extra:{log_attributes:Object.fromEntries(Object.entries(kept).filter(([key])=>!/(?:trace|span)[_.]?(?:id|context)/i.test(key)&&!/^(?:sentry\.)?user[._]/i.test(key)))}});
+    return {event:normalize({...native,sentry}),privacy};
   } catch { throw invalid() }
 }
 
 /** Accept only complete SDK log containers whose records all carry an explicit location. */
-export async function prepareLocatedLogs(bytes: Uint8Array): Promise<PreparedLog[] | null> {
+export async function prepareLocatedLogs(bytes: Uint8Array,scrub?:Scrub): Promise<PreparedLog[] | null> {
   const container = objectJson(bytes);
   if (container.version !== 2 || !Array.isArray(container.items) || !container.items.length || container.items.length > 100) throw invalid();
   if (container.items.some((item: unknown) => {
@@ -82,7 +85,7 @@ export async function prepareLocatedLogs(bytes: Uint8Array): Promise<PreparedLog
   const result: PreparedLog[] = [];
   for (const item of container.items) {
     const raw = record(item);
-    result.push({event:convert(raw),digest:await hash(canonical(raw))});
+    result.push({...await convert(raw,scrub),digest:await hash(canonical(raw))});
   }
   return result;
 }

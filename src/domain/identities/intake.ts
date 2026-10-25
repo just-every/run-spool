@@ -2,9 +2,9 @@ import {prepareScrubbing} from '../scrubbing/model';
 import {prepareIdentityKey} from './key';
 import {identityValues} from './values';
 import {identityFields,readIdentityPolicy,identityPolicyFence} from './policy';
-export async function prepareEventIdentity(db:D1Database,project:string,user:any){
- const snapshot=await readIdentityPolicy(db,project),key=identityFields.some(f=>snapshot.policy[f]!=='drop')?await prepareIdentityKey(db,project):null;
- const scrubbed=await prepareScrubbing(db,project,{user},key);
+export async function prepareEventIdentity(db:D1Database,project:string,user:any,privacy?:{key:Awaited<ReturnType<typeof prepareIdentityKey>>|null}){
+ const snapshot=await readIdentityPolicy(db,project),key=privacy?.key??(identityFields.some(f=>snapshot.policy[f]!=='drop')?await prepareIdentityKey(db,project):null);
+ const scrubbed=privacy?{document:{user},jobs:[],key}:await prepareScrubbing(db,project,{user},key);
  const projected=await identityValues(scrubbed.document.user,snapshot.policy,key?.key??null);
  return {project,...snapshot,...projected,scrubbingKey:scrubbed.key,jobs:[...scrubbed.jobs,...key?.jobs??[]],present:user!==undefined};
 }

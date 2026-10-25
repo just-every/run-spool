@@ -1,3 +1,4 @@
+import {prepareScrubbing} from './scrubbing/model';
 import {projectScrubbingRoutes,installationScrubbingRoutes} from './scrubbing/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
@@ -128,7 +129,8 @@ api.post('/api/ingest/:project',async c=>{
       try{await recordIngest(c,auth.scope,'oversized')}catch(failure){return ingestFailure(c,auth.scope,failure)}
       return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as any));
     }
-    return admitEvent(c,auth.scope,normalize(parsed.value),await hash(canonical(parsed.value)));
+    const privacy=await prepareScrubbing(c.env.DB,auth.scope.project,parsed.value);
+    return admitEvent(c,auth.scope,normalize(privacy.document),await hash(canonical(parsed.value)),false,undefined,privacy);
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 api.route('/api/projects',deployRoutes);

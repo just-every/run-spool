@@ -1,3 +1,4 @@
+import {prepareScrubbing} from '../scrubbing/model';
 import {prepareLocatedLogs} from './located-log';
 import {prepareEventIdentity} from '../identities/intake';
 import { admitSessions } from '../sessions/intake';
@@ -48,7 +49,8 @@ routes.on('POST',paths,async c=>{
     // Parse ALL item byte boundaries before authenticating, counting or admitting anything.
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
     const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
-    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
+    type Privacy=Awaited<ReturnType<typeof prepareScrubbing>>;
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events:{event:any;digest:string;identity?:Awaited<ReturnType<typeof prepareEventIdentity>>;privacy?:Privacy}[]=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
     let clientReports=0,invalidReports=0,filteredReports=0;
     for(const item of envelope.items){
       if(item.header.type==='client_report'){
@@ -63,7 +65,7 @@ routes.on('POST',paths,async c=>{
       if(item.header.type==='session'||item.header.type==='sessions'){sessions.push(item);continue}
       if(item.header.type==='check_in'){checkIns.push(item);continue}
       if(item.header.type==='log'){
-        const logs=await prepareLocatedLogs(item.bytes);
+        const logs=await prepareLocatedLogs(item.bytes,document=>prepareScrubbing(c.env.DB,scope!.project,document));
         if(logs){events.push(...logs.map(log=>({...log,identity:undefined})));continue}
       }
       if(item.header.type!=='event'){const reason=unsupportedReason(item.header.type);dropped.set(reason,(dropped.get(reason)??0)+1);continue}
@@ -77,13 +79,13 @@ routes.on('POST',paths,async c=>{
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
       }
-      const identity=await prepareEventIdentity(c.env.DB,scope.project,raw.user);
+      const privacy=await prepareScrubbing(c.env.DB,scope.project,raw),identity=await prepareEventIdentity(c.env.DB,scope.project,privacy.document.user,privacy);
       const sample=Number(envelope.header.trace?.sample_rate),sampleRate=envelope.header.trace?.sample_rate!==undefined&&Number.isFinite(sample)&&sample>0&&sample<=1?sample:undefined;
-      events.push({event:convertSentry(raw,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined,sampleRate),digest:await hash(canonical(raw)),identity});
+      events.push({event:convertSentry(privacy.document,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined,sampleRate),digest:await hash(canonical(raw)),identity,privacy});
     }
     if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     let id:string|undefined;
-    for(const {event,digest,identity} of events){const response=await admitEvent(c,scope,event,digest,true,identity);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
+    for(const {event,digest,identity,privacy} of events){const response=await admitEvent(c,scope,event,digest,true,identity,privacy);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
