@@ -34,7 +34,7 @@ export default {
   assert.equal((await app.json(root+'/release-policy')).noReleaseEvents,1);
   assert.equal((await app.json(root+'/issue-search?q=!has:release')).total,1);
   await readScreens(origin,cookie,[
-   {name:'node-releases',path:'/projects/rt-node-releases/releases',check:async page=>{await page.getByText('1 retained events have no release',{exact:false}).waitFor();await page.locator('tr.data-row').filter({hasText:sha}).first().waitFor()}},
+   {name:'node-releases',path:'/projects/rt-node-releases/releases',check:async page=>{await page.getByRole('button',{name:'Details: Events without a release',exact:true}).click();await page.getByRole('dialog',{name:'Events without a release',exact:true}).getByText('1 events have no release.',{exact:false}).waitFor();await page.keyboard.press('Escape');await page.locator('tr.data-row').filter({hasText:sha}).first().waitFor()}},
    {name:'node-alerts',path:'/projects/rt-node-releases/alerts',check:async page=>{const rows=page.locator('ul.alert-records li');await rows.first().waitFor();assert.equal(await rows.count(),1);assert.ok(!(await rows.innerText()).includes(sha))}},
   ]);
  },

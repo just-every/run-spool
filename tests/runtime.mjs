@@ -24,7 +24,7 @@ try {
  let cookie=await signIn(origin);
  const headers={Cookie:cookie,Origin:origin,'Content-Type':'application/json'};
  for(const path of ['/','/app']){const pending=await fetch(origin+path,{headers,redirect:'manual'});assert.equal(pending.status,303);assert.equal(pending.headers.get('location'),'/setup');}
- for(const path of ['/missing','/projects/missing'])assert.equal((await fetch(origin+path,{headers,redirect:'manual'})).status,404);
+ for(const path of ['/missing','/projects/missing/unknown'])assert.equal((await fetch(origin+path,{headers,redirect:'manual'})).status,404);
  assert.equal((await fetch(origin+'/setup',{headers,redirect:'manual'})).status,200);
  const create=(value,authority=headers)=>fetch(origin+'/api/projects',{method:'POST',headers:authority,body:JSON.stringify(value)});
  assert.equal((await create({id:'fresh',name:'Fresh'},{Origin:origin,'Content-Type':'application/json'})).status,401);

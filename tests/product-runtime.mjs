@@ -131,7 +131,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  if(!withoutBrowser){
  // Real browser automatic error capture against emitted application assets/API.
  // The signed-out document forbids scripts; enter the app through ordinary owner sign-in.
- const {launchBrowser}=await import('./browser-launch.mjs');browser=await launchBrowser();const page=await browser.newPage();await browserSignIn(page,origin);await page.waitForURL(origin+'/');
+ const {launchBrowser}=await import('./browser-launch.mjs');browser=await launchBrowser();const page=await browser.newPage();await browserSignIn(page,origin);await page.waitForURL(url=>/^\/projects\/[^/]+\/issues$/.test(url.pathname));
  await page.evaluate(async ({origin,key})=>{const sdk=await import(origin+'/errors-capture.js');window.captureOutcome=null;sdk.installBrowserCapture({endpoint:origin,project:'web',ingestKey:key,release:'r1',build:'b1',environment:'browser',onOutcome:r=>window.captureOutcome=r});setTimeout(function upgrade(){const account={};return account.address.city},0)}, {origin,key:project.ingestKey});
  await page.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');assert.equal((await page.evaluate(()=>window.captureOutcome)).outcome,'accepted');
  await browser.close();browser=null;

@@ -53,7 +53,7 @@ export default {
   assert.equal((await app.json(root+'/release-policy')).noReleaseEvents,1,'release-scoped no-release count');
   assert.equal((await app.json(root+'/issue-search?q=!has:release')).total,1);assert.equal((await app.json(root+`/issue-search?q=release:${sha}`)).total,1);
   await readScreens(origin,cookie,[
-   {name:'python-releases',path:'/projects/rt-python-releases/releases',check:async page=>{await page.getByText('1 retained events have no release',{exact:false}).waitFor();await page.locator('tr.data-row').filter({hasText:sha}).first().waitFor()}},
+   {name:'python-releases',path:'/projects/rt-python-releases/releases',check:async page=>{await page.getByRole('button',{name:'Details: Events without a release',exact:true}).click();await page.getByRole('dialog',{name:'Events without a release',exact:true}).getByText('1 events have no release.',{exact:false}).waitFor();await page.keyboard.press('Escape');await page.locator('tr.data-row').filter({hasText:sha}).first().waitFor()}},
    {name:'python-alerts',path:'/projects/rt-python-releases/alerts',check:async page=>{const record=page.locator('ul.alert-records li');await record.first().waitFor();assert.equal(await record.count(),1,'one alert in the feed');const text=await record.innerText();assert.ok(text.includes(issue.issue.title)&&!text.includes(sha),'the feed shows the release-less alert with no release name')}},
   ]);
   // SDK-010: exception groups with every member, and Django request data from a real WSGI request.
