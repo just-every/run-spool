@@ -99,8 +99,8 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    <Field label="Rule name" required maxLength={100} value={name} disabled={!!busy} onChange={e => change({ name: e.target.value })}/>
    <label className="form-field">Destination<select aria-label="Destination" required value={destination} disabled={!!busy} onChange={e => change({ destination: e.target.value })}>
     <option value="">Choose destination</option>
-    {editing && !selected && destination && <option value={destination}>Previously selected destination · unavailable</option>}
-    {destinations.map(d => <option key={d.id} value={d.id}>{destinationLabel(d)}{d.configured ? '' : ' · blocked'}</option>)}
+    {editing && !selected && destination && <option value={destination}>{destinationLabel(undefined)}</option>}
+    {destinations.map(d => <option key={d.id} value={d.id}>{destinationLabel(d)}</option>)}
    </select></label>
    <fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
     <input type="checkbox" checked={kinds.includes(kind)} disabled={!!busy} onChange={e => change({ kinds: e.target.checked ? [...kinds, kind] : kinds.filter(k => k !== kind) })}/>{label}

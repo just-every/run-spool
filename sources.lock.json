@@ -7889,7 +7889,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "b148efdcd622391059eda0e35937dc4a8f2a7e6840911fa239b63b4a01468123",
+      "sha256": "ffda04dceddec3a2f6999a692a43ab561112d1b16ad9bce8d3e9a4000b2596a7",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
@@ -7917,7 +7917,7 @@
       "executable": false
     },
     "src/ui/alerts/RuleSummary.tsx": {
-      "sha256": "b4ed061a8009bd0e7216a5b0c5c92ac22820fdf02684743346b645d8a335bb6e",
+      "sha256": "5a43f9e58bdea469bf79bd07f5169b71b8876fe7713438adc8d28caed7a8929d",
       "executable": false
     },
     "src/ui/alerts/SlackDestinationForm.tsx": {
