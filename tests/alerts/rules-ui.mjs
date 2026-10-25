@@ -4,6 +4,15 @@ import { mkdir } from 'node:fs/promises';
 // Runs inside the existing Alerts journey, after setup has reviewed mail-v1.
 export async function rulesUI(page, app, width) {
  const name = `Filtered rule ${width}`, base = '/api/projects/web/alerting';
+ // Retained matches come through the public Sentry door, then replay their receipt window.
+ const grant=await app.json('/api/projects/web/keys','POST',{kind:'ingest'}),dsn=new URL(grant.dsn),ids=[];
+ for(let i=0;i<2;i++){
+  const id=crypto.randomUUID().replaceAll('-','');ids.push(id);
+  const event={event_id:id,environment:'fixture',level:'error',tags:{tenant:'acme'},exception:{values:[{type:'CheckoutError',value:'Payment confirmation failed',stacktrace:{frames:[{filename:'https://synthetic-spool.test/checkout.js',function:'confirmPayment',lineno:42,colno:1}]}}]}};
+  const response=await app.request('/api'+dsn.pathname+'/envelope/?sentry_version=7&sentry_key='+dsn.username,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event));assert.equal(response.status,200);await response.json();
+ }
+ await app.db.batch(ids.map(id=>app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(Math.floor(Date.now()/300000)*300000-300000+100,'web',id)));
+
  await page.getByRole('button', { name: 'Rules', exact: true }).click();
  const discard = page.getByRole('button', { name: 'Discard edit', exact: true });
  if (await discard.isVisible()) {
@@ -43,6 +52,8 @@ export async function rulesUI(page, app, width) {
  const refused = await previewRule();
  assert.ok(refused.preview.refusal, 'Dropped identity must refuse affected-user alerts');
  await refused.region.getByRole('alert').waitFor();
+ await mkdir('.artifacts/alerts', { recursive: true });
+ await page.screenshot({ path: `.artifacts/alerts/rules-refused-${width}.png`, fullPage: true });
  assert.ok(await create.isDisabled(), 'A refused preview cannot enable a rule');
  assert.deepEqual(refused.input.config.filters, { environment: 'fixture', level: 'error', release: '', tags: { tenant: 'acme' } });
  await page.getByLabel('Spike metric', { exact: true }).selectOption('count');
@@ -50,6 +61,8 @@ export async function rulesUI(page, app, width) {
  const accepted = await previewRule();
  assert.equal(accepted.preview.refusal, null);
  assert.ok(accepted.preview.token);
+ assert.equal(accepted.preview.matchedEvents,2,'the preview reconciles its retained filtered matches');
+ assert.ok(accepted.preview.transitions.some(row=>row.count===2&&row.end>row.start),'a qualifying retained window appears before enabling');
  await accepted.region.getByRole('status').waitFor();
  assert.ok(await create.isEnabled());
  await mkdir('.artifacts/alerts', { recursive: true });
