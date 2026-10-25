@@ -34,7 +34,7 @@ export async function conditionsJourney(app,fixture){
  assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===filtered.id).length,1,'environment severity release and approved tag filters exclude every nonmatch');
  for(const release of ['r1','']){
   const target=release?await error(id++,{group:'same-release',release}):a;
-  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===target);await app.json('/api/projects/web/issues/'+target,'PATCH',{state:'resolved',revision:row.revision});await error(id++,{environment:release?'rules':'filtered',release,group:release?'same-release':'included'});
+  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===target);await app.json('/api/projects/web/issues/'+target,'PATCH',{state:'resolved',revision:row.revision,resolution:'plain'});await error(id++,{environment:release?'rules':'filtered',release,group:release?'same-release':'included'});
   const regressions=(await app.json('/api/projects/web/alerts')).filter(x=>x.issue===target&&x.kind==='regression');assert.equal(regressions.length,1,'plain Resolve regresses exactly once in same release or with no release');
  }
  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'suppressed',revision:row.revision});const suppressed=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'open',revision:suppressed.revision});await error(id++,{environment:'filtered',release:'',group:'included'});assert.equal((await app.json('/api/projects/web/alerts')).filter(x=>x.issue===a&&x.kind==='reactivation').length,1);
