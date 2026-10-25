@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8278b4be207356f840f40d802a3a920b17020f30d44535a16bdb505eda40f4b3",
+      "sha256": "830f8ac41664ed1de194af793a212b2049728fcf07acdd51cf311b4fe8e4013a",
       "executable": false
     },
     "DEMO.md": {
@@ -3509,11 +3509,11 @@
       "executable": false
     },
     "docs/retained-verification/team004/empty-link-log-1440.png": {
-      "sha256": "7951545d9bbc0feb6008ec1349cc4f42491a05fa38dc022dc90da8b4d7e1e29d",
+      "sha256": "41c7b17ba1e3eceaeb4e8ea4aef158c96460c8d309f62f9192e06f48d0ac7032",
       "executable": false
     },
     "docs/retained-verification/team004/empty-link-log-390.png": {
-      "sha256": "20d38e07f66ce502b76d5754fc1aee9d1121edac877221a5f0452ef576816bc3",
+      "sha256": "a21f376223a32de0435563510784902ccbae637cbe8b8161150321395fe137c1",
       "executable": false
     },
     "docs/retained-verification/team004/empty-timeline-1440.png": {
@@ -3525,27 +3525,27 @@
       "executable": false
     },
     "docs/retained-verification/team004/issue-list-1440.png": {
-      "sha256": "96ad7cf8c2cdea71510fd22f563563aca681c41af234650246376a1b90640585",
+      "sha256": "07e40f8f8c506d9a5a2feca1c8efcc7ef74dc8fea50d4451f7e799935c49b039",
       "executable": false
     },
     "docs/retained-verification/team004/issue-list-390.png": {
-      "sha256": "0b1882836da2baef7b288d9b36dc59bc2028f674b46718028a9c7df54850d5a3",
+      "sha256": "c206fade8f75b643db25648a439be20c5e8982ad8c9169d3adc9d742de8f4ba0",
       "executable": false
     },
     "docs/retained-verification/team004/linked-1440.png": {
-      "sha256": "e6463bed4dda0b6e04b5cd825edf62d492cb7f039a7983919ddcfdcebf87f23e",
+      "sha256": "6f66c615f0ae79f49eb0650d53eadd577fdbfe67d4cfc9b11c9bd6aa98046c92",
       "executable": false
     },
     "docs/retained-verification/team004/linked-390.png": {
-      "sha256": "8400d92460440d6863d6b8e139dcc1ffd1ee6f381cc1ce98b6da523fe5e09fe5",
+      "sha256": "a98e9d2607fd77b42aabbe5a3fa6283970bb8c67936e6fc3dd7e6bdb01e1ca83",
       "executable": false
     },
     "docs/retained-verification/team004/logged-unknown-1440.png": {
-      "sha256": "9fac7a5e8e72cfe50fc9afdd4ae044aa09b7a8ba4b754589d6df96440002858e",
+      "sha256": "5df2483c00279936fb0fcabe4cefdf27213999a5de4427d15245c06fc27a4c9a",
       "executable": false
     },
     "docs/retained-verification/team004/logged-unknown-390.png": {
-      "sha256": "41890676021ab13779628659f0923b37bcc0b1979ad7480667f8cd37ebc5d89d",
+      "sha256": "10fc8f8b0bc968800c95e4a60bbbe8421fae8bfd32309ba8fd1ebe97ad944cc4",
       "executable": false
     },
     "docs/retained-verification/team004/merged-alias-1440.png": {
@@ -3557,11 +3557,11 @@
       "executable": false
     },
     "docs/retained-verification/team004/regressed-1440.png": {
-      "sha256": "2536a30c7224dfb350cea26199cc52352b7e2f1f20a5668e5f56778dcca5bf5b",
+      "sha256": "35070ef6356871f7b4fb865f4f6ca7f042b0b74841dd73668d1d7b5321474818",
       "executable": false
     },
     "docs/retained-verification/team004/regressed-390.png": {
-      "sha256": "2be88244caaa5e9b99bf2fceb83d8bebdecd3312472f753c3fe7595fa726ddf8",
+      "sha256": "bb753fe2ed1211c09d53d3df783d4aa285cbaa0c908ef08057a367382bbea5ce",
       "executable": false
     },
     "docs/retained-verification/team004/resolved-1440.png": {
@@ -3573,19 +3573,19 @@
       "executable": false
     },
     "docs/retained-verification/team004/sharing-off-1440.png": {
-      "sha256": "0827a6182d345ba2552470e937e231148c7101bba8614f0db3576a0dec927d39",
+      "sha256": "a17e7b39dc8be7d7efff967fd53923c2099f20de2461c69d93edc76775b4173a",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-off-390.png": {
-      "sha256": "3b31f297c26a6cd41e840419fa7545f3ef269b99893787dc4451b9e6d5614e21",
+      "sha256": "28e557384b1204bfb56ce7083988862712fb34f09b26d2a0a06263d1e93d412a",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-on-1440.png": {
-      "sha256": "400853ede0eed0905f19e27eeadda8b8084486ec93a73551426dcf9c5e1e1a99",
+      "sha256": "f543c0d3f0851a79ca92911946554f8cce2a6409dffbb084fa9342886a60bd7c",
       "executable": false
     },
     "docs/retained-verification/team004/sharing-on-390.png": {
-      "sha256": "ebb1c50e15b3e0e64a37aefbaccca0321b3bbc59d6f8f26b2de57bae661e358f",
+      "sha256": "4cf16cc7aabd23dcefb536120f5ca71a02196fe74117b9f03feef82950ab237a",
       "executable": false
     },
     "docs/RETENTION.md": {
@@ -3609,7 +3609,7 @@
       "executable": false
     },
     "docs/SENTRY-SCRUBBING.md": {
-      "sha256": "9b4acf8788dee7ae21bcd8eb15198d4aecfef1b3887ab788071b9c214357cae8",
+      "sha256": "779ffd5c98f8751ee140458e9ab70f893809ef5ee080554423625019bdea900f",
       "executable": false
     },
     "docs/SENTRY-SESSIONS.md": {
@@ -5529,7 +5529,7 @@
       "executable": false
     },
     "src/domain/scrubbing/patterns.ts": {
-      "sha256": "550c4eb3366e143c4e6e5f95cb3ab93e3884b305ac4cf07bef721410e49862d6",
+      "sha256": "7e32c306c3a567f7adef3076c1eb37bae55e22dd9c609444782b56748ee3d72d",
       "executable": false
     },
     "src/domain/scrubbing/policy.ts": {
@@ -5705,7 +5705,7 @@
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
-      "sha256": "bc64e7858dc21fa61c52030dd72846d627d5615d5ded5e7ae1db2158c15293ea",
+      "sha256": "82ac73d69578c22d5c2448e29a0aa80cad093a108cae40eb14d5811f9e026b65",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -8657,7 +8657,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "ea6f232a3212d2030f741a4e55d14f7cd29969d0c20e548762121bcb25153053",
+      "sha256": "efce5922e83a853609720b081fc83182f8e96d5a2bcf0fcc86769970ca4d045c",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -9109,7 +9109,7 @@
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
-      "sha256": "f726159bb8777d0652f38b30430c49934c6055fba0db55a73eba22e12ec9ca7d",
+      "sha256": "0d24b2275f00bbdf27d411ca0cb4abfa6a76fc6114638d503d5f98fa31240b8d",
       "executable": false
     },
     "tests/session-flow.mjs": {

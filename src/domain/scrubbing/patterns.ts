@@ -39,7 +39,9 @@ export function safeRegex(source:string):RegExp {
    }
   }
  }
+ if(group)throw new Error('regex_groups_not_supported');
  if(variable>1)throw new Error('regex_multiple_quantifiers');
+ if(variable&&(!source.startsWith('^')||!source.endsWith('$')))throw new Error('regex_quantifier_requires_anchors');
  if(variable&&(group||alternative))throw new Error('regex_ambiguous_quantifier');
  try{return new RegExp(source,'i')}catch{throw new Error('regex_invalid')}
 }
