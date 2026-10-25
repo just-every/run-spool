@@ -8141,7 +8141,7 @@
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
-      "sha256": "76f1954b4d3c85ff20e40725a9326f53e19b609e744a7bed6e5597990d40d6a9",
+      "sha256": "ec50b0f9bd1711c023109b2d1e5259c81b0da8ad8ea05aaab39e74bcc08e9ee4",
       "executable": false
     },
     "src/ui/workbench/NotFound.tsx": {
@@ -8281,7 +8281,7 @@
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
-      "sha256": "6294927410e4662d1bd1b471d16bb5db01f36d08919d62edf3a12b9e23c60591",
+      "sha256": "7a49aaeb3b109ecf6b646870342870f383882c40145bbb6e80c3aa14fdc32c05",
       "executable": false
     },
     "TARGET.md": {
