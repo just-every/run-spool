@@ -432,6 +432,12 @@
       "name": "0076_review_inbox.sql",
       "sha256": "1150492192c7f812dc2fecb7cc9d15be00720084d444a6ee9c200ca19835132f",
       "sql": "-- Review stores an alert boundary, never an owner identity or issue mutation.\nCREATE TABLE review_stamps(project TEXT NOT NULL,issue TEXT NOT NULL,generation TEXT NOT NULL,alert TEXT NOT NULL,reviewed INTEGER NOT NULL,UNIQUE(project,issue),PRIMARY KEY(project,issue,generation));\nCREATE TABLE review_views(project TEXT NOT NULL,id TEXT NOT NULL,generation TEXT NOT NULL,query TEXT NOT NULL,UNIQUE(project,id),PRIMARY KEY(project,id,generation));\nCREATE TRIGGER review_view_capacity BEFORE INSERT ON review_views WHEN NOT EXISTS(SELECT 1 FROM review_views WHERE project=NEW.project AND id=NEW.id) AND (SELECT COUNT(*) FROM review_views WHERE project=NEW.project)>=25 BEGIN SELECT RAISE(ABORT,'review_view_capacity'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0077_alert_conditions.sql",
+      "sha256": "b34b04d95578a711673618dacffedc3f137b1f9ac7871d806746dfa2c9e4f8c3",
+      "sql": "CREATE TABLE alert_rule_configs(rule_id TEXT PRIMARY KEY,project TEXT NOT NULL,revision INTEGER NOT NULL,config TEXT NOT NULL);\nCREATE TABLE alert_rule_previews(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT,digest TEXT NOT NULL,policy_revision INTEGER NOT NULL,created INTEGER NOT NULL);\nCREATE INDEX alert_rule_previews_project ON alert_rule_previews(project,created);\nCREATE TABLE alert_decisions(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT NOT NULL,revision INTEGER NOT NULL,issue TEXT NOT NULL,start INTEGER NOT NULL,end INTEGER NOT NULL,fired INTEGER NOT NULL,reason TEXT NOT NULL,UNIQUE(rule_id,revision,issue,start));\nCREATE INDEX alert_decisions_project ON alert_decisions(project,end);\nCREATE TABLE alert_reactivation_markers(project TEXT NOT NULL,issue TEXT NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(project,issue));\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
