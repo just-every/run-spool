@@ -38,6 +38,10 @@ export async function conditionsJourney(app,fixture){
   const regressions=(await app.json('/api/projects/web/alerts')).filter(x=>x.issue===target&&x.kind==='regression');assert.equal(regressions.length,1,'plain Resolve regresses exactly once in same release or with no release');
  }
  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'suppressed',revision:row.revision});const suppressed=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'open',revision:suppressed.revision});await error(id++,{environment:'filtered',release:'',group:'included'});assert.equal((await app.json('/api/projects/web/alerts')).filter(x=>x.issue===a&&x.kind==='reactivation').length,1);
+ const policyPreview=await app.json(base+'/rules/preview','POST',userRule);
+ const currentPolicy=await app.json('/api/projects/web/identity-policy'),nextPolicy={...currentPolicy.policy,username:'hash'},nextPreview=await app.json('/api/projects/web/identity-policy/preview','POST',{policy:nextPolicy});
+ await app.json('/api/projects/web/identity-policy','PUT',{revision:currentPolicy.revision,policy:nextPolicy,token:nextPreview.token});
+ const stalePolicy=await app.request(base+'/rules','POST',{...userRule,previewToken:policyPreview.token});assert.equal(stalePolicy.status,400,'identity policy revision changes invalidate an otherwise unchanged rule preview');await stalePolicy.body.cancel();
  const stale=await app.json(base+'/rules/preview','POST',userRule);const changed={...userRule,name:'Changed after preview',previewToken:stale.token};assert.equal((await app.request(base+'/rules','POST',changed)).status,400,'rule changes invalidate preview');
  console.log('ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed');
 }

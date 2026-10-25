@@ -94,7 +94,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  }
  const canSubmit = !!name.trim() && !!kinds.length && !!destination && (releaseMode !== 'named' || !!release);
  const thresholdLabel = metric === 'users' ? 'Affected user threshold (more than)' : metric === 'session_percent' ? 'Session error threshold (%)' : metric === 'baseline' ? 'Baseline multiplier' : 'Accepted occurrence threshold';
- return <section className="evidence"><h2>Per-project rules</h2><p>New issues, later-release regressions and reactivations route when captured. Spikes use complete fixed windows. Suppressed issues do not produce spikes.</p>
+ return <section className="evidence"><h2>Per-project rules</h2><p>New issues, regressions and reactivations route when captured. Spikes use complete fixed windows. Suppressed issues do not produce spikes.</p>
   {!destinations.length && <p className="callout">Add an email destination above before creating a rule.</p>}
   <ul className="alert-records">{rules.map(rule => <li key={rule.id}><div>
    <strong>{rule.name}</strong><p>{destinations.find(d => d.id === rule.destination)?.kind === 'slack' ? 'Slack' : rule.channel === 'mail' ? 'Email' : 'Webhook'} · {rule.enabled ? 'Enabled' : 'Disabled'}</p>
@@ -110,7 +110,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
     {editing && !selected && destination && <option value={destination}>Previously selected destination · unavailable</option>}
     {destinations.map(d => <option key={d.id} value={d.id}>{d.label} · {d.kind === 'slack' ? 'Slack' : d.channel === 'mail' ? 'Email' : 'Webhook'}{d.configured ? '' : ' · blocked'}</option>)}
    </select></label>
-   <fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Later-release regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
+   <fieldset><legend>Alert events</legend>{[['new_issue', 'New issue'], ['regression', 'Regression'], ['reactivation', 'Reactivation'], ['spike', 'Volume spike']].map(([kind, label]) => <label className="alert-check" key={kind}>
     <input type="checkbox" checked={kinds.includes(kind)} disabled={!!busy} onChange={e => change({ kinds: e.target.checked ? [...kinds, kind] : kinds.filter(k => k !== kind) })}/>{label}
    </label>)}</fieldset>
    {spike && <>

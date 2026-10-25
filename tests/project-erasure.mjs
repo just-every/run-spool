@@ -35,7 +35,7 @@ try{
 
  stage='preview';const preview=await json(`/api/projects/${planted.project}/erasure`);
  assert.deepEqual(scanText(JSON.stringify(preview),needles),[],'the preview carries counts without personal values or identifiers');
- for(const table of ['projects','events','issues','releases','artifacts','credentials','browser_origins','alerts','alert_rules','alert_history','alert_intents','alert_mail_jobs','alert_mail_attempts','rer_mail_development_outbox','repairs','feedback','sentry_import_targets'])assert.ok(preview.deleted[table]>0,`preview counts ${table}`);
+ for(const table of ['projects','events','issues','releases','artifacts','credentials','browser_origins','alerts','alert_rules','alert_rule_configs','alert_history','alert_intents','alert_mail_jobs','alert_mail_attempts','rer_mail_development_outbox','repairs','feedback','sentry_import_targets'])assert.ok(preview.deleted[table]>0,`preview counts ${table}`);
  assert.ok(preview.deleted.retention_policies>0,'[GOV-002] held policy is included in erasure');
  assert.ok(preview.redacted.audit>0&&preview.retained.length&&preview.exceptions.length,'preview lists anonymised audit, retained tables and exceptions');
 

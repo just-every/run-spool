@@ -12,7 +12,7 @@ export async function rulesUI(page, app, width) {
  }
  await page.getByLabel('Rule name', { exact: true }).fill(name);
  await page.getByRole('combobox', { name: 'Destination', exact: true }).selectOption('mail-v1');
- for (const [label, checked] of [['New issue', true], ['Later-release regression', true], ['Reactivation', true], ['Volume spike', true]]) {
+ for (const [label, checked] of [['New issue', true], ['Regression', true], ['Reactivation', true], ['Volume spike', true]]) {
   await page.getByRole('checkbox', { name: label, exact: true }).setChecked(checked);
  }
  await page.getByLabel('Enabled', { exact: true }).check();
