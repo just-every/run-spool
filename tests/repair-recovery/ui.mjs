@@ -20,7 +20,7 @@ async function check(page,directory,width,name,captures){
 }
 const focusVisible=page=>page.evaluate(()=>{const style=getComputedStyle(document.activeElement);return style.outlineStyle!=='none'&&parseFloat(style.outlineWidth)>0;});
 async function verdict(page,text){await page.locator('.repairs .verdict').filter({hasText:text}).first().waitFor();}
-async function refresh(page){await page.getByRole('button',{name:'Refresh',exact:true}).click();}
+async function refresh(page){await page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000});}
 export async function repairPanel(app,browser,directory){
  const captures=[];
  for(const width of [1440,390]){

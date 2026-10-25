@@ -77,7 +77,7 @@ try{
     assert.ok(issue,'browser default global handler creates a native issue');const captured=packet.events.find(e=>e.event.environment==='compatibility');assert.equal(captured.atAdmission[0].status,'mapped');assert.equal(captured.atAdmission[0].original.line,expectedLine);assert.equal(captured.event.release,reference.release);assert.equal(captured.event.build,reference.dist);
     const owner=await context.newPage();await browserSignIn(owner,origin);await owner.goto(`${origin}/projects/sdk/issues/${issue.id}`);await owner.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor();
     await page.evaluate(({id,width})=>window.sendFeedback(`Checkout report ${width}: payment confirmation never appeared`,id),{id:captured.id,width});
-    await owner.getByRole('button',{name:'Refresh feedback',exact:true}).click();
+    await owner.waitForResponse(response=>response.url().includes('/feedback?issue=')&&response.ok(),{timeout:30000});
     await owner.getByText(`Checkout report ${width}: payment confirmation never appeared`,{exact:true}).waitFor();
     const feedback=await request('/api/projects/sdk/feedback');assert.ok(feedback.items.some(row=>row.eventId===captured.id&&row.issueId===issue.id));assert.ok(!JSON.stringify(feedback).includes('feedback-private@example.com'));assert.ok(!JSON.stringify(feedback).includes('Private Feedback Name'));
     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);

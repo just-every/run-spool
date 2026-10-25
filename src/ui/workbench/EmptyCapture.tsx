@@ -1,8 +1,8 @@
-export function EmptyCapture({ onSetup, onRefresh, waiting = false }: { onSetup: () => void; onRefresh: () => void; waiting?: boolean }) {
+export function EmptyCapture({ onSetup, waiting = false }: { onSetup: () => void; waiting?: boolean }) {
   return <section className="empty-state"><EmptyStackDrawing />
     <h2><span className="mark">{waiting ? 'Waiting for your first event' : 'No captured errors yet'}</span></h2>
     <p>Connect your application, then trigger an error there. Its first event will appear here.</p>
-    <div className="button-row"><button className="primary-button" onClick={onSetup}>Set up capture</button><button className="text-button" onClick={onRefresh}>Check for events</button></div>
+    <div className="button-row"><button className="primary-button" onClick={onSetup}>Set up capture</button></div>
   </section>;
 }
 

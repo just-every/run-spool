@@ -1,3 +1,4 @@
+import { Details } from './Details';
 import { useEffect,useState } from 'react';
 import { date,Field,type Request,type Run } from './shared';
 export function DeploymentHistory({project,releases,request,run,busy}:{project:string;releases:any[];request:Request;run:Run;busy:boolean}) {
@@ -8,7 +9,7 @@ export function DeploymentHistory({project,releases,request,run,busy}:{project:s
  async function load(){try{const [history,choices]=await Promise.all([request(base),request(`/api/projects/${encodeURIComponent(project)}/alerting/destinations`)]);setRows(history.rows);setDestinations(choices.rows.filter((r:any)=>r.channel==='mail'));setError('');setLoaded(true)}catch(e){setError((e as Error).message)}}
  useEffect(()=>{setLoaded(false);void load()},[project]);
  const target=releases.find(r=>r.name===release);
- return <section className="evidence" id="deployment-history"><h2>Deployment history</h2><p>Record CI or owner observations for each environment. Included commits, exposure and timing are caller recorded. A deadline with no final callback records overdue status and one notification attempt to your selected email destination.</p>
+ return <section className="evidence" id="deployment-history"><h2>Deployment history</h2><Details title="Deployment tracking"><p>Record deployment observations from CI or by hand. If no final outcome arrives by the deadline, Spool marks it overdue and tries to notify the selected email destination once.</p></Details>
  <form className="form-grid" onSubmit={e=>{e.preventDefault();void run(async()=>{await request(base,'POST',{id,release,build:target?.build,environment,commitSha:commit,previousCommit:previous||null,includedCommits:commits.split(/[\s,]+/).filter(Boolean),repository,startedAt:new Date().toISOString(),deadline:new Date(deadline).toISOString(),destination});setMessage('Deployment started.');await load()})}}>
  <Field label="Deployment ID" required value={id} onChange={e=>setId(e.target.value)} />
  <label className="form-field">Deployment release<select aria-label="Deployment release" required value={release} onChange={e=>setRelease(e.target.value)}><option value="">Choose release</option>{releases.map(r=><option key={r.name} value={r.name}>{r.name}</option>)}</select></label>

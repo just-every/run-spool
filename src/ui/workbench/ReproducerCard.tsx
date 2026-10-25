@@ -17,7 +17,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
   }
   return <article className="reproducer" aria-labelledby={label}>
     <h3 id={label}>Reproducer for event <code>{reproducer.event}</code>: {reproducer.support === 'supported' ? 'supported' : 'unsupported'}</h3>
-    <p className="execution-meta">Defect class {reproducer.defectClass}. Recorded {date(reproducer.created)}. {reproducer.trust}</p>
+    <p className="execution-meta">Recorded {date(reproducer.created)}. {reproducer.trust}</p>
     {reproducer.support === 'unsupported' ? <p className="callout">{reproducer.reasonText}</p> : <>
       <dl className="execution-facts">
         <div><dt>Call</dt><dd><code>{spec.call.export}(…)</code> in <code>{spec.event.frame.original.file}</code></dd></div>
@@ -27,7 +27,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
         <div><dt>Source</dt><dd>{spec.source.modules.length} module{spec.source.modules.length === 1 ? '' : 's'} from release {spec.source.release}, build {spec.source.build}</dd></div>
       </dl>
       <form className="form-grid" onSubmit={queue}>
-        <label className="form-field">Run against<select value={release} onChange={change => setRelease(change.target.value)}><option value="">Captured release {spec.source.release}</option>{releases.filter(row => row.name !== spec.source.release).map(row => <option key={row.name} value={row.name}>{row.name} (sequence {row.seq})</option>)}</select></label>
+        <label className="form-field">Run against<select value={release} onChange={change => setRelease(change.target.value)}><option value="">Captured release {spec.source.release}</option>{releases.filter(row => row.name !== spec.source.release).map(row => <option key={row.name} value={row.name}>{row.name}</option>)}</select></label>
         <button className="text-button" disabled={busy}>Queue sandbox run</button>
       </form>
     </>}

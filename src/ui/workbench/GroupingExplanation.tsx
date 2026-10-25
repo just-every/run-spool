@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import './live-copy.css';
 import { date } from './shared';
 
 function RecordedEvidence({ rows, empty }: { rows: any[]; empty: string }) {
@@ -21,7 +23,7 @@ export function GroupingExplanation({ explanation }: { explanation: any }) {
       <p>Event <code>{row.event}</code> · occurrence <code>{row.occurrence}</code></p>
       <p><code>{row.from}</code> → <code>{row.to}</code></p>
       <pre>{JSON.stringify(row.variant, null, 2)}</pre>
-    </li>)}</ol> : <p>No retained occurrences move. Rule changes affect later intake only.</p>}
+    </li>)}</ol> : <p>No events move. Rule changes apply to future events.</p>}
     <h4>Counterexamples inside the group</h4><Variants rows={explanation.counterexamples.inside} inside />
     <h4>Look-alike events outside the group</h4><Variants rows={explanation.counterexamples.outside} />
     <p>{explanation.trace}</p>
@@ -37,4 +39,37 @@ export function GroupingExplanation({ explanation }: { explanation: any }) {
     <RecordedEvidence rows={explanation.repair.observations} empty="No repair observations recorded." />
     <p>{explanation.behavior}</p>
   </div>;
+}
+
+/** The recorded grouping facts, shared by native and Sentry event dialogs. */
+export function GroupingFacts({ grouping, event }: { grouping: any; event: any }) {
+  const [copied, setCopied] = useState(false);
+  if (!grouping) return <p>No grouping information was recorded for this event.</p>;
+  const contributions = grouping.frames ?? grouping.stack ?? [];
+  const chosen = contributions.find((frame: any) => frame.contributes);
+  const frame = event.frames?.[chosen?.index] ?? event.stacktrace?.frames?.[chosen?.index];
+  const name = frame?.function ?? frame?.raw_function;
+  const type = event.type ?? event.exceptions?.[0]?.type;
+  const custom = grouping.variant === 'custom fingerprint';
+  const summary = !grouping.variant ? 'This is the grouping recorded when this event arrived.' : custom ? 'Grouped by a custom fingerprint.'
+    : grouping.variant === 'message' ? `Grouped by the message: ${grouping.message.template}`
+    : grouping.variant === 'exception value' ? `Grouped by ${type ?? 'the exception type'} and its message.`
+    : name ? `Grouped by ${type ?? 'the error'} in ${name}.`
+    : grouping.exceptions?.length ? 'Grouped by the related exceptions and their contributing frames.'
+    : 'Grouped by the exception type and contributing stack frames.';
+  const reason = (row: any) => row.contributes ? 'Used to group this event'
+    : row.hidden ? 'Hidden by the application'
+    : row.reason === 'later native frame' ? 'An earlier frame determines this group'
+    : row.inApp === false ? 'Library frame; excluded from this group'
+    : custom ? 'The custom fingerprint determines this group'
+    : 'Excluded by the grouping rules';
+  const frames = (rows: any[], source: any[]) => <ul>{rows.map((row: any) => <li key={row.index}>Frame {row.index + 1}{source[row.index]?.function ? ` · ${source[row.index].function}` : ''}: {reason(row)}{row.rules?.length ? ` · stack rule ${row.rules.join(', ')}` : ''}.</li>)}</ul>;
+  return <>
+    <p>{summary}</p>
+    {grouping.projectFingerprintRule != null && <p>Project fingerprint rule {grouping.projectFingerprintRule} matched.</p>}
+    {(grouping.revision ?? grouping.ruleRevision) != null && <p>Grouping policy revision {grouping.revision ?? grouping.ruleRevision}.</p>}
+    {!!contributions.length && frames(contributions, event.frames ?? event.stacktrace?.frames ?? [])}
+    {grouping.exceptions?.map((exception: any) => <div key={exception.index}><h3>{exception.type ?? 'Exception'}{exception.value ? `: ${exception.value}` : ''}</h3><p>{exception.valueContributes ? 'Its type and message determine the group; no frame contributes.' : custom ? 'The custom fingerprint determines the group.' : 'Its type and contributing frames determine the group; the message is excluded.'}</p>{frames(exception.frames ?? [], event.exceptions?.[exception.index]?.stacktrace?.frames ?? [])}</div>)}
+    {typeof grouping.fingerprint === 'string' && <p className="grouping-fingerprint"><strong>Fingerprint</strong> <code>{grouping.fingerprint}</code> <button className="text-button" onClick={() => void navigator.clipboard.writeText(grouping.fingerprint).then(() => setCopied(true))}>{copied ? 'Fingerprint copied' : 'Copy fingerprint'}</button></p>}
+  </>;
 }

@@ -80,12 +80,12 @@ try {
    assert.ok(await handle.evaluate(node => node.isConnected), 'equivalent focus refresh preserves the open iframe');
    // Returning from a missing route starts the issue search again. Let that
    // authenticated read render its action before revoking the session.
-   await page.getByRole('button', {name: 'Check for events', exact: true}).waitFor({state: 'visible'});
+   await page.getByRole('button', {name: 'Set up capture', exact: true}).waitFor({state: 'visible'});
    assert.equal((await app.call('/auth/signout', {}, {Cookie: signedIn})).status, 204);
    // Keep the floating editor open while exercising the host's keyboard action.
-   await page.getByRole('button', {name: 'Check for events', exact: true}).press('Enter');
+   await page.getByRole('button', {name: 'Set up capture', exact: true}).press('Enter');
    await page.waitForFunction(() => !document.querySelector('[data-rer-editor]'));
-   assert.equal(new URL(page.url()).pathname, '/projects/editor-scope/issues', 'native API auth loss removes the editor without a document reload');
+   assert.equal(new URL(page.url()).pathname, '/projects/editor-scope/capture', 'native API auth loss removes the editor without a document reload');
    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
    assert.equal((await app.call('/api/editor/config', undefined, {Cookie: signedIn})).status, 403, 'revoked native session loses config authority');
   } finally {await context.close();}

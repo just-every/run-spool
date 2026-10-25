@@ -19,7 +19,7 @@ export function CaptureView({ project, releases, issues, outcomes, busy, request
   const status = captureStatus(outcomes, issues);
   useEffect(() => { setEndpoint(location.origin); }, []);
   return <>
-    <section className="evidence capture-progress"><h2>{status.title}</h2><p>{status.detail}</p><button className="text-button" onClick={refresh}>Check for events</button>{issues[0] && <button className="primary-button" onClick={() => onIssue(issues[0].id)}>Open latest issue</button>}</section>
+    <section className="evidence capture-progress"><h2>{status.title}</h2><p role="status">{status.detail}</p>{issues[0] && <button className="primary-button" onClick={() => onIssue(issues[0].id)}>Open latest issue</button>}</section>
     <section className="evidence capture-accounting"><CaptureReceipts project={project} outcomes={outcomes} /></section>
     <section className="evidence"><h2>1. Choose a release</h2><label className="form-field">Registered release<select value={release?.name ?? ''} onChange={e => setReleaseName(e.target.value)}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><button className="text-button" onClick={onReleases}>{releases.length ? 'Manage releases and maps' : 'Register your first release'}</button></section>
     <BrowserOrigins key={project} project={project} busy={busy} request={request} run={run} />
@@ -28,7 +28,7 @@ export function CaptureView({ project, releases, issues, outcomes, busy, request
       <p className="muted">Use the ingest key shown when you created the project, or create one in <a className="inline-link" href={hrefFor(project, 'settings')}>Settings</a>. No bundler? Download <a className="inline-link" href="/errors-capture.js" download="errors-capture.js">the browser capture file</a> and call its <code>installBrowserCapture</code> with the same options.</p>
       <SentryIntake />
     </section>
-    <section className="evidence"><h2>4. Verify capture</h2><p>Trigger an error in your application, then check for events above. You can also send a local test from this browser to check the connection.</p><form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
+    <section className="evidence"><h2>4. Verify capture</h2><p>Trigger an error in your application; it will appear above. Or send a test from this browser.</p><form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
       if (!release) throw new Error('Register a release first.');
       let exception: Error;
       try { const account: any = {}; account.address.city; throw new Error('Unexpected capture result'); } catch (error) { exception = error as Error; }

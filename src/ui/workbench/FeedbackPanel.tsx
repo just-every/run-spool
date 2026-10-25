@@ -1,5 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Link} from '@tanstack/react-router';
+import {useLiveRead} from './useLiveRead';
+import {Details} from './Details';
 import {date, type Request, type Run} from './shared';
 import {hrefFor} from './location';
 import './feedback.css';
@@ -23,12 +25,19 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
   } catch(error) {setFailure((error as Error).message)}
   finally {setLoading(false)}
  },[root,query,request]);
- useEffect(()=>{
-  let active=true;
-  setPage(null);setFailure('');setNotice('');setConfirm(null);setLoading(true);
-  request(root+query).then(result=>{if(active)setPage(result)}).catch(error=>{if(active)setFailure(error.message)}).finally(()=>{if(active)setLoading(false)});
-  return()=>{active=false};
- },[root,query,request]);
+ useEffect(()=>{setPage(null);setFailure('');setNotice('');setConfirm(null)},[root,query]);
+ useLiveRead(async(signal,background)=>{
+  if(!background)setLoading(true);
+  try {
+   let result:FeedbackPage=await request(root+query);
+   while(result.next&&result.items.length<(page?.items.length??0)) {
+    const more:FeedbackPage=await request(root+query+`${query?'&':'?'}cursor=${encodeURIComponent(result.next)}`);
+    result={...more,items:[...result.items,...more.items]};
+   }
+   if(!signal.aborted){setPage(result);setFailure('')}
+  }catch(error){if(!signal.aborted)setFailure((error as Error).message)}
+  finally{if(!signal.aborted)setLoading(false)}
+ },[root,query,request],{live:!!issue});
  const withdraw=(id:string)=>void run(async()=>{
   try {
    await request(`${root}/${encodeURIComponent(id)}`,'DELETE');
@@ -38,8 +47,8 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
   } catch(error) {setFailure((error as Error).message)}
  });
  return <section className="evidence feedback-panel" aria-label={issue?'Issue feedback':'Project feedback inbox'}>
-  <div className="feedback-heading"><h2>{issue?'User feedback':'Feedback inbox'}</h2><button className="text-button" disabled={busy||loading} onClick={()=>void load()}>Refresh feedback</button></div>
-  <p>{issue?'Reports linked to retained occurrences in this issue.':'All text reports received for this project, including reports sent without an event.'} Contact details and attachments are not retained.</p>
+  <div className="feedback-heading"><h2>{issue?'User feedback':'Feedback inbox'}</h2>{!issue&&<button className="text-button" disabled={busy||loading} onClick={()=>void load()}>Refresh feedback</button>}</div>
+  {issue?<Details title="User feedback"><p>Reports linked to events in this issue. Contact details and attachments are excluded.</p></Details>:<p>All text reports received for this project, including reports sent without an event. Contact details and attachments are not retained.</p>}
   {!issue&&<p className="muted">Use your application’s consent form before sending feedback through Sentry’s captureFeedback or feedback widget. Spool currently receives text only; replies and screenshot review are unavailable.</p>}
   {!issue&&page&&<p className="muted">Current limits: {page.bounds.messageCharacters.toLocaleString()} characters per report, {page.bounds.perMinute} reports per minute and {page.bounds.retained.toLocaleString()} retained reports per project. Larger or excess submissions are refused with a reason.</p>}
   {failure&&<div role="alert"><p>Feedback could not be loaded: {failure}</p><button className="text-button" disabled={loading} onClick={()=>void load()}>Retry feedback</button></div>}

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Details } from './Details';
-import { Field, type Request, type Run } from './shared';
+import { useLiveRead } from './useLiveRead';
+import { date, Field, type Request, type Run } from './shared';
 
 export type CorrectionPreview = {
   id: string;
@@ -58,24 +59,17 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const issue = packet.issue;
   const root = `/api/projects/${encodeURIComponent(project)}`;
 
-  useEffect(() => {
-    let alive = true;
-    setState(null);
-    setPreview(null);
-    setSelected([]);
-    setFailure('');
-    (initial ?? Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]))
-      .then(([operatorState, corrections]) => {
-        if (alive) {
-          setState(operatorState);
-          setHistory(corrections);
-          setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
-          setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
-        }
-      })
-      .catch(error => { if (alive) setFailure(error.message); });
-    return () => { alive = false; };
-  }, [root, issue.id, issue.revision, request, initial]);
+  const labelEdited = useRef(false);
+  useEffect(() => { labelEdited.current = false; setState(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
+  useLiveRead(async (signal, background) => {
+    try {
+      const [operatorState, corrections] = await (!background && initial ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
+      if (signal.aborted) return;
+      setState(operatorState); setHistory(corrections); setFailure('');
+      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
+      if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
+    } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
+  }, [root, issue.id, request, initial], { live: !initial });
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;
@@ -97,6 +91,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     return run(async () => {
       await request(`${root}/corrections/${previewId}/apply`, 'POST', { confirm: true });
       setPreview(null);
+      setSelected([]);
       refresh();
     });
   };
@@ -115,14 +110,16 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       event.preventDefault();
       void run(async () => {
         await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        labelEdited.current = false;
         setState(null);
         refresh();
       });
     }}>
-      <Field label="Assigned operator label" disabled={busy || !state} maxLength={80} value={label} onChange={event => setLabel(event.target.value)} />
+      <Field label="Assigned to" disabled={busy || !state} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
       <button className="primary-button" disabled={busy || !state}>Save assignment</button>
       <button type="button" className="text-button" disabled={busy || !state} onClick={() => void run(async () => {
         await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
+        labelEdited.current = false;
         setState(null);
         refresh();
       })}>Unassign</button>
@@ -131,7 +128,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
 
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
-        <p>Corrections move only the reviewed retained occurrences. Future capture uses the original algorithm. Retries stay with the current issue. Imported history is excluded. New previews replace the project's earlier unapplied preview.</p>
+        <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>
           {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
@@ -179,8 +176,22 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       </Details>
 
       <Details title="Operator audit" triggerLabel="Operator audit">
-        <pre>{JSON.stringify(state?.audit ?? [], null, 2)}</pre>
+        {state ? <OperatorAudit rows={state.audit} issue={issue} /> : <p role="status">Loading changes…</p>}
       </Details>
     </div>
   </section>;
+}
+
+function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {
+  if (!rows.length) return <p>No changes yet</p>;
+  return <ul>{rows.map(row => {
+    const detail = typeof row.detail === 'string' ? JSON.parse(row.detail) : row.detail;
+    const related = detail.issue === issue.id ? issue.short_id ?? 'this issue' : 'another issue';
+    const label = row.kind === 'issue_assigned' ? detail.label ? `Assigned ${related} to ${detail.label}` : `Unassigned ${related}`
+      : row.kind === 'suppression_changed' ? `${detail.enabled ? 'Enabled' : 'Disabled'} suppression: ${detail.field === 'fingerprint' ? 'fingerprint' : detail.field === 'release' ? 'release' : 'message'} ${detail.mode === 'exact' ? 'matches' : 'contains'} “${detail.value}”`
+      : row.kind === 'grouping_applied' ? 'Applied a grouping correction'
+      : row.kind === 'grouping_undone' ? 'Undid a grouping correction'
+      : `Recorded deployment of ${detail.release} in ${detail.environment}`;
+    return <li key={row.id}>{label} · {date(row.created)}</li>;
+  })}</ul>;
 }

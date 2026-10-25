@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.goto(`${origin}/projects/${project}/issues/${issue}`);
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();
- await page.getByLabel('Assigned operator label',{exact:true}).fill('Browser operator');
+ await page.getByLabel('Assigned to',{exact:true}).fill('Browser operator');
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});
@@ -23,7 +23,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await Promise.all([page.waitForResponse(r=>/\/corrections\/[^/]+\/apply$/.test(r.url())&&r.status()===200),page.getByRole('button',{name:'Apply reviewed correction',exact:true}).click()]);
  const after=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.equal(after.issue.count,before.issue.count-1);
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();await capture('operator-applied');
- await page.getByRole('button',{name:'Details: Correct grouping',exact:true}).click();
+ assert.equal(await page.getByRole('dialog',{name:'Correct grouping',exact:true}).isVisible(),true,'Applying a correction keeps its review dialog open');
  await page.getByRole('button',{name:'Details: split · applied',exact:true}).click();
  await Promise.all([page.waitForResponse(r=>/\/corrections\/[^/]+\/undo$/.test(r.url())&&r.status()===200),page.getByRole('button',{name:'Undo this correction',exact:true}).click()]);
  const undone=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.equal(undone.issue.count,before.issue.count);await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();await capture('operator-undone');
