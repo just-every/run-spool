@@ -8409,7 +8409,7 @@
       "executable": false
     },
     "tests/alerts/baseline-ui.mjs": {
-      "sha256": "5ce0f5a6439112dfc2706e0daea68b21bc3e5945eaded27d1bd0d892830a3617",
+      "sha256": "e09fae59e0a8931fd5e905fbea30c0b50b4530c9ba724754f03ba380fcae2998",
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {

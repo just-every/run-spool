@@ -14,7 +14,11 @@ export async function baselineUI(browser){
     await context.addCookies(app.cookie.split('; ').map(cookie=>{const at=cookie.indexOf('=');return {name:cookie.slice(0,at),value:cookie.slice(at+1),url:app.origin}}));
     const page=await context.newPage();
     for(const name of ['normal','burst']){
-     const project='synthetic-spool-34-'+name,rows=await app.json(`/api/projects/${project}/alerting/decisions`),target=rows.find(row=>JSON.parse(row.reason).count===(name==='normal'?2:6)),reason=JSON.parse(target.reason);
+     const project='synthetic-spool-34-'+name,issues=await app.json(`/api/projects/${project}/issues`);
+     const issue=issues.find(row=>row.title.includes('Synthetic baseline target'));assert.ok(issue,'the baseline screen uses its publicly captured target issue');
+     const rows=await app.json(`/api/projects/${project}/alerting/decisions`),target=rows.find(row=>row.issue===issue.id&&JSON.parse(row.reason).count===(name==='normal'?2:6));
+     assert.ok(target,'the target issue has its completed-window decision');const reason=JSON.parse(target.reason);
+     assert.equal(reason.fired,name==='burst','normal target is withheld and burst target fires');
      await page.goto(`${app.origin}/projects/${project}/alerts`);
      await page.getByRole('button',{name:'Rules',exact:true}).click();
      const recorded=page.locator('details').filter({has:page.locator('summary').filter({hasText:/^Recorded window decisions/})});
