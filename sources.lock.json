@@ -8489,7 +8489,7 @@
       "executable": false
     },
     "tests/checkin-flow.mjs": {
-      "sha256": "e7db74d3cc9fa7431407166430ea18454503341e822c6a852eb916e1bc7fe9f0",
+      "sha256": "8a58e0e044472c5178dbb07d45651979e5f60313f5a9562d4534437d4529b01b",
       "executable": false
     },
     "tests/client-report-flow.mjs": {
