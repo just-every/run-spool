@@ -111,8 +111,8 @@ span.frame-function{font-family:var(--font-text)}
 @media(max-width:900px){.issue-filters{grid-template-columns:1fr 1fr}.issue-filters>:first-child{grid-column:1/-1}}
 @media(max-width:760px){
  .evidence h2{font-size:26px}
- /* Inline masks clip wrapped glyphs; keep the empty-state ink above the flat marker. */
- .empty-state .mark{-webkit-mask:none;mask:none}
+ /* Keep wrapped glyphs clear of the next marker stroke and inline masks. */
+ .empty-state .mark{line-height:1.4;-webkit-mask:none;mask:none}
  .issue{padding:16px}
  .issue-summary{grid-template-columns:minmax(0,1fr) auto;gap:16px}
  .issue-summary{margin-bottom:14px;padding-bottom:14px}
