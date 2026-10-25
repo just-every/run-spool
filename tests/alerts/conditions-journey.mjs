@@ -4,7 +4,7 @@ const base='/api/projects/web/alerting';
 const config=(metric,filters={})=>({metric,filters,tagKeys:['tenant']});
 export async function conditionsJourney(app,fixture){
  const width=60000,start=Math.floor(Date.now()/width)*width,end=start+width,dsn=new URL(fixture.dsn);
- const send=async(type,value)=>{const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
+ const send=async(type,value)=>{const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
  const error=async(id,{user,environment='rules',release='r1',level='error',tenant='approved',group='rules',sample=1}={})=>{
   const event_id=id.toString(16).padStart(32,'0');await send('event',{event_id,...release?{release}:{},environment,level,tags:{tenant},sdk:{name:'synthetic-spool',version:'1',sample_rate:sample},...user?{user:{id:user}}:{},exception:{values:[{type:'Error',value:'Synthetic alert conditions',stacktrace:{frames:[{filename:`https://synthetic-spool.test/${group}.js`,function:group,lineno:1,colno:1}]}}]}});
   return (await app.db.prepare('SELECT issue FROM events WHERE project=? AND id=?').bind('web',event_id).first()).issue;

@@ -14,7 +14,7 @@ async function scenario(app,name,start){
  assert.equal(tested.state,'passing','the baseline destination passes its public test');
  await app.json(`${base}/destinations/${destination.id}/review`,'POST',{testId:tested.id});
  const dsn=new URL(created.dsn),headers={Authorization:`Bearer ${created.ingestKey}`};
- const sentryPath=`/api${dsn.pathname}/envelope/?sentry_key=${encodeURIComponent(dsn.username)}`;
+ const sentryPath=`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`;
  let serial=0,issue;
  async function receipt(id,time){
   const result=await app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(time+100,project,id).run();
