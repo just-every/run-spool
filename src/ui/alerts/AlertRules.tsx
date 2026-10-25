@@ -105,7 +105,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>
   <form className="form-grid" onSubmit={e => { e.preventDefault(); const action = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value'); void (action === 'preview' ? sample() : save()); }}>
    <Field label="Rule name" required maxLength={100} value={name} disabled={!!busy} onChange={e => change({ name: e.target.value })}/>
-   <label className="form-field">Destination<select required value={destination} disabled={!!busy} onChange={e => change({ destination: e.target.value })}>
+   <label className="form-field">Destination<select aria-label="Destination" required value={destination} disabled={!!busy} onChange={e => change({ destination: e.target.value })}>
     <option value="">Choose destination</option>
     {editing && !selected && destination && <option value={destination}>Previously selected destination · unavailable</option>}
     {destinations.map(d => <option key={d.id} value={d.id}>{d.label} · {d.kind === 'slack' ? 'Slack' : d.channel === 'mail' ? 'Email' : 'Webhook'}{d.configured ? '' : ' · blocked'}</option>)}
@@ -114,7 +114,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
     <input type="checkbox" checked={kinds.includes(kind)} disabled={!!busy} onChange={e => change({ kinds: e.target.checked ? [...kinds, kind] : kinds.filter(k => k !== kind) })}/>{label}
    </label>)}</fieldset>
    {spike && <>
-    <label className="form-field">Spike metric<select value={metric} disabled={!!busy} onChange={e => change({ metric: e.target.value as Metric, threshold: e.target.value === 'session_percent' ? Math.min(threshold, 100) : threshold })}>
+    <label className="form-field">Spike metric<select aria-label="Spike metric" value={metric} disabled={!!busy} onChange={e => change({ metric: e.target.value as Metric, threshold: e.target.value === 'session_percent' ? Math.min(threshold, 100) : threshold })}>
      {Object.entries(metrics).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
     </select></label>
     <Field label="Complete window (minutes)" type="number" required min={1} max={1440} value={windowMinutes} disabled={!!busy} onChange={e => change({ windowMinutes: Number(e.target.value) })}/>
@@ -126,10 +126,10 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    </>}
    <details className="form-more"><summary>Filters{filterLabels.length ? ` (${filterLabels.length})` : ''}</summary><div className="form-grid">
     <Field label="Environment" maxLength={100} value={environment} disabled={!!busy} placeholder="Any environment" onChange={e => change({ environment: e.target.value })}/>
-    <label className="form-field">Severity<select value={level} disabled={!!busy} onChange={e => change({ level: e.target.value })}>
+    <label className="form-field">Severity<select aria-label="Severity" value={level} disabled={!!busy} onChange={e => change({ level: e.target.value })}>
      <option value="">Any severity</option>{['debug', 'info', 'warning', 'error', 'fatal', 'log'].map(value => <option key={value} value={value}>{status(value)}</option>)}
     </select></label>
-    <label className="form-field">Release filter<select value={releaseMode} disabled={!!busy} onChange={e => change({ releaseMode: e.target.value as Draft['releaseMode'] })}>
+    <label className="form-field">Release filter<select aria-label="Release filter" value={releaseMode} disabled={!!busy} onChange={e => change({ releaseMode: e.target.value as Draft['releaseMode'] })}>
      <option value="any">Any release</option><option value="none">No release</option><option value="named">Specific release</option>
     </select></label>
     {releaseMode === 'named' && <Field label="Release name" required value={release} disabled={!!busy} onChange={e => change({ release: e.target.value })}/>}
