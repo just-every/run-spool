@@ -91,7 +91,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   {!destinations.length && <p className="callout">Add an email destination above before creating a rule.</p>}
   <ul className="alert-records">{rules.map(rule => <li key={rule.id}><div>
    <strong>{rule.name}</strong><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}</p>
-   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">Test the destination before enabling this rule.</p>}
+   {!rule.enabled && needsTest(destinations.find(d => d.id === rule.destination)) && <p className="callout">This destination needs a passing test and your review before this rule can be enabled.</p>}
    <Details title={`Rule ${rule.name}`}><p>{ruleSummary(rule,destinations.find(destination=>destination.id===rule.destination))}.</p></Details>
   </div><button className="text-button" disabled={!!busy} onClick={() => edit(rule)}>Edit {rule.name}</button></li>)}</ul>
   <RuleDecisions project={project} rules={rules}/><h3>{editing ? 'Edit rule' : 'Create rule'}</h3>

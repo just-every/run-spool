@@ -2905,7 +2905,7 @@
       "executable": false
     },
     "docs/ALERT-RULES.md": {
-      "sha256": "1029509f41b057015e0e37511abe52d33526124aa58a7b9b0cfa2731d30c406a",
+      "sha256": "c44dc8b3cac889b85d41193bc689078656a1ceba3591bb0b2b6f03b31bb35eba",
       "executable": false
     },
     "docs/ALERT-WEBHOOKS.md": {
@@ -3269,7 +3269,7 @@
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-1440.png": {
-      "sha256": "abb7ec9bc195ab3105e1901f87cc229f265268b4edddea4a80f76cd96b8aba70",
+      "sha256": "f6dc776cab41d93a7e8ce58129d3c06b1a685354a2fec954290bca2bc7c000b9",
       "executable": false
     },
     "docs/retained-verification/alert003/deliveries-empty-390.png": {
@@ -3277,7 +3277,7 @@
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-empty-1440.png": {
-      "sha256": "78f61c60072bdc510584c6c5ab1b6435e0f4f761dcf1e67c751542d8eba09bc1",
+      "sha256": "2906f1438aa1de9d94f014d263754bdf96dbddbbe1c836610ea49f4d001167f0",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-empty-390.png": {
@@ -3285,7 +3285,7 @@
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-initial-1440.png": {
-      "sha256": "578653c813e94ccacdff55081123928b2ab429a03cbfb2a37ed17f96656442d9",
+      "sha256": "6b39bee3d54fed6ff2df289b98cdd599885f1d6d2af0c65b7adc6340d277dc52",
       "executable": false
     },
     "docs/retained-verification/alert003/destinations-initial-390.png": {
@@ -3325,7 +3325,7 @@
       "executable": false
     },
     "docs/retained-verification/alert003/passing-1440.png": {
-      "sha256": "f526776e8a6ccb1d49523db8e58d0bce739afba7c4c2e2e4e2a9afa975b8db42",
+      "sha256": "16c80bc86051676acca81d47c26ab587eb6c06e8d7c28ede0dacb05aec12dc2d",
       "executable": false
     },
     "docs/retained-verification/alert003/passing-390.png": {
@@ -7889,7 +7889,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "67deb6955f229c64eadff31cea8ece798cab94ae8164f5b7ffba94526b881583",
+      "sha256": "b4916578540a69e1f033546a3ce172f5e0fe65174a4a4fb634c70a51a4e4c16f",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
