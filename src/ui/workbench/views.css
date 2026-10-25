@@ -14,7 +14,7 @@
 .operator-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin:16px 0}
 .operator-controls>.details-trigger{margin:0}
 div.data-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:12px 0;border-bottom:var(--hairline-border)}
-.data-row code{overflow-wrap:anywhere}
+.evidence code{overflow-wrap:anywhere}
 div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.6fr) auto}
 .evidence>:is(button,a)+:is(button,a){margin-left:24px}
 .field-error{font-size:14px;font-weight:600}
