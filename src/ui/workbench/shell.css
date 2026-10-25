@@ -3,7 +3,7 @@
 /* The workbench keeps the slab, highlighter and ink but sits on a lighter, near-neutral ground with hairline
    cards and 1px controls; the landing, docs, setup and sign-in pages keep the theme's paper and 1.5px rules.
    Set on the root so the page canvas and modal dialogs take it too. Fields stay at least 3:1 on their ground. */
-:root:has(.workbench-shell){--paper:#F5F4EF;--paper-raised:#FBFAF7;--paper-sunk:#EBEAE4;--card-border:1px solid var(--hairline);--control-stroke:1px;--field-line:rgb(28 28 27 / .55)}
+:root:has(.workbench-shell){--font-floor:var(--font-small);--paper:#F5F4EF;--paper-raised:#FBFAF7;--paper-sunk:#EBEAE4;--card-border:1px solid var(--hairline);--control-stroke:1px;--field-line:rgb(28 28 27 / .55)}
 .workbench-shell{--sidebar:280px;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh;background:linear-gradient(var(--ink),var(--ink)) calc(var(--sidebar) - 1.5px) 0/1.5px 100% no-repeat}
 
 .sidebar{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:24px;height:100vh;overflow-y:auto;padding:32px 24px 28px 32px}
@@ -18,7 +18,7 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 .navigation a{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 -12px;padding:6px 12px;font:500 17px/1.3 var(--font-text);color:var(--ink);text-decoration:none;border-radius:3px}
 .navigation a:hover{text-decoration:underline;text-underline-offset:4px}
 .navigation a[aria-current=page]{font-weight:600}
-.unseen-count{margin-left:auto;padding:1px 9px;border-radius:var(--radius-pill);background:var(--paper-sunk);font:500 12px/1.6 var(--font-text);white-space:nowrap}
+.unseen-count{margin-left:auto;padding:1px 9px;border-radius:var(--radius-pill);background:var(--paper-sunk);font:500 var(--font-small)/1.6 var(--font-text);white-space:nowrap}
 .navigation a[aria-current=page] .unseen-count{background:var(--paper-raised)}
 .team{margin-top:auto;font-size:13px}
 .team .text-button{font-size:15px}
@@ -60,7 +60,7 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
  .brand .wordmark{font-size:32px}
  html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:32px}
  .brand-tagline{display:none}
- .menu-button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;border:0;background:none;font:500 17px var(--font-text);cursor:pointer}
+ .menu-button{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;min-width:0;align-items:center;gap:0 8px;min-height:44px;padding:0 4px;border:0;background:none;font:500 17px var(--font-text);cursor:pointer}
  .menu-button[aria-expanded=true]{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
  .project-picker{flex-direction:row;align-items:center;gap:14px}
  .project-picker select{flex:1;min-height:40px;max-width:320px;padding-block:6px}
@@ -76,3 +76,5 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
  .login .wordmark{margin-bottom:40px}
  .login-panel{padding:28px 20px}
 }
+
+@media(max-width:380px){.sidebar-brand{flex-wrap:wrap}.menu-button{margin-left:auto}}

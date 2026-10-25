@@ -1,19 +1,19 @@
 .execution .reproducer,.execution .fix{border-top:1px solid #e2dfd5;padding:16px 0 4px;margin-top:16px}
-.execution h3{font-size:13px;margin:0 0 6px;overflow-wrap:anywhere}
+.execution h3{font-size:var(--font-small);margin:0 0 6px;overflow-wrap:anywhere}
 .execution .execution-subtitle{font-size:14px;margin:24px 0 6px}
-.execution .execution-meta{font-size:11px;color:var(--spool-muted)}
+.execution .execution-meta{font-size:var(--font-small);color:var(--spool-muted)}
 .execution p,.execution li,.execution dd{overflow-wrap:anywhere}
-.execution textarea{font:12px/1.5 var(--spool-mono, monospace);width:100%;box-sizing:border-box}
+.execution textarea{font:var(--font-small)/1.5 var(--spool-mono, monospace);width:100%;box-sizing:border-box}
 .execution .execution-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
-.execution .execution-facts dt{color:var(--spool-muted);font-size:11px;margin-bottom:4px}
-.execution .execution-facts dd{margin:0;font-size:12px}
+.execution .execution-facts dt{color:var(--spool-muted);font-size:var(--font-small);margin-bottom:4px}
+.execution .execution-facts dd{margin:0;font-size:var(--font-small)}
 .execution .run{margin:10px 0}
 .execution .run.reproduced{border-left:3px solid #a13719}
 .execution .run.failed,.execution .run.expired{border-left:3px solid #6d6a60}
-.execution .run-checks,.execution .grant,.execution .receipts,.execution .verdict ul{font-size:12px;line-height:1.6;padding-left:18px;margin:8px 0}
-.execution .run-ticket code{display:block;margin:8px 0;overflow-wrap:anywhere;font-size:12px}
-.execution pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;margin:4px 0}
-.execution .fix-status{font-size:12px;margin:0 0 8px}
+.execution .run-checks,.execution .grant,.execution .receipts,.execution .verdict ul{font-size:var(--font-small);line-height:1.6;padding-left:18px;margin:8px 0}
+.execution .run-ticket code{display:block;margin:8px 0;overflow-wrap:anywhere;font-size:var(--font-small)}
+.execution pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--font-small);margin:4px 0}
+.execution .fix-status{font-size:var(--font-small);margin:0 0 8px}
 .execution .fix-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .execution .verdict.recurred{border-left:3px solid #a13719}
 .execution a:focus-visible{outline:2px solid #a7471e;outline-offset:3px}
