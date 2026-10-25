@@ -33,7 +33,7 @@ export default {
   };
   // SDK-003: server rules scrub real default SDK locals before they reach owner evidence.
   const scrubProject=await create('rt-python-scrubbing'),scrubRoot='/api/projects/'+scrubProject.id+'/scrubbing';
-  const scrubPolicy={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-python-local',selector:'$frame.vars.order_note',pattern:'regex',regex:'synthetic-spool',method:'mask'}]};
+  const scrubPolicy={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-python-local',selector:'$frame.vars.order_note',pattern:'regex',regex:'synthetic-spool',method:'mask'},{id:'synthetic-spool-python-source',selector:'$frame.context',pattern:'regex',regex:'synthetic-spool-note',method:'mask'}]};
   const scrubPreview=await app.json(scrubRoot+'/preview','POST',{policy:scrubPolicy});assert.ok(scrubPreview.token);assert.equal(scrubPreview.refusal,null);
   await app.json(scrubRoot,'PUT',{revision:scrubPreview.revision,policy:scrubPolicy,token:scrubPreview.token});
   const [scrubbed]=await send(scrubProject,'app.py',{mode:'handled'});
