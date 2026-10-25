@@ -1,3 +1,4 @@
+import {scrubbingFlow} from './scrubbing-flow.mjs';
 import {identityFlow} from './identity-flow.mjs';
 import {sessionFlow} from './session-flow.mjs';
 import { loaderPage } from './loader-page.mjs';
@@ -101,5 +102,6 @@ try{
   await checkInFlow({browser});
   await sessionFlow({origin,cookie,browser});
   await identityFlow({origin,cookie,browser});
+  await scrubbingFlow({browser,origin,cookie,request,temporary,require});
   console.log(JSON.stringify({passed:true,browser:require('@sentry/browser/package.json').version,node:require('@sentry/node/package.json').version,proof:'Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush.'}));
 }finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY;await browser?.close();await close(application);await close(collector);await worker?.stop();await rm(temporary,{recursive:true,force:true})}

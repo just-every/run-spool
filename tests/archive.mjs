@@ -24,7 +24,7 @@ export function nativeArchive(data,version=2) {
  rows.artifacts=rows.artifacts.map(({occurrence,...row})=>row);
  rows.issues=rows.issues.map(({latest_release_seq,...row})=>row);
  rows.alerts=rows.alerts.filter(row=>row.kind!=='spike').map(({payload,...row})=>row);
- rows.audit=rows.audit.filter(row=>!['issues_reviewed','retention_policy_changed','retention_hold_changed','identity_policy_changed','suspect_judged','release_policy_changed','grouping_rules_changed','feedback_withdrawn','inbound_filters_changed','grouping_applied','grouping_undone','issue_assigned','suppression_changed','deployment_registered'].includes(row.kind)&&!row.kind.startsWith('alert_')&&!row.kind.startsWith('repair_')&&!row.kind.startsWith('reproducer_')&&!row.kind.startsWith('fix_'));
+ rows.audit=rows.audit.filter(row=>!['scrubbing_policy_changed','issues_reviewed','retention_policy_changed','retention_hold_changed','identity_policy_changed','suspect_judged','release_policy_changed','grouping_rules_changed','feedback_withdrawn','inbound_filters_changed','grouping_applied','grouping_undone','issue_assigned','suppression_changed','deployment_registered'].includes(row.kind)&&!row.kind.startsWith('alert_')&&!row.kind.startsWith('repair_')&&!row.kind.startsWith('reproducer_')&&!row.kind.startsWith('fix_'));
  if(version===1)delete rows.browser_origins;
  const value={version,migration:version===1?'0001_errors':'0003_browser_origins',data:rows};
  return {...value,checksum:createHash('sha256').update(canonical(value)).digest('hex')};

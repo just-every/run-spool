@@ -1,3 +1,4 @@
+import {projectScrubbingRoutes,installationScrubbingRoutes} from './scrubbing/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
@@ -157,6 +158,8 @@ api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
 api.route('/api/projects/:project/review',reviewRoutes);
 api.route('/api/projects/:project/retention-policy',retentionPolicyRoutes);
 api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
+api.route('/api/projects/:project/scrubbing',projectScrubbingRoutes);
+api.route('/api/scrubbing',installationScrubbingRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/suspects',suspectRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);

@@ -209,7 +209,9 @@ jobs:
           - shard: alerts
             command: pnpm test:alerts && pnpm test:alerts-ui
           - shard: sdk
-            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+            command: pnpm test:sentry && pnpm test:sentry:sdk
+          - shard: sdk-compatibility
+            command: pnpm test:sdk && pnpm test:languages
           - shard: sentry-cli
             command: pnpm test:sentry:cli
           - shard: tunnel

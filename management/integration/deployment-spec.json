@@ -438,6 +438,12 @@
       "name": "0077_alert_conditions.sql",
       "sha256": "b34b04d95578a711673618dacffedc3f137b1f9ac7871d806746dfa2c9e4f8c3",
       "sql": "CREATE TABLE alert_rule_configs(rule_id TEXT PRIMARY KEY,project TEXT NOT NULL,revision INTEGER NOT NULL,config TEXT NOT NULL);\nCREATE TABLE alert_rule_previews(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT,digest TEXT NOT NULL,policy_revision INTEGER NOT NULL,created INTEGER NOT NULL);\nCREATE INDEX alert_rule_previews_project ON alert_rule_previews(project,created);\nCREATE TABLE alert_decisions(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT NOT NULL,revision INTEGER NOT NULL,issue TEXT NOT NULL,start INTEGER NOT NULL,end INTEGER NOT NULL,fired INTEGER NOT NULL,reason TEXT NOT NULL,UNIQUE(rule_id,revision,issue,start));\nCREATE INDEX alert_decisions_project ON alert_decisions(project,end);\nCREATE TABLE alert_reactivation_markers(project TEXT NOT NULL,issue TEXT NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(project,issue));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0078_scrubbing_rules.sql",
+      "sha256": "898f094c9732763ae030e994014ae2a66e017d5beee7f4d4ecd7f59fd2ca3203",
+      "sql": "CREATE TABLE scrubbing_policies (id TEXT PRIMARY KEY, project TEXT, revision INTEGER NOT NULL CHECK(revision>0), policy TEXT NOT NULL, updated INTEGER NOT NULL);\nCREATE UNIQUE INDEX scrubbing_project_policy ON scrubbing_policies(project) WHERE project IS NOT NULL;\nCREATE TABLE scrubbing_previews (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, installation_revision INTEGER NOT NULL, digest TEXT NOT NULL, created INTEGER NOT NULL);\nCREATE TABLE scrubbing_changes (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, detail TEXT NOT NULL, created INTEGER NOT NULL);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

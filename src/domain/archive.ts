@@ -1,3 +1,4 @@
+import {scrubbingTables,scrubbingDefaults,validateScrubbingArchive} from './scrubbing/archive';
 import {reviewTables,validateReviewArchive} from './review/model';
 import {retentionTables,validateRetentionArchive} from './retention-policy';
 import { sourceMapBuildTables, validateSourceMapBuilds } from './source-map-builds';
@@ -35,7 +36,7 @@ export const tables:Record<string,string[]>= {
   issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq'],
   events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received','occurrence','historical'],
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
-  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables,...scrubbingTables
 };
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
@@ -82,6 +83,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   data=sessionDefaults(data);
   data={review_stamps:[],review_views:[],retention_policies:[],...identityDefaults(data)};
   data=sentryCliDefaults(commitDefaults(shortIdDefaults(proposalDefaults(deploymentDefaults(releaseDefaults(groupingDefaults(inboundFilterDefaults(feedbackDefaults(data)))))))));
+  data=scrubbingDefaults(data);
   const v={data};
   if(Object.keys(data).sort().join()!==Object.keys(tables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(tables)) {
@@ -107,7 +109,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   for(const row of v.data.outcomes)if((!isClientReportOutcome(row.reason)&&!['accepted','filtered',...releaseOutcomes,...feedbackOutcomes,...checkInOutcomes,...sessionOutcomes,...inboundFilteredReasons,'duplicate','conflict','unauthorized','invalid','invalid_item','unsupported_content_encoding','oversized','rejected','rate_limited','budget','storage_failure','unregistered_release_or_build','missing_release_register_required','sentry_unsupported_session','sentry_unsupported_performance','sentry_unsupported_attachment','sentry_unsupported_client_report','sentry_unsupported_replay','sentry_unsupported_profile','sentry_unsupported_feedback','sentry_unsupported_check_in','sentry_unsupported_other_telemetry','sentry_unsupported_unknown','sentry_trimmed_frames','sentry_trimmed_values',...EXPOSURE_LOSS].includes(row.reason))||!Number.isSafeInteger(row.count)||row.count<0||!Number.isSafeInteger(row.window))throw new Error('Archive loss accounting');
   for(const row of v.data.alerts)if(!['new_issue','regression'].includes(row.kind)||!Number.isSafeInteger(row.created))throw new Error('Archive alert');
   const kinds:Record<string,string[]>={issues_reviewed:['count'],retention_policy_changed:['revision','windowsDigest'],retention_hold_changed:['revision','held','reason'],identity_policy_changed:['revision','policyDigest','converted'],suspect_judged:['issue','release','sha','judgment','revision'],feedback_withdrawn:['count'],project_created:['id'],release_registered:['name','build','seq'],key_created:['hash','kind'],key_revoked:['hash'],triage:['issue','state','revision'],artifact_uploaded:['release','build','debug','digest'],retention_gap:['cutoff','removed','dedupHorizon'],...commitAuditKinds,...legacy?{}:{browser_origin_added:['origin'],browser_origin_removed:['origin']}};
-  for(const row of v.data.audit.filter((r:any)=>!operatorAuditKinds.includes(r.kind)&&!inboundAuditKinds.includes(r.kind)&&r.kind!=='grouping_rules_changed'&&r.kind!=='release_policy_changed')){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const [field,value] of Object.entries(detail)){if(field==='origin'&&row.kind.startsWith('browser_origin_')){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin audit project');browserOrigin(value);}else if(row.kind==='artifact_uploaded'&&field==='debug'){identity(value,'debug ID');}else if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
+  for(const row of v.data.audit.filter((r:any)=>!operatorAuditKinds.includes(r.kind)&&!inboundAuditKinds.includes(r.kind)&&r.kind!=='grouping_rules_changed'&&r.kind!=='release_policy_changed'&&r.kind!=='scrubbing_policy_changed')){if(!kinds[row.kind]||!Number.isSafeInteger(row.created))throw new Error('Archive audit kind');const detail=JSON.parse(row.detail);shape(detail,kinds[row.kind]);for(const [field,value] of Object.entries(detail)){if(field==='origin'&&row.kind.startsWith('browser_origin_')){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin audit project');browserOrigin(value);}else if(row.kind==='artifact_uploaded'&&field==='debug'){identity(value,'debug ID');}else if(typeof value==='string')safeText(value);else if(typeof value!=='number'||!Number.isSafeInteger(value))throw new Error('Archive audit value');}}
   const originIdentities=new Set<string>();
   if(!legacy)for(const row of v.data.browser_origins){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin project');browserOrigin(row.origin);const key=row.project+'\n'+row.origin;if(originIdentities.has(key))throw new Error('Archive duplicate origin');originIdentities.add(key);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive origin timestamp');}
   for(const project of projects){if(v.data.events.filter((r:any)=>r.project===project).length>10000)throw new Error('Archive event budget');if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');}
@@ -117,6 +119,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   validateSuspectArchive(v.data);
   validateSessionArchive(v.data);
   validateReviewArchive(v.data);
+  validateScrubbingArchive(v.data);
   validateRetentionArchive(v.data);
   await validateIdentityArchive(v.data);
   validateSentryCliArchive(v.data);

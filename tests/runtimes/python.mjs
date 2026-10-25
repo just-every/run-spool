@@ -31,6 +31,22 @@ export default {
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
    assert.equal(result.code,0,`${script}: ${result.stderr.slice(-500)}`);return issueDetails(app,created.id);
   };
+  // SDK-003: server rules scrub real default SDK locals before they reach owner evidence.
+  const scrubProject=await create('rt-python-scrubbing'),scrubRoot='/api/projects/'+scrubProject.id+'/scrubbing';
+  const scrubPolicy={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-python-local',selector:'$frame.vars.order_note',pattern:'regex',regex:'synthetic-spool',method:'mask'}]};
+  const scrubPreview=await app.json(scrubRoot+'/preview','POST',{policy:scrubPolicy});assert.ok(scrubPreview.token);assert.equal(scrubPreview.refusal,null);
+  await app.json(scrubRoot,'PUT',{revision:scrubPreview.revision,policy:scrubPolicy,token:scrubPreview.token});
+  const [scrubbed]=await send(scrubProject,'app.py',{mode:'handled'});
+  const scrubbedFrames=scrubbed.events.flatMap(detail=>detail.event.sentry.exceptions.flatMap(exception=>exception.stacktrace?.frames??[])).filter(frame=>frame.function==='charge'&&frame.vars);
+  assert.ok(scrubbedFrames.length,'the real SDK sent the charge locals');
+  for(const frame of scrubbedFrames){assert.equal(frame.vars.order_note,'[redacted]');assert.equal(frame.vars.password,'[redacted]');assert.equal(frame.vars.api_key,'[redacted]');assert.equal(frame.vars.quantity,'0')}
+  assert.ok(!JSON.stringify(scrubbed).includes('synthetic-spool-note'),'custom local content is absent at owner detail');
+  await readScreens(origin,cookie,[{name:'python-scrubbing',path:`/projects/${scrubProject.id}/issues/${scrubbed.issue.id}`,check:async page=>{
+   const frame=page.locator('.exception-stack li').filter({hasText:' · charge'}).first();await frame.waitFor();
+   await frame.locator('summary').filter({hasText:/^Local variables/}).click();
+   const note=frame.locator('details').filter({has:page.locator('summary').filter({hasText:/^order_note$/})}).last();await note.locator('summary').click();
+   assert.equal(await note.locator('pre').innerText(),'"[redacted]"');assert.ok(!(await page.content()).includes('synthetic-spool-note'));
+  }}]);
   // SDK-009: no release (no environment variable, not a git checkout) is accepted, alerted and counted as release-less.
   const releasesProject=await create('rt-python-releases'),root='/api/projects/rt-python-releases';
   const empty=resolve(dir,'no-release');await mkdir(empty,{recursive:true});

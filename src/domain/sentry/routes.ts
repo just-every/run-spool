@@ -1,3 +1,4 @@
+import {prepareLocatedLogs} from './located-log';
 import {prepareEventIdentity} from '../identities/intake';
 import { admitSessions } from '../sessions/intake';
 import { filterCategory } from '../filters/categories';
@@ -61,6 +62,10 @@ routes.on('POST',paths,async c=>{
       }
       if(item.header.type==='session'||item.header.type==='sessions'){sessions.push(item);continue}
       if(item.header.type==='check_in'){checkIns.push(item);continue}
+      if(item.header.type==='log'){
+        const logs=await prepareLocatedLogs(item.bytes);
+        if(logs){events.push(...logs.map(log=>({...log,identity:undefined})));continue}
+      }
       if(item.header.type!=='event'){const reason=unsupportedReason(item.header.type);dropped.set(reason,(dropped.get(reason)??0)+1);continue}
       let raw:WireObject;
       try{raw=objectJson(item.bytes)}catch(error){
