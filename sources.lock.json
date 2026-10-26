@@ -5245,7 +5245,7 @@
       "executable": false
     },
     "src/domain/operators/bulk-triage.ts": {
-      "sha256": "88974d30598289e99bf1e6d2d8be8cfd0267677a55db8056f1350915b609a3a0",
+      "sha256": "2936b3a6d7e52ca0756b5687706a21dcbec5a5e5b0b621c94f094c18048d8669",
       "executable": false
     },
     "src/domain/operators/common.ts": {
@@ -5369,7 +5369,7 @@
       "executable": false
     },
     "src/domain/releases/resolution.ts": {
-      "sha256": "a6c93d4ff1895e17d4c637b7f65cff062196bc7556b9b69b42e4eec68456e4ca",
+      "sha256": "ec2b93ad6edca08bf6c8e1eb4a79fa6bafa68c6243f4de45e3f5eae6048cbb74",
       "executable": false
     },
     "src/domain/releases/routes.ts": {
@@ -8029,7 +8029,7 @@
       "executable": false
     },
     "src/ui/workbench/EventExplorer.tsx": {
-      "sha256": "50775a8f3c1b10dad353c0c5f55569abf4cbcc5ee13f4baf8e69e793740a233c",
+      "sha256": "b3cfaa28d9aa46f0fccaa59cadf5542d9f918cc9f05c81cb1424784a26a349cd",
       "executable": false
     },
     "src/ui/workbench/EvidenceRail.tsx": {
@@ -8121,7 +8121,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "41ca9b9e5c2c3be66da41c03de15d76937ea7e1d188c8090ccb6c2c3d77c5458",
+      "sha256": "54c00cc5a9a82341be75c43e3f4beec6d8fb116ce45625dec27b19f01eee183e",
       "executable": false
     },
     "src/ui/workbench/ProjectErasure.tsx": {
@@ -8233,7 +8233,7 @@
       "executable": false
     },
     "src/ui/workbench/useIssueSearch.ts": {
-      "sha256": "4b2737f7eb02e7a8e103ad0df42fa402d201fac5474c09f277e124c575aff978",
+      "sha256": "aa523d9795cca36dce7d49bf5149b168dd8f65383f6f4913f697cd05095455f0",
       "executable": false
     },
     "src/ui/workbench/useLiveRead.ts": {
@@ -8241,11 +8241,11 @@
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {
-      "sha256": "c766245de89c960fed1e8ad6bac77debb527216f1a855eb5cf80377e31bba42b",
+      "sha256": "b8e24b81a2762f5289395d3e4e2b85a249568b55e9bfcd4eb089d3f9ddef8b81",
       "executable": false
     },
     "src/ui/workbench/useProjectIssues.ts": {
-      "sha256": "6bddddec8dd58ddd78dc0ef28f6831044b0f24a9484941f2d1b7e243ecb9f6cf",
+      "sha256": "d068182770c37e0bfd25860116dcf4051c1b732fe486c5f313f7a6cc9be41dcb",
       "executable": false
     },
     "src/ui/workbench/useWorkspace.ts": {
@@ -8689,7 +8689,7 @@
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
-      "sha256": "44f21c8d49b941d4f647e0b8fdf4bb8e1df65de6907bd9c1781915a7e8c80ea9",
+      "sha256": "838cc9f2947c7f595d35e3b51e8ac332753b2ba0a10f7545b2ac0833d4ad9c1b",
       "executable": false
     },
     "tests/release-order-flow.mjs": {
