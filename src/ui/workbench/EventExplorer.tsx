@@ -9,16 +9,17 @@ export function EventExplorer({project,issue,refresh,onSelect}:{project:string;i
  const [list,setList]=useState<any>(null),[selected,setSelected]=useState<any>(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[reading,setReading]=useState(false);
  const [target,setTarget]=useState<any>(()=>{const p=new URLSearchParams(typeof window==='undefined'?'':window.location.search);return p.get('event')&&p.get('occurrence')?{id:p.get('event'),occurrence:p.get('occurrence')}:null});
  const root=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}/events`;
+ const listing=!list||list.root!==root||list.query!==q||list.order!==order||list.cursor!==cursors.at(-1)||list.refresh!==refresh;
  useEffect(()=>{let alive=true;if(!list||list.query!==q)setLoading(true);setError('');const timer=setTimeout(()=>{
-  api(`${root}?${new URLSearchParams({q,order,cursor:cursors.at(-1)!})}`).then(value=>{if(alive){setList({...value,query:q});setLoading(false)}}).catch(e=>{if(alive){setError(e.message);setLoading(false)}});
+  api(`${root}?${new URLSearchParams({q,order,cursor:cursors.at(-1)!})}`).then(value=>{if(alive){setList({...value,root,query:q,order,cursor:cursors.at(-1),refresh});setLoading(false)}}).catch(e=>{if(alive){setError(e.message);setLoading(false)}});
  },180);return()=>{alive=false;clearTimeout(timer)}},[root,q,order,cursors,refresh]);
  useEffect(()=>{
-  if(!list||list.query!==q)return;const pick=target??list.recommended;
+  if(listing)return;const pick=target??list.recommended;
   if(!pick){setSelected(null);setReading(false);setError('');return}
   let alive=true;if(!selected||selected.id!==pick.id||selected.occurrence!==pick.occurrence)setReading(true);
   api(`${root}/${encodeURIComponent(pick.id)}?${new URLSearchParams({q,occurrence:pick.occurrence})}`).then(value=>{if(alive){setSelected(value);onSelect(value);setReading(false);setError('');const url=new URL(location.href);url.searchParams.set('event',value.id);url.searchParams.set('occurrence',value.occurrence);history.replaceState(history.state,'',url)}}).catch(e=>{if(alive){setError(e.message);setReading(false)}});
   return()=>{alive=false};
- },[root,list,target,q,onSelect]);
+ },[root,list,listing,target,q,onSelect]);
  const choose=(value:any)=>{setError('');setTarget(value)};
  const filter=(value:string)=>{setQ(value);setCursors(['']);setTarget(null)};
  const keys=[...new Set<string>((list?.tags.rows??[]).map((r:any)=>r.key))];
@@ -30,10 +31,10 @@ export function EventExplorer({project,issue,refresh,onSelect}:{project:string;i
   {loading?<p role="status">Loading events…</p>:<>
    <p role="status">{list?.total??0} matching events{reading?' · Loading selected event…':''}</p>
    {!!list?.total&&<>
-    <nav className="event-navigation" aria-label="Select occurrence">{[['Oldest',list.oldest],['Latest',list.latest],['Recommended',list.recommended],['Previous event',selected?.previous],['Next event',selected?.next]].map(([label,value]:any)=><button key={label} className="text-button" disabled={reading||!value} onClick={()=>choose(value)}>{label}</button>)}</nav>
+    <nav className="event-navigation" aria-label="Select occurrence">{[['Oldest',list.oldest],['Latest',list.latest],['Recommended',list.recommended],['Previous event',selected?.previous],['Next event',selected?.next]].map(([label,value]:any)=><button key={label} className="text-button" disabled={listing||reading||!value} onClick={()=>choose(value)}>{label}</button>)}</nav>
     <p className="muted">{list.recommendation}</p>
-    <details className="event-page"><summary>Browse {list.rows.length} events on this page</summary><div className="table-region"><table className="event-table"><thead><tr><th scope="col">Received</th><th scope="col">Release / environment</th><th scope="col">Event</th></tr></thead><tbody>{list.rows.map((row:any)=><tr key={row.occurrence} aria-selected={selected?.occurrence===row.occurrence}><th scope="row"><button className="text-button" disabled={reading} onClick={()=>choose(row)}>{date(row.received)}</button>{selected?.occurrence===row.occurrence&&<span className="selected-event-label">Selected</span>}</th><td data-label="Release / environment">{row.release||'none'} · {row.environment}</td><td data-label="Event"><code>{row.id}</code><p>{row.type}: {row.message}</p></td></tr>)}</tbody></table></div>
-    {(cursors.length>1||list.next)&&<nav className="pagination" aria-label="Event pages"><button className="text-button" disabled={cursors.length===1} onClick={()=>setCursors(values=>values.slice(0,-1))}>Previous page</button><span>Page {cursors.length}</span><button className="text-button" disabled={!list.next} onClick={()=>setCursors(values=>[...values,list.next])}>Next page</button></nav>}</details>
+    <details className="event-page"><summary>Browse {list.rows.length} events on this page</summary><div className="table-region"><table className="event-table"><thead><tr><th scope="col">Received</th><th scope="col">Release / environment</th><th scope="col">Event</th></tr></thead><tbody>{list.rows.map((row:any)=><tr key={row.occurrence} aria-selected={selected?.occurrence===row.occurrence}><th scope="row"><button className="text-button" disabled={listing||reading} onClick={()=>choose(row)}>{date(row.received)}</button>{selected?.occurrence===row.occurrence&&<span className="selected-event-label">Selected</span>}</th><td data-label="Release / environment">{row.release||'none'} · {row.environment}</td><td data-label="Event"><code>{row.id}</code><p>{row.type}: {row.message}</p></td></tr>)}</tbody></table></div>
+    {(cursors.length>1||list.next)&&<nav className="pagination" aria-label="Event pages"><button className="text-button" disabled={listing||cursors.length===1} onClick={()=>setCursors(values=>values.slice(0,-1))}>Previous page</button><span>Page {cursors.length}</span><button className="text-button" disabled={listing||!list.next} onClick={()=>setCursors(values=>[...values,list.next])}>Next page</button></nav>}</details>
    </>}
    {list&&!list.total&&<p>No events match this query. <button className="text-button" onClick={()=>filter('')}>Clear event filters</button></p>}
   </>}
