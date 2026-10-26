@@ -4517,7 +4517,7 @@
       "executable": false
     },
     "src/auth/document-path.ts": {
-      "sha256": "35865ed46c95736796a1b07ac104b04de6bc83d7651c60e35f84194b4364683b",
+      "sha256": "38bf11a8a421a64208fe67c09d98b01a73e52fa0ee2501c287c09d783f6a0bce",
       "executable": false
     },
     "src/auth/local.server.mjs": {
@@ -8753,7 +8753,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "c2e1f481b79131896c041afc85bf40f69d6c917b048da8bfbb918ba9d2afc1ed",
+      "sha256": "becf2ce5eed112192346a5206c0b72f70d7e57691a8653c756c22e7301164cda",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
