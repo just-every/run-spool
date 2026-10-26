@@ -50,13 +50,27 @@ export async function conditionsJourney(app,fixture){
  }
  const row=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'suppressed',revision:row.revision});const suppressed=(await app.json('/api/projects/web/issues')).find(i=>i.id===a);await app.json('/api/projects/web/issues/'+a,'PATCH',{state:'open',revision:suppressed.revision});await error(id++,{environment:'filtered',release:'',group:'included'});assert.equal((await app.json('/api/projects/web/alerts')).filter(x=>x.issue===a&&x.kind==='reactivation').length,1);
  const scheduled=await app.json(base+'/rules','POST',rule('mail',{name:'Synthetic scheduled filters',kinds:['spike'],threshold:2,config:config('count',{environment:'scheduled',level:'error',release:'r1',tags:{tenant:'approved'}})}));
+ const created=(await app.json(base+'/rules')).find(row=>row.id===scheduled.id).created,expected=Math.ceil(created/width)*width;
+ const initialCursor=await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(scheduled.id).first();
+ assert.ok(initialCursor,'enabling a scheduled rule creates its cursor');
+ assert.equal(initialCursor.next_start,expected,'enabling starts at the next complete aligned window');
  let scheduledIssue;
- for(const extra of [{},{},{environment:'elsewhere'},{level:'info'},{release:''},{tenant:'outside'}])scheduledIssue=await error(id++,{environment:'scheduled',group:'scheduled',...extra});
- await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND issue=?").bind(start+100,scheduledIssue).run();
- await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,scheduled.id).run();await schedule(end);
- const measured=JSON.parse((await app.json(base+'/decisions')).find(row=>row.rule_id===scheduled.id&&row.issue===scheduledIssue&&row.start===start).reason);
+ for(const extra of [{},{},{environment:'elsewhere'},{level:'info'},{release:''},{tenant:'outside'}]){
+  const eventId=id.toString(16).padStart(32,'0');scheduledIssue=await error(id++,{environment:'scheduled',group:'scheduled',...extra});
+  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(expected+100,eventId).run();
+ }
+ const priorEventId=id.toString(16).padStart(32,'0');await error(id++,{environment:'scheduled',group:'scheduled'});
+ await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(expected-width+100,priorEventId).run();
+ await schedule(expected+width);
+ const scheduledDecisions=(await app.json(base+'/decisions')).filter(row=>row.rule_id===scheduled.id);
+ assert.equal(scheduledDecisions.length,1,'only the first complete window is evaluated after enabling');
+ assert.equal(scheduledDecisions[0].start,expected,'the evaluated window starts at the enabled cursor');
+ assert.equal(scheduledDecisions[0].issue,scheduledIssue,'the scheduled decision belongs to the matching issue');
+ const measured=JSON.parse(scheduledDecisions[0].reason);
  assert.equal(measured.count,2,'scheduled filters exclude each environment severity release and tag nonmatch');
  assert.equal((await app.json(base+'/deliveries')).filter(row=>row.rule_id===scheduled.id).length,1,'the matching scheduled window routes exactly one delivery');
+ const advancedCursor=await app.db.prepare('SELECT next_start FROM alert_cursors WHERE rule_id=?').bind(scheduled.id).first();
+ assert.equal(advancedCursor.next_start,expected+width,'evaluating the first complete window advances the cursor once');
  const policyPreview=await app.json(base+'/rules/preview','POST',userRule);
  const currentPolicy=await app.json('/api/projects/web/identity-policy'),nextPolicy={...currentPolicy.policy,username:'hash'},nextPreview=await app.json('/api/projects/web/identity-policy/preview','POST',{policy:nextPolicy});
  await app.json('/api/projects/web/identity-policy','PUT',{revision:currentPolicy.revision,policy:nextPolicy,token:nextPreview.token});
