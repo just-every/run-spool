@@ -47,6 +47,7 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries:
 
 export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
+  const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
@@ -59,17 +60,23 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const issue = packet.issue;
   const root = `/api/projects/${encodeURIComponent(project)}`;
 
+  const waitingForPacket = assignmentRevision !== null && issue.revision < assignmentRevision;
+  const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
-  useEffect(() => { labelEdited.current = false; setState(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
+  const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
+  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
+    if (waitingForPacket) return;
     try {
-      const [operatorState, corrections] = await (!background && initial ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
+      const prefetched = !background && initial && initial !== consumedInitial.current;
+      consumedInitial.current = initial;
+      const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
       if (signal.aborted) return;
       setState(operatorState); setHistory(corrections); setFailure('');
       if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
-  }, [root, issue.id, request, initial], { live: !initial });
+  }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;
@@ -109,16 +116,18 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     <form className="form-grid" onSubmit={event => {
       event.preventDefault();
       void run(async () => {
-        await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        setAssignmentRevision(saved.revision);
         labelEdited.current = false;
         setState(null);
         refresh();
       });
     }}>
-      <Field label="Assigned to" disabled={busy || !state} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
-      <button className="primary-button" disabled={busy || !state}>Save assignment</button>
-      <button type="button" className="text-button" disabled={busy || !state} onClick={() => void run(async () => {
-        await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
+      <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
+      <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
+      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void run(async () => {
+        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
+        setAssignmentRevision(saved.revision);
         labelEdited.current = false;
         setState(null);
         refresh();
@@ -132,13 +141,13 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>
           {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
-            <input type="checkbox" disabled={busy || !state} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
+            <input type="checkbox" disabled={busy || !ready} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
             <code>{event.id}</code>
           </label>)}
         </fieldset>
-        <button className="text-button" disabled={busy || !state || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
-        <Field label="Merge into issue ID" disabled={busy || !state} value={target} onChange={event => setTarget(event.target.value)} />
-        <button className="text-button" disabled={busy || !state || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
+        <button className="text-button" disabled={busy || !ready || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>
+        <Field label="Merge into issue ID" disabled={busy || !ready} value={target} onChange={event => setTarget(event.target.value)} />
+        <button className="text-button" disabled={busy || !ready || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
         {preview && <CorrectionReview preview={preview} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
         <CorrectionHistory entries={history} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
       </Details>
@@ -152,16 +161,16 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
             setState(await request(`${root}/operator-state`));
           });
         }}>
-          <label className="form-field">Match field<select disabled={busy || !state} value={field} onChange={event => {
+          <label className="form-field">Match field<select disabled={busy || !ready} value={field} onChange={event => {
             setField(event.target.value);
             if (event.target.value === 'fingerprint') {
               setMode('exact');
               setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
             }
           }}><option value="fingerprint">Original fingerprint</option><option value="release">Release</option><option value="message">Sanitized message</option></select></label>
-          <label className="form-field">Match mode<select value={mode} disabled={busy || !state || field === 'fingerprint'} onChange={event => setMode(event.target.value)}><option value="exact">Exact</option><option value="substring">Substring</option></select></label>
-          <Field label="Match value" disabled={busy || !state} value={value} required maxLength={160} onChange={event => setValue(event.target.value)} />
-          <button className="primary-button" disabled={busy || !state}>Add suppression policy</button>
+          <label className="form-field">Match mode<select value={mode} disabled={busy || !ready || field === 'fingerprint'} onChange={event => setMode(event.target.value)}><option value="exact">Exact</option><option value="substring">Substring</option></select></label>
+          <Field label="Match value" disabled={busy || !ready} value={value} required maxLength={160} onChange={event => setValue(event.target.value)} />
+          <button className="primary-button" disabled={busy || !ready}>Add suppression policy</button>
         </form>
         {state?.policies.map((policy: any) => <div className="callout" key={policy.id}>
           <p>{policy.enabled ? 'Enabled' : 'Disabled'} · {policy.field} · {policy.mode} · <code>{policy.value}</code> · revision {policy.revision}</p>

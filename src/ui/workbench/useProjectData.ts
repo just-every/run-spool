@@ -29,12 +29,12 @@ export function useProjectData(project: string, view: View, selected: string | u
     const current = packet?.project === project && (packet.issue?.id === selected || packet.shortIdRequest?.requested === selected);
     if (!current) { setPacket(null); setPanels(null); setPacketStatus('loading'); }
     const stored = /^[a-f0-9]{64}$/.test(selected!);
-    if (!background && stored) setPanels(loadIssuePanels(project, selected!, request));
+    if (!background && stored && !current) setPanels(loadIssuePanels(project, selected!, request));
     try {
       const result = await request(`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(selected!)}/packet`);
       if (signal.aborted) return;
       if (result.project !== project || (result.issue?.id !== selected && result.shortIdRequest?.requested !== selected) || result.issue?.project !== project) throw new Error('Issue evidence belongs to another destination.');
-      if (background || !stored) setPanels(loadIssuePanels(project, result.issue.id, request));
+      if (background || !stored || current) setPanels(loadIssuePanels(project, result.issue.id, request));
       setPacket((previous: any) => JSON.stringify(previous) === JSON.stringify(result) ? previous : result);
       setPacketStatus('ready');
     } catch { if (!signal.aborted && !current) setPacketStatus('error'); }
