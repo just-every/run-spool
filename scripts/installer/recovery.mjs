@@ -43,7 +43,7 @@ function namespaceMetadata(db) {
  if (db.prepare('SELECT 1 FROM _cf_ALARM LIMIT 1').get()) throw refusal();
 }
 
-export async function inspectExistingState({ root, input = {}, vars = {} }) {
+export async function inspectExistingState({ root, input = {}, vars = {}, allowPlatformLedger = false }) {
  const directory = join(root, '.wrangler/state/v3/d1/miniflare-D1DatabaseObject');
  let parent = root;
  for (const part of ['.wrangler','state','v3','d1','miniflare-D1DatabaseObject']) {
@@ -88,6 +88,8 @@ export async function inspectExistingState({ root, input = {}, vars = {} }) {
    if (file.name === 'metadata.sqlite') { namespaceMetadata(db); continue; }
    const objects = db.prepare("SELECT type, name FROM sqlite_master WHERE name NOT GLOB 'sqlite_*'").all();
    const tables = new Set(objects.filter(object => object.type === 'table').map(row => row.name));
+   const ledgers = ['d1_migrations', 'rer_migrations', '_rer_deploy_migrations'].filter(name => tables.has(name));
+   if (ledgers.length > 1 || tables.has('_rer_deploy_migrations')) throw refusal();
    // A former fake binding id maps to another Miniflare database. Never silently
    // create an empty replacement beside an existing database or replay its ledger.
    if (tables.has('projects') && !tables.has('oa_operators')) throw refusal();
@@ -96,8 +98,11 @@ export async function inspectExistingState({ root, input = {}, vars = {} }) {
     if (tables.has('_cf_KV') && db.prepare('SELECT 1 FROM _cf_KV LIMIT 1').get()) throw refusal();
     continue;
    }
-   if (!tables.has('projects') || !tables.has('d1_migrations') || !tables.has('oa_operators')) throw refusal();
-   if (!db.prepare('SELECT 1 FROM d1_migrations WHERE name=?').get('0004_operator_auth.sql')) throw refusal();
+   const ledger = ledgers[0];
+   // Setup/dev still use Wrangler's native migration runner. Only portability
+   // opts into Platform history, with its name/hash preflight before any apply.
+   if (!tables.has('projects') || !ledger || !tables.has('oa_operators') || (ledger === 'rer_migrations' && !allowPlatformLedger)) throw refusal();
+   if (!db.prepare(`SELECT 1 FROM ${ledger} WHERE name=?`).get('0004_operator_auth.sql')) throw refusal();
    const owners = db.prepare("SELECT email FROM oa_operators WHERE role='owner'").all();
    const email = input.OWNER_EMAIL ?? vars.OWNER_EMAIL;
    if (owners.length > 1 || (owners.length && email && owners[0].email !== email.trim().toLowerCase())) {

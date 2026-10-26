@@ -1,12 +1,19 @@
 import { lstat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { getPlatformProxy } from 'wrangler';
 import { RerError, refuse } from '@runeditrun/rer/errors';
+import { nativeMigrationPreflight } from '@runeditrun/rer/portability-migrations';
 import { inspectExistingState } from './recovery.mjs';
 export function spoolPortability() {
  async function transfer({ root, path, journal, store, signal, operationToken }, direction) {
-  await inspectExistingState({ root });
+  await inspectExistingState({ root, allowPlatformLedger: true });
   if (direction === 'export' && await lstat(path).catch(error => { if (error.code === 'ENOENT') return null; throw error; })) throw refuse('Export requires a new archive path.');
-  await store.run('Applying local data migrations', 'pnpm', ['exec','wrangler','d1','migrations','apply','errors-local','--local','--persist-to','.wrangler/state','--config','wrangler.jsonc'], { cwd: root, signal, env: { ...process.env, RER_LOCAL_OPERATION: operationToken, WRANGLER_SEND_METRICS: 'false' } });
+  const proxy = await getPlatformProxy({ configPath: join(root, 'wrangler.jsonc'), persist: { path: join(root, '.wrangler/state/v3') }, remoteBindings: false });
+  let nativeApply;
+  try { ({ nativeApply } = await nativeMigrationPreflight({ root, db: proxy.env.DB, binding: 'DB' })); }
+  finally { await proxy.dispose(); }
+  if (nativeApply) await store.run('Applying local data migrations', 'pnpm', ['exec','wrangler','d1','migrations','apply','errors-local','--local','--persist-to','.wrangler/state','--config','wrangler.jsonc'], { cwd: root, signal, env: { ...process.env, RER_LOCAL_OPERATION: operationToken, WRANGLER_SEND_METRICS: 'false' } });
   const child = store.spawn('Transferring private Spool data', process.execPath,
    [fileURLToPath(new URL('./portability-worker.mjs', import.meta.url)), direction, path, ...(journal ? [journal] : [])], { cwd: root, signal, env: { ...process.env, WRANGLER_SEND_METRICS: 'false' } });
   let output = ''; child.stdout.on('data', chunk => { output += chunk; });
