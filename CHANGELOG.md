@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.2 — 2026-10-26
+
+Spool keeps issue lists, capture receipts, issue evidence, feedback and release regression packets current while you work and when you return to the tab. Existing evidence and selections stay usable during background reads. Assignment saves wait for the saved revision, and event navigation waits for the current event list.
+
+Releases and source-map setup have direct links. Release details show build, SDK, commit and deployment facts, while grouping explanations and operator history are easier to read. Bulk resolution uses owner language. Signed-out project links lead to sign-in, and focus, small text, wrapped headings and long evidence identifiers are clearer on narrow screens.
+
+The application pins rer exactly to 0.2.82, including the Platform-ledger import used when leaving Managed hosting for a native installation. Migration names and file hashes are matched against the checkout. Local private export and empty-destination restore now admit a complete Platform migration ledger without replaying its already-applied migrations. Ordinary native archives keep their existing migration path; setup and dev still refuse a Platform-ledger source rather than replay it.
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.1 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.2` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This patch adds no migrations, contract changes or breaking changes after 0.7.1. Nothing needs resetting; import private archives only into an empty destination. This application release does not publish the Spool SDK. The team, mobile, broader telemetry and live-provider boundaries in the 0.7.0 section remain.
+
+### Known issues
+
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- A populated local Platform-ledger export and native restore is checked, including grouped events, an alert rule and a source map. Retained hosted archives still require the separate Managed-to-native release qualification. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.1 — 2026-10-24
 
 This is the first published release after 0.6.0. Version 0.7.0 was tagged but never published: local preview refused the undeclared SDK asset written by the production build. Version 0.7.1 declares that generated output, so local preview and first run after the production build can reach readiness.

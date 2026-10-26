@@ -2653,7 +2653,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "baae1b64910ca2f7b173413c262537de2546eb1cd044819eaec2ae635812255b",
+      "sha256": "4962596603f6d64f30de30126957db903e5e5f4b40223d412c3b1a16c12692bc",
       "executable": false
     },
     "CLAUDE.md": {
@@ -3965,7 +3965,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "2137f33b5a57bce335478c593c6cb42efa5de9dfe84a3edd208eddf967c06f59",
+      "sha256": "c06031018f6f8606ff25dd90ebd326183cf05b1de9f7889d9e1ccd917a675ba9",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4249,7 +4249,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "9acc5ee0f0bd13c72c5c27371d6438d400764e5c0ea63cc7e41df9ea299ca483",
+      "sha256": "40b237a4f6f15a4abd946810f8cd76fda837c777932b9c03af5a1a8905020ed0",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4261,7 +4261,7 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "d2038b7eb8a485129edae2dfdf1eeb7de5ecd4efd3d654308c3f43e5243bde76",
+      "sha256": "d9a723d390d3755f5b2d6882ac078bafe2185d99abc32ce323700e12bd1c88e2",
       "executable": false
     },
     "rer-project.json": {
@@ -4445,11 +4445,11 @@
       "executable": false
     },
     "scripts/installer/portability.mjs": {
-      "sha256": "528c189d65c0f61166c2de70005c962dc81f0dab6b66fddaa4de5410321bda65",
+      "sha256": "87d34de254406411e7d6fa12c4832448ed401b9f001eb8e6a4b55b4c77a12a42",
       "executable": false
     },
     "scripts/installer/recovery.mjs": {
-      "sha256": "07fcfd29c1068153f677229334d47c9d354b73974eb4fd7713ba4cc6d3303d7e",
+      "sha256": "55ff993a50a9e3c76c088ac4fb7074163166a8c824a3acdac5060703abac6f7a",
       "executable": false
     },
     "scripts/installer/seed.mjs": {
@@ -4501,7 +4501,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "72b7c96465073672d13b135b7f2c2acafd021762682b9f3641ab9e06b77e0d1a",
+      "sha256": "1c8e52377778419382102fd83a6ea77f22afbe872fe7bfb31db5dea23d6885ae",
       "executable": false
     },
     "src/auth/bindings.ts": {

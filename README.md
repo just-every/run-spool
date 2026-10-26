@@ -33,7 +33,7 @@
 
 Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent evidence access and inert grouping-proposal submission to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
 
-Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.6.0](https://github.com/just-every/run-spool/tree/v0.6.0). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.7.2](https://github.com/just-every/run-spool/tree/v0.7.2). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
 
 Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
 
@@ -45,7 +45,7 @@ Start with **Node 22 or later** and **git**, on macOS, Linux or Windows with WSL
 npx -y @runeditrun/rer dev just-every/run-spool
 ```
 
-To start it again later, run `cd run-spool && rer dev`. To run the tagged release instead, use `git clone --branch v0.6.0 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
+To start it again later, run `cd run-spool && rer dev`. To run the tagged release instead, use `git clone --branch v0.7.2 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
 
 `rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@run-spool.test` for the `run-spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
 
