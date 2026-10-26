@@ -9049,7 +9049,7 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "2a018450e8effc8420870923aa4f914fd8525092324d345838d1da4d890e0c1a",
+      "sha256": "8b574c8742899ddb666a2b8f182560ee0fcc2ed0a76ea287803e7bdc4363af06",
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {

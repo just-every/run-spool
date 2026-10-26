@@ -125,14 +125,14 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
  await save(root,{...current,sensitiveFields:[...current.sensitiveFields,'synthetic_spool_stale']});
  await denied(root,'PUT',{revision:staleProject.revision,policy:current,token:staleProject.token},{},409);
  const logRule=rule('synthetic-spool-log','$log.attributes.order_note');await save(root,{...(await request(root)).policy,rules:[...(await request(root)).policy.rules,logRule]});
- const pairTag='synthetic-spool-private-pair-tag-'+crypto.randomUUID(),pairHeader='synthetic-spool-private-pair-header-'+crypto.randomUUID(),pairHeaderDuplicate='synthetic-spool-private-pair-header-duplicate-'+crypto.randomUUID(),pairNamed='synthetic-spool-private-pair-named-'+crypto.randomUUID(),pairDefault='synthetic-spool-private-pair-default-'+crypto.randomUUID();
+ const pairTag='synthetic-spool-private-pair-tag-'+crypto.randomUUID(),pairHeader='synthetic-spool-private-pair-header-'+crypto.randomUUID(),pairHeaderDuplicate='synthetic-spool-private-pair-header-duplicate-'+crypto.randomUUID(),pairHeaderRepeated='synthetic-spool-private-pair-header-repeated-'+crypto.randomUUID(),pairNamed='synthetic-spool-private-pair-named-'+crypto.randomUUID(),pairDefault='synthetic-spool-private-pair-default-'+crypto.randomUUID();
  const withPairRules=(await request(root)).policy;
  await save(root,{...withPairRules,sensitiveFields:[...withPairRules.sensitiveFields,'gate_named'],rules:[...withPairRules.rules,{...rule('synthetic-spool-pair-header','$request.headers.x-private'),method:'remove'}]});
  const pairId=crypto.randomUUID().replaceAll('-',''),dsn=new URL(project.dsn);
- const pairResponse=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_version=7&sentry_key='+encodeURIComponent(dsn.username),{method:'POST',body:'{}\n{"type":"event"}\n'+JSON.stringify({event_id:pairId,message:'Synthetic pair-array control',tags:[['checkout_note',pairTag],['gate_named',pairNamed],['api_key',pairDefault]],request:{headers:[['x-private',pairHeader],['X-Private',pairHeaderDuplicate]]}})});
+ const pairResponse=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_version=7&sentry_key='+encodeURIComponent(dsn.username),{method:'POST',body:'{}\n{"type":"event"}\n'+JSON.stringify({event_id:pairId,message:'Synthetic pair-array control',tags:[['checkout_note',pairTag],['gate_named',pairNamed],['api_key',pairDefault]],request:{headers:[['x-private',pairHeader],['X-Private',pairHeaderDuplicate],['x-private',pairHeaderRepeated]]}})});
  assert.equal(pairResponse.status,200,'accepted Sentry pair-array event');await pairResponse.body.cancel();
  const pairDetail=(await read(project.id,pairId)).detail;
- absent(pairDetail,[pairTag,pairHeader,pairHeaderDuplicate,pairNamed,pairDefault],'pair-array owner event door');
+ absent(pairDetail,[pairTag,pairHeader,pairHeaderDuplicate,pairHeaderRepeated,pairNamed,pairDefault],'pair-array owner event door');
  const after=values('after'),logValue='synthetic-spool-private-log-note',logBody='synthetic-spool-private-log-body',logId='synthetic-spool-located-log';
  const afterId=await send(project.dsn,event(after),{body:logBody,attributes:{'code.file.path':'synthetic-spool-log.js','code.function.name':'writeLog','code.line.number':1,'code.column.number':1,'spool.event_id':logId,'spool.build':'synthetic-spool-build','order_note':logValue}}),{issue,detail}=await read(project.id,afterId);
  const logDetail=(await read(project.id,logId)).detail;absent(logDetail,[logValue,logBody],'real SDK log storage');assert.equal(logDetail.event.sentry.extra.log_attributes.order_note,'[redacted]');
@@ -149,7 +149,7 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
  for(const regex of ['(a+)+','(a)\\1','a*a*']){const refused=await request(root+'/preview','POST',{policy:{...current,rules:[{id:'synthetic-spool-unsafe',selector:'$message',pattern:'regex',regex,method:'mask'}]}});assert.ok(refused.refusal);assert.equal(refused.token,null)}
  const exported=await request(base+'/issue-export?format=json');absent(exported,protectedValues(after),'project issue export');assert.ok(JSON.stringify(exported).includes(seed.message),'earlier issue title remains unchanged in project export');
  const archiveResponse=await raw('/api/archive');assert.equal(archiveResponse.status,200);const archive=await archiveProjection(archiveResponse);
- absent(archive.text,[...protectedValues(after),otherValues.tenant,otherValues.installation,pairTag,pairHeader,pairHeaderDuplicate,pairNamed,pairDefault],'private archive');
+ absent(archive.text,[...protectedValues(after),otherValues.tenant,otherValues.installation,pairTag,pairHeader,pairHeaderDuplicate,pairHeaderRepeated,pairNamed,pairDefault],'private archive');
  assert.ok(archive.data.events.some(row=>row.project===project.id&&row.id===seedId&&JSON.stringify(row).includes(seed.extra)),'private export retains the pre-policy occurrence unchanged');
  const restored=await startTestWorker(15592);
  try{
