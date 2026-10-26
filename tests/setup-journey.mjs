@@ -18,8 +18,8 @@ export async function firstProjectJourney(browser, origin, width) {
   const page=await context.newPage();const consoleErrors=[];page.on('console',message=>{if(message.type()==='error'&&/pattern/i.test(message.text()))consoleErrors.push(message.text());});await page.goto(origin+'/setup');
   const request=context.request;
   assert.equal((await (await request.get(origin+'/api/projects')).json()).length,0);
-  for(const path of ['/','/app']){const response=await request.get(origin+path,{maxRedirects:0});assert.equal(response.status(),303);assert.equal(response.headers().location,'/setup');}
-  for(const path of ['/projects/missing','/missing'])assert.equal((await request.get(origin+path,{maxRedirects:0})).status(),404);
+  for(const path of ['/','/app','/projects/missing']){const response=await request.get(origin+path,{maxRedirects:0});assert.equal(response.status(),303);assert.equal(response.headers().location,'/setup');}
+  assert.equal((await request.get(origin+'/missing',{maxRedirects:0})).status(),404);
   const out='.artifacts/first-run';await mkdir(out,{recursive:true});
   async function inspect(state) {
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'setup fits its viewport');
