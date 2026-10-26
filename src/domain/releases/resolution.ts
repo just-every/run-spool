@@ -30,7 +30,7 @@ export function resolutionTargetFence(db:D1Database,project:string,resolution:Re
  return null;
 }
 export function resolutionDescription(resolution:Resolution,target:ResolutionTarget|null) {
- if(resolution.mode==='plain')return 'Plain resolution regresses on the next accepted event in any release or none.';
+ if(resolution.mode==='plain')return 'Resolved issues reopen on the next event, with or without a release.';
  if(resolution.mode==='next')return `Resolves until the first release above ${target?.name??'the empty release history'} under the project ordering rule. Events in that later release reopen the issue.`;
  if(resolution.mode==='named')return `Resolves until ${target!.name}. Events in that release or a later release reopen the issue under the project ordering rule.`;
  return 'Each issue resolves in its current release. A recurrence in a later release under the project ordering rule reopens it.';
