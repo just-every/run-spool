@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from './client';
 export function useIssueSearch(project:string,params:string,refresh:unknown){
- const key=project+'?'+params;
+ const key=project+'?'+params,previousKey=useRef('');
  const [answer,setAnswer]=useState<{key:string;value:any}|null>(null),[failure,setFailure]=useState<{key:string;message:string}|null>(null),[pending,setPending]=useState(true);
  useEffect(()=>{
-  let alive=true;setPending(true);setFailure(null);
+  let alive=true;setPending(previousKey.current!==key);previousKey.current=key;setFailure(null);
   const timer=setTimeout(()=>{api(`/api/projects/${encodeURIComponent(project)}/issue-search?${params}`).then(value=>{if(alive){setAnswer({key,value});setPending(false)}}).catch(error=>{if(alive){setFailure({key,message:error.message});setPending(false)}})},180);
   return ()=>{alive=false;clearTimeout(timer)};
  },[project,params,refresh]);

@@ -11,7 +11,7 @@ export function useProjectIssues(project: string, revision: number, request: Req
       const rows = await request(`/api/projects/${encodeURIComponent(project)}/issues`);
       if (signal.aborted) return;
       const next = { project, rows: rows.map((issue: any) => ({ ...issue, releases: typeof issue.releases === 'string' ? JSON.parse(issue.releases) : issue.releases ?? [] })) };
-      setData(next);
+      setData(current => JSON.stringify(current) === JSON.stringify(next) ? current : next);
       setFailed('');
     } catch (error) { if (!signal.aborted) setFailed((error as Error).message); }
     finally { if (!signal.aborted) setLoading(false); }
