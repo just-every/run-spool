@@ -8689,7 +8689,7 @@
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
-      "sha256": "7e5006ec635e248d6bb2ceed0b6d092236790ba80ff1a655d0f335be9329d776",
+      "sha256": "3b6c7d9167bd9affd04044fa5e9dbbf25e891e194093993e99d5651c823b3ff1",
       "executable": false
     },
     "tests/release-order-flow.mjs": {
