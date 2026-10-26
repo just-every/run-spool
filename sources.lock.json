@@ -2597,7 +2597,7 @@
       "executable": false
     },
     ".github/workflows/command-journey.yml": {
-      "sha256": "13a60a40ac747541990d161d01537b97e29570a28ccde8fa53365ee23f198c60",
+      "sha256": "ccbab1cd926c887055e2eadba19381b452b9f52d4b66919859f139b919944d59",
       "executable": false
     },
     ".github/workflows/rer-managed.yml": {
@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "703f028f588feb04a1e7280409451654b4d3f7533cf3be447f12874c46dd0295",
+      "sha256": "e9ac4762926fabd52c2fce8f043ad25077589b07e74c3bc45fb0acbb791dc3b8",
       "executable": false
     },
     ".gitignore": {
