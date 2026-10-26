@@ -91,7 +91,13 @@ export function selectorFields(doc:unknown,selector:string):FieldRef[]{
    }
   }
  }
- return [...new Map(out.map(ref=>[ref.path,ref])).values()];
+ const seen=new Map<FieldRef['parent'],Set<FieldRef['key']>>();
+ return out.filter(ref=>{
+  let keys=seen.get(ref.parent);
+  if(!keys){keys=new Set();seen.set(ref.parent,keys)}
+  if(keys.has(ref.key))return false;
+  keys.add(ref.key);return true;
+ });
 }
 
 export function namedFields(doc:unknown,name:string):FieldRef[]{

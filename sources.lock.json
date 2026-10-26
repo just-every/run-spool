@@ -5549,7 +5549,7 @@
       "executable": false
     },
     "src/domain/scrubbing/selectors.ts": {
-      "sha256": "7fcf303c486a947c3c1064b26c4ee74cbfb0bbb505825c6a3759d8da1551e96b",
+      "sha256": "fc3b2742e639d3b8c863d31825477a6f020b906c87bcb336adba2e706bcd55f2",
       "executable": false
     },
     "src/domain/sentry-cli/archive.ts": {
@@ -9049,7 +9049,7 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "65e56e7235970bad3c72f9483145fdcc88077daa5f6da51d502c28aa568cb21a",
+      "sha256": "2a018450e8effc8420870923aa4f914fd8525092324d345838d1da4d890e0c1a",
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {
