@@ -8417,7 +8417,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "fdde14ee0fb96ffca0b950e587d59aa3cb2ac5d9f9b2bd056efdda4a0c1cb171",
+      "sha256": "2acd5331595c660bf032aca7ed6dcb87459ff52e230c4310341fc859f684034a",
       "executable": false
     },
     "tests/demo-capture.mjs": {
@@ -8629,7 +8629,7 @@
       "executable": false
     },
     "tests/preview-session.mjs": {
-      "sha256": "a2d1a703250ceb4d306b6d1d1d1a9e209eac85709e5f64eed92b108dd18afda6",
+      "sha256": "07d5418b0e803bfc8408b0f9497d43b6bbb3d15499377b5a14b105068a4a0486",
       "executable": false
     },
     "tests/privacy-table.mjs": {

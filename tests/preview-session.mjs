@@ -19,7 +19,7 @@ export async function browserPreviewSession(page,origin,output,token) {
  // Preview overrides the port of this same installation. Its cookie name is
  // port-scoped, so install the genuine native token under Preview's name.
  await context.addCookies([{name:localCookieName('operator_session_local',origin),value:token,url:origin,httpOnly:true,sameSite:'Lax'}]);
- await page.goto(origin+'/');await page.waitForURL(origin+'/');
+ await page.goto(origin+'/');await page.waitForURL(origin+'/projects');
  assert.equal((await context.request.get(origin+'/api/projects')).status(),200);
  assert.equal((await context.request.get(origin+'/__dev/outbox')).status(),404);
 }
