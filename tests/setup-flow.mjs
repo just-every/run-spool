@@ -193,8 +193,19 @@ try {
   stage('capture and read unmapped Next.js failure');
   const before = await failure();
   assert.ok(before.packet.events.every(event => event.atAdmission.every(frame => frame.status !== 'mapped')), 'before upload the real production failure is unmapped');
+  stage('read unmapped failure in Spool at desktop and phone widths');
   await readScreens(origin, cookie, [{ name: 'setup-before', path: '/projects/setup/issues/' + before.issue.id, check: page => page.locator('.missing-map').first().waitFor() }]);
-  const stopped = new Promise(done => nextServer.once('exit', done)); nextServer.kill(); await stopped;
+  stage('stop Next.js before map upload (10-second shutdown grace)');
+  const stopNext = async () => {
+    const child = nextServer;
+    if (child.exitCode !== null || child.signalCode !== null) return;
+    const stopped = new Promise(done => child.once('exit', done));
+    // The browser context is deliberately kept for the post-upload comparison.
+    // Do not wait forever for Next's graceful shutdown with its connections open.
+    const timer = setTimeout(() => { stage('Next.js shutdown grace expired; killing fixture'); child.kill('SIGKILL'); }, 10_000);
+    try { child.kill(); await stopped; } finally { clearTimeout(timer); }
+  };
+  await stopNext();
   stage('rebuild Next.js and upload maps');
   const built = await new Promise((done, fail) => {
     const child = spawn(process.execPath, ['--env-file=.env.local', 'spool-build.mjs'], { cwd: next, env, stdio: ['ignore', 'pipe', 'pipe'] });
