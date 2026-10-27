@@ -12,10 +12,13 @@ import { launchBrowser } from './browser-launch.mjs';
 import { readScreens } from './runtimes/screens.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
+const started = performance.now();
+const stage = name => console.log(`[wizard] ${name} (${((performance.now() - started) / 1000).toFixed(1)}s)`);
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
 let worker, browser, server, nextServer, elsewhere, hop;
 const children = [];
 try {
+  stage('pack and install setup command');
   await mkdir(tool);
   const packed = JSON.parse(execFileSync(process.execPath, ['packages/sdk/build.mjs', '--pack'], { encoding: 'utf8' }).trim().split('\n').at(-1));
   await writeFile(resolve(tool, 'package.json'), JSON.stringify({ name: 'tool', private: true, type: 'module' }));
@@ -27,6 +30,7 @@ try {
     child.stdout?.on('data', chunk => out.stdout += chunk); child.stderr?.on('data', chunk => out.stderr += chunk);
     child.once('error', fail); child.once('close', status => done({ status, ...out }));
   });
+  stage('start emitted Worker and sign in');
   worker = await startTestWorker(15572); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };
   const project = await request('/api/projects', 'POST', { id: 'setup', name: 'Guided setup' });
@@ -35,6 +39,7 @@ try {
   const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=synthetic-spool@example.test', '-c', 'user.name=synthetic-spool', ...args], { cwd, encoding: 'utf8' });
 
   // Refusals first: a malformed DSN, an unsupported framework, and a DSN Spool does not know.
+  stage('DSN and framework refusals');
   assert.equal((await wizard(['--dsn', 'not-a-dsn'])).status, 1);
   const rails = resolve(temporary, 'rails-app'); await mkdir(rails); await writeFile(resolve(rails, 'Gemfile'), "source 'https://rubygems.org'\ngem 'rails'\n");
   const guided = await wizard(['--dsn', project.dsn, '--dir', rails, '--no-test-event']);
@@ -63,6 +68,7 @@ try {
   // a link swapped in while the test event is in flight: a network-edge hop relays it to Spool and holds Spool's answer
   // until the link is in place (another project, so this project's issues stay as they are).
   const outside = resolve(temporary, 'outside.env');
+  stage('linked file and settings refusals');
   await writeFile(outside, 'OUTSIDE=1\n');
   const later = await request('/api/projects', 'POST', { id: 'setup-later', name: 'Link swapped in' }), spool = new URL(origin);
   let swap;
@@ -83,6 +89,7 @@ try {
   await untouched(dotted, 'dotted');
 
   // Django: a fresh project, a reviewable patch first, then the same change applied with the SDK installed.
+  stage('install Django and configure its SDK');
   const django = resolve(temporary, 'django-app'); await mkdir(django);
   execFileSync('python3', ['-m', 'venv', resolve(temporary, 'venv')]);
   const python = resolve(temporary, 'venv/bin/python');
@@ -109,6 +116,7 @@ try {
   assert.match(again.stdout, /already configured/); assert.equal((await readFile(resolve(django, 'shop/settings.py'), 'utf8')), reviewed.settings, 'setup is idempotent');
   await arrives('Spool setup test event');
   // The configured app reports a real request failure through the Django integration, with no further setup.
+  stage('capture real Django failure');
   await writeFile(resolve(django, 'shop/urls.py'), "from django.urls import path\n\ndef boom(request):\n    raise RuntimeError('django setup failure')\n\nurlpatterns = [path('boom', boom)]\n");
   const djangoPort = 20000 + Math.floor(Math.random() * 20000);
   const runserver = spawn(python, ['manage.py', 'runserver', '--noreload', `127.0.0.1:${djangoPort}`], { cwd: django, env: { ...process.env, SPOOL_DSN: project.dsn, DEBUG: '' }, stdio: 'ignore' });
@@ -117,6 +125,7 @@ try {
   await arrives('RuntimeError: django setup failure');
 
   // Next.js: a fresh app configured by the command, then built and served, with the EasyPrivacy Sentry rules enforced.
+  stage('install Next.js');
   const next = resolve(temporary, 'next-app'); await mkdir(resolve(next, 'app'), { recursive: true });
   await writeFile(resolve(next, 'package.json'), JSON.stringify({ name: 'fresh-next', private: true, type: 'module', dependencies: { next: '16.4.2', react: '19.2.8', 'react-dom': '19.2.8' } }));
   await writeFile(resolve(next, 'app/layout.js'), 'export default function Layout({ children }) { return <html lang="en"><body>{children}</body></html>; }\n');
@@ -133,6 +142,7 @@ try {
     await rm(resolve(next, file));
   }
   const nextDry = await wizard(['--dsn', project.dsn, '--dir', next, '--no-test-event']);
+  stage('configure Next.js and install its SDK');
   assert.equal(nextDry.status, 0, nextDry.stderr);
   const nextPatch = nextDry.stdout.slice(nextDry.stdout.indexOf('diff --git')).split('\nRun:')[0] + '\n';
   await writeFile(resolve(temporary, 'next.patch'), nextPatch); git(next, 'apply', resolve(temporary, 'next.patch'));
@@ -144,12 +154,28 @@ try {
   assert.deepEqual(await Promise.all(nextFiles.map(file => readFile(resolve(next, file), 'utf8'))), nextReviewed, 'Next apply equals every reviewed byte, including source-map configuration');
   const deploy = await request('/api/projects/setup/keys', 'POST', { kind: 'deploy' });
   const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', CIRCLE_NODE_TOTAL: '2', NEXT_PUBLIC_SPOOL_RELEASE: 'synthetic-spool-setup-1', SPOOL_BUILD: 'synthetic-spool-1', NEXT_PUBLIC_SPOOL_BUILD: 'synthetic-spool-1', SPOOL_ENDPOINT: origin, SPOOL_PROJECT: 'setup', SPOOL_DEPLOY_KEY: deploy.key };
+  stage('build Next.js before map upload');
   execFileSync(process.execPath, [nextBin, 'build', '--webpack'], { cwd: next, env, stdio: 'pipe' });
   const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
   const startNext = async () => {
-  nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: next, env, stdio: ['ignore', 'pipe', 'inherit'] });
-  children.push(nextServer);
-  await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
+    stage('wait for Next.js readiness (30-second deadline)');
+    nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: next, env, stdio: ['ignore', 'pipe', 'inherit'] });
+    children.push(nextServer);
+    const child = nextServer;
+    await new Promise((done, fail) => {
+      let output = '';
+      const finish = error => {
+        clearTimeout(timer);
+        child.off('error', failed); child.off('exit', exited); child.stdout.off('data', ready);
+        if (error) { child.kill(); fail(error); } else { child.stdout.resume(); done(); }
+      };
+      const failed = error => finish(error);
+      const exited = (code, signal) => finish(new Error(`Next.js exited before readiness (code=${code}, signal=${signal})`));
+      // Keep a bounded tail so a Ready line split across chunks still completes the wait.
+      const ready = chunk => { output = (output + chunk).slice(-4096); if (/Ready/.test(output)) finish(); };
+      const timer = setTimeout(() => finish(new Error('Next.js did not become Ready within 30 seconds')), 30_000);
+      child.once('error', failed); child.once('exit', exited); child.stdout.on('data', ready);
+    });
   };
   await startNext();
   await request('/api/projects/setup/browser-origins', 'POST', { origin: nextOrigin });
@@ -164,10 +190,12 @@ try {
     const issue = (await issues()).find(row => row.title.includes('next setup failure'));
     return { issue, packet: await request('/api/projects/setup/issues/' + issue.id + '/packet') };
   };
+  stage('capture and read unmapped Next.js failure');
   const before = await failure();
   assert.ok(before.packet.events.every(event => event.atAdmission.every(frame => frame.status !== 'mapped')), 'before upload the real production failure is unmapped');
   await readScreens(origin, cookie, [{ name: 'setup-before', path: '/projects/setup/issues/' + before.issue.id, check: page => page.locator('.missing-map').first().waitFor() }]);
   const stopped = new Promise(done => nextServer.once('exit', done)); nextServer.kill(); await stopped;
+  stage('rebuild Next.js and upload maps');
   const built = await new Promise((done, fail) => {
     const child = spawn(process.execPath, ['--env-file=.env.local', 'spool-build.mjs'], { cwd: next, env, stdio: ['ignore', 'pipe', 'pipe'] });
     let output = ''; child.stdout.on('data', chunk => output += chunk); child.stderr.on('data', chunk => output += chunk);
@@ -175,6 +203,7 @@ try {
   });
   assert.equal(built.code, 0, built.output);
   await startNext();
+  stage('capture and read mapped Next.js failure');
   const after = await failure();
   const mapped = after.packet.events.flatMap(event => event.atAdmission).find(frame => frame.status === 'mapped' && /app\/page\.js$/.test(frame.original.file));
   assert.ok(mapped, 'setup build uploads the application map used at admission');
@@ -184,6 +213,7 @@ try {
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
   console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters), a link or hard link to a file outside the project, a link swapped in during the test event and a settings module that is not a dotted name write nothing.' }));
 } finally {
+  stage('cleanup browsers, servers and temporary apps');
   await browser?.close();
   for (const child of children) child.kill();
   elsewhere?.close(); hop?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });

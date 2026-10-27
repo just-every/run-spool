@@ -254,7 +254,24 @@ jobs:
         env:
           DEBUG: pw:install
       - name: Run suites
+        if: matrix.shard != 'wizard'
         run: ${{ matrix.command }}
+      - name: Run suites (wizard, 8-minute deadline)
+        if: matrix.shard == 'wizard'
+        env:
+          SUITE_COMMAND: ${{ matrix.command }}
+        run: |
+          # This journey installs and builds real apps. Bound the entire process group,
+          # including stuck npm/pip/build children, before the job cap skips artifacts.
+          if timeout --kill-after=10s 8m bash -e -o pipefail -c "$SUITE_COMMAND"; then
+            exit 0
+          else
+            status=$?
+            if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
+              echo '::error::Wizard suite exceeded its 8-minute deadline (10-second kill grace). See the last [wizard] stage for the stalled operation.'
+            fi
+            exit "$status"
+          fi
       # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
       # checkout's secrets redacted, for diagnosing a failed run.
       - uses: actions/upload-artifact@v4
