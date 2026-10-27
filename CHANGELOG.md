@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.3 — 2026-10-27
+
+Every evidence path that Spool's contract cites now ships in an installed copy of Spool, so a Managed install can check its contract without the repository's workflow files. The server-runtime SDK clause cites its test and source files instead of a CI workflow.
+
+Setup offers Cloudflare Email Sending as a mail provider beside the existing choices. Choosing it asks for a Cloudflare API token and the Cloudflare account ID, and Spool sends through the Cloudflare mail adapter it already ships. Existing mail settings are unchanged.
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.2 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.3` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This patch adds no migrations, clause status changes or breaking changes after 0.7.2, and the application still pins rer exactly to 0.2.82. Nothing needs resetting; import private archives only into an empty destination. This application release does not publish the Spool SDK. The team, mobile, broader telemetry and live-provider boundaries in the 0.7.0 section remain.
+
+### Known issues
+
+- Cloudflare Email Sending is checked through setup validation and provider selection; this release's checks do not send live mail through Cloudflare.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require the separate Managed-to-native release qualification. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.2 — 2026-10-26
 
 Spool keeps issue lists, capture receipts, issue evidence, feedback and release regression packets current while you work and when you return to the tab. Existing evidence and selections stay usable during background reads. Assignment saves wait for the saved revision, and event navigation waits for the current event list.
