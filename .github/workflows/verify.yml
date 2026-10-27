@@ -7,8 +7,65 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      skip: ${{ steps.reuse.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: reuse
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          WF_REF: ${{ github.workflow_ref }}
+        run: |
+          set -euo pipefail
+          wf="${WF_REF%@*}"; wf="${wf##*/}"
+          # Only the newest same-repository push run of this workflow is evidence.
+          # PRs test merge refs; dispatches may select subsets; this run cannot prove itself.
+          newest_push() {
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$wf/runs?head_sha=$1&event=push&per_page=100" \
+              --jq "[.workflow_runs[] | select(.head_repository.full_name == \"$GITHUB_REPOSITORY\" and .id != $GITHUB_RUN_ID)] | max_by(.id) | select(. != null) | \"\(.status) \(.conclusion)\"" || true
+          }
+          green() { [ "$(newest_push "$1")" = "completed success" ]; }
+          skip=false
+          # Main can reuse a green branch push on this exact SHA.
+          if [ "$EVENT" = push ] && [ "$REF" = refs/heads/main ] && green "$GITHUB_SHA"; then skip=true; fi
+          # An identical tree can reuse only its parent's newest green push.
+          if [ "$skip" = false ] && [ "$EVENT" = push ] && parent=$(git rev-parse -q --verify HEAD~1) \
+             && [ "$(git rev-parse 'HEAD^{tree}')" = "$(git rev-parse 'HEAD~1^{tree}')" ] && green "$parent"; then skip=true; fi
+          # A same-repository PR may pass without shards only after its head's push is green.
+          # Red, absent or timed-out evidence falls back to the complete verification.
+          if [ "$EVENT" = pull_request ] && [ "$SAME_REPO" = true ]; then
+            for _ in $(seq 1 50); do
+              state=$(newest_push "$PR_HEAD")
+              case "$state" in
+                'completed success') skip=true; break ;;
+                ''|completed\ *) break ;;
+                *) sleep 30 ;;
+              esac
+            done
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: plan
+    if: needs.plan.outputs.skip != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -53,19 +110,58 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  runtimes:
-    # Real Sentry SDK programs, one runtime per job, against Spool's public intake.
-    name: runtime (${{ matrix.runtime }})
-    needs: build
+  tests:
+    name: verify (${{ matrix.shard }})
+    needs: [plan, build]
+    if: needs.plan.outputs.skip != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
+    timeout-minutes: 10
     env:
+      # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
       RER_SERVERS_DISK_FLOOR_GIB: '4'
+      # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
+      # workerd crash) only under this flag; the kept server output below then carries it.
+      NODE_DEBUG: '@cloudflare:vite-plugin'
     strategy:
       fail-fast: false
       matrix:
-        runtime: [electron, python, go, java, ruby, php, dotnet, rust, elixir, node]
+        # Keep every suite and SDK runtime in eight groups sharing the build artifact.
+        include:
+          - shard: runtime
+            browser: true
+            runtimes: ""
+            command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+          - shard: sdk
+            browser: true
+            runtimes: ""
+            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+          - shard: repair-recovery
+            browser: true
+            runtimes: ""
+            command: pnpm test:repair-recovery
+          - shard: project-erasure
+            browser: true
+            runtimes: ""
+            command: pnpm test:project-erasure && pnpm test:sentry:cli
+          - shard: alerts
+            browser: true
+            runtimes: ""
+            command: pnpm test:alerts && pnpm test:alerts-ui && pnpm test:owner-erasure
+          - shard: agent-handoff
+            browser: true
+            runtimes: ""
+            command: pnpm test:project-erasure-cap && pnpm test:agent-handoff && pnpm test:privacy
+          - shard: owner-ui
+            browser: true
+            runtimes: "elixir go python"
+            command: pnpm test:accessibility && pnpm test:admission
+          - shard: execution
+            browser: true
+            runtimes: "electron java ruby dotnet rust node php"
+            command: pnpm test:execution && pnpm test:wizard && pnpm test:tunnel
     steps:
+      # Keep the default checkout root on every runner: emitted configs can
+      # contain absolute paths from the build job's checkout.
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -83,49 +179,55 @@ jobs:
         with:
           name: verify-build
           path: .
-      - if: matrix.runtime == 'python'
+      - if: contains(matrix.runtimes, 'python')
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - if: matrix.runtime == 'go'
+      - if: contains(matrix.runtimes, 'go')
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
           cache: false
-      - if: matrix.runtime == 'java'
+      - if: contains(matrix.runtimes, 'java')
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-      - if: matrix.runtime == 'ruby'
+      - if: contains(matrix.runtimes, 'ruby')
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-      - if: matrix.runtime == 'php'
+      - if: contains(matrix.runtimes, 'php')
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           tools: composer
-      - if: matrix.runtime == 'dotnet'
+      - if: contains(matrix.runtimes, 'dotnet')
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - if: matrix.runtime == 'elixir'
+      - if: contains(matrix.runtimes, 'elixir')
         uses: erlef/setup-beam@v1
         with:
           otp-version: '27'
           elixir-version: '1.18'
-      - if: matrix.runtime == 'rust'
+      - if: contains(matrix.runtimes, 'rust')
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ${{ runner.temp }}/cargo-target
           key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
-      # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
-      # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
-      - run: pnpm exec playwright install chromium
-      - if: matrix.runtime == 'electron'
+      - name: Install Chromium
+        if: matrix.browser
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install chromium
+          if ! pnpm exec node scripts/chromium-probe.mjs; then
+            sudo env "PATH=$PATH" "APT_ARCHIVES=$RUNNER_TEMP/rer-apt/archives" python3 scripts/install-chromium-deps.py
+            pnpm exec node scripts/chromium-probe.mjs
+          fi
+      - if: contains(matrix.runtimes, 'electron')
         name: Install Electron virtual display
         run: |
           # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
@@ -160,101 +262,27 @@ jobs:
           done
           printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
           exit 1
-      - name: Run ${{ matrix.runtime }} SDK journey
+      - name: Run suites
+        run: ${{ matrix.command }}
+      - name: Run SDK journeys
+        if: matrix.runtimes != ''
         env:
+          SDK_RUNTIMES: ${{ matrix.runtimes }}
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
         run: |
-          if [ "${{ matrix.runtime }}" = electron ]; then
-            xvfb-run -a node tests/sdk-runtimes.mjs electron
+          read -r -a runtimes <<< "$SDK_RUNTIMES"
+          if [[ " ${runtimes[*]} " == *" electron "* ]]; then
+            xvfb-run -a node tests/sdk-runtimes.mjs "${runtimes[@]}"
           else
-            node tests/sdk-runtimes.mjs "${{ matrix.runtime }}"
+            node tests/sdk-runtimes.mjs "${runtimes[@]}"
           fi
       - uses: actions/upload-artifact@v4
-        if: matrix.runtime == 'electron' && success()
+        if: contains(matrix.runtimes, 'electron') && success()
         with:
           name: electron-screens
           path: .artifacts/runtimes/
           if-no-files-found: error
           retention-days: 7
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: server-output-runtime-${{ matrix.runtime }}
-          path: |
-            .artifacts/worker-output/
-            .artifacts/runtimes/
-          include-hidden-files: true
-          if-no-files-found: ignore
-          retention-days: 7
-
-  tests:
-    name: verify (${{ matrix.shard }})
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    env:
-      # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
-      RER_SERVERS_DISK_FLOOR_GIB: '4'
-      # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
-      # workerd crash) only under this flag; the kept server output below then carries it.
-      NODE_DEBUG: '@cloudflare:vite-plugin'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - shard: runtime
-            command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
-          - shard: owner-ui
-            command: pnpm test:accessibility && pnpm test:admission
-          - shard: alerts
-            command: pnpm test:alerts && pnpm test:alerts-ui
-          - shard: sdk
-            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
-          - shard: sentry-cli
-            command: pnpm test:sentry:cli
-          - shard: tunnel
-            command: pnpm test:tunnel
-          - shard: wizard
-            command: pnpm test:wizard
-          - shard: agent-handoff
-            command: pnpm test:agent-handoff && pnpm test:privacy
-          - shard: repair-recovery
-            command: pnpm test:repair-recovery
-          - shard: execution
-            command: pnpm test:execution
-          - shard: project-erasure
-            command: pnpm test:project-erasure
-          - shard: project-erasure-cap
-            command: pnpm test:project-erasure-cap
-          - shard: owner-erasure
-            command: pnpm test:owner-erasure
-    steps:
-      # Keep the default checkout root on every runner: emitted configs can
-      # contain absolute paths from the build job's checkout.
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.12.4
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
-        with:
-          name: verify-build
-          path: .
-      # Only the browser: the runner image's Chrome already brings its system libraries, and
-      # apt from the image's mirror has run past the 10-minute job limit.
-      - run: pnpm exec playwright install chromium
-        env:
-          DEBUG: pw:install
-      - name: Run suites
-        run: ${{ matrix.command }}
       # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
       # checkout's secrets redacted, for diagnosing a failed run.
       - uses: actions/upload-artifact@v4
@@ -264,6 +292,7 @@ jobs:
           path: |
             .artifacts/dev-server/
             .artifacts/worker-output/
+            .artifacts/runtimes/
             .artifacts/wave-b/
             .artifacts/latest-product-worker.log
           include-hidden-files: true
@@ -283,3 +312,19 @@ jobs:
           console.log(await checkHostedOutput(root, {declaration}));
           console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
           NODE
+
+  verify:
+    needs: [plan, build, tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Require the plan and every shard
+        env:
+          PLAN: ${{ needs.plan.result }}
+          SKIP: ${{ needs.plan.outputs.skip }}
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          test "$PLAN" = success
+          if [ "$SKIP" = true ]; then exit 0; fi
+          for result in $RESULTS; do test "$result" = success; done

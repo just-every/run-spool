@@ -2597,7 +2597,7 @@
       "executable": false
     },
     ".github/workflows/command-journey.yml": {
-      "sha256": "ccbab1cd926c887055e2eadba19381b452b9f52d4b66919859f139b919944d59",
+      "sha256": "6d524e1410767646d4cb52e810b0590e1ea5bcee382ee1d638f119722b4cca17",
       "executable": false
     },
     ".github/workflows/rer-managed.yml": {
@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "e9ac4762926fabd52c2fce8f043ad25077589b07e74c3bc45fb0acbb791dc3b8",
+      "sha256": "ec53a2e5045c13c7b38962db6c38cb677354ed6e57ba543d4a14df9cf6d3a197",
       "executable": false
     },
     ".gitignore": {
@@ -4284,6 +4284,10 @@
       "sha256": "24cde4dd5cf8723acdfe27f6f92c1fe14402894ee3a63db185e1ce1bdbefa035",
       "executable": false
     },
+    "scripts/chromium-probe.mjs": {
+      "sha256": "300267c1206ee419e069489358e35ec423f7242e7d1bc1be015f766307052da3",
+      "executable": false
+    },
     "scripts/delivery/base/artifact.mjs": {
       "sha256": "129f210f1556e816ba94ffe74359ac553cd26466aaf8c6c299765e9cea29aa07",
       "executable": false
@@ -4430,6 +4434,10 @@
     },
     "scripts/hosted.mjs": {
       "sha256": "3fc6dac12d02b83f3544b41e16b1c5345c0af1aa3ac2d97c6c073622e7942ce0",
+      "executable": false
+    },
+    "scripts/install-chromium-deps.py": {
+      "sha256": "e742a0fdca9b2c296c8dea6b5d1f19985615e91e0121f185b43822e76674e9ca",
       "executable": false
     },
     "scripts/install.mjs": {

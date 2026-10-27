@@ -2,7 +2,7 @@ name: Command journey
 
 on:
   schedule:
-    - cron: '17 15 * * *'
+    - cron: '37 4 * * 1,4'
   push:
     tags: ['**']
   workflow_dispatch:
@@ -37,8 +37,13 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-        env:
-          DEBUG: pw:install
+      - name: Install Chromium
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install chromium
+          if ! pnpm exec node scripts/chromium-probe.mjs; then
+            sudo env "PATH=$PATH" "APT_ARCHIVES=$RUNNER_TEMP/rer-apt/archives" python3 scripts/install-chromium-deps.py
+            pnpm exec node scripts/chromium-probe.mjs
+          fi
       # The public CLI journey clones HEAD and performs its own installs/builds.
       - run: pnpm test:commands
