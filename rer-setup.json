@@ -78,6 +78,10 @@
         {
           "value": "sendgrid",
           "label": "SendGrid"
+        },
+        {
+          "value": "cloudflare",
+          "label": "Cloudflare Email Sending"
         }
       ],
       "group": "email",
@@ -136,8 +140,27 @@
           },
           "label": "SendGrid API key",
           "required": true
+        },
+        {
+          "when": {
+            "field": "MAIL_PROVIDER",
+            "equals": "cloudflare"
+          },
+          "label": "Cloudflare API token",
+          "required": true
         }
       ]
+    },
+    {
+      "name": "MAIL_ACCOUNT_ID",
+      "label": "Cloudflare account ID",
+      "kind": "text",
+      "required": true,
+      "when": {
+        "field": "MAIL_PROVIDER",
+        "equals": "cloudflare"
+      },
+      "group": "email"
     },
     {
       "name": "ALERT_DESTINATIONS",

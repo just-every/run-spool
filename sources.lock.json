@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d4d1399c40ccdb5319cc5f5d35829fc7fbd6d5561bee7ec83b73ad34792610e6",
+      "sha256": "e31e132637b55fde36b2f185c16d633e41e39c40764283b757e997e50c77246c",
       "executable": false
     },
     "DEMO.md": {
@@ -4269,11 +4269,11 @@
       "executable": false
     },
     "rer-project.json": {
-      "sha256": "afcf8ee498e70a79936ff11e4d244defe90d01bb87bebc9b07533f337f14fb99",
+      "sha256": "cb2c2ea8b64aba6d01fac78d6a0032ade05fbe7c742527c92c92fbd20b8bf8c8",
       "executable": false
     },
     "rer-setup.json": {
-      "sha256": "a0a6de3c2c3e28fe87081748d5bfec74843a49cde0548e4f0856040b96dadad2",
+      "sha256": "525fff5fd77e93146cd9750fcf9f3438047b6cb26acec6852c5cb3ab7247d3f8",
       "executable": false
     },
     "RUN-LOCALLY.md": {
@@ -4497,7 +4497,7 @@
       "executable": false
     },
     "scripts/sync-integration.mjs": {
-      "sha256": "67471dde11c1cc309572c47942c13db36067688662d7d5ea57bf2effb570652c",
+      "sha256": "fb28e8b21285da499a26101e8812a64ede8b480942d6aa184dc27078d60da06a",
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
