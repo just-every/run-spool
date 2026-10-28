@@ -8713,7 +8713,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "88dd08a90dd733ed41b6957fa2fce0e4ae8c8cfb608ab20f8dcc7362d190d744",
+      "sha256": "d095c1da21068f8a7cab6be046cb32c2bd5383e2b57ff15c1c2fd8feadbed30e",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
