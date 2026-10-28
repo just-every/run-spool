@@ -9136,8 +9136,12 @@
       "sha256": "7d40e73c9dbf152605c52c40b33ed60579fd1f3790d970a3a5bd66a1474fd12f",
       "executable": false
     },
+    "tests/team-browser.mjs": {
+      "sha256": "53792d804e9eb7da48a0bf82d71539ed21b8c23419536d6a64031b527d90b191",
+      "executable": false
+    },
     "tests/team-flow.mjs": {
-      "sha256": "459b2f3d102e074607126eb06fedf3aba7c19a9b87ff259a7bd95cf0db1bd04e",
+      "sha256": "3d0c57f1d0590d1eb1422d008b767fd0bbde268aeb570c1e4b1db77efb1600ff",
       "executable": false
     },
     "tests/triage-app.mjs": {
