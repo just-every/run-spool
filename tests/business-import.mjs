@@ -392,9 +392,48 @@ try {
  await untilState(()=>doorJson('apply',namespace,{planId:erasePlan.planId,reviewedFingerprint:erasePlan.fingerprint},eraseApproval),'completed');
  // Business's final export, archived under its own `sentry` namespace that no plan ever opens, names the same project in its bytes.
  const finalUpload=await upload(variant(5),'sentry'),finalArchive=await doorJson('archive','sentry',{uploadId:finalUpload,tool:'sentry',takenAt:new Date().toISOString()});
+ // Unplanned custody has no trusted project attribution: neither a caller's
+ // namespace nor the readable prefix of a broken export can establish it.
+ const personal=`synthetic-erasure-${randomUUID()}@private.example`;
+ const pendingNamespace='sentry-org:interrupted-export';
+ const interrupted=Buffer.concat([Buffer.from(JSON.stringify({project:imported[0].id,email:personal})),Buffer.alloc(65_536,0x20)]);
+ bytes=interrupted;
+ const first=interrupted.subarray(0,65_536);
+ const pending=await doorJson('uploads',pendingNamespace,{name:'synthetic-interrupted.json',bundleSha256:digest(interrupted),
+  totalBytes:interrupted.length,totalChunks:2,index:0,chunkSha256:digest(first),base64:first.toString('base64')});
+ assert.equal(pending.complete,false);
+ const brokenNamespace='sentry-org:unparseable-export';
+ const broken=await upload(Buffer.from(JSON.stringify({project:imported[0].id,email:personal}).slice(0,-1)),brokenNamespace);
+ // A readable project list with an unfinished page chain is also uncertain.
+ const partialBundle=JSON.parse(fixture);
+ partialBundle.organization.slug='different-organization';
+ partialBundle.collections[0].pages[0].nextCursor='unfinished';
+ partialBundle.omissions.push(personal);
+ const partialNamespace='sentry-org:partial-export';
+ const partial=await upload(Buffer.from(JSON.stringify(partialBundle)),partialNamespace);
+ // A complete, independently scoped peer export can be attributed and stays.
+ const peerBundle=JSON.parse(fixture);
+ peerBundle.organization.slug='peer-organization';
+ peerBundle.collections=peerBundle.collections.filter(collection=>collection.kind!=='dashboards');
+ const peerNamespace='sentry-org:peer-organization';
+ const peerUpload=await upload(Buffer.from(JSON.stringify(peerBundle)),peerNamespace);
+ const peerArchive=await doorJson('archive',peerNamespace,{uploadId:peerUpload,tool:'sentry',takenAt:new Date().toISOString()});
+ // An unsupported collection may hold project data without usable membership.
+ // The public archive door retains it for review, with no native effects.
+ const uncertainBundle=JSON.parse(fixture);
+ uncertainBundle.organization.slug='unattributed-archive';
+ uncertainBundle.collections.find(collection=>collection.kind==='dashboards').pages[0].response[0].title=personal;
+ const uncertainNamespace='sentry-org:unattributed-archive';
+ const uncertainUpload=await upload(Buffer.from(JSON.stringify(uncertainBundle)),uncertainNamespace);
+ const uncertainArchive=await doorJson('archive',uncertainNamespace,{uploadId:uncertainUpload,tool:'sentry',takenAt:new Date().toISOString()});
+ const oldArchive=await (await ownerRequest('/api/archive')).text();
+ const heldBefore=await nativeSnapshot();
+ const ownerHold=await ownerJson('/api/owner/erasure');
+ assert.equal(ownerHold.hold,'shared_import_custody','shared original custody still honestly holds owner erasure');
+ assert.deepEqual(await nativeSnapshot(),heldBefore,'owner erasure preview is nonmutating');
  const erasePreview=await ownerJson(projectPath+'/erasure');
  assert.equal(erasePreview.hold,null);
- assert.equal(erasePreview.deleted.ik_door_archives,2,'both archives naming the project, in either namespace, participate in project erasure');
+ assert.equal(erasePreview.deleted.ik_door_archives,3,'the two affected archives and the unattributable archive participate in project erasure');
  for(const table of ['ik_door_uploads','ik_door_chunks','ik_door_plans','ik_door_plan_chunks','ik_door_approvals','ik_door_scopes','ik_door_archives','ik_door_archive_chunks'])assert.ok(erasePreview.deleted[table]>0,`${table} participates in project erasure`);
  const accepted=await json(await ownerRequest(projectPath+'/erasure','POST',{confirm:imported[0].id,planHash:erasePreview.planHash}),202);
  const erased=await followErasure(async(path,method)=>{const response=await ownerRequest(path,method);assert.ok(response.ok);return response.json();},accepted);
@@ -404,6 +443,25 @@ try {
  assert.equal((await json(await doorRequest('restore-check',namespace,{archiveId:archived.archiveId}),404)).error,'archive_not_found','project erasure withdraws the archive with its namespace');
  assert.equal((await json(await doorRequest('restore-check','sentry',{archiveId:finalArchive.archiveId}),404)).error,'archive_not_found','project erasure withdraws an archive naming the project from a namespace no plan opened');
  assert.deepEqual((await ownerJson(settingsPath)).history,[],'withdrawn private snapshots cannot be reopened from history');
+ assert.equal((await json(await doorRequest('restore-check',uncertainNamespace,{archiveId:uncertainArchive.archiveId}),404)).error,'archive_not_found','uncertain unplanned archive headers and bytes are withdrawn');
+ bytes=variant(6);
+ for(const [uploadNamespace,id] of [[pendingNamespace,pending.uploadId],[brokenNamespace,broken],[partialNamespace,partial]]) {
+  assert.equal((await json(await doorRequest('uploads',uploadNamespace,{uploadId:id}),404)).error,'upload_not_found','unattributable raw custody is withdrawn across namespaces');
+  await json(await doorRequest('plan',uploadNamespace,{uploadId:id,catchup:true}),404);
+ }
+ assert.equal((await doorJson('uploads',peerNamespace,{uploadId:peerUpload})).complete,true,'proven peer custody stays');
+ assert.equal((await doorJson('restore-check',peerNamespace,{archiveId:peerArchive.archiveId})).bundleSha256,peerArchive.bundleSha256);
+ const freshArchive=await (await ownerRequest('/api/archive')).text();
+ assert.ok(!freshArchive.includes(personal),'private exports retain none of the erased personal data');
+ const restore=await fetch(origin+'/api/restore',{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:oldArchive});
+ const restoreRefusal=await json(restore,400);
+ assert.equal(restoreRefusal.error,'erasure_epoch','an old private archive cannot resurrect erased data');
+ assert.deepEqual(await nativeSnapshot(),beforeNative);
+ const retryUpload=await upload(variant(4));
+ assert.equal((await json(await doorRequest('plan',namespace,{uploadId:retryUpload,catchup:true}),409)).error,'source_erased','old source cannot return through catch-up');
+ assert.deepEqual(await nativeSnapshot(),beforeNative);
+ assert.notDeepEqual(heldBefore,beforeNative,'the old native export really held the erased project');
+
 
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[kid]});
  await ownerJson(settingsPath,'POST',{enabled:false});
