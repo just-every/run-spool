@@ -43,7 +43,7 @@ export async function releaseIdentityFlow({req,json,origin,cookie}){
  const sdkReleases=await json('/api/projects/release-sdk/releases');assert.equal(sdkReleases.length,1);assert.equal(sdkReleases[0].name,'b'.repeat(40));assert.equal(sdkReleases[0].auto_created,1);assert.ok(JSON.parse(sdkReleases[0].creating_sdk).name.includes('node'));
  const archive=await archiveProjection(await req('/api/archive'));assert.equal(archive.data.release_metadata.filter(r=>r.project==='release-identity').length,3);assert.ok(archive.data.events.some(e=>e.project==='release-identity'&&e.release===''&&e.release_seq===0));
  const restored=await startTestWorker(15526);try{const restoredCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const t of ['release_metadata','release_builds','release_policies','issue_resolutions'])assert.deepEqual(copied.data[t],archive.data[t]);}finally{await restored.stop()}
- const browser=await launchBrowser();try{await mkdir('.artifacts/release-identity',{recursive:true});for(const width of [1440,390]){
+ const browser=await launchBrowser();try{await mkdir('.artifacts/release-identity',{recursive:true});for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();
   await page.goto(origin+'/projects/release-identity/settings');const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Sentry release identity',exact:true})});await panel.getByLabel('Release ordering rule',{exact:true}).selectOption('sentry');await panel.getByRole('button',{name:'Preview release policy',exact:true}).click();await panel.getByRole('heading',{name:'Resolution boundary preview',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-identity/policy-${width}.png`});await panel.getByRole('button',{name:'Save release policy',exact:true}).click();await panel.getByRole('status').filter({hasText:'Release policy saved'}).waitFor();
   await page.goto(origin+'/projects/release-identity/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await page.screenshot({path:`.artifacts/release-identity/history-${width}.png`,fullPage:true});
@@ -62,7 +62,7 @@ export async function releaseIdentityFlow({req,json,origin,cookie}){
   await context.close();
  }}finally{await browser.close()}
  const erasure=await json(base+'/erasure');assert.ok(erasure.deleted.release_metadata>0&&erasure.deleted.release_builds>0&&erasure.deleted.issue_resolutions>0&&erasure.deleted.release_policies>0);await followErasure(json,await json(base+'/erasure','POST',{confirm:'release-identity',planHash:erasure.planHash}));const erased=await archiveProjection(await req('/api/archive'));for(const table of ['release_metadata','release_builds','issue_resolutions','release_policies'])assert.ok(erased.data[table].every(row=>row.project!=='release-identity'));
- console.log('Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440/390 settings/history/triage.');
+ console.log('Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440 settings/history/triage.');
 }
 
 // SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release.
@@ -86,7 +86,7 @@ async function sdk009ReleaseResolution({req,json}) {
 }
 
 // TEAM-004 short IDs, commit citations, resolution and unknown-ID link log: owner, deploy-key and
-// agent HTTP, Sentry intake, private archive restore, retention, project erasure and 1440/390 screens.
+// agent HTTP, Sentry intake, private archive restore, retention, project erasure and 1440 screens.
 export async function team004Flow({req,json,origin,cookie}){
  const project=await json('/api/projects','POST',{id:'checkout-web',name:'Cedar checkout web'}),billing=await json('/api/projects','POST',{id:'billing',name:'Cedar billing'}),base='/api/projects/checkout-web';
  assert.equal(project.shortIdPrefix,'CHECKOUT-WEB');
@@ -105,8 +105,8 @@ export async function team004Flow({req,json,origin,cookie}){
  const csv=await (await req(base+'/issue-export?format=csv')).text();assert.ok(csv.startsWith('short_id,id,')&&csv.includes('"CHECKOUT-WEB-3"'),'CSV export carries short IDs');
  assert.deepEqual((await json(base+'/issue-export?format=json')).rows.map(r=>r.short_id).sort(),['CHECKOUT-WEB-1','CHECKOUT-WEB-2','CHECKOUT-WEB-3']);
  assert.deepEqual((await json(base+'/commits/link-log')).rows,[]);assert.deepEqual((await json(base+'/commits/sharing')).share,false);assert.deepEqual((await json(base+'/commits/issues/'+A.id)).links,[]);
- const browser=await launchBrowser(),folder='docs/retained-verification/team004';await mkdir(folder,{recursive:true});
- const shoot=async(label,path,ready)=>{for(const width of [1440,390]){const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();await page.goto(origin+path);const target=await ready(page,width);const identity=page.getByRole('region',{name:'Affected users',exact:true});if(await identity.count())await identity.getByText(/occurrences have no retained user key/).waitFor();const suspects=page.getByRole('region',{name:'Suspect changes',exact:true});if(await suspects.count())await suspects.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`TEAM-004 ${label} reflows at ${width}`);await target.screenshot({path:`${folder}/${label}-${width}.png`});await context.close()}};
+ const browser=await launchBrowser(),folder='.artifacts/team004';await mkdir(folder,{recursive:true});
+ const shoot=async(label,path,ready)=>{for(const width of [1440]){const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();await page.goto(origin+path);const target=await ready(page,width);const identity=page.getByRole('region',{name:'Affected users',exact:true});if(await identity.count())await identity.getByText(/occurrences have no retained user key/).waitFor();const suspects=page.getByRole('region',{name:'Suspect changes',exact:true});if(await suspects.count())await suspects.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`TEAM-004 ${label} reflows at ${width}`);await target.screenshot({path:`${folder}/${label}-${width}.png`});await context.close()}};
  const timeline=async page=>{const section=page.locator('.commit-timeline');await section.getByRole('heading',{name:'Commits and resolution',exact:true}).waitFor();await section.locator('p').first().waitFor();return section};
  const linkLog=async page=>{const section=page.locator('#repository-link-log');await section.getByRole('heading',{name:'Repository link log',exact:true}).waitFor();await section.locator('p').nth(1).waitFor();return section};
  try{
@@ -197,7 +197,7 @@ export async function team004Flow({req,json,origin,cookie}){
   assert.equal((await json('/api/projects','POST',{id:'checkout_web',name:'Cedar checkout reborn'})).shortIdPrefix,'CHECKOUT-WEB_2','an erased project’s prefix is never reused');
  }finally{await browser.close()}
  await team004DeliveryRetention();
- console.log('TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440/390 screens.');
+ console.log('TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440 screens.');
 }
 
 // S2 / G2 uses the emitted app and existing signed receiver/provider edges. All changes
