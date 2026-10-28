@@ -2650,7 +2650,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "15c9cf58bdfaf3ef9f238c29a9d219323bfae921b8e717aeb7f1640bc407f82f",
+      "sha256": "6ba802e3c89665b13d11b4ca2ad8cb060b6ca545a6411ff9ced8f03d5f392839",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -4022,7 +4022,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "c0560ee6bc46c18debf94649e259fa07eed3db254d2fcdcc80054c7c6144f45f",
+      "sha256": "09b76dbac7c5478ea80bbfadd540cfbf8bcecb7312081123d69be5aa2ef94dac",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4190,7 +4190,7 @@
       "executable": false
     },
     "pnpm-lock.yaml": {
-      "sha256": "c55b4f00106d0d0941ce38601b8d054516f301573b235ed2c29f01ef4ae1a19d",
+      "sha256": "2a0c4f34bea1e78b8ad7e94d8924096ba58869116e21ebbccf747a41110ddc38",
       "executable": false
     },
     "pnpm-workspace.yaml": {
