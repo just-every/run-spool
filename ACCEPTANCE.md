@@ -1497,7 +1497,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 3. `spool.signin.update` and `spool.context.connect` add gated when the provider shows a consent screen.
 4. `spool.billing.update` adds gated at the billing partner's hosted checkout, and commitment, with the counterparty, when it accepts terms.
 5. A gated step goes to the named person whatever the policy says.
-6. `spool.tracker.sync` adds accounts when connecting installs a Jira, Linear or GitHub/GitLab provider app, naming the provider, and gated at the provider's consent screen, naming the provider and step; connecting an existing app handles credentials as security without creating another account.
+6. `spool.tracker.sync` adds accounts only when connecting installs a Jira, Linear or GitHub/GitLab provider app, naming the provider. It adds gated at the provider's consent screen for a new or existing app, naming provider and step; an existing app without consent adds neither accounts nor gated, while credential handling stays security.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes commitment, accounts or gated.
