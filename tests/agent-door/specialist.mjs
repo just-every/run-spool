@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {shopFixture} from '../execution/fixture.mjs';
+import {runner} from '../execution/reproduce.mjs';
+import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
+
+export async function specialistFlow(app,github){
+ const project='door-shop',path='/api/projects/'+project;
+ const done=a=>{assert.ok(a&&!a.isError,a?._meta?.['com.runeditrun/error']?.code??'Missing tool result');return a.structuredContent;};
+ const fixture=await shopFixture(),created=await app.json('/api/projects','POST',{id:project,name:'Harbor checkout'});
+ await app.json(path+'/releases','POST',{name:'1.0.0',build:'web-1'});
+ await app.json(path+'/artifacts','POST',{release:'1.0.0',build:'web-1',debugId:'cart-map',map:fixture.broken});
+ let issue;
+ for(const eventId of ['cart-1','cart-2'])issue=(await app.json('/api/ingest/'+project,'POST',{version:1,eventId,release:'1.0.0',build:'web-1',environment:'production',type:fixture.type,message:fixture.message,frames:fixture.frames,breadcrumbs:[]},{Authorization:`Bearer ${created.ingestKey}`})).issue;
+ const recipe=done(await app.call('spool.reproducers.create',{project,event:'cart-1',input:[{}],idempotency_key:randomUUID()}));assert.equal(recipe.support,'supported');
+ const queued=done(await app.call('spool.reproducers.run',{project,id:recipe.id,idempotency_key:randomUUID()}));
+ await app.adopt(autonomousPolicy(),{paused:true});
+ const paused=await app.request(new URL(queued.url).pathname,'GET',undefined,{Authorization:`Bearer ${queued.token}`});assert.equal(paused.status,403);assert.equal((await paused.json()).code,'agents_paused');
+ assert.equal((await app.json(path+'/reproducers?issue='+issue)).reproducers.find(r=>r.id===recipe.id).runs[0].state,'queued');
+ await app.adopt();
+ const observed=await runner(queued.command.replace(app.canonicalOrigin,app.origin));assert.equal(observed.code,0,'The native isolated runner completed');assert.match(observed.output,/^reproduced:/m);
+ const replay=await app.request(new URL(queued.url).pathname,'GET',undefined,{Authorization:`Bearer ${queued.token}`});assert.equal(replay.status,401);await replay.body?.cancel();
+ const recipes=done(await app.call('spool.reproducers.read',{project,issue})).reproducers;const run=recipes.find(r=>r.id===recipe.id).runs[0];assert.equal(run.outcome,'reproduced');assert.equal(run.preparedBy.for.id,app.context.sponsorId??run.preparedBy.for.id);
+ const fix=done(await app.call('spool.fixes.create',{project,reproducer:recipe.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',idempotency_key:randomUUID()}));
+ const grant=await app.json(path+'/fixes/'+fix.id+'/approve','POST',{revision:fix.revision});assert.equal(grant.approvedBy[0].name,'Dana Engineer');assert.equal(github.requests.length,0,'Native consent for an agent-prepared workflow does not dispatch it');
+ const advance={project,id:fix.id,idempotency_key:randomUUID()};
+ await app.adopt({schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'all',class:'*',do:'autonomous'},{id:'external',class:'external',do:'blocked'}],spend:{none:true}});
+ const blocked=await app.call('spool.fixes.advance',advance,{},grant.proofReference);assert.equal(blocked._meta['com.runeditrun/error'].code,'policy_blocked');assert.equal(github.requests.length,0);
+ await app.adopt(heldPolicy());
+ const held=await app.call('spool.fixes.advance',{...advance,idempotency_key:randomUUID()},{},grant.proofReference);const pending=held._meta['com.runeditrun/error'].approval;
+ assert.ok(pending?.id);assert.equal(github.requests.length,0);
+ const {approval}=await app.json('/agents/api/approvals/'+pending.id);assert.ok(approval.summary.items.some(item=>item.includes('.spool/reproducers/')));
+ await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+ const workflows=await app.json(path+'/fixes?issue='+issue),opened=workflows.workflows.find(w=>w.id===fix.id);
+ assert.equal(opened.status,'pull_request_open');assert.equal(opened.preparedBy.label,'Agent door conformance for Dana Engineer');
+ const number=opened.states.pullRequest.number;assert.equal(github.state.pulls[number-1].draft,true);
+ const file=JSON.parse(github.file(opened.grant.branch,opened.grant.file.path));assert.equal(file.kind,'spool-reproducer');assert.equal(file.run.outcome,'reproduced');
+ assert.match(github.state.pulls[number-1].body,/Prepared by Agent door conformance for Dana Engineer/);assert.match(github.state.pulls[number-1].body,/Native repository grant authorized by Dana Engineer/);
+ assert.equal(github.live(),0,'Native provider tokens are revoked');
+ console.log('Spool specialist: real captured failure, isolated reproduction, queued Pause, exact native repository consent and policy-held GitHub draft data PR passed.');
+}

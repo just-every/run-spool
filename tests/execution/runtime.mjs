@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from '../agent-door/local-policy.mjs';
 import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
@@ -23,7 +24,7 @@ export async function executionRuntime(state,port,extra={}){
    const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
    await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   }
-  const cookie=await signIn(origin);
+  const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body!==undefined?{'content-type':typeof body==='string'?'application/x-ndjson':'application/json'}:{}),...headers},...(body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
   const json=async(path,method,body,headers,status)=>{const r=await request(path,method,body,headers);const value=await r.json();assert.ok(status?r.status===status:r.ok,`${method??'GET'} ${path}: HTTP ${r.status} ${value.error??''}`);return value;};
   return {origin,db,cookie,request,json,schedule:time=>json('/__fixture/schedule','POST',{time}),stop:()=>runtime.dispose()};

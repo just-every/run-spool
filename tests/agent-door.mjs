@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {githubDouble} from './execution/github-double.mjs';
+import {specialistFlow} from './agent-door/specialist.mjs';
+import {peopleFlow} from './agent-door/people.mjs';
+import {agentScreens} from './agent-door/screens.mjs';
+import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
-const app=await agentRuntime();
+const github=await githubDouble();
+const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github.com'};
+const app=await agentRuntime(15916,{GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));
+let screens;
 const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
-const done=answer=>{assert.ok(answer&&!answer.isError,JSON.stringify(answer));return answer.structuredContent;};
+const done=answer=>{assert.ok(answer&&!answer.isError,code(answer)??'Missing tool result');return answer.structuredContent;};
 try{
+ await app.json('/api/organization','POST',{id:'door-company',name:'Harbor Shop'});
  const p=await app.json('/api/projects','POST',{id:'door-triage',name:'Checkout failures'});
  await app.json('/api/projects/door-triage/releases','POST',{name:'1.0.0',build:'web-1'});
  const admitted=await app.json('/api/ingest/door-triage','POST',{version:1,eventId:'door-failure',release:'1.0.0',build:'web-1',environment:'production',type:'TypeError',message:'Cannot read total',frames:[{file:'https://checkout.example/app.js',line:1,column:0,function:'total'}],breadcrumbs:[]},{Authorization:`Bearer ${p.ingestKey}`});
@@ -32,16 +41,24 @@ try{
  const held=await app.call('spool.issues.update',{project,issue,state:'suppressed',revision:packet.issue.revision,idempotency_key:randomUUID()});
  const pending=held._meta?.['com.runeditrun/approval']??held._meta?.['com.runeditrun/error']?.approval;assert.ok(pending?.id,JSON.stringify(held));
  assert.deepEqual(await app.json(`/api/projects/${project}/issues`),before);
+ screens=await agentScreens(app);
+ await screens.capture('approval-pending','/agents/approvals/'+pending.id,'Agent door conformance');
+ await screens.capture('agents-pending','/agents','Agent door conformance');
+ await screens.capture('native-repair',`/projects/${project}/issues/${issue}`,'Recorded by Agent door conformance for Dana Engineer');
  const pendingView=await app.json('/agents/api/approvals/'+pending.id);const approval=pendingView.approval;
  await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
  assert.equal((await app.json(`/api/projects/${project}/issues`))[0].state,'suppressed');
+ await screens.capture('approval-executed','/agents/approvals/'+pending.id,'executed');
  await app.adopt(autonomousPolicy(),{paused:true});
  assert.equal(code(await app.call('spool.issues.update',{project,issue,state:'open',revision:packet.issue.revision+1,idempotency_key:randomUUID()})),'agents_paused');
  // Current people retain the same native path while agents are paused.
  await app.json(`/api/projects/${project}/issues/${issue}`,'PATCH',{state:'open',revision:packet.issue.revision+1});
  await app.adopt();
  const key=await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'});
- const metadata=await app.json('/.well-known/oauth-protected-resource/mcp');assert.equal(metadata.resource,app.origin+'/mcp');
+ const metadata=await app.json('/.well-known/oauth-protected-resource/mcp');assert.equal(metadata.resource,app.canonicalOrigin+'/mcp');
  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{sub:randomUUID()},'2025-11-25',401)).httpStatus,401);
+ await peopleFlow(app);
+ await specialistFlow(app,github);
+ await reviewErasureFlow(app);
  console.log('Spool native door: signed owner/settings, one registry, inert proposal/replay, attributed repair claim, exact approval, Pause and identity checks passed.');
-}finally{await app.stop();}
+}finally{await screens?.close();await app.stop();await github.stop();}

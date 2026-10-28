@@ -1,4 +1,7 @@
 import { Hono } from 'hono';
+import { agentAuthority } from '../agent-door/native-authority';
+import { agentErasureDatabase } from '../agent-door/erasure';
+import { ownerDatabase } from '../owner-authority';
 import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { ErasureError } from '../../modules/erasure/index.mjs';
@@ -47,7 +50,7 @@ projectErasureRoutes.post('/', async c => {
  // Typed confirmation: the exact project identifier, plus the previewed plan.
  if (!input || input.confirm !== project || typeof input.planHash !== 'string' || !/^[a-f0-9]{64}$/.test(input.planHash)) return c.json({ error: 'Type the project identifier to confirm erasure' }, 400);
  try {
-  const receipt = await startProjectErasure(c.env.DB, project, input.planHash);
+  const receipt = await startProjectErasure(agentAuthority(c.req.raw)?agentErasureDatabase(c.env.DB,agentAuthority(c.req.raw)!):c.env.DB, project, input.planHash);
   c.header('Location', `/api/erasures/${receipt.id}`);
   c.header('Cache-Control', 'no-store');
   return c.json(receiptView(receipt), 202);
@@ -68,7 +71,7 @@ erasureReceiptRoutes.get('/:id', async c => {
 // Explicit owner-only continuation: GET remains a side-effect-free status read.
 erasureReceiptRoutes.post('/:id/resume', async c => {
  try {
-  const receipt = await resumeProjectErasure(c.env.DB, c.req.param('id'));
+  const receipt = await resumeProjectErasure(agentAuthority(c.req.raw)?ownerDatabase(c.env.DB,agentAuthority(c.req.raw)!):c.env.DB, c.req.param('id'));
   c.header('Cache-Control', 'no-store');
   return c.json(receiptView(receipt), receipt.phase === 'complete' ? 200 : 202);
  } catch (error) {

@@ -40,3 +40,15 @@ Setup, dev, verify and deploy dry run are local operations. Never infer deployme
 Spool declares its own fonts (self-hosted Zilla Slab, IBM Plex Sans and IBM Plex Mono) in `public/fonts/fonts.css`, linked by `src/base/font-head.ts`. Both are product-owned and outside the Base copy records; the root head, the landing, docs and sign-in pages, and native `/auth/*` documents (through `fontDocumentResponse`) share them, while tokens and components live in `public/theme/spool.css`, so a Base refresh must not bring back Base's Outfit default.
 
 `scripts/delivery/base/packaging.json` is product-owned policy over the pinned Base exporter. Regenerate the setup digest and producer workflow when policy or manifest bytes change.
+
+
+## Shared agent door
+
+Application-agent work enters `src/domain/agent-door/index.server.ts`. Native
+services accept the explicit server-owned agent authority; never mint or borrow
+a person's session. `agent-surface.json` and the runtime catalogue must match;
+use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
+[docs/AGENT-DOOR.md](docs/AGENT-DOOR.md) for scopes, native consent, runner custody
+and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
+Keep the existing core-flow registration and CI shard count. Contract judgments
+remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.

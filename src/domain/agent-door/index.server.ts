@@ -24,8 +24,16 @@ export async function localAgent(request:Request,env:Bindings) {
  const row=await env.DB.prepare(`SELECT minted_by FROM credentials WHERE hash=? AND project=? AND ${mintedByCurrentPerson}`).bind(id,project).first<{minted_by:string}>();
  return row?.minted_by?{sponsor:{id:row.minted_by},agent:{id:`spool-key:${id}`,name:'Spool project agent'},scopes:[...localScopes],clientId:`spool-key:${id}`}:null;
 }
-export function spoolAgentDoor(env:Bindings) {
- return createAgentDoor({seed:'spool',name:'Spool',specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),
+export function spoolAgentDoor(env:Bindings,name='Spool') {
+ return createAgentDoor({seed:'spool',name,specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),
+  nativeProof:{handoff:()=>`${env.AUTH_ORIGIN}/projects`,async verify({kind,tool,args,principal,reference}){
+   if(kind!=='repository_grant'||tool!=='spool.fixes.advance')return false;
+   const row=await env.DB.prepare(`SELECT a.reference FROM spool_native_approvals a JOIN fix_workflows f ON f.id=a.id AND f.project=a.project JOIN spool_agent_custody c ON c.id=f.id AND c.kind='fix'
+    WHERE a.kind='fix' AND a.reference=? AND f.id=? AND f.project=? AND f.approved IS NOT NULL AND f.expires>?
+    AND json_extract(c.principal,'$.person.id')=? AND json_extract(c.principal,'$.agent.id')=?
+    AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=a.person AND o.status='active' AND (o.role='owner' OR EXISTS(SELECT 1 FROM spool_members m WHERE m.operator_id=o.id AND m.role='admin' AND m.state='active')))`)
+    .bind(reference,args.id,args.project,Date.now(),principal.person.id,principal.agent.id).first();return !!row;
+  }},
   tools:spoolTools(env),resources:spoolResources(env),notTools:notTools as AgentDoorOptions['notTools'],
   localCredentials:request=>localAgent(request,env),
   async currentScopes(principal:Principal){
@@ -37,6 +45,10 @@ export function spoolAgentDoor(env:Bindings) {
  });
 }
 export async function agentDoorResponse(request:Request,env:Bindings) {
- const settings=await businessSettings(env).handle(request);if(settings)return settings;
- return spoolAgentDoor(env).handle(request);
+ const path=new URL(request.url).pathname;
+ const settingsPaths=['/api/rer/business-settings','/rer-business-logo','/rer-business.css'];
+ if(settingsPaths.includes(path))return businessSettings(env).handle(request);
+ if(path!=='/mcp'&&path!=='/api/rer/agent-policy'&&path!=='/agents'&&!path.startsWith('/agents/')&&!['/.well-known/oauth-protected-resource','/.well-known/oauth-protected-resource/mcp'].includes(path))return null;
+ const name=await businessSettings(env).resolve('display_name','Spool');
+ return spoolAgentDoor(env,typeof name==='string'?name:'Spool').handle(request);
 }

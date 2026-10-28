@@ -33,6 +33,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
     </>}
     {reproducer.runs.map((run: any) => <div key={run.id} className={`callout run ${run.outcome ?? run.state}`}>
       <strong>{run.outcome ? outcomeLabel[run.outcome] : stateLabel[run.state]}</strong> · release {run.release} · queued {date(run.created)}
+      {run.preparedBy && <p className="execution-meta">Prepared by {run.preparedBy.label}</p>}
       {run.reason && <p>{run.reason}</p>}
       {run.outcome && run.outcome !== 'failed' && <p className="execution-meta">{run.basis}</p>}
       {!!run.checks.length && <ul className="run-checks">{run.checks.map((check: any) => <li key={check.check}>{check.passed ? '✓' : '✗'} {check.check.replace('_', ' ')}: expected {String(check.expected)}, observed {String(check.observed)}{check.required ? '' : ' (shown, not required)'}</li>)}</ul>}

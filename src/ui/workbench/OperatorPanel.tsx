@@ -201,6 +201,6 @@ function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {
       : row.kind === 'grouping_applied' ? 'Applied a grouping correction'
       : row.kind === 'grouping_undone' ? 'Undid a grouping correction'
       : `Recorded deployment of ${detail.release} in ${detail.environment}`;
-    return <li key={row.id}>{label} · {date(row.created)}</li>;
+    return <li key={row.id}>{label} · {date(row.created)}{row.preparedBy ? ` · ${row.preparedBy.label}` : row.personActor ? ` · ${row.personActor.label}` : ''}{row.approvers?.length ? ` · Approved by ${row.approvers.map((p: any) => p.name).join(', ')}` : ''}</li>;
   })}</ul>;
 }

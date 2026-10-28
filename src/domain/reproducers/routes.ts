@@ -1,3 +1,4 @@
+import { agentAuthority } from '../agent-door/native-authority';
 import { hash, identity, token } from '../privacy';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { classify } from './classify';
@@ -51,6 +52,7 @@ routes.post('/:reproducer/runs', async c => {
   await ownerWrites(c, [
    s(c.env.DB, "INSERT INTO reproducer_runs(id,reproducer,project,release,build,modules,state,created,expires) VALUES(?,?,?,?,?,?,'queued',?,?)", id, row.id, project, release.name, release.build, JSON.stringify(recorded(modules)), time, time + RUN_TOKEN_MS),
    s(c.env.DB, 'INSERT INTO reproducer_run_tokens VALUES(?,?,?,?)', id, project, await hash(secret), time + RUN_TOKEN_MS),
+   ...agentAuthority(c.req.raw)?[s(c.env.DB,'INSERT INTO spool_agent_custody VALUES(?,?,?,?,?)','reproducer',id,project,JSON.stringify((({person,agent,scopes,clientId,consent})=>({person:{id:person.id},agent,scopes,clientId,consent}))(agentAuthority(c.req.raw)!.context)),JSON.stringify(agentAuthority(c.req.raw)!.context.actor))]:[],
    audit(c.env.DB, project, 'reproducer_run_queued', { reproducer: row.id, run: id, release: release.name }, time),
   ]);
  } catch (error) { const refused = budget(error, c); if (refused) return refused; throw error; }
@@ -58,4 +60,15 @@ routes.post('/:reproducer/runs', async c => {
  return c.json({ run: id, token: secret, url, expires: time + RUN_TOKEN_MS, command: `SPOOL_RUN_TOKEN=${secret} pnpm reproduce ${url}` }, 201);
 });
 
+// The runner invokes this typed action with its saved principal before handing
+// uploaded code to the isolated sandbox. It rechecks current role and policy.
+routes.post('/:reproducer/claim', async c=>{
+ const project=c.req.param('project')!,id=c.req.param('reproducer');
+ const row=await s(c.env.DB,'SELECT reproducer,state,expires FROM reproducer_runs WHERE project=? AND id=?',project,id).first<any>();
+ if(!row)return c.json({error:'Run not found'},404);
+ if(row.state!=='queued'||row.expires<=Date.now())return c.json({error:'Run already claimed or expired'},409);
+ const [result]=await ownerWrites(c,[s(c.env.DB,"UPDATE reproducer_runs SET state='claimed',claimed=? WHERE project=? AND id=? AND state='queued' AND expires>?",Date.now(),project,id,Date.now()),audit(c.env.DB,project,'reproducer_run_queued',{reproducer:row.reproducer,run:id},Date.now())]);
+ if(!result.meta.changes)return c.json({error:'Run already claimed'},409);
+ return c.json({id,reproducer:row.reproducer,state:'claimed'});
+});
 export default routes;

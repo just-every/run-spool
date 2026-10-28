@@ -1,6 +1,7 @@
 export { assertAuditAppendOnly } from '../audit-state.mjs';
 import assert from 'node:assert/strict';
-import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
+import { generateKeyPairSync, randomUUID, sign, createHash } from 'node:crypto';
+import {canonical} from '../../src/modules/agent-door/conformance/crypto.mjs';
 import { admissionRuntime } from '../admission-runtime.mjs';
 import { signIn, testOwner } from '../auth.mjs';
 
@@ -16,6 +17,13 @@ export async function runtime(extra={}) {
   app.cookie=await nativeSignIn(app,testOwner);
   app.request=(path,value,headers={},method)=>app.call(path,value,{Cookie:app.cookie,...headers},method);
   app.json=async(path,value,status=200,headers={})=>{const response=await app.request(path,value,headers);const data=await response.json();assert.equal(response.status,status,`${path}: ${JSON.stringify(data)}`);return data;};
+  // These legacy native fixtures exercise retained live project-agent keys.
+  // The fixture company explicitly chooses policy with its per-run signer.
+  const document={schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'fixture-company-choice',class:'*',do:'autonomous'}],spend:{none:true}};
+  const signed=(typ,payload)=>{const input=encode({alg:'ES256',typ,kid:'erasure'})+'.'+encode(payload);return input+'.'+sign('sha256',Buffer.from(input),{key:privateKey,dsaEncoding:'ieee-p1363'}).toString('base64url');};
+  const revision_signature=signed('rer-agent-policy-revision+jwt',{business:'fixture-company',revision:1,document_sha256:createHash('sha256').update(canonical(document)).digest('hex')});
+  const policy=signed('rer-agent-policy+jwt',{v:1,iss:issuer,aud:'https://spool.example',sub:installationId,business:'fixture-company',seq:1,revision:1,paused:false,catalogue:'rer-agent-classes/1',document,revision_signature,iat:now,exp:now+300});
+  await app.json('/api/rer/agent-policy',{policy});
   return app;
  }catch(error){await app.close();throw error;}
 }

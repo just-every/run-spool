@@ -38,10 +38,19 @@ export function spoolPeople(env: Bindings): PeopleAdapter {
   return {...p,active:p.active&&(p.role==='owner'||!!membership),role:p.role==='owner'?'owner':membership?.role??'inactive'};
  };
  return {...base,person,async sponsor(claims){
-  const mapped=await base.sponsor(claims); if(!mapped)return null;
-  const active=await env.DB.prepare("SELECT 1 FROM bs_team WHERE business_id=? AND operator_id=? AND state='active'").bind(claims.sub,mapped.id).first();
-  const owner=await env.DB.prepare('SELECT 1 FROM bs_settings WHERE owner_id=? AND singleton=1 AND stopped=0').bind(claims.sub).first();
-  return active||owner?person(mapped.id):null;
+  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{owner_id:string|null}>();
+  if(owner?.owner_id===claims.sub){
+   const claimed=await env.DB.prepare('SELECT claim_id FROM oa_bootstrap WHERE singleton=1').first<{claim_id:string}>();
+   return claimed?person(claimed.claim_id):null;
+  }
+  const row=await env.DB.prepare("SELECT operator_id FROM bs_team WHERE business_id=? AND state='active'").bind(claims.sub).first<{operator_id:string|null}>();
+  return row?.operator_id?person(row.operator_id):null;
+ },async businessMember(p){
+  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{owner_id:string|null}>();
+  const claimed=await env.DB.prepare('SELECT claim_id FROM oa_bootstrap WHERE singleton=1').first<{claim_id:string}>();
+  if(owner?.owner_id&&claimed?.claim_id===p.id)return {id:owner.owner_id,role:'owner'};
+  const row=await env.DB.prepare("SELECT business_id,business_role FROM bs_team WHERE operator_id=? AND state='active' AND business_id IS NOT NULL").bind(p.id).first<{business_id:string;business_role:string}>();
+  return row?{id:row.business_id,role:row.business_role==='admin'?'editor':null}:null;
  },async session(request){const p=await base.session(request);return p?person(p.id):null;},
  businessRole:p=>p.role==='owner'?'owner':p.role==='admin'?'editor':null};
 }
