@@ -8529,7 +8529,7 @@
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
-      "sha256": "d1a1bae9b8dd15bf1a754cb39bd87e447f0b1d9520d71879d48081c458cc4a37",
+      "sha256": "96c7ef00988ec9868c6f3cc75c9c247b9dd8033cf8d35bc01d87440455004b5e",
       "executable": false
     },
     "tests/bundle-grouping.mjs": {

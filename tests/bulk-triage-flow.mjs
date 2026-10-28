@@ -95,10 +95,12 @@ export async function suppressionLifecycleFlow({req,json,origin}) {
  const archivedIssue=await row('Archiveforever');await json(base+'/issues/'+archivedIssue.id+'/comments','POST',{revision:archivedIssue.revision,body:'Monitor checkout while the patch is in review.'});
  const saved=await archiveProjection(await req('/api/archive'));
  const restored=await startTestWorker(15576);try{
-  const restoredCookie=await signIn(restored.origin),headers={Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'};
+  // Restore and the native scheduled turn use independent connections; a large
+  // archive upload must not leave an idle pooled socket for the later reads.
+  const restoredCookie=await signIn(restored.origin),headers={Origin:restored.origin,Cookie:restoredCookie,Connection:'close','Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'};
   const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers,body:saved.text});assert.ok(response.ok,await response.text());
-  const read=async path=>{const response=await fetch(restored.origin+path,{headers:{Cookie:restoredCookie}});assert.ok(response.ok);return response.json()};
-  const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const table of ['issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_recurrence_boundaries','issue_suppressions'])assert.deepEqual(copied.data[table],saved.data[table],table+' survives private restore');
+  const read=async path=>{const response=await fetch(restored.origin+path,{headers:{Cookie:restoredCookie,Connection:'close'}});assert.ok(response.ok);return response.json()};
+  const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie,Connection:'close'}}));for(const table of ['issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_recurrence_boundaries','issue_suppressions'])assert.deepEqual(copied.data[table],saved.data[table],table+' survives private restore');
   const beforeTick=await read(base+'/issues');const tick=await restored.scheduled(deadline+3600000);assert.ok(tick.ok,await tick.text());assert.deepEqual(await read(base+'/issues'),beforeTick,'restored suppression cannot revive a deadline');assert.deepEqual((await read(base+'/follow-up')).rows,[],'restore creates no active follow-up');
  }finally{await restored.stop()}
  const erasure=await json(base+'/erasure');assert.ok(erasure.deleted.issue_suppressions>0&&erasure.deleted.issue_activity>0&&erasure.deleted.issue_priorities>0&&erasure.deleted.issue_comments>0&&erasure.deleted.issue_subscriptions>0);
