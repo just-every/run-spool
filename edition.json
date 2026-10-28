@@ -53,7 +53,8 @@
           "src/demo",
           "deploy-demo.json",
           "DEMO.md",
-          ".github/workflows/run-demo.yml"
+          ".github/workflows/run-demo.yml",
+          "verification.json"
         ]
       }
     },

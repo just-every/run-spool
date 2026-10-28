@@ -58,7 +58,8 @@ export async function apply(request: DoorRequest, input: Record<string,unknown>)
     await reserveApply(request,snapshot);
     // Only creation selects the policy; a resume, even after a remount with
     // another policy, continues with the job's durable one.
-    const policy = row.job_id ? undefined : request.options.reversalPolicy;
+    const policy = row.job_id ? undefined : request.options.reversalPolicy
+      ?? (typeof request.options.targets.preparePreservedUndo === 'function' ? 'preserve-conflicts' : 'strict');
     const job = await createD1ImportJob(snapshot.plan,policy ? {...context,reversalPolicy:policy} : context);
     await transact(request.options.database,request.authority,[
       sql('UPDATE ik_door_plans SET job_id=? WHERE id=? AND (job_id IS NULL OR job_id=?)',job.id,row.id,job.id),

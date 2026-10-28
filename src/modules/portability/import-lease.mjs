@@ -6,6 +6,13 @@ import { statement, guard, job, PortabilityError } from './storage.mjs';
 export const IMPORT_LEASE_MS=5*60*1000;
 const RENEW_MS=30*1000;
 const active=row=>['staging','applying'].includes(row.phase);
+const runningMetadata=new WeakMap();
+// Only the lease constructor can approve these details. Mutable Error fields,
+// prototypes and diagnostic code suffixes cannot establish that provenance.
+export const importRunningMetadata=(error,actor)=>{
+  const running=runningMetadata.get(error);
+  return typeof actor==='string' && actor===running?.actor?running.details:undefined;
+};
 
 // Private transfer bookkeeping can be added to already-installed destinations
 // without changing product migrations or the archive's schema identity. Keep
@@ -27,8 +34,12 @@ export async function importLeaseStatus(db,row) {
   return {abortableAt:active(row)&&lease?new Date(lease.expires_at).toISOString():null,stale:active(row)&&!!lease&&lease.expires_at<=Date.now()};
 }
 export async function importRunning(db,id) {
-  const error=new PortabilityError('import_running',409);
-  error.jobId=id;error.abortableAt=(await importLeaseStatus(db,await job(db,id,'import'))).abortableAt;
+  const error=new PortabilityError('import_running',409),row=await job(db,id,'import');
+  error.jobId=id;error.abortableAt=(await importLeaseStatus(db,row)).abortableAt;
+  if(typeof id==='string' && id.length>0 && id.length<=100 && !/[^a-zA-Z0-9-]/.test(id)
+    && (error.abortableAt===null || typeof error.abortableAt==='string' && Number.isFinite(Date.parse(error.abortableAt))
+      && new Date(error.abortableAt).toISOString()===error.abortableAt))
+    runningMetadata.set(error,Object.freeze({actor:row.actor,details:Object.freeze({jobId:id,abortableAt:error.abortableAt})}));
   return error;
 }
 
