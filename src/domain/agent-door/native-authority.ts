@@ -25,8 +25,9 @@ export async function withAgentAuthority<T>(request: Request, env: Bindings, ctx
   .bind(ctx.person.id).first<Operator>();
  if (!operator || operator.status !== 'active') throw new Error('native_sponsor_unavailable');
  const policy=await env.DB.prepare('SELECT envelope,local_revision FROM agent_door_state WHERE id=1').first<{envelope:string|null;local_revision:number}>();
- if(!policy)throw new Error('agent_policy_unavailable');
- actors.set(request, {kind:'agent',operator,context:ctx,operation,policy});
+ // Read-only classification also runs before the first policy is adopted.
+ // The write guard still requires an actual current policy row.
+ actors.set(request, {kind:'agent',operator,context:ctx,operation,policy:policy??{envelope:null,local_revision:0}});
  try { return await run(); } finally { actors.delete(request); }
 }
 

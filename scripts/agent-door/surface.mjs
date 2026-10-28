@@ -73,14 +73,22 @@ add('followup-reset','followups.update',{project,destination:null},['live']);
 add('issue-final','issues.read',{project,issue});
 add('issue-reset','issues.update',{project,issue,state:'open',revision:from('issue-final','/revision')},['live']);
 add('events','events.list',{limit:100});
-const tools=catalogue.map(({name,scope,readOnly,classes,clauses,inputSchema,proof,proofKind})=>({name,scope,readOnly,classes,clauses,...proof?{proof,proofKind}:{},...name==='spool.credentials.update'?{widens:false,narrowing:{effect:'revoke',target:'id'},inputSchema}:{}}));
+for(const step of journey){
+ const a=step.args;
+ if(a.issue)step.target={kind:'issue',id:a.issue};
+ else if(['proposal','preview'].includes(step.id))step.target={kind:'issue',id:issue};
+ else if(a.project&&!a.id)step.target={kind:'project',id:a.project};
+}
+const tools=catalogue.map(({name,scope,readOnly,classes,clauses,inputSchema,proof,proofKind})=>({name,scope,readOnly,classes,clauses,...proof?{proof,proofKind}:{},...name==='spool.access.update'?{sponsorEscalation:false}:{},...name==='spool.credentials.update'?{widens:false,narrowing:{effect:'revoke',target:'id'},inputSchema}:{}}));
 tools.push({name:'spool.events.list',scope:'events:read',readOnly:true,classes:['standard'],clauses:['BASE-AGENT-010']});
 const resources=resourceTemplates;
 const surface={schema:'rer-agent-surface/1',seed:'spool',specialist:'triage engineer',tools:tools.sort((a,b)=>a.name.localeCompare(b.name)),resources,notTools,journey,
  witness:{tool:'spool.witness.read',args:{project}},
- escalations:[{id:'native-sponsor-id',tool:'spool.access.update',args:{id:{$sponsor:'id'},version:1,role:'admin',grants:[]}},{id:'native-sponsor-email',tool:'spool.access.update',args:{id:{$sponsor:'email'},version:1,role:'admin',grants:[]}}],
+ // Admitted administrators already have full native member authority. The
+ // actual member ID/email widening refusals remain in peopleFlow.
+ escalations:[],
  narrowings:[{tool:'spool.credentials.update',step:'revoke',witness:{tool:'spool.credentials.read',args:{id:from('credentials','/items/0/hash')},pointer:'/grants'}}],
- verification:{owner:{initializer:'tests/agent-door/initialize.mjs',bindings:{RER_MANAGEMENT_ORIGIN:'issuer',RER_INSTALLATION_ID:'installationId'}},proof:{module:'tests/agent-door/proof.mjs'},network:{module:'tests/agent-door/network.mjs',origins:['https://api.github.com']},journey:'tests/agent-door/native-journey.mjs'}};
+ verification:{reviewers:[{label:'triage-peer',email:'triage-reviewer@synthetic.invalid',initializer:'tests/agent-door/reviewer.mjs'}],replayAdmission:{prepare:['issues','issue','packet','proposal']},owner:{initializer:'tests/agent-door/initialize.mjs',bindings:{RER_MANAGEMENT_ORIGIN:'issuer',RER_INSTALLATION_ID:'installationId'}},proof:{module:'tests/agent-door/proof.mjs'},network:{module:'tests/agent-door/network.mjs',origins:['https://api.github.com']},journey:'tests/agent-door/native-journey.mjs'}};
 const bytes=JSON.stringify(surface,null,2)+'\n';
 if(process.argv.includes('--check')){if(await readFile('agent-surface.json','utf8')!==bytes)throw Error('Run node scripts/agent-door/surface.mjs to regenerate the registry declaration.');}
 else await writeFile('agent-surface.json',bytes);

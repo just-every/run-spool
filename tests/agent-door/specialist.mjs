@@ -39,6 +39,8 @@ export async function specialistFlow(app,github,screens){
  const workflows=await app.json(path+'/fixes?issue='+issue),opened=workflows.workflows.find(w=>w.id===fix.id);
  assert.equal(opened.status,'pull_request_open');assert.equal(opened.preparedBy.label,'Agent door conformance for Dana Engineer');
  const number=opened.states.pullRequest.number;assert.equal(github.state.pulls[number-1].draft,true);
+ const resource=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/fixes/'+fix.id});
+ assert.equal(JSON.parse(resource.contents[0].text).id,fix.id,'The primary fix resource reads the native workflow back');
  const file=JSON.parse(github.file(opened.grant.branch,opened.grant.file.path));assert.equal(file.kind,'spool-reproducer');assert.equal(file.run.outcome,'reproduced');
  assert.match(github.state.pulls[number-1].body,/Prepared by Agent door conformance for Dana Engineer/);assert.match(github.state.pulls[number-1].body,/Native repository grant authorized by Dana Engineer/);
  await screens?.capture('native-reproducer-fix',`/projects/${project}/issues/${issue}`,'Agent door conformance for Dana Engineer');

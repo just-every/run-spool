@@ -38,7 +38,8 @@
     },
     {
       "binding": "ALERT_DESTINATIONS",
-      "environment": "ALERT_DESTINATIONS"
+      "environment": "ALERT_DESTINATIONS",
+      "verifyStandIn": "[]"
     },
     {
       "binding": "ALERT_DESTINATION_HASH_KEY",

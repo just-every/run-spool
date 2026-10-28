@@ -9,7 +9,6 @@ import { agentProject } from '../agent-access';
 import { hash } from '../privacy';
 import { mintedByCurrentPerson } from '../credential-fence';
 
-export const BASE_AGENT_DOOR_PIN='7ce44fa5b70b68b21d270ba54760dae28b4a37a7';
 function trust(env:Bindings):Trust|null {
  const issuer=env.RER_OWNER_CLAIM_ISSUER,installationId=env.RER_OWNER_CLAIM_INSTALLATION_ID,
   appOrigin=env.RER_OWNER_CLAIM_APP_ORIGIN,keys=env.RER_OWNER_CLAIM_PUBLIC_KEYS;

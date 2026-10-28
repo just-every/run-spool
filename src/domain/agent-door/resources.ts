@@ -6,7 +6,7 @@ import { standard } from './tools';
 import {resourceTemplates} from './catalogue.mjs';
 export {resourceTemplates} from './catalogue.mjs';
 export function readContext(env:Bindings,c:ResourceContext):ToolContext {
- return {...c,seed:'spool',origin:env.AUTH_ORIGIN,door:'mcp',approvers:[],now:Date.now,
+ return {...c,operationId:crypto.randomUUID(),idempotencyKey:null,seed:'spool',origin:env.AUTH_ORIGIN,door:'mcp',approvers:[],now:Date.now,
   actor:{agent:{id:c.agent.id,name:c.agent.name},for:{id:c.person.id,name:c.person.name},label:`${c.agent.name} for ${c.person.name}`},emit(){}};
 }
 export function spoolResources(env:Bindings):ResourceDefinition[] {

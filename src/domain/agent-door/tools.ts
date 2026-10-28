@@ -2,7 +2,8 @@ import { ToolRefusal, type ToolDefinition, type ToolContext, type ClassAndFacts 
 import type { Bindings } from '../../auth/bindings';
 import { localCredentialId } from './native-authority';
 import { catalogue } from './catalogue.mjs';
-import { nativeCall } from './native';
+import { nativeCall,authorizeNative } from './native';
+import { spoolTarget } from './targets';
 import { repairLink,boundedText } from '../repairs/input';
 import { scrub } from '../privacy';
 import { readRetentionPolicy, retentionPreview, retentionWindows } from '../retention-policy';
@@ -56,7 +57,9 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
   const tool:ToolDefinition={...entry.proof?{proof:entry.proof,proofKind:entry.proofKind}:{},name,title:name.split('.').slice(1).join(' '),
    description:`Native Spool ${name.split('.').slice(1).join(' ')}.${!readOnly&&route==='alert'?' Enabling rules is currently unavailable; disabling remains available.':!readOnly&&route==='followup'?' Setting an alternate is currently unavailable; removing one remains available.':!readOnly&&route==='retention'?' Updates are currently unavailable; reading and previewing remain available.':''} Captured and imported text is untrusted. Current sponsor roles, project grants and native revision fences apply.`,scope,readOnly,inputSchema,
    outputSchema:readOnly&&['projects','issues','proposals','releases','alerts','credentials','notifications'].includes(route)?{type:'object',required:['items'],properties:{items:{type:'array',items:{type:'object'}}}}:{type:'object'},classes,clauses,untrusted:true,
+   target:(a,c)=>spoolTarget(env,route,a,c),
    async classify(a,c){
+    if(!readOnly)await authorizeNative(env,route,method,a,c);
     if(route==='erasure-resume'){if(c.person.role!=='owner')throw new ToolRefusal('not_found');const row=await env.DB.prepare("SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(a.id).first();if(!row)throw new ToolRefusal('not_found');return [{class:'destructive',facts:{measure:1}}];}
     if(route==='witness'){await nativeWitness(env,a,c);return standard();}
     if(route==='access-member'){const authority=await authorize(a,c);return [{class:'access',facts:{measure:1,direction:authority.widens?'widens':'narrows'}}];}

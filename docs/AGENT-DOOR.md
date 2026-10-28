@@ -102,7 +102,20 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 `agent-surface.json` is generated from the runtime catalogue and the native
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted production
-Worker, signed identity/settings, native people and the specialist path. Normal
-`rer verify` also owns the declared Base conformance journey when its CLI contains
-the matching harness. Pending Base/contract assertions are named in
+Worker, signed identity/settings, native people and the specialist path. The seed pins the published rer 0.2.86 CLI, and normal
+`rer verify` owns the declared Base conformance journey. Its current declaration
+check refuses the existing sender placeholder/secret overlap before that journey;
+removing the sender binding would break the owner-account path, while removing
+the public placeholder breaks the managed-mail declaration. This remains a named
+shared declaration migration, not a conformance pass. Pending Base/contract assertions are named in
 `tests/agent-door/pending.mjs`; copying the module is not a conformance pass.
+
+The runtime uses the recorded 0.2.86 Base door source. Native record targets are
+resolved under current project authority for audit and exact approval summaries.
+Replay rechecks current native route admission before exposing a retained result.
+An independent reviewer follows the real invitation and confirmation lifecycle;
+Undo names that reviewer without an agent identity. The declarative harness still
+has pending catalogue acknowledgement, provider binding, consumed-revision
+injection, audit pagination, native runner-event and custody/standing-worker
+requirements. Their dated markers remain in the test tooling. No pending marker
+counts as a completed shared duty.

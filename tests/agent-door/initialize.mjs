@@ -3,17 +3,18 @@ import {runSandbox,sandboxVersion} from '../../scripts/reproduce/sandbox.mjs';
 
 /** Ordinary native owner, project, capture and isolated-runner lifecycle only.
  * The verifier owns its signer and the paid/network edge; no fixture SQL. */
-export default async function({request,origin,claim,displayName,returnTo}){
+export default async function({request,origin,claim,displayName,returnTo,reviewers}){
  const response=await request(origin+claim.path,{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json'},body:JSON.stringify({token:claim.token,displayName,returnTo})});
- if(response.status!==303)throw Error('Native signed owner claim failed');
+ if(response.status!==303){console.error('Spool conformance initialization: signed owner claim HTTP '+response.status);throw Error('Native signed owner claim failed');}
  const cookie=response.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
  const json=async(path,method='GET',body,headers={})=>{
   const result=await request(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...body===undefined?{}:{'content-type':'application/json'},...headers},...body===undefined?{}:{body:JSON.stringify(body)}});
-  if(!result.ok)throw Error(`Native initialization ${path} HTTP ${result.status}`);return result.json();
+  if(!result.ok){console.error('Spool conformance initialization: '+path+' HTTP '+result.status);throw Error(`Native initialization ${path} HTTP ${result.status}`);}return result.json();
  };
  await json('/api/organization','POST',{id:'agent-company',name:'Harbor Shop'});
  const project=await json('/api/projects','POST',{id:'agent-door',name:'Checkout failures'});
  await json('/api/projects','POST',{id:'foreign-project',name:'Private foreign project'});
+ await reviewers.initialize('triage-peer',{cookie});
  await json('/api/organization/invites','POST',{email:'triage-fixture@synthetic.invalid',name:'Riley Engineer',role:'member',grants:[{project:'agent-door',role:'member'}]});
  const p='/api/projects/agent-door',fixture=await shopFixture();
  await json(p+'/releases','POST',{name:'1.0.0',build:'web-1'});

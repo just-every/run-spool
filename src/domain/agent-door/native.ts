@@ -1,7 +1,7 @@
 import api from '../api';
 import type { Bindings } from '../../auth/bindings';
 import { ToolRefusal, type ToolContext,type UndoContext } from '../../modules/agent-door/index.ts';
-import { withAgentAuthority,withReviewerAuthority } from './native-authority';
+import { withAgentAuthority,withReviewerAuthority,requestAuthority } from './native-authority';
 import { runAuditScope } from '../audit/context';
 import { auditActor, auditLabel, subjectBinding, projectAuditLabel } from '../audit/identity';
 import { classifyRequest } from '../audit/classify';
@@ -44,6 +44,21 @@ export function nativePath(route:string,a:Args) {
  case 'privacy':return `${p}/erasure`;
  default:throw new ToolRefusal('tool_not_found');
  }
+}
+/** Read current native route authority without executing its handler. This
+ * also guards retained idempotent results after a sponsor's role narrows. */
+export async function authorizeNative(env: Bindings, route:string,method:string,args:Args,ctx:ToolContext):Promise<void> {
+ const a={...args};
+ if(route==='credential'){
+  const row=await env.DB.prepare('SELECT project FROM credentials WHERE hash=?').bind(a.id).first<{project:string}>();
+  if(!row)throw new ToolRefusal('not_found');a.project=row.project;
+ }
+ if(['privacy','erasure-resume'].includes(route)&&ctx.person.role!=='owner')throw new ToolRefusal('not_found');
+ const request=new Request(new URL(nativePath(route,a),env.AUTH_ORIGIN),{method});
+ try{
+  const permitted=await withAgentAuthority(request,env,ctx,{id:ctx.operationId,tool:'admission',project:a.project??null,target:''},()=>requestAuthority(request,env));
+  if(!permitted)throw new ToolRefusal('not_found');
+ }catch(cause){if(cause instanceof ToolRefusal)throw cause;throw new ToolRefusal('not_found');}
 }
 export async function nativeCall(env: Bindings, route:string,method:string,args:Args,ctx:ToolContext|UndoContext,tool:string):Promise<any> {
  const a={...args};
