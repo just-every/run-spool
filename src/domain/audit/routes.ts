@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
@@ -25,12 +26,12 @@ auditRoutes.onError(async(error,c)=>{
  return c.json({error:status===400?'Invalid audit request':status===503?'Audit unavailable':'Owner session required'},status as any,headers);
 });
 auditRoutes.use('*',async(c,next)=>{
- const session=await ownerSession(c.req.raw,runtimeBindings(c.env));
+ const session=await ownerSession(c.req.raw,runtimeBindings(c.env),resolveMembership);
  if(!session){
   await recordAudit(c.env.DB,{...await fact(c,action(c.req.path)),outcome:'denied',status:401});
   return c.json({error:'Owner session required'},401,headers);
  }
- c.set('auditSession',session);c.set('auditActor',await auditActor(c.env.DB,{kind:'owner',authority:session.operator.id}));
+ c.set('auditSession',session);c.set('auditActor',await auditActor(c.env.DB,{kind:session.membership?'member':'owner',authority:session.operator.id}));
  c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
  await next();
 });
@@ -59,7 +60,7 @@ auditRoutes.get('/export',async c=>{
  const stream=new ReadableStream<Uint8Array>({
   async pull(controller){
    try {
-    const current=await ownerSession(c.req.raw,runtimeBindings(c.env));
+    const current=await ownerSession(c.req.raw,runtimeBindings(c.env),resolveMembership);
     if(!current||current.operator.id!==session.operator.id||current.operator.version!==session.operator.version){await finish('denied');controller.error(new Error('Audit export authority changed'));return;}
     if(!opened){opened=true;controller.enqueue(encode.encode(format==='csv'?auditColumns.join(',')+'\r\n':JSON.stringify({version:1,scope:'organization',highWater}).slice(0,-1)+',"rows":['));return;}
     if(page.length){

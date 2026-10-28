@@ -20,7 +20,20 @@ export async function ownerDeclaration(db: D1Database) {
  const columns=(await db.prepare('PRAGMA table_info(credentials)').all()).results as any[];
  const attributed=columns.some(column=>column.name==='minted_by');
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
- edges:[child('suspect_decisions'),...['source_map_builds','source_map_build_files'].map(table=>({table,from:'oa_operators',where:'? IS NOT NULL',params:['id']})),{table:'artifact_storage_settings',from:'oa_operators',where:'? IS NOT NULL',params:['id']},...['retention_runs','review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_destinations','slack_delivery_meta','alert_provider_events','rer_mail_event_receipts','rer_mail_event_states','alert_scheduled_mail','alert_digest_settings','alert_snoozes','alert_suppressed','alert_destination_tests'].map(table=>({table,from:'oa_operators',where:'? IS NOT NULL',params:['id']})),{table:'grouping_proposals',from:'oa_operators',where:'? IS NOT NULL',params:['id']},child('audit_actor_links','owner_id'),{table:'deployment_actors',from:'oa_operators',where:'? IS NOT NULL',params:['id']},child('oa_tokens'),child('oa_tokens','issuer_id'),child('oa_sessions'),
+ edges:[
+  child('spool_members'),
+  {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},
+  {table:'spool_team_snoozes',from:'spool_members',on:{creator:'id'}},
+  {table:'spool_team_mail',from:'spool_members',on:{member:'id'}},
+  {table:'spool_follow_up_alternates',from:'spool_members',on:{member:'id'}},
+  {table:'spool_project_grants',from:'spool_members',on:{member:'id'}},
+  {table:'spool_member_invites',from:'spool_members',on:{member:'id'}},
+  child('spool_service_accounts','sponsor'),
+  {table:'spool_service_scopes',from:'spool_service_accounts',on:{service:'id'}},
+  {table:'credentials',from:'spool_service_accounts',where:'hash IN (SELECT hash FROM spool_service_credentials WHERE service=?)',params:['id']},
+  {table:'spool_service_credentials',from:'spool_service_accounts',on:{service:'id'}},
+  {table:'spool_service_credentials',from:'credentials',on:{hash:'hash'}},
+  child('suspect_decisions'),...['source_map_builds','source_map_build_files'].map(table=>({table,from:'oa_operators',where:'? IS NOT NULL',params:['id']})),{table:'artifact_storage_settings',from:'oa_operators',where:'? IS NOT NULL',params:['id']},...['retention_runs','review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_destinations','slack_delivery_meta','alert_provider_events','rer_mail_event_receipts','rer_mail_event_states','alert_scheduled_mail','alert_digest_settings','alert_snoozes','alert_suppressed','alert_destination_tests'].map(table=>({table,from:'oa_operators',where:'? IS NOT NULL',params:['id']})),{table:'grouping_proposals',from:'oa_operators',where:'? IS NOT NULL',params:['id']},child('audit_actor_links','owner_id'),{table:'deployment_actors',from:'oa_operators',where:'? IS NOT NULL',params:['id']},child('oa_tokens'),child('oa_tokens','issuer_id'),child('oa_sessions'),
   {table:'oa_sessions',from:'oa_tokens',on:{source_token_id:'id'}},
   ...['oa_owner_signins','oa_external_identities','oa_invitation_cancellations','oa_step_up_challenges','oa_credentials'].map(table => child(table)),
   ...['oa_provider_sessions','oa_provider_session_pins'].map(sessionChild),
@@ -46,7 +59,7 @@ export async function ownerDeclaration(db: D1Database) {
   const competing = await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' AND NOT(entity='installation-owner' AND json_extract(subject,'$.id')=?) LIMIT 1").bind(subject.id).first();
   if(competing)return 'erasure_in_progress';
   if(await db.prepare('SELECT 1 FROM oa_domain_rules WHERE created_by=?').bind(subject.id).first())return 'domain_creator_attribution';
-  if(await db.prepare('SELECT 1 FROM oa_tokens WHERE issuer_id=? AND operator_id<>? AND operator_id NOT IN (SELECT successor_id FROM spool_owner_successor WHERE owner_id=?)').bind(subject.id,subject.id,subject.id).first())return 'shared_invitation_provenance';
+  if(await db.prepare('SELECT 1 FROM oa_tokens WHERE issuer_id=? AND operator_id<>? AND operator_id NOT IN (SELECT successor_id FROM spool_owner_successor WHERE owner_id=?) AND NOT EXISTS(SELECT 1 FROM spool_members m JOIN oa_operators recipient ON recipient.id=oa_tokens.operator_id WHERE m.operator_id=recipient.id OR (m.operator_id IS NULL AND m.email=recipient.email))').bind(subject.id,subject.id,subject.id).first())return 'shared_invitation_provenance';
   const successor = await db.prepare(`SELECT 1 FROM spool_owner_successor x JOIN oa_operators o ON o.id=x.successor_id WHERE x.owner_id=? AND o.role='member' AND o.status='active' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>? AND s.operator_version=o.version)`).bind(subject.id,Date.now()).first();
   return successor ? null : 'verified_successor_required';
  },

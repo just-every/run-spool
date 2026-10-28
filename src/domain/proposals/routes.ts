@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { agentProject } from '../agent-access';
@@ -16,7 +17,7 @@ const routes=new Hono<any>();
 const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),label:`proposed by agent ${row.actor}`});
 const summary=(row:any)=>{const r=parsed(row);return {id:r.id,kind:r.kind,state:r.state,actor:r.actor,label:r.label,input:r.input,revisions:r.revisions,created:r.created,updated:r.updated}};
 routes.use('*',async(c,next)=>{
- const project=c.req.param('project')!,session=await ownerSession(c.req.raw,c.env),agent=await agentProject(c.req.raw,c.env.DB);
+ const project=c.req.param('project')!,session=await ownerSession(c.req.raw,c.env,resolveMembership),agent=await agentProject(c.req.raw,c.env.DB);
  if(!session&&agent!==project)return c.json({error:'Owner session or own-project agent grant required'},401);
  if(session&&!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
  if(!await s(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);

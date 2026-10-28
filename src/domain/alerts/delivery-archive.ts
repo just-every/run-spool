@@ -32,8 +32,9 @@ export function validateDeliveryArchive(data:any){
    require(row.historical===1&&row.until>row.created&&['issue','rule','project'].includes(row.scope));
    require(row.scope==='project'?row.target===row.project:data[row.scope==='issue'?'issues':'alert_rules'].some((r:any)=>r.id===row.target&&r.project===row.project));
   }else if(table==='alert_suppressed'){
-   require((histories.get(row.delivery_id) as any)?.project===row.project&&['snooze','quiet_hours'].includes(row.reason));
-   require(row.snooze_id===null||data.alert_snoozes.some((z:any)=>z.id===row.snooze_id&&z.project===row.project));
+   require((histories.get(row.delivery_id) as any)?.project===row.project&&['snooze','team_snooze','quiet_hours'].includes(row.reason));
+   if(row.reason==='team_snooze')require(row.snooze_id!==null&&(data.spool_team_snoozes??[]).some((z:any)=>z.id===row.snooze_id&&(data.spool_project_teams??[]).some((t:any)=>t.project===row.project&&t.organization===z.organization)));
+   else require(row.snooze_id===null||data.alert_snoozes.some((z:any)=>z.id===row.snooze_id&&z.project===row.project));
   }else {
    require(row.historical===1&&['daily','weekly','resumption'].includes(row.kind)&&['personal','project'].includes(row.scope)&&['queued','running','accepted','rejected','blocked','uncertain'].includes(row.state));
   }

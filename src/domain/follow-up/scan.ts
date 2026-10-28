@@ -59,7 +59,20 @@ export async function scanFollowUp(env:Environment,time:number) {
   UNION ALL
   SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN ('accepted','duplicate') AND o.count>0
 `,time).all<Candidate>()).results;
- candidates.push(...additional);
+ // D1 bounds compound SELECT terms. Keep the existing project sources and
+ // these two team sources in separate reads, retaining the complete scan.
+ const teamCandidates=(await s(env.DB,`SELECT t.project,'alert' source,'team-mail:'||m.id source_id,m.created due,'failed' state,COALESCE(m.code,'team_mail_failed') reason
+   FROM spool_team_mail m JOIN spool_project_teams t ON t.organization=m.organization AND t.team=m.team
+   WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
+    AND t.project=(SELECT project FROM spool_project_teams WHERE organization=m.organization AND team=m.team ORDER BY project LIMIT 1)
+  UNION ALL
+  SELECT a.project,'alert','alternate:'||a.member,a.updated,'blocked','alternate_member_unavailable'
+   FROM spool_follow_up_alternates a JOIN spool_members m ON m.id=a.member LEFT JOIN oa_operators o ON o.id=m.operator_id
+   WHERE m.state<>'active' OR o.status IS NOT 'active' OR
+    (o.role<>'owner' AND m.role<>'admin' AND NOT (m.role='member' AND EXISTS(
+     SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=a.project AND g.role IN ('maintainer','member'))))
+`).all<Candidate>()).results;
+ candidates.push(...additional,...teamCandidates);
  // Do not bound this scan to the first N failures: durable failures would starve
  // every later source forever. Existing project/workflow admission bounds work.
  const seen=new Set<string>();
@@ -77,6 +90,8 @@ export async function scanFollowUp(env:Environment,time:number) {
   (source_id LIKE 'held:%' AND EXISTS(SELECT 1 FROM alert_suppressed x WHERE 'held:'||x.delivery_id=source_id AND x.released_at IS NOT NULL)) OR
   (source_id LIKE 'snooze:%' AND EXISTS(SELECT 1 FROM alert_snoozes z WHERE 'snooze:'||z.id=source_id AND NOT EXISTS(SELECT 1 FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.released_at IS NULL)))
  )`,time).run();
+ await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE source='alert' AND state='blocked' AND source_id LIKE 'alternate:%'
+  AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates x WHERE x.project=follow_up_attention.project AND 'alternate:'||x.member=source_id)`,time).run();
  // Source completion closes work without fabricating delivery of an uncertain
  // effect. An uncertain transport is closed only by an explicit owner decision.
  await s(env.DB,`UPDATE follow_up_attention SET state='completed',updated=?,revision=revision+1 WHERE historical=0 AND state NOT IN ('completed','canceled','uncertain') AND (

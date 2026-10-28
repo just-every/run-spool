@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import {Hono} from 'hono';
 import {ownerProjectRouter,ownerWrites,jsonBody} from '../owner-router';
 import {ownerSession} from '../../auth/session.server';
@@ -24,10 +25,11 @@ identityPolicyRoutes.put('/',async c=>{
 });
 export const identityReadRoutes=new Hono<any>();
 identityReadRoutes.get('/:project/issues/:issue/affected-users',async c=>{
- c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');const p=c.req.param('project'),issue=c.req.param('issue'),grant=await agentProject(c.req.raw,c.env.DB),owner=await ownerSession(c.req.raw,c.env);
+ c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');const p=c.req.param('project'),issue=c.req.param('issue'),grant=await agentProject(c.req.raw,c.env.DB),owner=await ownerSession(c.req.raw,c.env,resolveMembership);
  if(grant!==p&&!owner||grant&&grant!==p)return c.json({error:'Sign in required'},401);
  if(!await c.env.DB.prepare('SELECT 1 FROM issues WHERE project=? AND id=?').bind(p,issue).first())return c.json({error:'Issue not found'},404);
  const result=await affectedUsers(c.env.DB,p,issue);
- const rows=owner&&!grant?(await c.env.DB.prepare('SELECT x.event,x.occurrence,x.payload,x.reason FROM event_identities x JOIN events e ON e.project=x.project AND e.id=x.event AND e.occurrence=x.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id LIMIT 25').bind(p,issue).all()).results.map((r:any)=>({event:r.event,occurrence:r.occurrence,values:Object.fromEntries(Object.entries(JSON.parse(r.payload)).map(([f,v]:any)=>[f,{mode:v.mode,value:v.value}])),reason:r.reason})):undefined;
+ const identityAccess=owner&&!grant&&owner.membership?.role!=='read-only'&&owner.membership?.projectRole!=='read-only';
+ const rows=identityAccess?(await c.env.DB.prepare('SELECT x.event,x.occurrence,x.payload,x.reason FROM event_identities x JOIN events e ON e.project=x.project AND e.id=x.event AND e.occurrence=x.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id LIMIT 25').bind(p,issue).all()).results.map((r:any)=>({event:r.event,occurrence:r.occurrence,values:Object.fromEntries(Object.entries(JSON.parse(r.payload)).map(([f,v]:any)=>[f,{mode:v.mode,value:v.value}])),reason:r.reason})):undefined;
  return c.json({version:1,...result,...rows?{rows,bounds:{ownerOccurrenceLimit:25}}:{}});
 });

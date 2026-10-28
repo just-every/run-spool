@@ -1,5 +1,9 @@
 # Changelog
 
+## 28 October 2026 — membership status carried into contract cleanup
+
+Main's TEAM-001 evidence now covers public-door membership and inherited riders. The clause remains partial pending ct's fresh judge. Main's Gap said status promotion and generated acceptance/count synchronization awaited a missing Lander-Regenerate command and absent contract-docs generator, and left generated acceptance and claims unchanged for the lander. Those mechanism claims are superseded on the cleanup branch: the generator and both Lander-Regenerate commands already exist, and the generated documents are synchronized here.
+
 ## 28 October 2026 — contract cleanup to the RER contract standard
 
 CONTRACT.md was rewritten to the RER contract standard from main `9654729a3be89c2516c755c4a595e8dc4590aeb4`. Nothing was cut and no status was promoted; `docs/contract/COVERAGE.json` places every old sentence and `docs/contract/ID-MAP.json` maps every old id. `docs/contract/DONE-AUDIT.md` proves every point of every clause that was done.

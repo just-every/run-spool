@@ -6,6 +6,7 @@ import { sender } from '../alerts/mail';
 import { auditSubject, serviceActor } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { s, type Environment } from './types';
+import { activeProjectRecipient } from '../members/notifications';
 
 export async function queueNotices(env:Environment,time:number) {
  // A notice is keyed by the original attention item and destination, never by
@@ -14,16 +15,25 @@ export async function queueNotices(env:Environment,time:number) {
   SELECT lower(hex(randomblob(16))),a.id,a.project,c.destination,c.channel,?,
    json_object('schema','spool.follow_up.v1','attentionId',a.id,'source',a.source,'reason',a.reason,'due',a.due)
   FROM follow_up_attention a JOIN follow_up_settings c ON c.project=a.project
-  WHERE c.destination IS NOT NULL AND a.historical=0 AND a.state NOT IN ('completed','canceled')
+  WHERE c.destination IS NOT NULL AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=a.project)
+   AND a.historical=0 AND a.state NOT IN ('completed','canceled') AND a.source_id NOT LIKE 'team-mail:%' AND a.source_id NOT LIKE 'alternate:%'
+  ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
+ await s(env.DB,`INSERT INTO follow_up_notices(id,attention,project,destination,channel,next_at,body)
+  SELECT lower(hex(randomblob(16))),a.id,a.project,'member:'||m.member,'mail',?,
+   json_object('schema','spool.follow_up.v1','attentionId',a.id,'source',a.source,'reason',a.reason,'due',a.due)
+  FROM follow_up_attention a JOIN spool_follow_up_alternates m ON m.project=a.project
+  WHERE a.historical=0 AND a.state NOT IN ('completed','canceled') AND a.source_id NOT LIKE 'team-mail:%' AND a.source_id NOT LIKE 'alternate:%'
   ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
 }
 
 async function prepare(env:Environment,row:any,time:number) {
- const destination=await findDestination(env,row.project,row.destination,row.channel);
+ const memberId=row.destination.startsWith('member:')?row.destination.slice(7):null;
+ const destination:any=memberId?{recipient:(await activeProjectRecipient(env.DB,row.project,memberId))?.email}:await findDestination(env,row.project,row.destination,row.channel);
+ if(memberId&&!destination.recipient)throw new Error('member_unavailable');
  if(row.channel==='mail') {
   const mail=sender(env),body=JSON.parse(row.body);
   const message={deliveryId:'follow-up-'+row.id,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool needs attention',
-   text:`Spool automation needs the installation owner's attention. Item: ${body.attentionId}. Source: ${body.source}. Reason: ${body.reason}. Due: ${new Date(body.due).toISOString()}. Inspect Needs attention in Spool. An uncertain effect must be reconciled before retrying.`};
+   text:`Spool automation needs the accountable alternate's attention. Item: ${body.attentionId}. Source: ${body.source}. Reason: ${body.reason}. Due: ${new Date(body.due).toISOString()}. Inspect Needs attention in Spool. An uncertain effect must be reconciled before retrying.`};
   validateMessage(message,env.MAIL_PROVIDER);
   return {digest:await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER])),send:async()=>{
    const result=await mail.send(message);
@@ -65,16 +75,18 @@ export async function dispatchNotices(env:Environment,time:number) {
   const claim=crypto.randomUUID(),clockStart=Date.now(),now=()=>time+Date.now()-clockStart;
   const result=await env.DB.batch([
    s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?) WHERE id=? AND state='queued' AND attempts<4
-    AND EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=follow_up_notices.project AND c.destination=follow_up_notices.destination AND c.channel=follow_up_notices.channel)
+    AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=follow_up_notices.project AND c.destination=follow_up_notices.destination AND c.channel=follow_up_notices.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=c.project))
+     OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=follow_up_notices.project AND follow_up_notices.destination='member:'||m.member AND follow_up_notices.channel='mail'))
     AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,row.id),
    s(env.DB,'INSERT INTO follow_up_attempts(id,notice,project,number,started) SELECT claim,id,project,attempts,? FROM follow_up_notices WHERE id=? AND claim=?',now(),row.id,claim),
   ]);
   if(!result[0].results.length)continue;
   // Claim and current alternate are checked once more after preparation yields.
-  const authority=await s(env.DB,`SELECT n.claim_until FROM follow_up_notices n JOIN follow_up_settings c ON c.project=n.project AND c.destination=n.destination AND c.channel=n.channel
-   WHERE n.id=? AND n.claim=? AND n.state='running' AND n.claim_until>?`,row.id,claim,now()).first<{claim_until:number}>();
+  const authority=await s(env.DB,`SELECT n.claim_until FROM follow_up_notices n WHERE n.id=? AND n.claim=? AND n.state='running' AND n.claim_until>?
+   AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=n.project AND c.destination=n.destination AND c.channel=n.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=n.project))
+    OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=n.project AND n.destination='member:'||m.member AND n.channel='mail'))`,row.id,claim,now()).first<{claim_until:number}>();
   let state='blocked',code='alternate_changed';
-  if(authority&&authority.claim_until>now()){
+  if(authority&&authority.claim_until>now()&&(!row.destination.startsWith('member:')||await activeProjectRecipient(env.DB,row.project,row.destination.slice(7)))){
    state='uncertain';code='response_unknown';
    try{const result=await prepared.send();state=result.state;code=result.code;}catch{/* A started effect cannot establish rejection. */}
   }

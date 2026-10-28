@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
 import { agentProject } from '../agent-access';
@@ -9,7 +10,7 @@ const paths = ['/:project/occurrences', '/:project/issues/:issue/occurrences', '
 for (const path of paths) routes.use(path, async (c, next) => {
  c.header('Cache-Control', 'no-store'); c.header('X-Content-Type-Options', 'nosniff');
  const project = c.req.param('project'), grant = await agentProject(c.req.raw, c.env.DB);
- if (grant !== project && !await ownerSession(c.req.raw, c.env)) return c.json({ error: 'Sign in required' }, 401);
+ if (grant !== project && !await ownerSession(c.req.raw,c.env,resolveMembership)) return c.json({ error: 'Sign in required' }, 401);
  if (grant && grant !== project) return c.json({ error: 'Sign in required' }, 401);
  if (!await c.env.DB.prepare('SELECT 1 FROM projects WHERE id=?').bind(project).first()) return c.json({ error: 'Project not found' }, 404);
  await next();

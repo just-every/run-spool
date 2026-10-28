@@ -1,4 +1,4 @@
-Old reference: `9654729a3be89c2516c755c4a595e8dc4590aeb4` (main, 28 October 2026). Clauses done there: AI-005, ALERT-004, AUDIT-001, BASE-DATA-003 (merged into ERASE-001), ERR-001 to ERR-009, GROUP-001, OPS-001, REL-001, SDK-001, SDK-006, SDK-009 (split into SDK-009 and SDK-028), SDK-010, SDK-012, SDK-013, SDK-020, SDK-023 and TEAM-004.
+Old reference: `b2849a002c453ba7e3b985f7c28587b92efc29b8` (main, 28 October 2026). Clauses done there: AI-005, ALERT-004, AUDIT-001, BASE-DATA-003 (merged into ERASE-001), ERR-001 to ERR-009, GROUP-001, OPS-001, REL-001, SDK-001, SDK-006, SDK-009 (split into SDK-009 and SDK-028), SDK-010, SDK-012, SDK-013, SDK-020, SDK-023 and TEAM-004.
 
 # Carried-done audit
 
@@ -87,13 +87,13 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | ERR-009 | 1 | A populated installation exports through the browser download | none in a cited file: the download is asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite; the cited test reads the archive over HTTP | none |
 | ERR-009 | 1 | A populated installation exports through `rer export` | none in a cited file: asserted in tests/commands.mjs, which this clause does not cite | none |
 | ERR-009 | 2 | The archive restores into an independent empty destination, and every private domain row compares equal | `tests/product-runtime.mjs:191` | asserted |
-| ERR-009 | 2 | An old native archive restores into a fresh migrated target with every row | `tests/old-archive.mjs:106` | asserted |
+| ERR-009 | 2 | An old native archive restores into a fresh migrated target with every row | `tests/old-archive.mjs:107` | asserted |
 | ERR-009 | 3 | Restored work holds no active grant | none: the cited tests assert only that the archive carries no credentials, sessions or ingest key (`tests/product-runtime.mjs:179`); no cited test reads grants after a restore | none |
 | ERR-009 | 3 | Restored work starts no dispatch and no current repair proof | none: no cited test reads dispatch or repair proof after a restore | none |
 | ERR-009 | 4 | A tampered archive (a broken checksum, then poisoned rows under a valid checksum) is refused with 400, leaving the destination empty | `tests/product-runtime.mjs:183`, `tests/product-runtime.mjs:184` | asserted |
-| ERR-009 | 4 | A corrupted archive binding is refused, leaving the destination empty | `tests/old-archive.mjs:136` | asserted |
-| ERR-009 | 5 | A conflicting archive (a mismatched schema) is refused, leaving the destination empty | `tests/old-archive.mjs:131` | asserted |
-| ERR-009 | 6 | An import into a nonempty target is refused and the target's project is unchanged | `tests/old-archive.mjs:125` | asserted |
+| ERR-009 | 4 | A corrupted archive binding is refused, leaving the destination empty | `tests/old-archive.mjs:137` | asserted |
+| ERR-009 | 5 | A conflicting archive (a mismatched schema) is refused, leaving the destination empty | `tests/old-archive.mjs:132` | asserted |
+| ERR-009 | 6 | An import into a nonempty target is refused and the target's project is unchanged | `tests/old-archive.mjs:126` | asserted |
 | ERR-009 | 7 | After a manual retention cutoff, repair snapshots keep their coverage gaps | none in a cited file: the cited tests read the retained packet after a cutoff (tests/product-runtime.mjs line 194), not a repair snapshot | none |
 | OPS-001 | 1 | A fresh checkout's public `rer install` completes | `tests/commands.mjs:37` | asserted |
 | OPS-001 | 1 | `rer setup` completes, keeps the private settings byte for byte and stops its runtime | `tests/commands.mjs:56` | asserted |
@@ -105,20 +105,20 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | OPS-001 | 4 | The dry run makes no provider HTTP call | `tests/commands.mjs:117` | asserted |
 | OPS-001 | 5 | Setup with a different owner email is refused and the existing settings stay byte for byte | `tests/commands.mjs:58` | asserted |
 | OPS-001 | 6 | Setup rejects an unsafe answer path | none: the cited test refuses a symlinked private settings file (line 35), not an answers path | none |
-| OPS-001 | 7 | A second signed managed claim is refused with 409 and changes nothing | `tests/owner-claim.mjs:75` | asserted |
+| OPS-001 | 7 | A second signed managed claim is refused with 409 and changes nothing | `tests/owner-claim.mjs:76` | asserted |
 | OPS-001 | 8 | Anonymous editor access is denied | none in a cited file: editor access is asserted in tests/owner-editor.mjs, which this clause does not cite | none |
 | OPS-001 | 8 | Project-grant editor access is denied | none in a cited file: asserted in tests/owner-editor.mjs, which this clause does not cite | none |
-| ERASE-001 | 1 | No planted canary (event text, map content, recipient, title, repair note, import originals, project name and more) remains in any D1 table or column | `tests/project-erasure.mjs:50` | asserted |
-| ERASE-001 | 1 | No canary remains in the development outbox or a fresh archive | `tests/project-erasure.mjs:51`, `tests/project-erasure.mjs:52` | asserted |
-| ERASE-001 | 2 | The preview carries counts without personal values or identifiers | `tests/project-erasure.mjs:37` | asserted |
+| ERASE-001 | 1 | No planted canary (event text, map content, recipient, title, repair note, import originals, project name and more) remains in any D1 table or column | `tests/project-erasure.mjs:59` | asserted |
+| ERASE-001 | 1 | No canary remains in the development outbox or a fresh archive | `tests/project-erasure.mjs:60`, `tests/project-erasure.mjs:61` | asserted |
+| ERASE-001 | 2 | The preview carries counts without personal values or identifiers | `tests/project-erasure.mjs:45` | asserted |
 | ERASE-001 | 2 | The receipt carries counts and times only | `tests/project-erasure-cap.mjs:40` | asserted |
-| ERASE-001 | 3 | Anonymous, ingest, agent and deploy, unknown, wrong-confirmation and cross-origin requests are refused with every row, receipt and outbox entry unchanged (doors helper, run here) | `tests/project-erasure.mjs:42` | asserted |
-| ERASE-001 | 3 | A stale owner-erasure plan is refused with 409 and changes nothing | `tests/owner-erasure.mjs:86`, `tests/owner-erasure.mjs:87` | asserted |
+| ERASE-001 | 3 | Anonymous, ingest, agent and deploy, unknown, wrong-confirmation and cross-origin requests are refused with every row, receipt and outbox entry unchanged (doors helper, run here) | `tests/project-erasure.mjs:51` | asserted |
+| ERASE-001 | 3 | A stale owner-erasure plan is refused with 409 and changes nothing | `tests/owner-erasure.mjs:99`, `tests/owner-erasure.mjs:100` | asserted |
 | ERASE-001 | 4 | A project holding 10,000 events is erased within 300 seconds | `tests/project-erasure-cap.mjs:39` | asserted |
 | ERASE-001 | 5 | A sole owner is held for a verified successor | `tests/owner-erasure.mjs:23` | asserted |
-| ERASE-001 | 5 | After owner erasure exactly one active owner remains | `tests/owner-erasure.mjs:106` | asserted |
-| ERASE-001 | 6 | An interrupted owner erasure resumes to completion (interrupted-erasure helper, run here) | `tests/owner-erasure.mjs:139` | asserted |
-| ERASE-001 | 7 | A pre-erasure archive is refused by the same installation and by a fresh destination that first received the post-erasure archive (fences helper, run here) | `tests/project-erasure.mjs:57` | asserted |
+| ERASE-001 | 5 | After owner erasure exactly one active owner remains | `tests/owner-erasure.mjs:126` | asserted |
+| ERASE-001 | 6 | An interrupted owner erasure resumes to completion (interrupted-erasure helper, run here) | `tests/owner-erasure.mjs:159` | asserted |
+| ERASE-001 | 7 | A pre-erasure archive is refused by the same installation and by a fresh destination that first received the post-erasure archive (fences helper, run here) | `tests/project-erasure.mjs:66` | asserted |
 | TEAM-004 | 1 | A commit citing the issue's short ID in mixed case, registered through the deploy-key release door, links at once | `tests/release-identity-flow.mjs:120` | asserted |
 | TEAM-004 | 1 | The link is on the issue's commit timeline with its SHA, citation, release and author | `tests/release-identity-flow.mjs:124` | asserted |
 | TEAM-004 | 1 | The same commit delivered by merging a pull request links the issue | moved: GitHub and GitLab pull and merge request citations are SRC-002's, which carries their provider receipts (Requirement) | moved |
@@ -291,7 +291,7 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | AUDIT-001 | 2 | A restart preserves every safe fact | `tests/audit-history.mjs:73` | asserted |
 | AUDIT-001 | 3 | Restore keeps the destination's chronology and appends the archived facts unchanged | `tests/audit-history.mjs:93` | asserted |
 | AUDIT-001 | 4 | Project erasure leaves the earlier chronology unchanged and records its completion | `tests/audit-history.mjs:129`, `tests/audit-history.mjs:130` | asserted |
-| AUDIT-001 | 4 | Actor (owner) erasure never rewrites prior chronology and erases the actor bindings | `tests/owner-erasure.mjs:92`, `tests/owner-erasure.mjs:93` | asserted |
+| AUDIT-001 | 4 | Actor (owner) erasure never rewrites prior chronology and erases the actor bindings | `tests/owner-erasure.mjs:112`, `tests/owner-erasure.mjs:113` | asserted |
 | AUDIT-001 | 5 | The exported history carries no canary, key, key hash, project name or owner address | `tests/audit-history.mjs:71` | asserted |
 | AI-005 | 1 | For deceptively similar and rebuilt failures, the proposal lists inside and outside counterexamples, including the rebuilt event | `tests/operator-flow.mjs:118` | asserted |
 | AI-005 | 1 | The proposal names exactly the affected events | `tests/operator-flow.mjs:121` | asserted |

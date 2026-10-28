@@ -236,8 +236,8 @@ Core · target · **partial** · Cites BASE-ROLE-001, BASE-ACCESS-004 · Rules D
 3. A removed member is denied at once through the UI, HTTP, SDK management, the CLI and exports.
 4. Removal revokes the member's sessions, keys and linked service authority.
 
-**Evidence.** `src/auth/session.server.ts`; `src/domain/owner-authority.ts`; `tests/owner-erasure.mjs`
-**Gap.** Only one active owner and isolated projects exist. Successor invitation is transfer, not team membership.
+**Evidence.** `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
+**Gap.** Public-door membership and inherited riders are implemented; promotion remains pending ct's fresh judge. Generated acceptance and counts are synchronized by the existing contract-docs generator and Lander-Regenerate commands.
 
 #### TEAM-002 — Accountable assignment and ownership rules
 

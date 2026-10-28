@@ -5,6 +5,19 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-digests$/,action:'alert.digest.settings',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-snoozes$/,action:'alert.snooze',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/follow-up\/alternate-member$/,action:'automation.follow_up',kind:'project'},
+ {pattern:/^\/api\/organization$/,methods:['POST'],action:'organization.create',kind:'installation'},
+ {pattern:/^\/api\/organization\/invites$/,action:'member.invite',kind:'identity'},
+ {pattern:/^\/api\/organization\/members\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'member.remove',kind:'identity'},
+ {pattern:/^\/api\/organization\/members\/(?<subject>[^/]+)$/,action:'member.change',kind:'identity'},
+ {pattern:/^\/api\/organization\/transfer$/,action:'member.transfer',kind:'installation'},
+ {pattern:/^\/api\/organization\/projects\/(?<project>[^/]+)$/,action:'team.change',kind:'project'},
+ {pattern:/^\/api\/organization\/services$/,methods:['POST'],action:'service.create',kind:'identity'},
+ {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)\/keys$/,action:'service.credential',kind:'identity'},
+ {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'service.remove',kind:'identity'},
+ {pattern:/^\/api\/organization\/usage$/,action:'billing.read',kind:'installation'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/suspects\/issues\/(?<subject>[^/]+)$/,methods:['PUT'],action:'issue.suspect',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/check-in-routes\/[^/]+$/,methods:['PUT','DELETE'],action:'checkin.route',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/loader$/,methods:['PUT'],action:'credential.loader',kind:'credential'},

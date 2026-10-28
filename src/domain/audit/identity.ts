@@ -32,7 +32,7 @@ export async function auditLabel(db: D1Database, binding: Binding, label = rando
 }
 
 export async function auditActor(db: D1Database, binding: Binding & { kind: Exclude<ActorKind,'anonymous'|'unknown'> }): Promise<AuditActor> {
- return {kind:binding.kind,label:await auditLabel(db,{...binding,owner:binding.kind==='owner'?binding.authority:binding.owner})};
+ return {kind:binding.kind,label:await auditLabel(db,{...binding,owner:['owner','member'].includes(binding.kind)?binding.authority:binding.owner})};
 }
 export function unidentifiedActor(kind: 'anonymous' | 'unknown' = 'anonymous'): AuditActor { return {kind,label:randomAuditLabel()}; }
 export const serviceNames = ['scheduled retention','alerts','mail','webhook','slack','erasure','reproducer','fix-provider','portability-cli','business-import','legacy-import','deployment-deadline'] as const;

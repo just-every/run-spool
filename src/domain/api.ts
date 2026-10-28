@@ -1,3 +1,6 @@
+import { resolveMembership } from './members/resolver';
+import { memberProjects } from './members/resolver';
+import { memberRoutes } from './members/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
@@ -68,6 +71,7 @@ import { issuePacket } from './packet';
 import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority';
 
 const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
+api.route('/api/organization',memberRoutes);
 api.route('/api/audit',auditRoutes);
 // These bounded read doors independently enforce exact-project authority.
 api.route('/api/projects',recordRoutes);
@@ -140,11 +144,11 @@ api.route('/api/imports/business',businessImportRoutes);
 api.route('/api/projects/:project/erasure',projectErasureRoutes);
 api.route('/api/erasures',erasureReceiptRoutes);
 api.route('/api/projects/:project/grouping-proposals',proposalRoutes);
-api.use('/api',async(c,next)=>{if(!await ownerSession(c.req.raw,c.env))return c.json({error:'Sign in required'},401);await next()});
+api.use('/api',async(c,next)=>{if(!await ownerSession(c.req.raw,c.env,resolveMembership))return c.json({error:'Sign in required'},401);await next()});
 api.use('/api/*',async(c,next)=>{
   if(c.req.path.startsWith('/api/ingest/'))return next();
   if(c.get('project')){c.set('owner',false);c.set('dev',false);c.set('minter',null);return next()}
-  const session=await ownerSession(c.req.raw,c.env);
+  const session=await ownerSession(c.req.raw,c.env,resolveMembership);
   c.set('owner',!!session);c.set('dev',session?.kind==='dev');
   // Keys minted here record this person and their identity fence (credential-fence.ts).
   c.set('minter',session?{id:session.operator.id,version:session.operator.version}:null);
@@ -173,8 +177,8 @@ api.route('/api/projects/:project/reproducers',reproducerRoutes);
 api.route('/api/projects/:project/fixes',fixRoutes);
 api.route('/api/projects/:project/commits',commitRoutes);
 api.route('/api/projects/:project/sentry-uploads',sentryUploadRoutes);
-api.get('/api/projects',async c=>c.json((await stmt(c.env.DB,'SELECT * FROM projects ORDER BY created').all()).results));
-api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token(),prefix=await projectPrefix(c.env.DB,id),created=now();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,created),prefixStatement(c.env.DB,prefix,id,created),...await auditProjectBinding(c.env.DB,id),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,shortIdPrefix:prefix,defaultOnFilters,inboundPolicy:defaultInboundPolicy(),ingestKey:key,devMinted:c.get('dev'),dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
+api.get('/api/projects',async c=>c.json(await memberProjects(c.env.DB,c.get('session'))));
+api.post('/api/projects',async c=>{const b=await body(c);const id=identity(b.id,'project');if(typeof b.name!=='string'||!b.name.trim())throw new Error('Name required');if(await erasedProjectIdentifier(c.env.DB,id))return c.json({error:'This identifier belonged to an erased project. Choose another identifier.'},409);const name=scrub(b.name);const key=token(),prefix=await projectPrefix(c.env.DB,id),created=now();await write(c,[stmt(c.env.DB,'INSERT INTO projects VALUES(?,?,?)',id,name,created),stmt(c.env.DB,"INSERT INTO spool_project_teams SELECT ?,id,'Default team' FROM spool_organizations",id),prefixStatement(c.env.DB,prefix,id,created),...await auditProjectBinding(c.env.DB,id),mintCredential(c,await hash(key),id,'ingest'),...c.get('dev')?[recordDevMint(c.env.DB,await hash(key))]:[],audit(c.env.DB,id,'project_created',{id})]);return c.json({id,name,shortIdPrefix:prefix,defaultOnFilters,inboundPolicy:defaultInboundPolicy(),ingestKey:key,devMinted:c.get('dev'),dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,id,key)},201)});
 api.get('/api/projects/:project/releases',async c=>{await readReleasePolicy(c.env.DB,c.req.param('project'));return c.json((await stmt(c.env.DB,`SELECT releases.*,(SELECT auto_created FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) auto_created,(SELECT first_seen FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_seen,(SELECT environment FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) first_environment,(SELECT sdk FROM release_metadata m WHERE m.project=releases.project AND m.release=releases.name) creating_sdk,(SELECT json_group_array(json_object('environment',environment,'commitSha',commit_sha,'repository',repository,'deployedAt',deployed_at,'pathMappings',json((SELECT payload FROM deployment_path_mappings m WHERE m.project=d.project AND m.release=d.release AND m.environment=d.environment)))) FROM deployment_manifests d WHERE d.project=releases.project AND d.release=releases.name) deployments,(SELECT released FROM sentry_releases x WHERE x.project=releases.project AND x.release=releases.name) finalized,(SELECT COUNT(*) FROM release_commits rc WHERE rc.project=releases.project AND rc.release=releases.name) commit_count,(SELECT json_group_array(json_object('id',id,'environment',environment,'name',name,'url',url,'started',started,'finished',finished)) FROM sentry_deploys sd WHERE sd.project=releases.project AND sd.release=releases.name) cli_deploys FROM releases WHERE project=? ORDER BY ${releaseOrderSql()}`,c.req.param('project')).all()).results)});
 api.get('/api/projects/:project/keys',async c=>c.json((await stmt(c.env.DB,'SELECT hash,kind,created,revoked FROM credentials WHERE project=?',c.req.param('project')).all()).results));
 api.post('/api/projects/:project/keys',async c=>{const b=await body(c);if(!['ingest','agent','deploy'].includes(b.kind))throw new Error('Invalid grant kind');const t=token(),h=await hash(t);await write(c,[mintCredential(c,h,c.req.param('project'),b.kind),...c.get('dev')?[recordDevMint(c.env.DB,h)]:[],audit(c.env.DB,c.req.param('project'),'key_created',{hash:h,kind:b.kind})]);return c.json({key:t,hash:h,kind:b.kind,...b.kind==='ingest'?{dsn:await projectDsn(c.env.DB,c.env.AUTH_ORIGIN,c.req.param('project'),t)}:{}},201)});

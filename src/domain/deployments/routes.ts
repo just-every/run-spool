@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
 import { ownerSession } from '../../auth/session.server';
@@ -16,7 +17,7 @@ import { ensureShortIds } from '../short-ids/assign';
 const routes=new Hono<{Bindings:Bindings}>();
 const s=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 routes.get('/:project/deployments',async c=>{
- if(!await ownerSession(c.req.raw,c.env))return c.json({error:'Owner session required'},401);
+ if(!await ownerSession(c.req.raw,c.env,resolveMembership))return c.json({error:'Owner session required'},401);
  const rows=(await s(c.env.DB,'SELECT * FROM deployment_runs WHERE project=? ORDER BY created DESC,id',c.req.param('project')).all<any>()).results;
  for(const row of rows){row.includedCommits=JSON.parse(row.included_commits);row.steps=(await s(c.env.DB,'SELECT * FROM deployment_steps WHERE project=? AND deployment=? ORDER BY sequence',row.project,row.id).all()).results;row.notice=await s(c.env.DB,'SELECT state,created,updated FROM deployment_notices WHERE project=? AND deployment=?',row.project,row.id).first();delete row.destination;}
  return c.json({rows,provenance:'Commit range, timing and exposure are owner or CI recorded; repository ancestry and provider success are not independently confirmed.'});

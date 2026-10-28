@@ -1,4 +1,4 @@
-import { ownerSession } from '../../auth/session.server';
+import { operatorAuth } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { hash } from '../privacy';
@@ -14,15 +14,17 @@ import type { AuditActor, AuditFact } from './types';
 export async function requestActor(request: Request, bindings: Bindings): Promise<AuditActor> {
  const env=runtimeBindings(bindings);
  let session;
- try { session=await ownerSession(request,env); }
+ try { session=await operatorAuth(env).getSession(request); }
  catch (error) { if(error instanceof AuthError)return unidentifiedActor();throw error; }
- if(session)return auditActor(env.DB,{kind:'owner',authority:session.operator.id});
  const bearer=/^Bearer ([^\s]+)$/i.exec(request.headers.get('authorization')??'')?.[1];
+ if(session&&!request.headers.has('authorization'))return auditActor(env.DB,{kind:session.operator.role==='owner'?'owner':'member',authority:session.operator.id});
  if(!bearer)return unidentifiedActor();
  const digest=await hash(bearer);
- const grant=await env.DB.prepare(`SELECT kind,project,minted_by FROM credentials WHERE hash=? AND revoked IS NULL AND (kind='ingest' OR ${mintedByCurrentPerson}) AND ${await mintAdmission(request)}`)
+ const grant=await env.DB.prepare(`SELECT kind,project,minted_by FROM credentials WHERE hash=? AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(request)}`)
   .bind(digest).first<{kind:'agent'|'deploy'|'ingest';project:string;minted_by:string|null}>();
- return grant?auditActor(env.DB,{kind:grant.kind,authority:digest,owner:grant.minted_by,project:grant.project}):unidentifiedActor();
+ if(!grant)return unidentifiedActor();
+ const service=await env.DB.prepare('SELECT service FROM spool_service_credentials WHERE hash=?').bind(digest).first<{service:string}>();
+ return auditActor(env.DB,{kind:service?'service':grant.kind,authority:service?.service??digest,owner:grant.minted_by,project:grant.project});
 }
 
 /** A door whose authority is established by its own handler: an admitted
@@ -33,7 +35,7 @@ async function admittedActor(request: Request, env: Bindings, door: AuditScope, 
   const cookies=response.headers.getSetCookie().map(value=>value.split(';')[0]).filter(value=>value.includes('=')&&!value.endsWith('='));
   if(!cookies.length)return door.actor;
   const signedIn=await requestActor(new Request(request.url,{headers:{cookie:cookies.join('; '),host:new URL(request.url).host}}),env);
-  return signedIn.kind==='owner'?signedIn:door.actor;
+  return ['owner','member'].includes(signedIn.kind)?signedIn:door.actor;
  }
  // Business grants: the import door and the signed cutover read.
  if(new URL(request.url).pathname.startsWith('/api/rer/'))return serviceActor(env.DB,'business-import');

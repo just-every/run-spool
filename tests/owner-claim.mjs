@@ -4,6 +4,7 @@ import {createHash, generateKeyPairSync, randomUUID, sign} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {admissionRuntime, freePort} from './admission-runtime.mjs';
 import {testOwner, testSetupToken, signIn} from './auth.mjs';
+import {teamFlow} from './team-flow.mjs';
 
 // Only the issuer is a test network edge. Admission uses the real emitted Worker and D1.
 const issuer = 'https://claim-issuer.example.test', installationId = randomUUID();
@@ -136,3 +137,5 @@ try {
  assert.equal(await doorEnabled(app, ownerCookie), true);
  console.log('OWNER CLAIM passed: invalid signature/audience/issuer/email/installation/expiry/origin, native first claim, durable second refusal, additive existing-owner migration, Business door opened by the first claim only with RER_IMPORT_DOOR=on and kept under the owner\'s switch.');
 } finally {await app?.close();}
+
+await teamFlow();

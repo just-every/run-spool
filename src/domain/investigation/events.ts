@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { linkedCheckIns } from '../checkins/intake';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
@@ -14,7 +15,7 @@ const routes = new Hono<any>();
 // Rich source context and variables are an owner read, never an implicit
 // expansion of the sanitized agent packet grant.
 routes.use('/:project/issues/:issue/events*', async (c, next) => {
- if (!await ownerSession(c.req.raw, c.env)) return c.json({error:'Owner sign-in required'},401);
+ if (!await ownerSession(c.req.raw,c.env,resolveMembership)) return c.json({error:'Owner sign-in required'},401);
  if (!await c.env.DB.prepare('SELECT 1 FROM issues WHERE project=? AND id=?').bind(c.req.param('project'),c.req.param('issue')).first()) return c.json({error:'Issue not found'},404);
  await next();
 });

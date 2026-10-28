@@ -35,6 +35,12 @@ export function routeStatements(db:D1Database,alertId:string,time:number,onlyRul
  JOIN alert_snoozes z ON z.project=i.project AND z.historical=0 AND z.resumed_at IS NULL AND z.until>?
   AND (z.scope='project' OR z.scope='issue' AND z.target=a.issue OR z.scope='rule' AND z.target=i.rule_id)
  WHERE i.alert_id=? AND i.expanded=0 ON CONFLICT(delivery_id) DO NOTHING`,time,time,alertId),
+ s(db,`INSERT INTO alert_suppressed(delivery_id,project,snooze_id,reason,created)
+ SELECT i.id,i.project,z.id,'team_snooze',? FROM alert_intents i JOIN alerts a ON a.id=i.alert_id
+ JOIN spool_project_teams t ON t.project=i.project JOIN spool_team_snoozes z ON z.organization=t.organization AND z.team=t.team
+ WHERE i.alert_id=? AND i.expanded=0 AND z.historical=0 AND z.resumed_at IS NULL AND z.until>?
+  AND (z.scope='team' OR z.scope='issue' AND z.target=a.issue OR z.scope='rule' AND z.target=i.rule_id)
+ ON CONFLICT(delivery_id) DO NOTHING`,time,alertId,time),
  s(db,`UPDATE alert_intents SET state='snoozed',code='snooze' WHERE alert_id=? AND expanded=0 AND id IN(SELECT delivery_id FROM alert_suppressed WHERE released_at IS NULL)`,alertId),
  s(db,`INSERT INTO alert_history(id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,updated)
  SELECT id,project,alert_id,rule_id,rule_revision,channel,destination,state,created,? FROM alert_intents WHERE alert_id=? ON CONFLICT(id) DO NOTHING`,time,alertId)];

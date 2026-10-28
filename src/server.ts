@@ -1,3 +1,4 @@
+import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
 import { loaderResponse } from './domain/loader/public.server';
@@ -81,7 +82,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  const asset = await staticAssetResponse(request, env); if (asset) return asset;
  const state = await setupStateResponse(request, env, setupClaimed); if (state) return state;
  // Admit the root before reading a native session; owners keep the workbench at /.
- if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request, env))) {
+ if (path === '/' && (!admitted(request, env.AUTH_ORIGIN) || !await ownerSession(request,env,resolveMembership))) {
   const lobby = await lobbyResponse(request, env, identity, setupClaimed); if (lobby) return lobby;
  }
  if (isDocsRequest(request)) return docsResponse(request);
@@ -101,7 +102,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (auth) return path === '/auth/bootstrap' || auth.headers.has('set-cookie') ? afterOwnerPath(env, auth) : auth;
  return dispatch(request, () => api.fetch(request, env, execution), async () => {
   if (!applicationDocument(path)) {
-   if (!await ownerSession(request, env)) return new Response('Not found', { status: 404 });
+   if (!await ownerSession(request,env,resolveMembership)) return new Response('Not found', { status: 404 });
    // Owners keep the router's styled not-found page, even before project setup.
    return editorDocument(await start.fetch(request), env);
   }
