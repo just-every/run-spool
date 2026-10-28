@@ -9133,7 +9133,7 @@
       "executable": false
     },
     "tests/runtimes/electron/renderer.cjs": {
-      "sha256": "655e83e5f18f19f2a2d8296bd207ec1908c53127c9bb5b01b43d944c7478b525",
+      "sha256": "b7f4be72606ce412c631d0636509d03fcb4ad522c6cb056b64541930e4a3621c",
       "executable": false
     },
     "tests/runtimes/elixir.mjs": {
