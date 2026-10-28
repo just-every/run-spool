@@ -67,13 +67,19 @@ export async function rpc(config, method, params = {}) {
   }catch(error){if(error instanceof AgentError)throw error;throw new AgentError('Spool is unavailable or the request timed out.');}
   finally{controller.abort();clearTimeout(timer);}
 }
-export async function request(config,operation,args={}) {
+export async function invoke(config,operation,args={}) {
   const name=legacyNames[operation];if(!name)throw new AgentError('Unknown operation.');
   // endpoint retains the CLI's argument validation without dispatching HTTP.
   endpoint(config,operation,args);
   const project=decodeURIComponent(config.root.pathname.split('/').at(-1));
-  const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??globalThis.crypto.randomUUID()}:{} }});
-  if(answer?.isError)throw new AgentError(answer._meta?.['com.runeditrun/error']?.code??'Spool refused this request.',3);
+  return rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??globalThis.crypto.randomUUID()}:{} }});
+}
+export function legacyValue(operation,answer) {
   const value=answer.structuredContent;
   return ['list_issues','list_grouping_proposals'].includes(operation)&&Array.isArray(value?.items)?value.items:value;
+}
+export async function request(config,operation,args={}) {
+  const answer=await invoke(config,operation,args);
+  if(answer?.isError)throw new AgentError(answer._meta?.['com.runeditrun/error']?.code??'Spool refused this request.',3);
+  return legacyValue(operation,answer);
 }

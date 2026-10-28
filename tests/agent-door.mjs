@@ -13,6 +13,8 @@ import {testOwner,signIn} from './auth.mjs';
 import {signJws,seconds,accessToken,policyEnvelope,autonomousPolicy,heldPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 const agentRequire=createRequire(new URL('../packages/agent/package.json',import.meta.url));
 const {ListToolsResultSchema}=await import(agentRequire.resolve('@modelcontextprotocol/sdk/types.js'));
+const {Client}=await import(agentRequire.resolve('@modelcontextprotocol/sdk/client/index.js'));
+const {StdioClientTransport}=await import(agentRequire.resolve('@modelcontextprotocol/sdk/client/stdio.js'));
 
 // These remain assertions, not skipped tests. Re-pin and remove a marker only
 // after the corresponding production assertion passes against the next Base.
@@ -204,6 +206,14 @@ try {
   const packet=await(await restored.call('/api/projects/'+project.id+'/issues/'+captured.issue+'/packet',undefined,{Cookie:restoreCookie})).json();
   const submitted=await cli(['propose','--stdin','--format','json'],{...process.env,SPOOL_URL:restored.origin+'/api/projects/'+project.id,SPOOL_AGENT_KEY:key.key,SPOOL_DEV_KEY:''},JSON.stringify({...proposal,idempotency_key:undefined,revision:packet.issue.revision}));
   assert.equal(submitted.code,0,'standalone CLI retains native inert proposal authority');assert.equal(JSON.parse(submitted.stdout).state,'proposed');
+  const transport=new StdioClientTransport({command:process.execPath,args:[resolve('packages/agent/bin/spool-agent.mjs'),'mcp'],env:{...process.env,SPOOL_URL:restored.origin+'/api/projects/'+project.id,SPOOL_AGENT_KEY:key.key,SPOOL_DEV_KEY:''},stderr:'pipe'});
+  const client=new Client({name:'Spool compatibility integration',version:'1'},{capabilities:{}});
+  try{await client.connect(transport);ListToolsResultSchema.parse(await client.listTools());
+   const missing=await client.callTool({name:'get_packet',arguments:{issue:'missing-native-record'}});assert.equal(missing.isError,true);assert.equal(missing._meta['com.runeditrun/error'].code,'not_found');
+   const approvalPolicy=autonomousPolicy();approvalPolicy.rules.push({id:'native-standard-approval',class:'standard',do:'approval',approver:['role:owner'],wait:'P1D'});
+   const changed=await restored.call('/agents/api/policy',{document:approvalPolicy},{Cookie:restoreCookie},'PUT');assert.equal(changed.status,200);await changed.body?.cancel();
+   const held=await client.callTool({name:'propose_grouping',arguments:{...proposal,revision:packet.issue.revision}});assert.equal(held.isError,true);assert.equal(held._meta['com.runeditrun/error'].code,'approval_required');assert.ok(held._meta['com.runeditrun/error'].approval.url);
+  }finally{await client.close();await transport.close();}
  }finally{await restored.close();}
  console.log('PASS BASE-AGENT-001/004/005/006/007/008/009/010/011/012 native Spool signed owner/settings, Business ID, native packet, inert proposal, one-effect replay, conflict, repair Unknown, resource, project key, held summary, named approval, Pause, audit, events and native-attribution archive restore.');
  // A dated pending assertion stays red until Base provides its native target contract.

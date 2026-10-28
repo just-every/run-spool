@@ -6,6 +6,12 @@ It supports MCP `2026-07-28` and `2025-11-25`. Discovery and the
 `triage-engineer` prompt describe the supported work. The exact tool and scope
 inventory is generated in [AGENT-TOOLS.md](AGENT-TOOLS.md).
 
+Canonical list tools return collections in an `items` object field. The retained
+project REST, CLI and stdio clients keep their existing array and fenced-text
+formats while using the same native tools and policy decisions.
+The stdio client also forwards the door's structured refusal and approval
+metadata, including the link for a named person to review a held action.
+
 A triage engineer can inspect a captured failure, packet and capture-loss
 context; save an inert grouping proposal; prepare a native deterministic
 reproducer and request its bounded sandbox grant; record a repair claim and
