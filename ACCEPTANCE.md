@@ -1461,6 +1461,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 5. `spool.runs.diagnose` adds external for outside model egress; `spool.context.connect` adds it for outside trace forwarding; `spool.artifacts.manage` adds it for outside source fetching. Each names recipient count and counterparty known for a provider/origin on record, new otherwise.
 6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` or `spool.replay.settings` for a paid longer window.
 7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
+8. `spool.members.update` adds external for an invitation that grants project access to a person or service outside the business; `spool.identity.update` adds it for an identity-visibility grant that exposes raw identity to one. Each names recipient count and counterparty known for a person or service on record, new otherwise; an internal-only grant adds no external.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes external or money.
@@ -1472,13 +1473,13 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 **Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it irreversibly converts or removes.
 
 **Acceptance.**
-1. `spool.filters.update` carries live and adds security for allowed-domain changes. `spool.artifacts.manage` adds security for source-fetch secret headers.
+1. `spool.filters.update` carries live and adds security for allowed-domain changes. `spool.artifacts.manage` adds security for source-fetch secret headers; `spool.tracker.sync` adds it for tracker credential connection, rotation and revocation. Each names the setting.
 2. `spool.identity.update` carries security, adds access with direction for identity-visibility changes, and destructive with item count for irreversible retained-value conversion: keep to hash/drop, or hash to drop.
 3. `spool.members.update` carries access with people and direction, adding security when handling project credentials. Owner erasure adds access with people and direction for its verified successor handoff.
 4. `spool.retention.update` is standard for holds or longer windows, destructive with item count for shorter windows or cutoffs. `spool.context.connect` adds destructive with item count when disconnect irreversibly removes replay references.
 5. `spool.alerts.destinations` adds destructive with item count for removal; `spool.erasure.run` carries it with item count for project, end-user or owner erasure.
 6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive with item count for a shortened replay window or cutoff.
-7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
+7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals, and security for the commit author and message sharing choice; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
 8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
 **Evidence.** None.
@@ -1496,6 +1497,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 3. `spool.signin.update` and `spool.context.connect` add gated when the provider shows a consent screen.
 4. `spool.billing.update` adds gated at the billing partner's hosted checkout, and commitment, with the counterparty, when it accepts terms.
 5. A gated step goes to the named person whatever the policy says.
+6. `spool.tracker.sync` adds accounts when connecting installs a Jira, Linear or GitHub/GitLab provider app, naming the provider, and gated at the provider's consent screen, naming the provider and step; connecting an existing app handles credentials as security without creating another account.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes commitment, accounts or gated.

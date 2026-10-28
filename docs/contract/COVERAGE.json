@@ -702,6 +702,14 @@
       "to": "clause",
       "ids": [
         "TEAM-001"
+      ],
+      "also": [
+        {
+          "to": "clause",
+          "ids": [
+            "SURFACE-002"
+          ]
+        }
       ]
     },
     {
@@ -898,6 +906,14 @@
       "to": "clause",
       "ids": [
         "TEAM-004"
+      ],
+      "also": [
+        {
+          "to": "clause",
+          "ids": [
+            "SURFACE-003"
+          ]
+        }
       ]
     },
     {
@@ -1561,6 +1577,14 @@
       "to": "clause",
       "ids": [
         "SDK-026"
+      ],
+      "also": [
+        {
+          "to": "clause",
+          "ids": [
+            "SURFACE-002"
+          ]
+        }
       ]
     },
     {
@@ -3697,6 +3721,15 @@
       "to": "clause",
       "ids": [
         "TRACK-001"
+      ],
+      "also": [
+        {
+          "to": "clause",
+          "ids": [
+            "SURFACE-003",
+            "SURFACE-004"
+          ]
+        }
       ]
     },
     {
@@ -3721,6 +3754,12 @@
           "to": "register",
           "ids": [
             "R-11"
+          ]
+        },
+        {
+          "to": "clause",
+          "ids": [
+            "SURFACE-003"
           ]
         }
       ]
