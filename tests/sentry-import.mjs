@@ -107,7 +107,7 @@ try{
   for(const row of refusedPlan.rejected){assert.ok(refusedPlan.reasonLabels[row.reasonCode]);if(row.label===null)assert.ok(refusedPlan.reasonLabels[row.labelReasonCode]);else assert.ok(!row.label.includes(row.sourceId));}
   assert.equal(refusedPlan.rejected.find(row=>row.label===issueRows[0].title).reasonCode,editedFacts.undo.blockers[0].reasonCode,'review and undo use the same native-edit code');
   assert.ok(!JSON.stringify(refusedPlan).includes('IMPORT_SECRET'));
-  assert.equal((await cli('undo','--organization','fixture-org','--plan',refusedPlan.planId)).state,'cancelled');
+  assert.equal((await client.call('undo',{planId:refusedPlan.planId})).state,'cancelled');
   await assert.rejects(cli('undo','--organization','fixture-org','--plan',secondPlan.planId),error=>/HTTP 409/.test(error.message),'guarded undo refuses to overwrite a native edit');
   assert.equal((await json(`/api/projects/${importedProject.id}/issues`))[0].state,'acknowledged','guarded undo preserves native edit');
   const stoppedFacts=await cli('status','--organization','fixture-org','--plan',secondPlan.planId);
