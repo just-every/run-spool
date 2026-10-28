@@ -53,7 +53,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  }
  const path=route==='issue'&&method==='GET'?nativePath('issues',a):route==='deployments'&&method==='POST'?nativePath('releases',a):route==='followup'&&method==='GET'?`/api/projects/${e(a.project)}/follow-up`:nativePath(route,a);
  const url=new URL(path,env.AUTH_ORIGIN);
- if(method==='GET')for(const key of ['state','limit','q','sort','cursor','order','from','to','environment',...['occurrences','feedback-reports'].includes(route)?['issue']:[]])if(a[key]!==undefined)url.searchParams.set(key,String(a[key]));
+ if(method==='GET')for(const key of ['state','limit','q','sort','cursor','order','from','to','environment','format',...['occurrences','feedback-reports'].includes(route)?['issue']:[]])if(a[key]!==undefined)url.searchParams.set(key,String(a[key]));
  const {project:_,id:_id,issue:_issue,...body}=a;
  if(route==='fix-advance'){const row=await env.DB.prepare('SELECT revision FROM fix_workflows WHERE project=? AND id=?').bind(a.project,a.id).first<{revision:number}>();if(!row)throw new ToolRefusal('not_found');body.revision=row.revision;}
  if(route==='projects'&&method==='POST')body.id=crypto.randomUUID();
@@ -69,6 +69,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  const subject=door?{kind:door.kind,label:await auditLabel(env.DB,subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project))}: {kind:'project' as const,label:await auditLabel(env.DB,subjectBinding('project',String(a.project??'installation'),a.project))};
  const work=()=>runAuditScope({actor,action:door?.action??'private.action',subject,projectLabel:null},()=>Promise.resolve(api.fetch(request,env)));
  const response=ctx.agent?await withAgentAuthority(request,env,ctx as ToolContext,operation,work):await withReviewerAuthority(request,env,ctx.person.id,work);
+ if(response.ok&&route==='issue-export'&&a.format==='csv')return {format:'csv',content:await response.text()};
  let value:any;try{value=await response.json();}catch{throw new ToolRefusal('native_unavailable');}
  if(!response.ok)throw new ToolRefusal([401,403,404].includes(response.status)?'not_found':response.status===409?'revision_conflict':'native_refused','Native action refused',{status:response.status,reason:typeof value?.error==='string'?value.error:undefined});
  if(route==='issue'&&method==='GET'){

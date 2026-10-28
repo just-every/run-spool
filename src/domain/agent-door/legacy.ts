@@ -28,5 +28,7 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  const message=await response.json() as any;
  if(message.result?.isError){const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:[400,409,413,428,429,503].includes(failure.status)?failure.status:['invalid_arguments','idempotency_key_required'].includes(failure.code)?400:403});}
  if(message.error)return Response.json({code:message.error.data?.code??'agent_refused'},{status:response.ok?403:response.status});
- const value=message.result?.structuredContent;return Response.json(Array.isArray(value?.items)?value.items:value??{code:'agent_pending'},{status:request.method==='POST'?201:200});
+ const value=message.result?.structuredContent;
+ if(name==='issues.export'&&value?.format==='csv'&&typeof value.content==='string')return new Response(value.content,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="spool-issues.csv"','Cache-Control':'no-store'}});
+ return Response.json(Array.isArray(value?.items)?value.items:value??{code:'agent_pending'},{status:request.method==='POST'?201:200});
 }

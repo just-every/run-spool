@@ -29,7 +29,9 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
  let worker;
  const trustedOrigin=hostedMail?'https://spool.example':origin;
- const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key',RER_OWNER_CLAIM_APP_ORIGIN:trustedOrigin}:{};
+ // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
+ // their complete claim ring through extra; do not manufacture partial trust.
+ const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key'}:{};
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};

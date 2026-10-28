@@ -22,6 +22,7 @@ export async function peopleFlow(app){
  };
  assert.ok(!(await local(project)).body.result.isError,'The local credential retains its original project evidence authority');
  assert.ok(!(await local(project,'spool.issues.export')).body.result.isError,'The project key retains its existing sanitized export authority');
+ const csv=await app.request(`/api/projects/${project}/issue-export?format=csv`,'GET',undefined,{Cookie:'',Authorization:`Bearer ${key.key}`});assert.equal(csv.status,200);assert.match(csv.headers.get('content-type'),/^text\/csv/);assert.ok((await csv.text()).startsWith('short_id,id,title,'),'The compatibility CSV export uses the same current project authority');
  assert.equal((await local('foreign-project','spool.issues.export')).body.result._meta['com.runeditrun/error'].code,'not_found','The project key cannot export another project');
  assert.equal((await local('foreign-project')).body.result._meta['com.runeditrun/error'].code,'not_found');
  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});

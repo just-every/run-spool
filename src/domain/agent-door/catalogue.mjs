@@ -18,7 +18,7 @@ const definitions=[
  ['packets.read','GET','packet',fields({issue:str}),true,['standard'],['ERR-007','AI-001']],
  ['outcomes.read','GET','outcomes',fields({}),true,['standard'],['ERR-008']],
  ['issues.search','GET','issue-search',fields({q:text,sort:str,cursor},['project']),true,['standard'],['ERR-007']],
- ['issues.export','GET','issue-export',fields({q:text,sort:str},['project']),true,['standard'],['ERR-007']],
+ ['issues.export','GET','issue-export',fields({q:text,sort:str,format:{enum:['json','csv']}},['project']),true,['standard'],['ERR-007']],
  ['occurrences.list','GET','occurrences',fields({issue:str,q:text,cursor,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
  ['feedback.read','GET','feedback-reports',fields({issue:str,cursor,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
  ['health.read','GET','release-health',fields({from:num,to:num,environment:str},['project']),true,['standard'],['REL-001']],

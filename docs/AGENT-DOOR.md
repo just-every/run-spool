@@ -80,7 +80,9 @@ The `spool-agent` CLI and stdio MCP package retain the four historical evidence
 aliases and inert proposal submission. Their schemas and effects come from the
 shared production registry. Existing exact-project API aliases use that same
 door. Canonical list results use an `items` array inside an object; compatibility
-clients retain their historical responses. Raw proposal aliases require an
+clients retain their historical responses. Pagination cursors are opaque and
+valid only for their original query and order; compatibility aliases preserve
+native validation status codes. Raw proposal aliases require an
 `Idempotency-Key` header. A project key cannot apply grouping, perform provider work, manage access
 or read another project. Dev-minted keys still require the private local gate
 and are refused by the deployed entry. A failed Business JWT never falls back
