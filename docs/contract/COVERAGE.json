@@ -5172,22 +5172,6 @@
     },
     {
       "file": "CONTRACT.md",
-      "line": 734,
-      "cell": "gap",
-      "text": "Public-door membership and inherited riders are implemented. Status promotion and generated acceptance/count synchronization await the repository's missing Lander-Regenerate command: AGENTS.md declares none and src/base/contract-docs.mjs is absent. Generated ACCEPTANCE.md and claims files remain unchanged for the lander.",
-      "to": "gap",
-      "ids": [
-        "TEAM-001"
-      ],
-      "also": [
-        {
-          "to": "changelog"
-        }
-      ],
-      "note": "Membership evidence and partial status are carried; the main-only missing-generator claim is superseded by the existing cleanup generator and commands, recorded in CHANGELOG.md."
-    },
-    {
-      "file": "CONTRACT.md",
       "line": 735,
       "cell": "gap",
       "text": "Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.",
@@ -9353,6 +9337,22 @@
       "text": "FIND-001 evidence: `tests/bulk-triage-flow.mjs` \u2192 `reviewInboxFlow` proves pending count, one/selection review, atomic stale refusal, unchanged issue data, regression reopening, validated owner-only 25-view cap, unprivileged links, archive restore and erasure, plus 1440/390 owner UI. FIND-001 remains partial for team search, shared views and priority.",
       "to": "docs",
       "path": "docs/contract/acceptance-before-cleanup.md"
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 734,
+      "cell": "gap",
+      "text": "Public-door membership and inherited riders are implemented. Status promotion and generated acceptance/count synchronization await the repository's missing Lander-Regenerate command: AGENTS.md declares none and src/base/contract-docs.mjs is absent. Generated ACCEPTANCE.md and claims files remain unchanged for the lander.",
+      "to": "gap",
+      "ids": [
+        "TEAM-001"
+      ],
+      "also": [
+        {
+          "to": "changelog"
+        }
+      ],
+      "note": "Membership evidence and partial status are carried; the main-only missing-generator claim is superseded by the existing cleanup generator and commands, recorded in CHANGELOG.md."
     }
   ]
 }
