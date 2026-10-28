@@ -54,13 +54,17 @@ export async function shareItem(db:D1Database,session:OwnerSession,projects:Map<
  fields(body,['revision','shares']);
  if(!canEdit(session,snapshot,projects))fail('Reporting item not found',404);
  if(revision(body.revision)!==snapshot.row.revision)fail('Reporting revision changed',409);
- const grants=shares(body.shares),organization=snapshot.row.organization;
+ const grants=shares(body.shares),organization=snapshot.row.organization??(await s(db,'SELECT id FROM spool_organizations ORDER BY created LIMIT 1').first<{id:string}>())?.id??null;
  if(grants.length&&organization===null)fail('Create an organization before sharing this item',409);
  const selected=writable(session,projects,snapshot.projects),jobs=[...projectGuards(db,session,selected,true),itemRevisionGuard(db,snapshot.row)];
+ if(organization!==null){
+  if(selected.some(project=>project.organization!==organization))fail('Project not found',404);
+  jobs.push(guard(db,'EXISTS(SELECT 1 FROM spool_organizations WHERE id=?)',organization));
+ }
  for(const grant of grants)if(grant.kind==='team')jobs.push(guard(db,'EXISTS(SELECT 1 FROM spool_project_teams t JOIN spool_reporting_projects p ON p.project=t.project WHERE p.item=? AND t.organization=? AND t.team=?)',snapshot.row.id,organization,grant.target));
  jobs.push(s(db,'DELETE FROM spool_reporting_shares WHERE item=?',snapshot.row.id));
  for(const grant of grants)jobs.push(s(db,'INSERT INTO spool_reporting_shares(item,id,kind,target,active,created) VALUES(?,?,?,?,1,?)',snapshot.row.id,crypto.randomUUID(),grant.kind,grant.target,Date.now()));
- jobs.push(s(db,'UPDATE spool_reporting_items SET revision=revision+1,updated=? WHERE id=?',Date.now(),snapshot.row.id),...projectGuards(db,session,selected,true),auditCommit(db));
+ jobs.push(s(db,'UPDATE spool_reporting_items SET organization=?,revision=revision+1,updated=? WHERE id=?',organization,Date.now(),snapshot.row.id),...projectGuards(db,session,selected,true),auditCommit(db));
  await ownerBatch(db,session,jobs);
 }
 export async function deleteItem(db:D1Database,session:OwnerSession,projects:Map<string,ProjectSnapshot>,snapshot:ItemSnapshot,body:any){

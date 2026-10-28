@@ -260,9 +260,38 @@ async function serviceAuthority(owner,projects,issue) {
  return [...Object.values(keys),...Object.values(linkedKeys)].map(row=>row.key);
 }
 
+export async function reportingTeamFlow(owner,first,second,reader,billing,projects) {
+ const from=Date.now()-60000,to=Date.now()+1000,root='/api/reporting/items';
+ const widgets=projects.map(project=>({project:project.id,name:'Retained project events',config:{metric:'count',q:'',from,to}}));
+ let shared=await owner.json(root,'POST',{kind:'dashboard',name:'Shared team impact',widgets});
+ shared=await owner.json(root+'/'+shared.id+'/shares','PUT',{revision:shared.revision,shares:[{kind:'role',target:'read-only'},{kind:'role',target:'member'},{kind:'team',target:projects[0].id}]});
+ const view=await reader.json(root+'/'+shared.id);assert.equal(view.omittedProjects,1);assert.deepEqual(view.widgets.map(w=>w.project),[projects[0].id]);assert.equal(view.editable,false);
+ for(const format of ['json','csv']){
+  const response=await reader.req(root+'/'+shared.id+'/export?format='+format);assert.equal(response.status,200);const text=await response.text();assert.ok(!text.includes(projects[1].id));assert.ok(!text.includes('synthetic-spool-9@example.test'),'read-only exports contain no retained identity values');
+  if(format==='json'){const data=JSON.parse(text);assert.equal(data.omittedProjects,1);assert.equal(data.bounds.complete,true)}
+ }
+ const report='/api/reports?'+new URLSearchParams({projects:projects.map(p=>p.id).join(','),from:String(from),to:String(to),timeZone:'UTC',format:'json'});
+ const limited=await reader.json(report);assert.equal(limited.omission.projects,1);assert.deepEqual(limited.scope.projects,[projects[0].id]);assert.ok(!JSON.stringify(limited).includes(projects[1].id));
+ const snapshot=()=>owner.json(root+'/'+shared.id).then(item=>({name:item.name,revision:item.revision,widgets:item.widgets.map(w=>({id:w.id,project:w.project,config:w.config})),shares:item.shares}));
+ const before=await snapshot();
+ for(const actor of [reader,second,billing]){
+  await denied(actor.req(root+'/'+shared.id,'PUT',{kind:'dashboard',name:'Denied report change',widgets,revision:shared.revision}),'only current maintainers configure reports');
+  await denied(actor.req(root+'/'+shared.id+'/shares','PUT',{revision:shared.revision,shares:[]}),'readers cannot change shares');
+ }
+ assert.deepEqual(await snapshot(),before,'denied reporting writes change no definitions, revisions or shares');
+ const own=await first.json(root,'POST',{kind:'dashboard',name:'Maintainer report',widgets:[widgets[0]]});
+ const known=await second.req(root+'/'+own.id),unknown=await second.req(root+'/synthetic-unknown');assert.equal(known.status,404);assert.equal(unknown.status,404);assert.deepEqual(await known.json(),await unknown.json(),'a shared id confers no project access');
+ for(const path of [root+'/'+shared.id,root+'/'+shared.id+'/export',report])await denied(billing.req(path),'billing has no reporting evidence');
+ const key=await owner.json(projectRoot(projects[0])+'/keys','POST',{kind:'ingest'});
+ for(const path of [root+'/'+shared.id,root+'/'+shared.id+'/export',report])await denied(owner.req(path,'GET',undefined,{Cookie:'',Authorization:'Bearer '+key.key}),'ingest credentials have no reporting evidence');
+ await first.json(root+'/'+own.id,'DELETE',{revision:own.revision});
+ console.log('[FIND-002 R3] read-only omissions/exports, current roles, concealed ids and denied-write nonmutation passed');
+ return shared.id;
+}
+
 async function inertTeamArchive(owner,projects,formerCookie) {
  const before=await owner.json('/api/audit/export?format=json');
- for(const action of ['organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','alert.digest.settings','alert.snooze','automation.follow_up','notification.attempt','evidence.packet','evidence.export']){
+ for(const action of ['organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','alert.digest.settings','alert.snooze','automation.follow_up','notification.attempt','evidence.packet','evidence.export','reporting.create','reporting.change','reporting.share','reporting.view','reporting.export','report.export']){
   assert.ok(before.rows.some(row=>row.action===action&&['succeeded','accepted'].includes(row.outcome)),'safe organization history records the truthful new action: '+action);
  }
  assert.ok(before.rows.some(row=>row.actor_kind==='service'&&row.action==='evidence.packet'&&row.outcome==='succeeded'),'scoped service evidence has its own safe actor');
@@ -273,6 +302,8 @@ async function inertTeamArchive(owner,projects,formerCookie) {
   const next={...client(fresh.origin,fresh.cookie),origin:fresh.origin,cookie:fresh.cookie};
   const restoredResponse=await next.req('/api/restore','POST',archive,{'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'}),restoreResult=await restoredResponse.json();
   assert.equal(restoredResponse.status,200,'the private archive restores through the public HTTP door: '+JSON.stringify(restoreResult));
+  const carriedReports=await next.json('/api/reporting/items');assert.ok(carriedReports.items.length>0);for(const item of carriedReports.items){const detail=await next.json('/api/reporting/items/'+item.id);assert.equal(detail.author,'[erased]');assert.ok(detail.shares.every(share=>!share.active),'restored shares stay inert')}
+  await denied(client(fresh.origin,formerCookie).req('/api/reporting/items'),'a source member gains no restored report access');
   const restored=await next.json(organization);
   assert.ok(restored.members.length>=6);assert.ok(restored.members.every(row=>row.state==='inert'&&row.operator_id===null&&row.operatorStatus==='inert'));
   assert.ok(restored.grants.length>0);assert.ok(restored.invites.length>0&&restored.invites.every(row=>row.state==='inert'));
@@ -348,11 +379,13 @@ export async function teamFlow() {
   }
   await policyAuthority(owner,first,second,reader,projects);
   await memberDeployment(owner,second,projects[1]);
+  const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);
   await browserMembers(owner,projects);
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
   await revokedAuthority(owner,second,first,projects,issues[1]);
+  for(const path of ['/api/reporting/items/'+reportingId,'/api/reporting/items/'+reportingId+'/export','/api/reports?projects='+projects[1].id])await denied(second.req(path),'member removal immediately fences reports, definitions and exports');
   const audit=await owner.json('/api/audit/export?format=json');
   assert.ok(audit.rows.some(row=>row.action==='issue.triage'&&row.outcome==='succeeded'&&row.actor_kind==='member'),'committed triage names a member actor');
   assert.ok(audit.rows.some(row=>row.action==='issue.triage'&&row.outcome==='conflict'),'stale concurrent writes have truthful audit outcomes');

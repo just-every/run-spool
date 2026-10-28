@@ -1,6 +1,6 @@
 import { useId } from 'react';
 export type ReportsWindowValue = { from: string; to: string; timeZone: string };
-export function initialReportsWindow(): ReportsWindowValue { const to = Date.now(); return { from: new Date(to - 7 * 86400000).toISOString().slice(0, 16), to: new Date(to).toISOString().slice(0, 16), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }; }
+export function initialReportsWindow(): ReportsWindowValue { const to = Math.ceil(Date.now() / 60000) * 60000; return { from: new Date(to - 7 * 86400000).toISOString().slice(0, 16), to: new Date(to).toISOString().slice(0, 16), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }; }
 export function reportWindowNumbers(value: ReportsWindowValue) { return { from: Date.parse(`${value.from}Z`), to: Date.parse(`${value.to}Z`), timeZone: value.timeZone }; }
 export function ReportsWindow({ value, onChange, disabled = false, withTimeZone = true }: { value: ReportsWindowValue; onChange: (value: ReportsWindowValue) => void; disabled?: boolean; withTimeZone?: boolean }) {
   const timeZoneId = useId();
