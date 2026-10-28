@@ -256,7 +256,7 @@ export async function restoreStream(service: any, source: ReadableStream<Uint8Ar
  // An archive made before short IDs restores its issues without them: they are numbered
  // now, in first-seen order, as migration 0059 numbered the source. Current archives keep theirs.
  await ensureShortIds(service.db);
- await service.db.prepare("INSERT OR IGNORE INTO issue_priorities SELECT i.project,i.id,COALESCE((SELECT MAX(CASE COALESCE(json_extract(e.payload,'$.sentry.level'),'error') WHEN 'fatal' THEN 3 WHEN 'error' THEN 3 WHEN 'warning' THEN 2 ELSE 1 END) FROM events e WHERE e.project=i.project AND e.issue=i.id),3),NULL FROM issues i").run();
+ await service.db.prepare("INSERT OR IGNORE INTO issue_priorities SELECT i.project,i.id,CASE WHEN EXISTS(SELECT 1 FROM alerts a WHERE a.project=i.project AND a.issue=i.id AND a.kind IN ('regression','spike')) THEN 3 ELSE COALESCE((SELECT MAX(CASE COALESCE(json_extract(e.payload,'$.sentry.level'),'error') WHEN 'fatal' THEN 3 WHEN 'error' THEN 3 WHEN 'warning' THEN 2 ELSE 1 END) FROM events e WHERE e.project=i.project AND e.issue=i.id),3) END,NULL FROM issues i").run();
 }
 /** The archive restore alone, as releases before short IDs ran it. */
 export async function restoreArchive(service: any, source: ReadableStream<Uint8Array>, laterJournal?: LaterJournal) {

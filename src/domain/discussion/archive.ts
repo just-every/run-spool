@@ -1,6 +1,6 @@
 import {activityDetail} from '../lifecycle/activity';
 import { scrubText } from '../scrub';
-import { safeAlias } from '../audit/types';
+import { safeAlias,actorKinds } from '../audit/types';
 
 export const discussionTables={
  issue_comments:['id','project','issue','operator_id','actor_kind','actor_label','body','mentions','version','created','updated'],
@@ -37,7 +37,7 @@ export function validateDiscussionArchive(data:any) {
  const activityIds=new Set<string>();
  for(const row of data.issue_activity) {
   require(issues.get(row.issue)===row.project&&typeof row.id==='string'&&row.id.length>0&&!activityIds.has(row.id));activityIds.add(row.id);
-  require(typeof row.kind==='string'&&row.kind.length<=100&&['owner','member','ingest','deploy','service','unknown','agent'].includes(row.actor_kind)&&safeAlias(row.actor_label)&&integer(row.created));
+  require(typeof row.kind==='string'&&row.kind.length<=100&&actorKinds.includes(row.actor_kind)&&safeAlias(row.actor_label)&&integer(row.created));
   require(typeof row.detail==='string'&&row.detail.length<=32768&&activityDetail(row.detail)===row.detail);
   let detail:any;try{detail=JSON.parse(row.detail)}catch{throw new Error('Invalid discussion archive');}
   require(detail&&typeof detail==='object'&&!Array.isArray(detail));

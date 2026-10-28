@@ -69,10 +69,10 @@ export function newerReleaseSql(project:string,event:string,boundary:string){
  ELSE EXISTS(SELECT 1 FROM releases candidate_release JOIN releases boundary_release ON boundary_release.project=candidate_release.project AND boundary_release.seq=${boundary} WHERE candidate_release.project=${project} AND candidate_release.name=${event}.release AND ${releaseComparisonSql('candidate_release','boundary_release',releasePolicyOrderSql(project))}) END)`;
 }
 export const resolvedBoundarySql=(issue='i')=>`COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id),${issue}.resolved_seq)`;
-/** Equality changes only current-release resolution. Next keeps its open cut;
- * named already treats its boundary as the first qualifying regression. */
+/** Current and already-observed named boundaries share the repeat policy.
+ * Next and the first event in a future named target retain their open cut. */
 export function sameResolvedReleaseSql(issue='i',event='incoming'){
- return `(${event}.release<>'' AND ${issue}.latest_release_seq IS NOT NULL AND ${event}.release_seq=${resolvedBoundarySql(issue)} AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='current'))`;
+ return `(${event}.release<>'' AND ${issue}.latest_release_seq IS NOT NULL AND ${event}.release_seq=${resolvedBoundarySql(issue)} AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND (resolution.mode='current' OR resolution.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=${issue}.project AND snapshot.issue=${issue}.id AND snapshot.boundary_seq=resolution.boundary_seq AND snapshot.seen_at_resolution=1))))`;
 }
 /** Both identities must exist: an unknown or release-less occurrence cannot
  * establish an older release. Native events keep registered-sequence order. */
@@ -82,5 +82,5 @@ export function olderResolvedReleaseSql(issue='i',event='incoming'){
 }
 export function regressionSql(issue='i',event='incoming'){
  const resolution=`(SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id)`;
- return `(EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='plain') OR (${issue}.latest_release_seq IS NOT NULL AND (${newerReleaseSql(issue+'.project',event,`COALESCE(${resolution},${issue}.resolved_seq)`)} OR (${event}.release<>'' AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='named' AND resolution.boundary_seq=${event}.release_seq)) OR (${sameResolvedReleaseSql(issue,event)} AND EXISTS(SELECT 1 FROM recurrence_policies recurrence WHERE recurrence.project=${issue}.project AND recurrence.reopen_same_release=1)))))`;
+ return `(EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='plain') OR (${issue}.latest_release_seq IS NOT NULL AND (${newerReleaseSql(issue+'.project',event,`COALESCE(${resolution},${issue}.resolved_seq)`)} OR (${event}.release<>'' AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND resolution.mode='named' AND resolution.boundary_seq=${event}.release_seq AND NOT ${sameResolvedReleaseSql(issue,event)})) OR (${sameResolvedReleaseSql(issue,event)} AND EXISTS(SELECT 1 FROM recurrence_policies recurrence WHERE recurrence.project=${issue}.project AND recurrence.reopen_same_release=1)))))`;
 }

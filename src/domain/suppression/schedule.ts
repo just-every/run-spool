@@ -10,7 +10,7 @@ export async function scheduleSuppression(env:{DB:D1Database},time:number){
  for(const row of rows){
   const eligible=`CASE mode
    WHEN 'until' THEN deadline<=? WHEN 'snooze' THEN deadline<=?
-   WHEN 'count' THEN (SELECT count FROM issues WHERE project=issue_suppressions.project AND id=issue_suppressions.issue)>=occurrence_target
+   WHEN 'count' THEN observed_count>=occurrence_target
    WHEN 'users' THEN ${userCountSql('issue_suppressions.project','issue_suppressions.issue')}>=user_target
    WHEN 'escalating' THEN (SELECT COUNT(*) FROM events e WHERE e.project=issue_suppressions.project AND e.issue=issue_suppressions.issue AND e.received>?-window_ms AND e.received<=?)>forecast
    ELSE 0 END`;

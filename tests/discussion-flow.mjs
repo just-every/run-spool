@@ -1,3 +1,5 @@
+import {chromium} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import {legacyMailRows} from './legacy-mail.mjs';
 import assert from 'node:assert/strict';
 
@@ -59,6 +61,15 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  assert.ok(current.activity.some(row=>row.kind==='unsubscribed'));
  await (admin??owner).json(base+'/comments/'+created.id,'DELETE',{revision:current.revision,version:edited.version});
  current=await read();assert.ok(!current.comments.some(row=>row.id===created.id),'an administrator can delete a comment');
+ const browser=await chromium.launch({headless:true});try{
+  const context=await browser.newContext({viewport:{width:1440,height:1000}});await context.addCookies(first.cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:owner.origin.replace('http:','https:'),secure:true})));const page=await context.newPage();
+  await page.goto(owner.origin+'/projects/'+projects[0].id+'/issues/'+issues[0].id);await page.getByLabel('Priority',{exact:true}).waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();
+  await Promise.all([page.waitForResponse(response=>response.url().endsWith('/priority')&&response.ok()),page.waitForResponse(response=>response.url().endsWith('/discussion')&&response.ok()),page.getByLabel('Priority',{exact:true}).selectOption('medium')]);
+  await page.getByLabel('Comment',{exact:true}).fill('Confirmation retries preserve the payment acknowledgment.');await Promise.all([page.waitForResponse(response=>response.url().endsWith('/comments')&&response.status()===201),page.getByRole('button',{name:'Post comment',exact:true}).click()]);
+  const note=page.locator('.timeline li').filter({hasText:'Confirmation retries preserve the payment acknowledgment.'});await note.getByRole('button',{name:'Edit comment',exact:true}).click();await note.getByLabel('Edit comment',{exact:true}).fill('Confirmation retries preserve the payment acknowledgment after deployment.');await note.getByRole('button',{name:'Save comment',exact:true}).click();await page.getByText('Confirmation retries preserve the payment acknowledgment after deployment.',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'Unsubscribe',exact:true}).click();await page.getByRole('button',{name:'Subscribe',exact:true}).waitFor();await page.getByRole('button',{name:'Subscribe',exact:true}).click();await page.getByRole('button',{name:'Unsubscribe',exact:true}).waitFor();
+  const accessibility=await new AxeBuilder({page}).include('.issue').include('.issue-collaboration').analyze();assert.deepEqual(accessibility.violations.filter(row=>['serious','critical'].includes(row.impact)),[]);await context.close();
+ }finally{await browser.close()}
  let bounded=await read();
  for(let index=bounded.comments.length;index<bounded.limit;index++){const note=await first.json(base+'/comments','POST',{revision:bounded.revision,body:'Retained investigation note '+index});bounded.revision=note.revision;}
  const atCapacity=await read();assert.equal(await status(first.req(base+'/comments','POST',{revision:atCapacity.revision,body:'Beyond capacity'})),409);assert.deepEqual(await read(),atCapacity,'comment capacity refusal changes nothing');

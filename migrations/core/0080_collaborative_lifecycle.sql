@@ -26,8 +26,8 @@ CREATE TRIGGER issue_activity_state AFTER UPDATE OF state ON issues
 WHEN OLD.state<>NEW.state AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
 BEGIN
  INSERT INTO issue_activity SELECT lower(hex(randomblob(16))),NEW.project,NEW.id,
- CASE WHEN OLD.state='resolved' AND NEW.state='open' AND COALESCE((SELECT actor_kind FROM audit_context),'service') IN ('ingest','service') THEN 'regression' ELSE 'state' END,
- COALESCE((SELECT actor_kind FROM audit_context),'service'),COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),json_object('from',OLD.state,'state',NEW.state),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);
+ CASE WHEN OLD.state='resolved' AND NEW.state='open' AND COALESCE((SELECT action FROM audit_context),'') IN ('capture.native','capture.sentry','capture.otlp') THEN 'regression' ELSE 'state' END,
+ CASE WHEN EXISTS(SELECT 1 FROM audit_context WHERE action IN ('capture.native','capture.sentry','capture.otlp')) THEN 'ingest' ELSE COALESCE((SELECT actor_kind FROM audit_context),'service') END,COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),json_object('from',OLD.state,'state',NEW.state),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);
 END;
 CREATE TABLE issue_comments (
  id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),
@@ -57,14 +57,14 @@ BEGIN
  json_object('mode',NEW.mode,'release',(SELECT name FROM releases WHERE project=NEW.project AND seq=NEW.boundary_seq)),NEW.updated;
 END;
 CREATE TRIGGER issue_activity_same_release AFTER UPDATE OF count ON issues
-WHEN OLD.state='resolved' AND NEW.count>OLD.count AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
+WHEN OLD.state='resolved' AND NEW.count>OLD.count AND EXISTS(SELECT 1 FROM audit_context WHERE action IN ('capture.native','capture.sentry','capture.otlp')) AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
 BEGIN
  INSERT INTO issue_activity SELECT lower(hex(randomblob(16))),NEW.project,NEW.id,'resolved_release_recurrence',
- COALESCE((SELECT actor_kind FROM audit_context),'ingest'),COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),
+ 'ingest',COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),
  json_object('release',e.release,'count',1),e.received
  FROM events e JOIN issue_resolutions r ON r.project=NEW.project AND r.issue=NEW.id
  WHERE e.rowid=(SELECT rowid FROM events WHERE project=NEW.project AND issue=NEW.id ORDER BY rowid DESC LIMIT 1)
- AND r.mode='current' AND e.release<>'' AND e.release_seq=COALESCE(r.boundary_seq,OLD.resolved_seq)
+ AND (r.mode='current' OR r.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=NEW.project AND snapshot.issue=NEW.id AND snapshot.boundary_seq=r.boundary_seq AND snapshot.seen_at_resolution=1)) AND e.release<>'' AND e.release_seq=COALESCE(r.boundary_seq,OLD.resolved_seq)
  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence);
 END;
 UPDATE issue_priorities SET automatic=3 WHERE issue IN (SELECT issue FROM alerts WHERE kind IN ('regression','spike'));
@@ -76,10 +76,10 @@ BEGIN
 END;
 
 CREATE TRIGGER issue_activity_old_release AFTER UPDATE OF count ON issues
-WHEN OLD.state='resolved' AND NEW.count>OLD.count AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
+WHEN OLD.state='resolved' AND NEW.count>OLD.count AND EXISTS(SELECT 1 FROM audit_context WHERE action IN ('capture.native','capture.sentry','capture.otlp')) AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
 BEGIN
  INSERT INTO issue_activity SELECT lower(hex(randomblob(16))),NEW.project,NEW.id,'older_release_recurrence',
- COALESCE((SELECT actor_kind FROM audit_context),'ingest'),COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),json_object('release',incoming.release,'count',1),incoming.received
+ 'ingest',COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),json_object('release',incoming.release,'count',1),incoming.received
  FROM events incoming JOIN issues i ON i.id=NEW.id AND i.project=NEW.project
  WHERE incoming.rowid=(SELECT rowid FROM events WHERE project=NEW.project AND issue=NEW.id ORDER BY rowid DESC LIMIT 1)
  AND (incoming.release<>'' AND incoming.release_seq<>COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id),i.resolved_seq) AND EXISTS(SELECT 1 FROM releases boundary_release WHERE boundary_release.project=i.project AND boundary_release.seq=COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id),i.resolved_seq)) AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id AND resolution.mode IN ('current','next','named')) AND NOT (incoming.release<>'' AND CASE WHEN COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id),i.resolved_seq) IS NULL OR COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id),i.resolved_seq)=0 THEN 1
@@ -92,7 +92,7 @@ CREATE TABLE issue_suppressions (
  mode TEXT NOT NULL CHECK(mode IN('forever','until','count','users','escalating','snooze')),reason TEXT NOT NULL,
  deadline INTEGER,occurrence_target INTEGER,user_target INTEGER,window_ms INTEGER,forecast REAL,
  started INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN('active','expired','ended')),ended INTEGER,
- historical INTEGER NOT NULL DEFAULT 0 CHECK(historical IN(0,1))
+ historical INTEGER NOT NULL DEFAULT 0 CHECK(historical IN(0,1)),observed_count INTEGER NOT NULL DEFAULT 0 CHECK(observed_count>=0)
 );
 CREATE UNIQUE INDEX issue_suppressions_active ON issue_suppressions(project,issue) WHERE state='active' AND historical=0;
 CREATE TRIGGER issue_suppression_ended AFTER UPDATE OF state ON issues WHEN OLD.state='suppressed' AND NEW.state<>'suppressed'
@@ -109,4 +109,25 @@ CREATE TRIGGER issue_priority_regroup AFTER UPDATE OF issue ON events WHEN OLD.i
 AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
 BEGIN
  UPDATE issue_priorities SET automatic=MAX(automatic,CASE COALESCE(json_extract(NEW.payload,'$.sentry.level'),'error') WHEN 'fatal' THEN 3 WHEN 'error' THEN 3 WHEN 'warning' THEN 2 ELSE 1 END) WHERE project=NEW.project AND issue=NEW.issue;
+END;
+-- Remember whether a named boundary was already observed when the user made
+-- the decision. The first event in a future target is a regression; a repeat
+-- in an already observed target follows the collaborative recurrence policy.
+CREATE TABLE issue_recurrence_boundaries (
+ project TEXT NOT NULL REFERENCES projects(id),issue TEXT PRIMARY KEY REFERENCES issues(id),
+ boundary_seq INTEGER,seen_at_resolution INTEGER NOT NULL CHECK(seen_at_resolution IN (0,1))
+);
+CREATE TRIGGER issue_recurrence_boundary_update AFTER UPDATE OF mode,boundary_seq ON issue_resolutions
+WHEN EXISTS(SELECT 1 FROM issues WHERE id=NEW.issue AND state='resolved')
+AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
+BEGIN
+ INSERT INTO issue_recurrence_boundaries VALUES(NEW.project,NEW.issue,NEW.boundary_seq,EXISTS(SELECT 1 FROM events WHERE project=NEW.project AND issue=NEW.issue AND release_seq=NEW.boundary_seq))
+ ON CONFLICT(issue) DO UPDATE SET boundary_seq=excluded.boundary_seq,seen_at_resolution=excluded.seen_at_resolution;
+END;
+
+CREATE TRIGGER issue_suppression_occurrence AFTER UPDATE OF count ON issues
+WHEN NEW.count>OLD.count AND EXISTS(SELECT 1 FROM audit_context WHERE action IN ('capture.native','capture.sentry','capture.otlp'))
+BEGIN
+ UPDATE issue_suppressions SET observed_count=observed_count+NEW.count-OLD.count
+ WHERE project=NEW.project AND issue=NEW.id AND historical=0 AND state='active';
 END;

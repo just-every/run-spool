@@ -48,7 +48,7 @@ export const suppressionFences=(db:D1Database,plan:SuppressionPlan)=>[
 export function suppressionStatements(db:D1Database,plan:SuppressionPlan,id:string,time:number){
  return [
   s(db,"UPDATE issue_suppressions SET state='ended',ended=? WHERE project=? AND issue=? AND historical=0 AND state='active'",time,plan.project,plan.issue),
-  s(db,`INSERT INTO issue_suppressions(id,project,issue,mode,reason,deadline,occurrence_target,user_target,window_ms,forecast,started,state,ended,historical) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',NULL,0)`,id,plan.project,plan.issue,plan.input.mode,plan.input.reason,plan.deadline,plan.occurrenceTarget,plan.userTarget,plan.windowMs,plan.forecast,time),
+  s(db,`INSERT INTO issue_suppressions(id,project,issue,mode,reason,deadline,occurrence_target,user_target,window_ms,forecast,started,state,ended,historical,observed_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',NULL,0,?)`,id,plan.project,plan.issue,plan.input.mode,plan.input.reason,plan.deadline,plan.occurrenceTarget,plan.userTarget,plan.windowMs,plan.forecast,time,plan.metrics.occurrences),
   s(db,"UPDATE issues SET state='suppressed',resolved_seq=NULL,revision=revision+1 WHERE project=? AND id=? AND revision=?",plan.project,plan.issue,plan.revision),
   activity(db,plan.project,plan.issue,'suppression_started',{suppression:id,mode:plan.input.mode,reason:plan.input.reason,deadline:plan.deadline,occurrenceTarget:plan.occurrenceTarget,userTarget:plan.userTarget,windowMs:plan.windowMs,forecast:plan.forecast},time),
  ];

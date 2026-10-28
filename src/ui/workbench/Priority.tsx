@@ -5,7 +5,7 @@ export function Priority({ project, issue, request, run, busy, refresh, readOnly
   project: string; issue: Pick<Issue, 'id' | 'revision' | 'priority'>; request: Request; run: Run; busy: boolean; refresh: () => void; readOnly?: boolean;
 }) {
   if (readOnly) return <span className={`priority-chip ${issue.priority}`}>Priority: {stateLabel(issue.priority)}</span>;
-  return <label className="form-field">Priority<select value={issue.priority} disabled={busy} onChange={event => {
+  return <label className="form-field">Priority<select aria-label="Priority" value={issue.priority} disabled={busy} onChange={event => {
     const priority = event.target.value;
     void run(async () => {
       await request(`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue.id)}/priority`, 'PUT', { priority, revision: issue.revision });
