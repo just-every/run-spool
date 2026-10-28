@@ -9085,7 +9085,7 @@
       "executable": false
     },
     "tests/sentry-import.mjs": {
-      "sha256": "229a0d5baa254f41a95f21cb4dafff813207e8648c20fd47b65273ceeb4eb0ca",
+      "sha256": "ae3031b40187a2f20481b01a84e39edd9d1b25f455e4827e13ab9b71ccefe893",
       "executable": false
     },
     "tests/sentry-import/reads.mjs": {

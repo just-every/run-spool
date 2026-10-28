@@ -4,14 +4,17 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startTestWorker } from './worker.mjs';
+import { admissionRuntime } from './admission-runtime.mjs';
 import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 import { sentryImportCli, sentryDoorClient } from '../scripts/sentry-import.mjs';
 import { readableImport, unknownTimes, refusedImportReads } from './sentry-import/reads.mjs';
-const worker=await startTestWorker(15523),{origin}=worker;
+// Hosted auth sends invitations through the existing mail-provider edge;
+// development mode intentionally suppresses mail and cannot prove member reads.
+const worker=await admissionRuntime({}, {port:15523,hostedMail:true}),{origin}=worker;
 const scratch=await mkdtemp(join(tmpdir(),'spool-sentry-import-'));
 try{
-  let cookie=await signIn(origin);
+  let cookie=await signIn(origin,{emailLink:true});
   // Without Run Edit Run's owner-claim trust there is no signer: the cutover read does not exist.
   assert.equal((await fetch(origin+'/api/rer/cutover-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({since:new Date().toISOString()})})).status,404);
   const req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}});
@@ -65,7 +68,7 @@ try{
   assert.equal((await req('/api/operator/import/status','POST',{planId:planned.planId},{'X-Import-Source':'sentry-org:fixture-org',Origin:'https://evil.example'})).status,401,'a cross-origin owner request is refused');
   assert.equal((await req('/api/operator/import/status','POST',{planId:planned.planId},{'X-Import-Source':'imports-elsewhere'})).status,400,'only listed import sources reach the door');
   // New owner session reopens the durable job; no in-memory journal is needed.
-  cookie=await signIn(origin,{bootstrap:false});assert.equal((await cli('status','--organization','fixture-org','--plan',planned.planId)).job.state,'completed');
+  cookie=await signIn(origin,{bootstrap:false,emailLink:true});assert.equal((await cli('status','--organization','fixture-org','--plan',planned.planId)).job.state,'completed');
   assert.equal((await cli('apply',...applyArgs)).job.id,id);
   const catchupBundle=JSON.parse(bytes);catchupBundle.collections.find(row=>row.kind==='issues').pages[0].response[0].title='Checkout failure after catch-up';
   const catchupFile=join(scratch,'catchup.json');await writeFile(catchupFile,JSON.stringify(catchupBundle),{mode:0o600});
@@ -119,7 +122,7 @@ try{
   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
   assert.equal((await req('/api/operator/import/undo','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
   console.log('Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.');
-  await worker.stop();
+  await worker.close();
   const restored=await startTestWorker(15524);
   try{
     const restoredCookie=await signIn(restored.origin);
@@ -131,4 +134,4 @@ try{
     await assert.rejects(restoredDoor.status(secondPlan.planId),error=>error.status===404,'native archives do not transfer private source originals or executable import jobs');
   }finally{await restored.stop()}
   console.log('Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.');
-}finally{await worker.stop();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
+}finally{await worker.close();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
