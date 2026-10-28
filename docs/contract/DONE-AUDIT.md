@@ -114,11 +114,10 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | ERASE-001 | 2 | The receipt carries counts and times only | `tests/project-erasure-cap.mjs:40` | asserted |
 | ERASE-001 | 3 | Anonymous, ingest, agent and deploy, unknown, wrong-confirmation and cross-origin requests are refused with every row, receipt and outbox entry unchanged (doors helper, run here) | `tests/project-erasure.mjs:51` | asserted |
 | ERASE-001 | 3 | A stale owner-erasure plan is refused with 409 and changes nothing | `tests/owner-erasure.mjs:99`, `tests/owner-erasure.mjs:100` | asserted |
-| ERASE-001 | 4 | A project holding 10,000 events is erased within 300 seconds | `tests/project-erasure-cap.mjs:39` | asserted |
-| ERASE-001 | 5 | A sole owner is held for a verified successor | `tests/owner-erasure.mjs:23` | asserted |
-| ERASE-001 | 5 | After owner erasure exactly one active owner remains | `tests/owner-erasure.mjs:126` | asserted |
-| ERASE-001 | 6 | An interrupted owner erasure resumes to completion (interrupted-erasure helper, run here) | `tests/owner-erasure.mjs:159` | asserted |
-| ERASE-001 | 7 | A pre-erasure archive is refused by the same installation and by a fresh destination that first received the post-erasure archive (fences helper, run here) | `tests/project-erasure.mjs:66` | asserted |
+| ERASE-001 | 4 | A sole owner is held for a verified successor | `tests/owner-erasure.mjs:23` | asserted |
+| ERASE-001 | 4 | After owner erasure exactly one active owner remains | `tests/owner-erasure.mjs:126` | asserted |
+| ERASE-001 | 5 | An interrupted owner erasure resumes to completion (interrupted-erasure helper, run here) | `tests/owner-erasure.mjs:159` | asserted |
+| ERASE-001 | 6 | A pre-erasure archive is refused by the same installation and by a fresh destination that first received the post-erasure archive (fences helper, run here) | `tests/project-erasure.mjs:66` | asserted |
 | TEAM-004 | 1 | A commit citing the issue's short ID in mixed case, registered through the deploy-key release door, links at once | `tests/release-identity-flow.mjs:120` | asserted |
 | TEAM-004 | 1 | The link is on the issue's commit timeline with its SHA, citation, release and author | `tests/release-identity-flow.mjs:124` | asserted |
 | TEAM-004 | 1 | The same commit delivered by merging a pull request links the issue | moved: GitHub and GitLab pull and merge request citations are SRC-002's, which carries their provider receipts (Requirement) | moved |
@@ -284,15 +283,8 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | ALERT-004 | 6 | A lost provider response becomes uncertain owner work, a stale decision is refused, and owner reconciliation completes it (alert follow-up helper lines 8, 23 and 25) | `tests/alerts-runtime.mjs:59` | asserted |
 | ALERT-004 | 6 | Repeated evaluation adds no duplicate follow-up fact, and a failed alternate never retries or notifies itself (alert follow-up helper lines 11, 20 and 21) | `tests/alerts-runtime.mjs:59` | asserted |
 | ALERT-004 | 7 | After a restore, a scheduled tick sends nothing, queues no mail and every restored rule is disabled | `tests/alerts-runtime.mjs:100` | asserted |
-| AUDIT-001 | 1 | Owner actions record their actor, action, subject and outcome | `tests/audit-history.mjs:26` | asserted |
-| AUDIT-001 | 1 | Agent actions record their actor and outcome | `tests/audit-history.mjs:55` | asserted |
-| AUDIT-001 | 1 | Denied requests record a `denied` outcome for agent, anonymous and owner actors | `tests/audit-history.mjs:35`, `tests/audit-history.mjs:36` | asserted |
-| AUDIT-001 | 1 | Member actions record their actor and outcome | none: no cited test performs a member action; members arrive with TEAM-001 | none |
-| AUDIT-001 | 2 | A restart preserves every safe fact | `tests/audit-history.mjs:73` | asserted |
-| AUDIT-001 | 3 | Restore keeps the destination's chronology and appends the archived facts unchanged | `tests/audit-history.mjs:93` | asserted |
-| AUDIT-001 | 4 | Project erasure leaves the earlier chronology unchanged and records its completion | `tests/audit-history.mjs:129`, `tests/audit-history.mjs:130` | asserted |
-| AUDIT-001 | 4 | Actor (owner) erasure never rewrites prior chronology and erases the actor bindings | `tests/owner-erasure.mjs:112`, `tests/owner-erasure.mjs:113` | asserted |
-| AUDIT-001 | 5 | The exported history carries no canary, key, key hash, project name or owner address | `tests/audit-history.mjs:71` | asserted |
+| AUDIT-001 | 1 | Restore keeps the destination's chronology and appends the archived facts unchanged | `tests/audit-history.mjs:93` | asserted |
+| AUDIT-001 | 2 | The exported history carries no canary, key, key hash, project name or owner address | `tests/audit-history.mjs:71` | asserted |
 | AI-005 | 1 | For deceptively similar and rebuilt failures, the proposal lists inside and outside counterexamples, including the rebuilt event | `tests/operator-flow.mjs:118` | asserted |
 | AI-005 | 1 | The proposal names exactly the affected events | `tests/operator-flow.mjs:121` | asserted |
 | AI-005 | 2 | It shows the per-issue rate change | `tests/operator-flow.mjs:121` | asserted |

@@ -572,7 +572,25 @@
     {
       "file": "CONTRACT.md",
       "line": 85,
-      "text": "portability tombstones, source-import custody withdrawal, stale-write fences are preserved, and project erasure completes within five minutes for a project at today's 10,000-event admission limit. GOV-003 carries erasure within 15 minutes for 150,000 retained events. Owner self-erasure first transfers authority to a verified successor; it refuses unsupported/ambiguous attribution rather than damaging other people's data.",
+      "text": "portability tombstones, source-import custody withdrawal, stale-write fences are preserved, ",
+      "to": "clause",
+      "ids": [
+        "ERASE-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 85,
+      "text": "and project erasure completes within five minutes for a project at today's 10,000-event admission limit.",
+      "to": "base",
+      "ids": [
+        "BASE-DATA-003"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 85,
+      "text": " GOV-003 carries erasure within 15 minutes for 150,000 retained events. Owner self-erasure first transfers authority to a verified successor; it refuses unsupported/ambiguous attribution rather than damaging other people's data.",
       "to": "clause",
       "ids": [
         "ERASE-001"
@@ -590,7 +608,25 @@
     {
       "file": "CONTRACT.md",
       "line": 87,
-      "text": "**Acceptance evidence:** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, a 10,000-event project erased within 300 seconds, successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.",
+      "text": "**Acceptance evidence:** Run public setup/dev/HTTP/export/import erasure journeys with canaries in every declared store, count-only preview/receipt, wrong-scope/origin/stale denials, ",
+      "to": "clause",
+      "ids": [
+        "ERASE-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 87,
+      "text": "a 10,000-event project erased within 300 seconds,",
+      "to": "base",
+      "ids": [
+        "BASE-DATA-003"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 87,
+      "text": " successor handoff, resumed partial erasure and same/fresh-destination old-archive fences.",
       "to": "clause",
       "ids": [
         "ERASE-001"
@@ -599,7 +635,25 @@
     {
       "file": "CONTRACT.md",
       "line": 93,
-      "text": "**TEAM-001 \u2014 Organizations, members and project permissions.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes sessions, keys and linked service authority; service accounts have explicit project scopes.",
+      "text": "**TEAM-001 \u2014 Organizations, members and project permissions.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes ",
+      "to": "clause",
+      "ids": [
+        "TEAM-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 93,
+      "text": "sessions,",
+      "to": "base",
+      "ids": [
+        "BASE-ROLE-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 93,
+      "text": " keys and linked service authority; service accounts have explicit project scopes.",
       "to": "clause",
       "ids": [
         "TEAM-001"
@@ -644,10 +698,19 @@
     {
       "file": "CONTRACT.md",
       "line": 99,
-      "text": "**Acceptance evidence:** Invite two teammates and an external read-only collaborator; grant access to disjoint projects, triage concurrently, remove a member and verify immediate denial across UI, HTTP, SDK-management, CLI and exports.",
+      "text": "**Acceptance evidence:** Invite two teammates and an external read-only collaborator; grant access to disjoint projects, triage concurrently, ",
       "to": "clause",
       "ids": [
         "TEAM-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 99,
+      "text": "remove a member and verify immediate denial across UI, HTTP, SDK-management, CLI and exports.",
+      "to": "base",
+      "ids": [
+        "BASE-ROLE-001"
       ]
     },
     {
@@ -3866,7 +3929,92 @@
     {
       "file": "CONTRACT.md",
       "line": 580,
-      "text": "**GOV-001 \u2014 Enterprise identity and administration.** Connect Auth0, Okta and standard SAML/OIDC identity providers for organization SSO, enforce verified domains, MFA/step-up policy and SCIM provisioning/deprovisioning, and audit role changes. Preserve a controlled recovery owner without bypassing provider revocation. Members can also sign in with Google (Workspace or personal account) or GitHub as plain login options linked to their member identity; an admin can require one, restrict Google sign-in to verified domains and GitHub sign-in to a named GitHub organization, and removal, MFA and step-up still apply. Native email-link/local development setup remains usable; managed first-owner admission and editor access reuse native authority rather than adding a parallel identity model.",
+      "text": "**GOV-001 \u2014 Enterprise identity and administration.** Connect Auth0, Okta ",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": "and standard SAML/OIDC identity providers",
+      "to": "base",
+      "ids": [
+        "BASE-SIGNIN-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": " for organization SSO, enforce verified domains, ",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": "MFA/",
+      "to": "base",
+      "ids": [
+        "BASE-SIGNIN-002"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": "step-up policy ",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": "and SCIM provisioning/deprovisioning, and audit role changes.",
+      "to": "base",
+      "ids": [
+        "BASE-SIGNIN-001",
+        "BASE-AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": " Preserve a controlled recovery owner without bypassing provider revocation. Members can also sign in with Google (Workspace or personal account) or GitHub as plain login options linked to their member identity; an admin can require one, restrict Google sign-in to verified domains and GitHub sign-in to a named GitHub organization",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": ", and removal, MFA and step-up still apply.",
+      "to": "base",
+      "ids": [
+        "BASE-ROLE-001",
+        "BASE-SIGNIN-001",
+        "BASE-SIGNIN-002"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": "Native email-link/local development setup remains usable;",
+      "to": "base",
+      "ids": [
+        "BASE-ACCESS-001",
+        "BASE-INSTALL-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 580,
+      "text": " managed first-owner admission and editor access reuse native authority rather than adding a parallel identity model.",
       "to": "clause",
       "ids": [
         "GOV-001"
@@ -3875,7 +4023,7 @@
     {
       "file": "CONTRACT.md",
       "line": 582,
-      "text": "**Acceptance evidence:** Configure SSO with each named provider, provision a member and project role, enforce step-up, revoke the IdP user while a session/grant is active and verify all private doors deny access; recover through the documented owner procedure. Sign in one member with Google and another with GitHub, restrict Google sign-in to the verified domain and confirm an outside Google account is refused, then remove the GitHub member and confirm the next request is denied.",
+      "text": "**Acceptance evidence:** Configure SSO with each named provider, ",
       "to": "clause",
       "ids": [
         "GOV-001"
@@ -3887,6 +4035,68 @@
             "R-15"
           ]
         }
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 582,
+      "text": "provision a member and project role,",
+      "to": "base",
+      "ids": [
+        "BASE-SIGNIN-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 582,
+      "text": " enforce step-up, ",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ],
+      "also": [
+        {
+          "to": "register",
+          "ids": [
+            "R-15"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 582,
+      "text": "revoke the IdP user while a session/grant is active and verify all private doors deny access;",
+      "to": "base",
+      "ids": [
+        "BASE-SIGNIN-001",
+        "BASE-ROLE-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 582,
+      "text": " recover through the documented owner procedure. Sign in one member with Google and another with GitHub, restrict Google sign-in to the verified domain and confirm an outside Google account is refused",
+      "to": "clause",
+      "ids": [
+        "GOV-001"
+      ],
+      "also": [
+        {
+          "to": "register",
+          "ids": [
+            "R-15"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 582,
+      "text": ", then remove the GitHub member and confirm the next request is denied.",
+      "to": "base",
+      "ids": [
+        "BASE-ROLE-001"
       ]
     },
     {
@@ -4088,7 +4298,34 @@
     {
       "file": "CONTRACT.md",
       "line": 611,
-      "text": "**Acceptance evidence:** At 1440 and 390, onboard a realistic team project, capture/map an error, search/assign/comment, follow an alert, approve a repair and inspect all end states with keyboard, screen reader checks and revoked/offline sessions.",
+      "text": "**Acceptance evidence:** At 1440 and 390, onboard a realistic team project, capture/map an error, search/assign/comment, follow an alert, approve a repair and inspect all end states ",
+      "to": "clause",
+      "ids": [
+        "UX-001"
+      ],
+      "also": [
+        {
+          "to": "register",
+          "ids": [
+            "R-16",
+            "R-17"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 611,
+      "text": "with keyboard, screen reader checks and",
+      "to": "base",
+      "ids": [
+        "BASE-ACCESSIBILITY-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 611,
+      "text": " revoked/offline sessions.",
       "to": "clause",
       "ids": [
         "UX-001"
@@ -4106,7 +4343,82 @@
     {
       "file": "CONTRACT.md",
       "line": 613,
-      "text": "**AUDIT-001 \u2014 Permanent privacy-safe action audit.** Record actor/service, time, action, subject and outcome for triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only, portable, permissioned history without secrets, raw payloads or personal values in permanent subject/actor labels. Erasure anonymizes attribution and retains count-only receipts; denied/stale writes cannot claim completion. Exportable organization audit and admin investigation must cover new team/provider paths.",
+      "text": "**AUDIT-001 \u2014 Permanent privacy-safe action audit.** Record ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": "actor/service, time, action, subject and outcome for",
+      "to": "base",
+      "ids": [
+        "BASE-OPS-005",
+        "BASE-AUDIT-001",
+        "BASE-AGENT-009"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": " triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only, portable, ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": "permissioned",
+      "to": "base",
+      "ids": [
+        "BASE-AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": " history without secrets, raw payloads or personal values in permanent subject/actor labels. ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": "Erasure anonymizes attribution and",
+      "to": "base",
+      "ids": [
+        "BASE-DATA-003",
+        "BASE-AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": " retains count-only receipts; ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": "denied/stale writes cannot claim completion.",
+      "to": "base",
+      "ids": [
+        "BASE-AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 613,
+      "text": " Exportable organization audit and admin investigation must cover new team/provider paths.",
       "to": "clause",
       "ids": [
         "AUDIT-001"
@@ -4115,7 +4427,55 @@
     {
       "file": "CONTRACT.md",
       "line": 615,
-      "text": "**Acceptance evidence:** Perform owner/member/agent and denied actions, restart/export/restore, erase an actor/project and inspect retained nonpersonal chronology, correct outcomes and absence of secret/erased identifiers.",
+      "text": "**Acceptance evidence:** ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 615,
+      "text": "Perform owner/member/agent and denied actions,",
+      "to": "base",
+      "ids": [
+        "BASE-OPS-005",
+        "BASE-AUDIT-001",
+        "BASE-AGENT-009"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 615,
+      "text": "restart/",
+      "to": "base",
+      "ids": [
+        "BASE-AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 615,
+      "text": "export/restore, ",
+      "to": "clause",
+      "ids": [
+        "AUDIT-001"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 615,
+      "text": "erase an actor/project and inspect retained nonpersonal chronology, correct outcomes and",
+      "to": "base",
+      "ids": [
+        "BASE-AUDIT-001",
+        "BASE-DATA-003"
+      ]
+    },
+    {
+      "file": "CONTRACT.md",
+      "line": 615,
+      "text": " absence of secret/erased identifiers.",
       "to": "clause",
       "ids": [
         "AUDIT-001"

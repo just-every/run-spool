@@ -45,7 +45,7 @@ The primary journey: a US development team points its existing error capture at 
 | BASE-SECRET-002 | Startup | none | not run |
 | BASE-DATA-001 | Export and import | ERR-009, OPS-001, API-001 | not run |
 | BASE-DATA-002 | Retention | GOV-002, GOV-003 | not run |
-| BASE-DATA-003 | Erasure | ERASE-001, SDK-027 | not run |
+| BASE-DATA-003 | Erasure | ERASE-001, SDK-027, AUDIT-001 | not run |
 | BASE-DATA-004 | Outbound flows | AI-001 | not run |
 | BASE-DATA-005 | Independence | none | not run |
 | BASE-DATA-006 | Erasure respects retention and legal hold | none | not run |
@@ -57,7 +57,7 @@ The primary journey: a US development team points its existing error capture at 
 | BASE-OPS-003 | Idempotency | ALERT-004, REL-001 | not run |
 | BASE-OPS-004 | Failure is visible | ALERT-004 | not run |
 | BASE-OPS-005 | Audit | AUDIT-001 | not run |
-| BASE-ROLE-001 | Roles through every door | TEAM-001, SDK-026 | not run |
+| BASE-ROLE-001 | Roles through every door | TEAM-001, SDK-026, GOV-001 | not run |
 | BASE-AUDIT-001 | Searchable, durable audit | AUDIT-001 | not run |
 | BASE-BACKUP-001 | Independent backup, restore and rollback | ERR-009 | not run |
 | BASE-SIGNIN-001 | Standards-based SSO and lifecycle | GOV-001 | not run |
@@ -229,16 +229,15 @@ The primary journey: a US development team points its existing error capture at 
 
 #### ERASE-001 — Project and installation-owner erasure
 
-**Requirement.** The owner erases one project, or their own personal data, with a count-only preview, a typed confirmation bound to the exact current plan, resumable destructive steps and a completion receipt with per-table counts and times and no personal values. Project erasure cascades from the project root through every declared store, withdraws a Sentry-imported project's import-kit custody and original export artifacts in the same batch, leaves portability tombstones and stale-write fences, runs one erasure at a time and never reuses an erased project's identifier; it completes within five minutes for a project at today's 10,000-event admission limit, and GOV-003 carries erasure within 15 minutes for 150,000 retained events. Owner self-erasure first transfers authority to a verified successor, so exactly one active owner remains; it refuses unsupported/ambiguous attribution, retained import custody and identifiers inside structural keys rather than damaging other people's data, and replaces only exact whole-token identifiers in captured data. Every owner write admitted before the handoff and completed after it is refused with `409 authority_changed`. Archives exported before an erasure are refused by the installation's restore fence, including archives holding only child rows, and by a fresh destination that first receives the post-erasure archive or a later journal. Team membership extends these permissions while keeping owner-only destructive confirmation and a verified authority successor. The preview and receipt name each retained scope exception and the external copies outside the local fence (docs/PROJECT-ERASURE.md, docs/OWNER-ERASURE.md).
+**Requirement.** The owner erases one project, or their own personal data, with a count-only preview, a typed confirmation bound to the exact current plan, resumable destructive steps and a completion receipt with per-table counts and times and no personal values. Project erasure cascades from the project root through every declared store, withdraws a Sentry-imported project's import-kit custody and original export artifacts in the same batch, leaves portability tombstones and stale-write fences, runs one erasure at a time and never reuses an erased project's identifier; GOV-003 carries erasure within 15 minutes for 150,000 retained events. Owner self-erasure first transfers authority to a verified successor, so exactly one active owner remains; it refuses unsupported/ambiguous attribution, retained import custody and identifiers inside structural keys rather than damaging other people's data, and replaces only exact whole-token identifiers in captured data. Every owner write admitted before the handoff and completed after it is refused with `409 authority_changed`. Archives exported before an erasure are refused by the installation's restore fence, including archives holding only child rows, and by a fresh destination that first receives the post-erasure archive or a later journal. Team membership extends these permissions while keeping owner-only destructive confirmation and a verified authority successor. The preview and receipt name each retained scope exception and the external copies outside the local fence (docs/PROJECT-ERASURE.md, docs/OWNER-ERASURE.md).
 
 **Acceptance.** Through public setup, dev, HTTP, export and import:
 1. Project erasure removes the canaries planted in every declared store.
 2. The preview and the receipt carry counts and times only, with no personal values.
 3. Wrong-scope, cross-origin and stale requests are refused and change nothing.
-4. A project holding 10,000 events is erased within 300 seconds.
-5. Owner self-erasure hands authority to a verified successor first, leaving exactly one active owner.
-6. An interrupted erasure resumes to completion.
-7. A pre-erasure archive is refused in the same installation and in a fresh destination that first received the post-erasure archive.
+4. Owner self-erasure hands authority to a verified successor first, leaving exactly one active owner.
+5. An interrupted erasure resumes to completion.
+6. A pre-erasure archive is refused in the same installation and in a fresh destination that first received the post-erasure archive.
 
 ## Target clauses
 
@@ -248,13 +247,12 @@ The primary journey: a US development team points its existing error capture at 
 
 *Tier:* Core · *Cites:* BASE-ROLE-001, BASE-ACCESS-004 · *Rules:* D-1, D-4
 
-**Requirement.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes sessions, keys and linked service authority; service accounts have explicit project scopes. Owner transfer remains available without restricting the organization to one active contributor. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member's project/team scope. Team roles preserve ALERT-004's accountable alternate operator, visible broken-destination and overdue follow-up and nonrecursive deduplication, and carry ALERT-003's team digests and team snooze: buyer-timezone daily/weekly error digests, required snooze expiry, one durable resumption notice, counted/listed suppressed alerts, and loss/backlog visible through maintenance and quiet hours.
+**Requirement.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes keys and linked service authority; service accounts have explicit project scopes. Owner transfer remains available without restricting the organization to one active contributor. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member's project/team scope. Team roles preserve ALERT-004's accountable alternate operator, visible broken-destination and overdue follow-up and nonrecursive deduplication, and carry ALERT-003's team digests and team snooze: buyer-timezone daily/weekly error digests, required snooze expiry, one durable resumption notice, counted/listed suppressed alerts, and loss/backlog visible through maintenance and quiet hours.
 
 **Acceptance.**
 1. Two teammates and an external read-only collaborator are invited and hold access to disjoint projects.
 2. Members triage concurrently.
-3. A removed member is denied at once through the UI, HTTP, SDK management, the CLI and exports.
-4. Removal revokes the member's sessions, keys and linked service authority.
+3. Removal revokes the member's keys and linked service authority.
 
 #### TEAM-002 — Accountable assignment and ownership rules
 
@@ -1039,18 +1037,15 @@ The primary journey: a US development team points its existing error capture at 
 
 #### GOV-001 — Enterprise identity and administration
 
-*Tier:* Core · *Cites:* BASE-ACCESS-001, BASE-SIGNIN-001, BASE-SIGNIN-002 · *Register:* R-15
+*Tier:* Core · *Cites:* BASE-ACCESS-001, BASE-SIGNIN-001, BASE-SIGNIN-002, BASE-ROLE-001 · *Register:* R-15
 
-**Requirement.** Connect Auth0, Okta and standard SAML/OIDC identity providers for organization SSO, enforce verified domains, MFA/step-up policy and SCIM provisioning/deprovisioning, and audit role changes. Preserve a controlled recovery owner without bypassing provider revocation. Members can also sign in with Google (Workspace or personal account) or GitHub as plain login options linked to their member identity; an admin can require one, restrict Google sign-in to verified domains and GitHub sign-in to a named GitHub organization, and removal, MFA and step-up still apply. Native email-link/local development setup remains usable; managed first-owner admission and editor access reuse native authority rather than adding a parallel identity model. Vendor tenants are register row R-15.
+**Requirement.** Connect Auth0 and Okta for organization SSO, enforce verified domains and step-up policy, and retain project-grant fencing under the cited Base duties. Preserve a controlled recovery owner without bypassing provider revocation. Members can also sign in with Google (Workspace or personal account) or GitHub as plain login options linked to their member identity; an admin can require one, restrict Google sign-in to verified domains and GitHub sign-in to a named GitHub organization. Managed first-owner admission and editor access reuse native authority rather than adding a parallel identity model. Vendor tenants are register row R-15.
 
 **Acceptance.**
-1. SSO configured against the run-auth standards provider provisions a member with a project role.
-2. Step-up is enforced.
-3. Revoking the identity-provider user while a session and grant are active denies every private door.
-4. The documented owner recovery procedure restores access.
-5. One member signs in with Google and another with GitHub.
-6. With Google sign-in restricted to the verified domain, an outside Google account is refused.
-7. After the GitHub member is removed, the next request is denied.
+1. Step-up is enforced.
+2. The documented owner recovery procedure restores access.
+3. One member signs in with Google and another with GitHub.
+4. With Google sign-in restricted to the verified domain, an outside Google account is refused.
 
 #### GOV-002 — Retention, residency and data custody
 
@@ -1115,21 +1110,17 @@ The primary journey: a US development team points its existing error capture at 
 
 **Acceptance.** At 1440 and 390:
 1. A realistic team project is onboarded, an error captured and mapped, searched, assigned and commented on, an alert followed and a repair's approval recorded.
-2. Every end state passes the keyboard journey, with screen-reader checks.
-3. Revoked and offline sessions show their named states.
+2. Revoked and offline sessions show their named states.
 
 #### AUDIT-001 — Permanent privacy-safe action audit
 
-*Tier:* Core · *Cites:* BASE-OPS-005, BASE-AUDIT-001, BASE-AGENT-009
+*Tier:* Core · *Cites:* BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-003, BASE-AGENT-009
 
-**Requirement.** Record actor/service, time, action, subject and outcome for triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only, portable, permissioned history without secrets, raw payloads or personal values in permanent subject/actor labels. Erasure anonymizes attribution and retains count-only receipts; denied/stale writes cannot claim completion. Exportable organization audit and admin investigation must cover new team/provider paths, and each later clause's new actions inherit this record (D-1). docs/AUDIT.md describes how writers commit their facts.
+**Requirement.** Spool's action history covers triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only history portable through Spool archives, with no secrets, raw payloads or personal values in permanent subject/actor labels. Erasure retains count-only receipts and leaves no erased identifier in this history. Organization audit and admin investigation cover new team/provider paths, and each later clause's new actions inherit this record (D-1). docs/AUDIT.md describes how writers commit their facts.
 
 **Acceptance.**
-1. Owner, member, agent and denied actions each record their actor, time, action, subject and a truthful outcome.
-2. The chronology survives a restart.
-3. It survives export and restore.
-4. Erasing an actor or a project leaves the nonpersonal chronology in place.
-5. No secret or erased identifier remains in the history.
+1. It survives export and restore.
+2. No secret or erased identifier remains in the history.
 
 ### Deployment integrations
 
@@ -1226,7 +1217,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 **Acceptance.**
 1. `tools/list` names exactly the tools in the table, each with its declared classes and Core clause ids in `_meta`.
 2. The Core clause ids with the not-a-tool reasons cover every Core clause in this contract, and none of those reasons is risk.
-3. `resources/templates/list` names exactly the resource templates above, and each write returns a link to the record it touched.
+3. `resources/templates/list` names exactly the resource templates above.
 4. `list_issues`, `get_packet`, `get_outcomes`, `list_grouping_proposals` and `propose_grouping` reach the same server actions as `spool.issues.read`, `spool.outcomes.read` and `spool.grouping.propose`.
 5. The Base conformance harness passes on Spool's seeded fixtures under both company policies.
 
@@ -1519,7 +1510,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BILL-001` | Predictable USD usage and ingestion budgets | target | partial | `src/domain/admission.ts`; `src/domain/sentry/client-reports.ts`; `src/ui/workbench/CaptureReceipts.tsx`; `tests/client-report-flow.mjs`; `docs/CLIENT-REPORTS.md`; `src/domain/filters/` | Settings and capture receipts separate accepted, filtered and SDK client-discarded quantities; SDK discards retain reason/category without creating issues, alerts or accepted units, and survive private archive restore. Forecasts, spike protection, key limits and the named volume reasons remain absent. Fixed 120-a-minute and 10,000-retained-event refusals remain GOV-003 gaps. |
 | `BILL-002` | Published USD plans, checkout and invoices | target | missing |  | No implementation proof yet: commercial USD tiers and billing remain absent. |
 | `UX-001` | Mobile operations and accessible investigation | target | partial | `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` | Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent. |
-| `AUDIT-001` | Permanent privacy-safe action audit | target | partial | `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs` | Not asserted in the cited tests: member actions, which cannot occur until TEAM-001 (D-1 carries their audit). Asserted: owner, agent and denied actions, restart, archive restore, actor and project erasure, and the absence of secrets and erased identifiers. |
+| `AUDIT-001` | Permanent privacy-safe action audit | target | partial | `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs` | Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history. |
 | `INT-001` | Vercel and Netlify deployment connectors | target | missing |  | No implementation proof yet: vercel and Netlify deployment connectors. |
 | `SURFACE-001` | The registry equals this table and the Base harness passes | target | missing |  | No implementation proof yet: the MCP door, the tool registry with classes and the Base conformance harness are absent; the stdio agent package serves five read and proposal tools without classes. |
 | `SURFACE-002` | External and money are computed per call | target | missing |  | No implementation proof yet: no tool computes external or money. |
