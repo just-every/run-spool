@@ -1,3 +1,5 @@
+import {discussionRoutes} from './discussion/routes';
+import recurrenceRoutes from './recurrence/routes';
 import priorityRoutes from './issue-priority/routes';
 import {prioritySql} from './issue-priority/model';
 import { resolveMembership } from './members/resolver';
@@ -158,6 +160,8 @@ api.use('/api/*',async(c,next)=>{
   return c.json({error:'Sign in required'},401);
 });
 api.route('/api/projects',priorityRoutes);
+api.route('/api/projects',discussionRoutes);
+api.route('/api/projects',recurrenceRoutes);
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
@@ -217,7 +221,7 @@ api.patch('/api/projects/:project/issues/:issue',async c=>{
 api.get('/api/projects/:project/issues/:issue/packet',async c=>{
   // A short ID or alias, in any case, reads its current issue's packet.
   const found=await resolveIssue(c.env.DB,c.req.param('project'),c.req.param('issue'));
-  const packet=found&&await issuePacket(c.env.DB,c.req.param('project'),found.issue,found.requested);
+  const packet=found&&await issuePacket(c.env.DB,c.req.param('project'),found.issue,found.requested,!!c.get('owner'));
   return packet===null?c.json({error:'Issue not found'},404):c.body(packet,200,{'Content-Type':'application/json; charset=UTF-8'});
 });
 api.get('/api/archive',async c=>new Response(await auditedExport(c.env.DB,await archiveStream(await portability(c.env.DB))),{headers:{'Content-Type':'application/x-ndjson','Content-Disposition':'attachment; filename=errors-private-archive.jsonl','Cache-Control':'no-store'}}));

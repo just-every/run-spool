@@ -1,0 +1,60 @@
+import assert from 'node:assert/strict';
+
+const status=async pending=>{const response=await pending;await response.arrayBuffer();return response.status;};
+const denied=async pending=>assert.ok([401,403,404].includes(await status(pending)));
+
+/** Extends the existing team journey after its shared-project grant change. */
+export async function discussionFlow(owner,first,second,reader,projects,issues) {
+ const root='/api/projects/'+projects[0].id,base=root+'/issues/'+issues[0].id;
+ const read=()=>first.json(base+'/discussion');
+ let current=await read();
+ await denied(reader.req(base+'/priority','PUT',{priority:'low',revision:current.revision}));
+ assert.equal((await read()).revision,current.revision,'read-only priority refusal does not mutate the issue');
+ const priority=await first.json(base+'/priority','PUT',{priority:'low',revision:current.revision});
+ assert.ok(priority);
+ current=await read();
+ assert.equal(await status(first.req(base+'/comments','POST',{revision:current.revision,body:'x'.repeat(4001)})),400);
+ const longNote='Investigation detail. '.repeat(70);
+ const created=await first.json(base+'/comments','POST',{revision:current.revision,body:longNote+'Investigating with @synthetic-spool-2. password=synthetic-spool-secret'});
+ assert.equal(created.revision,current.revision+1);
+ current=await read();
+ const comment=current.comments.find(row=>row.id===created.id);assert.ok(comment);
+ assert.ok(comment.body.startsWith(longNote),'a comment beyond the default scrubber bound is preserved');
+ assert.ok(!comment.body.includes('synthetic-spool-secret'),'comments scrub secrets before storage');
+ assert.equal(comment.mentions.length,1);assert.match(comment.mentions[0],/^audit:[a-f0-9]{32}$/);
+ let recipient=await second.json(base+'/discussion');
+ assert.equal(recipient.subscription.subscribed,true);assert.ok(recipient.subscription.reasons.includes('mention'));
+ assert.equal(recipient.comments.find(row=>row.id===created.id).canEdit,false);
+ await denied(second.req(base+'/comments/'+created.id,'PATCH',{revision:recipient.revision,version:created.version,body:'Cannot replace another member’s comment'}));
+ const readerView=await reader.json(base+'/discussion');assert.equal(readerView.canWrite,false);
+ await denied(reader.req(base+'/comments','POST',{revision:current.revision,body:'Reader cannot post'}));
+ await denied(first.req('/api/projects/'+projects[1].id+'/issues/'+issues[1].id+'/discussion'));
+ await denied(first.req(base+'/comments','POST',{revision:current.revision,body:'Cross origin'},{Origin:'https://foreign.example.test'}));
+ await denied(owner.req(base+'/discussion','GET',undefined,{Authorization:'Bearer synthetic-spool-invalid'}));
+ const plain=await first.json(base+'/comments','POST',{revision:current.revision,body:'@synthetic-spool-unknown @synthetic-spool-4'});
+ current=await read();
+ const plainComment=current.comments.find(row=>row.id===plain.id);
+ assert.equal(plainComment.body,'@synthetic-spool-unknown @synthetic-spool-4');assert.deepEqual(plainComment.mentions,[],'unknown and inaccessible handles stay ordinary text');
+ recipient=await second.json(base+'/discussion');
+ await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:false});
+ current=await read();
+ const edited=await first.json(base+'/comments/'+created.id,'PATCH',{revision:current.revision,version:created.version,body:'Updated investigation with @synthetic-spool-2'});
+ recipient=await second.json(base+'/discussion');
+ assert.equal(recipient.subscription.subscribed,false,'later mentions respect explicit unsubscribe');
+ assert.equal(recipient.subscription.explicit,'unsubscribed');
+ await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:true});
+ assert.equal((await second.json(base+'/discussion')).subscription.subscribed,true);
+ current=await read();
+ const race=await Promise.all([first,second].map(actor=>status(actor.req(base+'/comments','POST',{revision:current.revision,body:'Concurrent discussion'}))));
+ assert.deepEqual(race.toSorted(),[201,409],'only one comment commits against a shared issue revision');
+ current=await read();
+ assert.equal(current.revision,recipient.revision+2);
+ assert.ok(current.activity.some(row=>row.kind==='comment_added'&&row.actor_kind==='member'));
+ assert.ok(current.activity.some(row=>row.kind==='comment_edited'));
+ assert.ok(current.activity.some(row=>row.kind==='unsubscribed'));
+ await owner.json(base+'/comments/'+created.id,'DELETE',{revision:current.revision,version:edited.version});
+ current=await read();assert.ok(!current.comments.some(row=>row.id===created.id),'an administrator can delete a comment');
+ const packet=JSON.stringify(await first.json(base+'/packet'));
+ assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
+ console.log('[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed');
+}

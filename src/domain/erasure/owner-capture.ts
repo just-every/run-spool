@@ -5,6 +5,7 @@ import { repairLink } from '../repairs/input';
 // Only content columns are rewritten. Keys, grouping inputs and immutable
 // import custody cannot be silently changed or dropped with a neighbour's data.
 export const ownerCaptureColumns: Record<string, string[]> = {
+ issue_comments:['body'],
  spool_team_digest_settings: ['team'], spool_team_snoozes: ['team','target'], spool_team_mail: ['team','body'],
  spool_organizations: ['name'], spool_project_teams: ['team'], spool_service_accounts: ['name'],
  suspect_decisions: ['note'],
@@ -30,7 +31,7 @@ export async function ownerIdentifiers(db: D1Database, id: string) {
  if (!owner) throw new Error('subject_not_found');
  const identities = (await db.prepare('SELECT subject FROM oa_external_identities WHERE operator_id=?').bind(id).all<any>()).results;
  const remembered=(await db.prepare(`SELECT json_extract(s.row_json,'$.subject') AS subject FROM rer_erasure_scope s JOIN rer_erasure_operations o ON o.id=s.operation WHERE o.entity='installation-owner' AND json_extract(o.subject,'$.id')=? AND s.kind='graph' AND s.table_name='oa_external_identities'`).bind(id).all<any>()).results;
- return [...new Set([owner.id,owner.email,owner.display_name,...identities.map(row => row.subject),...remembered.map(row=>row.subject)].filter(Boolean))] as string[];
+ return [...new Set([owner.id,owner.email,owner.display_name,...owner.email?['@'+owner.email.split('@')[0]]:[],...identities.map(row => row.subject),...remembered.map(row=>row.subject)].filter(Boolean))] as string[];
 }
 // An identifier is the owner's only as a whole token: the characters around it must not continue a word, address or
 // identifier ("Sam." or "Sam:", but not "Sample", nor an address that ends a longer address). One found inside a longer

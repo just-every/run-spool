@@ -12,6 +12,7 @@ import {signIn,testOwner} from './auth.mjs';
 import {alertRuntime,rule,prepareDestinations} from './alerts/runtime.mjs';
 import {receiver} from './alerts/receiver.mjs';
 export async function releaseIdentityFlow({req,json,origin,cookie}){
+ await issuePriorityFlow({req,json});
  const project=await json('/api/projects','POST',{id:'release-identity',name:'Cedar checkout releases'}),base='/api/projects/release-identity';
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  let serial=0;
@@ -273,4 +274,24 @@ async function team004DeliveryRetention(){
   const attempts=inbox.requests.length,mailCount=inbox.mailCount;await app.schedule(Date.now()+60000);assert.equal(inbox.requests.length,attempts);assert.equal(inbox.mailCount,mailCount,'retention-removed deliveries never retry');
   console.log('TEAM-004 S2 / G2 passed: reviewed email/signed-webhook regression rules; default SHA/release/citation and shared author/message bodies; nonempty fixture outbox; owner cutoff removes shared mail/outbox text and webhook copies, cancels pending deliveries retention_removed; clean archive, shared exports and scrub canary.');
  }finally{await app?.close();await inbox.close();await rm(temporary,{recursive:true,force:true})}
+}
+
+// TEAM-003 priorities travel through the same retained search/export and packet doors.
+export async function issuePriorityFlow({req,json}) {
+ const project=await json('/api/projects','POST',{id:'priority-lifecycle',name:'Checkout priority lifecycle'}),base='/api/projects/'+project.id;
+ const dsn=new URL(project.dsn),door=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
+ let serial=0;
+ const send=async(level,kind='WarningFailure',release='checkout@1.0.0')=>{const response=await req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify({event_id:(++serial+9000).toString(16).padStart(32,'0'),release,level,exception:{values:[{type:kind,value:'Checkout confirmation failed',stacktrace:{frames:[{filename:'/app/checkout.js',function:'confirm',lineno:14,colno:2}]}}]}}));assert.equal(response.status,200,await response.text())};
+ await send('warning');await send('fatal','FatalFailure');
+ let rows=await json(base+'/issues'),warning=rows.find(r=>r.title.startsWith('WarningFailure')),fatal=rows.find(r=>r.title.startsWith('FatalFailure'));
+ assert.equal(warning.priority,'medium');assert.equal(fatal.priority,'high');
+ const path=base+'/issues/'+warning.id+'/priority';
+ const invalidBefore=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'urgent',revision:warning.revision})).status,400);assert.deepEqual(await json(base+'/issues'),invalidBefore,'invalid priority cannot mutate issue');
+ await json(path,'PUT',{priority:'low',revision:warning.revision});const after=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'high',revision:warning.revision})).status,409);assert.deepEqual(await json(base+'/issues'),after,'stale priority edit cannot mutate issue');
+ await send('fatal');warning=(await json(base+'/issues')).find(r=>r.id===warning.id);assert.equal(warning.priority,'low','manual choice survives a later fatal escalation');
+ await json(base+'/issues/'+warning.id,'PATCH',{state:'resolved',resolution:'plain',revision:warning.revision});await send('error');warning=(await json(base+'/issues')).find(r=>r.id===warning.id);assert.equal(warning.state,'open');assert.equal(warning.priority,'low','manual choice survives regression');
+ const filtered=await json(base+'/issue-search?q=priority:low');assert.deepEqual(filtered.rows.map(r=>r.id),[warning.id]);
+ assert.equal((await json(base+'/issue-export?q=priority:low')).rows[0].priority,'low');const csv=await req(base+'/issue-export?q=priority:low&format=csv');const lines=(await csv.text()).split('\r\n');const column=lines[0].split(',').indexOf('priority');assert.ok(column>=0);assert.equal(lines[1].split(',')[column],'"low"');
+ const packet=await json(base+'/issues/'+warning.id+'/packet');assert.equal(packet.issue.priority,'low');assert.equal((await req(base+'/issue-search?q=priority:urgent')).status,400);
+ return {project,warning,fatal};
 }

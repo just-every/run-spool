@@ -50,7 +50,7 @@ export function issueProjection(row: any) {
  return {
   short_id:row.short_id==null?null:text(row.short_id),short_id_aliases:Array.isArray(row.short_id_aliases)?row.short_id_aliases.map((value:unknown)=>text(value)):[],short_id_resolves_to:row.short_id_resolves_to==null?null:text(row.short_id_resolves_to),
   resolution_mode:row.resolution_mode===undefined?null:text(row.resolution_mode),resolution_release:row.resolution_release==null?null:text(row.resolution_release),seen_without_release:number(row.seen_without_release),id: text(row.id), project: text(row.project), fingerprint: text(row.fingerprint), algorithm: text(row.algorithm),
-  priority: ['high','medium','low'].includes(row.priority)?row.priority:'high', title: text(row.title, 1000), state: text(row.state), revision: number(row.revision), count: number(row.count),
+  title: text(row.title, 1000), state: text(row.state), revision: number(row.revision), count: number(row.count),
   first_seen: number(row.first_seen), last_seen: number(row.last_seen), resolved_seq: number(row.resolved_seq), latest_release_seq: number(row.latest_release_seq),
   attention: attentionProjection(row.attention),
   ...(row.last_release !== undefined ? { last_release: row.last_release === null ? null : text(row.last_release) } : {}),
