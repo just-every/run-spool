@@ -25,7 +25,8 @@ export function spoolResources(env:Bindings):ResourceDefinition[] {
     if(url.hostname!=='projects')return null;
     const [project,area,id,tail]=url.pathname.slice(1).split('/').map(decodeURIComponent);
     const ctx=readContext(env,c);let value:any;
-    if(area==='issues')value=await nativeCall(env,tail==='packet'?'packet':'issue','GET',{project,issue:id},ctx,'resources/read');
+    if(!area){const projects=await nativeCall(env,'projects','GET',{},ctx,'resources/read');value=projects.find((row:any)=>row.id===project);}
+    else if(area==='issues')value=await nativeCall(env,tail==='packet'?'packet':'issue','GET',{project,issue:id},ctx,'resources/read');
     else if(area==='outcomes')value=await nativeCall(env,'outcomes','GET',{project},ctx,'resources/read');
     else if(area==='retention-policy')value=await nativeCall(env,'retention','GET',{project},ctx,'resources/read');
     else if(area==='follow-up')value=await nativeCall(env,'followup','GET',{project},ctx,'resources/read');

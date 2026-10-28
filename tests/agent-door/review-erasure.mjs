@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-export async function reviewErasureFlow(app){
+export async function reviewErasureFlow(app,screens){
  const done=a=>{assert.ok(a&&!a.isError,a?._meta?.['com.runeditrun/error']?.code??'Missing result');return a.structuredContent;};
- const project='door-shop',issues=done(await app.call('spool.issues.list',{project})),issue=issues[0];
+ const project='door-shop',issues=done(await app.call('spool.issues.list',{project})),issue=issues.items[0];
  const packet=done(await app.call('spool.packets.read',{project,issue:issue.id}));
  await app.adopt(heldPolicy());
  const preview=done(await app.call('spool.grouping.preview',{project,kind:'split',source:issue.id,revision:issue.revision,events:[packet.events[0].id],idempotency_key:randomUUID()}));
@@ -13,6 +13,10 @@ export async function reviewErasureFlow(app){
  await app.adopt(autonomousPolicy(),{paused:true});
  const undone=await app.json('/agents/api/reviews/'+review.id+'/undo','POST',{});assert.equal(undone.review.state,'undone','The current person can perform native Undo while agents are paused');
  assert.equal((await app.json(`/api/projects/${project}/corrections`)).find(r=>r.id===preview.id).state,'undone');
+ const activity=(await app.json(`/api/projects/${project}/operator-state`)).audit;
+ assert.ok(activity.some(row=>row.kind==='grouping_applied'&&row.preparedBy?.label==='Agent door conformance for Dana Engineer'));
+ assert.ok(activity.some(row=>row.kind==='grouping_undone'&&!row.preparedBy&&row.personActor?.label==='Dana Engineer'),'Undo records only its real reviewer');
+ await screens?.capture('native-reviewer-audit',`/projects/${project}/issues/${issue.id}`,'Undid a grouping correction',page=>page.getByRole('button',{name:'Details: Operator audit',exact:true}).click());
  await app.adopt();
  const disposable=done(await app.call('spool.projects.create',{name:'Ephemeral privacy probe',idempotency_key:randomUUID()}));
  const erasure=done(await app.call('spool.privacy.preview',{project:disposable.id}));

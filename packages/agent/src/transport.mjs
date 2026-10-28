@@ -75,5 +75,5 @@ export async function request(config, operation, args={}) {
   if(args.project!==undefined&&args.project!==project)throw new AgentError('Not found or out of scope.',3);
   const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??crypto.randomUUID()}:{} }});
   if(answer?.isError){const code=answer._meta?.['com.runeditrun/error']?.code;throw new AgentError(`Spool refused the request: ${code??'native_refused'}.`,code==='not_found'?3:1);}
-  return answer.structuredContent;
+  const value=answer.structuredContent;return Array.isArray(value?.items)?value.items:value;
 }

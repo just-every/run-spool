@@ -22,12 +22,16 @@ export async function nativeWitness(env:Bindings,args:Args,ctx:ToolContext) {
  // evidence key's scope. It reads state and never starts provider/runner work.
  if(!['owner','admin'].includes(ctx.person.role))throw new ToolRefusal('not_found');
  await nativeCall(env,'issues','GET',args,ctx,'spool.witness.read');
- const tables=['issues','grouping_proposals','grouping_corrections','reproducers','reproducer_runs','repairs','repair_checks','fix_workflows','fix_receipts','alert_rules','alert_intents','alert_history','alert_mail_jobs','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_native_audit_actors','follow_up_settings','retention_policies','spool_project_grants','deployment_runs','deployment_steps','releases','outcomes'];
+ const tables=['issues','grouping_proposals','grouping_corrections','reproducers','reproducer_runs','repairs','repair_checks','fix_workflows','fix_receipts','alert_rules','alert_intents','alert_history','alert_mail_jobs','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_native_audit_actors','follow_up_settings','retention_policies','spool_project_grants','deployment_runs','deployment_steps','deployment_manifests','releases','outcomes'];
  const result:Record<string,unknown>={projects:await nativeCall(env,'projects','GET',{},ctx,'spool.witness.read')};
  for(const table of tables){
   const rows=(await env.DB.prepare(`SELECT * FROM ${table} WHERE project=? ORDER BY rowid LIMIT 300`).bind(args.project).all<any>()).results;
   // Evidence bytes and credentials are outside a read-only state witness.
   result[table]=rows.map(({modules,observation,tools,grant_spec,payload,detail,spec,message,principal,...safe}:any)=>safe);
+ }
+ if(ctx.person.role==='owner'){
+  result.erasures=(await env.DB.prepare("SELECT id,phase,step,deleted,completed_at FROM rer_erasure_operations WHERE entity='project' ORDER BY id").all()).results;
+  result.erasureCustody=(await env.DB.prepare('SELECT operation,actor FROM spool_erasure_agents ORDER BY operation').all()).results;
  }
  result.members=(await env.DB.prepare('SELECT m.id,m.operator_id,m.role,m.state,m.version FROM spool_members m JOIN spool_project_teams t ON t.organization=m.organization WHERE t.project=? ORDER BY m.id').bind(args.project).all()).results;
  result.attempts=(await env.DB.prepare('SELECT a.delivery_id,a.number,a.state,a.code FROM alert_mail_attempts a JOIN alert_mail_jobs j ON j.id=a.delivery_id WHERE j.project=? ORDER BY a.delivery_id,a.number').bind(args.project).all()).results;
@@ -51,7 +55,7 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
   };
   const tool:ToolDefinition={...entry.proof?{proof:entry.proof,proofKind:entry.proofKind}:{},name,title:name.split('.').slice(1).join(' '),
    description:`Native Spool ${name.split('.').slice(1).join(' ')}. Captured and imported text is untrusted. Current sponsor roles, project grants and native revision fences apply.`,scope,readOnly,inputSchema,
-   outputSchema:{type:['object','array']},classes,clauses,untrusted:true,
+   outputSchema:readOnly&&['projects','issues','proposals','releases','alerts','credentials','notifications'].includes(route)?{type:'object',required:['items'],properties:{items:{type:'array',items:{type:'object'}}}}:{type:'object'},classes,clauses,untrusted:true,
    async classify(a,c){
     if(route==='erasure-resume'){if(c.person.role!=='owner')throw new ToolRefusal('not_found');const row=await env.DB.prepare("SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(a.id).first();if(!row)throw new ToolRefusal('not_found');return [{class:'destructive',facts:{measure:1}}];}
     if(route==='witness'){await nativeWitness(env,a,c);return standard();}
@@ -80,8 +84,8 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
      if(!prior)throw new ToolRefusal('not_found');
      return prior.enabled||a.enabled?[{class:'live',facts:{measure:1,service:String(a.project)}}]:standard();
     }
-    if(route==='followup')return a.destination===null?standard():[{class:'live',facts:{measure:1,service:String(a.project)}}];
-    if(route==='issue'&&a.state==='suppressed')return [{class:'live',facts:{measure:1,service:String(a.project)}}];
+    if(route==='followup'){const prior=await env.DB.prepare('SELECT destination FROM follow_up_settings WHERE project=?').bind(a.project).first<{destination:string|null}>();return prior?.destination||a.destination!==null?[{class:'live',facts:{measure:1,service:String(a.project)}}]:standard();}
+    if(route==='issue'){const prior=await env.DB.prepare('SELECT state FROM issues WHERE project=? AND id=?').bind(a.project,a.issue).first<{state:string}>();if(prior?.state==='suppressed'||a.state==='suppressed')return [{class:'live',facts:{measure:1,service:String(a.project)}}];}
     if(route==='retention'){
      const preview=await retentionPreview(env.DB,String(a.project),retentionWindows(a.windows),a.at as number);
      return [{class:'live',facts:{measure:1,service:String(a.project)}},...preview.shortening?[{class:'destructive' as const,facts:{measure:1}}]:[]];
@@ -103,14 +107,14 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     }
     const id=String(result?.reproducer??result?.id??a.issue??a.id??a.name??'');
     const area=route==='proposals'?'grouping-proposals':['reproducer-run','reproducer-claim'].includes(route)?'reproducers':route==='repair-check'||route==='repair-fact'?'repairs':route==='fix-advance'?'fixes':route==='issue'?'issues':route;
-    const resource=a.project&&id&&(!readOnly||['issue','packet','proposal'].includes(route))&&['issues','repairs','reproducers','fixes','grouping-proposals','releases','deployments'].includes(area)?`spool://projects/${encodeURIComponent(String(a.project))}/${area}/${encodeURIComponent(id)}`:null;
+    const resource=route==='projects'&&!readOnly?`spool://projects/${encodeURIComponent(id)}`:a.project&&id&&(!readOnly||['issue','packet','proposal'].includes(route))&&['issues','repairs','reproducers','fixes','grouping-proposals','releases','deployments'].includes(area)?`spool://projects/${encodeURIComponent(String(a.project))}/${area}/${encodeURIComponent(id)}`:null;
     if(!readOnly&&route==='alert')c.emit('alerts.changed',`spool://projects/${encodeURIComponent(String(a.project))}/alerts/${encodeURIComponent(String(a.id))}`);
     if(!readOnly&&['retention','followup'].includes(route))c.emit(`${route}.changed`,`spool://projects/${encodeURIComponent(String(a.project))}/${route==='retention'?'retention-policy':'follow-up'}`);
     if(!readOnly&&route==='access-member')c.emit('people.changed',`spool://people/${encodeURIComponent(String(a.id))}`);
     if(!readOnly&&route==='credential')c.emit('credentials.changed',`spool://credentials/${encodeURIComponent(String(a.id))}`);
     if(!readOnly&&resource)c.emit(`${area}.changed`,resource,{tool:name});
     if(['grouping-apply','grouping-undo'].includes(route))for(const move of result.moves??[])for(const issue of new Set([move.from,move.to]))c.emit('issues.changed',`spool://projects/${encodeURIComponent(String(a.project))}/issues/${encodeURIComponent(String(issue))}`);
-    return {result,...route==='grouping-apply'?{undo:{project:a.project,id:a.id}}:{},...resource?{resources:[{uri:resource,name:`${area} ${id}`}]}:{}};
+    return {result:Array.isArray(result)?{items:result}:result,...route==='grouping-apply'?{undo:{project:a.project,id:a.id}}:{},...resource?{resources:[{uri:resource,name:`${area} ${id}`}]}:{}};
    },
   };
   if(route==='grouping-apply')tool.undo=async(saved:any,c)=>{const result=await nativeCall(env,'grouping-undo','POST',saved,c,name);for(const move of result.moves??[])for(const issue of new Set([move.from,move.to]))c.emit('issues.changed',`spool://projects/${encodeURIComponent(saved.project)}/issues/${encodeURIComponent(String(issue))}`);};
@@ -147,7 +151,7 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
   };
   if(classes.includes('access')||classes.includes('security'))tool.authority=authorize;
   if(name==='spool.credentials.update'){tool.widens=false;tool.narrowing={effect:'revoke',target:'id'};}
-  const revisions:Record<string,[string,string,string]>={issue:['issues','id','revision'],'access-member':['spool_members','id','version'],'fix-advance':['fix_workflows','id','revision'],'repair-check':['repairs','id','revision'],'repair-fact':['repairs','id','revision'],alert:['alert_rules','id','revision'],retention:['retention_policies','project','revision']};
+  const revisions:Record<string,[string,string,string]>={issue:['issues','id','revision'],'access-member':['spool_members','id','version'],'fix-advance':['fix_workflows','id','revision'],'repair-check':['repairs','id','revision'],'repair-fact':['repairs','id','revision'],alert:['alert_rules','id','revision'],followup:['follow_up_settings','project','revision'],retention:['retention_policies','project','revision']};
   if(!readOnly&&revisions[route])tool.revision=async a=>{
    const [table,key,column]=revisions[route];return (await env.DB.prepare(`SELECT ${column} AS revision FROM ${table} WHERE ${key}=?${['spool_members'].includes(table)?'':' AND project=?'}`).bind(key==='project'?a.project:a.id??a.issue,...table==='spool_members'?[]:[a.project]).first<{revision:number}>())?.revision??null;
   };

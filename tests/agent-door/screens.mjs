@@ -9,8 +9,9 @@ export async function agentScreens(app){
  const browser=await chromium.launch({headless:true,...process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{},args:['--no-sandbox']});
  const context=await browser.newContext({viewport:{width:1440,height:1000},extraHTTPHeaders:{Cookie:app.cookie}});
  const page=await context.newPage(),results=[];
- return {async capture(name,path,expected){
+ return {async capture(name,path,expected,prepare){
   await page.setViewportSize({width:1440,height:1000});await page.goto(app.origin+path);await page.locator('main').waitFor();
+  if(prepare)await prepare(page);
   if(expected)await page.getByText(expected,{exact:false}).first().waitFor();
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Changed page has no horizontal overflow at 1440');
   const axe=await new AxeBuilder({page}).analyze();const serious=axe.violations.filter(v=>['serious','critical'].includes(v.impact));assert.deepEqual(serious.map(v=>v.id),[],name+' serious/critical accessibility');

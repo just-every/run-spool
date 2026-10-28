@@ -8,5 +8,6 @@ export const pendingAssertions=[
  {id:'SPOOL-BASE-REVIEWER-2026-10-28',source:'Base native reviewer lifecycle',assertion:'Native reviewers and real Undo actors complete the full review lifecycle.'},
  {id:'SPOOL-BASE-CATALOGUE-ACK-2026-10-28',source:'Base agent-door/policy-store.ts',assertion:'The adoption acknowledgement lists every declared tool in each class; the pinned implementation truncates each class at twenty tools.'},
  {id:'SPOOL-BASE-PROVIDER-BINDING-2026-10-28',source:'Base cli/agent-door.mjs verification.owner.bindings',assertion:'The disposable native installation can receive a test-only GitHub App binding without reading production keys or adding an application fallback.'},
+ {id:'SPOOL-BASE-STALE-INJECTION-2026-10-28',source:'Base agent-door/conformance/journey.mjs:injections',assertion:'Injection checks must preserve real native revision fences and irreversible effects; a second fresh-key write with the already-consumed native revision can truthfully refuse.'},
  {id:'SPOOL-CT-SURFACE-2026-10-28',source:'Spool CONTRACT.md',assertion:'The ct Agent surface and Base event clause are aligned with the current company-policy direction.'},
 ];

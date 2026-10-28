@@ -24,7 +24,7 @@ export async function peopleFlow(app){
  assert.equal((await local('foreign-project')).body.result._meta['com.runeditrun/error'].code,'not_found');
  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});
  assert.equal((await local(project)).status,401,'Narrowing permanently retires a previously minted key');
- const current=list.structuredContent[0];
+ const current=list.structuredContent.items[0];
  const denied=await app.call('spool.issues.update',{project,issue:current.id,revision:current.revision,state:'acknowledged',idempotency_key:randomUUID()},claims);
  assert.equal(denied._meta['com.runeditrun/error'].code,'not_found','Company autonomy preserves native read-only membership');
  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version+1,role:'member',grants:[{project,role:'member'}]});

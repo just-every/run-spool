@@ -74,4 +74,4 @@ export const notTools=[
 ];
 
 const resourceRoot='spool://projects/{project}';
-export const resourceTemplates=[`${resourceRoot}/issues/{id}`,`${resourceRoot}/issues/{id}/packet`,`${resourceRoot}/outcomes`,...['grouping-proposals','reproducers','repairs','fixes','releases','deployments','alerts'].map(area=>`${resourceRoot}/${area}/{id}`),`${resourceRoot}/retention-policy`,`${resourceRoot}/follow-up`,'spool://people/{id}','spool://credentials/{id}'];
+export const resourceTemplates=['spool://projects/{project}',`${resourceRoot}/issues/{id}`,`${resourceRoot}/issues/{id}/packet`,`${resourceRoot}/outcomes`,...['grouping-proposals','reproducers','repairs','fixes','releases','deployments','alerts'].map(area=>`${resourceRoot}/${area}/{id}`),`${resourceRoot}/retention-policy`,`${resourceRoot}/follow-up`,'spool://people/{id}','spool://credentials/{id}'];

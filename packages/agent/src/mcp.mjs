@@ -15,7 +15,10 @@ export async function startMcp(config){
   return {tools:Object.entries(aliases).flatMap(([name,native])=>{
    const tool=listed.tools.find(t=>t.name===native);if(!tool)return [];
    const properties={...tool.inputSchema.properties};delete properties.project;
-   return [{...tool,name,inputSchema:{...tool.inputSchema,properties,required:tool.inputSchema.required?.filter(key=>key!=='project')}}];
+   // This compatibility transport returns markdown content, so the native
+   // structured output schema does not describe its response.
+   const {outputSchema,...description}=tool;
+   return [{...description,name,inputSchema:{...tool.inputSchema,properties,required:tool.inputSchema.required?.filter(key=>!['project','idempotency_key'].includes(key))}}];
   })};
  });
  server.setRequestHandler(CallToolRequestSchema,async({params})=>{

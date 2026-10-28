@@ -80,6 +80,11 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  if(route==='issue'&&method==='GET')value=issueProjection(value);
  if(route==='projects'&&method==='POST'){const {ingestKey,dsn,...safe}=value;value=safe;}
  if(route==='credentials')value=value.filter((row:any)=>row.revoked===null&&!row.stopped);
+ if(route==='deployments'&&method==='GET'){
+  const releases=await nativeCall(env,'releases','GET',a,ctx,tool);
+  const observed=releases.flatMap((release:any)=>JSON.parse(release.deployments??'[]').map((manifest:any)=>({id:`${release.name}:${manifest.environment}`,release:release.name,manifest,kind:'observed_deployment',authority:'Records an observed fact; does not deploy.'})));
+  value={...value,rows:[...(value.rows??[]),...observed]};
+ }
  if(route==='deployments'&&method==='POST')value={id:`${a.release}:${a.manifest.environment}`,release:a.release,manifest:value.manifest,kind:'observed_deployment',authority:'Records an observed fact; does not deploy.'};
  // Run tokens and source modules remain in the native connector door.
  if(route==='reproducer-run')value={...value,state:'queued',execution:'Use only this native single-use isolated runner handoff. Queued is not reproduced.'};

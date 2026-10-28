@@ -4,7 +4,7 @@ import {shopFixture} from '../execution/fixture.mjs';
 import {runner} from '../execution/reproduce.mjs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-export async function specialistFlow(app,github){
+export async function specialistFlow(app,github,screens){
  const project='door-shop',path='/api/projects/'+project;
  const done=a=>{assert.ok(a&&!a.isError,a?._meta?.['com.runeditrun/error']?.code??'Missing tool result');return a.structuredContent;};
  const fixture=await shopFixture(),created=await app.json('/api/projects','POST',{id:project,name:'Harbor checkout'});
@@ -26,9 +26,11 @@ export async function specialistFlow(app,github){
  const advance={project,id:fix.id,idempotency_key:randomUUID()};
  await app.adopt({schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'all',class:'*',do:'autonomous'},{id:'external',class:'external',do:'blocked'}],spend:{none:true}});
  const blocked=await app.call('spool.fixes.advance',advance,{},grant.proofReference);assert.equal(blocked._meta['com.runeditrun/error'].code,'policy_blocked');assert.equal(github.requests.length,0);
+ await screens?.capture('agents-provider-blocked','/agents','policy_blocked');
  await app.adopt(heldPolicy());
  const held=await app.call('spool.fixes.advance',{...advance,idempotency_key:randomUUID()},{},grant.proofReference);const pending=held._meta['com.runeditrun/error'].approval;
  assert.ok(pending?.id);assert.equal(github.requests.length,0);
+ await screens?.capture('github-approval-pending','/agents/approvals/'+pending.id,'Agent door conformance');
  const {approval}=await app.json('/agents/api/approvals/'+pending.id);assert.ok(approval.summary.items.some(item=>item.includes('.spool/reproducers/')));
  await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
  const workflows=await app.json(path+'/fixes?issue='+issue),opened=workflows.workflows.find(w=>w.id===fix.id);
@@ -36,6 +38,7 @@ export async function specialistFlow(app,github){
  const number=opened.states.pullRequest.number;assert.equal(github.state.pulls[number-1].draft,true);
  const file=JSON.parse(github.file(opened.grant.branch,opened.grant.file.path));assert.equal(file.kind,'spool-reproducer');assert.equal(file.run.outcome,'reproduced');
  assert.match(github.state.pulls[number-1].body,/Prepared by Agent door conformance for Dana Engineer/);assert.match(github.state.pulls[number-1].body,/Native repository grant authorized by Dana Engineer/);
+ await screens?.capture('native-reproducer-fix',`/projects/${project}/issues/${issue}`,'Agent door conformance for Dana Engineer');
  assert.equal(github.live(),0,'Native provider tokens are revoked');
  console.log('Spool specialist: real captured failure, isolated reproduction, queued Pause, exact native repository consent and policy-held GitHub draft data PR passed.');
 }
