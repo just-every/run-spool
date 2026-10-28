@@ -34,7 +34,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    {data.canWrite&&<button className="text-button" disabled={busy} onClick={()=>void mutate('/subscription','PUT',{subscribed:!data.subscription.subscribed})}>{data.subscription.subscribed?'Unsubscribe':'Subscribe'}</button>}
    <p className="muted">Notifications are not sent yet.</p>
    {data.canWrite&&<form onSubmit={event=>{event.preventDefault();void mutate('/comments','POST',{body})}}>
-    <label className="form-field">Comment<textarea required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
+    <label className="form-field">Comment<textarea aria-label="Comment" required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
     <p className="muted">Mention a project member with @name or the part of their email before @. Up to 4,000 characters per comment.</p>
     <button className="highlight-button" disabled={busy||!body.trim()||data.comments.length>=data.limit}>Post comment</button>
    </form>}
@@ -50,7 +50,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
      {row.kind==='comment_added'&&(comment?<>
       {comment.updated!==comment.created&&<p className="muted">Edited {date(comment.updated)}</p>}
       {editing?.id===comment.id?<form onSubmit={event=>{event.preventDefault();void mutate('/comments/'+encodeURIComponent(comment.id),'PATCH',{body:editBody,version:editing!.version})}}>
-       <label className="form-field">Edit comment<textarea value={editBody} maxLength={4000} required rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy} onChange={event=>setEditBody(event.target.value)}/></label>
+       <label className="form-field">Edit comment<textarea aria-label="Edit comment" value={editBody} maxLength={4000} required rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy} onChange={event=>setEditBody(event.target.value)}/></label>
        <button className="highlight-button" disabled={busy||!editBody.trim()}>Save comment</button> <button type="button" className="text-button" disabled={busy} onClick={()=>setEditing(null)}>Cancel edit</button>
       </form>:<p className="commit-message" style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{comment.body}</p>}
       {comment.canEdit&&editing?.id!==comment.id&&<><button className="text-button" disabled={busy} onClick={()=>{setEditing({id:comment.id,version:comment.version});setEditBody(comment.body)}}>Edit comment</button> <button className="text-button" disabled={busy} onClick={()=>void mutate('/comments/'+encodeURIComponent(comment.id),'DELETE',{version:comment.version})}>Delete comment</button></>}
