@@ -33,15 +33,17 @@ Only the isolated workerd runner gets the selected modules, with no inherited
 production environment, network or filesystem. Queued, unsupported, expired,
 not reproduced, reproduced and failed remain distinct. An agent-originated run
 retains its sponsor and consent and invokes the shared door again when claimed;
-Pause, revocation or native narrowing can stop it before execution.
+Pause, revocation or native narrowing can stop it before execution. A different
+agent or consent cannot take over its queued run or erasure continuation; a
+current person retains native completion authority.
 
 An existing GitHub App connection and a person's exact native repository grant
 are required for the fix workflow. `spool.fixes.advance` requests native
 `repository_grant` proof. The person approves the saved grant on the issue's
 native workflow card and shares its non-secret `proofReference`. The client
 retries using `params._meta["com.runeditrun/native-proof"]`. The reference is
-bound to that workflow's originating agent and sponsor, current native approval
-and expiry. Company approval is separate from this native consent.
+bound to the originating agent, sponsor and consent, the current native
+approval, and expiry. Company approval is separate from this native consent.
 
 The GitHub executor adds `.spool/reproducers/{id}.json` as data to a bounded fix
 branch and draft pull request. It does not generate a tested source repair,
@@ -62,14 +64,19 @@ visibility, revision and outbox restrictions still apply. Enabling a notificatio
 rule is not evidence that a notice was delivered. Erasure is irreversible and
 uses the native count-only preview and plan hash. Retention is not project
 erasure. Native configured schedules and provider receipts must be inspected
-separately from the agent's configuration action.
+separately from the agent's configuration action. Final admission and attribution
+for standing alert, follow-up and retention workers remain unqualified pending
+the shared queued-consent continuation; do not treat this adoption as permission
+to run those workers autonomously.
 
 ## Compatibility and limits
 
 The `spool-agent` CLI and stdio MCP package retain the four historical evidence
 aliases and inert proposal submission. Their schemas and effects come from the
 shared production registry. Existing exact-project API aliases use that same
-door. A project key cannot apply grouping, perform provider work, manage access
+door. Canonical list results use an `items` array inside an object; compatibility
+clients retain their historical responses. Raw proposal aliases require an
+`Idempotency-Key` header. A project key cannot apply grouping, perform provider work, manage access
 or read another project. Dev-minted keys still require the private local gate
 and are refused by the deployed entry. A failed Business JWT never falls back
 to a project key.

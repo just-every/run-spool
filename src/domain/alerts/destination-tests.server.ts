@@ -25,18 +25,23 @@ export async function testDestination(env:AlertEnvironment,session:NativeAuthori
  const claim=await ownerBatch(env.DB,session,[s(env.DB,`INSERT INTO alert_destination_tests VALUES(?,?,?,?,'running','Test send started',?,NULL)
  ON CONFLICT(project,destination) DO UPDATE SET fingerprint=excluded.fingerprint,id=excluded.id,state='running',detail=excluded.detail,tested_at=excluded.tested_at,reviewed_at=NULL WHERE alert_destination_tests.tested_at<=? RETURNING id`,project,id,fingerprint,testId,time,time-60000)]);
  if(!claim[0].results.length)throw new Error('Wait one minute before testing this destination again');
+ const attribution=session.kind==='agent'?{preparedBy:session.context.actor,approvers:session.context.approvers}:null;
+ const label=attribution?` Prepared by ${attribution.preparedBy.label}.${attribution.approvers.length?' Approved by '+attribution.approvers.map(p=>p.name).join(', ')+'.':''}`:'';
  let state='failing',detail='Test failed before a response; check the destination before testing again.';
  try {
   if(channel==='mail'){
-   const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.`});
+   await ownerBatch(env.DB,session,[]);
+   const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${label}`});
    state=['accepted','development'].includes(result.status)?'passing':'failing';
    detail=result.status==='development'?'Local development suppresses mail; this passing local test sent no email.':result.status==='accepted'?'Provider accepted this TEST. Check the mailbox; acceptance does not confirm recipient receipt.':`TEST result: ${result.status}. Recipient receipt is unconfirmed.`;
   }else if(destination.kind==='slack'){
-   const result=await sendSlack(env,destination,{test:true},Date.now);state=result.outcome.kind==='accepted'?'passing':'failing';detail=result.messageId?`Slack posted TEST · message identifier ${result.messageId}. Provider acknowledgment; recipient receipt unconfirmed.`:`Slack TEST failed: ${result.outcome.code}. Recipient receipt unconfirmed.`;
+   await ownerBatch(env.DB,session,[]);
+   const result=await sendSlack(env,destination,{test:true,...attribution??{}},Date.now);state=result.outcome.kind==='accepted'?'passing':'failing';detail=result.messageId?`Slack posted TEST · message identifier ${result.messageId}. Provider acknowledgment; recipient receipt unconfirmed.`:`Slack TEST failed: ${result.outcome.code}. Recipient receipt unconfirmed.`;
   }else{
    if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');
    const protocol=createWebhookProtocol({resolveDestination:async()=>destination.url!,signingKey:async()=>keyBytes(destination.key)});
-   const wire=await protocol.prepare({id:testId,tenant:'spool.'+project,destinationId:id,event:'spool.destination.test',protocol:'webhook',body:JSON.stringify({test:true,message:'This is a Spool TEST. No issue or alert was created.'})},time);
+   const wire=await protocol.prepare({id:testId,tenant:'spool.'+project,destinationId:id,event:'spool.destination.test',protocol:'webhook',body:JSON.stringify({test:true,message:'This is a Spool TEST. No issue or alert was created.',...attribution??{}})},time);
+   await ownerBatch(env.DB,session,[]);
    const response=await env.INTEGRATION_EGRESS.send(wire);state=response.status>=200&&response.status<300?'passing':'failing';
    detail=`TEST signature header sent; receiver answered HTTP ${response.status}. Receiver signature verification is not established.`;
   }

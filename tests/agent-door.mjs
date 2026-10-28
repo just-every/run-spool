@@ -42,6 +42,9 @@ try{
  assert.match(repair.recordedBy,/Agent door conformance for Dana Engineer/);assert.notEqual(repair.observation.verdict,'fixed');
  const checked=done(await app.call('spool.repairs.check',{project,id:repair.id,revision:repair.revision,name:'Agent reported unit check',outcome:'passed',note:'Asserted, not an independent observation.',idempotency_key:randomUUID()}));
  assert.notEqual(checked.observation.verdict,'fixed');
+ const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
+ done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
+ assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');
  const deployment=done(await app.call('spool.deployments.record',{project,release:'1.0.0',build:'web-1',manifest:{commitSha:'b'.repeat(40),repository:'https://github.com/example/checkout',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'},idempotency_key:randomUUID()}));
  const deploymentResource=await app.mcp('resources/read',{uri:`spool://projects/${project}/deployments/${encodeURIComponent(deployment.id)}`});
  assert.equal(JSON.parse(deploymentResource.contents[0].text).manifest.commitSha,'b'.repeat(40),'An observed deployment reads back as a recorded fact');
