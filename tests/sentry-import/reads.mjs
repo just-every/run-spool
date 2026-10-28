@@ -13,6 +13,7 @@ export function readableImport(row, planned, project, labels) {
  unknownTimes(row,labels);
 }
 export async function refusedImportReads(origin, ownerJson, project, planId) {
+ await ownerJson('/api/organization','POST',{id:'import-readers',name:'Import readers'});
  for (const [index, role, projectRole] of [[1,'admin',null],[2,'member','maintainer'],[3,'member','member']]) {
   const email=`import-reader-${index}@example.test`, previousIds=(await legacyMailRows(origin)).map(row=>row.id);
   await ownerJson('/api/organization/invites','POST',{email,name:`Import reader ${index}`,role,
