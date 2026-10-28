@@ -5,6 +5,7 @@ import { ownerBatch } from '../owner-authority';
 import { auditCommit } from '../audit/context';
 import { fields, name, role, version, grants, check } from './input';
 import { s, type TeamSession } from './model';
+import { mintedByCurrentPerson } from '../credential-fence';
 import type { Bindings } from '../../auth/bindings';
 
 export async function invite(request: Request, env: Bindings, session: TeamSession, organization: string, input: any) {
@@ -51,7 +52,7 @@ export async function updateMember(env: Bindings, session: TeamSession, organiza
   ...access.map(g=>s(env.DB,'INSERT INTO spool_project_grants VALUES(?,?,?,?)',id,g.project,g.role,time)),
   // A narrowed grant is permanent retirement of the old key, so restoring a
   // grant later cannot resurrect a credential from before the change.
-  s(env.DB,`UPDATE credentials SET revoked=COALESCE(revoked,?) WHERE minted_by=? AND (?=1 OR ? NOT IN ('admin','member') OR (?<>'admin' AND project NOT IN (SELECT project FROM spool_project_grants WHERE member=? AND role IN ('member','maintainer'))))`,time,member.operator_id,Number(remove),memberRole,memberRole,id),
+  s(env.DB,`UPDATE credentials SET revoked=COALESCE(revoked,?) WHERE minted_by=? AND NOT ${mintedByCurrentPerson}`,time,member.operator_id),
   ...(remove?[
    s(env.DB,"UPDATE oa_operators SET status='inactive' WHERE id=? AND role<>'owner'",member.operator_id),
    s(env.DB,'UPDATE oa_sessions SET revoked_at=COALESCE(revoked_at,?) WHERE operator_id=?',time,member.operator_id),

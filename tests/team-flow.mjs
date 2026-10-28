@@ -9,6 +9,8 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
+import {memberAccessChanges} from './team-access-ui.mjs';
+import {transferCapture} from './team-transfer-capture.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -40,7 +42,7 @@ async function mcpDoor(origin,project,key,issue,allowed) {
  finally {await client.close();await transport.close();}
 }
 
-async function browserMembers(owner,projects) {
+async function browserMembers(owner,projects,reader) {
  const browser=await launchBrowser();
  try {
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -48,6 +50,7 @@ async function browserMembers(owner,projects) {
   await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();
   await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
+  await memberAccessChanges(page,owner,projects,reader);
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
   await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
@@ -294,7 +297,9 @@ async function inertTeamArchive(owner,projects,formerCookie) {
 
 /** [TEAM-001] Membership lifecycle through the real emitted Worker and native mail proof. */
 export async function teamFlow() {
+ console.log('[TEAM-001] starting emitted Worker');
  const worker=await runtime();
+ console.log('[TEAM-001] emitted Worker and owner ready');
  try {
   const origin=worker.origin,cookie=worker.cookie,owner={...client(origin,cookie),origin,cookie};
   await denied(client(origin).req(organization),'organization administration requires a native session');
@@ -309,7 +314,7 @@ export async function teamFlow() {
    {email:'synthetic-spool-5@example.test',name:'synthetic-spool-5',role:'admin',grants:[]},
   ];
   assert.equal(await status(owner.req(organization+'/invites','POST',identities[0],{Origin:'https://foreign.example.test'})),403);
-  const actors=[];for(const identity of identities)actors.push(await invite(owner,origin,identity));
+  const actors=[];for(const identity of identities){actors.push(await invite(owner,origin,identity));console.log('[TEAM-001] accepted invitation '+identity.name);}
   const [first,second,reader,billing,admin]=actors;
   // A subsequent ordinary sign-in proves membership does not depend on the invitation cookie.
   first.cookie=await emailSignIn(origin,identities[0].email);Object.assign(first,client(origin,first.cookie));
@@ -348,7 +353,7 @@ export async function teamFlow() {
   }
   await policyAuthority(owner,first,second,reader,projects);
   await memberDeployment(owner,second,projects[1]);
-  await browserMembers(owner,projects);
+  await browserMembers(owner,projects,reader.member);
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
@@ -362,9 +367,8 @@ export async function teamFlow() {
   // Transfer uses an accepted native person and fresh owner proof; unrelated contributors remain active.
   const successor=(await owner.json(organization)).members.find(row=>row.id===admin.member.id);
   await denied(first.req(organization+'/transfer','POST',{member:successor.id,version:successor.version}),'a project maintainer cannot transfer installation ownership');
-  await owner.json(organization+'/transfer','POST',{member:successor.id,version:successor.version});
+  const next=await transferCapture(owner,admin,client);
   await denied(owner.req('/auth/session'),'handoff fences the predecessor session');
-  const nextCookie=await emailSignIn(origin,identities[4].email),next={...client(origin,nextCookie),origin,cookie:nextCookie};
   const session=await next.json('/auth/session');assert.equal(session.operator.role,'owner');
   assert.ok((await first.json('/api/projects')).some(row=>row.id===projects[0].id),'owner transfer preserves other active members');
   await inertTeamArchive(next,projects,first.cookie);

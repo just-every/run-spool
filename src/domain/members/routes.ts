@@ -10,6 +10,7 @@ import { fields, name, version, check } from './input';
 import { invite, updateMember } from './mutations';
 import { serviceRoutes } from './services';
 import { s } from './model';
+import { mintedByCurrentPerson } from '../credential-fence';
 
 export const memberRoutes=new Hono<any>();
 memberRoutes.use('*',async(c,next)=>{
@@ -74,6 +75,9 @@ memberRoutes.post('/transfer',async c=>{
  const { auditedBatch }=await import('../audit/context');
  await auditedBatch(c.env.DB,[authorityGuard(c.env.DB,session),
   check(c.env.DB,"EXISTS(SELECT 1 FROM spool_members m JOIN oa_operators o ON o.id=m.operator_id WHERE m.id=? AND m.version=? AND m.state='active' AND o.status='active' AND o.role='member' AND o.version=?)",target.id,expected,target.operator_version),
+  // Carry only live bindings across these two role changes. The identity fence
+  // still retires sessions and every credential fenced before this transaction.
+  s(c.env.DB,`UPDATE credentials SET minted_version=minted_version+1 WHERE minted_by IN (?,?) AND revoked IS NULL AND ${mintedByCurrentPerson}`,session.operator.id,target.operator_id),
   s(c.env.DB,"UPDATE oa_operators SET role='owner' WHERE id=?",target.operator_id),s(c.env.DB,"UPDATE oa_operators SET role='member' WHERE id=?",session.operator.id),
   s(c.env.DB,"UPDATE spool_members SET role='admin',version=version+1 WHERE operator_id=?",session.operator.id),auditCommit(c.env.DB),s(c.env.DB,'DELETE FROM spool_authority_guards')]);
  return c.json({transferred:true,signInRequired:true});

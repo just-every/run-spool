@@ -1,7 +1,8 @@
-// Agent and deploy keys belong to the person whose session minted them. They count only while that
+// Project keys belong to the person whose session minted them. They count only while that
 // person is active at the identity fence (oa_operators.version) recorded at minting: a fence from the
-// linked Auth install or a suspension moves the version, so they never count again, and nothing comes
-// back when the person is restored. SQL condition for a `credentials` lookup.
+// linked Auth install or a suspension moves the version, so they never count again.
+// A guarded owner transfer advances only live bindings across its role changes;
+// restoring a person never brings back an earlier credential. SQL condition for a `credentials` lookup.
 export const mintedByCurrentPerson = `(credentials.minted_by IS NULL AND credentials.kind='ingest' OR EXISTS(
  SELECT 1 FROM oa_operators o WHERE o.id=credentials.minted_by AND o.version=credentials.minted_version AND o.status='active'
  AND (o.role='owner' OR EXISTS(SELECT 1 FROM spool_members m JOIN spool_project_teams t ON t.organization=m.organization AND t.project=credentials.project
