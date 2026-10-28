@@ -2,10 +2,12 @@ import { auditedBatch, auditCommit } from '../audit/context';
 import { serviceActor,auditSubject,projectAuditLabel } from '../audit/identity';
 import { sender } from './mail';
 import { statement as s,type AlertEnvironment } from './types';
+import { scheduledTeamMail } from './team-mail';
 export async function alertServiceBatch(env:AlertEnvironment,project:string,statements:D1PreparedStatement[]){
  return auditedBatch(env.DB,[...statements,auditCommit(env.DB,'changes()>0')],{actor:await serviceActor(env.DB,'alerts'),subject:await auditSubject(env.DB,'project',project,project),projectLabel:await projectAuditLabel(env.DB,project),action:'automation.follow_up'});
 }
 export async function scheduledMail(env:AlertEnvironment,time:number){
+ await scheduledTeamMail(env,time);
  const rows=(await s(env.DB,"SELECT * FROM alert_scheduled_mail WHERE historical=0 AND state IN ('queued','running') ORDER BY created,id LIMIT 30").all<any>()).results;
  for(const row of rows){
   if(row.state==='running'){

@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { revokeSlack } from './slack-destinations.server';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
@@ -16,9 +17,10 @@ import { saveDestination } from './destination-management.server';
 import { testDestination, reviewTest, requireReviewedTest } from './destination-tests.server';
 type Env=Bindings&AlertEnvironment;
 import { controlsRoutes } from './controls-routes';
+import { teamControls } from './team-controls';
 const routes=new Hono<{Bindings:Env;Variables:{alertSession:OwnerSession}}>();
 // This router authenticates its own direct transport as well as its parent API mount.
-routes.use('*',async(c,next)=>{const env=runtimeBindings(c.env);const session=await ownerSession(c.req.raw,env);if(!session)return c.json({error:'Owner session required'},401);c.set('alertSession',session);if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,env))return c.json({error:'Same-origin required'},403);if(!await s(env.DB,'SELECT 1 FROM projects WHERE id=?',c.req.param('project')!).first())return c.json({error:'Project not found'},404);await next()});
+routes.use('*',async(c,next)=>{const env=runtimeBindings(c.env);const session=await ownerSession(c.req.raw,env,resolveMembership);if(!session)return c.json({error:'Owner session required'},401);c.set('alertSession',session);if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,env))return c.json({error:'Same-origin required'},403);if(!await s(env.DB,'SELECT 1 FROM projects WHERE id=?',c.req.param('project')!).first())return c.json({error:'Project not found'},404);await next()});
 async function input(c:any) {
  const reader=c.req.raw.body?.getReader();if(!reader)throw new Error('Invalid alert request');let size=0;const chunks:Uint8Array[]=[];
  for(;;){const part=await reader.read();if(part.done)break;size+=part.value.byteLength;if(size>8192){await reader.cancel();throw new Error('Alert request too large')}chunks.push(part.value)}
@@ -27,6 +29,7 @@ async function input(c:any) {
  await ownerBatch(c.env.DB,c.get('alertSession'),[]);return value;
 }
 controlsRoutes(routes,input);
+teamControls(routes,input);
 routes.get('/destinations',async c=>{try{return c.json({rows:await destinationChoices(c.env,c.req.param('project')!),configuration:'available'})}catch{return c.json({rows:[],configuration:'blocked'})}});
 routes.post('/destinations',async c=>c.json(await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,undefined,await input(c)),201));
 routes.put('/destinations/:destination',async c=>{const result=await saveDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),await input(c));await synchronizeHistory(c.env,Date.now());return c.json(result)});

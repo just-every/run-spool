@@ -5,13 +5,16 @@ import { findDestination } from '../alerts/destinations.server';
 import { IntegrationsRepository } from '../../modules/integrations/core/repository';
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import { attentionAction } from './actions';
+import { activeProjectRecipient } from '../members/notifications';
 import { s,type Attention } from './types';
 const routes=ownerProjectRouter();
 routes.get('/',async c=>{
  const project=c.req.param('project')!,db=c.env.DB;
  const config=await s(db,'SELECT destination,channel,revision FROM follow_up_settings WHERE project=?',project).first<any>();
+ const alternateMember=await s(db,'SELECT a.member,m.name FROM spool_follow_up_alternates a JOIN spool_members m ON m.id=a.member WHERE a.project=?',project).first<{member:string;name:string}>();
  let label='No alternate',configured=false;
  if(config?.destination)try{label=(await findDestination(runtimeBindings(c.env),project,config.destination,config.channel)).label;configured=true;}catch{label='Alternate unavailable';}
+ if(alternateMember){configured=!!await activeProjectRecipient(db,project,alternateMember.member);label=configured?alternateMember.name:'Alternate member unavailable';}
  const rows=(await s(db,'SELECT * FROM follow_up_attention WHERE project=? ORDER BY CASE WHEN state IN (\'completed\',\'canceled\') THEN 1 ELSE 0 END,due,id LIMIT 100',project).all<Attention>()).results;
  const enriched=[];
  for(const row of rows){
@@ -28,7 +31,19 @@ routes.get('/',async c=>{
   const held=row.source_id.startsWith('snooze:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND snooze_id=? AND released_at IS NULL',project,row.source_id.slice(7)).first<any>():row.source_id.startsWith('held:')?await s(db,'SELECT COUNT(*) n FROM alert_suppressed WHERE project=? AND delivery_id=? AND released_at IS NULL',project,row.source_id.slice(5)).first<any>():null;
   enriched.push({...row,attempts,notices,capture_loss:captureLoss,held_alerts:held?.n??null});
  }
- return c.json({alternate:{destination:config?.destination??null,channel:config?.channel??null,state:config?.destination?'configured':'none',configured,label},rows:enriched});
+ return c.json({alternate:{destination:alternateMember?'member:'+alternateMember.member:config?.destination??null,member:alternateMember?.member??null,channel:alternateMember?'mail':config?.channel??null,state:configured?'configured':alternateMember||config?.destination?'broken':'none',configured,label},rows:enriched});
+});
+routes.put('/alternate-member',async c=>{
+ const body=await jsonBody(c.req.raw,1024),project=c.req.param('project')!,db=c.env.DB;
+ if(!body||Object.keys(body).sort().join()!=='member'||body.member!==null&&typeof body.member!=='string')throw new Error('Choose an active project member or clear the alternate.');
+ if(body.member&&!await activeProjectRecipient(db,project,body.member))throw new Error('Active accountable project member required');
+ await ownerWrites(c,[
+  ...(body.member?[s(db,`INSERT INTO spool_follow_up_alternates(project,member,updated) VALUES(?,?,?)
+   ON CONFLICT(project) DO UPDATE SET member=excluded.member,revision=revision+1,updated=excluded.updated`,project,body.member,Date.now())]:[s(db,'DELETE FROM spool_follow_up_alternates WHERE project=?',project)]),
+  auditCommit(db),
+  s(db,"UPDATE follow_up_notices SET state='canceled',code='alternate_changed' WHERE project=? AND state='queued' AND destination LIKE 'member:%' AND destination IS NOT ?",project,body.member?'member:'+body.member:null),
+ ]);
+ return c.json({saved:true});
 });
 routes.put('/alternate',async c=>{
  const body=await jsonBody(c.req.raw,1024),project=c.req.param('project')!,env=runtimeBindings(c.env);
