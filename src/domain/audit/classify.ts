@@ -9,7 +9,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)\/shares$/,action:'reporting.share',kind:'policy'},
  {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)\/export$/,action:'reporting.export',kind:'policy'},
  {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)$/,methods:['PUT','DELETE'],action:'reporting.change',kind:'policy'},
- {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)(?:\/run)?$/,action:'reporting.view',kind:'policy'},
+ {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)(?:\/(?:run|open))?$/,action:'reporting.view',kind:'policy'},
  {pattern:/^\/api\/reporting\/table-preview$/,action:'reporting.query',kind:'project'},
  {pattern:/^\/api\/reporting\/preview$/,action:'reporting.query',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-digests$/,action:'alert.digest.settings',kind:'project'},

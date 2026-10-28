@@ -42,6 +42,10 @@ CREATE TABLE spool_reporting_shares (
 CREATE TRIGGER spool_reporting_capacity BEFORE INSERT ON spool_reporting_items
  WHEN (SELECT COUNT(*) FROM spool_reporting_items WHERE organization IS NEW.organization AND kind=NEW.kind)>=25
  BEGIN SELECT RAISE(ABORT,'reporting_item_capacity'); END;
+CREATE TRIGGER spool_reporting_move_capacity BEFORE UPDATE OF organization,kind ON spool_reporting_items
+ WHEN (NEW.organization IS NOT OLD.organization OR NEW.kind<>OLD.kind)
+ AND (SELECT COUNT(*) FROM spool_reporting_items WHERE organization IS NEW.organization AND kind=NEW.kind AND id<>OLD.id)>=25
+ BEGIN SELECT RAISE(ABORT,'reporting_item_capacity'); END;
 CREATE TRIGGER spool_reporting_widget_capacity BEFORE INSERT ON spool_reporting_widgets
  WHEN (SELECT COUNT(*) FROM spool_reporting_widgets WHERE item=NEW.item)>=12
  BEGIN SELECT RAISE(ABORT,'reporting_widget_capacity'); END;

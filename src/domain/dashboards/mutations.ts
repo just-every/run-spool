@@ -65,7 +65,10 @@ export async function shareItem(db:D1Database,session:OwnerSession,projects:Map<
  jobs.push(s(db,'DELETE FROM spool_reporting_shares WHERE item=?',snapshot.row.id));
  for(const grant of grants)jobs.push(s(db,'INSERT INTO spool_reporting_shares(item,id,kind,target,active,created) VALUES(?,?,?,?,1,?)',snapshot.row.id,crypto.randomUUID(),grant.kind,grant.target,Date.now()));
  jobs.push(s(db,'UPDATE spool_reporting_items SET organization=?,revision=revision+1,updated=? WHERE id=?',organization,Date.now(),snapshot.row.id),...projectGuards(db,session,selected,true),auditCommit(db));
- await ownerBatch(db,session,jobs);
+ try{await ownerBatch(db,session,jobs)}catch(error){
+  if(/reporting_item_capacity/.test(String(error)))fail('reporting_item_limit: at most 25 named items of this kind per organization',409);
+  throw error;
+ }
 }
 export async function deleteItem(db:D1Database,session:OwnerSession,projects:Map<string,ProjectSnapshot>,snapshot:ItemSnapshot,body:any){
  fields(body,['revision']);

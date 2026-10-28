@@ -1,8 +1,33 @@
+import {chromium} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
+
+async function reportWorkbench(origin,project,from,to){
+ const browser=await chromium.launch({headless:true});
+ try {
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),cookie=await signIn(origin,{bootstrap:false});
+  await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
+  const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.goto(origin+'/projects/'+project+'/settings');const configuration=page.getByRole('region',{name:'Reports, dashboards and query tables',exact:true});
+  await configuration.getByLabel('View name',{exact:true}).fill('Retained impact comparison');
+  const widgets=configuration.locator('.reports-widget'),date=value=>new Date(value).toISOString().slice(0,16);
+  for(let n=0;n<2;n++){await widgets.nth(n).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await widgets.nth(n).getByLabel('Window end (UTC)',{exact:true}).fill(date(to))}
+  const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/items'&&response.request().method()==='POST'&&response.status()===201);await configuration.getByRole('button',{name:'Save dashboard',exact:true}).click();const item=await(await created).json();
+  await configuration.locator('summary').filter({hasText:'Share this view'}).click();await configuration.getByRole('combobox',{name:'Share audience',exact:true}).selectOption('role');await configuration.getByRole('combobox',{name:'Role',exact:true}).selectOption('read-only');await configuration.getByRole('button',{name:'Add audience',exact:true}).click();
+  const sharing=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/'+item.id+'/shares')&&response.status()===200);await configuration.getByRole('button',{name:'Save sharing',exact:true}).click();await sharing;
+  await configuration.getByRole('link',{name:'Open this saved view',exact:true}).click();const dashboard=page.getByRole('region',{name:'Saved reports and dashboards',exact:true});await dashboard.locator('article.reports-widget').nth(1).waitFor();assert.equal(await dashboard.locator('article.reports-widget').count(),2);assert.equal(await dashboard.locator('article.reports-widget').first().locator('dd').innerText(),'4');
+  const table=page.getByRole('region',{name:'Query table',exact:true});await table.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await table.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
+  const run=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assert.equal((await(await run).json()).total,4);await table.locator('tbody tr').nth(3).waitFor();assert.equal(await table.locator('tbody tr').count(),4);
+  const saved=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/review/views')&&response.request().method()==='POST'&&response.status()===201);await table.getByRole('button',{name:/^Save query/}).click();await saved;
+  const download=page.waitForEvent('download');await dashboard.getByRole('link',{name:'Export view JSON',exact:true}).click();assert.equal(await(await download).failure(),null);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.deepEqual((await new AxeBuilder({page}).include('main').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact)),[]);assert.deepEqual(errors,[]);
+  await context.close();
+ }finally{await browser.close()}
+}
 
 // Fixture timestamps are relocated only after real public writes have produced
 // events and their actual history. No app clock, transport or database is mocked.
@@ -65,7 +90,8 @@ export async function reportsFlow(context){
   const wire=JSON.stringify(report);assert.ok(!wire.includes('synthetic-report-user'));assert.ok(!wire.includes('user_key'));
   const exported=await req(url()+'&format=json&download=1');assert.ok(exported.headers.get('content-disposition'));assert.deepEqual((await exported.json()).volume,report.volume);const csv=await req(url()+'&format=csv');assert.equal(csv.status,200);assert.match(csv.headers.get('content-type'),/text\/csv/);assert.ok((await csv.text()).includes('"volume.events","4"'));
   for(const [field,value] of [['timeZone','not-a-zone'],['from','-1'],['to',String(from)]]){const query=new URL(url(),'https://synthetic.test');query.searchParams.set(field,value);const response=await req(query.pathname+query.search);assert.equal(response.status,400);await response.body?.cancel()}
-  assert.equal((await req(url(),'GET',undefined,{Cookie:''})).status,401);const agent=await json(root+'/keys','POST',{kind:'agent'});assert.equal((await req(url(),'GET',undefined,{Cookie:'',Authorization:'Bearer '+agent.key})).status,401);
+  assert.equal((await req(url(),'GET',undefined,{Cookie:''})).status,401);const agent=await json(root+'/keys','POST',{kind:'agent'});assert.equal((await req(url(),'GET',undefined,{Cookie:'',Authorization:'Bearer '+agent.key})).status,403);
+  await reportWorkbench(context.origin,p.id,from,to);
   const allDrop={id:'drop',email:'drop',username:'drop',ip_address:'drop'},current=await json(root+'/identity-policy'),preview=await json(root+'/identity-policy/preview','POST',{policy:allDrop});await json(root+'/identity-policy','PUT',{revision:current.revision,policy:allDrop,token:preview.token});report=await json(url());assert.equal(report.volume.events,4);assert.equal(report.volume.affectedUsers,null);assert.equal(report.volume.unattributedEvents,4);assert.match(report.users.projects[0].reason,/policy: drop/);
   // Timestamp fixtures are synthetic historical probes; retire their projects
   // through the public custody door before another journey archives this Worker.

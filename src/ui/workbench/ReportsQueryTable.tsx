@@ -1,3 +1,4 @@
+import { absentDist } from '../../domain/releases/build';
 import { useEffect, useState } from 'react';
 import { api } from './client';
 import { date, stateLabel } from './shared';
@@ -7,7 +8,7 @@ import { initialReportsWindow, reportWindowNumbers, ReportsWindow } from './Repo
 export type ReportQuery = { q: string; status: string; release: string; sort: string };
 export const emptyReportQuery: ReportQuery = { q: '', status: 'all', release: 'all', sort: 'latest' };
 export function ReportsEventRows({ rows, project }: { rows: any[]; project?: string }) {
-  return <div className="table-region"><table className="data-table reports-table"><thead><tr><th scope="col">Received / event</th><th scope="col">Release / build</th><th scope="col">Environment</th><th scope="col">Type / message</th></tr></thead><tbody>{rows.map(row => <tr key={`${row.project ?? project}:${row.occurrence}`}><th scope="row"><a className="inline-link" href={hrefFor(row.project || project || '', 'issues', row.issue)}>{date(row.received)}</a><p><code>{row.id}</code></p></th><td data-label="Release / build">{row.release || 'No release'}<p>{row.build || 'No build'}</p></td><td data-label="Environment">{row.environment || 'No environment'}</td><td data-label="Type / message">{row.type}<p>{row.message}</p></td></tr>)}</tbody></table></div>;
+  return <div className="table-region"><table className="data-table reports-table"><thead><tr><th scope="col">Received / event</th><th scope="col">Release / build</th><th scope="col">Environment</th><th scope="col">Type / message</th></tr></thead><tbody>{rows.map(row => <tr key={`${row.project ?? project}:${row.occurrence}`}><th scope="row"><a className="inline-link" href={`${hrefFor(row.project || project || '', 'issues', row.issue)}?${new URLSearchParams({ event: row.id, occurrence: row.occurrence })}`}>{date(row.received)}</a><p><code>{row.id}</code></p></th><td data-label="Release / build">{row.release || 'No release'}<p>{row.build && row.build !== absentDist ? row.build : 'No build'}</p></td><td data-label="Environment">{row.environment || 'No environment'}</td><td data-label="Type / message">{row.type}<p>{row.message}</p></td></tr>)}</tbody></table></div>;
 }
 export function ReportsQueryTable({ project, configure, onSaved }: { project: string; configure: boolean; onSaved?: () => void }) {
   const [draft, setDraft] = useState(emptyReportQuery), [query, setQuery] = useState(emptyReportQuery);

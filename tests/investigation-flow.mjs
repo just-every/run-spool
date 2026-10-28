@@ -27,8 +27,8 @@ export async function investigationFlow({req,json,origin,db}){
  const grant=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:`Bearer ${grant.key}`};
  assert.equal((await req(base+'/issue-search?'+query,'GET',undefined,auth)).status,200);
  assert.ok([401,403].includes((await req('/api/projects/wire/issue-export','GET',undefined,auth)).status));
- await recordReadFlow({req,json});
  await dashboardFlow({req,json});
+ await recordReadFlow({req,json});
  await reportsFlow({req,json,origin,db});
  await bulkTriageFlow({req,json,base,origin});
  await repositorySourceFlow({req,json});
@@ -72,6 +72,8 @@ export async function investigationFlow({req,json,origin,db}){
 // doors. Team role/erasure/restore coverage is composed by the parent journey.
 export async function dashboardFlow({req,json}){
  const root='/api/reporting',p=await json('/api/projects','POST',{id:'synthetic-reporting-dash',name:'Synthetic dashboard project'}),base='/api/projects/'+p.id;
+ const initialOrganization=await json('/api/organization/me');assert.ok(!initialOrganization.organization,'The dashboard fixture starts before organization creation');
+ const preOrganization=await json(root+'/items','POST',{kind:'dashboard',name:'Owner-only before organization',widgets:[{project:p.id,name:'Initial volume',config:{metric:'count',q:'',from:Date.now()-60000,to:Date.now()+1000}}]});
  const me=await json('/api/organization/me');if(!me.organization)await json('/api/organization','POST',{id:'synthetic-reporting-org',name:'Synthetic reporting organization'});
  for(const name of ['dash-a','dash-b'])await json(base+'/releases','POST',{name,build:'web'});
  const from=Date.now()-60000,clients=['synthetic-client-aaaaaaaa','synthetic-client-bbbbbbbb'];
@@ -98,13 +100,16 @@ export async function dashboardFlow({req,json}){
   const denied=await req(root+'/items/'+savedId,'PUT',{...input,name:'Denied dashboard',revision:item.revision},headers);assert.ok([401,403].includes(denied.status));await denied.body?.cancel();
  }
  assert.equal(JSON.stringify((await json(root+'/items/'+savedId)).widgets.map(row=>row.config)),before,'Denied writes leave the stored definition unchanged');
- assert.equal((await req(root+'/items/'+savedId+'/export','GET',undefined,auth)).status,401);
+ assert.equal((await req(root+'/items/'+savedId+'/export','GET',undefined,auth)).status,403);
  item=await json(root+'/items/'+savedId+'/shares','PUT',{revision:item.revision,shares:[{kind:'role',target:'read-only'}]});assert.equal(item.shares.length,1);assert.equal(item.shares[0].active,true);
  const sharedRevision=item.revision,changed=await json(root+'/items/'+savedId,'PUT',{...input,name:'Changed dashboard',revision:sharedRevision});assert.equal(changed.revision,sharedRevision+1);
  const staleShare=await req(root+'/items/'+savedId+'/shares','PUT',{revision:sharedRevision,shares:[]});assert.equal(staleShare.status,409);await staleShare.body?.cancel();assert.equal((await json(root+'/items/'+savedId)).shares.length,1);
  const invalidSession=await req(root+'/preview','POST',{project:p.id,config:config('sessions','message:dashboard')});assert.equal(invalidSession.status,400);await invalidSession.body?.cancel();
  const invalidGroup=await req(root+'/preview','POST',{project:p.id,config:config('count','','priority')});assert.equal(invalidGroup.status,400);await invalidGroup.body?.cancel();
  const query={q:'environment:production',status:'all',release:'dash-a',sort:'latest'},view=await json(base+'/review/views','POST',query);
+ const scopedQuery=`environment:production release:dash-a after:${new Date(from).toISOString()} before:${new Date(to).toISOString()}`;
+ const metric=await json(root+'/preview','POST',{project:p.id,config:config('count',scopedQuery)}),stream=await json(base+'/issue-search?eventTotals=1&q='+encodeURIComponent(scopedQuery));assert.equal(metric.value,stream.matchingEvents,'Opt-in issue-stream occurrence totals run the same event query');
+ let matched=0;for(const issue of stream.rows){matched+=(await json(base+'/issues/'+issue.id+'/events?q='+encodeURIComponent(scopedQuery))).total}assert.equal(matched,metric.value,'All Events uses the same occurrence predicates as dashboard metrics');
  const preview=await json(root+'/table-preview','POST',{project:p.id,query,from,to});assert.equal(preview.total,2);assert.ok(preview.rows.every(row=>row.release==='dash-a'&&row.environment==='production'));
  const tableInput={kind:'table',name:'Synthetic saved event table',widgets:[{project:p.id,name:'Synthetic events',viewId:view.id,config:{from,to}}]},table=await json(root+'/items','POST',tableInput);
  assert.deepEqual(table.widgets[0].data.query,query);assert.equal(table.widgets[0].data.total,2);
@@ -115,10 +120,17 @@ export async function dashboardFlow({req,json}){
  const limits=(await json(root+'/items')).limits,oversize=await req(root+'/items','POST',{...input,widgets:Array.from({length:limits.widgetsPerItem+1},()=>widget('count'))});assert.equal(oversize.status,400);await oversize.body?.cancel();
  const filling=[];
  try{
-  let summaries=await json(root+'/items'),count=summaries.items.filter(row=>row.kind==='dashboard').length;
+  let summaries=await json(root+'/items'),count=summaries.items.filter(row=>row.kind==='dashboard'&&row.id!==preOrganization.id).length;
   for(;count<limits.itemsPerKindPerOrganization;count++){const fill=await json(root+'/items','POST',{kind:'dashboard',name:'Synthetic capacity '+count,widgets:[widget('count')]});filling.push(fill)}
   const full=await req(root+'/items','POST',{kind:'dashboard',name:'Synthetic overflow',widgets:[widget('count')]});assert.equal(full.status,409);assert.match((await full.json()).error,/reporting_item_limit/);
+  const move=await req(root+'/items/'+preOrganization.id+'/shares','PUT',{revision:preOrganization.revision,shares:[{kind:'role',target:'read-only'}]});assert.equal(move.status,409);assert.match((await move.json()).error,/reporting_item_limit/);const unchanged=await json(root+'/items/'+preOrganization.id);assert.equal(unchanged.revision,preOrganization.revision);assert.deepEqual(unchanged.shares,[],'Capacity refusals cannot attach or share an owner-only definition');
  }finally{for(const fill of filling)await json(root+'/items/'+fill.id,'DELETE',{revision:fill.revision})}
+ const groupLimit=item.widgets[1].data.bounds.groupLimit;
+ for(let n=0;n<=groupLimit;n++)await send('event',{event_id:'85'+n.toString(16).padStart(30,'0'),release:'dash-a',environment:'production',exception:{values:[{type:'ReportingBound',value:'Reporting group bound',stacktrace:{frames:[{filename:'/app/bound.py',function:'bound',lineno:5}]}}]},tags:{cohort:'synthetic-'+n}});
+ const grouped=await json(root+'/items','POST',{kind:'dashboard',name:'Explicit group bound',widgets:[{project:p.id,name:'Retained cohorts',config:{metric:'count',q:'error.type:ReportingBound',groupBy:'tag:cohort',from,to:Date.now()+1000}}]});assert.equal(grouped.widgets[0].data.bounds.complete,false);assert.equal(grouped.widgets[0].data.groups.length,groupLimit);
+ for(const format of ['csv','json']){const refusal=await req(root+'/items/'+grouped.id+'/export?format='+format);assert.equal(refusal.status,413);assert.match((await refusal.json()).error,/reporting_export_limit/)}
+ await json(root+'/items/'+grouped.id,'DELETE',{revision:grouped.revision});
+ const attached=await json(root+'/items/'+preOrganization.id+'/shares','PUT',{revision:preOrganization.revision,shares:[{kind:'role',target:'read-only'}]});assert.ok(attached.shares[0].active);await json(root+'/items/'+attached.id,'DELETE',{revision:attached.revision});
  await json(base+'/review/views/'+view.id,'DELETE');assert.equal((await json(root+'/items/'+table.id)).widgets.length,0,'Deleting the referenced saved query removes its table widget');
  for(const id of [savedId,table.id,reportItem.id]){const current=await json(root+'/items/'+id);await json(root+'/items/'+id,'DELETE',{revision:current.revision});assert.equal((await req(root+'/items/'+id)).status,404)}
  console.log('[FIND-002 R2/R3] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed');

@@ -10,9 +10,10 @@ const cell = (value: unknown) => {
  return '"' + (/^[\s\p{Cc}]*[=+\-@]/u.test(text) ? "'" + text : text).replaceAll('"', '""') + '"';
 };
 export function reportExport(report: any, format: string) {
- const rows = flatten(report), limit = 10000;
+ const limit = 10000, data = { ...report, bounds: { limit, rows: 0, complete: true, window: report.window } };
+ const rows = flatten(data);
  if (rows.length > limit) return Response.json({ error: 'report_export_limit', matched: rows.length, limit, window: report.window, action: 'Choose a narrower project scope or window.' }, { status: 413 });
- const data = { ...report, bounds: { limit, rows: rows.length, complete: true, window: report.window } };
+ data.bounds.rows = rows.length;
  const body = format === 'csv' ? ['field,value', ...flatten(data).map(r => `${cell(r.field)},${cell(r.value)}`)].join('\r\n') : JSON.stringify(data);
  return new Response(body, { headers: { 'Content-Type': format === 'csv' ? 'text/csv; charset=utf-8' : 'application/json', 'Content-Disposition': `attachment; filename="spool-report.${format}"`, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' } });
 }

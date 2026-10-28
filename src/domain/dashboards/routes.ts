@@ -16,11 +16,13 @@ import {itemExport} from './export';
 
 export const reportingRoutes=new Hono<any>();
 reportingRoutes.use('*',async(c,next)=>{
+ c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');
+ if(c.req.header('authorization'))return c.json({error:'Project scope required'},403);
  const session=await ownerSession(c.req.raw,c.env,resolveMembership);
  if(!session)return c.json({error:'Sign in required'},401);
  if(session.membership?.role==='billing')return c.json({error:'Reporting item not found'},404);
  if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
- c.set('reportingSession',session);c.header('Cache-Control','no-store');c.header('X-Content-Type-Options','nosniff');await next();
+ c.set('reportingSession',session);await next();
 });
 const session=(c:any):OwnerSession=>c.get('reportingSession');
 async function admitted(c:any){
@@ -48,6 +50,11 @@ reportingRoutes.post('/items',async c=>{
  await finishRead(c.env.DB,session(c),snapshot.projects.map(id=>projects.get(id)!),[snapshot.row]);return c.json(result.view,201);
 });
 reportingRoutes.get('/items/:id',c=>show(c));
+reportingRoutes.get('/items/:id/open',async c=>{
+ const {projects,snapshot}=await admitted(c),visible=snapshot.projects.filter(id=>projects.has(id));
+ await finishRead(c.env.DB,session(c),visible.map(id=>projects.get(id)!),[snapshot.row]);
+ return c.redirect(`/projects/${encodeURIComponent(visible[0])}/reports?item=${encodeURIComponent(snapshot.row.id)}`,303);
+});
 reportingRoutes.get('/items/:id/run',c=>show(c));
 reportingRoutes.get('/items/:id/export',c=>show(c,true));
 reportingRoutes.put('/items/:id',async c=>{

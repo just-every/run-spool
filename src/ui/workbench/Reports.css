@@ -29,3 +29,6 @@
 .reports .form-field{min-width:0}
 @media(max-width:900px){.reports-widget-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:520px){.reports-filters{grid-template-columns:minmax(0,1fr)}.reports-summary{grid-template-columns:minmax(0,1fr)}.reports .pagination{flex-wrap:wrap;justify-content:flex-start;gap:12px}.reports-widget{padding:12px}.reports-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.reports-metrics dd{font-size:26px}}
+
+.reports-widget .reports-metrics{grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.reports[aria-label="Report results"]>.reports-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}

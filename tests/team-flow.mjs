@@ -265,6 +265,7 @@ export async function reportingTeamFlow(owner,first,second,reader,billing,projec
  const widgets=projects.map(project=>({project:project.id,name:'Retained project events',config:{metric:'count',q:'',from,to}}));
  let shared=await owner.json(root,'POST',{kind:'dashboard',name:'Shared team impact',widgets});
  shared=await owner.json(root+'/'+shared.id+'/shares','PUT',{revision:shared.revision,shares:[{kind:'role',target:'read-only'},{kind:'role',target:'member'},{kind:'team',target:projects[0].id}]});
+ for(const [actor,project]of [[reader,projects[0]],[second,projects[1]]]){const opened=await actor.req(root+'/'+shared.id+'/open');assert.equal(opened.status,303);assert.equal(new URL(opened.headers.get('location'),owner.origin).pathname,'/projects/'+project.id+'/reports','one shared link chooses the viewer’s own accessible project')}
  const view=await reader.json(root+'/'+shared.id);assert.equal(view.omittedProjects,1);assert.deepEqual(view.widgets.map(w=>w.project),[projects[0].id]);assert.equal(view.editable,false);
  for(const format of ['json','csv']){
   const response=await reader.req(root+'/'+shared.id+'/export?format='+format);assert.equal(response.status,200);const text=await response.text();assert.ok(!text.includes(projects[1].id));assert.ok(!text.includes('synthetic-spool-9@example.test'),'read-only exports contain no retained identity values');
