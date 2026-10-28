@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8819dab83cce9e659dd8558d0610dde65125f755d92e9a7120417938ac931925",
+      "sha256": "ef9c56e67ea7ccfca0d639162a06e2ef9a26511f7709b8a863aaa59262b063d6",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2641,7 +2641,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "78a35e6cdfa780cd7d122c02a16a29fc09bad0c56c71614f1f249082ad07ce27",
+      "sha256": "9d39686e584409cdd6f42bdb1f87dac7575a41ead39d5e34bf9d5c7d16bac967",
       "executable": false
     },
     "base-copies.json": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7626627225510d2cd4419c87b973e3736e6b094217654fb4acad30b095a92f29",
+      "sha256": "2da33bcebd6c5e09d1b56eaa8ebac47d31e2b4dbc4a722535b3d33007d28baf8",
       "executable": false
     },
     "DEMO.md": {
@@ -2941,15 +2941,15 @@
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
-      "sha256": "2da916d39ac2cab09d4ac48e182efeca2704729bd4c220d1fe6c93af3589259d",
+      "sha256": "d4aa5f811c40ef5cc5e517d671563eaa66d2fcb54b148538ab805a6a672a139d",
       "executable": false
     },
     "docs/contract/DONE-AUDIT.md": {
-      "sha256": "d875c5499c800520c67a209e7da8fdd5fbb89f990699758d124caf4c0db9604f",
+      "sha256": "1eb41bf0adffced622a876b40293a728c37320edf267d6a35078a35639937609",
       "executable": false
     },
     "docs/contract/ID-MAP.json": {
-      "sha256": "9edb14303895acada2f19ca1ca252641e6cef982c26f9e5a131e746b3f21a3d1",
+      "sha256": "af61ed03ad77dc0fc299a90e2a0dc64cbadeb7691d8b41c59309f6772bf45f83",
       "executable": false
     },
     "docs/EVENT-INVESTIGATION.md": {
@@ -8493,7 +8493,7 @@
       "executable": false
     },
     "tests/business-import.mjs": {
-      "sha256": "b70cc5869ca6d90b8dace261d0f5feedd72bcfd89e80384ecdb831f3531f349f",
+      "sha256": "a41cc9da06f8266afaee6aeef2140e328b69590351c92c8a53af0a4fb191ba1b",
       "executable": false
     },
     "tests/checkin-flow.mjs": {
