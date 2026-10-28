@@ -1,3 +1,4 @@
+import { memberTables, memberExportRow } from './members/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
 import {identityTables} from './identities/archive';
@@ -42,8 +43,8 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))),
+ product: 'runeditrun/errors-workbench', excludeTables: ['spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ exportRow: (table: string, row: any) => scrubExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -167,6 +168,9 @@ for(const later of laterTables)later.migrations.push('0075_retention_schedule.sq
 laterTables.unshift({tables:[],migrations:['0075_retention_schedule.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(reviewTables));later.migrations.push('0076_review_inbox.sql')}
 laterTables.unshift({tables:Object.keys(reviewTables),migrations:['0076_review_inbox.sql']});
+const membershipTables=Object.keys(memberTables);
+for(const later of laterTables){later.tables.push(...membershipTables);later.migrations.push('0077_members.sql')}
+laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

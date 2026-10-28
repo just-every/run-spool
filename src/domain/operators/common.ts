@@ -1,9 +1,10 @@
+import { resolveMembership } from '../members/resolver';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerBatch } from '../owner-authority';
 export const s=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export const guard=(db:D1Database,sql:string,...args:any[])=>s(db,`INSERT INTO operator_guards SELECT CASE WHEN (${sql}) THEN 1 ELSE 0 END`,...args);
 export async function authorize(c:any){
- const session=await ownerSession(c.req.raw,c.env);
+ const session=await ownerSession(c.req.raw,c.env,resolveMembership);
  if(!session)return {response:c.json({error:'Owner session required'},401)};
  if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return {response:c.json({error:'Same-origin required'},403)};
  return {session};

@@ -1,3 +1,4 @@
+import { resolveMembership } from './members/resolver';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../auth/session.server';
 import { ownerBatch, type OwnerSession } from './owner-authority';
@@ -9,7 +10,7 @@ export type OwnerContext = { Bindings: Bindings; Variables: { ownerSession: Owne
 export function ownerProjectRouter() {
  const routes = new Hono<OwnerContext>();
  routes.use('*', async (c, next) => {
-  const env = runtimeBindings(c.env), session = await ownerSession(c.req.raw, env);
+  const env = runtimeBindings(c.env), session = await ownerSession(c.req.raw,env,resolveMembership);
   if (!session) return c.json({ error: 'Owner session required' }, 401);
   c.set('ownerSession', session);
   if (!['GET', 'HEAD'].includes(c.req.method) && !ownerWrite(c.req.raw, env)) return c.json({ error: 'Same-origin required' }, 403);

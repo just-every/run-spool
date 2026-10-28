@@ -5,6 +5,7 @@ import { repairLink } from '../repairs/input';
 // Only content columns are rewritten. Keys, grouping inputs and immutable
 // import custody cannot be silently changed or dropped with a neighbour's data.
 export const ownerCaptureColumns: Record<string, string[]> = {
+ spool_organizations: ['name'], spool_project_teams: ['team'], spool_service_accounts: ['name'],
  suspect_decisions: ['note'],
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
@@ -59,9 +60,9 @@ export async function capturePlan(db: D1Database, needles: string[]) {
   const keys = info.filter(row => row.pk).sort((a,b) => a.pk-b.pk).map(row => row.name);
   const rows = (await db.prepare(`SELECT * FROM ${quote(table)}`).all<any>()).results;
   for (const row of rows) {
-   // Authored judgments are removed wholesale by the declared owner edge.
-   // Only retained judgments from another author need content redaction here.
-   if (table === 'suspect_decisions' && row.operator_id === needles[0]) continue;
+   // Authored judgments and sponsored services leave through the owner graph.
+   // Only retained records need content redaction here.
+   if ((table === 'suspect_decisions' && row.operator_id === needles[0]) || (table === 'spool_service_accounts' && row.sponsor === needles[0])) continue;
    if(Object.entries(row).some(([column,value])=>!columns.includes(column) && contains(value,needles)))hold='identifier_in_structural_key';
    const after: Record<string,unknown> = {}, before: Record<string,unknown> = {};
    for (const column of columns) {

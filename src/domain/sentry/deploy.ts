@@ -1,15 +1,17 @@
 import { auditedBatch } from '../audit/context';
 import { deploymentActor } from '../deployments/actors';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { resolveMembership } from '../members/resolver';
+import { authorityGuard } from '../owner-authority';
 import { hash } from '../privacy.ts';
 import { mintAdmission } from '../dev-credentials';
 import { mintedByCurrentPerson } from '../credential-fence';
 /** Both upload handlers call this themselves, even when invoked without middleware. */
 export async function authorizeDeploy(c:any,project:string):Promise<{actor:string;guard:()=>D1PreparedStatement}|{response:Response}>{
-  const session=await ownerSession(c.req.raw,c.env);
+  const session=await ownerSession(c.req.raw,c.env,resolveMembership);
   if(session){
     if(!ownerWrite(c.req.raw,c.env))return {response:c.json({error:'Same-origin required'},403)};
-    return {actor:await deploymentActor(c.env.DB,project,'owner:'+session.operator.id),guard:()=>c.env.DB.prepare("INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND s.operator_id=? AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) AND s.operator_version=o.version AND o.status='active' AND o.role='owner') THEN 1 ELSE 0 END").bind(session.id,session.operator.id)};
+    return {actor:await deploymentActor(c.env.DB,project,(session.membership?'member:':'owner:')+session.operator.id),guard:()=>authorityGuard(c.env.DB,session)};
   }
   const match=/^Bearer ([a-zA-Z0-9_]{1,128})$/.exec(c.req.header('authorization')??'');
   if(!match)return {response:c.json({error:'Owner session or project deploy key required'},401)};

@@ -1,9 +1,10 @@
-export const actorKinds = ['owner','agent','deploy','ingest','service','anonymous','unknown'] as const;
+export const actorKinds = ['owner','member','agent','deploy','ingest','service','anonymous','unknown'] as const;
 export type ActorKind = typeof actorKinds[number];
 export type AuditActor = { kind: ActorKind; label: string };
 export const subjectKinds = ['installation','project','credential','issue','policy','release','artifact','correction','destination','rule','delivery','repair','reproducer','run','workflow','feedback','import','erasure','identity','session','audit','unknown'] as const;
 export type SubjectKind = typeof subjectKinds[number];
 export const auditActions = [
+ 'organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','billing.read',
  'review.views','retention.policy','retention.hold','retention.scheduled','identity.preview','identity.policy','project.create','credential.create','credential.revoke','credential.loader','checkin.route','issue.suspect','origin.change','issue.triage','issue.assign','issue.bulk_triage','suppression.change',
  'grouping.propose','grouping.proposals','grouping.approve','grouping.reject','grouping.preview','grouping.apply','grouping.undo','grouping.policy','filter.preview','filter.change','release.preview','release.policy','release.register','commit.sharing','artifact.upload',
  'evidence.packet','evidence.export','archive.export','archive.restore','retention.preview_or_apply','erasure.preview','erasure.start','erasure.resume','owner.erasure','owner.successor',

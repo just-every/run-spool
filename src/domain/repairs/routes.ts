@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
@@ -16,7 +17,7 @@ const audit = (db: D1Database, project: string, kind: string, detail: object, ti
 // This router authenticates its own direct transport as well as its parent API mount.
 routes.use('*', async (c, next) => {
  const env = runtimeBindings(c.env);
- const session=await ownerSession(c.req.raw, env);
+ const session=await ownerSession(c.req.raw,env,resolveMembership);
  if (!session) return c.json({ error: 'Owner session required' }, 401);
  c.set('repairSession',session);
  if (!['GET', 'HEAD'].includes(c.req.method) && !ownerWrite(c.req.raw, env)) return c.json({ error: 'Same-origin required' }, 403);

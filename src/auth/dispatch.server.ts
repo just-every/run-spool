@@ -1,3 +1,4 @@
+import { resolveMembership } from '../domain/members/resolver';
 import { devNotFound, safeReturnTo } from '../modules/operator-auth/index.mjs';
 import { fontDocumentResponse } from '../base/font-response';
 import { authResponse, ownerSession } from './session.server';
@@ -18,12 +19,12 @@ export async function authenticationResponse(request: Request, env: Bindings): P
  }
  if (path === '/sign-in' || path === '/signin') {
   if (!['GET', 'HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405 });
-  if (await ownerSession(request, env)) return new Response(null, { status: 303, headers: { Location: '/app', 'Cache-Control': 'no-store' } });
+  if (await ownerSession(request,env,resolveMembership)) return new Response(null, { status: 303, headers: { Location: '/app', 'Cache-Control': 'no-store' } });
   return await signInPage(request, env);
  }
  return null;
 }
 export async function authorizeDocument(request: Request, env: Bindings): Promise<Response | null> {
- if (await ownerSession(request, env)) return null;
+ if (await ownerSession(request,env,resolveMembership)) return null;
  return new Response(null, { status: 303, headers: { Location: '/sign-in?returnTo=' + encodeURIComponent(safeReturnTo(new URL(request.url).pathname + new URL(request.url).search, '/')), 'Cache-Control': 'no-store' } });
 }

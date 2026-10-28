@@ -1,3 +1,4 @@
+import { memberTables, memberDefaults, validateMemberArchive } from './members/archive';
 import {reviewTables,validateReviewArchive} from './review/model';
 import {retentionTables,validateRetentionArchive} from './retention-policy';
 import { sourceMapBuildTables, validateSourceMapBuilds } from './source-map-builds';
@@ -35,8 +36,9 @@ export const tables:Record<string,string[]>= {
   issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq'],
   events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received','occurrence','historical'],
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
-  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables,...memberTables
 };
+const fieldsHaveProject=(table:string)=>tables[table]?.includes('project');
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
 function safeText(value:any){if(typeof value!=='string'||scrub(value)!==value)throw new Error('Archive unsanitized text');}
 function frame(value:any,language?:any){shape(value,Object.prototype.hasOwnProperty.call(value??{},'debugId')?['file','line','column','function','debugId']:['file','line','column','function']);const normalized=normalize({version:1,...(language?{language}:{}),eventId:'validation',release:'validation',build:'validation',environment:'validation',type:'Error',message:'',frames:[value],breadcrumbs:[]}).frames[0];if(canonical(normalized)!==canonical(value))throw new Error('Archive unsanitized frame');}
@@ -65,7 +67,7 @@ export async function validateArchive(v:any) {
   shape(v,['version','migration','data','checksum']);
   const legacy=v.version===1&&v.migration==='0001_errors';
   if(!v || (!legacy&&(v.version!==2||v.migration!=='0003_browser_origins'))||!v.data||await hash(canonical({version:v.version,migration:v.migration,data:v.data}))!==v.checksum)throw new Error('Archive identity/checksum mismatch');
-  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)&&!Object.hasOwn(groupingTables,name)&&!Object.hasOwn(releaseTables,name)&&!Object.hasOwn(deploymentTables,name)&&!Object.hasOwn(proposalTables,name)&&!Object.hasOwn(shortIdTables,name)&&!Object.hasOwn(commitTables,name)&&!Object.hasOwn(sentryCliTables,name)&&!Object.hasOwn(loaderTables,name)&&!Object.hasOwn(reviewTables,name)&&!Object.hasOwn(retentionTables,name)&&!Object.hasOwn(identityTables,name)&&!Object.hasOwn(sessionTables,name)&&!Object.hasOwn(suspectTables,name)&&!Object.hasOwn(artifactStorageTables,name)&&!Object.hasOwn(sourceMapBuildTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
+  const oldTables=Object.fromEntries(Object.entries(tables).filter(([name])=>!Object.hasOwn(memberTables,name)&&!Object.hasOwn(importedTables,name)&&!Object.hasOwn(operatorTables,name)&&!Object.hasOwn(bundleTables,name)&&!Object.hasOwn(inboundFilterTables,name)&&!Object.hasOwn(feedbackTables,name)&&!Object.hasOwn(groupingTables,name)&&!Object.hasOwn(releaseTables,name)&&!Object.hasOwn(deploymentTables,name)&&!Object.hasOwn(proposalTables,name)&&!Object.hasOwn(shortIdTables,name)&&!Object.hasOwn(commitTables,name)&&!Object.hasOwn(sentryCliTables,name)&&!Object.hasOwn(loaderTables,name)&&!Object.hasOwn(reviewTables,name)&&!Object.hasOwn(retentionTables,name)&&!Object.hasOwn(identityTables,name)&&!Object.hasOwn(sessionTables,name)&&!Object.hasOwn(suspectTables,name)&&!Object.hasOwn(artifactStorageTables,name)&&!Object.hasOwn(sourceMapBuildTables,name)).map(([name,fields])=>[name,fields.filter(field=>!['historical','occurrence','latest_release_seq'].includes(field))]));
   const inputTables=legacy?Object.fromEntries(Object.entries(oldTables).filter(([name])=>name!=='browser_origins')):oldTables;
   if(Object.keys(v.data).sort().join()!==Object.keys(inputTables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(inputTables)) {
@@ -78,7 +80,7 @@ export async function validateArchive(v:any) {
 export async function validateArchiveRows(data:any,legacy=false) {
   // Native v1/v2 and the exact pre-alert schemas have no feedback collection.
   data={source_map_builds:[],source_map_build_files:[],artifact_storage_settings:[],...loaderDefaults(data)};
-  data=suspectDefaults(data);
+  data=memberDefaults(suspectDefaults(data));
   data=sessionDefaults(data);
   data={review_stamps:[],review_views:[],retention_policies:[],...identityDefaults(data)};
   data=sentryCliDefaults(commitDefaults(shortIdDefaults(proposalDefaults(deploymentDefaults(releaseDefaults(groupingDefaults(inboundFilterDefaults(feedbackDefaults(data)))))))));
@@ -94,7 +96,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   const issues=new Map(v.data.issues.map((r:any)=>[r.id,r]));
   const releases=new Map(v.data.releases.map((r:any)=>[r.project+':'+r.name,r]));
   for(const [table,rows] of Object.entries(v.data) as any)for(const row of rows){
-    if(!['projects','sentry_import_targets'].includes(table)&&row.project!==null&&!projects.has(row.project))throw new Error('Archive project reference');
+    if(fieldsHaveProject(table)&&row.project!==null&&!projects.has(row.project))throw new Error('Archive project reference');
     if(row.issue && (issues.get(row.issue) as any)?.project!==row.project)throw new Error('Archive issue reference');
   }
   validateIssueReleases(data);
@@ -111,6 +113,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   const originIdentities=new Set<string>();
   if(!legacy)for(const row of v.data.browser_origins){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin project');browserOrigin(row.origin);const key=row.project+'\n'+row.origin;if(originIdentities.has(key))throw new Error('Archive duplicate origin');originIdentities.add(key);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive origin timestamp');}
   for(const project of projects){if(v.data.events.filter((r:any)=>r.project===project).length>10000)throw new Error('Archive event budget');if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');}
+  validateMemberArchive(v.data);
   validateProposalArchive(v.data);
   validateShortIdArchive(v.data);
   validateCommitArchive(v.data);

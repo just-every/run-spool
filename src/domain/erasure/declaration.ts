@@ -16,6 +16,8 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  ...['spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
+  { table: 'spool_service_credentials', from: 'credentials', on: { hash: 'hash' } },
   ...['source_map_builds','source_map_build_files','artifact_storage_settings'].map(fromProject),
   // TEAM-004 short IDs and commit citations, including commit author and message.
   ...['retention_runs','review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_destinations','slack_delivery_meta','suspect_decisions','checkin_routes','checkin_links','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing'].map(fromProject),

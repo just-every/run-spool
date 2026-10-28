@@ -1,3 +1,4 @@
+import { resolveMembership } from '../members/resolver';
 import {pendingReview} from '../review/model';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
@@ -18,7 +19,7 @@ const inert=(text:string)=>/^[\s\p{Cc}]*[=+\-@]/u.test(text)?"'"+text:text;
 // Independently enforce the read door; mounting this router never supplies authority.
 const authorize=async(c:any,next:any)=>{
  const project=c.req.param('project'),grant=await agentProject(c.req.raw,c.env.DB);
- if(grant!==project&&!await ownerSession(c.req.raw,c.env))return c.json({error:'Sign in required'},401);
+ if(grant!==project&&!await ownerSession(c.req.raw,c.env,resolveMembership))return c.json({error:'Sign in required'},401);
  if(grant&&grant!==project)return c.json({error:'Project scope required'},403);
  c.set('agent',!!grant);
  if(!await c.env.DB.prepare('SELECT 1 FROM projects WHERE id=?').bind(project).first())return c.json({error:'Project not found'},404);

@@ -5,20 +5,30 @@ import { createIdpOwnerClaimHandler } from '../modules/owner-claim/idp.mjs';
 import { operatorMail } from './mail.server.mjs';
 import type { Bindings } from './bindings';
 import { successorConfirmation } from '../domain/erasure/owner-transfer.ts';
+import type { Session } from '../modules/operator-auth/index.mjs';
+import type { TeamSession } from '../domain/members/model';
 export function authConfig(env: Bindings) {
  return { origin: env.AUTH_ORIGIN, OWNER_EMAIL: env.OWNER_EMAIL, SESSION_SECRET: env.SESSION_SECRET,
   SETUP_TOKEN: env.SETUP_TOKEN, MAIL_FROM: env.MAIL_FROM, local: env.AUTH_LOCAL === 'true', dependencies: true,
   branding: { productName: 'Spool', accentColor: '#1C1C1B', signInPath: '/sign-in' } };
 }
-export function operatorAuth(env: Bindings) {
+export function operatorAuth(env: Bindings, teamInvites = false) {
  return createOperatorAuth({ db: env.DB, config: authConfig(env),
-  rolePolicy: ({ actor, action }) => actor.role === 'owner' && ['operators:list', 'sessions:list', 'sessions:revoke'].includes(action),
+  rolePolicy: async ({ actor, action, role }) => {
+   if (actor.role==='owner' && ['operators:list','sessions:list','sessions:revoke'].includes(action)) return true;
+   if (!teamInvites || action!=='operators:invite' || role!=='member') return false;
+   return actor.role==='owner' || !!await env.DB.prepare("SELECT 1 FROM spool_members WHERE operator_id=? AND role='admin' AND state='active'").bind(actor.id).first();
+  },
   mailSender: operatorMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '',
  });
 }
-export async function ownerSession(request: Request, env: Bindings) {
+export async function ownerSession(request: Request, env: Bindings, resolver?: (request: Request, env: Bindings, session: Session) => Promise<TeamSession | null>): Promise<TeamSession | null> {
+ // An explicitly presented credential chooses that transport's authority;
+ // a coincident browser cookie cannot expand its project or purpose.
+ if (request.headers.has('authorization')) return null;
  const session = await operatorAuth(env).getSession(request);
- return session?.operator.role === 'owner' ? session : null;
+ if (!session) return null;
+ return session.operator.role === 'owner' ? session : resolver ? resolver(request,env,session) : null;
 }
 export async function authResponse(request: Request, env: Bindings) {
  const successor = await successorConfirmation(request, env); if (successor) return successor;
@@ -37,7 +47,7 @@ export async function authResponse(request: Request, env: Bindings) {
    throw error;
   }
  }
- const auth = operatorAuth(env);
+ const auth = operatorAuth(env, new URL(request.url).pathname==='/auth/confirm');
  // The optional oidc-provider@1 link: well-known document, link keys and callback,
  // app-local approvals, and an IdP owner claim used only inside link redemption
  // (the public /auth/owner-claim route stays the signed managed claim).

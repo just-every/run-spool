@@ -44,3 +44,43 @@ export async function assertSignInForm(page, expectedReturnTo='/setup') {
  const link=page.getByRole('link',{name:'Continue as owner',exact:true});
  const target=new URL(await link.getAttribute('href'),page.url());assert.equal(target.pathname,'/auth/dev/enter');assert.equal(target.searchParams.get('returnTo'),expectedReturnTo);
 }
+
+// The development sender is the only edge read here. Acceptance and sessions use
+// the public native auth doors; no fixture writes an operator, token or session.
+export async function confirmEmailLink(origin, email, {previousIds = []} = {}) {
+ try {
+  const previous = new Set(previousIds);
+  const row = (await legacyMailRows(origin)).find(row => {
+   if (previous.has(row.id)) return false;
+   const message = JSON.parse(row.message);
+   return message.to?.includes(email) && /\/auth\/confirm\?token=/.test(message.text ?? '');
+  });
+  assert.ok(row, 'the native sender delivers a fresh confirmation to this person');
+  const token = JSON.parse(row.message).text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];
+  assert.ok(token, 'the message has a native confirmation');
+  const preview = await fetch(origin + '/auth/confirm?token=' + token, {redirect:'manual'});
+  assert.equal(preview.status, 200, 'native link preview is non-consuming');
+  assert.equal(preview.headers.get('set-cookie'), null);
+  await preview.body?.cancel();
+  const response = await fetch(origin + '/auth/confirm', {method:'POST',redirect:'manual',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({token})});
+  assert.equal(response.status, 303, 'native confirmation accepts the email proof');
+  const cookie = response.headers.get('set-cookie')?.split(';')[0];
+  assert.ok(cookie, 'native confirmation issues the person session');
+  await response.body?.cancel();
+  const session = await fetch(origin + '/auth/session', {headers:{Cookie:cookie}});
+  assert.equal(session.status, 200);
+  const current = await session.json();
+  assert.equal(current.operator.email, email);
+  assert.equal(current.operator.status, 'active');
+  assert.equal(current.kind, 'native');
+  return cookie;
+ } catch { throw new Error('Native email confirmation journey failed; private auth details withheld'); }
+}
+
+export async function emailSignIn(origin, email, {returnTo = '/'} = {}) {
+ const previousIds = (await legacyMailRows(origin)).map(row => row.id);
+ const response = await fetch(origin + '/auth/magic-link', {method:'POST',redirect:'manual',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({email,returnTo})});
+ assert.equal(response.status, 202, 'the native magic-link door accepts the sign-in request');
+ await response.body?.cancel();
+ return confirmEmailLink(origin, email, {previousIds});
+}

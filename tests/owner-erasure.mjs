@@ -72,6 +72,15 @@ try {
  await app.DB.prepare('INSERT INTO oa_external_identities(issuer,subject,operator_id) VALUES(?,?,?)').bind('https://identity.test','personal-owner-subject',owner.id).run();
  await app.DB.prepare('INSERT INTO oc_idp_grants(issuer,client_id,jti,subject,sector_id) VALUES(?,?,?,?,?)').bind('https://identity.test','client','personal-owner-grant','personal-owner-subject','installation-sector').run();
  evidence.holds=await heldScopes(app,otherId);
+ // TEAM-001: real membership and service doors declare their erasure custody.
+ await app.json('/api/organization',{id:'synthetic-spool-1',name:'synthetic-spool-1'},201);
+ await app.json('/api/organization/invites',{email:'quinn@spool.test',name:other,role:'admin',grants:[]},202);
+ await app.json('/api/organization/invites',{email:'synthetic-spool-8@example.test',name:'synthetic-spool-8',role:'member',grants:[{project:'personal-capture',role:'member'}]},202);
+ const team=(await app.json('/api/organization')),ownerMember=team.members.find(m=>m.operator_id===owner.id),teamInvite=(await app.DB.prepare("SELECT id FROM oa_tokens WHERE issuer_id=? AND operator_id IN (SELECT operator_id FROM spool_members WHERE email='synthetic-spool-8@example.test')").bind(owner.id).first()).id;
+ const service=await app.json('/api/organization/services',{name:'synthetic-spool-1',scopes:[{project:'personal-capture',kind:'ingest'}]},201);
+ const {hash:serviceHash}=await app.json('/api/organization/services/'+service.id+'/keys',{project:'personal-capture',kind:'ingest'},201);
+ const otherService=await app.json('/api/organization/services',{name:'synthetic-spool-2',scopes:[{project:'personal-capture',kind:'agent'}]},201,{Cookie:otherCookies['quinn@spool.test']});
+ const {hash:otherServiceHash}=await app.json('/api/organization/services/'+otherService.id+'/keys',{project:'personal-capture',kind:'agent'},201,{Cookie:otherCookies['quinn@spool.test']});
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
@@ -89,6 +98,12 @@ try {
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
+ assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
+ for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);
+ for(const table of ['spool_service_accounts','spool_service_scopes','spool_service_credentials'])assert.deepEqual(after[table],before[table].filter(row=>row.id!==service.id&&row.service!==service.id),'other service authority preserved: '+table);
+ assert.equal(after.credentials.some(row=>row.hash===serviceHash),false,'sponsored service ingest authority erased');
+ assert.deepEqual(after.credentials.find(row=>row.hash===otherServiceHash),before.credentials.find(row=>row.hash===otherServiceHash),'other sponsored credential preserved');
+ assert.equal(after.oa_tokens.some(row=>row.id===teamInvite),false,'former issuer provenance retired without removing team member');
  assert.deepEqual(after.spool_audit_events.filter(row=>row.sequence<=before.spool_audit_events.at(-1)?.sequence),before.spool_audit_events,'AUDIT-001 actor erasure never rewrites prior safe chronology');
  assert.ok(after.audit_actor_links.every(row=>row.owner_id!==owner.id),'AUDIT-001 actor bindings are erased');
  for(const needle of needles)assert.ok(!JSON.stringify(after).includes(needle),`all stored cells erased for ${needle}`);
