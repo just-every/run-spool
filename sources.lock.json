@@ -8153,7 +8153,7 @@
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
-      "sha256": "4875bc434bf82751f0f380d6c73f48992874ff02e1237cd55c90a6f1ba3f83f0",
+      "sha256": "9407ebb8cfbf7dfea919daa343c63bee4798ee44fa416d401061747d9d16b12a",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {
@@ -8581,7 +8581,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "aa60360012f7be6ccccea778d97014dd4f5091b24444b14dffa265dc96589191",
+      "sha256": "5d63c490c8209efdda40305ab3268fb2c94ed20ee5d4f1dd4d8249a916049cef",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
