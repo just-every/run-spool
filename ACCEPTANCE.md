@@ -1459,7 +1459,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 3. `spool.fixes.prepare`, `spool.fixes.merge` and `spool.repos.connect` add external for public repository writes and comments, with recipient count and counterparty public; a private internal draft stays standard.
 4. `spool.tracker.sync` is standard for internal-only tickets and external for outside exposure, with recipient count and counterparty public for public GitHub/GitLab Issues, known for an outside tracker on record, new otherwise.
 5. `spool.runs.diagnose` adds external for outside model egress; `spool.context.connect` adds it for outside trace forwarding; `spool.artifacts.manage` adds it for outside source fetching. Each names recipient count and counterparty known for a provider/origin on record, new otherwise.
-6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` for a paid longer window.
+6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` or `spool.replay.settings` for a paid longer window.
 7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
 
 **Evidence.** None.

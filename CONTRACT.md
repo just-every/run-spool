@@ -1189,7 +1189,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `spool.repos.connect` | Connect repositories, edit code mappings and post suspect comments | SRC-002 | standard or security (+ accounts) (+ gated) (+ external) | none |
 | `spool.artifacts.manage` | Inspect build artifacts, set the storage cap and source fetching | SRC-001, SRC-004 | standard (+ money) (+ security) (+ external) | none |
 | `spool.context.connect` | Connect trace forwarding and replay providers | CTX-001, CTX-003 | security (+ gated) (+ external) (+ destructive) | none |
-| `spool.replay.settings` | Replay consent, sampling, masking and retention | CTX-002 | security (+ live) (+ destructive) | none |
+| `spool.replay.settings` | Replay consent, sampling, masking and retention | CTX-002 | security (+ live) (+ destructive) (+ money) | none |
 | `spool.detectors.update` | Performance-issue detector thresholds | CTX-004 | live | none |
 | `spool.reports.build` | Dashboards, widgets, saved queries and report exports | FIND-003 | standard | none |
 | `spool.records.export` | Export records, attachments and private archives | ERR-009, API-001 | standard | none |
@@ -1233,7 +1233,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 3. `spool.fixes.prepare`, `spool.fixes.merge` and `spool.repos.connect` add external for public repository writes and comments, with recipient count and counterparty public; a private internal draft stays standard.
 4. `spool.tracker.sync` is standard for internal-only tickets and external for outside exposure, with recipient count and counterparty public for public GitHub/GitLab Issues, known for an outside tracker on record, new otherwise.
 5. `spool.runs.diagnose` adds external for outside model egress; `spool.context.connect` adds it for outside trace forwarding; `spool.artifacts.manage` adds it for outside source fetching. Each names recipient count and counterparty known for a provider/origin on record, new otherwise.
-6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` for a paid longer window.
+6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` or `spool.replay.settings` for a paid longer window.
 7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
 
 #### SURFACE-003 — Live, security, access and destructive are computed per call
