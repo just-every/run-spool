@@ -1,14 +1,72 @@
 name: verify
 
+# Base 0.2.85 seed Verify template (export/verify.yml), merged into Spool's own
+# build, SDK runtime and suite jobs. The plan job reuses the newest full push
+# proof of an identical tree and otherwise runs every Spool job. Light coverage
+# needs every shard's readers in Base's reviewed table, which does not list
+# Spool's suites yet, so document-only heads still run in full.
+# verification.json names each job below as a push shard, so the proof can find it.
 on:
   push:
+    branches: ['**']
+    tags: ['v*']
   pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tier:
+        type: string
+        default: push
+      timeout:
+        type: number
+        default: 12
 
 permissions:
   contents: read
 
+concurrency:
+  group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      skip: ${{ steps.plan.outputs.skip }}
+      coverage: ${{ steps.plan.outputs.coverage }}
+      tier: ${{ steps.plan.outputs.tier }}
+      readers: ${{ steps.plan.outputs.readers }}
+      has_shards: ${{ steps.plan.outputs.has_shards }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Check reusable workflow permissions
+        run: node scripts/verify-ci.mjs --check-workflows
+      - name: Look up complete nightly marker
+        id: nightly
+        if: ${{ github.event_name == 'schedule' || inputs.tier == 'nightly' }}
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: ${{ runner.temp }}/nightly-green
+          key: nightly-green-${{ github.sha }}
+          lookup-only: true
+      - id: plan
+        env:
+          TIER: ${{ inputs.tier || 'push' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NIGHTLY_CACHE_HIT: ${{ steps.nightly.outputs.cache-hit }}
+        run: node scripts/verify-ci.mjs --plan
+
   build:
+    needs: plan
+    if: ${{ needs.plan.outputs.has_shards == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -55,8 +113,9 @@ jobs:
 
   runtimes:
     # Real Sentry SDK programs, one runtime per job, against Spool's public intake.
-    name: runtime (${{ matrix.runtime }})
-    needs: build
+    name: shards (runtime-${{ matrix.runtime }})
+    needs: [plan, build]
+    if: ${{ needs.plan.outputs.has_shards == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
     env:
@@ -187,9 +246,10 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  tests:
-    name: verify (${{ matrix.shard }})
-    needs: build
+  shards:
+    name: shards (${{ matrix.shard }})
+    needs: [plan, build]
+    if: ${{ needs.plan.outputs.has_shards == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -300,3 +360,67 @@ jobs:
           console.log(await checkHostedOutput(root, {declaration}));
           console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
           NODE
+
+  light:
+    needs: plan
+    if: ${{ needs.plan.outputs.coverage == 'light' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      CI: 'true'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22.20.0'
+          package-manager-cache: false
+      - run: npm install --global pnpm@10.12.4
+      - run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run deps
+      - name: Run the changed files' reviewed readers and build the run site
+        env:
+          LIGHT_READERS: ${{ needs.plan.outputs.readers }}
+        run: node scripts/verify-ci.mjs --light
+
+  full-push-proof:
+    needs: [plan, build, runtimes, shards]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') && needs.plan.outputs.tier == 'push' && needs.plan.outputs.coverage == 'full' && needs.build.result == 'success' && needs.runtimes.result == 'success' && needs.shards.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - run: test '${{ needs.build.result }}:${{ needs.runtimes.result }}:${{ needs.shards.result }}' = success:success:success
+
+  verify:
+    needs: [plan, build, runtimes, shards, light, full-push-proof]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Require the selected coverage and its proof
+        env:
+          PLAN: ${{ needs.plan.result }}
+          BUILD: ${{ needs.build.result }}
+          RUNTIMES: ${{ needs.runtimes.result }}
+          SHARDS: ${{ needs.shards.result }}
+          LIGHT: ${{ needs.light.result }}
+          PUSH_PROOF: ${{ needs.full-push-proof.result }}
+          COVERAGE: ${{ needs.plan.outputs.coverage }}
+          HAS_SHARDS: ${{ needs.plan.outputs.has_shards }}
+          SKIP: ${{ needs.plan.outputs.skip }}
+        run: |
+          set -euo pipefail
+          test "$PLAN" = success
+          case "$PUSH_PROOF" in
+            failure|cancelled) exit 1 ;;
+          esac
+          jobs="$BUILD:$RUNTIMES:$SHARDS"
+          case "$COVERAGE" in
+            reuse) test "$SKIP" = true && test "$jobs" = skipped:skipped:skipped && test "$LIGHT" = skipped ;;
+            light) test "$SKIP" = false && test "$LIGHT" = success && test "$jobs" = skipped:skipped:skipped ;;
+            full) test "$LIGHT" = skipped && { test "$jobs" = success:success:success || { test "$HAS_SHARDS" = false && test "$jobs" = skipped:skipped:skipped; }; } ;;
+            *) exit 1 ;;
+          esac

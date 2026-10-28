@@ -1,0 +1,189 @@
+{
+  "push": [
+    {
+      "name": "runtime",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials"
+      ]
+    },
+    {
+      "name": "owner-ui",
+      "browser": true,
+      "hosted": true,
+      "commands": [
+        "pnpm test:accessibility && pnpm test:admission"
+      ]
+    },
+    {
+      "name": "alerts",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:alerts && pnpm test:alerts-ui"
+      ]
+    },
+    {
+      "name": "sdk",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages"
+      ]
+    },
+    {
+      "name": "sentry-cli",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:sentry:cli"
+      ]
+    },
+    {
+      "name": "tunnel",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:tunnel"
+      ]
+    },
+    {
+      "name": "wizard",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:wizard"
+      ]
+    },
+    {
+      "name": "agent-handoff",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:agent-handoff && pnpm test:privacy"
+      ]
+    },
+    {
+      "name": "repair-recovery",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:repair-recovery"
+      ]
+    },
+    {
+      "name": "execution",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:execution"
+      ]
+    },
+    {
+      "name": "project-erasure",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:project-erasure"
+      ]
+    },
+    {
+      "name": "project-erasure-cap",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:project-erasure-cap"
+      ]
+    },
+    {
+      "name": "owner-erasure",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:owner-erasure"
+      ]
+    },
+    {
+      "name": "runtime-electron",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "xvfb-run -a node tests/sdk-runtimes.mjs electron"
+      ]
+    },
+    {
+      "name": "runtime-python",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs python"
+      ]
+    },
+    {
+      "name": "runtime-go",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs go"
+      ]
+    },
+    {
+      "name": "runtime-java",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs java"
+      ]
+    },
+    {
+      "name": "runtime-ruby",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs ruby"
+      ]
+    },
+    {
+      "name": "runtime-php",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs php"
+      ]
+    },
+    {
+      "name": "runtime-dotnet",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs dotnet"
+      ]
+    },
+    {
+      "name": "runtime-rust",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs rust"
+      ]
+    },
+    {
+      "name": "runtime-elixir",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs elixir"
+      ]
+    },
+    {
+      "name": "runtime-node",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "node tests/sdk-runtimes.mjs node"
+      ]
+    }
+  ],
+  "nightly": []
+}
