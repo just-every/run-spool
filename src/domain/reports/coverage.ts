@@ -1,5 +1,6 @@
 import {readRetentionPolicy,retentionCutoffs} from '../retention-policy';
 import type {ReportRead,ReportInput} from './types';
+import {reportScopeLimit} from './read';
 
 export async function reportCoverage(db:D1Database,projects:string[],data:ReportRead,input:ReportInput,at:number){
  const retention=await Promise.all(projects.map(async project=>{
@@ -11,7 +12,8 @@ export async function reportCoverage(db:D1Database,projects:string[],data:Report
    definition:'Policy cutoffs describe current expiry policy at generation time. Applied cutoff and removed counts come from recorded retention operations; they do not reconstruct missing event-time buckets. Legal hold pauses expiry only.'};
  }));
  const count=(predicate:(reason:string)=>boolean)=>data.outcomes.filter(r=>predicate(r.reason)).reduce((n,r)=>n+r.count,0);
- return {sampling:'Every retained event in the requested receipt-time window is counted; no server query sampling. Upstream SDK sampling and losses before receipt are unknown. These are observed retained counts, not an estimate of all real failures.',
+ return {bounds:{retainedInputRows:reportScopeLimit,complete:true,definition:'A report above the retained-input row budget is refused with report_scope_limit; no input rows are silently truncated. Choose fewer projects or a narrower window.'},
+  sampling:'Every retained event in the requested receipt-time window is counted; no server query sampling. Upstream SDK sampling and losses before receipt are unknown. These are observed retained counts, not an estimate of all real failures.',
   retention,outcomes:data.outcomes,dropped:{
    serverRefused:count(r=>['rate_limited','budget','rejected','invalid','oversized','unregistered_release_or_build','missing_release_register_required'].includes(r)),
    clientDiscardedErrors:count(r=>r.startsWith('client_discarded:error:')),

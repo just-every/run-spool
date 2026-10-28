@@ -38,6 +38,7 @@ export function reportHistory(data:ReportRead,input:ReportInput,buckets:ReportBu
   else if(list.some(t=>t.at<birth))reason='State history precedes the recorded issue lifetime';
   else if(list.some((t,n)=>n>0&&t.at===list[n-1].at&&t.source!==list[n-1].source))reason='State and regression timestamps are tied; their cross-source order is unavailable';
   else if((list.at(-1)?.state??'open')!==issue.state)reason='Recorded transitions do not reconcile the current issue state';
+  if(!reason){let previous:State='open';for(const transition of list){if(transition.source==='regression'&&previous!=='resolved'){reason='Regression has no preceding recorded resolution; state history is incomplete';break}previous=transition.state}}
   if(reason){
    const exclusion={project:issue.project,issue:issue.id,reason};excludedIssues.push(exclusion);end.excluded++;if(initial<input.from)start.excluded++;
    if(inside(initial)||list.some(t=>t.source==='regression'&&inside(t.at))){ackExcluded.push(exclusion);repairExcluded.push(exclusion)}

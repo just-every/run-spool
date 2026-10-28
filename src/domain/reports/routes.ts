@@ -4,6 +4,8 @@ import { resolveMembership } from '../members/resolver';
 import { computeReport } from './index';
 import { reportExport } from './export';
 import { currentProjects, finishRead } from '../dashboards/authority';
+import { ReportScopeError } from './read';
+import { AuthError } from '../../modules/operator-auth/index.mjs';
 
 /** This independently mounted read door accepts people, never ingest or agent
  * credentials. A requested scope always intersects current project authority. */
@@ -30,4 +32,9 @@ reportRoutes.get('/', async c => {
  if (format !== undefined && !['csv', 'json'].includes(format)) throw new Error('Export format must be json or csv');
  if (c.req.query('download') === '1' || format) return reportExport(result, format ?? 'json');
  return c.json(result);
+});
+reportRoutes.onError((error, c) => {
+ if (error instanceof ReportScopeError) return c.json({ error: error.code, limit: error.limit, matched: error.matched, action: error.action }, 413);
+ if (error instanceof AuthError) return c.json({ error: error.code }, error.status as any);
+ throw error;
 });

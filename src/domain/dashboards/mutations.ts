@@ -14,6 +14,14 @@ async function definitionStatements(db:D1Database,id:string,input:ItemInput){
  const result:D1PreparedStatement[]=[];
  for(const project of new Set(input.widgets.map(widget=>widget.project)))result.push(s(db,'INSERT INTO spool_reporting_projects(item,project) VALUES(?,?)',id,project));
  for(const [position,widget] of input.widgets.entries()){
+  if(input.kind==='dashboard'){
+   const group=(widget.config as any).groupBy;
+   if(group?.startsWith('tag:')){
+    const sql="EXISTS(SELECT 1 FROM events e,json_each(e.payload,'$.sentry.tags') tag WHERE e.project=? AND tag.key=?)";
+    if(!await s(db,'SELECT 1 WHERE '+sql,widget.project,group.slice(4)).first())fail('reporting_tag_unavailable: choose a retained tag key',400);
+    result.push(guard(db,sql,widget.project,group.slice(4)));
+   }
+  }
   if(input.kind==='table'){
    const view=await savedTableQuery(db,widget.project,widget.viewId!);
    result.push(guard(db,'EXISTS(SELECT 1 FROM review_views WHERE project=? AND id=? AND generation=? AND query=?)',widget.project,widget.viewId,view.generation,view.serialized));

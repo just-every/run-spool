@@ -2,6 +2,7 @@ import {eventQuery} from '../investigation/query';
 import {pendingReview,reviewQuery} from '../review/model';
 import {scrub} from '../privacy';
 import {fail,window,type Window} from './input';
+import {ensureReleaseOrderKeys} from '../releases/order';
 import {issueAttentionSql} from '../issue-attention';
 import {widgetCoverage} from './coverage';
 
@@ -14,6 +15,7 @@ export async function savedTableQuery(db:D1Database,project:string,viewId:string
 }
 export async function eventTable(db:D1Database,project:string,value:any,input:Window,exporting=false){
  const query=reviewQuery(value),bounds=window(input),parsed=eventQuery(query.q);
+ if(parsed.usesLatest)await ensureReleaseOrderKeys(db,project);
  const where=`e.project=? AND e.received>=? AND e.received<? AND (${parsed.sql})${query.status!=='all'?' AND i.state=?':''}${query.release!=='all'?' AND e.release=?':''}${parsed.reviewPending?` AND ${pendingReview('i')}`:''}`;
  const args=[project,bounds.from,bounds.to,...parsed.args,...query.status!=='all'?[query.status]:[],...query.release!=='all'?[query.release]:[]];
  const attention=issueAttentionSql.replace(/ attention$/,'');

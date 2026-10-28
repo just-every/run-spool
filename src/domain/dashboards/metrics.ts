@@ -4,10 +4,12 @@ import {eventUserKeySql} from '../identities/read';
 import {scrub} from '../privacy';
 import {metricConfig,type MetricConfig} from './input';
 import {widgetCoverage} from './coverage';
+import {ensureReleaseOrderKeys} from '../releases/order';
 
 export const metricGroupLimit=100;
 export async function widgetMetric(db:D1Database,project:string,input:MetricConfig){
  const config=metricConfig(input),query=eventQuery(config.q),sessions=config.metric==='sessions',users=config.metric==='users';
+ if(query.usesLatest)await ensureReleaseOrderKeys(db,project);
  const predicate=sessions?query.sql.replaceAll('e.received','e.started'):query.sql;
  const from=sessions?'(SELECT project,release,environment,started,1 quantity FROM health_sessions UNION ALL SELECT project,release,environment,started,quantity FROM health_aggregates) e':
   'events e JOIN issues i ON i.project=e.project AND i.id=e.issue LEFT JOIN event_identities x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence';

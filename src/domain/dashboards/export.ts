@@ -14,6 +14,7 @@ export function itemExport(item:any,format:string){
  if(!['csv','json'].includes(format))fail('Export format must be json or csv');
  const rows:any[]=[];
  for(const widget of item.widgets){
+  if(widget.data.bounds?.complete===false)fail('reporting_export_limit: grouped values exceed the display cap; narrow the query or grouping before exporting',413);
   const common={kind:item.kind,item:item.name,widget:widget.name,project:widget.project,from:widget.config.from,to:widget.config.to};
   if(item.kind==='table')for(const row of widget.data.rows)rows.push({...common,...row});
   else if(item.kind==='dashboard'){
@@ -28,8 +29,8 @@ export function itemExport(item:any,format:string){
  const safe={...item,shares:undefined,bounds},keys=[...new Set(rows.flatMap(row=>Object.keys(row)))];
  // CSV includes a metadata row even for empty results, so bounds and omissions
  // remain explicit outside the application as they do in JSON.
- const csvRows=[{record:'metadata',item:item.name,omittedProjects:item.omittedProjects,bounds:JSON.stringify(bounds),windows:JSON.stringify(item.widgets.map((w:any)=>({widget:w.name,from:w.config.from,to:w.config.to})))},...rows.map(row=>({record:'data',...row}))];
- const csvKeys=[...new Set(['record','omittedProjects','bounds','windows',...keys])];
+ const csvRows=[{record:'metadata',item:item.name,omittedProjects:item.omittedProjects,bounds:JSON.stringify(bounds),windows:JSON.stringify(item.widgets.map((w:any)=>({widget:w.name,from:w.config.from,to:w.config.to}))),coverage:JSON.stringify(item.widgets.map((w:any)=>({widget:w.name,noReleaseEvents:w.data.noReleaseEvents??null,metadata:w.data.metadata,definition:w.data.definition,bounds:w.data.bounds})))},...rows.map(row=>({record:'data',...row}))];
+ const csvKeys=[...new Set(['record','omittedProjects','bounds','windows','coverage',...keys])];
  const body=format==='csv'?[csvKeys.map(cell).join(','),...csvRows.map(row=>csvKeys.map(key=>cell((row as any)[key])).join(','))].join('\r\n'):JSON.stringify(safe);
  if(new TextEncoder().encode(body).byteLength>maxBytes)fail('reporting_export_bytes: export exceeds 8 MiB; narrow the query, project scope or window',413);
  return new Response(body,{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-${item.kind}.${format}"`,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
