@@ -1,6 +1,7 @@
 import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
+import {confirmEmailLink,emailSignIn} from './auth.mjs';
 import { runtime, successor, snapshot, eraseInput, archive } from './owner-erasure/helpers.mjs';
 
 // A real request whose body remains incomplete while the worker authenticates
@@ -28,7 +29,7 @@ export async function heldOwnerRequest(app,path,value,{method='POST',headers={}}
 export async function delayedOwnerWrites() {
  const app=await runtime({ALERT_DESTINATIONS:JSON.stringify([{id:'owner-mail',project:'inflight-owner',label:'Owner mail',channel:'mail',recipient:'owner@spool.test'}])}),pending=[];
  try {
-  await successor(app);
+  const next=await successor(app);
   const project=await app.json('/api/projects',{id:'inflight-owner',name:'Inflight owner'},201);
   await app.json('/api/projects/inflight-owner/releases',{name:'r1',build:'b1'},201);
   const event=await app.json('/api/ingest/inflight-owner',{version:1,eventId:'inflight-owner-event',release:'r1',build:'b1',environment:'test',type:'Error',message:'Example error',frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run'}],breadcrumbs:[]},201,{Authorization:'Bearer '+project.ingestKey});
@@ -71,6 +72,28 @@ export async function delayedOwnerWrites() {
   const route=index=>`${requests[index][2]?.method??'POST'} ${requests[index][0]}`;
   assert.deepEqual(responses.map((response,index)=>({route:route(index),...response})),requests.map((_,index)=>({route:route(index),status:409,body:{error:'authority_changed'}})),'every admitted predecessor owner write is refused after handoff');
   assertAuditAppendOnly(await snapshot(app),before,'delayed predecessor owner writes change no row');
+  // Ordinary transfers after a completed erasure must keep the same credential
+  // fence: only this guarded role swap may carry a current key forward.
+  app.cookie=await emailSignIn(app.origin,next.email);
+  await app.json('/api/organization',{id:'transfer-after-erasure',name:'Synthetic organization'},201);
+  const captured=await app.json('/api/projects',{id:'transfer-after-erasure',name:'Synthetic project'},201);
+  await app.json('/api/projects/transfer-after-erasure/releases',{name:'r1',build:'b1'},201);
+  const key=await app.json('/api/projects/transfer-after-erasure/keys',{kind:'deploy'},201);
+  const keys=(await app.DB.prepare('SELECT * FROM credentials WHERE project=?').bind(captured.id).all()).results;
+  for(const value of ['minted_version+1','NULL'])await assert.rejects(app.DB.prepare('UPDATE credentials SET minted_version='+value+' WHERE hash=?').bind(key.hash).run(),/credential_authority_changed/,'arbitrary credential rebinding stays forbidden after erasure');
+  assert.deepEqual((await app.DB.prepare('SELECT * FROM credentials WHERE project=?').bind(captured.id).all()).results,keys);
+  const email='synthetic-transfer@example.test';
+  await app.json('/api/organization/invites',{email,name:'Synthetic successor',role:'admin',grants:[]},202);
+  await confirmEmailLink(app.origin,email);
+  const members=await app.json('/api/organization'),target=members.members.find(row=>row.email===email);
+  const send=async stage=>{
+   await app.json('/api/ingest/'+captured.id,{version:1,eventId:'erasure-transfer-'+stage,release:'r1',build:'b1',environment:'test',type:'Error',message:'Synthetic event',frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run'}],breadcrumbs:[]},201,{Authorization:'Bearer '+captured.ingestKey});
+   await app.json('/api/projects/'+captured.id+'/releases',{name:'transfer-'+stage,build:'b1'},201,{Authorization:'Bearer '+key.key});
+  };
+  await send('before');
+  await app.json('/api/organization/transfer',{member:target.id,version:target.version});
+  await send('after');
+
   return {phase:receipt.phase,refused:responses.length,storedRows:'unchanged'};
  } finally {for(const request of pending)request.close();await app.close();}
 }

@@ -53,7 +53,7 @@
       "description": "Export Base portability archives and restore validated new or legacy data into an empty destination; manual retention invalidates stored snapshots and records occurrence tombstones. Owner-only project erasure uses the adopted Base helper with complete project cascades, anonymised audits, count-only receipts and restore fences. The owner-only Base import-kit organization adapter supports reviewed dry run, apply/resume and guarded undo, qualified with synthetic fixtures only. See docs/SENTRY-SWITCHING.md, docs/PROJECT-ERASURE.md, CONTRACT.md and ACCEPTANCE.md for custody, scope exceptions, external limits and five-minute timing.",
       "clauses": [
         "ERR-009",
-        "BASE-DATA-003"
+        "ERASE-001"
       ]
     },
     {
@@ -136,7 +136,7 @@
       "clauses": [
         "ERR-004",
         "ERR-009",
-        "BASE-DATA-003"
+        "ERASE-001"
       ]
     },
     {

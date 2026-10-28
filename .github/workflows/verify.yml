@@ -29,6 +29,7 @@ jobs:
         run: |
           pnpm run check -- --profile first-party
           pnpm source:check
+          node src/base/contract-docs.mjs check
           node scripts/edition-authoring/cli.mjs verify-base --offline
       - name: Build application
         run: pnpm run build:app

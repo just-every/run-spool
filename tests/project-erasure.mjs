@@ -12,7 +12,7 @@ import {refusals,secondErase} from './project-erasure/doors.mjs';
 import {scanDatabase,scanOutbox,scanText,auditReport} from './project-erasure/scan.mjs';
 import {erasePanel} from './project-erasure/ui.mjs';
 import {fenceProof} from './project-erasure/fences.mjs';
-// BASE-DATA-003 project erasure through public rer setup/dev, HTTP, export and
+// ERASE-001 (Base BASE-DATA-003) project erasure through public rer setup/dev, HTTP, export and
 // import: canaries planted everywhere a project reaches, owner-only erase with a
 // count-only preview, typed confirmation and receipt, then scans and fences.
 const directory=resolve('.artifacts/project-erasure');await mkdir(directory,{recursive:true});

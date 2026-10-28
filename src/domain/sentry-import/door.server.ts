@@ -1,6 +1,7 @@
 import { createImportDoorHandler, DoorError, enableDoorAtFirstClaim, writeImportDoorSettings } from '../../modules/import-kit/src/door/index.ts';
 import { createImportOperatorHandler } from '../../modules/import-kit/src/door/operator.ts';
-import type { ImportDoorSource } from '../../modules/import-kit/src/door/types.ts';
+import type { DoorRequest, ImportDoorSource } from '../../modules/import-kit/src/door/types.ts';
+import { doorFence, erasures } from '../../modules/import-kit/src/door/store.ts';
 import type { D1Sql } from '../../modules/import-kit/src/d1/types.ts';
 import type { ImportMapping, SourceBundle } from '../../modules/import-kit/src/types.ts';
 import { sha256, canonicalJson } from '../../modules/import-kit/src/provenance/identity.ts';
@@ -12,6 +13,8 @@ import { organizationMapping } from './mapping';
 import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
 import { ensureShortIds } from '../short-ids/assign';
+import type { OwnerSession } from '../owner-authority';
+import { ownerReadResponse } from './owner-reads.server';
 
 /** Spool's one import pipeline: the owner's Sentry importer (owner session,
  * `/api/operator/import/*`) and Business (signed grants, `/api/rer/import/*`)
@@ -66,6 +69,17 @@ async function activeOwner(db: D1Database) {
  return db.prepare("SELECT id,email FROM oa_operators WHERE role='owner' AND status='active' ORDER BY id LIMIT 1").first<{ id: string; email: string }>();
 }
 
+/** A real owner read admission for the same runtime and erasure fence as the
+ * operator door. Used by both the existing history and per-plan reads. */
+export async function ownerReadRequest(env:ManagedBindings, session:OwnerSession, key:string, namespace:string, source?:ImportDoorSource):Promise<DoorRequest> {
+ const resolved = source ?? await importSource(env.DB,key,namespace);
+ if (!resolved) throw new DoorError('unknown_import_source',400);
+ const epoch = await erasures(env.DB,doorDestination), owner = ownerImportPredicate(session), fence = doorFence(key,namespace,doorDestination,epoch);
+ return {options:{database:env.DB,targets:sentryTargets,ownerPrincipalId:session.operator.id,destination:doorDestination,format:'json',limits,...resolved},
+  authority:{sql:`(${owner.sql}) AND (${fence.sql})`,params:[...owner.params,...fence.params ?? []]},via:'operator',epoch,
+  access:{action:'status',installationId:key,email:session.operator.email,namespace,maxBytes:limits.maxBytes,maxChunks:1024,maxRecords:limits.maxRecords}};
+}
+
 /** Business-provisioned installs carry `RER_IMPORT_DOOR=on` from the owner's
  * approved plan; self-host `rer deploy` never sets it. There the owner's first
  * claim opens the Business door. This runs after every claim answer, owner
@@ -104,9 +118,17 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
  if (!source) return Response.json({ error: 'unknown_import_source' }, { status: 400 });
  await openDoorAtClaim(env);
  if (!await env.DB.prepare('SELECT 1 FROM ik_door_settings WHERE installation_id=?').bind(key).first()) await writeImportDoorSettings(env.DB, key, { enabled: false }, predicate);
- return createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,
+ const action = new URL(request.url).pathname.slice(operatorPrefix.length);
+ const read = await ownerReadRequest(env,session!,key,name,source);
+ const response = await createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,
   ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits, ...source,
   authorize: async () => predicate })(request);
+ if (!response) return response;
+ try { return await ownerReadResponse(read,response,action); }
+ catch (error) {
+  return Response.json({error:error instanceof DoorError ? error.code : 'import_door_conflict'},
+   {status:error instanceof DoorError ? error.status : 409,headers:{'Cache-Control':'no-store'}});
+ }
 }
 
 export async function importDoorResponse(request: Request, env: ManagedBindings) {
