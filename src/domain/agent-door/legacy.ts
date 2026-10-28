@@ -24,5 +24,5 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  const message=await response.json() as any;
  if(message.result?.isError){const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:403});}
  if(message.error)return Response.json({code:message.error.data?.code??'agent_refused'},{status:response.ok?403:response.status});
- const value=message.result?.structuredContent;return Response.json(Array.isArray(value?.items)?value.items:value??{code:'agent_pending'});
+ const value=message.result?.structuredContent;return Response.json(Array.isArray(value?.items)?value.items:value??{code:'agent_pending'},{status:request.method==='POST'?201:200});
 }

@@ -4767,11 +4767,11 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "baab7c2cf1615020f6cc3298cdb44aa4c054bd0587b09609a74d7ff6320220a3",
+      "sha256": "04e71efe12817803051e9eab58f17364e64c402124366b6d9f01f9f4ded00a15",
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
-      "sha256": "4bc4904635561ce2286e56e1e4fec2b0e5102ebd2879c244ca2f7f424cf8618f",
+      "sha256": "9532fe2c279003ac4bcacf5a673dbfc94bf2263571c9509be2e895387ed4d3cf",
       "executable": false
     },
     "src/domain/agent-door/native-authority.ts": {
@@ -5071,7 +5071,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "483bd1ed25ac2470bce14dcc1f52e0a2e89509b3066abc45043e52c8955b3542",
+      "sha256": "6b985f7a80fbb6722a8769e198493a6b9d3a9febc764f576ab18a553e269f798",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -5079,7 +5079,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-capture.ts": {
-      "sha256": "e5911d0ee83e0d6139391420f615ca781aaea43a44477c5708559aca29643462",
+      "sha256": "b751e4b9c34e3c51d8e8ac007f8469cd4cc17db0b66cbc29a970063c321a3420",
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
@@ -5095,7 +5095,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-scope.ts": {
-      "sha256": "8945c5bdf19f36704db27c792f621dd035aaaa8337199c60550dbbaf669a235d",
+      "sha256": "3638efabd68b9106a8853105c5abf7ac3d17032e90d80570855561f7ebb28f81",
       "executable": false
     },
     "src/domain/erasure/owner-service.ts": {
@@ -5107,7 +5107,7 @@
       "executable": false
     },
     "src/domain/erasure/routes.ts": {
-      "sha256": "1b581bdcb38bb0d54bc98e68c11a29caf7661d6b2fb1c2f38e9fadac03083eb0",
+      "sha256": "52dfc0e7c836a1915f2147676e813bf80d93cdb8e0696ba1167de39d5bfaa2e1",
       "executable": false
     },
     "src/domain/erasure/service.ts": {
@@ -5591,7 +5591,7 @@
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
-      "sha256": "753ab123fa8c0120d9ac1a712e64f273818c948ab889fb4b3b4100f46446fd9c",
+      "sha256": "55dc758493ebdd14d693d0ca5c48a9d585aaf1549b4e20c75cb12a2a3ab1ccc8",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
@@ -8891,7 +8891,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "258d2d5a6318d4c19c3506ac2dba10e9ac790b0aaf806f77bed169973feec402",
+      "sha256": "16bfe1f10143fd2c3403918f69fb7f76c091afb2686b41c59963241135db44fe",
       "executable": false
     },
     "tests/agent-door/people.mjs": {
@@ -8903,7 +8903,7 @@
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {
-      "sha256": "056d96f235dbed4fe46d32178fcce63872cd1ead007f65ba5fc54eb2e5e38ee7",
+      "sha256": "3ad25c67a0555ae352db03796dee7d0eb5bb2c115e3b332cd264379b2cbe2fc6",
       "executable": false
     },
     "tests/agent-door/runtime.mjs": {
@@ -8915,7 +8915,7 @@
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
-      "sha256": "c4bf1cd527f636574e14361e8b2a3fdca1310845a30ab4165a4d74286e4b39a7",
+      "sha256": "d9d5b742423145ffbcc310177814aaf07df0c3a88b7f38c77f8fa1748a929e38",
       "executable": false
     },
     "tests/agent-handoff.mjs": {
@@ -9251,7 +9251,7 @@
       "executable": false
     },
     "tests/owner-erasure-authority.mjs": {
-      "sha256": "cac3d4b3825267c9d2b5983171cb61dbb676c8f88fa0afcc2778409d9dc46c81",
+      "sha256": "dfc85ab58560145fe533bf2b4d75aa9c395cd7b9195ee642e5dcd6169107b5fe",
       "executable": false
     },
     "tests/owner-erasure-finalization.mjs": {
@@ -9267,7 +9267,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "e97c74e83b4338fd95bc91f31037e28848f6081ec3fe7ed04d8740a3ba571a1e",
+      "sha256": "c04b77e9d6192de7092b99bcf654114eb84f41efb8f130d64184de2f5817c08e",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {

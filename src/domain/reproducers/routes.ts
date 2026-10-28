@@ -66,6 +66,8 @@ routes.post('/:reproducer/claim', async c=>{
  const project=c.req.param('project')!,id=c.req.param('reproducer');
  const row=await s(c.env.DB,'SELECT reproducer,state,expires FROM reproducer_runs WHERE project=? AND id=?',project,id).first<any>();
  if(!row)return c.json({error:'Run not found'},404);
+ const actor=agentAuthority(c.req.raw),saved=await s(c.env.DB,"SELECT principal FROM spool_agent_custody WHERE kind='reproducer' AND id=?",id).first<any>();
+ if(actor&&saved){const principal=JSON.parse(saved.principal);if(principal.person.id!==actor.context.person.id||principal.agent.id!==actor.context.agent.id||principal.consent!==actor.context.consent)return c.json({error:'Run not found'},404);}
  if(row.state!=='queued'||row.expires<=Date.now())return c.json({error:'Run already claimed or expired'},409);
  const [result]=await ownerWrites(c,[s(c.env.DB,"UPDATE reproducer_runs SET state='claimed',claimed=? WHERE project=? AND id=? AND state='queued' AND expires>?",Date.now(),project,id,Date.now()),audit(c.env.DB,project,'reproducer_run_queued',{reproducer:row.reproducer,run:id},Date.now())]);
  if(!result.meta.changes)return c.json({error:'Run already claimed'},409);

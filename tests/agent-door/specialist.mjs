@@ -14,6 +14,7 @@ export async function specialistFlow(app,github,screens){
  for(const eventId of ['cart-1','cart-2'])issue=(await app.json('/api/ingest/'+project,'POST',{version:1,eventId,release:'1.0.0',build:'web-1',environment:'production',type:fixture.type,message:fixture.message,frames:fixture.frames,breadcrumbs:[]},{Authorization:`Bearer ${created.ingestKey}`})).issue;
  const recipe=done(await app.call('spool.reproducers.create',{project,event:'cart-1',input:[{}],idempotency_key:randomUUID()}));assert.equal(recipe.support,'supported');
  const queued=done(await app.call('spool.reproducers.run',{project,id:recipe.id,idempotency_key:randomUUID()}));
+ const foreignClaim=await app.call('spool.reproducers.claim',{project,id:queued.run,idempotency_key:randomUUID()},{act:{sub:'another-agent',name:'Other triage',specialist:'triage engineer'}});assert.equal(foreignClaim._meta['com.runeditrun/error'].code,'not_found','A different agent cannot claim another agent’s queued run');
  await app.adopt(autonomousPolicy(),{paused:true});
  const paused=await app.request(new URL(queued.url).pathname,'GET',undefined,{Authorization:`Bearer ${queued.token}`});assert.equal(paused.status,403);assert.equal((await paused.json()).code,'agents_paused');
  assert.equal((await app.json(path+'/reproducers?issue='+issue)).reproducers.find(r=>r.id===recipe.id).runs[0].state,'queued');
@@ -24,6 +25,7 @@ export async function specialistFlow(app,github,screens){
  const fix=done(await app.call('spool.fixes.create',{project,reproducer:recipe.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',idempotency_key:randomUUID()}));
  const grant=await app.json(path+'/fixes/'+fix.id+'/approve','POST',{revision:fix.revision});assert.equal(grant.approvedBy[0].name,'Dana Engineer');assert.equal(github.requests.length,0,'Native consent for an agent-prepared workflow does not dispatch it');
  const advance={project,id:fix.id,idempotency_key:randomUUID()};
+ const foreignConsent=await app.call('spool.fixes.advance',advance,{consent:'another-consent'},grant.proofReference);assert.equal(foreignConsent._meta['com.runeditrun/error'].code,'native_proof_required','Native repository consent remains bound to the saved agent consent');
  await app.adopt({schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'all',class:'*',do:'autonomous'},{id:'external',class:'external',do:'blocked'}],spend:{none:true}});
  const blocked=await app.call('spool.fixes.advance',advance,{},grant.proofReference);assert.equal(blocked._meta['com.runeditrun/error'].code,'policy_blocked');assert.equal(github.requests.length,0);
  await screens?.capture('agents-provider-blocked','/agents','policy_blocked');

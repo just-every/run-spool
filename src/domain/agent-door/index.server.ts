@@ -30,9 +30,9 @@ export function spoolAgentDoor(env:Bindings,name='Spool') {
    if(kind!=='repository_grant'||tool!=='spool.fixes.advance')return false;
    const row=await env.DB.prepare(`SELECT a.reference FROM spool_native_approvals a JOIN fix_workflows f ON f.id=a.id AND f.project=a.project JOIN spool_agent_custody c ON c.id=f.id AND c.kind='fix'
     WHERE a.kind='fix' AND a.reference=? AND f.id=? AND f.project=? AND f.approved IS NOT NULL AND f.expires>?
-    AND json_extract(c.principal,'$.person.id')=? AND json_extract(c.principal,'$.agent.id')=?
+    AND json_extract(c.principal,'$.person.id')=? AND json_extract(c.principal,'$.agent.id')=? AND json_extract(c.principal,'$.consent') IS ?
     AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=a.person AND o.status='active' AND (o.role='owner' OR EXISTS(SELECT 1 FROM spool_members m WHERE m.operator_id=o.id AND m.role='admin' AND m.state='active')))`)
-    .bind(reference,args.id,args.project,Date.now(),principal.person.id,principal.agent.id).first();return !!row;
+    .bind(reference,args.id,args.project,Date.now(),principal.person.id,principal.agent.id,principal.consent??null).first();return !!row;
   }},
   tools:spoolTools(env),resources:spoolResources(env),notTools:notTools as AgentDoorOptions['notTools'],
   localCredentials:request=>localAgent(request,env),

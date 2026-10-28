@@ -71,6 +71,8 @@ erasureReceiptRoutes.get('/:id', async c => {
 // Explicit owner-only continuation: GET remains a side-effect-free status read.
 erasureReceiptRoutes.post('/:id/resume', async c => {
  try {
+  const actor=agentAuthority(c.req.raw),saved=await c.env.DB.prepare('SELECT principal FROM spool_erasure_agents WHERE operation=?').bind(c.req.param('id')).first<{principal:string}>();
+  if(actor&&saved){const principal=JSON.parse(saved.principal);if(principal.person.id!==actor.context.person.id||principal.agent.id!==actor.context.agent.id||principal.consent!==actor.context.consent)return c.json({error:'Erasure not found'},404);}
   const receipt = await resumeProjectErasure(agentAuthority(c.req.raw)?ownerDatabase(c.env.DB,agentAuthority(c.req.raw)!):c.env.DB, c.req.param('id'));
   c.header('Cache-Control', 'no-store');
   return c.json(receiptView(receipt), receipt.phase === 'complete' ? 200 : 202);
