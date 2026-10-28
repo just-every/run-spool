@@ -146,9 +146,9 @@ try {
   }
   return uploadId;
  }
- async function untilState(step,state) {
+ async function untilState(step,state,maxBatches=20) {
   let result;
-  for(let batch=0;batch<100;batch++) {
+  for(let batch=0;batch<maxBatches;batch++) {
    result=await step();
    assert.ok(result.job,`${state} journey returns its real import job`);
    if(result.job.state===state)return result;
@@ -434,7 +434,7 @@ try {
  };
  const reviewed=plan=>({fingerprint:plan.fingerprint,approvalRecordId:randomUUID(),approvedAt:new Date().toISOString()});
  const applyPlan=(plan,review)=>untilState(()=>doorJson('apply',catchupNamespace,
-  {planId:plan.planId,reviewedFingerprint:plan.fingerprint},review),'completed');
+  {planId:plan.planId,reviewedFingerprint:plan.fingerprint},review),'completed',100);
  const reconcilePlan=async(plan,byKind)=>{
   const report=await doorJson('reconcile',catchupNamespace,{planId:plan.planId});
   assert.equal(report.ok,true);
@@ -513,10 +513,10 @@ try {
  const oldFirst=await json(await doorRequest('undo',catchupNamespace,{planId:basePlan.planId}),409);
  assert.equal(oldFirst.error,'import_superseded');
  assert.deepEqual(await nativeSnapshot(),secondLayer,'old-first undo cannot remove a newer layer');
- await untilState(()=>doorJson('undo',catchupNamespace,{planId:catchupPlan.planId}),'undone');
+ await untilState(()=>doorJson('undo',catchupNamespace,{planId:catchupPlan.planId}),'undone',100);
  assert.deepEqual(await nativeSnapshot(),firstLayer,'newest undo restores the exact first imported graph and provenance');
  await reconcilePlan(basePlan,baseKinds);
- await untilState(()=>doorJson('undo',catchupNamespace,{planId:basePlan.planId}),'undone');
+ await untilState(()=>doorJson('undo',catchupNamespace,{planId:basePlan.planId}),'undone',100);
  assert.deepEqual(await nativeSnapshot(),beforeCatchup,'oldest undo restores the pre-import populated installation');
 
  // A human triage edit must remain authoritative over a later vendor change.
