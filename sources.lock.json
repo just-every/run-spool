@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "958c6f20d55ee590b0f23b64b779be6b32b782cef1fdd9e7f79be468390352d0",
+      "sha256": "75793ac15ce3241e7bd5fa3561e8e77b5b0d2440f2954f0e16c417028232dfe5",
       "executable": false
     },
     "DEMO.md": {
@@ -4769,7 +4769,7 @@
       "executable": false
     },
     "src/domain/alerts/preview.ts": {
-      "sha256": "2f0cf070a9fa04eeddb445d8edec8d7ca463c8020aa6db73f86f1f0c37c8163d",
+      "sha256": "4a16ead11ca6c4153fabbd57db20d0d451315e5f0cfb1011f5d003456e1cc644",
       "executable": false
     },
     "src/domain/alerts/provider-events.server.ts": {
@@ -8432,6 +8432,10 @@
       "sha256": "718ddeb1cb2201ce889ed91b9f217214f4c7edeabbc88a38b6cde997ca54c8b4",
       "executable": false
     },
+    "tests/alerts/conditions.mjs": {
+      "sha256": "dfcb205e6fefe0b232a6c93749e451a17a7742350b8b1078016f1e4e75c61540",
+      "executable": false
+    },
     "tests/alerts/delivery-flow.mjs": {
       "sha256": "f0b4e93d80a3c6ad17057f9e7d1e2c3fe57c5e5f1c729121bf4c00a64b2544a0",
       "executable": false
@@ -8448,8 +8452,16 @@
       "sha256": "ffc0e532f7756b72f5d5b72e4799dc94499dbe63268ee2f3d917d350289325d1",
       "executable": false
     },
+    "tests/alerts/preview-rule.mjs": {
+      "sha256": "d3e4cfc9105c18b9abb7177707080b6d4a6ec934bf0b3a35485d25e6b939357d",
+      "executable": false
+    },
     "tests/alerts/receiver.mjs": {
       "sha256": "ec50bcae5e4c1d6d7b120ae9fdb4b1e48c8f459250fe42f4ba1e7ce0a6f9a0ef",
+      "executable": false
+    },
+    "tests/alerts/rules-ui.mjs": {
+      "sha256": "ca26cfaebc8808dc225a2d5032b154f4e13efcc5e942ef17e83d35bbe790a445",
       "executable": false
     },
     "tests/alerts/runtime.mjs": {
@@ -8717,7 +8729,7 @@
       "executable": false
     },
     "tests/owner-erasure-inflight.mjs": {
-      "sha256": "5b0a9558adf5dc80b2eb2b73be974b1f1a0910c12d04816639d0af59b70ae75b",
+      "sha256": "826bb92cb0326099e088f2031a6aa17cec1d91b81c5c0c58def0ae8a51cbd35f",
       "executable": false
     },
     "tests/owner-erasure-resume.mjs": {

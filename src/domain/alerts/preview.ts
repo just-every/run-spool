@@ -19,9 +19,9 @@ export async function previewRule(env:AlertEnvironment,session:OwnerSession,proj
  }
  if(config.metric==='session_percent'&&!await s(env.DB,'SELECT 1 FROM health_sessions WHERE project=? UNION ALL SELECT 1 FROM health_aggregates WHERE project=? LIMIT 1',project,project).first())refusal='Session condition unavailable: project has no session data';
  const decisions=[];
- if(b.kinds.includes('spike'))for(const row of rows)decisions.push(await decision(env.DB,project,config,row.issue,row.start,row.start+b.windowMs,b.threshold));
+ if(!refusal&&b.kinds.includes('spike'))for(const row of rows)decisions.push(await decision(env.DB,project,config,row.issue,row.start,row.start+b.windowMs,b.threshold));
  const transitions=decisions.filter(d=>d.fired);
- if(JSON.parse(b.kinds).some((k:string)=>k!=='spike')){
+ if(!refusal&&JSON.parse(b.kinds).some((k:string)=>k!=='spike')){
   const facts=(await s(env.DB,`SELECT a.issue,a.kind,e.received,e.payload FROM alerts a JOIN events e ON e.project=a.project AND e.id=json_extract(a.payload,'$.trigger.event') AND e.occurrence=json_extract(a.payload,'$.trigger.occurrence') WHERE a.project=? AND a.kind IN (SELECT value FROM json_each(?)) AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql} GROUP BY a.id ORDER BY a.created DESC LIMIT 100`,project,b.kinds,from,end,...f.args).all<any>()).results;
   for(const fact of facts)transitions.push({start:Math.floor(fact.received/b.windowMs)*b.windowMs,end:Math.floor(fact.received/b.windowMs)*b.windowMs+b.windowMs,issue:fact.issue,count:1,reason:fact.kind,fired:true} as any);
  }

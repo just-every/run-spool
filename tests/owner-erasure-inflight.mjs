@@ -36,8 +36,8 @@ export async function delayedOwnerWrites() {
   await app.json('/api/projects/inflight-owner/browser-origins',{origin:'https://app.test'},201);
   const alertRule={name:'Owner mail',enabled:true,channel:'mail',destination:'owner-mail',kinds:['new_issue'],windowMs:60000,threshold:2};
   const tested=await app.json('/api/projects/inflight-owner/alerting/destinations/owner-mail/test',{});await app.json('/api/projects/inflight-owner/alerting/destinations/owner-mail/review',{testId:tested.id});
-  const preview=await app.json('/api/projects/inflight-owner/alerting/rules/preview',alertRule);
-  const rule=await app.json('/api/projects/inflight-owner/alerting/rules',{...alertRule,previewToken:preview.token},201);
+  const rulePreview=await app.json('/api/projects/inflight-owner/alerting/rules/preview',alertRule);
+  const rule=await app.json('/api/projects/inflight-owner/alerting/rules',{...alertRule,previewToken:rulePreview.token},201);
   const now=Date.now();
   await app.DB.batch([
    app.DB.prepare("INSERT INTO alerts(id,project,issue,kind,created) VALUES('inflight-alert','inflight-owner',?,'new_issue',?)").bind(issue.id,now),

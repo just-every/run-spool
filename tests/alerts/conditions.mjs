@@ -21,7 +21,7 @@ export async function conditionsJourney(app,fixture){
  assert.equal(noReenable.status,400,'a raw re-enable PUT without a preview token is refused');await noReenable.body.cancel();
  assert.deepEqual(await app.json(base+'/rules'),disabledRows,'a missing-token re-enable leaves rules unchanged');
  const userRule=rule('mail',{kinds:['spike'],threshold:3,config:config('users',{environment:'rules'})});
- let preview=await app.json(base+'/rules/preview','POST',userRule);assert.match(preview.refusal,/policy.*drops/i,'identity policy refusal precedes enable');assert.equal(preview.token,null);
+ let preview=await app.json(base+'/rules/preview','POST',userRule);assert.match(preview.refusal,/policy.*drops/i,'identity policy refusal precedes enable');assert.equal(preview.token,null);assert.deepEqual(preview.decisions,[],'an unavailable user condition is refused before measurement');
  const sessionRule=rule('mail',{kinds:['spike'],threshold:30,config:config('session_percent',{environment:'sessions'})});
  preview=await app.json(base+'/rules/preview','POST',sessionRule);assert.match(preview.refusal,/no session data/i,'session data refusal never evaluates zero');
  const identity=await app.json('/api/projects/web/identity-policy'),policy={id:'keep',email:'drop',username:'drop',ip_address:'drop'},ip=await app.json('/api/projects/web/identity-policy/preview','POST',{policy});
