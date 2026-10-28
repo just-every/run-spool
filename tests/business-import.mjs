@@ -65,6 +65,7 @@ export async function checkDoor({request, bytes, name, nativeSnapshot,
   await assertUndone(before, await nativeSnapshot());
 }
 
+export async function businessImportJourney() {
 const port=15525, origin=`http://127.0.0.1:${port}`;
 const issuer='https://business.example', installationId='synthetic-spool-install', kid='business-test';
 // Only the public key enters the Worker. The signing key never leaves this process.
@@ -80,7 +81,7 @@ const worker=await startTestWorker(port,{
 try {
  const cookie=await signIn(origin);
  const ownerRequest=(path,method='GET',body,authenticated=true)=>fetch(origin+path,{
-  method,redirect:'manual',headers:{Origin:origin,...authenticated?{Cookie:cookie}:{},
+  method,redirect:'manual',headers:{Connection:'close',Origin:origin,...authenticated?{Cookie:cookie}:{},
    ...body===undefined?{}:{'Content-Type':'application/json'}},
   ...body===undefined?{}:{body:JSON.stringify(body)},
  });
@@ -365,7 +366,7 @@ try {
   async assertUndone(before,after) { assert.deepEqual(after,before,'undo leaves exactly the pre-import native records'); },
  });
  await conformance((action,body)=>fetch(`${origin}/api/operator/import/${action}`,{method:'POST',
-  headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json','X-Import-Source':namespace},body:JSON.stringify(body)}),variant(2));
+  headers:{Connection:'close',Origin:origin,Cookie:cookie,'Content-Type':'application/json','X-Import-Source':namespace},body:JSON.stringify(body)}),variant(2));
  const operatorHistory=(await ownerJson(settingsPath)).history.filter(row=>/^approved by /.test(row.caption));
  assert.equal(operatorHistory.length,1,'the owner\'s own import shows in history as approved by the owner');
  assert.ok(operatorHistory[0].caption.includes(testOwner));
@@ -385,7 +386,7 @@ try {
  assert.equal(archived.counts.rejected,0);
  assert.deepEqual(await doorJson('archive',namespace,{uploadId:eraseUpload,tool:'sentry',takenAt}),archived,'the same archive request answers the same archive');
  assert.equal((await json(await doorRequest('archive',namespace,{uploadId:eraseUpload,tool:'sentry',takenAt:new Date(Date.now()+1000).toISOString()}),409)).error,'archive_exists');
- assert.equal((await fetch(`${origin}/api/operator/import/archive`,{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json','X-Import-Source':namespace},body:JSON.stringify({uploadId:eraseUpload,tool:'sentry',takenAt})})).status,404,'archives are Business grant actions only');
+ assert.equal((await fetch(`${origin}/api/operator/import/archive`,{method:'POST',headers:{Connection:'close',Origin:origin,Cookie:cookie,'Content-Type':'application/json','X-Import-Source':namespace},body:JSON.stringify({uploadId:eraseUpload,tool:'sentry',takenAt})})).status,404,'archives are Business grant actions only');
  const restoreChecked=await doorJson('restore-check',namespace,{archiveId:archived.archiveId});
  assert.equal(restoreChecked.archiveId,archived.archiveId);
  assert.equal(restoreChecked.bundleSha256,archived.bundleSha256);
@@ -460,7 +461,7 @@ try {
  assert.equal((await doorJson('restore-check',peerNamespace,{archiveId:peerArchive.archiveId})).bundleSha256,peerArchive.bundleSha256);
  const freshArchive=await (await ownerRequest('/api/archive')).text();
  assert.ok(!freshArchive.includes(personal),'private exports retain none of the erased personal data');
- const restore=await fetch(origin+'/api/restore',{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:oldArchive});
+ const restore=await fetch(origin+'/api/restore',{method:'POST',headers:{Connection:'close',Origin:origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:oldArchive});
  const restoreRefusal=await json(restore,400);
  assert.equal(restoreRefusal.error,'erasure_epoch','an old private archive cannot resurrect erased data');
  assert.deepEqual(await nativeSnapshot(),beforeNative);
@@ -625,4 +626,6 @@ try {
  console.log('Business import public HTTP journey passed: owner opt-in, namespace allow-list, checked chunks, no-write review, signed approval, native reconciliation, Base door conformance through the owner and Business mounts, both undo doors, the tool archive and its restore check, project erasure of door custody, the signed cutover read with its refusals, and durable key revocation. Synthetic export only.');
 } finally {
  await worker.stop();
+}
+
 }

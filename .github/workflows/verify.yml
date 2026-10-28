@@ -53,19 +53,22 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  runtimes:
-    # Real Sentry SDK programs, one runtime per job, against Spool's public intake.
-    name: runtime (${{ matrix.runtime }})
+  tests:
+    name: verify (${{ matrix.shard }})
     needs: build
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
+    timeout-minutes: 15
     env:
       RER_SERVERS_DISK_FLOOR_GIB: '4'
+      NODE_DEBUG: '@cloudflare:vite-plugin'
+      CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
     strategy:
       fail-fast: false
       matrix:
-        runtime: [electron, python, go, java, ruby, php, dotnet, rust, elixir, node]
+        shard: [product-tools, sdk, delivery, evidence, project-erasure, identity-import, runtimes-a, runtimes-b]
     steps:
+      # Keep the default checkout root on every runner: emitted configs can
+      # contain absolute paths from the build job's checkout.
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -83,49 +86,33 @@ jobs:
         with:
           name: verify-build
           path: .
-      - if: matrix.runtime == 'python'
+      # Only the browser: the runner image's Chrome already brings its system libraries, and
+      # apt from the image's mirror has run past the 10-minute job limit.
+      - run: pnpm exec playwright install chromium
+        env:
+          DEBUG: pw:install
+      - if: matrix.shard == 'runtimes-a'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - if: matrix.runtime == 'go'
+      - if: matrix.shard == 'runtimes-a'
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
           cache: false
-      - if: matrix.runtime == 'java'
+      - if: matrix.shard == 'runtimes-a'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-      - if: matrix.runtime == 'ruby'
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-      - if: matrix.runtime == 'php'
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: composer
-      - if: matrix.runtime == 'dotnet'
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-      - if: matrix.runtime == 'elixir'
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: '27'
-          elixir-version: '1.18'
-      - if: matrix.runtime == 'rust'
+      - if: matrix.shard == 'runtimes-a'
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ${{ runner.temp }}/cargo-target
           key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
-      # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
-      # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
-      - run: pnpm exec playwright install chromium
-      - if: matrix.runtime == 'electron'
+      - if: matrix.shard == 'runtimes-a'
         name: Install Electron virtual display
         run: |
           # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
@@ -160,118 +147,26 @@ jobs:
           done
           printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
           exit 1
-      - name: Run ${{ matrix.runtime }} SDK journey
-        env:
-          CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
-        run: |
-          if [ "${{ matrix.runtime }}" = electron ]; then
-            xvfb-run -a node tests/sdk-runtimes.mjs electron
-          else
-            node tests/sdk-runtimes.mjs "${{ matrix.runtime }}"
-          fi
-      - uses: actions/upload-artifact@v4
-        if: matrix.runtime == 'electron' && success()
+      - if: matrix.shard == 'runtimes-b'
+        uses: ruby/setup-ruby@v1
         with:
-          name: electron-screens
-          path: .artifacts/runtimes/
-          if-no-files-found: error
-          retention-days: 7
-      - uses: actions/upload-artifact@v4
-        if: failure()
+          ruby-version: '3.3'
+      - if: matrix.shard == 'runtimes-b'
+        uses: shivammathur/setup-php@v2
         with:
-          name: server-output-runtime-${{ matrix.runtime }}
-          path: |
-            .artifacts/worker-output/
-            .artifacts/runtimes/
-          include-hidden-files: true
-          if-no-files-found: ignore
-          retention-days: 7
-
-  tests:
-    name: verify (${{ matrix.shard }})
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    env:
-      # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
-      RER_SERVERS_DISK_FLOOR_GIB: '4'
-      # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
-      # workerd crash) only under this flag; the kept server output below then carries it.
-      NODE_DEBUG: '@cloudflare:vite-plugin'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - shard: runtime
-            command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
-          - shard: owner-ui
-            command: pnpm test:accessibility && pnpm test:admission
-          - shard: alerts
-            command: pnpm test:alerts && pnpm test:alerts-ui
-          - shard: sdk
-            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
-          - shard: sentry-cli
-            command: pnpm test:sentry:cli
-          - shard: tunnel
-            command: pnpm test:tunnel
-          - shard: wizard
-            command: pnpm test:wizard
-          - shard: agent-handoff
-            command: pnpm test:agent-handoff && pnpm test:privacy
-          - shard: repair-recovery
-            command: pnpm test:repair-recovery
-          - shard: execution
-            command: pnpm test:execution
-          - shard: project-erasure
-            command: pnpm test:project-erasure
-          - shard: project-erasure-cap
-            command: pnpm test:project-erasure-cap
-          - shard: owner-erasure
-            command: pnpm test:owner-erasure
-    steps:
-      # Keep the default checkout root on every runner: emitted configs can
-      # contain absolute paths from the build job's checkout.
-      - uses: actions/checkout@v4
+          php-version: '8.3'
+          tools: composer
+      - if: matrix.shard == 'runtimes-b'
+        uses: actions/setup-dotnet@v4
         with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@v4
+          dotnet-version: '8.0.x'
+      - if: matrix.shard == 'runtimes-b'
+        uses: erlef/setup-beam@v1
         with:
-          version: 10.12.4
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
-        with:
-          name: verify-build
-          path: .
-      # Only the browser: the runner image's Chrome already brings its system libraries, and
-      # apt from the image's mirror has run past the 10-minute job limit.
-      - run: pnpm exec playwright install chromium
-        env:
-          DEBUG: pw:install
-      - name: Run suites
-        if: matrix.shard != 'wizard'
-        run: ${{ matrix.command }}
-      - name: Run suites (wizard, 8-minute deadline)
-        if: matrix.shard == 'wizard'
-        env:
-          SUITE_COMMAND: ${{ matrix.command }}
-        run: |
-          # This journey installs and builds real apps. Bound the entire process group,
-          # including stuck npm/pip/build children, before the job cap skips artifacts.
-          if timeout --kill-after=10s 8m bash -e -o pipefail -c "$SUITE_COMMAND"; then
-            exit 0
-          else
-            status=$?
-            if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
-              echo '::error::Wizard suite exceeded its 8-minute deadline (10-second kill grace). See the last [wizard] stage for the stalled operation.'
-            fi
-            exit "$status"
-          fi
+          otp-version: '27'
+          elixir-version: '1.18'
+      - name: Run public-door journeys
+        run: node tests/journeys.mjs ${{ matrix.shard }}
       # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
       # checkout's secrets redacted, for diagnosing a failed run.
       - uses: actions/upload-artifact@v4
@@ -287,7 +182,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Check hosted output and hydration
-        if: matrix.shard == 'owner-ui'
+        if: matrix.shard == 'product-tools'
         # These are the post-verify:app checks from the pinned rer verify.
         # Node 22 detects module syntax; --input-type breaks Miniflare's file-based worker thread.
         run: |

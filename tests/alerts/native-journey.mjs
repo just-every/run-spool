@@ -32,14 +32,14 @@ export async function verifyDelivery(app,kind) {
  const payload=JSON.parse(alert.payload);return {kind,alert:alert.id,issue:payload.issueId,delivery:delivery.id,state:delivery.state,attempt:detail.attempts[0],...(payload.window?{window:payload.window}:{})};
 }
 export async function newIssue(app,fixture) {
- await capture(app,fixture,'native-new');await tick(app);
+ await capture(app,fixture,'native-new');
  return verifyDelivery(app,'new_issue');
 }
 export async function regression(app,fixture) {
  const issue=(await app.json('/api/projects/web/issues'))[0];
  await app.json('/api/projects/web/issues/'+issue.id,'PATCH',{state:'resolved',revision:issue.revision});
  await app.json('/api/projects/web/releases','POST',{name:'r2',build:'b2'});
- await capture(app,fixture,'native-regression',{release:'r2',build:'b2'});await tick(app);
+ await capture(app,fixture,'native-regression',{release:'r2',build:'b2'});
  return verifyDelivery(app,'regression');
 }
 async function waitUntil(time) {

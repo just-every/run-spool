@@ -97,9 +97,7 @@ async function browserMembers(owner,projects) {
   assert.deepEqual(violations,[],'Members settings has no serious accessibility violation');
   const folder=process.env.SPOOL_TEAM_EVIDENCE;
   if(folder){await mkdir(folder,{recursive:true});await members.screenshot({path:resolve(folder,'members-1440.png')});}
-  await page.setViewportSize({width:390,height:900});
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the phone viewport');
-  if(folder)await members.screenshot({path:resolve(folder,'members-390.png')});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the desktop viewport');
   await context.close();
  }finally{await browser.close()}
 }

@@ -1,7 +1,6 @@
+import {privacyJourney} from './privacy-table.mjs';
 import {retentionScheduleFlow} from './retention-schedule-flow.mjs';
 import {retentionFlow} from './retention-flow.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -64,7 +63,7 @@ try{
  await json('/api/projects/a/artifacts','POST',{release:'z-release',build:'build-z',debugId:'unmapped',map:{version:3,sources:['empty.ts'],names:[],mappings:''}});
  const unmapped=await json('/api/ingest/a','POST',event('unmapped',{frames:[{file:'https://app.example/unmapped.js',line:1,column:0,function:'missing',debugId:'unmapped'}]}),auth);gap(await json('/api/projects/a/issues/'+unmapped.issue+'/packet','GET',undefined,agent),/unmapped_position/);
  stage='second-origin';
- // A real app uses its dev-minted ingest key without receiving the owner gate.
+ // A real app uses its scoped ingest key without receiving the owner gate.
  const browserIngest={key:project.ingestKey};
  secondOrigin=await startDispatchApp({endpoint:app.origin,project:'a',ingestKey:browserIngest.key,release:'z-release',build:'build-z',environment:'browser',debugId:'dispatch-map'});
  await json('/api/projects/a/browser-origins','POST',{origin:secondOrigin.origin});for(const [origin,status] of [[secondOrigin.origin,204],['https://unconfigured.example',403]]){const preflight=await request('/api/ingest/a','OPTIONS',undefined,{headers:{Cookie:'',Origin:origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization, content-type'}});assert.equal(preflight.status,status,'native project origin preflight');await preflight.body?.cancel();}browser=await launchBrowser();const throwPage=await browser.newPage();await throwPage.goto(secondOrigin.origin);await throwPage.getByRole('button',{name:'Prepare delivery'}).click();await throwPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');const thrown=await throwPage.evaluate(()=>window.captureOutcome);
@@ -90,7 +89,7 @@ try{
  assert.equal((await request('/api/ingest/a','POST',{...event('bad'),unknown:'not allowed'},auth)).status,400);assert.equal((await request('/api/ingest/a','POST',event('oversized',{message:'x'.repeat(40000)}),auth)).status,400);packet=await json(packetPath);const loss=gap(packet,/windowed_loss/);for(const reason of ['invalid','oversized'])assert.ok(loss.rows.some(row=>row.reason===reason&&row.count>0));assert.match(loss.reason,/before transport is unknown/);
  stage='scheduled-retention';await retentionScheduleFlow();
  stage='caps';const archive=await capArchive(app,admitted.issue);await app.resetRestore(archive.text,archive.invalidText);evidence.cap=await capProof(app,archive);
- evidence.checks=['compatible bounded packet and immutable late-map provenance','real second-origin minified throw original coordinate','exact project grant surface and state-preserving owner mutation refusal','CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial','CLI key inputs, inert formatting, exit codes and redirect refusal','official SDK stdio initialization and every tool, next-call revocation','1440/390 once-shown handoff, axe/reflow/reload','retention, imported history, windowed loss and restored retained-event/byte cap'];
+ evidence.checks=['compatible bounded packet and immutable late-map provenance','real second-origin minified throw original coordinate','exact project grant surface and state-preserving owner mutation refusal','CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial','CLI key inputs, inert formatting, exit codes and redirect refusal','official SDK stdio initialization and every tool, next-call revocation','1440 once-shown handoff, axe/reflow/reload','retention, imported history, windowed loss and restored retained-event/byte cap'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');console.log('Agent handoff public journey passed: '+evidence.checks.length+' groups; '+evidence.captures.length+' masked captures; complete packet '+evidence.cap.bytes+'/'+evidence.cap.cap+' UTF-8 bytes.');
 }catch(error){failure=error;console.error(JSON.stringify({journey:'agent-handoff',stage,type:error.name,message:error.message.includes('HTTP')||error.message.includes('lifecycleMarker')?error.message:'assertion failed',stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,3)}));process.exitCode=1;}finally{
  const cleanup=[['mcp',()=>mcp?.close()],['browser',()=>browser?.close()],['second-origin',()=>secondOrigin?.stop()],...[[redirectServer,'redirect-edge'],[receivingServer,'receiving-edge']].map(([server,name])=>[name,async()=>{if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}}]),['checkout',()=>app?.close()]];
@@ -100,3 +99,5 @@ try{
  if(outcomes.some(result=>result.status==='rejected'))process.exitCode=1;
  if(!failure)await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');
 }
+
+await privacyJourney();
