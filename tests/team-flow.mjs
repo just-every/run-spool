@@ -1,15 +1,12 @@
 import assert from 'node:assert/strict';
-import {expect} from '@playwright/test';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-import {mkdir} from 'node:fs/promises';
-import {launchBrowser} from './browser-launch.mjs';
-import AxeBuilder from '@axe-core/playwright';
 import {heldOwnerRequest} from './owner-erasure-inflight.mjs';
 import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
+import {browserMembers,memberBrowser} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -41,68 +38,6 @@ async function mcpDoor(origin,project,key,issue,allowed) {
  finally {await client.close();await transport.close();}
 }
 
-async function browserMembers(owner,projects) {
- const browser=await launchBrowser();
- try {
-  const context=await browser.newContext({viewport:{width:1440,height:1000}});
-  const split=owner.cookie.indexOf('=');
-  await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
-  const page=await context.newPage();
-  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
-  const members=page.getByRole('region',{name:'Members',exact:true});
-  await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
-  const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
-  await form.getByLabel('Email',{exact:true}).fill('synthetic-spool-6@example.test');
-  await form.getByLabel('Name',{exact:true}).fill('synthetic-spool-6');
-  await form.getByLabel(/^Organization role/).selectOption('read-only');
-  await form.getByLabel(new RegExp('^'+projects[0].name)).selectOption('read-only');
-  const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
-  await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
-  await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
-  // Stored grants contain member/created metadata; writes must send only the input shape.
-  await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
-  const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
-  async function saved(select,value) {
-   const pending=page.waitForResponse(r=>new URL(r.url()).pathname.startsWith(organization+'/members/')&&r.request().method()==='PUT');
-   await select.selectOption(value);const response=await pending;
-   assert.equal(response.status(),200,'the real Members request saves');
-   for(const grant of response.request().postDataJSON().grants)assert.deepEqual(Object.keys(grant).sort(),['project','role']);
-   await expect(select).toHaveValue(value);
-   await expect(select).toBeEnabled();
-  }
-  await saved(role,'member');
-  await saved(secondProject,'maintainer');
-  // A real intervening update makes this dialog stale: no mocked failure door.
-  const data=await owner.json(organization),member=data.members.find(row=>row.email==='synthetic-spool-6@example.test');
-  const grants=data.grants.filter(row=>row.member===member.id).map(({project,role})=>({project,role}));
-  await owner.json(organization+'/members/'+member.id,'PUT',{version:member.version,role:member.role,grants});
-  for(const [select,value,stored] of [[role,'read-only','member'],[secondProject,'read-only','maintainer']]) {
-   const pending=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/members/'+member.id&&r.request().method()==='PUT');
-   await select.selectOption(value);assert.equal((await pending).status(),409,'stale save is refused by server validation');
-   await expect(select).toHaveValue(stored,'a refused save restores the stored selection');
-   await expect(select).toBeEnabled();
-  }
-  await dialog.getByRole('button',{name:'Close details',exact:true}).click();
-  await members.locator('summary').filter({hasText:/^Service accounts$/}).click();
-  const services=members.locator('form').filter({has:page.getByLabel('Service account name',{exact:true})});
-  await services.getByLabel('Service account name',{exact:true}).fill('synthetic-spool-ui-service');
-  await services.getByRole('group',{name:projects[0].name,exact:true}).getByRole('checkbox',{name:'Agent',exact:true}).check();
-  const created=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/services'&&r.request().method()==='POST'&&r.status()===201);
-  await services.getByRole('button',{name:'Create service account',exact:true}).click();await created;
-  await members.getByText('synthetic-spool-ui-service',{exact:true}).waitFor();
-  await members.getByText('Sponsored by Test owner',{exact:true}).waitFor();
-  assert.equal(await members.locator('input,select,button,label,p,summary').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true);
-  const violations=(await new AxeBuilder({page}).include('[aria-label="Members"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact));
-  assert.deepEqual(violations,[],'Members settings has no serious accessibility violation');
-  const folder=process.env.SPOOL_TEAM_EVIDENCE;
-  if(folder){await mkdir(folder,{recursive:true});await members.screenshot({path:resolve(folder,'members-1440.png')});}
-  await page.setViewportSize({width:390,height:900});
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the phone viewport');
-  if(folder)await members.screenshot({path:resolve(folder,'members-390.png')});
-  await context.close();
- }finally{await browser.close()}
-}
 
 async function invite(owner,origin,input) {
  const previousIds=(await legacyMailRows(origin)).map(row=>row.id);
@@ -165,6 +100,8 @@ async function memberDeployment(owner,member,project) {
 }
 
 async function revokedAuthority(owner,removed,remaining,projects,issue) {
+ const browser=await memberBrowser({...removed,origin:owner.origin},projects[1],issue);
+ try {
  const root=projectRoot(projects[1]),keys={};
  for(const kind of ['agent','deploy','ingest'])keys[kind]=await removed.json(root+'/keys','POST',{kind});
  const bearer=kind=>({Cookie:'',Authorization:'Bearer '+keys[kind].key});
@@ -177,6 +114,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
+ const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
  try{const response=await pending.release();assert.equal(response.status,409);assert.deepEqual(response.body,{error:'authority_changed'});}finally{pending.close()}
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
@@ -194,6 +132,10 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  await denied(removed.req(`/api/0/projects/synthetic-spool-1/${projects[1].id}/releases/`,'POST',{version:'synthetic-spool-5'}),'removal denies the CLI management transport');
  await denied(owner.req(`/api${dsn.pathname}/store/?sentry_key=${keys.ingest.key}&sentry_version=7`,'POST',{event_id:'3'.repeat(32),message:'synthetic-spool-2'},{Cookie:''}),'SDK intake rejects the removed member key');
  assert.ok((await remaining.json('/api/projects')).some(row=>row.id===projects[0].id),'another simultaneous contributor remains admitted');
+ assert.deepEqual(await owner.json(root+'/issues'),sealedIssues,'revoked sessions, management and replayed capture requests leave retained issue data unchanged');
+ assert.deepEqual(await owner.json(root+'/releases'),sealedReleases,'revoked deployment and SDK management requests create no release');
+ await browser.removed();
+ }finally{await browser.close()}
 }
 
 async function teamRiders(owner,first,second,reader,projects) {

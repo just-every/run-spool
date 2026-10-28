@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 12 | 51 | 24 | 87 |
+| Core | 13 | 50 | 24 | 87 |
 | Agent surface | 0 | 0 | 18 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 12 | 51 | 42 | 105 |
+| Full target | 13 | 50 | 42 | 105 |
 
-Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639fb0` (23 October 2026). Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -225,7 +225,7 @@ Core · published · **done** · From BASE-DATA-003 · Cites BASE-DATA-003 · Ru
 
 #### TEAM-001 — Organizations, members and project permissions
 
-Core · target · **partial** · Cites BASE-ROLE-001, BASE-ACCESS-004 · Rules D-1, D-4
+Core · target · **done** · Cites BASE-ROLE-001, BASE-ACCESS-004 · Rules D-1, D-4
 
 **Requirement.** A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes keys and linked service authority; service accounts have explicit project scopes. Owner transfer remains available without restricting the organization to one active contributor. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member's project/team scope. Team roles preserve ALERT-004's accountable alternate operator, visible broken-destination and overdue follow-up and nonrecursive deduplication, and carry ALERT-003's team digests and team snooze: buyer-timezone daily/weekly error digests, required snooze expiry, one durable resumption notice, counted/listed suppressed alerts, and loss/backlog visible through maintenance and quiet hours.
 
@@ -234,8 +234,8 @@ Core · target · **partial** · Cites BASE-ROLE-001, BASE-ACCESS-004 · Rules D
 2. Members triage concurrently.
 3. Removal revokes the member's keys and linked service authority.
 
-**Evidence.** `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
-**Gap.** Public-door membership and inherited riders are implemented; promotion remains pending ct's fresh judge. Generated acceptance and counts are synchronized by the existing contract-docs generator and Lander-Regenerate commands.
+**Evidence.** `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
+**Gap.** None.
 
 #### TEAM-002 — Accountable assignment and ownership rules
 
