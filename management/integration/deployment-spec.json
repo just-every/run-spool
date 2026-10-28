@@ -450,6 +450,12 @@
       "name": "0079_team_mail_scope.sql",
       "sha256": "287e81937ba00b5e0f1b963372c28e621de22be94263b2c40fefb3760f705de6",
       "sql": "-- TEAM-001: queued team summaries retain the authority snapshot they disclose.\n-- Pre-snapshot queued work fails closed; historical rows remain investigation data.\nALTER TABLE spool_team_mail ADD COLUMN projects TEXT NOT NULL DEFAULT '[]';\nALTER TABLE spool_team_mail ADD COLUMN member_version INTEGER NOT NULL DEFAULT 0;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0080_transfer_credentials.sql",
+      "sha256": "b69ce41734c82d7325c3682e2f385d76af0d740b60dfa007c82624d30cf97084",
+      "sql": "-- Ordinary team transfers preserve live project keys while the native role\n-- changes still fence sessions. After erasure, permit only this exact binding\n-- advance inside the guarded owner-transfer transaction; all other credential\n-- changes remain revocation-only, apart from the erasure's own guarded batch.\nDROP TRIGGER spool_erased_owner_credential_update;\nCREATE TRIGGER spool_erased_owner_credential_update BEFORE UPDATE ON credentials\nWHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner') AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard)\n AND (NEW.revoked IS NULL OR NEW.hash IS NOT OLD.hash OR NEW.project IS NOT OLD.project OR NEW.kind IS NOT OLD.kind OR NEW.created IS NOT OLD.created\n  OR NEW.minted_by IS NOT OLD.minted_by OR NEW.minted_version IS NOT OLD.minted_version)\n AND NOT (\n  OLD.revoked IS NULL AND NEW.revoked IS OLD.revoked\n  AND NEW.hash IS OLD.hash AND NEW.project IS OLD.project AND NEW.kind IS OLD.kind AND NEW.created IS OLD.created AND NEW.minted_by IS OLD.minted_by\n  AND NEW.minted_version IS OLD.minted_version+1\n  AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=OLD.minted_by AND o.version=OLD.minted_version AND o.status='active')\n  AND EXISTS(SELECT 1 FROM audit_context WHERE action='member.transfer' AND actor_kind='owner' AND committed=0)\n  AND EXISTS(SELECT 1 FROM spool_authority_guards WHERE ok=1)\n )\nBEGIN SELECT RAISE(ABORT,'credential_authority_changed'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

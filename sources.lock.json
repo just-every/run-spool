@@ -3669,7 +3669,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "99f344e14ef11ed2cb9f6d47bd739b5fc8f0de2a87c60f4fab7374d3576fab99",
+      "sha256": "5910d8b32258ec77b88f6517e615aee09aa7d81d3a81d66c276ad9db7b242d4c",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3966,6 +3966,10 @@
     },
     "migrations/core/0079_team_mail_scope.sql": {
       "sha256": "287e81937ba00b5e0f1b963372c28e621de22be94263b2c40fefb3760f705de6",
+      "executable": false
+    },
+    "migrations/core/0080_transfer_credentials.sql": {
+      "sha256": "b69ce41734c82d7325c3682e2f385d76af0d740b60dfa007c82624d30cf97084",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -4813,7 +4817,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "f56686663f3ec3e8961c3b24881a194de109bb886c5f4a9d355b01054a5c388b",
+      "sha256": "957f518e550f04a980e4099dcbb9f434ba88c6693ffcdeb4d9322f6aa41c567d",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -4929,7 +4933,11 @@
       "executable": false
     },
     "src/domain/credential-fence.ts": {
-      "sha256": "01cb54864cb6b4f99dca6b3ae4c68ec41f64bdd997666a8875c290e8f7a3d75a",
+      "sha256": "4d81a7bcb18d7ea2e7c49701483b2a97412241139515753ceee761f8237e5da0",
+      "executable": false
+    },
+    "src/domain/credential-status.ts": {
+      "sha256": "9890ffb2a61a4a40d62004a6958feddf97abc827e1fe491ca1ae99090bebcdd1",
       "executable": false
     },
     "src/domain/denied-response.ts": {
@@ -5281,7 +5289,7 @@
       "executable": false
     },
     "src/domain/members/mutations.ts": {
-      "sha256": "130cbf162a2a8a07c195a306912086100c9f32a61328ce04b2291c9383f436dd",
+      "sha256": "3f8fe9414849d81c975fa7801bbada2e88a8e7b816e74ba570cbcec48a16dfe0",
       "executable": false
     },
     "src/domain/members/notifications.ts": {
@@ -5293,7 +5301,7 @@
       "executable": false
     },
     "src/domain/members/routes.ts": {
-      "sha256": "f2e34cf454739537ba1d2e59d5f160cc6888ad49c9913bbd2907ff9fb21e5b20",
+      "sha256": "892cfe95b83dc79fb6f686265d35ef63de23417f9a9fd53e596d16bad483a3ee",
       "executable": false
     },
     "src/domain/members/services.ts": {
@@ -8053,7 +8061,7 @@
       "executable": false
     },
     "src/ui/workbench/captureStatus.ts": {
-      "sha256": "7a5000c6cb3b87deb6f3c9f1e82a723d0b011dac8a39152518db1e2d062a2238",
+      "sha256": "89f6c1693bd80d62312c3e6a4d570c626de35509f110dda25e84e5d23aa3334c",
       "executable": false
     },
     "src/ui/workbench/CaptureView.tsx": {
@@ -8181,7 +8189,7 @@
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
-      "sha256": "15c056482ec2799a4bffcfbbb74fc36afe734bdfacf0d0ab3a1445bf9f9af3e8",
+      "sha256": "02dae4b0a10b84c589a431de6bc973db5720b1d3fbea67688ca01ea9930dec30",
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
@@ -8281,7 +8289,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "112c85c0e3c79f752d2209c13db578cadc2f39725aab57603f0ab4c2d6d23dcd",
+      "sha256": "aba684eafd99e69f4f1e602f9c6b72e16457de030076140ab33cf1c5fea7986a",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -9112,8 +9120,16 @@
       "sha256": "7d40e73c9dbf152605c52c40b33ed60579fd1f3790d970a3a5bd66a1474fd12f",
       "executable": false
     },
+    "tests/team-access-ui.mjs": {
+      "sha256": "8b4fc47a80d3ba9e32ad675b58be513f668eb819d44e2ca44bfd09e2fe432e19",
+      "executable": false
+    },
     "tests/team-flow.mjs": {
-      "sha256": "92a29da696e5cb32cc60e03c6c925d395655dadbe57b2c03780eb637bdbd033b",
+      "sha256": "67a4e9c921545409bd5ed20b4b82c34c3c4a716388a64fb2d24b79cdc92933b0",
+      "executable": false
+    },
+    "tests/team-transfer-capture.mjs": {
+      "sha256": "497131aa7851a6ab90e11c76e0950dacd6573c8911adc449d299b9af472b2c69",
       "executable": false
     },
     "tests/triage-app.mjs": {
