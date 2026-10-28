@@ -1,7 +1,7 @@
 import { defineErasure } from '../../modules/erasure/index.mjs';
 import { erasureCompletionFact } from './audit-fact';
 
-// BASE-DATA-003 project erasure. The selected project and every row that
+// ERASE-001 (Base BASE-DATA-003) project erasure. The selected project and every row that
 // depends on it are deleted through Base erasure, so each deleted row also gets
 // its portability tombstone. Only an imported project has Sentry-import
 // targets, and its erasure commits in one import-kit batch, so targets and the

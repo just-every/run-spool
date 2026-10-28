@@ -1,5 +1,17 @@
 # Changelog
 
+## 28 October 2026 — contract cleanup to the RER contract standard
+
+CONTRACT.md was rewritten to the RER contract standard from main `9654729a3be89c2516c755c4a595e8dc4590aeb4`. Nothing was cut and no status was promoted; `docs/contract/COVERAGE.json` places every old sentence and `docs/contract/ID-MAP.json` maps every old id. `docs/contract/DONE-AUDIT.md` proves every point of every clause that was done.
+
+- One-capability parts were split out: SDK-026 (user search, facets and identity visibility) and SDK-027 (end-user erasure) from SDK-008, SDK-028 (the release ordering rule) from SDK-009, FIND-003 (trends, dashboards and team reports) from FIND-002, and BILL-002 (published USD plans, checkout and invoices) from BILL-001.
+- Spool's own erasure clause carried the id of Base's BASE-DATA-003 duty; it is now ERASE-001, which cites the duty it extends, and seed.json, tests, source comments and docs name the new id.
+- Repeated acceptance conventions became door rules D-1 to D-6; real-world-only proof became Field proof register rows R-1 to R-20; restated Base duties were removed and cited, and the Shared duties table names each duty's delta clauses.
+- Rulings moved to RULINGS.md (RL-1 and RL-2 from the contract; ct's RL-101 moved in verbatim); builder defaults awaiting ct moved to `docs/contract/adopted-defaults.md`; mechanism moved to the "Moved from CONTRACT.md" sections of docs/ALERT-DELIVERY.md, docs/OPERATOR-CORRECTIONS.md, docs/OWNER-ERASURE.md, docs/PROJECT-ERASURE.md, docs/SENTRY-RELEASES.md and docs/SHORT-IDS.md; the hand-written ACCEPTANCE.md is kept as `docs/contract/acceptance-before-cleanup.md`; docs/CLAIMS.md is generated from the Homepage claims table.
+- The Agent surface was written: the triage engineer specialist, its class computation, tool table and SURFACE-001 to SURFACE-005.
+- The carried-done audit demoted ERR-001, ERR-005, ERR-006, ERR-007, ERR-009, OPS-001, SDK-009, SDK-010, SDK-012, GROUP-001, REL-001 and AUDIT-001 to partial, and SDK-028 starts partial; each Gap names the outcome no cited test asserts and says what is asserted.
+- Approval wording in agent, AI and alert clauses now names the company's policy or the held policy, so no step an agent takes waits for a person by default.
+
 ## 0.7.3 — 2026-10-27
 
 Every evidence path that Spool's contract cites now ships in an installed copy of Spool, so a Managed install can check its contract without the repository's workflow files. The server-runtime SDK clause cites its test and source files instead of a CI workflow.

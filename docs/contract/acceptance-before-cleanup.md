@@ -1,3 +1,5 @@
+<!-- The hand-written ACCEPTANCE.md as it stood before the 28 October 2026 contract cleanup, kept for history. ACCEPTANCE.md is now generated from CONTRACT.md and is the only acceptance text. -->
+
 # Spool acceptance
 
 Target scope approved 16 October 2026: a US development team can replace Sentry, Datadog Error Tracking, Rollbar or Bugsnag for web/server/mobile capture, team investigation, release health, alerting, migration and verified repair. CONTRACT.md defines the full target; these journeys specify how a build round proves each clause through the shipped product. They do not claim every journey already runs.

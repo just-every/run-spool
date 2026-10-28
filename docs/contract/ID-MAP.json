@@ -135,15 +135,18 @@
       ]
     },
     "SDK-008": {
-      "how": "kept",
+      "how": "split",
       "to": [
-        "SDK-008"
+        "SDK-008",
+        "SDK-026",
+        "SDK-027"
       ]
     },
     "SDK-009": {
-      "how": "kept",
+      "how": "split",
       "to": [
-        "SDK-009"
+        "SDK-009",
+        "SDK-028"
       ]
     },
     "SDK-010": {
@@ -255,9 +258,10 @@
       ]
     },
     "FIND-002": {
-      "how": "kept",
+      "how": "split",
       "to": [
-        "FIND-002"
+        "FIND-002",
+        "FIND-003"
       ]
     },
     "SRC-001": {
@@ -417,9 +421,10 @@
       ]
     },
     "BILL-001": {
-      "how": "kept",
+      "how": "split",
       "to": [
-        "BILL-001"
+        "BILL-001",
+        "BILL-002"
       ]
     },
     "UX-001": {
@@ -441,9 +446,9 @@
       ]
     },
     "BASE-DATA-003": {
-      "how": "kept",
+      "how": "merged",
       "to": [
-        "BASE-DATA-003"
+        "ERASE-001"
       ]
     },
     "INT-001": {

@@ -1,6 +1,6 @@
 # Project erasure
 
-BASE-DATA-003 project erasure is implemented, first at `c279cd2d1fc02acfbc1160201782935e5324ddef` (GitHub Verify run 38215335300). The owner erases one project
+ERASE-001 project erasure, Spool's delta on the Base BASE-DATA-003 duty, is implemented, first at `c279cd2d1fc02acfbc1160201782935e5324ddef` (GitHub Verify run 38215335300). The owner erases one project
 from Settings → **Erase this project**, or through the same owner-only HTTP
 route the panel uses. Manual retention remains a separate flow and never erases
 a project.
@@ -116,3 +116,13 @@ later journal, before any destination occupancy check, so an older archive is
 refused by the erasure fence rather than by `target_not_empty`.
 
 AI-005 grouping proposals and their server-computed review snapshots are project investigation data. The erasure inventory explicitly deletes `grouping_proposals`, including rejected, approved, applied, undone and stale advice. Restored advice remains inert.
+
+## Moved from CONTRACT.md
+
+The contract cleanup of 28 October 2026 moved this mechanism here from CONTRACT.md; the clause keeps the requirement.
+
+It runs on Base main's erasure helper (`src/modules/erasure`), declared in `src/domain/erasure/declaration.ts`; one helper line carries a correctness fix not yet on Base (docs/PROJECT-ERASURE.md).
+
+Erasure deletes the project and all project events, issues, releases, repairs, repair checks, reproducers and their runs and run tokens, fix workflows, their step leases and receipts, exposure reports, artifacts, admission counters, alerts, alert destinations, alert rules, cursors, intents and history, mail jobs and attempts, project keys and their dev-minted marks, browser origins and guards, inbound filter and grouping policies, grouping proposals and their server-computed review snapshots, feedback, release metadata/builds/policies and issue-resolution boundaries, Sentry DSN aliases, integration rows in the project's namespace, Sentry-import targets and project-related development outbox content. Every deleted row gets a Base portability tombstone and stored transfer snapshots are invalidated in each batch. A Sentry-imported project's import-kit custody (its source records and plan entries) and every original export artifact that holds the project are withdrawn in the same import-kit batch as the cascade; other projects in such an artifact keep their native rows, but that artifact's bytes become unavailable to them too. Completion is measured today within five minutes at the current 10,000-event admission cap; the target is GOV-003's published retained volume, within 15 minutes for 150,000 retained events and at no less than 10,000 events a minute above that. Manual retention's visible cutoff, occurrence identities, guarded tombstones and deduplication horizon are unchanged. One erasure runs at a time; an erased project's identifier cannot be reused, since its tombstone would refuse every later archive holding the new project.
+
+Retained scope exceptions, each named in the preview and receipt: the installation owner, claim ledgers and authentication state remain because project erasure preserves installation authority; unrelated projects remain because they lie outside the selected project; project audit entries survive with only their kind and time, their project reference replaced by a random label shared only with the receipt, so a database holder cannot join them back; receipts keep counts and times only; portability tombstones are keyed hashes. Owner self-erasure uses the separate workflow below; project erasure alone does not erase its retained owner. Selective owner erasure remains blocked for shared import custody and unsupported or ambiguous attribution.
