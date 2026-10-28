@@ -7,6 +7,7 @@ import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 import { sentryImportCli, sentryDoorClient } from '../scripts/sentry-import.mjs';
+import { readableImport, unknownTimes, refusedImportReads } from './sentry-import/reads.mjs';
 const worker=await startTestWorker(15523),{origin}=worker;
 const scratch=await mkdtemp(join(tmpdir(),'spool-sentry-import-'));
 try{
@@ -17,6 +18,10 @@ try{
   const json=async(path,method,value,headers)=>{const response=await req(path,method,value,headers);assert.ok(response.ok,`${method??'GET'} ${path}: HTTP ${response.status}`);return response.json()};
   // The documented CLI, through the import door, with the session in an environment variable.
   const cli=(...args)=>{process.env.SPOOL_TEST_SESSION=cookie;return sentryImportCli([args[0],'--endpoint',origin,'--session-env','SPOOL_TEST_SESSION',...args.slice(1)])};
+  assert.deepEqual(await json('/api/projects'),[]);
+  const emptyImports=await json('/api/imports/business');
+  assert.equal(emptyImports.routeState.projectRequired,false,'import route state is readable before any project exists');
+  assert.deepEqual(emptyImports.history,[]);
   const native=await json('/api/projects','POST',{id:'native',name:'Untouched native project'}),beforeProjects=await json('/api/projects');
   const fixture=new URL('./fixtures/sentry/organization.json',import.meta.url),bytes=await readFile(fixture);
   const archiveBefore=await archiveProjection(await req('/api/archive'));
@@ -38,6 +43,15 @@ try{
   assert.ok(report.sourceIds.some(row=>row.kind==='dashboards'&&row.status==='explained'&&row.reason),'unsupported collections stay explained, without native effects');
   const projects=await json('/api/projects'),importedProject=projects.find(project=>!beforeProjects.some(before=>before.id===project.id));
   const importedIssue=(await json(`/api/projects/${importedProject.id}/issues`))[0];
+  assert.deepEqual(report.projectIds,[importedProject.id],'reconcile links to native imported projects');
+  const statusFacts=await cli('status','--organization','fixture-org','--plan',planned.planId);
+  readableImport(statusFacts,planned,importedProject.id,statusFacts.reasonLabels);
+  unknownTimes(statusFacts.job,statusFacts.reasonLabels);
+  assert.equal(statusFacts.undo.available,true);
+  const historyFacts=await json('/api/imports/business'),historyRow=historyFacts.history.find(row=>row.planId===planned.planId);
+  readableImport(historyRow,planned,importedProject.id,historyFacts.reasonLabels);
+  assert.equal(historyRow.fingerprint,planned.fingerprint);
+  await refusedImportReads(origin,json,native.id,planned.planId);
   assert.equal((await json(`/api/projects/${importedProject.id}/keys`)).length,0,'imported projects have no credentials');
   assert.equal((await json(`/api/projects/${importedProject.id}/alerts`)).length,0,'historical rows create no alerts');
   const packet=await json(`/api/projects/${importedProject.id}/issues/${importedIssue.id}/packet`);assert.equal(packet.events.length,1);assert.equal(packet.events[0].historical,true);assert.equal(packet.events[0].currentLookup[0].status,'imported_raw_stack');assert.equal(packet.events[0].event.frames[0].column,11);assert.ok(!JSON.stringify(packet).includes('IMPORT_SECRET'));assert.ok(!JSON.stringify(packet).includes('PRIVATE_LABEL'));assert.ok(!JSON.stringify(packet).includes('person@example.com'));
@@ -53,15 +67,48 @@ try{
   // New owner session reopens the durable job; no in-memory journal is needed.
   cookie=await signIn(origin,{bootstrap:false});assert.equal((await cli('status','--organization','fixture-org','--plan',planned.planId)).job.state,'completed');
   assert.equal((await cli('apply',...applyArgs)).job.id,id);
+  const catchupBundle=JSON.parse(bytes);catchupBundle.collections.find(row=>row.kind==='issues').pages[0].response[0].title='Checkout failure after catch-up';
+  const catchupFile=join(scratch,'catchup.json');await writeFile(catchupFile,JSON.stringify(catchupBundle),{mode:0o600});
+  const catchupPlan=await cli('dry-run','--file',catchupFile,'--catchup');
+  assert.equal((await cli('apply','--organization','fixture-org','--plan',catchupPlan.planId,'--fingerprint',catchupPlan.fingerprint)).job.state,'completed');
+  const olderFacts=await cli('status','--organization','fixture-org','--plan',planned.planId);
+  assert.equal(olderFacts.undo.available,false);
+  assert.ok(olderFacts.undo.blockers.some(row=>row.reasonCode==='import_superseded'&&row.label),'an older import names the records held by its successor');
+  const catchupHistory=await json('/api/imports/business');
+  readableImport(catchupHistory.history.find(row=>row.planId===catchupPlan.planId),catchupPlan,importedProject.id,catchupHistory.reasonLabels);
+  assert.equal((await cli('undo','--organization','fixture-org','--plan',catchupPlan.planId)).job.state,'undone');
   const undone=await cli('undo','--organization','fixture-org','--plan',planned.planId);
   assert.equal(undone.job.state,'undone');assert.deepEqual(await json('/api/projects'),beforeProjects,'undo removes only imported graph');
+  unknownTimes(undone.job,undone.reasonLabels);
+  const undoneFacts=await cli('status','--organization','fixture-org','--plan',planned.planId);
+  assert.deepEqual(undoneFacts.projectIds,[]);assert.equal(undoneFacts.undo.available,false);
   // A fresh bundle of the same organization: legal trailing whitespace changes its bytes, not its records.
   const second=join(scratch,'organization.json');await writeFile(second,Buffer.concat([bytes,Buffer.from('\n')]),{mode:0o600});
   const secondPlan=await cli('dry-run','--file',second);assert.notEqual(secondPlan.planId,planned.planId);
   await cli('apply','--organization','fixture-org','--plan',secondPlan.planId,'--fingerprint',secondPlan.fingerprint);
   const current=(await json(`/api/projects/${importedProject.id}/issues`))[0];await json(`/api/projects/${importedProject.id}/issues/${current.id}`,'PATCH',{state:'acknowledged',revision:current.revision});
+  const editedFacts=await cli('status','--organization','fixture-org','--plan',secondPlan.planId);
+  assert.equal(editedFacts.undo.available,false);
+  assert.ok(editedFacts.undo.blockers.some(row=>row.kind==='issues'&&row.label===current.title&&editedFacts.reasonLabels[row.reasonCode]),'undo preview identifies the edited issue with a readable reason');
+  // A changed source over a native edit and an invalid added issue remain
+  // no-write review rows, with safe labels and codes from the shared table.
+  const refusedBundle=JSON.parse(bytes);
+  const issueRows=refusedBundle.collections.find(row=>row.kind==='issues').pages[0].response;
+  issueRows[0].title='Checkout failure revised';
+  issueRows.push({...issueRows[0],id:'502',title:'Payment request failed',status:'unsupported'});
+  issueRows.push({...issueRows[0],id:'503',title:''});
+  const refusedFile=join(scratch,'rejected.json');await writeFile(refusedFile,JSON.stringify(refusedBundle),{mode:0o600});
+  const refusedPlan=await cli('dry-run','--file',refusedFile,'--catchup');
+  assert.equal(refusedPlan.rejected.length,3);
+  assert.equal(new Set(refusedPlan.rejected.map(row=>row.reasonCode)).size,3,'different refusal causes have distinct stable codes');
+  for(const row of refusedPlan.rejected){assert.ok(refusedPlan.reasonLabels[row.reasonCode]);if(row.label===null)assert.ok(refusedPlan.reasonLabels[row.labelReasonCode]);else assert.ok(!row.label.includes(row.sourceId));}
+  assert.equal(refusedPlan.rejected.find(row=>row.label===issueRows[0].title).reasonCode,editedFacts.undo.blockers[0].reasonCode,'review and undo use the same native-edit code');
+  assert.ok(!JSON.stringify(refusedPlan).includes('IMPORT_SECRET'));
+  assert.equal((await cli('undo','--organization','fixture-org','--plan',refusedPlan.planId)).state,'cancelled');
   await assert.rejects(cli('undo','--organization','fixture-org','--plan',secondPlan.planId),error=>/HTTP 409/.test(error.message),'guarded undo refuses to overwrite a native edit');
   assert.equal((await json(`/api/projects/${importedProject.id}/issues`))[0].state,'acknowledged','guarded undo preserves native edit');
+  const stoppedFacts=await cli('status','--organization','fixture-org','--plan',secondPlan.planId);
+  assert.equal(stoppedFacts.job.state,'undoing');assert.equal(stoppedFacts.undo.available,false);
   // TEAM-004: imported history has a short ID; a commit citing it is logged inaccessible and changes nothing.
   const imported=(await json(`/api/projects/${importedProject.id}/issues`))[0];assert.match(imported.short_id,/^[A-Z0-9-]+-1$/);
   await json(`/api/projects/${importedProject.id}/releases`,'POST',{name:'native-cite',build:'b1',commits:[{sha:'e'.repeat(40),message:`Fixes ${imported.short_id.toLowerCase()}`,author:{name:'Importer',email:'importer@example.test'}}]});
@@ -71,6 +118,7 @@ try{
   await req('/auth/signout','POST',{});
   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
   assert.equal((await req('/api/operator/import/undo','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
+  console.log('Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.');
   await worker.stop();
   const restored=await startTestWorker(15524);
   try{
