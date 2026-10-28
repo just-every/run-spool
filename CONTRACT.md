@@ -1144,16 +1144,16 @@ The primary journey: a US development team points its existing error capture at 
 Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every call; this section presets none.
 
 **How Spool computes each class.**
-- *standard*: reads of issues, events, packets, outcomes, releases, reports and the audit; triage, assignment, comments, priority, saved views, grouping proposals, grouping corrections and rules (each undone by undo or a rule-version rollback), alert rules and snoozes, release, deployment, repair and suspect records, tracker tickets in the business's own tracker, reproductions in the isolated runner, a draft fix in a private repository, member notification settings, a legal hold or a longer retention window, and exports to the person asking. Facts are the item count.
-- *external*: anything that reaches or exposes data to someone outside the business: a reply to an end user's feedback, an alert or resend to a destination outside the business's own workspaces and domains, a draft fix, comment or tracker ticket in a public repository, a tracker ticket exposed to anyone outside the business, and evidence sent to an outside model provider. Facts are the recipient count and the counterparty: *known* for a reporter, destination, repository or provider already on record, *new* otherwise, *public* for a public repository.
-- *money*: a budget, cap, plan or overage change and a raised artifact storage cap. Facts are the USD amount and the payee.
+- *standard*: reads of issues, events, packets, outcomes, releases, reports and the audit; triage, assignment, comments, priority, saved views, grouping proposals, grouping corrections and rules (each undone by undo or a rule-version rollback), alert rules and snoozes, release, deployment, repair and suspect records, tracker tickets in the business's own tracker, reproductions in the isolated runner, a draft fix in a private repository, member notification settings, a legal hold or a longer retention window, code mappings, and exports to the person asking. A reversible internal action keeps standard when another class is added. Facts are the item count.
+- *external*: anything that reaches or exposes data to someone outside the business: a reply to an end user's feedback, an alert or resend to a destination outside the business's own workspaces and domains, a draft fix, merge, comment or tracker ticket in a public repository, a tracker ticket exposed outside the business, trace context forwarded to an outside provider, source-fetch requests to an outside origin and evidence sent to an outside model provider. Facts are the recipient count and the counterparty: *known* for a reporter, destination, repository, provider or origin already on record, *new* otherwise, *public* for a public repository.
+- *money*: a budget, cap, plan or overage change, a raised artifact storage cap and a paid longer retention window. Facts are the USD amount and the payee.
 - *commitment*: accepting the billing partner's terms. Facts are the document and the counterparty.
 - *accounts*: installing a provider application (a GitHub App, a GitLab application, a Slack, Teams or PagerDuty app, a Vercel or Netlify integration) at an outside service. Facts are the provider.
 - *gated*: a provider's consent screen in a person's own account, and card entry at the billing partner's hosted checkout. Facts are the provider and the step.
-- *access*: organization members, teams, roles, project keys, agent grants and identity-access roles. Facts are the people and whether the change widens or narrows.
-- *security*: server-side scrubbing rules, the identity policy, allowed domains, sign-in, SSO, SCIM and MFA settings, replay masking, and provider credential connection, rotation and revocation. Facts are the setting.
-- *destructive*: project, end-user and owner erasure, irreversible conversion of retained identity from keep to hash or drop or from hash to drop, a shortened event or replay retention window and the cutoff it runs, and a removed alert destination. Facts are the item count.
-- *live*: inbound filters, project item limits, DSN key rate limits, event or replay sampling, spike protection, loader settings, check-in routes, detector thresholds, a release ordering rule that changes intake or regression, promoting an evaluated agent-runtime candidate and merging a fix into the branch the buyer deploys from. Facts are the project and the setting.
+- *access*: organization members, teams, roles, project keys, agent grants, identity-access roles and the verified successor handoff during owner erasure. Facts are the people and whether the change widens or narrows.
+- *security*: server-side scrubbing rules, the identity policy, allowed domains, sign-in, SSO, SCIM and MFA settings, replay consent and masking, source-fetch secret headers, project credentials, and provider credential connection, rotation and revocation. Facts are the setting.
+- *destructive*: project, end-user and owner erasure, irreversible conversion of retained identity from keep to hash or drop or from hash to drop, a shortened event or replay retention window and the cutoff it runs, a removed alert destination and replay references irreversibly removed on disconnect. Facts are the item count.
+- *live*: inbound filters, project item limits, DSN key rate limits, event or replay sampling, spike protection, billing budgets or caps that change intake, loader settings, check-in routes, detector thresholds, a release ordering rule that changes intake or regression, promoting an evaluated agent-runtime candidate and merging a fix into the branch the buyer deploys from, including an authorized resend of that merge. Facts are the project and the setting.
 - Spool stores no health, ID, bank, card or payroll numbers, because SDK-003 and ERR-003 scrub them before storage, so it declares no sensitive class.
 
 | Tool | Does | Core clauses | Risk class | Today |
@@ -1170,7 +1170,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `spool.repairs.verify` | Watch a released repair's live rates | AI-004 | standard | none |
 | `spool.reproduce.run` | Build and run a minimal reproduction in the isolated runner | AI-002 | standard | none |
 | `spool.fixes.prepare` | Prepare a fix with its regression case and open a draft pull request | AI-003, AI-006 | standard or external | none |
-| `spool.fixes.merge` | Merge a prepared fix | AI-003 | live | none |
+| `spool.fixes.merge` | Merge a prepared fix | AI-003 | live (+ external) | none |
 | `spool.runs.diagnose` | Cluster failed agent runs, compare evaluation cases and promote a candidate | AI-007 | standard (+ external) (+ live) | none |
 | `spool.feedback.handle` | Triage end-user feedback and reply to the reporter | SDK-004 | standard or external | none |
 | `spool.filters.update` | Inbound filters and allowed domains | SDK-006 | live (+ security) | none |
@@ -1179,26 +1179,26 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 | `spool.limits.update` | Project item limits, DSN key rate limits, sampling and spike protection | SDK-011, BILL-001 | live | none |
 | `spool.loader.update` | Loader script settings for a DSN key | SDK-023 | live | none |
 | `spool.checkins.route` | Connect a check-in monitor to an Uptime heartbeat | SDK-024 | live | none |
-| `spool.erasure.run` | Erase a project or an end user's identity | ERASE-001, SDK-027 | destructive | none |
+| `spool.erasure.run` | Erase a project, an end user's identity or the owner's personal data | ERASE-001, SDK-027 | destructive (+ access) | none |
 | `spool.alerts.rules` | Alert rules, metric alerts, digests and snoozes | ALERT-001, ALERT-003 | standard | none |
 | `spool.alerts.destinations` | Add, test and remove alert destinations | ALERT-002, ALERT-003 | standard or external (+ destructive) | none |
 | `spool.alerts.connect` | Connect, rotate and revoke chat and paging apps | ALERT-002, ALERT-005 | security (+ accounts) (+ gated) | none |
-| `spool.followups.resolve` | Reconcile or resend an uncertain effect | ALERT-004 | standard (+ external) | none |
+| `spool.followups.resolve` | Reconcile or resend an uncertain effect | ALERT-004 | standard (+ external) (+ live) | none |
 | `spool.notifications.update` | Member notification settings and issue subscriptions | TEAM-005 | standard | none |
 | `spool.tracker.sync` | Create, link and sync tracker tickets | TRACK-001 | standard or external | none |
-| `spool.repos.connect` | Connect repositories and edit code mappings | SRC-002 | security · accounts (+ gated) | none |
-| `spool.artifacts.manage` | Inspect build artifacts, set the storage cap and source fetching | SRC-001, SRC-004 | standard (+ money) | none |
-| `spool.context.connect` | Connect trace forwarding and replay providers | CTX-001, CTX-003 | security (+ gated) | none |
+| `spool.repos.connect` | Connect repositories, edit code mappings and post suspect comments | SRC-002 | standard or security (+ accounts) (+ gated) (+ external) | none |
+| `spool.artifacts.manage` | Inspect build artifacts, set the storage cap and source fetching | SRC-001, SRC-004 | standard (+ money) (+ security) (+ external) | none |
+| `spool.context.connect` | Connect trace forwarding and replay providers | CTX-001, CTX-003 | security (+ gated) (+ external) (+ destructive) | none |
 | `spool.replay.settings` | Replay consent, sampling, masking and retention | CTX-002 | security (+ live) (+ destructive) | none |
 | `spool.detectors.update` | Performance-issue detector thresholds | CTX-004 | live | none |
 | `spool.reports.build` | Dashboards, widgets, saved queries and report exports | FIND-003 | standard | none |
 | `spool.records.export` | Export records, attachments and private archives | ERR-009, API-001 | standard | none |
-| `spool.retention.update` | Retention windows, legal holds and cutoffs | GOV-002, GOV-003 | standard or destructive | none |
-| `spool.members.update` | Members, teams, roles, project keys and agent grants | TEAM-001, ERR-004, AI-001 | access | none |
+| `spool.retention.update` | Retention windows, legal holds and cutoffs | GOV-002, GOV-003 | standard or destructive (+ money) | none |
+| `spool.members.update` | Members, teams, roles, project keys and agent grants | TEAM-001, ERR-004, AI-001 | access (+ security) | none |
 | `spool.signin.update` | SSO, SCIM, MFA and sign-in options | GOV-001 | security (+ gated) | none |
-| `spool.billing.update` | Budgets, caps and plan | BILL-002 | money (+ commitment) (+ gated) | none |
+| `spool.billing.update` | Budgets, caps and plan | BILL-001, BILL-002 | money (+ live) (+ commitment) (+ gated) | none |
 | `spool.audit.read` | Search and export the audit | AUDIT-001 | standard | none |
-| `spool.deploys.connect` | Connect Vercel and Netlify projects | INT-001 | security · accounts (+ gated) | none |
+| `spool.deploys.connect` | Connect Vercel and Netlify projects | INT-001 | security (+ accounts) (+ gated) | none |
 
 **Resources.** `spool://projects/{project}/issues/{shortId}`, `spool://projects/{project}/events/{id}`, `spool://projects/{project}/releases/{release}`, `spool://projects/{project}/deployments/{id}`, `spool://projects/{project}/proposals/{id}`, `spool://projects/{project}/repairs/{id}`, `spool://projects/{project}/feedback/{id}`. **Events.** `issue.created`, `issue.regressed`, `issue.resolved`, `alert.fired`, `release.created`, `deployment.recorded`, `proposal.decided`, `repair.verdict`, `followup.due`. **Prompts.** triage new and regressed issues (FIND-001, TEAM-003), explain and correct grouping (GROUP-001, AI-005), reproduce and fix a failure (AI-002, AI-003), verify a released repair (ERR-008, AI-004), prevent related failures (AI-006), diagnose agent runs (AI-007).
 
@@ -1228,28 +1228,29 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 **Requirement.** Spool's server computes the external and money classes and their facts from the arguments and current records for every call that can carry them, never from a flag or record text.
 
 **Acceptance.**
-1. `spool.feedback.handle` is standard for triage and external for a reply, with counterparty *known* for a reporter with an earlier exchange and *new* otherwise, and its recipient count.
-2. `spool.alerts.destinations` is standard for a destination in the business's own workspace or domain and external for one outside it, and `spool.followups.resolve` adds external when it resends to such a destination.
-3. `spool.fixes.prepare` is standard in a private repository and external, with counterparty *public*, in a public one. `spool.tracker.sync` is standard for a ticket visible only inside the business and external for one exposed outside it, with the recipient count and counterparty *public* in a public GitHub or GitLab repository, *known* for an outside tracker already on record and *new* otherwise.
-4. `spool.runs.diagnose` adds external when it sends evidence to an outside model provider, naming the provider.
-5. `spool.billing.update` carries money with the USD amount and payee, and `spool.artifacts.manage` adds money when it raises the artifact storage cap.
-6. Record text or arguments claiming a recipient is internal or a cost is zero leave the computed classes and facts unchanged.
+1. `spool.feedback.handle` is standard for triage and external for a reply, with recipient count and counterparty known for an earlier exchange, new otherwise.
+2. `spool.alerts.destinations` is standard inside the business's workspace or domain and external outside it; `spool.followups.resolve` adds external when resending an outside effect, including a public fix.
+3. `spool.fixes.prepare`, `spool.fixes.merge` and `spool.repos.connect` add external for public repository writes and comments, with recipient count and counterparty public; a private internal draft stays standard.
+4. `spool.tracker.sync` is standard for internal-only tickets and external for outside exposure, with recipient count and counterparty public for public GitHub/GitLab Issues, known for an outside tracker on record, new otherwise.
+5. `spool.runs.diagnose` adds external for outside model egress; `spool.context.connect` adds it for outside trace forwarding; `spool.artifacts.manage` adds it for outside source fetching. Each names recipient count and counterparty known for a provider/origin on record, new otherwise.
+6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` for a paid longer window.
+7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
 
 #### SURFACE-003 — Live, security, access and destructive are computed per call
 
 *Tier:* Agent surface · *From:* new · *Cites:* BASE-AGENT-006
 
-**Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it removes.
+**Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it irreversibly converts or removes.
 
 **Acceptance.**
-1. `spool.filters.update` carries live and adds security when it changes allowed domains.
-2. `spool.identity.update` carries security and adds access, with its direction, when it changes who may see raw identity. It adds destructive, with the affected item count, when retained values are irreversibly converted from keep to hash or drop, or from hash to drop.
-3. `spool.members.update` carries access with the people and whether it widens or narrows.
-4. `spool.retention.update` is standard for a legal hold or a longer window and destructive, with the item count, for a shorter window or a cutoff.
-5. `spool.alerts.destinations` adds destructive when it removes a destination, and `spool.erasure.run` carries destructive with the item count.
-6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive, with the affected item count, for a shortened replay window or its cutoff.
-7. `spool.releases.record` adds live when it changes the project's release ordering rule, naming the project and setting, including registered-sequence-only refusals.
-8. `spool.runs.diagnose` adds live when it promotes an evaluated candidate, naming the affected service and candidate.
+1. `spool.filters.update` carries live and adds security for allowed-domain changes. `spool.artifacts.manage` adds security for source-fetch secret headers.
+2. `spool.identity.update` carries security, adds access with direction for identity-visibility changes, and destructive with item count for irreversible retained-value conversion: keep to hash/drop, or hash to drop.
+3. `spool.members.update` carries access with people and direction, adding security when handling project credentials. Owner erasure adds access with people and direction for its verified successor handoff.
+4. `spool.retention.update` is standard for holds or longer windows, destructive with item count for shorter windows or cutoffs. `spool.context.connect` adds destructive with item count when disconnect irreversibly removes replay references.
+5. `spool.alerts.destinations` adds destructive with item count for removal; `spool.erasure.run` carries it with item count for project, end-user or owner erasure.
+6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive with item count for a shortened replay window or cutoff.
+7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
+8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
 #### SURFACE-004 — Commitment, accounts and gated are computed per call
 
@@ -1259,7 +1260,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 **Acceptance.**
 1. `spool.alerts.connect` adds accounts when it installs a chat or paging app, and gated at the provider's consent screen in a person's own account, naming the provider and the step.
-2. `spool.repos.connect` and `spool.deploys.connect` add gated at the provider's consent screen, naming the provider and the step.
+2. `spool.repos.connect` and `spool.deploys.connect` add accounts only when installing a provider app, naming the provider, and gated at its consent screen, naming the step; editing an internal code mapping stays standard and connecting an existing app handles credentials as security without creating another account.
 3. `spool.signin.update` and `spool.context.connect` add gated when the provider shows a consent screen.
 4. `spool.billing.update` adds gated at the billing partner's hosted checkout, and commitment, with the counterparty, when it accepts terms.
 5. A gated step goes to the named person whatever the policy says.
@@ -1274,7 +1275,7 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 1. The seeded week: triage the new and regressed issues, apply a grouping proposal, record a release and its deployment, reply to one end user's feedback, reproduce one failure, prepare and merge its fix in a public repository, and verify the released repair.
 2. Under the policy that makes every class autonomous, the week completes with no approval, nothing refused by policy and an empty review feed.
 3. Under the held policy (standard reviewed, every other class Spool declares waiting for approval, which the test person grants), each non-standard call waits with no effect and runs once approved, and the review feed lists the standard calls.
-4. Under the held policy with external blocked, the feedback reply and the public pull request are refused and the rest of the week completes.
+4. Under the held policy with external blocked, the feedback reply, public pull request and public merge are refused, and the remaining internal work completes.
 5. Before setup is answered, the first call returns `policy_unset` with the setup link, and setup asks every Spool class with no answer pre-selected.
 
 ## Push further

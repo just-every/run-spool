@@ -1454,12 +1454,13 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 **Requirement.** Spool's server computes the external and money classes and their facts from the arguments and current records for every call that can carry them, never from a flag or record text.
 
 **Acceptance.**
-1. `spool.feedback.handle` is standard for triage and external for a reply, with counterparty *known* for a reporter with an earlier exchange and *new* otherwise, and its recipient count.
-2. `spool.alerts.destinations` is standard for a destination in the business's own workspace or domain and external for one outside it, and `spool.followups.resolve` adds external when it resends to such a destination.
-3. `spool.fixes.prepare` is standard in a private repository and external, with counterparty *public*, in a public one. `spool.tracker.sync` is standard for a ticket visible only inside the business and external for one exposed outside it, with the recipient count and counterparty *public* in a public GitHub or GitLab repository, *known* for an outside tracker already on record and *new* otherwise.
-4. `spool.runs.diagnose` adds external when it sends evidence to an outside model provider, naming the provider.
-5. `spool.billing.update` carries money with the USD amount and payee, and `spool.artifacts.manage` adds money when it raises the artifact storage cap.
-6. Record text or arguments claiming a recipient is internal or a cost is zero leave the computed classes and facts unchanged.
+1. `spool.feedback.handle` is standard for triage and external for a reply, with recipient count and counterparty known for an earlier exchange, new otherwise.
+2. `spool.alerts.destinations` is standard inside the business's workspace or domain and external outside it; `spool.followups.resolve` adds external when resending an outside effect, including a public fix.
+3. `spool.fixes.prepare`, `spool.fixes.merge` and `spool.repos.connect` add external for public repository writes and comments, with recipient count and counterparty public; a private internal draft stays standard.
+4. `spool.tracker.sync` is standard for internal-only tickets and external for outside exposure, with recipient count and counterparty public for public GitHub/GitLab Issues, known for an outside tracker on record, new otherwise.
+5. `spool.runs.diagnose` adds external for outside model egress; `spool.context.connect` adds it for outside trace forwarding; `spool.artifacts.manage` adds it for outside source fetching. Each names recipient count and counterparty known for a provider/origin on record, new otherwise.
+6. `spool.billing.update` carries money with USD amount and payee; `spool.artifacts.manage` adds it for a raised storage cap and `spool.retention.update` for a paid longer window.
+7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes external or money.
@@ -1468,17 +1469,17 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 
 Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 
-**Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it removes.
+**Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it irreversibly converts or removes.
 
 **Acceptance.**
-1. `spool.filters.update` carries live and adds security when it changes allowed domains.
-2. `spool.identity.update` carries security and adds access, with its direction, when it changes who may see raw identity. It adds destructive, with the affected item count, when retained values are irreversibly converted from keep to hash or drop, or from hash to drop.
-3. `spool.members.update` carries access with the people and whether it widens or narrows.
-4. `spool.retention.update` is standard for a legal hold or a longer window and destructive, with the item count, for a shorter window or a cutoff.
-5. `spool.alerts.destinations` adds destructive when it removes a destination, and `spool.erasure.run` carries destructive with the item count.
-6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive, with the affected item count, for a shortened replay window or its cutoff.
-7. `spool.releases.record` adds live when it changes the project's release ordering rule, naming the project and setting, including registered-sequence-only refusals.
-8. `spool.runs.diagnose` adds live when it promotes an evaluated candidate, naming the affected service and candidate.
+1. `spool.filters.update` carries live and adds security for allowed-domain changes. `spool.artifacts.manage` adds security for source-fetch secret headers.
+2. `spool.identity.update` carries security, adds access with direction for identity-visibility changes, and destructive with item count for irreversible retained-value conversion: keep to hash/drop, or hash to drop.
+3. `spool.members.update` carries access with people and direction, adding security when handling project credentials. Owner erasure adds access with people and direction for its verified successor handoff.
+4. `spool.retention.update` is standard for holds or longer windows, destructive with item count for shorter windows or cutoffs. `spool.context.connect` adds destructive with item count when disconnect irreversibly removes replay references.
+5. `spool.alerts.destinations` adds destructive with item count for removal; `spool.erasure.run` carries it with item count for project, end-user or owner erasure.
+6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive with item count for a shortened replay window or cutoff.
+7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
+8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes live, security, access or destructive.
@@ -1491,7 +1492,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 
 **Acceptance.**
 1. `spool.alerts.connect` adds accounts when it installs a chat or paging app, and gated at the provider's consent screen in a person's own account, naming the provider and the step.
-2. `spool.repos.connect` and `spool.deploys.connect` add gated at the provider's consent screen, naming the provider and the step.
+2. `spool.repos.connect` and `spool.deploys.connect` add accounts only when installing a provider app, naming the provider, and gated at its consent screen, naming the step; editing an internal code mapping stays standard and connecting an existing app handles credentials as security without creating another account.
 3. `spool.signin.update` and `spool.context.connect` add gated when the provider shows a consent screen.
 4. `spool.billing.update` adds gated at the billing partner's hosted checkout, and commitment, with the counterparty, when it accepts terms.
 5. A gated step goes to the named person whatever the policy says.
@@ -1509,7 +1510,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE
 1. The seeded week: triage the new and regressed issues, apply a grouping proposal, record a release and its deployment, reply to one end user's feedback, reproduce one failure, prepare and merge its fix in a public repository, and verify the released repair.
 2. Under the policy that makes every class autonomous, the week completes with no approval, nothing refused by policy and an empty review feed.
 3. Under the held policy (standard reviewed, every other class Spool declares waiting for approval, which the test person grants), each non-standard call waits with no effect and runs once approved, and the review feed lists the standard calls.
-4. Under the held policy with external blocked, the feedback reply and the public pull request are refused and the rest of the week completes.
+4. Under the held policy with external blocked, the feedback reply, public pull request and public merge are refused, and the remaining internal work completes.
 5. Before setup is answered, the first call returns `policy_unset` with the setup link, and setup asks every Spool class with no answer pre-selected.
 
 **Evidence.** None.
