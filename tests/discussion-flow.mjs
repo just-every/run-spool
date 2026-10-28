@@ -1,3 +1,4 @@
+import {busyMemberWrites} from './busy-member-writes.mjs';
 import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {legacyMailRows} from './legacy-mail.mjs';
@@ -70,6 +71,7 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
   await page.getByRole('button',{name:'Unsubscribe',exact:true}).click();await page.getByRole('button',{name:'Subscribe',exact:true}).waitFor();await page.getByRole('button',{name:'Subscribe',exact:true}).click();await page.getByRole('button',{name:'Unsubscribe',exact:true}).waitFor();
   const accessibility=await new AxeBuilder({page}).include('.issue').include('.issue-collaboration').analyze();assert.deepEqual(accessibility.violations.filter(row=>['serious','critical'].includes(row.impact)),[]);await context.close();
  }finally{await browser.close()}
+ await busyMemberWrites(owner,first,second,reader,base,projects[0]);
  let bounded=await read();
  for(let index=bounded.comments.length;index<bounded.limit;index++){const note=await first.json(base+'/comments','POST',{revision:bounded.revision,body:'Retained investigation note '+index});bounded.revision=note.revision;}
  const atCapacity=await read();assert.equal(await status(first.req(base+'/comments','POST',{revision:atCapacity.revision,body:'Beyond capacity'})),409);assert.deepEqual(await read(),atCapacity,'comment capacity refusal changes nothing');

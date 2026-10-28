@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+
+const status=async pending=>{const response=await pending;await response.arrayBuffer();return response.status;};
+
+// The existing team journey supplies two current members of this project.
+export async function busyMemberWrites(owner,first,second,reader,base,project) {
+ const dsn=new URL(project.dsn),door='/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7';
+ const send=async()=>{
+  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level:'error',exception:{values:[{type:'SyntheticSpoolError',value:'synthetic-spool-1'}]}};
+  assert.equal(await status(first.req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event),{Cookie:''})),200);
+ };
+ const priority=await first.json(base+'/priority'),discussion=await first.json(base+'/discussion'),suppression=await first.json(base+'/suppression');
+ const before=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>base.endsWith(row.id));
+ await send();
+ const incoming=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.id===before.id);
+ assert.equal(incoming.count,before.count+1,'the accepted event reaches the issue read by the member');
+ assert.ok(incoming.revision>before.revision,'event admission still advances the issue revision');
+ await first.json(base+'/priority','PUT',{priority:'medium',version:priority.version});
+ const afterPriority=await first.json(base+'/discussion');
+ assert.ok(afterPriority.activity.some(row=>row.kind==='priority'&&row.actor_kind==='member'&&row.actor_name&&row.detail.priority==='medium'),'busy priority changes retain their member actor');
+ const unchanged=await first.json(base+'/priority');
+ assert.equal(await status(second.req(base+'/priority','PUT',{priority:'high',version:priority.version})),409,'a second member cannot overwrite the same priority from the same read');
+ assert.deepEqual(await first.json(base+'/priority'),unchanged);
+ const note=await first.json(base+'/comments','POST',{body:'Investigation continues while events arrive',revision:discussion.revision});
+ let saved=await first.json(base+'/discussion');
+ assert.ok(saved.comments.some(row=>row.id===note.id&&row.body==='Investigation continues while events arrive'),'a comment read before event arrival is saved');
+ await send();
+ await first.json(base+'/comments/'+note.id,'PATCH',{body:'Updated busy investigation',version:note.version,revision:discussion.revision});
+ saved=await first.json(base+'/discussion');
+ assert.equal(await status(owner.req(base+'/comments/'+note.id,'PATCH',{body:'Stale concurrent replacement',version:note.version,revision:discussion.revision})),409,'the comment version protects against a concurrent authorized editor');
+ assert.deepEqual(await first.json(base+'/discussion'),saved);
+ const subscription=await second.json(base+'/discussion');await send();
+ await second.json(base+'/subscription','PUT',{subscribed:false,version:subscription.subscription.version,revision:subscription.revision});
+ const unsubscribed=await second.json(base+'/discussion');assert.equal(unsubscribed.subscription.subscribed,false);
+ assert.equal(await status(second.req(base+'/subscription','PUT',{subscribed:true,version:subscription.subscription.version})),409,'the same subscription cannot be overwritten from a stale read');
+ assert.deepEqual(await second.json(base+'/discussion'),unsubscribed);
+ const snapshot=await first.json(base+'/discussion');
+ assert.ok([401,403,404].includes(await status(reader.req(base+'/comments','POST',{body:'Denied busy comment'}))));
+ assert.equal(await status(first.req(base+'/comments','POST',{body:''})),400);
+ assert.deepEqual(await first.json(base+'/discussion'),snapshot,'denied and invalid busy writes change nothing');
+ const input={version:suppression.version,suppression:{mode:'snooze',durationMs:1800000,reason:'Investigate accepted events for thirty minutes'},apply:false};
+ const preview=await first.json(base+'/suppression','POST',input);
+ await send();
+ await first.json(base+'/suppression','POST',{...input,apply:true,preview:preview.preview});
+ const archived=await first.json(base+'/suppression'),row=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.id===before.id);
+ assert.equal(row.state,'suppressed');assert.equal(row.priority,'medium','manual priority survives subsequent event admission');
+ assert.ok(archived.history.some(row=>row.state==='active'&&row.mode==='snooze'&&row.deadline>Date.now()));
+ assert.equal(await status(second.req(base+'/suppression','POST',{...input,apply:true,preview:preview.preview})),409,'a concurrent archive decision refuses the stale state');
+ assert.deepEqual(await first.json(base+'/suppression'),archived);
+ await first.json(base,'PATCH',{state:'open',revision:row.revision});
+}

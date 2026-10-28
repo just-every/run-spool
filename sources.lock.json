@@ -8540,6 +8540,10 @@
       "sha256": "a41cc9da06f8266afaee6aeef2140e328b69590351c92c8a53af0a4fb191ba1b",
       "executable": false
     },
+    "tests/busy-member-writes.mjs": {
+      "sha256": "d489bb06fa3603879958f1277915427324a0ec84341cde4984ad0888409af866",
+      "executable": false
+    },
     "tests/checkin-flow.mjs": {
       "sha256": "e7db74d3cc9fa7431407166430ea18454503341e822c6a852eb916e1bc7fe9f0",
       "executable": false
@@ -8581,7 +8585,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "5d63c490c8209efdda40305ab3268fb2c94ed20ee5d4f1dd4d8249a916049cef",
+      "sha256": "be6c3071c57cd1cf1d008c229bc76fb9e0caea2e7db86ab2d3dd3a5693f3e782",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
