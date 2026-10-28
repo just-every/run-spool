@@ -12,6 +12,8 @@ import { readableImport, unknownTimes, refusedImportReads } from './sentry-impor
 // Hosted auth sends invitations through the existing mail-provider edge;
 // development mode intentionally suppresses mail and cannot prove member reads.
 const worker=await admissionRuntime({}, {port:15523,hostedMail:true}),{origin}=worker;
+let stopping;
+const stopWorker=()=>stopping??=worker.close();
 const scratch=await mkdtemp(join(tmpdir(),'spool-sentry-import-'));
 try{
   let cookie=await signIn(origin,{emailLink:true});
@@ -122,7 +124,7 @@ try{
   assert.equal((await req('/api/operator/import/status','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
   assert.equal((await req('/api/operator/import/undo','POST',{planId:secondPlan.planId},{'X-Import-Source':'sentry-org:fixture-org'})).status,401);
   console.log('Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.');
-  await worker.close();
+  await stopWorker();
   const restored=await startTestWorker(15524);
   try{
     const restoredCookie=await signIn(restored.origin);
@@ -134,4 +136,4 @@ try{
     await assert.rejects(restoredDoor.status(secondPlan.planId),error=>error.status===404,'native archives do not transfer private source originals or executable import jobs');
   }finally{await restored.stop()}
   console.log('Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.');
-}finally{await worker.close();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
+}finally{await stopWorker();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}
