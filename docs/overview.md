@@ -18,7 +18,7 @@ Spool records JavaScript, Python and Go exception locations. JavaScript source m
 
 ## Where to start
 
-- [Run it on your computer](install.md) takes you from a fresh checkout to your first project.
+- [Run it on your computer](getting-started.md) takes you from a fresh checkout to your first project.
 - [Connect your app](capture.md) adds capture to your application and uploads source maps.
 - [Investigating an issue](triage.md) walks through the Issues list and an issue's stack trace.
 - [Hand it to your coding agent](agents.md) sets up an agent key for evidence and inert grouping proposals.
