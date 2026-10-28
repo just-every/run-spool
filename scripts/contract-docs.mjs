@@ -42,7 +42,7 @@ for(const id of new Set(ids)) {
  while(end<lines.length&&(!lines[end].trim()||/^\s/.test(lines[end])))end++;
  const body=[source.slice(definition[0].length).trim(),...lines.slice(clause.line,end).map(line=>line.replace(/^  /,''))].join('\n').trim();
  const row=cells(lines.find(line=>line.startsWith(`| \`${id}\` |`))),evidence=row[4],gap=row[5];
- const text=`- **${id} — ${clause.title}. Status: ${clause.status}.**\n\n${body.split('\n').map(line=>line?'  '+line:'').join('\n')}\n\n  Current evidence: ${evidence || 'None.'}\n\n  Gap: ${gap || 'None.'}\n`;
+ const text=`- **${id} — ${clause.title}. Status: ${clause.status}.**\n\n  Judged from the code and tests at commit \`${contract.commit}\` (${contract.date}).\n\n${body.split('\n').map(line=>line?'  '+line:'').join('\n')}\n\n  Current evidence: ${evidence || 'None.'}\n\n  Gap: ${gap || 'None.'}\n`;
  const destination=acceptance.split('\n');
  const start=destination.findIndex(line=>line.startsWith(`- **${id} — `));
  if(start<0)throw Error(`ACCEPTANCE.md lacks ${id}; no clause can be silently omitted.`);

@@ -66,7 +66,9 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Teams and triage
 
-- **TEAM-001 — Organizations, members and project permissions. Status: partial.**
+- **TEAM-001 — Organizations, members and project permissions. Status: done.**
+
+  Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (2026-10-28).
 
   A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes sessions, keys and linked service authority; service accounts have explicit project scopes. Private data, search, exports and integrations obey membership on every transport. Owner transfer remains available without restricting the organization to one active contributor. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member’s project/team scope.
 
@@ -82,7 +84,7 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
   Current evidence: `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
 
-  Gap: Final candidate membership, browser removal, inherited notification, audit, archive and erasure proof is pending. Incremental generation is available through scripts/contract-docs.mjs with TEAM-001.
+  Gap: None.
 
 - **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgment window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
@@ -608,10 +610,10 @@ Program presence and dependency pins are not passing results. Completion reporti
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 11 | 1 | 0 | 12 |
-| Target and push further | 14 | 35 | 21 | 70 |
-| All | 25 | 36 | 21 | 82 |
+| Target and push further | 15 | 34 | 21 | 70 |
+| All | 26 | 35 | 21 | 82 |
 
-**Clause status: 82 clauses — 25 done, 36 partial, 21 missing.**
+**Clause status: 82 clauses — 26 done, 35 partial, 21 missing.**
 
 GOV-002 evidence: `tests/agent-handoff.mjs` → `retentionFlow` proves policy bounds, dry-run/cutoff reconciliation, typed shortening, hold/release, packet note, archive restore and held erasure; Settings at 1440/390. `tests/project-erasure.mjs` includes a held policy in the declared erasure graph. GOV-002 remains partial (residency, plan windows and session aggregates).
 

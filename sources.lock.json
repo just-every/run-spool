@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "0b8573a7b112a983f12d62febacb33fbe5a2cc5dac4cf8d9b3740dd4c8ee3dc2",
+      "sha256": "760459d46d1dfb9a2d49abb1225c99d98d2cc2091a8dcf13004718a7ba389a3f",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "96290d947cfc50af5b9d2ab589ff1376893f07e6979fbd71af457ade049f9dc2",
+      "sha256": "40193e57fe3a56657bb75bfad7879f039b1fd4389ab72c03cdfbb3778890a8b7",
       "executable": false
     },
     "DEMO.md": {
@@ -4321,7 +4321,7 @@
       "executable": false
     },
     "scripts/contract-docs.mjs": {
-      "sha256": "b365807109da6a23f98a987ecc2d0e32d15b4e2da411efc22dcdc07d2caa326a",
+      "sha256": "08357e54a96b335b900699e54f2c3add5a437850d8379816686af7782d84b1d3",
       "executable": false
     },
     "scripts/delivery/base/artifact.mjs": {
@@ -9149,7 +9149,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "3d0c57f1d0590d1eb1422d008b767fd0bbde268aeb570c1e4b1db77efb1600ff",
+      "sha256": "9c0357835563cdbdec6050cd1b7b348bba9223551ce258ff23bb6a9849168876",
       "executable": false
     },
     "tests/triage-app.mjs": {

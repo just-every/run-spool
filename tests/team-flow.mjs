@@ -114,6 +114,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
+ const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
  try{const response=await pending.release();assert.equal(response.status,409);assert.deepEqual(response.body,{error:'authority_changed'});}finally{pending.close()}
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
@@ -131,6 +132,8 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  await denied(removed.req(`/api/0/projects/synthetic-spool-1/${projects[1].id}/releases/`,'POST',{version:'synthetic-spool-5'}),'removal denies the CLI management transport');
  await denied(owner.req(`/api${dsn.pathname}/store/?sentry_key=${keys.ingest.key}&sentry_version=7`,'POST',{event_id:'3'.repeat(32),message:'synthetic-spool-2'},{Cookie:''}),'SDK intake rejects the removed member key');
  assert.ok((await remaining.json('/api/projects')).some(row=>row.id===projects[0].id),'another simultaneous contributor remains admitted');
+ assert.deepEqual(await owner.json(root+'/issues'),sealedIssues,'revoked sessions, management and replayed capture requests leave retained issue data unchanged');
+ assert.deepEqual(await owner.json(root+'/releases'),sealedReleases,'revoked deployment and SDK management requests create no release');
  await browser.removed();
  }finally{await browser.close()}
 }
