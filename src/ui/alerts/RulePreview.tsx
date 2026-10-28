@@ -8,13 +8,15 @@ const rate=(value:number|null|undefined)=>value==null?'unavailable':value.toFixe
 const plainReason=(reason:string)=>{const discarded=/^client_discarded:([^:]+):([^:]+)$/.exec(reason);return discarded?`${status(discarded[1])} · ${status(discarded[2])}`:receiptLabel(reason)};
 export function DecisionRow({sample,project,ruleName}:{sample:Sample;project:string;ruleName?:string}){
  const route=useDestination(),metric=sample.metric;
+ const reason=sample.reason?.startsWith('Low traffic')?`Low traffic (${sample.denominator} of 10 project events)`:sample.reason?.startsWith('Sample-scaled issue rate')?`Issue rate ${rate(sample.value)}; historical baseline ${rate(sample.baseline)} × ${sample.threshold}`:sample.reason;
  const measurement=metric==='baseline'?`${sample.reason?.startsWith('Sample-scaled issue rate')?'':`Current rate ${rate(sample.value)} · baseline ${rate(sample.baseline)} × ${sample.threshold} · `}${sample.denominator} project events · sample rate ${sample.sampleRate}`:'';
  const extra=sample.start!==undefined||!!(sample.history?.length||sample.excluded?.length||sample.loss?.length);
 
  return <li><div>
  <strong>{sample.issue_short_id} {sample.issue_title??'Removed issue'}</strong>
- <p className="muted">{ruleName&&`${ruleName} · `}{sample.fired?'Fired':'Withheld'} · {sample.reason&&status(sample.reason)}{measurement&&` · ${measurement}`}{sample.end!==undefined&&` · ${date(sample.end)}`}</p>
+ <p className="muted">{ruleName&&`${ruleName} · `}{sample.fired?'Fired':'Withheld'} · {reason&&status(reason)}{sample.end!==undefined&&` · ${date(sample.end)}`}</p>
  {extra&&<details><summary>Decision details</summary>
+ {measurement&&<p>{measurement}</p>}
  {sample.start!==undefined&&sample.end!==undefined&&<p>{date(sample.start)} – {date(sample.end)}</p>}
  {sample.history?.map((row,index)=><p key={'h'+index}>{date(row.start!)} · comparable rate {rate(row.rate)}</p>)}
  {sample.excluded?.map((row,index)=><p key={'e'+index}>{date(row.start!)} · excluded: {row.reasons?.map(plainReason).join(', ')}</p>)}

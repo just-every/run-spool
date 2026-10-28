@@ -4,7 +4,7 @@ import {readRetentionPolicy,retentionCutoffs,type RetentionWindows} from './rete
 import {serviceActor,auditSubject,projectAuditLabel,runAuditScope,auditedBatch} from './audit';
 export const retentionBatchLimit=50;
 export async function retentionRemaining(db:D1Database,project:string,c:RetentionWindows){
- const queries=[['events','received<?',[c.events]],['feedback','received<?',[c.feedback]],['health_sessions','updated<?',[c.sessions]],['exposures','last<?',[c.exposures]],['commits','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[c.commits]]] as const;
+ const queries=[['alert_decisions','end<?',[c.events]],['alert_rule_previews','created<?',[Date.now()-86400000]],['events','received<?',[c.events]],['feedback','received<?',[c.feedback]],['health_sessions','updated<?',[c.sessions]],['exposures','last<?',[c.exposures]],['commits','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[c.commits]]] as const;
  const counts=await Promise.all(queries.map(async([table,where,values])=>(await db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project=? AND ${where}`).bind(project,...values).first<any>())!.n));return counts.reduce((a,b)=>a+b,0);
 }
 // A minute cron visits at most five due projects. Each visit removes at most

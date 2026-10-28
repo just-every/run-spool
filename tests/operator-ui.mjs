@@ -1,4 +1,5 @@
 import {testAndReview} from './alerts/runtime.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
@@ -35,7 +36,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await api(`${root}/repairs/${repair.id}/facts`,'POST',{revision:repair.revision,fact:'deployed',release:contextPacket.events[0].event.release});
  const destination=await api(root+'/alerting/destinations','POST',{label:'Dispatch on-call',recipient:'dispatch-alerts@example.test'});
  await testAndReview(api,root+'/alerting',destination.id);
- await api(root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2});
+ await api(root+'/alerting/rules','POST',await reviewRule(api,root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2}));
  const grant=await api(root+'/keys','POST',{kind:'agent'});
  const propose=async(kind='split')=>{
   const packet=await api(`${root}/issues/${issue}/packet`),now=Date.now();

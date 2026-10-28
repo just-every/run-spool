@@ -81,7 +81,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   // The journal row is written once and never revised: it counts the events
   // this batch removes, and the guard after the deletions proves none remain.
   statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',?,'dedupHorizon',?),?", auditId, project, cutoff, events.length, cutoff, Date.now()),
-  ...retentionAlertStatements(db,project,cutoff,Date.now()),
+  ...retentionAlertStatements(db,project,cutoff,Date.now(),limit),
   ...feedbackJobs,
   ...commitRetentionStatements(db,project,windows.commits,Date.now(),limit),
   ...eventJobs,

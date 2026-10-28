@@ -1,4 +1,5 @@
 import {testAndReview} from '../alerts/runtime.mjs';
+import {reviewRule} from '../alerts/preview-rule.mjs';
 import {plantLegacyAlertMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -36,7 +37,7 @@ export async function plantCanary(app){
  assert.equal(job.state,'completed');
  const project=importedProject;assert.ok((await app.json('/api/projects')).some(row=>row.id===project),'import created the canary project');
  await testAndReview(app.json,`/api/projects/${project}/alerting`,'erase-mail');
- for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:channel==='mail',channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2});
+ for(const [channel,destination] of [['mail','erase-mail'],['webhook','erase-webhook']])await app.json(`/api/projects/${project}/alerting/rules`,'POST',await reviewRule(app.json,`/api/projects/${project}/alerting/rules`,'POST',{name:`Erase ${channel}`,enabled:channel==='mail',channel,destination,kinds:['new_issue'],windowMs:60000,threshold:2}));
  const keys={ingest:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'ingest'})).key,agent:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'})).key,deploy:(await app.json(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key};
  await app.json(`/api/projects/${project}/releases`,'POST',{name:'r1',build:'b1'});
  // TEAM-004: a deploy-key commit whose message and author are personal data.
