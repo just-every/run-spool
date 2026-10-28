@@ -59,7 +59,7 @@ export async function readRecord(env: Bindings, kind: string, args: Record<strin
 
 /** Read-only projections of every store changed by the registry. No source,
  * credentials, native sessions, tokens, recipient bodies or provider calls. */
-export async function witness(env: Bindings, args: Record<string, unknown>, ctx: ToolContext) {
+export async function witness(env: Bindings, args: Record<string, unknown>, ctx: ResourceContext) {
  await nativeAuthority(env,'/api/organization','GET',ctx);
  const project = String(args.project), result: Record<string, unknown> = {};
  const columns: Record<string,string> = {

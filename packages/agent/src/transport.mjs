@@ -74,5 +74,6 @@ export async function request(config,operation,args={}) {
   const project=decodeURIComponent(config.root.pathname.split('/').at(-1));
   const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??globalThis.crypto.randomUUID()}:{} }});
   if(answer?.isError)throw new AgentError(answer._meta?.['com.runeditrun/error']?.code??'Spool refused this request.',3);
-  return answer.structuredContent;
+  const value=answer.structuredContent;
+  return ['list_issues','list_grouping_proposals'].includes(operation)&&Array.isArray(value?.items)?value.items:value;
 }

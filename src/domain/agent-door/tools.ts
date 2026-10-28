@@ -3,11 +3,12 @@ import { notificationTool } from './notification-tool';
 import { ToolRefusal } from '../../modules/agent-door/index.ts';
 import type { ClassAndFacts, ToolDefinition, ResourceDefinition, ToolContext } from '../../modules/agent-door/types.ts';
 import type { Bindings } from '../../auth/bindings';
-import { operations, operationDeclaration, witnessDeclaration, resourceTemplates, schemaObject, type NativeOperation } from './catalogue';
+import { operations, operationDeclaration, witnessDeclaration, witnessResourceDeclaration, resourceTemplates, schemaObject, type NativeOperation } from './catalogue';
 import { nativeAuthority, nativeCall, nativeReviewerCall, projectPath, segment } from './native';
 import { readRecord, witness } from './records';
 import { findDestination } from '../alerts/destinations.server';
 import { readRetentionPolicy } from '../retention-policy';
+const structuredResult=(value:any)=>Array.isArray(value)?{items:value}:value;
 
 export function operationPath(op: NativeOperation,args: Record<string, unknown>) {
  const path = op.path.replace(/\{(\w+)\}/g,(_,key) => segment(args[key]));
@@ -48,13 +49,14 @@ export function spoolTools(env: Bindings): ToolDefinition[] {
     return {target,items:Object.entries(args).filter(([key])=>key!=='project').map(([key,value])=>`${key}: ${JSON.stringify(value)}`),...(args.role?{role:String(args.role)}:{})};
    },
    async run(args,ctx) {
-    if(readOnly && op.name !== 'spool.access.read' && !op.nativeRead) return {result:await readRecord(env,op.name.split('.')[1],args,ctx)};
+    if(readOnly && op.name !== 'spool.access.read' && !op.nativeRead) return {result:structuredResult(await readRecord(env,op.name.split('.')[1],args,ctx))};
     const routeKeys = [...op.path.matchAll(/\{(\w+)\}/g)].map(match=>match[1]);
     const body = Object.fromEntries(Object.entries(args).filter(([key])=>key!=='project'&&!routeKeys.includes(key)));
     if(op.name === 'spool.grouping.apply') body.confirm=true;
     if(op.name === 'spool.privacy.erase') body.confirm=args.project;
     let path=operationPath(op,args);if(op.method==='GET'){const query=new URLSearchParams(Object.entries(body).map(([key,value])=>[key,String(value)]));if(query.size)path+='?'+query;}
     const result=await nativeCall(env,path,op.method,op.method==='GET'?undefined:body,ctx);
+    if(op.name==='spool.privacy.erase')ctx.emit('spool.privacy.erased','spool://evidence');
     if(op.name === 'spool.reproducers.run') {result.authority={purpose:'single-use isolated sandbox run',run:result.run,expires:result.expires};result.state='queued';result.outcome=null;}
     if(!readOnly && op.name!=='spool.privacy.erase') {
      const resource = resourceFor(op.name,args,result);
@@ -62,7 +64,7 @@ export function spoolTools(env: Bindings): ToolDefinition[] {
      await env.DB.prepare('INSERT INTO spool_agent_activity(id,project,uri,tool,agent,agent_name,sponsor,sponsor_name,approvers,created) VALUES(?,?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),String(args.project),resource,op.name,ctx.agent.id,ctx.agent.name,ctx.person.id,ctx.person.name,JSON.stringify(ctx.approvers),Date.now()).run();
     }
     const linked=!readOnly&&['issues','proposals','grouping','reproducers','repairs','fixes','releases','deployments'].includes(op.name.split('.')[1])?[{uri:resourceFor(op.name,args,result),name:String(result.id??result.name??args.id??args.issue??op.name)}]:undefined;
-    return {result,...linked?{resources:linked}:{},...op.name==='spool.grouping.apply'?{undo:{project:args.project,id:args.id,uri:resourceFor(op.name,args,result)}}:{}};
+    return {result:structuredResult(result),...linked?{resources:linked}:{},...op.name==='spool.grouping.apply'?{undo:{project:args.project,id:args.id,uri:resourceFor(op.name,args,result)}}:{}};
    },
   };
   if(op.name==='spool.grouping.apply') tool.undo=async(saved,ctx)=>{const original=saved as {project:string;id:string;uri:string};await nativeReviewerCall(env,`/api/projects/${segment(original.project)}/corrections/${segment(original.id)}/undo`,{confirm:true},ctx);ctx.emit('spool.grouping.undone',original.uri);};
@@ -90,11 +92,12 @@ export function spoolTools(env: Bindings): ToolDefinition[] {
 
 function resourceFor(name:string,args:Record<string,unknown>,result:any) {
  const family=name.split('.')[1],kind=family==='proposals'?'grouping-proposals':family==='grouping'?'issues':family;
+ if(!['issues','proposals','grouping','reproducers','repairs','fixes','releases','deployments'].includes(family))return 'spool://evidence';
  return `spool://projects/${segment(args.project)}/${kind}/${segment((family==='grouping'?result?.moves?.[0]?.to:family==='releases'?result?.name??args.name:undefined) ?? result?.id ?? args.id ?? args.issue ?? args.source ?? 'current')}`;
 }
 export function spoolResources(env:Bindings): ResourceDefinition[] {
- return resourceTemplates.map(([kind,path])=>({uriTemplate:`spool://projects/{project}/${path}`,name:`Spool ${kind}`,mimeType:'application/json',scope:'spool:read',classes:['standard'],classify:()=>[{class:'standard',facts:{measure:1}}],async read(uri,ctx){
+ return [...resourceTemplates.map(([kind,path]):ResourceDefinition=>({uriTemplate:`spool://projects/{project}/${path}`,name:`Spool ${kind}`,mimeType:'application/json',scope:'spool:read',classes:['standard'],classify:()=>[{class:'standard',facts:{measure:1}}],async read(uri,ctx){
   const match = new RegExp('^spool://projects/([^/]+)/'+path.replace('{issue}','([^/]+)').replace('{id}','([^/]+)')+'$').exec(uri);if(!match)return null;
   try {return {json:await readRecord(env,kind,{project:decodeURIComponent(match[1]),...[...path.matchAll(/\{(\w+)\}/g)].map((m,i)=>({[m[1]]:decodeURIComponent(match[i+2])})).reduce((all,part)=>({...all,...part}),{})},ctx),untrusted:true};}catch{return null;}
- }}));
+ }})),{...witnessResourceDeclaration,classify:()=>[{class:'standard',facts:{measure:1}}],async read(_uri,ctx){try{return {json:await witness(env,{},ctx),untrusted:true};}catch{return null;}}}];
 }

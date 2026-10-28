@@ -1908,7 +1908,8 @@
     "spool://projects/{project}/repairs/{id}",
     "spool://projects/{project}/fixes/{id}",
     "spool://projects/{project}/releases/{id}",
-    "spool://projects/{project}/deployments/{id}"
+    "spool://projects/{project}/deployments/{id}",
+    "spool://evidence"
   ],
   "notTools": [
     {
@@ -1980,7 +1981,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -1999,7 +2000,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2050,7 +2051,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2069,7 +2070,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2119,7 +2120,7 @@
         "kind": "split",
         "source": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "revision": {
           "$from": "packet",
@@ -2201,7 +2202,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "state": "acknowledged",
         "revision": {
@@ -2225,7 +2226,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2244,7 +2245,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "state": "suppressed",
         "revision": {
@@ -2269,7 +2270,7 @@
         "kind": "split",
         "source": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "revision": {
           "$from": "suppress",
@@ -2348,7 +2349,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2386,7 +2387,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "link": "https://github.com/example/checkout/pull/14",
         "note": "Asserted candidate; native outcome remains Unknown."
@@ -2433,7 +2434,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2452,7 +2453,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "observed": "reproduced"
       },
@@ -2499,7 +2500,7 @@
         "project": "door-fixture",
         "issue": {
           "$from": "issues",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2614,7 +2615,7 @@
         "deadline": "2026-10-29T00:00:00.000Z",
         "destination": {
           "$from": "deployment-destinations",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2708,18 +2709,18 @@
         "project": "door-fixture",
         "id": {
           "$from": "rules",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "revision": {
           "$from": "rules",
-          "pointer": "/0/revision"
+          "pointer": "/items/0/revision"
         },
         "name": "Checkout errors",
         "enabled": false,
         "channel": "mail",
         "destination": {
           "$from": "destinations",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "kinds": [
           "new_issue"
@@ -2743,18 +2744,18 @@
         "project": "door-fixture",
         "id": {
           "$from": "rules",
-          "pointer": "/1/id"
+          "pointer": "/items/1/id"
         },
         "revision": {
           "$from": "rules",
-          "pointer": "/1/revision"
+          "pointer": "/items/1/revision"
         },
         "name": "Checkout errors",
         "enabled": true,
         "channel": "mail",
         "destination": {
           "$from": "destinations",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         },
         "kinds": [
           "new_issue"
@@ -2778,7 +2779,7 @@
         "project": "door-fixture",
         "id": {
           "$from": "destinations",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [
@@ -2853,7 +2854,7 @@
         "project": "door-fixture",
         "id": {
           "$from": "credentials",
-          "pointer": "/1/hash"
+          "pointer": "/items/1/hash"
         }
       },
       "expect": [
@@ -2872,7 +2873,7 @@
         "project": "door-fixture",
         "id": {
           "$from": "credentials",
-          "pointer": "/0/hash"
+          "pointer": "/items/0/hash"
         }
       },
       "expect": [
@@ -3045,7 +3046,7 @@
         "project": "door-fixture",
         "id": {
           "$from": "deliveries",
-          "pointer": "/0/id"
+          "pointer": "/items/0/id"
         }
       },
       "expect": [

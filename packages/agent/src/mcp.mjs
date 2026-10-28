@@ -11,7 +11,10 @@ export async function startMcp(config) {
     const listed=await rpc(config,'tools/list');
     return {tools:(listed.tools??[]).filter(tool=>Object.values(legacyNames).includes(tool.name)).map(tool=>{
       const properties={...tool.inputSchema.properties};delete properties.project;
-      return {...tool,name:Object.keys(legacyNames).find(name=>legacyNames[name]===tool.name),inputSchema:{...tool.inputSchema,properties,required:(tool.inputSchema.required??[]).filter(name=>name!=='project')}};
+      // The retained stdio client returns fenced text. It does not advertise a
+      // structured-output promise that its legacy text response cannot fulfil.
+      const {outputSchema,...legacy}=tool;
+      return {...legacy,name:Object.keys(legacyNames).find(name=>legacyNames[name]===tool.name),inputSchema:{...tool.inputSchema,properties,required:(tool.inputSchema.required??[]).filter(name=>!['project','idempotency_key'].includes(name))}};
     })};
   });
   server.setRequestHandler(CallToolRequestSchema, async ({ params }) => {

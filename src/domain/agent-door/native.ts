@@ -10,6 +10,8 @@ import type { ResourceContext, ToolContext, UndoContext } from '../../modules/ag
 import type { Bindings } from '../../auth/bindings';
 import { spoolPeople } from './people';
 import { resolveMembership } from '../members/resolver';
+import {AuthError} from '../../modules/operator-auth/index.mjs';
+const nativeMembership:typeof resolveMembership=async(...args)=>{try{return await resolveMembership(...args);}catch(error){if(error instanceof AuthError)throw new ToolRefusal('not_found');throw error;}};
 
 export const segment = (value: unknown) => encodeURIComponent(String(value));
 export const projectPath = (args: Record<string, unknown>) => '/api/projects/' + segment(args.project);
@@ -17,7 +19,7 @@ export const projectPath = (args: Record<string, unknown>) => '/api/projects/' +
 export async function nativeServiceAuthority(env:Bindings,path:string,method:string,ctx:ToolContext) {
  const operator=await nativeAuthority(env,path,method,ctx);
  const authority={kind:'agent' as const,operator,agentContext:ctx};
- return operator.role==='owner'?authority:await resolveMembership(new Request(env.AUTH_ORIGIN+path,{method}),env,authority);
+ return operator.role==='owner'?authority:await nativeMembership(new Request(env.AUTH_ORIGIN+path,{method}),env,authority);
 }
 
 export async function nativeAuthority(env: Bindings, path: string, method: string, ctx: ResourceContext | ToolContext) {
@@ -30,7 +32,7 @@ export async function nativeAuthority(env: Bindings, path: string, method: strin
  }
  const operator = await env.DB.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(person.id).first<any>();
  if (operator.role !== 'owner') {
-  const result = await resolveMembership(new Request(env.AUTH_ORIGIN + path, { method }), env, { kind: 'agent', operator, agentContext: ctx as ToolContext });
+  const result = await nativeMembership(new Request(env.AUTH_ORIGIN + path, { method }), env, { kind: 'agent', operator, agentContext: ctx as ToolContext });
   if (!result) throw new ToolRefusal('not_found');
  }
  return operator;

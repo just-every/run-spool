@@ -64,6 +64,9 @@ telemetry remains inconclusive.
 Primary resources use `spool://projects/{project}/…` and return bounded native
 projections. Packets, logs, imported text and repair notes are untrusted data.
 Resources do not reveal bearer credentials, source-map bytes or source code.
+The administrative `spool://evidence` resource is the read-only native witness
+for settings, membership, retention and outbox changes. It requires current
+native organization administration; project keys cannot read it or its events.
 A bounded sandbox grant is issued only by its dedicated native request tool;
 the runner still consumes it once and reports observations through its machine
 door. A queued request is not a successful reproduction.
@@ -74,6 +77,11 @@ native person edits emit the same resource vocabulary. Agent-modified alert
 rules retain the originating sponsor, agent, client scopes and Business consent
 for typed admission at notification dispatch. Agent retention and alternate-notice settings likewise retain their original principal for typed worker admission. Provider uncertainty keeps its
 native custody and is never treated as permission to resend.
+
+Private archives retain native preparer, sponsor, approver and reviewer metadata.
+Restore validates those fields alongside the original action facts and preserves
+their history. An archived Business token does not authorize another installation;
+project credentials remain excluded from private archives.
 
 ## Current integration boundaries
 

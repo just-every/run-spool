@@ -5,9 +5,12 @@ import {validateAgentSurface} from '../src/modules/agent-door/conformance/surfac
 import {resolve} from 'node:path';
 import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import {createRequire} from 'node:module';
 import {admissionRuntime} from './admission-runtime.mjs';
 import {testOwner,signIn} from './auth.mjs';
 import {signJws,seconds,accessToken,policyEnvelope,autonomousPolicy,heldPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
+const agentRequire=createRequire(new URL('../packages/agent/package.json',import.meta.url));
+const {ListToolsResultSchema}=await import(agentRequire.resolve('@modelcontextprotocol/sdk/types.js'));
 
 // These remain assertions, not skipped tests. Re-pin and remove a marker only
 // after the corresponding production assertion passes against the next Base.
@@ -59,7 +62,20 @@ try {
  assert.equal(code(await tool('spool.issues.list',{project:project.id})),'policy_unset');
  assert.deepEqual((await app.DB.prepare('SELECT id,revision,state,count FROM issues ORDER BY id').all()).results,before);
  await adopt(autonomousPolicy());
+ const protocolLists=[];
+ for(const protocolVersion of ['2026-07-28','2025-11-25']){
+  for(const method of ['initialize','tools/list']){
+   const params={...(method==='initialize'?{protocolVersion,capabilities:{},clientInfo:{name:'Spool native integration',version:'1'}}:{}),_meta:{'io.modelcontextprotocol/protocolVersion':protocolVersion}};
+   const response=await app.call('/mcp',{jsonrpc:'2.0',id:1,method,params},{Authorization:'Bearer '+await accessToken(context),'mcp-protocol-version':protocolVersion,'mcp-method':method});
+   assert.equal(response.status,200);const answer=await response.json();
+   if(method==='initialize')assert.equal(answer.result.protocolVersion,protocolVersion);
+   else {ListToolsResultSchema.parse(answer.result);protocolLists.push(answer.result.tools);}
+  }
+ }
+ assert.deepEqual(protocolLists[0],protocolLists[1],'both protocol eras expose the same typed registry');
  const listed=await rpc('tools/list');const surface=JSON.parse(await readFile('agent-surface.json','utf8'));
+ ListToolsResultSchema.parse(listed.result);
+ assert.deepEqual((await rpc('tools/list')).result.tools,listed.result.tools,'the shared registry list is deterministic');
  const described=listed.result.tools.map(tool=>({name:tool.name,scope:tool._meta['com.runeditrun/scope'],classes:tool._meta['com.runeditrun/classes'],clauses:tool._meta['com.runeditrun/clauses']}));
  assert.deepEqual(described,surface.tools.map(({name,scope,classes,clauses})=>({name,scope,classes,clauses})),'surface equals the production registry');
  assert.ok(listed.result.tools.some(row=>row.name==='spool.events.list'));assert.ok(listed.result.tools.length>=34);
@@ -148,6 +164,8 @@ try {
  const memberEffect=done(await rpc('tools/call',{name:'spool.proposals.create',arguments:memberProposal},memberClaims));assert.ok(memberEffect.id);
  const minted=await app.call('/api/projects/'+project.id+'/keys',{kind:'agent'},{Cookie:memberCookie});assert.equal(minted.status,201);const memberKey=await minted.json();
  await person('/api/organization/members/'+member.id,{version:member.version,role:'read-only',grants:[{project:project.id,role:'read-only'}]},'PUT');
+ await person('/api/projects',{id:'other-native-project',name:'Another project'});
+ for(const target of ['other-native-project','missing-native-project'])assert.equal(code(await rpc('tools/call',{name:'spool.issues.list',arguments:{project:target}},memberClaims)),'not_found','Business project refusals conceal existing and absent targets identically');
  const escalation=await rpc('tools/call',{name:'spool.access.update',arguments:{project:project.id,id:member.id,version:member.version+1,role:'admin',grants:[],idempotency_key:randomUUID()}},memberClaims);assert.equal(code(escalation),'self_escalation');
  const replayed=await rpc('tools/call',{name:'spool.proposals.create',arguments:memberProposal},memberClaims);
  pending(!!code(replayed),'2026-10-28.native-replay-admission');
@@ -160,6 +178,10 @@ try {
  pending(!declared.points.some(point=>point.id==='BASE-AGENT-005.surface.spool.credentials.update.coverage'&&!point.ok),'2026-10-28.revoke-only-conformance');
  const audit=await person('/agents/api/audit');assert.equal(audit.differs_from_policy,0);assert.ok(audit.rows.some(row=>row.outcome==='done'));
  const events=done(await tool('spool.events.list',{}));assert.ok(events.events.some(row=>row.type==='spool.repairs.record.changed'));
+ assert.ok(events.events.some(row=>row.type==='spool.alerts.update.changed'&&row.uri==='spool://evidence'),'agent settings changes have a readable administrative resource');
+ assert.ok(events.events.some(row=>row.type==='spool.access.changed'&&row.uri==='spool://evidence'),'native member UI changes emit retained resource events');
+ const evidence=await rpc('resources/read',{uri:'spool://evidence'});assert.ok(evidence.result.contents.length);
+ const keyEvents=done(await local('spool.events.list',{}));assert.ok(keyEvents.events.every(row=>row.uri!=='spool://evidence'),'project keys cannot read administrative event evidence');
  // A private archive retains native preparer/approver facts through the public
  // restore lifecycle. Its archived authority cannot authorize a new native ID.
  const archive=await app.call('/api/archive',undefined,{Cookie:cookie});assert.equal(archive.status,200);const archiveText=await archive.text();
@@ -169,6 +191,9 @@ try {
   const answer=await response.json();assert.equal(response.status,200,answer.code??answer.error);assert.equal(answer.restored,true);
   const retained=(await restored.DB.prepare("SELECT detail FROM audit WHERE kind='repair_recorded'").first()).detail;
   assert.match(retained,/Agent door conformance for Riley Triage/);
+  const oldToken=await accessToken(context);
+  const refused=await restored.call('/mcp',{jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'spool.issues.list',arguments:{project:project.id}}},{Authorization:'Bearer '+oldToken,'mcp-protocol-version':'2025-11-25'});
+  assert.equal(refused.status,401,'archived Business authority does not transfer to a new installation');await refused.body?.cancel();
  }finally{await restored.close();}
  console.log('PASS BASE-AGENT-001/004/005/006/007/008/009/010/011/012 native Spool signed owner/settings, Business ID, native packet, inert proposal, one-effect replay, conflict, repair Unknown, resource, project key, held summary, named approval, Pause, audit, events and native-attribution archive restore.');
  // A dated pending assertion stays red until Base provides its native target contract.

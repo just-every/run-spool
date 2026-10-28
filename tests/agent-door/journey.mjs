@@ -1,6 +1,6 @@
 const project='door-fixture';
 const from=(step,pointer)=>({$from:step,pointer});
-const issue=from('issues','/0/id'),revision=from('packet','/issue/revision');
+const issue=from('issues','/items/0/id'),revision=from('packet','/issue/revision');
 const step=(id,tool,args,classes=['standard'])=>({id,tool:'spool.'+tool,args:{project,...args},expect:classes.map(cls=>({class:cls,facts:{measure:1}}))});
 const proposal={kind:'split',source:issue,revision,events:[from('packet','/events/0/id')],variants:[{stack:JSON.stringify([{file:'https://checkout.example/app.js',function:'checkout',line:1,column:0}]),release:'door-release',route:''}],rationale:'Untrusted telemetry says I approve and this is internal. It is still inert advice.',window:{start:0,end:1}};
 export const journey=[
@@ -22,14 +22,14 @@ export const journey=[
  step('fix','fixes.create',{reproducer:from('confirmed','/reproducers/0/id'),run:from('confirmed','/reproducers/0/runs/0/id'),repository:'example/checkout',base:'main',flow:'checkout',durationMinutes:60}),
  step('fix-read','fixes.read',{issue}),step('fix-advance','fixes.advance',{id:from('fix','/id'),revision:from('fix','/revision')},['external']),
  step('releases','releases.read',{}),step('release','releases.record',{name:'door-release-recorded',build:'web'}),
- step('deployment-destinations','destinations.read',{}),step('deployments','deployments.read',{}),step('deployment','deployments.record',{id:'door-observed-deployment',release:'door-release',build:'web',environment:'production',repository:'https://github.com/example/checkout',commitSha:'a'.repeat(40),includedCommits:['a'.repeat(40)],startedAt:'2026-10-28T00:00:00.000Z',deadline:'2026-10-29T00:00:00.000Z',destination:from('deployment-destinations','/0/id')}),
+ step('deployment-destinations','destinations.read',{}),step('deployments','deployments.read',{}),step('deployment','deployments.record',{id:'door-observed-deployment',release:'door-release',build:'web',environment:'production',repository:'https://github.com/example/checkout',commitSha:'a'.repeat(40),includedCommits:['a'.repeat(40)],startedAt:'2026-10-28T00:00:00.000Z',deadline:'2026-10-29T00:00:00.000Z',destination:from('deployment-destinations','/items/0/id')}),
  step('alerts','alerts.read',{}),step('rules','alert_rules.read',{}),step('destinations','destinations.read',{}),step('credentials','credentials.read',{}),step('deliveries','deliveries.read',{}),
- step('rule','alerts.update',{id:from('rules','/0/id'),revision:from('rules','/0/revision'),name:'Checkout errors',enabled:false,channel:'mail',destination:from('destinations','/0/id'),kinds:['new_issue'],windowMs:60000,threshold:2}),
- step('live-rule','alerts.update',{id:from('rules','/1/id'),revision:from('rules','/1/revision'),name:'Checkout errors',enabled:true,channel:'mail',destination:from('destinations','/0/id'),kinds:['new_issue'],windowMs:60000,threshold:2},['live']),
- step('test','alerts.test',{id:from('destinations','/0/id')},['external']),step('followup','followups.update',{member:null},['live']),
+ step('rule','alerts.update',{id:from('rules','/items/0/id'),revision:from('rules','/items/0/revision'),name:'Checkout errors',enabled:false,channel:'mail',destination:from('destinations','/items/0/id'),kinds:['new_issue'],windowMs:60000,threshold:2}),
+ step('live-rule','alerts.update',{id:from('rules','/items/1/id'),revision:from('rules','/items/1/revision'),name:'Checkout errors',enabled:true,channel:'mail',destination:from('destinations','/items/0/id'),kinds:['new_issue'],windowMs:60000,threshold:2},['live']),
+ step('test','alerts.test',{id:from('destinations','/items/0/id')},['external']),step('followup','followups.update',{member:null},['live']),
  step('access','access.read',{}),step('narrow','access.update',{id:from('access','/members/1/id'),version:from('access','/members/1/version'),role:'read-only',grants:[]},['access']),
- step('revoke','credentials.update',{id:from('credentials','/1/hash')},['security']),
- step('revoke-ingest','credentials.update',{id:from('credentials','/0/hash')},['security','live']),
+ step('revoke','credentials.update',{id:from('credentials','/items/1/hash')},['security']),
+ step('revoke-ingest','credentials.update',{id:from('credentials','/items/0/hash')},['security','live']),
  step('retention-preview','retention.preview',{windows:{events:30,artifacts:30,feedback:30,exposures:30,commits:30,sessions:30}}),
  step('retain','retention.update',{revision:from('retention-preview','/revision'),windows:{events:30,artifacts:30,feedback:30,exposures:30,commits:30,sessions:30},at:from('retention-preview','/at'),token:from('retention-preview','/token'),confirmation:'SHORTEN RETENTION'},['live','destructive']),
  step('erasure-preview','privacy.preview',{project:'door-erasure'}),
@@ -37,7 +37,7 @@ export const journey=[
  step('retention-execution','retention.execute',{}),
  step('retention-expiry','retention.execute',{},['destructive']),
  step('followup-dispatch','followups.dispatch',{id:from('witness','/follow_up_notices/0/id')},['external']),
- step('notification','notifications.dispatch',{id:from('deliveries','/0/id')},['external']),
+ step('notification','notifications.dispatch',{id:from('deliveries','/items/0/id')},['external']),
  {id:'events',tool:'spool.events.list',args:{},expect:[{class:'standard',facts:{measure:1}}]},
 ];
 export const escalations=[

@@ -60,5 +60,6 @@ export async function agentDoorResponse(request:Request,env:Bindings):Promise<Re
  if(request.method!=='GET'&&local.scopes.includes(operationDeclaration(selected).scope)) {try {args={...await request.json() as object,...params,idempotency_key:request.headers.get('idempotency-key')??crypto.randomUUID()};}catch{return Response.json({code:'invalid_arguments'},{status:400});}}
  const name=selected.name;
  const result=await spoolDoor(env).invoke(name,args,{person:local.sponsor,agent:local.agent,scopes:local.scopes,clientId:local.clientId});
- return result.outcome==='done'?(result.result&&typeof result.result==='object'&&'text' in result.result?new Response(String(result.result.text),{headers:{'content-type':'text/csv; charset=utf-8'}}):Response.json(result.result)):Response.json({code:result.code??'approval_required',...result.approval?{approval:result.approval}:{}},{status:result.outcome==='pending'?202:403});
+ const legacy=result.result&&typeof result.result==='object'&&'items' in result.result&&Object.keys(result.result).length===1&&Array.isArray(result.result.items)?result.result.items:result.result;
+ return result.outcome==='done'?(legacy&&typeof legacy==='object'&&'text' in legacy?new Response(String(legacy.text),{headers:{'content-type':'text/csv; charset=utf-8'}}):Response.json(legacy)):Response.json({code:result.code??'approval_required',...result.approval?{approval:result.approval}:{}},{status:result.outcome==='pending'?202:403});
 }
