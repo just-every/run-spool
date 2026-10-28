@@ -88,7 +88,7 @@ export async function validateArchiveRows(data:any,legacy=false,alertRules:any[]
   if(Object.keys(data).sort().join()!==Object.keys(tables).sort().join())throw new Error('Archive tables mismatch');
   for(const [table,fields] of Object.entries(tables)) {
     if(!Array.isArray(data[table]))throw new Error('Archive row budget');
-    for(const row of data[table]){shape(row,fields);if(Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.entries(row).some(([key,x])=>typeof x==='string'&&x.length>(table==='events'&&key==='payload'?4*1024*1024:table==='artifacts'&&key==='payload'?1024*1024:table==='grouping_proposals'&&['revisions','explanation'].includes(key)?2*1024*1024:300000)))throw new Error('Archive row shape');}
+    for(const row of data[table]){shape(row,table==='grouping_proposals'&&'prepared_by' in row?[...fields,'prepared_by']:fields);if(Object.values(row).some(x=>x!==null&&typeof x!=='string'&&typeof x!=='number')||Object.entries(row).some(([key,x])=>typeof x==='string'&&x.length>(table==='events'&&key==='payload'?4*1024*1024:table==='artifacts'&&key==='payload'?1024*1024:table==='grouping_proposals'&&['revisions','explanation'].includes(key)?2*1024*1024:300000)))throw new Error('Archive row shape');}
   }
   for(const row of v.data.projects){safeText(row.name);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive timestamp');}
   for(const row of v.data.releases){releaseIdentity(row.name);storedBuild(row.build);if(!Number.isSafeInteger(row.seq)||row.seq<1)throw new Error('Archive release ordering');}
