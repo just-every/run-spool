@@ -3673,7 +3673,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "a3242a7e3b2810db2ab38722d6f52457dc3ebea5c917341d22b449d42cde0465",
+      "sha256": "6de99e1c3ef4a6ebf20a929e09f8068b4d085c8b48fab8f5605ff9b3b0aabd03",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3973,7 +3973,7 @@
       "executable": false
     },
     "migrations/core/0080_collaborative_lifecycle.sql": {
-      "sha256": "956cdb6bfa77ce85f53ebfa978050639bc2f5bee05643d2faebf20cc20547d86",
+      "sha256": "53893f28910a01e00263296a0f0011a42f29de779e3d4066c41bd5f78bd99a86",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -8425,7 +8425,7 @@
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
-      "sha256": "4fba2e195e71bd9eb1c0e5c2c373696ef685ca1c68bd3fa3b70a175ebc621828",
+      "sha256": "36d70c89496d4ae2400ab935c66e125bab5d4467fe7d52903a37a2cbfa5b57fd",
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
@@ -8505,7 +8505,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "0b7f0fc7165556b7d34da2f27f08aa4f84f4cf358ca5318c36ed3b592b11148c",
+      "sha256": "b851ba2b1965098ff22f9b2f5366ff5bd871eecd5bab9ff1f309453ff5b7175f",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -8857,7 +8857,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "859cc755dfd52204fb65fc703b59b4d88d8ab0db968d6ca538f7c82973376611",
+      "sha256": "a27dc5a86097d902146b9b7425876a3c63ebf50decb3a535a59acfd4d86d4190",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {

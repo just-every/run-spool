@@ -1,10 +1,10 @@
 CREATE TABLE issue_priorities (
- project TEXT NOT NULL REFERENCES projects(id), issue TEXT PRIMARY KEY REFERENCES issues(id),
+ project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE, issue TEXT PRIMARY KEY REFERENCES issues(id) ON DELETE CASCADE,
  automatic INTEGER NOT NULL CHECK(automatic BETWEEN 1 AND 3),
  manual TEXT CHECK(manual IN ('high','medium','low'))
 );
 CREATE TABLE issue_activity (
- id TEXT PRIMARY KEY, project TEXT NOT NULL REFERENCES projects(id), issue TEXT NOT NULL REFERENCES issues(id),
+ id TEXT PRIMARY KEY, project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE, issue TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
  kind TEXT NOT NULL, actor_kind TEXT NOT NULL, actor_label TEXT NOT NULL,
  detail TEXT NOT NULL CHECK(json_valid(detail)), created INTEGER NOT NULL
 );
@@ -30,7 +30,7 @@ BEGIN
  CASE WHEN EXISTS(SELECT 1 FROM audit_context WHERE action IN ('capture.native','capture.sentry','capture.otlp')) THEN 'ingest' ELSE COALESCE((SELECT actor_kind FROM audit_context),'service') END,COALESCE((SELECT actor_label FROM audit_context),'audit:'||lower(hex(randomblob(16)))),json_object('from',OLD.state,'state',NEW.state),CAST((julianday('now')-2440587.5)*86400000 AS INTEGER);
 END;
 CREATE TABLE issue_comments (
- id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),
+ id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,issue TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
  operator_id TEXT NOT NULL,actor_kind TEXT NOT NULL,actor_label TEXT NOT NULL,
  body TEXT NOT NULL CHECK(length(body)<=4000),mentions TEXT NOT NULL DEFAULT '[]' CHECK(json_valid(mentions)),
  version INTEGER NOT NULL DEFAULT 1,created INTEGER NOT NULL,updated INTEGER NOT NULL
@@ -40,13 +40,13 @@ CREATE TRIGGER issue_comments_capacity BEFORE INSERT ON issue_comments
 WHEN (SELECT count(*) FROM issue_comments WHERE project=NEW.project AND issue=NEW.issue)>=200
 BEGIN SELECT RAISE(ABORT,'issue_comment_limit'); END;
 CREATE TABLE issue_subscriptions (
- project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),operator_id TEXT NOT NULL,
+ project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,issue TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,operator_id TEXT NOT NULL,
  reason TEXT NOT NULL CHECK(reason IN ('comment','mention','manual')),
  state TEXT NOT NULL CHECK(state IN ('subscribed','unsubscribed','inert')),updated INTEGER NOT NULL,
  PRIMARY KEY(project,issue,operator_id,reason)
 );
 CREATE TABLE recurrence_policies (
- project TEXT PRIMARY KEY REFERENCES projects(id),revision INTEGER NOT NULL CHECK(revision>=1),
+ project TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,revision INTEGER NOT NULL CHECK(revision>=1),
  reopen_same_release INTEGER NOT NULL DEFAULT 0 CHECK(reopen_same_release IN(0,1)),updated INTEGER NOT NULL
 );
 CREATE TRIGGER issue_activity_resolution AFTER UPDATE OF mode,boundary_seq ON issue_resolutions
@@ -88,7 +88,7 @@ BEGIN
  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=incoming.project AND x.event=incoming.id AND x.occurrence=incoming.occurrence);
 END;
 CREATE TABLE issue_suppressions (
- id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),
+ id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,issue TEXT NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
  mode TEXT NOT NULL CHECK(mode IN('forever','until','count','users','escalating','snooze')),reason TEXT NOT NULL,
  deadline INTEGER,occurrence_target INTEGER,user_target INTEGER,window_ms INTEGER,forecast REAL,
  started INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN('active','expired','ended')),ended INTEGER,
@@ -114,7 +114,7 @@ END;
 -- the decision. The first event in a future target is a regression; a repeat
 -- in an already observed target follows the collaborative recurrence policy.
 CREATE TABLE issue_recurrence_boundaries (
- project TEXT NOT NULL REFERENCES projects(id),issue TEXT PRIMARY KEY REFERENCES issues(id),
+ project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,issue TEXT PRIMARY KEY REFERENCES issues(id) ON DELETE CASCADE,
  boundary_seq INTEGER,seen_at_resolution INTEGER NOT NULL CHECK(seen_at_resolution IN (0,1))
 );
 CREATE TRIGGER issue_recurrence_boundary_update AFTER UPDATE OF mode,boundary_seq ON issue_resolutions
