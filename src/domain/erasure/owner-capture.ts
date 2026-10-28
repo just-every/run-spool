@@ -5,6 +5,7 @@ import { repairLink } from '../repairs/input';
 // Only content columns are rewritten. Keys, grouping inputs and immutable
 // import custody cannot be silently changed or dropped with a neighbour's data.
 export const ownerCaptureColumns: Record<string, string[]> = {
+ spool_team_digest_settings: ['team'], spool_team_snoozes: ['team','target'], spool_team_mail: ['team','body'],
  spool_organizations: ['name'], spool_project_teams: ['team'], spool_service_accounts: ['name'],
  suspect_decisions: ['note'],
  feedback: ['message'],

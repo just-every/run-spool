@@ -22,6 +22,10 @@ export async function ownerDeclaration(db: D1Database) {
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
  edges:[
   child('spool_members'),
+  {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},
+  {table:'spool_team_snoozes',from:'spool_members',on:{creator:'id'}},
+  {table:'spool_team_mail',from:'spool_members',on:{member:'id'}},
+  {table:'spool_follow_up_alternates',from:'spool_members',on:{member:'id'}},
   {table:'spool_project_grants',from:'spool_members',on:{member:'id'}},
   {table:'spool_member_invites',from:'spool_members',on:{member:'id'}},
   child('spool_service_accounts','sponsor'),

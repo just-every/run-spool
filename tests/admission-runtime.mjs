@@ -33,7 +33,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
-export default {...application,fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
    if(request.url!=='https://api.resend.com/emails')throw new Error('Unexpected test network destination');

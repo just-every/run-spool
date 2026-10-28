@@ -1,3 +1,4 @@
+import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { auditCommit } from '../audit/context';
 import { ownerBatch } from '../owner-authority';
 import { activeTeamRecipient, memberForSession, requireTeamWriter, teamContext, teamWriterGuard } from '../members/notifications';
@@ -15,10 +16,16 @@ export function teamControls(routes:any,input:(c:any)=>Promise<any>) {
   const settings=(await s(db,`SELECT organization,team,member,timezone,daily,weekly,hour,created,updated
    FROM spool_team_digest_settings WHERE organization=? AND team=? ${privileged?'':'AND member=?'} ORDER BY member`,context.organization,context.team,...privileged?[]:[member?.id??'']).all()).results;
   const snoozes=(await s(db,`SELECT z.*,(SELECT COUNT(*) FROM alert_suppressed x WHERE x.snooze_id=z.id AND x.project=?) suppressed
-   FROM spool_team_snoozes z WHERE organization=? AND team=? ORDER BY created DESC LIMIT 100`,project,context.organization,context.team).all()).results;
+   FROM spool_team_snoozes z WHERE organization=? AND team=? ${privileged?'':"AND (z.scope='team' OR z.scope='issue' AND EXISTS(SELECT 1 FROM issues i WHERE i.id=z.target AND i.project=?) OR z.scope='rule' AND EXISTS(SELECT 1 FROM alert_rules r WHERE r.id=z.target AND r.project=?))"} ORDER BY created DESC LIMIT 100`,project,context.organization,context.team,...privileged?[]:[project,project]).all()).results;
   const mail=(await s(db,`SELECT id,member,kind,period,state,code,created,updated FROM spool_team_mail
    WHERE organization=? AND team=? ${privileged?'':'AND member=?'} ORDER BY created DESC LIMIT 50`,context.organization,context.team,...privileged?[]:[member?.id??'']).all()).results;
-  return c.json({organization:context.organization,team:context.team,settings,snoozes,mail});
+  let canManage=true;
+  try{await requireTeamWriter(db,session,context.organization,context.team)}catch(error){if(!(error instanceof AuthError))throw error;canManage=false;}
+  const recipients:any[]=[];
+  if(canManage)for(const candidate of (await s(db,"SELECT id,name FROM spool_members WHERE organization=? AND state='active' ORDER BY created,id",context.organization).all<any>()).results){
+   if(await activeTeamRecipient(db,context.organization,context.team,candidate.id))recipients.push(candidate);
+  }
+  return c.json({organization:context.organization,team:context.team,settings,snoozes,mail,canManage,recipients});
  });
  routes.put('/team-digests',async(c:any)=>{
   const db=c.env.DB,project=c.req.param('project'),session=c.get('alertSession'),context=await teamContext(db,project);

@@ -18,8 +18,10 @@ export async function expireSnoozes(env:AlertEnvironment,time:number){
   if(!project)continue;
   const count=await s(env.DB,'SELECT COUNT(*) n FROM alert_suppressed WHERE snooze_id=? AND released_at IS NULL',row.id).first<any>();
   await alertServiceBatch(env,project,[
-   s(env.DB,`INSERT INTO spool_team_mail(id,organization,team,member,kind,period,body,created,updated)
-    SELECT ?,organization,team,creator,'resumption',id,?,?,? FROM spool_team_snoozes WHERE id=? AND resumed_at IS NULL AND historical=0
+   s(env.DB,`INSERT INTO spool_team_mail(id,organization,team,member,kind,period,body,created,updated,projects,member_version)
+    SELECT ?,z.organization,z.team,z.creator,'resumption',z.id,?,?,?,
+     (SELECT json_group_array(project) FROM spool_project_teams t WHERE t.organization=z.organization AND t.team=z.team),m.version
+    FROM spool_team_snoozes z JOIN spool_members m ON m.id=z.creator WHERE z.id=? AND z.resumed_at IS NULL AND z.historical=0
     ON CONFLICT(organization,team,member,kind,period) DO NOTHING`,'team-resume-'+row.id,`Spool team snooze expired. ${row.scope}: ${row.target}. Held alerts: ${count?.n??0}. Capture continued. Inspect team controls and Needs attention; held deliveries remain listed until explicitly released.`,time,time,row.id),
    s(env.DB,'UPDATE spool_team_snoozes SET resumed_at=? WHERE id=? AND resumed_at IS NULL AND historical=0',time,row.id),
   ]);

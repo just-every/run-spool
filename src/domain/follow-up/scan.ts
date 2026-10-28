@@ -58,8 +58,10 @@ export async function scanFollowUp(env:Environment,time:number) {
   SELECT m.project,'alert','scheduled:'||m.id,m.created,'failed',COALESCE(m.code,'scheduled_mail_failed') FROM alert_scheduled_mail m WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
   UNION ALL
   SELECT o.project,'alert','loss:'||o.window||':'||o.reason,o.window,'overdue','capture_loss_'||o.reason FROM outcomes o WHERE o.reason NOT IN ('accepted','duplicate') AND o.count>0
-  UNION ALL
-  SELECT t.project,'alert','team-mail:'||m.id,m.created,'failed',COALESCE(m.code,'team_mail_failed')
+`,time).all<Candidate>()).results;
+ // D1 bounds compound SELECT terms. Keep the existing project sources and
+ // these two team sources in separate reads, retaining the complete scan.
+ const teamCandidates=(await s(env.DB,`SELECT t.project,'alert' source,'team-mail:'||m.id source_id,m.created due,'failed' state,COALESCE(m.code,'team_mail_failed') reason
    FROM spool_team_mail m JOIN spool_project_teams t ON t.organization=m.organization AND t.team=m.team
    WHERE m.historical=0 AND m.state IN ('blocked','rejected','uncertain')
     AND t.project=(SELECT project FROM spool_project_teams WHERE organization=m.organization AND team=m.team ORDER BY project LIMIT 1)
@@ -69,8 +71,8 @@ export async function scanFollowUp(env:Environment,time:number) {
    WHERE m.state<>'active' OR o.status IS NOT 'active' OR
     (o.role<>'owner' AND m.role<>'admin' AND NOT (m.role='member' AND EXISTS(
      SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=a.project AND g.role IN ('maintainer','member'))))
-`,time).all<Candidate>()).results;
- candidates.push(...additional);
+`).all<Candidate>()).results;
+ candidates.push(...additional,...teamCandidates);
  // Do not bound this scan to the first N failures: durable failures would starve
  // every later source forever. Existing project/workflow admission bounds work.
  const seen=new Set<string>();

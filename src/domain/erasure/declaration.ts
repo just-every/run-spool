@@ -16,6 +16,12 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
+  {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},
+  ...['spool_team_digest_settings','spool_team_snoozes','spool_team_mail'].map(table=>({table,from:'spool_project_teams',
+   where:'organization=? AND team=? AND NOT EXISTS(SELECT 1 FROM spool_project_teams t WHERE t.organization=? AND t.team=? AND t.project<>?)',params:['organization','team','organization','team','project']})),
+  {table:'spool_team_snoozes',from:'issues',where:"scope='issue' AND target=?",params:['id']},
+  {table:'spool_team_snoozes',from:'alert_rules',where:"scope='rule' AND target=?",params:['id']},
   ...['spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
   { table: 'spool_service_credentials', from: 'credentials', on: { hash: 'hash' } },
   ...['source_map_builds','source_map_build_files','artifact_storage_settings'].map(fromProject),

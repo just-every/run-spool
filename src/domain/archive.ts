@@ -1,4 +1,4 @@
-import { memberTables, memberDefaults, validateMemberArchive } from './members/archive';
+import { memberTables, teamAlertTables, memberDefaults, validateMemberArchive } from './members/archive';
 import {reviewTables,validateReviewArchive} from './review/model';
 import {retentionTables,validateRetentionArchive} from './retention-policy';
 import { sourceMapBuildTables, validateSourceMapBuilds } from './source-map-builds';
@@ -36,7 +36,7 @@ export const tables:Record<string,string[]>= {
   issues:['id','project','fingerprint','algorithm','title','state','revision','count','first_seen','last_seen','resolved_seq','latest_release_seq'],
   events:['id','project','issue','release','release_seq','build','environment','payload','digest','diagnostic','received','occurrence','historical'],
   artifacts:['project','release','build','debug','payload','digest','created','occurrence'],
-  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables,...memberTables
+  outcomes:['project','window','reason','count'],audit:['id','project','kind','detail','created'],alerts:['id','project','issue','kind','created'],browser_origins:['project','origin','created'],...importedTables,...operatorTables,...bundleTables,...inboundFilterTables,...feedbackTables,...groupingTables,...releaseTables,...deploymentTables,...proposalTables,...shortIdTables,...commitTables,...sentryCliTables,...loaderTables,...artifactStorageTables,...sourceMapBuildTables,...suspectTables,...sessionTables,...identityTables,...retentionTables,...reviewTables,...memberTables,...teamAlertTables
 };
 const fieldsHaveProject=(table:string)=>tables[table]?.includes('project');
 function shape(value:any, fields:string[]){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join()!==[...fields].sort().join())throw new Error('Archive derived field shape');}
@@ -77,7 +77,7 @@ export async function validateArchive(v:any) {
   const upgraded=Object.fromEntries(Object.entries(v.data).map(([table,rows])=>[table,(rows as Record<string,unknown>[]).map(row=>upgradeOccurrence(table,row))]));
   return validateArchiveRows(inboundFilterDefaults(bundleDefaults(operatorDefaults(legacyIssueReleases(legacyImportDefaults({...upgraded,browser_origins:legacy?[]:v.data.browser_origins}))))),legacy);
 }
-export async function validateArchiveRows(data:any,legacy=false) {
+export async function validateArchiveRows(data:any,legacy=false,alertRules:any[] = []) {
   // Native v1/v2 and the exact pre-alert schemas have no feedback collection.
   data={source_map_builds:[],source_map_build_files:[],artifact_storage_settings:[],...loaderDefaults(data)};
   data=memberDefaults(suspectDefaults(data));
@@ -113,7 +113,7 @@ export async function validateArchiveRows(data:any,legacy=false) {
   const originIdentities=new Set<string>();
   if(!legacy)for(const row of v.data.browser_origins){if(typeof row.project!=='string'||!projects.has(row.project))throw new Error('Archive origin project');browserOrigin(row.origin);const key=row.project+'\n'+row.origin;if(originIdentities.has(key))throw new Error('Archive duplicate origin');originIdentities.add(key);if(!Number.isSafeInteger(row.created)||row.created<0)throw new Error('Archive origin timestamp');}
   for(const project of projects){if(v.data.events.filter((r:any)=>r.project===project).length>10000)throw new Error('Archive event budget');if(!legacy&&v.data.browser_origins.filter((r:any)=>r.project===project).length>20)throw new Error('Archive origin budget');}
-  validateMemberArchive(v.data);
+  validateMemberArchive(v.data,alertRules);
   validateProposalArchive(v.data);
   validateShortIdArchive(v.data);
   validateCommitArchive(v.data);
