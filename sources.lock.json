@@ -8622,7 +8622,7 @@
       "executable": false
     },
     "src/site/pages.tsx": {
-      "sha256": "ee0ef937eac7e87fd9eabdbda37449c5e072a50fafe6f9b60afe8bb03f1409c6",
+      "sha256": "6711151c8cbdbc84e4443921bee5ec74367d4736c6b42be488bf6c0b1ff3ed77",
       "executable": false
     },
     "src/site/run.ts": {
@@ -8630,7 +8630,7 @@
       "executable": false
     },
     "src/site/site.css": {
-      "sha256": "277cb057878511690297118976c4df950fbbfb4e18d90450df94ef51f5837693",
+      "sha256": "195a9449b999fff084f85bc059eeac81fe616530d606ac3557b5bbb3bc0c5a27",
       "executable": false
     },
     "src/ui/alerts/AlertControls.tsx": {
