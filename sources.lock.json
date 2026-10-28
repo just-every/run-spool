@@ -4802,7 +4802,7 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "0979731d06189e4246350abf4bb2689b19686bec2cae72aa6987aef8ec78e7d7",
+      "sha256": "db380911d10beb23d984ba8e6622170e5459897b130457b89d050f04e2814305",
       "executable": false
     },
     "src/domain/agent-door/native-context.ts": {
@@ -8762,7 +8762,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "c3975585a91bdcdaf9370d13fce72d41ebda891319746bf7e41e242177f67be2",
+      "sha256": "0f7f9df8af19b7b9db067c2a52f86d0646696c8e66cceb3df7d0d936c665b67e",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
@@ -8778,7 +8778,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "66de72dc6b9f7a6d1100fc024cae7774bdf7655f19dd5c5c8fd3a68f628d634f",
+      "sha256": "5a2c07db7081268df2dd49a9df91796d6a03f84f73dcbc866e3542c6c217f27c",
       "executable": false
     },
     "tests/agent-door/initialize.mjs": {
@@ -8902,7 +8902,7 @@
       "executable": false
     },
     "tests/browser-launch.mjs": {
-      "sha256": "52d7f298604a8e8e8cb5a0d648d050b5acf2bca01fb13801ed9b6ecdf1dcd6ec",
+      "sha256": "a8211fa7e861b383f8db4cca83c67fd1b4552703e18225130c75d2612b259f9f",
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {

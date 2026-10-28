@@ -77,6 +77,7 @@ try {
  const scoped=await person('/api/projects/door-triage/keys',{kind:'agent'});
  const local=async(name,args)=>{const response=await app.call('/mcp',{jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}},{Authorization:'Bearer '+scoped.key,'mcp-protocol-version':'2025-11-25'});return response.json();};
  done(await local('spool.issues.list',{project:project.id}));assert.equal(code(await local('spool.grouping.apply',{project:project.id,id:saved.id,idempotency_key:randomUUID()})),'insufficient_scope');
+ assert.equal((await app.call('/api/projects/'+project.id+'/keys/'+scoped.hash,undefined,{Authorization:'Bearer '+scoped.key},'DELETE')).status,403,'a project key is refused before an unauthorized mutation body is parsed');
  const foreign=await local('spool.issues.list',{project:'foreign-project'});assert.ok(code(foreign));
  // A queued alert retains its original Business consent and re-enters typed policy.
  const destination=await person('/api/projects/'+project.id+'/alerting/destinations',{label:'Checkout team',recipient:testOwner});
@@ -113,7 +114,8 @@ try {
   await page.setViewportSize({width,height:1000});
   for(const [label,path] of [['agents','/agents'],['pending','/agents/approvals/'+approval.id],['repair',`/projects/${project.id}/issues/${captured.issue}`]]) {
    await page.goto(origin+path);await page.waitForLoadState('networkidle');
-   if(width===1440)assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),label+' has no horizontal overflow');
+   if(width===1440){assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),label+' has no horizontal overflow');
+    assert.deepEqual(await page.locator('button').evaluateAll(buttons=>buttons.filter(button=>{const box=button.getBoundingClientRect();return box.height>0&&box.width>0&&(box.height<44||box.width<44);}).map(button=>button.textContent)),[],label+' controls have 44px targets');}
    const axe=width===1440?await new AxeBuilder({page}).analyze():{violations:[]};if(width===1440)assert.deepEqual(axe.violations.filter(row=>['critical','serious'].includes(row.impact)),[],label+' axe');
    await page.screenshot({path:resolve(output,`${label}-${width}.png`),fullPage:true});
   }

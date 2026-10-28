@@ -2,7 +2,7 @@ import { createAgentDoor, type Trust } from '../../modules/agent-door/index.ts';
 import { createBusinessSettings } from '../../modules/business-settings/index.ts';
 import type { Bindings } from '../../auth/bindings';
 import { spoolPeople, spoolTeam } from './people';
-import { operations } from './catalogue';
+import { operations, operationDeclaration } from './catalogue';
 import { spoolTools, spoolResources } from './tools';
 import { agentProject } from '../agent-access';
 import { hash } from '../privacy';
@@ -57,7 +57,7 @@ export async function agentDoorResponse(request:Request,env:Bindings):Promise<Re
  if(!selected)return Response.json({code:'insufficient_scope'},{status:403});
  let args:Record<string,unknown>={...Object.fromEntries(new URL(request.url).searchParams),...params};
  if(args.limit!==undefined)args.limit=Number(args.limit);
- if(request.method!=='GET') {try {args={...await request.json() as object,...params,idempotency_key:request.headers.get('idempotency-key')??crypto.randomUUID()};}catch{return Response.json({code:'invalid_arguments'},{status:400});}}
+ if(request.method!=='GET'&&local.scopes.includes(operationDeclaration(selected).scope)) {try {args={...await request.json() as object,...params,idempotency_key:request.headers.get('idempotency-key')??crypto.randomUUID()};}catch{return Response.json({code:'invalid_arguments'},{status:400});}}
  const name=selected.name;
  const result=await spoolDoor(env).invoke(name,args,{person:local.sponsor,agent:local.agent,scopes:local.scopes,clientId:local.clientId});
  return result.outcome==='done'?(result.result&&typeof result.result==='object'&&'text' in result.result?new Response(String(result.result.text),{headers:{'content-type':'text/csv; charset=utf-8'}}):Response.json(result.result)):Response.json({code:result.code??'approval_required',...result.approval?{approval:result.approval}:{}},{status:result.outcome==='pending'?202:403});
