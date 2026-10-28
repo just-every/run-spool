@@ -2641,7 +2641,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "07eec73c4dc03388b214a047b3109819f4d4a50cf9b5e5a20adcf42753334929",
+      "sha256": "873c8d25b502b6faa7798944f40b3095dc7110b4a5c396d86d0d867e0f73a076",
       "executable": false
     },
     "base-copies.json": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "958c6f20d55ee590b0f23b64b779be6b32b782cef1fdd9e7f79be468390352d0",
+      "sha256": "3e90329dfa3c72f9f33fd1ca63b07ca0221f30d00a36aa5465232fe26a084c7e",
       "executable": false
     },
     "DEMO.md": {
@@ -8457,7 +8457,7 @@
       "executable": false
     },
     "tests/business-import.mjs": {
-      "sha256": "b70cc5869ca6d90b8dace261d0f5feedd72bcfd89e80384ecdb831f3531f349f",
+      "sha256": "695398a16528a68fafd5535ca3f2d313741a60b43354ce5e27d11842d52eea2e",
       "executable": false
     },
     "tests/checkin-flow.mjs": {
