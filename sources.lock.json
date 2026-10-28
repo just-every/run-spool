@@ -8629,7 +8629,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "ea6f232a3212d2030f741a4e55d14f7cd29969d0c20e548762121bcb25153053",
+      "sha256": "88dd08a90dd733ed41b6957fa2fce0e4ae8c8cfb608ab20f8dcc7362d190d744",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -8773,7 +8773,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "00aef8bf27c7e2ac3eb99f5a6ccfedce7b6a53ddc700f381b0e63bb1d4711822",
+      "sha256": "859cc755dfd52204fb65fc703b59b4d88d8ab0db968d6ca538f7c82973376611",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
