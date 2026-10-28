@@ -1,3 +1,4 @@
+import { reportingTables, reportingExportRow } from './dashboards/archive';
 import { memberTables, teamAlertTables, memberExportRow } from './members/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
@@ -44,7 +45,7 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))),
+ exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -173,6 +174,9 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
+const reportingNames=Object.keys(reportingTables);
+for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
+laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

@@ -21,12 +21,12 @@ CREATE TABLE spool_reporting_widgets (
  project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
  position INTEGER NOT NULL CHECK(position>=0 AND position<12),
  name TEXT NOT NULL,
- config TEXT,
+ config TEXT NOT NULL,
  view_id TEXT,
  PRIMARY KEY(item,id),
  UNIQUE(item,position),
  FOREIGN KEY(item,project) REFERENCES spool_reporting_projects(item,project) ON DELETE CASCADE,
- CHECK((view_id IS NULL AND config IS NOT NULL) OR (view_id IS NOT NULL AND config IS NULL))
+ CHECK(json_valid(config))
 );
 CREATE INDEX spool_reporting_widgets_project ON spool_reporting_widgets(project,item);
 CREATE TABLE spool_reporting_shares (

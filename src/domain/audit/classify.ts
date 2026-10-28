@@ -5,6 +5,13 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/reporting\/items$/,methods:['POST'],action:'reporting.create',kind:'policy'},
+ {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)\/shares$/,action:'reporting.share',kind:'policy'},
+ {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)\/export$/,action:'reporting.export',kind:'policy'},
+ {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)$/,methods:['PUT','DELETE'],action:'reporting.change',kind:'policy'},
+ {pattern:/^\/api\/reporting\/items\/(?<subject>[^/]+)(?:\/run)?$/,action:'reporting.view',kind:'policy'},
+ {pattern:/^\/api\/reporting\/table-preview$/,action:'reporting.query',kind:'project'},
+ {pattern:/^\/api\/reporting\/preview$/,action:'reporting.query',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-digests$/,action:'alert.digest.settings',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/team-snoozes$/,action:'alert.snooze',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/follow-up\/alternate-member$/,action:'automation.follow_up',kind:'project'},
@@ -109,6 +116,7 @@ const auth: Record<string,AuditAction> = {
 };
 export function classifyRequest(request: Request): Door | null {
  const path=new URL(request.url).pathname;
+ if(path==='/api/reports')return {action:new URL(request.url).searchParams.has('format')||new URL(request.url).searchParams.get('download')==='1'?'report.export':'report.read',kind:'policy',subject:'impact-report'};
  // Unauthenticated provider forgeries must leave no storage write. Verified
  // delivery events record their service fact inside the projection transaction.
  if (/^\/api\/alert-events\/sendgrid\/[a-zA-Z0-9._-]+$/.test(path))return null;

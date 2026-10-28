@@ -48,6 +48,7 @@ export async function ownerDeclaration(db: D1Database) {
   {table:'rer_mail_development_outbox',from:'oa_step_up_challenges',where:"json_valid(message) AND json_extract(message,'$.deliveryId')=?",params:['id']},
  ],
  redact:[
+  {table:'spool_reporting_items',from:'oa_operators',on:{author:'id'},set:{author:null},reason:'Reporting definitions remain with their author displayed as [erased].'},
   {table:'oa_bootstrap',from:'oa_operators',on:{claim_id:'id'},set:{claim_id:'retired-owner-claim'},reason:'Claimed installation marker remains without the former identity.'},
   {table:'oc_owner_claims',from:'oa_operators',on:{operator_id:'id'},set:{email:'',operator_id:'',session_id:'',jti:'retired-owner-claim'},reason:'Managed claim is irreversibly retired; initialization never reopens.'},
  ],
