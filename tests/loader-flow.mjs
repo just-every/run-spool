@@ -140,7 +140,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  assert.ok(archived.data.loader_settings.some(row => row.key_hash === keyHash)); assert.ok(!archive.includes(key), 'raw ingest key is absent from archive');
  let destination;
  try {
-  destination = await startTestWorker(15523); const destinationCookie = await signIn(destination.origin);
+  destination = await startTestWorker(15523); const destinationCookie = await signIn(destination.origin,{choosePolicy:false});
   const headers = { Origin: destination.origin, Cookie: destinationCookie };
   const restored = await fetch(destination.origin + '/api/restore', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' }, body: archive });
   assert.equal(restored.status, 200, 'private archive restores through the owner door'); await restored.body.cancel();

@@ -9,7 +9,7 @@ export async function handoffPanel(browser,app,directory){
    await openGate(context,app.origin);
    const pairs=app.cookie.split('; ').filter(Boolean);await context.addCookies(pairs.map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
    // Let the settings page finish loading before the key request's wait starts.
-   const page=await context.newPage();await page.goto(app.origin+'/projects/a/settings');await page.waitForLoadState('networkidle');
+   const page=await context.newPage();await page.goto(app.origin+'/projects/a/settings');await page.getByRole('button',{name:'Create agent key',exact:true}).waitFor();
    const minted=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/projects/a/keys'&&r.request().method()==='POST');
    await page.getByRole('button',{name:'Create agent key',exact:true}).click();const grant=await (await minted).json();
    const panel=page.locator('.agent-handoff');await panel.waitFor();const setup=await panel.locator('pre').first().innerText();assert.ok(!setup.includes(grant.key));assert.ok(setup.includes(app.origin+'/api/projects/a'));assert.ok(await panel.locator('[data-secret="agent-key"]').innerText()===grant.key,'once-shown key retained');

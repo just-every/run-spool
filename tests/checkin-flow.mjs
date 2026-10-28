@@ -148,7 +148,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
   const archived = await archiveProjection(await fetch(origin + '/api/archive', { headers: { Cookie: app.cookie, Origin: origin } }));
   assert.ok(!archived.text.includes(capabilityPart) && !archived.text.includes('synthetic-spool-monitor-1'), 'no capability URL is exported'); assert.equal(archived.data.checkin_routes, undefined);
   try {
-   destination = await startTestWorker(15523); const destinationCookie = await signIn(destination.origin), headers = { Origin: destination.origin, Cookie: destinationCookie };
+   destination = await startTestWorker(15523); const destinationCookie = await signIn(destination.origin,{choosePolicy:false}), headers = { Origin: destination.origin, Cookie: destinationCookie };
    const restored = await fetch(destination.origin + '/api/restore', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' }, body: archived.text });
    assert.equal(restored.status, 200); await restored.body.cancel();
    const routes = await (await fetch(destination.origin + route, { headers })).json(); assert.deepEqual(routes.connections, [], 'a restored project has no connection and sends nothing until the owner reconnects');
@@ -162,7 +162,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
 
   // A project that predates the migration upgrades with forwarding off and keeps working.
   upgrade = await startTestWorker(15525, {}, { deferMigration: '0069_checkin_routes.sql' });
-  const upgradeCookie = await signIn(upgrade.origin), call = async (path, method = 'GET', body) => { const response = await fetch(upgrade.origin + path, { method, headers: { Origin: upgrade.origin, Cookie: upgradeCookie, 'content-type': 'application/json' }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: ${response.status}`); return response.json(); };
+  const upgradeCookie = await signIn(upgrade.origin,{choosePolicy:false}), call = async (path, method = 'GET', body) => { const response = await fetch(upgrade.origin + path, { method, headers: { Origin: upgrade.origin, Cookie: upgradeCookie, 'content-type': 'application/json' }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: ${response.status}`); return response.json(); };
   const old = await call('/api/projects', 'POST', { id: 'synthetic-spool-upgrade-cron', name: 'Existing project' }), oldDsn = new URL(old.dsn);
   const send = body => fetch(`${upgrade.origin}/api/${oldDsn.pathname.slice(1)}/envelope/?sentry_key=${oldDsn.username}&sentry_version=7`, { method: 'POST', body }).then(async response => ({ status: response.status, body: await response.json() }));
   assert.equal((await send(envelope([event('f'.repeat(32))], { event_id: 'f'.repeat(32) }))).status, 200);

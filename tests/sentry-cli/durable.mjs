@@ -31,7 +31,7 @@ export async function durableFlow({origin, api, req, keys}) {
 
  const target = await startTestWorker(15612);
  try {
-  const restored = client(target.origin, await signIn(target.origin));
+  const restored = client(target.origin, await signIn(target.origin,{choosePolicy:false}));
   assert.equal((await restored.req('/api/restore', 'POST', archive.text, {'x-confirm-restore': 'yes'})).status, 200);
   const rows = await restored.json('/api/projects/web/releases'), original = (await api('/api/projects/web/releases')).find(row => row.name === 'checkout@1.0.0');
   const copy = rows.find(row => row.name === 'checkout@1.0.0');

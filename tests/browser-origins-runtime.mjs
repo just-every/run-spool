@@ -66,7 +66,7 @@ async function start(name,migrationFiles,{legacy=false,fixtureSql}={}){config.va
 async function stop(){worker?.kill('SIGTERM');if(worker&&worker.exitCode===null)await new Promise(r=>worker.once('exit',r));worker=null;cookie=''}
 async function request(path,method='GET',value,headers={}){const response=await fetch(origin+path,{method,headers:{...(path==='/api/restore'?{'X-Confirm-Restore':'yes'}:{}),Origin:origin,Connection:'close',...cookie?{Cookie:cookie}:{},...value?{'Content-Type':typeof value==='string'?'application/x-ndjson':'application/json'}:{},...headers},...value?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});const bytes=await response.arrayBuffer();return new Response([204,205,304].includes(response.status)?null:bytes,{status:response.status,statusText:response.statusText,headers:response.headers})}
 async function json(path,method,value,headers){const response=await request(path,method,value,headers);assert.ok(response.ok,'product HTTP request succeeds');if(path==='/api/archive'){const value=await archiveProjection(response);for(const rows of Object.values(value.data))rows.sort((a,b)=>canonical(a).localeCompare(canonical(b)));return value}return response.json()}
-async function login(){cookie=await signIn(origin)}
+async function login(options){cookie=await signIn(origin,options)}
 const migrations=(await readdir('migrations/core')).filter(name=>name.endsWith('.sql')).sort();
 const legacyMigrations=migrations.filter(name=>Number(name.split('_')[0])<=2);
 const rehash=archive=>{archive.checksum=createHash('sha256').update(canonical({version:archive.version,migration:archive.migration,data:archive.data})).digest('hex');return archive};
@@ -76,7 +76,7 @@ try{
  await start('old-data',legacyMigrations,{legacy:true,fixtureSql});
  const auth={Authorization:'Bearer '+project.ingestKey};
  const originalV1=await json('/api/test-legacy-export');for(const rows of Object.values(originalV1.data))rows.sort((a,b)=>canonical(a).localeCompare(canonical(b)));rehash(originalV1);
- await stop();await start('old-data',migrations.filter(name=>!legacyMigrations.includes(name)));await login();
+ await stop();await start('old-data',migrations.filter(name=>!legacyMigrations.includes(name)));await login({choosePolicy:false});
  let archive=await json('/api/archive');assertLegacyUpgrade(archive.data,originalV1.data);check('actual native v1 producer reads matching predecessor schema; every old field survives all additive migrations with legacy identities');
  assert.ok(isDeepStrictEqual(await json('/api/projects/cors/browser-origins'),[]),'private domain rows match exactly');const implicit=await json('/api/projects/cors/browser-origins','POST',{origin});assert.equal(implicit.implicit,true);assert.equal(implicit.changed,false);assert.ok(isDeepStrictEqual(await json('/api/projects/cors/browser-origins'),[]),'private domain rows match exactly');
  const denied=await request('/api/ingest/cors','POST',{...event,eventId:'denied'},{...auth,Origin:foreign});assert.equal(denied.status,403);assert.equal(denied.headers.get('access-control-allow-origin'),null);
@@ -115,8 +115,8 @@ try{
  let destinationHits=0;destinationServer=createServer((req,res)=>{destinationHits++;req.resume();res.end(JSON.stringify({outcome:'accepted'}))});await new Promise(r=>destinationServer.listen(15478,'127.0.0.1',r));redirectServer=createServer((req,res)=>{req.resume();res.writeHead(307,{Location:'http://127.0.0.1:15478/refused'});res.end()});await new Promise(r=>redirectServer.listen(15477,'127.0.0.1',r));const redirect=await captureException(new Error('Synthetic redirect check'),{endpoint:'http://127.0.0.1:15477',project:'cors',ingestKey:project.ingestKey,release:'r1',build:'b1',environment:'test'},'redirect-refused');assert.equal(redirect.outcome,'unknown');assert.equal(destinationHits,0);check('real HTTP307 helper refuses follow; destination receives no request');
  await json('/api/projects/cors/browser-origins','DELETE',{origin:configured[0].origin});const alias='http://localhost:'+port;const aliasAdd=await fetch(alias+'/api/projects/cors/browser-origins',{method:'POST',headers:{Origin:alias,Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify({origin})});assert.equal(aliasAdd.status,403,'configured origin refuses an authenticated alternate host');
  archive=nativeArchive((await json('/api/archive')).data);archive.data.browser_origins.push({project:'cors',origin,created:Date.now()});archive.data.browser_origins.sort((a,b)=>canonical(a).localeCompare(canonical(b)));rehash(archive);assert.ok(!('browser_origin_guards' in archive.data));assert.ok(!('credentials' in archive.data));assert.ok(!JSON.stringify(archive).includes(project.ingestKey));
- await stop();await start('v1-restore',migrations);await login();await json('/api/restore','POST',originalV1);assertLegacyUpgrade((await json('/api/archive')).data,originalV1.data);check('original native v1 independently restores into current schema with legacy identities, empty origins and zero grants');
- await stop();await start('v2-restore',migrations);await login();
+ await stop();await start('v1-restore',migrations);await login({choosePolicy:false});await json('/api/restore','POST',originalV1);assertLegacyUpgrade((await json('/api/archive')).data,originalV1.data);check('original native v1 independently restores into current schema with legacy identities, empty origins and zero grants');
+ await stop();await start('v2-restore',migrations);await login({choosePolicy:false});
  const poisons=[
  a=>a.data.browser_origins[0].origin='https://user@private.example',
  a=>a.data.browser_origins[0].origin+='/',a=>a.data.browser_origins[0].project='orphan',

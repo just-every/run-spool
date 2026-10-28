@@ -175,6 +175,8 @@ try {
  const retired=(await app.DB.prepare('SELECT revoked FROM credentials WHERE hash=?').bind(memberKey.hash).first()).revoked;assert.ok(retired);
  await person('/api/organization/members/'+member.id,{version:member.version+1,role:'admin',grants:[]},'PUT');
  assert.equal((await app.DB.prepare('SELECT revoked FROM credentials WHERE hash=?').bind(memberKey.hash).first()).revoked,retired,'later widening never revives the old key');
+ await person('/api/organization/members/'+member.id,{version:member.version+2},'DELETE');
+ assert.equal((await rpc('tools/call',{name:'spool.issues.list',arguments:{project:project.id}},memberClaims)).status,401,'a removed native teammate cannot sponsor the next Business call');
  const unavailable=await rpc('resources/read',{uri:`spool://projects/${project.id}/repairs/missing`});
  pending(unavailable.error?.data?.code==='resource_unavailable','2026-10-28.resource-refusal-code');
  const declared=validateAgentSurface(JSON.parse(await readFile('agent-surface.json','utf8')),{contract:await readFile('CONTRACT.md','utf8')});

@@ -179,7 +179,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 
- await stop();cookie='';await start(resolve(temporary,'state-b'));await login();await setupLocation(false);
+ await stop();cookie='';await start(resolve(temporary,'state-b'));await login({choosePolicy:false});await setupLocation(false);
  assert.equal((await req('/api/restore','POST',{...nativeArchive(archive.data),checksum:'broken'})).status,400);
  const poisoned=nativeArchive(archive.data);poisoned.data.issues[0].title='token=test-spool-restore-title-canary alice@private.example';poisoned.data.events[0].diagnostic=JSON.stringify([{generated:{secret:'synthetic-test-spool-restore-diagnostic-canary'},status:'mapped',original:{sourceContent:'test-spool-restore-source-canary'}}]);poisoned.checksum=createHash('sha256').update(canonical({version:poisoned.version,migration:poisoned.migration,data:poisoned.data})).digest('hex');assert.equal((await req('/api/restore','POST',poisoned)).status,400);assert.ok(isDeepStrictEqual(await json('/api/projects'),[]),'private domain rows match exactly');
 
@@ -192,7 +192,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await bundleRetention();
  const before=await json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:false});assert.ok(before.events>0);
  await json('/api/projects/web/retention','POST',{cutoff:retentionCutoff,apply:true});const retainedPacket=await json(`/api/projects/web/issues/${older.issue}/packet`);assert.equal(retainedPacket.issue.count,1);assert.equal(retainedPacket.issue.title,'TypeError: RETAINED_NEW_CONTEXT');assert.ok(!JSON.stringify(retainedPacket).includes('RETENTION_OLD_CONTEXT'));
- const retainedArchive=await json('/api/archive');await stop();cookie='';await start(resolve(temporary,'state-c'));await login();await json('/api/restore','POST',retainedArchive.text);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,retainedArchive.data),'private domain rows match exactly');
+ const retainedArchive=await json('/api/archive');await stop();cookie='';await start(resolve(temporary,'state-c'));await login({choosePolicy:false});await json('/api/restore','POST',retainedArchive.text);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,retainedArchive.data),'private domain rows match exactly');
  await json('/api/projects/web/retention','POST',{cutoff:Date.now(),apply:true});groups=await json('/api/projects/web/issues');assert.ok(groups.every(g=>g.count===0));
  await operatorRetentionAndErasure({req,json});
  console.log('Spool emitted Worker/D1 acceptance passed: atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, archive independent restore, retention.');

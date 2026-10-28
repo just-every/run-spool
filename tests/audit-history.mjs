@@ -84,7 +84,7 @@ try {
 
  // Restore appends the archived chronology after the destination's own, then records the restore.
  target=await startTestWorker(15556);
- const restoreCookie=await signIn(target.origin),restored=client(target.origin,restoreCookie);
+ const restoreCookie=await signIn(target.origin,{choosePolicy:false}),restored=client(target.origin,restoreCookie);
  const own=(await restored.json('/api/audit/export?format=json')).rows;assert.ok(own.length);
  assert.equal((await restored.req('/api/restore','POST',archive.text,{'Content-Type':'application/x-ndjson','x-confirm-restore':'yes'})).status,200);
  const appended=(await restored.json('/api/audit/export?format=json')).rows;
@@ -98,7 +98,7 @@ try {
  await target.stop();
  // A previous (native v2) archive format has no safe history: each restored journal row gets one value-free legacy fact at its own time.
  target=await startTestWorker(15557);
- const previous=client(target.origin,await signIn(target.origin));
+ const previous=client(target.origin,await signIn(target.origin,{choosePolicy:false}));
  assert.equal((await previous.req('/api/restore','POST',nativeArchive(archive.data),{'x-confirm-restore':'yes'})).status,200);
  const legacy=(await previous.json('/api/audit/export?format=json')).rows.filter(r=>r.source==='legacy'),journal=nativeArchive(archive.data).data.audit.toSorted((a,b)=>a.created-b.created||(a.id<b.id?-1:1));
  assert.ok(journal.length);assert.deepEqual(legacy.map(r=>r.created),journal.map(r=>r.created),'AUDIT-001 legacy chronology is kept, never rewritten');

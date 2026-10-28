@@ -127,7 +127,7 @@ try{
   await stopWorker();
   const restored=await startTestWorker(15524);
   try{
-    const restoredCookie=await signIn(restored.origin);
+    const restoredCookie=await signIn(restored.origin,{choosePolicy:false});
     const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:nativeArchive});assert.equal(response.status,200,'native archive restores scrubbed imported history');
     const restoredArchive=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));
     const archived=await archiveProjection(new Response(nativeArchive));assert.deepEqual(restoredArchive.data,archived.data,'history marker and source identities survive native archive restore');

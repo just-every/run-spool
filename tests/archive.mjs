@@ -7,6 +7,8 @@ import { canonical } from '../src/domain/privacy.ts';
 import { base32, prefixBase } from '../src/domain/short-ids/format.ts';
 // TEAM-004 stores (migration 0059); an older archive has none of them.
 const citationTables=['spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+// Native v1/v2 predates the shared door and signed Business people mapping.
+const doorTables=['agent_door_state','agent_door_agents','agent_door_audit','agent_door_calls','agent_door_approvals','agent_door_reviews','agent_door_events','agent_door_usage','bs_settings','bs_overrides','bs_logo','bs_team','bs_audit','bs_assert','spool_agent_activity','spool_agent_queue_outcomes','spool_business_owner_binding','spool_agent_settings_custody'];
 // Current transport and every occurrence identity stay intact for roundtrips.
 export async function archiveProjection(response) {
  const text=await response.text(),records=[];
@@ -18,6 +20,7 @@ export async function archiveProjection(response) {
 // Deliberate native compatibility fixture, never the current roundtrip format.
 export function nativeArchive(data,version=2) {
  const rows=structuredClone(data);
+ for(const table of doorTables)delete rows[table];
  for(const table of ['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','grouping_proposals','grouping_routes','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests',...citationTables])delete rows[table];
  for(const name of ['release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'])delete rows[name];delete rows.grouping_policies;delete rows.feedback;delete rows.inbound_filter_policies;delete rows.sentry_project_aliases;delete rows.sentry_import_targets;delete rows.alert_rules;delete rows.alert_history;delete rows.repairs;delete rows.repair_checks;delete rows.rer_erasure_operations;delete rows.rer_dependency_installation;delete rows.rer_dependency_link;for(const table of ['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'])delete rows[table];
  rows.events=rows.events.map(({occurrence,historical,...row})=>{if(historical)throw new Error('Historical imports require current Base JSONL');return row});
@@ -31,6 +34,7 @@ export function nativeArchive(data,version=2) {
 }
 export function assertLegacyUpgrade(actual,previous) {
  const expected=structuredClone(previous);
+ for(const table of doorTables)if(Object.hasOwn(actual,table))expected[table]=[];
  for(const table of ['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','grouping_proposals','grouping_routes','grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_path_mappings','deployment_manifests'])expected[table]=[];
  for(const name of ['release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'])expected[name]=[];expected.grouping_policies=[];expected.feedback=[];expected.inbound_filter_policies=[];expected.browser_origins??=[];
  for(const table of ['events','artifacts'])expected[table]=expected[table].map(row=>({...row,occurrence:'legacy'}));

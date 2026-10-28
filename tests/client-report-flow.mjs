@@ -137,7 +137,7 @@ export async function clientReportFlow({ req, json, origin }) {
  assert.ok(!snapshot.text.includes('must_not_persist'));
  const destination = await startTestWorker(await freePort());
  try {
-  const cookie = await signIn(destination.origin);
+  const cookie = await signIn(destination.origin,{choosePolicy:false});
   const request = (url, options = {}) => fetch(destination.origin + url, { ...options, headers: { Origin: destination.origin, Cookie: cookie, ...options.headers } });
   const restored = await request('/api/restore', { method: 'POST', body: snapshot.text, headers: { 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' } });
   assert.equal(restored.status, 200, 'existing outcomes custody restores SDK discard quantities: ' + await restored.clone().text());
