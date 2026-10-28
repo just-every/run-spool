@@ -14,9 +14,9 @@ discussionRoutes.onError((error,c)=>{
  if(error instanceof AuthError)return c.json({error:error.code},error.status as any);
  return conflict(c,error);
 });
-discussionRoutes.use('/:project/issues/:issue/*',async(c,next)=>{
+for(const path of ['/:project/issues/:issue/discussion','/:project/issues/:issue/comments','/:project/issues/:issue/comments/:comment','/:project/issues/:issue/subscription'])discussionRoutes.use(path,async(c,next)=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;
- const project=c.req.param('project'),found=await resolveIssue(c.env.DB,project,c.req.param('issue'));
+ const project=c.req.param('project')!,found=await resolveIssue(c.env.DB,project,c.req.param('issue')!);
  const issue=found&&await s(c.env.DB,'SELECT id,revision FROM issues WHERE project=? AND id=?',project,found.issue).first<any>();
  if(!issue)return c.json({error:'Issue not found'},404);
  c.set('discussionSession',auth.session);c.set('discussionIssue',issue);

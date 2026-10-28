@@ -13,6 +13,7 @@ import {alertRuntime,rule,prepareDestinations} from './alerts/runtime.mjs';
 import {receiver} from './alerts/receiver.mjs';
 export async function releaseIdentityFlow({req,json,origin,cookie}){
  await issuePriorityFlow({req,json});
+ await collaborativeRecurrenceFlow({req,json});
  const project=await json('/api/projects','POST',{id:'release-identity',name:'Cedar checkout releases'}),base='/api/projects/release-identity';
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
  let serial=0;
@@ -43,7 +44,7 @@ export async function releaseIdentityFlow({req,json,origin,cookie}){
  assert.equal((await json('/api/projects/release-sdk/issue-search?q=!has:release')).total,1,'unmodified Node SDK without release is accepted');
  const sdkReleases=await json('/api/projects/release-sdk/releases');assert.equal(sdkReleases.length,1);assert.equal(sdkReleases[0].name,'b'.repeat(40));assert.equal(sdkReleases[0].auto_created,1);assert.ok(JSON.parse(sdkReleases[0].creating_sdk).name.includes('node'));
  const archive=await archiveProjection(await req('/api/archive'));assert.equal(archive.data.release_metadata.filter(r=>r.project==='release-identity').length,3);assert.ok(archive.data.events.some(e=>e.project==='release-identity'&&e.release===''&&e.release_seq===0));
- const restored=await startTestWorker(15526);try{const restoredCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const t of ['release_metadata','release_builds','release_policies','issue_resolutions'])assert.deepEqual(copied.data[t],archive.data[t]);}finally{await restored.stop()}
+ const restored=await startTestWorker(15526);try{const restoredCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const t of ['release_metadata','release_builds','release_policies','issue_resolutions','recurrence_policies','issue_priorities','issue_activity'])assert.deepEqual(copied.data[t],archive.data[t]);}finally{await restored.stop()}
  const browser=await launchBrowser();try{await mkdir('.artifacts/release-identity',{recursive:true});for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();
   await page.goto(origin+'/projects/release-identity/settings');const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Sentry release identity',exact:true})});await panel.getByLabel('Release ordering rule',{exact:true}).selectOption('sentry');await panel.getByRole('button',{name:'Preview release policy',exact:true}).click();await panel.getByRole('heading',{name:'Resolution boundary preview',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-identity/policy-${width}.png`});await panel.getByRole('button',{name:'Save release policy',exact:true}).click();await panel.getByRole('status').filter({hasText:'Release policy saved'}).waitFor();
@@ -294,4 +295,26 @@ export async function issuePriorityFlow({req,json}) {
  assert.equal((await json(base+'/issue-export?q=priority:low')).rows[0].priority,'low');const csv=await req(base+'/issue-export?q=priority:low&format=csv');const lines=(await csv.text()).split('\r\n');const column=lines[0].split(',').indexOf('priority');assert.ok(column>=0);assert.equal(lines[1].split(',')[column],'"low"');
  const packet=await json(base+'/issues/'+warning.id+'/packet');assert.equal(packet.issue.priority,'low');assert.equal((await req(base+'/issue-search?q=priority:urgent')).status,400);
  return {project,warning,fatal};
+}
+
+export async function collaborativeRecurrenceFlow({req,json}) {
+ const project=await json('/api/projects','POST',{id:'recurrence-lifecycle',name:'Checkout recurrence policy'}),base='/api/projects/'+project.id;
+ const dsn=new URL(project.dsn),door=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
+ let serial=0;
+ const send=async release=>{const response=await req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify({event_id:(++serial+18000).toString(16).padStart(32,'0'),...release?{release}:{},level:'warning',exception:{values:[{type:'RecurrenceError',value:'Checkout submission unavailable',stacktrace:{frames:[{filename:'/app/checkout.js',function:'submit',lineno:42,colno:2}]}}]}}));assert.equal(response.status,200,await response.text())};
+ const row=()=>json(base+'/issues').then(rows=>rows[0]);
+ const resolve=async mode=>{const i=await row();await json(base+'/issues/'+i.id,'PATCH',{state:'resolved',resolution:mode,revision:i.revision})};
+ await send('checkout@1.0.0');await send('checkout@2.0.0');await resolve('next');await send('checkout@2.0.0');assert.equal((await row()).state,'resolved','next-release boundary stays resolved in the observed release');await send('checkout@3.0.0');assert.equal((await row()).state,'open','the first later release regresses next-release resolution');
+ await resolve('current');const id=(await row()).id,discussion=()=>json(base+'/issues/'+id+'/discussion');
+ await send('checkout@3.0.0');assert.equal((await row()).state,'resolved');let activity=await discussion();assert.ok(activity.activity.some(a=>a.kind==='resolved_release_recurrence'&&a.detail.release==='checkout@3.0.0'&&a.detail.count===1));
+ await send('checkout@1.0.0');assert.equal((await row()).state,'resolved');activity=await discussion();assert.ok(activity.activity.some(a=>a.kind==='older_release_recurrence'&&a.detail.release==='checkout@1.0.0'));
+ await send();assert.equal((await row()).state,'resolved');assert.ok((await row()).seen_without_release>0);
+ const settings=await json(base+'/recurrence-policy');assert.equal(settings.reopenSameRelease,false);const preview=await json(base+'/recurrence-policy','POST',{revision:settings.revision,reopenSameRelease:true,preview:true});assert.ok(preview.preview.affectedResolvedCount>0);
+ const beforeApply=await row();await json(base+'/recurrence-policy','POST',{revision:settings.revision,reopenSameRelease:true,apply:true,preview:preview.preview});assert.deepEqual(await row(),beforeApply,'saving policy never replays retained events');
+ const policyAfter=await json(base+'/recurrence-policy');assert.equal((await req(base+'/recurrence-policy','POST',{revision:settings.revision,reopenSameRelease:false,apply:true,preview:{...preview.preview,reopenSameRelease:false}})).status,409);assert.deepEqual(await json(base+'/recurrence-policy'),policyAfter,'stale policy cannot mutate settings');
+ await send('checkout@1.0.0');assert.equal((await row()).state,'resolved','old release cannot fabricate regression under the switched policy');await send('checkout@3.0.0');assert.equal((await row()).state,'open');assert.equal((await row()).priority,'high','regression raises an automatic priority');
+ await resolve('plain');await send('checkout@3.0.0');assert.equal((await row()).state,'open','plain resolution still regresses in the same release');
+ assert.ok((await discussion()).activity.some(a=>a.kind==='resolution'&&a.detail.release==='checkout@3.0.0'));
+ console.log('[TEAM-003] next-release regression, same/old/no-release accounting, previewed revision-fenced policy and unchanged plain resolution passed');
+ return {project,issue:await row()};
 }
