@@ -7,7 +7,7 @@ import { deniedResponse } from '../denied-response';
 import { erasureExceptions } from './declaration';
 import { projectErasureService, startProjectErasure, resumeProjectErasure, receiptView } from './service';
 
-// Owner-only BASE-DATA-003 project erasure. These routers check their own
+// Owner-only ERASE-001 (Base BASE-DATA-003) project erasure. These routers check their own
 // direct transport: any project grant (ingest, agent or deploy key) is refused
 // with 403, an anonymous request with 401, and owner writes must be same-origin.
 type Env = { Bindings: Bindings };
