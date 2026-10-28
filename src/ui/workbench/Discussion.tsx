@@ -42,9 +42,10 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    {data.activity.length?<ol className="timeline">{data.activity.map(row=>{
     const comment=row.kind==='comment_added'?data.comments.find(comment=>comment.id===row.detail.comment):null;
     const release=row.detail.release??row.detail.resolvedRelease??row.detail.resolution_release;
+    const label:Record<string,string>={resolved_release_recurrence:'Recurred in resolved release',older_release_recurrence:'Repeated in older release',suppression_started:'Archived',suppression_expired:'Archive condition met',priority:'Priority changed',resolution:'Resolved',comment_added:'Comment',comment_edited:'Comment edited',comment_deleted:'Comment deleted'};
     const recurrence=row.detail.recurrenceCount??row.detail.recurrence_count??row.detail.count;
     return <li key={row.id} style={{overflowWrap:'anywhere'}}>
-     <p><strong>{row.kind==='comment_added'?'Comment':row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:<>{row.actor_kind} <code style={{overflowWrap:'anywhere',wordBreak:'break-word'}}>{row.actor_label}</code></>}</p>
+     <p><strong>{label[row.kind]??row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:row.actor_name??<>{row.actor_kind} <code style={{overflowWrap:'anywhere',wordBreak:'break-word'}}>{row.actor_label}</code></>}</p>
      {row.kind==='comment_added'&&(comment?<>
       {comment.updated!==comment.created&&<p className="muted">Edited {date(comment.updated)}</p>}
       {editing===comment.id?<form onSubmit={event=>{event.preventDefault();void mutate('/comments/'+encodeURIComponent(comment.id),'PATCH',{body:editBody,version:comment.version})}}>
@@ -53,6 +54,11 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
       </form>:<p className="commit-message" style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{comment.body}</p>}
       {comment.canEdit&&editing!==comment.id&&<><button className="text-button" disabled={busy} onClick={()=>{setEditing(comment.id);setEditBody(comment.body)}}>Edit comment</button> <button className="text-button" disabled={busy} onClick={()=>void mutate('/comments/'+encodeURIComponent(comment.id),'DELETE',{version:comment.version})}>Delete comment</button></>}
      </>:<p className="muted">This comment was deleted or its author was erased.</p>)}
+     {typeof row.detail.reason==='string'&&<p>{row.detail.reason}</p>}
+     {typeof row.detail.forecast==='number'&&<p>Forecast: {row.detail.forecast} occurrences per hour.</p>}
+     {typeof row.detail.deadline==='number'&&<p>Follow-up due {date(row.detail.deadline)}.</p>}
+     {typeof row.detail.occurrenceTarget==='number'&&<p>Reopen at {row.detail.occurrenceTarget} occurrences.</p>}
+     {typeof row.detail.userTarget==='number'&&<p>Reopen at {row.detail.userTarget} affected users.</p>}
      {typeof row.detail.priority==='string'&&<p>Priority: {row.detail.priority}</p>}
      {typeof row.detail.state==='string'&&<p>Status: {row.detail.state}</p>}
      {typeof release==='string'&&<p>Release: {release||'No release'}</p>}

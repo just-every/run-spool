@@ -87,3 +87,26 @@ BEGIN
  ELSE EXISTS(SELECT 1 FROM releases candidate_release JOIN releases boundary_release ON boundary_release.project=candidate_release.project AND boundary_release.seq=COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=i.project AND resolution.issue=i.id),i.resolved_seq) WHERE candidate_release.project=i.project AND candidate_release.name=incoming.release AND (CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='registered' THEN candidate_release.seq ELSE 0 END,CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='semver' AND (SELECT version_key FROM release_order_keys WHERE project=candidate_release.project AND release=candidate_release.name) IS NULL THEN 1 ELSE 0 END,(CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='semver' THEN COALESCE((SELECT version_key FROM release_order_keys WHERE project=candidate_release.project AND release=candidate_release.name),'') ELSE '' END) COLLATE BINARY,CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='registered' THEN 0 ELSE COALESCE((SELECT first_seen FROM release_metadata WHERE project=candidate_release.project AND release=candidate_release.name),candidate_release.created) END,candidate_release.name COLLATE BINARY)>(CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='registered' THEN boundary_release.seq ELSE 0 END,CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='semver' AND (SELECT version_key FROM release_order_keys WHERE project=boundary_release.project AND release=boundary_release.name) IS NULL THEN 1 ELSE 0 END,(CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='semver' THEN COALESCE((SELECT version_key FROM release_order_keys WHERE project=boundary_release.project AND release=boundary_release.name),'') ELSE '' END) COLLATE BINARY,CASE WHEN COALESCE((SELECT json_extract(policy,'$.order') FROM release_policies WHERE project=i.project),'sentry')='registered' THEN 0 ELSE COALESCE((SELECT first_seen FROM release_metadata WHERE project=boundary_release.project AND release=boundary_release.name),boundary_release.created) END,boundary_release.name COLLATE BINARY)) END))
  AND NOT EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=incoming.project AND x.event=incoming.id AND x.occurrence=incoming.occurrence);
 END;
+CREATE TABLE issue_suppressions (
+ id TEXT PRIMARY KEY,project TEXT NOT NULL REFERENCES projects(id),issue TEXT NOT NULL REFERENCES issues(id),
+ mode TEXT NOT NULL CHECK(mode IN('forever','until','count','users','escalating','snooze')),reason TEXT NOT NULL,
+ deadline INTEGER,occurrence_target INTEGER,user_target INTEGER,window_ms INTEGER,forecast REAL,
+ started INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN('active','expired','ended')),ended INTEGER,
+ historical INTEGER NOT NULL DEFAULT 0 CHECK(historical IN(0,1))
+);
+CREATE UNIQUE INDEX issue_suppressions_active ON issue_suppressions(project,issue) WHERE state='active' AND historical=0;
+CREATE TRIGGER issue_suppression_ended AFTER UPDATE OF state ON issues WHEN OLD.state='suppressed' AND NEW.state<>'suppressed'
+BEGIN
+ UPDATE issue_suppressions SET state='ended',ended=CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
+ WHERE project=NEW.project AND issue=NEW.id AND state='active' AND historical=0;
+END;
+CREATE TRIGGER issue_suppression_escalation AFTER UPDATE OF state ON issue_suppressions
+WHEN OLD.state='active' AND NEW.state='expired' AND NEW.mode='escalating' AND NEW.historical=0
+BEGIN
+ UPDATE issue_priorities SET automatic=3 WHERE project=NEW.project AND issue=NEW.issue;
+END;
+CREATE TRIGGER issue_priority_regroup AFTER UPDATE OF issue ON events WHEN OLD.issue<>NEW.issue
+AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND import_job IS NOT NULL)
+BEGIN
+ UPDATE issue_priorities SET automatic=MAX(automatic,CASE COALESCE(json_extract(NEW.payload,'$.sentry.level'),'error') WHEN 'fatal' THEN 3 WHEN 'error' THEN 3 WHEN 'warning' THEN 2 ELSE 1 END) WHERE project=NEW.project AND issue=NEW.issue;
+END;

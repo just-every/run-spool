@@ -1,18 +1,21 @@
+import {suppressionTables,suppressionDefaults,validateSuppressionArchive} from '../suppression/archive';
 import {discussionTables,discussionDefaults,validateDiscussionArchive} from '../discussion/archive';
 import {recurrenceTables,recurrenceDefaults,validateRecurrenceArchive} from '../recurrence/archive';
-import {scrub} from '../privacy';
-import {safeAlias,actorKinds} from '../audit/types';
-export const lifecycleTables={...discussionTables,...recurrenceTables,issue_priorities:['project','issue','automatic','manual'],issue_activity:['id','project','issue','kind','actor_kind','actor_label','detail','created']};
+export const lifecycleTables={...suppressionTables,...discussionTables,...recurrenceTables,issue_priorities:['project','issue','automatic','manual']};
 export function lifecycleDefaults(data:any){
- if(data.issue_priorities?.length===0&&data.issues.length) {const {issue_priorities,...older}=data;data=older;}
- const rank=(level:string)=>['fatal','error'].includes(level)?3:level==='warning'?2:1;
- return {issue_priorities:data.issues.map((i:any)=>({project:i.project,issue:i.id,automatic:Math.max(3*(data.alerts.some((a:any)=>a.issue===i.id&&a.kind==='regression')?1:0),1,...data.events.filter((e:any)=>e.project===i.project&&e.issue===i.id).map((e:any)=>rank(JSON.parse(e.payload).sentry?.level??'error'))),manual:null})),issue_activity:[],...discussionDefaults(recurrenceDefaults(data))};
+ // Older archives have no stored priorities. Their retained levels and history
+ // provide the same initial value as the migration, without reviving work.
+ if(!data.issue_priorities?.length&&data.issues.length){
+  const levels=new Map<string,number>();
+  for(const event of data.events){const level=JSON.parse(event.payload).sentry?.level??'error',rank=['fatal','error'].includes(level)?3:level==='warning'?2:1;levels.set(event.issue,Math.max(levels.get(event.issue)??1,rank))}
+  for(const alert of data.alerts)if(['regression','spike'].includes(alert.kind))levels.set(alert.issue,3);
+  data={...data,issue_priorities:data.issues.map((issue:any)=>({project:issue.project,issue:issue.id,automatic:levels.get(issue.id)??3,manual:null}))};
+ }
+ return {issue_priorities:[],...suppressionDefaults(discussionDefaults(recurrenceDefaults(data)))};
 }
 export function validateLifecycleArchive(data:any){
- validateRecurrenceArchive(data);
- validateDiscussionArchive(data);
+ validateSuppressionArchive(data);validateRecurrenceArchive(data);validateDiscussionArchive(data);
  const seen=new Set();
- for(const p of data.issue_priorities){if(seen.has(p.issue)||!Number.isSafeInteger(p.automatic)||p.automatic<1||p.automatic>3||p.manual!==null&&!['high','medium','low'].includes(p.manual))throw new Error('Archive issue priority');seen.add(p.issue)}
- if(data.issues.some((i:any)=>!seen.has(i.id)))throw new Error('Archive missing priority');
- for(const a of data.issue_activity){if(!safeAlias(a.actor_label)||!actorKinds.includes(a.actor_kind)||typeof a.kind!=='string'||scrub(a.kind)!==a.kind||!Number.isSafeInteger(a.created)||a.created<0||typeof a.detail!=='string'||scrub(a.detail)!==a.detail)throw new Error('Archive issue activity');const detail=JSON.parse(a.detail);if(!detail||Array.isArray(detail)||typeof detail!=='object')throw new Error('Archive activity detail')}
+ for(const priority of data.issue_priorities){if(seen.has(priority.issue)||!Number.isSafeInteger(priority.automatic)||priority.automatic<1||priority.automatic>3||priority.manual!==null&&!['high','medium','low'].includes(priority.manual))throw new Error('Archive issue priority');seen.add(priority.issue)}
+ if(data.issues.some((issue:any)=>!seen.has(issue.id)))throw new Error('Archive missing priority');
 }

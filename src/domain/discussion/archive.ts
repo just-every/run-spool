@@ -1,3 +1,4 @@
+import {activityDetail} from '../lifecycle/activity';
 import { scrubText } from '../scrub';
 import { safeAlias } from '../audit/types';
 
@@ -10,7 +11,7 @@ export const discussionDefaults=(data:any)=>({...Object.fromEntries(Object.keys(
 export function discussionExportRow(table:string,row:any) {
  if(table==='issue_comments')return {...row,operator_id:'',body:scrubText(row.body,4000)};
  if(table==='issue_subscriptions')return {...row,state:'inert'};
- if(table==='issue_activity')return {...row,detail:scrubText(row.detail,32768)};
+ if(table==='issue_activity')return {...row,detail:activityDetail(row.detail)};
  return row;
 }
 const integer=(value:any)=>Number.isSafeInteger(value)&&value>=0;
@@ -37,7 +38,7 @@ export function validateDiscussionArchive(data:any) {
  for(const row of data.issue_activity) {
   require(issues.get(row.issue)===row.project&&typeof row.id==='string'&&row.id.length>0&&!activityIds.has(row.id));activityIds.add(row.id);
   require(typeof row.kind==='string'&&row.kind.length<=100&&['owner','member','ingest','deploy','service','unknown','agent'].includes(row.actor_kind)&&safeAlias(row.actor_label)&&integer(row.created));
-  require(typeof row.detail==='string'&&row.detail.length<=32768&&scrubText(row.detail,32768)===row.detail);
+  require(typeof row.detail==='string'&&row.detail.length<=32768&&activityDetail(row.detail)===row.detail);
   let detail:any;try{detail=JSON.parse(row.detail)}catch{throw new Error('Invalid discussion archive');}
   require(detail&&typeof detail==='object'&&!Array.isArray(detail));
  }

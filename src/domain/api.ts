@@ -1,3 +1,4 @@
+import suppressionRoutes from './suppression/routes';
 import {discussionRoutes} from './discussion/routes';
 import recurrenceRoutes from './recurrence/routes';
 import priorityRoutes from './issue-priority/routes';
@@ -160,6 +161,7 @@ api.use('/api/*',async(c,next)=>{
   return c.json({error:'Sign in required'},401);
 });
 api.route('/api/projects',priorityRoutes);
+api.route('/api/projects',suppressionRoutes);
 api.route('/api/projects',discussionRoutes);
 api.route('/api/projects',recurrenceRoutes);
 api.route('/api/projects',investigationRoutes);

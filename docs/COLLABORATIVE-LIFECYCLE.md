@@ -1,0 +1,11 @@
+# Collaborative issue lifecycle
+
+Issues open with high priority for fatal/error events, medium for warnings, and low for info/debug. Severity increases, regressions and volume escalation raise automatic priority. A member’s manual choice remains until another manual edit. Search accepts `priority:high`, `priority:medium` and `priority:low`; issue exports include priority.
+
+Project members can discuss an issue and mention an accessible member by @handle or email local part. Unknown, ambiguous and inaccessible mentions remain plain text. Comments are scrubbed, limited to 4,000 characters and 200 per issue, and editable by their author or an administrator. Commenting, mentions and Subscribe record interest; Unsubscribe overrides later automatic subscriptions. **This round sends no comment, mention or subscription notification. Delivery belongs to TEAM-005.** Discussion never enters evidence packets, agent CLI/MCP, alerts or digests.
+
+Settings previews the number of current-release resolutions affected by reopening same-release repeats. Saving applies only to future events. Default repeats remain resolved and are counted in the activity timeline; older-release repeats remain separate. Next-release, named-release, no-release and plain resolution retain their release-boundary behavior.
+
+Archive previews a reason plus forever, a deadline, additional occurrences, a total affected-user threshold, a history-based escalation forecast, or snooze. Affected users use the same retained identity-policy definition as the issue impact view. Escalation uses the greater of the issue’s historical hourly maximum and its rolling-hour count at archive time; a later rolling-hour count must exceed that fixed forecast. Server scheduling reopens once and creates one accountable Needs attention item. Manual reopening ends an active suppression.
+
+All changes use current authority and revision fences. The timeline records safe actor attribution, and audit facts retain only safe aliases and outcomes. Private restore preserves priorities, policy and history, while subscriptions and suppression schedules restore inert. Project erasure removes the new rows; owner erasure removes personal attribution and redacts supported text. TEAM-003 remains partial for the clause’s remaining team-assignment and broader bulk-triage obligations.

@@ -352,7 +352,7 @@ export async function teamFlow() {
   await browserMembers(owner,projects);
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
-  await discussionFlow(owner,first,second,reader,projects,issues);
+  await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
   await revokedAuthority(owner,second,first,projects,issues[1]);
   const audit=await owner.json('/api/audit/export?format=json');

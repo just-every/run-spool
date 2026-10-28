@@ -5,7 +5,7 @@ const status=async pending=>{const response=await pending;await response.arrayBu
 const denied=async pending=>assert.ok([401,403,404].includes(await status(pending)));
 
 /** Extends the existing team journey after its shared-project grant change. */
-export async function discussionFlow(owner,first,second,reader,projects,issues) {
+export async function discussionFlow(owner,first,second,reader,projects,issues,billing,admin) {
  const root='/api/projects/'+projects[0].id,base=root+'/issues/'+issues[0].id;
  const outboxBefore=await legacyMailRows(owner.origin);
  const read=()=>first.json(base+'/discussion');
@@ -28,11 +28,14 @@ export async function discussionFlow(owner,first,second,reader,projects,issues) 
  assert.equal(recipient.subscription.subscribed,true);assert.ok(recipient.subscription.reasons.includes('mention'));
  assert.equal(recipient.comments.find(row=>row.id===created.id).canEdit,false);
  await denied(second.req(base+'/comments/'+created.id,'PATCH',{revision:recipient.revision,version:created.version,body:'Cannot replace another member’s comment'}));
+ const denialSnapshot=await read();
  const readerView=await reader.json(base+'/discussion');assert.equal(readerView.canWrite,false);
  await denied(reader.req(base+'/comments','POST',{revision:current.revision,body:'Reader cannot post'}));
  await denied(first.req('/api/projects/'+projects[1].id+'/issues/'+issues[1].id+'/discussion'));
  await denied(first.req(base+'/comments','POST',{revision:current.revision,body:'Cross origin'},{Origin:'https://foreign.example.test'}));
  await denied(owner.req(base+'/discussion','GET',undefined,{Authorization:'Bearer synthetic-spool-invalid'}));
+ assert.deepEqual(await read(),denialSnapshot,'denied discussion writes cannot mutate comments, subscriptions, activity or revision');
+ if(billing){const known=await billing.req(base+'/discussion'),unknown=await billing.req(base.replace(projects[0].id,'unknown-project')+'/discussion');assert.equal(known.status,404);assert.equal(unknown.status,404);assert.deepEqual(await known.json(),await unknown.json());}
  const plain=await first.json(base+'/comments','POST',{revision:current.revision,body:'@synthetic-spool-unknown @synthetic-spool-4'});
  current=await read();
  const plainComment=current.comments.find(row=>row.id===plain.id);
@@ -54,8 +57,11 @@ export async function discussionFlow(owner,first,second,reader,projects,issues) 
  assert.ok(current.activity.some(row=>row.kind==='comment_added'&&row.actor_kind==='member'));
  assert.ok(current.activity.some(row=>row.kind==='comment_edited'));
  assert.ok(current.activity.some(row=>row.kind==='unsubscribed'));
- await owner.json(base+'/comments/'+created.id,'DELETE',{revision:current.revision,version:edited.version});
+ await (admin??owner).json(base+'/comments/'+created.id,'DELETE',{revision:current.revision,version:edited.version});
  current=await read();assert.ok(!current.comments.some(row=>row.id===created.id),'an administrator can delete a comment');
+ let bounded=await read();
+ for(let index=bounded.comments.length;index<bounded.limit;index++){const note=await first.json(base+'/comments','POST',{revision:bounded.revision,body:'Retained investigation note '+index});bounded.revision=note.revision;}
+ const atCapacity=await read();assert.equal(await status(first.req(base+'/comments','POST',{revision:atCapacity.revision,body:'Beyond capacity'})),409);assert.deepEqual(await read(),atCapacity,'comment capacity refusal changes nothing');
  const packet=JSON.stringify(await first.json(base+'/packet'));
  assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
  assert.deepEqual(await legacyMailRows(owner.origin),outboxBefore,'discussion, mentions and subscriptions send nothing');
