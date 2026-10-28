@@ -3673,7 +3673,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "54e02218cb68415b25d4fea7d8165274d0b13760618a39e215835a96e1616408",
+      "sha256": "a3242a7e3b2810db2ab38722d6f52457dc3ebea5c917341d22b449d42cde0465",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -3973,7 +3973,7 @@
       "executable": false
     },
     "migrations/core/0080_collaborative_lifecycle.sql": {
-      "sha256": "b884e6c83877f33df143bbca8dce594bcc78cd542562419034dd2b97a4aedc2b",
+      "sha256": "956cdb6bfa77ce85f53ebfa978050639bc2f5bee05643d2faebf20cc20547d86",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5261,7 +5261,7 @@
       "executable": false
     },
     "src/domain/issue-priority/model.ts": {
-      "sha256": "ec228f2bd1b8edec8e90da374c167abab8ea502f73498ac6ff9d1fe1303f7720",
+      "sha256": "1c300bca7e8b66f519daba856b300168922cdcd2bf617268643a2fcc6a427c9b",
       "executable": false
     },
     "src/domain/issue-priority/routes.ts": {
@@ -5417,7 +5417,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "679673420b666b24e8c707a785a3fece737aa6e8579e7819f4af1ca4f05bd2c1",
+      "sha256": "1721b335190314e83a452faa8982454395e159bfd3f3d36dff7a6f871515afd6",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -5453,7 +5453,7 @@
       "executable": false
     },
     "src/domain/recurrence/model.ts": {
-      "sha256": "5c27cb49e7b85d7eec62f585dadeabfbc6ad9a9febd55f109b2585b39dc3d5ea",
+      "sha256": "584aba640608a7dd35f087820f68e4adfa84ab003a1ee6e7f3d550c88e20545f",
       "executable": false
     },
     "src/domain/recurrence/routes.ts": {
@@ -8153,7 +8153,7 @@
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
-      "sha256": "a92655998686b6a8eee7e26275b3a36a20f19f721813da9c88a904a091727cd2",
+      "sha256": "304f3d722edadf701736b46e98cb5edc6bc8afb14555917202e0dbb925022e08",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {

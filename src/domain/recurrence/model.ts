@@ -30,3 +30,10 @@ export function recurrenceInput(value:any) {
  }else if(value.preview!==true||value.apply!==undefined&&value.apply!==false)throw new Error('Choose preview or apply');
  return value as {revision:number;reopenSameRelease:boolean;apply?:boolean;preview:true|RecurrencePreview};
 }
+/** Upgrade older private archives without replaying any issue decision. */
+export async function ensureRecurrenceBoundaries(db:D1Database){
+ await db.batch([db.prepare(`INSERT OR IGNORE INTO issue_recurrence_boundaries
+  SELECT r.project,r.issue,COALESCE(r.boundary_seq,i.resolved_seq),EXISTS(SELECT 1 FROM events e
+   WHERE e.project=r.project AND e.issue=r.issue AND e.release_seq=COALESCE(r.boundary_seq,i.resolved_seq) AND e.received<=r.updated)
+  FROM issue_resolutions r JOIN issues i ON i.project=r.project AND i.id=r.issue WHERE i.state='resolved' AND r.mode IN ('current','next','named')`)]);
+}

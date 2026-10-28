@@ -131,3 +131,7 @@ BEGIN
  UPDATE issue_suppressions SET observed_count=observed_count+NEW.count-OLD.count
  WHERE project=NEW.project AND issue=NEW.id AND historical=0 AND state='active';
 END;
+INSERT OR IGNORE INTO issue_recurrence_boundaries
+ SELECT r.project,r.issue,COALESCE(r.boundary_seq,i.resolved_seq),EXISTS(SELECT 1 FROM events e
+  WHERE e.project=r.project AND e.issue=r.issue AND e.release_seq=COALESCE(r.boundary_seq,i.resolved_seq) AND e.received<=r.updated)
+ FROM issue_resolutions r JOIN issues i ON i.project=r.project AND i.id=r.issue WHERE i.state='resolved' AND r.mode IN ('current','next','named');

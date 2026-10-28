@@ -63,7 +63,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
      {typeof row.detail.priority==='string'&&<p>Priority: {row.detail.priority}</p>}
      {typeof row.detail.state==='string'&&<p>Status: {row.detail.state}</p>}
      {typeof release==='string'&&<p>Release: {release||'No release'}</p>}
-     {typeof row.detail.mode==='string'&&<p>Resolution: {row.detail.mode.replaceAll('_',' ')}</p>}
+     {typeof row.detail.mode==='string'&&<p>{row.kind.startsWith('suppression_')?'Archive condition':'Resolution'}: {row.detail.mode.replaceAll('_',' ')}</p>}
      {typeof recurrence==='number'&&<p>Occurrences: {recurrence}</p>}
     </li>;
    })}</ol>:<p>No activity recorded yet.</p>}
