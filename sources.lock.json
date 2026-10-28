@@ -4827,7 +4827,7 @@
       "executable": false
     },
     "src/domain/agent-door/targets.ts": {
-      "sha256": "d4050f3a60fd1b2cf442bafa4833db1193c4fda4efaf5e1f9a645c6fa8342050",
+      "sha256": "4ec26c75a2239a4aece3a93d1f3c30c7c47393f94b7f33393de57e7b336dc9a4",
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {

@@ -28,8 +28,8 @@ export async function spoolTarget(env: Bindings, route: string, args: Record<str
  if(!args.project)return null;
  await nativeCall(env,'issues','GET',{project:args.project},ctx,'target');
  if(args.issue||(['proposals','grouping-preview'].includes(route)&&args.source)){
-  const issue=await nativeCall(env,'issue','GET',{project:args.project,issue:args.issue??args.source},ctx,'target');
-  return {kind:'issue',id:issue.id};
+  const packet=await nativeCall(env,'packet','GET',{project:args.project,issue:args.issue??args.source},ctx,'target');
+  return {kind:'issue',id:packet.issue.id};
  }
  const records:Record<string,[string,string]>={proposal:['grouping_proposals','grouping_proposal'],'grouping-apply':['grouping_corrections','grouping_correction'],'grouping-undo':['grouping_corrections','grouping_correction'],'reproducer-run':['reproducers','reproducer'],'reproducer-claim':['reproducer_runs','reproducer_run'],'repair-check':['repairs','repair'],'repair-fact':['repairs','repair'],'fix-advance':['fix_workflows','fix'],alert:['alert_rules','alert_rule']};
  if(args.id&&records[route]){
