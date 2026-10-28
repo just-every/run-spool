@@ -1,3 +1,4 @@
+import {memberStateSql} from '../lifecycle/member-state';
 import {canonical,hash} from '../privacy';
 import {scrubText} from '../scrub';
 import {activity} from '../discussion/model';
@@ -7,7 +8,7 @@ export const suppressionModes=['forever','until','count','users','escalating','s
 export type SuppressionMode=typeof suppressionModes[number];
 export type SuppressionInput={mode:SuppressionMode;reason:string;until?:number;count?:number;users?:number;durationMs?:number};
 export type SuppressionMetrics={occurrences:number;users:number;unattributed:number;rollingOccurrences:number;historicalHourlyMaximum:number};
-export type SuppressionPlan={project:string;issue:string;revision:number;input:SuppressionInput;deadline:number|null;occurrenceTarget:number|null;userTarget:number|null;windowMs:number|null;forecast:number|null;metrics:SuppressionMetrics};
+export type SuppressionPlan={project:string;issue:string;revision:number;memberVersion?:string;input:SuppressionInput;deadline:number|null;occurrenceTarget:number|null;userTarget:number|null;windowMs:number|null;forecast:number|null;metrics:SuppressionMetrics};
 export const hour=3600000;
 // Same identity and native-client definition as SDK008 identities/read.ts.
 export const affectedIdentitySql=`COALESCE(x.user_key,CASE WHEN json_extract(e.payload,'$.sentry') IS NULL AND json_extract(e.payload,'$.client') IS NOT NULL THEN 'native:'||json_extract(e.payload,'$.client') END)`;
@@ -33,23 +34,24 @@ export async function suppressionMetrics(db:D1Database,project:string,issue:stri
  return {...row,historicalHourlyMaximum:history.maximum};
 }
 
-export async function planSuppression(db:D1Database,project:string,issue:{id:string;revision:number;count:number},value:any,time:number):Promise<SuppressionPlan>{
+export async function planSuppression(db:D1Database,project:string,issue:{id:string;revision:number;count:number},value:any,time:number,memberVersion?:string):Promise<SuppressionPlan>{
  const input=suppressionInput(value,time),metrics=await suppressionMetrics(db,project,issue.id,time);
  const occurrenceTarget=input.mode==='count'?issue.count+input.count!:null;
  if(occurrenceTarget!==null&&!Number.isSafeInteger(occurrenceTarget))throw new Error('Occurrence threshold is too large');
- return {project,issue:issue.id,revision:issue.revision,input,metrics,deadline:input.mode==='until'?input.until!:input.mode==='snooze'?time+input.durationMs!:null,
+ return {project,issue:issue.id,revision:issue.revision,...memberVersion!==undefined?{memberVersion}:{},input,metrics,deadline:input.mode==='until'?input.until!:input.mode==='snooze'?time+input.durationMs!:null,
   occurrenceTarget,userTarget:input.mode==='users'?input.users!:null,windowMs:input.mode==='escalating'?hour:null,
   forecast:input.mode==='escalating'?Math.max(metrics.rollingOccurrences,metrics.historicalHourlyMaximum):null};
 }
-export const suppressionSignature=(plan:SuppressionPlan)=>hash(canonical({...plan,deadline:plan.input.mode==='snooze'?null:plan.deadline}));
+export const suppressionSignature=(plan:SuppressionPlan)=>hash(canonical(plan.memberVersion!==undefined?{project:plan.project,issue:plan.issue,version:plan.memberVersion,input:plan.input}:{...plan,deadline:plan.input.mode==='snooze'?null:plan.deadline}));
 export const suppressionFences=(db:D1Database,plan:SuppressionPlan)=>[
+ plan.memberVersion!==undefined?guard(db,`EXISTS(SELECT 1 FROM issues i WHERE i.project=? AND i.id=? AND ${memberStateSql('i')}=?)`,plan.project,plan.issue,plan.memberVersion):
  guard(db,`EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?) AND ${userCountSql('?','?')}=?`,plan.project,plan.issue,plan.revision,plan.project,plan.issue,plan.metrics.users),
 ];
 export function suppressionStatements(db:D1Database,plan:SuppressionPlan,id:string,time:number){
  return [
   s(db,"UPDATE issue_suppressions SET state='ended',ended=? WHERE project=? AND issue=? AND historical=0 AND state='active'",time,plan.project,plan.issue),
   s(db,`INSERT INTO issue_suppressions(id,project,issue,mode,reason,deadline,occurrence_target,user_target,window_ms,forecast,started,state,ended,historical,observed_count) VALUES(?,?,?,?,?,?,?,?,?,?,?,'active',NULL,0,?)`,id,plan.project,plan.issue,plan.input.mode,plan.input.reason,plan.deadline,plan.occurrenceTarget,plan.userTarget,plan.windowMs,plan.forecast,time,plan.metrics.occurrences),
-  s(db,"UPDATE issues SET state='suppressed',resolved_seq=NULL,revision=revision+1 WHERE project=? AND id=? AND revision=?",plan.project,plan.issue,plan.revision),
+  s(db,`UPDATE issues SET state='suppressed',resolved_seq=NULL,revision=revision+1 WHERE project=? AND id=?${plan.memberVersion===undefined?' AND revision=?':''}`,plan.project,plan.issue,...plan.memberVersion===undefined?[plan.revision]:[]),
   activity(db,plan.project,plan.issue,'suppression_started',{suppression:id,mode:plan.input.mode,reason:plan.input.reason,deadline:plan.deadline,occurrenceTarget:plan.occurrenceTarget,userTarget:plan.userTarget,windowMs:plan.windowMs,forecast:plan.forecast},time),
  ];
 }

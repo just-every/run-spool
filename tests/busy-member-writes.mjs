@@ -3,12 +3,15 @@ import assert from 'node:assert/strict';
 const status=async pending=>{const response=await pending;await response.arrayBuffer();return response.status;};
 
 // The existing team journey supplies two current members of this project.
-export async function busyMemberWrites(owner,first,second,reader,base,project) {
+export async function busyMemberWrites(owner,first,second,reader,project) {
  const dsn=new URL(project.dsn),door='/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7';
  const send=async()=>{
-  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level:'error',exception:{values:[{type:'SyntheticSpoolError',value:'synthetic-spool-1'}]}};
+  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level:'error',exception:{values:[{type:'BusyMemberError',value:'Member investigation during capture'}]}};
   assert.equal(await status(first.req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event),{Cookie:''})),200);
  };
+ await send();
+ const fixture=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.title.startsWith('BusyMemberError:'));
+ assert.ok(fixture);const base='/api/projects/'+project.id+'/issues/'+fixture.id;
  const priority=await first.json(base+'/priority'),discussion=await first.json(base+'/discussion'),suppression=await first.json(base+'/suppression');
  const before=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>base.endsWith(row.id));
  await send();

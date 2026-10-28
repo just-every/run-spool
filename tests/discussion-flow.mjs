@@ -13,9 +13,10 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  const outboxBefore=await legacyMailRows(owner.origin);
  const read=()=>first.json(base+'/discussion');
  let current=await read();
- await denied(reader.req(base+'/priority','PUT',{priority:'low',revision:current.revision}));
+ const initialPriority=await first.json(base+'/priority');
+ await denied(reader.req(base+'/priority','PUT',{priority:'low',version:initialPriority.version}));
  assert.equal((await read()).revision,current.revision,'read-only priority refusal does not mutate the issue');
- const priority=await first.json(base+'/priority','PUT',{priority:'low',revision:current.revision});
+ const priority=await first.json(base+'/priority','PUT',{priority:'low',version:initialPriority.version});
  assert.ok(priority);
  current=await read();
  assert.equal(await status(first.req(base+'/comments','POST',{revision:current.revision,body:'x'.repeat(4001)})),400);
@@ -44,19 +45,19 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  const plainComment=current.comments.find(row=>row.id===plain.id);
  assert.equal(plainComment.body,'@synthetic-spool-unknown @synthetic-spool-4');assert.deepEqual(plainComment.mentions,[],'unknown and inaccessible handles stay ordinary text');
  recipient=await second.json(base+'/discussion');
- await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:false});
+ await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:false,version:recipient.subscription.version});
  current=await read();
  const edited=await first.json(base+'/comments/'+created.id,'PATCH',{revision:current.revision,version:created.version,body:'Updated investigation with @synthetic-spool-2'});
  recipient=await second.json(base+'/discussion');
  assert.equal(recipient.subscription.subscribed,false,'later mentions respect explicit unsubscribe');
  assert.equal(recipient.subscription.explicit,'unsubscribed');
- await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:true});
+ await second.json(base+'/subscription','PUT',{revision:recipient.revision,subscribed:true,version:recipient.subscription.version});
  assert.equal((await second.json(base+'/discussion')).subscription.subscribed,true);
  current=await read();
  const race=await Promise.all([first,second].map(actor=>status(actor.req(base+'/comments','POST',{revision:current.revision,body:'Concurrent discussion'}))));
- assert.deepEqual(race.toSorted(),[201,409],'only one comment commits against a shared issue revision');
+ assert.deepEqual(race.toSorted(),[201,201],'independent new comments do not conflict against the issue revision');
  current=await read();
- assert.equal(current.revision,recipient.revision+2);
+ assert.equal(current.revision,recipient.revision+3);
  assert.ok(current.activity.some(row=>row.kind==='comment_added'&&row.actor_kind==='member'));
  assert.ok(current.activity.some(row=>row.kind==='comment_edited'));
  assert.ok(current.activity.some(row=>row.kind==='unsubscribed'));
@@ -71,12 +72,12 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
   await page.getByRole('button',{name:'Unsubscribe',exact:true}).click();await page.getByRole('button',{name:'Subscribe',exact:true}).waitFor();await page.getByRole('button',{name:'Subscribe',exact:true}).click();await page.getByRole('button',{name:'Unsubscribe',exact:true}).waitFor();
   const accessibility=await new AxeBuilder({page}).include('.issue').include('.issue-collaboration').analyze();assert.deepEqual(accessibility.violations.filter(row=>['serious','critical'].includes(row.impact)),[]);await context.close();
  }finally{await browser.close()}
- await busyMemberWrites(owner,first,second,reader,base,projects[0]);
  let bounded=await read();
  for(let index=bounded.comments.length;index<bounded.limit;index++){const note=await first.json(base+'/comments','POST',{revision:bounded.revision,body:'Retained investigation note '+index});bounded.revision=note.revision;}
  const atCapacity=await read();assert.equal(await status(first.req(base+'/comments','POST',{revision:atCapacity.revision,body:'Beyond capacity'})),409);assert.deepEqual(await read(),atCapacity,'comment capacity refusal changes nothing');
  const packet=JSON.stringify(await first.json(base+'/packet'));
  assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
  assert.deepEqual(await legacyMailRows(owner.origin),outboxBefore,'discussion, mentions and subscriptions send nothing');
+ await busyMemberWrites(owner,first,second,reader,projects[0]);
  console.log('[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed');
 }

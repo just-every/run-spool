@@ -16,7 +16,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
   if(!data)return;
   setBusy(true);setError('');
   try {
-   await request(base+path,method,{...input,revision:data.revision});
+   await request(base+path,method,input);
    setData(await request(base+'/discussion'));setBody('');setEditing(null);onChanged?.();
   }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}}
   finally{setBusy(false)}
@@ -31,7 +31,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
   {error&&<p role="alert">{error}</p>}
   {!data?!error&&<p role="status">Loading discussion…</p>:<>
    <p>{data.subscription.explicit==='unsubscribed'?'You unsubscribed.':data.subscription.subscribed?'Subscribed because '+data.subscription.reasons.map(reason=>reason==='comment'?'you commented':reason==='mention'?'you were mentioned':'you subscribed').join(' and ')+'.':'You are not subscribed.'}</p>
-   {data.canWrite&&<button className="text-button" disabled={busy} onClick={()=>void mutate('/subscription','PUT',{subscribed:!data.subscription.subscribed})}>{data.subscription.subscribed?'Unsubscribe':'Subscribe'}</button>}
+   {data.canWrite&&<button className="text-button" disabled={busy} onClick={()=>void mutate('/subscription','PUT',{subscribed:!data.subscription.subscribed,version:data.subscription.version})}>{data.subscription.subscribed?'Unsubscribe':'Subscribe'}</button>}
    <p className="muted">Notifications are not sent yet.</p>
    {data.canWrite&&<form onSubmit={event=>{event.preventDefault();void mutate('/comments','POST',{body})}}>
     <label className="form-field">Comment<textarea aria-label="Comment" required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>

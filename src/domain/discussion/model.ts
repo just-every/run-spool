@@ -6,7 +6,7 @@ import { s, guard } from '../operators/common';
 import type { OwnerSession } from '../owner-authority';
 
 export type DiscussionComment = {id:string;body:string;version:number;created:number;updated:number;author:string;canEdit:boolean;mentions:string[]};
-export type Subscription = {subscribed:boolean;explicit:'subscribed'|'unsubscribed'|null;reasons:string[]};
+export type Subscription = {subscribed:boolean;explicit:'subscribed'|'unsubscribed'|null;reasons:string[];version:number};
 export type DiscussionData = {issue:string;revision:number;canWrite:boolean;comments:DiscussionComment[];subscription:Subscription;limit:number};
 export type ActivityRow = {actor_name?:string|null;id:string;kind:string;actor_kind:string;actor_label:string;detail:Record<string,unknown>;created:number};
 
@@ -25,9 +25,9 @@ export function commentBody(input:unknown) {
 }
 export const canWrite = (session:OwnerSession) => session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.role==='member'&&session.membership?.projectRole!=='read-only';
 export const canModerate = (session:OwnerSession) => session.operator.role==='owner'||session.membership?.role==='admin';
-export const issueFence = (db:D1Database,project:string,issue:string,expected:number) => [
- guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',project,issue,expected),
- s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=? AND revision=?',project,issue,expected),
+export const issueFence = (db:D1Database,project:string,issue:string) => [
+ guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=?)',project,issue),
+ s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',project,issue),
 ];
 export function activity(db:D1Database,project:string,issue:string,kind:string,detail:Record<string,unknown>,created:number) {
  const actor=currentAuditScope().actor;
@@ -35,14 +35,14 @@ export function activity(db:D1Database,project:string,issue:string,kind:string,d
 }
 export function subscribe(db:D1Database,project:string,issue:string,operator:string,reason:string,time:number,state='subscribed') {
  return s(db,`INSERT INTO issue_subscriptions(project,issue,operator_id,reason,state,updated) VALUES(?,?,?,?,?,?)
- ON CONFLICT(project,issue,operator_id,reason) DO UPDATE SET state=excluded.state,updated=excluded.updated`,project,issue,operator,reason,state,time);
+ ON CONFLICT(project,issue,operator_id,reason) DO UPDATE SET state=excluded.state,updated=MAX(issue_subscriptions.updated+1,excluded.updated)`,project,issue,operator,reason,state,time);
 }
 export async function subscription(db:D1Database,project:string,issue:string,operator:string):Promise<Subscription> {
- const rows=(await s(db,'SELECT reason,state FROM issue_subscriptions WHERE project=? AND issue=? AND operator_id=?',project,issue,operator).all<{reason:string;state:'subscribed'|'unsubscribed'}>()).results;
- const manual=rows.find(row=>row.reason==='manual')?.state;
+ const rows=(await s(db,'SELECT reason,state,updated FROM issue_subscriptions WHERE project=? AND issue=? AND operator_id=?',project,issue,operator).all<{reason:string;updated:number;state:'subscribed'|'unsubscribed'}>()).results;
+ const manualRow=rows.find(row=>row.reason==='manual'),manual=manualRow?.state;
  const explicit=manual==='subscribed'||manual==='unsubscribed'?manual:null;
  const reasons=rows.filter(row=>row.state==='subscribed').map(row=>row.reason);
- return {subscribed:explicit==='unsubscribed'?false:reasons.length>0,explicit,reasons};
+ return {subscribed:explicit==='unsubscribed'?false:reasons.length>0,explicit,reasons,version:manualRow?.updated??0};
 }
 
 // Unknown, ambiguous and inaccessible handles remain ordinary text. Resolving

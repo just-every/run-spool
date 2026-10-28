@@ -47,39 +47,40 @@ discussionRoutes.get('/:project/issues/:issue/discussion',async c=>{
 });
 
 discussionRoutes.post('/:project/issues/:issue/comments',async c=>{
- const input=await jsonBody(c.req.raw,32768);fields(input,['body','revision']);const expected=revision(input.revision),text=commentBody(input.body);
+ const input=await jsonBody(c.req.raw,32768);fields(input,['body','revision']);if(input.revision!==undefined)revision(input.revision);const text=commentBody(input.body);
  const db=c.env.DB,project=c.req.param('project'),issue=c.get('discussionIssue').id,session=c.get('discussionSession');
  const count=await s(db,'SELECT COUNT(*) count FROM issue_comments WHERE project=? AND issue=?',project,issue).first<{count:number}>();
  if(count!.count>=200)return c.json({error:'comment_capacity_reached',limit:200},409);
  const targets=await mentions(db,project,text),id=crypto.randomUUID(),time=Date.now(),actor=currentAuditScope().actor;
- await write(c,session,[...issueFence(db,project,issue,expected),guard(db,'(SELECT COUNT(*) FROM issue_comments WHERE project=? AND issue=?)<200',project,issue),
+ await write(c,session,[...issueFence(db,project,issue),guard(db,'(SELECT COUNT(*) FROM issue_comments WHERE project=? AND issue=?)<200',project,issue),
   ...targets.map(member=>mentionFence(db,project,member)),
   s(db,'INSERT INTO issue_comments(id,project,issue,operator_id,actor_kind,actor_label,body,mentions,version,created,updated) VALUES(?,?,?,?,?,?,?,?,1,?,?)',id,project,issue,session.operator.id,actor.kind,actor.label,text,JSON.stringify(targets.map(member=>member.alias)),time,time),
   subscribe(db,project,issue,session.operator.id,'comment',time),...targets.map(member=>subscribe(db,project,issue,member.operator_id,'mention',time)),
   activity(db,project,issue,'comment_added',{comment:id,mentionCount:targets.length},time),auditCommit(db)]);
- return c.json({id,version:1,revision:expected+1},201);
+ return c.json({id,version:1,revision:(await s(db,'SELECT revision FROM issues WHERE project=? AND id=?',project,issue).first<{revision:number}>())!.revision},201);
 });
 
 discussionRoutes.on(['PATCH','DELETE'],'/:project/issues/:issue/comments/:comment',async c=>{
  const deleting=c.req.method==='DELETE',input=await jsonBody(c.req.raw,32768);fields(input,deleting?['revision','version']:['revision','version','body']);
- const expected=revision(input.revision),version=revision(input.version),db=c.env.DB,project=c.req.param('project'),issue=c.get('discussionIssue').id,session=c.get('discussionSession'),id=c.req.param('comment');
+ if(input.revision!==undefined)revision(input.revision);const version=revision(input.version),db=c.env.DB,project=c.req.param('project'),issue=c.get('discussionIssue').id,session=c.get('discussionSession'),id=c.req.param('comment');
  const row=await s(db,'SELECT operator_id FROM issue_comments WHERE project=? AND issue=? AND id=?',project,issue,id).first<{operator_id:string}>();
  if(!row||row.operator_id!==session.operator.id&&!canModerate(session))return c.json({error:'Comment not found'},404);
  const text=deleting?'':commentBody(input.body),targets=deleting?[]:await mentions(db,project,text),time=Date.now();
- await write(c,session,[...issueFence(db,project,issue,expected),
+ await write(c,session,[...issueFence(db,project,issue),
   guard(db,'EXISTS(SELECT 1 FROM issue_comments WHERE project=? AND issue=? AND id=? AND version=? AND operator_id=?)',project,issue,id,version,row.operator_id),
   ...targets.map(member=>mentionFence(db,project,member)),
   deleting?s(db,'DELETE FROM issue_comments WHERE project=? AND issue=? AND id=?',project,issue,id):
    s(db,'UPDATE issue_comments SET body=?,mentions=?,version=version+1,updated=? WHERE project=? AND issue=? AND id=?',text,JSON.stringify(targets.map(member=>member.alias)),time,project,issue,id),
   ...targets.map(member=>subscribe(db,project,issue,member.operator_id,'mention',time)),
   activity(db,project,issue,deleting?'comment_deleted':'comment_edited',{comment:id,version:version+1,...deleting?{}:{mentionCount:targets.length}},time),auditCommit(db)]);
- return c.json({id,version:version+1,revision:expected+1,deleted:deleting});
+ return c.json({id,version:version+1,revision:(await s(db,'SELECT revision FROM issues WHERE project=? AND id=?',project,issue).first<{revision:number}>())!.revision,deleted:deleting});
 });
 
 discussionRoutes.put('/:project/issues/:issue/subscription',async c=>{
- const input=await jsonBody(c.req.raw,1024);fields(input,['revision','subscribed']);const expected=revision(input.revision);
+ const input=await jsonBody(c.req.raw,1024);fields(input,['revision','subscribed','version']);if(input.revision!==undefined)revision(input.revision);
+ if(!Number.isSafeInteger(input.version)||input.version<0)throw new AuthError('invalid_subscription_version',400);
  if(typeof input.subscribed!=='boolean')throw new AuthError('invalid_subscription',400);
  const db=c.env.DB,project=c.req.param('project'),issue=c.get('discussionIssue').id,session=c.get('discussionSession'),time=Date.now();
- await write(c,session,[...issueFence(db,project,issue,expected),subscribe(db,project,issue,session.operator.id,'manual',time,input.subscribed?'subscribed':'unsubscribed'),activity(db,project,issue,input.subscribed?'subscribed':'unsubscribed',{},time),auditCommit(db)]);
- return c.json({revision:expected+1,subscription:await subscription(db,project,issue,session.operator.id)});
+ await write(c,session,[...issueFence(db,project,issue),guard(db,"COALESCE((SELECT updated FROM issue_subscriptions WHERE project=? AND issue=? AND operator_id=? AND reason='manual'),0)=?",project,issue,session.operator.id,input.version),subscribe(db,project,issue,session.operator.id,'manual',time,input.subscribed?'subscribed':'unsubscribed'),activity(db,project,issue,input.subscribed?'subscribed':'unsubscribed',{},time),auditCommit(db)]);
+ return c.json({revision:(await s(db,'SELECT revision FROM issues WHERE project=? AND id=?',project,issue).first<{revision:number}>())!.revision,subscription:await subscription(db,project,issue,session.operator.id)});
 });

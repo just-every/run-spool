@@ -30,17 +30,17 @@ export function SuppressionDetails({plan}:{plan:SuppressionPlan}){
 }
 
 export function Suppression({project,issue,request,run,busy,onChange,readOnly=false}:{project:string;issue:{id:string;revision:number;state:string};request:Request;run:Run;busy:boolean;onChange:()=>void;readOnly?:boolean}){
- const [input,setInput]=useState<SuppressionInput>(initialSuppression),[preview,setPreview]=useState<{preview:string;suppression:SuppressionPlan}|null>(null),[history,setHistory]=useState<any[]|null>(null),[error,setError]=useState(''),[status,setStatus]=useState('');
+ const [input,setInput]=useState<SuppressionInput>(initialSuppression),[preview,setPreview]=useState<{preview:string;suppression:SuppressionPlan}|null>(null),[history,setHistory]=useState<any[]|null>(null),[version,setVersion]=useState<string|null>(null),[error,setError]=useState(''),[status,setStatus]=useState('');
  const root=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue.id)}/suppression`;
- useEffect(()=>{let alive=true;setPreview(null);setError('');request(root).then(row=>{if(alive)setHistory(row.history)}).catch(e=>{if(alive)setError(e.message)});return()=>{alive=false}},[root,issue.revision,request]);
+ useEffect(()=>{let alive=true;setPreview(null);setVersion(null);setError('');request(root).then(row=>{if(alive){setHistory(row.history);setVersion(row.version)}}).catch(e=>{if(alive)setError(e.message)});return()=>{alive=false}},[root,issue.state,request]);
  const update=(next:SuppressionInput)=>{setInput(next);setPreview(null);setStatus('')};
  const act=(apply:boolean)=>void run(async()=>{setError('');setStatus('');try{
-  const result=await request(root,'POST',{revision:issue.revision,suppression:input,apply,...apply?{preview:preview?.preview}:{}});
-  if(apply){setPreview(null);setStatus('Issue archived. Capture continues.');onChange()}else setPreview(result);
+  const result=await request(root,'POST',{version,suppression:input,apply,...apply?{preview:preview?.preview}:{}});
+  if(apply){const next=await request(root);setHistory(next.history);setVersion(next.version);setPreview(null);setStatus('Issue archived. Capture continues.');onChange()}else setPreview(result);
  }catch(failure){setError((failure as Error).message);setPreview(null)}});
  return <section className="evidence" aria-labelledby="suppression-title"><h2 id="suppression-title">Archive issue</h2>
   {!readOnly&&<><SuppressionFields value={input} onChange={update} disabled={busy}/>
-  <div className="button-row"><button className="text-button" disabled={busy||!input.reason.trim()} onClick={()=>act(false)}>Preview archive</button><button className="primary-button" disabled={busy||!preview} onClick={()=>act(true)}>Archive issue</button></div>
+  <div className="button-row"><button className="text-button" disabled={busy||!version||!input.reason.trim()} onClick={()=>act(false)}>Preview archive</button><button className="primary-button" disabled={busy||!preview} onClick={()=>act(true)}>Archive issue</button></div>
   </>}
   {history?.some(row=>row.state==='active')&&<div className="callout">{history.filter(row=>row.state==='active').slice(0,1).map(row=><div key={row.id}><p><strong>{row.historical?'Restored archive history':'Archived'}</strong> · {row.mode}</p><p>{row.reason}</p>{row.deadline!==null&&<p>Follow-up due {date(row.deadline)}.</p>}{row.forecast!==null&&<p>Forecast: {row.forecast} occurrences per hour. Reopens above this forecast.</p>}{row.occurrence_target!==null&&<p>Reopens at {row.occurrence_target} occurrences.</p>}{row.user_target!==null&&<p>Reopens at {row.user_target} affected users.</p>}</div>)}</div>}
   {preview&&<div className="callout"><h3>Archive preview</h3><SuppressionDetails plan={preview.suppression}/></div>}

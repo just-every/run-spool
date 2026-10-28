@@ -289,8 +289,8 @@ export async function issuePriorityFlow({req,json}) {
  let rows=await json(base+'/issues'),warning=rows.find(r=>r.title.startsWith('WarningFailure')),fatal=rows.find(r=>r.title.startsWith('FatalFailure'));
  assert.equal(warning.priority,'medium');assert.equal(fatal.priority,'high');
  const path=base+'/issues/'+warning.id+'/priority';
- const invalidBefore=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'urgent',revision:warning.revision})).status,400);assert.deepEqual(await json(base+'/issues'),invalidBefore,'invalid priority cannot mutate issue');
- await json(path,'PUT',{priority:'low',revision:warning.revision});const after=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'high',revision:warning.revision})).status,409);assert.deepEqual(await json(base+'/issues'),after,'stale priority edit cannot mutate issue');
+ const priorityRead=await json(path),invalidBefore=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'urgent',version:priorityRead.version})).status,400);assert.deepEqual(await json(base+'/issues'),invalidBefore,'invalid priority cannot mutate issue');
+ await json(path,'PUT',{priority:'low',version:priorityRead.version});const after=await json(base+'/issues');assert.equal((await req(path,'PUT',{priority:'high',version:priorityRead.version})).status,409);assert.deepEqual(await json(base+'/issues'),after,'stale priority edit cannot mutate issue');
  await send('fatal');warning=(await json(base+'/issues')).find(r=>r.id===warning.id);assert.equal(warning.priority,'low','manual choice survives a later fatal escalation');
  await json(base+'/issues/'+warning.id,'PATCH',{state:'resolved',resolution:'plain',revision:warning.revision});await send('error');warning=(await json(base+'/issues')).find(r=>r.id===warning.id);assert.equal(warning.state,'open');assert.equal(warning.priority,'low','manual choice survives regression');
  const filtered=await json(base+'/issue-search?q=priority:low');assert.deepEqual(filtered.rows.map(r=>r.id),[warning.id]);
