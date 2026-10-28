@@ -1,0 +1,17 @@
+/** Named, dated assertions awaiting the combined Base continuation. These are
+ * pending requirements, never skipped tests or alternate implementations. */
+export const pendingAssertions=[
+ {id:'SPOOL-BASE-TARGET-2026-10-28',source:'Base agent-door/audit.ts',assertion:'Every private read, refusal and effect has a native target in the door audit.'},
+ {id:'SPOOL-BASE-RESOURCE-CODE-2026-10-28',source:'Base agent-door/transport.ts',assertion:'Missing and restricted resources return identical JSON-RPC error.data.code.'},
+ {id:'SPOOL-BASE-REPLAY-AUTHORITY-2026-10-28',source:'Base agent-door/pipeline.ts',assertion:'Mutation replay rechecks current native authorization before returning a retained outcome.'},
+ {id:'SPOOL-BASE-OWNER-ESCALATION-2026-10-28',source:'Base agent-door/conformance/surface.mjs',assertion:'Native owner-only updates with no possible self-widening are not required to invent an escalation mode.'},
+ {id:'SPOOL-BASE-REVIEWER-2026-10-28',source:'Base native reviewer lifecycle',assertion:'Native reviewers and real Undo actors complete the full review lifecycle.'},
+ {id:'SPOOL-BASE-CATALOGUE-ACK-2026-10-28',source:'Base agent-door/policy-store.ts',assertion:'The adoption acknowledgement lists every declared tool in each class; the pinned implementation truncates each class at twenty tools.'},
+ {id:'SPOOL-BASE-PROVIDER-BINDING-2026-10-28',source:'Base cli/agent-door.mjs verification.owner.bindings',assertion:'The disposable native installation can receive a test-only GitHub App binding without reading production keys or adding an application fallback.'},
+ {id:'SPOOL-BASE-STALE-INJECTION-2026-10-28',source:'Base agent-door/conformance/journey.mjs:injections',assertion:'Injection checks must preserve real native revision fences and irreversible effects; a second fresh-key write with the already-consumed native revision can truthfully refuse.'},
+ {id:'SPOOL-BASE-NATIVE-EVENT-2026-10-28',source:'Base agent-door/types.ts:EventActor and public emit',assertion:'Independent native runner observations need an actual runner actor and existing signed-webhook events need retained source IDs; the pinned public emit accepts only a person and assigns a new ID.'},
+ {id:'SPOOL-BASE-CLI-PIN-2026-10-28',source:'Published @runeditrun/rer and createCommandAdapter',assertion:'The matching source CLI expects import --acknowledge-unverified-schema-objects, which the seed’s pinned 0.2.82 adapter cannot supply; npm 0.2.86 containing this head must be adopted when published.'},
+ {id:'SPOOL-BASE-ERASURE-APPROVAL-2026-10-28',source:'Base agent-door ToolContext and native erasure plan',assertion:'A held erasure adds saved approval custody after the count-only native preview; the execution context needs its original decision/approval ID so that its own admission record can be fenced without invalidating or weakening the saved plan.'},
+ {id:'SPOOL-BASE-STANDING-WORKER-2026-10-28',source:'Base hooks-7 queued consent continuation and Spool alert/follow-up/retention workers',assertion:'Agent-configured notification and retention work must retain the original actor and re-enter final policy admission; the existing native standing workers are not yet qualified by this adoption, so enabling agent configuration writes refuse native_worker_admission_unavailable without saving settings.'},
+ {id:'SPOOL-CT-SURFACE-2026-10-28',source:'Spool CONTRACT.md',assertion:'The ct Agent surface and Base event clause are aligned with the current company-policy direction.'},
+];

@@ -53,6 +53,7 @@ export async function investigationFlow({req,json,origin}){
  for(const q of [local,'stack:'+local,'function:'+local,line,'stack:'+line]){
   assert.equal((await json(base+'/issue-search?q='+encodeURIComponent(q))).total,1,'owner search reaches frame locals and source lines');
   for(const door of ['issue-search','issue-export'])assert.equal((await json(`${base}/${door}?q=${encodeURIComponent(q)}`,'GET',undefined,auth)).total,0,'agent search and export match only what the agent packet shows');
+  const scopedCsv=await req(`${base}/issue-export?format=csv&q=${encodeURIComponent(q)}`,'GET',undefined,auth);assert.equal(scopedCsv.status,200);assert.equal((await scopedCsv.text()).split('\r\n').length,1,'Agent CSV queries cannot match frame locals or source lines absent from packets');
  }
  assert.equal((await json(base+'/issue-search?q='+encodeURIComponent('stack:closeLedger'),'GET',undefined,auth)).total,1,'agent search still matches packet frames');
  // Captured text stays inert in a spreadsheet: no exported cell opens as a formula, and each title keeps its text.

@@ -58,10 +58,11 @@ try{
  stage='archive';
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
- const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
+ const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,proofReference,...row})=>row)});
  const before=await views(app);
  restored=await executionRuntime(restoredState,15477);await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  assert.deepEqual(await views(restored),before,'reproducers, runs, workflows, receipts and exposure verdicts restore unchanged');
+ assert.ok((await restored.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.every(row=>row.proofReference===null),'Restored history never restores live repository proof');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
