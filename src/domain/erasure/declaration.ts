@@ -20,6 +20,7 @@ export const projectErasure = defineErasure({
   // and all its grants leave with the last project they describe.
   {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
   {table:'spool_reporting_shares',from:'spool_reporting_items',on:{item:'id'}},
+  {table:'spool_reporting_shares',from:'spool_project_teams',where:"kind='team' AND target=? AND item IN (SELECT item FROM spool_reporting_projects WHERE project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r JOIN spool_project_teams t ON t.project=r.project WHERE r.item=spool_reporting_shares.item AND r.project<>? AND t.organization=? AND t.team=?)",params:['team','project','project','organization','team']},
   ...['spool_reporting_projects','spool_reporting_widgets'].map(fromProject),
   {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
   {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},

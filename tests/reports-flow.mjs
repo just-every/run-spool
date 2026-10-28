@@ -1,3 +1,4 @@
+import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
 import {startTestWorker} from './worker.mjs';
@@ -66,6 +67,9 @@ export async function reportsFlow(context){
   for(const [field,value] of [['timeZone','not-a-zone'],['from','-1'],['to',String(from)]]){const query=new URL(url(),'https://synthetic.test');query.searchParams.set(field,value);const response=await req(query.pathname+query.search);assert.equal(response.status,400);await response.body?.cancel()}
   assert.equal((await req(url(),'GET',undefined,{Cookie:''})).status,401);const agent=await json(root+'/keys','POST',{kind:'agent'});assert.equal((await req(url(),'GET',undefined,{Cookie:'',Authorization:'Bearer '+agent.key})).status,401);
   const allDrop={id:'drop',email:'drop',username:'drop',ip_address:'drop'},current=await json(root+'/identity-policy'),preview=await json(root+'/identity-policy/preview','POST',{policy:allDrop});await json(root+'/identity-policy','PUT',{revision:current.revision,policy:allDrop,token:preview.token});report=await json(url());assert.equal(report.volume.events,4);assert.equal(report.volume.affectedUsers,null);assert.equal(report.volume.unattributedEvents,4);assert.match(report.users.projects[0].reason,/policy: drop/);
+  // Timestamp fixtures are synthetic historical probes; retire their projects
+  // through the public custody door before another journey archives this Worker.
+  for(const project of [p,other]){const base='/api/projects/'+project.id,plan=await json(base+'/erasure');await followErasure(json,await json(base+'/erasure','POST',{confirm:project.id,planHash:plan.planHash}))}
   console.log('[FIND-002] exact retained totals, DST calendar buckets, history exclusions, acknowledgement/resolution quantiles, ownership, SDK-008 identity/drop, SDK-005 health, no-release, discards and JSON/CSV public report doors passed');
  }finally{await worker?.stop()}
 }
