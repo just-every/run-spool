@@ -61,7 +61,6 @@ jobs:
     env:
       RER_SERVERS_DISK_FLOOR_GIB: '4'
       NODE_DEBUG: '@cloudflare:vite-plugin'
-      CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
     strategy:
       fail-fast: false
       matrix:
@@ -166,6 +165,8 @@ jobs:
           otp-version: '27'
           elixir-version: '1.18'
       - name: Run public-door journeys
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
         run: node tests/journeys.mjs ${{ matrix.shard }}
       # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
       # checkout's secrets redacted, for diagnosing a failed run.
