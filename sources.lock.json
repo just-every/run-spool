@@ -2617,11 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-<<<<<<< HEAD
-      "sha256": "b88a7123c4b6d7879d9070a1d48c98d0b82ffea4e5a51e7050e4b2c0a7f477d0",
-=======
-      "sha256": "94e57ad78612ad6fcc9ecf9f2c0816507a9f0161ed7b447492e7b73e17228582",
->>>>>>> d56b82f (Fix workflow runner context for shared journey shards)
+      "sha256": "3fc5710c6da35fa478899ccaafa63cf11d746cb024bdebef2b1cf9f06b9a327c",
       "executable": false
     },
     ".gitignore": {
@@ -8901,7 +8897,7 @@
       "executable": false
     },
     "tests/runtimes/electron/renderer.cjs": {
-      "sha256": "655e83e5f18f19f2a2d8296bd207ec1908c53127c9bb5b01b43d944c7478b525",
+      "sha256": "b7f4be72606ce412c631d0636509d03fcb4ad522c6cb056b64541930e4a3621c",
       "executable": false
     },
     "tests/runtimes/elixir.mjs": {
