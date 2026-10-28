@@ -32,7 +32,7 @@ export type ReadReasonCode = keyof typeof definitions;
 export const importReadReasons = Object.fromEntries(Object.entries(definitions).map(([code, [label]]) => [code, label]));
 export function rejectionReasonCode(reason: string): ReadReasonCode {
  for (const [code, [, ...messages]] of Object.entries(definitions)) {
-  if (messages.includes(reason)) return code as ReadReasonCode;
+  if (messages.some(message => message === reason)) return code as ReadReasonCode;
  }
  return 'record_not_importable';
 }

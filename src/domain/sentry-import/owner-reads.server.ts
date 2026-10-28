@@ -1,5 +1,5 @@
 import type { DoorRequest, DoorSnapshot } from '../../modules/import-kit/src/door/types.ts';
-import type { PersistedImport, SourceRecord } from '../../modules/import-kit/src/types.ts';
+import type { PersistedImport } from '../../modules/import-kit/src/types.ts';
 import { DoorError } from '../../modules/import-kit/src/door/protocol.ts';
 import { authorized, erasedSince, loadSnapshot, planRow } from '../../modules/import-kit/src/door/store.ts';
 import { readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';

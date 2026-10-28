@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerClaimConfig } from '../../editor/owner-claim-config.server';
 import type { ManagedBindings } from '../../editor/bindings';
@@ -21,7 +22,7 @@ routes.use('*',async(c,next)=>{
  c.set('owner',session);
  try { await schemaCurrent(c.env.DB); await next(); }
  catch (error) {
-  if (error instanceof DoorError) return c.json({error:error.code},error.status as 401);
+  if (error instanceof DoorError) return c.json({error:error.code},error.status as ContentfulStatusCode);
   throw error;
  }
 });
