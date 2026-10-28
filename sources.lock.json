@@ -5076,6 +5076,26 @@
       "sha256": "fb28e8b21285da499a26101e8812a64ede8b480942d6aa184dc27078d60da06a",
       "executable": false
     },
+    "scripts/verify-app.mjs": {
+      "sha256": "4c3a87c809e2b671a555dc36171b60675f87be96362de7d2269d9f5e1c3100b6",
+      "executable": false
+    },
+    "scripts/verify-ci.mjs": {
+      "sha256": "cf1ceb8773ed276f82245fb8fb4c4bdc95bff40ecc0e8ca8ac9e776978b17340",
+      "executable": false
+    },
+    "scripts/verify-evidence.mjs": {
+      "sha256": "9224f772d6a17f043448694eca3c149df83070417b995a2840497e36a9ad0100",
+      "executable": false
+    },
+    "scripts/verify-light.mjs": {
+      "sha256": "3f58865aa32380d48d8320f3a1f520c0663e4f17d82f7f5ccd4cb0448feff197",
+      "executable": false
+    },
+    "scripts/verify-plan.mjs": {
+      "sha256": "45fe2ab9c5cbc72d0186bf77fab32c985605caae6ecee50676dd618612c3e78f",
+      "executable": false
+    },
     "SEED-COMMAND-CONTRACT.md": {
       "sha256": "6a2f0904612eacdb7cd82f987e20a3f06be2a2e43357db6e8a678fc9948dada4",
       "executable": false
@@ -9890,6 +9910,10 @@
     },
     "tsconfig.json": {
       "sha256": "565ae9e660727abb4d0ce775f0e37f4a0bc8482f1c60ae7b436007b7649c1713",
+      "executable": false
+    },
+    "verification.json": {
+      "sha256": "6c7d360eba232d6d04cb3ad83c04217227a024223c7f678cb09f4136b4bf933c",
       "executable": false
     },
     "vite.config.ts": {
