@@ -43,6 +43,10 @@ export async function busyMemberWrites(owner,first,second,reader,project) {
  assert.deepEqual(await first.json(base+'/discussion'),snapshot,'denied and invalid busy writes change nothing');
  const input={version:suppression.version,suppression:{mode:'snooze',durationMs:1800000,reason:'Investigate accepted events for thirty minutes'},apply:false};
  const preview=await first.json(base+'/suppression','POST',input);
+ const beforeApply=await first.json(base+'/suppression');
+ assert.equal(await status(first.req(base+'/suppression','POST',{...input,suppression:{...input.suppression,durationMs:60000},apply:true,preview:preview.preview})),409,'the preview is bound to the chosen archive condition');
+ assert.deepEqual(await first.json(base+'/suppression'),beforeApply,'a changed condition cannot mutate archive state');
+ const beforeArchivePriority=await first.json(base+'/priority');
  await send();
  await first.json(base+'/suppression','POST',{...input,apply:true,preview:preview.preview});
  const archived=await first.json(base+'/suppression'),row=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.id===before.id);
@@ -50,5 +54,8 @@ export async function busyMemberWrites(owner,first,second,reader,project) {
  assert.ok(archived.history.some(row=>row.state==='active'&&row.mode==='snooze'&&row.deadline>Date.now()));
  assert.equal(await status(second.req(base+'/suppression','POST',{...input,apply:true,preview:preview.preview})),409,'a concurrent archive decision refuses the stale state');
  assert.deepEqual(await first.json(base+'/suppression'),archived);
+ const afterArchivePriority=await first.json(base+'/priority');
+ assert.equal(await status(first.req(base+'/priority','PUT',{priority:'high',version:beforeArchivePriority.version})),409,'priority edits also protect a genuinely changed issue state');
+ assert.deepEqual(await first.json(base+'/priority'),afterArchivePriority);
  await first.json(base,'PATCH',{state:'open',revision:row.revision});
 }
