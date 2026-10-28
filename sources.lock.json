@@ -4767,7 +4767,7 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "04e71efe12817803051e9eab58f17364e64c402124366b6d9f01f9f4ded00a15",
+      "sha256": "2ab191c5a4ab3754f25bc240975977a06d2005d75b5647429c616065ba11be2d",
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
@@ -8635,7 +8635,7 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.css": {
-      "sha256": "caab746c200597e1ce67bb06541471da2beb22478f2dc8868d5b049d3af1068e",
+      "sha256": "ebe26e213d57ad9d41a71fc1576ec0c65b290eaaeb29697177e9658147f40041",
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
@@ -8651,7 +8651,7 @@
       "executable": false
     },
     "src/ui/workbench/FixWorkflowCard.tsx": {
-      "sha256": "9b9ceafc68e094db0baec0b1ff94ff573cfb3ddb8b2eacc7a6abaf6a3d21f0b4",
+      "sha256": "e3e464112a091af4fa7334a6a9628fe9d538768a79f2eae858653255131652d7",
       "executable": false
     },
     "src/ui/workbench/GitHubConnectionSetup.tsx": {
@@ -8915,7 +8915,7 @@
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
-      "sha256": "d9d5b742423145ffbcc310177814aaf07df0c3a88b7f38c77f8fa1748a929e38",
+      "sha256": "d195b3ab5a1b188d97ebb5516d9c1abe167401127acf58f2a78899fd3a8269fd",
       "executable": false
     },
     "tests/agent-handoff.mjs": {
