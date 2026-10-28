@@ -28,6 +28,7 @@ jobs:
       - name: Check source and portable contract
         run: |
           pnpm run check -- --profile first-party
+          node scripts/contract-docs.mjs check TEAM-001
           pnpm source:check
           node scripts/edition-authoring/cli.mjs verify-base --offline
       - name: Build application

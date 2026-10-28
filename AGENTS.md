@@ -40,3 +40,18 @@ Setup, dev, verify and deploy dry run are local operations. Never infer deployme
 Spool declares its own fonts (self-hosted Zilla Slab, IBM Plex Sans and IBM Plex Mono) in `public/fonts/fonts.css`, linked by `src/base/font-head.ts`. Both are product-owned and outside the Base copy records; the root head, the landing, docs and sign-in pages, and native `/auth/*` documents (through `fontDocumentResponse`) share them, while tokens and components live in `public/theme/spool.css`, so a Base refresh must not bring back Base's Outfit default.
 
 `scripts/delivery/base/packaging.json` is product-owned policy over the pinned Base exporter. Regenerate the setup digest and producer workflow when policy or manifest bytes change.
+
+## Contract document generation
+
+CONTRACT.md is the source for clause text, evidence and status. While ct owns
+the complete contract conversion, regenerate only the clauses touched by a
+build round, following the seed's incremental document command. It preserves
+other acceptance entries and every Status row. Add any newly touched clause
+IDs to both the command and the Verify check.
+
+Lander-Regenerate: node scripts/contract-docs.mjs write TEAM-001
+Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
+
+Run `node scripts/contract-docs.mjs check TEAM-001` and the source check after
+generation. Do not hand-edit generated entries or counts. Once ct's complete
+conversion lands, use its Base generator and remove this incremental command.

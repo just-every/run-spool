@@ -27,7 +27,7 @@ export async function browserMembers(owner,projects) {
   const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
   await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
   await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
-  // Stored grants contain member/created metadata; writes must send only the input shape.
+  // Stored grants contain member and created metadata; writes must send only the input shape.
   await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
   const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
   async function saved(select,value) {
@@ -63,10 +63,10 @@ export async function browserMembers(owner,projects) {
   const violations=(await new AxeBuilder({page}).include('[aria-label="Members"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact));
   assert.deepEqual(violations,[],'Members settings has no serious accessibility violation');
   const folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
-  if(folder){await mkdir(folder,{recursive:true});await members.screenshot({path:resolve(folder,'members-1440.png')});}
+  await mkdir(folder,{recursive:true});await members.screenshot({path:resolve(folder,'members-1440.png')});
   await page.setViewportSize({width:390,height:900});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the phone viewport');
-  if(folder)await members.screenshot({path:resolve(folder,'members-390.png')});
+  await members.screenshot({path:resolve(folder,'members-390.png')});
   await context.close();
  }finally{await browser.close()}
 }

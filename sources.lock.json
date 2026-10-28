@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "2671c5117a1c8664616acb9f76aa873f5c35b3814450f96d528eb59161d3fa2e",
+      "sha256": "c9422091a736d1187404e6223c279de0d9713f2af9e9657e11653070466198f0",
       "executable": false
     },
     ".gitignore": {
@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3843989fc159b55f2a8dd91cf43fddb70b6804d32a135e72aa4fef73d7b249a7",
+      "sha256": "0b8573a7b112a983f12d62febacb33fbe5a2cc5dac4cf8d9b3740dd4c8ee3dc2",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2641,7 +2641,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "873c8d25b502b6faa7798944f40b3095dc7110b4a5c396d86d0d867e0f73a076",
+      "sha256": "d9b5ae0b6a6e8e01228b8e73408f213508b7145d7b48ef569cf14418f594e772",
       "executable": false
     },
     "base-copies.json": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3e90329dfa3c72f9f33fd1ca63b07ca0221f30d00a36aa5465232fe26a084c7e",
+      "sha256": "96290d947cfc50af5b9d2ab589ff1376893f07e6979fbd71af457ade049f9dc2",
       "executable": false
     },
     "DEMO.md": {
@@ -2918,6 +2918,10 @@
     },
     "docs/CHECK-INS.md": {
       "sha256": "b4eee7a582c75819f7eff6fcfacffa42b183317e69dc68874b411180748704c6",
+      "executable": false
+    },
+    "docs/CLAIMS.md": {
+      "sha256": "6964da19436aa909bd9e10d64813f274d0b539a3393929fe429dbdff39a6d3d7",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
@@ -4314,6 +4318,10 @@
     },
     "scripts/build-delivery-artifact.mjs": {
       "sha256": "24cde4dd5cf8723acdfe27f6f92c1fe14402894ee3a63db185e1ce1bdbefa035",
+      "executable": false
+    },
+    "scripts/contract-docs.mjs": {
+      "sha256": "b365807109da6a23f98a987ecc2d0e32d15b4e2da411efc22dcdc07d2caa326a",
       "executable": false
     },
     "scripts/delivery/base/artifact.mjs": {
@@ -9137,7 +9145,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "53792d804e9eb7da48a0bf82d71539ed21b8c23419536d6a64031b527d90b191",
+      "sha256": "5305c87202e2a6c81f68e57b5bb618d427b6daa68910e7d1d4c6f974c83ca117",
       "executable": false
     },
     "tests/team-flow.mjs": {

@@ -66,16 +66,23 @@ For every new flow, exercise the public UI/API/command rather than direct databa
 
 ### Teams and triage
 
-- **TEAM-001 — Organizations, members and project permissions. Status: partial.** Invite two teammates and an external read-only collaborator; grant access to disjoint projects, triage concurrently, remove a member and verify immediate denial across UI, HTTP, SDK-management, CLI and exports. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member’s project/team scope.
+- **TEAM-001 — Organizations, members and project permissions. Status: partial.**
 
-  Current evidence: `src/auth/session.server.ts`; `src/domain/owner-authority.ts`; `tests/owner-erasure.mjs` Only one active owner and isolated projects exist. Successor invitation is transfer, not team membership.
+  A US development team creates an organization, invites multiple simultaneous members, organizes projects by team, and grants owner/admin, billing (usage, budgets and invoices only), project maintainer, member and read-only access with least privilege. Removal revokes sessions, keys and linked service authority; service accounts have explicit project scopes. Private data, search, exports and integrations obey membership on every transport. Owner transfer remains available without restricting the organization to one active contributor. Before project role doors ship, enforce project-maintainer authority for SDK-006 inbound filter and GROUP-001 grouping-policy management, replacing the current owner proxy without granting authority outside the member’s project/team scope.
 
-  Required before this path ships: AUDIT-001 covers its human/service actions, denied/stale attempts, exports and notifications with safe actor/subject/time/action/outcome facts, organization cursor history/export, append-preserving portability and unlinkable erasure.
-  Prove member deployment authority inherited from REL-001; the current owner proxy ends when membership ships.
+  Before this capability ships, every new human/service action, denial, export and notification inherits AUDIT-001: safe permanent actor/subject aliases, time, action and truthful outcome; permissioned organization cursor history/export; append-preserving portability and erasure that removes attribution links without relabeling old facts.
+
+  TEAM-001 supplies member deployment authority; the current installation owner acts for REL-001 until then.
+
+  **Acceptance evidence:** Invite two teammates and an external read-only collaborator; grant access to disjoint projects, triage concurrently, remove a member and verify immediate denial across UI, HTTP, SDK-management, CLI and exports.
 
   ALERT-004 alternate-operator responsibility is inherited here: until member roles ship, the installation owner is accountable and configures the alternate destination (default No alternate). Team roles must preserve an accountable alternate operator, visible broken-destination and overdue follow-up, and nonrecursive deduplication.
 
   ALERT-003 team digests and team snooze inherit this clause before team roles ship: buyer-timezone daily/weekly error digests, required snooze expiry, one durable resumption notice, counted/listed suppressed alerts, and loss/backlog visible through maintenance and quiet hours. The installation owner acts for these scopes until this clause is implemented.
+
+  Current evidence: `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
+
+  Gap: Final candidate membership, browser removal, inherited notification, audit, archive and erasure proof is pending. Incremental generation is available through scripts/contract-docs.mjs with TEAM-001.
 
 - **TEAM-002 — Accountable assignment and ownership rules. Status: partial.** Connect a repository with overlapping ownership rules, capture matched and unmatched errors, confirm accountable assignment and destination, let an assigned issue pass its acknowledgment window and an unassigned one pass its unowned window and confirm one due notice to the assignee and one unowned notice to the team, then remove the owner and inspect reassignment/history without leaked access.
 
