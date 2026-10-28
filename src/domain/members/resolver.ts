@@ -7,11 +7,11 @@ const missing = (): never => { throw new AuthError('Project not found',404); };
 
 /** Resolves product authority after native session authentication. The same
  * resolver runs at each independently mounted private door. */
-export async function resolveMembership(request: Request, env: Bindings, session: Session): Promise<TeamSession | null> {
+export async function resolveMembership<T extends Pick<Session, 'operator'>>(request: Request, env: Bindings, session: T): Promise<(T & {membership?: Membership}) | null> {
  const member = await s(env.DB,"SELECT id,version,role,organization FROM spool_members WHERE operator_id=? AND state='active'",session.operator.id).first<Membership>();
  if (!member) return null;
  const path = new URL(request.url).pathname.replace(/\/$/,'') || '/';
- const result: TeamSession = { ...session, membership: member };
+ const result: T & {membership?: Membership} = { ...session, membership: member };
  if (['/','/app','/sign-in','/signin','/projects','/api/projects','/api/organization/me'].includes(path)) {
   if (read(request) || path==='/api/projects' && member.role==='admin') return result;
   return missing();
@@ -49,7 +49,7 @@ export async function resolveMembership(request: Request, env: Bindings, session
 }
 
 /** Current project list is a permissioned read, not a client-side filter. */
-export async function memberProjects(db: D1Database, session: TeamSession) {
+export async function memberProjects(db: D1Database, session: Pick<TeamSession,'operator'|'membership'>) {
  if (session.operator.role==='owner') return (await s(db,'SELECT *,\'owner\' role FROM projects ORDER BY created').all()).results;
  const member=session.membership!;
  if (member.role==='billing') return [];

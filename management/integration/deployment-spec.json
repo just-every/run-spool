@@ -456,6 +456,60 @@
       "name": "0080_transfer_credential_authority.sql",
       "sha256": "71937aa3a0abb056d8c8d970844261cd949eb0456ab030708edd255a6d2c376d",
       "sql": "-- An ordinary owner transfer preserves each person's credential authority while\n-- retiring both sessions. Keep the post-erasure immutable-credential fence, with\n-- one narrow exception for a guarded transfer carrying an already-current key\n-- forward exactly one operator version. No revoked/stale credential is revived.\nDROP TRIGGER spool_erased_owner_credential_update;\nCREATE TRIGGER spool_erased_owner_credential_update BEFORE UPDATE ON credentials\nWHEN EXISTS(SELECT 1 FROM rer_erasure_operations WHERE entity='installation-owner')\n AND NOT EXISTS(SELECT 1 FROM rer_erasure_guard)\n AND NOT COALESCE((\n  NEW.revoked IS NOT NULL AND NEW.hash IS OLD.hash AND NEW.project IS OLD.project\n  AND NEW.kind IS OLD.kind AND NEW.created IS OLD.created\n  AND NEW.minted_by IS OLD.minted_by AND NEW.minted_version IS OLD.minted_version\n  OR OLD.revoked IS NULL AND NEW.revoked IS NULL AND NEW.hash IS OLD.hash\n  AND NEW.project IS OLD.project AND NEW.kind IS OLD.kind AND NEW.created IS OLD.created\n  AND NEW.minted_by IS OLD.minted_by AND NEW.minted_version=OLD.minted_version+1\n  AND EXISTS(SELECT 1 FROM audit_context WHERE action='member.transfer' AND committed=0)\n  AND EXISTS(SELECT 1 FROM spool_authority_guards WHERE ok=1)\n  AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=OLD.minted_by\n   AND o.version=OLD.minted_version AND o.status='active')\n ),0)\nBEGIN SELECT RAISE(ABORT,'credential_authority_changed'); END;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0081_agent_door.sql",
+      "sha256": "016d8a98b964385f5c4a13447361c3c783910a76aaf4606b0e0081482bc819cc",
+      "sql": "CREATE TABLE IF NOT EXISTS agent_door_state (\n  id INTEGER PRIMARY KEY CHECK(id=1), envelope TEXT, local_document TEXT,\n  local_revision INTEGER NOT NULL DEFAULT 0, local_paused INTEGER NOT NULL DEFAULT 0,\n  decision_lock TEXT, decision_until INTEGER\n);\nCREATE TABLE IF NOT EXISTS agent_door_agents (\n  id TEXT PRIMARY KEY, name TEXT NOT NULL, specialist TEXT, sponsor TEXT NOT NULL,\n  sponsor_name TEXT NOT NULL, revoked INTEGER NOT NULL DEFAULT 0,\n  window INTEGER NOT NULL DEFAULT 0, requests INTEGER NOT NULL DEFAULT 0\n);\nCREATE TABLE IF NOT EXISTS agent_door_audit (\n  sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, at TEXT NOT NULL,\n  agent TEXT NOT NULL, classes TEXT NOT NULL, row TEXT NOT NULL, evidence TEXT\n);\nCREATE INDEX IF NOT EXISTS agent_door_audit_agent ON agent_door_audit(agent,sequence);\nCREATE TABLE IF NOT EXISTS agent_door_calls (\n  agent TEXT NOT NULL, key TEXT NOT NULL, digest TEXT NOT NULL, decision_id TEXT NOT NULL,\n  created_at INTEGER NOT NULL, state TEXT NOT NULL, outcome TEXT, PRIMARY KEY(agent,key)\n);\nCREATE TABLE IF NOT EXISTS agent_door_approvals (\n  id TEXT PRIMARY KEY, state TEXT NOT NULL, saved TEXT NOT NULL, approvals TEXT NOT NULL DEFAULT '[]',\n  result TEXT, version INTEGER NOT NULL DEFAULT 0\n);\nCREATE TABLE IF NOT EXISTS agent_door_reviews (\n  id TEXT PRIMARY KEY, state TEXT NOT NULL, saved TEXT NOT NULL, marked_by TEXT, marked_at TEXT\n);\nCREATE TABLE IF NOT EXISTS agent_door_events (\n  sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, uri TEXT NOT NULL, event TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS agent_door_events_uri ON agent_door_events(uri,sequence);\nCREATE TABLE IF NOT EXISTS agent_door_usage (\n  decision_id TEXT PRIMARY KEY, at INTEGER NOT NULL, seed TEXT NOT NULL, specialist TEXT, agent TEXT NOT NULL,\n  classes TEXT NOT NULL\n);\nCREATE INDEX IF NOT EXISTS agent_door_usage_day ON agent_door_usage(at);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0082_business_settings.sql",
+      "sha256": "a16f736a781aa3fe02a2e090c993f8c360c904f9fb6d86126acdab6e1f24e773",
+      "sql": "CREATE TABLE bs_settings (\n  singleton INTEGER PRIMARY KEY CHECK(singleton=1),\n  rev INTEGER NOT NULL DEFAULT 0,\n  document TEXT,\n  applied_at TEXT,\n  stopped INTEGER NOT NULL DEFAULT 0 CHECK(stopped IN(0,1)),\n  token TEXT NOT NULL DEFAULT ''\n);\nCREATE TABLE bs_overrides (\n  field TEXT PRIMARY KEY CHECK(field IN('display_name','owner_name','brand_color','logo','timezone')),\n  value TEXT NOT NULL,\n  actor TEXT NOT NULL,\n  changed_at TEXT NOT NULL\n);\nCREATE TABLE bs_logo (\n  singleton INTEGER PRIMARY KEY CHECK(singleton=1),\n  sha256 TEXT NOT NULL,\n  type TEXT NOT NULL,\n  bytes BLOB NOT NULL\n);\nCREATE TABLE bs_team (\n  email TEXT PRIMARY KEY,\n  operator_id TEXT,\n  invite INTEGER NOT NULL,\n  state TEXT NOT NULL CHECK(state IN('invited','active','inactive','conflict'))\n);\nCREATE TABLE bs_audit (\n  id INTEGER PRIMARY KEY,\n  actor TEXT NOT NULL,\n  action TEXT NOT NULL,\n  field TEXT,\n  changed_at TEXT NOT NULL\n);\n-- An INSERT of NULL fails the transaction if a concurrent write invalidated its fence.\nCREATE TABLE bs_assert (value INTEGER NOT NULL);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0083_business_people.sql",
+      "sha256": "51aa39622d866b987d71b6e37c9a8300e7f24c54a55611edaab669ed051b01cd",
+      "sql": "ALTER TABLE bs_settings ADD COLUMN owner_id TEXT CHECK(owner_id IS NULL OR owner_id <> '');\nALTER TABLE bs_team ADD COLUMN business_id TEXT CHECK(business_id IS NULL OR business_id <> '');\nALTER TABLE bs_team ADD COLUMN business_role TEXT CHECK(business_role IS NULL OR business_role IN('admin','member'));\nCREATE UNIQUE INDEX bs_team_business_id ON bs_team(business_id) WHERE business_id IS NOT NULL;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0084_native_agent_attribution.sql",
+      "sha256": "17bfe396d6178b55fa6fb14abb8dd13df07dc71dd0fe1d25f6d8367a0c53dbde",
+      "sql": "-- Native, inspectable agent attribution. No credential or person session is stored.\nCREATE TABLE spool_agent_operations (\n id TEXT PRIMARY KEY, project TEXT, target TEXT NOT NULL, tool TEXT NOT NULL,\n actor TEXT NOT NULL, approvers TEXT NOT NULL, created INTEGER NOT NULL\n);\nCREATE INDEX spool_agent_operations_target ON spool_agent_operations(project,target,created);\nALTER TABLE repairs ADD COLUMN recorded_by TEXT NOT NULL DEFAULT 'owner';\nALTER TABLE grouping_proposals ADD COLUMN prepared_by TEXT;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0085_agent_runner_custody.sql",
+      "sha256": "f766b028f82555158ec1c4246834ca3450a3c56f944721bea51bc7afc71fe7fb",
+      "sql": "-- A queued sandbox job retains the originating sponsor, agent and consent.\n-- It retains no browser cookie, provider secret or native run token.\nCREATE TABLE spool_agent_custody (\n kind TEXT NOT NULL, id TEXT NOT NULL, project TEXT NOT NULL,\n principal TEXT NOT NULL CHECK(json_valid(principal)), actor TEXT NOT NULL CHECK(json_valid(actor)),\n PRIMARY KEY(kind,id)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0086_native_agent_repository_consent.sql",
+      "sha256": "0adeae43f5bfc2cec3d585a152fdda51bac664fefbebb694c2b7df2b2f7937df",
+      "sql": "-- Native repository consent is a person's act, separate from agent preparation\n-- and from company-policy approvers retained by the shared door.\nCREATE TABLE spool_native_approvals (\n kind TEXT NOT NULL, id TEXT NOT NULL, project TEXT NOT NULL,\n person TEXT NOT NULL, name TEXT NOT NULL, revision INTEGER NOT NULL, created INTEGER NOT NULL,\n PRIMARY KEY(kind,id,revision)\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0087_repository_proof_reference.sql",
+      "sha256": "699150b3befa7aedad8a31d5f7884defd983dd0e3255007694178615ecb30f59",
+      "sql": "ALTER TABLE spool_native_approvals ADD COLUMN reference TEXT;\nCREATE UNIQUE INDEX spool_native_approval_reference ON spool_native_approvals(reference) WHERE reference IS NOT NULL;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0088_agent_erasure_custody.sql",
+      "sha256": "e63e54053ff65afa9777fa534e362c04c2a55a1d2bbd400cc3fb530080cc3325",
+      "sql": "-- The operation id is opaque; no erased project identifier or credential is retained.\nCREATE TABLE spool_erasure_agents (\n operation TEXT PRIMARY KEY, principal TEXT NOT NULL CHECK(json_valid(principal)), actor TEXT NOT NULL CHECK(json_valid(actor))\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0089_native_action_actor_links.sql",
+      "sha256": "b91edb5bdf99d60896c1f1b1a90c5ad2031380069cb927f3cb7683615a85df5a",
+      "sql": "ALTER TABLE audit_context ADD COLUMN native_start INTEGER NOT NULL DEFAULT 0;\nCREATE TABLE spool_native_audit_actors (\n audit_id TEXT PRIMARY KEY, project TEXT, kind TEXT NOT NULL CHECK(kind IN('agent','person')),\n actor TEXT NOT NULL CHECK(json_valid(actor)), approvers TEXT NOT NULL CHECK(json_valid(approvers))\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

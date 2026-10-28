@@ -5,9 +5,10 @@ import { ownerBatch } from '../owner-authority';
 import { auditCommit } from '../audit/context';
 import { fields, name, role, version, grants, check } from './input';
 import { s, type TeamSession } from './model';
+import type { NativeAuthority } from '../agent-door/native-authority';
 import type { Bindings } from '../../auth/bindings';
 
-export async function invite(request: Request, env: Bindings, session: TeamSession, organization: string, input: any) {
+export async function invite(request: Request, env: Bindings, session: NativeAuthority, organization: string, input: any) {
  fields(input,['email','name','role','grants']);
  const email=normalizeEmail(input.email), displayName=name(input.name), memberRole=role(input.role), access=await grants(env.DB,organization,input.grants);
  if (memberRole==='billing'&&access.length) throw new AuthError('Billing has no project grants',400);
@@ -35,7 +36,7 @@ export async function invite(request: Request, env: Bindings, session: TeamSessi
  return {id,status:person.status==='active'?'accepted':'invited'};
 }
 
-export async function updateMember(env: Bindings, session: TeamSession, organization: string, id: string, input: any, remove: boolean) {
+export async function updateMember(env: Bindings, session: NativeAuthority, organization: string, id: string, input: any, remove: boolean) {
  fields(input,remove?['version']:['version','role','grants']);
  const expected=version(input.version), member=await s(env.DB,'SELECT m.*,o.role native_role FROM spool_members m LEFT JOIN oa_operators o ON o.id=m.operator_id WHERE m.id=? AND m.organization=?',id,organization).first<any>();
  if (!member) throw new AuthError('Member not found',404);

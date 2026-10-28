@@ -16,13 +16,21 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  // Private door content follows the exact native resource or saved target.
+  {table:'agent_door_events',from:'projects',where:"uri='spool://projects/'||? OR instr(uri,'spool://projects/'||?||'/')=1",params:['id','id']},
+  ...['agent_door_approvals','agent_door_reviews'].map(table=>({table,from:'projects',where:"json_extract(saved,'$.args.project')=?",params:['id']})),
+  {table:'agent_door_calls',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(outcome,'$.resources') r WHERE json_extract(r.value,'$.uri')='spool://projects/'||? OR instr(json_extract(r.value,'$.uri'),'spool://projects/'||?||'/')=1)",params:['id','id']},
+  {table:'agent_door_audit',from:'agent_door_calls',on:{id:'decision_id'}},
+  ...['agent_door_approvals','agent_door_reviews'].map(from=>({table:'agent_door_audit',from,where:"id=json_extract(?,'$.decision_id')",params:['saved']})),
+  {table:'agent_door_audit',from:'projects',where:"json_extract(row,'$.resource')='spool://projects/'||? OR instr(json_extract(row,'$.resource'),'spool://projects/'||?||'/')=1 OR EXISTS(SELECT 1 FROM json_tree(row,'$.classes') WHERE key='service' AND value=?)",params:['id','id','id']},
+  {table:'agent_door_usage',from:'agent_door_audit',on:{decision_id:'id'}},
   {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
   {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},
   ...['spool_team_digest_settings','spool_team_snoozes','spool_team_mail'].map(table=>({table,from:'spool_project_teams',
    where:'organization=? AND team=? AND NOT EXISTS(SELECT 1 FROM spool_project_teams t WHERE t.organization=? AND t.team=? AND t.project<>?)',params:['organization','team','organization','team','project']})),
   {table:'spool_team_snoozes',from:'issues',where:"scope='issue' AND target=?",params:['id']},
   {table:'spool_team_snoozes',from:'alert_rules',where:"scope='rule' AND target=?",params:['id']},
-  ...['spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
+  ...['spool_native_audit_actors','spool_native_approvals','spool_agent_custody','spool_agent_operations','spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
   { table: 'spool_service_credentials', from: 'credentials', on: { hash: 'hash' } },
   ...['source_map_builds','source_map_build_files','artifact_storage_settings'].map(fromProject),
   // TEAM-004 short IDs and commit citations, including commit author and message.
