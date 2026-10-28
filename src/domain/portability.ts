@@ -178,8 +178,8 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
-for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables));later.migrations.push('0080_collaborative_lifecycle.sql')}
-laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0080_collaborative_lifecycle.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables));later.migrations.push('0083_collaborative_lifecycle.sql')}
+laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
