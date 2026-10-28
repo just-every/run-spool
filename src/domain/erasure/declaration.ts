@@ -16,6 +16,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  ...['issue_priorities','issue_activity'].map(fromProject),
   {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
   {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},
   ...['spool_team_digest_settings','spool_team_snoozes','spool_team_mail'].map(table=>({table,from:'spool_project_teams',

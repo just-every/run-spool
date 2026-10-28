@@ -1,3 +1,4 @@
+import {prioritySql} from './issue-priority/model';
 import {readRetentionPolicy} from './retention-policy';
 import {affectedUsers} from './identities/read';
 import { agentSentryEvidence } from './sentry/agent-evidence';
@@ -56,7 +57,7 @@ function release(row: any) {
 }
 
 export async function issuePacket(db: D1Database, project: string, id: string, requested?: { id: string; shortId: string; alias: boolean }) {
- const row = await query(db, `SELECT i.*, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT r.name FROM issue_resolutions z JOIN releases r ON r.project=z.project AND r.seq=z.boundary_seq WHERE z.project=i.project AND z.issue=i.id) resolution_release,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql} FROM issues i WHERE project=? AND id=?`, project, id).first<any>();
+ const row = await query(db, `SELECT i.*, ${prioritySql('i')} priority, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT r.name FROM issue_resolutions z JOIN releases r ON r.project=z.project AND r.seq=z.boundary_seq WHERE z.project=i.project AND z.issue=i.id) resolution_release,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql} FROM issues i WHERE project=? AND id=?`, project, id).first<any>();
  if (!row) return null;
  const issue = issueProjection(decodeShortIds(decodeIssueAttention(row)));
  const selectedRead = query(db, 'SELECT e.*,g.original_issue,g.algorithm original_algorithm,g.basis original_basis,g.fingerprint original_fingerprint,g.correction,g.direction,x.reasons suppression_reasons FROM events e LEFT JOIN event_grouping g ON g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence LEFT JOIN event_suppressions x ON x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence WHERE e.project=? AND e.issue=? ORDER BY e.received DESC,e.id DESC LIMIT ?', project, id, EVENT_LIMIT).all<any>();

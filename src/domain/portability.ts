@@ -1,3 +1,4 @@
+import {lifecycleTables} from './lifecycle/archive';
 import { memberTables, teamAlertTables, memberExportRow } from './members/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
@@ -173,6 +174,8 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables));later.migrations.push('0080_collaborative_lifecycle.sql')}
+laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0080_collaborative_lifecycle.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -251,6 +254,7 @@ export async function restoreStream(service: any, source: ReadableStream<Uint8Ar
  // An archive made before short IDs restores its issues without them: they are numbered
  // now, in first-seen order, as migration 0059 numbered the source. Current archives keep theirs.
  await ensureShortIds(service.db);
+ await service.db.prepare("INSERT OR IGNORE INTO issue_priorities SELECT i.project,i.id,COALESCE((SELECT MAX(CASE COALESCE(json_extract(e.payload,'$.sentry.level'),'error') WHEN 'fatal' THEN 3 WHEN 'error' THEN 3 WHEN 'warning' THEN 2 ELSE 1 END) FROM events e WHERE e.project=i.project AND e.issue=i.id),3),NULL FROM issues i").run();
 }
 /** The archive restore alone, as releases before short IDs ran it. */
 export async function restoreArchive(service: any, source: ReadableStream<Uint8Array>, laterJournal?: LaterJournal) {
