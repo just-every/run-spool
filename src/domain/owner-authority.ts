@@ -8,7 +8,8 @@ export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>
 // The session that admitted the request is checked again inside the same D1
 // batch, before and after its statements: still unrevoked and unexpired, at its
 // operator's current version, and that operator still the active owner.
-export const authorityGuard = (db: D1Database, session: OwnerSession) => db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
+export const authorityGuard = (db: D1Database, session: OwnerSession) => session.kind === 'agent' ? db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
+ SELECT 1 FROM oa_operators o WHERE o.id=? AND o.version=? AND o.status='active' AND ${session.membership ? `EXISTS(SELECT 1 FROM spool_members m WHERE m.id=? AND m.version=? AND m.state='active')` : "o.role='owner'"}) AND NOT EXISTS(SELECT 1 FROM agent_door_state WHERE local_paused=1) THEN 1 ELSE 0 END`).bind(session.operator.id,session.operator.version,...session.membership?[session.membership.id,session.membership.version]:[]) : db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
  SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
  WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
   AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)

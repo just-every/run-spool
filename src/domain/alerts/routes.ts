@@ -1,3 +1,4 @@
+import { ruleCustody } from '../agent-door/queued';
 import { resolveMembership } from '../members/resolver';
 import { revokeSlack } from './slack-destinations.server';
 import { Hono } from 'hono';
@@ -64,6 +65,7 @@ routes.put('/rules/:rule',async c=>{
   // Retention withdrawal is irreversible: its reason also fences stale expansion.
   s(c.env.DB,`UPDATE alert_intents SET state='cancelled',code='rule_revised' WHERE project=? AND rule_id=? AND rule_revision=? AND expanded=0 AND code IS NOT 'retention_removed' AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
   s(c.env.DB,`UPDATE alert_mail_jobs SET state='blocked',code='rule_revised' WHERE state='queued' AND id IN(SELECT id FROM alert_intents WHERE project=? AND rule_id=? AND rule_revision=?) AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,b.revision,change),
+  ruleCustody(c.env.DB,c.req.raw,id,change),
   ...(testGuard?[testGuard]:[]),
  ]);
  if(!results[0].results.length)return c.json({error:'Revision conflict'},409);

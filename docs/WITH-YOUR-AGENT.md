@@ -102,3 +102,6 @@ init({ endpoint: 'https://spool.example', project: 'web', ingestKey: import.meta
 On Node it imports `@just-every/spool/node`; in a Cloudflare Worker it calls `captureException(error, options, ctx)` from `@just-every/spool/worker`. If the app already uses a Sentry SDK, the only change is its DSN; see [SENTRY-SWITCHING.md](SENTRY-SWITCHING.md).
 
 Configuration references: [Claude Code MCP](https://code.claude.com/docs/en/mcp), [Codex MCP](https://developers.openai.com/codex/mcp). The package's Node commands and official SDK stdio initialization/tool listing were exercised locally; application journey acceptance is recorded with the handoff verification evidence.
+
+
+The shared production MCP door and company-policy requirements are documented in [AGENT-DOOR.md](AGENT-DOOR.md). The stdio client keeps its exact-project authority and forwards through that same door. A person must configure an answered policy before a project client can read evidence or submit inert proposals.

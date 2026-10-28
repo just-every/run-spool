@@ -9,7 +9,7 @@ const event = (row: any) => ({ id: text(row.id), release: text(row.release), seq
 function repair(row: any) {
  const o = row.observation, e = o.evidence;
  return {
-  id: text(row.id), recordedBy: 'owner', trust: REPAIR_TRUST, revision: number(row.revision), link: text(row.link, 2048), note: text(row.note, 1000), created: number(row.created),
+  id: text(row.id), recordedBy: text(row.recordedBy), trust: REPAIR_TRUST, revision: number(row.revision), link: text(row.link, 2048), note: text(row.note, 1000), created: number(row.created),
   snapshot: { issueRevision: number(row.snapshot.issueRevision), releaseSequence: number(row.snapshot.releaseSequence), events: row.snapshot.events.map((item: any) => ({ id: text(item.id), state: text(item.state) })) },
   facts: { proposed: number(row.facts.proposed), approved: number(row.facts.approved), merged: number(row.facts.merged),
    deployed: row.facts.deployed && { release: text(row.facts.deployed.release), sequence: number(row.facts.deployed.sequence), at: number(row.facts.deployed.at) },

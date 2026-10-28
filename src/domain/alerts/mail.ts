@@ -1,3 +1,4 @@
+import { admitNotification,notificationAttribution } from '../agent-door/queued';
 import { serviceActor,auditSubject } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
@@ -23,7 +24,9 @@ export function sender(env:AlertEnvironment) {
 }
 export async function expandMail(env:AlertEnvironment,intent:Intent,time:number) {
  const destination=await authorizedDestination(env,intent);sender(env);
- const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,destination.recipient!);validateMessage(message,env.MAIL_PROVIDER);
+ const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,destination.recipient!);
+ const attribution=await notificationAttribution(env,intent.id);if(attribution){message.text+='\n\nPrepared by '+attribution;message.subject+=' · '+attribution;}
+ validateMessage(message,env.MAIL_PROVIDER);
  const digest=await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER]));
  await s(env.DB,`INSERT INTO alert_mail_jobs(id,project,message,destination_hash,next_at) VALUES(?,?,?,?,?) ON CONFLICT(id) DO NOTHING`,intent.id,intent.project,JSON.stringify(message),digest,time).run();
  const stored=await s(env.DB,'SELECT message,destination_hash FROM alert_mail_jobs WHERE id=? AND project=?',intent.id,intent.project).first<any>();
@@ -41,6 +44,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
  await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
+  if(!await admitNotification(env,job.id,job.attempts))continue;
   let mail;
   try {
    const destination=await authorizedDestination(env,job);mail=sender(env);

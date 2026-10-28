@@ -1,3 +1,4 @@
+import { agentDoorResponse } from './domain/agent-door/index.server';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
@@ -76,6 +77,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
+ const agentDoor=await agentDoorResponse(request,env);if(agentDoor)return agentDoor;
  const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
  const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;

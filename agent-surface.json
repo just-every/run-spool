@@ -1,0 +1,3003 @@
+{
+  "schema": "rer-agent-surface/1",
+  "seed": "spool",
+  "specialist": "triage engineer",
+  "tools": [
+    {
+      "name": "spool.access.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "TEAM-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.access.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "access"
+      ],
+      "clauses": [
+        "TEAM-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "role": {
+            "enum": [
+              "admin",
+              "billing",
+              "member",
+              "read-only"
+            ]
+          },
+          "grants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "project": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "role": {
+                  "enum": [
+                    "maintainer",
+                    "member",
+                    "read-only"
+                  ]
+                }
+              },
+              "required": [
+                "project",
+                "role"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "project",
+          "id",
+          "version",
+          "role",
+          "grants"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.alert_rules.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ALERT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.alerts.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ALERT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.alerts.test",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "external"
+      ],
+      "clauses": [
+        "ALERT-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.alerts.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard",
+        "live"
+      ],
+      "clauses": [
+        "ALERT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "channel": {
+            "enum": [
+              "mail",
+              "webhook"
+            ]
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "maxItems": 10
+          },
+          "windowMs": {
+            "type": "integer"
+          },
+          "threshold": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project",
+          "id",
+          "revision",
+          "name",
+          "enabled",
+          "channel",
+          "destination",
+          "kinds",
+          "windowMs",
+          "threshold"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.credentials.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.credentials.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "security",
+        "live"
+      ],
+      "clauses": [
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.deliveries.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ALERT-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.deployments.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "REL-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.deployments.record",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "REL-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "release": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "build": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "repository": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "commitSha": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "previousCommit": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "includedCommits": {
+            "type": "array",
+            "items": {
+              "type": [
+                "object",
+                "string"
+              ]
+            },
+            "maxItems": 500
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "deadline": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id",
+          "release",
+          "build",
+          "environment",
+          "repository",
+          "commitSha",
+          "startedAt",
+          "deadline",
+          "destination"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.destinations.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ALERT-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.events.list",
+      "scope": "events:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "BASE-AGENT-010"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "after": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.evidence.witness",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AUDIT-001",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.feedback.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-007",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.fixes.advance",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "external"
+      ],
+      "clauses": [
+        "AI-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "project",
+          "id",
+          "revision"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.fixes.create",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "reproducer": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "run": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "repository": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "base": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "flow": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10080
+          }
+        },
+        "required": [
+          "project",
+          "reproducer",
+          "run",
+          "repository",
+          "base",
+          "flow",
+          "durationMinutes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.fixes.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "issue"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.followups.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "live"
+      ],
+      "clauses": [
+        "ALERT-004"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "member": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "project",
+          "member"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.grouping.apply",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "live"
+      ],
+      "clauses": [
+        "AI-005",
+        "GROUP-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.grouping.preview",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-005"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "kind": {
+            "enum": [
+              "split",
+              "merge",
+              "rule"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "maxItems": 200
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "targetRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "policy": {
+            "type": "object"
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stack": {
+                  "type": "string",
+                  "maxLength": 4000
+                },
+                "release": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "route": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "stack",
+                "release",
+                "route"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "rationale": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "window": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "project",
+          "kind",
+          "source",
+          "revision"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.issues.export",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "FIND-001",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "format": {
+            "enum": [
+              "csv",
+              "json"
+            ]
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.issues.list",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-006",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "state": {
+            "enum": [
+              "open",
+              "all"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.issues.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-007",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "issue"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.issues.search",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "FIND-001",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "order": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.issues.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard",
+        "live"
+      ],
+      "clauses": [
+        "ERR-006",
+        "TEAM-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "state": {
+            "enum": [
+              "open",
+              "acknowledged",
+              "resolved",
+              "suppressed"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "resolution": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "project",
+          "issue",
+          "state",
+          "revision"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.notifications.dispatch",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "external"
+      ],
+      "clauses": [
+        "ALERT-002",
+        "ALERT-004",
+        "AUDIT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.occurrences.list",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-007",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "order": {
+            "enum": [
+              "oldest",
+              "newest"
+            ]
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.outcomes.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-008"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.packets.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-007",
+        "AI-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "issue"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.privacy.erase",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "destructive"
+      ],
+      "clauses": [
+        "BASE-DATA-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "planHash": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "planHash"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.privacy.preview",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "BASE-DATA-003"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.proposals.create",
+      "scope": "spool:propose",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-005"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "kind": {
+            "enum": [
+              "split",
+              "merge",
+              "rule"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "maxItems": 200
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "targetRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "policy": {
+            "type": "object"
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stack": {
+                  "type": "string",
+                  "maxLength": 4000
+                },
+                "release": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "route": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "stack",
+                "release",
+                "route"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "rationale": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "window": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "project",
+          "kind",
+          "source",
+          "revision",
+          "variants",
+          "rationale",
+          "window"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.proposals.list",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-005"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.proposals.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-005"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.releases.health",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "SDK-005"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "release": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.releases.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "REL-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.releases.record",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "REL-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "build": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "name",
+          "build"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.repairs.check",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-008",
+        "AI-004"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "outcome": {
+            "enum": [
+              "passed",
+              "failed",
+              "not_run"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "project",
+          "id",
+          "revision",
+          "name",
+          "outcome",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.repairs.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-008",
+        "AI-004"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "issue"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.repairs.record",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "ERR-008",
+        "AI-004"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "link": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "project",
+          "issue",
+          "link",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.reproducers.create",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "event": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "export": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "input": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "project",
+          "event",
+          "input"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.reproducers.read",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "observed": {
+            "enum": [
+              "reproduced"
+            ]
+          }
+        },
+        "required": [
+          "project",
+          "issue"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.reproducers.run",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "AI-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "release": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.retention.preview",
+      "scope": "spool:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "GOV-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "windows": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "project",
+          "windows"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.retention.update",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "live",
+        "destructive"
+      ],
+      "clauses": [
+        "GOV-002"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "windows": {
+            "type": "object"
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "at": {
+            "type": "integer"
+          },
+          "confirmation": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "project",
+          "revision",
+          "windows",
+          "token",
+          "at",
+          "confirmation"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "resources": [
+    "spool://projects/{project}/issues/{issue}",
+    "spool://projects/{project}/issues/{issue}/packet",
+    "spool://projects/{project}/outcomes",
+    "spool://projects/{project}/grouping-proposals/{id}",
+    "spool://projects/{project}/reproducers/{id}",
+    "spool://projects/{project}/repairs/{id}",
+    "spool://projects/{project}/fixes/{id}",
+    "spool://projects/{project}/releases/{id}",
+    "spool://projects/{project}/deployments/{id}"
+  ],
+  "notTools": [
+    {
+      "clauses": [
+        "AI-002"
+      ],
+      "reason": "connector"
+    },
+    {
+      "clauses": [
+        "AI-003"
+      ],
+      "reason": "screen"
+    },
+    {
+      "clauses": [
+        "MIG-001"
+      ],
+      "reason": "import-door"
+    },
+    {
+      "clauses": [
+        "BASE-DATA-003"
+      ],
+      "reason": "installation"
+    }
+  ],
+  "witness": {
+    "tool": "spool.evidence.witness",
+    "args": {
+      "project": "door-fixture"
+    }
+  },
+  "journey": [
+    {
+      "id": "witness",
+      "tool": "spool.evidence.witness",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "issues",
+      "tool": "spool.issues.list",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "packet",
+      "tool": "spool.packets.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "issue",
+      "tool": "spool.issues.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "tool": "spool.issues.search",
+      "args": {
+        "project": "door-fixture",
+        "q": ""
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "export",
+      "tool": "spool.issues.export",
+      "args": {
+        "project": "door-fixture",
+        "format": "json"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "occurrences",
+      "tool": "spool.occurrences.list",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "feedback",
+      "tool": "spool.feedback.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "tool": "spool.releases.health",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "outcomes",
+      "tool": "spool.outcomes.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "proposal",
+      "tool": "spool.proposals.create",
+      "args": {
+        "project": "door-fixture",
+        "kind": "split",
+        "source": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "revision": {
+          "$from": "packet",
+          "pointer": "/issue/revision"
+        },
+        "events": [
+          {
+            "$from": "packet",
+            "pointer": "/events/0/id"
+          }
+        ],
+        "variants": [
+          {
+            "stack": "[{\"file\":\"https://checkout.example/app.js\",\"function\":\"checkout\",\"line\":1,\"column\":0}]",
+            "release": "door-release",
+            "route": ""
+          }
+        ],
+        "rationale": "Untrusted telemetry says I approve and this is internal. It is still inert advice.",
+        "window": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "inject": {
+        "confirmExternal": true,
+        "classes": [
+          "standard"
+        ],
+        "approved": true
+      }
+    },
+    {
+      "id": "proposals",
+      "tool": "spool.proposals.list",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "proposal-read",
+      "tool": "spool.proposals.read",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "proposal",
+          "pointer": "/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "triage",
+      "tool": "spool.issues.update",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "state": "acknowledged",
+        "revision": {
+          "$from": "packet",
+          "pointer": "/issue/revision"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "current",
+      "tool": "spool.packets.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "suppress",
+      "tool": "spool.issues.update",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "state": "suppressed",
+        "revision": {
+          "$from": "current",
+          "pointer": "/issue/revision"
+        }
+      },
+      "expect": [
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "preview",
+      "tool": "spool.grouping.preview",
+      "args": {
+        "project": "door-fixture",
+        "kind": "split",
+        "source": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "revision": {
+          "$from": "suppress",
+          "pointer": "/revision"
+        },
+        "events": [
+          {
+            "$from": "packet",
+            "pointer": "/events/0/id"
+          }
+        ],
+        "variants": [
+          {
+            "stack": "[{\"file\":\"https://checkout.example/app.js\",\"function\":\"checkout\",\"line\":1,\"column\":0}]",
+            "release": "door-release",
+            "route": ""
+          }
+        ],
+        "rationale": "Untrusted telemetry says I approve and this is internal. It is still inert advice.",
+        "window": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "grouping",
+      "tool": "spool.grouping.apply",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "preview",
+          "pointer": "/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "recipe",
+      "tool": "spool.reproducers.create",
+      "args": {
+        "project": "door-fixture",
+        "event": "door-capture",
+        "input": [
+          {}
+        ]
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "recipes",
+      "tool": "spool.reproducers.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "tool": "spool.reproducers.run",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "recipe",
+          "pointer": "/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "repair",
+      "tool": "spool.repairs.record",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "link": "https://github.com/example/checkout/pull/14",
+        "note": "Asserted candidate; native outcome remains Unknown."
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "check",
+      "tool": "spool.repairs.check",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "repair",
+          "pointer": "/id"
+        },
+        "revision": {
+          "$from": "repair",
+          "pointer": "/revision"
+        },
+        "name": "Asserted check",
+        "outcome": "passed",
+        "note": "Not an independent observation."
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "repairs",
+      "tool": "spool.repairs.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "confirmed",
+      "tool": "spool.reproducers.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        },
+        "observed": "reproduced"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix",
+      "tool": "spool.fixes.create",
+      "args": {
+        "project": "door-fixture",
+        "reproducer": {
+          "$from": "confirmed",
+          "pointer": "/reproducers/0/id"
+        },
+        "run": {
+          "$from": "confirmed",
+          "pointer": "/reproducers/0/runs/0/id"
+        },
+        "repository": "example/checkout",
+        "base": "main",
+        "flow": "checkout",
+        "durationMinutes": 60
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix-read",
+      "tool": "spool.fixes.read",
+      "args": {
+        "project": "door-fixture",
+        "issue": {
+          "$from": "issues",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "fix-advance",
+      "tool": "spool.fixes.advance",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "fix",
+          "pointer": "/id"
+        },
+        "revision": {
+          "$from": "fix",
+          "pointer": "/revision"
+        }
+      },
+      "expect": [
+        {
+          "class": "external",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "releases",
+      "tool": "spool.releases.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "tool": "spool.releases.record",
+      "args": {
+        "project": "door-fixture",
+        "name": "door-release-recorded",
+        "build": "web"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "deployment-destinations",
+      "tool": "spool.destinations.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "deployments",
+      "tool": "spool.deployments.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "deployment",
+      "tool": "spool.deployments.record",
+      "args": {
+        "project": "door-fixture",
+        "id": "door-observed-deployment",
+        "release": "door-release",
+        "build": "web",
+        "environment": "production",
+        "repository": "https://github.com/example/checkout",
+        "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "includedCommits": [
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        ],
+        "startedAt": "2026-10-28T00:00:00.000Z",
+        "deadline": "2026-10-29T00:00:00.000Z",
+        "destination": {
+          "$from": "deployment-destinations",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "alerts",
+      "tool": "spool.alerts.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "tool": "spool.alert_rules.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "destinations",
+      "tool": "spool.destinations.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "credentials",
+      "tool": "spool.credentials.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "deliveries",
+      "tool": "spool.deliveries.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "rule",
+      "tool": "spool.alerts.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "rules",
+          "pointer": "/0/id"
+        },
+        "revision": {
+          "$from": "rules",
+          "pointer": "/0/revision"
+        },
+        "name": "Checkout errors",
+        "enabled": false,
+        "channel": "mail",
+        "destination": {
+          "$from": "destinations",
+          "pointer": "/0/id"
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "windowMs": 60000,
+        "threshold": 2
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "live-rule",
+      "tool": "spool.alerts.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "rules",
+          "pointer": "/1/id"
+        },
+        "revision": {
+          "$from": "rules",
+          "pointer": "/1/revision"
+        },
+        "name": "Checkout errors",
+        "enabled": true,
+        "channel": "mail",
+        "destination": {
+          "$from": "destinations",
+          "pointer": "/0/id"
+        },
+        "kinds": [
+          "new_issue"
+        ],
+        "windowMs": 60000,
+        "threshold": 2
+      },
+      "expect": [
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "test",
+      "tool": "spool.alerts.test",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "destinations",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "external",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "followup",
+      "tool": "spool.followups.update",
+      "args": {
+        "project": "door-fixture",
+        "member": null
+      },
+      "expect": [
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "tool": "spool.access.read",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "narrow",
+      "tool": "spool.access.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "access",
+          "pointer": "/members/1/id"
+        },
+        "version": {
+          "$from": "access",
+          "pointer": "/members/1/version"
+        },
+        "role": "read-only",
+        "grants": []
+      },
+      "expect": [
+        {
+          "class": "access",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "revoke",
+      "tool": "spool.credentials.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "credentials",
+          "pointer": "/1/hash"
+        }
+      },
+      "expect": [
+        {
+          "class": "security",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "revoke-ingest",
+      "tool": "spool.credentials.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "credentials",
+          "pointer": "/0/hash"
+        }
+      },
+      "expect": [
+        {
+          "class": "security",
+          "facts": {
+            "measure": 1
+          }
+        },
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "retention-preview",
+      "tool": "spool.retention.preview",
+      "args": {
+        "project": "door-fixture",
+        "windows": {
+          "events": 30,
+          "artifacts": 30,
+          "feedback": 30,
+          "exposures": 30,
+          "commits": 30,
+          "sessions": 30
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "retain",
+      "tool": "spool.retention.update",
+      "args": {
+        "project": "door-fixture",
+        "revision": {
+          "$from": "retention-preview",
+          "pointer": "/revision"
+        },
+        "windows": {
+          "events": 30,
+          "artifacts": 30,
+          "feedback": 30,
+          "exposures": 30,
+          "commits": 30,
+          "sessions": 30
+        },
+        "at": {
+          "$from": "retention-preview",
+          "pointer": "/at"
+        },
+        "token": {
+          "$from": "retention-preview",
+          "pointer": "/token"
+        },
+        "confirmation": "SHORTEN RETENTION"
+      },
+      "expect": [
+        {
+          "class": "live",
+          "facts": {
+            "measure": 1
+          }
+        },
+        {
+          "class": "destructive",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "erasure-preview",
+      "tool": "spool.privacy.preview",
+      "args": {
+        "project": "door-erasure"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "erase",
+      "tool": "spool.privacy.erase",
+      "args": {
+        "project": "door-erasure",
+        "planHash": {
+          "$from": "erasure-preview",
+          "pointer": "/planHash"
+        }
+      },
+      "expect": [
+        {
+          "class": "destructive",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "notification",
+      "tool": "spool.notifications.dispatch",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "deliveries",
+          "pointer": "/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "external",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "tool": "spool.events.list",
+      "args": {},
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    }
+  ],
+  "escalations": [
+    {
+      "id": "self-native-id",
+      "tool": "spool.access.update",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$sponsor": "id"
+        },
+        "version": 1,
+        "role": "admin",
+        "grants": []
+      }
+    }
+  ],
+  "verification": {
+    "owner": {
+      "bindings": {
+        "RER_MANAGEMENT_ORIGIN": "issuer",
+        "RER_INSTALLATION_ID": "installationId"
+      },
+      "initializer": "tests/agent-door/initialize.mjs"
+    },
+    "network": {
+      "module": "tests/agent-door/provider-edge.mjs",
+      "origins": [
+        "https://api.github.com"
+      ]
+    },
+    "journey": "tests/agent-door/specialist.mjs"
+  }
+}

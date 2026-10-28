@@ -1,3 +1,4 @@
+import { emitPersonChange } from '../agent-door/events';
 import { operatorAuth } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
@@ -75,5 +76,6 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
  if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400))await observe(response.status);
+ await emitPersonChange(request,response,env);
  return response;
 }
