@@ -1,14 +1,15 @@
+import {operatorDisplayName} from '../members/resolver';
 import {scrub} from '../privacy';
 import type {OwnerSession} from '../owner-authority';
 import {computeReport} from '../reports/index';
 import {widgetMetric} from './metrics';
 import {eventTable,savedTableQuery} from './tables';
 import type {MetricConfig} from './input';
-import {canEdit,s,type ItemSnapshot,type ProjectSnapshot,guard} from './authority';
+import {canEdit,type ItemSnapshot,type ProjectSnapshot,guard} from './authority';
 
 export async function itemView(db:D1Database,session:OwnerSession,snapshot:ItemSnapshot,projects:Map<string,ProjectSnapshot>,data=false,exporting=false){
  const {row}=snapshot,editable=canEdit(session,snapshot,projects),visible=snapshot.projects.filter(id=>projects.has(id));
- const author=row.author?await s(db,'SELECT display_name name FROM oa_operators WHERE id=?',row.author).first<{name:string}>():null;
+ const author=row.author?await operatorDisplayName(db,row.author):null;
  const viewGuards:D1PreparedStatement[]=[];
  const widgets=await Promise.all(snapshot.widgets.filter(widget=>visible.includes(widget.project)).map(async widget=>{
   const config=JSON.parse(widget.config),common={id:widget.id,project:widget.project,name:scrub(widget.name),config,...widget.view_id?{viewId:widget.view_id}:{}};

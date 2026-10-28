@@ -106,7 +106,7 @@ export async function dashboardFlow({req,json}){
  const staleShare=await req(root+'/items/'+savedId+'/shares','PUT',{revision:sharedRevision,shares:[]});assert.equal(staleShare.status,409);await staleShare.body?.cancel();assert.equal((await json(root+'/items/'+savedId)).shares.length,1);
  const invalidSession=await req(root+'/preview','POST',{project:p.id,config:config('sessions','message:dashboard')});assert.equal(invalidSession.status,400);await invalidSession.body?.cancel();
  const invalidGroup=await req(root+'/preview','POST',{project:p.id,config:config('count','','priority')});assert.equal(invalidGroup.status,400);await invalidGroup.body?.cancel();
- const query={q:'environment:production',status:'all',release:'dash-a',sort:'latest'},view=await json(base+'/review/views','POST',query);
+ const query={q:'environment:production',status:'all',release:'dash-a',sort:'priority'},view=await json(base+'/review/views','POST',query);
  const scopedQuery=`environment:production release:dash-a after:${new Date(from).toISOString()} before:${new Date(to).toISOString()}`;
  const metric=await json(root+'/preview','POST',{project:p.id,config:config('count',scopedQuery)}),stream=await json(base+'/issue-search?eventTotals=1&q='+encodeURIComponent(scopedQuery));assert.equal(metric.value,stream.matchingEvents,'Opt-in issue-stream occurrence totals run the same event query');
  let matched=0;for(const issue of stream.rows){matched+=(await json(base+'/issues/'+issue.id+'/events?q='+encodeURIComponent(scopedQuery))).total}assert.equal(matched,metric.value,'All Events uses the same occurrence predicates as dashboard metrics');

@@ -1,3 +1,4 @@
+import {resolvedProjectTeams} from '../members/resolver';
 import type {ReportRead,ReportInput} from './types';
 import {eventUserKeySql} from '../identities/read';
 import {AuthError} from '../../modules/operator-auth/index.mjs';
@@ -29,8 +30,7 @@ async function reportScope(db:D1Database,ids:string,input:ReportInput){
 
 export async function reportProjects(db:D1Database,authorized:string[],team?:string){
  if(!Array.isArray(authorized)||authorized.some(p=>typeof p!=='string'||!p))throw new Error('Authorized report projects required');
- const ids=JSON.stringify([...new Set(authorized)]);
- return (await db.prepare(`SELECT p.id,t.team FROM projects p LEFT JOIN spool_project_teams t ON t.project=p.id WHERE p.id IN (SELECT value FROM json_each(?))${team===undefined?'':' AND t.team=?'} ORDER BY p.id`).bind(ids,...team===undefined?[]:[team]).all<{id:string;team:string|null}>()).results;
+ return resolvedProjectTeams(db,authorized,team);
 }
 export async function readReport(db:D1Database,projects:string[],input:ReportInput):Promise<ReportRead>{
  const ids=JSON.stringify(projects),scope='project IN (SELECT value FROM json_each(?))';
