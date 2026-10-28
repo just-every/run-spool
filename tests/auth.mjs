@@ -1,3 +1,4 @@
+import {chooseFixturePolicy} from './agent-door/policy-fixture.mjs';
 import {createHmac} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {legacyMailRows} from './legacy-mail.mjs';
@@ -16,7 +17,7 @@ export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true'
  ALERT_DESTINATION_HASH_KEY: Buffer.alloc(32,45).toString('base64'),
  SESSION_SECRET: 'synthetic-test-spool-session-secret-at-least-32-characters', SETUP_TOKEN: testSetupToken,
  MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' });
-export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {
+export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, choosePolicy = true, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {
  try {
  const post = (path, body) => fetch(origin + path, { method:'POST', redirect:'manual', headers:{Origin:origin,'Content-Type':'application/json'}, body:JSON.stringify(body) });
  if(bootstrap){const response=await post('/auth/bootstrap',{token:testSetupToken,displayName:'Test owner'});assert.ok([303,409].includes(response.status),'real first owner bootstrap or preservation');await response.body?.cancel();}
@@ -25,11 +26,12 @@ export async function signIn(origin, { bootstrap = true, returnTo = '/', form = 
   const row=(await legacyMailRows(origin))[0];assert.ok(row);
   const token=row.message.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);
   const confirmed=await post('/auth/confirm',{token});assert.equal(confirmed.status,303);
-  return confirmed.headers.get('set-cookie').split(';')[0];
+  const cookie=confirmed.headers.get('set-cookie').split(';')[0];if(choosePolicy)await chooseFixturePolicy(origin,cookie);return cookie;
  }
  const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json','x-rer-local-cli':createHmac('sha256',sessionSecret).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
  assert.equal(response.status,303,'real local owner admission');
  const cookies=response.headers.getSetCookie();const cookie=cookies.map(value=>value.split(';')[0]).join('; ');assert.ok(cookie);await response.body?.cancel();
+ if(choosePolicy)await chooseFixturePolicy(origin,cookie);
  return cookie;
  } catch { throw new Error('Owner sign-in journey failed; private auth details withheld'); }
 }

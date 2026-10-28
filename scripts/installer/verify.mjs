@@ -3,7 +3,7 @@ import {spawnSync} from 'node:child_process';
 const suites = [
  'runtime', 'product', 'origins', 'accessibility', 'alerts', 'alerts-ui',
  'sentry', 'sentry:sdk', 'sdk', 'admission', 'dev-credentials', 'commands',
- 'agent-handoff', 'privacy', 'repair-recovery', 'execution', 'project-erasure',
+ 'agent-handoff', 'agent-door', 'privacy', 'repair-recovery', 'execution', 'project-erasure',
  'project-erasure-cap', 'owner-erasure', 'languages',
 ];
 const requested = process.env.SPOOL_VERIFY_SUITES?.split(',');

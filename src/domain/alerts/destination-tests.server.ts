@@ -1,3 +1,4 @@
+import { agentRequestContext } from '../agent-door/native-context';
 import { savedSlack } from './slack-destinations.server';
 import { sendSlack } from './slack.server';
 import {auditCommit} from '../audit/context';
@@ -27,7 +28,7 @@ export async function testDestination(env:AlertEnvironment,session:OwnerSession,
  let state='failing',detail='Test failed before a response; check the destination before testing again.';
  try {
   if(channel==='mail'){
-   const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.`});
+   const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${agentRequestContext()?' Prepared by '+agentRequestContext()!.actor.label+'.':''}`});
    state=['accepted','development'].includes(result.status)?'passing':'failing';
    detail=result.status==='development'?'Local development suppresses mail; this passing local test sent no email.':result.status==='accepted'?'Provider accepted this TEST. Check the mailbox; acceptance does not confirm recipient receipt.':`TEST result: ${result.status}. Recipient receipt is unconfirmed.`;
   }else if(destination.kind==='slack'){

@@ -1,3 +1,4 @@
+import { agentRequestContext } from '../agent-door/native-context';
 import { hash, identity } from '../privacy';
 
 // The exact grant an owner approves for one fix branch. Spool refuses any call
@@ -34,12 +35,13 @@ export function reproducerFile(reproducer: any, run: any) {
 }
 
 export async function grantSpec(id: string, input: ReturnType<typeof proposalInput>, reproducer: any, run: any) {
+ const actor=agentRequestContext()?.actor.label;
  const content = reproducerFile(reproducer, run), branch = `spool/fix-${id.slice(0, 8)}`;
  return {
   version: 1, provider: 'github', repository: input.repository, base: input.base, branch,
   file: { path: `.spool/reproducers/${reproducer.id}.json`, sha256: await hash(content), bytes: new TextEncoder().encode(content).length },
   pullRequest: { title: `Fix ${reproducer.spec.event.type} reproduced by Spool`.slice(0, 200), draft: true,
-   body: `Spool reproduced this failure in its isolated sandbox (run ${run.id}): ${run.reason}\n\nThis branch adds \`.spool/reproducers/${reproducer.id}.json\`, the reproducer record. It is data, not code. Push the fix to this branch; Spool reads this pull request's state and checks and never merges it.` },
+   body: `Spool reproduced this failure in its isolated sandbox (run ${run.id}): ${run.reason}\n\nThis branch adds \`.spool/reproducers/${reproducer.id}.json\`, the reproducer record. It is data, not code.${actor?' Prepared by '+actor+'.':''} Push the fix to this branch; Spool reads this pull request's state and checks and never merges it.` },
   operations: [...FIX_OPERATIONS], permissions: FIX_PERMISSIONS, durationMinutes: input.durationMinutes, never: NEVER,
  };
 }

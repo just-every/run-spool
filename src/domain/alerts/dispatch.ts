@@ -1,3 +1,4 @@
+import { admitNotification } from '../agent-door/queued';
 import { findDestination } from './destinations.server';
 import { holdAlerts, expireSnoozes } from './snoozes';
 import { queueDigests } from './digests';
@@ -42,7 +43,7 @@ export async function dispatchAdmitted(env:AlertEnvironment,alertId:string) {
  await holdAlerts(env,now());
  const service=webhookService(env,intents[0].project,now);
  for(const intent of intents)await expandIntent(env,service,intent,now());
- for(const intent of intents.filter(row=>row.channel==='webhook'))await service.dispatch(intent.id);
+ for(const intent of intents.filter(row=>row.channel==='webhook'))if(await admitNotification(env,intent.id))await service.dispatch(intent.id);
  const mail=intents.filter(row=>row.channel==='mail').map(row=>row.id);
  if(mail.length)await dispatchMail(env,now(),mail);
  await synchronizeHistory(env,now());
@@ -71,7 +72,7 @@ export async function runAlerts(env:AlertEnvironment,scheduledTime:number) {
    await s(env.DB,'INSERT INTO alert_expansion_cursors(project,last_intent) VALUES(?,?) ON CONFLICT(project) DO UPDATE SET last_intent=excluded.last_intent',project,intent.id).run();
   }
   const due=(await s(env.DB,`SELECT d.id FROM integration_deliveries d JOIN alert_intents i ON i.id=d.id AND d.namespace='spool.'||i.project WHERE i.project=? AND i.state<>'snoozed' AND d.state='queued' AND d.next_at<=? AND d.attempts<d.max_attempts ORDER BY d.next_at,d.id LIMIT 30`,project,now()).all<{id:string}>()).results;
-  for(const delivery of due)await service.dispatch(delivery.id);
+  for(const delivery of due)if(await admitNotification(env,delivery.id))await service.dispatch(delivery.id);
   await s(env.DB,"INSERT INTO alert_scheduler(id,last_project) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET last_project=excluded.last_project",project).run();
  }
  await dispatchMail(env,now());

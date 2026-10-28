@@ -73,7 +73,7 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  assert.ok(archived.data.artifacts.some(row=>JSON.parse(row.payload).ignoreList?.length),'[SRC-004] private ignore lists survive export');
  const target=await startTestWorker(15562);
  try{
-  const targetCookie=await signIn(target.origin);
+  const targetCookie=await signIn(target.origin,{choosePolicy:false});
   const restored=await fetch(target.origin+'/api/restore',{method:'POST',headers:{Cookie:targetCookie,Origin:target.origin,'Content-Type':'application/x-ndjson','x-confirm-restore':'yes'},body:archived.text});assert.equal(restored.status,200,await restored.text());
   const read=async path=>(await fetch(target.origin+path,{headers:{Cookie:targetCookie}})).json();
   assert.equal((await read('/api/projects/synthetic-spool-16/artifact-storage')).artifact_storage_cap,archived.data.artifact_storage_settings.find(row=>row.project==='synthetic-spool-16').artifact_storage_cap);

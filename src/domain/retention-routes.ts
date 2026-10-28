@@ -1,3 +1,4 @@
+import {settingsCustody} from './agent-door/settings-custody';
 import {ownerProjectRouter,ownerWrites,jsonBody} from './owner-router';
 import {retentionWindows,readRetentionPolicy,retentionPreview,retentionPolicyFence,retentionPreviewFences} from './retention-policy';
 import {hash,canonical,scrub} from './privacy';
@@ -10,7 +11,7 @@ retentionPolicyRoutes.put('/',async c=>{
  if(b.revision!==current.revision||b.token!==preview.token)return c.json({error:'Retention preview changed; preview again'},409);
  if(preview.shortening&&b.confirmation!=='SHORTEN RETENTION')return c.json({error:'Type SHORTEN RETENTION before shortening a window'},400);
  const revision=current.revision+1,time=Date.now();
- await ownerWrites(c,[retentionPolicyFence(db,p,current.generation),...retentionPreviewFences(db,p,preview),db.prepare('INSERT INTO retention_policies VALUES(?,?,?,?,?,?,?) ON CONFLICT(project) DO UPDATE SET generation=excluded.generation,revision=excluded.revision,windows=excluded.windows,held=excluded.held,reason=excluded.reason,updated=excluded.updated').bind(p,crypto.randomUUID(),revision,JSON.stringify(windows),Number(current.held),current.reason,time),db.prepare('UPDATE retention_runs SET last_day=NULL WHERE project=?').bind(p),db.prepare("INSERT INTO audit VALUES(?,?,'retention_policy_changed',?,?)").bind(crypto.randomUUID(),p,JSON.stringify({revision,windowsDigest:await hash(canonical(windows))}),time),db.prepare('DELETE FROM rer_portability_guard')]);
+ await ownerWrites(c,[retentionPolicyFence(db,p,current.generation),...retentionPreviewFences(db,p,preview),db.prepare('INSERT INTO retention_policies VALUES(?,?,?,?,?,?,?) ON CONFLICT(project) DO UPDATE SET generation=excluded.generation,revision=excluded.revision,windows=excluded.windows,held=excluded.held,reason=excluded.reason,updated=excluded.updated').bind(p,crypto.randomUUID(),revision,JSON.stringify(windows),Number(current.held),current.reason,time),db.prepare('UPDATE retention_runs SET last_day=NULL WHERE project=?').bind(p),db.prepare("INSERT INTO audit VALUES(?,?,'retention_policy_changed',?,?)").bind(crypto.randomUUID(),p,JSON.stringify({revision,windowsDigest:await hash(canonical(windows))}),time),settingsCustody(db,c.req.raw,'retention',p),db.prepare('DELETE FROM rer_portability_guard')]);
  return c.json(await readRetentionPolicy(db,p));
 });
 retentionPolicyRoutes.put('/hold',async c=>{
@@ -18,6 +19,6 @@ retentionPolicyRoutes.put('/hold',async c=>{
  if(typeof b.held!=='boolean'||typeof b.reason!=='string'||!b.reason.trim()||b.reason.length>1000)throw new Error('A reason is required to set or release a legal hold');
  if(b.revision!==current.revision)return c.json({error:'Retention policy changed; reload'},409);
  const reason=scrub(b.reason.trim()),revision=current.revision+1,time=Date.now();
- await ownerWrites(c,[retentionPolicyFence(db,p,current.generation),db.prepare('INSERT INTO retention_policies VALUES(?,?,?,?,?,?,?) ON CONFLICT(project) DO UPDATE SET generation=excluded.generation,revision=excluded.revision,held=excluded.held,reason=excluded.reason,updated=excluded.updated').bind(p,crypto.randomUUID(),revision,JSON.stringify(current.windows),Number(b.held),reason,time),db.prepare('UPDATE retention_runs SET last_day=NULL WHERE project=?').bind(p),db.prepare("INSERT INTO audit VALUES(?,?,'retention_hold_changed',?,?)").bind(crypto.randomUUID(),p,JSON.stringify({revision,held:Number(b.held),reason}),time),db.prepare('DELETE FROM rer_portability_guard')]);
+ await ownerWrites(c,[retentionPolicyFence(db,p,current.generation),db.prepare('INSERT INTO retention_policies VALUES(?,?,?,?,?,?,?) ON CONFLICT(project) DO UPDATE SET generation=excluded.generation,revision=excluded.revision,held=excluded.held,reason=excluded.reason,updated=excluded.updated').bind(p,crypto.randomUUID(),revision,JSON.stringify(current.windows),Number(b.held),reason,time),db.prepare('UPDATE retention_runs SET last_day=NULL WHERE project=?').bind(p),db.prepare("INSERT INTO audit VALUES(?,?,'retention_hold_changed',?,?)").bind(crypto.randomUUID(),p,JSON.stringify({revision,held:Number(b.held),reason}),time),settingsCustody(db,c.req.raw,'retention',p),db.prepare('DELETE FROM rer_portability_guard')]);
  return c.json(await readRetentionPolicy(db,p));
 });

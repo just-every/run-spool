@@ -1,3 +1,5 @@
+import { emitPersonChange } from '../agent-door/events';
+import {agentRequestContext,reviewerRequestContext} from '../agent-door/native-context';
 import { operatorAuth } from '../../auth/session.server';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
@@ -13,6 +15,10 @@ import type { AuditActor, AuditFact } from './types';
 /** Attribution follows existing auth admission, never supplies authority. */
 export async function requestActor(request: Request, bindings: Bindings): Promise<AuditActor> {
  const env=runtimeBindings(bindings);
+ const agent=agentRequestContext(request);
+ if(agent){const project=/^\/api\/projects\/([^/]+)/.exec(new URL(request.url).pathname)?.[1];return auditActor(env.DB,{kind:'agent',authority:agent.agent.id,owner:agent.person.id,project:project?decodeURIComponent(project):undefined});}
+ const review=reviewerRequestContext(request);
+ if(review)return auditActor(env.DB,{kind:review.person.role==='owner'?'owner':'member',authority:review.person.id});
  let session;
  try { session=await operatorAuth(env).getSession(request); }
  catch (error) { if(error instanceof AuthError)return unidentifiedActor();throw error; }
@@ -75,5 +81,6 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
  if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400))await observe(response.status);
+ await emitPersonChange(request,response,env);
  return response;
 }

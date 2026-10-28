@@ -11,6 +11,8 @@
 .form-grid>button,.form-grid>div{justify-self:start}
 .form-more{grid-column:1/-1}.form-more>summary{cursor:pointer;font-weight:600}.form-more>.form-grid{margin:12px 0 0}
 .button-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;margin:16px 0}
+.has-issue .text-button,.has-issue .navigation a,.has-issue .project-picker select{min-height:44px}
+.has-issue .text-button{min-width:44px}
 .operator-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin:16px 0}
 .operator-controls>.details-trigger{margin:0}
 div.data-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:12px 0;border-bottom:var(--hairline-border)}

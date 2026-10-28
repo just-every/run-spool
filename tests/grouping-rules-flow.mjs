@@ -71,7 +71,7 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  groups=await json(base+'/issues');assert.ok(groups.some(i=>i.count===2&&i.title.startsWith('TypeError')),'stack rules remove vendor-frame grouping noise');
  const archived=await archiveProjection(await req('/api/archive'));assert.equal(archived.data.grouping_policies.find(r=>r.project==='group-rules').revision,2);
  const restored=await startTestWorker(15524);try{
-  const restoreCookie=await signIn(restored.origin);const result=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoreCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archived.text});assert.ok(result.ok,await result.text());
+  const restoreCookie=await signIn(restored.origin,{choosePolicy:false});const result=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoreCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archived.text});assert.ok(result.ok,await result.text());
   for(const project of nativeProjects){const response=await fetch(restored.origin+'/api/projects/'+project+'/grouping-rules/versions',{headers:{Cookie:restoreCookie}});assert.equal((await response.json()).versions.length,3,'GROUP-001 native immutable policies survive archive restore')}
   const policyResponse=await fetch(restored.origin+root,{headers:{Cookie:restoreCookie}});assert.equal((await policyResponse.json()).revision,2);
   const restoredArchive=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoreCookie}}));assert.deepEqual(restoredArchive.data.grouping_policies,archived.data.grouping_policies);

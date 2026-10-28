@@ -1,3 +1,4 @@
+import { agentDoorResponse } from './domain/agent-door/index.server';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
@@ -42,7 +43,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
   await runAlerts(env,event.scheduledTime);
  } finally {
   // A broken dispatcher must not prevent independent operator follow-up.
-  await scheduledRetention(env.DB,event.scheduledTime);
+  await scheduledRetention(env.DB,event.scheduledTime,env);
   await scanFollowUp(env,event.scheduledTime);
   await queueDigests(env,event.scheduledTime);
   await scheduledMail(env,event.scheduledTime);
@@ -76,6 +77,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
+ const agentDoor=await agentDoorResponse(request,env);if(agentDoor)return agentDoor;
  const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
  const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;

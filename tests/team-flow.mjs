@@ -319,7 +319,7 @@ async function inertTeamArchive(owner,projects,formerCookie) {
 
 /** [TEAM-001] Membership lifecycle through the real emitted Worker and native mail proof. */
 export async function teamFlow() {
- const worker=await runtime();
+ const worker=await runtime();await worker.enableAgentPolicy();
  try {
   const origin=worker.origin,cookie=worker.cookie,owner={...client(origin,cookie),origin,cookie};
   await denied(client(origin).req(organization),'organization administration requires a native session');

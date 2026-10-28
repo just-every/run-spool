@@ -1,3 +1,4 @@
+import {settingsCustody} from '../agent-door/settings-custody';
 import { runtimeBindings } from '../../auth/bindings';
 import { ownerProjectRouter,ownerWrites,jsonBody } from '../owner-router';
 import { auditCommit } from '../audit/context';
@@ -40,7 +41,7 @@ routes.put('/alternate-member',async c=>{
  await ownerWrites(c,[
   ...(body.member?[s(db,`INSERT INTO spool_follow_up_alternates(project,member,updated) VALUES(?,?,?)
    ON CONFLICT(project) DO UPDATE SET member=excluded.member,revision=revision+1,updated=excluded.updated`,project,body.member,Date.now())]:[s(db,'DELETE FROM spool_follow_up_alternates WHERE project=?',project)]),
-  auditCommit(db),
+  auditCommit(db),settingsCustody(db,c.req.raw,'followup',project),
   s(db,"UPDATE follow_up_notices SET state='canceled',code='alternate_changed' WHERE project=? AND state='queued' AND destination LIKE 'member:%' AND destination IS NOT ?",project,body.member?'member:'+body.member:null),
  ]);
  return c.json({saved:true});

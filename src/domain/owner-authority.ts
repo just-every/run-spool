@@ -1,3 +1,4 @@
+import { mintedByCurrentPerson } from './credential-fence';
 import { AuthError } from '../modules/operator-auth/index.mjs';
 import type { ownerSession } from '../auth/session.server';
 import { auditContextStatements } from './audit/context';
@@ -8,7 +9,16 @@ export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>
 // The session that admitted the request is checked again inside the same D1
 // batch, before and after its statements: still unrevoked and unexpired, at its
 // operator's current version, and that operator still the active owner.
-export const authorityGuard = (db: D1Database, session: OwnerSession) => db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
+function serviceAuthorityGuard(db:D1Database,session:Extract<OwnerSession,{kind:'agent'|'native-reviewer'}>) {
+ const member=session.membership,ctx=session.kind==='agent'?session.agentContext:null;
+ const client=ctx?.clientId?.startsWith('spool-credential:')?ctx.clientId.slice('spool-credential:'.length):null;
+ const memberSql=member?`EXISTS(SELECT 1 FROM spool_members m WHERE m.id=? AND m.operator_id=o.id AND m.version=? AND m.role=? AND m.state='active' ${member.project?`AND EXISTS(SELECT 1 FROM spool_project_teams t WHERE t.project=? AND t.organization=m.organization) ${member.role==='admin'?'':`AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=? AND g.role=?)`}`:''})`:"o.role='owner'";
+ return db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=? AND o.version=? AND o.status='active' AND ${memberSql})
+ ${ctx?`AND NOT EXISTS(SELECT 1 FROM agent_door_state WHERE local_paused=1 OR json_extract(envelope,'$.paused')=1 OR EXISTS(SELECT 1 FROM json_each(envelope,'$.revoked.agents') WHERE value=?) OR EXISTS(SELECT 1 FROM json_each(envelope,'$.revoked.consents') WHERE value=?)) AND NOT EXISTS(SELECT 1 FROM agent_door_agents WHERE id=? AND revoked=1)`:''}
+ ${client?`AND EXISTS(SELECT 1 FROM credentials WHERE hash=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson})`:''}
+ THEN 1 ELSE 0 END`).bind(session.operator.id,session.operator.version,...member?[member.id,member.version,member.role,...member.project?[member.project,...member.role==='admin'?[]:[member.project,member.projectRole]]:[]]:[],...ctx?[ctx.agent.id,ctx.consent??'',ctx.agent.id]:[],...client?[client]:[]);
+}
+export const authorityGuard = (db: D1Database, session: OwnerSession) => session.kind === 'agent'||session.kind==='native-reviewer' ? serviceAuthorityGuard(db,session) : db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
  SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
  WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
   AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)

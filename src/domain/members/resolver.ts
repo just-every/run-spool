@@ -7,7 +7,7 @@ const missing = (): never => { throw new AuthError('Project not found',404); };
 
 /** Resolves product authority after native session authentication. The same
  * resolver runs at each independently mounted private door. */
-export async function resolveMembership(request: Request, env: Bindings, session: Session): Promise<TeamSession | null> {
+export async function resolveMembership(request: Request, env: Bindings, session: TeamSession): Promise<TeamSession | null> {
  const member = await s(env.DB,"SELECT id,version,role,organization FROM spool_members WHERE operator_id=? AND state='active'",session.operator.id).first<Membership>();
  if (!member) return null;
  const path = new URL(request.url).pathname.replace(/\/$/,'') || '/';

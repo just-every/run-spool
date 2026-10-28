@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {isDeepStrictEqual} from 'node:util';
 import {noSecrets} from './packet.mjs';
 export async function scopeProof(app,grant,issue,otherIssue,project){
  const packet=`/api/projects/a/issues/${issue}/packet`,agent={agent:grant.key};
@@ -21,7 +22,23 @@ export async function scopeProof(app,grant,issue,otherIssue,project){
  ];
  for(const path of reads)for(const method of ['POST','PUT','PATCH','DELETE','HEAD','OPTIONS'])mutations.push([path,method,method==='HEAD'||method==='OPTIONS'?undefined:{}]);
  for(const [path,method,value] of mutations){const response=await app.request(path,method,value,agent);assert.equal(response.status,403,`${method} ${path}: HTTP ${response.status}`);await response.body?.cancel();}
- assert.deepEqual((await app.archive()).data,before,'all archived rows unchanged after denied mutations');assert.deepEqual(await app.json('/api/projects/a/keys'),keysBefore);
+ const after=(await app.archive()).data;
+ // The shared door must retain refusals and count requests. Every native row,
+ // saved effect, policy, approval and event still remains exactly unchanged.
+ const observations=new Set(['agent_door_audit','agent_door_agents']);
+ const effects=value=>Object.fromEntries(Object.entries(value).filter(([table])=>!observations.has(table)));
+ assert.ok(isDeepStrictEqual(effects(after),effects(before)),'HTTP denials leave every native effect and saved decision unchanged');
+ const previousAudit=new Map(before.agent_door_audit.map(row=>[row.id,row]));
+ for(const [id,row] of previousAudit)assert.deepEqual(after.agent_door_audit.find(value=>value.id===id),row,'previous audit is immutable');
+ const refusals=after.agent_door_audit.filter(row=>!previousAudit.has(row.id));assert.ok(refusals.length>0,'denied typed tools are audited');
+ for(const entry of refusals){const row=JSON.parse(entry.row);assert.equal(row.outcome,'refused');assert.equal(row.code,'insufficient_scope');}
+ assert.equal(after.agent_door_agents.length,before.agent_door_agents.length);
+ for(const entry of before.agent_door_agents){const current=after.agent_door_agents.find(row=>row.id===entry.id);assert.ok(current);
+  const identity=({window,requests,...person})=>person;assert.deepEqual(identity(current),identity(entry),'request counting cannot rebind or revoke an agent');
+  assert.ok(Number.isInteger(current.requests)&&current.requests>0&&current.window>=entry.window);
+  if(current.window===entry.window)assert.equal(current.requests,entry.requests+refusals.filter(row=>row.agent===entry.id).length);
+ }
+ assert.deepEqual(await app.json('/api/projects/a/keys'),keysBefore);
  for(const key of [project.ingestKey,(await app.json('/api/projects/a/keys','POST',{kind:'deploy'})).key])assert.ok([401,403].includes((await app.request(packet,'GET',undefined,{agent:key})).status));
  for(const name of ['key','token','agentKey','api_key'])assert.equal((await app.request(packet+'?'+name+'='+encodeURIComponent(grant.key),'GET',undefined,{headers:{Cookie:''}})).status,401);
  const anonymous=await app.request(packet,'GET',undefined,{headers:{Cookie:''}});assert.equal(anonymous.status,401);

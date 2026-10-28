@@ -1,3 +1,4 @@
+import {nativeAttribution} from '../agent-door/attribution';
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
@@ -12,7 +13,7 @@ import { issueRepairs, repairView } from './view';
 const routes = new Hono<{ Bindings: Bindings; Variables: { repairSession: OwnerSession } }>();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
- s(db, `INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1`, crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
+ s(db, `INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1`, crypto.randomUUID(), project, kind, JSON.stringify(nativeAttribution(detail)), time);
 
 // This router authenticates its own direct transport as well as its parent API mount.
 routes.use('*', async (c, next) => {

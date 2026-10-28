@@ -1,3 +1,4 @@
+import {nativeAttribution} from '../agent-door/attribution';
 import { hash, identity, token } from '../privacy';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { classify } from './classify';
@@ -9,7 +10,7 @@ import { issueReproducers, reproducerView } from './view';
 const routes = ownerProjectRouter();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
- s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
+ s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(nativeAttribution(detail)), time);
 const budget = (error: unknown, c: any) => /reproducer(_run)?_budget/.test(String((error as Error).message)) ? c.json({ error: String((error as Error).message).includes('run') ? 'A reproducer holds at most 20 runs' : 'An issue holds at most 20 reproducers' }, 409) : null;
 
 routes.get('/', async c => {

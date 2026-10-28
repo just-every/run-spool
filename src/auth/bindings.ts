@@ -1,5 +1,8 @@
 import { demoEnvironment } from '../demo/environment';
 export type Bindings = {
+ RER_BUSINESS_TRUST?: string;
+ RER_OWNER_CLAIM_ISSUER?: string; RER_OWNER_CLAIM_INSTALLATION_ID?: string;
+ RER_OWNER_CLAIM_APP_ORIGIN?: string; RER_OWNER_CLAIM_PUBLIC_KEYS?: string;
  ASSETS?: Fetcher;
  DB: D1Database; AUTH_ORIGIN: string; OWNER_EMAIL: string; SESSION_SECRET: string;
  SETUP_TOKEN?: string; AUTH_LOCAL?: string; RER_DEMO?: string;

@@ -7,7 +7,7 @@ import { signIn } from './auth.mjs';
 async function restoreFeedback(before, after, expected) {
  const destination = await startTestWorker(await freePort());
  try {
-  const cookie = await signIn(destination.origin);
+  const cookie = await signIn(destination.origin,{choosePolicy:false});
   const request = (path, method = 'GET', text) => fetch(destination.origin + path, { method, headers: { Origin: destination.origin, Cookie: cookie,
    ...text ? { 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' } : {} }, ...text ? { body: text } : {} });
   const restored = await request('/api/restore', 'POST', after.text);

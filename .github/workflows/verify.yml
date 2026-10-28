@@ -217,7 +217,7 @@ jobs:
           - shard: wizard
             command: pnpm test:wizard
           - shard: agent-handoff
-            command: pnpm test:agent-handoff && pnpm test:privacy
+            command: pnpm test:agent-handoff && pnpm test:agent-door && pnpm test:privacy
           - shard: repair-recovery
             command: pnpm test:repair-recovery
           - shard: execution
