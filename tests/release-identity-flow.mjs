@@ -129,7 +129,7 @@ export async function team004Flow({req,json,origin,cookie}){
   await shoot('linked','/projects/checkout-web/issues/'+A.id,async page=>{const section=await timeline(page);await section.getByText('Resolved in web@1.1.0',{exact:true}).waitFor();return section});
   await shoot('resolved','/projects/checkout-web/issues/'+A.id,async page=>{await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');await page.getByText(`Resolved in web@1.1.0 by commit ${S1.slice(0,12)}`,{exact:false}).waitFor();return page.locator('.issue')});
   await shoot('logged-unknown','/projects/checkout-web/releases',async page=>{const section=await linkLog(page);await section.getByText('Unknown short ID',{exact:true}).first().waitFor();return section});
-  // ERR-006 under SDK-009 order: an older release cannot regress; a newer one does, with one alert.
+  // ERR-006 under SDK-028 order: an older release cannot regress; a newer one does, with one alert.
   await send(project,'CheckoutError','web@1.0.0');assert.equal((await issues()).CheckoutError.state,'resolved','an older-release occurrence cannot reopen');
   await send(project,'CheckoutError','web@1.2.0');assert.equal((await issues()).CheckoutError.state,'open','a newer-release occurrence regresses');
   let alerts=(await json(base+'/alerts')).filter(a=>a.kind==='regression'&&a.issue===A.id);assert.equal(alerts.length,1);const alertA=JSON.parse(alerts[0].payload);assert.equal(alertA.shortId,'CHECKOUT-WEB-1');assert.deepEqual(alertA.resolution,{release:'web@1.1.0',commit:S1,citation:'fixes checkout-web-1',pr:null},'alert carries the SHA and no author or message by default');

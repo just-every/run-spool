@@ -31,7 +31,7 @@ First-owner setup claims the native owner through Base operator-auth at `/auth/b
 
 Scrub allowed event fields before persistence and review outbound evidence for residual personal data. Ingest grants authorize only their project ingest path. Agent grants are exact-project scoped: existing evidence reads plus bounded inert grouping-proposal submission/listing. Proposal approval, rejection, apply and undo are owner-only until TEAM-001; every proposal is labelled "proposed by agent <alias>". Owner writes require same-origin checks. Keep browser-origin policy project-scoped and preserve its ingest-only use. No captured telemetry executes commands or invokes external models.
 
-Owner archives include private maps and browser-origin policy but exclude owner sessions and project credential grants. Restore requires an empty destination and does not create an owner or grants; preserve native archive v1/v2 compatibility and the shared Base portability engine. Retention has owner-configured 30–90-day windows and bounded daily scheduled expiry; legal hold pauses expiry only, never erasure. Preserve the visible manual cutoff, occurrence tombstones, deduplication horizon, service audit and resumable execution cursor (docs/RETENTION.md). BASE-DATA-003 owner-only project erasure is implemented on Base main's erasure helper (see docs/PROJECT-ERASURE.md); preserve every cascade, anonymised audit, receipt, restore-fence, five-minute and UI requirement in CONTRACT.md and ACCEPTANCE.md, and declare any new project table in `src/domain/erasure/declaration.ts`. Never report retention as completed project erasure. Source-map storage accepts bounded flat/indexed maps up to 1 MiB with an optional project byte cap and no lifetime artifact count; R2 or warehouse storage is a future measured choice.
+Owner archives include private maps and browser-origin policy but exclude owner sessions and project credential grants. Restore requires an empty destination and does not create an owner or grants; preserve native archive v1/v2 compatibility and the shared Base portability engine. Retention has owner-configured 30–90-day windows and bounded daily scheduled expiry; legal hold pauses expiry only, never erasure. Preserve the visible manual cutoff, occurrence tombstones, deduplication horizon, service audit and resumable execution cursor (docs/RETENTION.md). ERASE-001 owner-only project erasure (the Base BASE-DATA-003 duty) is implemented on Base main's erasure helper (see docs/PROJECT-ERASURE.md); preserve every cascade, anonymised audit, receipt, restore-fence, five-minute and UI requirement in CONTRACT.md and ACCEPTANCE.md, and declare any new project table in `src/domain/erasure/declaration.ts`. Never report retention as completed project erasure. Source-map storage accepts bounded flat/indexed maps up to 1 MiB with an optional project byte cap and no lifetime artifact count; R2 or warehouse storage is a future measured choice.
 
 The Sentry organization import uses one Base import-kit door: owner-session `/api/operator/import/*` (also the `scripts/sentry-import.mjs` caller) and signed Business `/api/rer/import/*` share uploads, no-native-write plans, fingerprint-reviewed apply/resume, native reconciliation, lineage and guarded undo. Business is off by default; the owner enables it, or an `RER_IMPORT_DOOR=on` installation opens it at first owner claim. Later disablement and permanent key revocation remain authoritative; the owner can undo from history while Business is off. Preserve the existing first-claim policy. `tests/business-import.mjs` extends the public HTTP journey with a populated synthetic Sentry graph, signed bounded catch-up replacing an issue and adding an issue/event, standing-approval binding, over-allowance/gone-source/native-edit refusals and newest-first exact native restoration. Large-set reconciliation/catch-up is fixture-qualified only: the adapter lists in fixed queries but has no compact `matchesMany`; a native/custody fence above the door's 2 MiB read or 1,000-statement request limit returns 413 `import_door_too_large`. Input remains bounded to 2 MiB and 500 parsed records, including the synthesized manifest. This is synthetic-only proof, not a real Sentry receipt or completed MIG-001 acceptance. The signed-in Business screen currently has settings/history/undo, not upload/review/apply/reconcile. Project erasure withdraws complete parseable bundle lineage and archive headers/bytes, but incomplete/unreadable custody remains an open gap; selective owner erasure retains its shared-custody hold. Native archives exclude `ik_%` import custody. Do not infer hosted or real-account acceptance from these local journeys.
 
@@ -41,17 +41,11 @@ Spool declares its own fonts (self-hosted Zilla Slab, IBM Plex Sans and IBM Plex
 
 `scripts/delivery/base/packaging.json` is product-owned policy over the pinned Base exporter. Regenerate the setup digest and producer workflow when policy or manifest bytes change.
 
-## Contract document generation
+## Contract documents
 
-CONTRACT.md is the source for clause text, evidence and status. While ct owns
-the complete contract conversion, regenerate only the clauses touched by a
-build round, following the seed's incremental document command. It preserves
-other acceptance entries and every Status row. Add any newly touched clause
-IDs to both the command and the Verify check.
+CONTRACT.md is the only acceptance text and status source; ACCEPTANCE.md and docs/CLAIMS.md are generated from it. After editing it, regenerate, check and relock:
 
-Lander-Regenerate: node scripts/contract-docs.mjs write TEAM-001
+Lander-Regenerate: node src/base/contract-docs.mjs write
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
-Run `node scripts/contract-docs.mjs check TEAM-001` and the source check after
-generation. Do not hand-edit generated entries or counts. Once ct's complete
-conversion lands, use its Base generator and remove this incremental command.
+Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
