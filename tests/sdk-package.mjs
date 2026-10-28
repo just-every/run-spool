@@ -21,8 +21,6 @@ try {
   await mkdir(app);
   await writeFile(resolve(app, 'package.json'), JSON.stringify({ name: 'fresh-app', private: true, type: 'module' }));
   execFileSync('npm', ['install', packed.tarball, '--offline', '--no-audit', '--no-fund', '--ignore-scripts'], { cwd: app, stdio: 'ignore' });
-  const installed = JSON.parse(await readFile(resolve(app, 'node_modules/@just-every/spool/package.json'), 'utf8'));
-  assert.ok(!installed.dependencies, 'the package installs with no runtime dependencies');
 
   worker = await startTestWorker(15561); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };

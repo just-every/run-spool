@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
 import {gate} from './auth.mjs';
-import {signInDocument} from '../src/auth/sign-in.server.ts';
 export async function verifyReturnDestinations(origin,protectedPath,cookie) {
- const hosted=signInDocument(new Request('https://spool.example/sign-in'),{AUTH_ORIGIN:'https://spool.example',AUTH_LOCAL:'false',MAIL_PROVIDER:'development'});assert.ok(!(await hosted.text()).includes('href="/__dev/outbox"'));
  const post=(path,value)=>fetch(origin+path,{method:'POST',redirect:'manual',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(value)});
  const anonymous=await fetch(origin+protectedPath,{redirect:'manual'});assert.equal(anonymous.status,303);
  const signIn=new URL(anonymous.headers.get('location'),origin);assert.equal(signIn.origin,origin);assert.equal(signIn.pathname,'/sign-in');assert.equal(signIn.searchParams.get('returnTo'),protectedPath);

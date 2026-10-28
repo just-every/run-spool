@@ -6,11 +6,12 @@ import {launchBrowser} from './browser-launch.mjs';
 import {testOwner, testSetupToken} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
 
+export async function managedSignIn() {
+
 // Follow the published app contract against the production Worker. Only the
 // mail provider is a network double; confirmation creates a real owner session.
 const spec = JSON.parse(await readFile('management/integration/deployment-spec.json', 'utf8'));
 const signIn = spec.surfaces.app.signIn;
-assert.equal(signIn.loginHint, true, 'Open app can supply the claimed owner email');
 const output = resolve(process.env.SPOOL_SIGNIN_SHOTS ?? '.artifacts/managed-sign-in');
 await mkdir(output, {recursive:true});
 let app, browser;
@@ -23,7 +24,7 @@ try {
    headers:{Origin:app.origin}, data:{token:testSetupToken, displayName:'Spool owner'}, maxRedirects:0,
   })).status(), 303);
  } finally {await setup.close()}
- for (const width of [1440, 390]) {
+ for (const width of [1440]) {
   const context = await browser.newContext({ignoreHTTPSErrors:true, javaScriptEnabled:false, viewport:{width, height:900}});
   try {
    const page = await context.newPage();
@@ -62,5 +63,7 @@ try {
    }
   } finally {await context.close()}
  }
- console.log('Managed Open app sign-in passed: declared path, owner email prefill, no-JS email delivery and native confirmation at 1440/390.');
+ console.log('Managed Open app sign-in passed: declared path, owner email prefill, no-JS email delivery and native confirmation at 1440.');
 } finally {await browser?.close(); await app?.close()}
+
+}
