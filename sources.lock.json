@@ -4189,7 +4189,7 @@
       "executable": false
     },
     "public/theme/landing.css": {
-      "sha256": "32ce6ce4ecddd234bb91b36ecda9f3a789466dc852ed99b4adb1c3bbbfc6d120",
+      "sha256": "b4792cf476f5d75b2d0e11ce71d1419745e72b02e1fe9ab8be2352955907d7e7",
       "executable": false
     },
     "public/theme/landing/bundle.webp": {
@@ -7873,7 +7873,7 @@
       "executable": false
     },
     "src/ui/landing/Band.tsx": {
-      "sha256": "f94012bae1d6cbced5566c5b1c1cd0bd7337b328283bca9618bd44d4b468a7bf",
+      "sha256": "69a91ab752015ebdb6a3796c391a6ccc28a34f5252e2e3441cab2aad0a4caad3",
       "executable": false
     },
     "src/ui/landing/Beside.tsx": {
@@ -7893,15 +7893,15 @@
       "executable": false
     },
     "src/ui/landing/Free.tsx": {
-      "sha256": "0b233d60a4c698d8b2c3535f1d1eefcafc63d54f6e34ec96270bdaaa1b020cfe",
+      "sha256": "fdbe60e5af4ddf597437085f175c8edb5e239cba113f3968478be3106092e426",
       "executable": false
     },
     "src/ui/landing/Hero.tsx": {
-      "sha256": "5500ac03bb7c013fa23709e3357bb4d11c5adf3337b6b7019f614aad227f229d",
+      "sha256": "8b91feb1af4d375abed0862595c1b98e7d57414e451a4a6b3495c1810dd3f558",
       "executable": false
     },
     "src/ui/landing/Landing.tsx": {
-      "sha256": "9ddf4977ff726aba93f171bc1a2e070ba6b3d9bebea4c0a014a2db13ad0e65cd",
+      "sha256": "8625ff02d2b2dbfb1c5b16b666c1c077bb6d077edb7cd880b4144ef729558ec7",
       "executable": false
     },
     "src/ui/landing/Ornament.tsx": {

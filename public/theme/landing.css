@@ -76,6 +76,7 @@
 .band{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:28px;padding:var(--P) 0}
 .band-copy h2{font-size:clamp(34px,4.4vw,62px);line-height:1.02;text-wrap:balance}
 .band-copy p{max-width:30ch;margin-top:24px;font-size:clamp(18px,1.75vw,24px);line-height:1.45}
+.band-copy .band-note{margin-top:14px;color:var(--ink-soft);font-size:14px;line-height:1.4}
 .drawing-card{padding:26px 30px 30px}
 .drawing-card .card-title{font-size:clamp(20px,2vw,28px)}
 .drawing-note{margin-bottom:16px;font-size:clamp(16px,1.4vw,19px)}
