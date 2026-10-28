@@ -114,7 +114,7 @@ Core · published · **partial**
 6. Original membership stays inspectable after apply and undo.
 
 **Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`
-**Gap.** Not asserted in the cited tests: a later older-release event leaving a release-resolved issue closed (asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: newer-release regression, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership.
+**Gap.** Not asserted in the cited tests: the issue's reopened state after a newer-release event, and a later older-release event leaving a release-resolved issue closed (both asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: the newer-release regression alert and its single delivery, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership.
 
 #### ERR-007 — Sanitized evidence packet
 
@@ -169,7 +169,7 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rule
 7. After a manual retention cutoff, repair snapshots keep their coverage gaps.
 
 **Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs`
-**Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work starting no dispatch or current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, no restored grant, and refusal of tampered, conflicting and nonempty-target imports before mutation.
+**Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work holding no active grant (only the archive's lack of credentials, sessions and ingest key is asserted), starting no dispatch and holding no current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, an archive without credentials, sessions or ingest key, and refusal of tampered, conflicting and nonempty-target imports before mutation.
 
 #### ERR-010 — Release gates
 
@@ -539,7 +539,7 @@ Core · target · **partial**
 8. A 1,200-frame recursion keeps 1,000 frames with "200 frames omitted" shown, and the copied raw stack trace of the Python chain shows both tracebacks with no masked value revealed.
 
 **Evidence.** `src/domain/sentry/evidence.ts`; `src/domain/sentry/query.ts`; `src/ui/workbench/SentryEvent.tsx`; `tests/fidelity-flow.mjs` (SDK-010). Rich chain/group/frame/local/context evidence, scrubbed query retention, named exclusions, archive/packet privacy and bounded trimming.
-**Gap.** Not asserted in the cited test: the `password` local masked in storage and exports; Related Exceptions and an `asyncio.TaskGroup` failure; root-cause marking for Node, Next.js and Java chains; the `browser.name` and `os.name` tag-summary rows; the request URL and allowed headers; and the copied raw stack trace. Asserted: the chained exception's frames, context lines and locals, masking at the owner door and in packets, two root causes with their alerts, exception-group acceptance, tags, contexts and tag search, scrubbed request secrets, message-template grouping and the 1,000-frame bound.
+**Gap.** Not asserted in the cited test: the `password` local masked in storage and exports; Related Exceptions and an `asyncio.TaskGroup` failure; root-cause marking for Node, Next.js and Java chains; the SDK's browser and os contexts read back; the `browser.name` and `os.name` tag-summary rows; the request URL and allowed headers; and the copied raw stack trace. Asserted: the chained exception's frames, context lines and locals, masking at the owner door and in packets, two root causes with their alerts, exception-group acceptance, the `browser.name` tag, the `tenant` tag summary and tag search, scrubbed request secrets, message-template grouping and the 1,000-frame bound.
 
 #### SDK-011 — Sentry intake encodings, published size limits and per-item refusal
 
@@ -908,7 +908,7 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 6. A release auto-created by a Sentry SDK event and then enriched under the same name through the native release/deployment API stays one release, with its original first-seen time.
 
 **Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` (REL-001); `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed. Asserted: started and completed runs, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
+**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed, and the CI run's progress and success steps read back by state (only their count is asserted). Asserted: the started run with its four steps, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
 
 #### REL-002 — Suspect change and release comparisons
 
