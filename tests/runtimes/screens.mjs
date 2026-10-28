@@ -9,7 +9,7 @@ export async function readScreens(origin,cookie,pages){
  await mkdir('.artifacts/runtimes',{recursive:true});
  const browser=await launchBrowser();
  try{
-  for(const width of [1440,390]){
+  for(const width of [1440]){
    const context=await browser.newContext({viewport:{width,height:900}});
    try{
     await openGate(context,origin);

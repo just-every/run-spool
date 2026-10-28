@@ -1,3 +1,4 @@
+import {freePort} from '../admission-runtime.mjs';
 import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {readFile,readdir,writeFile,mkdtemp,rm} from 'node:fs/promises';
@@ -10,7 +11,7 @@ import {syntheticDestination,signingKey} from './receiver.mjs';
 const require=createRequire(import.meta.url);
 export const relayUrl='https://relay.example.com/api/managed-mail/send';
 export async function alertRuntime(receiver,{state,mail='development',egress=true,configure=true,destinationUrl=syntheticDestination,egressBridge,destinations,captureMail=false,extraBindings={}}={}) {
- const temporary=await mkdtemp(resolve(tmpdir(),'spool-alerts-'));let runtime;
+ const temporary=await mkdtemp(resolve(tmpdir(),'spool-alerts-')),port=await freePort(),origin='http://127.0.0.1:'+port;let runtime;
  try {
  const miniflare=require(require.resolve('miniflare',{paths:[require.resolve('wrangler/package.json')]}));
  const {Miniflare,convertV4MiniflareOptions}=miniflare;
@@ -27,11 +28,11 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  // Alert mail uses the fixture provider on both handlers; owner admission uses the real local CLI entry. Work passed to waitUntil finishes before the response returns.
  function alertMail(env){return {...env,MAIL_PROVIDER:${JSON.stringify(mail)},...( ${JSON.stringify(mail)}!=='development'?{MAIL_API_KEY:'synthetic-key-no-provider-call',MAIL_RELAY_URL:${JSON.stringify(relayUrl)}}:{})}}
  export default {async fetch(request,env,ctx){mailDatabase=env.DB;env=edge(env);const path=new URL(request.url).pathname;
- ${mail!=='development'?`const headers=new Headers(request.headers);if(headers.get('origin')==='http://127.0.0.1:15541')headers.set('origin','https://spool.example.com');headers.set('host','spool.example.com');request=new Request('https://spool.example.com'+path+new URL(request.url).search,{method:request.method,headers,body:request.body,redirect:'manual'});`:''}if(path==='/__fixture/schedule')return request.json().then(async value=>{if(value.disableEgress)delete env.INTEGRATION_EGRESS;await application.scheduled({scheduledTime:value.time,cron:'* * * * *'},alertMail(env),ctx);return new Response('{}',{headers:{'content-type':'application/json'}})});
+ ${mail!=='development'?`const headers=new Headers(request.headers);if(headers.get('origin')===${JSON.stringify(origin)})headers.set('origin','https://spool.example.com');headers.set('host','spool.example.com');request=new Request('https://spool.example.com'+path+new URL(request.url).search,{method:request.method,headers,body:request.body,redirect:'manual'});`:''}if(path==='/__fixture/schedule')return request.json().then(async value=>{if(value.disableEgress)delete env.INTEGRATION_EGRESS;await application.scheduled({scheduledTime:value.time,cron:'* * * * *'},alertMail(env),ctx);return new Response('{}',{headers:{'content-type':'application/json'}})});
   if(!path.startsWith('/auth/'))env=alertMail(env);const unconfigured=request.headers.get('x-fixture-unconfigured');if(unconfigured==='mail')delete env.MAIL_PROVIDER;if(unconfigured==='egress')delete env.INTEGRATION_EGRESS;
   const pending=[],context={waitUntil(work){pending.push(work);ctx.waitUntil(work)},passThroughOnException(){ctx.passThroughOnException()},props:ctx.props};
   const response=await application.fetch(request,env,context);await Promise.allSettled(pending);return response}};`);
- const bindings={...worker.bindings,...extraBindings,...authBindings('http://127.0.0.1:15541'),...(mail!=='development'?{AUTH_ORIGIN:'https://spool.example.com',AUTH_LOCAL:'false',MAIL_PROVIDER:mail,MAIL_API_KEY:'synthetic-key-no-provider-call',MAIL_RELAY_URL:relayUrl}:{MAIL_PROVIDER:'development'}),ALERT_DESTINATION_HASH_KEY:Buffer.alloc(32,45).toString('base64'),ALERT_PUBLIC_ORIGIN:'https://spool.example.com',ALERT_DESTINATIONS:JSON.stringify(destinations??(configure?[
+ const bindings={...worker.bindings,...extraBindings,...authBindings(origin),...(mail!=='development'?{AUTH_ORIGIN:'https://spool.example.com',AUTH_LOCAL:'false',MAIL_PROVIDER:mail,MAIL_API_KEY:'synthetic-key-no-provider-call',MAIL_RELAY_URL:relayUrl}:{MAIL_PROVIDER:'development'}),ALERT_DESTINATION_HASH_KEY:Buffer.alloc(32,45).toString('base64'),ALERT_PUBLIC_ORIGIN:'https://spool.example.com',ALERT_DESTINATIONS:JSON.stringify(destinations??(configure?[
   {id:'webhook-v1',project:'web',label:'Verified receiver',channel:'webhook',url:destinationUrl,key:Buffer.from(signingKey).toString('base64')},
   {id:'mail-v1',project:'web',label:'Owner mailbox',channel:'mail',recipient:'alert-owner@example.com'},
   {id:'other-v1',project:'other',label:'Other mailbox',channel:'mail',recipient:'other-owner@example.com'},
@@ -41,13 +42,13 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  // scheduled-handler test door; all application requests use the native router.
  // A test-only Node edge for the egress double: the Worker's binding calls it over a service binding.
  const serviceBindings=egressBridge?{...worker.serviceBindings,EGRESS_BRIDGE:async request=>{const wire=await request.json();try{return Response.json({response:await egressBridge(wire)})}catch(error){return Response.json({error:error?.code??error?.message??'egress_failed'})}}}:worker.serviceBindings;
- runtime=new Miniflare(convertV4MiniflareOptions({...worker,...serviceBindings?{serviceBindings}:{},modules:[{type:'ESModule',path:wrapper},...worker.modules],modulesRoot:'/',bindings,resourcePersistencePath:state??resolve(temporary,'state'),host:'127.0.0.1',port:15541}));
-  await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail('http://127.0.0.1:15541',db);
+ runtime=new Miniflare(convertV4MiniflareOptions({...worker,...serviceBindings?{serviceBindings}:{},modules:[{type:'ESModule',path:wrapper},...worker.modules],modulesRoot:'/',bindings,resourcePersistencePath:state??resolve(temporary,'state'),host:'127.0.0.1',port}));
+  await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){
    const {unstable_splitSqlQuery}=require('wrangler');const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
    await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   }
-  const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});
+  let cookie=await signIn(origin,{emailLink:mail!=='development'});
   // A restore can outlast another connection's idle lifetime. Do not let the
   // global fetch pool reuse that socket, or one from a disposed fixture runtime.
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});

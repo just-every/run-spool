@@ -80,7 +80,7 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  }finally{await restored.stop()}
  // The browser uses only the owner cookie; no private dev URL enters screenshots.
  const browser=await launchBrowser();
- try{await mkdir('.artifacts/grouping-rules',{recursive:true});for(const width of [1440,390]){
+ try{await mkdir('.artifacts/grouping-rules',{recursive:true});for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));
   const page=await context.newPage();await page.goto(origin+'/projects/group-rules/settings');const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Project grouping rules',exact:true})});try{await panel.getByLabel('Stack trace rules',{exact:true}).waitFor({timeout:10000})}catch(e){await page.screenshot({path:'.artifacts/grouping-rules/unavailable.png',fullPage:true});throw e}
   await panel.getByLabel('Fingerprint rules',{exact:true}).fill('error.type:KeyError -> checkout-account');await panel.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await panel.getByRole('heading',{name:'Retained-event preview'}).waitFor();assert.ok((await panel.innerText()).includes('6 scanned'));

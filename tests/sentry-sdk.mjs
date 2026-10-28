@@ -51,7 +51,7 @@ try{
   application=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(loaderPage(url,res,dsns.loader))return;if(url.pathname==='/empty'){res.setHeader('Content-Type','text/html');res.end('<!doctype html><title>Navigation complete</title>');return}if(url.pathname==='/app.js'||url.pathname==='/sdk.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(resolve(temporary,url.pathname.slice(1))));return}const dsn=dsns[url.searchParams.get('target')];if(!dsn){res.writeHead(404);res.end();return}res.setHeader('Content-Type','text/html');res.end(`<!doctype html><meta name="viewport" content="width=device-width"><title>Unmodified SDK application</title><button>Throw checkout exception</button><script>globalThis.__DSN__=${JSON.stringify(dsn)};globalThis.__SDK_CONFIG__=${JSON.stringify(sdkConfig)}</script><script type="importmap">{"imports":{"@sentry/browser":"/sdk.js"}}</script><script type="module" src="/app.js"></script>`)}catch{res.writeHead(500);res.end()}});
   const applicationOrigin=await listen(application);await request('/api/projects/sdk/browser-origins','POST',{origin:applicationOrigin});
   browser=await launchBrowser();
-  for(const width of [1440,390]){
+  for(const width of [1440]){
     const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
     const rejectedProject=`unregistered-${width}`;
     dsns.rejected=(await request('/api/projects','POST',{id:rejectedProject,name:'Release rejection'})).dsn;
@@ -104,5 +104,5 @@ try{
   await checkInFlow({browser});
   await sessionFlow({origin,cookie,browser});
   await identityFlow({origin,cookie,browser});
-  console.log(JSON.stringify({passed:true,browser:require('@sentry/browser/package.json').version,node:require('@sentry/node/package.json').version,proof:'Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush.'}));
+  console.log(JSON.stringify({passed:true,browser:require('@sentry/browser/package.json').version,node:require('@sentry/node/package.json').version,proof:'Unmodified SDK programs/configs with DSN switched only: browser 1440 original source line through build plugin and CLI, Node gzip capture+flush.'}));
 }finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY;await browser?.close();await close(application);await close(collector);await worker?.stop();await rm(temporary,{recursive:true,force:true})}

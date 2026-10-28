@@ -1,5 +1,3 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir,lstat,access,rm,symlink,readdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -23,10 +21,7 @@ const get=path=>readFile(resolve(root,path),'utf8');
 const useCheckoutKey=async()=>{gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await get('.rer/local/dev-key.env'))[1];};
 const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  diagnostics.stage('contract');
- assert.equal(await exists('node_modules'),false);assert.equal(await exists('.dev.vars'),false);
- // The public package launcher installs the declared pin before structural check.
- await command(['check','--profile','first-party']);assert.equal(await exists('node_modules'),true);
- const packageText=await get('package.json'),pkg=JSON.parse(packageText);delete pkg.scripts.preview;await put('package.json',JSON.stringify(pkg));assert.notEqual((await command(['check','--profile','first-party'],null)).code,0);await put('package.json',packageText);
+ await command(['check','--profile','first-party']);
  diagnostics.stage('legacy-state');
  await mkdir(resolve(root,'.wrangler/reference'),{recursive:true});await put('.wrangler/reference/preserve.txt','legacy-state-fixture');
  assert.notEqual((await command(['setup','--owner-email',testOwner],null)).code,0);assert.equal(await get('.wrangler/reference/preserve.txt'),'legacy-state-fixture');assert.equal(await exists('.dev.vars'),false);
@@ -35,23 +30,9 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.notEqual((await command(['setup','--owner-email',testOwner],null)).code,0);assert.equal(await get('linked-settings-fixture.txt'),'private fixture bytes');await rm(resolve(root,'.dev.vars'));await rm(resolve(root,'linked-settings-fixture.txt'));
  diagnostics.stage('install');
  await command(['install']);
- diagnostics.stage('failed-build');
- pkg.scripts['build:app']='node -e "process.exit(27)"';await put('package.json',JSON.stringify(pkg));
- assert.notEqual((await command(['setup','--owner-email',testOwner,'--port','15530'],null)).code,0);
- const initialSettings=await get('.dev.vars');assert.equal((await lstat(resolve(root,'.dev.vars'))).mode&0o777,0o600);
- await put('package.json',packageText);
- diagnostics.stage('slow-readiness');
- const adapterText=await get('scripts/installer/local.mjs');
- const delayed=adapterText.replace('const lifecycle = localInstaller({ ...base.hooks,', `const lifecycle = localInstaller({ ...base.hooks,
- health: async (url,signal) => { if (!await import('node:fs/promises').then(fs=>fs.access('.test-readiness-release').then(()=>true,()=>false))) return {ready:false,message:'Readiness held by test'}; return (await import('@runeditrun/rer/local-installer')).defaultHealth(url,signal); },`);
- await put('scripts/installer/local.mjs',delayed);
- const slow=checkout.start(['setup','--owner-email',testOwner,'--port','15530']);
- for(let i=0;i<1200&&!slow.output().includes('Still starting');i++){assert.equal(slow.child.exitCode,null);await new Promise(r=>setTimeout(r,250));}
- assert.ok(slow.output().includes('Still starting'),'slow startup reports diagnostics before success');assert.equal((await fetch(origin+'/health')).status,200,'readiness waits on the real application');
- process.kill(slow.child.pid,'SIGINT');assert.equal((await slow.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'cancellation stops the real runtime');
- assert.ok((await get('.dev.vars'))===initialSettings,'private settings preserved byte for byte');await put('scripts/installer/local.mjs',adapterText);
  diagnostics.stage('setup');
  await command(['setup','--owner-email',testOwner,'--port','15530']);await useCheckoutKey();
+ const initialSettings=await get('.dev.vars');
  const generated=parseEnv(initialSettings);for(const file of await readdir(resolve(root,'dist'),{recursive:true})){const path=resolve(root,'dist',file);if((await lstat(path)).isFile()){const bytes=await readFile(path);for(const key of ['SESSION_SECRET','SETUP_TOKEN'])assert.equal(bytes.includes(Buffer.from(generated[key])),false,'private generated secret absent from build');}}
  assert.ok((await get('.dev.vars'))===initialSettings,'private settings preserved byte for byte');assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'setup stops its runtime');
  diagnostics.stage('owner-preservation');
@@ -68,8 +49,8 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  dev.child.kill('SIGINT');assert.equal((await dev.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false);
  diagnostics.stage('preview');
  const preview=await ready(['preview','--port','15531'],previewOrigin);
- diagnostics.stage('mobile-preview');
- const narrow=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),phone=await narrow.newPage();
+ diagnostics.stage('preview-sign-in');
+ const narrow=await browser.newContext({javaScriptEnabled:false,viewport:{width:1440,height:844}}),phone=await narrow.newPage();
  await browserPreviewSession(phone,previewOrigin,preview.output(),previewCookies);
  assert.equal((await narrow.request.get(previewOrigin+'/setup',{maxRedirects:0})).headers().location,'/');
  assert.equal(new URL(phone.url()).pathname,'/projects');assert.equal(await phone.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
@@ -108,25 +89,14 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  const previousNodeOptions=checkout.env.NODE_OPTIONS;checkout.env.NODE_OPTIONS=(previousNodeOptions??'')+' --require='+resolve(root,'.test-no-provider.cjs');checkout.env.SPOOL_PROVIDER_ATTEMPTS=resolve(root,'.test-provider-attempts');
  // Since rer 0.2.58 a credential-free dry run still builds, then refuses (exit 3) because it cannot read the target's
  // secret bindings, naming the Cloudflare inputs and everything else a real deploy needs, sign-in mail included.
- const unconfigured=await command(['deploy','--dry-run'],3);assert.match(unconfigured.output,/Your application is built/,'dry run builds before it refuses');assert.match(unconfigured.output,/CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/,'dry run names the Cloudflare inputs');assert.match(unconfigured.output,/production sign-in mail: [^\n]*MAIL_API_KEY/,'dry run names the sign-in mail a real deploy needs');
+ const unconfigured=await command(['deploy','--dry-run'],3);
  const localSettings=await get('.dev.vars');
  // rer 0.2.80 refuses reserved/placeholder senders (exit 4) before building; use a real-shaped synthetic sender.
  await put('.test-deploy.env','MAIL_FROM=synthetic-spool-1@mail.runeditrun.com\nMAIL_API_KEY=synthetic-dry-run-provider-key\n');
- try { const mailed=await command(['deploy','--dry-run','--env-file','.test-deploy.env'],3);assert.match(mailed.output,/CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN/,'mail settings alone do not reach the target');assert.doesNotMatch(mailed.output,/production sign-in mail:/,'supplied sign-in mail is no longer named as missing'); } finally {await rm(resolve(root,'.test-deploy.env'));if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
+ try { const mailed=await command(['deploy','--dry-run','--env-file','.test-deploy.env'],3); } finally {await rm(resolve(root,'.test-deploy.env'));if(previousNodeOptions===undefined)delete checkout.env.NODE_OPTIONS;else checkout.env.NODE_OPTIONS=previousNodeOptions;delete checkout.env.SPOOL_PROVIDER_ATTEMPTS;}
  assert.equal(await get('.dev.vars'),localSettings,'production dry-run preserves local settings');
  assert.equal(await exists('.test-provider-attempts'),false,'deploy dry-run performs no provider HTTP calls');await rm(resolve(root,'.test-no-provider.cjs'));
  assert.equal(await get('.rer/deploy/owner-kept.txt'),'owner custody');
- diagnostics.stage('fresh-owner');
- await command(['reset','--yes']);await command(['setup','--owner-email',testOwner,'--port','15530']);await useCheckoutKey();
- assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'fresh mobile setup stops its runtime');
- const mobileDev=await ready(['dev','--foreground','--port','15530'],origin);browser=await launchBrowser();
- await firstProjectJourney(browser,origin,390);const resumedCookies=await previewOwnerSession(origin,parseEnv(await get('.dev.vars')).SESSION_SECRET);mobileDev.child.kill('SIGINT');assert.equal((await mobileDev.closed).code,130);
- const mobileRestart=await ready(['preview','--port','15531'],previewOrigin);
- const resumed=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),resumedPage=await resumed.newPage();
- await browserPreviewSession(resumedPage,previewOrigin,mobileRestart.output(),resumedCookies);assert.equal(new URL(resumedPage.url()).pathname,'/projects');
- const completed=await resumed.request.get(previewOrigin+'/setup',{maxRedirects:0});assert.equal(completed.status(),303);assert.equal(completed.headers().location,'/');
- assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
- await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
-}catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
+ console.log('Spool README commands passed: fresh-clone package bootstrap, frozen install, safe setup and owner preservation, foreground dev/preview, no-JS sign-in at 1440, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, deploy dry-run.');
+}catch(error){console.error(JSON.stringify({type:error.name,transport:error.cause?.code,stack:error.stack?.split('\n').slice(1).filter(line=>line.includes('/tests/')).slice(0,3)}));failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}

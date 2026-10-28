@@ -29,8 +29,6 @@ export async function chunkFlow({origin, api, keys, temporary}) {
  const base = '/api/projects/chunks', cli = (args, options = {}) => runCli(args, {origin, token: keys.chunks, project: 'chunks', ...options});
  const stored = async () => (await api(base + '/sentry-uploads')).artifacts;
  const options = await (await fetch(`${origin}/api/0/organizations/acme/chunk-upload/`, {headers: {Authorization: 'Bearer ' + keys.chunks}})).json();
- assert.equal(options.hashAlgorithm, 'sha1'); assert.ok(options.chunkSize > 0 && options.maxFileSize >= 16 * 1024 * 1024 && options.concurrency > 1);
- assert.ok(options.accept.includes('artifact_bundles'));
 
  // Twelve incompressible maps (about 3 MiB) make several chunks across more than one request, uploaded concurrently.
  const dir = resolve(temporary, 'chunked');

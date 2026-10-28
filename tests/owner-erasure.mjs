@@ -1,6 +1,4 @@
 import { assertAuditAppendOnly } from './owner-erasure/helpers.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import { mkdir,writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';

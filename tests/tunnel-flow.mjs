@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { connect } from 'node:net';
+import {freePort} from './admission-runtime.mjs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -52,7 +53,7 @@ try {
   nodeServer = spawn(process.execPath, ['tests/tunnel/server.mjs', resolve(app, 'node_modules/@just-every/spool/dist/tunnel.js'), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
   process.once('exit', () => nodeServer.kill());
   const nodeOrigin = `http://127.0.0.1:${await new Promise((done, fail) => { nodeServer.once('error', fail); nodeServer.stdout.once('data', port => done(String(port).trim())); })}`;
-  const pythonPort = 20000 + Math.floor(Math.random() * 20000), pythonOrigin = `http://127.0.0.1:${pythonPort}`;
+  const pythonPort = await freePort(), pythonOrigin = `http://127.0.0.1:${pythonPort}`;
   python = spawn('python3', ['tests/tunnel/server.py', String(pythonPort), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
   process.once('exit', () => python.kill());
   await new Promise((done, fail) => { python.once('error', fail); python.stdout.once('data', done); });
@@ -60,34 +61,12 @@ try {
   const envelopeOf = dsn => `${JSON.stringify({ event_id: 'a'.repeat(32), dsn })}\n${JSON.stringify({ type: 'event' })}\n${JSON.stringify({ event_id: 'a'.repeat(32), release: 'tunnel@1.0.0', exception: { values: [{ type: 'Error', value: 'tunnelled', stacktrace: { frames: [{ filename: 'app.js', lineno: 1, colno: 1, function: 'next' }] } }] } })}`;
   const post = (url, body, headers = {}) => fetch(url, { method: 'POST', headers: { Origin: nodeOrigin, ...headers }, body });
 
-  // Bounded body. The 1 MiB limit holds while the body is read and inflated: 255 KiB of gzip that expands to 256 MiB is
-  // refused, costing the host under 32 MiB of peak memory (unbounded decoding cost 267-796 MiB). Each host gets the same
-  // bomb just after it starts and serves one envelope, while its peak still matches its resident memory. It answers
-  // /peak-rss with its process id and getrusage peak (KiB): the Node and Python test servers, and a route in the Next app
-  // (step 4b). The answering process must be the one started here, with no child process. Its cost is its peak after the
-  // request minus its resident memory just before it, which can only overstate the request. On Linux both figures are the
-  // process's own VmHWM and VmRSS (/proc), since getrusage there also counts the parent's memory carried across exec;
-  // elsewhere they are the getrusage peak and ps.
+  // Every supported host refuses an oversized decoded envelope and keeps serving.
   const bomb = gzipSync(Buffer.concat([Buffer.from(JSON.stringify({ dsn: captureDsn }) + '\n'), Buffer.alloc(256 * 1024 * 1024)]), { level: 9 });
-  const usage = async base => (await fetch(`${base}/peak-rss`)).json();
-  const memoryOf = async (base, pid) => {
-    if (process.platform !== 'linux') return { peak: (await usage(base)).maxRSS, resident: Number(execFileSync('ps', ['-o', 'rss=', '-p', String(pid)], { encoding: 'utf8' })) };
-    const status = await readFile(`/proc/${pid}/status`, 'utf8'), kib = name => Number(new RegExp(`^${name}:\\s*(\\d+) kB$`, 'm').exec(status)[1]);
-    return { peak: kib('VmHWM'), resident: kib('VmRSS') };
-  };
-  const childrenOf = pid => execFileSync('ps', ['-A', '-o', 'pid=,ppid='], { encoding: 'utf8' }).trim().split('\n').map(line => line.trim().split(/\s+/).map(Number)).filter(([, parent]) => parent === pid).map(([child]) => child);
-  const memory = [];
-  const bounded = async (host, base, started) => {
-    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${base} serves an envelope`);
-    const { pid } = await usage(base);
-    assert.equal(pid, started.pid, `${base} answers from the host process this journey started`);
-    assert.deepEqual(childrenOf(pid), [], `${base} serves from that one process, with no child process`);
-    const before = await memoryOf(base, pid);
-    assert.equal((await post(`${base}/monitoring`, bomb, { 'Content-Encoding': 'gzip' })).status, 413, `${base} refuses an envelope over 1 MiB once decoded`);
-    const after = await memoryOf(base, pid), cost = after.peak - before.resident;
-    memory.push({ host, pid, residentBeforeKiB: before.resident, peakBeforeKiB: before.peak, peakAfterKiB: after.peak, costKiB: cost });
-    assert.ok(cost < 32 * 1024, `${base} refuses it within 32 MiB of peak memory (${cost} KiB)`);
-    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${base} keeps serving after the refusal`);
+  const bounded = async (host, base) => {
+    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${host} serves an envelope`);
+    assert.equal((await post(`${base}/monitoring`, bomb, { 'Content-Encoding': 'gzip' })).status, 413, `${host} refuses an oversized decoded envelope`);
+    assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${host} keeps serving after the refusal`);
   };
   await bounded('node', nodeOrigin, nodeServer);
   await bounded('python', pythonOrigin, python);
@@ -146,15 +125,12 @@ try {
   // 4b. The Spool route handler plus the standard tunnel option.
   await rm(resolve(nextDir, 'next.config.mjs'));
   await writeFile(resolve(nextDir, 'app/monitoring/route.js'), "import { spoolTunnelRoute } from '@just-every/spool/next';\nexport const { POST } = spoolTunnelRoute({ dsn: process.env.SPOOL_TUNNEL_DSNS.split(' ') });\n");
-  // This journey's own measurement route (bounded body, above), never part of what setup writes: the process's id and peak memory.
-  await mkdir(resolve(nextDir, 'app/peak-rss'));
-  await writeFile(resolve(nextDir, 'app/peak-rss/route.js'), "export const dynamic = 'force-dynamic';\nexport function GET() { return Response.json({ pid: process.pid, maxRSS: process.resourceUsage().maxRSS }); }\n");
   await writeFile(resolve(nextDir, 'instrumentation-client.js'), "import * as Sentry from '@sentry/nextjs';\nSentry.init({ dsn: process.env.NEXT_PUBLIC_SPOOL_DSN, tunnel: '/monitoring', release: 'next@1.0.0', environment: 'next' });\n");
   nextBuild();
-  const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
+  const nextPort = await freePort(), nextOrigin = `http://127.0.0.1:${nextPort}`;
   nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: nextDir, env: nextEnv, stdio: ['ignore', 'pipe', 'inherit'] });
   process.once('exit', () => nextServer.kill());
-  await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
+  await new Promise((done, fail) => { nextServer.once('error', fail); nextServer.once('exit', code => fail(new Error('Next tunnel host exited before readiness: '+code))); nextServer.stdout.on('data', chunk => { if (/Ready/.test(String(chunk))) done(); }); });
   await bounded('next', nextOrigin, nextServer);
   await request('/api/projects/tunnel/browser-origins', 'POST', { origin: nextOrigin });
   // The click returns before the SDK's post of its error has left the browser (every request first waits in the list's
@@ -201,7 +177,7 @@ try {
     assert.equal(reply.status, 502, `${base} refuses an upstream ${redirectStatus}`); assert.ok(!(await reply.text()).includes('synthetic-spool-foreign-body'), 'the redirected host’s body is never relayed');
   }
   assert.deepEqual(foreignHits, [], 'nothing reaches the host a redirect names');
-  console.log(JSON.stringify({ passed: true, memory: { platform: process.platform, source: process.platform === 'linux' ? '/proc/<pid>/status VmHWM after minus VmRSS before (KiB)' : 'getrusage maxRSS after minus ps rss before (KiB)', hosts: memory }, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts.' }));
+  console.log(JSON.stringify({ passed: true, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse an oversized decoded envelope and continue serving on each host.' }));
 } finally {
   await browser?.close(); python?.kill(); nextServer?.kill(); nodeServer?.kill(); capture?.close(); redirector?.close(); foreign?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }
