@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {admissionRuntime} from './admission-runtime.mjs';
-import {testOwner} from './auth.mjs';
+import {testOwner,signIn} from './auth.mjs';
 import {signJws,seconds,accessToken,policyEnvelope,autonomousPolicy,heldPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 // These remain assertions, not skipped tests. Re-pin and remove a marker only
@@ -160,7 +160,17 @@ try {
  pending(!declared.points.some(point=>point.id==='BASE-AGENT-005.surface.spool.credentials.update.coverage'&&!point.ok),'2026-10-28.revoke-only-conformance');
  const audit=await person('/agents/api/audit');assert.equal(audit.differs_from_policy,0);assert.ok(audit.rows.some(row=>row.outcome==='done'));
  const events=done(await tool('spool.events.list',{}));assert.ok(events.events.some(row=>row.type==='spool.repairs.record.changed'));
- console.log('PASS BASE-AGENT-001/004/005/006/007/008/009/010/011/012 native Spool signed owner/settings, Business ID, native packet, inert proposal, one-effect replay, conflict, repair Unknown, resource, project key, held summary, named approval, Pause, audit and events.');
+ // A private archive retains native preparer/approver facts through the public
+ // restore lifecycle. Its archived authority cannot authorize a new native ID.
+ const archive=await app.call('/api/archive',undefined,{Cookie:cookie});assert.equal(archive.status,200);const archiveText=await archive.text();
+ const restored=await admissionRuntime();
+ try {const restoreCookie=await signIn(restored.origin,{choosePolicy:false});
+  const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoreCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archiveText});
+  const answer=await response.json();assert.equal(response.status,200,answer.code??answer.error);assert.equal(answer.restored,true);
+  const retained=(await restored.DB.prepare("SELECT detail FROM audit WHERE kind='repair_recorded'").first()).detail;
+  assert.match(retained,/Agent door conformance for Riley Triage/);
+ }finally{await restored.close();}
+ console.log('PASS BASE-AGENT-001/004/005/006/007/008/009/010/011/012 native Spool signed owner/settings, Business ID, native packet, inert proposal, one-effect replay, conflict, repair Unknown, resource, project key, held summary, named approval, Pause, audit, events and native-attribution archive restore.');
  // A dated pending assertion stays red until Base provides its native target contract.
  pending(audit.rows.some(row=>row.tool==='spool.repairs.record'&&row.target?.id===repair.id),'2026-10-28.native-target-attribution');
  for(const message of pendingFailures)console.log(message);

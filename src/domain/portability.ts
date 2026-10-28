@@ -32,11 +32,12 @@ import { shortIdTables } from './short-ids/archive';
 import { commitTables } from './commits/archive';
 import { sentryCliTables, sentryCliExcludedTables } from './sentry-cli/archive';
 import { ensureShortIds } from './short-ids/assign';
+import {attributionValidationRows} from './agent-door/archive-attribution';
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
   const rows=Object.fromEntries(await Promise.all([...Object.keys(tables),...alertArchiveTables,...repairArchiveTables,...erasureArchiveTables,...executionArchiveTables].map(async table => [table, await read(table)])));
-  const data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateErasureArchive(validateExecutionArchive(rows)))),false,rows.alert_rules);
+  const data=await validateArchiveRows(validateAlertArchive(validateRepairArchive(validateErasureArchive(validateExecutionArchive(attributionValidationRows(rows))))),false,rows.alert_rules);
   await fenceLegacyOccurrences(db, manifest, data, later);
   return true;
  };
