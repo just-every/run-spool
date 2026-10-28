@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {expect} from '@playwright/test';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
 import {mkdir} from 'node:fs/promises';
@@ -59,6 +60,30 @@ async function browserMembers(owner,projects) {
   const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
   await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
   await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
+  // Stored grants contain member/created metadata; writes must send only the input shape.
+  await members.getByRole('button',{name:'Details: synthetic-spool-6 access',exact:true}).click();
+  const dialog=page.getByRole('dialog'),role=dialog.getByLabel(/^Organization role/),secondProject=dialog.getByLabel(new RegExp('^'+projects[1].name));
+  async function saved(select,value) {
+   const pending=page.waitForResponse(r=>new URL(r.url()).pathname.startsWith(organization+'/members/')&&r.request().method()==='PUT');
+   await select.selectOption(value);const response=await pending;
+   assert.equal(response.status(),200,'the real Members request saves');
+   for(const grant of response.request().postDataJSON().grants)assert.deepEqual(Object.keys(grant).sort(),['project','role']);
+   await expect(select).toHaveValue(value);
+   await expect(select).toBeEnabled();
+  }
+  await saved(role,'member');
+  await saved(secondProject,'maintainer');
+  // A real intervening update makes this dialog stale: no mocked failure door.
+  const data=await owner.json(organization),member=data.members.find(row=>row.email==='synthetic-spool-6@example.test');
+  const grants=data.grants.filter(row=>row.member===member.id).map(({project,role})=>({project,role}));
+  await owner.json(organization+'/members/'+member.id,'PUT',{version:member.version,role:member.role,grants});
+  for(const [select,value,stored] of [[role,'read-only','member'],[secondProject,'read-only','maintainer']]) {
+   const pending=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/members/'+member.id&&r.request().method()==='PUT');
+   await select.selectOption(value);assert.equal((await pending).status(),409,'stale save is refused by server validation');
+   await expect(select).toHaveValue(stored,'a refused save restores the stored selection');
+   await expect(select).toBeEnabled();
+  }
+  await dialog.getByRole('button',{name:'Close details',exact:true}).click();
   await members.locator('summary').filter({hasText:/^Service accounts$/}).click();
   const services=members.locator('form').filter({has:page.getByLabel('Service account name',{exact:true})});
   await services.getByLabel('Service account name',{exact:true}).fill('synthetic-spool-ui-service');
@@ -360,13 +385,44 @@ export async function teamFlow() {
   for(const row of audit.rows){assert.match(row.actor_label,/^audit:[a-f0-9]{32}$/);assert.match(row.subject_label,/^audit:[a-f0-9]{32}$/)}
   for(const value of [testOwner,privateIdentity,...identities.flatMap(row=>[row.email,row.name]),...serviceKeys])assert.ok(!JSON.stringify(audit).includes(value),'safe audit facts omit private identities, names and keys');
   // Transfer uses an accepted native person and fresh owner proof; unrelated contributors remain active.
+  const retired=await admin.json(projectRoot(projects[0])+'/keys','POST',{kind:'deploy'});
+  const beforeNarrowing=(await owner.json(organization)).members.find(row=>row.id===admin.member.id);
+  await owner.json(organization+'/members/'+beforeNarrowing.id,'PUT',{version:beforeNarrowing.version,role:'read-only',grants:[]});
+  await denied(owner.req(projectRoot(projects[0])+'/releases','POST',{name:'synthetic-retired-before',build:'web'},{Cookie:'',Authorization:'Bearer '+retired.key}),'demotion below mint authority retires the key');
+  await owner.json(organization+'/members/'+beforeNarrowing.id,'PUT',{version:beforeNarrowing.version+1,role:'admin',grants:[]});
   const successor=(await owner.json(organization)).members.find(row=>row.id===admin.member.id);
   await denied(first.req(organization+'/transfer','POST',{member:successor.id,version:successor.version}),'a project maintainer cannot transfer installation ownership');
+  const transferKeys={};
+  for(const kind of ['agent','deploy'])transferKeys[kind]=await owner.json(projectRoot(projects[0])+'/keys','POST',{kind});
+  const successorKey=await admin.json(projectRoot(projects[0])+'/keys','POST',{kind:'deploy'});
+  async function captureAfterTransfer(stage) {
+   const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
+   assert.equal(await status(owner.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-'+stage),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),201,'the SAME native capture key keeps authority across transfer');
+   assert.equal(await status(owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:(stage==='before'?'b':'c').repeat(32),release:'synthetic-spool-1',exception:{values:[{type:'SyntheticTransfer',value:'synthetic-transfer-'+stage}]}},{Cookie:''})),200,'the SAME Sentry DSN keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/releases','POST',{name:'synthetic-transfer-'+stage,build:'web'},{Cookie:'',Authorization:'Bearer '+transferKeys.deploy.key})),201,'the SAME deploy key keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/issues/'+issues[0].id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+transferKeys.agent.key})),200,'the SAME agent key keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/releases','POST',{name:'synthetic-successor-'+stage,build:'web'},{Cookie:'',Authorization:'Bearer '+successorKey.key})),201,'the promoted admin keeps existing keys too');
+  }
+  await captureAfterTransfer('before');
   await owner.json(organization+'/transfer','POST',{member:successor.id,version:successor.version});
+  await captureAfterTransfer('after');
+  await denied(owner.req(projectRoot(projects[0])+'/releases','POST',{name:'synthetic-retired-after',build:'web'},{Cookie:'',Authorization:'Bearer '+retired.key}),'restoring authority and transferring never revives a retired credential');
+  await denied(admin.req('/auth/session'),'handoff also fences the successor session');
   await denied(owner.req('/auth/session'),'handoff fences the predecessor session');
   const nextCookie=await emailSignIn(origin,identities[4].email),next={...client(origin,nextCookie),origin,cookie:nextCookie};
   const session=await next.json('/auth/session');assert.equal(session.operator.role,'owner');
+  assert.ok((await next.json(projectRoot(projects[0])+'/keys')).find(row=>row.hash===retired.hash)?.revoked,'the retired credential is listed Revoked');
   assert.ok((await first.json('/api/projects')).some(row=>row.id===projects[0].id),'owner transfer preserves other active members');
+  const former=(await next.json(organization)).members.find(row=>row.role==='admin'&&row.email===testOwner);
+  await next.json(organization+'/members/'+former.id,'DELETE',{version:former.version});
+  const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
+  assert.equal(await status(next.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-removed'),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),401,'removing the former owner stops that SAME capture key');
+  assert.equal(await status(next.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:'d'.repeat(32),message:'synthetic-transfer-removed'},{Cookie:''})),401,'removal stops the SAME Sentry DSN');
+  for(const [kind,path,method,value] of [['deploy',base+'/releases','POST',{name:'synthetic-transfer-removed',build:'web'}],['agent',base+'/issues/'+issues[0].id+'/packet','GET',undefined]])await denied(next.req(path,method,value,{Cookie:'',Authorization:'Bearer '+transferKeys[kind].key}),'removal still retires transferred '+kind+' keys');
+  const listed=await next.json(base+'/keys');
+  for(const hash of [transferKeys.agent.hash,transferKeys.deploy.hash])assert.ok(listed.find(row=>row.hash===hash)?.revoked,'stopped keys are shown revoked');
+  const captureKeys=(await next.json(base+'/outcomes')).captureKeys;
+  assert.ok(captureKeys.total>0);assert.equal(captureKeys.active,0,'Capture distinguishes stopped credentials from earlier successful receipts');
   await inertTeamArchive(next,projects,first.cookie);
   console.log('[TEAM-001] native invitations and magic sign-in, simultaneous scoped triage, stale revision refusal, maintainer policy, read-only identity projection, billing/admin limits, member deployments, member/service revocation, safe audit and owner transfer passed');
  } finally {await worker.close()}

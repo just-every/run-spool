@@ -1,3 +1,4 @@
+import { mintedByCurrentPerson } from '../credential-fence';
 import { Hono } from 'hono';
 import { ownerSession, ownerWrite, operatorAuth } from '../../auth/session.server';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
@@ -74,6 +75,11 @@ memberRoutes.post('/transfer',async c=>{
  const { auditedBatch }=await import('../audit/context');
  await auditedBatch(c.env.DB,[authorityGuard(c.env.DB,session),
   check(c.env.DB,"EXISTS(SELECT 1 FROM spool_members m JOIN oa_operators o ON o.id=m.operator_id WHERE m.id=? AND m.version=? AND m.state='active' AND o.status='active' AND o.role='member' AND o.version=?)",target.id,expected,target.operator_version),
+  // Carry only currently valid keys across this authority-preserving role swap.
+  // Old sessions still lose their version fence; stale or revoked keys never revive.
+  s(c.env.DB,`UPDATE credentials SET minted_version=minted_version+1 WHERE revoked IS NULL
+   AND ((minted_by=? AND minted_version=?) OR (minted_by=? AND minted_version=?))
+   AND ${mintedByCurrentPerson}`,session.operator.id,session.operator.version,target.operator_id,target.operator_version),
   s(c.env.DB,"UPDATE oa_operators SET role='owner' WHERE id=?",target.operator_id),s(c.env.DB,"UPDATE oa_operators SET role='member' WHERE id=?",session.operator.id),
   s(c.env.DB,"UPDATE spool_members SET role='admin',version=version+1 WHERE operator_id=?",session.operator.id),auditCommit(c.env.DB),s(c.env.DB,'DELETE FROM spool_authority_guards')]);
  return c.json({transferred:true,signInRequired:true});
