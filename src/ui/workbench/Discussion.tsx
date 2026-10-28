@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { date, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
-type Data=DiscussionData&{activity:ActivityRow[];next:string|null};
+type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
 export function Discussion({project,issue,refresh,request,onChanged}:{project:string;issue:string;refresh:unknown;request:Request;onChanged?:()=>void}) {
  const base=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`;
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<string|null>(null),[editBody,setEditBody]=useState(''),[busy,setBusy]=useState(false);
@@ -37,6 +37,7 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
     <p className="muted">Mention a project member with @name or the part of their email before @. Up to 4,000 characters per comment.</p>
     <button className="highlight-button" disabled={busy||!body.trim()||data.comments.length>=data.limit}>Post comment</button>
    </form>}
+   <p>{data.recurrence.sameRelease} recurred in resolved release · {data.recurrence.olderRelease} older-release repeats</p>
    <h3>Activity</h3>
    {data.activity.length?<ol className="timeline">{data.activity.map(row=>{
     const comment=row.kind==='comment_added'?data.comments.find(comment=>comment.id===row.detail.comment):null;

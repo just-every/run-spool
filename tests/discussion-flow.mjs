@@ -1,3 +1,4 @@
+import {legacyMailRows} from './legacy-mail.mjs';
 import assert from 'node:assert/strict';
 
 const status=async pending=>{const response=await pending;await response.arrayBuffer();return response.status;};
@@ -6,6 +7,7 @@ const denied=async pending=>assert.ok([401,403,404].includes(await status(pendin
 /** Extends the existing team journey after its shared-project grant change. */
 export async function discussionFlow(owner,first,second,reader,projects,issues) {
  const root='/api/projects/'+projects[0].id,base=root+'/issues/'+issues[0].id;
+ const outboxBefore=await legacyMailRows(owner.origin);
  const read=()=>first.json(base+'/discussion');
  let current=await read();
  await denied(reader.req(base+'/priority','PUT',{priority:'low',revision:current.revision}));
@@ -56,5 +58,6 @@ export async function discussionFlow(owner,first,second,reader,projects,issues) 
  current=await read();assert.ok(!current.comments.some(row=>row.id===created.id),'an administrator can delete a comment');
  const packet=JSON.stringify(await first.json(base+'/packet'));
  assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
+ assert.deepEqual(await legacyMailRows(owner.origin),outboxBefore,'discussion, mentions and subscriptions send nothing');
  console.log('[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed');
 }

@@ -33,6 +33,7 @@ discussionRoutes.get('/:project/issues/:issue/discussion',async c=>{
   comments:comments.map(row=>({id:row.id,body:scrubText(row.body,4000),version:row.version,created:row.created,updated:row.updated,
    author:row.display_name?scrub(row.display_name):'Former member',canEdit:canWrite(session)&&(row.operator_id===session.operator.id||canModerate(session)),mentions:JSON.parse(row.mentions)})),
   subscription:await subscription(db,project,issue.id,session.operator.id)};
+ const recurrence=await s(db,"SELECT COALESCE(SUM(CASE WHEN kind='resolved_release_recurrence' THEN json_extract(detail,'$.count') ELSE 0 END),0) sameRelease,COALESCE(SUM(CASE WHEN kind='older_release_recurrence' THEN json_extract(detail,'$.count') ELSE 0 END),0) olderRelease FROM issue_activity WHERE project=? AND issue=?",project,issue.id).first();
  const signature=await hash(JSON.stringify(['issue-activity-v1',project,issue.id]));
  let cursor:{signature:string;created:number;id:string}|null=null;
  if(c.req.query('cursor')) {
@@ -41,7 +42,7 @@ discussionRoutes.get('/:project/issues/:issue/discussion',async c=>{
  }
  const rows=(await s(db,`SELECT * FROM issue_activity WHERE project=? AND issue=?${cursor?' AND (created,id)<(?,?)':''} ORDER BY created DESC,id DESC LIMIT 51`,project,issue.id,...cursor?[cursor.created,cursor.id]:[]).all<any>()).results;
  const activityRows=rows.slice(0,50).map(row=>({...row,detail:JSON.parse(scrubText(row.detail,32768))})),last=rows[49];
- return c.json({...data,activity:activityRows,next:rows.length>50?btoa(JSON.stringify({signature,created:last.created,id:last.id})):null});
+ return c.json({...data,recurrence,activity:activityRows,next:rows.length>50?btoa(JSON.stringify({signature,created:last.created,id:last.id})):null});
 });
 
 discussionRoutes.post('/:project/issues/:issue/comments',async c=>{

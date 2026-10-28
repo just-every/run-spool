@@ -4973,7 +4973,7 @@
       "executable": false
     },
     "src/domain/discussion/routes.ts": {
-      "sha256": "e285067efd71c066081782f1bfbb217f38c5a521a8a8dc3cfd2515bda65290cc",
+      "sha256": "d94913d0c2e32ffadfffaabc8f941a517569001430233da51a9043b2e5fe3215",
       "executable": false
     },
     "src/domain/erasure/archive.ts": {
@@ -4997,11 +4997,11 @@
       "executable": false
     },
     "src/domain/erasure/owner-capture.ts": {
-      "sha256": "70654cde1496b8a37926d196a1b28d07e664a62e7c53b0f8e4957785c20563e3",
+      "sha256": "4f42ccc789126723f3f0224dc77f03d6f2381e5295c4139a2fd72f8397ee1380",
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
-      "sha256": "2e948e6a1b1e486945216982ec69736e058f59d14bb35d80948d0bfe7f6b680b",
+      "sha256": "2838a7f655370c9bbed81ced1d4c4e8f73790c10b8939e14456c45ac14713bbd",
       "executable": false
     },
     "src/domain/erasure/owner-operation.ts": {
@@ -8129,7 +8129,7 @@
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
-      "sha256": "2948ca317d4b59ccb5b542601dbf6a2fae44be550c57897964d3248b8fcd7041",
+      "sha256": "08381aa2c829fef56745f4c8221e0d164afde7f9b3bcd0abed665d3e2b2712ea",
       "executable": false
     },
     "src/ui/workbench/EmptyCapture.tsx": {
@@ -8553,7 +8553,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "1760be849032a49872a69162d7a548f67a21b80b457398ef5838b0d195900fcc",
+      "sha256": "eee67c05ee3a0a20afac422552a686c7b6ea60566778e7fddef4baef16b11930",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
