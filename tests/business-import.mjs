@@ -173,7 +173,9 @@ try {
  const initial=await ownerJson(settingsPath);
  assert.equal(initial.configured,true);
  assert.equal(initial.enabled,false);
- assert.deepEqual(initial.keys,[{kid,revoked:false}]);
+ assert.deepEqual(initial.keys.map(({kid,revoked})=>({kid,revoked})),[{kid,revoked:false}]);
+ assert.equal(initial.keys[0].name,null);assert.equal(initial.keys[0].createdAt,null);
+ for(const code of [initial.keys[0].nameReasonCode,initial.keys[0].createdAtReasonCode])assert.ok(initial.reasonLabels[code],'missing trust metadata has a renderable reason');
  assert.deepEqual(initial.history,[]);
  assert.equal((await json(await doorRequest('uploads',namespace,{}),404)).error,'not_found');
  assert.equal((await ownerJson(settingsPath,'POST',{enabled:true})).enabled,true);
@@ -294,6 +296,9 @@ try {
  assert.equal(history.approvedAt,approval.approvedAt);
  assert.equal(history.state,'completed');
  assert.equal(history.caption,status.caption);
+ assert.deepEqual(history.counts,planned.counts);
+ assert.equal(history.organization,'fixture-org');
+ assert.equal(history.undo.available,true);
  assert.match(history.caption,/approved via Business by/);
  // Imported Sentry history is the vendor's, never counted as created or received in Spool.
  assert.deepEqual(await cutoverRead(epoch),{...live,events_since:1,created_since:{issues:1,events:1}});
@@ -366,7 +371,9 @@ try {
  assert.ok(operatorHistory[0].caption.includes(testOwner));
  assert.equal(operatorHistory[0].state,'undone');
  await ownerJson(settingsPath,'POST',{enabled:true});
- await conformance(async(action,body,review)=>{bytes=variant(3);return doorRequest(action,namespace,body,action==='apply'?review:{})},variant(3));
+ await conformance(async(action,body,review)=>{bytes=variant(3);return doorRequest(action,'sentry',body,action==='apply'?review:{})},variant(3));
+ const vendorHistory=(await ownerJson(settingsPath)).history.find(row=>row.namespace==='sentry');
+ assert.equal(vendorHistory.organization,'fixture-org','the vendor namespace reads its organization from the retained manifest');
 
  // Project erasure withdraws the door's duplicate raw custody as well as kit originals.
  // The tool's archive: the exact uploaded bytes, kept apart from plan and catch-up, test-restored with no native write.
@@ -610,7 +617,7 @@ try {
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[]});
  const revoked=await ownerJson(settingsPath);
  assert.equal(revoked.enabled,true);
- assert.deepEqual(revoked.keys,[{kid,revoked:true}],'revocation survives later settings writes and re-enablement');
+ assert.deepEqual(revoked.keys.map(({kid,revoked})=>({kid,revoked})),[{kid,revoked:true}],'revocation survives later settings writes and re-enablement');
  const refused=await json(await doorRequest('uploads',namespace,{}),403);
  assert.equal(refused.error,'grant_replayed_revoked_or_expired','fresh correctly signed grants from a revoked key fail closed');
  assert.equal((await json(await cutoverRequest({since:epoch},await rerGrant()),403)).error,'invalid_grant','the cutover read refuses a revoked key');
