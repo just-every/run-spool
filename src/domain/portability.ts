@@ -174,6 +174,12 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
+// Pre-adoption archives contain no policy, people mapping or agent custody.
+// Declare this exact additive inventory; unknown tables still fail validation.
+const agentDoorTables=['agent_door_state','agent_door_agents','agent_door_audit','agent_door_calls','agent_door_approvals','agent_door_reviews','agent_door_events','agent_door_usage','bs_settings','bs_overrides','bs_logo','bs_team','bs_audit','bs_assert','spool_agent_activity','spool_agent_rule_custody','spool_agent_queue_outcomes','spool_business_owner_binding','spool_agent_settings_custody'];
+const agentDoorMigrations=['0081_agent_door.sql','0082_business_settings.sql','0083_business_people.sql','0084_agent_activity.sql','0085_agent_queue_custody.sql','0086_business_owner_binding.sql','0087_agent_settings_custody.sql'];
+for(const later of laterTables){later.tables.push(...agentDoorTables);later.migrations.push(...agentDoorMigrations)}
+laterTables.unshift({tables:agentDoorTables,migrations:agentDoorMigrations});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -224,6 +230,9 @@ async function legacyRecords(input: any, value: unknown) {
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
 }
 async function restoreRows(service:any,data:Record<string,any[]>,input:any){
+ // Native v1/v2 and the exact prior Base JSONL formats have none of these
+ // records. Keep every original row and initialize only the declared additions.
+ data={...Object.fromEntries(agentDoorTables.map(table=>[table,[]])),...data};
  const manifest={...input,tables:input.tables.map((table:any)=>({...table,count:data[table.name].length}))};
  const parts: any[] = []; let items: any[] = [], size = 0;
  for (const table of manifest.tables) for (const [index, row] of data[table.name].entries()) {

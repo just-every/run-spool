@@ -1,4 +1,7 @@
 const project='door-fixture';
+// PENDING 2026-10-28.github-conformance-binding: the pinned verifier's owner
+// aliases cannot supply native JSON/PKCS8 connection bindings or per-phase
+// machine triggers. Provider steps below remain mandatory and fail closed.
 const from=(step,pointer)=>({$from:step,pointer});
 const issue=from('issues','/items/0/id'),revision=from('packet','/issue/revision');
 const step=(id,tool,args,classes=['standard'])=>({id,tool:'spool.'+tool,args:{project,...args},expect:classes.map(cls=>({class:cls,facts:{measure:1}}))});
