@@ -51,14 +51,14 @@ export const portabilityPolicy = {
 // Current archives carry the safe audit chronology as a payload. Previous
 // formats have none; restoring one uses the payload-free policy, and the
 // restore commit gives its journal rows legacy facts instead.
-export async function portability(db: D1Database, safeAudit = true) {
+export async function portability(db: D1Database, safeAudit = true, migrations?: () => Promise<any>) {
  const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
- const service = await createPortability({ db, policy });
+ const service = await createPortability({ db, policy, migrations });
  return { ...service, db, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
-   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
+   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) }, migrations }) : service;
    return checked.imports.finalize(id, options);
   },
  } };

@@ -197,7 +197,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$NODE_AUTH_TOKEN" ]]; then
-            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the org secret's Repository access (Settings > Secrets and variables > Actions > NPM_TOKEN)."
+            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the Repository access of the org secret (Settings > Secrets and variables > Actions > NPM_TOKEN)."
             exit 1
           fi
           cd "$RUNNER_TEMP/sdk-dist"

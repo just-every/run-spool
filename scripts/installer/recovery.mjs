@@ -43,7 +43,7 @@ function namespaceMetadata(db) {
  if (db.prepare('SELECT 1 FROM _cf_ALARM LIMIT 1').get()) throw refusal();
 }
 
-export async function inspectExistingState({ root, input = {}, vars = {}, allowPlatformLedger = false }) {
+export async function inspectExistingState({ root, input = {}, vars = {}, allowPlatformLedger = false, inspectDatabase }) {
  const directory = join(root, '.wrangler/state/v3/d1/miniflare-D1DatabaseObject');
  let parent = root;
  for (const part of ['.wrangler','state','v3','d1','miniflare-D1DatabaseObject']) {
@@ -64,7 +64,7 @@ export async function inspectExistingState({ root, input = {}, vars = {}, allowP
   const path = join(directory, file.name), info = await lstat(path);
   if (!file.isFile() || info.isSymbolicLink() || info.nlink !== 1 || info.uid !== process.getuid()) throw refusal();
   if (file.name !== 'metadata.sqlite' && file.name !== applicationFile()) throw refusal();
-  let db, snapshot;
+  let db, snapshot, checked = false;
   try {
    let inspectPath = path;
    const header = Buffer.alloc(20), handle = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
@@ -108,8 +108,10 @@ export async function inspectExistingState({ root, input = {}, vars = {}, allowP
    if (owners.length > 1 || (owners.length && email && owners[0].email !== email.trim().toLowerCase())) {
     throw new LocalStateSafetyError('Setup identity conflicts with the existing owner. Existing settings and data were kept. Sign in as that owner.');
    }
+   checked = true;
   } catch (error) { if (error instanceof LocalStateSafetyError) throw error; throw refusal(); }
-  finally { try { db?.close(); } finally { if (snapshot) await rm(snapshot, { recursive: true, force: true }); } }
+  // A caller's own read of the checked application database keeps its refusal.
+  finally { try { if (checked) await inspectDatabase?.(db); } finally { try { db?.close(); } finally { if (snapshot) await rm(snapshot, { recursive: true, force: true }); } } }
  }
 }
 export async function retirePassword({ root }) {

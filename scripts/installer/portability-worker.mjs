@@ -4,7 +4,10 @@ import { dirname, join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
-import { getPlatformProxy } from 'wrangler';
+import { getPlatformProxy, unstable_splitSqlQuery } from 'wrangler';
+import { appliedMigrations, platformMigrationDeclaration } from '@runeditrun/rer/portability-migrations';
+import { migrationReplay } from '../../src/modules/portability/migration-history.mjs';
+import { requireEmptyTables } from '../../src/modules/portability/restore-empty.mjs';
 import { readArchive, PortabilityError } from '../../src/modules/portability/index.mjs';
 
 // Binding and filesystem adapter only. The bundled product module below is the
@@ -18,9 +21,14 @@ async function run(direction, path, journal) {
  try {
   const policy = join(work,'policy.mjs');
   await build({entryPoints:[join(root,'src/domain/portability.ts')],outfile:policy,bundle:true,format:'esm',platform:'node',logLevel:'silent'});
-  const { portability, archiveStream, restoreStream, laterJournalOf } = await import(pathToFileURL(policy).href);
+  const { portability, portabilityPolicy, archiveStream, restoreStream, laterJournalOf } = await import(pathToFileURL(policy).href);
   proxy = await getPlatformProxy({configPath:join(root,'wrangler.jsonc'),persist:{path:join(root,'.wrangler/state/v3')},remoteBindings:false});
-  const service = await portability(proxy.env.DB);
+  // Replay of the destination's applied migrations: maps Platform ledger names and
+  // lets native restore replay dependent backfills for an older archive.
+  const declaration = platformMigrationDeclaration();
+  const migrations = async () => migrationReplay(await appliedMigrations(root, proxy.env.DB, 'DB', declaration, unstable_splitSqlQuery), portabilityPolicy, declaration);
+  if (direction === 'import') await requireEmptyTables({db:proxy.env.DB,policy:portabilityPolicy,migrations});
+  const service = await portability(proxy.env.DB, true, migrations);
   if (direction === 'import') {
    // --journal: a later archive of the same installation whose erasure journal also fences this restore.
    let later;
