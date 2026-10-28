@@ -1,6 +1,8 @@
+import type { NativeAuthority } from '../agent-door/native-authority';
+import { agentAuthority } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { boundedText, checkInput, REPAIR_FACTS, repairLink, revision, type RepairFact } from './input';
@@ -9,7 +11,7 @@ import { issueRepairs, repairView } from './view';
 // Owner-recorded repair history. Recording never sends mail or webhooks, never
 // creates alert rows and never starts work: every write touches only repairs,
 // repair_checks and the audit table.
-const routes = new Hono<{ Bindings: Bindings; Variables: { repairSession: OwnerSession } }>();
+const routes = new Hono<{ Bindings: Bindings; Variables: { repairSession: NativeAuthority } }>();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
  s(db, `INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1`, crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
@@ -53,7 +55,7 @@ routes.post('/', async c => {
  const events = (await s(c.env.DB, 'SELECT id FROM events WHERE project=? AND issue=? ORDER BY received DESC,id DESC LIMIT 10', project, issue.id).all<any>()).results.map(row => row.id);
  try {
   await write(c,[
-   s(c.env.DB, 'INSERT INTO repairs(id,project,issue,snapshot_revision,snapshot_events,snapshot_release_seq,link,note,revision,created,updated) VALUES(?,?,?,?,?,?,?,?,1,?,?)', id, project, issue.id, issue.revision, JSON.stringify(events), issue.latest_release_seq ?? 0, link, note, time, time),
+   s(c.env.DB, 'INSERT INTO repairs(id,project,issue,snapshot_revision,snapshot_events,snapshot_release_seq,link,note,revision,created,updated,recorded_by) VALUES(?,?,?,?,?,?,?,?,1,?,?,?)', id, project, issue.id, issue.revision, JSON.stringify(events), issue.latest_release_seq ?? 0, link, note, time, time,agentAuthority(c.req.raw)?.context.actor.label??'owner'),
    audit(c.env.DB, project, 'repair_recorded', { repair: id, issue: issue.id }, time),
   ]);
  } catch (error) { const refused = budget(error, c); if (refused) return refused; throw error; }

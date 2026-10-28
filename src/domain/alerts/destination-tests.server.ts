@@ -1,3 +1,4 @@
+import type { NativeAuthority } from '../agent-door/native-authority';
 import { savedSlack } from './slack-destinations.server';
 import { sendSlack } from './slack.server';
 import {auditCommit} from '../audit/context';
@@ -15,7 +16,7 @@ export async function requireReviewedTest(env:AlertEnvironment,project:string,id
  if(!await s(env.DB,`SELECT 1 FROM alert_destination_tests WHERE project=? AND destination=? AND fingerprint=? AND state='passing' AND reviewed_at IS NOT NULL`,project,id,hash).first())throw new Error('Test this destination and review its passing result before enabling');
  return s(env.DB,`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM alert_destination_tests WHERE project=? AND destination=? AND fingerprint=? AND state='passing' AND reviewed_at IS NOT NULL) THEN 1 ELSE 0 END`,project,id,hash);
 }
-export async function testDestination(env:AlertEnvironment,session:OwnerSession,project:string,id:string){
+export async function testDestination(env:AlertEnvironment,session:NativeAuthority,project:string,id:string){
  const saved=await s(env.DB,'SELECT 1 FROM alert_destinations WHERE project=? AND id=?',project,id).first();
  const {destinations}=await import('./destinations.server');const channel=saved?'mail':await savedSlack(env,project,id)?'webhook':destinations(env).find(d=>d.id===id&&d.project===project)?.channel;
  if(!channel)throw new Error('Destination not found');
@@ -43,7 +44,7 @@ export async function testDestination(env:AlertEnvironment,session:OwnerSession,
  await ownerBatch(env.DB,session,[s(env.DB,'UPDATE alert_destination_tests SET state=?,detail=? WHERE project=? AND destination=? AND id=?',state,detail,project,id,testId),auditCommit(env.DB,'changes()>0')]);
  return {id:testId,state,message:detail};
 }
-export async function reviewTest(env:AlertEnvironment,session:OwnerSession,project:string,id:string,testId:string){
+export async function reviewTest(env:AlertEnvironment,session:NativeAuthority,project:string,id:string,testId:string){
  const result=await ownerBatch(env.DB,session,[s(env.DB,`UPDATE alert_destination_tests SET reviewed_at=? WHERE project=? AND destination=? AND id=? AND state='passing' RETURNING id`,Date.now(),project,id,testId),auditCommit(env.DB,'changes()>0')]);
  if(!result[0].results.length)throw new Error('A current passing test is required');return {reviewed:true};
 }

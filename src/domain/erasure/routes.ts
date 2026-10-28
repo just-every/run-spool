@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { runtimeBindings, type Bindings } from '../../auth/bindings';
 import { ErasureError } from '../../modules/erasure/index.mjs';
 import { hash } from '../privacy';
@@ -17,7 +17,7 @@ async function guard(c: any, next: () => Promise<void>) {
  const bearer = /^Bearer\s+(\S+)$/i.exec(c.req.header('authorization') ?? '')?.[1];
  if (bearer && await env.DB.prepare('SELECT 1 FROM credentials WHERE hash=?').bind(await hash(bearer)).first()) return deniedResponse(c.req.raw, c.json({ error: 'Project grants cannot erase projects' }, 403));
  const session = await ownerSession(c.req.raw, env);
- if (!session) return deniedResponse(c.req.raw, c.json({ error: 'Owner session required' }, 401));
+ if (!session || session.operator.role!=='owner') return deniedResponse(c.req.raw, c.json({ error: 'Owner session required' }, 401));
  if (!['GET', 'HEAD'].includes(c.req.method) && !ownerWrite(c.req.raw, env)) return deniedResponse(c.req.raw, c.json({ error: 'Same-origin required' }, 403));
  await next();
 }

@@ -1,3 +1,6 @@
+import { emitPersonChange } from './domain/agent-door/events';
+import { legacyAgentResponse } from './domain/agent-door/legacy';
+import { agentDoorResponse } from './domain/agent-door/index.server';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
@@ -76,6 +79,8 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
+ const agentDoor = await agentDoorResponse(request,env); if(agentDoor)return agentDoor;
+ if(path.startsWith('/api/projects/')){const legacy=await legacyAgentResponse(request,env);if(legacy)return legacy;}
  const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
  const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;
@@ -100,7 +105,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  const ownerErasure = await ownerErasureResponse(request, env); if (ownerErasure) return ownerErasure;
  const auth = await authenticationResponse(request, env);
  if (auth) return path === '/auth/bootstrap' || auth.headers.has('set-cookie') ? afterOwnerPath(env, auth) : auth;
- return dispatch(request, () => api.fetch(request, env, execution), async () => {
+ const response = await dispatch(request, () => api.fetch(request, env, execution), async () => {
   if (!applicationDocument(path)) {
    if (!await ownerSession(request,env,resolveMembership)) return new Response('Not found', { status: 404 });
    // Owners keep the router's styled not-found page, even before project setup.
@@ -111,4 +116,6 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
   if (new URL(request.url).pathname === '/app') return Response.redirect(new URL('/', request.url), 303);
   return editorDocument(await start.fetch(request), env);
  });
+ await emitPersonChange(request,env,response);
+ return response;
 }

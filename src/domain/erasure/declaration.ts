@@ -22,7 +22,7 @@ export const projectErasure = defineErasure({
    where:'organization=? AND team=? AND NOT EXISTS(SELECT 1 FROM spool_project_teams t WHERE t.organization=? AND t.team=? AND t.project<>?)',params:['organization','team','organization','team','project']})),
   {table:'spool_team_snoozes',from:'issues',where:"scope='issue' AND target=?",params:['id']},
   {table:'spool_team_snoozes',from:'alert_rules',where:"scope='rule' AND target=?",params:['id']},
-  ...['spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
+  ...['spool_agent_operations','spool_project_grants','spool_project_teams','spool_service_scopes'].map(fromProject),
   { table: 'spool_service_credentials', from: 'credentials', on: { hash: 'hash' } },
   ...['source_map_builds','source_map_build_files','artifact_storage_settings'].map(fromProject),
   // TEAM-004 short IDs and commit citations, including commit author and message.
