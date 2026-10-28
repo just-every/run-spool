@@ -4802,7 +4802,7 @@
       "executable": false
     },
     "src/domain/agent-door/events.ts": {
-      "sha256": "282ef94d9e769310e7f1f9158e046a0779fb5c22601ca11406d615fc9cee05b0",
+      "sha256": "be4aef8561c77794031c739fb879ee852a25667f358aea954ea668e4ef053c78",
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
@@ -4814,7 +4814,7 @@
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "ccf2cbe11bf567aba17dc00e706224825b7ed8a1486559784e6d1882ac0ca55b",
+      "sha256": "4680e05fd38d53afde808c18850be330f88343ddb5e742cbc5a0a28f9ebc91fc",
       "executable": false
     },
     "src/domain/agent-door/notification-tool.ts": {
@@ -5010,7 +5010,7 @@
       "executable": false
     },
     "src/domain/audit/request.ts": {
-      "sha256": "afdbe85760ee6a053d3619575f58799a479ee783ef3b793aeb18e876ae8424d4",
+      "sha256": "1d5d9142c0d97ef0c77e4386ed4a1d198ba9c587b597b992fa7160e45ee66139",
       "executable": false
     },
     "src/domain/audit/routes.ts": {
@@ -8782,7 +8782,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "45fc8754d7dc75ddaa01efe233bb63c6d7d23aeac778d00c1f64280aac78b2cc",
+      "sha256": "60c23be30ff5b5fb3f674007afdd691d64342c9f3ce9458c18ab204e0cad82e5",
       "executable": false
     },
     "tests/agent-door/initialize.mjs": {
@@ -8806,7 +8806,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "309d890b77aa3a5526d0b5808bdd1db81584a72c4ec8bf73794fc161f7472015",
+      "sha256": "8a8cd2478735e79702f6d60d9764b389710cc3dacf9039f9668b973035b79eb4",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {

@@ -24,7 +24,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
   rationale:'Compare retained stack and release variants before moving this occurrence.',
   window:{start:Math.min(...packet.events.map(row=>row.received)),end:Math.max(...packet.events.map(row=>row.received))+1}};
  const file=resolve(app.checkout.root,'agent-proposal.json');await writeFile(file,JSON.stringify(input),{mode:0o600});
- const submitted=await cli(['propose','--file',file,'--format','json'],env);assert.equal(submitted.code,0);const proposal=JSON.parse(submitted.stdout);
+ const submitted=await cli(['propose','--file',file,'--format','json'],env);assert.equal(submitted.code,0,'HTTP proposal compatibility refusal: '+submitted.stderr);const proposal=JSON.parse(submitted.stdout);
  assert.ok(proposal.id);assert.ok(proposal.actor);assert.match(proposal.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(proposal,'explanation'));noSecrets(proposal);
  const fromStdin=await cli(['propose','--stdin','--format','json'],env,JSON.stringify(input));assert.equal(fromStdin.code,0);assert.equal(JSON.parse(fromStdin.stdout).label,proposal.label);
  const listed=await cli(['proposals','--format','json'],env);assert.equal(listed.code,0);const summaries=JSON.parse(listed.stdout);assert.ok(summaries.some(row=>row.id===proposal.id));for(const row of summaries){assert.match(row.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(summaries);

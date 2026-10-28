@@ -42,7 +42,7 @@ export async function nativeAuthority(env: Bindings, path: string, method: strin
  * session is minted or borrowed, and no authorization travels over HTTP. */
 export async function nativeCall(env: Bindings, path: string, method: string, body: unknown, ctx: ToolContext): Promise<any> {
  await nativeAuthority(env, path, method, ctx);
- const request = new Request(env.AUTH_ORIGIN + path, { method, headers: { origin: env.AUTH_ORIGIN, 'content-type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+ const request = new Request(env.AUTH_ORIGIN + path, { method, headers: { host:new URL(env.AUTH_ORIGIN).host,origin: env.AUTH_ORIGIN, 'content-type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
  const response = await withAgentRequest(request, ctx, () => wrapRequest(request, env, async () => {
   attributeAuditScope(await auditActor(env.DB, { kind: 'agent', authority: ctx.agent.id, owner: ctx.person.id, project: /^\/api\/projects\/([^/?]+)/.exec(path)?.[1] ? decodeURIComponent(/^\/api\/projects\/([^/?]+)/.exec(path)![1]) : undefined }));
   return api.fetch(request, env);
@@ -54,7 +54,7 @@ export async function nativeCall(env: Bindings, path: string, method: string, bo
 /** A real review Undo is a native person action, with no agent identity. */
 export async function nativeReviewerCall(env:Bindings,path:string,body:unknown,ctx:UndoContext) {
  const person=await spoolPeople(env).person(ctx.person.id);if(!person?.active)throw new ToolRefusal('unauthenticated');
- const request=new Request(env.AUTH_ORIGIN+path,{method:'POST',headers:{origin:env.AUTH_ORIGIN,'content-type':'application/json'},body:JSON.stringify(body)});
+ const request=new Request(env.AUTH_ORIGIN+path,{method:'POST',headers:{host:new URL(env.AUTH_ORIGIN).host,origin:env.AUTH_ORIGIN,'content-type':'application/json'},body:JSON.stringify(body)});
  const response=await withReviewerRequest(request,ctx,()=>wrapRequest(request,env,async()=>{
   attributeAuditScope(await auditActor(env.DB,{kind:person.role==='owner'?'owner':'member',authority:person.id}));
   return api.fetch(request,env);

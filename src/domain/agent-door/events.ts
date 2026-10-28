@@ -1,10 +1,11 @@
 import type {Bindings} from '../../auth/bindings';
 import {operatorAuth} from '../../auth/session.server';
 import {spoolPeople} from './people';
+import {agentRequestContext,reviewerRequestContext} from './native-context';
 
 /** Native person changes share the same retained resource vocabulary as MCP. */
 export async function emitPersonChange(request:Request,response:Response,env:Bindings) {
- if(['GET','HEAD','OPTIONS'].includes(request.method)||!response.ok||request.headers.has('authorization'))return;
+ if(['GET','HEAD','OPTIONS'].includes(request.method)||!response.ok||request.headers.has('authorization')||agentRequestContext(request)||reviewerRequestContext(request))return;
  const path=new URL(request.url).pathname;
  const match=/^\/api\/projects\/([^/]+)\/(issues|repairs|reproducers|fixes|releases|deployments|grouping-proposals|alerting|keys|retention-policy|follow-up|corrections)(?:\/([^/]+))?/.exec(path);
  const membership=/^\/api\/organization\/members\/[^/]+$/.test(path);

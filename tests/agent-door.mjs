@@ -6,6 +6,8 @@ import {resolve} from 'node:path';
 import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {createRequire} from 'node:module';
+import {chooseFixturePolicy} from './agent-door/policy-fixture.mjs';
+import {cli} from './agent-handoff/clients.mjs';
 import {admissionRuntime} from './admission-runtime.mjs';
 import {testOwner,signIn} from './auth.mjs';
 import {signJws,seconds,accessToken,policyEnvelope,autonomousPolicy,heldPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
@@ -93,6 +95,7 @@ try {
  const scoped=await person('/api/projects/door-triage/keys',{kind:'agent'});
  const local=async(name,args)=>{const response=await app.call('/mcp',{jsonrpc:'2.0',id:1,method:'tools/call',params:{name,arguments:args}},{Authorization:'Bearer '+scoped.key,'mcp-protocol-version':'2025-11-25'});return response.json();};
  done(await local('spool.issues.list',{project:project.id}));assert.equal(code(await local('spool.grouping.apply',{project:project.id,id:saved.id,idempotency_key:randomUUID()})),'insufficient_scope');
+ assert.equal(done(await local('spool.proposals.create',{...proposal,idempotency_key:randomUUID()})).state,'proposed','project keys retain their native inert proposal authority');
  assert.equal((await app.call('/api/projects/'+project.id+'/keys/'+scoped.hash,undefined,{Authorization:'Bearer '+scoped.key},'DELETE')).status,403,'a project key is refused before an unauthorized mutation body is parsed');
  const foreign=await local('spool.issues.list',{project:'foreign-project'});assert.ok(code(foreign));
  // A queued alert retains its original Business consent and re-enters typed policy.
@@ -194,6 +197,11 @@ try {
   const oldToken=await accessToken(context);
   const refused=await restored.call('/mcp',{jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'spool.issues.list',arguments:{project:project.id}}},{Authorization:'Bearer '+oldToken,'mcp-protocol-version':'2025-11-25'});
   assert.equal(refused.status,401,'archived Business authority does not transfer to a new installation');await refused.body?.cancel();
+  await chooseFixturePolicy(restored.origin,restoreCookie);
+  const key=await(await restored.call('/api/projects/'+project.id+'/keys',{kind:'agent'},{Cookie:restoreCookie})).json();
+  const packet=await(await restored.call('/api/projects/'+project.id+'/issues/'+captured.issue+'/packet',undefined,{Cookie:restoreCookie})).json();
+  const submitted=await cli(['propose','--stdin','--format','json'],{...process.env,SPOOL_URL:restored.origin+'/api/projects/'+project.id,SPOOL_AGENT_KEY:key.key,SPOOL_DEV_KEY:''},JSON.stringify({...proposal,idempotency_key:undefined,revision:packet.issue.revision}));
+  assert.equal(submitted.code,0,'standalone CLI retains native inert proposal authority');assert.equal(JSON.parse(submitted.stdout).state,'proposed');
  }finally{await restored.close();}
  console.log('PASS BASE-AGENT-001/004/005/006/007/008/009/010/011/012 native Spool signed owner/settings, Business ID, native packet, inert proposal, one-effect replay, conflict, repair Unknown, resource, project key, held summary, named approval, Pause, audit, events and native-attribution archive restore.');
  // A dated pending assertion stays red until Base provides its native target contract.
