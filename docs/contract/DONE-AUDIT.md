@@ -1,4 +1,4 @@
-Old reference: `0eef95f5bbe305ad53dc9c2372913d9f45f131cd` (main, 28 October 2026). Clauses done there: AI-005, ALERT-004, AUDIT-001, BASE-DATA-003 (merged into ERASE-001), ERR-001 to ERR-009, GROUP-001, OPS-001, REL-001, SDK-001, SDK-006, SDK-009 (split into SDK-009 and SDK-028), SDK-010, SDK-012, SDK-013, SDK-020, SDK-023 and TEAM-004.
+Old reference: `582b5d53041e43362b6c8610fb48dce15adf7ba9` (main, 28 October 2026). Clauses done there: AI-005, ALERT-004, AUDIT-001, BASE-DATA-003 (merged into ERASE-001), ERR-001 to ERR-009, GROUP-001, OPS-001, REL-001, SDK-001, SDK-006, SDK-009 (split into SDK-009 and SDK-028), SDK-010, SDK-012, SDK-013, SDK-020, SDK-023 and TEAM-004.
 
 # Carried-done audit
 
@@ -105,7 +105,7 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | OPS-001 | 4 | The dry run makes no provider HTTP call | `tests/commands.mjs:117` | asserted |
 | OPS-001 | 5 | Setup with a different owner email is refused and the existing settings stay byte for byte | `tests/commands.mjs:58` | asserted |
 | OPS-001 | 6 | Setup rejects an unsafe answer path | none: the cited test refuses a symlinked private settings file (line 35), not an answers path | none |
-| OPS-001 | 7 | A second signed managed claim is refused with 409 and changes nothing | `tests/owner-claim.mjs:76` | asserted |
+| OPS-001 | 7 | A second signed managed claim is refused with 409 and changes nothing | `tests/owner-claim.mjs:76`, `tests/owner-claim.mjs:77` | asserted |
 | OPS-001 | 8 | Anonymous editor access is denied | none in a cited file: editor access is asserted in tests/owner-editor.mjs, which this clause does not cite | none |
 | OPS-001 | 8 | Project-grant editor access is denied | none in a cited file: asserted in tests/owner-editor.mjs, which this clause does not cite | none |
 | ERASE-001 | 1 | No planted canary (event text, map content, recipient, title, repair note, import originals, project name and more) remains in any D1 table or column | `tests/project-erasure.mjs:59` | asserted |
