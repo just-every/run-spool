@@ -1,4 +1,4 @@
-// Archive custody for BASE-DATA-003 project erasure. Completed receipts travel
+// Archive custody for ERASE-001 (Base BASE-DATA-003) project erasure. Completed receipts travel
 // (counts and times only); the helper's work tables never do. Audit entries of
 // an erased project travel only in their anonymised form.
 export const erasureArchiveTables = ['rer_erasure_operations'];

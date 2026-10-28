@@ -146,9 +146,9 @@ try {
   }
   return uploadId;
  }
- async function untilState(step,state) {
+ async function untilState(step,state,maxBatches=20) {
   let result;
-  for(let batch=0;batch<20;batch++) {
+  for(let batch=0;batch<maxBatches;batch++) {
    result=await step();
    assert.ok(result.job,`${state} journey returns its real import job`);
    if(result.job.state===state)return result;
@@ -173,7 +173,9 @@ try {
  const initial=await ownerJson(settingsPath);
  assert.equal(initial.configured,true);
  assert.equal(initial.enabled,false);
- assert.deepEqual(initial.keys,[{kid,revoked:false}]);
+ assert.deepEqual(initial.keys.map(({kid,revoked})=>({kid,revoked})),[{kid,revoked:false}]);
+ assert.equal(initial.keys[0].name,null);assert.equal(initial.keys[0].createdAt,null);
+ for(const code of [initial.keys[0].nameReasonCode,initial.keys[0].createdAtReasonCode])assert.ok(initial.reasonLabels[code],'missing trust metadata has a renderable reason');
  assert.deepEqual(initial.history,[]);
  assert.equal((await json(await doorRequest('uploads',namespace,{}),404)).error,'not_found');
  assert.equal((await ownerJson(settingsPath,'POST',{enabled:true})).enabled,true);
@@ -294,6 +296,9 @@ try {
  assert.equal(history.approvedAt,approval.approvedAt);
  assert.equal(history.state,'completed');
  assert.equal(history.caption,status.caption);
+ assert.deepEqual(history.counts,planned.counts);
+ assert.equal(history.organization,'fixture-org');
+ assert.equal(history.undo.available,true);
  assert.match(history.caption,/approved via Business by/);
  // Imported Sentry history is the vendor's, never counted as created or received in Spool.
  assert.deepEqual(await cutoverRead(epoch),{...live,events_since:1,created_since:{issues:1,events:1}});
@@ -366,7 +371,9 @@ try {
  assert.ok(operatorHistory[0].caption.includes(testOwner));
  assert.equal(operatorHistory[0].state,'undone');
  await ownerJson(settingsPath,'POST',{enabled:true});
- await conformance(async(action,body,review)=>{bytes=variant(3);return doorRequest(action,namespace,body,action==='apply'?review:{})},variant(3));
+ await conformance(async(action,body,review)=>{bytes=variant(3);return doorRequest(action,'sentry',body,action==='apply'?review:{})},variant(3));
+ const vendorHistory=(await ownerJson(settingsPath)).history.find(row=>row.namespace==='sentry');
+ assert.equal(vendorHistory.organization,'fixture-org','the vendor namespace reads its organization from the retained manifest');
 
  // Project erasure withdraws the door's duplicate raw custody as well as kit originals.
  // The tool's archive: the exact uploaded bytes, kept apart from plan and catch-up, test-restored with no native write.
@@ -463,12 +470,154 @@ try {
  assert.notDeepEqual(heldBefore,beforeNative,'the old native export really held the erased project');
 
 
+ // MIG-001: a large, realistic synthetic organization through the signed door.
+ // Keep the native control project populated throughout. No SQL setup or reads:
+ // both the imported graph and every refusal are checked through owner exports.
+ const catchupOrg='synthetic-catchup',catchupNamespace=`sentry-org:${catchupOrg}`;
+ const page=response=>[{cursor:null,nextCursor:null,response}];
+ const sourceIssues=Array.from({length:247},(_,n)=>({id:`synthetic-issue-${n}`,
+  title:`Checkout failure ${n}`,status:'unresolved',firstSeen:'2026-02-02T00:00:00Z',lastSeen:'2026-02-02T00:00:00Z'}));
+ const sourceEvent=n=>({eventID:n.toString(16).padStart(32,'0'),groupID:`synthetic-issue-${n}`,
+  dateCreated:'2026-02-02T00:00:00Z',release:{version:'checkout@1.0.0'},dist:'build-1',environment:'production',
+  entries:[{type:'exception',data:{values:[{type:'TypeError',value:`Checkout failure ${n}`,
+   stacktrace:{frames:[{filename:'src/checkout.ts',lineNo:12,colNo:3,function:'checkout'}]}}]}}]});
+ const baseline={format:'spool-sentry-org-export',version:1,
+  organization:{id:'synthetic-org-1',slug:catchupOrg,region:'us'},
+  window:{start:'2026-02-01T00:00:00Z',end:'2026-02-03T00:00:00Z'},
+  collections:[
+   {kind:'projects',project:null,pages:page([{id:'synthetic-project-1',slug:'checkout',name:'Synthetic checkout',dateCreated:'2026-01-01T00:00:00Z'}])},
+   {kind:'releases',project:null,pages:page([{version:'checkout@1.0.0',dateCreated:'2026-02-01T00:00:00Z',projects:[{slug:'checkout'}]}])},
+   {kind:'issues',project:'checkout',pages:page(sourceIssues)},
+   {kind:'events',project:'checkout',pages:page(sourceIssues.map((_,n)=>sourceEvent(n)))},
+  ],omissions:['Synthetic export only; no attachments, maps, sessions, tracing or replay.']};
+ const collection=(bundle,kind)=>bundle.collections.find(row=>row.kind===kind).pages[0].response;
+ const beforeCatchup=await nativeSnapshot();
+ assert.ok(beforeCatchup.events.length>0,'the destination already contains native evidence');
+ const planBundle=async(bundle,extra={},expected=200)=>{
+  const uploadId=await upload(Buffer.from(JSON.stringify(bundle)),catchupNamespace);
+  return json(await doorRequest('plan',catchupNamespace,{uploadId,...extra.catchup?{catchup:true}:{}},extra),expected);
+ };
+ const reviewed=plan=>({fingerprint:plan.fingerprint,approvalRecordId:randomUUID(),approvedAt:new Date().toISOString()});
+ const applyPlan=(plan,review)=>untilState(()=>doorJson('apply',catchupNamespace,
+  {planId:plan.planId,reviewedFingerprint:plan.fingerprint},review),'completed',100);
+ const reconcilePlan=async(plan,byKind)=>{
+  const report=await doorJson('reconcile',catchupNamespace,{planId:plan.planId});
+  assert.equal(report.ok,true);
+  assert.equal(report.fingerprint,plan.fingerprint);
+  assert.equal(report.bundleSha256,plan.bundleSha256);
+  assert.equal(report.counts.sourceRecords,plan.summary.sourceRecords);
+  assert.equal(report.counts.present+report.counts.explained,report.counts.sourceRecords);
+  assert.deepEqual(report.counts.byKind,byKind);
+  assert.ok(report.sourceIds.every(row=>['present','explained'].includes(row.status)));
+  return report;
+ };
+ const basePlan=await planBundle(baseline);
+ assert.deepEqual(await nativeSnapshot(),beforeCatchup,'large-set planning changes no native rows');
+ assert.equal(basePlan.counts.rejected,0);
+ await applyPlan(basePlan,reviewed(basePlan));
+ const baseKinds={project:1,release:1,issue:sourceIssues.length,event:sourceIssues.length};
+ await reconcilePlan(basePlan,baseKinds);
+ const firstLayer=await nativeSnapshot();
+ const catchupProject=firstLayer.projects.find(row=>row.name==='Synthetic checkout');
+ assert.ok(catchupProject);
+ const graph=snapshot=>Object.fromEntries(nativeTables.map(table=>[table,
+  snapshot[table].filter(row=>table==='projects'?row.id===catchupProject.id:
+   table==='sentry_import_targets'?JSON.parse(row.source).organization===catchupOrg:row.project===catchupProject.id)]));
+ const importedGraph=graph(firstLayer);
+ assert.equal(importedGraph.issues.length,sourceIssues.length);
+ assert.equal(importedGraph.events.length,sourceIssues.length);
+ for(const event of importedGraph.events) {
+  assert.equal(event.historical,1);
+  assert.equal(event.release,'checkout@1.0.0');
+  assert.ok(importedGraph.issues.some(issue=>issue.id===event.issue&&issue.count===1));
+  assert.equal(JSON.parse(event.payload).frames[0].file,'src/checkout.ts');
+ }
+ assert.deepEqual(firstLayer.projects.filter(row=>row.id!==catchupProject.id),beforeCatchup.projects);
+ const nextBundle=structuredClone(baseline);
+ collection(nextBundle,'issues')[0].title='Checkout failure investigated';
+ collection(nextBundle,'issues').push({...sourceIssues[0],id:'synthetic-issue-247',title:'New checkout failure'});
+ collection(nextBundle,'events').push(sourceEvent(247));
+ const standing={catchup:'bounded',approvalRecordId:randomUUID(),approvedAt:new Date().toISOString()};
+ const refusedPlan=async(bundle,reason)=>{
+  const before=await nativeSnapshot();
+  const result=await planBundle(bundle,standing,409);
+  assert.equal(result.error,`catchup_requires_proposal:${reason}`);
+  assert.deepEqual(await nativeSnapshot(),before,'refused catch-up preserves every native row');
+ };
+ const excessive=structuredClone(baseline);
+ for(const issue of collection(excessive,'issues').slice(0,40))issue.title+=' changed outside allowance';
+ await refusedPlan(excessive,'change_must_be_under_five_percent');
+ const gone=structuredClone(baseline);
+ collection(gone,'events').pop();
+ await refusedPlan(gone,'source_records_gone');
+ const catchupPlan=await planBundle(nextBundle,standing);
+ assert.equal(catchupPlan.counts.rejected,0);
+ assert.equal(catchupPlan.summary.updated,1);
+ assert.equal(catchupPlan.summary.created,2);
+ assert.equal(catchupPlan.summary.sourceRecords,basePlan.summary.sourceRecords+2);
+ assert.deepEqual(await nativeSnapshot(),firstLayer,'bounded review reads the full native set without changes');
+ const applyCatchup={planId:catchupPlan.planId,reviewedFingerprint:catchupPlan.fingerprint};
+ const wrongStanding=await json(await doorRequest('apply',catchupNamespace,applyCatchup,
+  {...standing,fingerprint:catchupPlan.fingerprint,approvalRecordId:randomUUID()}),403);
+ assert.equal(wrongStanding.error,'standing_approval_mismatch');
+ const wrongTime=await json(await doorRequest('apply',catchupNamespace,applyCatchup,
+  {...standing,fingerprint:catchupPlan.fingerprint,approvedAt:new Date(Date.parse(standing.approvedAt)-1000).toISOString()}),403);
+ assert.equal(wrongTime.error,'standing_approval_mismatch');
+ assert.deepEqual(await nativeSnapshot(),firstLayer,'another approval cannot borrow the standing allowance');
+ await applyPlan(catchupPlan,{...standing,fingerprint:catchupPlan.fingerprint});
+ await reconcilePlan(catchupPlan,{...baseKinds,issue:sourceIssues.length+1,event:sourceIssues.length+1});
+ const secondLayer=await nativeSnapshot(),nextGraph=graph(secondLayer);
+ assert.equal(nextGraph.issues.find(row=>row.id===importedGraph.issues.find(row=>row.title==='Checkout failure 0').id).title,'Checkout failure investigated');
+ assert.equal(nextGraph.issues.filter(row=>row.title==='New checkout failure').length,1);
+ assert.equal(nextGraph.events.length,importedGraph.events.length+1);
+ assert.deepEqual(nextGraph.events.filter(row=>importedGraph.events.some(old=>old.id===row.id)),importedGraph.events,
+  'unchanged imported event identities and values survive replacement of their parent issue');
+ const catchupStatus=await doorJson('status',catchupNamespace,{planId:catchupPlan.planId});
+ assert.equal(catchupStatus.approval.approval_id,standing.approvalRecordId);
+ assert.equal(catchupStatus.approval.approved_at,standing.approvedAt);
+ const oldFirst=await json(await doorRequest('undo',catchupNamespace,{planId:basePlan.planId}),409);
+ assert.equal(oldFirst.error,'import_superseded');
+ assert.deepEqual(await nativeSnapshot(),secondLayer,'old-first undo cannot remove a newer layer');
+ await untilState(()=>doorJson('undo',catchupNamespace,{planId:catchupPlan.planId}),'undone',100);
+ assert.deepEqual(await nativeSnapshot(),firstLayer,'newest undo restores the exact first imported graph and provenance');
+ await reconcilePlan(basePlan,baseKinds);
+ await untilState(()=>doorJson('undo',catchupNamespace,{planId:basePlan.planId}),'undone',100);
+ assert.deepEqual(await nativeSnapshot(),beforeCatchup,'oldest undo restores the pre-import populated installation');
+
+ // A human triage edit must remain authoritative over a later vendor change.
+ // Re-import via the same public door, then edit through the ordinary owner API.
+ const editedPlan=await planBundle(baseline);
+ await applyPlan(editedPlan,reviewed(editedPlan));
+ const beforeEdit=await nativeSnapshot();
+ const editedIssue=graph(beforeEdit).issues.find(row=>row.title==='Checkout failure 0');
+ const issuePath=`/api/projects/${catchupProject.id}/issues/${editedIssue.id}`;
+ await ownerJson(issuePath,'PATCH',{state:'acknowledged',revision:editedIssue.revision});
+ const editedLayer=await nativeSnapshot();
+ await refusedPlan(nextBundle,'native_or_mapping_conflict');
+ const editedReport=await doorJson('reconcile',catchupNamespace,{planId:editedPlan.planId});
+ assert.equal(editedReport.ok,false);
+ assert.ok(editedReport.sourceIds.some(row=>row.kind==='issues'&&row.status==='mismatched'));
+ assert.deepEqual(await nativeSnapshot(),editedLayer,'reconciliation reports the edit without changing it');
+ // Public project erasure cleans up this deliberately edited graph; never reset
+ // its revision in SQL merely to make an undo pass.
+ const catchupPath=`/api/projects/${catchupProject.id}`;
+ const cleanupPreview=await ownerJson(catchupPath+'/erasure');
+ assert.equal(cleanupPreview.hold,null);
+ const cleanupAccepted=await json(await ownerRequest(catchupPath+'/erasure','POST',
+  {confirm:catchupProject.id,planHash:cleanupPreview.planHash}),202);
+ const cleanup=await followErasure(async(path,method)=>{
+  const response=await ownerRequest(path,method);assert.ok(response.ok);return response.json();
+ },cleanupAccepted);
+ assert.equal(cleanup.phase,'complete');
+ assert.deepEqual(await nativeSnapshot(),beforeCatchup,'cleanup preserves the original live native evidence');
+ console.log(`Signed bounded catch-up passed: ${basePlan.summary.sourceRecords} baseline -> ${catchupPlan.summary.sourceRecords} source records; native reconcile, changed issue + added issue/event, approval binding, over-allowance/gone/native-edit refusals and exact newest-first undo. Large-set reads approached the record limit with this synthetic graph; no arbitrary-byte/native-set claim.`);
+
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[kid]});
  await ownerJson(settingsPath,'POST',{enabled:false});
  await ownerJson(settingsPath,'POST',{enabled:true,revokedKids:[]});
  const revoked=await ownerJson(settingsPath);
  assert.equal(revoked.enabled,true);
- assert.deepEqual(revoked.keys,[{kid,revoked:true}],'revocation survives later settings writes and re-enablement');
+ assert.deepEqual(revoked.keys.map(({kid,revoked})=>({kid,revoked})),[{kid,revoked:true}],'revocation survives later settings writes and re-enablement');
  const refused=await json(await doorRequest('uploads',namespace,{}),403);
  assert.equal(refused.error,'grant_replayed_revoked_or_expired','fresh correctly signed grants from a revoked key fail closed');
  assert.equal((await json(await cutoverRequest({since:epoch},await rerGrant()),403)).error,'invalid_grant','the cutover read refuses a revoked key');

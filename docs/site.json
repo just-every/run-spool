@@ -101,6 +101,10 @@
       "reason": "The repository's front page on GitHub"
     },
     {
+      "source": "RULINGS.md",
+      "reason": "Contract rulings, with their dates and who decided them"
+    },
+    {
       "source": "RUN-LOCALLY.md",
       "reason": "Command and flag reference for maintainers, which names internal environment variables and the shared job queue; the owner-facing steps are on Run it on your computer"
     },
@@ -133,12 +137,32 @@
       "reason": "Alert webhook delivery notes, for maintainers"
     },
     {
+      "source": "docs/AUDIT.md",
+      "reason": "How the action audit records AUDIT-001's facts, for maintainers"
+    },
+    {
+      "source": "docs/CLAIMS.md",
+      "reason": "Homepage claims generated from CONTRACT.md"
+    },
+    {
       "source": "docs/PROJECT-ERASURE.md",
       "reason": "Project erasure implementation notes, for maintainers"
     },
     {
       "source": "docs/SENTRY-SWITCHING.md",
       "reason": "Engineering notes on the Sentry intake, with qualification disclaimers and verification detail; the owner-facing steps are on Connect your app"
+    },
+    {
+      "source": "docs/contract/DONE-AUDIT.md",
+      "reason": "Carried-done audit from the 28 October 2026 contract cleanup"
+    },
+    {
+      "source": "docs/contract/acceptance-before-cleanup.md",
+      "reason": "The hand-written ACCEPTANCE.md before the contract cleanup, kept for history"
+    },
+    {
+      "source": "docs/contract/adopted-defaults.md",
+      "reason": "Builder defaults awaiting a contract ruling"
     },
     {
       "source": "src/modules/dependencies/README.md",
