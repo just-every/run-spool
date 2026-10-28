@@ -450,6 +450,12 @@
       "name": "0079_team_mail_scope.sql",
       "sha256": "287e81937ba00b5e0f1b963372c28e621de22be94263b2c40fefb3760f705de6",
       "sql": "-- TEAM-001: queued team summaries retain the authority snapshot they disclose.\n-- Pre-snapshot queued work fails closed; historical rows remain investigation data.\nALTER TABLE spool_team_mail ADD COLUMN projects TEXT NOT NULL DEFAULT '[]';\nALTER TABLE spool_team_mail ADD COLUMN member_version INTEGER NOT NULL DEFAULT 0;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0082_alert_conditions.sql",
+      "sha256": "b34b04d95578a711673618dacffedc3f137b1f9ac7871d806746dfa2c9e4f8c3",
+      "sql": "CREATE TABLE alert_rule_configs(rule_id TEXT PRIMARY KEY,project TEXT NOT NULL,revision INTEGER NOT NULL,config TEXT NOT NULL);\nCREATE TABLE alert_rule_previews(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT,digest TEXT NOT NULL,policy_revision INTEGER NOT NULL,created INTEGER NOT NULL);\nCREATE INDEX alert_rule_previews_project ON alert_rule_previews(project,created);\nCREATE TABLE alert_decisions(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT NOT NULL,revision INTEGER NOT NULL,issue TEXT NOT NULL,start INTEGER NOT NULL,end INTEGER NOT NULL,fired INTEGER NOT NULL,reason TEXT NOT NULL,UNIQUE(rule_id,revision,issue,start));\nCREATE INDEX alert_decisions_project ON alert_decisions(project,end);\nCREATE TABLE alert_reactivation_markers(project TEXT NOT NULL,issue TEXT NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(project,issue));\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

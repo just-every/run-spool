@@ -65,6 +65,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations$/,methods:['POST'],action:'alert.destination.create',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations\/(?<subject>[^/]+)$/,methods:['PUT','DELETE'],action:'alert.destination.change',kind:'destination'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/destinations\/(?<subject>[^/]+)\/test$/,action:'alert.destination.test',kind:'destination'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/rules\/preview$/,methods:['POST'],action:'alert.rule.preview',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/rules$/,methods:['POST'],action:'alert.rule.create',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/rules\/(?<subject>[^/]+)$/,methods:['PUT'],action:'alert.rule.change',kind:'rule'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/alerting\/deliveries\/(?<subject>[^/]+)\/resolve$/,action:'alert.delivery.resolve',kind:'delivery'},

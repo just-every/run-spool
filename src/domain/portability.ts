@@ -173,6 +173,8 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0082_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0082_alert_conditions.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
