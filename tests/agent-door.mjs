@@ -55,6 +55,7 @@ try{
  assert.equal(code(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
  assert.deepEqual(await app.json(`/api/projects/${project}/alerting/rules`),rulesBefore,'An unqualified agent worker cannot acquire standing notification permission');
  const alternateBefore=(await app.json(`/api/projects/${project}/follow-up`)).alternate;
+ assert.ok(done(await app.call('spool.followups.read',{project})),'Reading follow-up custody creates no standing worker permission');
  assert.equal(code(await app.call('spool.followups.update',{project,destination:destination.id,channel:'mail',idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
  assert.deepEqual((await app.json(`/api/projects/${project}/follow-up`)).alternate,alternateBefore);
  const retentionBefore=await app.json(`/api/projects/${project}/retention-policy`);

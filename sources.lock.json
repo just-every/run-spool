@@ -4831,7 +4831,7 @@
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "5fef0330bd73352dc705a9d944f8bba4a55114c7f53c8b7670e4af6f880a0062",
+      "sha256": "eea4c945f4e1668e479bdc61850e9deaf9c5fcb6fd46ece8ecfb1d52b19f7120",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -8951,7 +8951,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "b6f8121c16cd5f90663ad7685e3aa56364ca331b736e21adbed43204a267987c",
+      "sha256": "d1cf79f9cfde26a7d4684e251497c37f907743e0dd850d71d1e0eb79a0aacf62",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
