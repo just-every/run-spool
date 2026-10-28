@@ -58,6 +58,10 @@ receipt complete; a failed step leaves the operation where it was and the next
 request retries it. Another project from the same export keeps its native rows,
 but that export's original bytes become unavailable to it too.
 
+Unplanned upload or archive bytes cannot be proven to belong to another project unless all declared chunks, sizes and hashes verify and the complete supported Sentry bundle parses with a nonempty project membership covering its project rows, release links and project-scoped collections; project erasure withdraws uncertain bytes regardless of namespace while peer native projects stay.
+Spool deletes affected archive headers together with their bytes, including
+archives outside any planned lineage; it does not retain withdrawn headers.
+
 Surviving project audit entries keep only their kind and time. Their project
 reference becomes null and their detail `{"erasure": "<random label>"}`; the
 label appears only in the receipt, so nobody holding the database can join an
