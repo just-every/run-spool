@@ -1456,7 +1456,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 **Acceptance.**
 1. `spool.feedback.handle` is standard for triage and external for a reply, with counterparty *known* for a reporter with an earlier exchange and *new* otherwise, and its recipient count.
 2. `spool.alerts.destinations` is standard for a destination in the business's own workspace or domain and external for one outside it, and `spool.followups.resolve` adds external when it resends to such a destination.
-3. `spool.fixes.prepare` is standard in a private repository and external, with counterparty *public*, in a public one.
+3. `spool.fixes.prepare` is standard in a private repository and external, with counterparty *public*, in a public one. `spool.tracker.sync` is standard for a ticket visible only inside the business and external for one exposed outside it, with the recipient count and counterparty *public* in a public GitHub or GitLab repository, *known* for an outside tracker already on record and *new* otherwise.
 4. `spool.runs.diagnose` adds external when it sends evidence to an outside model provider, naming the provider.
 5. `spool.billing.update` carries money with the USD amount and payee, and `spool.artifacts.manage` adds money when it raises the artifact storage cap.
 6. Record text or arguments claiming a recipient is internal or a cost is zero leave the computed classes and facts unchanged.
@@ -1472,10 +1472,13 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 
 **Acceptance.**
 1. `spool.filters.update` carries live and adds security when it changes allowed domains.
-2. `spool.identity.update` carries security and adds access, with its direction, when it changes who may see raw identity.
+2. `spool.identity.update` carries security and adds access, with its direction, when it changes who may see raw identity. It adds destructive, with the affected item count, when retained values are irreversibly converted from keep to hash or drop, or from hash to drop.
 3. `spool.members.update` carries access with the people and whether it widens or narrows.
 4. `spool.retention.update` is standard for a legal hold or a longer window and destructive, with the item count, for a shorter window or a cutoff.
 5. `spool.alerts.destinations` adds destructive when it removes a destination, and `spool.erasure.run` carries destructive with the item count.
+6. `spool.replay.settings` carries security for consent and masking, adds live for sampling changes and destructive, with the affected item count, for a shortened replay window or its cutoff.
+7. `spool.releases.record` adds live when it changes the project's release ordering rule, naming the project and setting, including registered-sequence-only refusals.
+8. `spool.runs.diagnose` adds live when it promotes an evaluated candidate, naming the affected service and candidate.
 
 **Evidence.** None.
 **Gap.** No implementation proof yet: no tool computes live, security, access or destructive.
