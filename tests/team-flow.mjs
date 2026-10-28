@@ -59,6 +59,14 @@ async function browserMembers(owner,projects) {
   const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
   await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
   await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
+  await members.locator('summary').filter({hasText:/^Service accounts$/}).click();
+  const services=members.locator('form').filter({has:page.getByLabel('Service account name',{exact:true})});
+  await services.getByLabel('Service account name',{exact:true}).fill('synthetic-spool-ui-service');
+  await services.getByRole('group',{name:projects[0].name,exact:true}).getByRole('checkbox',{name:'Agent',exact:true}).check();
+  const created=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/services'&&r.request().method()==='POST'&&r.status()===201);
+  await services.getByRole('button',{name:'Create service account',exact:true}).click();await created;
+  await members.getByText('synthetic-spool-ui-service',{exact:true}).waitFor();
+  await members.getByText('Sponsored by Test owner',{exact:true}).waitFor();
   assert.equal(await members.locator('input,select,button,label,p,summary').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true);
   const violations=(await new AxeBuilder({page}).include('[aria-label="Members"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact));
   assert.deepEqual(violations,[],'Members settings has no serious accessibility violation');
@@ -253,7 +261,13 @@ async function serviceAuthority(owner,projects,issue) {
 }
 
 async function inertTeamArchive(owner,projects,formerCookie) {
- const before=await owner.json('/api/audit/export?format=json'),response=await owner.req('/api/archive');assert.equal(response.status,200);const archive=await response.text();
+ const before=await owner.json('/api/audit/export?format=json');
+ for(const action of ['organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','alert.digest.settings','alert.snooze','automation.follow_up','notification.attempt','evidence.packet','evidence.export']){
+  assert.ok(before.rows.some(row=>row.action===action&&['succeeded','accepted'].includes(row.outcome)),'safe organization history records the truthful new action: '+action);
+ }
+ assert.ok(before.rows.some(row=>row.actor_kind==='service'&&row.action==='evidence.packet'&&row.outcome==='succeeded'),'scoped service evidence has its own safe actor');
+ for(const actor of ['member','service'])assert.ok(before.rows.some(row=>row.actor_kind===actor&&row.outcome==='denied'),'new human and service denials remain truthful audit observations');
+ const response=await owner.req('/api/archive');assert.equal(response.status,200);const archive=await response.text();
  const fresh=await runtime();
  try{
   const next={...client(fresh.origin,fresh.cookie),origin:fresh.origin,cookie:fresh.cookie};

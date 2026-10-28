@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e31e132637b55fde36b2f185c16d633e41e39c40764283b757e997e50c77246c",
+      "sha256": "958c6f20d55ee590b0f23b64b779be6b32b782cef1fdd9e7f79be468390352d0",
       "executable": false
     },
     "DEMO.md": {
@@ -2954,6 +2954,10 @@
     },
     "docs/INVESTIGATION.md": {
       "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "executable": false
+    },
+    "docs/MEMBERS.md": {
+      "sha256": "9c58f9c99812462e09622d84b6ece77ecaa9c8234c2a0ac9e231ff411b4a86e8",
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
@@ -3960,6 +3964,10 @@
       "sha256": "6137e348066da0406eec65dce97e1c1e061d909c288dd303e48c8c9fdacec944",
       "executable": false
     },
+    "migrations/core/0079_team_mail_scope.sql": {
+      "sha256": "287e81937ba00b5e0f1b963372c28e621de22be94263b2c40fefb3760f705de6",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
@@ -4813,7 +4821,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "d2fc2d6875b80c122ec1c0a097b1592ee8afd06587988a571fe793ab3c1bb251",
+      "sha256": "0b88398808f7be7ca5b56439ec5913618a95ff310e327f9fea0d726f93755162",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -8417,7 +8425,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "ff9c265286ae930dbbfb2e22935778c1ae864b0f07493b1e76cc64988c763125",
+      "sha256": "0b7f0fc7165556b7d34da2f27f08aa4f84f4cf358ca5318c36ed3b592b11148c",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -9105,7 +9113,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "c57118aed8a766f21c83df0bf2c39b17515d194486856b8eee92201b0b2278ed",
+      "sha256": "92a29da696e5cb32cc60e03c6c925d395655dadbe57b2c03780eb637bdbd033b",
       "executable": false
     },
     "tests/triage-app.mjs": {
