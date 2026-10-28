@@ -1,3 +1,4 @@
+import {chooseFixturePolicy} from './agent-door/policy-fixture.mjs';
 import {createHmac} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {legacyMailRows} from './legacy-mail.mjs';
@@ -25,11 +26,12 @@ export async function signIn(origin, { bootstrap = true, returnTo = '/', form = 
   const row=(await legacyMailRows(origin))[0];assert.ok(row);
   const token=row.message.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);
   const confirmed=await post('/auth/confirm',{token});assert.equal(confirmed.status,303);
-  return confirmed.headers.get('set-cookie').split(';')[0];
+  const cookie=confirmed.headers.get('set-cookie').split(';')[0];await chooseFixturePolicy(origin,cookie);return cookie;
  }
  const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json','x-rer-local-cli':createHmac('sha256',sessionSecret).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
  assert.equal(response.status,303,'real local owner admission');
  const cookies=response.headers.getSetCookie();const cookie=cookies.map(value=>value.split(';')[0]).join('; ');assert.ok(cookie);await response.body?.cancel();
+ await chooseFixturePolicy(origin,cookie);
  return cookie;
  } catch { throw new Error('Owner sign-in journey failed; private auth details withheld'); }
 }

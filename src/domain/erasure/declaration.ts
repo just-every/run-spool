@@ -16,7 +16,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
-  fromProject('spool_agent_activity'),
+  fromProject('spool_agent_activity'),fromProject('spool_agent_settings_custody'),
   {table:'spool_agent_rule_custody',from:'alert_rules',on:{rule:'id'}},
   {table:'spool_agent_queue_outcomes',from:'alert_intents',on:{id:'id'}},
   ...['agent_door_approvals','agent_door_reviews'].map(table=>({table,from:'projects',where:"json_extract(saved,'$.args.project')=?",params:['id']})),
@@ -66,7 +66,7 @@ export const projectErasure = defineErasure({
   { table: 'ik_door_grants', reason: 'Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.' },
  ],
  // One erasure at a time, so pending audit entries always get their own label.
- hold: async ({ db }) => await db.prepare('SELECT 1 FROM spool_agent_activity LIMIT 1').first() ? 'agent_door_custody_unattributed' : await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,
+ hold: async ({ db,subject }) => await db.prepare('SELECT 1 FROM spool_agent_activity WHERE project=? LIMIT 1').bind(subject.id).first() ? 'agent_door_custody_unattributed' : await db.prepare("SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete' LIMIT 1").first() ? 'erasure_in_progress' : null,
  statements: async ({ db, label }) => [db.prepare('UPDATE audit SET detail=json_object(\'erasure\',?) WHERE project IS NULL AND detail=?').bind(label, ERASED_AUDIT_PENDING), await erasureCompletionFact(db)],
 });
 

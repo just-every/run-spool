@@ -1,9 +1,10 @@
+import { settingTools } from './settings-tools';
 import { notificationTool } from './notification-tool';
 import { ToolRefusal } from '../../modules/agent-door/index.ts';
 import type { ClassAndFacts, ToolDefinition, ResourceDefinition, ToolContext } from '../../modules/agent-door/types.ts';
 import type { Bindings } from '../../auth/bindings';
 import { operations, operationDeclaration, witnessDeclaration, resourceTemplates, schemaObject, type NativeOperation } from './catalogue';
-import { nativeAuthority, nativeCall, projectPath, segment } from './native';
+import { nativeAuthority, nativeCall, nativeReviewerCall, projectPath, segment } from './native';
 import { readRecord, witness } from './records';
 import { findDestination } from '../alerts/destinations.server';
 import { readRetentionPolicy } from '../retention-policy';
@@ -60,9 +61,11 @@ export function spoolTools(env: Bindings): ToolDefinition[] {
      ctx.emit(op.name+'.changed',resource);
      await env.DB.prepare('INSERT INTO spool_agent_activity(id,project,uri,tool,agent,agent_name,sponsor,sponsor_name,approvers,created) VALUES(?,?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),String(args.project),resource,op.name,ctx.agent.id,ctx.agent.name,ctx.person.id,ctx.person.name,JSON.stringify(ctx.approvers),Date.now()).run();
     }
-    return {result};
+    const linked=!readOnly&&['issues','proposals','grouping','reproducers','repairs','fixes','releases','deployments'].includes(op.name.split('.')[1])?[{uri:resourceFor(op.name,args,result),name:String(result.id??result.name??args.id??args.issue??op.name)}]:undefined;
+    return {result,...linked?{resources:linked}:{},...op.name==='spool.grouping.apply'?{undo:{project:args.project,id:args.id,uri:resourceFor(op.name,args,result)}}:{}};
    },
   };
+  if(op.name==='spool.grouping.apply') tool.undo=async(saved,ctx)=>{const original=saved as {project:string;id:string;uri:string};await nativeReviewerCall(env,`/api/projects/${segment(original.project)}/corrections/${segment(original.id)}/undo`,{confirm:true},ctx);ctx.emit('spool.grouping.undone',original.uri);};
   if(op.table && op.key && op.nativeRevision) tool.revision=async(args,ctx)=>{
    await nativeAuthority(env,operationPath(op,args),op.method,ctx);
    const row = await env.DB.prepare(`SELECT ${op.nativeRevision} revision FROM ${op.table} WHERE ${op.table === 'spool_members'?'1=1':'project=?'} AND id=?`).bind(...op.table === 'spool_members'?[]:[args.project],args[op.key!]).first<{revision:number}>();
@@ -71,22 +74,23 @@ export function spoolTools(env: Bindings): ToolDefinition[] {
   if(op.classes.some(cls=>['access','security'].includes(cls))) tool.authority=async(args,ctx)=>{
    if(op.name==='spool.credentials.update') {const credential=await env.DB.prepare('SELECT minted_by FROM credentials WHERE project=? AND hash=?').bind(args.project,args.id).first<{minted_by:string}>();if(!credential)throw new ToolRefusal('not_found');return {subject:credential.minted_by,widens:false};}
    const member=await env.DB.prepare('SELECT operator_id,role FROM spool_members WHERE id=?').bind(args.id).first<any>();
-   const subject=member?.operator_id ?? String(args.id);
+   if(!member)throw new ToolRefusal('not_found');
+   const subject=member.operator_id;
    const old=(await env.DB.prepare('SELECT project,role FROM spool_project_grants WHERE member=?').bind(args.id).all<{project:string;role:string}>()).results;
    const levels:Record<string,number>={'read-only':0,member:1,maintainer:2,admin:3,billing:0};
    const grants=Array.isArray(args.grants)?args.grants as any[]:[];
-   return {subject,widens:!member || levels[String(args.role)]>levels[member.role] || args.role==='billing'&&member.role!=='billing'&&member.role!=='admin' || grants.some(grant=>!old.some(previous=>previous.project===grant.project && levels[previous.role]>=levels[grant.role]))};
+   return {subject,widens:levels[String(args.role)]>levels[member.role] || args.role==='billing'&&member.role!=='billing'&&member.role!=='admin' || member.role!=='admin'&&grants.some(grant=>!old.some(previous=>previous.project===grant.project && levels[previous.role]>=levels[grant.role]))};
   };
   return tool;
  });
  tools.push({...witnessDeclaration,classify:async(args,ctx)=>{await nativeAuthority(env,projectPath(args)+'/retention-policy','GET',ctx);return [{class:'standard',facts:{measure:1}}];},run:async(args,ctx)=>({result:await witness(env,args,ctx)})});
- tools.push(notificationTool(env));
+ tools.push(notificationTool(env),...settingTools(env));
  return tools;
 }
 
 function resourceFor(name:string,args:Record<string,unknown>,result:any) {
- const family=name.split('.')[1],kind=family==='proposals'?'grouping-proposals':family;
- return `spool://projects/${segment(args.project)}/${kind}/${segment(result?.id ?? args.id ?? args.issue ?? args.source ?? 'current')}`;
+ const family=name.split('.')[1],kind=family==='proposals'?'grouping-proposals':family==='grouping'?'issues':family;
+ return `spool://projects/${segment(args.project)}/${kind}/${segment((family==='grouping'?result?.moves?.[0]?.to:family==='releases'?result?.name??args.name:undefined) ?? result?.id ?? args.id ?? args.issue ?? args.source ?? 'current')}`;
 }
 export function spoolResources(env:Bindings): ResourceDefinition[] {
  return resourceTemplates.map(([kind,path])=>({uriTemplate:`spool://projects/{project}/${path}`,name:`Spool ${kind}`,mimeType:'application/json',scope:'spool:read',classes:['standard'],classify:()=>[{class:'standard',facts:{measure:1}}],async read(uri,ctx){

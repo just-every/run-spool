@@ -2,17 +2,23 @@ import api from '../api';
 import { wrapRequest } from '../audit/request';
 import { attributeAuditScope } from '../audit/context';
 import { auditActor } from '../audit/identity';
-import { withAgentRequest } from './native-context';
+import { withAgentRequest,withReviewerRequest } from './native-context';
 import { agentReadPath } from '../agent-access';
 import { mintedByCurrentPerson } from '../credential-fence';
 import { ToolRefusal } from '../../modules/agent-door/index.ts';
-import type { ResourceContext, ToolContext } from '../../modules/agent-door/types.ts';
+import type { ResourceContext, ToolContext, UndoContext } from '../../modules/agent-door/types.ts';
 import type { Bindings } from '../../auth/bindings';
 import { spoolPeople } from './people';
 import { resolveMembership } from '../members/resolver';
 
 export const segment = (value: unknown) => encodeURIComponent(String(value));
 export const projectPath = (args: Record<string, unknown>) => '/api/projects/' + segment(args.project);
+
+export async function nativeServiceAuthority(env:Bindings,path:string,method:string,ctx:ToolContext) {
+ const operator=await nativeAuthority(env,path,method,ctx);
+ const authority={kind:'agent' as const,operator,agentContext:ctx};
+ return operator.role==='owner'?authority:await resolveMembership(new Request(env.AUTH_ORIGIN+path,{method}),env,authority);
+}
 
 export async function nativeAuthority(env: Bindings, path: string, method: string, ctx: ResourceContext | ToolContext) {
  const person = await spoolPeople(env).person(ctx.person.id);
@@ -41,4 +47,16 @@ export async function nativeCall(env: Bindings, path: string, method: string, bo
  }));
  if (!response.ok) { await response.body?.cancel(); throw new ToolRefusal(response.status === 409 ? 'revision_conflict' : response.status === 401 ? 'unauthenticated' : response.status === 403 || response.status === 404 ? 'not_found' : 'native_action_refused', undefined, { status: response.status }); }
  return response.headers.get('content-type')?.includes('json')?response.json():{format:'text',text:await response.text()};
+}
+
+/** A real review Undo is a native person action, with no agent identity. */
+export async function nativeReviewerCall(env:Bindings,path:string,body:unknown,ctx:UndoContext) {
+ const person=await spoolPeople(env).person(ctx.person.id);if(!person?.active)throw new ToolRefusal('unauthenticated');
+ const request=new Request(env.AUTH_ORIGIN+path,{method:'POST',headers:{origin:env.AUTH_ORIGIN,'content-type':'application/json'},body:JSON.stringify(body)});
+ const response=await withReviewerRequest(request,ctx,()=>wrapRequest(request,env,async()=>{
+  attributeAuditScope(await auditActor(env.DB,{kind:person.role==='owner'?'owner':'member',authority:person.id}));
+  return api.fetch(request,env);
+ }));
+ if(!response.ok){await response.body?.cancel();throw new ToolRefusal(response.status===409?'revision_conflict':'not_found');}
+ await response.body?.cancel();
 }

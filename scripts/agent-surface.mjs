@@ -1,4 +1,4 @@
-import {build} from 'esbuild';
+import {build,stop} from 'esbuild';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -7,9 +7,9 @@ import {journey,verification,escalations} from '../tests/agent-door/journey.mjs'
 // Derive declarations from the production registry; no application state is read.
 await mkdir('.rer',{recursive:true});
 const outfile=resolve('.rer/agent-registry.mjs');
-await build({stdin:{contents:`import {operations,operationDeclaration,witnessDeclaration,notificationDeclaration,resourceTemplates} from './src/domain/agent-door/catalogue.ts';
+await build({stdin:{contents:`import {operations,operationDeclaration,witnessDeclaration,notificationDeclaration,retentionExecutionDeclaration,followupDispatchDeclaration,resourceTemplates} from './src/domain/agent-door/catalogue.ts';
 import {eventsTool} from './src/modules/agent-door/events.ts';
-export const tools=[...operations.map(operationDeclaration),witnessDeclaration,notificationDeclaration,eventsTool({options:{seed:'spool'}})];
+export const tools=[...operations.map(operationDeclaration),witnessDeclaration,notificationDeclaration,retentionExecutionDeclaration,followupDispatchDeclaration,eventsTool({options:{seed:'spool'}})];
 export const resources=resourceTemplates.map(([,path])=>({uriTemplate:'spool://projects/{project}/'+path}));`,resolveDir:process.cwd()},outfile,bundle:true,platform:'node',format:'esm',packages:'external',logLevel:'silent'});
 const {tools,resources}=await import(pathToFileURL(outfile));
 tools.sort((a,b)=>a.name.localeCompare(b.name));
@@ -24,3 +24,5 @@ for(const [path,text] of [['agent-surface.json',JSON.stringify(surface,null,2)+'
  else await writeFile(path,text);
 }
 console.log(`Spool registry: ${tools.length} tools, ${resources.length} resource templates.`);
+
+stop();

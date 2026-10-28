@@ -34,10 +34,13 @@ export const journey=[
  step('retain','retention.update',{revision:from('retention-preview','/revision'),windows:{events:30,artifacts:30,feedback:30,exposures:30,commits:30,sessions:30},at:from('retention-preview','/at'),token:from('retention-preview','/token'),confirmation:'SHORTEN RETENTION'},['live','destructive']),
  step('erasure-preview','privacy.preview',{project:'door-erasure'}),
  step('erase','privacy.erase',{project:'door-erasure',planHash:from('erasure-preview','/planHash')},['destructive']),
+ step('retention-execution','retention.execute',{}),
+ step('retention-expiry','retention.execute',{},['destructive']),
+ step('followup-dispatch','followups.dispatch',{id:from('witness','/follow_up_notices/0/id')},['external']),
  step('notification','notifications.dispatch',{id:from('deliveries','/0/id')},['external']),
  {id:'events',tool:'spool.events.list',args:{},expect:[{class:'standard',facts:{measure:1}}]},
 ];
 export const escalations=[
- {id:'self-native-id',tool:'spool.access.update',args:{project,id:{$sponsor:'id'},version:1,role:'admin',grants:[]}},
+ {id:'self-native-id',tool:'spool.access.update',args:{project,id:from('access','/members/0/id'),version:from('access','/members/0/version'),role:'admin',grants:[]}},
 ];
 export const verification={owner:{bindings:{RER_MANAGEMENT_ORIGIN:'issuer',RER_INSTALLATION_ID:'installationId'},initializer:'tests/agent-door/initialize.mjs'},network:{module:'tests/agent-door/provider-edge.mjs',origins:['https://api.github.com']},journey:'tests/agent-door/specialist.mjs'};

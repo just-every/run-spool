@@ -1,5 +1,7 @@
-import { admitNotification,notificationAttribution } from '../agent-door/queued';
-import { serviceActor,auditSubject } from '../audit/identity';
+import { admitNotification,notificationAttribution,notificationContext } from '../agent-door/queued';
+import {settingContext} from '../agent-door/settings-custody';
+import {agentRequestContext} from '../agent-door/native-context';
+import { serviceActor,auditSubject,auditActor } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
@@ -15,7 +17,8 @@ export function sender(env:AlertEnvironment) {
  } else validateConfig(productionMailConfig(env));
  const result=operatorMail(env);if(!result)throw new Error('mail_unconfigured');
  return {...result,async send(message:Parameters<typeof result.send>[0]) {
-  const actor=await serviceActor(env.DB,'mail'),subject=await auditSubject(env.DB,'delivery',message.deliveryId);
+  const ctx=agentRequestContext()??notificationContext()??settingContext();
+  const actor=ctx?await auditActor(env.DB,{kind:'agent',authority:ctx.agent.id,owner:ctx.person.id}):await serviceActor(env.DB,'mail'),subject=await auditSubject(env.DB,'delivery',message.deliveryId);
   const fact={source:'service' as const,actor,subject,action:'notification.attempt' as const};
   await recordAudit(env.DB,{...fact,outcome:'started'});
   try{const reply=await result.send(message);await recordAudit(env.DB,{...fact,outcome:reply.status==='development'?'suppressed':reply.status==='accepted'?'accepted':reply.status==='uncertain'?'uncertain':'failed'});return reply}

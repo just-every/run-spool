@@ -1,6 +1,7 @@
 export { assertAuditAppendOnly } from '../audit-state.mjs';
 import assert from 'node:assert/strict';
-import { generateKeyPairSync, randomUUID, sign } from 'node:crypto';
+import { generateKeyPairSync, randomUUID, sign, webcrypto } from 'node:crypto';
+import {autonomousPolicy,policyEnvelope} from '../../src/modules/agent-door/conformance/crypto.mjs';
 import { admissionRuntime } from '../admission-runtime.mjs';
 import { signIn, testOwner } from '../auth.mjs';
 
@@ -16,6 +17,12 @@ export async function runtime(extra={}) {
   app.cookie=await nativeSignIn(app,testOwner);
   app.request=(path,value,headers={},method)=>app.call(path,value,{Cookie:app.cookie,...headers},method);
   app.json=async(path,value,status=200,headers={})=>{const response=await app.request(path,value,headers);const data=await response.json();assert.equal(response.status,status,`${path}: ${JSON.stringify(data)}`);return data;};
+  app.enableAgentPolicy=async()=>{
+   const key=await webcrypto.subtle.importKey('jwk',privateKey.export({format:'jwk'}),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+   const context={signer:{issuer,installationId,kid:'erasure',privateKey:key},origin:'https://spool.example',business:'spool-test-policy',revision:0,seq:0};
+   const signed=await policyEnvelope(context,autonomousPolicy());
+   const response=await app.call('/api/rer/agent-policy',{policy:signed.policy});assert.equal(response.status,200);await response.body?.cancel();
+  };
   return app;
  }catch(error){await app.close();throw error;}
 }

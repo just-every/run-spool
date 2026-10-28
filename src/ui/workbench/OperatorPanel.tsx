@@ -196,11 +196,11 @@ function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {
   return <ul>{rows.map(row => {
     const detail = typeof row.detail === 'string' ? JSON.parse(row.detail) : row.detail;
     const related = detail.issue === issue.id ? issue.short_id ?? 'this issue' : 'another issue';
-    const label = row.kind === 'issue_assigned' ? detail.label ? `Assigned ${related} to ${detail.label}` : `Unassigned ${related}`
+    const label = row.kind === 'triage' ? `Changed ${related} to ${detail.state}` : row.kind === 'issue_assigned' ? detail.label ? `Assigned ${related} to ${detail.label}` : `Unassigned ${related}`
       : row.kind === 'suppression_changed' ? `${detail.enabled ? 'Enabled' : 'Disabled'} suppression: ${detail.field === 'fingerprint' ? 'fingerprint' : detail.field === 'release' ? 'release' : 'message'} ${detail.mode === 'exact' ? 'matches' : 'contains'} “${detail.value}”`
       : row.kind === 'grouping_applied' ? 'Applied a grouping correction'
       : row.kind === 'grouping_undone' ? 'Undid a grouping correction'
       : `Recorded deployment of ${detail.release} in ${detail.environment}`;
-    return <li key={row.id}>{label} · {date(row.created)}</li>;
+    return <li key={row.id}>{label}{detail.preparedBy?.label ? ` · ${detail.preparedBy.label}` : detail.performedBy?.name ? ` · ${detail.performedBy.name}` : ''}{detail.approvers?.length ? ` · Approved by ${detail.approvers.map((person:any) => person.name).join(', ')}` : ''} · {date(row.created)}</li>;
   })}</ul>;
 }

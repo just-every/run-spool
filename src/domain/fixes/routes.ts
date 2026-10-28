@@ -1,3 +1,4 @@
+import {nativeAttribution} from '../agent-door/attribution';
 import { runtimeBindings } from '../../auth/bindings';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { reproducerView } from '../reproducers/view';
@@ -12,7 +13,7 @@ import { advance, workflowView } from './workflow';
 const routes = ownerProjectRouter();
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
- s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
+ s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(nativeAttribution(detail)), time);
 const current = (c: any) => s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND id=?', c.req.param('project'), c.req.param('fix')).first<any>();
 const view = async (c: any, row: any) => workflowView(c.env.DB, runtimeBindings(c.env), row);
 // A provider step needs the workflow's lease: taken atomically, only while no

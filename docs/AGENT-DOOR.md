@@ -72,7 +72,7 @@ Agent repair records name the agent for the sponsor in native repair history.
 The shared door retains policy audit, approvals and access-filtered events;
 native person edits emit the same resource vocabulary. Agent-modified alert
 rules retain the originating sponsor, agent, client scopes and Business consent
-for typed admission at notification dispatch. Provider uncertainty keeps its
+for typed admission at notification dispatch. Agent retention and alternate-notice settings likewise retain their original principal for typed worker admission. Provider uncertainty keeps its
 native custody and is never treated as permission to resend.
 
 ## Current integration boundaries

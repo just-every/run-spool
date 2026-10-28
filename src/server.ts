@@ -43,7 +43,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
   await runAlerts(env,event.scheduledTime);
  } finally {
   // A broken dispatcher must not prevent independent operator follow-up.
-  await scheduledRetention(env.DB,event.scheduledTime);
+  await scheduledRetention(env.DB,event.scheduledTime,env);
   await scanFollowUp(env,event.scheduledTime);
   await queueDigests(env,event.scheduledTime);
   await scheduledMail(env,event.scheduledTime);

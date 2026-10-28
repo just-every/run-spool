@@ -1,3 +1,4 @@
+import {chooseFixturePolicy} from '../agent-door/policy-fixture.mjs';
 import assert from 'node:assert/strict';
 import {cp,readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -29,7 +30,7 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
   gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];
   let active,cookie;
   // Foreground dev with the owner dev persona; stopping it is required before CLI transfers.
-  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');}
+  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');await chooseFixturePolicy(origin,cookie,{'x-rer-dev-key':gate.key});}
   async function stopDev(){if(!active)return;const stopping=active;active=null;stopping.child.kill('SIGINT');const result=await stopping.closed;await keepDevOutput(result.output,settings,gate.key);assert.equal(result.code,130);}
   await startDev();
   async function request(path,method='GET',value,options={}){

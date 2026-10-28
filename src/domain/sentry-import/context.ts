@@ -5,7 +5,7 @@ import { mappingVersion } from './source';
 import { sentryTargets } from './targets';
 
 export function ownerImportPredicate(session: OwnerSession) {
- if(session.kind==='agent')return {sql:'0',params:[]};
+ if(session.kind==='agent'||session.kind==='native-reviewer')return {sql:'0',params:[]};
  return {sql: `EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
   WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
   AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)

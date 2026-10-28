@@ -692,6 +692,34 @@
       }
     },
     {
+      "name": "spool.followups.dispatch",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "external"
+      ],
+      "clauses": [
+        "ALERT-004",
+        "AUDIT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project",
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "spool.followups.update",
       "scope": "spool:write",
       "readOnly": false,
@@ -1762,6 +1790,31 @@
         "required": [
           "project",
           "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "spool.retention.execute",
+      "scope": "spool:write",
+      "readOnly": false,
+      "classes": [
+        "standard",
+        "destructive"
+      ],
+      "clauses": [
+        "GOV-002",
+        "AUDIT-001"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project"
         ],
         "additionalProperties": false
       }
@@ -2937,6 +2990,55 @@
       ]
     },
     {
+      "id": "retention-execution",
+      "tool": "spool.retention.execute",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "retention-expiry",
+      "tool": "spool.retention.execute",
+      "args": {
+        "project": "door-fixture"
+      },
+      "expect": [
+        {
+          "class": "destructive",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "followup-dispatch",
+      "tool": "spool.followups.dispatch",
+      "args": {
+        "project": "door-fixture",
+        "id": {
+          "$from": "witness",
+          "pointer": "/follow_up_notices/0/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "external",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
       "id": "notification",
       "tool": "spool.notifications.dispatch",
       "args": {
@@ -2976,9 +3078,13 @@
       "args": {
         "project": "door-fixture",
         "id": {
-          "$sponsor": "id"
+          "$from": "access",
+          "pointer": "/members/0/id"
         },
-        "version": 1,
+        "version": {
+          "$from": "access",
+          "pointer": "/members/0/version"
+        },
         "role": "admin",
         "grants": []
       }

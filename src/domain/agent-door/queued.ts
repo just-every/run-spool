@@ -5,6 +5,7 @@ import type {AlertEnvironment} from '../alerts/types';
 import {agentRequestContext} from './native-context';
 
 const executing=new AsyncLocalStorage<{id:string;context:ToolContext}>();
+export const notificationContext=()=>executing.getStore()?.context??null;
 export const admittedNotification=<T>(id:string,context:ToolContext,work:()=>Promise<T>)=>executing.run({id,context},work);
 
 /** This statement follows the native rule UPDATE inside the same guarded batch.

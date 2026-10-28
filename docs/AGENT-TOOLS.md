@@ -22,6 +22,7 @@ This table is generated from the production registry by `node scripts/agent-surf
 | `spool.fixes.advance` | `spool:write` | external | Advance one already-consented native GitHub draft data workflow. No generated code, merge or deploy. |
 | `spool.fixes.create` | `spool:write` | standard | Prepare an inert exact-repository workflow from a server-confirmed reproduction; no provider call. |
 | `spool.fixes.read` | `spool:read` | standard | Read the exact repository grant, data-only draft PR receipts and observed checks. |
+| `spool.followups.dispatch` | `spool:write` | external | Admit one durable native Needs attention notice at its final dispatch boundary. Uncertain attempts remain uncertain. |
 | `spool.followups.update` | `spool:write` | live | Choose an eligible current native alternate or remove it. No immediate send. |
 | `spool.grouping.apply` | `spool:write` | live | Apply a current native correction preview, retaining original events and native Undo. |
 | `spool.grouping.preview` | `spool:write` | standard | Prepare the native revision-bound correction without applying it. |
@@ -48,6 +49,7 @@ This table is generated from the production registry by `node scripts/agent-surf
 | `spool.reproducers.create` | `spool:write` | standard | Record a supported deterministic recipe through native classification. |
 | `spool.reproducers.read` | `spool:read` | standard | Read stored recipes and observed sandbox outcomes; no source or run token. |
 | `spool.reproducers.run` | `spool:write` | standard | Queue one bounded single-use native sandbox grant. The separate runner must supply an observation. |
+| `spool.retention.execute` | `spool:write` | standard, destructive | Admit one bounded native scheduled-retention batch under its originating agent, sponsor, consent and current policy. |
 | `spool.retention.preview` | `spool:read` | standard | Read the exact native retention preview and token without applying it. |
 | `spool.retention.update` | `spool:write` | live, destructive | Apply an exact native retention preview; shortening preserves its explicit confirmation and evidence fence. |
 

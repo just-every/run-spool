@@ -1,4 +1,4 @@
-import { agentRequestContext } from '../domain/agent-door/native-context';
+import { agentRequestContext,reviewerRequestContext } from '../domain/agent-door/native-context';
 import { AuthError, createOperatorAuth, createAuthHandler, securityHeaders } from '../modules/operator-auth/index.mjs';
 import { readInput } from '../modules/operator-auth/input.mjs';
 import { createDependencies } from '../modules/dependencies/index.mjs';
@@ -24,6 +24,13 @@ export function operatorAuth(env: Bindings, teamInvites = false) {
  });
 }
 export async function ownerSession(request: Request, env: Bindings, resolver?: (request: Request, env: Bindings, session: TeamSession) => Promise<TeamSession | null>): Promise<TeamSession | null> {
+ const review=reviewerRequestContext(request);
+ if(review) {
+  const operator=await env.DB.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(review.person.id).first<any>();
+  if(!operator||operator.status!=='active')return null;
+  const authority:TeamSession={kind:'native-reviewer',operator,reviewContext:review};
+  return operator.role==='owner'?authority:resolver?resolver(request,env,authority):null;
+ }
  const agent = agentRequestContext(request);
  if (agent) {
   const operator = await env.DB.prepare('SELECT id,email,display_name AS displayName,role,status,version,created_at AS createdAt FROM oa_operators WHERE id=?').bind(agent.person.id).first<any>();

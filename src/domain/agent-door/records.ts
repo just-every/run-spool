@@ -67,7 +67,7 @@ export async function witness(env: Bindings, args: Record<string, unknown>, ctx:
   reproducers:'id,issue,support,created',reproducer_runs:'id,reproducer,state,outcome,created,finished',repairs:'id,issue,revision,link,note',repair_checks:'id,repair,name,outcome,note',
   fix_workflows:'id,revision,approved,expires,pull_number,head_sha',fix_receipts:'id,workflow,step,outcome,status',releases:'name,seq,build',deployment_runs:'id,release,commit_sha',
   alert_rules:'id,revision,enabled,destination',alert_intents:'id,state,expanded',alert_mail_jobs:'id,state,code',follow_up_settings:'revision,destination,channel',
-  retention_policies:'revision,windows,held',credentials:'hash,kind,revoked,minted_by,minted_version',
+  retention_policies:'revision,windows,held',follow_up_notices:'id,state,attempts,code',credentials:'hash,kind,revoked,minted_by,minted_version',
  };
  for (const [table, projection] of Object.entries(columns)) result[table] = (await env.DB.prepare(`SELECT ${projection} FROM ${table} ORDER BY 1 LIMIT 500`).all()).results;
  result.members=(await env.DB.prepare('SELECT id,operator_id,role,state,version FROM spool_members ORDER BY id LIMIT 500').all()).results;

@@ -11,7 +11,7 @@ export async function editorConfigResponse(request: Request, env: ManagedBinding
  const headers = {'cache-control': 'no-store, private', vary: 'Cookie'};
  try {
   const session = await ownerSession(request, env);
-  if (!session || session.kind === 'agent') return Response.json({error: 'Owner authorization required'}, {status: 403, headers});
+  if (!session || session.kind === 'agent' || session.kind === 'native-reviewer') return Response.json({error: 'Owner authorization required'}, {status: 403, headers});
   if (request.method !== 'GET') return Response.json({error: 'GET required'}, {status: 405, headers: {...headers, allow: 'GET'}});
   const config = editorConfig(env);
   if (!config) return Response.json({config: null}, {headers});
