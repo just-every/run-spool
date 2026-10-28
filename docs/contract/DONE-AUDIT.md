@@ -241,7 +241,7 @@ A row that cites a status-only line (a 200 check, a count read without the recor
 | SDK-020 | 3 | G3: the test event is accepted and reported by Spool's receipt | `tests/setup-flow.mjs:111` | asserted |
 | SDK-020 | 4 | G4: a bad DSN is refused | `tests/setup-flow.mjs:43` | asserted |
 | SDK-020 | 4 | G4: unsafe paths, inside or outside the project, are refused and write nothing | `tests/setup-flow.mjs:84` | asserted |
-| SDK-020 | 5 | G5: the Framework setup section publishes the seven framework guides (React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel, ASP.NET Core); the published document is its own proof | `docs/SENTRY-SWITCHING.md:105` | asserted |
+| SDK-020 | 5 | G5: the seven framework guides are published | none: the guides exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them | none |
 | SDK-023 | 1 | The default loader requests no SDK before a capture, and non-capture calls stay buffered | `tests/loader-flow.mjs:44` | asserted |
 | SDK-023 | 2 | `Sentry.onLoad` and the late-ready hook run with the key's DSN, once | `tests/loader-flow.mjs:67` | asserted |
 | SDK-023 | 3 | The first capture loads one SDK bundle and is stored | `tests/loader-flow.mjs:48` | asserted |
