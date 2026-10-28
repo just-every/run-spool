@@ -22,7 +22,7 @@ curl -X POST "$SPOOL_URL/api/projects/checkout/releases" \
 
 ## Resolution and regression
 
-A linked issue resolves in the first release, under the project's SDK-009 ordering rule, that includes the cited commit: the registered release or deployment release, or a release auto-created from SDK events whose name is the commit's full SHA. The issue records the commit SHA, its author and the release; the PR stays empty until SRC-002 supplies one. This is SDK-009's named resolution, so an occurrence in that release or a later one regresses the issue under ERR-006 with one regression alert, an older-release occurrence cannot, and a release-less occurrence is counted without reopening it. Each resolution raises the issue revision, so an owner or bulk decision made before it is refused as stale.
+A linked issue resolves in the first release, under the project's SDK-028 ordering rule, that includes the cited commit: the registered release or deployment release, or a release auto-created from SDK events whose name is the commit's full SHA. The issue records the commit SHA, its author and the release; the PR stays empty until SRC-002 supplies one. This is SDK-009's named resolution, so an occurrence in that release or a later one regresses the issue under ERR-006 with one regression alert, an older-release occurrence cannot, and a release-less occurrence is counted without reopening it. Each resolution raises the issue revision, so an owner or bulk decision made before it is refused as stale.
 
 ## Author and message
 
@@ -33,3 +33,11 @@ A retention cutoff removes the author and message of every commit received befor
 ## Provider sources
 
 GitHub pull request and GitLab merge request citations, merge commits and connected-repository SHA association arrive with SRC-002, and `sentry-cli releases set-commits` with SRC-003. Both feed this same parser, link log and resolution. SRC-003's unmodified `sentry-cli releases set-commits` (`--auto`, `--commit` and `--local`, which send the commits of the client's git checkout) now does ([SENTRY-CLI.md](SENTRY-CLI.md)); no real provider receipt is claimed until SRC-002 ships.
+
+## Moved from CONTRACT.md
+
+The contract cleanup of 28 October 2026 moved this mechanism here from CONTRACT.md; the clause keeps the requirement.
+
+Migration `0059_short_ids_commit_citations.sql` numbers existing issues in first-seen order, and a restore of an older archive numbers its issues the same way.
+
+Until SRC-002 delivers provider pushes, commits reach Spool through the deploy-key release door (`commits`) and deployment door (`includedCommits`), each a bare full SHA (no citation) or `{sha, message, author: {name, email}}` with author kept as sent and the message scrubbed.

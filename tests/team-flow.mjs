@@ -2,14 +2,12 @@ import {discussionFlow} from './discussion-flow.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
-import {mkdir} from 'node:fs/promises';
-import {launchBrowser} from './browser-launch.mjs';
-import AxeBuilder from '@axe-core/playwright';
 import {heldOwnerRequest} from './owner-erasure-inflight.mjs';
 import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
+import {browserMembers,memberBrowser} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -41,44 +39,6 @@ async function mcpDoor(origin,project,key,issue,allowed) {
  finally {await client.close();await transport.close();}
 }
 
-async function browserMembers(owner,projects) {
- const browser=await launchBrowser();
- try {
-  const context=await browser.newContext({viewport:{width:1440,height:1000}});
-  const split=owner.cookie.indexOf('=');
-  await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
-  const page=await context.newPage();
-  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
-  const members=page.getByRole('region',{name:'Members',exact:true});
-  await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
-  await members.locator('summary').filter({hasText:/^Invite a member$/}).click();
-  const form=members.locator('form').filter({has:page.getByLabel('Email',{exact:true})});
-  await form.getByLabel('Email',{exact:true}).fill('synthetic-spool-6@example.test');
-  await form.getByLabel('Name',{exact:true}).fill('synthetic-spool-6');
-  await form.getByLabel(/^Organization role/).selectOption('read-only');
-  await form.getByLabel(new RegExp('^'+projects[0].name)).selectOption('read-only');
-  const invited=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/invites'&&r.request().method()==='POST'&&r.status()===202);
-  await form.getByRole('button',{name:'Send invitation',exact:true}).click();await invited;
-  await members.getByText('synthetic-spool-6',{exact:true}).first().waitFor();
-  await members.locator('summary').filter({hasText:/^Service accounts$/}).click();
-  const services=members.locator('form').filter({has:page.getByLabel('Service account name',{exact:true})});
-  await services.getByLabel('Service account name',{exact:true}).fill('synthetic-spool-ui-service');
-  await services.getByRole('group',{name:projects[0].name,exact:true}).getByRole('checkbox',{name:'Agent',exact:true}).check();
-  const created=page.waitForResponse(r=>new URL(r.url()).pathname===organization+'/services'&&r.request().method()==='POST'&&r.status()===201);
-  await services.getByRole('button',{name:'Create service account',exact:true}).click();await created;
-  await members.getByText('synthetic-spool-ui-service',{exact:true}).waitFor();
-  await members.getByText('Sponsored by Test owner',{exact:true}).waitFor();
-  assert.equal(await members.locator('input,select,button,label,p,summary').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true);
-  const violations=(await new AxeBuilder({page}).include('[aria-label="Members"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact));
-  assert.deepEqual(violations,[],'Members settings has no serious accessibility violation');
-  const folder=process.env.SPOOL_TEAM_EVIDENCE;
-  if(folder){await mkdir(folder,{recursive:true});await members.screenshot({path:resolve(folder,'members-1440.png')});}
-  await page.setViewportSize({width:390,height:900});
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Members settings fits the phone viewport');
-  if(folder)await members.screenshot({path:resolve(folder,'members-390.png')});
-  await context.close();
- }finally{await browser.close()}
-}
 
 async function invite(owner,origin,input) {
  const previousIds=(await legacyMailRows(origin)).map(row=>row.id);
@@ -141,6 +101,8 @@ async function memberDeployment(owner,member,project) {
 }
 
 async function revokedAuthority(owner,removed,remaining,projects,issue) {
+ const browser=await memberBrowser({...removed,origin:owner.origin},projects[1],issue);
+ try {
  const root=projectRoot(projects[1]),keys={};
  for(const kind of ['agent','deploy','ingest'])keys[kind]=await removed.json(root+'/keys','POST',{kind});
  const bearer=kind=>({Cookie:'',Authorization:'Bearer '+keys[kind].key});
@@ -153,6 +115,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
+ const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
  try{const response=await pending.release();assert.equal(response.status,409);assert.deepEqual(response.body,{error:'authority_changed'});}finally{pending.close()}
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
@@ -170,6 +133,10 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  await denied(removed.req(`/api/0/projects/synthetic-spool-1/${projects[1].id}/releases/`,'POST',{version:'synthetic-spool-5'}),'removal denies the CLI management transport');
  await denied(owner.req(`/api${dsn.pathname}/store/?sentry_key=${keys.ingest.key}&sentry_version=7`,'POST',{event_id:'3'.repeat(32),message:'synthetic-spool-2'},{Cookie:''}),'SDK intake rejects the removed member key');
  assert.ok((await remaining.json('/api/projects')).some(row=>row.id===projects[0].id),'another simultaneous contributor remains admitted');
+ assert.deepEqual(await owner.json(root+'/issues'),sealedIssues,'revoked sessions, management and replayed capture requests leave retained issue data unchanged');
+ assert.deepEqual(await owner.json(root+'/releases'),sealedReleases,'revoked deployment and SDK management requests create no release');
+ await browser.removed();
+ }finally{await browser.close()}
 }
 
 async function teamRiders(owner,first,second,reader,projects) {
@@ -362,13 +329,44 @@ export async function teamFlow() {
   for(const row of audit.rows){assert.match(row.actor_label,/^audit:[a-f0-9]{32}$/);assert.match(row.subject_label,/^audit:[a-f0-9]{32}$/)}
   for(const value of [testOwner,privateIdentity,...identities.flatMap(row=>[row.email,row.name]),...serviceKeys])assert.ok(!JSON.stringify(audit).includes(value),'safe audit facts omit private identities, names and keys');
   // Transfer uses an accepted native person and fresh owner proof; unrelated contributors remain active.
+  const retired=await admin.json(projectRoot(projects[0])+'/keys','POST',{kind:'deploy'});
+  const beforeNarrowing=(await owner.json(organization)).members.find(row=>row.id===admin.member.id);
+  await owner.json(organization+'/members/'+beforeNarrowing.id,'PUT',{version:beforeNarrowing.version,role:'read-only',grants:[]});
+  await denied(owner.req(projectRoot(projects[0])+'/releases','POST',{name:'synthetic-retired-before',build:'web'},{Cookie:'',Authorization:'Bearer '+retired.key}),'demotion below mint authority retires the key');
+  await owner.json(organization+'/members/'+beforeNarrowing.id,'PUT',{version:beforeNarrowing.version+1,role:'admin',grants:[]});
   const successor=(await owner.json(organization)).members.find(row=>row.id===admin.member.id);
   await denied(first.req(organization+'/transfer','POST',{member:successor.id,version:successor.version}),'a project maintainer cannot transfer installation ownership');
+  const transferKeys={};
+  for(const kind of ['agent','deploy'])transferKeys[kind]=await owner.json(projectRoot(projects[0])+'/keys','POST',{kind});
+  const successorKey=await admin.json(projectRoot(projects[0])+'/keys','POST',{kind:'deploy'});
+  async function captureAfterTransfer(stage) {
+   const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
+   assert.equal(await status(owner.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-'+stage),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),201,'the SAME native capture key keeps authority across transfer');
+   assert.equal(await status(owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:(stage==='before'?'b':'c').repeat(32),release:'synthetic-spool-1',exception:{values:[{type:'SyntheticTransfer',value:'synthetic-transfer-'+stage}]}},{Cookie:''})),200,'the SAME Sentry DSN keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/releases','POST',{name:'synthetic-transfer-'+stage,build:'web'},{Cookie:'',Authorization:'Bearer '+transferKeys.deploy.key})),201,'the SAME deploy key keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/issues/'+issues[0].id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+transferKeys.agent.key})),200,'the SAME agent key keeps authority across transfer');
+   assert.equal(await status(owner.req(base+'/releases','POST',{name:'synthetic-successor-'+stage,build:'web'},{Cookie:'',Authorization:'Bearer '+successorKey.key})),201,'the promoted admin keeps existing keys too');
+  }
+  await captureAfterTransfer('before');
   await owner.json(organization+'/transfer','POST',{member:successor.id,version:successor.version});
+  await captureAfterTransfer('after');
+  await denied(owner.req(projectRoot(projects[0])+'/releases','POST',{name:'synthetic-retired-after',build:'web'},{Cookie:'',Authorization:'Bearer '+retired.key}),'restoring authority and transferring never revives a retired credential');
+  await denied(admin.req('/auth/session'),'handoff also fences the successor session');
   await denied(owner.req('/auth/session'),'handoff fences the predecessor session');
   const nextCookie=await emailSignIn(origin,identities[4].email),next={...client(origin,nextCookie),origin,cookie:nextCookie};
   const session=await next.json('/auth/session');assert.equal(session.operator.role,'owner');
+  assert.ok((await next.json(projectRoot(projects[0])+'/keys')).find(row=>row.hash===retired.hash)?.revoked,'the retired credential is listed Revoked');
   assert.ok((await first.json('/api/projects')).some(row=>row.id===projects[0].id),'owner transfer preserves other active members');
+  const former=(await next.json(organization)).members.find(row=>row.role==='admin'&&row.email===testOwner);
+  await next.json(organization+'/members/'+former.id,'DELETE',{version:former.version});
+  const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
+  assert.equal(await status(next.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-removed'),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),401,'removing the former owner stops that SAME capture key');
+  assert.equal(await status(next.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:'d'.repeat(32),message:'synthetic-transfer-removed'},{Cookie:''})),401,'removal stops the SAME Sentry DSN');
+  for(const [kind,path,method,value] of [['deploy',base+'/releases','POST',{name:'synthetic-transfer-removed',build:'web'}],['agent',base+'/issues/'+issues[0].id+'/packet','GET',undefined]])await denied(next.req(path,method,value,{Cookie:'',Authorization:'Bearer '+transferKeys[kind].key}),'removal still retires transferred '+kind+' keys');
+  const listed=await next.json(base+'/keys');
+  for(const hash of [transferKeys.agent.hash,transferKeys.deploy.hash])assert.ok(listed.find(row=>row.hash===hash)?.revoked,'stopped keys are shown revoked');
+  const captureKeys=(await next.json(base+'/outcomes')).captureKeys;
+  assert.ok(captureKeys.total>0);assert.equal(captureKeys.active,0,'Capture distinguishes stopped credentials from earlier successful receipts');
   await inertTeamArchive(next,projects,first.cookie);
   console.log('[TEAM-001] native invitations and magic sign-in, simultaneous scoped triage, stale revision refusal, maintainer policy, read-only identity projection, billing/admin limits, member deployments, member/service revocation, safe audit and owner transfer passed');
  } finally {await worker.close()}

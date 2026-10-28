@@ -55,3 +55,11 @@ Owner erasure refuses with an explicit unsupported-attribution hold if a known o
 These are implemented flows with public HTTP/UI and semantic restore/erasure tests in the existing suites. Test execution and hosted/provider acceptance are separate evidence; source and a deployment record alone do not establish them.
 
 Each project retains at most 50 proposals. Each request is at most 32 KiB, and an exact server-computed review snapshot is at most 2 MiB; proposals exceeding a bound are refused, never silently clipped. Snapshots remain inspectable after a decision and travel in private archives. Restoring them never applies their advice.
+
+## Moved from CONTRACT.md
+
+The contract cleanup of 28 October 2026 moved this mechanism here from CONTRACT.md; the clause keeps the requirement.
+
+Operator correction extension: exact retained-occurrence previews, revision/occurrence-fenced apply and undo, immutable original grouping provenance, operator-label assignment, event-time literal suppression receipts and release/environment deployment manifests are defined in [OPERATOR-CORRECTIONS.md](docs/OPERATOR-CORRECTIONS.md). Future Sentry capture uses the active versioned project stack/fingerprint policy, with immutable admission snapshots; native version-1 capture keeps its default algorithm. Explicit split/merge corrections do not automatically become future rules. Deployment manifests preserve native registered-sequence admission and SDK-009's Sentry identity/regression policy. New tables are archived and project-erased; personal attribution in these immutable operator records causes an explicit owner-erasure hold.
+
+Retention follows each erased occurrence through its original, current and intermediate groups, withdraws those groups' historical alert headlines and local delivery copies, and cancels their pending delivery work in the same transaction. Current issue headlines come only from retained member occurrences. IDs/counts, repair snapshots, safe alert chronology, audit and restore fences remain; delivered mail and external provider records remain outside local retention.
