@@ -8,7 +8,7 @@ import { GrantRefused, ProviderSession } from './provider';
 import { protectFixSession } from '../follow-up/fix-boundary';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
-// Provider answers are stored only in the shapes Spool expects.
+// Provider answers and native consent history retain only their declared fields.
 const commit = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value) ? value : null;
 const base64 = (text: string) => btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 const receipts = async (db: D1Database, workflow: string) => (await s(db, 'SELECT * FROM fix_receipts WHERE workflow=? ORDER BY at,id', workflow).all<any>()).results.map(row => ({ ...row, detail: JSON.parse(row.detail) }));
@@ -32,8 +32,9 @@ async function deployment(db: D1Database, row: any, grant: any, rows: any[]): Pr
 
 export async function workflowView(db: D1Database, env: any, row: any, now = Date.now()) {
  const prepared=await s(db,"SELECT actor FROM spool_agent_custody WHERE kind='fix' AND id=?",row.id).first<any>();
- const approvedBy=(await s(db,"SELECT person AS id,name,revision,created,reference FROM spool_native_approvals WHERE kind='fix' AND id=? ORDER BY revision DESC LIMIT 1",row.id).all()).results;
+ const activeApprovals=(await s(db,"SELECT person AS id,name,revision,created,reference FROM spool_native_approvals WHERE kind='fix' AND id=? ORDER BY revision DESC LIMIT 1",row.id).all()).results;
  const grant = JSON.parse(row.grant_spec), rows = await receipts(db, row.id), link = connection(env);
+ const approvedBy=activeApprovals.length?activeApprovals.map(({reference,...person}:any)=>person):rows.filter(r=>r.step==='native_repository_consent'&&r.outcome==='succeeded').sort((a,b)=>a.detail.revision-b.detail.revision).slice(-1).map(r=>r.detail);
  const deployed = await deployment(db, row, grant, rows), checks = succeeded(rows, 'read_checks').at(-1);
  const branch = succeeded(rows, 'create_branch')[0], pull = succeeded(rows, 'open_draft_pull_request')[0], merge = succeeded(rows, 'read_pull_request').find(r => r.detail.merged);
  const expired = row.approved !== null && now >= row.expires;
@@ -41,7 +42,7 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
  const status = deployed ? 'deployed' : row.merged ? 'merged' : row.approved === null ? 'proposed' : expired ? 'grant_expired'
   : row.pull_number ? 'pull_request_open' : link.state === 'configured' ? 'approved' : 'approved_awaiting_connection';
  return {
-  id: row.id, preparedBy:prepared?JSON.parse(prepared.actor):null,approvedBy,proofReference:approvedBy[0]?.reference??null, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status,
+  id: row.id, preparedBy:prepared?JSON.parse(prepared.actor):null,approvedBy,proofReference:activeApprovals[0]?.reference??null, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status,
   connection: publicConnection(link),
   states: {
    proposed: { at: row.proposed },

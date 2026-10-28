@@ -94,6 +94,11 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     return standard();
    },
    async run(a,c){
+    // These writes would authorize later native worker effects. Until final
+    // queued admission is wired, no agent may create standing permission.
+    // Native people and agent narrowing keep their existing services.
+    if((route==='alert'&&a.enabled===true)||(route==='followup'&&a.destination!==null)||(route==='retention'&&!readOnly))
+     throw new ToolRefusal('native_worker_admission_unavailable','Standing worker admission is not qualified',{pending:'SPOOL-BASE-STANDING-WORKER-2026-10-28'});
     let result:any;
     if(route==='witness')result=await nativeWitness(env,a,c);
     else if(route==='credential'&&readOnly){

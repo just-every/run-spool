@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -16,7 +17,7 @@ let stopping;
 const stopWorker=()=>stopping??=worker.close();
 const scratch=await mkdtemp(join(tmpdir(),'spool-sentry-import-'));
 try{
-  let cookie=await signIn(origin,{emailLink:true});
+  let cookie=await signIn(origin,{emailLink:true});await chooseLocalAgentPolicy(origin,cookie);
   // Without Run Edit Run's owner-claim trust there is no signer: the cutover read does not exist.
   assert.equal((await fetch(origin+'/api/rer/cutover-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({since:new Date().toISOString()})})).status,404);
   const req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}});

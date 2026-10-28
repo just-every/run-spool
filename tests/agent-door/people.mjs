@@ -17,10 +17,12 @@ export async function peopleFlow(app){
  const emailSelf=await app.call('spool.access.update',{id:email.toUpperCase(),version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);
  assert.equal(emailSelf._meta['com.runeditrun/error'].code,'self_escalation');
  const response=await app.request(`/api/projects/${project}/keys`,'POST',{kind:'agent'},{Cookie:cookie});assert.equal(response.status,201);const key=await response.json();
- const local=async target=>{
-  const r=await app.request('/mcp','POST',{jsonrpc:'2.0',id:randomUUID(),method:'tools/call',params:{name:'spool.issues.list',arguments:{project:target}}},{Authorization:`Bearer ${key.key}`,'MCP-Protocol-Version':'2025-11-25'});return {status:r.status,body:await r.json()};
+ const local=async(target,name='spool.issues.list')=>{
+  const r=await app.request('/mcp','POST',{jsonrpc:'2.0',id:randomUUID(),method:'tools/call',params:{name,arguments:{project:target}}},{Authorization:`Bearer ${key.key}`,'MCP-Protocol-Version':'2025-11-25'});return {status:r.status,body:await r.json()};
  };
  assert.ok(!(await local(project)).body.result.isError,'The local credential retains its original project evidence authority');
+ assert.ok(!(await local(project,'spool.issues.export')).body.result.isError,'The project key retains its existing sanitized export authority');
+ assert.equal((await local('foreign-project','spool.issues.export')).body.result._meta['com.runeditrun/error'].code,'not_found','The project key cannot export another project');
  assert.equal((await local('foreign-project')).body.result._meta['com.runeditrun/error'].code,'not_found');
  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});
  assert.equal((await local(project)).status,401,'Narrowing permanently retires a previously minted key');

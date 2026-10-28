@@ -37,7 +37,7 @@ routes.post('/',async c=>{
  const native=agentAuthority(c.req.raw);
  const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?native.context.agent.id:await hash(bearer!);
  const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
- const actor=await auditActor(db,{kind:'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
+ const actor=await auditActor(db,{kind:native?'agent':'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
  const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
  try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}

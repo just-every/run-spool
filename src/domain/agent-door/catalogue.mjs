@@ -1,6 +1,8 @@
 // One catalogue for production registration, discovery, docs and conformance.
 const str={type:'string',minLength:1,maxLength:200};
 const text={type:'string',maxLength:4000};
+// Native cursors encode the query signature, ordering keys and record ID.
+const cursor={type:'string',minLength:1,maxLength:1024};
 const num={type:'integer',minimum:0};
 const bool={type:'boolean'};
 const object=(properties,required=Object.keys(properties))=>({type:'object',properties,required,additionalProperties:false});
@@ -15,10 +17,10 @@ const definitions=[
  ['issues.read','GET','issue',fields({issue:str}),true,['standard'],['ERR-007']],
  ['packets.read','GET','packet',fields({issue:str}),true,['standard'],['ERR-007','AI-001']],
  ['outcomes.read','GET','outcomes',fields({}),true,['standard'],['ERR-008']],
- ['issues.search','GET','issue-search',fields({q:text,sort:str,cursor:str},['project']),true,['standard'],['ERR-007']],
+ ['issues.search','GET','issue-search',fields({q:text,sort:str,cursor},['project']),true,['standard'],['ERR-007']],
  ['issues.export','GET','issue-export',fields({q:text,sort:str},['project']),true,['standard'],['ERR-007']],
- ['occurrences.list','GET','occurrences',fields({issue:str,q:text,cursor:str,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
- ['feedback.read','GET','feedback-reports',fields({issue:str,cursor:str,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
+ ['occurrences.list','GET','occurrences',fields({issue:str,q:text,cursor,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
+ ['feedback.read','GET','feedback-reports',fields({issue:str,cursor,order:{enum:['oldest','newest']}},['project']),true,['standard'],['ERR-007']],
  ['health.read','GET','release-health',fields({from:num,to:num,environment:str},['project']),true,['standard'],['REL-001']],
  ['affected.read','GET','affected-users',fields({issue:str}),true,['standard'],['SDK-008']],
  ['notifications.read','GET','notifications',fields({}),true,['standard'],['ALERT-001']],

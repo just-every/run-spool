@@ -1,5 +1,6 @@
 import { spoolAgentDoor, localAgent } from './index.server';
 import type { Bindings } from '../../auth/bindings';
+import { agentProject } from '../agent-access';
 
 /** Retained exact-project API aliases enter the canonical MCP decision path. */
 export async function legacyAgentResponse(request:Request,env:Bindings):Promise<Response|null> {
@@ -7,6 +8,9 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  const parts=new URL(request.url).pathname.split('/');
  if(parts[1]!=='api'||parts[2]!=='projects'||!parts[3])return null;
  const project=decodeURIComponent(parts[3]),tail=parts.slice(4);
+ // Foreign-project keys retain the native indistinguishable machine refusal.
+ // Only this key's exact project can enter its compatibility tool aliases.
+ if(await agentProject(request,env.DB)!==project)return null;
  const reads:Record<string,string>={issues:'issues.list',outcomes:'outcomes.read','grouping-proposals':'proposals.list',alerts:'notifications.read','issue-search':'issues.search','issue-export':'issues.export',occurrences:'occurrences.list','feedback-reports':'feedback.read','release-health':'health.read'};
  let name=request.method==='GET'&&tail.length===1?reads[tail[0]]:undefined;
  const args:Record<string,unknown>={project};
@@ -22,7 +26,7 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  const response=await spoolAgentDoor(env).handle(new Request(new URL('/mcp',env.AUTH_ORIGIN),{method:'POST',headers,body:JSON.stringify({jsonrpc:'2.0',id:crypto.randomUUID(),method:'tools/call',params:{name:`spool.${name}`,arguments:args}})}));
  if(!response)return Response.json({code:'agent_door_unavailable'},{status:503});
  const message=await response.json() as any;
- if(message.result?.isError){const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:403});}
+ if(message.result?.isError){const failure=message.result._meta?.['com.runeditrun/error']??{code:'agent_refused'};return Response.json(failure,{status:failure.code==='not_found'?404:failure.code==='unauthenticated'?401:[400,409,413,428,429,503].includes(failure.status)?failure.status:['invalid_arguments','idempotency_key_required'].includes(failure.code)?400:403});}
  if(message.error)return Response.json({code:message.error.data?.code??'agent_refused'},{status:response.ok?403:response.status});
  const value=message.result?.structuredContent;return Response.json(Array.isArray(value?.items)?value.items:value??{code:'agent_pending'},{status:request.method==='POST'?201:200});
 }

@@ -71,11 +71,13 @@ routes.post('/:fix/approve', async c => {
  if(session.kind==='agent')return c.json({code:'native_person_required'},403);
  const b = await jsonBody(c.req.raw, 1024), expected = revision(b.revision), row = await current(c), time = Date.now();
  if (!row) return c.json({ error: 'Workflow not found' }, 404);
- if (row.approved !== null && time < row.expires) return c.json({ error: 'The grant is already approved and unexpired' }, 409);
+ const nativeConsent=await s(c.env.DB,"SELECT 1 FROM spool_native_approvals WHERE kind='fix' AND id=?",row.id).first();
+ if (row.approved !== null && time < row.expires && nativeConsent) return c.json({ error: 'The grant is already approved and unexpired' }, 409);
  const minutes = JSON.parse(row.grant_spec).durationMinutes,proofReference=crypto.randomUUID();
  const [updated] = await ownerWrites(c, [
   s(c.env.DB, 'UPDATE fix_workflows SET approved=?,expires=?,revision=revision+1,updated=? WHERE id=? AND revision=?', time, time + minutes * 60_000, time, row.id, expected),
   s(c.env.DB,'INSERT INTO spool_native_approvals(kind,id,project,person,name,revision,created,reference) SELECT ?,?,?,?,?,?,?,? WHERE changes()=1','fix',row.id,row.project,session.operator.id,session.operator.displayName,expected+1,time,proofReference),
+  s(c.env.DB,"INSERT INTO fix_receipts(id,workflow,project,step,method,target,outcome,status,detail,at) SELECT ?,?,?,'native_repository_consent','LOCAL',?,'succeeded',NULL,?,? WHERE changes()=1",crypto.randomUUID(),row.id,row.project,JSON.parse(row.grant_spec).repository,JSON.stringify({id:session.operator.id,name:session.operator.displayName,revision:expected+1,created:time}),time),
   audit(c.env.DB, row.project, 'fix_approved', { workflow: row.id, revision: expected + 1 }, time),
  ]);
  if (!updated.meta.changes) return c.json({ error: 'Revision conflict' }, 409);

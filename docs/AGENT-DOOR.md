@@ -50,6 +50,8 @@ branch and draft pull request. It does not generate a tested source repair,
 merge, deploy or execute GitLab operations. Each provider step retains the
 native lease, receipts, uncertain-outcome custody and token revocation. Agent
 preparation, native repository consent and company approvers are named separately.
+Archives retain named consent history, while live proof references are excluded;
+restoring history does not restore provider authority.
 An absent connection is visibly unavailable.
 
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
@@ -66,8 +68,11 @@ uses the native count-only preview and plan hash. Retention is not project
 erasure. Native configured schedules and provider receipts must be inspected
 separately from the agent's configuration action. Final admission and attribution
 for standing alert, follow-up and retention workers remain unqualified pending
-the shared queued-consent continuation; do not treat this adoption as permission
-to run those workers autonomously.
+the shared queued-consent continuation. Agent attempts to enable an alert rule,
+set a follow-up destination or update retention therefore refuse with
+`native_worker_admission_unavailable` before saving settings. Agent disabling
+and native person controls remain available. These required tool/class journeys
+remain declared and cannot pass conformance until final worker admission is wired.
 
 ## Compatibility and limits
 
