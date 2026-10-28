@@ -19,3 +19,11 @@ Native deployment history records owner/deploy-key starts, progress, success, fa
 ## Observed session health
 
 The Releases page and version-1 `/api/projects/:project/release-health` door show observed SDK sessions, known-user denominators, conservative crash-free proportions, same-window older/newer release rows, session adoption share, 95% Wilson intervals and JSON export. A session's raw DID is never retained. Browser 11.6.0 `unhandled` remains distinct from Node `crashed`. Missing exposure is unavailable; absence of errors proves no healthy sessions. See [session limits, custody and remaining gaps](SENTRY-SESSIONS.md).
+
+## Moved from CONTRACT.md
+
+The contract cleanup of 28 October 2026 moved this mechanism here from CONTRACT.md; the clause keeps the requirement.
+
+Existing cached version keys are upgraded without changing first-seen times.
+
+Legacy no-dist events and observed build records are migrated using retained Sentry dist evidence. Where retention removed that evidence, old registrations and artifacts keep their original explicit identity because their intended dist cannot be recovered.
