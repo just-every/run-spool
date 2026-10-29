@@ -5,8 +5,8 @@ const status=async pending=>{const response=await pending;await response.arrayBu
 // The existing team journey supplies two current members of this project.
 export async function busyMemberWrites(owner,first,second,reader,project) {
  const dsn=new URL(project.dsn),door='/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7';
- const send=async()=>{
-  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level:'error',exception:{values:[{type:'BusyMemberError',value:'Member investigation during capture'}]}};
+ const send=async(level='error')=>{
+  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level,exception:{values:[{type:'BusyMemberError',value:'Member investigation during capture'}]}};
   assert.equal(await status(first.req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event),{Cookie:''})),200);
  };
  await send();
@@ -58,4 +58,22 @@ export async function busyMemberWrites(owner,first,second,reader,project) {
  assert.equal(await status(first.req(base+'/priority','PUT',{priority:'high',version:beforeArchivePriority.version})),409,'priority edits also protect a genuinely changed issue state');
  assert.deepEqual(await first.json(base+'/priority'),afterArchivePriority);
  await first.json(base,'PATCH',{state:'open',revision:row.revision});
+ const memberProject=(await second.json('/api/projects')).find(row=>row.id===project.id);
+ assert.equal(memberProject.role,'member','the priority editor has ordinary project-member authority');
+ const beforeLow=await second.json(base+'/priority');
+ await second.json(base+'/priority','PUT',{priority:'low',version:beforeLow.version});
+ assert.equal((await first.json(base+'/priority')).priority,'low');
+ const manualChoice=(await first.json(base+'/discussion')).activity.find(row=>row.kind==='priority'&&row.detail.priority==='low');
+ assert.ok(manualChoice,'the member choice appears in the shared issue timeline');
+ assert.equal(manualChoice.actor_kind,'member');
+ assert.equal(manualChoice.actor_name,second.member.name,'the timeline names the member who made the choice');
+ assert.match(manualChoice.actor_label,/^audit:[a-f0-9]{32}$/);
+ const beforeFatal=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.id===fixture.id);
+ await send('fatal');
+ const afterFatal=(await first.json('/api/projects/'+project.id+'/issues')).find(row=>row.id===fixture.id);
+ assert.equal(afterFatal.count,beforeFatal.count+1,'the later fatal event reaches the same member-prioritized issue');
+ assert.equal(afterFatal.priority,'low','the member choice survives a later fatal escalation');
+ assert.equal((await first.json(base+'/priority')).priority,'low','the priority door agrees with the issue list after escalation');
+ assert.deepEqual((await first.json(base+'/discussion')).activity.find(row=>row.id===manualChoice.id),manualChoice,'low and its original member actor remain visible together after escalation');
+ return {issue:fixture.id,actor:second.member.name};
 }

@@ -1,7 +1,9 @@
 import {busyMemberWrites} from './busy-member-writes.mjs';
-import {chromium} from '@playwright/test';
+import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {legacyMailRows} from './legacy-mail.mjs';
+import {mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
 
 const status=async pending=>{const response=await pending;await response.arrayBuffer();return response.status;};
@@ -15,6 +17,8 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  let current=await read();
  const initialPriority=await first.json(base+'/priority');
  await denied(reader.req(base+'/priority','PUT',{priority:'low',version:initialPriority.version}));
+ assert.deepEqual(await first.json(base+'/priority'),initialPriority,'read-only priority refusal preserves the priority and its version');
+ assert.deepEqual(await read(),current,'read-only priority refusal creates no timeline activity');
  assert.equal((await read()).revision,current.revision,'read-only priority refusal does not mutate the issue');
  const priority=await first.json(base+'/priority','PUT',{priority:'low',version:initialPriority.version});
  assert.ok(priority);
@@ -78,6 +82,19 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  const packet=JSON.stringify(await first.json(base+'/packet'));
  assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
  assert.deepEqual(await legacyMailRows(owner.origin),outboxBefore,'discussion, mentions and subscriptions send nothing');
- await busyMemberWrites(owner,first,second,reader,projects[0]);
+ const busy=await busyMemberWrites(owner,first,second,reader,projects[0]);
+ const priorityBrowser=await chromium.launch({headless:true});try{
+  const context=await priorityBrowser.newContext({viewport:{width:1440,height:1000}});const split=first.cookie.indexOf('=');
+  await context.addCookies([{name:first.cookie.slice(0,split),value:first.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
+  const page=await context.newPage();await page.goto(owner.origin+'/projects/'+projects[0].id+'/issues/'+busy.issue);
+  await expect(page.getByLabel('Priority',{exact:true})).toHaveValue('low');
+  const choice=page.locator('.timeline li').filter({hasText:'Priority: low'});
+  await expect(choice).toContainText(busy.actor,'the rendered priority entry keeps the original member after fatal intake');
+  const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
+  await page.screenshot({path:resolve(folder,'member-priority-1440.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:900});
+  await page.screenshot({path:resolve(folder,'member-priority-390.png'),fullPage:true});
+  await context.close();
+ }finally{await priorityBrowser.close()}
  console.log('[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed');
 }
