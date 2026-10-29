@@ -1,4 +1,5 @@
 import { latestReleaseSql } from '../releases/order';
+import { priorities } from '../issue-priority/model';
 // Agent packets omit SDK source lines and frame locals (sentry/agent-evidence.ts); an agent's
 // predicates read the same projection, so a match never answers for a field the packet withholds.
 const frames=(source:string)=>`SELECT json_remove(f.value,'$.pre_context','$.context_line','$.post_context','$.vars') v FROM ${source} f`;
@@ -13,12 +14,14 @@ export function eventQuery(query: string, agent = false) {
  if(query.length>1000)throw new Error('Search is limited to 1000 characters');
  const terms=query.match(/(?:[^\s"]|"[^"]*")+/g)??[], clauses:string[]=[], args:any[]=[];
  let usesLatest=false,reviewPending=false;
+ const issuePriorities:string[]=[];
  const {exceptions,stacktrace}=agent?agentVisible:stored;
  const contains=(sql:string,value:string)=>{clauses.push(`instr(lower(COALESCE(${sql},'')),lower(?))>0`);args.push(value)};
  for(const term of terms){
   const split=term.indexOf(':'),key=split<0?'text':term.slice(0,split),value=(split<0?term:term.slice(split+1)).replace(/^"|"$/g,'');
   if(!value)throw new Error(`Search value required for ${key}`);
   switch(key){
+   case 'priority':if(!priorities.includes(value as typeof priorities[number]))throw new Error('Priority requires high, medium or low');issuePriorities.push(value);break;
    case 'review':if(value!=='pending'||agent)throw new Error('Owner review:pending is the only review filter');reviewPending=true;break;
    case 'text': contains(`json_extract(e.payload,'$.message')||' '||json_extract(e.payload,'$.type')||' '||e.issue||' '||json_extract(e.payload,'$.frames')||' '||COALESCE(${exceptions},'')`,value);
     // TEAM-004: an exact short ID or alias, in any case, finds the issue it resolves to.
@@ -39,5 +42,5 @@ export function eventQuery(query: string, agent = false) {
     clauses.push(`EXISTS(SELECT 1 FROM json_each(e.payload,'$.sentry.tags') tag WHERE tag.key=? AND CAST(tag.value AS TEXT)=?)`);args.push(key,value);
   }
  }
- return {sql:clauses.length?clauses.map(value=>`(${value})`).join(' AND '):'1',args,usesLatest,reviewPending,hasEventTerms:clauses.length>0};
+ return {sql:clauses.length?clauses.map(value=>`(${value})`).join(' AND '):'1',args,usesLatest,reviewPending,issuePriorities,hasEventTerms:clauses.length>0};
 }

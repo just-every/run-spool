@@ -9,8 +9,8 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const membershipTables = ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
-const citationTables = [...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
+const citationTables = ['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.ndjson', 'utf8');
@@ -85,7 +85,7 @@ try {
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
  const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
- const newTables = [...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
+ const newTables = ['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
  transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
