@@ -45,30 +45,37 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  const source=await app.archive();assert.ok(source.data.repairs.length&&source.data.repair_checks.length);
  const read=async()=>(await app.json(`/api/projects/a/repairs?issue=${issue}`)).repairs.find(row=>row.id===repair.id);
  const before=await read();
- // The public rer export runs against this populated, stopped installation.
- await app.stopDev();await mkdir(resolve(app.checkout.root,'exports'),{recursive:true});
- await app.checkout.command(['export','--output','exports/repair-private.jsonl']);
- const cli=await archiveProjection(new Response(await readFile(resolve(app.checkout.root,'exports/repair-private.jsonl'))));
- assert.deepEqual(cli.data,source.data,'public rer export carries the same populated product, private maps, repairs and checks as HTTP');
- for(const credential of Object.values(credentials))assert.equal(cli.text.includes(credential),false,'public rer export excludes active project keys');
- await app.startDev();
  await app.resetRestore(await preRepairArchive(source.text));
  let restored=await app.archive();assert.deepEqual(restored.data.repairs,[]);assert.deepEqual(restored.data.repair_checks,[]);
  for(const table of [...laterCustodyTables,...loaderTables,...deliveryTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'])assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
  for(const table of lifecycleTables.filter(table=>table!=='issue_priorities'))assert.deepEqual(restored.data[table],[],'pre-repair archive has no collaborative history');
  assert.deepEqual(restored.data.issue_priorities.map(canonical).sort(),source.data.issue_priorities.map(canonical).sort(),'older native errors receive the same automatic priority');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
- await app.restoreCliFile('exports/repair-private.jsonl');restored=await app.archive();
+ await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
+ // Restored deliveries are historical, so reconciliation cannot change the
+ // snapshot while the public stopped-installation export starts.
+ const cliCredentials={};for(const kind of ['agent','ingest','deploy'])cliCredentials[kind]=(await app.json('/api/projects/a/keys','POST',{kind})).key;
+ assert.ok((await app.json(`/api/projects/a/issues/${issue}/packet`,'GET',undefined,{agent:cliCredentials.agent})).bounds.availableEvents>0,'the new source agent key is active before export');
+ const cliCookie=app.cookie,cliSource=await app.archive();
+ await app.stopDev();await mkdir(resolve(app.checkout.root,'exports'),{recursive:true});
+ await app.checkout.command(['export','--output','exports/repair-private.jsonl']);
+ const cli=await archiveProjection(new Response(await readFile(resolve(app.checkout.root,'exports/repair-private.jsonl'))));
+ assert.deepEqual(cli.data,cliSource.data,'public rer export carries the same populated product, private maps, repairs and checks as HTTP');
+ for(const credential of [...Object.values(cliCredentials),cliCookie.slice(cliCookie.indexOf('=')+1)])assert.equal(cli.text.includes(credential),false,'public rer export excludes active authority bytes');
+ for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(cli.data,table),false,'public rer export excludes authority tables');
+ await app.restoreCliFile('exports/repair-private.jsonl');restored=await app.archive();
+ for(const table of Object.keys(cli.data))assert.deepEqual(restored.data[table].map(canonical).sort(),cli.data[table].map(canonical).sort(),'public rer import preserves every row in '+table);
+
  const after=await read(),stable=row=>({...row,observation:{...row.observation,evidence:{...row.observation.evidence,window:{start:row.observation.evidence.window.start}}}});
  const {historical,...restoredHistory}=after;assert.equal(historical,true,'restore labels preserved repair evidence as historical');
  assert.deepEqual(stable(restoredHistory),stable(before),'restored repair, checks and computed historical verdict');
  const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);assert.equal(packet.repairs.find(row=>row.id===repair.id).historical,true);
  assert.equal(packet.verification.state,'inconclusive');assert.match(packet.verification.reason,/Restored history has no current repair proof/);
  const denied=async(path,options)=>{const response=await app.request(path,'GET',undefined,options);assert.equal(response.status,401,'source authority is not restored');await response.body?.cancel();};
- await denied('/api/projects',{headers:{Cookie:originalCookie}});
- await denied(`/api/projects/a/issues/${issue}/packet`,{agent:credentials.agent});
- for(const kind of ['ingest','deploy']){const response=await app.request(kind==='ingest'?'/api/ingest/a':'/api/projects/a/releases','POST',kind==='ingest'?{version:1,eventId:'synthetic-spool-restore'}:{name:'synthetic-spool-restore',build:'restore'},{agent:credentials[kind]});assert.equal(response.status,401,'restored project grants cannot write');await response.body?.cancel();}
+ for(const cookie of [originalCookie,cliCookie])await denied('/api/projects',{headers:{Cookie:cookie}});
+ for(const key of [credentials.agent,cliCredentials.agent])await denied(`/api/projects/a/issues/${issue}/packet`,{agent:key});
+ for(const kind of ['ingest','deploy'])for(const authority of [credentials,cliCredentials]){const response=await app.request(kind==='ingest'?'/api/ingest/a':'/api/projects/a/releases','POST',kind==='ingest'?{version:1,eventId:'synthetic-spool-restore'}:{name:'synthetic-spool-restore',build:'restore'},{agent:authority[kind]});assert.equal(response.status,401,'restored project grants cannot write');await response.body?.cancel();}
  const quiet=await app.archive();assert.deepEqual(quiet.data,restored.data,'source grant refusals change no restored product rows');
  assert.ok(restored.data.alert_rules.length>0,'restore includes a real previously enabled rule');assert.ok(restored.data.alert_rules.every(row=>row.enabled===0),'restored rules are disabled');
  // Retention keeps the repair and marks its snapshot events that are gone.
