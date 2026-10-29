@@ -33,6 +33,12 @@ export default {
    const payload=JSON.parse(alerts[0].payload);
    assert.deepEqual([payload.projectId,payload.issueId,payload.kind],[target.id,issue.id,'new_issue']);
    const releases=await app.json(`/api/projects/${target.id}/releases`);
+   if(release){
+    assert.equal(releases.length,1,'the first SDK release is not duplicated');
+    assert.equal(releases[0].auto_created,1,'the inferred release is labelled auto-created');
+    assert.ok(Number.isSafeInteger(releases[0].first_seen)&&releases[0].first_seen>0,'the inferred release records its first-seen time');
+    assert.deepEqual(JSON.parse(releases[0].creating_sdk),{name:event.event.sentry.sdk.name,version:event.event.sentry.sdk.version},'the release records the creating SDK name and version');
+   }
    const sequence=release?releases.find(row=>row.name===release)?.seq:0;
    assert.ok(Number.isInteger(sequence),'named release exists or release-less sequence is zero');
    assert.deepEqual(payload.release,{name:release,build:event.event.build,sequence},'alert release identity matches the persisted occurrence');
