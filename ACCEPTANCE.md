@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 14 | 49 | 24 | 87 |
+| Core | 15 | 48 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 14 | 49 | 29 | 92 |
+| Full target | 15 | 48 | 29 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `6244132a8c7346810b2db070d61ead8743a3e8e8` (29 October 2026). REL-001 deployment history journey passed through CI and owner HTTP, browser, scheduled timeout, archive restore and project erasure doors. Application bytes are unchanged; the landing candidate also checks the complete rollback sequence and that enrichment keeps one release. Exact-candidate Verify and guarded landing remain required. Connected repository ancestry and provider read-back remain SRC-002 duties, with its existing Gap unchanged. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -893,7 +893,7 @@ Core · target · **partial** · Cites BASE-INPUT-003
 
 #### REL-001 — Release and deployment history
 
-Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
+Core · target · **done** · Cites BASE-OPS-003 · Rules D-4
 
 **Requirement.** Register builds, commits and per-environment deployment start/success/failure/rollback with actor, timing and included commit range. CI retries are idempotent; abandoned starts become visibly timed out and notify their owner. Releases auto-created from Sentry SDK events (SDK-009) appear in release history labeled auto-created, with first-seen time, first environment and creating SDK; a later registration of the same name through the release API, `sentry-cli` or a build plugin enriches that release with commits, artifacts and deploys and removes the label, never creating a second release. The project's SDK-028 ordering rule governs regression, while deployment history records multiple environments, progressive exposure and rollback without rewriting past event identity. Starts carry the caller's explicit deadline and selected existing email destination; overdue evaluation appends one truthful timeout and one notice attempt (local mail is labeled suppressed), never an inferred deployment failure. Included ranges and exposure remain caller recorded. Restored history is inert. SRC-003 carries the unmodified CLI/plugin registration journey, SRC-002 connected included-commit read-back, and TEAM-001 member deployment authority.
 
@@ -905,8 +905,8 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 5. Delayed old events keep regression ordering.
 6. A release auto-created by a Sentry SDK event and then enriched under the same name through the native release/deployment API stays one release, with its original first-seen time.
 
-**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` (REL-001); `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed, and the CI run's progress and success steps read back by state (only their count is asserted). Asserted: the started run with its four steps, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
+**Evidence.** `tests/deployment-history.mjs` REL-001 deployment history journey: CI start, ordered progress, success and failure with included commits and distinct actor authority (acceptance 1); idempotent retries and unchanged terminal-conflict refusals (2, BASE-OPS-003); scheduled timeout and one owner notice (3); production rollback (4); `tests/release-order-flow.mjs` releaseOrderFlow, invoked by that journey, preserves delayed-event regression ordering (5); Sentry auto-created release enrichment retains first-seen time and sequence (6). The journey also exercises owner forms, revoked and foreign grants, inert archive restore, project erasure and both release widths. `tests/team-flow.mjs` memberDeployment covers D-4 member authority.
+**Gap.** None.
 
 #### REL-002 — Suspect change and release comparisons
 
