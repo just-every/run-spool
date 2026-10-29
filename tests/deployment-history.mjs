@@ -29,9 +29,23 @@ try {
  await json(root,'POST',start('deploy-only'),service);assert.equal((await req(root,'POST',start('deploy-only'),service)).status,200);
  await json(root+'/deploy-only/callbacks','POST',callback('progress',10),service);await json(root+'/deploy-only/callbacks','POST',callback('progress',50,{callback:'half'}),service);
  await json(root+'/deploy-only/callbacks','POST',callback('succeeded'),service);
+ const completed=(await json(root)).rows.find(r=>r.id==='deploy-only');
+ assert.deepEqual(completed.steps.map(s=>[s.state,s.exposure]),[['started',0],['progress',10],['progress',50],['succeeded',100]],'CI history preserves ordered states and progressive exposure');
+ assert.deepEqual(completed.includedCommits,[prior,sha],'completed CI run retains its included commits');
+ assert.match(completed.actor,/^actor-/,'CI authority has a safe permanent actor alias');
+ assert.ok(completed.steps.every(s=>s.actor===completed.actor),'every CI step retains the deployment actor');
  const repeats=await Promise.all([req(root+'/deploy-only/callbacks','POST',callback('succeeded'),service),req(root+'/deploy-only/callbacks','POST',callback('succeeded'),service)]);assert.ok(repeats.every(r=>r.status===200));
  assert.equal((await req(root+'/deploy-only/callbacks','POST',callback('succeeded',80),service)).status,409);assert.equal((await req(root+'/deploy-only/callbacks','POST',callback('failed'),service)).status,409);
+ assert.deepEqual((await json(root)).rows.find(r=>r.id==='deploy-only'),completed,'idempotent retries and conflicting terminal callbacks leave CI history unchanged');
+ await json(root,'POST',start('deploy-failed'),service);
+ await json(root+'/deploy-failed/callbacks','POST',callback('failed',20),service);
+ const failed=(await json(root)).rows.find(r=>r.id==='deploy-failed');
+ assert.deepEqual(failed.steps.map(s=>[s.state,s.exposure]),[['started',0],['failed',20]],'a separate CI-authorized failure reads back as failed');
+ assert.deepEqual(failed.includedCommits,[prior,sha],'failed CI run retains its included commits');
+ assert.equal(failed.actor,completed.actor,'the same deploy key retains its actor across CI runs');
+ assert.ok(failed.steps.every(s=>s.actor===completed.actor),'failed CI steps retain their deploy-key actor');
  await json(root,'POST',start('owner-started',{environment:'staging'}));await json(root,'POST',start('owner-failed'));await json(root+'/owner-failed/callbacks','POST',callback('failed',20));
+ assert.notEqual((await json(root)).rows.find(r=>r.id==='owner-failed').actor,failed.actor,'owner and CI authority have distinct actor aliases');
  await json(root,'POST',start('owner-rollback'));await json(root+'/owner-rollback/callbacks','POST',callback('succeeded'));await json(root+'/owner-rollback/callbacks','POST',callback('rolled_back',0,{rollbackRelease:'checkout@1.0.0'}));
  await json(root,'POST',start('owner-abandoned',{deadline:new Date(now-1).toISOString()}));await json(root,'POST',start('owner-late',{deadline:new Date(now-1).toISOString()}));
  for(let i=0;i<2;i++){const tick=await fetch(origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json');assert.ok(tick.ok,await tick.text())}
