@@ -24,7 +24,7 @@ server = make_server("127.0.0.1", 0, get_wsgi_application(), handler_class=Quiet
 threading.Thread(target=server.handle_request).start()
 request = urllib.request.Request(
     f"http://127.0.0.1:{server.server_port}/checkout?token=synthetic-spool-3&page=2",
-    headers={"Cookie": "session=synthetic-spool-cookie", "User-Agent": "spool-runtime-qualification"},
+    headers={"Cookie": "session=synthetic-spool-cookie", "Authorization": "Bearer synthetic-spool-authorization", "User-Agent": "spool-runtime-qualification"},
 )
 try:
     urllib.request.urlopen(request)

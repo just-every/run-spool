@@ -29,8 +29,10 @@ def charge(order_note):
     api_key = "synthetic-spool-2"
     quantity = 0
     try:
+        if mode == "fidelity":
+            return {}["quantity"]
         return 10 / quantity
-    except ZeroDivisionError as failure:
+    except (ZeroDivisionError, KeyError) as failure:
         raise ValueError("checkout quantity rejected") from failure
 
 
@@ -38,7 +40,7 @@ with sentry_sdk.start_transaction(name="checkout", op="task"):
     with sentry_sdk.start_span(op="db", name="load cart"):
         sentry_logger.info("cart loaded")
     sentry_sdk.add_attachment(bytes=b"synthetic-spool-attachment", filename="cart.txt")
-    if mode == "handled":
+    if mode in ("handled", "fidelity"):
         try:
             charge("synthetic-spool-note")
         except ValueError:

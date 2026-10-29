@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import {archiveProjection} from './archive.mjs';
+import {launchBrowser} from './browser-launch.mjs';
+import {browserSignIn} from './auth.mjs';
 
-export async function fidelityFlow({req,json}) {
+export async function fidelityFlow({req,json,origin,db}) {
  const project=await json('/api/projects','POST',{id:'fidelity',name:'Cedar checkout diagnostics'}),base='/api/projects/fidelity';
  await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web'});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
@@ -49,7 +52,19 @@ export async function fidelityFlow({req,json}) {
  assert.ok(!detail.event.sentry.truncation.some(note=>note.path==='request.query_string'&&note.reason==='request_policy_excluded'));
  assert.equal(detail.event.sentry.exceptions.length,2);assert.equal(detail.event.sentry.exceptions[0].stacktrace.frames[0].vars.order_id,'order-123');assert.equal(detail.event.sentry.exceptions[0].stacktrace.frames[0].context_line,'charge(order)');assert.equal(detail.event.sentry.tags['browser.name'],'Chrome');assert.equal(detail.event.sentry.extra.cart_items,3);assert.equal(detail.event.sentry.request.method,'POST');assert.ok(detail.next);assert.equal(detail.previous,null);
  for(const canary of ['PRIVATE_PASSWORD','PRIVATE_API_KEY','PRIVATE_NESTED','PRIVATE_AUTH','PRIVATE_COOKIE','PRIVATE_BODY','PRIVATE_EXTRA','PRIVATE_USER','PRIVATE_URL','PRIVATE_QUERY','PRIVATE_ENV'])assert.ok(!JSON.stringify(detail).includes(canary),canary+' scrubbed at owner read');
+ const stored=await db.prepare('SELECT payload FROM events WHERE project=? AND id=? AND occurrence=?').bind('fidelity',first.event_id,list.oldest.occurrence).first();
+ assert.ok(stored,'the admitted chain has a stored occurrence');
+ const storedFrame=JSON.parse(stored.payload).sentry.exceptions[0].stacktrace.frames[0];
+ assert.equal(storedFrame.vars.password,'[redacted]','masking occurs before storage, not just at the owner read');
+ assert.equal(storedFrame.vars.order_id,'order-123');
+ const archive=await archiveProjection(await req('/api/archive'));
+ const exported=archive.data.events.find(row=>row.project==='fidelity'&&row.id===first.event_id&&row.occurrence===list.oldest.occurrence);
+ assert.ok(exported,'the nonempty private export carries this exact occurrence');
+ assert.equal(JSON.parse(exported.payload).sentry.exceptions[0].stacktrace.frames[0].vars.password,'[redacted]');
+ assert.equal(JSON.parse(exported.payload).sentry.exceptions[0].stacktrace.frames[0].vars.order_id,'order-123');
+ for(const text of [stored.payload,exported.payload])for(const secret of ['PRIVATE_PASSWORD','PRIVATE_API_KEY','PRIVATE_NESTED'])assert.ok(!text.includes(secret),'storage and private exports contain no secret local');
  const packet=await json(base+'/issues/'+issue+'/packet');assert.equal(packet.events[0].event.sentry.exceptions.length,2);assert.ok(!JSON.stringify(packet).includes('charge(order)'));assert.ok(!JSON.stringify(packet).includes('order-123'),'locals excluded from agent packet');
+ assert.ok(!JSON.stringify(packet).includes('PRIVATE_PASSWORD'),'the packet never exposes a password local');
  assert.equal((await req(eventBase,'GET',undefined,{Cookie:''})).status,401);
  const grant=await json(base+'/keys','POST',{kind:'agent'});assert.equal((await req(eventBase,'GET',undefined,{Cookie:'',Authorization:'Bearer '+grant.key})).status,403,'agent cannot acquire owner local-variable scope');
  assert.equal((await req(eventBase+'/'+second.event_id+'?occurrence='+list.oldest.occurrence)).status,404,'exact issue and occurrence checked');
@@ -62,6 +77,13 @@ export async function fidelityFlow({req,json}) {
  assert.ok(!anonymous.event.sentry.truncation.some(note=>note.path==='user'),'SDK-008 does not report identity exclusion when the SDK sent no user');
  const recursion=chain('RecursionError');recursion.exception.values=[{type:'RecursionError',value:'recursion',stacktrace:{frames:Array.from({length:1200},(_,i)=>({filename:'/app/recursion.py',function:'recurse',lineno:i+1}))}}];await send(recursion);
  const recursiveIssue=(await json(base+'/issue-search?q=error.type:RecursionError')).rows[0].id,recursiveList=await json(base+'/issues/'+recursiveIssue+'/events');const recursiveDetail=await json(base+'/issues/'+recursiveIssue+'/events/'+recursion.event_id+'?occurrence='+recursiveList.latest.occurrence);assert.equal(recursiveDetail.event.sentry.exceptions[0].stacktrace.frames.length,1000);assert.ok(recursiveDetail.event.sentry.truncation.some(t=>t.omitted===200));
+ const browser=await launchBrowser();
+ try{
+  const page=await browser.newPage({viewport:{width:1440,height:900}});await browserSignIn(page,origin);
+  await page.goto(`${origin}/projects/fidelity/issues/${recursiveIssue}`);
+  await page.getByText('exceptions.0.stacktrace.frames: 200 frames omitted · middle_frames',{exact:true}).waitFor();
+  assert.equal(await page.locator('article.exception .exception-stack > li').count(),1000,'the owner view renders the retained frames and omission notice');
+ }finally{await browser.close()}
  const java=chain('IllegalStateException');java.platform='java';java.exception.values[0].stacktrace.frames=[{filename:'Checkout.java',module:'com.cedar.Checkout',function:'charge',lineno:12}];await send(java);
  const longQuery=chain('QueryBoundError');longQuery.request.query_string='diagnostic='+encodeURIComponent('🧭'.repeat(6000))+'&token=PRIVATE_QUERY_LONG';await send(longQuery);
  const queryIssue=(await json(base+'/issue-search?q=error.type:QueryBoundError')).rows[0].id,queryRows=await json(base+'/issues/'+queryIssue+'/events');

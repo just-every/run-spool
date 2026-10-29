@@ -8821,7 +8821,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "9930750616c4f016d5eb222b3f05c73afda30809917955ef8089ec792b05c3a6",
+      "sha256": "08ea90b0ce4217d3d800aef5cdb980717e0757add7bb9c0a2d6b6dcbf5284351",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -9185,7 +9185,7 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "b616fd7668439d71716b4eeb221795e0b6d5c3ae0f62cb5c8564c200f8782ed0",
+      "sha256": "90523e313e1ea4eb375fd4b93054468b8041c9febafddce9ad6f97fd6d37aac8",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
@@ -9197,11 +9197,11 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "e1319621b838295fcf057773150d5ffd43b95c02261b3b892299135aff16fb92",
+      "sha256": "711a5e18613af2826fa32efa00d9e5c9280de6cdbb53fa5c9b7a53a81b7b2fe4",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
-      "sha256": "2a4cd0024a6113e340faaf0b955bf75b4882ef1faba46782deed63b461e3e54d",
+      "sha256": "a017ea48c11a481d2ed121817e0be3f8c06314e24b59d8a94b88eadb71672e00",
       "executable": false
     },
     "tests/runtimes/node/session-health.mjs": {
@@ -9221,19 +9221,19 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "62be0160bed7c105133f19a0732f72770bc4be11f5ad5cbd11e53893538a901d",
+      "sha256": "f519efd321f70ae999f85479e178d20aeb69a71eb64329e1b69523309f0e3d70",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
-      "sha256": "228ca75b9f0c6f10e8a38755ef1ba7696eeb95e019ec33dc56f92358cced0d6e",
+      "sha256": "395371b38c5f1cca761e24a3077d013d6c819d71be6e45b3329f94c32b571886",
       "executable": false
     },
     "tests/runtimes/python/django_app.py": {
-      "sha256": "cff42f585dd7e11a8387abfcc802842d28133be047d5d22c54648f33ad31c770",
+      "sha256": "56f5b23b06016c360535e209b95b016197cea47548bbe43cb9d12eaaec6d1ace",
       "executable": false
     },
     "tests/runtimes/python/group.py": {
-      "sha256": "dfcaac59b98fd84abff53f85f20e1f23dd339f5fbc529484c78ec8c7623523b0",
+      "sha256": "2576b5d404fa816a27ebe7e37b9f96126fa735763605c766929b33c43828ce3a",
       "executable": false
     },
     "tests/runtimes/python/identity.py": {
@@ -9341,7 +9341,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "749d2854f3f69e6000367f34bb48110b8e4e0d5a525da395ad7a1bb8afa500b5",
+      "sha256": "cc06515ed2bcaf4ca126e72520ca7e858c25e93fa5a83ed42e262c273a1d8c9e",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -9361,7 +9361,7 @@
       "executable": false
     },
     "tests/setup-flow.mjs": {
-      "sha256": "b17dd8a82667d6d78772b4235f555f7a5457d691b11d08b9530abcd1451256d7",
+      "sha256": "c42d4b2adfed845b5ce242d9452b2654b11dc404a23896db8d1458b15712ea30",
       "executable": false
     },
     "tests/setup-journey.mjs": {

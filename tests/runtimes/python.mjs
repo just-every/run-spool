@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {run,runOk,exceptionTypes,issueDetails} from './harness.mjs';
+import {archiveProjection} from '../archive.mjs';
 import {readScreens} from './screens.mjs';
 
 const here=resolve(import.meta.dirname,'python');
@@ -34,9 +35,15 @@ export default {
   assert.ok((await page.locator('.sdk-context').first().innerText()).includes('sent by SDK'));
   const localSummary=page.locator('article.exception summary').filter({hasText:'Local variables · sent by SDK'}).first();await localSummary.click();const locals=localSummary.locator('..');
   assert.ok((await locals.innerText()).includes('quantity'));assert.ok(JSON.stringify(sdkFrame.vars).includes('[redacted]'));
+  const password=locals.locator('summary').filter({hasText:/^password$/});await password.click();
+  assert.equal(JSON.parse(await password.locator('..').locator('pre').innerText()),'[redacted]','the rendered local masks the password');
+  const quantity=locals.locator('summary').filter({hasText:/^quantity$/});await quantity.click();
+  assert.equal(JSON.parse(await quantity.locator('..').locator('pre').innerText()),'0','the rendered ordinary local survives');
   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();const raw=page.getByRole('dialog',{name:'Raw stack trace',exact:true});
   const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
+  assert.equal(expected.match(/Traceback \(most recent call last\):/g)?.length,2,'copied Python stack includes both tracebacks');
+  assert.ok(expected.includes('in charge'));assert.ok(!expected.includes('synthetic-spool-1'),'copied stack exposes no password');
   await page.keyboard.press('Escape');
  },
  async verify({app,details,dir,origin,cookie}){
@@ -79,11 +86,43 @@ export default {
   // SDK-010: exception groups with every member, and Django request data from a real WSGI request.
   const [grouped]=await send(await create('rt-python-group'),'group.py');assert.deepEqual(exceptionTypes(grouped.events[0]),['TypeError','ValueError','ExceptionGroup']);
   assert.equal(grouped.events[0].event.sentry.exceptions.at(-1).mechanism.is_exception_group,true);
+  const [task]=await send(await create('rt-python-task'),'group.py',{mode:'task'});
+  assert.deepEqual(exceptionTypes(task.events[0]),['ValueError','ValueError','ExceptionGroup']);
+  assert.deepEqual(task.events[0].event.sentry.exceptions.slice(0,2).map(cause=>cause.value).sort(),['synthetic-spool-task-first','synthetic-spool-task-second']);
+  const [chain]=await send(await create('rt-python-chain'),'app.py',{mode:'fidelity'});
+  assert.deepEqual(exceptionTypes(chain.events[0]),['KeyError','ValueError']);
+  for(const cause of chain.events[0].event.sentry.exceptions){
+   const charge=cause.stacktrace.frames.find(frame=>frame.function==='charge');
+   assert.ok(charge.pre_context.length&&charge.context_line&&charge.post_context.length,'both exceptions preserve their own SDK source context');
+   assert.equal(charge.vars.order_note,"'synthetic-spool-note'");assert.equal(charge.vars.password,'[redacted]');
+  }
+  const archived=await archiveProjection(await app.request('/api/archive'));
+  const saved=archived.data.events.find(row=>row.project==='rt-python-chain'&&row.id===chain.events[0].id);
+  assert.ok(saved,'the real SDK chain is in the private export');
+  const exported=JSON.parse(saved.payload).sentry;
+  assert.equal(exported.exceptions[0].stacktrace.frames.find(frame=>frame.function==='charge').vars.password,'[redacted]');
+  assert.equal(exported.exceptions[0].stacktrace.frames.find(frame=>frame.function==='charge').vars.order_note,"'synthetic-spool-note'");
+  for(const [name,project,detail] of [['python-group','rt-python-group',grouped],['python-task','rt-python-task',task],['python-chain','rt-python-chain',chain]]){
+   await readScreens(origin,cookie,[{name,path:`/projects/${project}/issues/${detail.issue.id}`,check:async page=>{
+    await page.getByRole('heading',{name:'Related Exceptions',exact:true}).waitFor();
+    const sdk=detail.events[0].event.sentry;
+    assert.equal(await page.locator('article.exception > h3').count(),sdk.exceptions.length);
+    for(const exception of sdk.exceptions)assert.ok((await page.locator('article.exception > h3').allTextContents()).some(text=>text.includes(exception.type+': '+exception.value)));
+    if(name==='python-chain')await page.locator('article.exception > h3').filter({hasText:'KeyError:'}).getByText('Root cause',{exact:true}).waitFor();
+    else assert.equal(await page.locator('.exception-children > article.exception').count(),2,'Related Exceptions nests every child beneath its group');
+   }}]);
+  }
   const [django]=await send(await create('rt-python-django'),'django_app.py');
   const request=django.events[0].event.sentry.request;
   assert.ok(request.url.endsWith('/checkout'));assert.equal(request.method,'GET');assert.ok(request.query_string.includes('page=2'));assert.ok(!JSON.stringify(request).includes('synthetic-spool-3'),'secret query value masked');assert.ok(!JSON.stringify(request).includes('synthetic-spool-cookie'),'cookie value removed');
   const headers=Object.fromEntries(Object.entries(request.headers??{}).map(([name,value])=>[name.toLowerCase(),value]));
   assert.equal(headers['user-agent'],'spool-runtime-qualification','Django request headers are kept');
+  assert.equal(headers.authorization,'[redacted]');assert.equal(headers.cookie,'[redacted]');
+  assert.ok(!JSON.stringify(request).includes('synthetic-spool-authorization'));
   assert.ok(django.events[0].event.sentry.sdk.integrations.includes('django'),'Django integration is a default');
+  await readScreens(origin,cookie,[{name:'python-django-request',path:`/projects/rt-python-django/issues/${django.issue.id}`,check:async page=>{
+   const section=page.locator('.event-sections details').filter({has:page.locator('summary',{hasText:/^Request$/})});
+   await section.locator('summary').click();assert.deepEqual(JSON.parse(await section.locator('pre').innerText()),request);
+  }}]);
  },
 };

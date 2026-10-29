@@ -11,6 +11,16 @@ export default {
  async prepare(dir){await cp(here,dir,{recursive:true});await symlink(resolve('node_modules'),resolve(dir,'node_modules'),'dir')},
  command(mode,dir,dsn){return {command:process.execPath,args:[resolve(dir,'app.mjs'),mode],cwd:dir,env:{SPOOL_FIXTURE_DSN:dsn}}},
  async verify({app,dir,origin,cookie}){
+  const causeProject=await app.json('/api/projects','POST',{id:'rt-node-cause',name:'Node linked errors'});
+  const causeRun=await run(process.execPath,[resolve(dir,'app.mjs'),'cause'],{cwd:dir,env:{SPOOL_FIXTURE_DSN:causeProject.dsn}});
+  assert.equal(causeRun.code,0,causeRun.stderr);
+  const [causeIssue]=await issueDetails(app,causeProject.id),causes=causeIssue.events[0].event.sentry.exceptions;
+  assert.deepEqual(causes.map(cause=>cause.value),['synthetic-spool-node-root','synthetic-spool-node-wrapper']);
+  await readScreens(origin,cookie,[{name:'node-cause',path:`/projects/${causeProject.id}/issues/${causeIssue.issue.id}`,check:async page=>{
+   const root=page.locator('article.exception').filter({has:page.getByRole('heading',{name:/TypeError: synthetic-spool-node-root/})});
+   await root.getByText('Root cause',{exact:true}).waitFor();
+   await page.locator('article.exception > h3').filter({hasText:'Error: synthetic-spool-node-wrapper'}).waitFor();
+  }}]);
   const project=await app.json('/api/projects','POST',{id:'rt-node-releases',name:'Node release identities'}),root='/api/projects/rt-node-releases';
   const cwd=resolve(dir,'identity');await mkdir(cwd);
   // This exact official-SDK program infers from the same CI environment door used by real applications.

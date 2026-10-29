@@ -152,6 +152,16 @@ try {
   const nextRun = await wizard(['--dsn', project.dsn, '--dir', next, '--apply', '--install', '--spool-package', packed.tarball, '--no-test-event'], { stdio: ['ignore', 'pipe', 'inherit'] });
   assert.equal(nextRun.status, 0); assert.match(nextRun.stdout, /Detected next/); assert.match(nextRun.stdout, /tunnelRoute/);
   assert.deepEqual(await Promise.all(nextFiles.map(file => readFile(resolve(next, file), 'utf8'))), nextReviewed, 'Next apply equals every reviewed byte, including source-map configuration');
+  // SDK-010: a server route captures a wrapped error through the installed, unmodified Next SDK.
+  await mkdir(resolve(next, './app/cause'));
+  await writeFile(resolve(next, 'app/cause/route.js'), `import * as Sentry from '@sentry/nextjs';
+Sentry.init({ dsn: process.env.SPOOL_DSN, environment: 'compatibility' });
+export async function GET() {
+  try { throw new Error('synthetic-spool-next-wrapper', { cause: new TypeError('synthetic-spool-next-root') }); }
+  catch (error) { Sentry.captureException(error); await Sentry.flush(10000); }
+  return Response.json({ captured: true });
+}
+`);
   const deploy = await request('/api/projects/setup/keys', 'POST', { kind: 'deploy' });
   const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', CIRCLE_NODE_TOTAL: '2', NEXT_PUBLIC_SPOOL_RELEASE: 'synthetic-spool-setup-1', SPOOL_BUILD: 'synthetic-spool-1', NEXT_PUBLIC_SPOOL_BUILD: 'synthetic-spool-1', SPOOL_ENDPOINT: origin, SPOOL_PROJECT: 'setup', SPOOL_DEPLOY_KEY: deploy.key };
   stage('build Next.js before map upload');
@@ -222,6 +232,17 @@ try {
   await readScreens(origin, cookie, [{ name: 'setup-mapped', path: '/projects/setup/issues/' + after.issue.id, check: page => page.getByText(/app\/page\.js:2:/).first().waitFor() }]);
   await context.close();
   assert.deepEqual(blocked, [], 'the configured app sends nothing the list blocks');
+  stage('capture and read Next.js server cause chain');
+  const causeResponse=await fetch(nextOrigin+'/cause');assert.equal(causeResponse.status,200);assert.deepEqual(await causeResponse.json(),{captured:true});
+  await arrives('synthetic-spool-next-wrapper');
+  const causeIssue=(await issues()).find(row=>row.title.includes('synthetic-spool-next-wrapper'));
+  const causeList=await request(`/api/projects/setup/issues/${causeIssue.id}/events`);
+  const cause=await request(`/api/projects/setup/issues/${causeIssue.id}/events/${causeList.latest.id}?occurrence=${causeList.latest.occurrence}`);
+  assert.deepEqual(cause.event.sentry.exceptions.map(exception=>exception.value),['synthetic-spool-next-root','synthetic-spool-next-wrapper']);
+  await readScreens(origin,cookie,[{name:'setup-next-cause',path:`/projects/setup/issues/${causeIssue.id}`,check:async page=>{
+    await page.locator('article.exception > h3').filter({hasText:'TypeError: synthetic-spool-next-root'}).getByText('Root cause',{exact:true}).waitFor();
+    await page.locator('article.exception > h3').filter({hasText:'Error: synthetic-spool-next-wrapper'}).waitFor();
+  }}]);
   console.log(JSON.stringify({ passed: true, proof: 'Packed spool-setup on fresh Django and Next.js apps: reviewable git-apply patch equals the applied change, SDK installed, test event accepted, configured apps report real failures; other frameworks get guidance; refused DSNs (bad, wrong key, redirect, not Spool, secret key, control characters), a link or hard link to a file outside the project, a link swapped in during the test event and a settings module that is not a dotted name write nothing.' }));
 } finally {
   stage('cleanup browsers, servers and temporary apps');
