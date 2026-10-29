@@ -1,3 +1,6 @@
+import { archiveProjection } from './archive.mjs';
+import { startTestWorker } from './worker.mjs';
+import { signIn } from './auth.mjs';
 // [API-001] Public retained-record reads, exact project grant, pagination and removal.
 import assert from 'node:assert/strict';
 import { followErasure } from './project-erasure/follow.mjs';
@@ -36,7 +39,29 @@ export async function recordReadFlow({ req, json }) {
  }
  const report = (await paginate(root + '/feedback-reports')).rows[0]; await json(root + '/feedback/' + report.id, 'DELETE');
  assert.equal((await paginate(root + '/feedback-reports')).total, 29); assert.ok(!(await paginate(root + '/feedback-reports')).rows.some(r => r.id === report.id));
+ // Reporting definitions recompute retained values and lose only erased-project widgets.
+ const from=Date.now()-60000,to=Date.now()+1000,widget=project=>({project,name:'Retained event volume',config:{metric:'count',q:'',from,to}});
+ const me=await json('/api/organization/me');if(!me.organization)await json('/api/organization','POST',{id:'synthetic-records-org',name:'Record custody organization'});
+ let spanning=await json('/api/reporting/items','POST',{kind:'dashboard',name:'Project custody report',widgets:[widget(p.id),widget(other.id)]});
+ const sole=await json('/api/reporting/items','POST',{kind:'dashboard',name:'Sole project custody',widgets:[widget(p.id)]});
+ assert.equal(spanning.widgets[0].data.value,30);
+ spanning=await json('/api/reporting/items/'+spanning.id+'/shares','PUT',{revision:spanning.revision,shares:[{kind:'role',target:'read-only'}]});
+ const archive=await archiveProjection(await req('/api/archive')),restored=await startTestWorker(15560);
+ try {
+  const cookie=await signIn(restored.origin),response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});
+  assert.equal(response.status,200,await response.text());
+  const itemResponse=await fetch(restored.origin+'/api/reporting/items/'+spanning.id,{headers:{Cookie:cookie}});assert.equal(itemResponse.status,200);const item=await itemResponse.json();
+  assert.equal(item.author,'[erased]');assert.ok(item.shares.length>0&&item.shares.every(share=>!share.active),'private restore never revives reporting shares');assert.equal(item.widgets.find(row=>row.project===p.id).data.value,30,'restored definitions run the retained restored evidence');
+  assert.equal((await fetch(restored.origin+'/api/reporting/items/'+spanning.id)).status,401,'a restored shared id supplies no authority');
+ } finally {await restored.stop()}
+
+ const retained=await json(root+'/retention','POST',{cutoff:Date.now(),apply:true});
+ assert.equal(retained.events,30,'Retention removes the reporting fixture occurrences');
+ assert.equal((await json('/api/reporting/items/'+spanning.id)).widgets.find(row=>row.project===p.id).data.value,0,'Saved widgets retain no expired event-derived cache');
  const plan = await json(root + '/erasure'); await followErasure(json, await json(root + '/erasure', 'POST', { confirm: p.id, planHash: plan.planHash }));
+ const surviving=await json('/api/reporting/items/'+spanning.id);assert.deepEqual(surviving.widgets.map(row=>row.project),[other.id]);
+ assert.equal((await req('/api/reporting/items/'+sole.id)).status,404,'A sole-project definition leaves with project erasure');
+ await json('/api/reporting/items/'+spanning.id,'DELETE',{revision:surviving.revision});
  assert.equal((await req(root + '/occurrences')).status, 404); assert.equal((await req(root + '/feedback-reports')).status, 404);
  assert.equal((await req(root + '/occurrences', 'GET', undefined, auth)).status, 401, 'erasure retires the read grant too');
  console.log('[API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed');

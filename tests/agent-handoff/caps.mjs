@@ -23,6 +23,8 @@ export async function capArchive(app,issue){
  // proposal investigation history cannot name the replacement corpus. The
  // unmodified proposal round trip is covered by operator-flow/product-runtime.
  data.grouping_proposals=[];
+ // The replacement corpus keeps no collaborative decisions from dropped issues.
+ for(const table of ['issue_activity','issue_comments','issue_subscriptions','issue_suppressions','issue_recurrence_boundaries'])data[table]=data[table].filter(row=>row.issue===issue);
  data.issues=[group];data.issue_resolutions=data.issue_resolutions.filter(row=>row.issue===issue);
  // Dropped issues take their short IDs with them; the kept issue keeps its own (TEAM-004).
  data.issue_short_ids=data.issue_short_ids.filter(row=>row.issue===issue&&row.assigned===issue);data.issue_short_id_moves=[];data.alerts=data.alerts.filter(row=>row.issue===issue);data.alert_rules=[];data.alert_history=[];
@@ -56,6 +58,7 @@ export async function capArchive(app,issue){
  // real private owner row without promoting the older open query witness.
  const deliveryIssue=data.issues[2];deliveryIssue.state='acknowledged';
  for(const row of data.alerts.filter(row=>row.issue===issue)){row.issue=deliveryIssue.id;const payload=JSON.parse(row.payload);payload.issueId=deliveryIssue.id;payload.issueUrl='https://handoff-delivery-body.example/?project=a&issue='+deliveryIssue.id;row.payload=JSON.stringify(payload);}
+ data.issue_priorities=data.issues.map(row=>({project:row.project,issue:row.id,automatic:3,manual:null}));
   const text=await archiveText(snapshot,data),poisoned=structuredClone(data);const privateBody=JSON.parse(poisoned.alerts[0].payload);privateBody.deliveryBody='HANDOFF_UNKNOWN_FIELD_CANARY';poisoned.alerts[0].payload=JSON.stringify(privateBody);return {text,invalidText:await archiveText(snapshot,poisoned),issue,largeIssue,deliveryIssue:deliveryIssue.id,sample:{...base,eventId:'over-cap'}};
 }
 export async function capProof(app,{issue,largeIssue,deliveryIssue,sample}){

@@ -1,7 +1,7 @@
 import { useRouter, useRouterState } from '@tanstack/react-router';
-export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts';
+export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts' | 'reports';
 export type Destination = { project: string; view: View; issue?: string; release?: string; section?: string; redirect?: boolean; unknown?: boolean };
-const views: string[] = ['issues', 'releases', 'capture', 'settings', 'alerts'];
+const views: string[] = ['issues', 'releases', 'capture', 'settings', 'alerts', 'reports'];
 export function destination(path: string): Destination {
   if (path === '/') return { project: '', view: 'issues' };
   const parts = path.split('/').filter(Boolean);

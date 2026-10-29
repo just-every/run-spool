@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Field, type Request, type Run } from './shared';
 
-// Owner-only project erasure (BASE-DATA-003): count-only preview, typed
+// Owner-only project erasure (ERASE-001, Base BASE-DATA-003): count-only preview, typed
 // confirmation, then a receipt with counts and times. Values never appear here.
 const labels: Record<string, string> = {
   projects: 'Project', events: 'Occurrences', issues: 'Issues', releases: 'Releases', artifacts: 'Source maps', outcomes: 'Admission counters',

@@ -5,11 +5,11 @@ import {openGate} from '../auth.mjs';
 
 // Reads Spool's own pages as the signed-in owner at desktop and phone width; each page's
 // check waits for what the API already proved, then the page must not scroll sideways.
-export async function readScreens(origin,cookie,pages){
+export async function readScreens(origin,cookie,pages,{widths=[1440]}={}){
  await mkdir('.artifacts/runtimes',{recursive:true});
  const browser=await launchBrowser();
  try{
-  for(const width of [1440]){
+  for(const width of widths){
    const context=await browser.newContext({viewport:{width,height:900}});
    try{
     await openGate(context,origin);

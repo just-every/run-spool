@@ -7,7 +7,7 @@ import {browserLifecycleReport} from '../client-report-sdk.mjs';
 // [SDK-001] One built official-SDK program, identical actions for reference and Spool.
 export async function qualifyBrowser({browser,origin,cookie,request,applicationOrigin,dsns,upload,expectedLine}){
  const app=api(origin,cookie);
- for(const width of [1440]){
+ for(const width of [1440,390]){
   const project=await request('/api/projects','POST',{id:`browser-qualification-${width}`,name:'Browser qualification'});
   await request(`/api/projects/${project.id}/browser-origins`,'POST',{origin:applicationOrigin});
   const execute=async(target)=>{
@@ -91,7 +91,7 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
    {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:page=>page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor()},
    {name:`browser-${width}-mapped`,path:`/projects/${project.id}/issues/${unhandled.issue.id}`,check:page=>page.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor()},
    {name:`browser-${width}-diagnostics`,path:`/projects/${project.id}/capture`,check:page=>page.getByRole('heading',{name:'SDK discarded',exact:true}).waitFor()},
-  ]);
+  ],{widths:[width]});
   console.log(JSON.stringify({qualification:'[SDK-001] browser',width,sent:Object.fromEntries(inventory),outcomes:Object.fromEntries(outcomes)}));
  }
 }

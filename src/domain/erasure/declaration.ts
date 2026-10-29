@@ -1,7 +1,7 @@
 import { defineErasure } from '../../modules/erasure/index.mjs';
 import { erasureCompletionFact } from './audit-fact';
 
-// BASE-DATA-003 project erasure. The selected project and every row that
+// ERASE-001 (Base BASE-DATA-003) project erasure. The selected project and every row that
 // depends on it are deleted through Base erasure, so each deleted row also gets
 // its portability tombstone. Only an imported project has Sentry-import
 // targets, and its erasure commits in one import-kit batch, so targets and the
@@ -16,6 +16,13 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  ...['issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
+  // Multi-project definitions retain their other widgets; a sole-project item
+  // and all its grants leave with the last project they describe.
+  {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
+  {table:'spool_reporting_shares',from:'spool_reporting_items',on:{item:'id'}},
+  {table:'spool_reporting_shares',from:'spool_project_teams',where:"kind='team' AND target=? AND item IN (SELECT item FROM spool_reporting_projects WHERE project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r JOIN spool_project_teams t ON t.project=r.project WHERE r.item=spool_reporting_shares.item AND r.project<>? AND t.organization=? AND t.team=?)",params:['team','project','project','organization','team']},
+  ...['spool_reporting_projects','spool_reporting_widgets'].map(fromProject),
   {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
   {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},
   ...['spool_team_digest_settings','spool_team_snoozes','spool_team_mail'].map(table=>({table,from:'spool_project_teams',

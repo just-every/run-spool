@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-export interface Issue { id: string; project: string; title: string; state: string; count: number; first_seen: number; last_seen: number; revision: number; releases?: string[]; last_release?: string; attention?: Alert | null; short_id?: string | null }
+export type IssuePriority = 'high' | 'medium' | 'low';
+export interface Issue { id: string; project: string; title: string; state: string; count: number; first_seen: number; last_seen: number; revision: number; priority: IssuePriority; releases?: string[]; last_release?: string; attention?: Alert | null; short_id?: string | null }
 export interface Alert { id: string; issue: string; kind: string; created: number; payload?: { release?: { name: string; build: string; sequence: number } } | null }
 export function issueAlert(issue: Issue) {
   if (issue.state === 'resolved' || issue.state === 'suppressed') return undefined;

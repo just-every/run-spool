@@ -8,7 +8,7 @@ import {authBindings} from './auth.mjs';
 import {finishProductRun,migrationFailure,workerOutput} from './product-diagnostics.mjs';
 import {emittedWorkerOptions} from './worker-options.mjs';
 
-export async function startTestWorker(port, bindings={}, {beforeMigration,deferMigration}={}) {
+export async function startTestWorker(port, bindings={}, {beforeMigration,deferMigration,migrationFixture}={}) {
  let temporary,native,stopping,migrate;
  const origin=`http://127.0.0.1:${port}`,summary=workerOutput();
  const artifactDirectory=resolve('.artifacts'),runId=Date.now();
@@ -66,7 +66,9 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
     await target.batch(queries.map(sql=>target.prepare(sql)));
    };
    assert.ok(files.length,'Actual core migrations are required');
-   const sql=(await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')))).join('\n');
+   const sql=migrationFixture
+    ? JSON.parse(await readFile(migrationFixture,'utf8')).migrations.map(row=>row.sql).join('\n')
+    : (await Promise.all(files.map(file=>readFile(resolve('migrations/core',file),'utf8')))).join('\n');
    // Only this standalone no-op is skipped, after proving enforcement above.
    // Wrangler's splitter retains complete triggers and quoted semicolons.
    const queries=unstable_splitSqlQuery(sql).filter(sql=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));

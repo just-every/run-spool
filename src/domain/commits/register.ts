@@ -46,7 +46,7 @@ export async function citationSummary(db: D1Database, project: string, commits: 
 export const shaReleaseStatement = (db: D1Database, project: string, release: string, time: number) =>
  s(db, "INSERT INTO release_commits(project,release,sha,source,created) SELECT project,sha,sha,'sha_release',? FROM commits WHERE project=? AND sha=? ON CONFLICT(project,release,sha) DO NOTHING", time, project, release);
 /** A newly included citation resolves its issue in the first release, under the project's
- * SDK-009 order, that includes the commit: SDK-009's named resolution, so an occurrence in
+ * SDK-028 order, that includes the commit: SDK-009's named resolution, so an occurrence in
  * that release or a later one regresses it and an older one cannot. Each change bumps the
  * issue revision, so a stale owner or bulk decision is refused. */
 function resolutionStatements(db: D1Database, project: string, time: number) {

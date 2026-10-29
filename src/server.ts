@@ -1,3 +1,4 @@
+import {scheduleSuppression} from './domain/suppression/schedule';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
 import { reportDialogResponse } from './domain/report-dialog/public.server';
@@ -43,6 +44,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
  } finally {
   // A broken dispatcher must not prevent independent operator follow-up.
   await scheduledRetention(env.DB,event.scheduledTime);
+  await scheduleSuppression(env,event.scheduledTime);
   await scanFollowUp(env,event.scheduledTime);
   await queueDigests(env,event.scheduledTime);
   await scheduledMail(env,event.scheduledTime);

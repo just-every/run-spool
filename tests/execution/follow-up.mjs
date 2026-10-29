@@ -38,7 +38,7 @@ export async function executionFollowUp(app,github,reproduced){
 
 export async function attentionCaptures(app,browser,directory){
  const captures=[];
- for(const width of [1440]){
+ for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});
   try{
    await openGate(context,app.origin);

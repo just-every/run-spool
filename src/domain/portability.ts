@@ -1,3 +1,9 @@
+import {ensureIssuePriorities} from './issue-priority/model';
+import {ensureRecurrenceBoundaries} from './recurrence/model';
+import {suppressionExportRow} from './suppression/archive';
+import {discussionExportRow} from './discussion/archive';
+import {lifecycleTables} from './lifecycle/archive';
+import { reportingTables, reportingExportRow } from './dashboards/archive';
 import { memberTables, teamAlertTables, memberExportRow } from './members/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
@@ -44,7 +50,7 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))),
+ exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -173,17 +179,27 @@ for(const later of laterTables){later.tables.push(...membershipTables);later.mig
 laterTables.unshift({tables:membershipTables,migrations:['0077_members.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(teamAlertTables));later.migrations.push('0078_team_alerts.sql','0079_team_mail_scope.sql')}
 laterTables.unshift({tables:Object.keys(teamAlertTables),migrations:['0078_team_alerts.sql','0079_team_mail_scope.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables));later.migrations.push('0083_collaborative_lifecycle.sql')}
+laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
+const reportingNames=Object.keys(reportingTables);
+for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
+laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Reporting definitions can accompany an earlier core inventory. Retain only
+ // the complete collection; its schema and column descriptors still match exactly.
+ const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
  // Every set that adds no archived table matches the same schema; an archive that records its migrations takes the
  // one holding every such migration it lacks (0.5.1 archives lack 0054, 0055 and 0056), never only the newest.
  const tableless = [...new Set(laterTables.filter(later => !later.tables.length).flatMap(later => later.migrations))];
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
-  const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
+  if(later.tables.length&&!missing.length)continue;
+  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
@@ -251,6 +267,8 @@ export async function restoreStream(service: any, source: ReadableStream<Uint8Ar
  // An archive made before short IDs restores its issues without them: they are numbered
  // now, in first-seen order, as migration 0059 numbered the source. Current archives keep theirs.
  await ensureShortIds(service.db);
+ await ensureIssuePriorities(service.db);
+ await ensureRecurrenceBoundaries(service.db);
 }
 /** The archive restore alone, as releases before short IDs ran it. */
 export async function restoreArchive(service: any, source: ReadableStream<Uint8Array>, laterJournal?: LaterJournal) {

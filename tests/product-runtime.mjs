@@ -1,5 +1,5 @@
 import {nativeLanguages} from './multilingual.mjs';
-import {releasedArchive} from './old-archive.mjs';
+import {releasedArchive,publishedUpgrade} from './old-archive.mjs';
 import {operatorFlow} from './operator-flow.mjs';
 import {bundleGroupingFlow} from './bundle-grouping.mjs';
 import {operatorArchiveTamper,operatorRetentionAndErasure} from './operator-archive.mjs';
@@ -30,11 +30,13 @@ try {
  const accepted=await json('/api/ingest/web','POST',event,auth);
  assert.equal(accepted.outcome,'accepted');
  assert.equal((await json('/api/ingest/web','POST',event,auth)).outcome,'duplicate');
- assert.equal((await req('/api/ingest/web','POST',{...event,message:'Different payload'},auth)).status,409);
+ // Conflict detection must compare the raw envelope before scrubbing secrets.
+ assert.equal((await req('/api/ingest/web','POST',{...event,message:event.message.replace('PRIVATE_TOKEN','CHANGED_TOKEN')},auth)).status,409,'a changed raw secret remains a conflicting retry');
  const concurrent=await Promise.all(Array.from({length:6},()=>req('/api/ingest/web','POST',{...event,eventId:'retry'},auth)));
  assert.equal(concurrent.filter(r=>r.status===201).length,1);
  assert.ok(concurrent.every(r=>[200,201].includes(r.status)));
  const groups=await json('/api/projects/web/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,2);
+ assert.equal((await json('/api/projects/web/alerts')).length,1,'exact, conflicting and concurrent retries leave one local alert');
  assert.deepEqual(await json('/api/projects/other/issues'),[]);
  assert.equal((await req('/api/ingest/other','POST',event,auth)).status,401);
  const foreign='https://checkout.example';
@@ -78,6 +80,8 @@ try {
  await app.stop();await start();await releasedArchive({req,reset:async()=>{await app.stop();await start()}});
  console.log('Native lifecycle passed: scoped intake, atomic retries, privacy, Python/Go, CORS, restart, checked independent restore, released archive upgrade and session/grant refusal.');
 } finally {await app?.stop()}
+
+await publishedUpgrade();
 
 await auditJourney();
 

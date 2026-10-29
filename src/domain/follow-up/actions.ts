@@ -31,6 +31,11 @@ export async function attentionAction(c:any,row:Attention,body:any,resend:boolea
  const db=c.env.DB,time=Date.now(),statements:D1PreparedStatement[]=[];
  let targetState=resend?'queued':body.state==='accepted'?'completed':'failed';
  if(row.source==='alert'){
+  if(row.source_id.startsWith('suppression:')){
+   if(resend||body.state!=='accepted')return c.json({error:'Review the reopened issue before completing this follow-up.'},409);
+   await ownerWrites(c,[s(db,"UPDATE follow_up_attention SET state='completed',revision=revision+1,updated=? WHERE id=? AND project=? AND revision=? AND historical=0",time,row.id,row.project,body.revision),s(db,'INSERT INTO spool_authority_guards SELECT CASE WHEN changes()=1 THEN 1 ELSE 0 END'),auditCommit(db)]);
+   return c.json({resolved:true,replayed:false});
+  }
   if(row.source_id.startsWith('feed:')){
    if(resend||body.state!=='accepted')return c.json({error:'This alert has no delivery rule. Review the issue and reconcile it as accepted; configure a rule for future alerts.'},409);
    await ownerWrites(c,[s(db,"UPDATE follow_up_attention SET state='completed',revision=revision+1,updated=? WHERE id=? AND revision=?",time,row.id,body.revision),auditCommit(db,'changes()=1')]);
