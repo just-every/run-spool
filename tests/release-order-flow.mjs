@@ -35,7 +35,8 @@ export async function releaseOrderFlow({req,json,db,origin,cookie,browser}) {
    const matches=await json(door+'?q='+encodeURIComponent('release:latest'));assert.ok(matches.rows.length>0);assert.ok(matches.rows.every(row=>row.release===expected.at(-1)),'latest occurrence reads use the final release');
   }
   for(const door of ['issue-search','issue-export'])assert.equal((await json(base+'/'+door+'?q=release:latest')).total,1,'latest search and export find the populated issue');
-  const archive=await archiveProjection(await req('/api/archive'));assert.deepEqual(archive.data.releases.filter(row=>row.project===project.id).map(row=>row.name),expected,'private archive release rows use the snapshot project rule');
+  const native=await json(base+'/releases'),archive=await archiveProjection(await req('/api/archive')),archived=archive.data.releases.filter(row=>row.project===project.id);assert.deepEqual(archived.map(row=>row.name),expected,'private archive release rows use the snapshot project rule');
+  assert.deepEqual(archived,native.map(({project,name,seq,build,created})=>({project,name,seq,build,created})),'ordered archive preserves every release field, including its immutable registration identity');
   if(expected[0]==='1.2.0-rc.1'){
    const restored=await startTestWorker(15554);
    try{

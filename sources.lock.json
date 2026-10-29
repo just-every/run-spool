@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "6e939fad2a2c77bacd988d6e6544e8c552b0f1d9d5bb7d5b3c19348b0fb9ad78",
+      "sha256": "8d8c15bd4d8b1f8eb4fd35d04e23d961c81097ca3b78664ca856a2bb5463e6b1",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "02154096c5d2d1652ea00d1d57347b70b1f652f613ea53543f968bf33edb015c",
+      "sha256": "f5cefab9147dddae610788970459e5521c60d61feba1049a03a9dba06a9f7847",
       "executable": false
     },
     "DEMO.md": {
@@ -9037,7 +9037,7 @@
       "executable": false
     },
     "tests/release-order-flow.mjs": {
-      "sha256": "67c985c9a07f6d3bd7cbbed86ebeeebec0f97cccb2a44a80e28283fc4a0357c2",
+      "sha256": "d9aaa3f69d18b2976d00ae80b727abe3cfb1967c7d7e15940139778f1f7c4f5d",
       "executable": false
     },
     "tests/release-order-properties.mjs": {
