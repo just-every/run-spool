@@ -52,6 +52,36 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  let serial=0;
  const event=(type='KeyError',module='vendor.checkout',line=9)=>({event_id:(++serial).toString(16).padStart(32,'0'),release:'checkout@1.2.0',dist:'web',platform:'python',level:'error',logger:'checkout',sdk:{name:'sentry.python',version:'2.0'},exception:{values:[{type,value:'Account unavailable',stacktrace:{frames:[{filename:'/app/account.py',module:'cedar.account',function:'load',lineno:4,in_app:true},{filename:'/app/vendor.py',module,function:'wrap',lineno:line,in_app:true},{filename:'/app/hidden.py',function:'hidden',lineno:100,vars:{__traceback_hide__:true}}]}}]},tags:{tenant:'cedar'}});
  const send=async e=>{const r=await req(path,'POST','{}\n{"type":"event"}\n'+JSON.stringify(e));assert.equal(r.status,200,await r.text());return e};
+ // Exercise the default frame hash independently of the custom-rule journey below.
+ const hiddenProject=await json('/api/projects','POST',{id:'traceback-grouping',name:'Python hidden frame grouping'}),hiddenBase='/api/projects/'+hiddenProject.id;
+ await json(hiddenBase+'/releases','POST',{name:'checkout@1.2.0',build:'web'});
+ const hiddenDsn=new URL(hiddenProject.dsn),hiddenPath=`/api/${hiddenDsn.pathname.slice(1)}/envelope/?sentry_key=${hiddenDsn.username}&sentry_version=7`;
+ const hiddenDetail=async input=>{
+  const response=await req(hiddenPath,'POST','{}\n{"type":"event"}\n'+JSON.stringify(input),{Cookie:''});assert.equal(response.status,200,await response.text());
+  for(const issue of await json(hiddenBase+'/issues')){
+   const rows=await json(hiddenBase+'/issues/'+issue.id+'/events'),row=rows.rows.find(item=>item.id===input.event_id);
+   if(row)return {issue:issue.id,...await json(hiddenBase+'/issues/'+issue.id+'/events/'+row.id+'?occurrence='+row.occurrence)};
+  }
+  assert.fail('Accepted Python event is visible through owner event detail');
+ };
+ const hiddenOriginal=event('HiddenFrameError');hiddenOriginal.exception.values[0].stacktrace.frames[2].in_app=true;
+ const hiddenChanged=structuredClone(hiddenOriginal);hiddenChanged.event_id=event().event_id;
+ Object.assign(hiddenChanged.exception.values[0].stacktrace.frames[2],{filename:'/app/other-hidden.py',function:'other_hidden',lineno:250});
+ const hiddenFirst=await hiddenDetail(hiddenOriginal),hiddenSecond=await hiddenDetail(hiddenChanged);
+ for(const detail of [hiddenFirst,hiddenSecond]){
+  assert.equal(detail.grouping.variant,'exception chain');assert.equal(detail.grouping.revision,0);assert.equal(detail.grouping.projectFingerprintRule,null);assert.equal(detail.event.sentry.fingerprint,undefined);
+  assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true,'Default grouping still hashes the visible application frame');
+  assert.deepEqual(detail.grouping.exceptions[0].frames[2],{index:2,contributes:false,reason:'__traceback_hide__',inApp:true,hidden:true,rules:[]},'Hidden frame exclusion is explained without a matching rule');
+ }
+ assert.deepEqual(hiddenSecond.grouping.basis,hiddenFirst.grouping.basis,'Changing only hidden frame path, function and line preserves the actual frame hash basis');
+ assert.equal(hiddenSecond.grouping.fingerprint,hiddenFirst.grouping.fingerprint,'Hidden frame changes preserve the stored admission fingerprint');
+ assert.equal(hiddenSecond.issue,hiddenFirst.issue,'Hidden frame changes preserve admitted issue identity');
+ const unhidden=structuredClone(hiddenChanged);unhidden.event_id=event().event_id;delete unhidden.exception.values[0].stacktrace.frames[2].vars.__traceback_hide__;
+ const visibleControl=await hiddenDetail(unhidden);
+ assert.equal(visibleControl.grouping.exceptions[0].frames[2].hidden,false);assert.equal(visibleControl.grouping.exceptions[0].frames[2].contributes,true);
+ assert.notDeepEqual(visibleControl.grouping.basis,hiddenSecond.grouping.basis,'Removing the hidden flag restores the frame to the hash basis');
+ assert.notEqual(visibleControl.grouping.fingerprint,hiddenSecond.grouping.fingerprint,'Unhiding the frame changes the stored admission fingerprint');
+ assert.notEqual(visibleControl.issue,hiddenSecond.issue,'The same frame without its hidden flag creates a distinct issue');
  const original=await send(event()),second=await send(event('KeyError','vendor.payments',20));
  assert.equal((await json(base+'/issues')).length,2);
  const policy={version:1,stack:'stack.module:vendor.* -app\nstack.function:hidden -group',fingerprint:'error.type:KeyError tags.tenant:cedar -> checkout-account'};
@@ -82,7 +112,12 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  const browser=await launchBrowser();
  try{await mkdir('.artifacts/grouping-rules',{recursive:true});for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));
-  const page=await context.newPage();await page.goto(origin+'/projects/group-rules/settings');const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Project grouping rules',exact:true})});try{await panel.getByLabel('Stack trace rules',{exact:true}).waitFor({timeout:10000})}catch(e){await page.screenshot({path:'.artifacts/grouping-rules/unavailable.png',fullPage:true});throw e}
+  const page=await context.newPage();
+  await page.goto(origin+'/projects/'+hiddenProject.id+'/issues/'+hiddenFirst.issue);await page.locator('.metadata[data-event-id]').waitFor();
+  await page.getByText('Frame 3 hidden by __traceback_hide__; excluded from grouping.',{exact:true}).waitFor();
+  const shownStack=await page.locator('.exception-stack').innerText();assert.ok(!shownStack.includes('/app/other-hidden.py')&&!shownStack.includes('other_hidden'),'The hidden Python frame is absent from the rendered stack');
+  await page.getByRole('button',{name:'Details: Event grouping information',exact:true}).click();await page.getByRole('dialog').waitFor();assert.ok((await page.getByRole('dialog').innerText()).includes('Hidden by the application'));await page.screenshot({path:`.artifacts/grouping-rules/hidden-frame-${width}.png`});await page.keyboard.press('Escape');
+  await page.goto(origin+'/projects/group-rules/settings');const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Project grouping rules',exact:true})});try{await panel.getByLabel('Stack trace rules',{exact:true}).waitFor({timeout:10000})}catch(e){await page.screenshot({path:'.artifacts/grouping-rules/unavailable.png',fullPage:true});throw e}
   await panel.getByLabel('Fingerprint rules',{exact:true}).fill('error.type:KeyError -> checkout-account');await panel.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await panel.getByRole('heading',{name:'Retained-event preview'}).waitFor();assert.ok((await panel.innerText()).includes('6 scanned'));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await panel.screenshot({path:`.artifacts/grouping-rules/preview-${width}.png`});
   await panel.getByRole('button',{name:'Save grouping rules',exact:true}).click();await panel.getByRole('status').filter({hasText:'Grouping rules saved'}).waitFor();await panel.screenshot({path:`.artifacts/grouping-rules/saved-${width}.png`});
@@ -95,6 +130,7 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
   const nativeRoot='/api/projects/'+native.project+'/grouping-rules',nativePolicy=await json(nativeRoot);await json(nativeRoot,'PUT',{revision:nativePolicy.revision,policy:nativePolicy.policy});await panel.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await panel.getByRole('heading',{name:'Retained-event preview'}).waitFor();await panel.getByRole('button',{name:'Save grouping rules',exact:true}).click();await panel.getByRole('alert').filter({hasText:'revision conflict'}).waitFor();await panel.screenshot({path:`.artifacts/grouping-rules/native-conflict-${width}.png`});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await context.close();
  }}finally{await browser.close()}
  for(const project of nativeProjects){const p='/api/projects/'+project,plan=await json(p+'/erasure');await followErasure(json,await json(p+'/erasure','POST',{confirm:project,planHash:plan.planHash}));const erased=(await archiveProjection(await req('/api/archive'))).data;assert.ok(!erased.events.some(row=>row.project===project)&&!erased.audit.some(row=>row.project===project)&&!erased.grouping_policies.some(row=>row.project===project),'GROUP-001 erasure removes native snapshots, versions and active policy')}
+ const hiddenErasure=await json(hiddenBase+'/erasure');await followErasure(json,await json(hiddenBase+'/erasure','POST',{confirm:hiddenProject.id,planHash:hiddenErasure.planHash}));
  const erasure=await json(base+'/erasure');assert.equal(erasure.deleted.grouping_policies,1);await followErasure(json,await json(base+'/erasure','POST',{confirm:'group-rules',planHash:erasure.planHash}));assert.ok(!(await archiveProjection(await req('/api/archive'))).data.grouping_policies.some(row=>row.project==='group-rules'));
  console.log('GROUP-001 grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.');
 }
