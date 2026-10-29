@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2b95cb30374824b5287d6ebc63eea850b7eaa419c2f75c75312e158a1ec7bcd7",
+      "sha256": "fee05b3ac515636263e0c74dab6169a1f7f54aada6e48c3d9a92391ab1886104",
       "executable": false
     },
     "DEMO.md": {
@@ -3670,7 +3670,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "028c8c3b4cd440709ff7403f4ecb8957c345e51d08ac58f4d6b9380065b19d7a",
+      "sha256": "c2487f4cd1a1c9ac46530178c7b306bc138af00ea5a1247d7286df975df03406",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -4106,7 +4106,7 @@
       "executable": false
     },
     "packages/sdk/build.mjs": {
-      "sha256": "ad315f14997b1e6c4ec425c9d5d1c563e962f8c5c6b3596b74aa88f37e387f4d",
+      "sha256": "85a7ded1bedbca489db771ecdac36b7864563df2f2e18dfba467c4022c35a65c",
       "executable": false
     },
     "packages/sdk/CHANGELOG.md": {
@@ -4118,7 +4118,7 @@
       "executable": false
     },
     "packages/sdk/README.md": {
-      "sha256": "0dd30c0ffc7ff20775340f4fc61de865e8ac55b5ed8d5375831585cd6f46ee80",
+      "sha256": "86df9fa220a724aa8cf6e5268488d5f37083d5e0983eba02150218b7343c766c",
       "executable": false
     },
     "packages/sdk/src/browser.ts": {
@@ -4202,11 +4202,11 @@
       "executable": false
     },
     "packages/sdk/src/tunnel-body.ts": {
-      "sha256": "15a4d32ef860bb2d44bee48040744859c3af470f76792b330030b332ec5ee201",
+      "sha256": "d807e57cd700862320223cd8e6a43bc25b4ace27444bf6532a441328c90c4fc9",
       "executable": false
     },
     "packages/sdk/src/tunnel.ts": {
-      "sha256": "41fcaf6c8a75fb7453141ba337aa1ff6b635f3ff185da94489e479c9bc6f53ee",
+      "sha256": "1496106dcd79d5a6c4e857e5cb6f65c1e04b92c006b60b1711ed72a239f28740",
       "executable": false
     },
     "packages/sdk/src/types.ts": {
@@ -4230,11 +4230,15 @@
       "executable": false
     },
     "packages/tunnel-python/README.md": {
-      "sha256": "a20dc6daf094f82195b1f9ebdbb7688755eedac3a9c6be1ab366a3424d42e360",
+      "sha256": "4ade93b04254f9c340b2ec5a85dffe94aa271bd97b739591598d2fd64bd26ed9",
+      "executable": false
+    },
+    "packages/tunnel-python/requirements.txt": {
+      "sha256": "e7b4170c307de149cf0475b1c8798e4be2a183923954e2357afdd1ba50c0c5f0",
       "executable": false
     },
     "packages/tunnel-python/spool_tunnel.py": {
-      "sha256": "0dc42ef3ea5b26d9f78b07be4de7dd463eb20c0da40dbcb3a687f8c982f8a846",
+      "sha256": "ed9408018a080430a7b9dadab044e0311c4445e5f4f6ac01a8cc534e12aefb75",
       "executable": false
     },
     "pnpm-lock.yaml": {
@@ -6658,7 +6662,7 @@
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
-      "sha256": "c6ab42e6808b5c07cd165b6e37e3b3460959d3be8f0b774dfc725f429856c4c5",
+      "sha256": "9f121af78d763facaa667c05e5cfcba0a519382a258ffb704249267b09f99e30",
       "executable": false
     },
     "src/domain/sessions/archive.ts": {
@@ -10262,7 +10266,7 @@
       "executable": false
     },
     "tests/runtimes/harness.mjs": {
-      "sha256": "7d40e04f0d293df587abcc49a0bbdeb00b97657628c6a777ebdcdd20b3bd6881",
+      "sha256": "a64e38f97efe8e86c61aa89df591a3fe7e3fece145ee2f338651127da063221d",
       "executable": false
     },
     "tests/runtimes/java.mjs": {
@@ -10302,7 +10306,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "12af5902e83c4a0b76ef1f4bffd5f50acef39de26fa7890775a689ca41015055",
+      "sha256": "d48456ffc134a584d4391bca917ee67e4df0846bde2d1c16007d06f74187848d",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
@@ -10378,7 +10382,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "2de12a24acc0e06d1a64842e55d50e876fdbb26c13935ba66b871ede4c6553a6",
+      "sha256": "615298a21ed1dde4aafafa4b9a515cbefc7f2c87cd3093dfdf11e768e39c2bf0",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
@@ -10434,7 +10438,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "b4c83281caba943f1dbda3188b1ec775b8aa4701326139fceddbc3611224c423",
+      "sha256": "6c0fb509a462c2afa2f10ed56d2e06e87675bb13f46d9ab678ab7516d5a080b8",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -10510,7 +10514,7 @@
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
-      "sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7",
+      "sha256": "6c0ddf800cf80b98308230e760ff42ba0765cce61c21fb72636f979e5e7f852c",
       "executable": false
     },
     "tests/tunnel/server.mjs": {
@@ -10518,7 +10522,7 @@
       "executable": false
     },
     "tests/tunnel/server.py": {
-      "sha256": "cb97c783d8cd0eb2b287d319b181fc3324c2bf5c4c1419b92b90b5c3725113e3",
+      "sha256": "df8d987a7fc7f4f2a5e08d7b9fda7e9be268d77964f24e6f28ee6142d76cb052",
       "executable": false
     },
     "tests/worker-options.mjs": {

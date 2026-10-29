@@ -11,7 +11,7 @@ const root = dirname(fileURLToPath(import.meta.url)), dist = join(root, 'dist'),
 await rm(dist, { recursive: true, force: true });
 await rm(join(root, 'build'), { recursive: true, force: true });
 const common = { bundle: true, format: 'esm', target: 'es2022', legalComments: 'eof', write: true, logLevel: 'warning' };
-await build({ ...common, entryPoints: { browser: 'src/browser.ts', worker: 'src/worker.ts', tunnel: 'src/tunnel.ts', next: 'src/next.ts' }, absWorkingDir: root, outdir: dist, platform: 'neutral', minify: true });
+await build({ ...common, entryPoints: { browser: 'src/browser.ts', worker: 'src/worker.ts', tunnel: 'src/tunnel.ts', next: 'src/next.ts' }, absWorkingDir: root, outdir: dist, platform: 'neutral', external: ['node:*'], minify: true });
 await build({ ...common, entryPoints: { node: 'src/node.ts' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true });
 // The source-map tools parse bundles; their two parser libraries are bundled so the package has no dependencies.
 await build({ ...common, entryPoints: { vite: 'src/sourcemaps/plugin.mjs', webpack: 'src/sourcemaps/webpack.mjs', esbuild: 'src/sourcemaps/esbuild.mjs', sourcemaps: 'src/sourcemaps/bin.mjs', setup: 'src/setup/bin.mjs' }, absWorkingDir: root, outdir: dist, platform: 'node', minify: true, splitting: true, chunkNames: 'shared-[hash]' });

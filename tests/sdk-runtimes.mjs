@@ -28,6 +28,7 @@ try{
   const reference=await referenceCollector();
   const referenceRuns=await execute(reference.dsn);await reference.close();
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
+  if(name==='python')assert.ok(reference.encodings.includes('br'),'SDK-011: the unmodified Python SDK uses installed Brotli');
   const types=counts(reference.sent.map(item=>item.type));
   for(const type of runtime.required)assert.ok(types.get(type),`${name} SDK sent no ${type} item with its default/wizard options (sent ${[...types].join(',')})`);
   const project=await app.json('/api/projects','POST',{id:`rt-${name}`,name:`${name} runtime`});

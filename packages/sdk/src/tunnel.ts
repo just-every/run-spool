@@ -36,7 +36,7 @@ export function spoolTunnel(options: TunnelOptions): (request: Request) => Promi
   return async request => {
     if (request.method !== 'POST') return refuse(405, 'Tunnel accepts POST only');
     if (Number(request.headers.get('content-length')) > limit) return tooLarge();
-    const encoding = request.headers.get('content-encoding')?.toLowerCase() ?? null;
+    const encoding = request.headers.get('content-encoding')?.trim().toLowerCase() ?? null;
     let body: Uint8Array<ArrayBuffer>, plain: Uint8Array | undefined;
     try { body = await readBounded(request.body); } catch (error) { if (error instanceof TooLarge) return tooLarge(); throw error; }
     if (!body.length) return refuse(400, 'Empty envelope');
