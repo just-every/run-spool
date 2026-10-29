@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .node-version
-      - run: corepack enable && pnpm install --frozen-lockfile
+      - run: corepack enable && pnpm config set store-dir "$RUNNER_TEMP/pnpm-store" && pnpm install --frozen-lockfile
         env:
           COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
       - run: pnpm exec rer deploy --site
@@ -32,7 +32,7 @@ jobs:
       - name: Public readback
         run: |
           domain=$(node -p "require('./deploy-site.json').domain")
-          for i in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             [ "$(curl -s -o /dev/null -w '%{http_code}' "https://$domain/run")" = 200 ] && break
             sleep 10
           done

@@ -1,7 +1,7 @@
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
-import { ownerSession } from '../../auth/session.server';
+import { requestAuthority as ownerSession } from '../agent-door/native-authority';
 import { authorizeDeploy,deployBatch } from '../sentry/deploy';
 import { canonical,hash } from '../privacy';
 import { releaseIdentity } from '../releases/identity';
