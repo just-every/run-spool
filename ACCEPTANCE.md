@@ -350,8 +350,8 @@ Core · target · **partial** · Rules D-1
 5. From an unmodified Python SDK with default `include_local_variables`, the frame locals `password` and `api_key` are masked by default.
 6. A `$frame.vars.order_note` mask rule masks `order_note`, and the ordinary local survives in issue detail.
 
-**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`
-**Gap.** Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent.
+**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`; `src/domain/sentry/evidence-values.ts`; `tests/sdk-runtimes.mjs` Python Q1 to Q7 runtime journey with `tests/runtimes/python/app.py` (unmodified sentry-sdk 2.72.0, default local-variable capture) and `tests/runtimes/python.mjs` verify (acceptance 5: owner HTTP issue detail retains quantity and masks password and api_key) and checkIssue (owner issue view exposes SDK-sent locals)
+**Gap.** Supplied breadcrumb messages are stored. Acceptance 5 default Python local-variable masking is qualified. Acceptance 1 to 4 and 6 remain unqualified: category switches and full automatic instrumentation; before-send filtering, occurrence timelines and visible truncation with secret-free stored and forwarded projections; organization sensitive fields, project safe fields and custom-rule previews; event, span and log scrubbing across storage, issue views, packets and exports while safe fields survive; and a `$frame.vars.order_note` mask rule with an ordinary local retained. Wider request and context policies and MIG-001 scrubbing-rule import and real dual run remain open.
 
 #### SDK-004 — User feedback attached to failures
 
