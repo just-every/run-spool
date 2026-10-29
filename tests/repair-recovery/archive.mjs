@@ -37,7 +37,8 @@ export async function preRepairArchive(text){
 const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...lifecycleTables,...laterCustodyTables,...repairTables,...citationTables,...loaderTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
 // Part 4: a pre-repair archive restores with empty repair tables; a populated
 // archive restores repairs, checks and every verdict input intact.
-export async function archiveProof(app,{issue,repair,cutoff}){
+export async function archiveProof(app,{issue,repair,cutoff,credentials}){
+ const originalCookie=app.cookie;
  const source=await app.archive();assert.ok(source.data.repairs.length&&source.data.repair_checks.length);
  const read=async()=>(await app.json(`/api/projects/a/repairs?issue=${issue}`)).repairs.find(row=>row.id===repair.id);
  const before=await read();
@@ -50,7 +51,16 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
  const after=await read(),stable=row=>({...row,observation:{...row.observation,evidence:{...row.observation.evidence,window:{start:row.observation.evidence.window.start}}}});
- assert.deepEqual(stable(after),stable(before),'restored repair, checks and computed verdict');
+ const {historical,...restoredHistory}=after;assert.equal(historical,true,'restore labels preserved repair evidence as historical');
+ assert.deepEqual(stable(restoredHistory),stable(before),'restored repair, checks and computed historical verdict');
+ const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);assert.equal(packet.repairs.find(row=>row.id===repair.id).historical,true);
+ assert.equal(packet.verification.state,'inconclusive');assert.match(packet.verification.reason,/Restored history has no current repair proof/);
+ const denied=async(path,options)=>{const response=await app.request(path,'GET',undefined,options);assert.equal(response.status,401,'source authority is not restored');await response.body?.cancel();};
+ await denied('/api/projects',{headers:{Cookie:originalCookie}});
+ await denied(`/api/projects/a/issues/${issue}/packet`,{agent:credentials.agent});
+ for(const kind of ['ingest','deploy']){const response=await app.request(kind==='ingest'?'/api/ingest/a':'/api/projects/a/releases','POST',kind==='ingest'?{version:1,eventId:'synthetic-spool-restore'}:{name:'synthetic-spool-restore',build:'restore'},{agent:credentials[kind]});assert.equal(response.status,401,'restored project grants cannot write');await response.body?.cancel();}
+ const quiet=await app.archive();assert.deepEqual(quiet.data,restored.data,'source grant refusals change no restored product rows');
+ assert.ok(restored.data.alert_rules.length>0,'restore includes a real previously enabled rule');assert.ok(restored.data.alert_rules.every(row=>row.enabled===0),'restored rules are disabled');
  // Retention keeps the repair and marks its snapshot events that are gone.
  await app.json('/api/projects/a/retention','POST',{cutoff,apply:true});
  const retained=await read(),retainedArchive=await app.archive();
