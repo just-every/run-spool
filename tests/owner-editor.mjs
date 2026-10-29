@@ -37,10 +37,12 @@ try {
  edge.state.allowed = app.origin;
  assert.equal((await app.call('/api/editor/config')).status, 403, 'anonymous config requests are refused');
  const cookie = await signIn(app.origin);
+ const requestedAt = Date.now();
  const config = await app.call('/api/editor/config', undefined, {Cookie: cookie});
  assert.equal(config.status, 200); assert.match(config.headers.get('cache-control'), /no-store/);
  assert.match(config.headers.get('vary'), /Cookie/i);
  const grant = await config.json(); assert.equal(grant.config.managementOrigin, edge.origin);
+ assert.ok(grant.expiresAt > requestedAt && grant.expiresAt <= Date.now() + 30_000, 'owner editor grants have bounded short expiry');
  assert.equal((await app.call('/api/projects', {id: 'editor-scope', name: 'Editor scope'}, {Cookie: cookie})).status, 201);
  const agentGrant = await (await app.call('/api/projects/editor-scope/keys', {kind: 'agent'}, {Cookie: cookie})).json();
  assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200);

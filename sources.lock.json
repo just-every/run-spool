@@ -8749,7 +8749,7 @@
       "executable": false
     },
     "tests/commands.mjs": {
-      "sha256": "2acd5331595c660bf032aca7ed6dcb87459ff52e230c4310341fc859f684034a",
+      "sha256": "68549b51ccc602a28554dee3161cf26d519cbf137b7a950b6e7efa87fc50477a",
       "executable": false
     },
     "tests/demo-capture.mjs": {
@@ -8933,7 +8933,7 @@
       "executable": false
     },
     "tests/owner-editor.mjs": {
-      "sha256": "6ba32af6b1c6785d42bc999540fca81ab61e3d5beb807f37df15849d2be34f53",
+      "sha256": "36dcc7e664e3914b2e3528e1841b32b1ac6aa3d5a76542db98545f7b416d4d9e",
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {

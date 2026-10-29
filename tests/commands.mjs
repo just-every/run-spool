@@ -1,8 +1,9 @@
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
-import {readFile,writeFile,mkdir,lstat,access,rm,symlink,readdir} from 'node:fs/promises';
-import {resolve} from 'node:path';
+import {readFile,writeFile,mkdir,lstat,access,rm,symlink,link,readdir} from 'node:fs/promises';
+import {resolve,dirname} from 'node:path';
+import {DatabaseSync} from 'node:sqlite';
 import {parseEnv} from 'node:util';
 import {commandCheckout} from './command-runner.mjs';
 import {journeyDiagnostics,finishJourney} from './command-diagnostics.mjs';
@@ -22,6 +23,37 @@ const get=path=>readFile(resolve(root,path),'utf8');
 // rer setup writes the checkout's local admission key.
 const useCheckoutKey=async()=>{gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await get('.rer/local/dev-key.env'))[1];};
 const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
+ // Observe the stopped installation without minting a session or changing it.
+ const installation=async()=>{
+  const settings={};for(const file of ['.dev.vars','.seed/installer/setup-answers.json'])settings[file]=await exists(file)?await get(file):null;
+  const databases={};
+  if(await exists('.wrangler/state'))for(const file of (await readdir(resolve(root,'.wrangler/state'),{recursive:true})).filter(file=>file.endsWith('.sqlite')).sort()){
+   const db=new DatabaseSync(resolve(root,'.wrangler/state',file),{readOnly:true});
+   try{databases[file]=db.prepare("SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name").all().map(({name,sql})=>({name,sql,rows:db.prepare('SELECT * FROM "'+name.replaceAll('"','""')+'"').all().map(row=>JSON.stringify(row)).sort()}));}finally{db.close();}
+  }
+  return {settings,databases};
+ };
+ const unsafeAnswers=async()=>{
+  const outside=resolve(dirname(root),'synthetic-spool-answers.json'),privatePath='.rer/local/synthetic-spool-answers.json';
+  const answers=JSON.stringify({OWNER_EMAIL:testOwner});
+  await mkdir(resolve(root,'.rer/local'),{recursive:true});await writeFile(outside,answers,{mode:0o600});await put(privatePath,answers);
+  await symlink(outside,resolve(root,'.rer/local/linked-answers.json'));
+  await symlink(dirname(root),resolve(root,'.rer/local/linked-directory'));
+  await link(outside,resolve(root,'.rer/local/shared-answers.json'));
+  const before=await installation(),outsideStat=await lstat(outside);
+  for(const path of [outside,'../synthetic-spool-answers.json','.rer/local/../local/synthetic-spool-answers.json','.rer/local/linked-answers.json','.rer/local/linked-directory/synthetic-spool-answers.json','.rer/local/shared-answers.json']){
+   const result=await command(['setup','--answers',path,'--port','15530'],null);
+   assert.equal(result.code,4,'unsafe answer paths receive the public safety refusal');
+   assert.ok(result.output.split('\n').some(line=>{try{const event=JSON.parse(line);return event.event==='error'&&event.code==='safety_refusal';}catch{return false;}}),'the refusal is for path safety');
+   assert.deepEqual(await installation(),before,'unsafe answers preserve every owner, settings and product row');
+   assert.equal(await readFile(outside,'utf8'),answers,'outside answer canary is unchanged');
+   const afterStat=await lstat(outside);assert.equal(afterStat.mode,outsideStat.mode,'outside permissions are unchanged');assert.equal(afterStat.nlink,outsideStat.nlink,'shared outside file stays linked');
+   assert.equal(await get(privatePath),answers,'valid private answers are unchanged');
+   assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'refused setup starts no application');
+  }
+  await rm(resolve(root,'.rer/local/linked-answers.json'));await rm(resolve(root,'.rer/local/linked-directory'));await rm(resolve(root,'.rer/local/shared-answers.json'));await rm(outside);
+  return privatePath;
+ };
  diagnostics.stage('contract');
  assert.equal(await exists('node_modules'),false);assert.equal(await exists('.dev.vars'),false);
  // The public package launcher installs the declared pin before structural check.
@@ -51,7 +83,8 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  process.kill(slow.child.pid,'SIGINT');assert.equal((await slow.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'cancellation stops the real runtime');
  assert.ok((await get('.dev.vars'))===initialSettings,'private settings preserved byte for byte');await put('scripts/installer/local.mjs',adapterText);
  diagnostics.stage('setup');
- await command(['setup','--owner-email',testOwner,'--port','15530']);await useCheckoutKey();
+ const privateAnswers=await unsafeAnswers();
+ await command(['setup','--answers',privateAnswers,'--port','15530']);await useCheckoutKey();
  const generated=parseEnv(initialSettings);for(const file of await readdir(resolve(root,'dist'),{recursive:true})){const path=resolve(root,'dist',file);if((await lstat(path)).isFile()){const bytes=await readFile(path);for(const key of ['SESSION_SECRET','SETUP_TOKEN'])assert.equal(bytes.includes(Buffer.from(generated[key])),false,'private generated secret absent from build');}}
  assert.ok((await get('.dev.vars'))===initialSettings,'private settings preserved byte for byte');assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false,'setup stops its runtime');
  diagnostics.stage('owner-preservation');
@@ -67,6 +100,7 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  const previewCookies=await previewOwnerSession(origin,generated.SESSION_SECRET);
  dev.child.kill('SIGINT');assert.equal((await dev.closed).code,130);assert.equal(await fetch(origin+'/health').then(()=>true,()=>false),false);
  diagnostics.stage('preview');
+ await unsafeAnswers();
  const preview=await ready(['preview','--port','15531'],previewOrigin);
  diagnostics.stage('mobile-preview');
  const narrow=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),phone=await narrow.newPage();
@@ -128,5 +162,5 @@ const put=(path,value)=>writeFile(resolve(root,path),value,{mode:0o600});
  assert.equal((await (await resumed.request.get(previewOrigin+'/api/projects')).json()).length,1);
  await resumed.close();await browser.close();browser=null;await command(['preview','--stop']);assert.equal((await mobileRestart.closed).code,0);
  diagnostics.stage('complete');
- console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
+ console.log('Spool README commands passed: fresh-clone package bootstrap and contract omission, frozen install, setup failure/resume, unsafe answer-path refusals before and after owner and product creation, private relative-answer control and owner preservation, foreground dev/preview, independent fresh setup/form completion and no-JS sign-in at 1440/390, ordinary owner session in production preview after restart, active reset refusal, validated CLI portability, reset/fresh owner, deploy dry-run.');
 }catch(error){failure=diagnostics.failure(error);}finally{await finishJourney(diagnostics,failure,browser,checkout);}
