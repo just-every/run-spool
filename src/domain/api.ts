@@ -3,6 +3,7 @@ import {discussionRoutes} from './discussion/routes';
 import recurrenceRoutes from './recurrence/routes';
 import priorityRoutes from './issue-priority/routes';
 import {prioritySql} from './issue-priority/model';
+import type { NativeAuthority } from './agent-door/native-authority';
 import { mintedByCurrentPerson } from './credential-fence';
 import { resolveMembership } from './members/resolver';
 import { memberProjects } from './members/resolver';
@@ -29,7 +30,7 @@ import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filte
 import { Hono } from 'hono';
 import { rejectedResponse } from '../base/rejected-response';
 import { AuthError } from '../modules/operator-auth/index.mjs';
-import { ownerSession, ownerWrite } from '../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from './agent-door/native-authority';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
 import alertRoutes from './alerts/routes';
@@ -76,7 +77,7 @@ import { alertProjection, issueProjection, outcomeProjection } from './agent-pro
 import { issuePacket } from './packet';
 import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority';
 
-const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
+const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:NativeAuthority}}>();
 api.route('/api/organization',memberRoutes);
 api.route('/api/audit',auditRoutes);
 // These bounded read doors independently enforce exact-project authority.
