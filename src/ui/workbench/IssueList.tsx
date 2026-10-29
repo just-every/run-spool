@@ -1,44 +1,49 @@
-import {ReviewViews} from './ReviewViews';
 import { useState } from 'react';
 import { BulkTriage, useBulkSelection } from './BulkTriage';
 import { useIssueSearch } from './useIssueSearch';
-import { Link } from '@tanstack/react-router';
-import { Details } from './Details';
 import { EmptyCapture } from './EmptyCapture';
-import { hrefFor } from './location';
-import { attentionLabel, issueAlert, type Alert, type Issue } from './attention';
-import { date, stateLabel, states, useDraft } from './shared';
-export function IssueList({ project, rows, unseen, loading, failed, onRefresh, onSetup, readOnly = false }: {
-  project: string; rows: Issue[]; unseen: (alert?: Alert) => boolean; loading: boolean; failed: boolean; onRefresh: () => void; onSetup: () => void; readOnly?: boolean;
+import { IssueToolbar, fromQueryText, issueViews, queryText, type IssueQuery } from './IssueToolbar';
+import { IssueTable } from './IssueTable';
+import type { Alert, Issue } from './attention';
+import { useDraft } from './shared';
+import './issues.css';
+
+/** The landing list: the title, one toolbar row, then the issues. Filters, sort and display options fold into the
+ * toolbar's menus; bulk actions appear only once a row is selected. Unresolved (open and acknowledged) is the default. */
+export function IssueList({ project, rows, unseen, onRefresh, onSetup, readOnly = false }: {
+  project: string; rows: Issue[]; unseen: (alert?: Alert) => boolean; onRefresh: () => void; onSetup: () => void; readOnly?: boolean;
 }) {
-  const initial = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
-  const [search, setSearch] = useDraft(`${project}.issue-search`, initial.get('q') ?? '');
-  const [state, setState] = useDraft(`${project}.issue-state`, initial.get('status') ?? 'all');
+  const initial = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search), start = fromQueryText(initial.get('q') ?? '');
+  const [search, setSearch] = useDraft(`${project}.issue-search`, start.search), [pending, setPending] = useDraft(`${project}.issue-pending`, start.pending);
+  const [state, setState] = useDraft(`${project}.issue-state`, initial.get('status') ?? 'unresolved');
   const [release, setRelease] = useDraft(`${project}.issue-release`, initial.get('release') ?? 'all'), [sort, setSort] = useDraft(`${project}.issue-sort`, initial.get('sort') ?? 'priority');
-  const [cursors,setCursors]=useState<string[]>(['']),[copied,setCopied]=useState(false);
-  const params=new URLSearchParams({q:search,status:state,release,sort,cursor:cursors.at(-1)!});
-  const query=useIssueSearch(project,params.toString(),rows),result=query.result;
-  loading=query.loading;failed=!!query.failed;
-  const visible:Issue[]=result?.rows??[],total=result?.total??0;
-  const selection=useBulkSelection();
-  const reset=()=>{setCursors(['']);selection.clear()};
-  if (!loading && !failed && !total && !search && state==='all' && release==='all') return <EmptyCapture waiting onSetup={onSetup} />;
-  return <section className="evidence issue-browser" aria-labelledby="issue-browser-heading" aria-busy={loading}>
-    <div className="issue-browser-heading"><h2 id="issue-browser-heading" className="visually-hidden">Issues</h2></div>
-    <div className="issue-counts"><div><span>Pending review</span><strong>{loading?'…':failed?'—':result?.reviewPending??0}</strong></div><div><span>Unseen on this page</span><strong>{loading ? '…' : failed ? '—' : visible.filter(row => unseen(issueAlert(row))).length}</strong></div><div><span>Open</span><strong>{loading ? '…' : failed ? '—' : result?.facets.statuses.find((r:any)=>r.value==='open')?.count ?? 0}</strong></div><div><span>Resolved</span><strong>{loading ? '…' : failed ? '—' : result?.facets.statuses.find((r:any)=>r.value==='resolved')?.count ?? 0}</strong></div></div>
-    <div className="issue-filters"><label className="form-field">Search issues<input type="search" value={search} onChange={e => { setSearch(e.target.value); reset(); }} /></label><label className="form-field">Status<select value={state} onChange={e => { setState(e.target.value); reset(); }}><option value="all">All statuses</option>{states.map(value => <option key={value} value={value}>{stateLabel(value)}</option>)}</select></label><label className="form-field">Release<select value={release} onChange={e => { setRelease(e.target.value); reset(); }}><option value="all">All releases</option>{(result?.facets.releases??[]).map((item:any) => <option key={item.value} value={item.value}>{item.value} ({item.count})</option>)}</select></label><label className="form-field">Sort<select value={sort} onChange={e => { setSort(e.target.value); reset(); }}><option value="priority">Highest priority</option><option value="latest">Latest received</option><option value="occurrences">Most occurrences</option></select></label></div>
-    <div className="issue-search-actions"><button className="text-button" onClick={()=>{setSearch(/(^|\s)review:pending(?=\s|$)/.test(search)?search:(search+' review:pending').trim());reset()}}>Show pending review</button></div>
-    {!readOnly && <ReviewViews project={project} query={{q:search,status:state,release,sort}} onChoose={view=>{setSearch(view.q);setState(view.status);setRelease(view.release);setSort(view.sort);reset()}}/>}
-    {loading ? <p role="status">Loading issues…</p> : failed ? <p role="alert">Issue search is unavailable. <button className="text-button" onClick={onRefresh}>Retry search</button></p> : <>
-      <div className="list-summary"><p role="status">{total} {total === 1 ? 'issue' : 'issues'}{search || state !== 'all' || release !== 'all' ? ' matching your filters' : ''}</p><Details title="Issue list and viewing"><p>Search, facets and ordering cover every retained issue in this project. Combine words or fields: priority:high environment:production error.type:TypeError function:checkout after:2026-01-01. A short ID or alias such as CHECKOUT-1A3 finds its issue in any case. Quote values containing spaces. Other keys match retained tags; user identity fields are unavailable. Occurrence counts include all retained events of each matching issue.</p><p>Priority sorts high, medium, then low. Within each priority, active regressions sort before new issues, followed by latest receipt. Pending review means a new or regressed issue since its latest owner review. Mark reviewed through the selection preview; it changes no triage state or occurrence. Saved queries are private to this owner workspace; links require sign-in. Unseen is stored in this browser and counts only this page. Opening evidence marks its latest alert viewed; it does not acknowledge or resolve the issue.</p><p>Exports contain the same query's issue aggregates, to 10,000 issues; larger exports are explicitly refused. Use the paginated API for larger queries.</p></Details></div>
-      <div className="issue-search-actions"><button className="text-button" onClick={async()=>{const url=new URL(location.href);params.delete('cursor');url.search=params.toString();await navigator.clipboard.writeText(url.href);setCopied(true)}}>{copied?'Search link copied':'Copy search link'}</button> <a className="text-button" href={`/api/projects/${encodeURIComponent(project)}/issue-export?${params}&format=json`}>Export JSON</a> <a className="text-button" href={`/api/projects/${encodeURIComponent(project)}/issue-export?${params}&format=csv`}>Export CSV</a></div>
-      <p className="muted">Environments: {(result?.facets.environments??[]).map((item:any)=>`${item.value} (${item.count})`).join(' · ') || 'No matching retained events'}</p>
-      {!readOnly && !!visible.length&&<><button className="text-button" disabled={query.refreshing} onClick={()=>selection.select(visible)}>Select this page</button><BulkTriage project={project} selected={selection.selected} refreshing={query.refreshing} clear={selection.clear} onApplied={onRefresh}/></>}
-      {visible.length ? <div className="table-region"><table className="issue-table"><thead><tr><th scope="col">Issue</th><th scope="col">Release</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col">Occurrences</th><th scope="col">Last received</th></tr></thead><tbody>{visible.map(row => {
-        const alert = issueAlert(row);
-        return <tr key={row.id} className={unseen(alert) ? 'unseen-issue' : undefined}><th scope="row">{!readOnly && <label className="issue-select"><input type="checkbox" disabled={query.refreshing} aria-label={`Select ${row.title}`} checked={selection.selected.some(item=>item.id===row.id)} onChange={()=>selection.toggle(row)}/> Select</label>}{row.short_id && <code className="short-id" title="Short ID">{row.short_id}</code>}<Link className="issue-open" to={hrefFor(project, 'issues', row.id) as any}>{row.title}</Link>{alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}{unseen(alert) && <span className="unseen-label">Unseen</span>}</th><td data-label="Release">{row.last_release === ''?'none':row.last_release ?? 'No retained events'}</td><td data-label="Status"><span className={`state-chip ${row.state}`}>{stateLabel(row.state)}</span></td><td data-label="Priority"><span className={`priority-chip ${row.priority}`}>{stateLabel(row.priority)}</span></td><td data-label="Occurrences">{row.count}</td><td data-label="Last received">{date(row.last_seen)}</td></tr>;
-      })}</tbody></table></div> : <div className="issue-filter-empty"><p>No issues match these filters.</p><button className="text-button" onClick={() => { setSearch(''); setState('all'); setRelease('all'); reset(); }}>Clear filters</button></div>}
-      {(cursors.length>1||result?.next) && <nav className="pagination" aria-label="Issue pages"><button className="text-button" disabled={cursors.length===1} onClick={()=>{selection.clear();setCursors(values=>values.slice(0,-1))}}>Previous</button><span>Page {cursors.length} · {total} issues</span><button className="text-button" disabled={!result?.next} onClick={()=>{selection.clear();setCursors(values=>[...values,result.next])}}>Next</button></nav>}
+  const [cursors, setCursors] = useState<string[]>(['']);
+  const query: IssueQuery = { search, pending, state, release, sort }, q = queryText(query);
+  const params = new URLSearchParams({ q, status: state, release, sort, cursor: cursors.at(-1)! });
+  const exportQuery = new URLSearchParams({ q, status: state, release, sort }).toString();
+  const found = useIssueSearch(project, params.toString(), rows), result = found.result, loading = found.loading, failed = !!found.failed;
+  const visible: Issue[] = result?.rows ?? [], total = result?.total ?? 0;
+  const selection = useBulkSelection();
+  const narrowed = !!search.trim() || pending || release !== 'all' || !issueViews.some(([value]) => value === state);
+  function change(next: Partial<IssueQuery>) {
+    if (next.search !== undefined) setSearch(next.search);
+    if (next.pending !== undefined) setPending(next.pending);
+    if (next.state !== undefined) setState(next.state);
+    if (next.release !== undefined) setRelease(next.release);
+    if (next.sort !== undefined) setSort(next.sort);
+    setCursors(['']); selection.clear();
+  }
+  if (!loading && !failed && result?.facets?.views?.all === 0 && !q && release === 'all') return <EmptyCapture waiting onSetup={onSetup} />;
+  return <section className="issue-browser" aria-labelledby="issue-browser-heading" aria-busy={loading}>
+    <h2 id="issue-browser-heading" className="visually-hidden">Issues</h2>
+    <IssueToolbar project={project} query={query} result={result} readOnly={readOnly} exportQuery={exportQuery} onChange={change} onRefresh={onRefresh} />
+    {!readOnly && selection.selected.length > 0 && <BulkTriage project={project} selected={selection.selected} refreshing={found.refreshing} clear={selection.clear} onApplied={onRefresh} />}
+    {loading ? <p role="status" className="list-state">Loading issues…</p> : failed ? <p role="alert" className="list-state">Issue search is unavailable. <button className="text-button" onClick={onRefresh}>Retry search</button></p> : <>
+      <p role="status" className="visually-hidden">{total} {total === 1 ? 'issue' : 'issues'}{narrowed ? ' matching your filters' : ''}</p>
+      {visible.length ? <IssueTable project={project} rows={visible} unseen={unseen} readOnly={readOnly} selection={selection} refreshing={found.refreshing} />
+        : !narrowed && state === 'unresolved' ? <div className="list-state"><p>Nothing unresolved.</p><button className="text-button" onClick={() => change({ state: 'all' })}>Show all issues</button></div>
+        : <div className="list-state"><p>No issues match these filters.</p><button className="text-button" onClick={() => change({ search: '', pending: false, state: 'unresolved', release: 'all' })}>Clear filters</button></div>}
+      {(cursors.length > 1 || result?.next) && <nav className="pagination" aria-label="Issue pages"><button className="text-button" disabled={cursors.length === 1} onClick={() => { selection.clear(); setCursors(values => values.slice(0, -1)); }}>Previous</button><span className="meta">Page {cursors.length} · {total} issues</span><button className="text-button" disabled={!result?.next} onClick={() => { selection.clear(); setCursors(values => [...values, result.next]); }}>Next</button></nav>}
     </>}
   </section>;
 }

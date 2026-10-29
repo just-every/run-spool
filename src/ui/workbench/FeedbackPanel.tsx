@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Link} from '@tanstack/react-router';
 import {useLiveRead} from './useLiveRead';
-import {Details} from './Details';
+import {Fold} from './Fold';
+import {SectionHead} from './SectionHead';
 import {date, type Request, type Run} from './shared';
 import {hrefFor} from './location';
 import './feedback.css';
@@ -46,11 +47,8 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
    await load();
   } catch(error) {setFailure((error as Error).message)}
  });
- return <section className="evidence feedback-panel" aria-label={issue?'Issue feedback':'Project feedback inbox'}>
-  <div className="feedback-heading"><h2>{issue?'User feedback':'Feedback inbox'}</h2>{!issue&&<button className="text-button" disabled={busy||loading} onClick={()=>void load()}>Refresh feedback</button>}</div>
-  {issue?<Details title="User feedback"><p>Reports linked to events in this issue. Contact details and attachments are excluded.</p></Details>:<p>All text reports received for this project, including reports sent without an event. Contact details and attachments are not retained.</p>}
-  {!issue&&<p className="muted">Use your application’s consent form before sending feedback through Sentry’s captureFeedback or feedback widget. Spool currently receives text only; replies and screenshot review are unavailable.</p>}
-  {!issue&&page&&<p className="muted">Current limits: {page.bounds.messageCharacters.toLocaleString()} characters per report, {page.bounds.perMinute} reports per minute and {page.bounds.retained.toLocaleString()} retained reports per project. Larger or excess submissions are refused with a reason.</p>}
+ const body=<>
+  {issue?<p className="meta">Reports linked to events in this issue. Contact details and attachments are excluded.</p>:null}
   {failure&&<div role="alert"><p>Feedback could not be loaded: {failure}</p><button className="text-button" disabled={loading} onClick={()=>void load()}>Retry feedback</button></div>}
   {failure&&page&&<p className="muted">Showing the last successful refresh. New reports may be unavailable.</p>}
   {!page&&loading&&<p role="status">Loading feedback…</p>}
@@ -64,5 +62,10 @@ export function FeedbackPanel({project, issue, request, run, busy}: {
   </li>)}</ul>
   {page?.next&&<button className="text-button" disabled={busy||loading} onClick={()=>void load(page.next!)}>Load more feedback</button>}
   {notice&&<p role="status">{notice}</p>}
+ </>;
+ if(issue)return <Fold title="User feedback" label="Issue feedback" className="feedback-panel" meta={failure&&!page?'Feedback unavailable':!page?'Loading feedback…':page.total?`${page.total} ${page.total===1?'report':'reports'}`:'No feedback linked yet'}>{body}</Fold>;
+ return <section className="evidence feedback-panel" aria-label="Project feedback inbox">
+  <SectionHead title="Feedback inbox" about={<><p>All text reports received for this project, including reports sent without an event. Contact details and attachments are not retained.</p><p>Use your application’s consent form before sending feedback through Sentry’s captureFeedback or feedback widget. Spool currently receives text only; replies and screenshot review are unavailable.</p>{page&&<p>Current limits: {page.bounds.messageCharacters.toLocaleString()} characters per report, {page.bounds.perMinute} reports per minute and {page.bounds.retained.toLocaleString()} retained reports per project. Larger or excess submissions are refused with a reason.</p>}</>}><button className="text-button" disabled={busy||loading} onClick={()=>void load()}>Refresh feedback</button></SectionHead>
+  {body}
  </section>;
 }

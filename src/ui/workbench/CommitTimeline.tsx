@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Fold } from './Fold';
 import { date, type Request } from './shared';
 
 // TEAM-004: commits that cite this issue, the release each resolved it in and any later
@@ -10,7 +11,8 @@ export function CommitTimeline({ project, issue, shortId, refresh, request }: { 
   request(`/api/projects/${encodeURIComponent(project)}/commits/issues/${encodeURIComponent(issue)}`).then(value => { if (alive) setTimeline(value); }).catch(error => { if (alive) setFailed(error.message); });
   return () => { alive = false; };
  }, [project, issue, refresh, request]);
- return <section className="evidence commit-timeline" aria-labelledby="commit-timeline-title"><h2 id="commit-timeline-title">Commits and resolution</h2>
+ const links = timeline?.links.length ?? 0;
+ return <Fold title="Commits and resolution" className="commit-timeline" meta={failed ? 'Commit timeline unavailable' : !timeline ? 'Loading commit timeline…' : links ? `${links} linked ${links === 1 ? 'commit' : 'commits'}` : 'No commit cites this issue yet'}>
   {failed ? <p role="alert">Commit timeline unavailable: {failed}</p> : !timeline ? <p role="status">Loading commit timeline…</p> : !timeline.links.length
    ? <p>No commit cites this issue yet. A commit message with <code>Fixes {shortId ?? 'SHORT-ID'}</code> (or Resolves or Closes) links here as soon as a deploy key registers the release that includes it.</p>
    : <ol className="timeline">{timeline.links.map((link: any) => <li key={link.sha}>
@@ -20,5 +22,5 @@ export function CommitTimeline({ project, issue, shortId, refresh, request }: { 
     {link.regressed && <p><strong>Regressed</strong> in {link.regressed.release || 'no release'} · {date(link.regressed.at)}</p>}
    </li>)}</ol>}
   <p className="muted">Author and message stay on owner screens. Packets, agent reads, alerts and exports carry the short ID and commit SHA, and add author and message only when the project’s commit sharing setting is on.</p>
- </section>;
+ </Fold>;
 }

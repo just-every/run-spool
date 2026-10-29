@@ -30,15 +30,17 @@ routes.use('/:project/issue-search',authorize);
 routes.use('/:project/issue-export',authorize);
 async function search(c:any,exporting=false){
  const project=c.req.param('project'),q=c.req.query('q')??'',state=c.req.query('status')??'all',release=c.req.query('release')??'all',sort=c.req.query('sort')??'priority';
- if(!['all','open','acknowledged','resolved','suppressed'].includes(state))throw new Error('Invalid issue status');
+ if(!['all','unresolved','open','acknowledged','resolved','suppressed'].includes(state))throw new Error('Invalid issue status');
  if(!['priority','latest','occurrences'].includes(sort))throw new Error('Invalid issue sort');
  const query=eventQuery(q,c.get('agent')),where=['i.project=?'],args:any[]=[project];
  await ensureReleaseOrderKeys(c.env.DB,project);
  await ensureShortIds(c.env.DB,project);
- if(state!=='all'){where.push('i.state=?');args.push(state)}
  if(query.reviewPending)where.push(pendingReview('i'));
  for(const priority of query.issuePriorities){where.push(`${prioritySql('i')}=?`);args.push(priority)}
  if(query.hasEventTerms||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
+ // The status views count the same query without its status, so each view says what it would show.
+ const viewWhere=where.join(' AND '),viewArgs=[...args];
+ if(state==='unresolved')where.push("i.state IN ('open','acknowledged')");else if(state!=='all'){where.push('i.state=?');args.push(state)}
  const filtered=`SELECT i.*, ${prioritySql('i')} priority, ${pendingReview('i')} review_pending, ${shortIdColumnsSql('i')}, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,${issueReleasesSql('i')} releases FROM issues i WHERE ${where.join(' AND ')}`;
  const cte=`WITH filtered AS (${filtered}), ranked AS (SELECT *,${sort==='occurrences'?'count':sort==='priority'?"(CASE priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END)*3+CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END":'last_seen'} rank FROM filtered)`;
  const db=c.env.DB,statement=(sql:string,...extra:any[])=>db.prepare(cte+' '+sql).bind(...args,...extra);
@@ -56,14 +58,16 @@ async function search(c:any,exporting=false){
   for(const r of rows as any[]){const resolution=resolutions.get(r.id);r.resolution_commit=resolution?.commit??null;r.resolution_citation=resolution?.citation??null;r.resolution_release=resolution?.release??null;if(share){r.resolution_author=resolution?.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):null;r.resolution_message=resolution?.message??null}}
   const keys=['short_id','id','title','state','priority','count','first_seen','last_seen','last_release','resolution_commit','resolution_citation','resolution_release',...share?['resolution_author','resolution_message']:[]];const cell=(v:any)=>'"'+inert(String(v??'')).replaceAll('"','""')+'"';return new Response(format==='csv'?[keys.join(','),...rows.map((r:any)=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'):JSON.stringify({version:1,project,query:{q,status:state,release,sort},total:total.total,rows,bounds:{limit:10000,complete:true},coverage:'Retained issue aggregates; counts include all retained occurrences of matched issues.'}),{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-issues.${format}"`,'Cache-Control':'no-store'}})}
  const eventPredicate=query.sql+(release!=='all'?' AND e.release=?':''),eventArgs=[...query.args,...release!=='all'?[release]:[]];
- const [statuses,releases,environments,tags]=await Promise.all([
+ const [statuses,releases,environments,tags,views]=await Promise.all([
  statement('SELECT state value,COUNT(*) count FROM ranked GROUP BY state').all(),
  statement(`SELECT e.release value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project LEFT JOIN releases r ON r.project=e.project AND r.name=e.release WHERE ${eventPredicate} GROUP BY e.release ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}`,...eventArgs).all(),
  statement(`SELECT e.environment value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project WHERE ${eventPredicate} GROUP BY e.environment ORDER BY count DESC,value`,...eventArgs).all(),
  statement(`SELECT t.key,CAST(t.value AS TEXT) value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project,json_each(e.payload,'$.sentry.tags') t WHERE ${eventPredicate} GROUP BY t.key,t.value ORDER BY t.key,count DESC,value LIMIT 1001`,...eventArgs).all(),
+ db.prepare(`SELECT i.state value,COUNT(*) count FROM issues i WHERE ${viewWhere} GROUP BY i.state`).bind(...viewArgs).all(),
  ]);
+ const stateCount=(...states:string[])=>views.results.filter((row:any)=>states.includes(row.value)).reduce((sum:number,row:any)=>sum+Number(row.count),0);
  const eventTotals=c.req.query('eventTotals')==='1'?{matchingEvents:Number((await statement(`SELECT COUNT(*) total FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project WHERE ${eventPredicate}`,...eventArgs).first() as any).total)}:{};
- return c.json({version:1,rows,total:total.total,...eventTotals,...c.get('agent')?{}:{reviewPending:total.reviewPending},next:page.results.length>size?btoa(JSON.stringify({signature,rank:last.rank,last_seen:last.last_seen,id:last.id})):null,facets:{statuses:statuses.results,releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority sorts high, medium, then low; active regressions and new issues break ties before latest receipt. Viewing is browser-local.'});
+ return c.json({version:1,rows,total:total.total,...eventTotals,...c.get('agent')?{}:{reviewPending:total.reviewPending},next:page.results.length>size?btoa(JSON.stringify({signature,rank:last.rank,last_seen:last.last_seen,id:last.id})):null,facets:{views:{unresolved:stateCount('open','acknowledged'),all:stateCount('open','acknowledged','resolved','suppressed'),resolved:stateCount('resolved'),suppressed:stateCount('suppressed')},statuses:statuses.results,releases:releases.results,environments:environments.results,tags:tags.results.slice(0,1000),tagsComplete:tags.results.length<=1000},coverage:'Full retained project corpus. Counts are whole-issue retained occurrences. Priority sorts high, medium, then low; active regressions and new issues break ties before latest receipt. Viewing is browser-local.'});
 }
 routes.get('/:project/issue-search',c=>search(c));
 routes.get('/:project/issue-export',c=>search(c,true));

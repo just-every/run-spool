@@ -38,7 +38,7 @@ export function Suppression({project,issue,request,run,busy,onChange,readOnly=fa
   const result=await request(root,'POST',{version,suppression:input,apply,...apply?{preview:preview?.preview}:{}});
   if(apply){const next=await request(root);setHistory(next.history);setVersion(next.version);setPreview(null);setStatus('Issue archived. Capture continues.');onChange()}else setPreview(result);
  }catch(failure){setError((failure as Error).message);setPreview(null)}});
- return <section className="evidence" aria-labelledby="suppression-title"><h2 id="suppression-title">Archive issue</h2>
+ return <div className="archive-form">
   {!readOnly&&<><SuppressionFields value={input} onChange={update} disabled={busy}/>
   <div className="button-row"><button className="text-button" disabled={busy||!version||!input.reason.trim()} onClick={()=>act(false)}>Preview archive</button><button className="primary-button" disabled={busy||!preview} onClick={()=>act(true)}>Archive issue</button></div>
   </>}
@@ -46,5 +46,5 @@ export function Suppression({project,issue,request,run,busy,onChange,readOnly=fa
   {preview&&<div className="callout"><h3>Archive preview</h3><SuppressionDetails plan={preview.suppression}/></div>}
   {error&&<p role="alert">{error}</p>}{status&&<p role="status">{status}</p>}
   {history&&history.length>0&&<details><summary>Archive history ({history.length})</summary><ol>{history.map(row=><li key={row.id}>{date(row.started)} · {row.mode} · {row.state}{row.historical?' · restored history':''}<p>{row.reason}</p>{row.forecast!==null&&<p>Forecast: {row.forecast} occurrences per hour.</p>}</li>)}</ol></details>}
- </section>;
+ </div>;
 }

@@ -1,10 +1,10 @@
-/* Workbench frame: paper sidebar, ruled header, main column and the evidence rail.
-   Tokens and shared components come from /theme/spool.css. */
-/* The workbench keeps the slab, highlighter and ink but sits on a lighter, near-neutral ground with hairline
-   cards and 1px controls; the landing, docs, setup and sign-in pages keep the theme's paper and 1.5px rules.
-   Set on the root so the page canvas and modal dialogs take it too. Fields stay at least 3:1 on their ground. */
-:root:has(.workbench-shell){--font-floor:var(--font-small);--paper:#F5F4EF;--paper-raised:#FBFAF7;--paper-sunk:#EBEAE4;--card-border:1px solid var(--hairline);--control-stroke:1px;--field-line:rgb(28 28 27 / .55)}
-.workbench-shell{--sidebar:280px;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh;background:linear-gradient(var(--ink),var(--ink)) calc(var(--sidebar) - 1.5px) 0/1.5px 100% no-repeat}
+/* Workbench frame: paper sidebar with its ink edge, a pure white main column, the page head and the type steps.
+   Tokens and shared components come from /theme/spool.css; controls.css holds tooltips, menus and buttons. */
+/* The workbench keeps the slab, highlighter and ink. Separators come in three weights, each with one job:
+   the page rule (ink, once, under the breadcrumb), the section rule (hairline) and the row rule (hairline at 50%).
+   Set on the root so the page canvas and modal dialogs take them too. Fields stay at least 3:1 on white. */
+:root:has(.workbench-shell){--font-floor:var(--font-small);--paper:#F5F4EF;--paper-raised:#FFFFFF;--paper-sunk:#EBEAE4;--card-border:1px solid var(--hairline);--inner-border:1px solid var(--hairline);--hairline-border:1px solid rgb(207 203 190 / .5);--rule:1px solid var(--hairline);--rule-page:1px solid var(--ink);--rule-row:1px solid rgb(207 203 190 / .5);--radius-card:8px;--control-stroke:1px;--field-line:rgb(28 28 27 / .55)}
+.workbench-shell{--sidebar:280px;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh;background:linear-gradient(var(--ink),var(--ink)) calc(var(--sidebar) - 1px) 0/1px 100% no-repeat}
 
 .sidebar{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:24px;height:100vh;overflow-y:auto;padding:32px 24px 28px 32px}
 .sidebar-brand{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -13,32 +13,37 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 .brand-tagline{margin-top:6px;font-size:14px}
 .menu-button{display:none}
 .project-picker{font-weight:600}
+/* The chevron needs 32px, so the full project name fits the 280px rail. */
+.sidebar .project-picker select:not([multiple]){padding-inline:12px 32px}
 .sidebar-menu{display:flex;flex:1;flex-direction:column;gap:24px}
 .navigation{display:grid;gap:2px;padding-bottom:20px;border-bottom:var(--rule)}
 .navigation a{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 -12px;padding:6px 12px;font:500 17px/1.3 var(--font-text);color:var(--ink);text-decoration:none;border-radius:3px}
 .navigation a:hover{text-decoration:underline;text-underline-offset:4px}
 .navigation a[aria-current=page]{font-weight:600}
-.unseen-count{margin-left:auto;padding:1px 9px;border-radius:var(--radius-pill);background:var(--paper-sunk);font:500 var(--font-small)/1.6 var(--font-text);white-space:nowrap}
-.navigation a[aria-current=page] .unseen-count{background:var(--paper-raised)}
+.unseen-count{display:inline-grid;place-items:center;min-width:24px;height:24px;margin-left:auto;padding:0 7px;border-radius:var(--radius-pill);background:var(--paper-sunk);font:500 var(--font-small)/1 var(--font-code);white-space:nowrap}
+.navigation a[aria-current=page] .unseen-count{background:#FFFFFF}
 .team{margin-top:auto;font-size:13px}
 .team .text-button{font-size:15px}
 
-.main{min-width:0;padding:0 48px 64px}
-.hero{padding-bottom:28px;border-bottom:var(--rule)}
-.crumb{padding:28px 0 16px;margin-bottom:32px;border-bottom:var(--rule);font-size:15px}
-.hero h1{font-size:clamp(32px,3.6vw,52px);overflow-wrap:anywhere}
-.description{max-width:62ch;margin-top:14px;font-size:18px}
+/* Main column: pure white, 48px left and 40px right gutters. */
+.main{min-width:0;padding:0 40px 64px 48px;background:#FFFFFF;font-size:15px}
+.page-head{margin-bottom:24px}
+.crumb{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;padding:28px 0 16px;border-bottom:var(--rule-page);font:400 15px/1.4 var(--font-text);color:var(--ink)}
+.crumb code{font:400 15px/1.4 var(--font-code)}
+.crumb a{color:var(--ink);text-underline-offset:3px;text-decoration-thickness:1px}
+.page-title{margin-top:32px;font:700 48px/1.1 var(--font-display);letter-spacing:-.01em;overflow-wrap:anywhere}
+.record-title{display:-webkit-box;margin-top:28px;font:700 32px/1.15 var(--font-display);letter-spacing:-.005em;overflow:hidden;overflow-wrap:anywhere;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 
-/* Evidence rail: one ruled card beside an opened issue. It sits in the issue view after the stack trace; on wide
-   screens the main column becomes two, and the rail spans every row, ending in a flexible one that absorbs its height. */
-.has-issue .main{display:grid;grid-template-columns:minmax(0,1fr) 308px;grid-template-rows:repeat(8,auto) 1fr;column-gap:48px;align-content:start;padding-right:32px}
-.has-issue .main>*{grid-column:1}
-.has-issue .main>.right{grid-column:2;grid-row:1/-1}
-.right{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;margin:74px 0 32px;padding:24px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-card)}
-.right-panel h2{font-size:23px}
-.right-panel p{margin:10px 0;font-size:14px}
-.right-panel+.right-panel{margin-top:24px;padding-top:24px;border-top:var(--rule)}
-.packet .highlight-button{width:100%;min-height:52px;margin:8px 0 4px;font-size:17px}
+/* Type steps inside the column: section 24, rail 20, item 17, body 15, meta 14, label 13. */
+.main h2{font:700 24px/1.2 var(--font-display)}
+.main h3{font:700 20px/1.25 var(--font-display)}
+.main :is(h4,h5,h6){font:500 17px/1.35 var(--font-text);letter-spacing:0}
+.main .section-title{font:700 24px/1.2 var(--font-display)}
+.main .rail-title{font:700 20px/1.25 var(--font-display)}
+.main .item-title{font:500 17px/1.35 var(--font-text)}
+.meta{font:400 14px/1.45 var(--font-text);color:var(--ink-soft)}
+.label{font:400 13px/1.3 var(--font-code);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.mono{font-family:var(--font-code)}
 
 /* Session states before the workbench opens. */
 .login{max-width:880px;margin:0 auto;padding:56px var(--gutter) 80px}
@@ -50,12 +55,11 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 @media(max-width:1100px){
  .workbench-shell{--sidebar:240px}
  html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:26px}
- .main,.has-issue .main{display:block;padding:0 32px 48px}
- .right{position:static;max-height:none;margin:24px 0 8px}
+ .main{padding:0 32px 48px}
 }
 @media(max-width:760px){
  .workbench-shell{display:block;background:none}
- .sidebar{position:static;height:auto;overflow:visible;gap:16px;padding:20px 24px 0;border-right:0}
+ .sidebar{position:static;height:auto;overflow:visible;gap:16px;padding:20px 16px 16px;border-right:0}
  .sidebar-brand{align-items:center;padding-bottom:14px;border-bottom:var(--rule)}
  .brand .wordmark{font-size:32px}
  html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:32px}
@@ -63,18 +67,17 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
  .menu-button{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;min-width:0;align-items:center;gap:0 8px;min-height:44px;padding:0 4px;border:0;background:none;font:500 17px var(--font-text);cursor:pointer}
  .menu-button[aria-expanded=true]{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
  .project-picker{flex-direction:row;align-items:center;gap:14px}
- .project-picker select{flex:1;min-height:40px;max-width:320px;padding-block:6px}
+ .project-picker select{flex:1;min-height:44px;max-width:320px;padding-block:6px}
  .sidebar-menu{display:none}
  .sidebar-menu.open{display:flex;padding-bottom:16px;border-bottom:var(--rule)}
- .main,.has-issue .main{padding:0 24px 48px}
- .hero{padding-bottom:18px}
- .crumb{padding:14px 0 12px;margin-bottom:16px;font-size:14px}
- .has-issue .hero h1{font-size:27px}
- .description{font-size:16px}
- .right{margin:20px 0 8px;padding:20px 16px}
+ .main{padding:0 16px 48px}
+ .crumb{padding:16px 0 12px}
+ .page-title{margin-top:20px}
+ .record-title{margin-top:20px}
  .login{padding-top:32px}
  .login .wordmark{margin-bottom:40px}
  .login-panel{padding:28px 20px}
 }
 
 @media(max-width:380px){.sidebar-brand{flex-wrap:wrap}.menu-button{margin-left:auto}}
+

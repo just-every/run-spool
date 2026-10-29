@@ -5,6 +5,18 @@ export type Run = (work: () => Promise<unknown>) => Promise<void>;
 export const states = ['open', 'acknowledged', 'resolved', 'suppressed'];
 export const stateLabel = (state: string) => state.charAt(0).toUpperCase() + state.slice(1);
 export const date = (time: number) => new Date(time).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) + ' UTC';
+/** One short date style for lists and tooltips: no seconds, always UTC. */
+export const shortDate = (time: number) => new Date(time).toLocaleString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
+export const shortDay = (time: number) => new Date(time).toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+export function relative(time: number, now = Date.now()) {
+  const minutes = Math.floor(Math.max(0, now - time) / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return days < 30 ? `${days}d ago` : new Date(time).toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+}
 export function displayFile(value: string) {
   try { const url = new URL(value); return url.origin === location.origin ? url.pathname : value; } catch { return value; }
 }

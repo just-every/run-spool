@@ -1,0 +1,68 @@
+/* Issues list: one compact toolbar row, then one white table panel with three-tier rows. */
+.issue-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;margin-bottom:36px}
+.toolbar-start,.toolbar-end{display:flex;flex-wrap:wrap;align-items:center;gap:12px;min-width:0}
+.toolbar-end .search-field{width:240px}
+.issue-toolbar .tool-button{gap:6px;padding:0 12px}
+@media(min-width:761px){.tool-tip>.tip-text{display:none}}
+.check-row{display:flex;align-items:center;gap:10px;min-height:44px;font:400 15px/1.3 var(--font-text)}
+.check-row input{width:18px;height:18px;margin:0;accent-color:var(--ink)}
+.check-row .mono{margin-left:auto;color:var(--ink-soft)}
+
+.bulk-triage{display:grid;gap:12px;margin:-16px 0 24px;padding:14px 16px;border-radius:8px;background:var(--paper-sunk)}
+.bulk-triage .issue-search-actions{display:flex;flex-wrap:wrap;align-items:end;gap:12px 20px}
+.bulk-triage .form-field select{min-width:180px}
+.bulk-triage .callout{margin:0}
+.bulk-triage li{overflow-wrap:anywhere}
+
+.issue-panel{max-width:100%;overflow:auto;background:#FFFFFF;border:1px solid var(--hairline);border-radius:8px}
+.issue-table{width:100%;border-collapse:collapse;text-align:left;font-variant-numeric:tabular-nums}
+.issue-table thead th{padding:14px 16px;border-bottom:var(--rule);font:400 13px/1.3 var(--font-code);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap;vertical-align:middle}
+.issue-table tbody :is(th,td){padding:20px 16px;border-bottom:var(--rule-row);vertical-align:middle;font-weight:400}
+.issue-table tbody tr:last-child>*{border-bottom:0}
+.issue-table tbody tr.selected>*{background:rgb(235 234 228 / .45)}
+.issue-table .select-cell{width:52px;padding-right:0}
+.issue-select{display:inline-grid;place-items:center;min-width:24px;min-height:24px}
+.issue-select input,.select-cell>input{width:16px;height:16px;margin:0;accent-color:var(--ink)}
+.issue-tiers{display:grid;gap:4px;min-width:0}
+.issue-key{display:block}
+.issue-open{color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.issue-open:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.issue-meta code{font-size:inherit}
+.issue-meta .attention{color:var(--ink)}
+.phone-meta{display:none}
+.status-cell{width:160px}
+.count-cell{width:150px;font:400 15px/1.3 var(--font-code)}
+.time-cell{width:160px;font:400 15px/1.3 var(--font-text);white-space:nowrap}
+.issue-table thead .unseen-cell,.issue-table tbody .unseen-cell{width:56px;text-align:center}
+.unseen-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--mark);vertical-align:middle}
+.unseen-cell .tip{padding:7px;margin:-7px}
+.list-state{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:20px 0}
+.pagination{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:16px}
+
+@media(max-width:760px){
+ .issue-toolbar{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:12px;margin-bottom:24px}
+ .toolbar-start{flex-wrap:nowrap;flex-direction:column;align-items:stretch}
+ .toolbar-start .segmented{align-self:flex-start}
+ .toolbar-end{position:relative;flex-wrap:nowrap;gap:8px}
+ .toolbar-end .search-field{flex:1;width:auto;min-width:0}
+ .issue-toolbar .tool-button{width:44px;justify-content:center;padding:0}
+ .issue-toolbar .tool-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ .issue-toolbar .tool-chevron{display:none}
+ .issue-toolbar .tool-count{position:absolute;margin:-26px -26px 0 0}
+ .issue-toolbar .tool-button{position:relative}
+ .bulk-triage{margin:-8px 0 20px}
+ .issue-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+ .issue-table,.issue-table tbody{display:block;width:100%}
+ .issue-table tbody tr{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;border-bottom:var(--rule-row)}
+ .issue-table tbody tr:last-child{border-bottom:0}
+ .issue-table tbody :is(th,td){display:block;padding:0;border:0}
+ .issue-table tbody .select-cell{width:auto;padding:16px 0 16px 12px}
+ .issue-table tbody .issue-cell{padding:16px 44px 16px 12px}
+ .issue-table tbody tr>.issue-cell:first-child{padding-left:16px}
+ .issue-select{min-width:44px;min-height:44px;margin:-12px -10px -12px -12px}
+ .issue-table tbody :is(.status-cell,.count-cell,.time-cell){display:none}
+ .issue-table tbody .unseen-cell{position:absolute;top:14px;right:8px;width:auto}
+ .wide-meta{display:none}
+ .phone-meta{display:inline}
+}
+/* w */

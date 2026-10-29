@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
+import { Fold } from './Fold';
 import { date, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
 type Data=DiscussionData&{recurrence:{sameRelease:number;olderRelease:number};activity:ActivityRow[];next:string|null};
-export function Discussion({project,issue,refresh,request,onChanged}:{project:string;issue:string;refresh:unknown;request:Request;onChanged?:()=>void}) {
- const base=`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`;
- const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState(''),[busy,setBusy]=useState(false);
+/** One read of an issue's discussion, shared by its long-tail section and the Subscribe action under More. */
+export function useDiscussion(project:string,issue:string|undefined,refresh:unknown,request:Request,onChanged?:()=>void){
+ const base=issue?`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(issue)}`:'';
+ const [data,setData]=useState<Data|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const loadedIssue=useRef('');
  useEffect(()=>{
-  let alive=true;setError('');if(loadedIssue.current!==base){loadedIssue.current=base;setData(null);setEditing(null);setBody('')}
+  if(!base)return;
+  let alive=true;setError('');if(loadedIssue.current!==base){loadedIssue.current=base;setData(null)}
   request(base+'/discussion').then(value=>{if(alive)setData(value)}).catch(failure=>{if(alive)setError(failure.message)});
   return ()=>{alive=false};
  },[base,refresh,request]);
  async function mutate(path:string,method:string,input:Record<string,unknown>) {
-  if(!data)return;
+  if(!data)return false;
   setBusy(true);setError('');
   try {
    await request(base+path,method,input);
-   setData(await request(base+'/discussion'));setBody('');setEditing(null);onChanged?.();
-  }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}}
+   setData(await request(base+'/discussion'));onChanged?.();return true;
+  }catch(failure){setError((failure as Error).message);try{setData(await request(base+'/discussion'))}catch{setData(null)}return false}
   finally{setBusy(false)}
  }
  async function older() {
@@ -26,19 +29,27 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
   try{const next:Data=await request(base+'/discussion?cursor='+encodeURIComponent(data.next));setData({...next,activity:[...data.activity,...next.activity]})}
   catch(failure){setError((failure as Error).message)}finally{setBusy(false)}
  }
- return <section className="evidence" aria-label="Discussion" aria-busy={busy}>
-  <h2>Discussion</h2>
+ const subscribed=!!data?.subscription.subscribed;
+ const subscription=!data?'':data.subscription.explicit==='unsubscribed'?'You unsubscribed.':subscribed?'Subscribed because '+data.subscription.reasons.map(reason=>reason==='comment'?'you commented':reason==='mention'?'you were mentioned':'you subscribed').join(' and ')+'.':'You are not subscribed.';
+ const toggle=()=>data&&mutate('/subscription','PUT',{subscribed:!subscribed,version:data.subscription.version});
+ return {issue,data,error,busy,mutate,older,subscribed,subscription,toggle};
+}
+
+export function Discussion({discussion}:{discussion:ReturnType<typeof useDiscussion>}) {
+ const {issue,data,error,busy,mutate,older}=discussion;
+ const [body,setBody]=useState(''),[editing,setEditing]=useState<{id:string;version:number}|null>(null),[editBody,setEditBody]=useState('');
+ useEffect(()=>{setEditing(null);setBody('')},[issue]);
+ const write=async(path:string,method:string,input:Record<string,unknown>)=>{if(await mutate(path,method,input)){setBody('');setEditing(null)}};
+ const comments=data?.comments.length??0;
+ return <Fold title="Discussion" meta={!data?error?'Discussion unavailable':'Loading discussion…':`${comments?`${comments} ${comments===1?'comment':'comments'}`:'No comments yet'} · ${discussion.subscribed?'Subscribed':'Not subscribed'}`}>
+  <div aria-busy={busy}>
   {error&&<p role="alert">{error}</p>}
   {!data?!error&&<p role="status">Loading discussion…</p>:<>
-   <p>{data.subscription.explicit==='unsubscribed'?'You unsubscribed.':data.subscription.subscribed?'Subscribed because '+data.subscription.reasons.map(reason=>reason==='comment'?'you commented':reason==='mention'?'you were mentioned':'you subscribed').join(' and ')+'.':'You are not subscribed.'}</p>
-   {data.canWrite&&<button className="text-button" disabled={busy} onClick={()=>void mutate('/subscription','PUT',{subscribed:!data.subscription.subscribed,version:data.subscription.version})}>{data.subscription.subscribed?'Unsubscribe':'Subscribe'}</button>}
-   <p className="muted">Notifications are not sent yet.</p>
-   {data.canWrite&&<form onSubmit={event=>{event.preventDefault();void mutate('/comments','POST',{body})}}>
-    <label className="form-field">Comment<textarea aria-label="Comment" required value={body} maxLength={4000} rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
-    <p className="muted">Mention a project member with @name or the part of their email before @. Up to 4,000 characters per comment.</p>
-    <button className="highlight-button" disabled={busy||!body.trim()||data.comments.length>=data.limit}>Post comment</button>
+   {data.canWrite&&<form onSubmit={event=>{event.preventDefault();void write('/comments','POST',{body})}}>
+    <label className="form-field">Comment<textarea aria-label="Comment" required value={body} maxLength={4000} rows={4} placeholder="Mention a project member with @name" disabled={busy||data.comments.length>=data.limit} onChange={event=>setBody(event.target.value)}/></label>
+    <button className="primary-button" disabled={busy||!body.trim()||data.comments.length>=data.limit}>Post comment</button>
    </form>}
-   <p>{data.recurrence.sameRelease} recurred in resolved release · {data.recurrence.olderRelease} older-release repeats</p>
+   <p className="meta">{data.recurrence.sameRelease} recurred in resolved release · {data.recurrence.olderRelease} older-release repeats</p>
    <h3>Activity</h3>
    {data.activity.length?<ol className="timeline">{data.activity.map(row=>{
     const comment=row.kind==='comment_added'?data.comments.find(comment=>comment.id===row.detail.comment):null;
@@ -49,11 +60,11 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
      <p><strong>{label[row.kind]??row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:row.actor_name??<>{row.actor_kind} <code style={{overflowWrap:'anywhere',wordBreak:'break-word'}}>{row.actor_label}</code></>}</p>
      {row.kind==='comment_added'&&(comment?<>
       {comment.updated!==comment.created&&<p className="muted">Edited {date(comment.updated)}</p>}
-      {editing?.id===comment.id?<form onSubmit={event=>{event.preventDefault();void mutate('/comments/'+encodeURIComponent(comment.id),'PATCH',{body:editBody,version:editing!.version})}}>
-       <label className="form-field">Edit comment<textarea aria-label="Edit comment" value={editBody} maxLength={4000} required rows={4} style={{width:'100%',boxSizing:'border-box'}} disabled={busy} onChange={event=>setEditBody(event.target.value)}/></label>
-       <button className="highlight-button" disabled={busy||!editBody.trim()}>Save comment</button> <button type="button" className="text-button" disabled={busy} onClick={()=>setEditing(null)}>Cancel edit</button>
+      {editing?.id===comment.id?<form onSubmit={event=>{event.preventDefault();void write('/comments/'+encodeURIComponent(comment.id),'PATCH',{body:editBody,version:editing!.version})}}>
+       <label className="form-field">Edit comment<textarea aria-label="Edit comment" value={editBody} maxLength={4000} required rows={4} disabled={busy} onChange={event=>setEditBody(event.target.value)}/></label>
+       <button className="primary-button" disabled={busy||!editBody.trim()}>Save comment</button> <button type="button" className="text-button" disabled={busy} onClick={()=>setEditing(null)}>Cancel edit</button>
       </form>:<p className="commit-message" style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere'}}>{comment.body}</p>}
-      {comment.canEdit&&editing?.id!==comment.id&&<><button className="text-button" disabled={busy} onClick={()=>{setEditing({id:comment.id,version:comment.version});setEditBody(comment.body)}}>Edit comment</button> <button className="text-button" disabled={busy} onClick={()=>void mutate('/comments/'+encodeURIComponent(comment.id),'DELETE',{version:comment.version})}>Delete comment</button></>}
+      {comment.canEdit&&editing?.id!==comment.id&&<><button className="text-button" disabled={busy} onClick={()=>{setEditing({id:comment.id,version:comment.version});setEditBody(comment.body)}}>Edit comment</button> <button className="text-button" disabled={busy} onClick={()=>void write('/comments/'+encodeURIComponent(comment.id),'DELETE',{version:comment.version})}>Delete comment</button></>}
      </>:<p className="muted">This comment was deleted or its author was erased.</p>)}
      {typeof row.detail.reason==='string'&&<p>{row.detail.reason}</p>}
      {typeof row.detail.forecast==='number'&&<p>Forecast: {row.detail.forecast} occurrences per hour.</p>}
@@ -69,5 +80,6 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    })}</ol>:<p>No activity recorded yet.</p>}
    {data.next&&<button className="text-button" disabled={busy} onClick={()=>void older()}>Older activity</button>}
   </>}
- </section>;
+  </div>
+ </Fold>;
 }

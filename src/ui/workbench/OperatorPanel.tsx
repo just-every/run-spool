@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
 import { date, Field, type Request, type Run } from './shared';
+import { Fold } from './Fold';
 
 export type CorrectionPreview = {
   id: string;
@@ -45,28 +46,22 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries:
   </>;
 }
 
-export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
+/** Operator state for one issue, read once and shared by the Assignee property and the Operator decisions section. */
+export function useOperator({ project, packet, initial, request, run, refresh, enabled }: { project: string; packet: any; initial?: Promise<any[]>; request: Request; run: Run; refresh: () => void; enabled: boolean }) {
   const [state, setState] = useState<any>(null);
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
-  const [selected, setSelected] = useState<string[]>([]);
-  const [target, setTarget] = useState('');
-  const [preview, setPreview] = useState<CorrectionPreview | null>(null);
   const [failure, setFailure] = useState('');
-  const [field, setField] = useState('fingerprint');
-  const [mode, setMode] = useState('exact');
-  const [value, setValue] = useState('');
-  const issue = packet.issue;
+  const issue = packet?.issue;
   const root = `/api/projects/${encodeURIComponent(project)}`;
-
-  const waitingForPacket = assignmentRevision !== null && issue.revision < assignmentRevision;
+  const waitingForPacket = !!issue && assignmentRevision !== null && issue.revision < assignmentRevision;
   const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
+  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setFailure(''); }, [root, issue?.id]);
   useLiveRead(async (signal, background) => {
-    if (waitingForPacket) return;
+    if (waitingForPacket || !issue) return;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
@@ -74,9 +69,40 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       if (signal.aborted) return;
       setState(operatorState); setHistory(corrections); setFailure('');
       if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
-      if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
-  }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
+  }, [root, issue?.id, issue?.revision, assignmentRevision, request, initial], { live: !initial, enabled: enabled && !!issue });
+  const assign = (next: string | null) => run(async () => {
+    const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: next });
+    setAssignmentRevision(saved.revision);
+    labelEdited.current = false;
+    setState(null);
+    refresh();
+  });
+  const assigned: string | null = state?.assignments.find((assignment: any) => assignment.issue === issue?.id)?.label ?? null;
+  return { root, state, setState, history, label, setLabel: (value: string) => { labelEdited.current = true; setLabel(value); }, failure, ready, assign, assigned };
+}
+
+/** Today's assignment control, opened in place from the Assignee property. */
+export function AssignmentControl({ operator, busy }: { operator: ReturnType<typeof useOperator>; busy: boolean }) {
+  const { label, setLabel, ready, assign, failure } = operator;
+  return <form className="assignment" onSubmit={event => { event.preventDefault(); void assign(label.trim() || null); }}>
+    {failure && <p role="alert">{failure}</p>}
+    <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => setLabel(event.target.value)} />
+    <div className="button-row"><button className="primary-button" disabled={busy || !ready}>Save assignment</button><button type="button" className="text-button" disabled={busy || !ready} onClick={() => void assign(null)}>Unassign</button></div>
+    <p className="meta">A label records responsibility; it does not create an account, grant access or send a notification.</p>
+  </form>;
+}
+
+export function OperatorDecisions({ operator, packet, busy, request, run, refresh }: { operator: ReturnType<typeof useOperator>; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
+  const { root, state, setState, history, failure, ready, assigned } = operator;
+  const [selected, setSelected] = useState<string[]>([]);
+  const [target, setTarget] = useState('');
+  const [preview, setPreview] = useState<CorrectionPreview | null>(null);
+  const [field, setField] = useState('fingerprint');
+  const [mode, setMode] = useState('exact');
+  const [value, setValue] = useState('');
+  const issue = packet.issue;
+  useEffect(() => { setPreview(null); setSelected([]); setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint); }, [root, issue.id]);
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;
@@ -109,32 +135,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       refresh();
     });
   };
+  const policies = state?.policies.filter((policy: any) => policy.enabled).length ?? 0;
 
-  return <section className="evidence">
-    <h2>Operator decisions</h2>
+  return <Fold title="Operator decisions" meta={!state ? failure ? 'Operator state unavailable' : 'Loading operator state…' : `${assigned ? `Assigned to ${assigned}` : 'Unassigned'} · ${policies} active suppression ${policies === 1 ? 'policy' : 'policies'}`}>
     {failure && <p role="alert">{failure}</p>}
-    <form className="form-grid" onSubmit={event => {
-      event.preventDefault();
-      void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
-        setAssignmentRevision(saved.revision);
-        labelEdited.current = false;
-        setState(null);
-        refresh();
-      });
-    }}>
-      <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
-      <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
-      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
-        setAssignmentRevision(saved.revision);
-        labelEdited.current = false;
-        setState(null);
-        refresh();
-      })}>Unassign</button>
-    </form>
-    <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
-
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
@@ -188,7 +192,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         {state ? <OperatorAudit rows={state.audit} issue={issue} /> : <p role="status">Loading changes…</p>}
       </Details>
     </div>
-  </section>;
+  </Fold>;
 }
 
 function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {

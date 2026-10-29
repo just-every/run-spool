@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Details } from './Details';
+import { Fold } from './Fold';
 import { date, Field, type Request, type Run } from './shared';
 import './RepairPanel.css';
 
@@ -26,9 +27,8 @@ export function RepairPanel({ project, issue, busy, request, run, refresh, initi
     event.preventDefault();
     void write(async () => { await request(base(project), 'POST', { issue: issue.id, link, note }); setLink(''); setNote(''); });
   }
-  if (!live) return <section className="evidence repairs"><h2>Repairs</h2><p>Imported history cannot recur in live capture, so repairs are recorded on live issues only.</p></section>;
-  return <section className="evidence repairs" aria-labelledby="repairs-title">
-    <h2 id="repairs-title">Repairs</h2>
+  if (!live) return <Fold title="Repairs" className="repairs" meta="Recorded on live issues only"><p>Imported history cannot recur in live capture, so repairs are recorded on live issues only.</p></Fold>;
+  return <Fold title="Repairs" className="repairs" meta={failed ? 'Repair history unavailable' : !repairs ? 'Loading repairs…' : repairs.length ? `${repairs.length} ${repairs.length === 1 ? 'repair' : 'repairs'} recorded` : 'No repairs recorded'}>
     {failed && <p role="alert">Repair history could not be loaded. <button className="text-button" onClick={() => void load()}>Retry</button></p>}
     {repairs && !repairs.length && <p>A repair is a change someone proposed for this issue: a link to its branch or pull request and a short note. You record each step yourself: approved, merged, deployed in a registered release, and that the affected flow was exercised. Spool never opens the link, merges or deploys; it measures whether the failure came back from captured events.</p>}
     <form className="form-grid" onSubmit={record}>
@@ -37,7 +37,7 @@ export function RepairPanel({ project, issue, busy, request, run, refresh, initi
       <button className="primary-button" disabled={busy}>Record repair</button>
     </form>
     {repairs?.map(repair => <RepairRecord key={repair.id} {...{ project, repair, releases, busy, write, request }} />)}
-  </section>;
+  </Fold>;
 }
 
 function RepairRecord({ project, repair, releases, busy, write, request }: { project: string; repair: any; releases: any[]; busy: boolean; write: (work: () => Promise<unknown>) => Promise<void>; request: Request }) {

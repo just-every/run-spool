@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { type Request, type Run } from './shared';
 import { ReproducerCard } from './ReproducerCard';
 import { FixWorkflowCard } from './FixWorkflowCard';
+import { Fold } from './Fold';
 import { GitHubConnectionSetup } from './GitHubConnectionSetup';
 import './ExecutionPanel.css';
 
@@ -30,9 +31,9 @@ export function ExecutionPanel({ project, issue, event, busy, request, run, init
     try { args = JSON.parse(input); } catch { setProblem('Input must be a JSON array of arguments.'); return; }
     void write(() => request(`${root(project)}/reproducers`, 'POST', { event: event.id, ...(exported ? { export: exported } : {}), input: args }));
   }
-  if (!live) return <section className="evidence execution"><h2>Reproduce and fix</h2><p>Imported history has no stored map or live capture, so it cannot be reproduced.</p></section>;
-  return <section className="evidence execution" aria-labelledby="execution-title">
-    <h2 id="execution-title">Reproduce and fix</h2>
+  if (!live) return <Fold title="Reproduce and fix" className="execution" meta="Imported history cannot be reproduced"><p>Imported history has no stored map or live capture, so it cannot be reproduced.</p></Fold>;
+  const recorded = reproducers?.length ?? 0, branches = fixes?.workflows.length ?? 0;
+  return <Fold title="Reproduce and fix" className="execution" meta={!reproducers ? 'Loading reproducers…' : `${recorded ? `${recorded} ${recorded === 1 ? 'reproducer' : 'reproducers'}` : 'No reproducer recorded'} · ${branches ? `${branches} fix ${branches === 1 ? 'branch' : 'branches'}` : 'no fix branch'}`}>
     {failed && <p role="alert">Reproducers could not be loaded. <button className="text-button" onClick={() => void load()}>Retry</button></p>}
     {problem && <p role="alert" className="callout">{problem}</p>}
     <p>A reproducer replays the newest occurrence's mapped function with an input you choose, in a separate sandbox process with no network, no secrets and no files. Spool, not the sandbox, decides whether the behaviour matches the captured event.</p>
@@ -49,7 +50,7 @@ export function ExecutionPanel({ project, issue, event, busy, request, run, init
       <GitHubConnectionSetup connection={fixes.connection} />
       {!fixes.workflows.length && <p>Propose a fix branch from a run Spool confirmed as reproduced.</p>}
       {fixes.workflows.map((workflow: any) => <FixWorkflowCard key={workflow.id} {...{ project, workflow, busy, write, request }} />)}</>}
-  </section>;
+  </Fold>;
 }
 
 function Field({ label, value, onChange, maxLength }: { label: string; value: string; onChange: (value: string) => void; maxLength: number }) {

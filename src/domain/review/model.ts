@@ -5,7 +5,7 @@ export const pendingReview=(alias:string)=>`(${latestReviewAlert(alias)} IS NOT 
 export function reviewQuery(value:any){
  if(!value||Array.isArray(value)||Object.keys(value).some(k=>!['q','status','release','sort'].includes(k)))throw new Error('Only validated query fields can be saved');
  const query={q:value.q??'',status:value.status??'all',release:value.release??'all',sort:value.sort??'priority'};
- if(Object.values(query).some(v=>typeof v!=='string'||scrub(v)!==v)||query.release.length>200||!['all','open','acknowledged','resolved','suppressed'].includes(query.status)||!['priority','latest','occurrences'].includes(query.sort))throw new Error('Invalid saved query');
+ if(Object.values(query).some(v=>typeof v!=='string'||scrub(v)!==v)||query.release.length>200||!['all','unresolved','open','acknowledged','resolved','suppressed'].includes(query.status)||!['priority','latest','occurrences'].includes(query.sort))throw new Error('Invalid saved query');
  eventQuery(query.q);return query;
 }
 export const reviewTables={review_stamps:['project','issue','generation','alert','reviewed'],review_views:['project','id','generation','query']};
