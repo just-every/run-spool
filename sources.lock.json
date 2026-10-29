@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d77a66a95ed393d9c89f7fd61cb892ce1f8d5c393bfc5c613e0ab00fbe818efc",
+      "sha256": "d0accac22930f792e75b6455ddcb59ca3637a5b399a78c6bea29ba4e296ab19a",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "064bbff51d7ecdfa7eb68f18f11cdaa1185498faf3b43937367a42a929936ea1",
+      "sha256": "3253a294b804fa73613d35a556fc49df63f632358d4c3960975af3a5395f3869",
       "executable": false
     },
     "DEMO.md": {
@@ -5333,7 +5333,7 @@
       "executable": false
     },
     "src/domain/investigation/events.ts": {
-      "sha256": "63fbdf1176661fdcb5b8c8b62f7861ca7daca9f39b7765383df984a888a63267",
+      "sha256": "0164ca1e5df69c15f721e904ab555e2e9c0ebb44eb0925c138496910bd9634ab",
       "executable": false
     },
     "src/domain/investigation/query.ts": {
@@ -8385,7 +8385,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "e057d0e7bb50d6b752b3d5e82f6476e54528702c9715cf42c6c062a1224d467a",
+      "sha256": "06be576433f02269a767599846e19ae64fae24b34cbd160e0f42bb09164e6e1c",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8825,7 +8825,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "3c091011b60f214d2d925431c1a1aec68ef57c1089f94a7dd54f92f4dddbd51f",
+      "sha256": "6eae6b0173833781871bcd3624a0a4769e4bad9e3df5422242f1ab55fccf3533",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -9229,15 +9229,15 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "7b85c66fcaf343ebc78185ec7e84bf7689ca4e769d784671b6564ec308403cff",
+      "sha256": "4ad217da2f52aee1d0f4ac2995b95114f75ec531216597b9d11a99b21ccc7d5b",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
-      "sha256": "228ca75b9f0c6f10e8a38755ef1ba7696eeb95e019ec33dc56f92358cced0d6e",
+      "sha256": "cb45b186baedbd3f2d95da2a32e88b4f17eb12a89854174f30d6c4a335d3d85b",
       "executable": false
     },
     "tests/runtimes/python/django_app.py": {
-      "sha256": "cff42f585dd7e11a8387abfcc802842d28133be047d5d22c54648f33ad31c770",
+      "sha256": "a66e6439aaf908314489587a7dc3adb1fb90548bc72ce861e5bcae5620f42f55",
       "executable": false
     },
     "tests/runtimes/python/group.py": {
@@ -9257,7 +9257,7 @@
       "executable": false
     },
     "tests/runtimes/python/shop/urls.py": {
-      "sha256": "113ba7f30a150536bee4cc1192000699f1e2d646d61b646c572ab5dd2f8884de",
+      "sha256": "a23fbec549e2b057f14f24040c9c868b32ede5c7984d2aea7c9220e91f8b2fc4",
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
@@ -9297,7 +9297,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "b4ed0be83b4c4018f62a64a3ff84cea80fd1adfbed7991a0b5d5b502a534f56d",
+      "sha256": "aeb6c726a4fe62a11da5a7bd0d90ee48013333a4473d2f6573464ff1ba3707c7",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
@@ -9349,7 +9349,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "749d2854f3f69e6000367f34bb48110b8e4e0d5a525da395ad7a1bb8afa500b5",
+      "sha256": "a61dce78068f34154b860bd56b8368ae6662f49fd823999f568360865d1dbd0a",
       "executable": false
     },
     "tests/sentry-import.mjs": {

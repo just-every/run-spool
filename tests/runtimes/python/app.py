@@ -21,6 +21,9 @@ sentry_sdk.init(
 # A command-line program tracks one application-mode session (release health needs a release).
 sentry_sdk.start_session()
 sentry_sdk.set_tag("tenant", "acme")
+sentry_sdk.set_context("checkout", {"stage": "payment", "items": 3})
+sentry_sdk.set_extra("cart_items", 3)
+sentry_sdk.add_breadcrumb(category="checkout", message="cart reviewed", level="info")
 mode = sys.argv[1]
 
 

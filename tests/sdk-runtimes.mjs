@@ -61,7 +61,7 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  if(runtime.verify)await runtime.verify({app,project,details,dir,origin,cookie});
+  if(runtime.verify)await runtime.verify({app,project,details,dir,origin,cookie,reference:reference.sent});
   console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes),identity:[...sent]}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}

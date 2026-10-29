@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {run,runOk,exceptionTypes,issueDetails} from './harness.mjs';
+import {run,runOk,exceptionTypes,issueDetails,referenceCollector} from './harness.mjs';
+import {objectJson} from '../../src/domain/sentry/wire.ts';
 import {readScreens} from './screens.mjs';
 
 const here=resolve(import.meta.dirname,'python');
@@ -46,22 +47,26 @@ export default {
   await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
-  assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
   const sdkFrame=sdk.exceptions.flatMap(e=>e.stacktrace.frames).find(frame=>frame.function==='charge'&&frame.vars);
   assert.ok((await page.locator('.sdk-context').first().innerText()).includes('sent by SDK'));
   const localSummary=page.locator('article.exception summary').filter({hasText:'Local variables · sent by SDK'}).first();await localSummary.click();const locals=localSummary.locator('..');
   assert.ok((await locals.innerText()).includes('quantity'));assert.ok(JSON.stringify(sdkFrame.vars).includes('[redacted]'));
+  await localSummary.click();await inspectEvidence(page,sdk);
   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();const raw=page.getByRole('dialog',{name:'Raw stack trace',exact:true});
   const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
   await page.keyboard.press('Escape');
  },
- async verify({app,details,dir,origin,cookie}){
+ async verify({app,details,dir,origin,cookie,reference}){
   const events=details.flatMap(d=>d.events.map(e=>e.event.sentry));
   // SDK-010: local variables, SDK context and default integrations, as the unmodified SDK sent them.
   const failing=events.find(sentry=>sentry.exceptions.some(x=>x.stacktrace?.frames.some(f=>f.vars?.order_note)));
   const frame=failing.exceptions.flatMap(x=>x.stacktrace.frames).find(f=>f.function==='charge'&&f.vars);
   assert.equal(frame.vars.quantity,'0','an ordinary local survives');assert.equal(frame.vars.password,'[redacted]');assert.equal(frame.vars.api_key,'[redacted]');
+  const sent=reference.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  const sentChain=sent.find(event=>event.exception?.values.some(e=>e.type==='ZeroDivisionError')&&event.exception.values.every(e=>e.mechanism?.handled!==false));
+  assertSentChain(failing,sentChain);
+  assert.deepEqual(failing.contexts.checkout,{stage:'payment',items:3});assert.equal(failing.extra.cart_items,3);assert.ok(failing.breadcrumbs.some(crumb=>crumb.category==='checkout'&&crumb.message==='cart reviewed'));
   assert.equal(failing.contexts.runtime.name,'CPython');for(const integration of ['excepthook','logging','stdlib','threading'])assert.ok(failing.sdk.integrations.includes(integration),`default ${integration} integration`);
   const create=id=>app.json('/api/projects','POST',{id,name:id});
   const send=async(created,script,{cwd=dir,mode}={})=>{
@@ -79,8 +84,8 @@ export default {
   assert.deepEqual([alertRelease.name,alertRelease.sequence],['',0],'release-less alert names no release');
   // SDK-009: the SDK infers a release from the git checkout it runs in, and is created automatically.
   const checkout=resolve(dir,'inferred');await mkdir(checkout,{recursive:true});
-  const git=(...args)=>runOk('git',['-c','user.email=synthetic-spool@example.test','-c','user.name=synthetic-spool',...args],{cwd:checkout});
-  await git('init','-q');await git('commit','-q','--allow-empty','-m','synthetic-spool-1');
+  const git=(...args)=>runOk('git',['-c','user.email=fleet'+'@runeditrun.com','-c','user.name=Run Edit Run fleet',...args],{cwd:checkout});
+  await git('init','-q');await runOk('env',['GIT_AUTHOR_NAME=Run Edit Run fleet','GIT_AUTHOR_EMAIL=fleet'+'@runeditrun.com','GIT_COMMITTER_NAME=Run Edit Run fleet','GIT_COMMITTER_EMAIL=fleet'+'@runeditrun.com','git','commit','-q','--allow-empty','-m','synthetic-spool-1'],{cwd:checkout});
   const sha=(await runOk('git',['rev-parse','HEAD'],{cwd:checkout})).stdout.trim();
   const [issue]=await send(releasesProject,'app.py',{cwd:checkout,mode:'handled'});
   assert.deepEqual(issue.events.map(e=>e.release).sort(),['',sha].sort(),'SDK-inferred git SHA is the release');
@@ -96,11 +101,40 @@ export default {
   // SDK-010: exception groups with every member, and Django request data from a real WSGI request.
   const [grouped]=await send(await create('rt-python-group'),'group.py');assert.deepEqual(exceptionTypes(grouped.events[0]),['TypeError','ValueError','ExceptionGroup']);
   assert.equal(grouped.events[0].event.sentry.exceptions.at(-1).mechanism.is_exception_group,true);
+  const collector=await referenceCollector();
+  let djangoSent;try{await runOk(python(dir),[resolve(here,'django_app.py')],{cwd:dir,env:{SPOOL_FIXTURE_DSN:collector.dsn},unset:releaseSources});djangoSent=collector.sent.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));}finally{await collector.close()}
   const [django]=await send(await create('rt-python-django'),'django_app.py');
+  assert.equal(djangoSent.length,1);assertSentChain(django.events[0].event.sentry,djangoSent[0]);
   const request=django.events[0].event.sentry.request;
   assert.ok(request.url.endsWith('/checkout'));assert.equal(request.method,'GET');assert.ok(request.query_string.includes('page=2'));assert.ok(!JSON.stringify(request).includes('synthetic-spool-3'),'secret query value masked');assert.ok(!JSON.stringify(request).includes('synthetic-spool-cookie'),'cookie value removed');
   const headers=Object.fromEntries(Object.entries(request.headers??{}).map(([name,value])=>[name.toLowerCase(),value]));
   assert.equal(headers['user-agent'],'spool-runtime-qualification','Django request headers are kept');
   assert.ok(django.events[0].event.sentry.sdk.integrations.includes('django'),'Django integration is a default');
+  await readScreens(origin,cookie,[...[['python-related-exceptions','rt-python-group',grouped],['python-request-chain','rt-python-django',django]].map(([name,project,detail])=>({name,path:`/projects/${project}/issues/${detail.issue.id}`,check:async page=>{await page.locator('.metadata[data-event-id]').waitFor();await inspectEvidence(page,detail.events[0].event.sentry);if(project==='rt-python-group'){const group=page.locator('article.exception').filter({has:page.locator(':scope > h3').filter({hasText:'ExceptionGroup:'})});assert.equal(await group.locator('.exception-children article.exception').count(),2,'Related Exceptions nests the actual SDK group children')}}}))]);
  },
 };
+
+function assertSentChain(stored,sent){
+ assert.deepEqual(stored.exceptions.map(e=>[e.type,e.value]),sent.exception.values.map(e=>[e.type,e.value]),'the unmodified SDK exception chain survives');
+ for(let i=0;i<stored.exceptions.length;i++){
+  const actual=stored.exceptions[i].stacktrace.frames.filter(f=>f.in_app),expected=sent.exception.values[i].stacktrace.frames.filter(f=>f.in_app);
+  assert.deepEqual(actual.map(f=>[f.function,f.lineno,f.pre_context,f.context_line,f.post_context]),expected.map(f=>[f.function,f.lineno,f.pre_context,f.context_line,f.post_context]),'SDK source context and frame identity survive separately from source lookup');
+  for(let j=0;j<actual.length;j++)for(const key of ['quantity','order_note'])if(expected[j].vars?.[key]!==undefined)assert.deepEqual(actual[j].vars[key],expected[j].vars[key],'ordinary SDK local '+key+' survives');
+ }
+ assert.equal(stored.tags.tenant,sent.tags.tenant);assert.deepEqual(stored.contexts.checkout,sent.contexts.checkout);
+}
+
+async function inspectEvidence(page,sdk){
+ assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
+ for(const exception of sdk.exceptions){
+  const heading=page.locator('article.exception > h3').filter({hasText:`${exception.type}: ${exception.value}`});await heading.waitFor();
+  const article=heading.locator('..'),frames=exception.stacktrace?.frames??[];
+  for(let i=0;i<frames.length;i++){
+   const frame=frames[i];if(frame.in_app===false||!frame.context_line)continue;
+   const item=article.locator(':scope > ol.exception-stack > li').nth(i);
+   assert.equal(await item.locator('.sdk-context pre').innerText(),[...(frame.pre_context??[]),frame.context_line,...(frame.post_context??[])].join('\n'));
+   if(frame.vars){const locals=item.getByText('Local variables · sent by SDK',{exact:true});await locals.click();for(const key of ['quantity','order_note','password','api_key'])if(key in frame.vars){const variable=item.locator('details details').filter({has:item.page().locator('summary > code').filter({hasText:new RegExp('^'+key+'$')})});await variable.locator('summary').click();assert.deepEqual(JSON.parse(await variable.locator('pre').innerText()),frame.vars[key])}}
+  }
+ }
+ for(const key of ['tags','contexts','request','extra','threads','breadcrumbs'])if(sdk[key]!==undefined){const section=page.locator('.event-sections > details').filter({has:page.locator('summary').filter({hasText:new RegExp('^'+key[0].toUpperCase()+key.slice(1)+'$')})});await section.locator('summary').click();assert.deepEqual(JSON.parse(await section.locator('pre').innerText()),sdk[key],'rendered '+key+' equals the retained SDK evidence')}
+}

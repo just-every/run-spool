@@ -73,7 +73,7 @@ try{
   const ingest=(await json('/api/projects/wire/keys')).find(row=>row.kind==='ingest');await json('/api/projects/wire/keys/'+ingest.hash,'DELETE');assert.equal((await req(path,'POST',envelope(event))).status,401);
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
-  await fidelityFlow({req,json,origin});
+  await fidelityFlow({req,json,origin,cookie});
   await groupingRulesFlow({req,json,origin,cookie});
   await releaseIdentityFlow({req,json,origin,cookie});
   await team004Flow({req,json,origin,cookie});

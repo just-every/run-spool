@@ -1,3 +1,4 @@
+import {IssueImpact} from './IssueImpact';
 import {Suppression} from './Suppression';
 import {Discussion} from './Discussion';
 import {Priority} from './Priority';
@@ -72,6 +73,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
     <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={refresh}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
+    <IssueImpact key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet}/>
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
     {!readOnly && <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={group.id}/>}
     {manageOrganization && <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>}
