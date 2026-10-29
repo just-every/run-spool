@@ -1224,8 +1224,8 @@ Core · target · **partial** · Cites BASE-DATA-002 · Rules D-1, D-6
 5. Erasure and restore fences hold after the cutoff.
 6. Past a project's window, with no manual action, its oldest events expire automatically while new events are still accepted.
 
-**Evidence.** `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs`
-**Gap.** Owner-only per-type 30–90-day windows (default 90), dry-run counts/range/coverage, typed shortening, audited legal hold/release and estimated stored bytes exist. Holds pause expiry only, never erasure; policy/hold archive, restore and erase, and packet notes state hold status. `tests/agent-handoff.mjs` and `tests/project-erasure.mjs` [GOV-002], 1440/390 Settings. Gaps: residency, commercial plan windows and session aggregates.
+**Evidence.** `src/domain/retention.ts`; `src/domain/retention-policy.ts`; `src/domain/retention-schedule.ts`; `src/domain/sessions/health.ts`; `tests/retention-flow.mjs` retentionFlow; `tests/retention-schedule-flow.mjs` retentionScheduleFlow; `tests/session-flow.mjs` sessionFlow; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs`
+**Gap.** Owner-only per-type 30–90-day windows (default 90), counts, ranges, estimated stored bytes, typed shortening and legal hold exist. The session window includes individual sessions and aggregate buckets: quantity-fenced previews, manual cutoff, bounded scheduled expiry for idle projects, remaining work, service audit, historical denominator gaps and archive checkpoint fences are covered by retentionFlow, retentionScheduleFlow and sessionFlow. Holds pause expiry only, never erasure. Remaining: provider and subprocessor qualification, US-first residency choices and agreements, longer USD commercial plan windows subject to BILL-001’s ct pricing prerequisite, SRC-004 use-based artifact expiry and automatic source-map expiry, custody and expiry for unimplemented telemetry and replay stores, and GOV-003 sustained-rate, large-volume and 160,000-event qualification.
 
 #### GOV-003 — Published retention, retained volume and sustained intake rate
 

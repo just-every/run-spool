@@ -69,6 +69,8 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
  // INSERT and DELETE uses the same occurrence and predicate inside this batch.
  // A concurrently admitted map reference therefore preserves both map and fence.
  const sessionFence=await tombstone(before.source_identity,'rer_portability_state',{id:1});
+ const selectedSessions=`SELECT started,1 quantity,'individual' kind FROM (SELECT started FROM health_sessions WHERE project=? AND updated<? ORDER BY updated,sid LIMIT ?)
+  UNION ALL SELECT started,quantity,'aggregate' kind FROM (SELECT started,quantity FROM health_aggregates WHERE project=? AND started<? ORDER BY started,release,environment,status LIMIT ?)`;
  const result = await db.batch([
   retentionPolicyFence(db,project,policy.generation),
   guard(db,'NOT EXISTS(SELECT 1 FROM retention_policies WHERE project=? AND held=1)',project),
@@ -88,8 +90,10 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
   limit?guard(db,`NOT EXISTS(SELECT 1 FROM events WHERE project=? AND ${selectedMatch})`,project,selected):guard(db, 'NOT EXISTS(SELECT 1 FROM events WHERE project=? AND received<?)', project, cutoff),
   ...headlines, ...mapJobs, ...exposureJobs,
-  statement(db,'INSERT OR IGNORE INTO rer_portability_journal SELECT ?,? WHERE EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND updated<?)',before.source_identity,sessionFence,project,windows.sessions),
+  statement(db,`INSERT INTO audit SELECT ?,?,'session_retention_gap',json_object('cutoff',?,'individualSessions',SUM(kind='individual'),'aggregateBuckets',SUM(kind='aggregate'),'aggregateSessions',SUM(CASE WHEN kind='aggregate' THEN quantity ELSE 0 END),'oldest',MIN(started),'newest',MAX(started)),? FROM (${selectedSessions}) HAVING COUNT(*)>0`,crypto.randomUUID(),project,windows.sessions,Date.now(),project,windows.sessions,limit??50000,project,windows.sessions,limit??10000),
+  statement(db,'INSERT OR IGNORE INTO rer_portability_journal SELECT ?,? WHERE EXISTS(SELECT 1 FROM health_sessions WHERE project=? AND updated<?) OR EXISTS(SELECT 1 FROM health_aggregates WHERE project=? AND started<?)',before.source_identity,sessionFence,project,windows.sessions,project,windows.sessions),
   statement(db,'DELETE FROM health_sessions WHERE rowid IN (SELECT rowid FROM health_sessions WHERE project=? AND updated<? ORDER BY updated,sid LIMIT ?)',project,windows.sessions,limit??50000),
+  statement(db,'DELETE FROM health_aggregates WHERE rowid IN (SELECT rowid FROM health_aggregates WHERE project=? AND started<? ORDER BY started,release,environment,status LIMIT ?)',project,windows.sessions,limit??10000),
   db.prepare('UPDATE rer_portability_state SET epoch=epoch+1 WHERE id=1'),
   db.prepare('INSERT INTO rer_portability_epochs SELECT source_identity,epoch FROM rer_portability_state WHERE id=1 ON CONFLICT(source) DO UPDATE SET epoch=MAX(epoch,excluded.epoch)'),
   statement(db, "SELECT json_extract(detail,'$.removed') AS removed FROM audit WHERE id=?", auditId),

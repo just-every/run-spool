@@ -2,6 +2,7 @@ import {guard} from '../modules/portability/storage.mjs';
 import {hash,canonical,scrub} from './privacy';
 export const retentionTypes=['events','artifacts','feedback','exposures','commits','sessions'] as const;
 export type RetentionType=typeof retentionTypes[number];
+const previewTypes=[...retentionTypes,'session_aggregates'] as const;
 export type RetentionWindows=Record<RetentionType,number>;
 export const defaultRetentionWindows=()=>Object.fromEntries(retentionTypes.map(k=>[k,90])) as RetentionWindows;
 export function retentionWindows(value:any):RetentionWindows {
@@ -22,21 +23,25 @@ function retentionSpecifications(cutoffs:RetentionWindows){
  exposures:['exposures','last','last<?',[cutoffs.exposures],'128'],
  commits:['commits','received','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[cutoffs.commits],'COALESCE(length(CAST(message AS BLOB)),0)+COALESCE(length(CAST(author_name AS BLOB)),0)+COALESCE(length(CAST(author_email AS BLOB)),0)'],
  sessions:['health_sessions','updated','updated<?',[cutoffs.sessions],'192'],
+ session_aggregates:['health_aggregates','started','started<?',[cutoffs.sessions],'160'],
  } as const;
+}
+export async function retentionInventory(db:D1Database,project:string,cutoffs:RetentionWindows){
+ const specifications=retentionSpecifications(cutoffs);
+ const rows=await Promise.all(previewTypes.map(async type=>{const [table,time,where,values,bytes]=specifications[type];const row=await db.prepare(`SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes,COALESCE(SUM(${type==='session_aggregates'?'quantity':'1'}),0) quantity FROM ${table} WHERE project=? AND (${where})`).bind(project,...values).first<any>();return {type,cutoff:cutoffs[type==='session_aggregates'?'sessions':type],...row}}));
+ const total=await Promise.all(previewTypes.map(async type=>{const [table,,,,bytes]=specifications[type];return await db.prepare(`SELECT COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=?`).bind(project).first<any>()}));
+ return {rows,estimatedBytes:total.reduce((n,r)=>n+r.bytes,0),selectedBytes:rows.reduce((n,r)=>n+r.bytes,0)};
 }
 export async function retentionPreview(db:D1Database,project:string,windows:RetentionWindows,at=Date.now()){
  if(!Number.isSafeInteger(at)||at<0||at>Date.now()||Date.now()-at>300000)throw new Error('Preview expired; preview again');
- const current=await readRetentionPolicy(db,project),cutoffs=retentionCutoffs(windows,at);
- const specifications=retentionSpecifications(cutoffs);
- const rows=await Promise.all(retentionTypes.map(async type=>{const [table,time,where,values,bytes]=specifications[type];const row=await db.prepare(`SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=? AND (${where})`).bind(project,...values).first<any>();return {type,cutoff:cutoffs[type],...row}}));
- const total=await Promise.all(retentionTypes.map(async type=>{const [table,,,,bytes]=specifications[type];return await db.prepare(`SELECT COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=?`).bind(project).first<any>()}));
- const data={project,revision:current.revision,generation:current.generation,at,windows,held:current.held,rows,shortening:retentionTypes.some(k=>windows[k]<current.windows[k]),coverage:'Evidence before each cutoff is unavailable; historical comparisons and retry deduplication can be incomplete.',storage:{estimatedBytes:total.reduce((n,r)=>n+r.bytes,0),selectedBytes:rows.reduce((n,r)=>n+r.bytes,0),basis:'Stored text bytes plus estimated structured rows; excludes indexes, database overhead, artifacts referenced by retained events and session aggregates.'}};
+ const current=await readRetentionPolicy(db,project),cutoffs=retentionCutoffs(windows,at),{rows,estimatedBytes,selectedBytes}=await retentionInventory(db,project,cutoffs);
+ const data={project,revision:current.revision,generation:current.generation,at,windows,held:current.held,rows,shortening:retentionTypes.some(k=>windows[k]<current.windows[k]),coverage:'Evidence before each cutoff is unavailable; historical comparisons and retry deduplication can be incomplete.',storage:{estimatedBytes,selectedBytes,basis:'Stored text bytes plus estimated structured rows; excludes indexes, database overhead, artifacts referenced by retained events and source content outside this database. Aggregate status buckets use estimated structured-row bytes.'}};
  return {...data,token:await hash(canonical(data))};
 }
 // Counts, range and selected bytes are checked again inside the policy write.
 export function retentionPreviewFences(db:D1Database,project:string,preview:any){
  const specifications=retentionSpecifications(retentionCutoffs(preview.windows,preview.at));
- return preview.rows.map((row:any)=>{const [table,time,where,values,bytes]=specifications[row.type as RetentionType];return guard(db,`EXISTS(SELECT 1 FROM (SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes FROM ${table} WHERE project=? AND (${where})) WHERE count=? AND oldest IS ? AND newest IS ? AND bytes=?)`,project,...values,row.count,row.oldest,row.newest,row.bytes)});
+ return preview.rows.map((row:any)=>{const [table,time,where,values,bytes]=specifications[row.type as typeof previewTypes[number]];return guard(db,`EXISTS(SELECT 1 FROM (SELECT COUNT(*) count,MIN(${time}) oldest,MAX(${time}) newest,COALESCE(SUM(${bytes}),0) bytes,COALESCE(SUM(${row.type==='session_aggregates'?'quantity':'1'}),0) quantity FROM ${table} WHERE project=? AND (${where})) WHERE count=? AND oldest IS ? AND newest IS ? AND bytes=? AND quantity=?)`,project,...values,row.count,row.oldest,row.newest,row.bytes,row.quantity)});
 }
 export const retentionTables={retention_policies:['project','generation','revision','windows','held','reason','updated']};
 export function validateRetentionArchive(data:any){
