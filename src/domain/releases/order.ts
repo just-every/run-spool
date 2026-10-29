@@ -69,10 +69,10 @@ export function newerReleaseSql(project:string,event:string,boundary:string){
  ELSE EXISTS(SELECT 1 FROM releases candidate_release JOIN releases boundary_release ON boundary_release.project=candidate_release.project AND boundary_release.seq=${boundary} WHERE candidate_release.project=${project} AND candidate_release.name=${event}.release AND ${releaseComparisonSql('candidate_release','boundary_release',releasePolicyOrderSql(project))}) END)`;
 }
 export const resolvedBoundarySql=(issue='i')=>`COALESCE((SELECT boundary_seq FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id),${issue}.resolved_seq)`;
-/** Current and already-observed named boundaries share the repeat policy.
- * Next and the first event in a future named target retain their open cut. */
+/** Current, next and already-observed named boundaries share the explicit
+ * repeat policy. A future named target still regresses on its first event. */
 export function sameResolvedReleaseSql(issue='i',event='incoming'){
- return `(${event}.release<>'' AND ${issue}.latest_release_seq IS NOT NULL AND ${event}.release_seq=${resolvedBoundarySql(issue)} AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND (resolution.mode='current' OR resolution.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=${issue}.project AND snapshot.issue=${issue}.id AND snapshot.boundary_seq=resolution.boundary_seq AND snapshot.seen_at_resolution=1))))`;
+ return `(${event}.release<>'' AND ${issue}.latest_release_seq IS NOT NULL AND ${event}.release_seq=${resolvedBoundarySql(issue)} AND EXISTS(SELECT 1 FROM issue_resolutions resolution WHERE resolution.project=${issue}.project AND resolution.issue=${issue}.id AND (resolution.mode IN ('current','next') OR resolution.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=${issue}.project AND snapshot.issue=${issue}.id AND snapshot.boundary_seq=resolution.boundary_seq AND snapshot.seen_at_resolution=1))))`;
 }
 /** Both identities must exist: an unknown or release-less occurrence cannot
  * establish an older release. Native events keep registered-sequence order. */
