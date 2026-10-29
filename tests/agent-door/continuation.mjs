@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {checkTarget} from '../../src/modules/agent-door/conformance/target.mjs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
 /** Assertions formerly pending on Base, exercised against the real Worker. */
@@ -22,5 +23,11 @@ export async function continuationFlow(app,{project,issue,proposal,created}){
  assert.deepEqual(await app.json('/api/projects/'+project+'/grouping-proposals'),before,'No replay admission variant repeats the effect');
  const missing=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/issues/no-such-issue'});
  assert.equal(missing.error?.data?.code,'resource_unavailable','Resource refusals have a machine code in JSON-RPC error.data');
+ // Exercise the installed target check after more than one native audit page.
+ for(let i=0;i<201;i++)assert.ok(!(await app.call('spool.issues.list',{project})).isError);
+ const latest=await app.call('spool.proposals.read',{project,id:created.id});assert.ok(!latest.isError);
+ const page=await app.json('/agents/api/audit?agent='+app.context.agentId);assert.ok(page.cursor,'Real audit has a second page');
+ await checkTarget({agentId:app.context.agentId,personJson:app.json,resolve:value=>value,add:(id,ok,detail)=>assert.ok(ok,id+': '+detail)},
+  {id:'beyond-first-page',tool:'spool.proposals.read',target:{kind:'grouping_proposal',id:created.id}},new Map(),{decision:latest._meta['com.runeditrun/decision'],result:latest},'native');
  console.log('Closed Base assertions: native audit targets, resource refusal code and current replay admission.');
 }

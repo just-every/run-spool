@@ -23,6 +23,7 @@ export async function specialistFlow(app,github,screens){
  const replay=await app.request(new URL(queued.url).pathname,'GET',undefined,{Authorization:`Bearer ${queued.token}`});assert.equal(replay.status,401);await replay.body?.cancel();
  const recipes=done(await app.call('spool.reproducers.read',{project,issue})).reproducers;const run=recipes.find(r=>r.id===recipe.id).runs[0];assert.equal(run.outcome,'reproduced');assert.equal(run.preparedBy.for.id,app.context.sponsorId??run.preparedBy.for.id);
  const fix=done(await app.call('spool.fixes.create',{project,reproducer:recipe.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',idempotency_key:randomUUID()}));
+ const preparedResource=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/fixes/'+fix.id});assert.equal(JSON.parse(preparedResource.contents[0].text).id,fix.id,'An unapproved native workflow is readable before repository consent');
  const grant=await app.json(path+'/fixes/'+fix.id+'/approve','POST',{revision:fix.revision});assert.equal(grant.approvedBy[0].name,'Dana Engineer');assert.equal(github.requests.length,0,'Native consent for an agent-prepared workflow does not dispatch it');
  await screens?.capture('native-repository-consent',`/projects/${project}/issues/${issue}`,'Repository consent reference',async page=>assert.equal(await page.getByLabel('Repository consent reference').inputValue(),grant.proofReference,'The current native consent reference is available to its person in the workflow card'));
  const advance={project,id:fix.id,idempotency_key:randomUUID()};

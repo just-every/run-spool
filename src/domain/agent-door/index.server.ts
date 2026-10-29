@@ -21,7 +21,7 @@ export async function localAgent(request:Request,env:Bindings) {
  const bearer=request.headers.get('authorization')!.replace(/^Bearer /i,'');
  const id=await hash(bearer);
  const row=await env.DB.prepare(`SELECT minted_by FROM credentials WHERE hash=? AND project=? AND ${mintedByCurrentPerson}`).bind(id,project).first<{minted_by:string}>();
- return row?.minted_by?{sponsor:{id:row.minted_by},agent:{id:`spool-key:${id}`,name:'Spool project agent'},scopes:[...localScopes],clientId:`spool-key:${id}`}:null;
+ return row?.minted_by?{sponsor:{id:row.minted_by},agent:{id:`spool-key:${id}`,name:'Spool project agent',specialist:'triage engineer'},scopes:[...localScopes],clientId:`spool-key:${id}`}:null;
 }
 export function spoolAgentDoor(env:Bindings,name='Spool') {
  return createAgentDoor({seed:'spool',name,specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),

@@ -99,23 +99,26 @@ local cap saves are refused and adopted Business caps are marked `not_enforced`.
 Native quotas, sandbox restrictions and provider consent remain authoritative.
 The registry's capacity limits are request capacities, not a spend guarantee.
 
-`agent-surface.json` is generated from the runtime catalogue and the native
+`agent-surface.json` is generated from the runtime catalogue and native
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
-`pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted production
-Worker, signed identity/settings, native people and the specialist path. The seed pins the published rer 0.2.86 CLI, and normal
-`rer verify` owns the declared Base conformance journey. Its current declaration
-check refuses the existing sender placeholder/secret overlap before that journey;
-removing the sender binding would break the owner-account path, while removing
-the public placeholder breaks the managed-mail declaration. This remains a named
-shared declaration migration, not a conformance pass. Pending Base/contract assertions are named in
-`tests/agent-door/pending.mjs`; copying the module is not a conformance pass.
+`pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
+production Worker, signed identity/settings, scoped clients, native people,
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.87
+CLI; the door, settings and actor runtime carry matching recorded source.
+Normal `rer verify` runs the installed shared conformance harness. The seed's
+existing suite selector can limit local application checks to touched flows;
+it does not disable the shared harness or change its failure exit.
 
-The runtime uses the recorded 0.2.86 Base door source. Native record targets are
-resolved under current project authority for audit and exact approval summaries.
-Replay rechecks current native route admission before exposing a retained result.
-An independent reviewer follows the real invitation and confirmation lifecycle;
-Undo names that reviewer without an agent identity. The declarative harness still
-has pending catalogue acknowledgement, provider binding, consumed-revision
-injection, audit pagination, native runner-event and custody/standing-worker
-requirements. Their dated markers remain in the test tooling. No pending marker
-counts as a completed shared duty.
+The verifier declares a disposable GitHub App binding generator and an isolated
+provider network edge, plus fresh native projects, captures, sandbox observations,
+member targets and exact-project clients for each policy phase. Only the paid
+network edge is substituted; native authorization, persistence and consent run
+in the real Worker. Provider fixture keys are generated per run and never saved.
+
+The 0.2.87 declaration check accepts the existing owner-account sender binding.
+Native audit target checks now follow the cursor beyond the first 200 rows.
+Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
+catalogue acknowledgement limit, fresh-key injection probes, native runner event
+identity, held erasure custody, standing-worker admission and refused approval
+execution accounting. These are pending assertions,
+never passing results or completed shared duties. Spend caps remain unenforced.
