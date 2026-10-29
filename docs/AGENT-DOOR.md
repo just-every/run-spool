@@ -28,6 +28,9 @@ preset that turns a caller's confirmation or imported text into approval. Native
 project roles, current grants, revisions, recipient controls and repository
 consent still apply. Approvals bind `revision` and `summary_sha256`; concurrent
 native changes can make an otherwise approved action stale.
+Native mutation records retain the shared door's operation ID. Approved native
+execution keeps the originating operation, agent preparer and actual named
+approvers together; replay does not create another native operation.
 
 ## Supported triage work
 

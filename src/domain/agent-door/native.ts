@@ -79,7 +79,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  if(route==='privacy'&&method==='POST'){body.confirm=a.project;body.planHash=a.planHash;}
  if(route==='retention'&&method==='PUT')body.confirmation='SHORTEN RETENTION';
  const request=new Request(url,{method,headers:{'content-type':'application/json'},...method==='GET'?{}:{body:JSON.stringify(body)}});
- const operation={id:crypto.randomUUID(),tool,project:a.project??null,target:String(a.issue??a.id??a.name??a.project??'installation')};
+ const operation={id:ctx.agent?(ctx as ToolContext).operationId:crypto.randomUUID(),tool,project:a.project??null,target:String(a.issue??a.id??a.name??a.project??'installation')};
  const door=classifyRequest(request);
  const actor=await auditActor(env.DB,{kind:ctx.agent?'agent':ctx.person.role==='owner'?'owner':'member',authority:ctx.agent?.id??ctx.person.id,owner:ctx.person.id,project:a.project});
  const subject=door?{kind:door.kind,label:await auditLabel(env.DB,subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project))}: {kind:'project' as const,label:await auditLabel(env.DB,subjectBinding('project',String(a.project??'installation'),a.project))};
