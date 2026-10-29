@@ -1,4 +1,5 @@
 import { sourceMapByteLimit, validateMap } from '../../domain/source-map-validation';
+import { sourceMapMetadata } from '../../domain/sentry/map-metadata';
 import { Link } from '@tanstack/react-router';
 import { hrefFor } from './location';
 import { MissingContent } from './NotFound';
@@ -82,6 +83,7 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
           if (file.size > sourceMapByteLimit) throw new Error('Map exceeds 1 MiB.');
           const value = JSON.parse(await file.text());
           const { debug_id, debugId, ...payload } = value ?? {};
+          if (debug_id !== undefined || debugId !== undefined) sourceMapMetadata(value, debug_id ?? debugId);
           validateMap(payload);
           if (selection.current === current) {
             setMap({ name: file.name, value });

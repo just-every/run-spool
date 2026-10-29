@@ -8449,7 +8449,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "277505ea1890a043f1450710bf00c7926ba43d5c89676d81257c16099da7de88",
+      "sha256": "0ce327a157f4fe21137ff80555f7d51aeb4f615db199202810bb5c639a882891",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -9381,7 +9381,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "6b781571188779a3c8e8e7255f57fcc3e3bf8f906a3a31e50b9d45e373074019",
+      "sha256": "05bca9b26742e7c0b3da3445f62e2dd64b97b37aac9c3e14bb50ec5e17124ad2",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {

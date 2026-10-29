@@ -73,9 +73,16 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   assert.equal(await debugField.inputValue(),item.debug,'the stamped or manually selected debug ID is preserved');
   if(index===0){
    const originalInventory=await inventory();
-   // Both JSON and map-structure refusals keep the previously prepared map and its identity.
-   for(const invalid of [Buffer.from('{'),{...flat,mappings:'!'}]){
+   // Invalid JSON, map structure and stamped identities retain the prepared map.
+   for(const [invalid,error] of [
+    [Buffer.from('{'),'Invalid source map JSON.'],
+    [{...flat,mappings:'!'},'Invalid VLQ character'],
+    [{...flat,debug_id:'synthetic-spool-invalid-debug'},'Invalid source map debug metadata'],
+    [{...flat,debugId:42},'Invalid debugId'],
+    [{...flat,debug_id:item.debug,debugId:'00000000-0000-4000-8000-000000000025'},'Source map debug identity mismatch'],
+   ]){
     await choose('synthetic-spool-invalid.js.map',invalid);await page.locator('#map-error').waitFor();
+    await page.locator('#map-error').filter({hasText:error}).waitFor();
     await ready(item.name);assert.equal(await debugField.inputValue(),item.debug);assert.equal(await releaseField.inputValue(),'formats@1');
     assert.deepEqual(await inventory(),originalInventory,'a malformed replacement stores nothing');
    }
