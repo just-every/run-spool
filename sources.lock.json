@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "186411c0f0bc9b4d470d126d1fc1809980161a91e60882324e9a20254b0f9ea6",
+      "sha256": "5b23156c2e763e9fc0f80943ab7af486efcee422e630daccb883093bfab76a1a",
       "executable": false
     },
     "DEMO.md": {
@@ -9401,7 +9401,7 @@
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
-      "sha256": "69e747bef2477debdfb3865568de45177580cbb3914a30f43af75b019c6f657b",
+      "sha256": "d5de9cb4a835d1a5e9c12468b0ce4e19f16b05c165ff35095c5e3ef6efd32632",
       "executable": false
     },
     "tests/suspect-flow.mjs": {
