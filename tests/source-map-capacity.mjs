@@ -93,6 +93,15 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
    assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));
    await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);
    await proof('picker-malformed-draft');
+   await debugField.fill('00000000-0000-4000-8000-000000000025');
+   const mismatch=page.waitForResponse(r=>r.url().endsWith(base+'/artifacts')&&r.request().method()==='POST');
+   await upload.click();const rejected=await mismatch;assert.equal(rejected.status(),400);
+   assert.match((await rejected.json()).error,/Source map debug identity mismatch/);
+   await page.locator('#map-error').filter({hasText:'Source map debug identity mismatch'}).waitFor();
+   await ready(item.name);assert.equal(await debugField.inputValue(),'00000000-0000-4000-8000-000000000025');
+   assert.equal(await releaseField.inputValue(),'formats@1');
+   assert.deepEqual(await inventory(),originalInventory,'a conflicting upload identity stores nothing and retains the prepared map');
+   await debugField.fill(item.debug);
   }
   if(index===2){
    await choose('synthetic-spool-over-boundary.js.map',Buffer.concat([Buffer.from(JSON.stringify(item.map)),Buffer.from(' ')]));
@@ -153,6 +162,6 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   await page.getByText(/storage cap [0-9]+ bytes/).first().evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,`refusal-${width}.png`)});
  }
  await context.close();
- console.log('[SRC-004] Spool CLI 27 maps, indexed offsets, source roots and large-map public issue lookup, picker parity through 1 MiB with debug IDs and preserved malformed, oversized and capped drafts, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');
+ console.log('[SRC-004] Spool CLI 27 maps, indexed offsets, source roots and large-map public issue lookup, picker parity through 1 MiB with debug IDs and preserved malformed, conflicting-identity, oversized and capped drafts, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');
  return {id,base,cap};
 }

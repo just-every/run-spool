@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3fa445e588e8ec8cd06328a19530e3cf537fa671fc576fba3223780d9d6d2a88",
+      "sha256": "15163c8af0819d0dde0737f1681fb35345c7194b41cc83076d84a3e9d67d0403",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1d1adfe8115dce66eefc8e8237ae58cf27fcfdeec9d50133500605490e49874b",
+      "sha256": "05fe4d58ba77e1f4be40b31d1f20abfbfdf697b5376a88ee0218cc6d92884fa4",
       "executable": false
     },
     "DEMO.md": {
@@ -3665,7 +3665,7 @@
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
-      "sha256": "a05296df018fa7533adb346d100aa97b6898e8c87ca6f255191ba5b9ec0b7e33",
+      "sha256": "5772e94ac5edd60685fdb6495af2c209548e9a6d36455a1b7b26348364d5982d",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
@@ -9381,7 +9381,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "05bca9b26742e7c0b3da3445f62e2dd64b97b37aac9c3e14bb50ec5e17124ad2",
+      "sha256": "7411285ee98b351e2b969b5b616ed98889ad680dca41b5b5b78a38d78c0b7daa",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
