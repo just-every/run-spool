@@ -37,7 +37,7 @@ export function IssueList({ project, rows, unseen, onRefresh, onSetup, readOnly 
   return <section className="issue-browser" aria-labelledby="issue-browser-heading" aria-busy={loading}>
     <h2 id="issue-browser-heading" className="visually-hidden">Issues</h2>
     <IssueToolbar project={project} query={query} result={result} readOnly={readOnly} exportQuery={exportQuery} onChange={change} onRefresh={onRefresh} />
-    {!readOnly && selection.selected.length > 0 && <BulkTriage project={project} selected={selection.selected} refreshing={found.refreshing} clear={selection.clear} onApplied={onRefresh} />}
+    {!readOnly && <BulkTriage project={project} selected={selection.selected} refreshing={found.refreshing} clear={selection.clear} onApplied={onRefresh} />}
     {loading ? <p role="status" className="list-state">Loading issues…</p> : failed ? <p role="alert" className="list-state">Issue search is unavailable. <button className="text-button" onClick={onRefresh}>Retry search</button></p> : <>
       <p role="status" className="visually-hidden">{total} {total === 1 ? 'issue' : 'issues'}{narrowed ? ' matching your filters' : ''}</p>
       {visible.length ? <IssueTable project={project} rows={visible} unseen={unseen} readOnly={readOnly} selection={selection} refreshing={found.refreshing} />
