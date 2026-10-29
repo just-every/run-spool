@@ -21,6 +21,7 @@ export function validateProposalArchive(data:any) {
  for(const row of data.grouping_proposals) {
   insist(typeof row.id==='string' && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(row.id) && !seen.has(row.id),'identity');
   insist(projects.has(row.project) && ['split','merge','rule'].includes(row.kind) && ['proposed','rejected','approved','applied','undone','stale'].includes(row.state) && safeAlias(row.actor),'identity');
+  if(row.prepared_by!==undefined&&row.prepared_by!==null)insist(typeof row.prepared_by==='string'&&row.prepared_by.length<=500&&scrubText(row.prepared_by,500)===row.prepared_by,'preparer');
   insist(integer(row.created) && integer(row.updated) && row.updated>=row.created,'timestamp');
   const input=normalizeProposal(JSON.parse(row.input));
   insist(canonical(input)===row.input && input.kind===row.kind,'input');

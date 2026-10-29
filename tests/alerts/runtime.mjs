@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from '../agent-door/local-policy.mjs';
 import {registerLegacyMail} from '../legacy-mail.mjs';
 import assert from 'node:assert/strict';
 import {readFile,readdir,writeFile,mkdtemp,rm} from 'node:fs/promises';
@@ -47,7 +48,7 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
    const {unstable_splitSqlQuery}=require('wrangler');const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
    await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
   }
-  const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});
+  const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});await chooseLocalAgentPolicy(origin,cookie);
   // A restore can outlast another connection's idle lifetime. Do not let the
   // global fetch pool reuse that socket, or one from a disposed fixture runtime.
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Connection:'close',Origin:origin,Cookie:cookie,...(body?{'content-type':'application/json'}:{}),...headers},...(body?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
