@@ -8229,7 +8229,7 @@
       "executable": false
     },
     "src/ui/Workbench.tsx": {
-      "sha256": "9156a9e0aeda6c00991e663ff53edd77e6a25edd7862e429c74edefae48b57a9",
+      "sha256": "49f2067ef9de48a5b8b8ff1f46bd4ad9ef7da473f14007fb579f2d9fa25653d7",
       "executable": false
     },
     "src/ui/workbench/AffectedUsers.tsx": {
@@ -8285,7 +8285,7 @@
       "executable": false
     },
     "src/ui/workbench/client.ts": {
-      "sha256": "cff33479b3bfa5c43b9b416bfbbc4d7c2e9c67056ad35e075732cd03b9ac72fe",
+      "sha256": "20c56c6fb719f8e64bf3d1129df15478890f7ee8f73eae9e49f26661a7b6447f",
       "executable": false
     },
     "src/ui/workbench/CommitSharing.tsx": {
@@ -8577,7 +8577,7 @@
       "executable": false
     },
     "src/ui/workbench/useProjectData.ts": {
-      "sha256": "b8e24b81a2762f5289395d3e4e2b85a249568b55e9bfcd4eb089d3f9ddef8b81",
+      "sha256": "cef0df3ddb2951bf014d9bcdde98688cfcdffc449f386a67362d061fa196f2dc",
       "executable": false
     },
     "src/ui/workbench/useProjectIssues.ts": {
@@ -8585,7 +8585,7 @@
       "executable": false
     },
     "src/ui/workbench/useWorkspace.ts": {
-      "sha256": "8f406d773248ff5cd1279f35b2146b360156ce7c60a4b4f0133c9aa28834292f",
+      "sha256": "7906ae6f489dd1fa9272a3ed0a177a4095bcee680aecdc11a7ade3c5b5288545",
       "executable": false
     },
     "src/ui/workbench/views.css": {
@@ -8593,7 +8593,7 @@
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {
-      "sha256": "801e0d671e075fe225d3346ca39ec663faf089b1523f2649395b78418b06b4d0",
+      "sha256": "e84514cb9d039c59a811c0c3f153dfc95d66e84c4b02f7e9daa595f4d6533070",
       "executable": false
     },
     "TARGET.md": {
@@ -9401,7 +9401,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "5305c87202e2a6c81f68e57b5bb618d427b6daa68910e7d1d4c6f974c83ca117",
+      "sha256": "53cebb1ab157160911c73948168f1cdedaaec27f25a08898c5b71480a34f93e4",
       "executable": false
     },
     "tests/team-flow.mjs": {
@@ -9417,7 +9417,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "2bfae45ea99dc981f7407b89e4aa0633f12cae6a5f70522ba9c97a8a8880da07",
+      "sha256": "9e8794f4438ac5bf3368c85bb1811ace6aba174650d6b569333a6df2c34b06d7",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

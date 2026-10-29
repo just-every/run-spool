@@ -83,8 +83,13 @@ export async function memberBrowser(actor,project,issue) {
   await expect(page.getByRole('main')).toContainText(issue.title);
   return {
    async removed() {
-    await page.reload();
-    await expect(page).toHaveURL(url=>url.pathname==='/sign-in');
+    // The next ordinary read must clear an already open private screen immediately.
+    const denied=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/packet')&&response.status()===401);
+    await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await denied;
+    await expect(page.getByRole('heading',{name:'Session ended',exact:true})).toBeVisible();
+    const signIn=page.getByRole('link',{name:'Sign in again',exact:true});
+    await expect(signIn).toHaveAttribute('href','/sign-in?returnTo='+encodeURIComponent(path));
+    assert.equal(new URL(page.url()).pathname,path,'revocation preserves the private destination without navigating');
     await expect(page.getByRole('main')).not.toContainText(issue.title);
     const folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
     await mkdir(folder,{recursive:true});
@@ -92,6 +97,8 @@ export async function memberBrowser(actor,project,issue) {
     await page.setViewportSize({width:390,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'the removed member sign-in fits the phone viewport');
     await page.screenshot({path:resolve(folder,'removed-390.png')});
+    await signIn.click();await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===path);
+    await page.reload();await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===path);
    },
    close:()=>browser.close(),
   };
