@@ -104,6 +104,9 @@ async function sharedReviewFlow(owner,first,second,reader,projects,db) {
  assert.equal((await first.json(base+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})).changed,1);
  const after=await pending();assert.equal(after.total,before.total-1);assert.equal(after.reviewPending,before.reviewPending-1);assert.ok(!after.rows.some(row=>row.id===issue.id),'review disappears for the other member on the next read');
  assert.deepEqual(await data(),original,'review leaves all issue fields and captured occurrences unchanged');
+ assert.equal(await status(first.req(base+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})),409,'a competing or replayed member preview cannot reapply a reviewed boundary');
+ assert.deepEqual(await pending(),after,'stale member review preserves the teammate inbox');
+ assert.deepEqual(await data(),original,'stale member review preserves issues and occurrences');
  const facts=(await owner.json('/api/audit/export?format=json')).rows.filter(row=>!auditBefore.has(row.id)&&row.action==='issue.bulk_triage'&&row.source==='transaction'&&row.outcome==='succeeded');
  assert.equal(facts.length,1);assert.equal(facts[0].actor_kind,'member');assert.equal(facts[0].actor_label,alias.label,'the committed review names the actual reviewing member alias');
  const query={q:'environment:production',status:'all',release:'all',sort:'latest'};
@@ -148,6 +151,8 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  assert.equal((await cli(['packet',issue.id,'--format','json'],agentEnv)).code,0);
  await mcpDoor(origin,projects[1],keys.agent.key,issue.id,true);
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
+ const reviewInput={action:'reviewed',issues:[{id:issue.id,revision:before.revision}],apply:false},reviewPreview=await removed.json(root+'/bulk-triage','POST',reviewInput);
+ const sealedReview=await owner.json(root+'/issue-search?q=review:pending');
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
  const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
@@ -163,6 +168,8 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const document=await removed.req('/projects/'+projects[1].id+'/issues/'+issue.id);assert.equal(document.status,303);assert.equal(new URL(document.headers.get('location'),owner.origin).pathname,'/sign-in');await document.body?.cancel();
  await denied(removed.req(root+'/review/views','POST',{q:'environment:production',status:'all',release:'all',sort:'latest'}),'removed members cannot save a query');
  await denied(removed.req(root+'/bulk-triage','POST',{action:'reviewed',issues:[{id:issue.id,revision:before.revision}],apply:false}),'removed members cannot preview review');
+ await denied(removed.req(root+'/bulk-triage','POST',{...reviewInput,apply:true,preview:reviewPreview.preview}),'removal fences the SAME previously authorized review preview');
+ assert.deepEqual(await owner.json(root+'/issue-search?q=review:pending'),sealedReview,'revoked review apply leaves the shared inbox unchanged');
  await denied(removed.req(root+'/keys','POST',{kind:'agent'}),'removed session cannot mint another grant');
  await denied(owner.req(root+'/issues/'+issue.id+'/packet','GET',undefined,bearer('agent')),'removal revokes minted agent evidence authority');
  await denied(owner.req(root+'/releases','POST',{name:'synthetic-spool-4',build:'web'},bearer('deploy')),'removal revokes minted deploy authority');
