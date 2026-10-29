@@ -5336,6 +5336,10 @@
       "sha256": "0164ca1e5df69c15f721e904ab555e2e9c0ebb44eb0925c138496910bd9634ab",
       "executable": false
     },
+    "src/domain/investigation/impact.ts": {
+      "sha256": "7154e0d2562f219b59db92530ec3d2ad87ddfc238260ab4fd328f9effa01eeaf",
+      "executable": false
+    },
     "src/domain/investigation/query.ts": {
       "sha256": "6b89f9d3f177e3f3b5cecd82b84405cdefe9540d523a0d1171dbd49db9ebe4bc",
       "executable": false
@@ -8376,6 +8380,10 @@
       "sha256": "3ffffcc22779ed47bb13c6ee9aa039a55117bb21b314fcdc34dd23a2e4333d5a",
       "executable": false
     },
+    "src/ui/workbench/IssueImpact.tsx": {
+      "sha256": "00145de24721dcb869cab7c30a8dabcdf63dafad90731621af61bb35bd507a0f",
+      "executable": false
+    },
     "src/ui/workbench/IssueList.tsx": {
       "sha256": "4844b582581b4e6e24ef412fac47c8e7832c26832016800f360601f002e679ac",
       "executable": false
@@ -8825,7 +8833,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "6eae6b0173833781871bcd3624a0a4769e4bad9e3df5422242f1ab55fccf3533",
+      "sha256": "ccd1dc5fd74dd03ae7bfeb7ae465dc88e8046ef2a1c7242d448cc82f430c0f09",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
