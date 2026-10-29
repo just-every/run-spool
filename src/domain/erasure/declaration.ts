@@ -25,6 +25,12 @@ export const projectErasure = defineErasure({
   ...['agent_door_approvals','agent_door_reviews'].map(from=>({table:'agent_door_audit',from,where:"id=json_extract(?,'$.decision_id')",params:['saved']})),
   {table:'agent_door_audit',from:'projects',where:"json_extract(row,'$.resource')='spool://projects/'||? OR instr(json_extract(row,'$.resource'),'spool://projects/'||?||'/')=1 OR EXISTS(SELECT 1 FROM json_tree(row,'$.classes') WHERE key='service' AND value=?)",params:['id','id','id']},
   {table:'agent_door_usage',from:'agent_door_audit',on:{decision_id:'id'}},
+  // Multi-project definitions retain their other widgets; a sole-project item
+  // and all its grants leave with the last project they describe.
+  {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
+  {table:'spool_reporting_shares',from:'spool_reporting_items',on:{item:'id'}},
+  {table:'spool_reporting_shares',from:'spool_project_teams',where:"kind='team' AND target=? AND item IN (SELECT item FROM spool_reporting_projects WHERE project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r JOIN spool_project_teams t ON t.project=r.project WHERE r.item=spool_reporting_shares.item AND r.project<>? AND t.organization=? AND t.team=?)",params:['team','project','project','organization','team']},
+  ...['spool_reporting_projects','spool_reporting_widgets'].map(fromProject),
   {table:'spool_follow_up_alternates',from:'projects',on:{project:'id'}},
   {table:'spool_team_mail',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(spool_team_mail.projects) p WHERE p.value=?)",params:['id']},
   ...['spool_team_digest_settings','spool_team_snoozes','spool_team_mail'].map(table=>({table,from:'spool_project_teams',

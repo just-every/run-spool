@@ -6,6 +6,7 @@ import { repairLink } from '../repairs/input';
 // import custody cannot be silently changed or dropped with a neighbour's data.
 export const ownerCaptureColumns: Record<string, string[]> = {
  issue_suppressions:['reason'],issue_comments:['body'],issue_activity:['detail'],
+ spool_reporting_items: ['name','author'], spool_reporting_widgets: ['name','config'], spool_reporting_shares: ['target'],
  spool_team_digest_settings: ['team'], spool_team_snoozes: ['team','target'], spool_team_mail: ['team','body'],
  spool_organizations: ['name'], spool_project_teams: ['team'], spool_service_accounts: ['name'],
  suspect_decisions: ['note'],
@@ -21,7 +22,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  // SRC-003: free text a CI job sent with a release or a deploy.
  sentry_releases: ['url'], sentry_deploys: ['name','url'],
 };
-const jsonColumns = new Set(['outcome','actor','approvers','principal','row','evidence','saved','approvals','result','event','payload','diagnostic','spec','observation','checks','grant_spec','detail']);
+const jsonColumns = new Set(['outcome','actor','approvers','principal','row','evidence','saved','approvals','result','event','payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
 const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));
@@ -70,6 +71,9 @@ export async function capturePlan(db: D1Database, needles: string[]) {
    if(Object.entries(row).some(([column,value])=>!columns.includes(column) && contains(value,needles)))hold='identifier_in_structural_key';
    const after: Record<string,unknown> = {}, before: Record<string,unknown> = {};
    for (const column of columns) {
+    // The relational owner declaration clears this pointer; do not turn it
+    // into free text or hold a supported authored definition.
+    if (table==='spool_reporting_items' && column==='author' && row.author===needles[0]) continue;
     if (typeof row[column] !== 'string') continue;
     let value: any;
     try { value = jsonColumn(table,column) ? JSON.parse(row[column]) : row[column]; } catch { hold = 'unreadable_captured_content'; continue; }

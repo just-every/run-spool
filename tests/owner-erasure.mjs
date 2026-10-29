@@ -85,6 +85,8 @@ try {
  const digest=await app.request(teamAlerts+'/team-digests',{member:ownerMember.id,timezone:'America/New_York',daily:true,weekly:true,hour:9},{},'PUT');assert.equal(digest.status,200);await digest.body?.cancel();
  await app.json(teamAlerts+'/team-snoozes',{scope:'team',target:'Default team',until:Date.now()+60000},201);
  const alternate=await app.request('/api/projects/personal-capture/follow-up/alternate-member',{member:ownerMember.id},{},'PUT');assert.equal(alternate.status,200);await alternate.body?.cancel();
+ const reportingWindow={from:Date.now()-60000,to:Date.now()+1000};
+ const reporting=await app.json('/api/reporting/items',{kind:'dashboard',name:`Test owner with ${other}`,widgets:[{project:project.id,name:'Owner evidence',config:{metric:'count',q:'message:"Test owner"',...reportingWindow}}]},201);
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
@@ -102,6 +104,9 @@ try {
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
+ assert.equal(after.spool_reporting_items.find(row=>row.id===reporting.id).author,null,'Reporting author becomes erased without discarding the shared definition');
+ assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
+
  for(const table of ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
  assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
  for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);
@@ -131,6 +136,7 @@ try {
  assert.equal((await app.call('/auth/magic-link',{email:next.email})).status,202);
  app.cookie=await confirmLatest(app,next.email);
  assert.ok(app.cookie);await app.json('/api/projects');
+ const erasedReport=await app.call('/api/reporting/items/'+reporting.id,undefined,{Cookie:app.cookie});assert.equal(erasedReport.status,200);assert.equal((await erasedReport.json()).author,'[erased]');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
  // SDK-008: the successor chooses a new policy above the erased policy's safe revision floor.
  const nextIdentityPolicy={id:'hash',email:'hash',username:'hash',ip_address:'hash'},nextIdentityPreview=await app.json('/api/projects/personal-capture/identity-policy/preview',{policy:nextIdentityPolicy});

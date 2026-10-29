@@ -8,6 +8,8 @@ import { mintedByCurrentPerson } from './credential-fence';
 import { resolveMembership } from './members/resolver';
 import { memberProjects } from './members/resolver';
 import { memberRoutes } from './members/routes';
+import { reportRoutes } from './reports/routes';
+import { reportingRoutes } from './dashboards/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
@@ -80,6 +82,8 @@ import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority'
 const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:NativeAuthority}}>();
 api.route('/api/organization',memberRoutes);
 api.route('/api/audit',auditRoutes);
+api.route('/api/reports',reportRoutes);
+api.route('/api/reporting',reportingRoutes);
 // These bounded read doors independently enforce exact-project authority.
 api.route('/api/projects',recordRoutes);
 api.route('/api/projects',sessionRoutes);
