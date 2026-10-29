@@ -8925,11 +8925,11 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "0009a2d43970dc471bd84b50c195c36465490115ff82ec3ae32cc9489f98854d",
+      "sha256": "d4308c84a99970af89730442f46f0568ea2bfd496f166fe9606dc489feac6c42",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "75ebdfea38f4cea559c94d04cb8eae0fbdbb95446e11f2d7c23a46020a2050ef",
+      "sha256": "38984ef56605500a80923ee9d832a4fbb0b40667be518e40674e8930c2a1c583",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -8993,7 +8993,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "0e8ffd283580f8272078367504dafddc66a94b325eff75d847dadc7d3e4eeebc",
+      "sha256": "a3d0e2428301812d33230573bdeb7f389d271891fa601f5b4ebc5744ab80471b",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
@@ -9417,7 +9417,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "2bfae45ea99dc981f7407b89e4aa0633f12cae6a5f70522ba9c97a8a8880da07",
+      "sha256": "711a5ece4aa1ed3fb058f93ef86a2144e67867cb4cda4647cbbb39e246f29f5a",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
