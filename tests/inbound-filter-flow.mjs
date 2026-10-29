@@ -117,7 +117,8 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    
    await panel.getByText(/Preview complete · 0 retained events/).waitFor();await snap('preview');
    await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
-   await panel.getByText('Filters by accepted category and unavailable fields',{exact:true}).click();await snap('saved');
+   // Coverage by category is reference text behind the section's info control.
+   await panel.getByRole('button',{name:'Details: Inbound filters and usage',exact:true}).click();await page.getByRole('dialog').getByRole('heading',{name:'Filters by accepted category and unavailable fields',exact:true}).waitFor();await snap('saved');await page.keyboard.press('Escape');
    let n=0;
    const event=(patch={})=>({release:'web-1',dist:'web',environment:'production',exception:{values:[{type:'CheckoutError',value:'ordinary checkout failure '+(++n),stacktrace:{frames:[{filename:'https://cedar.example/app.js',lineno:8,colno:1,function:'checkout'}]}}]},...patch});
    await send(project.dsn,event());const before=(await request(base+'/issues')).reduce((sum,row)=>sum+row.count,0),alerts=(await request(base+'/alerts')).length;

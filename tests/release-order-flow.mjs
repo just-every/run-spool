@@ -53,8 +53,8 @@ export async function releaseOrderFlow({req,json,db,origin,cookie,browser}) {
   for(const width of [1440,390]){
    const context=await browser.newContext({viewport:{width,height:1000}});await context.addCookies(cookie.split('; ').map(value=>({name:value.slice(0,value.indexOf('=')),value:value.slice(value.indexOf('=')+1),url:origin})));const page=await context.newPage();
    try{
-    await page.goto(origin+'/projects/'+project.id+'/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').last().waitFor();
-    if(width===1440)assert.deepEqual(await page.locator('.data-row th strong').allTextContents(),expected,'rendered release history uses the chosen order');
+    await page.goto(origin+'/projects/'+project.id+'/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();const history=page.locator('section').filter({has:page.getByRole('heading',{name:'Release history',exact:true})});await history.locator('.data-row').last().waitFor();
+    if(width===1440)assert.deepEqual(await history.locator('.data-row th strong').allTextContents(),expected,'rendered release history uses the chosen order');
     await page.screenshot({path:`.artifacts/release-order/${label}-history-${width}.png`,fullPage:true});
     await page.goto(origin+'/projects/'+project.id+'/issues/'+(await issue()).id);const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await openSection(page,'Suspect changes');await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-order/${label}-comparison-${width}.png`});
    }finally{await context.close()}
