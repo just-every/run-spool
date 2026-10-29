@@ -9229,7 +9229,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "62be0160bed7c105133f19a0732f72770bc4be11f5ad5cbd11e53893538a901d",
+      "sha256": "4935485a3f6a670c0b8e307b939c958d85b28defc2d44ad570d6e477e7993e8d",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
@@ -9297,7 +9297,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "bfda7221ec6a25228b710f7e641bdf407628cde0534d68210dfc37c6d7514acf",
+      "sha256": "b4ed0be83b4c4018f62a64a3ff84cea80fd1adfbed7991a0b5d5b502a534f56d",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {

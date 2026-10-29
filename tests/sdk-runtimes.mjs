@@ -53,7 +53,7 @@ try{
   for(const [release] of [...sent].map(value=>JSON.parse(value)))if(release)assert.ok(releases.some(r=>r.name===release&&r.auto_created===1&&JSON.parse(r.creating_sdk).name.startsWith(runtime.sdk)),`${name}: release ${release} is created automatically`);
   // The handled occurrence reads the same through the UI, at desktop and phone width.
   const outer=runtime.chain.at(-1);
-  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled})}}]);
+  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue)await runtime.checkIssue({page,app,project,handled})}}]);
   // Failure handling: a wrong key or an unreachable intake never breaks the application.
   const before=await app.json(`/api/projects/${project.id}/issues`);
   const url=new URL(project.dsn);
