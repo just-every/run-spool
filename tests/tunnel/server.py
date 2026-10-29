@@ -4,7 +4,7 @@ import json
 import os
 import resource
 import sys
-from wsgiref.simple_server import WSGIRequestHandler, make_server
+from werkzeug.serving import WSGIRequestHandler, make_server
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "packages", "tunnel-python"))
 from spool_tunnel import Tunnel
@@ -30,9 +30,9 @@ def app(environ, start_response):
 
 
 class Quiet(WSGIRequestHandler):
-    def log_message(self, *args):
+    def log(self, *args):
         pass
 
 
 print("listening", flush=True)
-make_server("127.0.0.1", port, app, handler_class=Quiet).serve_forever()
+make_server("127.0.0.1", port, app, request_handler=Quiet).serve_forever()

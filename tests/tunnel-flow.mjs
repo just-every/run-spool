@@ -8,7 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { gzipSync } from 'node:zlib';
+import { gzipSync, deflateSync, brotliCompressSync, zstdCompressSync } from 'node:zlib';
 import { build } from 'esbuild';
 import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
@@ -53,7 +53,10 @@ try {
   process.once('exit', () => nodeServer.kill());
   const nodeOrigin = `http://127.0.0.1:${await new Promise((done, fail) => { nodeServer.once('error', fail); nodeServer.stdout.once('data', port => done(String(port).trim())); })}`;
   const pythonPort = 20000 + Math.floor(Math.random() * 20000), pythonOrigin = `http://127.0.0.1:${pythonPort}`;
-  python = spawn('python3', ['tests/tunnel/server.py', String(pythonPort), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
+  const pythonEnv=resolve(temporary,'python-env');
+  execFileSync('python3',['-m','venv',pythonEnv]);
+  execFileSync(resolve(pythonEnv,'bin/pip'),['install','--quiet','--disable-pip-version-check','-r',resolve('packages/tunnel-python/requirements.txt'),'werkzeug==3.1.3'],{stdio:'pipe'});
+  python = spawn(resolve(pythonEnv,'bin/python'), ['tests/tunnel/server.py', String(pythonPort), site, project.dsn, captureDsn, redirectDsn], { stdio: ['ignore', 'pipe', 'inherit'] });
   process.once('exit', () => python.kill());
   await new Promise((done, fail) => { python.once('error', fail); python.stdout.once('data', done); });
 
@@ -68,7 +71,8 @@ try {
   // request minus its resident memory just before it, which can only overstate the request. On Linux both figures are the
   // process's own VmHWM and VmRSS (/proc), since getrusage there also counts the parent's memory carried across exec;
   // elsewhere they are the getrusage peak and ps.
-  const bomb = gzipSync(Buffer.concat([Buffer.from(JSON.stringify({ dsn: captureDsn }) + '\n'), Buffer.alloc(256 * 1024 * 1024)]), { level: 9 });
+  const bombInput=Buffer.concat([Buffer.from(JSON.stringify({ dsn: captureDsn }) + '\n'), Buffer.alloc(256 * 1024 * 1024)]);
+  const bombs=[['gzip',gzipSync(bombInput,{level:9})],['br',brotliCompressSync(bombInput)],['zstd',zstdCompressSync(bombInput)]];
   const usage = async base => (await fetch(`${base}/peak-rss`)).json();
   const memoryOf = async (base, pid) => {
     if (process.platform !== 'linux') return { peak: (await usage(base)).maxRSS, resident: Number(execFileSync('ps', ['-o', 'rss=', '-p', String(pid)], { encoding: 'utf8' })) };
@@ -83,7 +87,7 @@ try {
     assert.equal(pid, started.pid, `${base} answers from the host process this journey started`);
     assert.deepEqual(childrenOf(pid), [], `${base} serves from that one process, with no child process`);
     const before = await memoryOf(base, pid);
-    assert.equal((await post(`${base}/monitoring`, bomb, { 'Content-Encoding': 'gzip' })).status, 413, `${base} refuses an envelope over 1 MiB once decoded`);
+    for(const [encoding,bomb] of bombs)assert.equal((await post(`${base}/monitoring`, bomb, { 'Content-Encoding': encoding })).status, 413, `${base} refuses ${encoding} over 1 MiB once decoded`);
     const after = await memoryOf(base, pid), cost = after.peak - before.resident;
     memory.push({ host, pid, residentBeforeKiB: before.resident, peakBeforeKiB: before.peak, peakAfterKiB: after.peak, costKiB: cost });
     assert.ok(cost < 32 * 1024, `${base} refuses it within 32 MiB of peak memory (${cost} KiB)`);
@@ -164,6 +168,39 @@ try {
   await nextPage.getByRole('button').click(); assert.equal((await tunnelled).status(), 200, 'the Next tunnel forwards the click’s error'); await nextPage.context().close();
   await arrives('next checkout failure');
 
+
+  // SDK-011: every shipped host forwards compressed envelopes unchanged, including chunked uploads.
+  const streamedPost=(url,body,encoding,chunked)=>fetch(url,{method:'POST',headers:{Origin:nodeOrigin,'Content-Encoding':encoding},
+    body:chunked?new ReadableStream({start(controller){for(let offset=0;offset<body.length;offset+=31)controller.enqueue(body.subarray(offset,offset+31));controller.close()}}):body,
+    ...chunked?{duplex:'half'}:{}});
+  let sequence=128;
+  for(const base of [nodeOrigin,pythonOrigin,nextOrigin]){
+    for(const [encoding,compress] of [['gzip',gzipSync],['deflate',deflateSync],['br',brotliCompressSync],['zstd',zstdCompressSync]]){
+      for(const chunked of [false,true]){
+        const event_id=(++sequence).toString(16).padStart(32,'0'),message=`synthetic-spool-${sequence}`;
+        const envelope=JSON.stringify({dsn:project.dsn,event_id})+'\n{"type":"event"}\n'+JSON.stringify({event_id,message,release:'tunnel@1.0.0'});
+        const reply=await streamedPost(`${base}/monitoring`,compress(Buffer.from(envelope)),encoding,chunked);
+        assert.equal(reply.status,200,`${base} accepts ${encoding} with ${chunked?'chunked transfer':'Content-Length'}`);
+        assert.equal((await reply.json()).id,event_id);
+        assert.ok((await issues()).some(issue=>issue.title.includes(message)),`${base} creates the ${encoding} issue`);
+      }
+      if(encoding==='br'||encoding==='zstd'){
+        const valid=compress(Buffer.from(envelopeOf(captureDsn))),before=seen.length,stored=await countOccurrences();
+        for(const chunked of [false,true]){
+          for(const corrupt of [Buffer.from('synthetic-spool-invalid'),valid.subarray(0,valid.length-1)])assert.equal((await streamedPost(`${base}/monitoring`,corrupt,encoding,chunked)).status,400,`${base} refuses corrupt and truncated ${encoding}`);
+          assert.equal((await streamedPost(`${base}/monitoring`,compress(Buffer.from(envelopeOf(other.dsn))),encoding,chunked)).status,403,`${base} checks the decoded DSN`);
+          const [ ,bomb]=bombs.find(([name])=>name===encoding);
+          assert.equal((await streamedPost(`${base}/monitoring`,bomb,encoding,chunked)).status,413,`${base} bounds chunked ${encoding} expansion`);
+        }
+        assert.equal(seen.length,before,'refused compressed envelopes are never forwarded');
+        assert.equal(await countOccurrences(),stored,'refused compressed envelopes create no occurrences');
+        const sent=compress(Buffer.from(envelopeOf(captureDsn)));
+        assert.equal((await streamedPost(`${base}/monitoring`,sent,encoding,true)).status,200);
+        assert.deepEqual(seen.at(-1).body,sent,'the original compressed bytes are forwarded');
+        assert.equal(seen.at(-1).headers['content-encoding'],encoding);
+      }
+    }
+  }
 
   // 5. A tunnel is not an open relay: another project, a malformed header and a wrong method forward nothing.
   const before = await countOccurrences(), forwardedBefore = seen.length;

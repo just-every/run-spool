@@ -16,7 +16,7 @@ export default {
  chain:['ZeroDivisionError','ValueError'],
  async prepare(dir){
   await runOk('python3',['-m','venv',resolve(dir,'venv')]);
-  await runOk(resolve(dir,'venv/bin/pip'),['install','--quiet','--disable-pip-version-check','sentry-sdk==2.72.0','django==5.2.8']);
+  await runOk(resolve(dir,'venv/bin/pip'),['install','--quiet','--disable-pip-version-check','sentry-sdk==2.72.0','django==5.2.8','brotli==1.2.0']);
  },
  command(mode,dir,dsn,cwd=dir){return {...command(dir,'app.py',mode,dsn,cwd),unset:[]}},
  async checkIssue({page,app,project,handled}){
@@ -62,7 +62,7 @@ export default {
   assert.deepEqual([alertRelease.name,alertRelease.sequence],['',0],'release-less alert names no release');
   // SDK-009: the SDK infers a release from the git checkout it runs in, and is created automatically.
   const checkout=resolve(dir,'inferred');await mkdir(checkout,{recursive:true});
-  const git=(...args)=>runOk('git',['-c','user.email=synthetic-spool@example.test','-c','user.name=synthetic-spool',...args],{cwd:checkout});
+  const git=(...args)=>runOk('env',['GIT_AUTHOR_NAME=Run Edit Run fleet',`GIT_AUTHOR_EMAIL=${['fleet','runeditrun.com'].join('@')}`,'GIT_COMMITTER_NAME=Run Edit Run fleet',`GIT_COMMITTER_EMAIL=${['fleet','runeditrun.com'].join('@')}`,'git',...args],{cwd:checkout});
   await git('init','-q');await git('commit','-q','--allow-empty','-m','synthetic-spool-1');
   const sha=(await runOk('git',['rev-parse','HEAD'],{cwd:checkout})).stdout.trim();
   const [issue]=await send(releasesProject,'app.py',{cwd:checkout,mode:'handled'});

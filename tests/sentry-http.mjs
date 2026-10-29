@@ -7,7 +7,7 @@ import { otlpFlow } from './otlp-flow.mjs';
 import { feedbackFlow } from './feedback-flow.mjs';
 import { clientReportFlow } from './client-report-flow.mjs';
 import assert from 'node:assert/strict';
-import { gzipSync, deflateSync } from 'node:zlib';
+import { gzipSync, deflateSync, brotliCompressSync, zstdCompressSync } from 'node:zlib';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 const worker=await startTestWorker(15522),{origin}=worker;
@@ -47,6 +47,48 @@ try{
   assert.equal((await req(path,'POST',deflateSync(Buffer.from(envelope(deflated))),{'Content-Encoding':'deflate'})).status,200,'SDK-011 accepts deflate');
   assert.ok((await json('/api/projects/wire/issues')).some(issue=>issue.title.includes('DeflateError')),'SDK-011 deflate creates an issue');
   assert.equal((await req(path,'POST',deflateSync(Buffer.alloc(1048577)),{'Content-Encoding':'deflate'})).status,413,'SDK-011 bounds expanded deflate');
+  // The same intake door receives fixed-length and actual chunked bodies for every supported encoding.
+  const transport = (body, encoding, chunked) => fetch(origin+path, {method:'POST',headers:{Origin:origin,'Content-Encoding':encoding},
+    body:chunked?new ReadableStream({start(controller){for(let offset=0;offset<body.length;offset+=29)controller.enqueue(body.subarray(offset,offset+29));controller.close()}}):body,
+    ...chunked?{duplex:'half'}:{}});
+  let encodingSequence=32;
+  const storedCounts=async()=>{const db=await worker.db();return Promise.all(['events','issues','releases','alerts'].map(table=>db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).first('count')))};
+  for(const [encoding,compress] of [['identity',value=>value],['gzip',gzipSync],['deflate',deflateSync],['br',brotliCompressSync],['zstd',zstdCompressSync]]){
+    for(const chunked of [false,true]){
+      const value={...event,event_id:(++encodingSequence).toString(16).padStart(32,'0'),fingerprint:['synthetic-spool',encoding,String(chunked)],exception:{values:[{type:`Transport${encoding}${chunked}Error`,value:`synthetic-spool-${encoding}-${chunked}`,stacktrace:event.exception.values[0].stacktrace}]}};
+      const response=await transport(compress(Buffer.from(envelope(value))),encoding,chunked);
+      assert.equal(response.status,200,`${encoding} with ${chunked?'chunked transfer':'Content-Length'}`);
+      assert.equal((await response.json()).id,value.event_id);
+      const issue=(await json('/api/projects/wire/issues')).find(issue=>issue.title.includes(value.exception.values[0].value));
+      assert.ok(issue,`${encoding} creates the expected issue`);
+      const detail=await json(`/api/projects/wire/issues/${issue.id}/packet`);
+      assert.equal(detail.events[0].id,value.event_id,`${encoding} persists the actual event`);
+    }
+    if(encoding==='br'||encoding==='zstd'){
+      const before=await storedCounts();
+      const valid=compress(Buffer.from(envelope({...event,event_id:'8'.repeat(32)})));
+      for(const chunked of [false,true]){
+        for(const corrupt of [Buffer.from('synthetic-spool-invalid'),valid.subarray(0,valid.length-1)]){
+          const response=await transport(corrupt,encoding,chunked);
+          assert.equal(response.status,400,`${encoding} refuses corrupt and truncated streams`);
+          assert.equal((await response.json()).reason,`invalid_${encoding}`);
+        }
+        const response=await transport(compress(Buffer.alloc(16*1024*1024)),encoding,chunked);
+        assert.equal(response.status,413,`${encoding} stops at the expanded bound`);
+        assert.equal((await response.json()).reason,'body_too_large');
+      }
+      assert.deepEqual(await storedCounts(),before,`${encoding} refusals store no partial product rows`);
+      for(const chunked of [false,true]){
+        const value={...event,event_id:(++encodingSequence).toString(16).padStart(32,'0'),fingerprint:['synthetic-spool-store',encoding,String(chunked)]};
+        const body=compress(Buffer.from(JSON.stringify(value)));
+        const response=await fetch(origin+`/api/${alias}/store/?sentry_key=${key}&sentry_version=7`,{method:'POST',headers:{Origin:origin,'Content-Encoding':encoding},
+          body:chunked?new ReadableStream({start(controller){controller.enqueue(body);controller.close()}}):body,...chunked?{duplex:'half'}:{}});
+        assert.equal(response.status,200,`${encoding} also serves the legacy store door`);
+        assert.equal((await response.json()).id,value.event_id);
+      }
+
+    }
+  }
   for(const [unsupportedPath,auth] of [[path,{}],[`/api/${alias}/envelope/`,{'X-Sentry-Auth':`Sentry sentry_version=7,sentry_key=${key}`}]] ) {
     const response=await req(unsupportedPath,'POST','unread body',{'Content-Encoding':'snappy',...auth});
     assert.equal(response.status,415,'SDK-011 unsupported encoding');assert.equal(response.headers.get('X-Sentry-Error'),'unsupported_content_encoding');
@@ -80,5 +122,5 @@ try{
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
-  console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, SDK-011 deflate/counted 415/item isolation, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
+  console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, SDK-011 streamed Brotli and Zstandard, chunked encodings, counted 415 and item isolation, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}

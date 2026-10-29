@@ -1,7 +1,8 @@
 """Server-side tunnel for the Sentry browser SDK's standard `tunnel` option, for Python servers.
 
 Ad-blockers block requests to ingest hosts and paths. The page posts its envelope to a same-origin route
-instead and this module forwards it to the Spool project it is configured for. Standard library only.
+instead and this module forwards it to the Spool project it is configured for.
+Install the decoder dependencies in requirements.txt alongside this module.
 
     from spool_tunnel import Tunnel
     tunnel = Tunnel(dsn=os.environ["SPOOL_DSN"])
@@ -9,6 +10,8 @@ instead and this module forwards it to the Spool project it is configured for. S
     # Any other framework: status, headers, body = tunnel.forward(body, request_headers, client_address)
 """
 import json
+import brotli
+from backports import zstd
 import urllib.error
 import urllib.request
 import zlib
@@ -38,15 +41,47 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+class _TooLarge(Exception):
+    pass
+
+
 def _decode(body, encoding):
-    """The decoded envelope, inflated at most one byte past LIMIT so a decompression bomb is never expanded."""
+    """Decode incrementally; each call yields at most a small buffer beyond the remaining allowance."""
     if encoding == "identity":
         return body
-    inflater = zlib.decompressobj({"gzip": 16 + zlib.MAX_WBITS, "deflate": zlib.MAX_WBITS}[encoding])
-    plain = inflater.decompress(body, LIMIT + 1)
-    if len(plain) <= LIMIT and not inflater.eof:
-        raise zlib.error("truncated")
-    return plain
+    if encoding == "br":
+        inflater = brotli.Decompressor()
+        more = lambda: not inflater.is_finished()
+        decode = lambda data, remaining: inflater.process(data, output_buffer_limit=min(16_384, remaining))
+        finished = lambda: inflater.is_finished()
+    elif encoding == "zstd":
+        inflater = zstd.ZstdDecompressor(options={zstd.DecompressionParameter.window_log_max: 23})
+        more = lambda: not inflater.needs_input and not inflater.eof
+        decode = lambda data, remaining: inflater.decompress(data, max_length=min(16_384, remaining))
+        finished = lambda: inflater.eof and not inflater.unused_data
+    else:
+        inflater = zlib.decompressobj({"gzip": 16 + zlib.MAX_WBITS, "deflate": zlib.MAX_WBITS}[encoding])
+        plain = inflater.decompress(body, LIMIT + 1)
+        if len(plain) > LIMIT:
+            raise _TooLarge()
+        if not inflater.eof:
+            raise ValueError("truncated")
+        return plain
+    chunks, size = [], 0
+    for offset in range(0, len(body), 4096):
+        data = body[offset:offset + 4096]
+        while True:
+            chunk = decode(data, LIMIT + 1 - size)
+            size += len(chunk)
+            if size > LIMIT:
+                raise _TooLarge()
+            chunks.append(chunk)
+            if not chunk or not more():
+                break
+            data = b""
+    if not finished():
+        raise ValueError("truncated or trailing data")
+    return b"".join(chunks)
 
 
 class Tunnel:
@@ -61,12 +96,14 @@ class Tunnel:
         """Forward one envelope. `headers` maps lower-case request header names to values."""
         if not body or len(body) > LIMIT:
             return _refuse(413 if body else 400, "Envelope too large" if body else "Empty envelope")
-        encoding = (headers.get("content-encoding") or "identity").lower()
-        if encoding not in ("gzip", "deflate", "identity"):
+        encoding = (headers.get("content-encoding") or "identity").strip().lower()
+        if encoding not in ("gzip", "deflate", "identity", "br", "zstd"):
             return _refuse(415, "Unsupported content encoding")
         try:
             plain = _decode(body, encoding)
-        except zlib.error:
+        except _TooLarge:
+            return _refuse(413, "Envelope too large")
+        except (zlib.error, brotli.error, zstd.ZstdError, ValueError, EOFError):
             return _refuse(400, "Envelope could not be decoded")
         if len(plain) > LIMIT:
             return _refuse(413, "Envelope too large")
@@ -99,15 +136,17 @@ class Tunnel:
         return status, returned, reply
 
     def wsgi(self, environ, start_response):
-        length = environ.get("CONTENT_LENGTH") or "0"
+        length = environ.get("CONTENT_LENGTH")
+        terminated = environ.get("wsgi.input_terminated", False)
         if environ["REQUEST_METHOD"] != "POST":
             status, headers, body = _refuse(405, "Tunnel accepts POST only")
-        elif not length.isdigit():
+        elif length and not length.isdigit():
             status, headers, body = _refuse(400, "Envelope length is not a number")
-        elif int(length) > LIMIT:
+        elif length and int(length) > LIMIT:
             status, headers, body = _refuse(413, "Envelope too large")
         else:
-            size = int(length)
+            # WSGI servers remove chunk framing and must explicitly signal a terminated stream.
+            size = int(length) if length else LIMIT + 1 if terminated else 0
             headers_in = {key[5:].replace("_", "-").lower(): value for key, value in environ.items() if key.startswith("HTTP_")}
             headers_in["content-type"] = environ.get("CONTENT_TYPE", "")
             forwarded = headers_in.get("x-forwarded-for", "").split(",")[0].strip()

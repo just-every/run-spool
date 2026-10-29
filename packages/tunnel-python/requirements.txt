@@ -1,0 +1,2 @@
+brotli==1.2.0
+backports.zstd==1.8.0

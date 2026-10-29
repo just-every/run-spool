@@ -1,3 +1,5 @@
+import { decodeBounded, TooLarge } from '../../../packages/sdk/src/tunnel-body.ts';
+
 /** Byte framing for Sentry envelopes. Unsupported payloads never undergo decoding. */
 export const wireLimits = { compressed: 262144, expanded: 1048576, items: 100, header: 8192 };
 export type WireObject = Record<string, any>;
@@ -31,7 +33,7 @@ async function boundedStream(stream: ReadableStream<Uint8Array>, limit: number):
 }
 export async function readSentryBytes(request: Request): Promise<Uint8Array> {
   const encoding = (request.headers.get('content-encoding') ?? 'identity').trim().toLowerCase();
-  if (!['identity', 'gzip', 'deflate'].includes(encoding)) throw new SentryWireError('unsupported_content_encoding', 415, encoding.slice(0, 128));
+  if (!['identity', 'gzip', 'deflate', 'br', 'zstd'].includes(encoding)) throw new SentryWireError('unsupported_content_encoding', 415, encoding.slice(0, 128));
   const length = request.headers.get('content-length');
   const limit = encoding === 'identity' ? wireLimits.expanded : wireLimits.compressed;
   if (length && (!/^\d+$/.test(length) || Number(length) > limit)) throw new SentryWireError('body_too_large', 413);
@@ -39,9 +41,9 @@ export async function readSentryBytes(request: Request): Promise<Uint8Array> {
   const input = await boundedStream(request.body, limit);
   if (encoding === 'identity') return input;
   try {
-    const compressed = new ReadableStream<BufferSource>({ start(controller) { controller.enqueue(input as Uint8Array<ArrayBuffer>); controller.close() } });
-    return await boundedStream(compressed.pipeThrough(new DecompressionStream(encoding as 'gzip' | 'deflate')), wireLimits.expanded);
+    return (await decodeBounded(input, encoding, wireLimits.expanded))!;
   } catch (error) {
+    if (error instanceof TooLarge) throw new SentryWireError('body_too_large', 413);
     if (error instanceof SentryWireError) throw error;
     throw new SentryWireError(`invalid_${encoding}`);
   }
