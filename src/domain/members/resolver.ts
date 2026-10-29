@@ -12,6 +12,9 @@ export async function resolveMembership(request: Request, env: Bindings, session
  if (!member) return null;
  const path = new URL(request.url).pathname.replace(/\/$/,'') || '/';
  const result: TeamSession = { ...session, membership: member };
+ // Reporting is a neutral session door. Its handlers intersect every item,
+ // query and export with memberProjects and independently fence all writes.
+ if (path==='/api/reports'||path==='/api/reporting'||path.startsWith('/api/reporting/')) return member.role==='billing' ? missing() : result;
  if (['/','/app','/sign-in','/signin','/projects','/api/projects','/api/organization/me'].includes(path)) {
   if (read(request) || path==='/api/projects' && member.role==='admin') return result;
   return missing();
@@ -58,3 +61,28 @@ export async function memberProjects(db: D1Database, session: TeamSession) {
   JOIN spool_project_grants g ON g.project=p.id JOIN spool_project_teams t ON t.project=p.id
   WHERE g.member=? AND t.organization=? ORDER BY p.created`,member.role,member.id,member.organization).all()).results;
 }
+
+// Reporting reads use the same current membership resolver as every project
+// door; the exact snapshots also fence writes and in-flight exports.
+export interface ProjectAuthoritySnapshot {id:string;created:number;role:string;organization:string|null;team:string|null;grant_role:string|null}
+const membershipGuard=(db:D1Database,sql:string,...args:unknown[])=>s(db,`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`,...args);
+export async function projectAuthority(db:D1Database,session:TeamSession):Promise<Map<string,ProjectAuthoritySnapshot>>{
+ const available=await memberProjects(db,session),ids=available.map((row:any)=>row.id),membership=session.membership;
+ const rows=(await s(db,`SELECT p.id,p.created,t.organization,t.team,g.role grant_role FROM projects p LEFT JOIN spool_project_teams t ON t.project=p.id
+  LEFT JOIN spool_project_grants g ON g.project=p.id AND g.member=? WHERE p.id IN (SELECT value FROM json_each(?))${membership?` AND t.organization=?${membership.role==='admin'?'':' AND g.role IS NOT NULL'}`:''}`,
+  membership?.id??'',JSON.stringify(ids),...membership?[membership.organization]:[]).all<any>()).results;
+ return new Map(rows.map(row=>[row.id,{...row,role:session.operator.role==='owner'?'owner':membership!.role==='admin'?'admin':membership!.role==='read-only'?'read-only':row.grant_role}]));
+}
+export function projectAuthorityGuards(db:D1Database,session:TeamSession,projects:ProjectAuthoritySnapshot[],writing=false){
+ return projects.map(project=>{
+  if(writing&&!['owner','admin','maintainer'].includes(project.role))missing();
+  return membershipGuard(db,`EXISTS(SELECT 1 FROM projects p WHERE p.id=? AND p.created=?)${session.membership?` AND EXISTS(SELECT 1 FROM spool_project_teams t WHERE t.project=? AND t.organization=? AND t.team=?)${session.membership.role==='admin'?'':` AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.project=? AND g.member=? AND g.role=?)`}`:''}`,
+   project.id,project.created,...session.membership?[project.id,session.membership.organization,project.team,...session.membership.role==='admin'?[]:[project.id,session.membership.id,project.grant_role]]:[]);
+ });
+}
+/** IDs must already have been admitted by memberProjects/projectAuthority. */
+export async function resolvedProjectTeams(db:D1Database,authorized:string[],team?:string){
+ return (await s(db,`SELECT p.id,t.team FROM projects p LEFT JOIN spool_project_teams t ON t.project=p.id WHERE p.id IN (SELECT value FROM json_each(?))${team===undefined?'':' AND t.team=?'} ORDER BY p.id`,JSON.stringify([...new Set(authorized)]),...team===undefined?[]:[team]).all<{id:string;team:string|null}>()).results;
+}
+export const projectTeamGrantGuard=(db:D1Database,projects:string[],organization:string|null,team:string)=>membershipGuard(db,'EXISTS(SELECT 1 FROM spool_project_teams WHERE organization=? AND team=? AND project IN (SELECT value FROM json_each(?)))',organization,team,JSON.stringify(projects));
+export const operatorDisplayName=(db:D1Database,operator:string)=>s(db,'SELECT display_name name FROM oa_operators WHERE id=?',operator).first<{name:string}>();

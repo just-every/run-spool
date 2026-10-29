@@ -19,6 +19,26 @@ export default {
   await runOk(resolve(dir,'venv/bin/pip'),['install','--quiet','--disable-pip-version-check','sentry-sdk==2.72.0','django==5.2.8']);
  },
  command(mode,dir,dsn,cwd=dir){return {...command(dir,'app.py',mode,dsn,cwd),unset:[]}},
+ async checkIssue({page,app,project,handled}){
+  const root=`/api/projects/${project.id}/issues/${handled.issue.id}/events`,listed=await app.json(root+'?q=tenant:acme');
+  assert.equal(listed.total,handled.issue.count);const tenant=listed.tags.rows.find(row=>row.key==='tenant'&&row.value==='acme');assert.equal(tenant.count,listed.total);assert.equal(tenant.percent,100*tenant.count/listed.tags.events);
+  await page.getByRole('searchbox',{name:'Search events',exact:true}).fill('tenant:acme');
+  const selected=page.locator('.metadata[data-event-id]');
+  const choose=async(name,event)=>{const button=page.getByRole('button',{name,exact:true});await button.click();await page.waitForFunction(id=>document.querySelector('.metadata[data-event-id]')?.getAttribute('data-event-id')===id,event.id);assert.equal(new URL(page.url()).searchParams.get('event'),event.id)};
+  await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
+  await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
+  assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
+  const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
+  assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
+  const sdkFrame=sdk.exceptions.flatMap(e=>e.stacktrace.frames).find(frame=>frame.function==='charge'&&frame.vars);
+  assert.ok((await page.locator('.sdk-context').first().innerText()).includes('sent by SDK'));
+  const localSummary=page.locator('article.exception summary').filter({hasText:'Local variables · sent by SDK'}).first();await localSummary.click();const locals=localSummary.locator('..');
+  assert.ok((await locals.innerText()).includes('quantity'));assert.ok(JSON.stringify(sdkFrame.vars).includes('[redacted]'));
+  await page.context().grantPermissions(['clipboard-read','clipboard-write']);
+  await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();const raw=page.getByRole('dialog',{name:'Raw stack trace',exact:true});
+  const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
+  await page.keyboard.press('Escape');
+ },
  async verify({app,details,dir,origin,cookie}){
   const events=details.flatMap(d=>d.events.map(e=>e.event.sentry));
   // SDK-010: local variables, SDK context and default integrations, as the unmodified SDK sent them.

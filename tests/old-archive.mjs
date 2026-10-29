@@ -9,7 +9,7 @@ import {readArchive} from '../src/modules/portability/index.mjs';
 import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
-const membershipTables = ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
+const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
 const citationTables = ['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
