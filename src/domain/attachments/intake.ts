@@ -11,7 +11,7 @@ export async function admitAttachments(c:any,scope:IngestScope,items:SentryItem[
  const db:D1Database=c.env.DB,project=scope.project,counts:Record<string,number>={};
  const count=async(reason:string)=>{counts[reason]=(counts[reason]??0)+1;await recordIngest(c,scope,reason)};
  for(const item of items){
-  if(!(await db.prepare('SELECT 1 FROM attachment_policies WHERE project=? AND enabled=1').bind(project).first())){await count('attachment_disabled');continue;}
+  if(!(await db.prepare('SELECT 1 FROM attachment_policies WHERE project=? AND enabled=1').bind(project).first())){counts.attachment_disabled=(counts.attachment_disabled??0)+1;continue;}
   if(typeof event!=='string'||!/^[a-f0-9]{32}$/.test(event)){await count('attachment_event_unavailable');continue;}
   const parent=await db.prepare('SELECT occurrence,release,environment FROM events WHERE project=? AND id=?').bind(project,event).first<any>();
   if(!parent){await count('attachment_event_unavailable');continue;}

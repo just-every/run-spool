@@ -72,7 +72,10 @@ async function sessionRecordReadFlow({app,send}) {
   const result=await send(p.dsn,'sessions',{attrs:{release:release+'-'+i,environment:'production'},aggregates:[{started:new Date(started).toISOString(),exited:2,crashed:1}]});
   assert.equal(result.status,200);assert.equal((await result.json()).sessions.session_stored,1);
  }
- const key=await app.json(root+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:'Bearer '+key.key};
+ const organization=await app.json('/api/organization/me');if(!organization.organization)await app.json('/api/organization','POST',{id:'synthetic-spool-session-services',name:'Session record services'});
+ await app.json('/api/organization/projects/'+p.id,'PUT',{team:'synthetic-spool-session-records'});
+ const service=await app.json('/api/organization/services','POST',{name:'synthetic-spool-session-reader',scopes:[{project:p.id,kind:'agent'}]});
+ const key=await app.json('/api/organization/services/'+service.id+'/keys','POST',{project:p.id,kind:'agent'}),auth={Cookie:'',Authorization:'Bearer '+key.key};
  const paginate=async(client=app,headers=auth,query='')=>{
   const rows=[];let cursor,pages=0,summary;
   do{

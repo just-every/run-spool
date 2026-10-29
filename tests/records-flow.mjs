@@ -15,7 +15,10 @@ export async function recordReadFlow({ req, json, db }) {
   assert.equal((await req(`/api${alias}/envelope/?sentry_key=${new URL(p.dsn).username}&sentry_version=7`, 'POST', '{}\n{"type":"user_report"}\n' + JSON.stringify({ event_id: eventId, comments: 'Checkout report ' + i }), { Cookie: '' })).status, 200);
  }
  const [issue] = await json(root + '/issues'); assert.equal(issue.count, 30);
- const grant = await json(root + '/keys', 'POST', { kind: 'agent' }), auth = { Cookie: '', Authorization: `Bearer ${grant.key}` };
+ const organization=await json('/api/organization/me');if(!organization.organization)await json('/api/organization','POST',{id:'synthetic-spool-record-services',name:'Retained record services'});
+ await json('/api/organization/projects/'+p.id,'PUT',{team:'synthetic-spool-records'});
+ const service=await json('/api/organization/services','POST',{name:'synthetic-spool-record-reader',scopes:[{project:p.id,kind:'agent'}]});
+ const grant=await json('/api/organization/services/'+service.id+'/keys','POST',{project:p.id,kind:'agent'}),auth={Cookie:'',Authorization:'Bearer '+grant.key};
  // Registration timestamps are not caller-controlled. Pin only the fixture clock
  // column so every public read must traverse a full page of tied ordering keys.
  for (let i = 1; i < 30; i++) await json(root + '/releases', 'POST', { name: 'synthetic-spool-release-' + i, build: i % 2 ? 'web' : 'worker' });

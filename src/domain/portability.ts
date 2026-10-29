@@ -57,11 +57,19 @@ export const portabilityPolicy = {
  importRow:attachmentExportRow,
  validateStaged: stagedValidation(),
 };
+// Older installed schemas have no attachment store to deactivate. Keep the
+// paired restore transformation only when its additive table is present.
+async function schemaPolicy(db: D1Database) {
+ if (await db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='attachment_policies'").first()) return portabilityPolicy;
+ const {importSafety, importRow, ...earlier} = portabilityPolicy;
+ return earlier;
+}
 // Current archives carry the safe audit chronology as a payload. Previous
 // formats have none; restoring one uses the payload-free policy, and the
 // restore commit gives its journal rows legacy facts instead.
 export async function portability(db: D1Database, safeAudit = true) {
- const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
+ const nativePolicy = await schemaPolicy(db);
+ const policy = safeAudit ? { ...nativePolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : nativePolicy;
  const service = await createPortability({ db, policy });
  return { ...service, db, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
@@ -191,7 +199,7 @@ const attachmentNames=Object.keys(attachmentTables);
 for(const later of laterTables){later.tables.push(...attachmentNames);later.migrations.push('0084_attachments.sql')}
 laterTables.unshift({tables:attachmentNames,migrations:['0084_attachments.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
- const current = await catalogue(db, policy(portabilityPolicy));
+ const current = await catalogue(db, policy(await schemaPolicy(db)));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
  // Reporting definitions can accompany an earlier core inventory. Retain only

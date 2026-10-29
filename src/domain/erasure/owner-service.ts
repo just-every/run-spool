@@ -8,6 +8,7 @@ import { recoverableOwnerErasure } from './owner-operation';
 export function ownerHoldMessage(code: string | null) {
  if(!code)return null;
  const messages: Record<string,string> = {
+  private_attachment_attribution_unavailable:'Retained private attachments cannot yet be attributed for selective personal erasure. Withdraw those files or erase their project before retrying. Nothing was erased.',
   verified_successor_required:'Invite a successor and have them complete ordinary email sign-in before erasing your personal data.',
   shared_import_custody:'Shared import originals and immutable importer attribution cannot yet be selectively erased without removing other people’s data. Nothing was erased.',
   credential_authority_migration_required:'Apply the credential authority migration before owner erasure.',
