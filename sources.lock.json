@@ -2904,7 +2904,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "d3df81aa4213246de64cd4f02378143444665c781f05d06002dc969e7fbecd92",
+      "sha256": "2dd9bfb4503f913251bff91d4d4a3eb6b3294ed7ad9b537c12e5e18841da75de",
       "executable": false
     },
     "docs/agents.md": {
@@ -10064,7 +10064,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "5551c37191ac3c036caa4a6994a13cbbd5d9827dd99c315565d9399075cf2711",
+      "sha256": "0bf9d7317887590a4686cd12da3e3e9ba90e26ccfcbd6bc003c15a4a7e379e7a",
       "executable": false
     },
     "tests/agent-door/people.mjs": {

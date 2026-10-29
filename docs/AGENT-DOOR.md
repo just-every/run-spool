@@ -96,7 +96,14 @@ retention and project-erasure operations. Their saved native preview, consent,
 visibility, revision and outbox restrictions still apply. Enabling a notification
 rule is not evidence that a notice was delivered. Erasure is irreversible and
 uses the native count-only preview and plan hash. Retention is not project
-erasure. Native configured schedules and provider receipts must be inspected
+erasure. Project erasure's agent-audit cascade currently recognizes URI targets
+but can retain private references stored as native `{kind,id}` targets. The
+`SPOOL-NATIVE-AUDIT-ERASURE-2026-10-29` gap needs seed target coverage together
+with Base's atomic preview/admission fence: including these private reads in the
+cascade currently makes the agent preview's own audit invalidate its saved plan
+on rer 0.2.89. Private-read auditing and native drift detection must both remain;
+this adoption does not qualify that erasure path as complete.
+Native configured schedules and provider receipts must be inspected
 separately from the agent's configuration action. Final admission and attribution
 for standing alert, follow-up and retention workers remain unqualified pending
 the shared queued-consent continuation. Agent attempts to enable an alert rule,
