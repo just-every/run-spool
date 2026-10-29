@@ -8609,7 +8609,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "5c41f3c5e8af4698eae090220f1ca783b5ec2a29a9415645173ae9da3a3fce94",
+      "sha256": "917e89280233643e28c26816630b9a51d3dcca3206fbe994d431c8b40bb8908f",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -8625,7 +8625,7 @@
       "executable": false
     },
     "tests/agent-handoff/packet.mjs": {
-      "sha256": "2c5bc1990ae3db744c6d5a977161bb0cb42a39978746aab58aa6cee05520dff2",
+      "sha256": "195f5e3f460410d625835c3840d2311bf0cdca95120ab82aaf9d17c4f1ff7fcb",
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
@@ -9409,7 +9409,7 @@
       "executable": false
     },
     "tests/triage-app.mjs": {
-      "sha256": "16a222541d82a6eff38787d5214263bd5b34a3a0f3b1b251c68f35f978d9eb6f",
+      "sha256": "b53801e3ca0d3e6581d37a3f43a719ce6d6ca8ac46be5915f6ed639b589a0206",
       "executable": false
     },
     "tests/triage-auth.mjs": {
