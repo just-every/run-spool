@@ -6,6 +6,15 @@ The supported protocol versions are `2026-07-28` and `2025-11-25`. March 2025
 batching is refused. `/agents` shows company policy, agent activity and decisions;
 `/agents/approvals/{id}` shows an exact pending or completed action.
 
+This adoption declares the mandatory tools, policy, pause, audit and idempotency
+capabilities. Events, resources, prompts and subscriptions remain partial and are
+not offered through MCP: discovery identifies them as refused, their lists are
+empty, and calls return `capability_not_declared`. Native read tools still return
+the supported records. Resource adapters and internal event collection remain
+in place without exposing these optional public doors. Multi-sponsor, mail-edge,
+resource-refresh, timed, dual-host, queued and native-owner lifecycle families
+remain unscoped; this declaration makes no completion claim for them.
+
 A Business access token names a durable Business person, an agent, consent and
 scopes. Signed Business settings at `/api/rer/business-settings` bind the owner
 and existing native teammates by ID. A token's email never chooses its sponsor.
@@ -93,10 +102,11 @@ or read another project. Dev-minted keys still require the private local gate
 and are refused by the deployed entry. A failed Business JWT never falls back
 to a project key.
 
-Resources contain bounded native projections and mark outside text untrusted.
+Native tools contain bounded projections and mark outside text untrusted.
 Packets never grant raw identity, source-map bytes, source bytes or credentials.
-Private reads are policy decisions. Native person changes emit the same retained
-resource events as agent changes, with current access filtering at delivery.
+Private reads are policy decisions. Native person and agent changes retain
+internal resource events; their public event and subscription doors are not yet
+offered by this Core declaration.
 
 Spool exposes no money-moving, payment, merge, deployment or general shell tool.
 Provider cost is not money moved. Base provider spend caps are not enforced:
@@ -108,7 +118,7 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.87
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.88
 CLI; the door, settings and actor runtime carry matching recorded source.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;
@@ -120,7 +130,7 @@ member targets and exact-project clients for each policy phase. Only the paid
 network edge is substituted; native authorization, persistence and consent run
 in the real Worker. Provider fixture keys are generated per run and never saved.
 
-The 0.2.87 declaration check accepts the existing owner-account sender binding.
+The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
 catalogue acknowledgement limit, fresh-key injection probes, native runner event

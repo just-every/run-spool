@@ -2,6 +2,13 @@
   "schema": "rer-agent-surface/1",
   "seed": "spool",
   "specialist": "triage engineer",
+  "capabilities": [
+    "tools",
+    "policy",
+    "pause",
+    "audit",
+    "idempotency"
+  ],
   "tools": [
     {
       "name": "spool.access.read",

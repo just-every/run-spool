@@ -36,8 +36,11 @@ export async function peopleFlow(app){
  const current=list.structuredContent.items[0];
  const hidden=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/'+foreignIssue},claims);
  const missing=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/not-present'},claims);
- assert.equal(hidden.error?.data?.code,'resource_unavailable');
+ assert.equal(hidden.error?.data?.code,'capability_not_declared');
+ assert.equal(hidden.error?.data?.capability,'resources');
  assert.deepEqual(hidden.error,missing.error,'Missing and restricted resources have equivalent JSON-RPC refusals');
+ assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:foreignIssue},claims))._meta['com.runeditrun/error'].code,'not_found');
+ assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:'not-present'},claims))._meta['com.runeditrun/error'].code,'not_found','Native tools preserve equivalent missing and restricted refusals');
  const denied=await app.call('spool.issues.update',{project,issue:current.id,revision:current.revision,state:'acknowledged',idempotency_key:randomUUID()},claims);
  assert.equal(denied._meta['com.runeditrun/error'].code,'not_found','Company autonomy preserves native read-only membership');
  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version+1,role:'member',grants:[{project,role:'member'}]});
