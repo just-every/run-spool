@@ -35,6 +35,9 @@ Read a sanitized issue, bounded packet, capture-loss/traffic context and native
 outcomes. Create an inert split, merge or rule proposal. Submission does not
 apply grouping, alter alerts or change capture. The separate grouping preview,
 apply and undo actions retain native occurrence and revision fences.
+`spool.grouping.read` reads the native saved correction plans, including the
+current preview. A newer preview replaces an older one, just as in the person
+UI; clients must select the current plan before applying it.
 
 Record a JavaScript reproducer for a mapped occurrence and request its bounded,
 single-use native runner handoff. Source bytes stay out of ordinary resources.
@@ -70,6 +73,8 @@ preparer. It does not create consent, credentials or permission to resume work.
 
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
 not replace independent capture, release, cohort, recurrence or exposure evidence.
+`spool.repairs.read` accepts an optional repair ID within the visible issue, so
+clients can obtain that repair's current revision before recording a check or fact.
 Quiet or lost telemetry remains inconclusive. Recording an observed deployment
 records a native release manifest; it does not perform a deployment or notify a
 provider.
@@ -84,8 +89,9 @@ separately from the agent's configuration action. Final admission and attributio
 for standing alert, follow-up and retention workers remain unqualified pending
 the shared queued-consent continuation. Agent attempts to enable an alert rule,
 set a follow-up destination or update retention therefore refuse with
-`native_worker_admission_unavailable` before saving settings. Agent disabling
-and native person controls remain available. These required tool/class journeys
+`native_worker_admission_unavailable` before saving settings or opening company
+approval. A person's policy approval cannot make an unavailable execution path
+available. Agent disabling and native person controls remain available. These required tool/class journeys
 remain declared and cannot pass conformance until final worker admission is wired.
 
 ## Compatibility and limits
@@ -118,11 +124,14 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.88
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.89
 CLI; the door, settings and actor runtime carry matching recorded source.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;
 it does not disable the shared harness or change its failure exit.
+The existing hosted-output CI job also runs the installed shared harness.
+Approved aggregate read replays read current native data; they retain their
+approval receipt without returning the older approved payload.
 
 The verifier declares a disposable GitHub App binding generator and an isolated
 provider network edge, plus fresh native projects, captures, sandbox observations,
@@ -133,7 +142,10 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
-catalogue acknowledgement limit, fresh-key injection probes, native runner event
-identity, held erasure custody, standing-worker admission and refused approval
-execution accounting. These are pending assertions,
+catalogue acknowledgement limit, fresh-key injection probes against consumed
+native actions, native runner event identity, held erasure custody,
+standing-worker admission and refused approval execution accounting. Current
+repair revisions and sandbox-confirmed fixture identities are obtained through
+their native lifecycle, independently of mutable list ordering. The remaining
+dependencies are pending assertions,
 never passing results or completed shared duties. Spend caps remain unenforced.

@@ -33,5 +33,5 @@ export default async function({request,origin,cookie,phase}){
  await json(path+'/alerting/destinations/'+live.id+'/review','POST',{testId:tested.id});
  await json(path+'/alerting/destinations','POST',{label:'Separate phase test',recipient:'test@synthetic.invalid'});
  await json(path+'/alerting/rules','POST',{name:'Checkout failures',enabled:false,channel:'mail',destination:live.id,kinds:['new_issue'],windowMs:60000,threshold:2});
- return {values:{project,member:member.id,memberVersion:member.version},clients};
+ return {values:{project,member:member.id,memberVersion:member.version,confirmedReproducer:recipe.id,confirmedRun:queued.run},clients};
 }
