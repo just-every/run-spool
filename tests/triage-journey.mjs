@@ -1,6 +1,7 @@
 import { operatorUi } from './operator-ui.mjs';
 import assert from 'node:assert/strict';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {archiveProjection} from './archive.mjs';
 import {execFileSync} from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import {startTestWorker} from './worker.mjs';
@@ -82,6 +83,23 @@ try {
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
  await (await workbenchLink(page,'Releases')).click();await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
+
+ // Open the actual browser download, including its verified closing hashes.
+ await (await workbenchLink(page,'Settings')).click();
+ await page.getByRole('heading',{name:'Archive and restore',exact:true}).waitFor();
+ const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
+ assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
+ const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
+ assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
+ assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');
+ assert.ok(downloaded.data.issues.some(issue=>issue.id===admitted.issue),'actual triaged issue travels');
+ const privateMap=downloaded.data.artifacts.find(map=>map.release==='autumn-deliveries'&&map.debug==='dispatch-map');
+ assert.ok(privateMap,'uploaded private map travels');assert.deepEqual(JSON.parse(privateMap.payload),application.map,'private source bytes survive the download');
+ for(const credential of [project.ingestKey,cookie.slice(cookie.indexOf('=')+1)])assert.equal(downloaded.text.includes(credential),false,'active credential bytes never travel');
+ for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(downloaded.data,table),false,'private authority is excluded');
+ await page.getByRole('button',{name:'Download private archive',exact:true}).scrollIntoViewIfNeeded();await capture('private-archive',width);
+ checked('Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions');
 
  await verifyReturnDestinations(origin,issuePath,cookie);
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.waitForResponse(response=>response.url().endsWith('/packet'),{timeout:30000});await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
