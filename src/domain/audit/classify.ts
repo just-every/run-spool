@@ -5,6 +5,11 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/attachment-policy$/,methods:['PUT'],action:'attachment.policy',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/attachments\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'attachment.withdraw',kind:'artifact'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/attachments\/(?<subject>[^/]+)\/content$/,action:'attachment.view',kind:'artifact'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/occurrence-export$/,action:'evidence.export',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/audit-records$/,action:'audit.read',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/suppression$/,action:'suppression.change',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/(?:comments(?:\/[^/]+)?|subscription|discussion)$/,action:'issue.triage',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/recurrence-policy$/,action:'release.policy',kind:'project'},
@@ -132,7 +137,7 @@ export function classifyRequest(request: Request): Door | null {
   const group=match.groups??{};
   let project=group.project, subject=group.subject;
   try { if(project)project=decodeURIComponent(project);if(subject)subject=decodeURIComponent(subject); } catch { return {action:'private.action',kind:'unknown',subject:'malformed-route'}; }
-  return {action:rule.action,kind:rule.kind,project,subject:subject??project??'installation'};
+  return {action:rule.action==='attachment.view'&&new URL(request.url).searchParams.get('download')==='1'?'attachment.download':rule.action,kind:rule.kind,project,subject:subject??project??'installation'};
  }
  if(path.startsWith('/api/')&&path!=='/api/health')return {action:'private.action',kind:'unknown',subject:'unclassified-private-route'};
  return null;

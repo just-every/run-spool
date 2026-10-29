@@ -1,3 +1,4 @@
+import { attachmentTables, attachmentExportRow } from './attachments/model';
 import {ensureIssuePriorities} from './issue-priority/model';
 import {ensureRecurrenceBoundaries} from './recurrence/model';
 import {suppressionExportRow} from './suppression/archive';
@@ -50,8 +51,10 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
+ exportRow: (table: string, row: any) => attachmentExportRow(table,scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
+ importSafety:{attachment_policies:{enabled:[0]}},
+ importRow:attachmentExportRow,
  validateStaged: stagedValidation(),
 };
 // Current archives carry the safe audit chronology as a payload. Previous
@@ -184,6 +187,9 @@ laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_colla
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
 laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+const attachmentNames=Object.keys(attachmentTables);
+for(const later of laterTables){later.tables.push(...attachmentNames);later.migrations.push('0084_attachments.sql')}
+laterTables.unshift({tables:attachmentNames,migrations:['0084_attachments.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
