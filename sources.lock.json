@@ -8765,7 +8765,7 @@
       "executable": false
     },
     "tests/deployment-history.mjs": {
-      "sha256": "7a3af61a392788faa49703e6d3d8f0e4e80cffed4aabd08b7ff929453424301b",
+      "sha256": "66796ba2a2d0080b37a3a3076149df74c7afd010bd3c77f001460be0ee34e40c",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
