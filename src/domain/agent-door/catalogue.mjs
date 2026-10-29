@@ -35,7 +35,7 @@ const definitions=[
  ['reproducers.create','POST','reproducers',fields({event:str,export:str,input:{type:'array',maxItems:100}},['project','event','input']),false,['standard'],['AI-002']],
  ['reproducers.run','POST','reproducer-run',fields({id:str,release:str},['project','id']),false,['standard'],['AI-002']],
  ['reproducers.claim','POST','reproducer-claim',fields({id:str}),false,['standard'],['AI-002']],
- ['repairs.read','GET','repairs',fields({issue:str}),true,['standard'],['ERR-008','AI-004']],
+ ['repairs.read','GET','repairs',fields({issue:str,id:str},['project','issue']),true,['standard'],['ERR-008','AI-004']],
  ['repairs.record','POST','repairs',fields({issue:str,link:text,note:text},['project','issue','link']),false,['standard'],['ERR-008']],
  ['repairs.check','POST','repair-check',fields({id:str,revision:num,name:str,outcome:{enum:['passed','failed','not_run']},note:text},['project','id','revision','name','outcome']),false,['standard'],['ERR-008','AI-004']],
  ['repairs.record_fact','POST','repair-fact',fields({id:str,revision:num,fact:{enum:['approved','merged','deployed','exercised']},release:str,note:text},['project','id','revision','fact']),false,['standard'],['ERR-008']],

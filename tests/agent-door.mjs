@@ -47,6 +47,9 @@ try{
  assert.match(repair.recordedBy,/Agent door conformance for Dana Engineer/);assert.notEqual(repair.observation.verdict,'fixed');
  const checked=done(await app.call('spool.repairs.check',{project,id:repair.id,revision:repair.revision,name:'Agent reported unit check',outcome:'passed',note:'Asserted, not an independent observation.',idempotency_key:randomUUID()}));
  assert.notEqual(checked.observation.verdict,'fixed');
+ const selectedRepair=done(await app.call('spool.repairs.read',{project,issue,id:repair.id}));
+ assert.equal(selectedRepair.repairs[0].revision,checked.revision,'The selected native repair exposes its current revision for subsequent claims');
+ assert.equal(code(await app.call('spool.repairs.read',{project,issue,id:'not-a-repair'})),'not_found','A selected missing repair has no record projection');
  const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
  done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
  assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');

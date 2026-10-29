@@ -31,13 +31,14 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
   const legacy=original.version===2 && manifest.schemaObjects===undefined;
   // An explicit acknowledgment keeps its existing recovery semantics. Without
-  // it, legacy v2 needs positive replay evidence for the complete destination.
+  // it, legacy v2 needs positive replay evidence for its recorded schema and
+  // the complete destination. The ordinary bridge then checks later migrations.
   const unverified=legacy && acknowledgeUnverifiedSchemaObjects===true;
   const verifyingLegacy=legacy && !unverified && !legacyRecovery;
   const history=()=>archivedHistory(original,ledgers,{allowOlderShape:unverified || verifyingLegacy});
-  const verified=verifyingLegacy && await verifiedLegacySchema(db,manifest,cat,context.migrations,history);
+  const verified=(verifyingLegacy || (!legacy && manifest.schema!==cat.identity)) && await verifiedLegacySchema(db,manifest,cat,context.migrations,history);
   insist(!legacy || legacyRecovery || unverified || verified,'schema_mismatch:legacy_schema',409);
-  if(verified)manifest={...manifest,schema:cat.identity,schemaObjects:cat.schemaObjects};
+  if(verified)manifest={...manifest,schema:verified};
   if(unverified)for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name);
     insist(target,'schema_mismatch:table:'+table.name,409);

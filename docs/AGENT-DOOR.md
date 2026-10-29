@@ -118,7 +118,7 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.88
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.89
 CLI; the door, settings and actor runtime carry matching recorded source.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;

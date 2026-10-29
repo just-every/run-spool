@@ -481,13 +481,23 @@ is available. Current archives carry the complete schema inventory and restore
 without any acknowledgment. Version 2 backups written by rer 0.2.79 or earlier
 can lack `schemaObjects`. Ordinary import verifies such a backup without an
 acknowledgment when its nonempty recorded migration history, resolved against the
-destination's own applied files in order, replays to the complete live destination
-schema identity, including indexes, views and triggers. The same replay's tables
-must match the archive's table definitions. The archive's ledger, when present,
+destination's own applied files in order, reproduces the archive's table
+definitions. Replay reconstructs that recorded schema's complete identity,
+including indexes, views and triggers, before the ordinary additive bridge checks
+later migrations. A seed's explicit `acceptedSchemas` row upgrade remains
+available for its declared archive identity. The complete applied replay must
+also match the live destination. The archive's ledger, when present,
 must agree with its recorded names, and available hashes must match. Missing
 history, failed replay, table drift or a different complete destination identity
 still refuses `schema_mismatch:legacy_schema` before staging. Source SQL is never
 installed. This verified path records no `schemaUnverified` receipt.
+
+Some later v2 writers carried `schemaObjects` but omitted indexes and triggers
+attached to excluded tables. Their historical table/object projection must match
+the recorded replay exactly before its complete identity can be used for bridge
+placement. An excluded-table object absent from the destination's migration
+replay still refuses before staging. Original archive bytes and digests remain
+unchanged in both paths.
 
 When that proof is unavailable, the owner can explicitly accept that its schema
 objects are unverified:

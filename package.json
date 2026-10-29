@@ -85,7 +85,7 @@
     "@ghostery/adblocker": "2.20.1",
     "@modelcontextprotocol/sdk": "1.32.1",
     "@playwright/test": "1.63.0",
-    "@runeditrun/rer": "0.2.88",
+    "@runeditrun/rer": "0.2.89",
     "@sentry/browser": "11.6.0",
     "@sentry/cli": "3.8.1",
     "@sentry/esbuild-plugin": "11.8.0",
