@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { Details } from './Details';
 import { captureException } from '../../domain/capture';
 import { receiptLabel } from './CaptureReceipts';
 import { hrefFor, sourceMapHref } from './location';
@@ -22,9 +23,8 @@ export function SdkSetup({ endpoint, project, ingestKey, release, build }: { end
   return <div className="sdk-setup">
     <h3>Install the Spool SDK</h3>
     <CodeBlock label="Install command" code={installCommand} />
-    <h3>Initialise it once in your app</h3>
+    <h3>Initialise it once in your app</h3><Details title="Initialise it once in your app"><p>It captures uncaught errors and unhandled rejections in the browser. On Node import <code>{sdkPackage}/node</code>; in Cloudflare Workers call <code>captureException</code> from <code>{sdkPackage}/worker</code> with your handler’s <code>ctx</code>. For original-source stacks, use the complete <a className="inline-link" href={sourceMapHref(project)}>source-map setup</a> with your project’s build key and bundler configuration.</p></Details>
     <CodeBlock label="SDK init" code={initSnippet({ endpoint, project, ingestKey, release, build })} />
-    <p className="muted">It captures uncaught errors and unhandled rejections in the browser. On Node import <code>{sdkPackage}/node</code>; in Cloudflare Workers call <code>captureException</code> from <code>{sdkPackage}/worker</code> with your handler’s <code>ctx</code>. For original-source stacks, use the complete <a className="inline-link" href={sourceMapHref(project)}>source-map setup</a> with your project’s build key and bundler configuration.</p>
   </div>;
 }
 
@@ -52,8 +52,7 @@ export function OriginStep({ project, request }: { project: string; request: Req
     finally { setBusy(false); }
   }
   return <div className="origin-step">
-    <h3>Allow your app’s origin</h3>
-    <p className="muted">In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.</p>
+    <h3>Allow your app’s origin</h3><Details title="Allow your app’s origin"><p>In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.</p></Details>
     <form className="origin-form" onSubmit={event => void allow(event)}>
       <label className="form-field">Your app’s origin<input type="url" required maxLength={1024} placeholder="https://app.example" value={origin} disabled={busy} aria-describedby="origin-step-help" onChange={event => { setOrigin(event.target.value); setStatus(''); }} /></label>
       <button className="primary-button" disabled={busy || !origin}>Allow origin</button>
@@ -65,8 +64,7 @@ export function OriginStep({ project, request }: { project: string; request: Req
 
 export function SentryIntake({ dsn }: { dsn?: string }) {
   return <div className="sentry-intake">
-    <h3>Already using Sentry? Point your DSN here</h3>
-    <p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.</p>
+    <h3>Already using Sentry? Point your DSN here</h3><Details title="Already using Sentry?"><p>Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as <code>sentry-no-dist</code>. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.</p></Details>
     {dsn ? <CodeBlock label="Sentry DSN" code={dsn} /> : <p>Its DSN is shown once, next to each new ingest key created under Project keys in Settings.</p>}
   </div>;
 }
