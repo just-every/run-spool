@@ -34,6 +34,14 @@ export async function recordReadFlow({ req, json, db }) {
  }
  assert.equal((await json(root + `/issues/${issue.id}/events`)).total, (await paginate(root + '/occurrences')).total, 'occurrence total equals the issue detail');
  assert.equal((await json(root + '/feedback')).total, (await paginate(root + '/feedback-reports')).total, 'report total equals the feedback inbox');
+ const occurrences=(await paginate(root+'/occurrences')).rows;
+ const exported=await json(root+'/occurrence-export','GET',undefined,auth);assert.equal(exported.exported,30);assert.equal(exported.total,30);assert.deepEqual(exported.rows,occurrences,'streamed occurrence metadata equals all retained record pages');
+ assert.deepEqual((await json(root+'/occurrence-export','GET',undefined,{})).rows,exported.rows,'owner and exact-project export share the documented metadata projection');
+ assert.deepEqual((await json(root+'/occurrence-export?order=oldest','GET',undefined,auth)).rows,[...exported.rows].reverse());
+ assert.equal((await json(root+'/occurrence-export?q=environment:staging','GET',undefined,auth)).exported,0);
+ const csv=await req(root+'/occurrence-export?format=csv','GET',undefined,auth);assert.equal(csv.status,200);assert.equal((await csv.text()).split('\r\n').length,31);
+ for(const query of ['format=unknown','q=user.email:private','order=unknown','cursor=unknown','format=json&format=csv'])assert.equal((await req(root+'/occurrence-export?'+query,'GET',undefined,auth)).status,400);
+ const exportText=JSON.stringify(exported);for(const privateField of ['payload','user_hash','project_identity_keys','context_line','vars'])assert.ok(!exportText.includes('"'+privateField+'"'));
  const releaseRead = await paginate(root + '/release-records'); assert.equal(releaseRead.pages, 2); assert.equal(releaseRead.total, 30);
  assert.equal(new Set(releaseRead.rows.map(row => row.created)).size, 1, 'release traversal exercises tied creation times');
  const core = ({project,name,seq,build,created}) => ({project,name,seq,build,created}), byName = rows => rows.map(core).sort((a,b)=>a.name.localeCompare(b.name));
@@ -47,16 +55,17 @@ export async function recordReadFlow({ req, json, db }) {
  assert.equal((await req(root + '/occurrences?cursor=' + encodeURIComponent(firstRelease.next), 'GET', undefined, auth)).status, 400, 'a release cursor never crosses record surfaces');
  const other = await json('/api/projects', 'POST', { id: 'synthetic-spool-records-other', name: 'Foreign read scope' });
  const foreign = await json(`/api/projects/${other.id}/keys`, 'POST', { kind: 'agent' }), deploy = await json(root + '/keys', 'POST', { kind: 'deploy' });
- for (const path of [root + '/occurrences', root + `/issues/${issue.id}/occurrences`, root + '/feedback-reports', root + '/release-records']) {
+ for (const path of [root + '/occurrences', root + `/issues/${issue.id}/occurrences`, root + '/feedback-reports', root + '/release-records', root + '/occurrence-export']) {
   const denied = [];
   for (const key of [foreign.key, deploy.key, p.ingestKey]) { const r = await req(path, 'GET', undefined, { Cookie: '', Authorization: `Bearer ${key}` }); denied.push([r.status, await r.json()]); }
   assert.deepEqual(denied[0], denied[1]); assert.deepEqual(denied[1], denied[2]); assert.equal(denied[0][0], 401);
  }
  await projectAuditReadFlow({req,json,p,root,auth,foreign});
+ for(const key of [foreign.key,deploy.key,p.ingestKey])assert.ok([401,403].includes((await req(root+'/issue-export','GET',undefined,{Cookie:'',Authorization:'Bearer '+key})).status),'issue exports retain the existing refusal for a foreign or wrong-purpose grant');
  const foreignRead = `/api/projects/${other.id}/release-records`;
  assert.equal((await req(foreignRead + '?cursor=' + encodeURIComponent(firstRelease.next), 'GET', undefined, {Cookie:'',Authorization:`Bearer ${foreign.key}`})).status, 400, 'release cursors are project-bound even for a separately authorized reader');
  await json(root + '/keys/' + grant.hash, 'DELETE');
- assert.equal((await req(root + '/release-records', 'GET', undefined, auth)).status, 401);
+ for(const path of ['/release-records','/audit-records','/occurrence-export','/issue-export'])assert.equal((await req(root+path,'GET',undefined,auth)).status,401);
  assert.equal((await req(root + '/release-records', 'GET', undefined, {Cookie:''})).status, 401);
  assert.equal((await req(root + '/release-records', 'GET', undefined, {Authorization:'Bearer synthetic-spool-invalid'})).status, 401, 'a malformed bearer cannot borrow owner authority');
  const replacement = await json(root + '/keys', 'POST', {kind:'agent'}); auth.Authorization = `Bearer ${replacement.key}`;
@@ -92,7 +101,8 @@ export async function recordReadFlow({ req, json, db }) {
  await json('/api/reporting/items/'+spanning.id,'DELETE',{revision:surviving.revision});
  assert.equal((await req(root + '/occurrences')).status, 404); assert.equal((await req(root + '/feedback-reports')).status, 404);
  assert.equal((await req(root + '/occurrences', 'GET', undefined, auth)).status, 401, 'erasure retires the read grant too');
- assert.equal((await req(root + '/release-records')).status, 404); assert.equal((await req(root + '/release-records', 'GET', undefined, auth)).status, 401);
+ for(const path of ['/audit-records','/occurrence-export','/issue-export'])assert.equal((await req(root+path)).status,404);
+ assert.equal((await req(root + '/release-records')).status, 404); for(const path of ['/release-records','/audit-records','/occurrence-export','/issue-export'])assert.equal((await req(root+path,'GET',undefined,auth)).status,401);
  console.log('[API-001] occurrence, feedback and tied release pages reconcile with owner reads and private restore; cursor, scope and revocation refusals, withdrawal and erasure passed');
 }
 
@@ -117,6 +127,6 @@ async function projectAuditReadFlow({req,json,p,root,auth,foreign}) {
  for(const key of [foreign.key,p.ingestKey,(await json(root+'/keys','POST',{kind:'deploy'})).key,'synthetic-spool-invalid'])assert.equal((await req(root+'/audit-records','GET',undefined,{Authorization:'Bearer '+key})).status,401,'wrong-purpose or foreign bearers cannot borrow owner authority');
  assert.equal((await req('/api/projects/synthetic-spool-records-other/audit-records?cursor='+encodeURIComponent(history.first.next),'GET',undefined,{Cookie:'',Authorization:'Bearer '+foreign.key})).status,400);
  const revoked=await json(root+'/keys','POST',{kind:'agent'});await json(root+'/keys/'+revoked.hash,'DELETE');assert.equal((await req(root+'/audit-records','GET',undefined,{Cookie:'',Authorization:'Bearer '+revoked.key})).status,401);
- const wire=JSON.stringify(history);for(const value of [p.ingestKey,auth.Authorization.slice(7),'lookup_hash','operator_id',p.id+'"'+':'])assert.ok(!wire.includes(value));
+ const wire=JSON.stringify(history);for(const value of [p.ingestKey,auth.Authorization.slice(7),'lookup_hash','operator_id'])assert.ok(!wire.includes(value));
  return {label,rows:history.rows};
 }

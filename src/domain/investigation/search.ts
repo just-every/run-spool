@@ -1,3 +1,4 @@
+import { streamIssueExport } from './issue-export';
 import { resolveMembership } from '../members/resolver';
 import {pendingReview} from '../review/model';
 import { Hono } from 'hono';
@@ -12,11 +13,7 @@ import { prioritySql } from '../issue-priority/model';
 import { ensureReleaseOrderKeys } from '../releases/order';
 import { ensureShortIds } from '../short-ids/assign';
 import { decodeShortIds, shortIdColumnsSql } from '../short-ids/lookup';
-import { commitResolutionSql, commitSharing } from '../commits/sharing';
 const routes=new Hono<any>();
-// Spreadsheets evaluate a cell that opens with a formula sign, even after blanks or control
-// characters; a leading apostrophe keeps captured text inert while the stored value stays as sent.
-const inert=(text:string)=>/^[\s\p{Cc}]*[=+\-@]/u.test(text)?"'"+text:text;
 // Independently enforce the read door; mounting this router never supplies authority.
 const authorize=async(c:any,next:any)=>{
  const project=c.req.param('project'),grant=await agentProject(c.req.raw,c.env.DB);
@@ -46,15 +43,13 @@ async function search(c:any,exporting=false){
  let cursor:any=null;
  if(c.req.query('cursor')){try{cursor=JSON.parse(atob(c.req.query('cursor')))}catch{throw new Error('Invalid search cursor')}if(cursor?.signature!==signature||!Number.isFinite(cursor.rank)||!Number.isFinite(cursor.last_seen)||typeof cursor.id!=='string')throw new Error('Search cursor belongs to another query')}
  const total=await statement('SELECT COUNT(*) total,COALESCE(SUM(review_pending),0) reviewPending FROM ranked').first() as any;
- if(exporting&&total.total>10000)return c.json({error:'query_export_limit',matched:total.total,limit:10000,action:'Narrow the query or paginate the issue-search API.'},413);
- const size=exporting?10000:25;
- const page=await statement(`SELECT * FROM ranked ${cursor&&!exporting?'WHERE (rank,last_seen,id)<(?,?,?)':''} ORDER BY rank DESC,last_seen DESC,id DESC LIMIT ?`,...cursor&&!exporting?[cursor.rank,cursor.last_seen,cursor.id]:[],size+1).all();
+ if(exporting)return streamIssueExport(c,{project,query:{q,status:state,release,sort},total:total.total,page:async after=>{
+  const page=await statement(`SELECT * FROM ranked ${after?'WHERE (rank,last_seen,id)<(?,?,?)':''} ORDER BY rank DESC,last_seen DESC,id DESC LIMIT 100`,...after?[after.rank,after.last_seen,after.id]:[]).all();
+  return {rows:page.results.map((row:any)=>{const {rank,...issue}=decodeShortIds(decodeIssueAttention(row));return c.get('agent')?issueProjection(issue):ownerIssue(issue)}),position:page.results.at(-1)};
+ }});
+ const size=25;
+ const page=await statement(`SELECT * FROM ranked ${cursor?'WHERE (rank,last_seen,id)<(?,?,?)':''} ORDER BY rank DESC,last_seen DESC,id DESC LIMIT ?`,...cursor?[cursor.rank,cursor.last_seen,cursor.id]:[],size+1).all();
  const rows=page.results.slice(0,size).map((row:any)=>{const {rank,...issue}=decodeShortIds(decodeIssueAttention(row));return c.get('agent')?issueProjection(issue):ownerIssue(issue)}),last=page.results[size-1];
- if(exporting){const format=c.req.query('format')??'json';if(!['json','csv'].includes(format))throw new Error('Export format must be json or csv');
-  // An export leaves the owner session: the resolving commit's SHA and release, its author and message only when shared.
-  const share=(await commitSharing(db,project)).share,resolutions=new Map<string,any>((await db.prepare(`SELECT i.id,${commitResolutionSql('i')} resolution FROM issues i WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))`).bind(project,JSON.stringify(rows.map((r:any)=>r.id))).all()).results.map((r:any)=>[r.id,r.resolution?JSON.parse(r.resolution):null]));
-  for(const r of rows as any[]){const resolution=resolutions.get(r.id);r.resolution_commit=resolution?.commit??null;r.resolution_citation=resolution?.citation??null;r.resolution_release=resolution?.release??null;if(share){r.resolution_author=resolution?.author?[resolution.author.name,resolution.author.email&&`<${resolution.author.email}>`].filter(Boolean).join(' '):null;r.resolution_message=resolution?.message??null}}
-  const keys=['short_id','id','title','state','priority','count','first_seen','last_seen','last_release','resolution_commit','resolution_citation','resolution_release',...share?['resolution_author','resolution_message']:[]];const cell=(v:any)=>'"'+inert(String(v??'')).replaceAll('"','""')+'"';return new Response(format==='csv'?[keys.join(','),...rows.map((r:any)=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'):JSON.stringify({version:1,project,query:{q,status:state,release,sort},total:total.total,rows,bounds:{limit:10000,complete:true},coverage:'Retained issue aggregates; counts include all retained occurrences of matched issues.'}),{headers:{'Content-Type':format==='csv'?'text/csv; charset=utf-8':'application/json','Content-Disposition':`attachment; filename="spool-issues.${format}"`,'Cache-Control':'no-store'}})}
  const eventPredicate=query.sql+(release!=='all'?' AND e.release=?':''),eventArgs=[...query.args,...release!=='all'?[release]:[]];
  const [statuses,releases,environments,tags]=await Promise.all([
  statement('SELECT state value,COUNT(*) count FROM ranked GROUP BY state').all(),

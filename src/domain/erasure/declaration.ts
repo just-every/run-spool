@@ -16,6 +16,7 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
+  ...['event_attachments','attachment_policies'].map(fromProject),
   ...['issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
   // Multi-project definitions retain their other widgets; a sole-project item
   // and all its grants leave with the last project they describe.

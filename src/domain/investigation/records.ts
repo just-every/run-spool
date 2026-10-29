@@ -1,3 +1,4 @@
+import { recordExport } from './record-export';
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
 import { ownerSession } from '../../auth/session.server';
@@ -7,7 +8,7 @@ import { eventQuery } from './query';
 import { ensureReleaseOrderKeys } from '../releases/order';
 import { recordParameters, recordFilter, recordCursor, nextRecordCursor } from './record-page';
 const routes = new Hono<any>();
-const paths = ['/:project/occurrences', '/:project/issues/:issue/occurrences', '/:project/feedback-reports', '/:project/release-records'];
+const paths = ['/:project/occurrences', '/:project/issues/:issue/occurrences', '/:project/feedback-reports', '/:project/release-records', '/:project/occurrence-export'];
 for (const path of paths) routes.use(path, async (c, next) => {
  c.header('Cache-Control', 'no-store'); c.header('X-Content-Type-Options', 'nosniff');
  const project = c.req.param('project'), grant = await agentProject(c.req.raw, c.env.DB);
@@ -47,6 +48,7 @@ async function records(c: any, feedback: boolean) {
  return c.json({ version: 1, project, rows, total: total.total, next: page.results.length > 25 ? btoa(JSON.stringify({ signature, received: last.received, id: last.id })) : null,
   bounds: { pageSize: 25 }, order, coverage: feedback ? 'Retained scrubbed descriptions and exact-occurrence association only; withdrawn reports are absent.' : 'Retained occurrence metadata only; source, local variables, user identity and attachments are excluded. Cursors observe current retained data.' });
 }
+routes.get('/:project/occurrence-export', recordExport);
 routes.get('/:project/occurrences', c => records(c, false));
 routes.get('/:project/issues/:issue/occurrences', c => records(c, false));
 routes.get('/:project/feedback-reports', c => records(c, true));

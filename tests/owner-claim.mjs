@@ -1,3 +1,4 @@
+import { attachmentFlow } from './attachment-flow.mjs';
 import assert from 'node:assert/strict';
 import {assertAuditAppendOnly} from './audit-state.mjs';
 import {createHash, generateKeyPairSync, randomUUID, sign} from 'node:crypto';
@@ -139,3 +140,5 @@ try {
 } finally {await app?.close();}
 
 await teamFlow();
+
+await attachmentFlow();
