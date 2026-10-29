@@ -47,6 +47,9 @@ export default {
   await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
+  const tagSummary=page.locator('.event-tags-summary');await tagSummary.locator('summary').click();
+  const tenantSummary=tagSummary.locator(':scope > div').filter({has:page.getByRole('heading',{name:'tenant',exact:true})});
+  assert.equal(await tenantSummary.locator('li').innerText(),`acme — ${handled.issue.count} (100.0%)`,'the visible tag summary counts the entire SDK issue');
   const sdkFrame=sdk.exceptions.flatMap(e=>e.stacktrace.frames).find(frame=>frame.function==='charge'&&frame.vars);
   assert.ok((await page.locator('.sdk-context').first().innerText()).includes('sent by SDK'));
   const localSummary=page.locator('article.exception summary').filter({hasText:'Local variables · sent by SDK'}).first();await localSummary.click();const locals=localSummary.locator('..');
@@ -54,7 +57,11 @@ export default {
   await localSummary.click();await inspectEvidence(page,sdk);
   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();const raw=page.getByRole('dialog',{name:'Raw stack trace',exact:true});
-  const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
+  const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);
+  for(const exception of sdk.exceptions){
+   assert.ok(expected.includes(`${exception.type}: ${exception.value}`),'the copied trace retains each SDK exception');
+   for(const frame of exception.stacktrace.frames)assert.ok(expected.includes(`File "${frame.filename}", line ${frame.lineno}, in ${frame.function}`),'the copied trace retains each SDK frame');
+  }
   await page.keyboard.press('Escape');
  },
  async verify({app,details,dir,origin,cookie,reference}){
@@ -68,6 +75,17 @@ export default {
   assertSentChain(failing,sentChain);
   assert.deepEqual(failing.contexts.checkout,{stage:'payment',items:3});assert.equal(failing.extra.cart_items,3);assert.ok(failing.breadcrumbs.some(crumb=>crumb.category==='checkout'&&crumb.message==='cart reviewed'));
   assert.equal(failing.contexts.runtime.name,'CPython');for(const integration of ['excepthook','logging','stdlib','threading'])assert.ok(failing.sdk.integrations.includes(integration),`default ${integration} integration`);
+  // The SDK sends sessions separately, without event session references. Never
+  // substitute the project's health denominator for an issue's affected sessions.
+  const referenceSessions=reference.filter(item=>item.type==='session').map(item=>objectJson(item.bytes));
+  assert.ok(referenceSessions.length>0,'the unmodified SDK emitted real session observations');
+  assert.ok(sent.every(event=>event.contexts?.session?.sid===undefined),'these SDK events have no explicit session association');
+  for(const detail of details){
+   const impact=await app.json(`/api/projects/rt-python/issues/${detail.issue.id}/impact`);
+   assert.equal(impact.events,detail.events.length);assert.equal(impact.affectedSessions,null,'unlinked SDK events leave affected sessions unavailable');
+   assert.deepEqual(impact.sessions,{events:detail.events.length,linkedEvents:0,unlinkedEvents:detail.events.length,knownAffected:0});
+   assert.equal(impact.projectHealth.denominators.individualSessions,referenceSessions.length,'the project cohort remains separately labelled');
+  }
   const create=id=>app.json('/api/projects','POST',{id,name:id});
   const send=async(created,script,{cwd=dir,mode}={})=>{
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
