@@ -16,11 +16,22 @@ export async function fidelityFlow({req,json}) {
  // GROUP-001: distinct roots and per-frame in_app are observable at public owner detail.
  const found=await json(base+'/issue-search?q='+encodeURIComponent('tenant:acme browser.name:Chrome error.type:KeyError'));assert.equal(found.total,1);assert.ok(found.facets.tags.some(t=>t.key==='tenant'&&t.value==='acme'&&t.count===1));
  const issue=found.rows[0].id,eventBase=base+'/issues/'+issue+'/events';
- for(let i=0;i<29;i++)await send(chain('KeyError',i%2?'other':'acme'));
+ for(let i=0;i<29;i++){
+  const event=chain('KeyError',i%2?'other':'acme');
+  event.contexts.browser.name=(i+1)%3?'Chrome':'Firefox';
+  event.contexts.os.name=(i+1)%5?'macOS':'Linux';
+  await send(event);
+ }
  const list=await json(eventBase);assert.equal(list.total,30);assert.equal(list.rows.length,25);assert.ok(list.next);
  const next=await json(eventBase+'?cursor='+encodeURIComponent(list.next));assert.equal(next.rows.length,5);assert.equal(new Set([...list.rows,...next.rows].map(e=>e.occurrence)).size,30);
  assert.equal(list.oldest.id,first.event_id);assert.equal(list.latest.id,sequence.toString(16).padStart(32,'0'));
  const tag=list.tags.rows.find(t=>t.key==='tenant'&&t.value==='acme');assert.equal(tag.count,16);assert.equal(tag.percent,100*16/30);
+ assert.equal(list.tags.events,30,'tag summary spans both cursor pages');
+ const expectedTags={tenant:[['acme',16],['other',14]],'browser.name':[['Chrome',21],['Firefox',9]],'os.name':[['macOS',25],['Linux',5]]};
+ for(const [key,values] of Object.entries(expectedTags))assert.deepEqual(list.tags.rows.filter(row=>row.key===key),values.map(([value,count])=>({key,value,count,percent:100*count/30})));
+ const combined=await json(eventBase+'?q='+encodeURIComponent('tenant:acme browser.name:Chrome'));
+ assert.equal(combined.total,11,'both tag predicates match the same event');
+ assert.deepEqual(combined.tags,list.tags,'filtered event lists retain whole-issue summary counts and percentages');
  const detail=await json(eventBase+'/'+list.oldest.id+'?occurrence='+list.oldest.occurrence);
  assert.equal(detail.grouping.variant,'exception chain','GROUP-001 shows the whole-chain variant');assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true);assert.equal(detail.grouping.exceptions[0].frames[1].contributes,false,'GROUP-001 SDK not-in-app frame is excluded');assert.equal(detail.grouping.exceptions[0].frames[1].reason,'not in-app');
  // SDK-008: report excluded Sentry identity without retaining its value.

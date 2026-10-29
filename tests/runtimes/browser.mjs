@@ -78,6 +78,28 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
   assert.equal(details.reduce((n,d)=>n+d.issue.count,0),inventory.get('event'));
   assert.ok(handled.events.every(e=>e.event.sentry.exceptions.every(x=>x.mechanism?.handled!==false)));
   assert.equal(new Set(details.flatMap(d=>d.events.map(e=>e.id))).size,inventory.get('event'));
+  // SDK-010: compare the actual transport payload with owner detail, not inferred read-time values.
+  const sentEvents=observedSpool.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  const referenceEvents=reference.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  for(const {events} of details)for(const detail of events){
+   const wire=sentEvents.find(event=>event.event_id===detail.id);
+   assert.ok(wire,'every persisted browser occurrence was sent by the SDK');
+   assert.equal(wire.tags.tenant,'acme');assert.equal(detail.event.sentry.tags.tenant,wire.tags.tenant);
+   for(const key of ['browser','os']){
+    assert.ok(wire.contexts[key].name,'the SDK actually sends a named '+key+' context');
+    assert.deepEqual(wire.contexts[key],referenceEvents[0].contexts[key],'the reference and Spool receive the same '+key+' context with only DSN changed');
+    assert.deepEqual(detail.event.sentry.contexts[key],wire.contexts[key],'owner detail preserves the sent '+key+' context');
+    assert.equal(detail.event.sentry.tags[key+'.name'],wire.contexts[key].name);
+   }
+  }
+  const eventRoot=`/api/projects/${project.id}/issues/${handled.issue.id}/events`;
+  const summary=await app.json(eventRoot+'?q=tenant:acme');
+  assert.equal(summary.tags.events,handled.events.length,'summary denominator includes every known issue event');
+  for(const [key,value] of [['tenant','acme'],['browser.name',sentEvents[0].contexts.browser.name],['os.name',sentEvents[0].contexts.os.name]]){
+   assert.deepEqual(summary.tags.rows.filter(row=>row.key===key),[{key,value,count:2,percent:100}]);
+  }
+  const found=await app.json(`/api/projects/${project.id}/issue-search?q=`+encodeURIComponent('tenant:acme browser.name:Chrome'));
+  assert.deepEqual(found.rows.map(row=>row.id).sort(),details.map(detail=>detail.issue.id).sort(),'combined tag search selects precisely the captured browser issues');
   const sent=sentIdentities(reference);
   const stored=new Set(details.flatMap(d=>d.events.map(e=>JSON.stringify([e.release,e.event.build]))));
   assert.deepEqual([...stored].sort(),[...sent].sort());
@@ -88,7 +110,18 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
   const mapped=details.flatMap(d=>d.events).flatMap(e=>e.currentLookup??[]).find(f=>f.status==='mapped'&&f.original.line===expectedLine);
   assert.ok(mapped,'the build-plugin map resolves the actual original failure line');
   await readScreens(origin,cookie,[
-   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:page=>page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor()},
+   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{
+    await page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor();
+    const contexts=page.locator('.event-sections details').filter({has:page.locator('summary', {hasText:/^Contexts$/})});
+    await contexts.locator('summary').click();
+    const shown=JSON.parse(await contexts.locator('pre').innerText());
+    for(const key of ['browser','os'])assert.deepEqual(shown[key],sentEvents[0].contexts[key]);
+    const tags=page.locator('.event-tags-summary');await tags.locator('summary').click();
+    for(const [key,value] of [['tenant','acme'],['browser.name',sentEvents[0].contexts.browser.name],['os.name',sentEvents[0].contexts.os.name]]){
+     const row=tags.locator('div').filter({has:page.getByRole('heading',{name:key,exact:true})});
+     assert.equal(await row.locator('li').innerText(),`${value} — 2 (100.0%)`);
+    }
+   }},
    {name:`browser-${width}-mapped`,path:`/projects/${project.id}/issues/${unhandled.issue.id}`,check:page=>page.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor()},
    {name:`browser-${width}-diagnostics`,path:`/projects/${project.id}/capture`,check:page=>page.getByRole('heading',{name:'SDK discarded',exact:true}).waitFor()},
   ]);

@@ -23,6 +23,11 @@ Sentry.init({
     return event;
   },
 });
+Sentry.setTag('tenant', 'acme');
+// Browser contexts are explicit SDK inputs; the read surface must not infer them.
+const chrome = navigator.userAgent.match(/(?:HeadlessChrome|Chrome)\/([\d.]+)/);
+if (chrome) Sentry.setContext('browser', { name: 'Chrome', version: chrome[1] });
+Sentry.setContext('os', { name: navigator.userAgentData?.platform || navigator.platform });
 Sentry.getClient().on('beforeEnvelope', envelope => {
   window.__SPOOL_SENT__.push(...envelope[1].map(item => item[0].type));
 });

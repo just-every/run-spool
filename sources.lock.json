@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "98e3f3ddf339cc7afdedb05e0a810e9d85815d1db7faaf825d0171a88fceee5d",
+      "sha256": "5f7d376fc93ce652cb0756768b458cc90ef93ff7dd71fb91217e9a2a25d099b3",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4829ae88f7567e4d35ef565fb65ccc5cdbbe82f64a9f9b07db27085eb47129d3",
+      "sha256": "997eacd8a288115b79ca273ae4ab525d7686e2d01163c76de5db6d4477e5084c",
       "executable": false
     },
     "DEMO.md": {
@@ -8821,7 +8821,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "3c091011b60f214d2d925431c1a1aec68ef57c1089f94a7dd54f92f4dddbd51f",
+      "sha256": "9930750616c4f016d5eb222b3f05c73afda30809917955ef8089ec792b05c3a6",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -9105,11 +9105,11 @@
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
-      "sha256": "dd37fe1ca0c6266a3927732bb9f2a288c0088767249b21b159513ac52653aebe",
+      "sha256": "9d981e3574d5194def9d58c85c0a5454db7333ec3a5b1a2f085be0741ef0ad25",
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
+      "sha256": "6e2d8f6d07e0e1c23ac8ad67ee149a2e55ba0b882e065e09eb611af898e7de73",
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
