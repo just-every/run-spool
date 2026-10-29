@@ -54,7 +54,7 @@ try{
  const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
  const destinationTest=done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
  assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');
- // Pending SPOOL-BASE-STANDING-WORKER-2026-10-28: these are capability
+ // Pending SPOOL-NATIVE-STANDING-WORKER-2026-10-29: these are capability
  // refusals, not company policy defaults or skipped journey requirements.
  const ruleCreated=await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:'Queued notice',enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2});
  const rulesBefore=await app.json(`/api/projects/${project}/alerting/rules`),rule=rulesBefore.find(row=>row.id===ruleCreated.id);assert.ok(rule);

@@ -63,7 +63,7 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     // An unavailable native execution path cannot become available through a
     // person's company-policy approval. Refuse before opening that approval.
     if(!readOnly&&((route==='alert'&&a.enabled===true)||(route==='followup'&&a.destination!==null)||route==='retention'))
-     throw new ToolRefusal('native_worker_admission_unavailable','Standing worker admission is not qualified',{pending:'SPOOL-BASE-STANDING-WORKER-2026-10-28'});
+     throw new ToolRefusal('native_worker_admission_unavailable','Standing worker admission is not qualified',{pending:'SPOOL-NATIVE-STANDING-WORKER-2026-10-29'});
     if(route==='erasure-resume'){if(c.person.role!=='owner')throw new ToolRefusal('not_found');const row=await env.DB.prepare("SELECT 1 FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(a.id).first();if(!row)throw new ToolRefusal('not_found');return [{class:'destructive',facts:{measure:1}}];}
     if(route==='witness'){await nativeWitness(env,a,c);return standard();}
     if(route==='access-member'){const authority=await authorize(a,c);return [{class:'access',facts:{measure:1,direction:authority.widens?'widens':'narrows'}}];}

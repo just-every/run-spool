@@ -158,9 +158,12 @@ Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
 catalogue acknowledgement limit, fresh-key injection probes against consumed
 native actions, native runner event identity, held erasure custody,
-standing-worker admission, refused approval execution accounting and legacy
-archive migration replay. Standing-worker admission still requires seed work;
-an upstream continuation alone does not qualify Spool's workers. Current
+refused approval execution accounting and legacy archive migration replay.
+The separate `SPOOL-NATIVE-STANDING-WORKER-2026-10-29` marker is a seed-owned
+integration gap: Spool's alert mail/webhook, follow-up and retention workers need
+durable originating identity, typed final policy admission and native attribution.
+Their required journeys remain declared and failing. An upstream continuation
+alone does not qualify these workers or close that marker. Current
 repair revisions and sandbox-confirmed fixture identities are obtained through
 their native lifecycle, independently of mutable list ordering. The remaining
 dependencies are pending assertions,
