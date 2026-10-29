@@ -23,6 +23,7 @@ import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
+import { schemaIdentityOf } from '../modules/portability/schema-identity.mjs';
 import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
@@ -49,7 +50,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['agent_door_%','bs_%','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -184,10 +185,31 @@ laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_colla
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
 laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+const agentMigrations=['0091_agent_door.sql','0082_business_settings.sql','0090_business_people.sql','0084_native_agent_attribution.sql','0085_agent_runner_custody.sql','0086_native_agent_repository_consent.sql','0087_repository_proof_reference.sql','0088_agent_erasure_custody.sql','0089_native_action_actor_links.sql'];
+for(const later of laterTables)later.migrations.push(...agentMigrations);
+laterTables.unshift({tables:[],migrations:agentMigrations});
+// Match the exact archive inventory from before native attribution was added.
+// Current archives retain and validate their declared attribution columns.
+function beforeAgentAttribution(table:any,manifest:any){
+ if(manifest.migrations?.includes('0084_native_agent_attribution.sql'))return table;
+ const field=table.name==='repairs'?'recorded_by':table.name==='grouping_proposals'?'prepared_by':null;
+ if(!field)return table;
+ // Unrecorded native inventories can already carry attribution. Keep the
+ // current descriptor only when the archive actually declares the column;
+ // the exact descriptor comparison below still rejects forged additions.
+ if(manifest.schemaObjects!==undefined && manifest.tables?.find((entry:any)=>entry.name===table.name)?.columns?.some((column:any)=>column.name===field))return table;
+ const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
+ return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
+}
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Base canonicalizes the product identity, including behavior objects.
+ // Compare the known native table shape separately, then check the complete
+ // behavior inventory before translating a format that declares it.
+ const nativeTableIdentity=product.schemaObjects===undefined?product.schema
+  :await sha256(canonicalJson(product.tables.map(({name,sql}:any)=>({name,sql}))));
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
@@ -199,26 +221,49 @@ async function earlierManifest(db: D1Database, manifest: any) {
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
-  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
-  if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
+  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  if (nativeTableIdentity !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
+  // A recognized native table upgrade must retain a complete, known object
+  // inventory. An unrecorded index/trigger is never installed or acknowledged.
+  // Archives without an object inventory still require Base's legacy replay.
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(current.schemaObjects))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.
   const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-  return { ...manifest, ...migrations, schema: await sha256(canonicalJson(tables.map(({ name, sql }: any) => ({ name, sql })))), tables };
+  const schema=product.schemaObjects===undefined
+   ? await sha256(canonicalJson(tables.map(({name,sql}:any)=>({name,sql}))))
+   : await schemaIdentityOf(tables,current.schemaObjects);
+  return {...manifest,...migrations,schema,tables};
  }
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
+ const attributionDefaults=new Map<string,Record<string,unknown>>();
+ const archivedAttributionColumns=new Map<string,string[]>();
  try {
   for await (const record of readArchive(source)) {
    if (record.kind === 'manifest') {
-    const manifest = retireArchiveSetupToken((db ? await earlierManifest(db, record) : null) ?? record, portabilityPolicy.requiredConfiguration);
+    const earlier=db ? await earlierManifest(db,record) : null;
+    const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
+     const archived=record.tables.find((entry:any)=>entry.name===table);
+     if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
+    }
     rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
    }
-   else if (record.kind === 'part') { binding.add(record); await service.imports.uploadPart(id, record.index, record); }
+   else if (record.kind === 'part') {
+    // readArchive verifies the original bytes; bind translated parts to the
+    // recognized current inventory using only this migration's exact defaults.
+    const part=attributionDefaults.size?await makePart(record.index,record.items.map((item:any)=>{
+     if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
+     if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
+     return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
+    })):record;
+    binding.add(part); await service.imports.uploadPart(id, part.index, part);
+   }
    else closing = record;
   }
   if (!closing) throw new Error('Archive closing record missing');
