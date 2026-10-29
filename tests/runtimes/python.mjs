@@ -25,6 +25,9 @@ export default {
   assert.equal(listed.total,handled.issue.count);const tenant=listed.tags.rows.find(row=>row.key==='tenant'&&row.value==='acme');assert.equal(tenant.count,listed.total);assert.equal(tenant.percent,100*tenant.count/listed.tags.events);
   assert.deepEqual(listed.rows.map(row=>row.id).sort(),handled.events.map(event=>event.id).sort());
   assert.notEqual(listed.oldest.id,listed.latest.id,'navigation spans distinct SDK captures');
+  const impact=page.getByRole('region',{name:'Issue impact',exact:true});await impact.getByText('Retained events',{exact:true}).waitFor();
+  const facts=Object.fromEntries(await impact.locator('dl > div').evaluateAll(rows=>rows.map(row=>[row.querySelector('dt').textContent,row.querySelector('dd').textContent])));
+  assert.equal(facts['Retained events'],String(handled.issue.count));assert.equal(facts['Affected sessions'],'Unavailable');assert.equal(facts['Without a session link'],String(handled.issue.count),'SDK sessions do not imply an issue association');
   const filtering=page.waitForResponse(response=>{const url=new URL(response.url());return url.pathname===root&&url.searchParams.get('q')==='tenant:acme'});
   await page.getByRole('searchbox',{name:'Search events',exact:true}).fill('tenant:acme');
   assert.equal((await filtering).status(),200);
@@ -62,6 +65,7 @@ export default {
    assert.ok(expected.includes(`${exception.type}: ${exception.value}`),'the copied trace retains each SDK exception');
    for(const frame of exception.stacktrace.frames)assert.ok(expected.includes(`File "${frame.filename}", line ${frame.lineno}, in ${frame.function}`),'the copied trace retains each SDK frame');
   }
+  await page.screenshot({path:`.artifacts/runtimes/python-raw-stack-${page.viewportSize().width}.png`,fullPage:true});
   await page.keyboard.press('Escape');
  },
  async verify({app,details,dir,origin,cookie,reference}){

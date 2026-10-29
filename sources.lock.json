@@ -9237,7 +9237,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "601a2f21dab59ffd1d72b8b2bf6e52eda25eea57887454da7ce72e2a79676278",
+      "sha256": "dd640d1f38d492c7adb787f60d8f5619aac079c9fccbda3ebc9dfd0b26b57dd5",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
