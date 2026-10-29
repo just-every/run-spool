@@ -88,6 +88,13 @@ export async function collaborativeBulk(owner,first,second,reader,project) {
  const search=()=>first.json(root+'/issue-search?q=BulkMember'),read=()=>first.json(root+'/issues');
  const selected=async()=>({issues:(await search()).rows.map(({id,revision})=>({id,revision})),apply:false});
  const originals=(await search()).rows;assert.equal(originals.length,3);
+ const discussed=root+'/issues/'+originals[0].id;
+ await first.json(discussed+'/comments','POST',{body:'Review the searched checkout failure with @synthetic-spool-2'});
+ let shared=await second.json(discussed+'/discussion');assert.ok(shared.subscription.subscribed&&shared.subscription.reasons.includes('mention'));
+ await second.json(discussed+'/comments','POST',{body:'I reproduced the selected checkout failure.'});
+ shared=await second.json(discussed+'/discussion');await second.json(discussed+'/subscription','PUT',{subscribed:true,version:shared.subscription.version});
+ const conversation=await first.json(discussed+'/discussion');assert.ok(conversation.comments.some(row=>row.author===first.member.name&&row.body.includes('@synthetic-spool-2')));assert.ok(conversation.comments.some(row=>row.author===second.member.name&&row.body==='I reproduced the selected checkout failure.'));
+ assert.equal((await second.json(discussed+'/discussion')).subscription.explicit,'subscribed');
  const snapshot=async()=>({issues:await read(),events:await Promise.all(originals.map(row=>first.json(root+'/issues/'+row.id+'/events'))),assignments:(await first.json(root+'/operator-state')).assignments});
  let input={...await selected(),action:'assign',member:'@synthetic-spool-2'},before=await snapshot();
  const plan=await first.json(root+'/bulk-triage','POST',input);assert.deepEqual(await snapshot(),before,'member assignment preview changes no issue, event or assignment');

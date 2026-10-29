@@ -85,8 +85,8 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  const busy=await busyMemberWrites(owner,first,second,reader,projects[0]);
  const bulk=await collaborativeBulk(owner,first,second,reader,projects[0]);
  const priorityBrowser=await chromium.launch({headless:true});try{
-  const context=await priorityBrowser.newContext({viewport:{width:1440,height:1000}});const split=first.cookie.indexOf('=');
-  await context.addCookies([{name:first.cookie.slice(0,split),value:first.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
+  const context=await priorityBrowser.newContext({viewport:{width:1440,height:1000}});const split=second.cookie.indexOf('=');
+  await context.addCookies([{name:second.cookie.slice(0,split),value:second.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();await page.goto(owner.origin+'/projects/'+projects[0].id+'/issues/'+busy.issue);
   await expect(page.getByLabel('Priority',{exact:true})).toHaveValue('low');
   const choice=page.locator('.timeline li').filter({hasText:'Priority: low'});
