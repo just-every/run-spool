@@ -15,11 +15,30 @@ export default {
   const cwd=resolve(dir,'identity');await mkdir(cwd);
   // This exact official-SDK program infers from the same CI environment door used by real applications.
   const inheritedReleaseNames=['SENTRY_RELEASE','GITHUB_SHA','CI_MERGE_REQUEST_SOURCE_BRANCH_SHA','CI_BUILD_REF','CI_COMMIT_SHA','BITBUCKET_COMMIT','APPVEYOR_PULL_REQUEST_HEAD_COMMIT','APPVEYOR_REPO_COMMIT','CODEBUILD_RESOLVED_SOURCE_VERSION','AWS_COMMIT_ID','BUILD_SOURCEVERSION','GIT_CLONE_COMMIT_HASH','BUDDY_EXECUTION_REVISION','BUILDKITE_COMMIT','CIRCLE_SHA1','CIRRUS_CHANGE_IN_REPO','CF_REVISION','CM_COMMIT','CF_PAGES_COMMIT_SHA','DRONE_COMMIT_SHA','FC_GIT_COMMIT_SHA','HEROKU_TEST_RUN_COMMIT_VERSION','HEROKU_BUILD_COMMIT','HEROKU_SLUG_COMMIT','RAILWAY_GIT_COMMIT_SHA','RENDER_GIT_COMMIT','SEMAPHORE_GIT_SHA','TRAVIS_PULL_REQUEST_SHA','VERCEL_GIT_COMMIT_SHA','VERCEL_GITHUB_COMMIT_SHA','VERCEL_GITLAB_COMMIT_SHA','VERCEL_BITBUCKET_COMMIT_SHA','ZEIT_GITHUB_COMMIT_SHA','ZEIT_GITLAB_COMMIT_SHA','ZEIT_BITBUCKET_COMMIT_SHA','CI_COMMIT_ID','SOURCE_COMMIT','SOURCE_VERSION','GIT_COMMIT','COMMIT_REF','BUILD_VCS_NUMBER'];
-  const send=async env=>{
-   const result=await run(process.execPath,[resolve(dir,'app.mjs'),'identity'],{cwd,unset:inheritedReleaseNames,env:{SPOOL_FIXTURE_DSN:project.dsn,...env}});
-   assert.equal(result.code,0,result.stderr);return issueDetails(app,project.id);
+  const send=async (target,env)=>{
+   const result=await run(process.execPath,[resolve(dir,'app.mjs'),'identity'],{cwd,unset:inheritedReleaseNames,env:{SPOOL_FIXTURE_DSN:target.dsn,...env}});
+   assert.equal(result.code,0,result.stderr);return issueDetails(app,target.id);
   };
-  const [none]=await send({});
+  const firstCapture=async(target,env,release)=>{
+   const details=await send(target,env);
+   assert.equal(details.length,1,'the SDK error creates one issue');
+   const [{issue,events}]=details;
+   assert.equal(issue.count,1,'the issue counts the SDK occurrence');
+   assert.equal(events.length,1,'the SDK error persists one occurrence');
+   const [event]=events;
+   assert.equal(event.release,release,'persisted occurrence keeps the SDK release identity');
+   const alerts=(await app.json(`/api/projects/${target.id}/alerts`)).filter(row=>row.kind==='new_issue');
+   assert.equal(alerts.length,1,'each isolated SDK capture creates exactly one new-issue alert');
+   assert.equal(alerts[0].issue,issue.id,'the alert belongs to the persisted issue');
+   const payload=JSON.parse(alerts[0].payload);
+   assert.deepEqual([payload.projectId,payload.issueId,payload.kind],[target.id,issue.id,'new_issue']);
+   const releases=await app.json(`/api/projects/${target.id}/releases`);
+   const sequence=release?releases.find(row=>row.name===release)?.seq:0;
+   assert.ok(Number.isInteger(sequence),'named release exists or release-less sequence is zero');
+   assert.deepEqual(payload.release,{name:release,build:event.event.build,sequence},'alert release identity matches the persisted occurrence');
+   return details[0];
+  };
+  const none=await firstCapture(project,{},'');
   assert.deepEqual(await app.json(root+'/releases'),[],'no release creates no invented release');
   const alerts=(await app.json(root+'/alerts')).filter(row=>row.kind==='new_issue');
   assert.deepEqual(alerts.map(row=>row.issue),[none.issue.id]);
@@ -27,7 +46,9 @@ export default {
   assert.deepEqual([identity.name,identity.sequence],['',0],'release-less alert carries no release');
   // Synthetic CI commit input, not a pinned assertion about repository history.
   const sha='0123456789abcdef'.repeat(2)+'01234567';
-  const [issue]=await send({GITHUB_SHA:sha});
+  const inferred=await app.json('/api/projects','POST',{id:'rt-node-inferred',name:'Node inferred release identity'});
+  await firstCapture(inferred,{GITHUB_SHA:sha},sha);
+  const [issue]=await send(project,{GITHUB_SHA:sha});
   assert.deepEqual(issue.events.map(e=>e.release).sort(),['',sha].sort(),'SDK-inferred SHA preserved');
   const releases=await app.json(root+'/releases');assert.deepEqual(releases.map(r=>[r.name,r.auto_created]),[[sha,1]]);
   assert.equal(issue.issue.count,2);
