@@ -21,7 +21,12 @@ function goType(value: unknown): string {
 export interface Frame { file: string; line: number; column: number | null; function: string; debugId?: string }
 /** `dropped`: errors at this event's location that the SDK did not send since its previous send there.
  * `client`: an optional random install identifier (never a name or address) so exposure proof can count affected users. */
-export interface Envelope { version: 1; language?: 'python' | 'go'; eventId: string; release: string; build: string; environment: string; type: string; message: string; frames: Frame[]; breadcrumbs: string[]; dropped?: number; client?: string; exceptionSource?: 'parsed-text'; grouping?: GroupingSnapshot; sentry?: SentryEvidence }
+export interface Envelope { version: 1; language?: 'python' | 'go'; eventId: string; release: string; build: string; environment: string; type: string; message: string; frames: Frame[]; breadcrumbs: string[]; dropped?: number; client?: string; exceptionSource?: 'parsed-text'; grouping?: GroupingSnapshot; sdkSession?: string; sentry?: SentryEvidence }
+/** Sentry release-health SID: a telemetry identifier, never authentication authority. */
+export function sdkSessionReference(value:unknown):string|undefined {
+ if(typeof value!=='string'||!/^(?:[a-f0-9]{32}|[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/i.test(value))return undefined;
+ return value.replaceAll('-','').toLowerCase();
+}
 const clientPattern = /^[A-Za-z0-9_-]{16,64}$/;
 export function client(value: unknown): string { if (typeof value !== 'string' || !clientPattern.test(value)) throw new Error('Invalid client'); return value; }
 export function normalize(v: any): Envelope {
@@ -37,7 +42,8 @@ export function normalize(v: any): Envelope {
     }
   }
   if (!v || v.version !== 1 || typeof v.message !== 'string' || !Array.isArray(v.frames) || (!v.frames.length && !v.sentry) || v.frames.length > 30 || !Array.isArray(v.breadcrumbs ?? [])) throw new Error('Invalid envelope');
-  const allowed = new Set(['version','eventId','release','build','environment','type','message','frames','breadcrumbs','dropped','client','language','exceptionSource','grouping','sentry']);
+  const allowed = new Set(['version','eventId','release','build','environment','type','message','frames','breadcrumbs','dropped','client','language','exceptionSource','grouping','sdkSession','sentry']);
+  if (v.sdkSession!==undefined&&(!v.sentry||sdkSessionReference(v.sdkSession)===undefined))throw new Error('Invalid SDK session reference');
   if (v.exceptionSource !== undefined && (!language || v.exceptionSource !== 'parsed-text')) throw new Error('Invalid exception source');
   if (Object.keys(v).some(k => !allowed.has(k))) throw new Error('Unsupported envelope field');
   if (v.dropped !== undefined && (!Number.isSafeInteger(v.dropped) || v.dropped < 1 || v.dropped > 1e9)) throw new Error('Invalid dropped count');
@@ -46,7 +52,7 @@ export function normalize(v: any): Envelope {
     if (!f || typeof f.file!=='string' || typeof f.function!=='string' || !Number.isSafeInteger(f.line) || f.line<1 || f.line>1e7 || (!(language && (f.column === undefined || f.column === null)) && (!Number.isSafeInteger(f.column) || f.column<0 || f.column>1e7)) || Object.keys(f).some(k=>!['file','line','column','function','debugId'].includes(k))) throw new Error('Invalid frame');
     const path=framePath(f.file,language);
     return {file:path,line:f.line,column:f.column ?? null,function:scrub(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};
-  }),breadcrumbs:(v.breadcrumbs??[]).map(scrub),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
+  }),breadcrumbs:(v.breadcrumbs??[]).map(scrub),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sdkSession !== undefined ? {sdkSession:sdkSessionReference(v.sdkSession)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
 }
 export async function hash(value: string): Promise<string> { return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(v=>v.toString(16).padStart(2,'0')).join('') }
 export function token(): string { return [...crypto.getRandomValues(new Uint8Array(32))].map(v=>v.toString(16).padStart(2,'0')).join('') }

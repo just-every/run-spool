@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d0accac22930f792e75b6455ddcb59ca3637a5b399a78c6bea29ba4e296ab19a",
+      "sha256": "ed848c2677b2b397235fd48a39a8f76408c5e555d5231709ae8b35e7a6254ccc",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3253a294b804fa73613d35a556fc49df63f632358d4c3960975af3a5395f3869",
+      "sha256": "4295ce6456250eb45b934b25fdffe4e778a4bbb925dc68c18be78ea36a275331",
       "executable": false
     },
     "DEMO.md": {
@@ -2989,7 +2989,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "sha256": "eead4e97c0459f2b524a87f74bcbb2fecc293535f855741e8c2c83c512a220d3",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -4213,7 +4213,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "8d4c63a78be859a693bf558dbe45f0fd466bf4e3ac6e779e1a93ca7984e1b860",
+      "sha256": "3d21e994632bdbd750818c7403d5b7f086e947b946133b8f00c12c0e8ebb9a8f",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -5337,7 +5337,7 @@
       "executable": false
     },
     "src/domain/investigation/impact.ts": {
-      "sha256": "7154e0d2562f219b59db92530ec3d2ad87ddfc238260ab4fd328f9effa01eeaf",
+      "sha256": "c1fc94322957d560a383950b92c854aa523042f2b6cb2117cbcd8666cf60e7cd",
       "executable": false
     },
     "src/domain/investigation/query.ts": {
@@ -5521,7 +5521,7 @@
       "executable": false
     },
     "src/domain/privacy.ts": {
-      "sha256": "68b5f3194734d5a818dae023cd5a67dc1b5faae7704536343b8b51b1f581377a",
+      "sha256": "a9fba91eab219dbb718e2c0b1e992fcc24b4ac797e19068d8996c40184babcfd",
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
@@ -5869,7 +5869,7 @@
       "executable": false
     },
     "src/domain/sentry/convert.ts": {
-      "sha256": "ee19b42058a3b87b79043b41b1cbe107ad51a43613af4f3515e47def536d90a1",
+      "sha256": "1ffbe37ce2f62834a393d20c57fc17f631a548bc72a91f1dfc7ced67139901e6",
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
@@ -8381,7 +8381,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueImpact.tsx": {
-      "sha256": "00145de24721dcb869cab7c30a8dabcdf63dafad90731621af61bb35bd507a0f",
+      "sha256": "953373d1715130bdae4c84289c26eb3ae684bc9b8544464690ab2ed315c97da4",
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
@@ -8833,7 +8833,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "ccd1dc5fd74dd03ae7bfeb7ae465dc88e8046ef2a1c7242d448cc82f430c0f09",
+      "sha256": "cc8f558d0a99101037ccd2ed07ae683894d9cac2df4259d0c7ecf2755ff7fe92",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {

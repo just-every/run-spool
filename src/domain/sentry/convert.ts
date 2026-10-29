@@ -1,5 +1,5 @@
 import { sentryRelease } from '../releases/identity.ts';
-import { normalize, type Envelope, type Frame } from '../privacy.ts';
+import { normalize, sdkSessionReference, type Envelope, type Frame } from '../privacy.ts';
 import { sanitizeSentry } from './evidence';
 import { SentryWireError, isErrorEventType, type WireObject } from './wire.ts';
 import { sentryDistBuild } from '../releases/build.ts';
@@ -17,6 +17,9 @@ export function convertSentry(value: WireObject, envelopeId?: unknown,identityRe
  const exceptions=Array.isArray(value.exception?.values)?value.exception.values:Array.isArray(value.exception)?value.exception:[];
  const crumbs=Array.isArray(value.breadcrumbs)?value.breadcrumbs:value.breadcrumbs?.values;
  const sentry=sanitizeSentry({...value,user:undefined,grouping:undefined,release:releaseIdentity.name||undefined,version:1,environment:value.environment??'production',level:value.level??(exceptions.length?'error':'info'),exceptions,threads:Array.isArray(value.threads)?value.threads:value.threads?.values,breadcrumbs:Array.isArray(crumbs)?crumbs:[],truncation:[...releaseIdentity.note?[{path:'release',reason:releaseIdentity.note}]:[],...value.user!==undefined?[{path:'user',reason:identityReason??'identity_policy_unavailable'}]:[]]});
+ // Retain only the typed SDK reference beside the scrubbed event. Generic
+ // session context stays redacted; packet projection excludes this reference.
+ const sdkSession=sdkSessionReference(value.contexts?.session?.sid);
  const exception=sentry.exceptions.at(-1);
  const stack=exception?.stacktrace??sentry.stacktrace??[...sentry.exceptions].reverse().find(e=>e.stacktrace)?.stacktrace;
  const images=Array.isArray(sentry.debug_meta?.images)?sentry.debug_meta.images:[];
@@ -31,5 +34,5 @@ export function convertSentry(value: WireObject, envelopeId?: unknown,identityRe
   if(frames.length===30)break;
  }
  const breadcrumbs=(sentry.breadcrumbs??[]).filter(crumb=>typeof crumb.message==='string').slice(-20).map(crumb=>`${typeof crumb.category==='string'?crumb.category.slice(0,100)+': ':''}${crumb.message}`);
- return normalize({version:1,...(language?{language}:{}),eventId:eventId.toLowerCase(),release:releaseIdentity.name,build:sentryDistBuild(value.dist),environment:value.environment??'production',type:exception?.type??(exceptions.length?'Error':'Message'),message:exception?.value??sentry.logentry?.formatted??sentry.message??sentry.logentry?.message??'',frames,breadcrumbs,sentry});
+ return normalize({version:1,...(language?{language}:{}),eventId:eventId.toLowerCase(),release:releaseIdentity.name,build:sentryDistBuild(value.dist),environment:value.environment??'production',type:exception?.type??(exceptions.length?'Error':'Message'),message:exception?.value??sentry.logentry?.formatted??sentry.message??sentry.logentry?.message??'',frames,breadcrumbs,...sdkSession?{sdkSession}:{},sentry});
 }
