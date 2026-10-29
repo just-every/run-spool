@@ -1,0 +1,353 @@
+name: Diagnose agent handoff
+
+# Throwaway measurement only; never land this workflow.
+on:
+  push:
+    branches: [cloud/sd-spool-d2-fix1-diag]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    name: agent-handoff (${{ matrix.ref }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      RER_SERVERS_DISK_FLOOR_GIB: '4'
+      NODE_DEBUG: '@cloudflare:vite-plugin'
+      DIAG_REF: ${{ matrix.ref }}
+      DIAG_SHA: ${{ matrix.sha }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ref: merge
+            sha: d78453bea973398eba9d7848c73972dff9b6d8a5
+          - ref: main
+            sha: 7a898e4fce31e24ff97f0a385204c24b83c603c1
+    steps:
+      # Same checkout root, pins, install, build and shard environment as Verify.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Check source and portable contract
+        run: |
+          pnpm run check -- --profile first-party
+          pnpm source:check
+          node src/base/contract-docs.mjs check
+          node scripts/edition-authoring/cli.mjs verify-base --offline
+      - name: Build application
+        run: pnpm run build:app
+      - name: Check integration and types
+        run: |
+          pnpm integration:check
+          pnpm typecheck
+      - run: pnpm exec playwright install chromium
+        env:
+          DEBUG: pw:install
+      - name: Run suites (attempt 1/5)
+        continue-on-error: true
+        env:
+          DIAG_ATTEMPT: '1'
+        shell: python
+        run: |
+          import json, os, re, shutil, subprocess, time
+          from pathlib import Path
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          directory.mkdir(parents=True, exist_ok=True)
+          attempt = int(os.environ['DIAG_ATTEMPT'])
+          # Capture names must describe this attempt, rather than a previous one.
+          captures = Path('.artifacts/agent-handoff')
+          if captures.exists():
+              shutil.rmtree(captures)
+          log = directory / f'attempt-{attempt}.log'
+          started = time.monotonic()
+          with log.open('w') as stream:
+              process = subprocess.Popen(
+                  ['bash', '-e', '-c', 'pnpm test:agent-handoff && pnpm test:privacy'],
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+              for line in process.stdout:
+                  stream.write(line)
+                  print(line, end='', flush=True)
+              code = process.wait()
+          seconds = round(time.monotonic() - started, 3)
+          text = log.read_text()
+          failure = None
+          for line in text.splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('journey') == 'agent-handoff' and value.get('type'):
+                  failure = value
+                  break
+          message = failure.get('message') if failure else None
+          if code and not message:
+              message = next((line for line in reversed(text.splitlines())
+                              if re.search(r'Error|assert|failed|ELIFECYCLE', line)), 'See attempt log')
+          result = {
+              'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+              'attempt': attempt, 'result': 'pass' if code == 0 else 'fail',
+              'exit_code': code, 'wall_seconds': seconds,
+              'failing_step': None if code == 0 else (
+                  'test:privacy' if '> node tests/privacy-table.mjs' in text else 'test:agent-handoff'),
+              'message': message, 'failure': failure,
+              'captures': sorted(path.name for path in captures.glob('*.png')),
+          }
+          (directory / f'attempt-{attempt}.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('DIAG_RESULT ' + json.dumps(result), flush=True)
+          raise SystemExit(code)
+      - name: Run suites (attempt 2/5)
+        continue-on-error: true
+        env:
+          DIAG_ATTEMPT: '2'
+        shell: python
+        run: |
+          import json, os, re, shutil, subprocess, time
+          from pathlib import Path
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          directory.mkdir(parents=True, exist_ok=True)
+          attempt = int(os.environ['DIAG_ATTEMPT'])
+          # Capture names must describe this attempt, rather than a previous one.
+          captures = Path('.artifacts/agent-handoff')
+          if captures.exists():
+              shutil.rmtree(captures)
+          log = directory / f'attempt-{attempt}.log'
+          started = time.monotonic()
+          with log.open('w') as stream:
+              process = subprocess.Popen(
+                  ['bash', '-e', '-c', 'pnpm test:agent-handoff && pnpm test:privacy'],
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+              for line in process.stdout:
+                  stream.write(line)
+                  print(line, end='', flush=True)
+              code = process.wait()
+          seconds = round(time.monotonic() - started, 3)
+          text = log.read_text()
+          failure = None
+          for line in text.splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('journey') == 'agent-handoff' and value.get('type'):
+                  failure = value
+                  break
+          message = failure.get('message') if failure else None
+          if code and not message:
+              message = next((line for line in reversed(text.splitlines())
+                              if re.search(r'Error|assert|failed|ELIFECYCLE', line)), 'See attempt log')
+          result = {
+              'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+              'attempt': attempt, 'result': 'pass' if code == 0 else 'fail',
+              'exit_code': code, 'wall_seconds': seconds,
+              'failing_step': None if code == 0 else (
+                  'test:privacy' if '> node tests/privacy-table.mjs' in text else 'test:agent-handoff'),
+              'message': message, 'failure': failure,
+              'captures': sorted(path.name for path in captures.glob('*.png')),
+          }
+          (directory / f'attempt-{attempt}.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('DIAG_RESULT ' + json.dumps(result), flush=True)
+          raise SystemExit(code)
+      - name: Run suites (attempt 3/5)
+        continue-on-error: true
+        env:
+          DIAG_ATTEMPT: '3'
+        shell: python
+        run: |
+          import json, os, re, shutil, subprocess, time
+          from pathlib import Path
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          directory.mkdir(parents=True, exist_ok=True)
+          attempt = int(os.environ['DIAG_ATTEMPT'])
+          # Capture names must describe this attempt, rather than a previous one.
+          captures = Path('.artifacts/agent-handoff')
+          if captures.exists():
+              shutil.rmtree(captures)
+          log = directory / f'attempt-{attempt}.log'
+          started = time.monotonic()
+          with log.open('w') as stream:
+              process = subprocess.Popen(
+                  ['bash', '-e', '-c', 'pnpm test:agent-handoff && pnpm test:privacy'],
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+              for line in process.stdout:
+                  stream.write(line)
+                  print(line, end='', flush=True)
+              code = process.wait()
+          seconds = round(time.monotonic() - started, 3)
+          text = log.read_text()
+          failure = None
+          for line in text.splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('journey') == 'agent-handoff' and value.get('type'):
+                  failure = value
+                  break
+          message = failure.get('message') if failure else None
+          if code and not message:
+              message = next((line for line in reversed(text.splitlines())
+                              if re.search(r'Error|assert|failed|ELIFECYCLE', line)), 'See attempt log')
+          result = {
+              'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+              'attempt': attempt, 'result': 'pass' if code == 0 else 'fail',
+              'exit_code': code, 'wall_seconds': seconds,
+              'failing_step': None if code == 0 else (
+                  'test:privacy' if '> node tests/privacy-table.mjs' in text else 'test:agent-handoff'),
+              'message': message, 'failure': failure,
+              'captures': sorted(path.name for path in captures.glob('*.png')),
+          }
+          (directory / f'attempt-{attempt}.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('DIAG_RESULT ' + json.dumps(result), flush=True)
+          raise SystemExit(code)
+      - name: Run suites (attempt 4/5)
+        continue-on-error: true
+        env:
+          DIAG_ATTEMPT: '4'
+        shell: python
+        run: |
+          import json, os, re, shutil, subprocess, time
+          from pathlib import Path
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          directory.mkdir(parents=True, exist_ok=True)
+          attempt = int(os.environ['DIAG_ATTEMPT'])
+          # Capture names must describe this attempt, rather than a previous one.
+          captures = Path('.artifacts/agent-handoff')
+          if captures.exists():
+              shutil.rmtree(captures)
+          log = directory / f'attempt-{attempt}.log'
+          started = time.monotonic()
+          with log.open('w') as stream:
+              process = subprocess.Popen(
+                  ['bash', '-e', '-c', 'pnpm test:agent-handoff && pnpm test:privacy'],
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+              for line in process.stdout:
+                  stream.write(line)
+                  print(line, end='', flush=True)
+              code = process.wait()
+          seconds = round(time.monotonic() - started, 3)
+          text = log.read_text()
+          failure = None
+          for line in text.splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('journey') == 'agent-handoff' and value.get('type'):
+                  failure = value
+                  break
+          message = failure.get('message') if failure else None
+          if code and not message:
+              message = next((line for line in reversed(text.splitlines())
+                              if re.search(r'Error|assert|failed|ELIFECYCLE', line)), 'See attempt log')
+          result = {
+              'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+              'attempt': attempt, 'result': 'pass' if code == 0 else 'fail',
+              'exit_code': code, 'wall_seconds': seconds,
+              'failing_step': None if code == 0 else (
+                  'test:privacy' if '> node tests/privacy-table.mjs' in text else 'test:agent-handoff'),
+              'message': message, 'failure': failure,
+              'captures': sorted(path.name for path in captures.glob('*.png')),
+          }
+          (directory / f'attempt-{attempt}.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('DIAG_RESULT ' + json.dumps(result), flush=True)
+          raise SystemExit(code)
+      - name: Run suites (attempt 5/5)
+        continue-on-error: true
+        env:
+          DIAG_ATTEMPT: '5'
+        shell: python
+        run: |
+          import json, os, re, shutil, subprocess, time
+          from pathlib import Path
+
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          directory.mkdir(parents=True, exist_ok=True)
+          attempt = int(os.environ['DIAG_ATTEMPT'])
+          # Capture names must describe this attempt, rather than a previous one.
+          captures = Path('.artifacts/agent-handoff')
+          if captures.exists():
+              shutil.rmtree(captures)
+          log = directory / f'attempt-{attempt}.log'
+          started = time.monotonic()
+          with log.open('w') as stream:
+              process = subprocess.Popen(
+                  ['bash', '-e', '-c', 'pnpm test:agent-handoff && pnpm test:privacy'],
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+              for line in process.stdout:
+                  stream.write(line)
+                  print(line, end='', flush=True)
+              code = process.wait()
+          seconds = round(time.monotonic() - started, 3)
+          text = log.read_text()
+          failure = None
+          for line in text.splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('journey') == 'agent-handoff' and value.get('type'):
+                  failure = value
+                  break
+          message = failure.get('message') if failure else None
+          if code and not message:
+              message = next((line for line in reversed(text.splitlines())
+                              if re.search(r'Error|assert|failed|ELIFECYCLE', line)), 'See attempt log')
+          result = {
+              'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+              'attempt': attempt, 'result': 'pass' if code == 0 else 'fail',
+              'exit_code': code, 'wall_seconds': seconds,
+              'failing_step': None if code == 0 else (
+                  'test:privacy' if '> node tests/privacy-table.mjs' in text else 'test:agent-handoff'),
+              'message': message, 'failure': failure,
+              'captures': sorted(path.name for path in captures.glob('*.png')),
+          }
+          (directory / f'attempt-{attempt}.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('DIAG_RESULT ' + json.dumps(result), flush=True)
+          raise SystemExit(code)
+      - name: Summarize all five attempts
+        if: always()
+        shell: python
+        run: |
+          import json, os
+          from pathlib import Path
+          directory = Path(os.environ['RUNNER_TEMP']) / 'agent-handoff-diag'
+          results = [json.loads(path.read_text()) for path in sorted(directory.glob('attempt-*.json'))]
+          failed = sum(row['result'] == 'fail' for row in results)
+          summary = {'ref': os.environ['DIAG_REF'], 'sha': os.environ['DIAG_SHA'],
+                     'attempts': len(results), 'failed': failed, 'passed': len(results) - failed}
+          print('DIAG_SUMMARY ' + json.dumps(summary))
+          directory.mkdir(parents=True, exist_ok=True)
+          (directory / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+              stream.write(f"## {summary['ref']} ({summary['sha']})\n\n")
+              stream.write(f"{failed}/{len(results)} attempts failed.\n\n")
+              for row in results:
+                  stream.write(f"- Attempt {row['attempt']}: {row['result']}, {row['wall_seconds']} s; "
+                               f"step={row['failing_step']}; message={row['message']}\n")
+          if len(results) != 5:
+              raise SystemExit('Diagnostic setup/infrastructure failure: fewer than five completed attempts')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-handoff-diag-${{ matrix.ref }}
+          path: ${{ runner.temp }}/agent-handoff-diag/
+          if-no-files-found: error
+          retention-days: 7
