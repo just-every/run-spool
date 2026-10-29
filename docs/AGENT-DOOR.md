@@ -107,6 +107,14 @@ or read another project. Dev-minted keys still require the private local gate
 and are refused by the deployed entry. A failed Business JWT never falls back
 to a project key.
 
+Retry a supported mutation with its original arguments and idempotency key.
+A fresh key asks for a new operation; it does not reset a single-use runner
+claim, reapply an already applied correction or bypass a destination's send
+window. The revoke-only credential tool has a closed target-only schema:
+undeclared confirmation, class or grant fields refuse with `invalid_arguments`
+before changing a native credential. Send only its declared identifier and the
+door's idempotency key.
+
 Native tools contain bounded projections and mark outside text untrusted.
 Packets never grant raw identity, source-map bytes, source bytes or credentials.
 Private reads are policy decisions. Native person and agent changes retain
@@ -138,7 +146,8 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
-catalogue acknowledgement limit, fresh-key injection probes, native runner event
+catalogue acknowledgement limit, fresh-key injection probes, the shared
+narrowing/injection assertion conflict, native runner event
 identity, held erasure custody, standing-worker admission and refused approval
 execution accounting. Standing-worker admission also requires seed integration;
 the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,

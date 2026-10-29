@@ -2904,7 +2904,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "7b5712141a839d78a87ea235f13e1d1be81d9ad78a74d825c595dd5c8a131309",
+      "sha256": "87754ad0af0ddfd460858662f8b215f95116eac29311867a4b46a4a6616f25eb",
       "executable": false
     },
     "docs/agents.md": {
@@ -10036,7 +10036,7 @@
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
-      "sha256": "18bd491f1302a374f2cbdfd6bf188a74297315a09d471b9b2ac35f603e41b187",
+      "sha256": "90a0b2f437a9f31749db14f9871797c794322507cde396e08a84a790df2d47cb",
       "executable": false
     },
     "tests/agent-door/github-binding.mjs": {
@@ -10060,7 +10060,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "7a39988fb2a075cad3a50c9350f840f1dc00c6cfa8e586839d47294fb13ae4f4",
+      "sha256": "faec544ff9af217be2dd2639f4baee49e581c2b4f9ebd5ca199dffadccbb6d76",
       "executable": false
     },
     "tests/agent-door/people.mjs": {
