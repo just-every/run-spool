@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 13 | 50 | 24 | 87 |
+| Core | 14 | 49 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 13 | 50 | 29 | 92 |
+| Full target | 14 | 49 | 29 | 92 |
 
-Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `21af5507c22d3509e6a0116186c687f5ac0d509b` (29 October 2026). ERR-005 source-map identity outcomes are covered by the Agent handoff public journey, including actual second-origin minified capture, immutable admission, independently mismatched release and build, a fresh mapped capture and confidential source exclusion. The landing candidate adds explicit zero-based column proof and regenerates these documents; application source is unchanged. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -85,7 +85,7 @@ Core · published · **done** · Cites BASE-ACCESS-002, BASE-ACCESS-003, BASE-AC
 
 #### ERR-005 — Source map identity
 
-Core · published · **partial** · Cites BASE-INPUT-003
+Core · published · **done** · Cites BASE-INPUT-003
 
 **Requirement.** Private flat Source Map V3 lookup matches project, release, build, debug ID and SHA-256 before presenting original coordinates. Missing, invalid or mismatched maps retain generated frames and a reason. Late uploads never rewrite immutable admission snapshots; current lookup is labeled separately. Lines are one-based, columns zero-based. SRC-004 carries indexed maps, `sourceRoot`, published capacity and opt-in source fetching; outside that opt-in, Spool never fetches a remote URL. SDK-010 rich stacks retain up to 1,000 frames per exception; SRC-004 and this clause inherit expanded mapped lookup without discarding retained SDK stack evidence. Broader artifact processing is SRC-001 and SDK-002.
 
@@ -96,8 +96,8 @@ Core · published · **partial** · Cites BASE-INPUT-003
 4. keeps generated frames with a reason when the uploaded map does not match;
 5. and its evidence packet excludes the confidential source.
 
-**Evidence.** `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs`
-**Gap.** Not asserted in the cited tests: unchanged admission diagnostics after a late upload, with current lookup labelled separately; generated frames with a reason for a mismatched map; and the packet's exclusion of confidential source (asserted in tests/agent-handoff.mjs and tests/product-runtime.mjs, which this clause does not cite). Asserted: generated frames before the upload and original coordinates after it.
+**Evidence.** `tests/agent-handoff.mjs` Agent handoff public journey: real second-origin minified exception before upload (generated frames and missing_artifact); matching upload (unchanged full atAdmission snapshot beside mapped currentLookup); independent release and build mismatches (unchanged generated frames, identity_mismatch reason and no original coordinates); fresh matching capture (original file, one-based line and zero-based column at admission); confidential sourcesContent canary excluded from HTTP and MCP packets. `tests/agent-handoff/packet.mjs` generatedFrames and compatible assertions; `tests/triage-journey.mjs` Triage public journey (original coordinates in the issue view); `tests/sentry-sdk.mjs` source-map SDK journey. Source: `src/domain/artifacts.ts`; `src/domain/packet.ts`.
+**Gap.** None.
 
 #### ERR-006 — Audited triage and regression
 

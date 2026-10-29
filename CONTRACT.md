@@ -1428,15 +1428,17 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 ## Status
 
+Judged from the code and tests at commit `21af5507c22d3509e6a0116186c687f5ac0d509b` (29 October 2026). ERR-005 source-map identity outcomes are covered by the Agent handoff public journey, including actual second-origin minified capture, immutable admission, independently mismatched release and build, a fresh mapped capture and confidential source exclusion. The landing candidate adds explicit zero-based column proof and regenerates these documents; application source is unchanged. Other clauses retain their recorded judgments.
+
 Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments.
 
 Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639fb0` (23 October 2026).
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 5 | 7 | 0 | 12 |
+| Published | 6 | 6 | 0 | 12 |
 | Target and push further | 8 | 43 | 29 | 80 |
-| All | 13 | 50 | 29 | 92 |
+| All | 14 | 49 | 29 | 92 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1444,7 +1446,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `ERR-002` | Atomic acceptance | published | done | `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs` |  |
 | `ERR-003` | Scrub before storage | published | done | `src/domain/privacy.ts`; `src/domain/scrub.ts`; `tests/privacy-table.mjs` |  |
 | `ERR-004` | Separated authority | published | done | `src/domain/api.ts`; `src/domain/credential-fence.ts`; `src/domain/agent-access.ts`; `tests/agent-handoff.mjs`; `tests/dev-credentials.mjs` |  |
-| `ERR-005` | Source map identity | published | partial | `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs` | Not asserted in the cited tests: unchanged admission diagnostics after a late upload, with current lookup labelled separately; generated frames with a reason for a mismatched map; and the packet's exclusion of confidential source (asserted in tests/agent-handoff.mjs and tests/product-runtime.mjs, which this clause does not cite). Asserted: generated frames before the upload and original coordinates after it. |
+| `ERR-005` | Source map identity | published | done | `tests/agent-handoff.mjs` Agent handoff public journey: real second-origin minified exception before upload (generated frames and missing_artifact); matching upload (unchanged full atAdmission snapshot beside mapped currentLookup); independent release and build mismatches (unchanged generated frames, identity_mismatch reason and no original coordinates); fresh matching capture (original file, one-based line and zero-based column at admission); confidential sourcesContent canary excluded from HTTP and MCP packets. `tests/agent-handoff/packet.mjs` generatedFrames and compatible assertions; `tests/triage-journey.mjs` Triage public journey (original coordinates in the issue view); `tests/sentry-sdk.mjs` source-map SDK journey. Source: `src/domain/artifacts.ts`; `src/domain/packet.ts`. |  |
 | `ERR-006` | Audited triage and regression | published | partial | `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs` | Not asserted in the cited tests: the issue's reopened state after a newer-release event, and a later older-release event leaving a release-resolved issue closed (both asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: the newer-release regression alert and its single delivery, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership. |
 | `ERR-007` | Sanitized evidence packet | published | partial | `src/domain/packet.ts`; `src/domain/agent-projection.ts`; `packages/agent/bin/spool-agent.mjs`; `tests/agent-handoff.mjs` | Not asserted in the cited test: the CLI packet matching the HTTP packet as a whole projection (only its issue id, short ID and one event's text are compared). Asserted: MCP equality, the size, retention, import and loss gaps, no secrets or source bytes, no writes and cross-project refusal. |
 | `ERR-008` | Loss counters and repair observation | published | done | `src/domain/repairs/observation.ts`; `src/domain/exposure/proof.ts`; `src/domain/sentry/client-reports.ts`; `tests/client-report-flow.mjs`; `tests/repair-recovery.mjs` |  |

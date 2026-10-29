@@ -75,7 +75,7 @@ try{
  secondOrigin.map.sourcesContent=secondOrigin.map.sourcesContent.map(source=>source+'\n// HANDOFF_SOURCE_CONTENT');await json('/api/projects/a/artifacts','POST',{release:'z-release',build:'build-z',debugId:'dispatch-map',map:secondOrigin.map});
  const real=await json(realPath,'GET',undefined,agent),late=real.events.find(row=>row.id===captured.id);
  assert.deepEqual(late.atAdmission,realSnapshot,'late upload preserves the complete admission diagnostic snapshot');assert.deepEqual(late.event,captured.event);assert.equal(late.digest,captured.digest);assert.equal(late.occurrence,captured.occurrence);
- assert.deepEqual(late.currentLookup.map(frame=>frame.generated),generated);assert.equal(late.currentLookup[0].status,'mapped');assert.equal(late.currentLookup[0].original.file,'cedar-dispatch.js');assert.equal(late.currentLookup[0].original.line,secondOrigin.originalLine);assert.equal(late.currentLookup[0].original.function,'deliveryAddress');gap(real,/late_map/);compatible(real);
+ assert.deepEqual(late.currentLookup.map(frame=>frame.generated),generated);assert.equal(late.currentLookup[0].status,'mapped');assert.equal(late.currentLookup[0].original.file,'cedar-dispatch.js');assert.equal(late.currentLookup[0].original.line,secondOrigin.originalLine);assert.equal(late.currentLookup[0].original.column,secondOrigin.originalColumn,'original columns are zero-based');assert.equal(late.currentLookup[0].original.function,'deliveryAddress');gap(real,/late_map/);compatible(real);
  // Release and build are independently part of the map identity. The browser
  // throws the same minified code again; neither mismatch may borrow its map.
  await json('/api/projects/a/releases','POST',{name:'synthetic-spool-24',build:'build-z'});
