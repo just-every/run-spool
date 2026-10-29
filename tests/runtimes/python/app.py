@@ -20,6 +20,7 @@ sentry_sdk.init(
 )
 # A command-line program tracks one application-mode session (release health needs a release).
 sentry_sdk.start_session()
+sentry_sdk.set_tag("tenant", "acme")
 mode = sys.argv[1]
 
 

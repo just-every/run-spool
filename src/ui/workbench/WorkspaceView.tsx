@@ -10,13 +10,14 @@ import { EvidenceRail } from './EvidenceRail';
 import { CaptureView } from './CaptureView';
 import { ReleasesView, type UploadTarget } from './ReleasesView';
 import { SettingsView } from './SettingsView';
+import { ReportsView } from './ReportsView';
 import { AgentHandoff } from './AgentHandoff';
 import { SentryIntake } from './SdkSetup';
 import { MissingContent } from './NotFound';
 import { useDraft } from './shared';
 import type { useWorkspace } from './useWorkspace';
 
-const titles = { issues: 'Issues', releases: 'Releases and source maps', capture: 'Connect your application', settings: 'Settings', alerts: 'Alerts' };
+const titles = { issues: 'Issues', releases: 'Releases and source maps', capture: 'Connect your application', settings: 'Settings', alerts: 'Alerts', reports: 'Reports' };
 const descriptions = { settings: 'Manage projects, access and stored evidence.', alerts: 'Review alerts, delivery rules and their outcomes.' };
 export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: ReturnType<typeof useWorkspace>; data: ReturnType<typeof useProjectData>; renderAlerts: (project: string, onIssue: (id: string) => void) => ReactNode }) {
   const { projects, ownerName, access, revision, notice, busy, run, refresh } = workspace;
@@ -46,6 +47,8 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
       : <IssueList key={`issues-${project}`} project={project} readOnly={readOnly} rows={data.issues} unseen={attention.unseen} loading={data.loading} failed={!!data.failed} onRefresh={refresh} onSetup={() => route.go(project, 'capture')} />;
   } else if (route.view === 'releases') {
     content = <ReleasesView key={`releases-${project}`} {...controls} readOnly={readOnly} manageOrganization={manageOrganization} selectedRelease={route.release} sourceMapSetup={route.section === 'source-maps'} loading={data.loading} releases={data.releases} target={target?.project === project ? target : undefined} onUploaded={onIssue} />;
+  } else if (route.view === 'reports') {
+    content = <ReportsView key={`reports-${project}`} project={project} projects={projects} configure={manageProject && !readOnly} />;
   } else if (route.view === 'capture') {
     content = <CaptureView key={`capture-${project}`} {...controls} readOnly={readOnly} manageProject={manageProject} manageOrganization={manageOrganization} onIssue={onIssue} releases={data.releases} issues={data.issues} outcomes={data.outcomes} onReleases={() => route.go(project, 'releases')} />;
   } else {
