@@ -8637,7 +8637,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "c6c041fbc4baeb00338feae47832d995fa4f58b95b1d99a19a1b9fefa2ebf09b",
+      "sha256": "59e05ab568b4b0b50e02a5fd6055dcc1aea43620c1253da1604917ed0236edb5",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -9061,7 +9061,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "30064d48c34e215345a21583c7ced2c70d6639c5583a69253a20af47ba2f6bcf",
+      "sha256": "93c88f668dbe6299262f7a33c2c7c169d243631bbe425c210f82f81359ad498f",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
