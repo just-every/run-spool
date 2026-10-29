@@ -2640,7 +2640,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4cf13443cf76eb10ef4ef196ae7db096154861f59106129ea22829b6aaeb8b96",
+      "sha256": "65d6bf46ae8e8087dc5e1df4a7cac132cdff6970c69d6996b06c5a6622a62627",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2656,7 +2656,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "4a7ca82a82118cc224d33b882ddad7086d3408d5096b71f0bf4ae5deab029980",
+      "sha256": "c46026e3cfed736ff64de0bd5fc6721548a0ff085d70adcc9e0068028c9c8307",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -2672,7 +2672,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ad292dba8d986207dc2576c49f10021add53e9f1f332275c4a5a5f62fbb23605",
+      "sha256": "69f4bd07663cc1e23554c40bfea317f8de9f9ba82ea8fd9d0f1196a3c26e864b",
       "executable": false
     },
     "DEMO.md": {
@@ -4084,7 +4084,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "c3826418dc38ac51a159af3fc9973f78ce1db250f61733492de4eec9fe98f223",
+      "sha256": "5c770b34d634a126e77cd07735f9b113ebc407fe6040a40efb2c71a2e20b780c",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -6912,7 +6912,7 @@
       "executable": false
     },
     "src/modules/agent-door/ADOPTING.md": {
-      "sha256": "7c52cbdbc2f76db48205f58eeb3168020fcfb21e8eea3d7af9da9ab9fce6c4c1",
+      "sha256": "f92e6df2b1c61ff752c21e513d6146421cacdac2edaedf229ddf6d7b573348dc",
       "executable": false
     },
     "src/modules/agent-door/approval-execution.ts": {
@@ -7120,7 +7120,7 @@
       "executable": false
     },
     "src/modules/agent-door/pipeline.ts": {
-      "sha256": "90641d220b2a752b3496bf50935df4d17840cd5844885cef72bcc8e7ee3d982e",
+      "sha256": "2318f7d8410c765c5768a2b9275c744be85dd93d4021c457d39485fe98a59293",
       "executable": false
     },
     "src/modules/agent-door/policy-store.ts": {
@@ -9280,7 +9280,7 @@
       "executable": false
     },
     "src/modules/portability/bridge.mjs": {
-      "sha256": "075fc380051b52ff8498680b32b40278ad8ce9f542231ccb076fd56ea38d9c5c",
+      "sha256": "896d465302f9a6b9342d73e88e0b86d67b0b09848d4776ca391f480133e96215",
       "executable": false
     },
     "src/modules/portability/catalogue.mjs": {
@@ -9356,7 +9356,7 @@
       "executable": false
     },
     "src/modules/portability/import.mjs": {
-      "sha256": "c98c5d1d325886fbd482522a903869e71b9a34b7b9ac656d51a3743abbe96473",
+      "sha256": "3a501d4b50a1fb66b783535b56fd3dc662371f9a012091bb44fcec07e06dd328",
       "executable": false
     },
     "src/modules/portability/index.d.mts": {
@@ -9416,7 +9416,7 @@
       "executable": false
     },
     "src/modules/portability/README.md": {
-      "sha256": "0aa2a155afc47714e2b81c8106ceacdc9a0aad19dbaa15f4cdee8d2f4dbb7f81",
+      "sha256": "7cc80130cfa2d1f553ae92c49f6980f30c7fedd1ee4a87bcf2ec5aae18d5cd30",
       "executable": false
     },
     "src/modules/portability/rebuilds.mjs": {
