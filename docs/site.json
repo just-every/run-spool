@@ -24,6 +24,11 @@
           "label": "Connect your app"
         },
         {
+          "slug": "framework-setup",
+          "source": "docs/FRAMEWORK-SETUP.md",
+          "label": "Set up your framework"
+        },
+        {
           "slug": "supported-languages",
           "source": "docs/SUPPORTED-LANGUAGES.md",
           "label": "Python and Go exceptions"
