@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "15cb94f145f921cbc1d859045f594686a8209654300bcc8ccd82c10cefe7946b",
+      "sha256": "87baa70894ccbbe592ef20b62d41e9e95e257af0801346957da31753958418db",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "61a07350e7d12dacd393126ba22a5c7f4bec9f776c46309f5f5d370b5808fb9b",
+      "sha256": "299a571f079d1a1c33fdf2ab1a2e535a7ada26844636a15ae0cf0daf84f2ad38",
       "executable": false
     },
     "DEMO.md": {
@@ -9189,7 +9189,7 @@
       "executable": false
     },
     "tests/runtimes/harness.mjs": {
-      "sha256": "7d40e04f0d293df587abcc49a0bbdeb00b97657628c6a777ebdcdd20b3bd6881",
+      "sha256": "6ffca19371d3321974773293260903f1a79c697ff3f3c4fcdf2e0045924a896e",
       "executable": false
     },
     "tests/runtimes/java.mjs": {
@@ -9261,11 +9261,11 @@
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
-      "sha256": "615c1747c9712cdfa353d82a201c68779aab4ef1efa53d113a017b44dc25b17f",
+      "sha256": "a18d159615069a751deb5a76a2af5b62dc3437e31427a8a646c89a769e50010d",
       "executable": false
     },
     "tests/runtimes/ruby/app.rb": {
-      "sha256": "f81ee5a2f34137f1c127fa63c8464251c60a666f86bd9d593dbe653632869959",
+      "sha256": "874a24056bccc90c8800736c3fe253eed399aaddf1cf8f5c0f4a10cef519a094",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
@@ -9297,7 +9297,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "bfda7221ec6a25228b710f7e641bdf407628cde0534d68210dfc37c6d7514acf",
+      "sha256": "edf65db92fbbaf84bb7f34c3c57ee58943bf7036160d1ef4b3e12642e279c03c",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
