@@ -1,4 +1,5 @@
 import {localRuntime} from './local-runtime.mjs';
+import {nativeRefusal,outcomeTotals} from './admission-proof.mjs';
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
 import { bundleGroupingFlow } from './bundle-grouping.mjs';
@@ -26,6 +27,7 @@ const runId=Date.now();
 let temporary,env,config,cfg,migrationFile,failure;
 const artifactDirectory=resolve('.artifacts'),output=workerOutput();
 const port=15469,origin=`http://127.0.0.1:${port}`;
+const clockEntry=resolve('dist/server/admission-clock-fixture.js');
 let worker,captureWorker,browser,miniflare;
 async function start(state,migrate=true){
  if(!process.argv.includes('--wrangler-proxy')){
@@ -85,6 +87,7 @@ try {
  env={...process.env,WRANGLER_SEND_METRICS:'false',WRANGLER_LOG_PATH:resolve(temporary,'logs')};
  config=JSON.parse(await readFile('dist/server/wrangler.json','utf8'));config.vars={...config.vars,...authBindings(origin)};config.assets.directory=resolve('dist/client');config.main=resolve('dist/server/index.js');
 if(process.argv.includes('--probe-request-path')){const probe=resolve('dist/server/duplicate-probe.js');await writeFile(probe,"import application from './index.js';export default {async fetch(request,env,ctx){const id=request.headers.get('x-fixture-request');console.log('DUPLICATE_PROBE_ENTER',id);try{const response=await application.fetch(request,env,ctx);console.log('DUPLICATE_PROBE_EXIT',id,response.status);return response}catch(error){console.log('DUPLICATE_PROBE_THROW',id);throw error}}};");config.main=probe;}
+else{await writeFile(clockEntry,`import application from './index.js';const realNow=Date.now;let now=null;Date.now=()=>now??realNow();export default {...application,async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/clock'){now=(await request.json()).now;return Response.json({})}return application.fetch(request,env,ctx)}};`);config.main=clockEntry;}
 cfg=resolve(temporary,'wrangler.json');await writeFile(cfg,JSON.stringify(config));
 migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationFile,(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n'));
  await start(resolve(temporary,'state-a'));
@@ -94,13 +97,17 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await setupLocation(false);
  const project=await json('/api/projects','POST',{id:'web',name:'Web app'});
  await setupLocation(true);
- await json('/api/projects','POST',{id:'other',name:'Other'});
+ const otherProject=await json('/api/projects','POST',{id:'other',name:'Other'});
  await json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});
  const auth={Authorization:`Bearer ${project.ingestKey}`};
  const event={version:1,eventId:'first',release:'r1',build:'b1',environment:'production',type:'TypeError',message:'failed token=test-spool-private-canary user@example.com',frames:[{file:'https://app.test/bundle.js?token=test-spool-url-canary',line:1,column:0,function:'upgrade',debugId:'d1'}],breadcrumbs:['password=test-spool-breadcrumb-canary']};
  const admitted=await json('/api/ingest/web','POST',event,auth);assert.equal(admitted.outcome,'accepted');
  assert.equal((await json('/api/ingest/web','POST',event,auth)).outcome,'duplicate');
- assert.equal((await req('/api/ingest/web','POST',{...event,message:'failed token=test-spool-conflicting-private-canary user@example.com'},auth)).status,409);
+ const refusal=options=>nativeRefusal({snapshot:()=>json('/api/archive'),project:'web',...options});
+ await refusal({send:()=>req('/api/ingest/web','POST',{...event,message:'failed token=test-spool-conflicting-private-canary user@example.com'},auth),status:409,outcome:'conflict',counter:'conflict'});
+ await refusal({send:()=>req('/api/ingest/web','POST',{...event,eventId:'foreign'},{Cookie:'',Authorization:`Bearer ${otherProject.ingestKey}`}),status:401,outcome:'rejected',reason:'invalid_ingest_key'});
+ await refusal({send:()=>req('/api/ingest/web','POST',{...event,eventId:'invalid',headers:{secret:'synthetic-spool-1'}},auth),status:400,outcome:'rejected',reason:'Unsupported envelope field',counter:'invalid'});
+ await refusal({send:()=>req('/api/ingest/web','POST',{...event,eventId:'oversized',message:'x'.repeat(40000)},auth),status:400,outcome:'rejected',reason:'Body exceeds limit',counter:'oversized'});
  const concurrent=await Promise.all(Array.from({length:6},()=>req('/api/ingest/web','POST',{...event,eventId:'concurrent'},auth)));assert.equal(concurrent.filter(r=>r.status===201).length,1);
  let groups=await json('/api/projects/web/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,2);assert.equal((await json('/api/projects/web/alerts')).length,1);
  // Real minified call chain through map upload, ingest and the issue packet.
@@ -167,8 +174,26 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  const duplicates=await Promise.all(Array.from({length:50},()=>req('/api/ingest/web','POST',event,auth)));const duplicateEvidence=await Promise.all(duplicates.map(async r=>({requestId:r.fixtureRequest,status:r.status,bodyBytes:(await r.clone().arrayBuffer()).byteLength})));await writeFile(resolve('.artifacts','duplicate-'+Date.now()+'.json'),JSON.stringify(duplicateEvidence,null,2));await writeFile(resolve('.artifacts','duplicate-state-'+runId+'.json'),JSON.stringify({beforeDuplicates,concurrentDuplicateResponses,duplicateStatuses:duplicateEvidence.map(r=>r.status),outcomes:await json('/api/projects/web/outcomes'),issueCount:(await json('/api/projects/web/issues')).length},null,2));assert.ok(duplicates.every(r=>r.status===200),'every exact retry is accepted as a duplicate');const duplicateCounters=await json('/api/projects/web/outcomes');assert.equal(duplicateCounters.rows.find(r=>r.reason==='duplicate').count-beforeDuplicates,concurrentDuplicateResponses+50);
  if(duplicateOnly){console.log('Exact duplicate investigation passed: three50-request cohorts plus50 existing-ID duplicates, unchanged accounting.');}else{
  const budgetProject=await json('/api/projects','POST',{id:'budget',name:'Budget test'});await json('/api/projects/budget/releases','POST',{name:'r1',build:'b1'});
+ // SQLite's receipt timestamp uses its own clock. Keep the concurrent burst
+ // inside that window while pinning the application's outcome-counter clock.
  if(Date.now()%60000>50000)await new Promise(r=>setTimeout(r,60000-Date.now()%60000+20));
- const burst=await Promise.all(Array.from({length:140},(_,i)=>req('/api/ingest/budget','POST',{...event,eventId:'budget-'+i},{Authorization:`Bearer ${budgetProject.ingestKey}`})));const burstEvidence=await Promise.all(burst.map(async r=>({requestId:r.fixtureRequest,status:r.status,bodyBytes:(await r.clone().arrayBuffer()).byteLength})));await writeFile(resolve('.artifacts','latest-burst-results.json'),JSON.stringify(burstEvidence,null,2));await writeFile(resolve('.artifacts','burst-'+Date.now()+'.json'),JSON.stringify(burstEvidence,null,2));assert.ok(burst.some(r=>r.status===201)&&burst.some(r=>r.status===429),'admission workload reaches a real capacity boundary');assert.ok(burst.every(r=>[201,429].includes(r.status)));const admittedCount=burst.filter(r=>r.status===201).length;const budgetGroups=await json('/api/projects/budget/issues');assert.equal(budgetGroups.reduce((n,g)=>n+g.count,0),admittedCount,'only admitted occurrences mutate aggregates');const budgetOutcomes=await json('/api/projects/budget/outcomes');assert.ok(!budgetOutcomes.rows.some(r=>r.reason==='storage_failure'));
+ const minute=Math.floor(Date.now()/60000)*60000+10000;if(!process.argv.includes('--probe-request-path'))await json('/__fixture/clock','POST',{now:minute});
+ try{
+  const beforeBurst=await json('/api/archive');
+  const burst=await Promise.all(Array.from({length:140},(_,i)=>req('/api/ingest/budget','POST',{...event,eventId:'budget-'+i},{Cookie:'',Authorization:`Bearer ${budgetProject.ingestKey}`})));
+  const burstEvidence=await Promise.all(burst.map(async(r,index)=>({eventId:'budget-'+index,requestId:r.fixtureRequest,status:r.status,retryAfter:r.headers.get('Retry-After'),body:await r.json()})));
+  await writeFile(resolve('.artifacts','latest-burst-results.json'),JSON.stringify(burstEvidence,null,2));await writeFile(resolve('.artifacts','burst-'+Date.now()+'.json'),JSON.stringify(burstEvidence,null,2));
+  assert.ok(burst.some(r=>r.status===201)&&burst.some(r=>r.status===429),'admission workload reaches a real capacity boundary');assert.ok(burst.every(r=>[201,429].includes(r.status)));
+  const admittedCount=burst.filter(r=>r.status===201).length;assert.equal(admittedCount,120,'the real project-minute boundary admits the published budget');
+  for(const row of burstEvidence.filter(row=>row.status===429)){assert.deepEqual(row.body,{outcome:'dropped',reason:'minute_budget',retryAfter:60});assert.equal(row.retryAfter,'60');}
+  const budgetGroups=await json('/api/projects/budget/issues');assert.equal(budgetGroups.reduce((n,g)=>n+g.count,0),admittedCount,'only admitted occurrences mutate aggregates');
+  const afterBurst=await json('/api/archive'),acceptedIds=burstEvidence.filter(row=>row.status===201).map(row=>row.eventId).sort();
+  assert.deepEqual(afterBurst.data.events.filter(row=>row.project==='budget').map(row=>row.id).sort(),acceptedIds,'every refused burst item leaves no occurrence');
+  assert.deepEqual(afterBurst.data.releases,beforeBurst.data.releases,'minute refusals create no release');assert.equal(afterBurst.data.alerts.filter(row=>row.project==='budget').length,1,'only the accepted issue creates an alert');
+  const expected=outcomeTotals(beforeBurst.data.outcomes);expected['budget:accepted']=admittedCount;expected['budget:rate_limited']=burst.length-admittedCount;assert.deepEqual(outcomeTotals(afterBurst.data.outcomes),expected,'every minute refusal is counted exactly once');
+  const budgetOutcomes=await json('/api/projects/budget/outcomes');assert.ok(!budgetOutcomes.rows.some(r=>r.reason==='storage_failure'));
+  await nativeRefusal({snapshot:()=>json('/api/archive'),send:()=>req('/api/ingest/budget','POST',{...event,eventId:'after-minute-limit'},{Cookie:'',Authorization:`Bearer ${budgetProject.ingestKey}`}),project:'budget',status:429,outcome:'dropped',reason:'minute_budget',counter:'rate_limited',retry:true});
+ }finally{if(!process.argv.includes('--probe-request-path'))await json('/__fixture/clock','POST',{now:null});}
  const older=await json('/api/ingest/web','POST',{...event,eventId:'retention-old',message:'RETENTION_OLD_CONTEXT',frames:[{...event.frames[0],function:'retentionCase'}]},auth);await new Promise(r=>setTimeout(r,20));const retentionCutoff=Date.now();await new Promise(r=>setTimeout(r,20));await json('/api/ingest/web','POST',{...event,eventId:'retention-new',message:'RETAINED_NEW_CONTEXT',frames:[{...event.frames[0],function:'retentionCase'}]},auth);
  await json('/api/ingest/web','POST',{...event,eventId:'long-title',message:'x'.repeat(1000),frames:[{...event.frames[0],function:'longTitle'}]},auth);
  for(const [index,message] of ['a@b.test '.repeat(111),'token=x '.repeat(125),'😀'.repeat(500)].entries())await json('/api/ingest/web','POST',{...event,eventId:'expanded-title-'+index,message,frames:[{...event.frames[0],function:'expandedTitle'+index}]},auth);
@@ -204,6 +229,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
   ['browser',async()=>{if(browser)await browser.close()}],
   ['product-worker',stop],
   ['temporary-files',async()=>{if(temporary)await rm(temporary,{recursive:true,force:true})}],
+  ['clock-fixture',()=>rm(clockEntry,{force:true})],
   ['request-probe',async()=>{if(process.argv.includes('--probe-request-path'))await rm(resolve('dist/server/duplicate-probe.js'),{force:true})}]
  ]});
  if(result.failed){console.error('Product acceptance failed:',JSON.stringify(result));process.exitCode=1}
