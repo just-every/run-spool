@@ -53,8 +53,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Set runner-owned pnpm store
+        run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: spool-ubuntu24-temp-store-${{ runner.arch }}-browser-false-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
 
       - name: Release or dry run
         id: mode
@@ -197,7 +201,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "$NODE_AUTH_TOKEN" ]]; then
-            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the org secret's Repository access (Settings > Secrets and variables > Actions > NPM_TOKEN)."
+            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the org secret Repository access (Settings > Secrets and variables > Actions > NPM_TOKEN)."
             exit 1
           fi
           cd "$RUNNER_TEMP/sdk-dist"

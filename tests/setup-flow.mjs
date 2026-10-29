@@ -72,15 +72,27 @@ try {
   await writeFile(outside, 'OUTSIDE=1\n');
   const later = await request('/api/projects', 'POST', { id: 'setup-later', name: 'Link swapped in' }), spool = new URL(origin);
   let swap;
-  hop = createServer((req, res) => req.pipe(httpRequest({ host: spool.hostname, port: spool.port, method: req.method, path: req.url, headers: req.headers }, async answer => {
-    const chunks = []; for await (const chunk of answer) chunks.push(chunk);
-    await swap(); res.writeHead(answer.statusCode, answer.headers).end(Buffer.concat(chunks));
-  })));
+  // The native host/DSN guard admits only its canonical origin. This network
+  // edge normalizes the proxy's envelope origin to that upstream origin while
+  // preserving its exact key, project and event bytes. No application admission
+  // or file-safety check is replaced, and the real intake receipt is held.
+  hop = createServer(async (req, res) => {
+    const chunks=[]; for await(const chunk of req)chunks.push(chunk);
+    const [first,...items]=Buffer.concat(chunks).toString().split('\n'),header=JSON.parse(first),incoming=new URL(header.dsn),target=new URL(later.dsn);
+    assert.equal(incoming.username,target.username);assert.equal(incoming.pathname,target.pathname);
+    header.dsn=later.dsn;
+    const body=Buffer.from([JSON.stringify(header),...items].join('\n')),headers={...req.headers,host:spool.host,'content-length':String(body.byteLength)};delete headers['transfer-encoding'];
+    const upstream=httpRequest({host:spool.hostname,port:spool.port,method:req.method,path:req.url,headers},async answer=>{
+      const received=[];for await(const chunk of answer)received.push(chunk);
+      await swap();res.writeHead(answer.statusCode,answer.headers).end(Buffer.concat(received));
+    });
+    upstream.on('error',()=>res.destroy());upstream.end(body);
+  });
   const hopPort = await new Promise(done => hop.listen(0, '127.0.0.1', () => done(hop.address().port)));
   for (const [shape, arrange, held] of [['link', root => symlink(outside, resolve(root, '.env'))], ['hard link', root => link(outside, resolve(root, '.env'))], ['link swapped in', root => { swap = () => symlink(outside, resolve(root, '.env')); }, true]]) {
     const root = await settingsOnly(shape.replaceAll(' ', '-')); await arrange(root);
     const run = await wizard(['--dsn', held ? later.dsn.replace(/@[^/]+\//, `@127.0.0.1:${hopPort}/`) : project.dsn, '--dir', root, '--apply', ...held ? [] : ['--no-test-event']]);
-    assert.equal(run.status, 1, `${shape}: refused`); assert.match(run.stderr, /\.env (is a link|shares its data)/); if (held) assert.match(run.stdout, /accepted by Spool/);
+    assert.equal(run.status, 1, `${shape}: refused`); assert.match(run.stderr, /\.env (is a link|shares its data)/, shape+': '+run.stdout.replace(/https?:\/\/[^\s]+/g,'<url>')); if (held) assert.match(run.stdout, /accepted by Spool/);
     assert.equal(await readFile(outside, 'utf8'), 'OUTSIDE=1\n', `${shape}: nothing written to the file outside the project`); await untouched(root, shape, ['.env']);
   }
   // A settings module that is not a dotted name gets no patch and no write (a patch git apply would refuse, before).

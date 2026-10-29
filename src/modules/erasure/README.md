@@ -188,6 +188,9 @@ the seed retires them in its own migration.
   retires imports whose headers hold the person's exact identifiers and writes
   the import erasure journal (import-kit `src/d1/README.md`).
 
+If a required retained row disappears, erasure refuses with `retained_row_missing`
+and leaves the work pending.
+
 ## Adopting
 
 Copy these files byte for byte to a folder the Worker build serves, such as
@@ -207,6 +210,7 @@ modules/erasure/scope.mjs
 modules/erasure/completion.mjs
 modules/erasure/verification.mjs
 modules/erasure/cascade.mjs
+modules/erasure/queue.mjs
 modules/erasure/blobs.mjs
 modules/erasure/audit.mjs
 modules/erasure/receipt.mjs
@@ -229,11 +233,12 @@ archives; the blob work list does not.
 
 ## Historical measurements before the review fixes
 
-Through the default seed's route in a local `rer dev` Worker, a subject with
-10,000 dependent rows (9,500 notes and 500 file rows) and 500 R2 blobs was
-erased in 10.7 s in one run and 15.0 s in another. That is one request: 20
-bounded D1 steps, then the blob phase, with no queue continuation needed. The
-full proof table is kept with the consolidation evidence for this change.
+A historical, unverified report through the default seed's route in a local
+`rer dev` Worker recorded erasing a subject with 10,000 dependent rows (9,500
+notes and 500 file rows) and 500 R2 blobs in 10.7 s in one run and 15.0 s in
+another, in one request: 20 bounded D1 steps, then the blob phase, with no queue continuation needed. The cited
+consolidation proof table is outside this repository; no corresponding benchmark
+receipt is retained here.
 These pre-fix measurements do not establish the performance of the corrected
 helper. They are local Miniflare measurements, not production capacity claims. Real D1
 statement, CPU and request limits decide `rows` per step and the request budget.
