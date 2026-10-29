@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 import {scanText} from './scan.mjs';
@@ -24,6 +25,13 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
   assert.equal(await erase.isDisabled(),true,'erase stays disabled before typed confirmation');
   await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project.slice(0,-1));assert.equal(await erase.isDisabled(),true,'a partial identifier does not confirm');
   await page.getByLabel(`Type ${project} to confirm`,{exact:true}).fill(project);await check(page,directory,width,'confirmation',captures,needles);
+  // Accessibility audits and captures can span scheduled work, which adds
+  // project rows. Review a fresh plan after those checks, then confirm that plan;
+  // a subsequent real change must still fail the single apply with plan_changed.
+  await page.getByRole('button',{name:'Preview erasure',exact:true}).click();
+  const confirmation=page.getByLabel(`Type ${project} to confirm`,{exact:true});
+  await expect(confirmation).toHaveValue(''); // The fresh preview resets confirmation.
+  await confirmation.fill(project);
   let release;const follow= new Promise(resolve=>{release=resolve});
   await page.route('**/api/erasures/*/resume',async route=>{await follow;await route.continue()});
   const started=Date.now(),response=page.waitForResponse(r=>new URL(r.url()).pathname===`/api/projects/${project}/erasure`&&r.request().method()==='POST');
