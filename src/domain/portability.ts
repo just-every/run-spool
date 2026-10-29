@@ -16,6 +16,7 @@ import {followUpExcludedTables} from './follow-up/types';
 import { safeAuditExcludedTables, auditPayload, SAFE_AUDIT_PAYLOAD } from './audit/archive';
 import { deploymentTables,deploymentExportRow } from './deployments/archive';
 import { releaseTables } from './releases/archive';
+import { orderedReleaseExports } from './releases/archive-order';
 import { groupingTables } from './grouping/archive';
 import {inboundFilterTables} from './filters/archive';
 import { feedbackTables } from './feedback/archive';
@@ -60,7 +61,10 @@ export const portabilityPolicy = {
 export async function portability(db: D1Database, safeAudit = true) {
  const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
  const service = await createPortability({ db, policy });
- return { ...service, db, imports: { ...service.imports,
+ const exports=orderedReleaseExports(service.exports);
+ return { ...service, db, exports, status:async(id:string)=>{
+  const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
+ }, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
