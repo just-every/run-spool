@@ -12,7 +12,7 @@ async function reportWorkbench(origin,project,from,to){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),cookie=await signIn(origin,{bootstrap:false});
   await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto(origin+'/projects/'+project+'/settings');const configuration=page.getByRole('region',{name:'Reports, dashboards and query tables',exact:true});
+  await page.goto(origin+'/projects/'+project+'/settings/reports');const configuration=page.getByRole('region',{name:'Reports, dashboards and query tables',exact:true});
   await configuration.getByLabel('View name',{exact:true}).fill('Retained impact comparison');
   const widgets=configuration.locator('.reports-widget'),date=value=>new Date(value).toISOString().slice(0,16);
   for(let n=0;n<2;n++){await widgets.nth(n).getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await widgets.nth(n).getByLabel('Window end (UTC)',{exact:true}).fill(date(to))}

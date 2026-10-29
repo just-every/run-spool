@@ -8,7 +8,7 @@ import {assertSignInForm,signIn,testOwner,openGate} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {startDispatchApp} from './triage-app.mjs';
 import {verifyReturnDestinations} from './triage-auth.mjs';
-import {workbenchLink} from './navigation.mjs';
+import {workbenchLink,openSection,settingsSection} from './navigation.mjs';
 const output='.artifacts/triage-review';await mkdir(output,{recursive:true});
 const evidence={candidate:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),business:'Cedar Dispatch',caption:'Synthetic business; real local capture and owner actions.',captures:[],checks:[]};
 async function journey(width) {
@@ -69,7 +69,7 @@ try {
  assert.equal(await page.locator('.frame-coordinate').first().innerText(),`${coordinate.file}:${coordinate.line}:${coordinate.column}`);
  assert.equal(await page.locator('.missing-map').count(),0);checked('Contextual map upload yields actual original path, line and column as first stack fact');
  {await capture('mapped-issue',width);const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(item=>item.id),[]);}
- await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
+ await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Copy link',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),origin+issuePath);
  await page.reload();await page.locator('.mapped-frame').first().waitFor();assert.equal(new URL(page.url()).pathname,issuePath);
  await page.getByRole('link',{name:'All issues',exact:true}).click();await page.goBack();await page.locator('.mapped-frame').first().waitFor();await page.goForward();await page.getByRole('heading',{name:'Issues',exact:true}).last().waitFor();await page.waitForLoadState('networkidle');assert.equal(await page.locator('.unseen-label').count(),0);
  await page.goto(origin+issuePath);const details=page.getByRole('button',{name:'Details: Issue and source evidence',exact:true});await details.click();await page.getByRole('dialog').waitFor();assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Shift+Tab');assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));await page.keyboard.press('Escape');assert.equal(await details.evaluate(button=>document.activeElement===button),true);checked('Copy destination, refresh, history, viewed count and Details focus/Escape');
@@ -81,8 +81,14 @@ try {
  await capture('regression-priority',width);
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
- await (await workbenchLink(page,'Releases')).click();await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
+ await (await workbenchLink(page,'Releases')).click();await openSection(page,'Register a release');await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();await openSection(page,'Register a release');assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
 
+ // Settings has one path per section: /settings opens the first section this role sees, the section list moves
+ // between paths (one control at phone width), a reload keeps the section and an unknown section is a real 404.
+ await page.goto(origin+'/projects/cedar/settings');await page.waitForURL(url=>url.pathname==='/projects/cedar/settings/keys-and-capture');await page.getByRole('heading',{name:'Project keys',exact:true}).waitFor();
+ await settingsSection(page,'Grouping');await page.waitForURL(url=>url.pathname==='/projects/cedar/settings/grouping');await page.getByRole('heading',{name:'Project grouping rules',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Project keys',exact:true}).count(),0);assert.ok((await page.title()).startsWith('Grouping · Settings ·'));
+ await page.reload();await page.getByRole('heading',{name:'Project grouping rules',exact:true}).waitFor();assert.equal(await page.getByRole('navigation',{name:'Settings sections'}).getByRole('link',{name:'Grouping',exact:true,includeHidden:true}).getAttribute('aria-current'),'page');
+ assert.equal((await page.goto(origin+'/projects/cedar/settings/no-such-section')).status(),404);checked('Settings opens one section per path, moves by its section list and refuses an unknown section');
  await verifyReturnDestinations(origin,issuePath,cookie);
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.waitForResponse(response=>response.url().endsWith('/packet'),{timeout:30000});await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}

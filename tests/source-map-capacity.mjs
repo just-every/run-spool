@@ -1,3 +1,4 @@
+import {openSection} from './navigation.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -45,12 +46,12 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  const longRoot=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000010',map:{version:3,sourceRoot:'x'.repeat(4096),sources:Array.from({length:1000},(_,i)=>'synthetic-spool-'+i+'.js'),names:[],mappings:'AAAA'}});assert.equal(longRoot.status,400,'[SRC-004] overlong source roots are refused before resolution can multiply them across sources');await longRoot.body?.cancel();
  const legacyRoot=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000012',map:{...flat,sourceRoot:'x'.repeat(4096)}});assert.equal(legacyRoot.status,201,'flat maps within the previous parser bounds retain their accepted path grammar');await legacyRoot.body?.cancel();
  const storage=await request(base+'/artifact-storage');
- const context=await browser.newContext(),page=await context.newPage();await browserSignIn(page,origin);await page.goto(origin+'/projects/'+id+'/releases');
+ const context=await browser.newContext(),page=await context.newPage();await browserSignIn(page,origin);await page.goto(origin+'/projects/'+id+'/releases');await openSection(page,'Set up original-source mapping');
  const capField=page.getByLabel('Artifact storage cap (bytes, optional)');
  await capField.fill('42');
- await page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name:/^Issues/}).click();await page.getByRole('link',{name:'Releases',exact:true}).click();
+ await page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name:/^Issues/}).click();await page.getByRole('link',{name:'Releases',exact:true}).click();await openSection(page,'Set up original-source mapping');
  await capField.waitFor();assert.equal(await capField.inputValue(),'42','[SRC-004] an unsaved cap draft survives in-app navigation');
- await page.getByLabel('Release name',{exact:true}).fill('synthetic-spool-draft@1');await page.getByLabel('Build identifier',{exact:true}).fill('b2');
+ await openSection(page,'Register a release');await page.getByLabel('Release name',{exact:true}).fill('synthetic-spool-draft@1');await page.getByLabel('Build identifier',{exact:true}).fill('b2');
  const storageRefresh=page.waitForResponse(r=>r.url().endsWith('/artifact-storage')&&r.request().method()==='GET');
  await page.getByRole('button',{name:'Register release',exact:true}).click();await(await storageRefresh).finished();
  await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
@@ -65,7 +66,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  const cap=await request(base+'/artifact-storage');assert.equal(cap.artifact_storage_cap,storage.bytes);
  const denied=await fetch(origin+base+'/artifact-storage',{method:'PUT',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({revision:cap.revision,artifact_storage_cap:null})});assert.equal(denied.status,401);await denied.body?.cancel();
  for(const width of [1440,390]){
-  await page.setViewportSize({width,height:1000});await page.reload();await page.getByText('Stored maps and upload failures',{exact:true}).click();
+  await page.setViewportSize({width,height:1000});await page.reload();await openSection(page,'Set up original-source mapping');await page.getByText('Stored maps and upload failures',{exact:true}).click();
   await page.getByText(/storage cap [0-9]+ bytes/).first().waitFor();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(v=>['serious','critical'].includes(v.impact)),[]);

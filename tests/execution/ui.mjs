@@ -1,3 +1,4 @@
+import {openSection} from '../navigation.mjs';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
@@ -13,7 +14,7 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
    await openGate(context,app.origin);
    await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
-   const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
+   await openSection(page,'Reproduce and fix');const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
    await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
    await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
    await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();
@@ -39,7 +40,7 @@ export async function executionPanel(app,browser,directory,issue,reproducer){
    await openGate(context,app.origin);
    await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
-   const section=page.locator('section.execution');await section.getByRole('heading',{name:'Reproduce and fix'}).waitFor();
+   const section=page.locator('section.execution');await section.getByRole('heading',{name:'Reproduce and fix'}).waitFor();await openSection(page,'Reproduce and fix');
    await section.getByText('After the deploy: Reached the affected users').waitFor();
    const card=section.locator('article.reproducer').filter({hasText:'Exact input'}).filter({hasText:'lineCount(…)'}).first();
    const before=await card.locator('.run.reproduced').count();

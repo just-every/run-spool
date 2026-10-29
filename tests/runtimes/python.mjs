@@ -25,7 +25,7 @@ export default {
   await page.getByRole('searchbox',{name:'Search events',exact:true}).fill('tenant:acme');
   const selected=page.locator('.metadata[data-event-id]');
   const choose=async(name,event)=>{const button=page.getByRole('button',{name,exact:true});await button.click();await page.waitForFunction(id=>document.querySelector('.metadata[data-event-id]')?.getAttribute('data-event-id')===id,event.id);assert.equal(new URL(page.url()).searchParams.get('event'),event.id)};
-  await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
+  await page.locator('.event-row').click();await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
   await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;

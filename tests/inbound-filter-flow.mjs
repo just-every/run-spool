@@ -102,7 +102,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
   const project=await request('/api/projects','POST',{id,name:'Cedar checkout inbound filters'});
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try {
-   await browserSignIn(page,origin);await page.goto(`${origin}/projects/${id}/settings`);
+   await browserSignIn(page,origin);await page.goto(`${origin}/projects/${id}/settings/data`);
    const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Inbound filters and usage',exact:true})});
    await panel.getByText('Browser extensions',{exact:true}).waitFor();
    const snap=async(state)=>{if(process.env.SPOOL_SCREEN_DIR){await mkdir(process.env.SPOOL_SCREEN_DIR,{recursive:true});await panel.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-${state}.png`)});}};
@@ -114,7 +114,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
     if(values[filter.id])await panel.getByLabel(filter.label+' · one per line',{exact:true}).fill(values[filter.id]);
    }
    await panel.getByPlaceholder('chrome<=100').fill('chrome<=100');
-   await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();
+   
    await panel.getByText(/Preview complete · 0 retained events/).waitFor();await snap('preview');
    await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
    await panel.getByText('Filters by accepted category and unavailable fields',{exact:true}).click();await snap('saved');
@@ -142,13 +142,13 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    assert.equal((await request(base+'/issues')).reduce((sum,row)=>sum+row.count,0),before,'SDK-006 filtered real SDK events create no occurrence');assert.equal((await request(base+'/alerts')).length,alerts,'SDK-006 filtered real SDK events create no alert');
    let usage=(await request(base+'/outcomes')).rows;assert.equal(usage.find(r=>r.reason==='accepted').count,1);assert.equal(usage.find(r=>r.reason==='filtered').count,expectedFiltered,'SDK-006 filtered units exactly reconcile with observed SDK requests');
    await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).click();await panel.getByText('Filter policy and usage refreshed',{exact:true}).waitFor();
-   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).uncheck();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 1 retained events/).waitFor();
+   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).uncheck();await panel.getByText(/Preview complete · 1 retained events/).waitFor();
    await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
    await send(project.dsn,event(exception('CheckoutError','ignore me','app.js')));assert.equal((await request(base+'/outcomes')).rows.find(r=>r.reason==='accepted').count,2,'SDK-006 disabled rule accepts later SDK error');
    await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).click();await panel.getByText('Filter policy and usage refreshed',{exact:true}).waitFor();await snap('receipts');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'SDK-006 responsive settings');
    await request(base+'/browser-origins','POST',{origin:applicationOrigin});dsns.filter=project.dsn;
-   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).check();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 2 retained events/).waitFor();await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
+   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).check();await panel.getByText(/Preview complete · 2 retained events/).waitFor();await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
    const sessionFilteredBeforeBrowser=(await request(base+'/outcomes')).rows.find(r=>r.reason==='session_filtered')?.count??0;
    const application=await context.newPage();await application.goto(applicationOrigin+'/?target=filter');await application.waitForFunction(()=>window.__SDK_READY__);
    // Browser transport is a real local browser; localhost is deliberately enabled.
@@ -156,7 +156,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    await application.waitForFunction(()=>window.__SPOOL_SENT__.filter(type=>type==='session').length===2);await application.evaluate(()=>window.flushSDK());
    usage=(await request(base+'/outcomes')).rows;assert.equal(usage.find(r=>r.reason==='accepted').count,2,'SDK-006 browser SDK matching event filtered');assert.equal(usage.find(r=>r.reason==='session_filtered').count-sessionFilteredBeforeBrowser,2,'SDK-005 two default browser session items inherit localhost filtering');assert.equal(usage.find(r=>r.reason==='filtered').count,expectedFiltered+3);
    await application.close();
-   await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete/).waitFor();const stale=await request(root);await request(root,'PUT',{revision:stale.revision,policy:stale.policy});await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await page.getByRole('alert').filter({hasText:'inbound_policy_revision_conflict'}).waitFor();await snap('conflict');
+   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).uncheck();await panel.getByText(/Preview complete/).waitFor();const stale=await request(root);await request(root,'PUT',{revision:stale.revision,policy:stale.policy});await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await page.getByRole('alert').filter({hasText:'inbound_policy_revision_conflict'}).waitFor();await snap('conflict');
    await page.route('**'+root,route=>route.abort());await page.reload();await page.getByRole('alert').filter({hasText:'Filters could not be loaded'}).waitFor();await snap('failure');await page.unroute('**'+root);await page.getByRole('button',{name:'Retry filters',exact:true}).click();await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).waitFor();
    const denied=await browser.newContext({viewport:{width,height:1000}});try{const signedOut=await denied.newPage();await signedOut.goto(`${origin}/projects/${id}/settings`);await signedOut.getByRole('heading',{name:'Sign in to your installation',exact:true}).waitFor();if(process.env.SPOOL_SCREEN_DIR)await signedOut.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-denied.png`)});}finally{await denied.close()}
 

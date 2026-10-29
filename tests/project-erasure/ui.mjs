@@ -16,7 +16,7 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
  try{
   await openGate(context,app.origin);
   await context.addCookies(app.cookie.split('; ').filter(Boolean).map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
-  const page=await context.newPage();await page.goto(`${app.origin}/projects/${project}/settings`);
+  const page=await context.newPage();await page.goto(`${app.origin}/projects/${project}/settings/data`);
   await page.getByRole('heading',{name:'Erase this project',exact:true}).waitFor();
   await page.getByRole('button',{name:'Preview erasure',exact:true}).click();
   await page.getByText(/rows will be deleted\./).waitFor();await check(page,directory,width,'preview',captures,needles);

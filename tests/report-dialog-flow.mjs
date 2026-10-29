@@ -1,3 +1,4 @@
+import {openSection,untippedIconButtons} from './navigation.mjs';
 // [SDK-004] The unmodified SDK and the queued loader stub request Spool's own hosted dialog.
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
@@ -17,7 +18,7 @@ export async function reportDialogFlow({ browser, origin, cookie, request, appli
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `${name} ${width}: no overflow`);
   const axe = new AxeBuilder({ page }); if (scope) axe.include(scope);
   assert.deepEqual((await axe.analyze()).violations.filter(v => ['serious', 'critical'].includes(v.impact)), [], `${name} ${width}: no serious Axe finding`);
-  assert.deepEqual(await page.locator('button').evaluateAll(nodes => nodes.filter(n => n.getClientRects().length && !n.textContent.trim()).map(n => n.getAttribute('aria-label'))), [], 'no icon-only control on the touched screen');
+  assert.deepEqual(await untippedIconButtons(page), [], 'every icon-only control on the touched screen carries the shared tooltip');
   await page.screenshot({ path: `.artifacts/sdk004/${name}-${width}.png` });
  };
  await mkdir('.artifacts/sdk004', { recursive: true });
@@ -68,7 +69,7 @@ export async function reportDialogFlow({ browser, origin, cookie, request, appli
    assert.equal(report?.eventId, event.id); assert.equal(report?.issueId, event.issueId); assert.equal(report?.association, 'attached');
    rows.push({ ...report, eventId: event.id });
    const owner = await context.newPage(); await browserSignIn(owner, origin); await owner.goto(`${origin}/projects/${project.id}/issues/${event.issueId}`);
-   await owner.getByText(message, { exact: true }).waitFor();
+   await openSection(owner, 'User feedback'); await owner.getByText(message, { exact: true }).waitFor();
    const panel = owner.getByRole('region', { name: 'Issue feedback', exact: true });
    await panel.scrollIntoViewIfNeeded(); await inspect(owner, `${mode}-issue-feedback`, width, '[aria-label="Issue feedback"]');
    for (const canary of [name, email]) {

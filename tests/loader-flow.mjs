@@ -1,3 +1,4 @@
+import {untippedIconButtons} from './navigation.mjs';
 import { absentDist } from '../src/domain/releases/build.ts';
 import { loaderUpgrade } from './loader-upgrade.mjs';
 // [SDK-023] Replace a site's loader tag, exercising the official SDK over the real Worker.
@@ -86,16 +87,16 @@ export async function loaderFlow({ browser, origin, request, cookie, application
   await owner.getByRole('button', { name: 'Details: Project key', exact: true }).first().click();
   const dialog = owner.getByRole('dialog').filter({ has: owner.getByRole('heading', { name: 'Project key', exact: true }) });
   await dialog.getByLabel('Enable feedback widget', { exact: true }).check();
-  await dialog.getByRole('button', { name: 'Save loader settings', exact: true }).click();
-  await dialog.getByRole('status').filter({ hasText: 'Loader settings saved.' }).waitFor();
+  // Loader settings save as they change; the dialog shows the quiet Saved state.
+  await dialog.getByRole('status').filter({ hasText: /^Saved$/ }).waitFor();
   current = await request(keyPath); assert.equal(current.settings.feedback, true);
   await dialog.getByLabel('Public capture key for script tag', { exact: true }).fill(key);
   await dialog.locator('pre').filter({hasText:scriptPath}).waitFor();
   assert.equal(await owner.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'key settings has no horizontal overflow');
   const axe = await new AxeBuilder({ page: owner }).analyze();
   assert.deepEqual(axe.violations.filter(v => ['serious', 'critical'].includes(v.impact)), [], 'key settings has no serious Axe finding');
-  const icons = await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label')));
-  assert.deepEqual(icons, [], 'no icon-only control on the touched settings screen');
+  const icons = await untippedIconButtons(owner);
+  assert.deepEqual(icons, [], 'every icon-only control on the touched settings screen carries the shared tooltip');
   await owner.screenshot({ path: `.artifacts/sdk023/key-settings-${width}.png`, fullPage: false });
   await dialog.evaluate(element => { element.scrollTop = 0; });
   await owner.screenshot({ path: `.artifacts/sdk023/key-settings-top-${width}.png`, fullPage: false });
@@ -155,6 +156,6 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  const after = await fetch(origin + '/api/archive', { headers: { Cookie: cookie, Origin: origin } });
  assert.ok(!(await after.text()).includes(keyHash), 'project erasure removes the key settings');
  await loaderUpgrade({browser,applicationOrigin,dsns,defaults});
- console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440, 390], icons: 'no icon-only control on the touched screen', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
+ console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440, 390], icons: 'every icon-only control on the touched screen carries the shared tooltip', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
  return { archive, project, keyHash, settings: disabled.settings };
 }

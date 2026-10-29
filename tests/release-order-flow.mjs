@@ -1,3 +1,4 @@
+import {openSection} from './navigation.mjs';
 import assert from 'node:assert/strict';
 import {releaseOrderProperties,releaseOrderAgreement} from './release-order-properties.mjs';
 import {mkdir} from 'node:fs/promises';
@@ -55,7 +56,7 @@ export async function releaseOrderFlow({req,json,db,origin,cookie,browser}) {
     await page.goto(origin+'/projects/'+project.id+'/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').last().waitFor();
     if(width===1440)assert.deepEqual(await page.locator('.data-row th strong').allTextContents(),expected,'rendered release history uses the chosen order');
     await page.screenshot({path:`.artifacts/release-order/${label}-history-${width}.png`,fullPage:true});
-    await page.goto(origin+'/projects/'+project.id+'/issues/'+(await issue()).id);const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-order/${label}-comparison-${width}.png`});
+    await page.goto(origin+'/projects/'+project.id+'/issues/'+(await issue()).id);const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await openSection(page,'Suspect changes');await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-order/${label}-comparison-${width}.png`});
    }finally{await context.close()}
   }
  };

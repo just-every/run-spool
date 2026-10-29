@@ -15,7 +15,7 @@ export async function browserMembers(owner,projects) {
   const split=owner.cookie.indexOf('=');
   await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
   const page=await context.newPage();
-  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings');
+  await page.goto(owner.origin+'/projects/'+projects[0].id+'/settings/members');
   const members=page.getByRole('region',{name:'Members',exact:true});
   await members.getByRole('heading',{name:'Members',exact:true}).waitFor();
   await members.locator('summary').filter({hasText:/^Invite a member$/}).click();

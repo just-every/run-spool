@@ -1,3 +1,4 @@
+import {untippedIconButtons} from './navigation.mjs';
 // [SDK-024] Sentry cron check-ins routed to an Uptime heartbeat, through the real Worker, intake, owner API and UI.
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -123,7 +124,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
     const check = async (name, scope, shot) => {
      assert.equal(await owner.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `${name} at ${width}: no horizontal overflow`);
      assert.deepEqual((await (scope ? new AxeBuilder({ page: owner }).include(scope) : new AxeBuilder({ page: owner })).analyze()).violations.filter(v => ['serious', 'critical'].includes(v.impact)), [], `${name} at ${width}: no serious Axe finding`);
-     assert.deepEqual(await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label'))), [], 'no icon-only control on the touched screen');
+     assert.deepEqual(await untippedIconButtons(owner), [], 'every icon-only control on the touched screen carries the shared tooltip');
      await shot.screenshot({ path: `.artifacts/sdk024/${name}-${width}.png` });
     };
     await owner.goto(`${origin}/projects/${id}/settings`);

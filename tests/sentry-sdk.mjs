@@ -1,3 +1,4 @@
+import {openSection} from './navigation.mjs';
 import {identityFlow} from './identity-flow.mjs';
 import {sessionFlow} from './session-flow.mjs';
 import { loaderPage } from './loader-page.mjs';
@@ -81,7 +82,7 @@ try{
       owner.waitForResponse(response=>response.url().includes('/feedback?issue=')&&response.ok(),{timeout:30000}),
       owner.evaluate(()=>window.dispatchEvent(new Event('focus')))
     ]);
-    await owner.getByText(`Checkout report ${width}: payment confirmation never appeared`,{exact:true}).waitFor();
+    await openSection(owner,'User feedback');await owner.getByText(`Checkout report ${width}: payment confirmation never appeared`,{exact:true}).waitFor();
     const feedback=await request('/api/projects/sdk/feedback');assert.ok(feedback.items.some(row=>row.eventId===captured.id&&row.issueId===issue.id));assert.ok(!JSON.stringify(feedback).includes('feedback-private@example.com'));assert.ok(!JSON.stringify(feedback).includes('Private Feedback Name'));
     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
     await context.close();

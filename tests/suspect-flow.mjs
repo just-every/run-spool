@@ -1,3 +1,4 @@
+import {untippedIconButtons,openSection} from './navigation.mjs';
 // [REL-002] Labelled correlations and owner judgments through the existing issue surface.
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
@@ -25,7 +26,7 @@ export async function suspectFlow({req,json,origin,browser}) {
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{
    await browserSignIn(page,origin);await page.goto(`${origin}/projects/${p.id}/issues/${issue.id}`);
-   const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
+   const panel=page.getByRole('region',{name:'Suspect changes',exact:true});await openSection(page,'Suspect changes');await panel.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
    const reject=panel.locator('article').filter({has:page.getByRole('heading',{name:new RegExp(falseSha.slice(0,12))})}),confirm=panel.locator('article').filter({has:page.getByRole('heading',{name:new RegExp(trueSha.slice(0,12))})});
    if(width===1440){
     await reject.getByLabel('Evidence note for '+falseSha.slice(0,12),{exact:true}).fill('The layout change does not touch payment confirmation. Older clients show a separate basket failure.');await reject.getByRole('button',{name:'Reject suspect',exact:true}).click();await reject.getByText(/Engineer judgment: rejected/).waitFor();
@@ -33,7 +34,7 @@ export async function suspectFlow({req,json,origin,browser}) {
    }else{await panel.getByText(/Engineer judgment: rejected/).waitFor();await panel.getByText(/Engineer judgment: confirmed/).waitFor()}
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'suspect view reflows');
    assert.deepEqual((await new AxeBuilder({page}).include('[aria-label="Suspect changes"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
-   assert.deepEqual(await page.locator('button').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&!n.textContent.trim()).map(n=>n.getAttribute('aria-label'))),[],'no icon-only control on the touched screen');
+   assert.deepEqual(await untippedIconButtons(page),[],'every icon-only control on the touched screen carries the shared tooltip');
    await panel.screenshot({path:`.artifacts/rel002/suspect-judgments-${width}.png`});
   }finally{await context.close()}
  }

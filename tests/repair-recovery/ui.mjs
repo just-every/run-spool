@@ -1,3 +1,4 @@
+import {openSection} from '../navigation.mjs';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
@@ -43,7 +44,7 @@ export async function repairPanel(app,browser,directory){
    await openGate(context,app.origin);
    await context.addCookies(app.cookie.split('; ').filter(Boolean).map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
    const page=await context.newPage();await page.goto(`${app.origin}/projects/${project}/issues/${issue}`);
-   await page.getByText('A repair is a change someone proposed').waitFor();await check(page,directory,width,'empty',captures);
+   await openSection(page,'Repairs');await page.getByText('A repair is a change someone proposed').waitFor();await check(page,directory,width,'empty',captures);
    // Keyboard only: reach the form by Tab, type, and submit with Enter.
    let reached=false;for(let n=0;n<120&&!reached;n++){await page.keyboard.press('Tab');reached=await page.evaluate(()=>document.activeElement?.matches('.repairs input[type=url]')??false);}
    assert.ok(reached,'repair link field reachable by keyboard');assert.ok(await focusVisible(page),'visible focus on the link field');
