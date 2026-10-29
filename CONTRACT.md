@@ -1623,13 +1623,13 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Published | 6 | 6 | 0 | 12 |
+| Published | 7 | 5 | 0 | 12 |
 | Target and push further | 8 | 43 | 42 | 93 |
-| All | 14 | 49 | 42 | 105 |
+| All | 15 | 48 | 42 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
-| `ERR-001` | Bounded admission | published | partial | `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` | Not asserted in the cited tests: a foreign-project envelope's refusal; unchanged rows after the invalid, oversize and foreign-project refusals; `Retry-After` and the counted `minute_budget` reason on the per-minute 429; and the retained-event limit's 429 with its reason, `Retry-After` and unchanged rows (the 429 and reason are asserted only in tests/agent-handoff/caps.mjs, which this clause does not cite). Asserted: valid acceptance, the invalid, oversize and conflicting-retry refusals, the per-minute 429 and no partial rows. |
+| `ERR-001` | Bounded admission | published | done | `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs` native admission journey (acceptance 1 to 3: acceptance, explicit refusals, unchanged archive rows and counted minute refusals); `tests/multilingual.mjs` multilingual public journey (acceptance 1 and 2: Python and Go acceptance and state-preserving refusals); `tests/agent-handoff.mjs` agent handoff public journey with `tests/agent-handoff/caps.mjs` capProof (acceptance 4: validated retained corpus, final-slot acceptance, counted capacity refusals, retry guidance and no partial rows) |  |
 | `ERR-002` | Atomic acceptance | published | done | `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs` |  |
 | `ERR-003` | Scrub before storage | published | done | `src/domain/privacy.ts`; `src/domain/scrub.ts`; `tests/privacy-table.mjs` |  |
 | `ERR-004` | Separated authority | published | done | `src/domain/api.ts`; `src/domain/credential-fence.ts`; `src/domain/agent-access.ts`; `tests/agent-handoff.mjs`; `tests/dev-credentials.mjs` |  |

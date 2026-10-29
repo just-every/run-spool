@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 14 | 49 | 24 | 87 |
+| Core | 15 | 48 | 24 | 87 |
 | Agent surface | 0 | 0 | 18 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 14 | 49 | 42 | 105 |
+| Full target | 15 | 48 | 42 | 105 |
 
 Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -21,7 +21,7 @@ Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e
 
 #### ERR-001 — Bounded admission
 
-Core · published · **partial** · Cites BASE-INPUT-001
+Core · published · **done** · Cites BASE-INPUT-001
 
 **Requirement.** Native version-1 JavaScript, Python and Go exception envelopes require active exact-project ingest credentials, registered release/build identity and bounded fields. Invalid, oversized, volume-limited and conflicting retries have explicit outcomes. Each project admits at most 120 outcomes a minute (`minute_budget`) and retains at most 10,000 events (`retained_event_budget`); over-limit intake returns 429 with `Retry-After` and a counted outcome. GOV-003 carries the target that replaces both limits with its named volume reasons and published sustained rate. Artifact URLs in envelopes are never fetched. Sentry error intake follows SDK-009's default acceptance with no release or an automatically created release/dist; only SDK-028's opt-in registered-sequence-only policy requires registration. Native version-1 intake keeps the registered release/build prerequisite. The broader SDK target is SDK-001, and runtime SDK compatibility is SDK-001 and SDK-012 to SDK-019.
 
@@ -31,8 +31,8 @@ Core · published · **partial** · Cites BASE-INPUT-001
 3. Exceeding the per-minute limit returns 429 with `Retry-After` and a counted reason, with no partial rows.
 4. Exceeding the retained-event limit returns 429 with `Retry-After` and a counted reason, with no partial rows.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs`
-**Gap.** Not asserted in the cited tests: a foreign-project envelope's refusal; unchanged rows after the invalid, oversize and foreign-project refusals; `Retry-After` and the counted `minute_budget` reason on the per-minute 429; and the retained-event limit's 429 with its reason, `Retry-After` and unchanged rows (the 429 and reason are asserted only in tests/agent-handoff/caps.mjs, which this clause does not cite). Asserted: valid acceptance, the invalid, oversize and conflicting-retry refusals, the per-minute 429 and no partial rows.
+**Evidence.** `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs` native admission journey (acceptance 1 to 3: acceptance, explicit refusals, unchanged archive rows and counted minute refusals); `tests/multilingual.mjs` multilingual public journey (acceptance 1 and 2: Python and Go acceptance and state-preserving refusals); `tests/agent-handoff.mjs` agent handoff public journey with `tests/agent-handoff/caps.mjs` capProof (acceptance 4: validated retained corpus, final-slot acceptance, counted capacity refusals, retry guidance and no partial rows)
+**Gap.** None.
 
 #### ERR-002 — Atomic acceptance
 
