@@ -9021,7 +9021,7 @@
       "executable": false
     },
     "tests/project-erasure/ui.mjs": {
-      "sha256": "375b5d0323664bd14f2e6db1d4c1a69b45c19abe0f00e38fc979a764111f0295",
+      "sha256": "c4ae52a5b7d575db41e22d6c14908f95820021e51efbc1dfd75aabe32f960e92",
       "executable": false
     },
     "tests/records-flow.mjs": {
