@@ -28,6 +28,7 @@ const definitions=[
  ['proposals.read','GET','proposal',fields({id:str}),true,['standard'],['AI-005']],
  ['proposals.create','POST','proposals',fields(proposal,['project','kind','source','revision','rationale','variants','window']),false,['standard'],['AI-005']],
  ['issues.update','PATCH','issue',fields({issue:str,state:{enum:['open','acknowledged','resolved','suppressed']},revision:num,resolution:{type:'object'}},['project','issue','state','revision']),false,['standard','live'],['ERR-006','TEAM-003']],
+ ['grouping.read','GET','corrections',fields({}),true,['standard'],['ERR-006','AI-005']],
  ['grouping.preview','POST','grouping-preview',fields(proposal,['project','kind','source','revision']),false,['standard'],['ERR-006','AI-005']],
  ['grouping.apply','POST','grouping-apply',fields({id:str}),false,['standard'],['ERR-006','AI-005']],
  ['grouping.undo','POST','grouping-undo',fields({id:str}),false,['standard'],['ERR-006']],

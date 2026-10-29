@@ -16,6 +16,7 @@ export function nativePath(route:string,a:Args) {
  case 'issues':case 'outcomes':case 'releases':case 'deployments':return `${p}/${route}`;
  case 'issue':return `${p}/issues/${e(a.issue)}`;
  case 'packet':return `${p}/issues/${e(a.issue)}/packet`;
+ case 'corrections':return `${p}/corrections`;
  case 'proposals':return `${p}/grouping-proposals`;
  case 'proposal':return `${p}/grouping-proposals/${e(a.id)}`;
  case 'grouping-preview':return `${p}/corrections/preview`;

@@ -18,8 +18,9 @@ const proposal={project,kind:'split',source:issue,revision:from('issue','/revisi
 add('proposal','proposals.create',proposal);
 add('proposal-read','proposals.read',{project,id:from('proposal','/id')});
 add('preview','grouping.preview',{project,kind:'split',source:issue,revision:from('issue','/revision'),events:[from('packet','/events/1/id')]});
-add('apply','grouping.apply',{project,id:from('preview','/id')});
-add('undo','grouping.undo',{project,id:from('preview','/id')});
+add('preview-current','grouping.read',{project});
+add('apply','grouping.apply',{project,id:from('preview-current','/items/0/id')});
+add('undo','grouping.undo',{project,id:from('apply','/id')});
 add('current','issues.read',{project,issue});
 add('triage','issues.update',{project,issue,state:'acknowledged',revision:from('current','/revision')});
 add('triage-current','issues.read',{project,issue});
