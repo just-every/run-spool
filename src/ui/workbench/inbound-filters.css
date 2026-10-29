@@ -1,1 +1,9 @@
-.inbound-filters .filter-policy{margin:1rem 0;padding:1rem;border:var(--inner-border);border-radius:var(--radius-input)}.inbound-filters legend{font-weight:600;padding:0 .4rem}.inbound-filters .checkbox{min-height:44px}.inbound-filters textarea{resize:vertical}.inbound-filters .button-row{flex-wrap:wrap}
+/* One group of filters: each filter is a row on row rules, never a box of its own. */
+.inbound-filters .filter-policy{min-width:0;margin:0;padding:14px 0 16px;border:0;border-top:var(--rule-row);border-radius:0}
+.inbound-filters .filter-policy:last-of-type{border-bottom:var(--rule-row);margin-bottom:16px}
+.inbound-filters legend{float:left;width:100%;margin-bottom:4px;padding:0;font:500 17px/1.35 var(--font-text)}
+.inbound-filters legend+*{clear:both}
+.inbound-filters .checkbox{min-height:44px;margin:4px 0}
+.inbound-filters .muted{margin:0 0 8px}
+.inbound-filters textarea{resize:vertical}
+.inbound-filters .button-row{flex-wrap:wrap}
