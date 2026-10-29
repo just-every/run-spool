@@ -1,6 +1,6 @@
 .repairs .repair{border-top:1px solid #e2dfd5;padding:16px 0 4px;margin-top:16px}
-.repairs .repair h3{font-size:var(--font-small);margin:0 0 6px;overflow-wrap:anywhere}
-.repairs .repair h4{font-size:var(--font-small);margin:16px 0 6px}
+.repairs .repair h3{font:500 17px/1.35 var(--font-text);margin:0 0 6px;overflow-wrap:anywhere}
+.repairs .repair h4{font:500 17px/1.35 var(--font-text);margin:16px 0 6px}
 .repairs .repair h3 a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .repairs .repair a:focus-visible{outline:2px solid #a7471e;outline-offset:3px}
 .repairs .repair-meta{font-size:var(--font-small);color:var(--spool-muted)}

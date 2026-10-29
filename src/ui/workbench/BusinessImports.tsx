@@ -26,7 +26,7 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
     });
   }
 
-  return <section className="evidence"><div className="data-row">
+  return <section className="evidence"><h2>Business imports</h2><div className="data-row">
     <strong>Business imports</strong>
     <span>{state ? state.enabled ? 'Enabled' : 'Off' : 'Off by default'}</span>
     <Details title="Business imports" onOpen={() => void perform(load)}>

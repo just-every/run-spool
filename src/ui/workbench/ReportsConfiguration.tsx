@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SectionHead } from './SectionHead';
 import { api } from './client';
 import { hrefFor } from './location';
 import { ReportsWidgetEditor, newReportsWidget, reportWidgetPayload, savedReportsWidget, type ReportsWidgetDraft } from './ReportsWidgetEditor';
@@ -15,7 +16,7 @@ export function ReportsConfiguration({ project, projects }: { project: string; p
   async function act(work: () => Promise<void>) { setBusy(true); setError(''); setNotice(''); try { await work(); setRefresh(value => value + 1); } catch (failure) { setError((failure as Error).message); } finally { setBusy(false); } }
   const editable = !selected || current?.id === selected && current.editable;
   const kindCount = items.filter(item => item.kind === kind).length;
-  return <section className="evidence reports" aria-labelledby="reports-configuration-title"><h2 id="reports-configuration-title">Reports, dashboards and query tables</h2><p>Configure shared views here. <a className="inline-link" href={hrefFor(project, 'reports')}>Open Reports</a> to view and export results. Shared views still show only projects the viewer can access.</p>
+  return <section className="evidence reports" aria-labelledby="reports-configuration-title"><SectionHead id="reports-configuration-title" title="Reports, dashboards and query tables" about={<p>Configure shared views here; Reports shows and exports their results. Shared views still show only projects the viewer can access.</p>}><a className="text-button" href={hrefFor(project, 'reports')}>Open Reports</a></SectionHead>
     {error && <p role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}{loading ? <p role="status">Loading report configuration…</p> : <>
     <div className="reports-filters"><label className="form-field">Saved view<select value={selected} disabled={busy} onChange={event => void select(event.target.value)}><option value="">Create a new view ({kindCount}/25)</option>{items.map(item => <option key={item.id} value={item.id}>{item.name} · {item.kind}{item.editable ? '' : ' · View only'}</option>)}</select></label>{!selected && <label className="form-field">View type<select value={kind} disabled={busy} onChange={event => reset(event.target.value)}><option value="dashboard">Custom dashboard</option><option value="table">Query table</option><option value="report">Saved report</option></select></label>}</div>
     {current && !editable && <p>This view can be viewed and exported. Its author or an administrator manages its configuration.</p>}

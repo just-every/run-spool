@@ -10,6 +10,8 @@ export function Details({ title, children, onOpen, triggerLabel = 'Details', ico
   const heading = useRef<HTMLHeadingElement>(null);
   const id = useId();
   function close() { dialog.current?.close(); button.current?.setAttribute('aria-expanded', 'false'); button.current?.focus(); }
+  // Reference text folds into one info control beside what it explains; a named trigger keeps its words.
+  if (!trigger && triggerLabel === 'Details') icon ??= 'info';
   const name = trigger ? undefined : `Details: ${title}`;
   const opener = <button ref={button} className={icon ? 'icon-button details-trigger' : `${triggerClass} details-trigger`} aria-label={name} aria-haspopup="dialog" aria-expanded="false" aria-controls={id} onClick={() => {
       dialog.current?.showModal(); button.current?.setAttribute('aria-expanded', 'true'); heading.current?.focus(); onOpen?.();

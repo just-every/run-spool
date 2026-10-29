@@ -1,6 +1,4 @@
-.alert-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:20px 0}
-.alert-tabs button:not(.text-button){min-height:44px;padding:0 20px;background:none;border:var(--control-stroke) solid var(--ink);border-radius:var(--radius-pill);font:500 15px var(--font-text);cursor:pointer}
-.alert-tabs button[aria-current=page]:not(.text-button){background:var(--ink);color:var(--paper)}
+.alert-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:0 0 8px}
 .alert-tabs .text-button{margin-left:auto}
 .alert-records{margin:0;padding:0;list-style:none}
 .alert-records>li{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:var(--hairline-border)}

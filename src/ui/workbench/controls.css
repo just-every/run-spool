@@ -32,9 +32,9 @@
 .segmented{display:inline-flex;align-items:stretch;gap:4px;max-width:100%;min-height:44px;padding:4px;border:1px solid var(--hairline);border-radius:8px;background:#FFFFFF;overflow-x:auto;scrollbar-width:none}
 .segmented::-webkit-scrollbar{display:none}
 .segment{display:inline-flex;align-items:center;gap:10px;padding:0 14px;border:0;border-radius:5px;background:none;color:var(--ink);font:400 15px/1.2 var(--font-text);white-space:nowrap;cursor:pointer}
-.segment[aria-pressed=true]{background:var(--paper-sunk);font-weight:500}
+.segment:is([aria-pressed=true],[aria-current=page]){background:var(--paper-sunk);font-weight:500}
 .segment .count{font:400 14px/1 var(--font-code);color:var(--ink-soft)}
-.segment[aria-pressed=true] .count{color:var(--ink)}
+.segment:is([aria-pressed=true],[aria-current=page]) .count{color:var(--ink)}
 
 .search-field{position:relative;display:flex;align-items:center}
 .search-field .icon{position:absolute;left:13px;color:var(--ink-soft);pointer-events:none}

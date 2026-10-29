@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SectionHead } from './SectionHead';
 import { date, download, type Request, type Run } from './shared';
 import type { AuditRow } from '../../domain/audit/types';
 
@@ -13,9 +14,7 @@ export function AuditHistory({request,run,busy}:{request:Request;run:Run;busy:bo
  const perform=(work:()=>Promise<void>)=>void run(async()=>{setFailure('');try{await work();}catch(error){setFailure((error as Error).message);}});
  const refresh=()=>perform(async()=>{const value=await request('/api/audit');setPage(value);setRows(value.rows);setStatus('Showing the latest organization history.');});
  return <section className="evidence" aria-labelledby="audit-history-heading">
-  <h2 id="audit-history-heading">Organization audit</h2>
-  <p>Permanent action facts use private actor and subject aliases. Erasure removes their identity links; archives carry the facts and a restore appends them after this installation's own.</p>
-  {page&&<p className="muted">{page.coverage}</p>}
+  <SectionHead id="audit-history-heading" title="Organization audit" about={<><p>Permanent action facts use private actor and subject aliases. Erasure removes their identity links; archives carry the facts and a restore appends them after this installation's own.</p>{page&&<p>{page.coverage}</p>}</>}/>
   <div className="button-row">
    <button className="text-button" disabled={busy} onClick={refresh}>Refresh history</button>
    {page&&<><button className="text-button" disabled={busy} onClick={()=>perform(async()=>{const value=await request(`/api/audit/export?format=json&highWater=${page.highWater}`);download(value,'spool-audit.json');setStatus('JSON audit export prepared.');})}>Export JSON</button>

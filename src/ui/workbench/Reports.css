@@ -7,10 +7,14 @@
 .reports-wide{grid-column:1/-1}
 .reports-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
 .reports-heading h2{margin-bottom:0}
-.reports-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:12px;margin:20px 0}
-.reports-metrics>div,.reports-widget{min-width:0;padding:16px;background:var(--paper-raised);border:var(--card-border);border-radius:var(--radius-input)}
+/* One surface for the figures: cells on row-weight rules inside a single hairline panel. */
+.reports-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:0;margin:20px 0;overflow:hidden;background:#FFFFFF;border:1px solid var(--hairline);border-radius:8px}
+.reports-metrics>div{min-width:0;padding:16px 18px;box-shadow:inset -1px -1px 0 rgb(207 203 190 / .5)}
+.reports-widget{min-width:0;padding:16px;background:#FFFFFF;border:var(--card-border);border-radius:8px}
+.reports-query{display:flex;flex-wrap:wrap;align-items:end;gap:16px;margin:4px 0 20px}
+.reports-query .reports-filters{flex:1 1 640px;margin:0}
 .reports-metrics dt{font-size:14px}
-.reports-metrics dd{margin:6px 0 0;font:600 30px/1.2 var(--font-display);font-variant-numeric:lining-nums tabular-nums}
+.reports-metrics dd{margin:6px 0 0;font:700 24px/1.2 var(--font-display);font-variant-numeric:lining-nums tabular-nums}
 .reports-metrics dd small{display:block;margin-top:6px;font:400 14px/1.5 var(--font-text)}
 .reports-widget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
 .reports-widget h3{margin-top:0}

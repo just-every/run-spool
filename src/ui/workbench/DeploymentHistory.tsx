@@ -1,4 +1,5 @@
 import { Details } from './Details';
+import { Fold } from './Fold';
 import { useEffect,useState } from 'react';
 import { date,Field,type Request,type Run } from './shared';
 export function DeploymentHistory({project,releases,request,run,busy}:{project:string;releases:any[];request:Request;run:Run;busy:boolean}) {
@@ -9,7 +10,7 @@ export function DeploymentHistory({project,releases,request,run,busy}:{project:s
  async function load(){try{const [history,choices]=await Promise.all([request(base),request(`/api/projects/${encodeURIComponent(project)}/alerting/destinations`)]);setRows(history.rows);setDestinations(choices.rows.filter((r:any)=>r.channel==='mail'));setError('');setLoaded(true)}catch(e){setError((e as Error).message)}}
  useEffect(()=>{setLoaded(false);void load()},[project]);
  const target=releases.find(r=>r.name===release);
- return <section className="evidence" id="deployment-history"><h2>Deployment history</h2><Details title="Deployment tracking"><p>Record deployment observations from CI or by hand. If no final outcome arrives by the deadline, Spool marks it overdue and tries to notify the selected email destination once.</p></Details>
+ return <Fold title="Deployment history" id="deployment-history" meta={!loaded?'Loading deployment runs…':rows.length?`${rows.length} deployment ${rows.length===1?'run':'runs'} recorded`:'No deployment runs recorded'}><p className="meta">Record deployment observations from CI or by hand. If no final outcome arrives by the deadline, Spool marks it overdue and tries to notify the selected email destination once.</p>
  <form className="form-grid" onSubmit={e=>{e.preventDefault();void run(async()=>{await request(base,'POST',{id,release,build:target?.build,environment,commitSha:commit,previousCommit:previous||null,includedCommits:commits.split(/[\s,]+/).filter(Boolean),repository,startedAt:new Date().toISOString(),deadline:new Date(deadline).toISOString(),destination});setMessage('Deployment started.');await load()})}}>
  <Field label="Deployment ID" required value={id} onChange={e=>setId(e.target.value)} />
  <label className="form-field">Deployment release<select aria-label="Deployment release" required value={release} onChange={e=>setRelease(e.target.value)}><option value="">Choose release</option>{releases.map(r=><option key={r.name} value={r.name}>{r.name}</option>)}</select></label>
@@ -30,5 +31,5 @@ export function DeploymentHistory({project,releases,request,run,busy}:{project:s
  {message&&<p role="status">{message}</p>}{error&&<div role="alert"><p>{error}</p><button className="text-button" onClick={()=>void load()}>Retry deployment history</button></div>}
  {!loaded&&!error&&<p role="status">Loading deployment history…</p>}{loaded&&!rows.length&&<p>No deployment runs recorded.</p>}
  {rows.map(row=><article className="deployment-record" key={row.id} style={{borderTop:'1px solid var(--line)',paddingBlock:'1rem',overflowWrap:'anywhere'}}><h3>{row.id} · {row.environment} · {row.steps.at(-1)?.state.replaceAll('_',' ')}</h3><p>{row.release} · build {row.build}{row.historical?' · Restored history; callbacks and notifications are disabled.':''}</p><p>Started {date(row.started_at)} · owner deadline {date(row.deadline)}</p><p>Actor <code>{row.actor}</code> · <a href={row.repository} rel="noreferrer" target="_blank">Repository</a></p><details><summary>Included commits ({row.includedCommits.length})</summary><p>Previous: <code>{row.previous_commit??'Not supplied'}</code></p><ol>{row.includedCommits.map((sha:string)=><li key={sha}><code>{sha}</code></li>)}</ol><p>Caller recorded; repository ancestry has not been read back.</p></details><ol>{row.steps.map((step:any)=><li key={step.callback}><strong>{step.state.replaceAll('_',' ')}</strong> · {step.exposure}% exposure · {date(step.occurred)} · <code>{step.actor}</code>{step.rollback_release?` · rollback target ${step.rollback_release}`:''}</li>)}</ol>{row.notice&&<p>Deadline notice: {row.notice.state.replaceAll('_',' ')} · {date(row.notice.updated)}. A timeout records an overdue callback; deployment failure remains unconfirmed.</p>}</article>)}
- </section>;
+ </Fold>;
 }

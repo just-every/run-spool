@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SectionHead } from './SectionHead';
 import { GroupingExplanation } from './GroupingExplanation';
 import { CorrectionHistory, CorrectionReview } from './OperatorPanel';
 import { date, type Request, type Run } from './shared';
@@ -45,10 +46,8 @@ export function GroupingProposals({ project, request, run, busy, refresh, refres
     } else setNotice('Proposal rejected. No grouping changed.');
   });
   return <section className="evidence grouping-proposals" aria-labelledby="grouping-proposals-heading">
-    <h2 id="grouping-proposals-heading">Agent grouping proposals</h2>
-    <p>Review the agent’s explanation and counterexamples before deciding. Approval opens a preview; applying a correction or saving rules is a separate owner action.</p>
+    <SectionHead id="grouping-proposals-heading" title="Agent grouping proposals" about={<p>Review the agent’s explanation and counterexamples before deciding. Approval opens a preview; applying a correction or saving rules is a separate owner action.</p>}><button className="text-button" disabled={busy} onClick={() => action(async () => { await load(selected?.id); setNotice('Grouping proposals refreshed.'); })}>Refresh grouping proposals</button></SectionHead>
     {failure && <p role="alert">{failure}</p>}
-    <button className="text-button" disabled={busy} onClick={() => action(async () => { await load(selected?.id); setNotice('Grouping proposals refreshed.'); })}>Refresh grouping proposals</button>
     {rows === null ? <p role="status">{failure ? 'Grouping proposals unavailable.' : 'Loading grouping proposals…'}</p> : !rows.length ? <p>No agent grouping proposals yet.</p> : rows.map(row => <div className="data-row" key={row.id}>
       <span>{row.kind} · <strong>{row.state}</strong> · {row.label}</span>
       <button className="text-button" disabled={busy} aria-label={`Review grouping proposal ${row.id}`} onClick={() => action(async () => { await load(row.id); })}>Review proposal</button>

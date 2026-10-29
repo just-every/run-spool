@@ -15,6 +15,7 @@ import { SentryIntake } from './SdkSetup';
 import { MissingContent } from './NotFound';
 import { useDraft } from './shared';
 import { PageHeader } from './PageHeader';
+import { settingsTitle } from './settingsSections';
 import type { useWorkspace } from './useWorkspace';
 
 const titles = { issues: 'Issues', releases: 'Releases', capture: 'Capture', settings: 'Settings', alerts: 'Alerts', reports: 'Reports' };
@@ -27,7 +28,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   const onIssue = (id: string) => route.go(project, 'issues', id);
   useEffect(() => { if ((route.pathname === '/' || route.redirect) && projects.length) route.go(project, 'issues', undefined, true); }, [route.pathname, route.redirect, projects.length, project]);
   useEffect(() => { document.getElementById('content')?.focus({ preventScroll: true }); }, [route.pathname]);
-  useEffect(() => { document.title = `${access?.role === 'billing' ? 'Settings' : data.packet?.issue?.title ?? titles[route.view]} · Spool`; }, [route.view, data.packet?.issue?.title, access?.role]);
+  useEffect(() => { const section = route.view === 'settings' ? settingsTitle(route.section) : undefined; document.title = `${section ? `${section} · ` : ''}${access?.role === 'billing' ? 'Settings' : data.packet?.issue?.title ?? titles[route.view]} · Spool`; }, [route.view, route.section, data.packet?.issue?.title, access?.role]);
   useEffect(() => { setFreshKey(value => value?.project === project ? value : null); }, [project]);
   function created(row: any) { workspace.addProject({ id: row.id, name: row.name, role: 'owner' }); setFreshKey({ project: row.id, value: row.ingestKey, dsn: row.dsn, kind: 'ingest' }); route.go(row.id, 'capture'); refresh(); }
   const billing = access?.role === 'billing';
@@ -39,7 +40,7 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
   const controls = { project, busy, run, refresh, request: api };
   let content: ReactNode;
   if (access && (!projects.length || route.view === 'settings' || billing)) {
-    content = <SettingsView key={`settings-${project}`} {...controls} access={access} revision={revision} projects={projects} keys={data.keys} releases={data.releases} onCreated={created} onKey={grant => setFreshKey({ project, value: grant.key, dsn: grant.dsn, kind: grant.kind })} />;
+    content = <SettingsView key={`settings-${project}`} {...controls} section={route.view === 'settings' ? route.section : undefined} canonical={route.view === 'settings'} access={access} revision={revision} projects={projects} keys={data.keys} releases={data.releases} onCreated={created} onKey={grant => setFreshKey({ project, value: grant.key, dsn: grant.dsn, kind: grant.kind })} />;
   } else if (route.view === 'issues') {
     content = issueView
       ? <IssueView key={route.issue} {...controls} projectName={currentProject?.name ?? project} readOnly={readOnly} manageProject={manageProject} manageOrganization={manageOrganization} packet={data.packet} panels={data.panels} status={data.packetStatus} alert={data.packet ? issueAlert(data.packet.issue) : undefined} outcomes={data.outcomes} onViewed={attention.markViewed} onUpload={(release, debugId) => { setTarget({ id: crypto.randomUUID(), project, release, debugId, issue: route.issue! }); route.go(project, 'releases'); }} />

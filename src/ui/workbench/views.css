@@ -113,3 +113,7 @@ div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) min
 
 
 .retention-preview{width:100%;border-collapse:collapse}.retention-preview th,.retention-preview td{padding:8px 12px;text-align:left;vertical-align:top}.retention-preview td:nth-child(n+3){min-width:140px}
+
+/* A heading and the info control that holds its reference text share one line. */
+:is(h2,h3):has(+.tip>.details-trigger){display:inline-block;margin-right:6px;vertical-align:middle}
+:is(h2,h3)+.tip:has(>.details-trigger){vertical-align:middle}

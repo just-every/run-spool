@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { Fold } from './Fold';
 import { CodeBlock, installCommand } from './SdkSetup';
 import { Field, useDraft, type Request, type Run } from './shared';
 import { bundlers, shellQuote, sourceMapInstructions, type Bundler } from './sourceMapSnippets';
 
-export function SourceMapSetup({ project, releases, request, run, busy, refresh }: {
-  project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void;
+export function SourceMapSetup({ project, releases, request, run, busy, refresh, open = false }: {
+  project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void; open?: boolean;
 }) {
   const [storage,setStorage]=useState<any>(null),[uploads,setUploads]=useState<any>(null);
   const [cap,setCap]=useDraft(`${project}.artifact-cap`,''),[capEdited,setCapEdited]=useDraft(`${project}.artifact-cap-edited`,false);
@@ -20,8 +21,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
   }, [releases, release, build]);
   const ready = !!endpoint && /^[a-zA-Z0-9._:@+\-]+$/.test(release) && /^[a-zA-Z0-9._:\-]+$/.test(build);
   const instructions = sourceMapInstructions(bundler, { endpoint, project, release, build });
-  return <section className="evidence source-map-setup" id="source-map-setup" aria-labelledby="source-map-setup-heading">
-    <h2 id="source-map-setup-heading">Set up original-source mapping</h2>
+  return <Fold title="Set up original-source mapping" className="source-map-setup" id="source-map-setup" headingId="source-map-setup-heading" initialOpen={open} meta={storage ? `${storage.count} ${storage.count === 1 ? 'map' : 'maps'} stored · build plugin or CLI steps` : 'Build plugin or CLI steps'}>
     <p>A source map connects a built JavaScript file’s line and column to the same code in your original source.</p>
     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
     <h3>Artifact storage</h3>
@@ -61,5 +61,5 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
       <li>Missing map or debug ID: confirm the served bundle ends in <code>//# debugId=…</code> and its adjacent map’s <code>debug_id</code> matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.</li>
       <li>Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.</li>
     </ul>
-  </section>;
+  </Fold>;
 }

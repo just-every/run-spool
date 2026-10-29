@@ -1,0 +1,25 @@
+/* Settings: the section list (200px, two groups, the selected section on sunk fill) beside one section's content
+   (at most 720px). At phone width the list folds into one control under the title. */
+.settings-layout{display:grid;grid-template-columns:200px minmax(0,720px);gap:48px;align-items:start}
+.settings-nav{position:sticky;top:24px}
+.settings-toggle{display:none}
+.settings-group+.settings-group{margin-top:28px}
+.settings-group ul{display:grid;gap:2px;margin:10px 0 0;padding:0;list-style:none}
+.settings-group a{display:block;padding:8px 12px;border-radius:6px;color:var(--ink);font:400 15px/1.35 var(--font-text);text-decoration:none}
+.settings-group a:hover{background:rgb(235 234 228 / .5)}
+.settings-group a[aria-current=page]{background:var(--paper-sunk);font-weight:500}
+.settings-group .label{display:block;padding:0 12px}
+.settings-content{min-width:0}
+.settings-content>.evidence:first-child,.settings-content>div:first-child>.evidence:first-child{padding-top:0}
+.settings-content .evidence>p,.settings-content .evidence>.muted{max-width:72ch}
+@media(max-width:760px){
+ .settings-layout{display:block}
+ .settings-nav{position:static;margin-bottom:24px}
+ .settings-toggle{display:flex;width:100%;justify-content:flex-start}
+ .settings-toggle .label{margin-right:4px}
+ .settings-toggle .icon{margin-left:auto;transition:transform .15s}
+ .settings-toggle[aria-expanded=true] .icon{transform:rotate(180deg)}
+ .settings-list{display:none;margin-top:12px;padding:12px;border:1px solid var(--hairline);border-radius:8px}
+ .settings-list.open{display:block}
+ .settings-group a{min-height:44px;display:flex;align-items:center}
+}

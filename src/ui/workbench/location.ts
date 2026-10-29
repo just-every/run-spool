@@ -2,6 +2,8 @@ import { useRouter, useRouterState } from '@tanstack/react-router';
 export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts' | 'reports';
 export type Destination = { project: string; view: View; issue?: string; release?: string; section?: string; redirect?: boolean; unknown?: boolean };
 const views: string[] = ['issues', 'releases', 'capture', 'settings', 'alerts', 'reports'];
+/** Settings has one path per section; /settings opens the first section the role can see. */
+export const settingsSectionIds = ['keys-and-capture', 'grouping', 'releases-and-commits', 'users-and-feedback', 'alerts', 'reports', 'data', 'members', 'audit', 'imports-and-archive'];
 export function destination(path: string): Destination {
   if (path === '/') return { project: '', view: 'issues' };
   const parts = path.split('/').filter(Boolean);
@@ -11,6 +13,7 @@ export function destination(path: string): Destination {
     const project = decodeURIComponent(parts[1]), view = parts[2] as View;
     if (!views.includes(view)) return { project, view: 'issues', unknown: true };
     if (view === 'releases' && parts.length === 5 && parts[3] === 'setup' && parts[4] === 'source-maps') return { project, view, section: 'source-maps' };
+    if (view === 'settings' && parts.length === 4) return settingsSectionIds.includes(parts[3]) ? { project, view, section: parts[3] } : { project, view, unknown: true };
     if (parts.length > (view === 'issues' || view === 'releases' ? 4 : 3)) return { project, view, unknown: true };
     return { project, view, ...(parts[3] ? view === 'issues' ? { issue: decodeURIComponent(parts[3]) } : { release: decodeURIComponent(parts[3]) } : {}) };
   } catch { return { project: '', view: 'issues', unknown: true }; }
@@ -20,6 +23,7 @@ export function hrefFor(project: string, view: View = 'issues', issue?: string) 
   return project ? `/projects/${encodeURIComponent(project)}/${view}${(view === 'issues' || view === 'releases') && issue ? '/' + encodeURIComponent(issue) : ''}` : '/';
 }
 export function sourceMapHref(project: string) { return `${hrefFor(project, 'releases')}/setup/source-maps`; }
+export function settingsHref(project: string, section: string) { return project ? `${hrefFor(project, 'settings')}/${section}` : '/'; }
 export function useDestination() {
   const router = useRouter();
   const pathname = useRouterState({ select: state => state.location.pathname });
