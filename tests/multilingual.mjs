@@ -103,6 +103,13 @@ try{
   await restored.json('/api/restore','POST',await mappingArchive(archive,edit),{'X-Confirm-Restore':'yes'},400);
   assert.deepEqual(await restored.json('/api/projects'),[],'semantic archive rejection leaves destination empty');
  }
+ // A known earlier table inventory cannot smuggle different behavior objects.
+ const unrecordedBehavior=await mappingArchive(archive,()=>{},true,manifest=>{
+  manifest.schemaObjects.push({name:'zz_unrecorded_archive_behavior',type:'trigger',table:'projects',sql:'CREATE TRIGGER zz_unrecorded_archive_behavior AFTER INSERT ON projects BEGIN DELETE FROM projects; END'});
+  manifest.schemaObjects.sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0);
+ });
+ await restored.json('/api/restore','POST',unrecordedBehavior,{'X-Confirm-Restore':'yes'},400);
+ assert.deepEqual(await restored.json('/api/projects'),[],'unrecorded archive behavior is refused without native writes');
  await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  const after=await restored.json(`${p}/issues/${goResult.issue}/packet`);
  assert.equal(after.events.find(e=>e.id==='go-raw').event.exceptionSource,'parsed-text');

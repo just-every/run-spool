@@ -23,6 +23,7 @@ import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
+import { schemaIdentityOf } from '../modules/portability/schema-identity.mjs';
 import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
@@ -193,6 +194,10 @@ function beforeAgentAttribution(table:any,manifest:any){
  if(manifest.migrations?.includes('0084_native_agent_attribution.sql'))return table;
  const field=table.name==='repairs'?'recorded_by':table.name==='grouping_proposals'?'prepared_by':null;
  if(!field)return table;
+ // Unrecorded native inventories can already carry attribution. Keep the
+ // current descriptor only when the archive actually declares the column;
+ // the exact descriptor comparison below still rejects forged additions.
+ if(manifest.schemaObjects!==undefined && manifest.tables?.find((entry:any)=>entry.name===table.name)?.columns?.some((column:any)=>column.name===field))return table;
  const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
  return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
 }
@@ -200,6 +205,11 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Base canonicalizes the product identity, including behavior objects.
+ // Compare the known native table shape separately, then check the complete
+ // behavior inventory before translating a format that declares it.
+ const nativeTableIdentity=product.schemaObjects===undefined?product.schema
+  :await sha256(canonicalJson(product.tables.map(({name,sql}:any)=>({name,sql}))));
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
@@ -212,13 +222,20 @@ async function earlierManifest(db: D1Database, manifest: any) {
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
   const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
-  if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
+  if (nativeTableIdentity !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
+  // A recognized native table upgrade must retain a complete, known object
+  // inventory. An unrecorded index/trigger is never installed or acknowledged.
+  // Archives without an object inventory still require Base's legacy replay.
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(current.schemaObjects))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.
   const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-  return { ...manifest, ...migrations, schema: await sha256(canonicalJson(tables.map(({ name, sql }: any) => ({ name, sql })))), tables };
+  const schema=product.schemaObjects===undefined
+   ? await sha256(canonicalJson(tables.map(({name,sql}:any)=>({name,sql}))))
+   : await schemaIdentityOf(tables,current.schemaObjects);
+  return {...manifest,...migrations,schema,tables};
  }
  return null;
 }

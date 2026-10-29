@@ -6224,7 +6224,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "8449ba4cbac8369d9aba9c0f4f22ce3ebe561d844045b9bb7ee606b793740bc5",
+      "sha256": "5174fdc0707d7c8b9f4104700b42967ebd0b7376b3bdb04af1254063c9b41026",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -10384,11 +10384,11 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "3bad869a6b052fa8c989a0055a821e239ece75d8cc8d6e8a598b343a795c62dc",
+      "sha256": "795f800ae27048fdd8348fdbe7d6b06860e8a61618cfe42ba6db12848da8970e",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "2677fb2f939579e47254a560d102bc1238d6570ef6a7a20388a1ba1c3e908375",
+      "sha256": "c23adde2a69b8e5e2bc3668602f334172709dd25bd4289430957be62980066d0",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
