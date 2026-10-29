@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "bb99d69403f2cdd4beced9e63f4103a40cdafa6a39d32e00b140b2e98ab3e0f8",
+      "sha256": "180261881224b15d2e25670deca441a821d2f3c52b205abdc410de62e1def13a",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9b7685f9557798a29b14a818685f2e3f163c9373ee0b0f9da60905ce54a5ac05",
+      "sha256": "abb6d6497372558e17849803c8da97f60deee8d30f8129fdf849e984efc05e61",
       "executable": false
     },
     "DEMO.md": {
@@ -8385,7 +8385,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "e057d0e7bb50d6b752b3d5e82f6476e54528702c9715cf42c6c062a1224d467a",
+      "sha256": "18a4a9056f5950fa3b82b3207798994f48ad46e04c4655739b8d3606450d560e",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8857,7 +8857,7 @@
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
-      "sha256": "bc8f8f5a38969ae13dc36c0d7a9779a0215631082fcad36b7734f71d4c58d13c",
+      "sha256": "d23462f57ea27477b1df31d27803a7b9e74c42fced5c2c35f537b2c428137838",
       "executable": false
     },
     "tests/identity-flow.mjs": {

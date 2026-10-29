@@ -769,7 +769,7 @@ Core · target · **done** · Rules D-4
 7. Later events follow a fingerprint rule on `error.type` of the inner exception.
 8. A Python frame with `__traceback_hide__` set is hidden and excluded from the hash.
 
-**Evidence.** `src/domain/grouping/`; `src/ui/workbench/GroupingRules.tsx`; `tests/operator-flow.mjs` operatorFlow (cross-build identity, selected corrections, immutable originals, alert rates and undo); `tests/grouping-rules-flow.mjs` groupingRulesFlow (native and Sentry rule preview, forward policy, historical split, in-app collapse, hidden Python frame hash and positive control, owner explanation, archive and erasure); `tests/fidelity-flow.mjs` fidelityFlow (root-cause separation, chain contributions and inner-exception fingerprint rules); `src/domain/sentry/grouping.ts`; `docs/GROUPING-RULES.md`
+**Evidence.** `src/domain/grouping/`; `src/ui/workbench/GroupingRules.tsx`; `src/ui/workbench/IssueView.tsx`; `tests/operator-flow.mjs` operatorFlow (cross-build identity, selected corrections, immutable originals, alert rates and undo); `tests/grouping-rules-flow.mjs` groupingRulesFlow (native and Sentry rule preview, forward policy, historical split, in-app collapse, hidden Python frame hash and positive control, owner explanation, archive and erasure); `tests/fidelity-flow.mjs` fidelityFlow (root-cause separation, chain contributions and inner-exception fingerprint rules); `src/domain/sentry/grouping.ts`; `docs/GROUPING-RULES.md`
 **Gap.** None.
 
 #### FIND-001 — Search, facets and saved investigation views
