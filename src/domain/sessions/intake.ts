@@ -12,14 +12,17 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
  const record=async(reason:string,jobs:D1PreparedStatement[]=[])=>{await ingestBatch(c,scope,[...jobs,outcomeStatement(db,p,reason)]);counts[reason]=(counts[reason]??0)+1};
  for(const item of items){
   if(item.bytes.byteLength>102400){await record('session_item_too_large');continue}
-  let rows;try{rows=parseSessions(item)}catch(error){if(!(error instanceof SentryWireError))throw error;await record(error.reason==='session_missing_release'?'session_missing_release':'session_invalid');continue}
+  const releasePolicy=await readReleasePolicy(db,p);
+  let rows;try{rows=parseSessions(item)}catch(error){if(!(error instanceof SentryWireError))throw error;
+   if(error.reason==='session_missing_release'&&releasePolicy.policy.order==='registered')await record('missing_release_register_required',[outcomeStatement(db,p,'session_missing_release')]);
+   else await record(error.reason==='session_missing_release'?'session_missing_release':'session_invalid');continue}
   const {release,environment}=rows[0];if((await filterCategory(c,scope,{release,environment})).length){await record('session_filtered');continue}
   const used=await stmt(db,"SELECT COALESCE(SUM(count),0) n FROM outcomes WHERE project=? AND window>=? AND reason IN ('session_stored','session_invalid','session_missing_release','session_item_too_large','session_filtered','session_capacity','session_release_refused')",p,Math.floor(Date.now()/60000)*60000).first<{n:number}>();
   if(used!.n>=1200){await record('session_rate_limited');continue}
-  const releasePolicy=await readReleasePolicy(db,p);
-  if(!autoReleaseAllowed(release,releasePolicy.policy)&&!await stmt(db,'SELECT 1 FROM releases WHERE project=? AND name=?',p,release).first()){await record('session_release_refused');continue}
+  if(releasePolicy.policy.order!=='registered'&&!autoReleaseAllowed(release,releasePolicy.policy)&&!await stmt(db,'SELECT 1 FROM releases WHERE project=? AND name=?',p,release).first()){await record('session_release_refused');continue}
   const prepared=await prepareRelease(db,p,{version:1,eventId:'session',release,environment:environment||'unknown',build:absentDist,type:'Session',message:'',frames:[],breadcrumbs:[],sentry:{version:1,exceptions:[],truncation:[],tags:{},contexts:{},...sdk?{sdk}:{}}} as Envelope,true);
-  if(prepared.refusal||!prepared.event?.release){await record('session_release_refused');continue}
+  if(prepared.refusal){await record(prepared.refusal,[outcomeStatement(db,p,'session_release_refused')]);continue}
+  if(!prepared.event?.release){await record('session_release_refused');continue}
   const cutoff=Date.now()-90*86400000;if(rows.some(r=>r.started<cutoff)){await record('session_invalid');continue}
   const jobs=[...prepared.jobs!,stmt(db,'DELETE FROM health_sessions WHERE project=? AND started<?',p,cutoff),stmt(db,'DELETE FROM health_aggregates WHERE project=? AND started<?',p,cutoff)];
   const identity=rows.some(r=>r.did)?await prepareIdentityKey(db,p):null;if(identity)jobs.push(...identity.jobs);

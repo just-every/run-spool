@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 48 | 24 | 87 |
+| Core | 16 | 47 | 24 | 87 |
 | Agent surface | 0 | 0 | 18 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 48 | 42 | 105 |
+| Full target | 16 | 47 | 42 | 105 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -505,7 +505,7 @@ Core · target · **partial** · Rules D-4
 
 #### SDK-028 — Release ordering rule
 
-Core · target · **partial** · From SDK-009 · Rules D-4
+Core · target · **done** · From SDK-009 · Rules D-4
 
 **Requirement.** Each project shows its release ordering rule in project settings. One transitive total order governs release lists and exports, resolve in the current or next release, TEAM-004 resolution, regression, `release:latest` and REL-002 comparison. Lists use ascending order (a descending view reverses that same order); "latest" is always its final release, never a separately guessed version or registered sequence. The default, first seen, orders all releases by first-seen time, with registration counting as seen when it precedes intake; equal first-seen times are broken by release name in UTF-8 byte order, and later enrichment never changes first-seen time. The optional semver rule puts every name that parses as a semantic version, including `package@1.2.3+45` and `1.2.3`, first, ranked by semver precedence (major, minor, patch and prerelease; build metadata does not affect precedence), with equal precedence broken by first-seen time and then release name in UTF-8 byte order; every non-semver name (SHA, date or free text) follows the semver releases, ordered by first-seen time and then release name in UTF-8 byte order, and a pair never switches comparison rules based on the other release's name. A maintainer can instead choose registered sequence only, the stricter rule Spool's native intake uses: order by registered sequence, and refuse a Sentry SDK event or session with no release, or with an unregistered release or `dist`, with its named reason (`missing_release_register_required` or `unregistered_release_or_build`) and a pointer to registration, each refusal counted under that reason in project outcomes, BILL-001 usage and the MIG-001 dual run. A rule change is previewed (which resolved issues' regression boundaries move), audited and applies to later events; the first-seen, semver and registered total orders share the same list, latest, preview, current-resolution and regression comparison.
 
@@ -517,8 +517,8 @@ Core · target · **partial** · From SDK-009 · Rules D-4
 5. `release:latest`, release comparisons and regression use the chosen order.
 6. Under registered sequence only, chosen with its preview, an unregistered release and a missing release are each refused with the named reason and counted in project outcomes and usage.
 
-**Evidence.** `src/domain/releases/`; `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: the mixed-history first-seen and semver lists and latest, repeat-call stability, permutations, transitivity and tie breaks (lists and latest are asserted in tests/release-order-flow.mjs, which this clause does not cite; permutations and transitivity nowhere), `release:latest` and comparisons, and the counting of registered-sequence refusals in outcomes and usage. Asserted: semver protection of a resolved issue and the named refusal reasons.
+**Evidence.** `src/domain/releases/`; `tests/deployment-history.mjs` deployment history journey invokes `tests/release-order-flow.mjs` releaseOrderFlow: acceptance 1 and 2 native and Sentry-compatible lists, unmodified release-list CLI, issue release arrays and filter choices, health and report JSON and CSV exports, ordered private archives and lossless restore; acceptance 3 `tests/release-order-properties.mjs` releaseOrderProperties, all 120 fixed-metadata permutations, repeated sorts and all comparison triples under every setting; acceptance 4 releaseOrderTies, equal-time UTF-8 names, equal-precedence build metadata and legacy first-seen fallback, with production comparator and public SQL agreement; acceptance 5 changedBoundaries, inert preview, audited later-only policy, current and next resolution, comparisons, latest reads and exact regression alerts; acceptance 6 registeredRefusals, named event and session refusals, exact outcomes and usage, unchanged data, revoked grant refusal and registered recovery. `tests/release-identity-flow.mjs` releaseIdentityFlow and sdk009ReleaseResolution cover enrichment, semantic older-release protection, named and next resolution; `tests/sentry-http.mjs` also invokes team004Flow for commit resolution.
+**Gap.** None.
 
 #### SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request
 
