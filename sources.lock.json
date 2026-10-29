@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e0ab3c11e28f00b58a223af1230a8969946114e34101552f59ec02b4c787cd06",
+      "sha256": "1fc84565673fefc19f048a179b69167d26df2dc51d061449004dccd349fd2af1",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "544d3bcbe28dfc15a516eb642c36578c9e120785054390dff3b386eaa36f979f",
+      "sha256": "4d0bf342be4d96d265fa857a011da97c4df0dc70934204f73fae3bee577bacc1",
       "executable": false
     },
     "DEMO.md": {
@@ -8753,7 +8753,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232",
+      "sha256": "08b49629ed512df20033ed2b04debc44d1d7e7e4153d0178374ebe037f43076e",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
@@ -8889,7 +8889,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "ee42a538c2dbc92ae7e3207ef079a3510d75a4e3bb41f14a08a2e3dfb8b329cf",
+      "sha256": "4bdc55e5b58b0cc379af0f00f79fd5428e31f7385da669c8855ef5eed5814e58",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -9057,7 +9057,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "d2a56ebab82b4d88d994ef93c740ff082dded36866dbe57702faeedff4cfe77b",
+      "sha256": "c16ef204c41671e4d50732163bb5133925c90c121da9b1644ec330c429d31f1c",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {

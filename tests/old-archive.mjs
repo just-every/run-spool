@@ -9,6 +9,22 @@ import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {base32,prefixBase} from '../src/domain/short-ids/format.ts';
 
 const fixture='tests/fixtures/archive-fc75a7ac.ndjson';
+// The released data must not acquire advice, authority or optional capture work
+// merely by crossing a restore or additive-upgrade door.
+const emptyAdditions=['grouping_proposals','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions','loader_settings','review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions'];
+async function assertNoInventedWork(data,request){
+ for(const table of emptyAdditions)assert.deepEqual(data[table],[],'legacy recovery invents no advice, authority, automation or optional capture: '+table);
+ // Operational connection secrets are excluded from archives. Their public
+ // settings doors must still show that recovery created no connection.
+ for(const project of data.projects){
+  const base='/api/projects/'+project.id;
+  const connections=await request(base+'/check-in-routes');assert.equal(connections.status,200);
+  assert.deepEqual((await connections.json()).connections,[],'legacy recovery leaves check-in forwarding off');
+  const response=await request(base+'/alerting/destinations');assert.equal(response.status,200);
+  const destinations=await response.json();assert.equal(destinations.configuration,'available');
+  assert.ok(destinations.rows.every(row=>row.kind!=='slack'),'legacy recovery connects no Slack destination');
+ }
+}
 const canonicalRows=rows=>rows.map(row=>JSON.stringify(Object.fromEntries(Object.entries(row).sort()))).sort();
 const quote=value=>'"'+value.replaceAll('"','""')+'"';
 const rows=async(db,sql)=>(await db.prepare(sql).all()).results;
@@ -42,7 +58,7 @@ export async function releasedArchive({req,reset}){
  assert.equal((await req('/api/restore','POST',legacy,{'X-Confirm-Restore':'yes'})).status,200);
  const upgraded=await archiveProjection(await req('/api/archive'));
  for(const [table,data] of Object.entries(expected))assert.deepEqual(canonicalRows(upgraded.data[table]),canonicalRows(data),'released archive retains every row: '+table);
- assertNumbering(upgraded.data);
+ assertNumbering(upgraded.data);await assertNoInventedWork(upgraded.data,req);
  assert.equal((await req('/api/restore','POST',legacy,{'X-Confirm-Restore':'yes'})).status,409);
  // The earlier native JSON format still crosses the same current restore door.
  const v1=nativeArchive(upgraded.data,1);
@@ -97,9 +113,7 @@ async function populatedUpgrade(migrationFixture,boundary){
   const archive=await archiveProjection(await request('/api/archive'));
   for(const [table,data] of Object.entries(expected))assert.deepEqual(canonicalRows(archive.data[table]),canonicalRows(data),'HTTP export exposes every upgraded legacy row: '+table);
   assertNumbering(archive.data);
-  for(const table of ['grouping_proposals','spool_organizations','spool_members','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_reporting_items','issue_activity','issue_comments','recurrence_policies','issue_suppressions','loader_settings']){
-   assert.deepEqual(archive.data[table],[],'upgrade invents no advice, authority, automation or loader configuration: '+table);
-  }
+  await assertNoInventedWork(archive.data,request);
   const keys=await request('/api/projects/'+project+'/keys');
   assert.equal(keys.status,200);
   assert.deepEqual((await keys.json()).map(row=>({kind:row.kind,revoked:row.revoked})),[{kind:'ingest',revoked:null}],'the owner still sees the same active capture key');

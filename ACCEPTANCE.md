@@ -45,7 +45,7 @@ Core · published · **done**
 2. It raises one local alert.
 3. The same event ID with a changed raw secret is an explicit conflict, with no partial rows.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs`
+**Evidence.** `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs` native lifecycle: exact and concurrent retries retain one occurrence per event ID, one aggregate increment and one local alert; a changed raw secret conflicts before scrubbing with no partial rows
 **Gap.** None.
 
 #### ERR-003 — Scrub before storage
@@ -234,7 +234,7 @@ Core · target · **done** · Cites BASE-ROLE-001, BASE-ACCESS-004 · Rules D-1,
 2. Members triage concurrently.
 3. Removal revokes the member's keys and linked service authority.
 
-**Evidence.** `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md`
+**Evidence.** `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` publishedUpgrade: populated v0.6.0 and 0068 installations preserve every pre-existing row and table, invent no team authority, and expose legacy rows, exact short IDs and the active capture key through HTTP; `docs/MEMBERS.md`
 **Gap.** None.
 
 #### TEAM-002 — Accountable assignment and ownership rules
@@ -285,7 +285,7 @@ Core · target · **done** · Rules D-6
 5. A citation of another project's short ID changes nothing and is logged with its reason.
 6. With an auto-created release named by the commit's full SHA and no CI registration, the cited issue resolves in that release.
 
-**Evidence.** `src/domain/short-ids/`; `src/domain/commits/`; `migrations/core/0059_short_ids_commit_citations.sql`; `src/ui/workbench/CommitTimeline.tsx`; `src/ui/workbench/RepositoryLinkLog.tsx`; `src/ui/workbench/CommitSharing.tsx`; `tests/release-identity-flow.mjs`; `tests/operator-flow.mjs`; `tests/agent-handoff.mjs`; `tests/alerts-runtime.mjs`; `tests/alerts/delivery-flow.mjs`; `tests/sentry-import.mjs`; `tests/old-archive.mjs`; `tests/project-erasure.mjs`; `tests/owner-erasure.mjs`; `docs/SHORT-IDS.md`; `docs/retained-verification/team004/` Journey **TEAM-004 short IDs, commit citations, resolution and unknown-ID link log**: stable per-project short IDs in lists, issue view, search, JSON/CSV exports, packets, CLI/MCP, alert email/webhook bodies and digests, kept as aliases through merge, split and guarded undo; deploy-key release and deployment door citations (Fixes, Resolves or Closes, any case) linked at once on the issue timeline; unknown, other-project and imported-history citations logged with reason and changing nothing; idempotent repeats; resolution in the first including release under SDK-009's named resolution and SDK-028's ordering, with newer-release regression, older-release protection and auto-created SHA release association; author/message owner-only by default and shared by the audited owner choice; retention, project and owner erasure; inert byte-identical restore; v0.6.0 upgrade numbering; 1440/390 states.
+**Evidence.** `src/domain/short-ids/`; `src/domain/commits/`; `migrations/core/0059_short_ids_commit_citations.sql`; `src/ui/workbench/CommitTimeline.tsx`; `src/ui/workbench/RepositoryLinkLog.tsx`; `src/ui/workbench/CommitSharing.tsx`; `tests/release-identity-flow.mjs`; `tests/operator-flow.mjs`; `tests/agent-handoff.mjs`; `tests/alerts-runtime.mjs`; `tests/alerts/delivery-flow.mjs`; `tests/sentry-import.mjs`; `tests/old-archive.mjs` releasedArchive and publishedUpgrade (run by `tests/product-runtime.mjs`): complete released/v1 restore and populated v0.6.0/0068 upgrade with exact per-project short-ID numbering; `tests/project-erasure.mjs`; `tests/owner-erasure.mjs`; `docs/SHORT-IDS.md`; `docs/retained-verification/team004/` Journey **TEAM-004 short IDs, commit citations, resolution and unknown-ID link log**: stable per-project short IDs in lists, issue view, search, JSON/CSV exports, packets, CLI/MCP, alert email/webhook bodies and digests, kept as aliases through merge, split and guarded undo; deploy-key release and deployment door citations (Fixes, Resolves or Closes, any case) linked at once on the issue timeline; unknown, other-project and imported-history citations logged with reason and changing nothing; idempotent repeats; resolution in the first including release under SDK-009's named resolution and SDK-028's ordering, with newer-release regression, older-release protection and auto-created SHA release association; author/message owner-only by default and shared by the audited owner choice; retention, project and owner erasure; inert byte-identical restore; v0.6.0 upgrade numbering; 1440/390 states.
 **Gap.** None.
 
 #### TEAM-005 — Per-member notification settings and issue subscriptions
@@ -317,7 +317,7 @@ Core · target · **done** · Rules D-5
 4. Unmodified Node intake with no release and with an inferred-SHA release is accepted, including a release-less alert.
 5. Release-scoped figures count the no-release events.
 
-**Evidence.** Q1–Q7 Node: `tests/sdk-runtimes.mjs` ([SDK-001] node journey), `tests/runtimes/node.mjs`; Q1–Q7 browser, real widget/replay and build-plugin original line: `tests/sentry-sdk.mjs`, `tests/runtimes/browser.mjs`; lifecycle reports: `tests/client-report-sdk.mjs`; inherited SDK-009 Node identity: `tests/runtimes/node.mjs`; screens: `docs/retained-verification/sdk001/`.
+**Evidence.** Q1–Q7 Node: `tests/sdk-runtimes.mjs` ([SDK-001] node journey), `tests/runtimes/node.mjs`; Q1–Q7 browser, real widget/replay and build-plugin original line: `tests/sentry-sdk.mjs`, `tests/runtimes/browser.mjs` qualifyBrowser: handled, mapped-unhandled and SDK-discard views at 1440 and 390, with the same Q1–Q7 outcome reconciliation; lifecycle reports: `tests/client-report-sdk.mjs`; inherited SDK-009 Node identity: `tests/runtimes/node.mjs`; screens: `docs/retained-verification/sdk001/`.
 **Gap.** None.
 
 #### SDK-002 — Native crashes and symbolication
@@ -723,7 +723,7 @@ Core · target · **done**
 4. Loader events without a release are accepted and counted.
 5. Explicit release/dist identity and grouping match the directly bundled browser SDK.
 
-**Evidence.** `tests/sentry-sdk.mjs` ([SDK-023] loaderFlow); `tests/loader-flow.mjs`: lazy call/error capture API/UI, eager and both hooks, force load, key settings/integrations, uniform key refusal, direct-SDK identity/grouping/outcomes and release-less intake; `tests/loader-upgrade.mjs`: populated same-key upgrade; `tests/old-archive.mjs`: released upgrade/restore; public archive/restore/erasure in `tests/loader-flow.mjs`; push verify (sdk) and verify (runtime); screens `docs/retained-verification/sdk023/`.
+**Evidence.** `tests/sentry-sdk.mjs` ([SDK-023] loaderFlow); `tests/loader-flow.mjs`: lazy call/error capture API/UI, eager and both hooks, force load, key settings/integrations, uniform key refusal, direct-SDK identity/grouping/outcomes and release-less intake; `tests/loader-upgrade.mjs`: populated same-key upgrade; `tests/old-archive.mjs` releasedArchive and publishedUpgrade (run by `tests/product-runtime.mjs`): every released/v1 row and populated v0.6.0/0068 installation preserved, with exact short IDs, the active capture key and conservative loader defaults; public archive/restore/erasure in `tests/loader-flow.mjs`; push verify (sdk) and verify (runtime); screens `docs/retained-verification/sdk023/`.
 **Gap.** None.
 
 #### SDK-024 — Cron check-ins routed to Uptime
@@ -1046,7 +1046,7 @@ Core · target · **done** · Cites BASE-OPS-003, BASE-OPS-004 · Rules D-4
 6. A lost provider response stays uncertain until explicit reconciliation, and repeated evaluation adds no duplicate follow-up or alternate notice.
 7. Restoring an archive replays no work.
 
-**Evidence.** `src/domain/follow-up/`; `src/server.ts`; `src/domain/fixes/workflow.ts`; `src/ui/alerts/NeedsAttention.tsx`; `tests/alerts-runtime.mjs`; `tests/execution-journey.mjs` Durable owner/due/state/attempts, one safe audit fact and Needs attention row per interrupted/failed/overdue source, nonrecursive deduplicated alternate notices, explicit uncertain reconciliation and authorized resend, expired provider-boundary fences, inert archive restore and 1440/390 owner views.
+**Evidence.** `src/domain/follow-up/`; `src/server.ts`; `src/domain/fixes/workflow.ts`; `src/ui/alerts/NeedsAttention.tsx`; `tests/alerts-runtime.mjs`; `tests/execution-journey.mjs` with `tests/execution/follow-up.mjs` attentionCaptures at 1440 and 390. Durable owner/due/state/attempts, one safe audit fact and Needs attention row per interrupted/failed/overdue source, nonrecursive deduplicated alternate notices, explicit uncertain reconciliation and authorized resend, expired provider-boundary fences, inert archive restore and 1440/390 owner views.
 **Gap.** None.
 
 #### ALERT-005 — Chat and paging triage actions and link unfurls
@@ -1394,7 +1394,7 @@ Core · push-further · **done** · Cites BASE-AGENT-007, BASE-AGENT-008 · Rule
 4. After the owner approves another, it applies.
 5. Undoing it preserves the immutable originals and leaves a grouping-change coverage gap.
 
-**Evidence.** `src/domain/proposals/`; `migrations/core/0057_grouping_proposals.sql`; `src/ui/workbench/GroupingProposals.tsx`; `packages/agent/`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs`
+**Evidence.** `src/domain/proposals/`; `migrations/core/0057_grouping_proposals.sql`; `src/ui/workbench/GroupingProposals.tsx`; `packages/agent/`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs` releasedArchive and publishedUpgrade (run by `tests/product-runtime.mjs`): every released row restored and every pre-upgrade row preserved with no invented grouping proposal; `tests/product-runtime.mjs` independent restore keeps all proposal records and decisions unchanged
 **Gap.** None.
 
 #### AI-006 — Prevent related failures from recurring
