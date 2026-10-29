@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "98e3f3ddf339cc7afdedb05e0a810e9d85815d1db7faaf825d0171a88fceee5d",
+      "sha256": "5ef98d6b82641d773106e2ac27c1bc405a1c8d2532c91d26df693b3c0de0fd04",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4829ae88f7567e4d35ef565fb65ccc5cdbbe82f64a9f9b07db27085eb47129d3",
+      "sha256": "77fed3dadbc4c4d5297f2bcb3b00e42c4f6c7d8e70c8697e27be2cefd31cd8d4",
       "executable": false
     },
     "DEMO.md": {
@@ -9197,7 +9197,7 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "4123b1e52b53c121d7424c8732b9df1e7b2266038f91ecf4f3808343edb70ed8",
+      "sha256": "5068be2ae1e69aa07bea87c5c84d728e5cc842d1af08adebbc5b8641b6de7b2a",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
