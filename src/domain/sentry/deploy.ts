@@ -1,6 +1,6 @@
 import { auditedBatch } from '../audit/context';
 import { deploymentActor } from '../deployments/actors';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
 import { authorityGuard } from '../owner-authority';
 import { hash } from '../privacy.ts';

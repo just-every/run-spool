@@ -1,3 +1,4 @@
+import { agentGuard, type AgentAuthority } from '../agent-door/native-authority';
 import { hash, scrub } from '../privacy';
 import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
@@ -7,7 +8,7 @@ import { GrantRefused, ProviderSession } from './provider';
 import { protectFixSession } from '../follow-up/fix-boundary';
 
 const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
-// Provider answers are stored only in the shapes Spool expects.
+// Provider answers and native consent history retain only their declared fields.
 const commit = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value) ? value : null;
 const base64 = (text: string) => btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 const receipts = async (db: D1Database, workflow: string) => (await s(db, 'SELECT * FROM fix_receipts WHERE workflow=? ORDER BY at,id', workflow).all<any>()).results.map(row => ({ ...row, detail: JSON.parse(row.detail) }));
@@ -30,7 +31,10 @@ async function deployment(db: D1Database, row: any, grant: any, rows: any[]): Pr
 }
 
 export async function workflowView(db: D1Database, env: any, row: any, now = Date.now()) {
+ const prepared=await s(db,"SELECT actor FROM spool_agent_custody WHERE kind='fix' AND id=?",row.id).first<any>();
+ const activeApprovals=(await s(db,"SELECT person AS id,name,revision,created,reference FROM spool_native_approvals WHERE kind='fix' AND id=? ORDER BY revision DESC LIMIT 1",row.id).all()).results;
  const grant = JSON.parse(row.grant_spec), rows = await receipts(db, row.id), link = connection(env);
+ const approvedBy=activeApprovals.length?activeApprovals.map(({reference,...person}:any)=>person):rows.filter(r=>r.step==='native_repository_consent'&&r.outcome==='succeeded').sort((a,b)=>a.detail.revision-b.detail.revision).slice(-1).map(r=>r.detail);
  const deployed = await deployment(db, row, grant, rows), checks = succeeded(rows, 'read_checks').at(-1);
  const branch = succeeded(rows, 'create_branch')[0], pull = succeeded(rows, 'open_draft_pull_request')[0], merge = succeeded(rows, 'read_pull_request').find(r => r.detail.merged);
  const expired = row.approved !== null && now >= row.expires;
@@ -38,7 +42,7 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
  const status = deployed ? 'deployed' : row.merged ? 'merged' : row.approved === null ? 'proposed' : expired ? 'grant_expired'
   : row.pull_number ? 'pull_request_open' : link.state === 'configured' ? 'approved' : 'approved_awaiting_connection';
  return {
-  id: row.id, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status,
+  id: row.id, preparedBy:prepared?JSON.parse(prepared.actor):null,approvedBy,proofReference:activeApprovals[0]?.reference??null, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status,
   connection: publicConnection(link),
   states: {
    proposed: { at: row.proposed },
@@ -58,11 +62,11 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
 // step's receipts. One step forward under the approved grant: open the branch and draft pull
 // request, or read its state, checks and whether a deployment contains it.
 // The token is minted for this call only and revoked before returning.
-export async function advance(db: D1Database, env: any, row: any) {
+export async function advance(db: D1Database, env: any, row: any, actor?:AgentAuthority) {
  const link = connection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
- await protectFixSession(db,row,session);
+ await protectFixSession(db,row,session,actor?async()=>{await db.batch([agentGuard(db,actor),db.prepare('DELETE FROM spool_authority_guards')]);}:undefined);
  // A provider receipt may have committed immediately before interruption of
  // the workflow cache update. Read that evidence before opening another PR.
  if(!row.pull_number){
@@ -87,7 +91,9 @@ export async function advance(db: D1Database, env: any, row: any) {
     if (await hash(content) !== grant.file.sha256) await session.refuse('commit_file', 'The reproducer record differs from the approved file.');
     await session.call('commit_file', 'PUT', `${repo}/contents/${grant.file.path.split('/').map(encodeURIComponent).join('/')}`, { message: `Add Spool reproducer ${row.reproducer}`, content: base64(content), branch: grant.branch });
    }
-   const pull = await session.call('open_draft_pull_request', 'POST', `${repo}/pulls`, { title: grant.pullRequest.title, body: grant.pullRequest.body, head: grant.branch, base: grant.base, draft: true });
+   const nativeApprover=await s(db,"SELECT name FROM spool_native_approvals WHERE kind='fix' AND id=? ORDER BY revision DESC LIMIT 1",row.id).first<{name:string}>();
+   const body=grant.pullRequest.body+(nativeApprover?`\n\nNative repository grant authorized by ${nativeApprover.name}.`:'')+(actor?.context.approvers.length?`\nCompany approval: ${actor.context.approvers.map(p=>p.name).join(', ')}.`:'');
+   const pull = await session.call('open_draft_pull_request', 'POST', `${repo}/pulls`, { title: grant.pullRequest.title, body, head: grant.branch, base: grant.base, draft: true });
    if (!Number.isSafeInteger(pull.summary.number) || pull.summary.number < 1 || !/^https:\/\/[^\s?#]+$/.test(pull.summary.url)) throw new Error('GitHub returned an unexpected pull request');
    await update('pull_number=?,pull_url=?,head_sha=?', pull.summary.number, scrub(pull.summary.url), commit(pull.summary.head));
    return;

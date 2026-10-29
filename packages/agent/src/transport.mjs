@@ -47,44 +47,33 @@ export function endpoint(config, operation, args = {}) {
   return url;
 }
 
-export async function request(config, operation, args) {
-  const url = endpoint(config, operation, args);
-  const body = operation === 'propose_grouping' ? JSON.stringify(args) : undefined;
-  if (body !== undefined && Buffer.byteLength(body) > PROPOSAL_BYTES) throw new AgentError('Proposal exceeds 32768 UTF-8 bytes.');
+export async function rpc(config, method, params = {}) {
+  const url = new URL('/mcp', config.root);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), config.timeout);
   try {
-    const response = await fetch(url, {
-      method: body === undefined ? 'GET' : 'POST', body, redirect: 'manual', signal: controller.signal,
-      headers: { authorization: `Bearer ${config.key}`, accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...(config.devKey ? { 'x-rer-dev-key': config.devKey } : {}) },
-    });
-    // Refuse same-origin redirects too: they could expand the exact project scope.
-    if (response.status >= 300 && response.status < 400) throw new AgentError('Redirect refused.');
-    if (response.status === 401) throw new AgentError('Not authorized.', 2);
-    if (response.status === 403 || response.status === 404) throw new AgentError('Not found or out of scope.', 3);
-    if (!response.ok) throw new AgentError('Spool is unavailable.');
-    let bytes = 0;
-    const chunks = [];
-    for await (const chunk of response.body) {
-      bytes += chunk.byteLength;
-      if (bytes > 2 * 1024 * 1024) { controller.abort(); throw new AgentError('Spool response exceeds the read limit.'); }
-      chunks.push(chunk);
-    }
-    let data;
-    try { data = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new AgentError('Spool returned invalid JSON.'); }
-    // Existing issue routes return their bounded list; selection never adds a route.
-    if (operation === 'list_issues') {
-      if (!Array.isArray(data)) throw new AgentError('Spool returned an invalid issue list.');
-      if (args?.state === 'open') data = data.filter(issue => issue?.state === 'open');
-      if (args?.limit !== undefined) data = data.slice(0, args.limit);
-    }
-    return redact(data, [config.key, config.devKey]);
-  } catch (error) {
-    if (error instanceof AgentError) throw error;
-    throw new AgentError('Spool is unavailable or the request timed out.');
-  } finally {
-    // Status errors can leave an unread body holding the CLI open.
-    controller.abort();
-    clearTimeout(timer);
-  }
+    const response = await fetch(url, {method:'POST',redirect:'manual',signal:controller.signal,
+      headers:{authorization:`Bearer ${config.key}`,accept:'application/json, text/event-stream','content-type':'application/json','MCP-Protocol-Version':'2025-11-25',...(config.devKey?{'x-rer-dev-key':config.devKey}:{})},
+      body:JSON.stringify({jsonrpc:'2.0',id:crypto.randomUUID(),method,params})});
+    if(response.status===401)throw new AgentError('Not authorized.',2);
+    if(response.status>=300&&response.status<400)throw new AgentError('Redirect refused.');
+    if(!response.ok)throw new AgentError('Spool is unavailable.');
+    let bytes=0;const chunks=[];
+    for await(const chunk of response.body){bytes+=chunk.byteLength;if(bytes>2*1024*1024)throw new AgentError('Spool response exceeds the read limit.');chunks.push(chunk);}
+    const message=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    if(message.error)throw new AgentError('Spool refused the request.');
+    return redact(message.result,[config.key,config.devKey]);
+  }catch(error){if(error instanceof AgentError)throw error;throw new AgentError('Spool is unavailable or the request timed out.');}
+  finally{controller.abort();clearTimeout(timer);}
+}
+export async function request(config, operation, args={}) {
+  const names={list_issues:'spool.issues.list',get_packet:'spool.packets.read',get_outcomes:'spool.outcomes.read',list_grouping_proposals:'spool.proposals.list',propose_grouping:'spool.proposals.create'};
+  const name=names[operation];if(!name)throw new AgentError('Unknown operation.');
+  // Validate the legacy CLI inputs before forwarding to the shared registry.
+  endpoint(config,operation,args);
+  const project=decodeURIComponent(config.root.pathname.split('/').at(-1));
+  if(args.project!==undefined&&args.project!==project)throw new AgentError('Not found or out of scope.',3);
+  const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??crypto.randomUUID()}:{} }});
+  if(answer?.isError){const code=answer._meta?.['com.runeditrun/error']?.code;throw new AgentError(`Spool refused the request: ${code??'native_refused'}.`,code==='not_found'?3:1);}
+  const value=answer.structuredContent;return Array.isArray(value?.items)?value.items:value;
 }

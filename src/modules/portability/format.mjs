@@ -2,6 +2,8 @@ import { archiveLines } from './lines.mjs';
 import { canonicalJson, sha256, StreamHash, unbase64, utf8 } from './hash.mjs';
 import { insist, PortabilityError } from './storage.mjs';
 import { validateRow } from './catalogue.mjs';
+import { schemaIdentityOf, rawSchemaIdentityOf, tableSchemaIdentityOf } from './schema-identity.mjs';
+import { legacySchemaIdentities } from './schema-legacy.mjs';
 export const FORMAT='runeditrun-portability';
 export const MAX_LINE_BYTES=24*1024*1024;
 export const MAX_PART_BYTES=16*1024*1024;
@@ -36,8 +38,17 @@ async function checkManifestFields(m) {
   insist(Array.isArray(m.tables) && Array.isArray(m.objects) && Array.isArray(m.payloads) && Array.isArray(m.journal) && Array.isArray(m.requiredConfiguration),'manifest_inventory');
   // Applied product migrations, recorded by archives since additive restore.
   insist(m.migrations===undefined || (Array.isArray(m.migrations) && m.migrations.every(x=>typeof x==='string')),'manifest_inventory');
-  insist(m.schema===await sha256(canonicalJson(m.tables.map(({name,sql})=>({name,sql})))),'schema_checksum');
+  // The ledger an export from a RER Platform installation records, by migration identity.
+  const ledger=m.migrationLedger;
+  insist(ledger===undefined || (ledger && typeof ledger==='object' && Object.keys(ledger).sort().join()==='entries,origin' && ledger.origin==='rer_migrations' && Array.isArray(ledger.entries)
+    && ledger.entries.every(e=>e && typeof e==='object' && Object.keys(e).sort().join()==='name,sha256' && typeof e.name==='string' && /^[a-f0-9]{64}$/.test(e.sha256))
+    && canonicalJson(m.migrations)===canonicalJson(ledger.entries.map(e=>e.name)) && new Set(m.migrations).size===m.migrations.length),'manifest_inventory');
   insist(m.tables.every((t,i)=>typeof t.name==='string' && typeof t.sql==='string' && Array.isArray(t.columns) && Array.isArray(t.dependencies) && Number.isSafeInteger(t.count) && t.count>=0 && (!i || m.tables[i-1].name<t.name)),'table_inventory');
+  insist(m.schemaObjects===undefined || (Array.isArray(m.schemaObjects) && m.schemaObjects.every((o,i)=>
+    o && typeof o.name==='string' && ['index','view','trigger'].includes(o.type) && typeof o.table==='string' && typeof o.sql==='string'
+    && (!i || m.schemaObjects[i-1].name<o.name || (m.schemaObjects[i-1].name===o.name && m.schemaObjects[i-1].type<o.type)))),'manifest_inventory');
+  insist(m.schema===await schemaIdentityOf(m.tables,m.schemaObjects) || m.schema===await tableSchemaIdentityOf(m.tables)
+    || m.schema===await rawSchemaIdentityOf(m.tables) || (await legacySchemaIdentities(m.tables,m.schemaObjects)).includes(m.schema),'schema_checksum');
   for(const collection of [m.objects,m.payloads]) {
     const keys=new Set();
     for(const entry of collection) {
