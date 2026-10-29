@@ -1,7 +1,8 @@
 import { capturer, invalidOptions } from './core.ts';
 import { createBreadcrumbs, type CaptureResult, type SpoolOptions } from './types.ts';
 export { createBreadcrumbs };
-export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions } from './types.ts';
+export { startSession } from './sessions.ts';
+export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions, SpoolSession, SessionResult, SessionStatus } from './types.ts';
 
 /** The handler's execution context, such as the third argument of `fetch(request, env, ctx)`. */
 export interface WaitUntil { waitUntil(promise: Promise<unknown>): void }

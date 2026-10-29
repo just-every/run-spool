@@ -21,6 +21,24 @@ export interface SpoolOptions {
   client?: string;
   /** Called with every capture outcome, including transport failures and, in the browser, each uncaught error the SDK did not send (`dropped` with reason `client_cap` or `duplicate`). */
   onOutcome?: (result: CaptureResult) => void;
+  /** Opt in to one observed session per browser page or Node process. Off by default. */
+  sessions?: boolean;
+  /** Session sampling probability, from 0 to 1. Defaults to 1; rates describe observed sessions only. */
+  sessionSampleRate?: number;
+  /** Session outcomes are separate from error outcomes and accepted-error usage. */
+  onSessionOutcome?: (result: SessionResult) => void;
+}
+
+export type SessionStatus = 'exited' | 'crashed' | 'abnormal' | 'unhandled';
+export interface SessionResult { outcome: 'accepted' | 'rejected' | 'dropped' | 'unknown'; sid: string; reason?: string }
+export type ExposureResult = { outcome: string; reason?: string };
+export interface SpoolSession {
+  /** Update this observed session after an error; unhandled ends it as crashed. */
+  recordError(unhandled?: boolean | 'unhandled'): Promise<SessionResult>;
+  /** Finish once. Repeated calls return the same outcome and never add exposure. */
+  end(status?: SessionStatus): Promise<SessionResult>;
+  /** Send the current observation and wait for earlier sends. No automatic retry or offline persistence. */
+  flush(): Promise<SessionResult>;
 }
 
 export type CaptureOutcome = 'accepted' | 'duplicate' | 'conflict' | 'rejected' | 'dropped' | 'unavailable' | 'unknown';

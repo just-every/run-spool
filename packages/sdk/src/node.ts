@@ -1,7 +1,9 @@
 import { capturer, notInitialized } from './core.ts';
 import { createBreadcrumbs, type CaptureResult, type SpoolOptions } from './types.ts';
+import { startSession } from './sessions.ts';
+export { startSession };
 export { createBreadcrumbs };
-export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions } from './types.ts';
+export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions, SpoolSession, SessionResult, SessionStatus } from './types.ts';
 
 export interface NodeOptions extends SpoolOptions {
   /** Wait at most this long for Spool before a crashing process exits. Defaults to 2000 ms. */
@@ -10,6 +12,8 @@ export interface NodeOptions extends SpoolOptions {
 export interface SpoolNodeClient {
   /** The promise always settles with an outcome and never rejects. */
   captureException(error: unknown, breadcrumbs?: string[]): Promise<CaptureResult>;
+  /** Wait for the latest opted-in process-session observation. */
+  flushSessions(): Promise<import('./types.ts').SessionResult>;
   /** Remove the uncaught exception handler. */
   close(): void;
 }
@@ -34,6 +38,10 @@ function printFatal(error: unknown) {
 export function init(options: NodeOptions): SpoolNodeClient {
   active?.close();
   const capture = capturer(options);
+  let session:import('./types.ts').SpoolSession|undefined;
+  try { if(options.sessions)session=startSession(options); } catch {}
+  const onBeforeExit=()=>{void session?.end()};
+  if(session)process.once('beforeExit',onBeforeExit);
   let timeout = 2000;
   try { if (Number.isFinite(options.exitTimeoutMs) && options.exitTimeoutMs! >= 0) timeout = options.exitTimeoutMs!; } catch {}
   // Whatever the capture does, the host's own error is what gets printed, and the process still exits. The exit timer
@@ -48,7 +56,7 @@ export function init(options: NodeOptions): SpoolNodeClient {
     try {
       let report = false;
       try { report = error instanceof Error; } catch {}
-      if (report) await Promise.race([capture(error), new Promise(resolve => { timer = setTimeout(resolve, timeout); })]);
+      await Promise.race([Promise.all([report?capture(error):undefined,session?.recordError(crashing)]), new Promise(resolve => { timer = setTimeout(resolve, timeout); })]);
     } finally {
       clearTimeout(timer);
       if (fatal()) { try { printFatal(error); } finally { process.exit(1); } }
@@ -57,8 +65,9 @@ export function init(options: NodeOptions): SpoolNodeClient {
   };
   process.on('uncaughtException', onUncaught);
   const client: SpoolNodeClient = {
-    captureException: (error, breadcrumbs) => capture(error, breadcrumbs),
-    close() { process.off('uncaughtException', onUncaught); if (active === client) active = undefined; },
+    captureException: (error, breadcrumbs) => { void session?.recordError();return capture(error,breadcrumbs); },
+    flushSessions:()=>session?.flush()??Promise.resolve({outcome:'rejected',sid:'',reason:'session_tracking_disabled'}),
+    close() { process.off('uncaughtException', onUncaught);process.off('beforeExit',onBeforeExit);void session?.end(); if (active === client) active = undefined; },
   };
   return active = client;
 }

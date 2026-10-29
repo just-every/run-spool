@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "b91ae0fd8d41ccd02ed4ac134dbcc642ed542dd219f8e2e1bd9277f1f5debdde",
+      "sha256": "a33df2199e8faec4ab2319d8c063ff21762b39238f54bf57debea9974b85931e",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ebe7f12867fad494ffc369035655bcbea9b9e3252682df3d605d9b46f2d1d7cc",
+      "sha256": "3e86ee88490a193b5160a0ba78286ab536d3f9d2ad4ee34f2e64c89eb6a2864a",
       "executable": false
     },
     "DEMO.md": {
@@ -3645,7 +3645,7 @@
       "executable": false
     },
     "docs/SENTRY-SESSIONS.md": {
-      "sha256": "6ccd9fb5e55b5579a034171761dac6a751da8bdb27f01e914ec7d290d855d5ab",
+      "sha256": "f1ca605a68cffb62e41f21a111f919f9d293966e9bd94ba190136d2d1c18a579",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -4061,7 +4061,7 @@
       "executable": false
     },
     "packages/sdk/build.mjs": {
-      "sha256": "ad315f14997b1e6c4ec425c9d5d1c563e962f8c5c6b3596b74aa88f37e387f4d",
+      "sha256": "184898132c325eb608f4f63e789777345384940e246e1b263436203f86c87fe4",
       "executable": false
     },
     "packages/sdk/CHANGELOG.md": {
@@ -4073,15 +4073,15 @@
       "executable": false
     },
     "packages/sdk/README.md": {
-      "sha256": "0dd30c0ffc7ff20775340f4fc61de865e8ac55b5ed8d5375831585cd6f46ee80",
+      "sha256": "a6a25cab052f81dba9b30172ef6375684e9ccc6d79d08bbd5a23ee6944b7e9a2",
       "executable": false
     },
     "packages/sdk/src/browser.ts": {
-      "sha256": "d4c55ba1c4fd091c85528007778ae460ffb594b460462432b149053c76cf05d9",
+      "sha256": "a2d07cf73df9dff87abe4e77ead41840035383057ea6132305cce2c115016bb8",
       "executable": false
     },
     "packages/sdk/src/core.ts": {
-      "sha256": "03e549599c6e912418a346c2eaeb43dfd33a8464eeba0c5f8b097d380945161f",
+      "sha256": "3174bbfc42d1e4748deb96f0299f779bd83c7812a263afafd4659dde5a7940c7",
       "executable": false
     },
     "packages/sdk/src/esbuild.d.ts": {
@@ -4093,7 +4093,7 @@
       "executable": false
     },
     "packages/sdk/src/node.ts": {
-      "sha256": "a34f9c4327d099abbdf61bfd06032e204e003c6c0c412ee7d18f40aaf314b228",
+      "sha256": "235863568b6e3edbc30e23eb3a42d403a790485c5e7cc05373b71f2957983fff",
       "executable": false
     },
     "packages/sdk/src/setup/bin.mjs": {
@@ -4165,7 +4165,7 @@
       "executable": false
     },
     "packages/sdk/src/types.ts": {
-      "sha256": "e15d3f4ad8492bd8c04e2b38bc77faad133abe451a1749e77d287dc393dafc54",
+      "sha256": "71d8801fa86cc96eafc2bb0bd323086ae11ed869228d0ff24d9fae726bb2ef77",
       "executable": false
     },
     "packages/sdk/src/vite.d.ts": {
@@ -4177,7 +4177,7 @@
       "executable": false
     },
     "packages/sdk/src/worker.ts": {
-      "sha256": "9c19b5123ad8876763c1ef3b6787c92c30e702de8bdc6e9401b611c36b5c4d7f",
+      "sha256": "7522bf78bf49e0952f9e5d973f95c58c5877d6972da44ab103e124a2b79eb1f2",
       "executable": false
     },
     "packages/sdk/tsconfig.json": {
@@ -4865,7 +4865,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "d872c0b78cd479db0a5a2fbfe3e1bbd7e994af5aff9c24887732af4964d41ccc",
+      "sha256": "120aacc2576c25d1772e4a1a056713e74c244e8ca978dd6ecfa82a64a55419f9",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -4885,7 +4885,7 @@
       "executable": false
     },
     "src/domain/audit/classify.ts": {
-      "sha256": "dd4f47fc74767200872d2110d8c61ee253cd66bf9182baad3601aca5cf131fb1",
+      "sha256": "918a4233b69d95fe89e18fb518f40b08780a6a35e17aaf2c9f2c1610cc32d0ee",
       "executable": false
     },
     "src/domain/audit/context.ts": {
@@ -9157,7 +9157,7 @@
       "executable": false
     },
     "tests/sdk-package.mjs": {
-      "sha256": "e2552cad017144f070ecea809bb84f24cfdaa77b1c60163bc69b37e4d7227c80",
+      "sha256": "d727173b4af4f293f6dd8c581c8b1fa73c2aae809bf9c4b61f4786612c079f7b",
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {

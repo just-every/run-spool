@@ -1,8 +1,10 @@
 import { listen } from '../../../src/domain/capture.ts';
-import { capturer, dropper, exposureReporter, notInitialized, type ExposureResult } from './core.ts';
-import { createBreadcrumbs, type CaptureResult, type SpoolOptions } from './types.ts';
+import { capturer, dropper, exposureReporter, notInitialized } from './core.ts';
+import { createBreadcrumbs, type CaptureResult, type SpoolOptions, type ExposureResult } from './types.ts';
+import { startSession } from './sessions.ts';
+export { startSession };
 export { createBreadcrumbs };
-export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions } from './types.ts';
+export type { Breadcrumbs, CaptureOutcome, CaptureResult, SpoolOptions, SpoolSession, SessionResult, SessionStatus } from './types.ts';
 
 export interface SpoolClient {
   /** Send one error now. The promise always settles with an outcome and never rejects. */
@@ -12,6 +14,8 @@ export interface SpoolClient {
   clearBreadcrumbs(): void;
   /** Report that this page reached the named flows (at most 20), such as `checkout`. Needs the `client` option. */
   exposure(...flows: string[]): Promise<ExposureResult>;
+  /** Wait for the latest opted-in page-session observation. */
+  flushSessions(): Promise<import('./types.ts').SessionResult>;
   /** Remove the error and unhandled rejection listeners. */
   close(): void;
 }
@@ -39,12 +43,18 @@ let active: SpoolClient | undefined;
 export function init(options: SpoolOptions): SpoolClient {
   active?.close();
   const breadcrumbs = createBreadcrumbs(), capture = capturer(options, breadcrumbs.snapshot);
-  const uninstall = listen((error, dropped) => capture(error, undefined, dropped), dropper(options)), report = exposureReporter(options, true);
+  let session:import('./types.ts').SpoolSession|undefined;
+  try { if(options.sessions)session=startSession(options); } catch {}
+  const onPageHide=()=>{void session?.end()};
+  const onPageShow=(event:PageTransitionEvent)=>{if(event.persisted&&session)session=startSession(options)};
+  if(session){addEventListener('pagehide',onPageHide);addEventListener('pageshow',onPageShow)}
+  const uninstall = listen((error, dropped) => {void session?.recordError('unhandled');return capture(error, undefined, dropped)}, dropper(options)), report = exposureReporter(options, true);
   const client: SpoolClient = {
-    captureException: error => capture(error),
+    captureException: error => {void session?.recordError();return capture(error)},
     breadcrumb: breadcrumbs.add, clearBreadcrumbs: breadcrumbs.clear,
     exposure: (...flows) => report(flows),
-    close() { uninstall(); if (active === client) active = undefined; },
+    flushSessions:()=>session?.flush()??Promise.resolve({outcome:'rejected',sid:'',reason:'session_tracking_disabled'}),
+    close() { uninstall();removeEventListener('pagehide',onPageHide);removeEventListener('pageshow',onPageShow);void session?.end(); if (active === client) active = undefined; },
   };
   return active = client;
 }

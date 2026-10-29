@@ -11,6 +11,7 @@ import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
 import sessionRoutes from './sessions/routes';
+import { nativeSessionResponse } from './sessions/native';
 import { suspectRoutes } from './suspects/routes';
 import { loaderRoutes } from './loader/routes';
 import { checkInRoutes } from './checkins/routes';
@@ -126,6 +127,8 @@ const preflight=async(c:any)=>{
 api.options('/api/ingest/:project',preflight);
 api.options('/api/ingest/:project/exposure',preflight);
 api.post('/api/ingest/:project/exposure',exposureResponse);
+api.options('/api/ingest/:project/sessions',preflight);
+api.post('/api/ingest/:project/sessions',nativeSessionResponse);
 // The reproducer runner's single-use run tokens are its only authority.
 api.route('/api/sandbox',runnerRoutes);
 api.post('/api/ingest/:project',async c=>{

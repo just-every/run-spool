@@ -60,6 +60,29 @@ await captureException(error);
 
 `init` reports uncaught exceptions and unhandled rejections, then prints the error and exits with code 1 as Node would (it waits at most `exitTimeoutMs`, 2000 by default, even if `fetch` never settles). Only the first uncaught error is reported and printed; later ones while it is being reported are ignored, as Node would never have run them. If your code also listens for `uncaughtException`, the process is left to your handler.
 
+## Observed sessions
+
+The unpublished SDK source in this checkout also supports opt-in release health. Add `sessions: true` to browser or Node `init`. A browser page is one session; `pagehide` or `close()` finishes it, and a page restored from the browser's back-forward cache starts a new session. An uncaught browser exception is recorded as **unhandled**, not as a browser process crash. Node observes one process session, finishes a healthy process on `beforeExit`, and records a fatal uncaught exception as **crashed** before the existing bounded exit. A handled exception increments the observed error count without claiming a process crash. Error outcomes and usage stay separate from session outcomes.
+
+For explicit boundaries, `startSession(options)` is exported from the browser, Node and Worker entries:
+
+```js
+import { startSession } from '@just-every/spool/worker';
+const session = startSession({ endpoint, project, ingestKey, release, build });
+try {
+  const response = await handle(request);
+  ctx.waitUntil(session.end());
+  return response;
+} catch (error) {
+  ctx.waitUntil(session.recordError(true));
+  throw error;
+}
+```
+
+`session.end()` is idempotent. `session.flush()` waits for its latest observation; an initialized browser or Node client exposes `flushSessions()` too, including after `close()`. `sessionSampleRate` selects sessions with a probability from 0 to 1, default 1. `onSessionOutcome` receives accepted, rejected, dropped or unknown outcomes separately from `onOutcome`. Sampling and backpressure drops are named locally; a transport failure remains unknown. There is no durable offline queue, retry or server-side accounting of observations that never arrive. A later explicit observation of the same session keeps its original SID and start time. At most one request and the latest pending observation are kept in memory; each request has a five-second deadline.
+
+The project ingest key and browser origin rules protect the native session door. Its project-minute budget and category header are shared with Sentry sessions; the SDK honors bounded session backoff while error capture continues. An optional random `client` becomes a keyed per-project session identifier; without it, user rates are unavailable. The SDK does not invent an install identity or collect device details. Reports describe observed sessions and known users, with uncertainty; neither sampling nor an absent exception proves healthy exposure. Native device modes, request aggregation, device and OS cohorts, and full identity policy remain gaps in SDK-005.
+
 ## Cloudflare Workers
 
 ```js

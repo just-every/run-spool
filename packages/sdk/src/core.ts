@@ -1,7 +1,7 @@
 import { client, identity } from '../../../src/domain/privacy.ts';
 import { sendExposure } from '../../../src/domain/exposure/report.ts';
 import { captureException as send, currentFetch, settle, type CaptureOptions, type Dropped } from '../../../src/domain/capture.ts';
-import type { CaptureResult, SpoolOptions } from './types.ts';
+import type { CaptureResult, ExposureResult, SpoolOptions } from './types.ts';
 
 /** `dropped`: errors at this error's location the page listener did not send since its last send there. */
 export type Capture = (error: unknown, breadcrumbs?: string[], dropped?: number) => Promise<CaptureResult>;
@@ -51,7 +51,6 @@ export function invalidOptions(problem: unknown, options: unknown): CaptureResul
 
 export const notInitialized = (): CaptureResult => ({ outcome: 'rejected', reason: 'not_initialized', eventId: '' });
 
-export type ExposureResult = { outcome: string; reason?: string };
 /** Reports that this client reached the named flows in this release. Without a `client` option it settles as rejected. */
 export function exposureReporter(options: SpoolOptions, capture: boolean): (flows: string[]) => Promise<ExposureResult> {
   try {

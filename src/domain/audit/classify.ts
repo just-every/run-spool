@@ -93,7 +93,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/imports\/sentry\/[^/]+\/(?<subject>[^/]+)\/undo$/,action:'import.undo',kind:'import'},
  {pattern:/^\/api\/imports\/sentry\/[^/]+\/(?<subject>[^/]+)\/originals$/,action:'import.originals',kind:'import'},
  {pattern:/^\/api\/ingest\/(?<project>[^/]+)\/exposure$/,action:'capture.exposure',kind:'project'},
- {pattern:/^\/api\/ingest\/(?<project>[^/]+)$/,action:'capture.native',kind:'project'},
+ {pattern:/^\/api\/ingest\/(?<project>[^/]+)(?:\/sessions)?$/,action:'capture.native',kind:'project'},
  {pattern:/^\/api\/[^/]+\/(?:store|envelope)\/?$/,action:'capture.sentry',kind:'installation'},
  {pattern:/^\/api\/otlp\//,action:'capture.otlp',kind:'installation'},
  // SRC-003: the Sentry API doors unmodified sentry-cli and build plugins call. A deploy key proves the project;

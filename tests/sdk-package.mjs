@@ -1,6 +1,7 @@
 // [SRC-001][SRC-004] The published SDK, as a user gets it: the packed tarball installed into a fresh app, sending through Spool's public ingest door.
 import {sourceMapPlugins} from './source-map-plugins.mjs';
 import {sourceMapCapacity} from './source-map-capacity.mjs';
+import {nativeSessionFlow} from './native-session-flow.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -23,6 +24,14 @@ try {
   execFileSync('npm', ['install', packed.tarball, '--offline', '--no-audit', '--no-fund', '--ignore-scripts'], { cwd: app, stdio: 'ignore' });
   const installed = JSON.parse(await readFile(resolve(app, 'node_modules/@just-every/spool/package.json'), 'utf8'));
   assert.ok(!installed.dependencies, 'the package installs with no runtime dependencies');
+  await writeFile(resolve(app,'sessions.ts'),`import {init,startSession,type SpoolOptions,type SpoolSession} from '@just-every/spool';
+import {init as nodeInit} from '@just-every/spool/node';
+import {startSession as workerSession} from '@just-every/spool/worker';
+declare const options:SpoolOptions;
+const session:SpoolSession=startSession(options);
+void session.end('crashed');void init(options).flushSessions();void nodeInit(options).flushSessions();void workerSession(options).end();
+`);
+  execFileSync(process.execPath,[resolve('node_modules/typescript/bin/tsc'),'--noEmit','--strict','--module','nodenext','--moduleResolution','nodenext','--target','es2022','--lib','es2023,dom',resolve(app,'sessions.ts')],{cwd:app,stdio:'inherit'});
 
   worker = await startTestWorker(15561); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };
@@ -52,11 +61,13 @@ try {
   const config = { endpoint: origin, project: 'fresh', ingestKey: project.ingestKey, release: 'web@1.0.0', build: 'b1' };
   // /wrapped is the same app behind a common fetch wrapper that reports every non-OK response as a page error.
   const wrapper = `window.__pageErrors=0;addEventListener('error',()=>{window.__pageErrors++});const original=fetch;window.fetch=async(...args)=>{const response=await original(...args);if(!response.ok)reportError(new Error('HTTP '+response.status));return response};`;
+  const sessionConfig={value:null};
   server = createServer((req, res) => {
     if (req.url === '/app.js') { res.setHeader('Content-Type', 'text/javascript'); res.end(bundle); return; }
-    const wrapped = req.url === '/wrapped', noisy = req.url === '/noisy', closing = req.url === '/closing', pageConfig = wrapped ? { ...config, release: 'web@2.0.0' } : config;
+    const sessions=req.url==='/sessions';
+    const wrapped = req.url === '/wrapped', noisy = req.url === '/noisy', closing = req.url === '/closing', pageConfig = sessions?sessionConfig.value:wrapped ? { ...config, release: 'web@2.0.0' } : config;
     // /noisy: a timer throws an error with a new message every 20 ms for 2 s, and another location throws once at 1.5 s.
-    const outcomes = noisy ? 'window.__outcomes={};window.__SPOOL__.onOutcome=result=>{const key=result.outcome+"/"+(result.reason??"");window.__outcomes[key]=(window.__outcomes[key]??0)+1};' : closing ? 'window.__outcomes=[];window.__SPOOL__.onOutcome=result=>window.__outcomes.push(result);' : '';
+    const outcomes = sessions?'window.__sessionOutcomes=[];window.__SPOOL__.onSessionOutcome=result=>window.__sessionOutcomes.push(result);addEventListener("error",()=>{window.__pageCrashed=true});':noisy ? 'window.__outcomes={};window.__SPOOL__.onOutcome=result=>{const key=result.outcome+"/"+(result.reason??"");window.__outcomes[key]=(window.__outcomes[key]??0)+1};' : closing ? 'window.__outcomes=[];window.__SPOOL__.onOutcome=result=>window.__outcomes.push(result);' : '';
     const noise = noisy ? `<script type="module">let n=0;const noise=setInterval(function tick(){throw new Error('tick '+(n++))},20);setTimeout(()=>clearInterval(noise),2000);setTimeout(function genuine(){throw new Error('genuine failure at another location')},1500);</script>` : '';
     res.setHeader('Content-Type', 'text/html'); res.end(`<!doctype html><title>Fresh app</title><button>Throw</button><script>${wrapped ? wrapper : ''}window.__SPOOL__=${JSON.stringify(pageConfig)};${outcomes}</script><script type="module" src="/app.js"></script>${noise}`);
   });
@@ -193,6 +204,7 @@ try {
   const handle = () => { try { throw new Error('edge failure'); } catch (error) { workerSdk.captureException(error, { ...config, build: undefined }, { waitUntil: work => kept.push(work) }); return new Response('Internal error', { status: 500 }); } };
   assert.equal(handle().status, 500);
   assert.equal((await kept[0]).reason, 'invalid_options', 'a missing option settles as rejected instead of throwing');
+  await nativeSessionFlow({origin,cookie,request,app,browser,appOrigin,sessionConfig});
   await sourceMapCapacity({origin,request,app,browser});
   await sourceMapPlugins({origin,request,app,browser,cookie});
   console.log(JSON.stringify({ passed: true, proof: 'Packed tarball installed offline into a fresh app: browser init with plugin-mapped frame and scrubbed breadcrumb, the same page without crypto.randomUUID, a fetch wrapper reporting refused sends without a feedback loop, a noisy location capped while another location’s error arrives and every drop counted on its issue, Node uncaught exception (and an odd-shaped one) reported then exit 1 with the app error, even with a never-settling fetch and a second throw, Worker catch block kept with a missing option.' }));
