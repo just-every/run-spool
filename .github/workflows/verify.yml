@@ -67,6 +67,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # The prose reader resolves COVERAGE.json's recorded old commit.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 10.12.4
@@ -449,6 +451,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # The prose reader resolves COVERAGE.json's recorded old commit.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22.20.0'
