@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "98e3f3ddf339cc7afdedb05e0a810e9d85815d1db7faaf825d0171a88fceee5d",
+      "sha256": "11921fa997aeff3baa4539884b06b36d579fc633447030257731fba93fde6c2f",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4829ae88f7567e4d35ef565fb65ccc5cdbbe82f64a9f9b07db27085eb47129d3",
+      "sha256": "c9bcd06af4b7e40b97460138693f6c6809bd8b6bec7807e92e145e571d838fb9",
       "executable": false
     },
     "DEMO.md": {
@@ -9077,7 +9077,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "dfbe2d0a63f87de5516d491d3e87b9f398b41115afbeb040fb542fbdb532289d",
+      "sha256": "848040aa87c1c097a5f8ce31c4e3bd4050aaba30f79ec072dc6e0bd59e08c0cf",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
@@ -9397,7 +9397,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "c1da3a4e364468c216b1d3804cf203b89c7f479e38e059463703846275d58cc4",
+      "sha256": "48103943bd1e467139faef1055adfed80a5a26a197a2abe4c5f9d6b46b51e9fc",
       "executable": false
     },
     "tests/triage-app.mjs": {

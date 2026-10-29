@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 48 | 24 | 87 |
+| Core | 16 | 48 | 23 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 48 | 29 | 92 |
+| Full target | 16 | 48 | 28 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `bc5d190edca31f4f5a557b69f676c4946f5e56c0` (29 October 2026): FIND-003 reports, dashboard and team journeys qualify all four acceptance outcomes through public doors, including saved-query read-back equality over known release-less evidence. The candidate preserves these proofs and the original dashboard download assertion; exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and prerequisite scopes are unchanged. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -807,7 +807,7 @@ Core · target · **partial**
 
 #### FIND-003 — Trends, dashboards and team reports
 
-Core · target · **missing** · From FIND-002 · Rules D-4
+Core · target · **done** · From FIND-002 · Rules D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
@@ -817,8 +817,8 @@ Core · target · **missing** · From FIND-002 · Rules D-4
 3. A custom widget and a saved event query match the same totals.
 4. A read-only export omits inaccessible projects.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: custom dashboards, team reports and permissioned report exports remain absent.
+**Evidence.** `tests/reports-flow.mjs` reportsFlow: acceptance 1, known event and session totals, affected counts, triage durations, ownership, release-less observations and denominator disclosures; acceptance 2, UTC and New York instant-window equality across DST. `tests/reports-flow.mjs` reportWorkbench: acceptance 3, save and reopen the query and its persisted table, reconcile exact event identities and total with the count widget and report. `tests/investigation-flow.mjs` dashboardFlow: count, rate, affected-user and session widgets, same-occurrence predicates, safe bounded exports and stale-write refusal. `tests/team-flow.mjs` reportingTeamFlow in teamFlow: acceptance 4, read-only JSON and CSV exports omit inaccessible projects, with current-role and revoked-member refusals; inertTeamArchive: truthful action audit, preserved facts and inert restored shares. `tests/owner-erasure.mjs` owner erasure public flow: reporting author redaction and old-archive fences. `tests/project-erasure.mjs` project erasure public journey: erased report widgets and shares disappear while unrelated project widgets survive.
+**Gap.** None.
 
 #### SRC-001 — Build artifacts and CI pipelines
 
