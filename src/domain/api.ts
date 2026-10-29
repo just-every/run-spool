@@ -49,6 +49,7 @@ import { exposureResponse } from './exposure/intake';
 import { projectErasureRoutes, erasureReceiptRoutes } from './erasure/routes';
 import { erasedProjectIdentifier } from './erasure/identifiers';
 import { applyRetention } from './retention';
+import {retentionInventory,retentionTypes,type RetentionWindows} from './retention-policy';
 import { commitRoutes } from './commits/routes';
 import { sharingSql } from './commits/sharing';
 import { ensureShortIds, prefixStatement, projectPrefix } from './short-ids/assign';
@@ -242,7 +243,7 @@ api.post('/api/restore',async c=>{
 api.post('/api/projects/:project/retention',async c=>{
  const p=c.req.param('project'),b=await body(c);if(!Number.isSafeInteger(b.cutoff)||b.cutoff<0||b.cutoff>now()||typeof b.apply!=='boolean')throw new Error('Invalid retention cutoff');
  const affected=await stmt(c.env.DB,'SELECT COUNT(*) total FROM events WHERE project=? AND received<?',p,b.cutoff).first<any>();
- if(!b.apply)return c.json({dryRun:true,events:affected.total,cutoff:b.cutoff,deduplication:'Event IDs before cutoff can be admitted again; retry horizon is retained data only'});
+ if(!b.apply)return c.json({dryRun:true,events:affected.total,cutoff:b.cutoff,...await retentionInventory(c.env.DB,p,Object.fromEntries(retentionTypes.map(type=>[type,b.cutoff])) as RetentionWindows),deduplication:'Event IDs before cutoff can be admitted again; retry horizon is retained data only'});
  const removed=await applyRetention(ownerDb(c),p,b.cutoff);
  return c.json({applied:true,events:removed,cutoff:b.cutoff,coverage:'Historical evidence deleted; comparisons across cutoff are incomplete'});
 });
