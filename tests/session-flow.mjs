@@ -52,6 +52,8 @@ export async function sessionFlow({origin,cookie,browser}){
   assert.equal((await restoredApp.request(recordProof.root+'/session-records','GET',undefined,recordProof.auth)).status,401);
   const recordPlan=await app.json(recordProof.root+'/erasure');await followErasure(app.json,await app.json(recordProof.root+'/erasure','POST',{confirm:recordProof.project,planHash:recordPlan.planHash}));
   assert.equal((await app.request(recordProof.root+'/session-records')).status,404);assert.equal((await app.request(recordProof.root+'/session-records','GET',undefined,recordProof.auth)).status,401,'erasure retires session read authority at the next read');
+  const replay=await send(recordProof.dsn,'session',recordProof.capture);assert.equal(replay.status,401);await replay.body?.cancel();
+  assert.equal((await app.request(recordProof.root+'/session-records')).status,404,'replayed captures cannot resurrect erased session records');
   const plan=await app.json(root+'/erasure');assert.equal(plan.deleted.health_sessions,6);await followErasure(app.json,await app.json(root+'/erasure','POST',{confirm:p.id,planHash:plan.planHash}));assert.equal((await app.request(root+'/release-health')).status,404);const erased=await archiveProjection(await app.request('/api/archive'));for(const table of ['health_sessions','health_aggregates','project_identity_keys']){assert.ok(!erased.data[table].some(r=>r.project===p.id));assert.ok(!erased.data[table].some(r=>r.project===recordProof.project))}
   console.log('[SDK-005] default Node healthy/crashed and browser healthy/unhandled sessions, exact reference reconciliation, aggregate unknown users, missing release/origin/key refusal, read grant, JSON, 1440/390, archive/restore and erasure passed');
  }finally{await restored?.stop();await ref.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r))}await rm(dir,{recursive:true,force:true})}
@@ -109,5 +111,5 @@ async function sessionRecordReadFlow({app,send}) {
  assert.equal((await app.request(root+'/session-records','GET',undefined,{Cookie:''})).status,401);
  assert.deepEqual((await paginate()).rows,read.rows,'denied reads change no session observations');
  console.log('[API-001] 60 tied individual and aggregate records, health quantities, owner equality, query and project cursor fences, identity exclusion and wrong-purpose or revoked read refusals passed');
- return {project:p.id,root,rows:read.rows,auth,paginate};
+ return {project:p.id,root,rows:read.rows,auth,paginate,dsn:p.dsn,capture:{sid:'1'.padStart(32,'0'),started:new Date(started).toISOString(),timestamp:new Date(started).toISOString(),status:'crashed',errors:1,did,attrs:{release,environment:'production'}}};
 }
