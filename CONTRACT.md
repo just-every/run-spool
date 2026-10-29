@@ -1428,6 +1428,8 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 ## Status
 
+Judged from the code and tests at commit `4d6fb18988eb7d9df462b4af2461fddb8f88705f` (29 October 2026): AUDIT-001 native team actions, safe history portability and owner-erasure qualification use the existing public journeys named below. The landing candidate changes only contract evidence, generated documents and their source lock; application and test bytes are identical to this qualified source commit. The exact candidate Verify remains the publication gate. Existing judgments, D-1 inheritance and all other clause scopes are retained.
+
 Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained.
 
 Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments.
@@ -1437,8 +1439,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 7 | 5 | 0 | 12 |
-| Target and push further | 8 | 43 | 29 | 80 |
-| All | 15 | 48 | 29 | 92 |
+| Target and push further | 9 | 42 | 29 | 80 |
+| All | 16 | 47 | 29 | 92 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1520,7 +1522,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BILL-001` | Predictable USD usage and ingestion budgets | target | partial | `src/domain/admission.ts`; `src/domain/sentry/client-reports.ts`; `src/ui/workbench/CaptureReceipts.tsx`; `tests/client-report-flow.mjs`; `docs/CLIENT-REPORTS.md`; `src/domain/filters/` | Settings and capture receipts separate accepted, filtered and SDK client-discarded quantities; SDK discards retain reason/category without creating issues, alerts or accepted units, and survive private archive restore. Forecasts, spike protection, key limits and the named volume reasons remain absent. Fixed 120-a-minute and 10,000-retained-event refusals remain GOV-003 gaps. |
 | `BILL-002` | Published USD plans, checkout and invoices | target | missing |  | No implementation proof yet: commercial USD tiers and billing remain absent. |
 | `UX-001` | Mobile operations and accessible investigation | target | partial | `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` | Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent. |
-| `AUDIT-001` | Permanent privacy-safe action audit | target | partial | `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs` | Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history. |
+| `AUDIT-001` | Permanent privacy-safe action audit | target | done | `src/domain/audit/classify.ts`; `src/domain/audit/archive.ts`; `tests/team-flow.mjs` teamFlow, invoked by `tests/owner-claim.mjs` (D-1 member and service actions, truthful denials, notification and export facts, private identity and key omission, and acceptance 1 unchanged fact identities, times, aliases and outcomes after independent restore); `tests/audit-history.mjs` AUDIT-001 public history journey (acceptance 1 append-preserving archive restore and restart; acceptance 2 privacy-safe history, permissioned cursor history and JSON and CSV exports, project erasure); `tests/owner-erasure.mjs` owner erasure public flow (acceptance 2 removes actor attribution links and erased identifiers, preserves prior safe chronology and refuses pre-erasure archive replay) |  |
 | `INT-001` | Vercel and Netlify deployment connectors | target | missing |  | No implementation proof yet: vercel and Netlify deployment connectors. |
 | `SURFACE-001` | The registry equals this table and the Base harness passes | target | missing |  | No implementation proof yet: the MCP door, the tool registry with classes and the Base conformance harness are absent; the stdio agent package serves five read and proposal tools without classes. |
 | `SURFACE-002` | External and money are computed per call | target | missing |  | No implementation proof yet: no tool computes external or money. |

@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 48 | 24 | 87 |
+| Core | 16 | 47 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 48 | 29 | 92 |
+| Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `4d6fb18988eb7d9df462b4af2461fddb8f88705f` (29 October 2026): AUDIT-001 native team actions, safe history portability and owner-erasure qualification use the existing public journeys named below. The landing candidate changes only contract evidence, generated documents and their source lock; application and test bytes are identical to this qualified source commit. The exact candidate Verify remains the publication gate. Existing judgments, D-1 inheritance and all other clause scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -1292,7 +1292,7 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 �
 
 #### AUDIT-001 — Permanent privacy-safe action audit
 
-Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-003, BASE-AGENT-009
+Core · target · **done** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-003, BASE-AGENT-009
 
 **Requirement.** Spool's action history covers triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only history portable through Spool archives, with no secrets, raw payloads or personal values in permanent subject/actor labels. Erasure retains count-only receipts and leaves no erased identifier in this history. Organization audit and admin investigation cover new team/provider paths, and each later clause's new actions inherit this record (D-1). docs/AUDIT.md describes how writers commit their facts.
 
@@ -1300,8 +1300,8 @@ Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-0
 1. It survives export and restore.
 2. No secret or erased identifier remains in the history.
 
-**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`
-**Gap.** Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history.
+**Evidence.** `src/domain/audit/classify.ts`; `src/domain/audit/archive.ts`; `tests/team-flow.mjs` teamFlow, invoked by `tests/owner-claim.mjs` (D-1 member and service actions, truthful denials, notification and export facts, private identity and key omission, and acceptance 1 unchanged fact identities, times, aliases and outcomes after independent restore); `tests/audit-history.mjs` AUDIT-001 public history journey (acceptance 1 append-preserving archive restore and restart; acceptance 2 privacy-safe history, permissioned cursor history and JSON and CSV exports, project erasure); `tests/owner-erasure.mjs` owner erasure public flow (acceptance 2 removes actor attribution links and erased identifiers, preserves prior safe chronology and refuses pre-erasure archive replay)
+**Gap.** None.
 
 ### Deployment integrations
 
