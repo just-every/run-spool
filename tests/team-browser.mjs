@@ -95,6 +95,7 @@ export async function memberBrowser(actor,project,issue) {
     await expect(signIn).toHaveAttribute('href','/sign-in?returnTo='+encodeURIComponent(destination));
     assert.equal(new URL(page.url()).pathname,path,'revocation preserves the private destination without navigating');
     await expect(page.getByRole('main')).not.toContainText(issue.title);
+    assert.equal(await page.locator('.issue,.evidence,.secret-key').count(),0,'revocation removes every private evidence panel');
     const folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
     await mkdir(folder,{recursive:true});
     await page.screenshot({path:resolve(folder,'removed-1440.png')});

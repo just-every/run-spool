@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 47 | 24 | 87 |
+| Core | 17 | 46 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 47 | 29 | 92 |
+| Full target | 17 | 46 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `dd3fb1ff949ee0f72e0cc048148ebdf0360e7804` (29 October 2026). UX-001 native team triage, offline recovery, stale evidence, exact revoked-session destinations and permission-safe document recovery passed the enclosing triage and owner-claim journeys. The landing candidate adds explicit unchanged-capture and complete private-panel removal assertions; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other judgments and held qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -1279,7 +1279,7 @@ Core · target · **missing** · From BILL-001
 
 #### UX-001 — Mobile operations and accessible investigation
 
-Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 · Register R-16, R-17
+Core · target · **done** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 · Register R-16, R-17
 
 **Requirement.** Engineers use the complete triage, search, assignment, release, feedback, alert and repair path on desktop and mobile web, with stable deep links, touch controls and no horizontal page overflow. Loading, empty, permission-denied, offline/stale, error and success states name what is known. Preserve drafts/focus during refresh and refuse duplicate busy actions. Native application crash SDK coverage is SDK-001/002 and remains required. A human screen-reader pass and a VPAT are register rows R-16 and R-17.
 
@@ -1287,8 +1287,8 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 �
 1. A realistic team project is onboarded, an error captured and mapped, searched, assigned and commented on, an alert followed and a repair's approval recorded.
 2. Revoked and offline sessions show their named states.
 
-**Evidence.** `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs`
-**Gap.** Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.
+**Evidence.** `tests/owner-claim.mjs` teamFlow invokes `tests/team-browser.mjs` teamTriage: acceptance 1 native invitation and team project, real browser capture and map, member search, assignment with busy duplicate refusal, comment, touch alert navigation and recorded owner repair approval. `tests/triage-journey.mjs` journey: acceptance 2 initial loading, offline and unavailable workspace and issue reads, stale retained mapped evidence, exact destination and unsent draft preservation, focused background refresh, successful recovery and no queued or replayed writes; existing empty, keyboard, Axe, history and release paths at 1440 and 390. `tests/team-browser.mjs` memberBrowser: acceptance 2 native session revocation clears every private panel on the next request and preserves the complete sign-in destination, including numeric event identity. teamTriage and memberBrowser record desktop and phone screens; direct permission refusals retain concealed 404s with recovery. `tests/alerts-ui.mjs` alerts UI public journey and `tests/execution-journey.mjs` execution journey retain alert, release and repair views; native-device qualification remains with its SDK clauses, and human screen-reader and VPAT proof stays in R-16 and R-17.
+**Gap.** None.
 
 #### AUDIT-001 — Permanent privacy-safe action audit
 

@@ -86,7 +86,7 @@ try {
 
  if(width===1440) {
   const destination=issuePath+'?context=synthetic-spool-1';
-  const recoveryScreens=async name=>{for(const screen of [1440,390])await capture(name,screen);await page.setViewportSize({width,height:900});};
+  const recoveryScreens=async name=>{for(const screen of [1440,390]){await page.evaluate(()=>scrollTo(0,0));await capture(name,screen);}await page.setViewportSize({width,height:900});};
   // The document loads online; its first workspace read meets an actual offline browser.
   let openRead;const opening=new Promise(resolve=>{openRead=resolve});
   await page.route(origin+'/api/projects',async route=>{await opening;await context.setOffline(true);await route.continue();});
@@ -114,7 +114,7 @@ try {
   assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
   await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
   await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
-  const retainedDestination=page.url();
+  const retainedDestination=page.url(),retainedIssues=await api('/api/projects/cedar/issues');
   const draft='synthetic-spool-1 unsent investigation';
   const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
   const writes=[];const watch=request=>{if(request.method()!=='GET')writes.push(request.method()+' '+new URL(request.url()).pathname)};
@@ -136,6 +136,7 @@ try {
   await expect(stale).toHaveCount(0);await expect(comment).toHaveValue(draft);
   await recoveryScreens('reconnected-issue');context.off('request',watch);
   assert.deepEqual(writes,[],'offline reads and recovery never queue or replay a write');
+  assert.deepEqual(await api('/api/projects/cedar/issues'),retainedIssues,'offline reads and recovery leave all captured issue state unchanged');
   assert.equal((await api('/api/projects/cedar/issues/'+admitted.issue+'/discussion')).comments.some(row=>row.body===draft),false,'the draft stays unsent');
   checked('Offline and unavailable initial reads recover; retained issue evidence is stale, keeps destination, drafts and focus, and clears after a successful refresh without writes');
  }
