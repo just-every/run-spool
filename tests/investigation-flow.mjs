@@ -28,7 +28,7 @@ export async function investigationFlow({req,json,origin,db}){
  assert.equal((await req(base+'/issue-search?'+query,'GET',undefined,auth)).status,200);
  assert.ok([401,403].includes((await req('/api/projects/wire/issue-export','GET',undefined,auth)).status));
  await dashboardFlow({req,json});
- await recordReadFlow({req,json});
+ await recordReadFlow({req,json,db});
  await reportsFlow({req,json,origin,db});
  await bulkTriageFlow({req,json,base,origin});
  await repositorySourceFlow({req,json});

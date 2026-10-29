@@ -5,8 +5,9 @@ import { agentProject } from '../agent-access';
 import { hash, scrub } from '../privacy';
 import { eventQuery } from './query';
 import { ensureReleaseOrderKeys } from '../releases/order';
+import { recordParameters, recordFilter, recordCursor, nextRecordCursor } from './record-page';
 const routes = new Hono<any>();
-const paths = ['/:project/occurrences', '/:project/issues/:issue/occurrences', '/:project/feedback-reports'];
+const paths = ['/:project/occurrences', '/:project/issues/:issue/occurrences', '/:project/feedback-reports', '/:project/release-records'];
 for (const path of paths) routes.use(path, async (c, next) => {
  c.header('Cache-Control', 'no-store'); c.header('X-Content-Type-Options', 'nosniff');
  const project = c.req.param('project'), grant = await agentProject(c.req.raw, c.env.DB);
@@ -49,4 +50,20 @@ async function records(c: any, feedback: boolean) {
 routes.get('/:project/occurrences', c => records(c, false));
 routes.get('/:project/issues/:issue/occurrences', c => records(c, false));
 routes.get('/:project/feedback-reports', c => records(c, true));
+routes.get('/:project/release-records', async c => {
+ const project = c.req.param('project'), url = new URL(c.req.url);
+ const { order, direction, comparison } = recordParameters(url, ['order', 'cursor', 'release', 'build']);
+ const release = recordFilter(url.searchParams.get('release'), 200), build = recordFilter(url.searchParams.get('build'), 200);
+ const signature = await hash(JSON.stringify(['release-records-v1', project, release, build, order]));
+ const cursor = recordCursor(c.req.query('cursor'), signature);
+ const where = 'project=?' + (release === null ? '' : ' AND name=?') + (build === null ? '' : ' AND build=?');
+ const args = [project, ...release === null ? [] : [release], ...build === null ? [] : [build]];
+ const [page, total] = await Promise.all([
+  c.env.DB.prepare(`SELECT project,name,seq,build,created FROM releases WHERE ${where}${cursor ? ` AND (created,name)${comparison}(?,?)` : ''} ORDER BY created ${direction},name COLLATE BINARY ${direction} LIMIT 26`).bind(...args, ...cursor ? [cursor.time, cursor.id] : []).all(),
+  c.env.DB.prepare(`SELECT COUNT(*) total FROM releases WHERE ${where}`).bind(...args).first(),
+ ]);
+ const rows = page.results.slice(0, 25), last = rows[24];
+ return c.json({ version: 1, project, rows, total: total.total, next: page.results.length > 25 ? nextRecordCursor(signature, last.created, last.name) : null,
+  bounds: { pageSize: 25 }, order, filters: { release, build }, coverage: 'Retained release registrations, ordered by creation time and release name. Existing release-list metadata remains available separately. Cursors observe current retained data.' });
+});
 export default routes;

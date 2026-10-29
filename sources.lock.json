@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e0ab3c11e28f00b58a223af1230a8969946114e34101552f59ec02b4c787cd06",
+      "sha256": "b22cf8f093a025be9396de19f8b8451d9c0b221fef300fb5868e8a4c8b2f6fd0",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "544d3bcbe28dfc15a516eb642c36578c9e120785054390dff3b386eaa36f979f",
+      "sha256": "b0e871b05d1244c1260e461a8e5406e5e85ed6bcd636b7df996f62126ecba480",
       "executable": false
     },
     "DEMO.md": {
@@ -2989,7 +2989,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "sha256": "fe7e1883555cb1656c66582edaf2b5a2954ee57bfa48801721066a1cc8f97043",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -4753,7 +4753,7 @@
       "executable": false
     },
     "src/domain/agent-access.ts": {
-      "sha256": "a0a7650c1d6246d15f6f0247d11bac7e2f23f8194e0c64d08d263474a2b6c1fa",
+      "sha256": "a8345fd6ed4f7eb23b8858204de09139c35e28764527524826fce9b7fb2dde8c",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -5340,8 +5340,12 @@
       "sha256": "6b89f9d3f177e3f3b5cecd82b84405cdefe9540d523a0d1171dbd49db9ebe4bc",
       "executable": false
     },
+    "src/domain/investigation/record-page.ts": {
+      "sha256": "39bd11ef4a59cfb02753db7e23eb8911b53491f4e3b35d166f53fd1843030355",
+      "executable": false
+    },
     "src/domain/investigation/records.ts": {
-      "sha256": "8b7a54945594a9943596a375d1d985b62c4964d2712c29cf41ba77721ca50098",
+      "sha256": "bd8e82a9169d303fdaba335b20428618f6ca3e076d10d08a9e216af311d5a80e",
       "executable": false
     },
     "src/domain/investigation/search.ts": {
@@ -5924,8 +5928,12 @@
       "sha256": "c15e039573e59fd6b04916c37311703b6d1d66044992d6fa3ec994dae72295bc",
       "executable": false
     },
+    "src/domain/sessions/records.ts": {
+      "sha256": "97647e55ff8e73d27de0c5c8a2cd673ed218684a15edcd33ce216436a3b58d1e",
+      "executable": false
+    },
     "src/domain/sessions/routes.ts": {
-      "sha256": "a6de112d5b70cd30f190cb60678f35f7d97e00c3f13fb25dec98ed922bf67a11",
+      "sha256": "08c4674baa77e773821fcac11ce92987d41ba5bda172082efd50988a48a33701",
       "executable": false
     },
     "src/domain/setup.server.ts": {
@@ -8861,7 +8869,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "b70e1ff019c8f73f9c7e4aa37c0248bd14625bd7602fc1878fd116c45b826bc8",
+      "sha256": "ccbeee0cb268df05bac8f3d76564b6a9bfd76c762ff62d42d6a2fb3cdb1f0d94",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -9025,7 +9033,7 @@
       "executable": false
     },
     "tests/records-flow.mjs": {
-      "sha256": "b1da0a6d40ff4cd7597d139e6cedfb6869c2440be23438b3beb41b4d933bdf31",
+      "sha256": "aa2770be5791ee4f4d856844d375f80c7af9118de8848d5543b464265bdc5db8",
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
@@ -9353,7 +9361,7 @@
       "executable": false
     },
     "tests/session-flow.mjs": {
-      "sha256": "0d9590e65a60eeacb0e4b2aa3173fb14c566d6128cf0dcdff1edc5c66fa09ff7",
+      "sha256": "3eedd293adfc04d4e8a44e901f03d3b072dfffc1174eadb8748960b15aecc564",
       "executable": false
     },
     "tests/setup-flow.mjs": {
