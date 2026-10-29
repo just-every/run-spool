@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
-import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
+import {api,counts,discardedOutcomes,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
 import {readScreens} from './runtimes/screens.mjs';
 
 // [SDK-005] [SDK-001] [SDK-012] [SDK-013] Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
@@ -30,6 +30,8 @@ try{
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
   const types=counts(reference.sent.map(item=>item.type));
   for(const type of runtime.required)assert.ok(types.get(type),`${name} SDK sent no ${type} item with its default/wizard options (sent ${[...types].join(',')})`);
+  const discards=discardedOutcomes(reference.sent);
+  if(runtime.discards)assert.deepEqual([...discards].sort(),runtime.discards,`${name}: real client reports contain every before_send discard with its exact category and quantity`);
   const project=await app.json('/api/projects','POST',{id:`rt-${name}`,name:`${name} runtime`});
   const spoolRuns=await execute(project.dsn);
   for(const result of spoolRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} Spool ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
@@ -38,6 +40,12 @@ try{
   assert.deepEqual([...outcomes].sort(),[...expected].sort(),`${name}: Spool outcomes reconcile with SDK-sent items`);
   const details=await issueDetails(app,project.id);
   assert.equal(details.reduce((n,d)=>n+d.issue.count,0),types.get('event'),`${name}: every SDK error event is a persisted occurrence`);
+  if(runtime.discards){
+   const {usage}=await app.json('/api/organization/usage');
+   const usageDiscards=usage.filter(row=>row.project===project.id&&row.reason.startsWith('client_discarded:')).map(row=>[row.reason,row.count]);
+   assert.deepEqual(usageDiscards.sort(),[...discards].sort(),`${name}: usage retains the exact SDK discard reasons, categories and quantities`);
+   assert.ok(details.every(d=>d.events.every(e=>e.event.message!=='synthetic-spool-discard')),`${name}: a before_send discard creates no occurrence`);
+  }
   // Every SDK marks crashes its own way: an explicit unhandled mechanism, or (sentry-go) level fatal.
   const unhandled=runtime.unhandled??(sentry=>sentry.exceptions.some(x=>x.mechanism?.handled===false));
   const handled=details.find(d=>JSON.stringify(exceptionTypes(d.events[0]))===JSON.stringify(runtime.chain)&&d.events.every(e=>!unhandled(e.event.sentry)));
