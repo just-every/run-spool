@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "ecfc15205d468d965a5d0735db7ae7294ad668634fb3ab68cae2408c53c0a792",
+      "sha256": "98e3f3ddf339cc7afdedb05e0a810e9d85815d1db7faaf825d0171a88fceee5d",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ed904a26b8225b122d6084c919d2bbc579861eb2012fc4e96bbf219354888bc3",
+      "sha256": "4829ae88f7567e4d35ef565fb65ccc5cdbbe82f64a9f9b07db27085eb47129d3",
       "executable": false
     },
     "DEMO.md": {
@@ -2925,7 +2925,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "a19c3d9e7b88edca6a2b393c8c51e0364c0b06deb244776e6b2a457c31f73ce1",
+      "sha256": "eeff814286690ee0fcc9babfd439937da63574c7632272096d1069e8c7698d3c",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
@@ -8605,7 +8605,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "309d890b77aa3a5526d0b5808bdd1db81584a72c4ec8bf73794fc161f7472015",
+      "sha256": "5c41f3c5e8af4698eae090220f1ca783b5ec2a29a9415645173ae9da3a3fce94",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
