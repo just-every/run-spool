@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 48 | 24 | 87 |
+| Core | 16 | 47 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 48 | 29 | 92 |
+| Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `5278d0c02a75fe55c69173d113ce25f57fb1aa0c` (29 October 2026). ERR-006's emitted Worker, native regression delivery and issue-view correction journeys cover all six acceptance outcomes. Application source and acceptance text are unchanged; exact candidate Verify and guarded landing establish publication. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -101,7 +101,7 @@ Core · published · **partial** · Cites BASE-INPUT-003
 
 #### ERR-006 — Audited triage and regression
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** Revision-checked open, acknowledged, resolved and suppressed changes are audited. An issue resolved in its current release reopens as a regression on a recurrence in a later release; delayed older-release events cannot invent one. For native version-1 events the order is the registered sequence, never guessed semver; Sentry events follow the project's stated rule in SDK-028, including releases later enriched by registration. SDK-009 carries resolve in the next or a named release and plain Resolve, and plain Resolve regresses on the next accepted event in any release; TEAM-004 inherits resolution from a commit's release, and TEAM-003 carries same-release recurrence policies, bulk actions and collaborative triage. Recognized JavaScript bundle hash suffixes do not split grouping; native anchors and reported frames stay immutable. Corrections retain exact occurrence provenance and reversible fenced apply/undo.
 
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`
-**Gap.** Not asserted in the cited tests: the issue's reopened state after a newer-release event, and a later older-release event leaving a release-resolved issue closed (both asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: the newer-release regression alert and its single delivery, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership.
+**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** None.
 
 #### ERR-007 — Sanitized evidence packet
 
