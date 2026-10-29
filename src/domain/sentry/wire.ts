@@ -1,4 +1,4 @@
-import { decodeBounded, TooLarge } from '../../../packages/sdk/src/tunnel-body.ts';
+import { decodeBounded, TooLarge } from './transport.ts';
 
 /** Byte framing for Sentry envelopes. Unsupported payloads never undergo decoding. */
 export const wireLimits = { compressed: 262144, expanded: 1048576, items: 100, header: 8192 };
