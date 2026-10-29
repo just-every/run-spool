@@ -3709,7 +3709,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "858df42b9dfa90c5bd43b89312148c9906429827e3ed827bcf3f94a80618a03c",
+      "sha256": "a9d8c50776852e1f94789f29ab5d3ff38a903aca2f9401aab153d239a0eb12c9",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
