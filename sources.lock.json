@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fdeff4e362c09b94adf7a7b290c5d6a5fb154b225187fb1719afeb98d56e30bd",
+      "sha256": "1d6ab99a98ed42d9458b242f650aa831b8186a79cfbd052aae913176be8aef7d",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "17d181287e9b786c32a3aa659891268fe7fd727fda2dc6205d2e611c52209dae",
+      "sha256": "5e5b06e1ae01140af7e90bba84f4fc61e5e833310964a30fdbbc1ce7f8a27c8f",
       "executable": false
     },
     "DEMO.md": {
@@ -8849,7 +8849,7 @@
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
-      "sha256": "a114b77cc0032b1917ce861ba10b23c65c90664c10bc95bfffe7189be5d455f6",
+      "sha256": "bc8f8f5a38969ae13dc36c0d7a9779a0215631082fcad36b7734f71d4c58d13c",
       "executable": false
     },
     "tests/identity-flow.mjs": {

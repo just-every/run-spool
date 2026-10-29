@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 14 | 49 | 24 | 87 |
+| Core | 15 | 48 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 14 | 49 | 29 | 92 |
+| Full target | 15 | 48 | 29 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `963a29989d615965064f4594169e2040a06355ff` (29 October 2026). GROUP-001: The public grouping journey proves default Python hidden-frame hash stability, its unhidden positive control and the owner explanation. Application source is unchanged; the landing candidate additionally checks that both differing hidden frame identities survive intake before grouping is compared; exact candidate Verify and guarded landing remain required. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -755,7 +755,7 @@ Core · target · **partial** · Rules D-5
 
 #### GROUP-001 — Explainable grouping and durable corrections
 
-Core · target · **partial** · Rules D-4
+Core · target · **done** · Rules D-4
 
 **Requirement.** Group occurrences stably across builds and runtimes, explain the fingerprint/rule version, support SDK fingerprints and project grouping rules, and preview future rule effects against retained events. Bulk split/merge corrections preserve original grouping, alert/repair coverage and undo provenance. New intake follows the chosen versioned rule; historical regrouping is explicit and cannot erase previous failure evidence. Stack trace rules honor the per-frame `in_app` flag and the in-app include/exclude options that unmodified Sentry SDKs send, and let a maintainer mark frames in-app or not in-app (`+app`/`-app`) and include or exclude them from grouping (`+group`/`-group`) by path, module, package, function and platform family (Sentry's `stack.abs_path`, `stack.module`, `stack.package`, `stack.function` and `family` matchers), previewed against retained events and applied to later intake. The issue view collapses frames that are not in-app, and grouping uses in-app frames when any exist; MIG-001 imports Sentry stack trace and fingerprint rules. The default rule groups over the whole exception chain SDK-010 keeps, processing each exception in turn as Sentry's default does, so the same wrapper exception with different root causes makes different issues. An exception group is grouped by its top-level exception and its children. Frames hidden by `__traceback_hide__` are left out of grouping. A message event with no stack groups by its message template. Fingerprint rules can match any exception in the chain (`error.type`, `error.value`), the message, the level, the logger, tags and SDK name, as Sentry's fingerprint matchers do. Each event has a grouping information view showing the rule version, the variant used (exception chain, stack, message or custom fingerprint) and, per exception, which frames and values contributed to the hash and which did not, with the reason (not in-app, hidden by a `-group` rule, or `__traceback_hide__`). Native JavaScript, Python and Go accept opt-in versioned path/function/family stack rules and type/message/family fingerprint rules; absent native module/package/tag/SDK fields are named unavailable, and without a matching rule their native v1 identities remain unchanged. Historical regrouping means an explicit selected-occurrence correction with preview, version, audit, immutable original membership and guarded undo; rule activation applies forward only, and explicit split/merge corrections never automatically become future rules. Policy changes retain repair coverage gaps and never replay alerts or alter loss counters. MIG-001 imports and previews grouping rules before migration completion.
 
@@ -769,8 +769,8 @@ Core · target · **partial** · Rules D-4
 7. Later events follow a fingerprint rule on `error.type` of the inner exception.
 8. A Python frame with `__traceback_hide__` set is hidden and excluded from the hash.
 
-**Evidence.** `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/grouping-rules-flow.mjs`; `tests/operator-flow.mjs`; `tests/fidelity-flow.mjs`; `docs/GROUPING-RULES.md`
-**Gap.** Not asserted in the cited tests: a `__traceback_hide__` frame's exclusion from a frame-based hash (the cited event is grouped by a custom fingerprint rule). Asserted: every other point.
+**Evidence.** `src/domain/grouping/`; `src/ui/workbench/GroupingRules.tsx`; `tests/operator-flow.mjs` operatorFlow (cross-build identity, selected corrections, immutable originals, alert rates and undo); `tests/grouping-rules-flow.mjs` groupingRulesFlow (native and Sentry rule preview, forward policy, historical split, in-app collapse, hidden Python frame hash and positive control, owner explanation, archive and erasure); `tests/fidelity-flow.mjs` fidelityFlow (root-cause separation, chain contributions and inner-exception fingerprint rules); `src/domain/sentry/grouping.ts`; `docs/GROUPING-RULES.md`
+**Gap.** None.
 
 #### FIND-001 — Search, facets and saved investigation views
 
