@@ -1,14 +1,14 @@
 name: Command journey
 
 on:
-  schedule:
-    - cron: '17 15 * * *'
-  push:
-    tags: ['**']
+  workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  PLAYWRIGHT_SKIP_BROWSER_GC: '1'
 
 jobs:
   commands:
@@ -34,10 +34,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Prepare runner-owned dependency and browser caches
+        run: |
+          set -euo pipefail
+          pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+          printf 'PLAYWRIGHT_BROWSERS_PATH=%s/ms-playwright\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/pnpm-store" "$RUNNER_TEMP/ms-playwright" "$RUNNER_TEMP/rer-apt/archives"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/pnpm-store
+            ${{ runner.temp }}/ms-playwright
+            ${{ runner.temp }}/rer-apt/archives/*.deb
+          key: spool-ubuntu24-temp-store-${{ runner.arch }}-browser-true-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Install and probe Chromium before system dependencies
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install chromium
+          probe() { node --input-type=module -e "import { chromium } from '@playwright/test'; try { const browser = await chromium.launch({headless: true}); await browser.close(); } catch (error) { console.error(error); process.exit(/EACCES|permission denied/i.test(String(error)) ? 77 : 1); }"; }
+          if probe; then
+            :
+          else
+            status=$?
+            if [ "$status" -eq 77 ]; then exit "$status"; fi
+            sudo env "PATH=$PATH" "APT_ARCHIVES=$RUNNER_TEMP/rer-apt/archives" python3 scripts/install-chromium-deps.py
+            probe
+          fi
         env:
           DEBUG: pw:install
       # The public CLI journey clones HEAD and performs its own installs/builds.

@@ -1,4 +1,4 @@
-import { all,statement,quote,insist } from './storage.mjs';
+import { all,statement,quote,insist,PortabilityError } from './storage.mjs';
 import { projectedColumns,encodedRow,mapRow,bindCell,writableColumns } from './catalogue.mjs';
 import { canonicalJson, utf8 } from './hash.mjs';
 import { generatedCopySQL } from './generated.mjs';
@@ -43,6 +43,13 @@ export async function readCopy(db,table,copy,offset,limit,encoded=false) {
   return raw.map((row,i)=>({row,meta:meta[i]}));
 }
 export async function normalizeCopy(context,table,copy) {
+  try { return await normalize(context,table,copy); }
+  catch(error) {
+    if(error instanceof PortabilityError)throw error;
+    throw new PortabilityError('copy_normalization_failed',409);
+  }
+}
+async function normalize(context,table,copy) {
   const {db,config}=context,secrets=config.secretColumns[table.name]??[];
   // Generated reads must reflect exactly the base cells a restore will receive.
   if(table.columns.some(c=>c.generated)&&secrets.length)await db.prepare(`UPDATE ${quote(copy)} SET ${secrets.map(name=>quote(name)+'=NULL').join(',')}`).run();
