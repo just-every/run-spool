@@ -65,7 +65,7 @@ export default {
    assert.ok(expected.includes(`${exception.type}: ${exception.value}`),'the copied trace retains each SDK exception');
    for(const frame of exception.stacktrace.frames)assert.ok(expected.includes(`File "${frame.filename}", line ${frame.lineno}, in ${frame.function}`),'the copied trace retains each SDK frame');
   }
-  await page.screenshot({path:`.artifacts/runtimes/python-raw-stack-${page.viewportSize().width}.png`,fullPage:true});
+  await raw.screenshot({path:`.artifacts/runtimes/python-raw-stack-${page.viewportSize().width}.png`});
   await page.keyboard.press('Escape');
  },
  async verify({app,details,dir,origin,cookie,reference}){
@@ -90,6 +90,20 @@ export default {
    assert.deepEqual(impact.sessions,{events:detail.events.length,linkedEvents:0,unlinkedEvents:detail.events.length,knownAffected:0});
    assert.equal(impact.projectHealth.denominators.individualSessions,referenceSessions.length,'the project cohort remains separately labelled');
   }
+  const nativeRoot='/api/projects/rt-python',selected=details[0],event=selected.events[0],issueRoot=nativeRoot+'/issues/'+selected.issue.id;
+  const agent=await app.json(nativeRoot+'/keys','POST',{kind:'agent'}),agentHeaders={Cookie:'',Authorization:'Bearer '+agent.key};
+  const packet=await app.json(issueRoot+'/packet',undefined,undefined,agentHeaders);
+  assert.ok(!JSON.stringify(packet).includes('synthetic-spool-note'),'agent packets exclude the actual SDK local variable');
+  for(const path of [issueRoot+'/events',issueRoot+`/events/${event.id}?occurrence=${event.occurrence}`,issueRoot+'/impact']){
+   const anonymous=await app.request(path,'GET',undefined,{Cookie:''});assert.equal(anonymous.status,401);await anonymous.body?.cancel();
+   const refused=await app.request(path,'GET',undefined,agentHeaders);assert.equal(refused.status,403,'a project agent cannot acquire human SDK detail authority');await refused.body?.cancel();
+  }
+  const foreign=await app.json('/api/projects','POST',{id:'synthetic-spool-python-foreign',name:'Synthetic foreign project'});
+  const foreignRead=await app.request(`/api/projects/${foreign.id}/issues/${selected.issue.id}/events`);assert.equal(foreignRead.status,404);await foreignRead.body?.cancel();
+  const wrongOccurrence=await app.request(issueRoot+`/events/${event.id}?occurrence=synthetic-spool-missing`);assert.equal(wrongOccurrence.status,404);await wrongOccurrence.body?.cancel();
+  await app.json(nativeRoot+'/keys/'+agent.hash,'DELETE');
+  const revoked=await app.request(issueRoot+'/packet','GET',undefined,agentHeaders);assert.equal(revoked.status,401);await revoked.body?.cancel();
+  assert.deepEqual(await issueDetails(app,'rt-python'),details,'private read refusals and grant revocation leave SDK captures unchanged');
   const create=id=>app.json('/api/projects','POST',{id,name:id});
   const send=async(created,script,{cwd=dir,mode}={})=>{
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});

@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "ed848c2677b2b397235fd48a39a8f76408c5e555d5231709ae8b35e7a6254ccc",
+      "sha256": "2fc4cc7684d6c7c50182db65566702679da7a507d057db1dfe6331c1abd95a76",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4295ce6456250eb45b934b25fdffe4e778a4bbb925dc68c18be78ea36a275331",
+      "sha256": "6f1275b7c64fb7bfea987cc617a779044062beffd1addea5847b7007cf4622ca",
       "executable": false
     },
     "DEMO.md": {
@@ -9237,7 +9237,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "dd640d1f38d492c7adb787f60d8f5619aac079c9fccbda3ebc9dfd0b26b57dd5",
+      "sha256": "37736cc2b268361d65f4f37d30fa59f37d520c057d8ebcf2884742b7d690b92d",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
