@@ -3629,7 +3629,7 @@
       "executable": false
     },
     "docs/RETENTION.md": {
-      "sha256": "086308b49cdb7de7b3c05f1ad0d6ca649a50592ca02dab7a4865ba06c665a96d",
+      "sha256": "e17bf56d01b6cefb18465fa38e011251707aa62219c07e0c14bf1e6c2f1a9ec1",
       "executable": false
     },
     "docs/REVIEW-INBOX.md": {
@@ -8509,7 +8509,7 @@
       "executable": false
     },
     "src/ui/workbench/RetentionSettings.tsx": {
-      "sha256": "d9a05ec86544a9be159c2a9ad5007f119944da1e900352701ec4c786a2874737",
+      "sha256": "5d6ac921be090bc07d672ec56d39a2c32052edff2438d70f35f37d6dab624b73",
       "executable": false
     },
     "src/ui/workbench/ReviewViews.tsx": {
@@ -9081,11 +9081,11 @@
       "executable": false
     },
     "tests/retention-flow.mjs": {
-      "sha256": "bd3d05c0d77561570643461e473278b6cdaa11380deccf2fbdd96191c9df2ccb",
+      "sha256": "7ec506be1f23aa30ffb177522a1a352e084768dbc97d239044c5d6d817a191c2",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {
-      "sha256": "530666bea7d3348324202af09dc9e8bd885fcc6f79e63b316948c00a9364e00d",
+      "sha256": "159f24d14df43a7edc49cdd8ea887c9232a1a9878f3c6a3b38d72ff6a86df7f7",
       "executable": false
     },
     "tests/review-inbox-flow.mjs": {
