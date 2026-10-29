@@ -3,7 +3,7 @@ import { canonicalJson, base64, unbase64, utf8 } from './hash.mjs';
 import { schemaIdentityOf } from './schema-identity.mjs';
 import { platformTables, platformTable, identifier, matches } from './bookkeeping.mjs';
 /** Platform bookkeeping is mandatory; operator identity remains a seed choice. */
-export const excludedTables=Object.freeze([...platformTables,'oa_%','oc_%']);
+export const excludedTables=Object.freeze([...platformTables,'oa_%','oc_owner_claims','oc_idp_grants']);
 const fields=['product','excludeTables','includeTables','derivedTables','secretColumns','exportRow','importSafety','importRow','replaceableTables','requiredConfiguration','validateStaged','acceptedSchemas','buckets','extraPayloads','partBytes'];
 const name=value=>typeof value==='string' && value.length>0 && value.length<=512 && !/[\x00-\x1f]/.test(value);
 const names=value=>Array.isArray(value) && value.every(name) && new Set(value).size===value.length;
@@ -51,7 +51,17 @@ export function policy(input) {
   return {...result,excludeTables:[...excludedTables,...result.excludeTables]};
 }
 /** Platform tables are always excluded; explicit includes override only optional exclusions. */
-export const excludedTable=(table,input={})=>platformTable(table) || (!(input.includeTables??[]).includes(table) && [...excludedTables,...(input.excludeTables??[])].some(pattern=>matches(table,pattern)));
+export function excludedTable(table,input={}) {
+  if(platformTable(table))return true;
+  if((input.includeTables??[]).includes(table))return false;
+  if([...excludedTables,...(input.excludeTables??[])].some(pattern=>matches(table,pattern)))return true;
+  if(matches(table,'oc_%')) {
+    const error=new PortabilityError('identity_table_undeclared:'+table,409);
+    error.message='Table "'+table+'" shares the owner-claim prefix. Declare it in includeTables to transfer its rows or excludeTables to omit them.';
+    throw error;
+  }
+  return false;
+}
 async function archived(db,config) {
   const objects=await all(db,"SELECT name,sql,type,tbl_name FROM sqlite_master WHERE sql IS NOT NULL AND substr(lower(name),1,7) <> 'sqlite_' AND substr(lower(name),1,4) <> '_cf_' ORDER BY name");
   const kinds=await all(db,'PRAGMA table_list');

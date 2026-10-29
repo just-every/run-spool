@@ -13,11 +13,12 @@ import { fence, mergeJournal, tombstone } from './journal.mjs';
 import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
-import { additiveBridge, sameSchemaMigrations, appliedMigrations } from './bridge.mjs';
+import { additiveBridge, sameSchemaMigrations, appliedMigrations, verifiedLegacySchema } from './bridge.mjs';
 import { replayStatements } from './backfills.mjs';
 import { checkArchivedLedgers, archivedHistory } from './ledgers.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
 import { checkReferences } from './references.mjs';
+import { rebuildDerivedStatements } from './derived.mjs';
 // ledgers: the rows of each migration ledger table the archive carries, as the
 // caller read them from it ({table:rows}); uploadPart binds them to its parts.
 export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers,acknowledgeUnverifiedSchemaObjects=false) {
@@ -28,17 +29,22 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   const original=manifest;manifest=await restorableManifest(original);
   const skippedTables=original.tables.filter(table=>platformTable(table.name)).map(table=>table.name);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
-  // Table SQL and migration names cannot establish missing trigger/view/index
-  // definitions. Never infer that an old archive's absent inventory is empty.
-  const unverified=original.version===2 && manifest.schemaObjects===undefined && acknowledgeUnverifiedSchemaObjects===true;
-  insist(manifest.schemaObjects!==undefined || legacyRecovery || unverified,'schema_mismatch:legacy_schema',409);
+  const legacy=original.version===2 && manifest.schemaObjects===undefined;
+  // An explicit acknowledgment keeps its existing recovery semantics. Without
+  // it, legacy v2 needs positive replay evidence for the complete destination.
+  const unverified=legacy && acknowledgeUnverifiedSchemaObjects===true;
+  const verifyingLegacy=legacy && !unverified && !legacyRecovery;
+  const history=()=>archivedHistory(original,ledgers,{allowOlderShape:unverified || verifyingLegacy});
+  const verified=verifyingLegacy && await verifiedLegacySchema(db,manifest,cat,context.migrations,history);
+  insist(!legacy || legacyRecovery || unverified || verified,'schema_mismatch:legacy_schema',409);
+  if(verified)manifest={...manifest,schema:cat.identity,schemaObjects:cat.schemaObjects};
   if(unverified)for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name);
     insist(target,'schema_mismatch:table:'+table.name,409);
     for(const column of table.columns)insist(target.columns.some(c=>canonicalJson(c)===canonicalJson(column)),'schema_mismatch:column:'+table.name+':'+column.name,409);
     insist(table.dependencies.every(d=>target.dependencies.includes(d)),'schema_mismatch:dependencies:'+table.name,409);
   }
-  const same=manifest.schema===cat.identity,history=()=>archivedHistory(original,ledgers,{allowOlderShape:unverified});
+  const same=manifest.schema===cat.identity;
   const {replays,...bridge}=unverified?await additiveBridge(db,manifest,cat,context.migrations,history,legacyRecovery,true):upgrade?{}:same?(await sameSchemaMigrations(db,manifest,cat,context.migrations,history)??{}):await additiveBridge(db,manifest,cat,context.migrations,history,legacyRecovery);
   // Finalize checks object references on the staged rows; a later migration
   // replayed into a reference table would publish rows that check never saw.
@@ -216,6 +222,7 @@ async function finalizeLeasedImport(context,id,{contentHash,archiveHash,laterJou
       insist(hash.digest()===object.sha256,'object_write_checksum');
     }
     for(const payload of manifest.payloads)await config.extraPayloads[payload.name].consume(binaryStream(context,id,payload,binaryIndexes),payload);
+    const derived=await rebuildDerivedStatements(db,config);
     row.phase='complete';row.metadata.contentHash=digest;
     if(row.metadata.schemaUnverified)row.metadata.schemaUnverified.archiveHash=archiveHash;
     await db.batch([db.prepare('PRAGMA defer_foreign_keys=ON'),...emptyGuards(context,row,seeded),...seeded.map(t=>guard(db,...seededCondition(t))),...dependentGuards,...legacyEmptyGuards(db,row),
@@ -224,7 +231,7 @@ async function finalizeLeasedImport(context,id,{contentHash,archiveHash,laterJou
       ...row.metadata.triggers.map(t=>db.prepare(`DROP TRIGGER ${quote(t.name)}`)),
       ...replaced.map(t=>db.prepare(`DELETE FROM ${quote(t)}`)),
       ...row.metadata.targets.flatMap(t=>restoreCopy(db,t,row.metadata.copies[t.name])),save(db,row),...replayStatements(db,row),
-      ...row.metadata.triggers.map(t=>db.prepare(t.sql)),...mergeJournal(db,manifest,checked),...legacyAuditStatements(db,row),
+      ...row.metadata.triggers.map(t=>db.prepare(t.sql)),...derived,...mergeJournal(db,manifest,checked),...legacyAuditStatements(db,row),
       // Publication and removal of this import's scratch commit together. A lost
       // acknowledgement still finds a complete job with no staging left behind.
       ...dropCopyStatements(db,row),

@@ -5,7 +5,7 @@ import { importRunningMetadata } from './import-lease.mjs';
 const publicCodes = new Set(`
  D1_RPC_TRANSPORT_LIMIT advance_limit archive_checksum archive_format archive_incomplete archive_json
  binary_checksum binary_inventory binary_order binary_size body_too_large bucket_inventory bucket_not_empty
- closing_missing column_inventory configuration_inventory confirmation_required content_checksum copy_inventory copy_rowid
+ closing_missing column_inventory configuration_inventory confirmation_required content_checksum copy_inventory copy_normalization_failed copy_rowid
  data_after_closing dev_data erased_row erasure_epoch excluded_destination_dependents excluded_foreign_key
  export_incomplete export_phase export_row_must_be_pure export_row_not_idempotent extra_part generated_sql
  import_applying import_complete import_lease_expired import_phase import_row_columns import_row_key import_row_must_be_pure

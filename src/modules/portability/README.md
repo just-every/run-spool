@@ -67,8 +67,11 @@ belong to the current runtime or environment and never travel:
 | `rer_erasure_blobs`, `rer_erasure_guard`, `rer_erasure_scope`, `rer_erasure_rates` | Erasure work queues, transaction guards, working scope and local rate limits. |
 | `rer_demo` | Local demo setup markers. |
 
-`excludedTables` combines this list with the default identity exclusions `oa_%`
-and `oc_%`. Policy may override those identity exclusions through `includeTables`,
+`excludedTables` combines this list with `oa_%` and the exact Base owner-claim
+identities `oc_owner_claims` and `oc_idp_grants`. Other `oc_` names must be
+explicitly declared in `includeTables` or `excludeTables`; transfers refuse
+`identity_table_undeclared:<name>` rather than silently dropping product rows.
+Policy may override identity exclusions through `includeTables`,
 but naming a mandatory platform table there refuses construction with
 `platform_table:<name>` and a message identifying the table.
 `excludedTable(name, policy)` always returns true for mandatory platform tables,
@@ -237,11 +240,12 @@ provider operation.
 | Compatible `d1_migrations`, every recorded name exactly equal to its checkout filename | `{nativeApply:true}`; Wrangler may apply its pending files. Plain Wrangler names remain supported; tracked history must also match hashes and applied states. |
 | Native alias-only or hash-only relocation, or an unmapped native data-only row | `migration_ledger:incompatible`; restore the matching checkout or reconcile through the owning runner before native apply. |
 | Sole, fully applied matching `rer_migrations` | `{nativeApply:false}`; preserve Platform's ledger and skip Wrangler. |
-| Any pending checkout file with Platform history | `migration_ledger:unapplied`, naming the file (`error.migration`); apply it through the owning runner first. |
-| Multiple ledgers, even empty | `migration_ledger:multiple`; reconcile history through its owning runner. |
+| Fully applied matching `_rer_deploy_migrations` plus plain Wrangler `d1_migrations` bookkeeping | `{nativeApply:false}`; preserve the deploy history and skip Wrangler. Bookkeeping names must belong to that history. A tracked D1 ledger must match the deploy history's names, hashes and order. |
+| Any pending checkout file with Platform history or the legacy pair | `migration_ledger:unapplied`, naming the file (`error.migration`); apply it through the owning runner first. |
+| Other multiple ledgers, or disagreeing tracked native histories | `migration_ledger:multiple`; reconcile history through its owning runner. |
 | Legacy `_rer_deploy_migrations` alone | `migration_ledger:runner`; use its owning runner, which can adopt the history. |
 | Invalid ledger shape, row or binding | `migration_ledger:incompatible` or `migration_ledger:binding`. |
-| Partial Platform batch or non-applied tracked row | `migration_ledger:uncertain`; resolve the incomplete operation first. |
+| Partial Platform batch or non-applied tracked or legacy row | `migration_ledger:uncertain`; resolve the incomplete operation first. |
 | Unknown hash/name, ambiguous hash/alias or conflicting name/hash | `migration_ledger:unknown`, `:ambiguous` or `:conflict`; use the matching checkout and declaration. |
 
 Refusals throw `PortabilityError` with status 409 and a constant `code`;
@@ -275,8 +279,10 @@ owner claim. Such a destination keeps that claim and recovers access through
 ordinary native sign-in; setup does not grant another owner. Other tables are
 discovered automatically. Exclusion rules follow SQLite's ASCII identifier case matching.
 Unlisted virtual tables, hidden virtual-table columns and foreign keys into
-excluded tables fail by name. The product must explicitly regenerate derived
-data. A schema upgrade may change columns but cannot silently omit tables.
+excluded tables fail by name. Restore rebuilds policy-declared external-content
+FTS5 indexes from their content tables in the same transaction as the restored
+rows. The product must explicitly regenerate other derived data. A schema
+upgrade may change columns but cannot silently omit tables.
 
 Provider link keys and transient provider sessions never travel. Export marks
 retained dependency links as needing re-link and turns provider sign-in and
@@ -433,7 +439,7 @@ Re-export from the original installation to carry the complete definitions.
 A new archive explicitly records even an empty object inventory, so later
 additive migrations can still be placed normally. The separate acknowledged
 v1 recovery path remains an explicitly unverified recovery, as documented below.
-Version 2 backups without that inventory have their own acknowledged recovery below.
+Version 2 backups without that inventory use recorded migration replay when it proves the complete destination schema, or the acknowledged recovery below.
 
 New exports use archive version 2. The closing `archiveHash` is SHA-256 of
 canonical JSON `{manifest,parts}`, where `manifest` is the complete manifest
@@ -468,20 +474,30 @@ authenticate it. If the original installation is unavailable, use the explicit
 [backup-only v1 recovery](#backup-only-v1-recovery) below. Normal import still
 requires version 2 integrity.
 
-## Acknowledged recovery of older version 2 backups
+## Older version 2 backups and acknowledged recovery
 
 A fresh export from a current rer is preferred whenever the original installation
 is available. Current archives carry the complete schema inventory and restore
 without any acknowledgment. Version 2 backups written by rer 0.2.79 or earlier
-can lack `schemaObjects`. If only such a backup remains, the owner can explicitly
-accept that its schema objects are unverified:
+can lack `schemaObjects`. Ordinary import verifies such a backup without an
+acknowledgment when its nonempty recorded migration history, resolved against the
+destination's own applied files in order, replays to the complete live destination
+schema identity, including indexes, views and triggers. The same replay's tables
+must match the archive's table definitions. The archive's ledger, when present,
+must agree with its recorded names, and available hashes must match. Missing
+history, failed replay, table drift or a different complete destination identity
+still refuses `schema_mismatch:legacy_schema` before staging. Source SQL is never
+installed. This verified path records no `schemaUnverified` receipt.
+
+When that proof is unavailable, the owner can explicitly accept that its schema
+objects are unverified:
 
 ```sh
 rer import --input exports/retained.rer --yes --acknowledge-unverified-schema-objects
 ```
 
-This accepts only the missing inventory. Ordinary import still refuses
-`schema_mismatch:legacy_schema` before staging. The acknowledgment never accepts
+This accepts only the missing inventory and preserves the existing recovery path,
+even when ordinary import could verify the backup. The acknowledgment never accepts
 version 1 metadata; that separate recovery still needs both v1 flags below.
 The destination must be empty under the existing product emptiness rule:
 non-migration rows in product tables refuse `target_not_empty:<table>` before
@@ -994,6 +1010,7 @@ modules/portability/sqlite-tokens.mjs
 modules/portability/bookkeeping.mjs
 modules/portability/storage.mjs
 modules/portability/copies.mjs
+modules/portability/derived.mjs
 modules/portability/dev-data.mjs
 modules/portability/provider-data.mjs
 modules/portability/policy-data.mjs
@@ -1108,6 +1125,13 @@ source table, index, trigger and view against native schema or a named retiremen
 in destination migrations, including objects attached to excluded tables. Internal
 prefixes are compared literally. A scratch native import preflight checks the
 projected archive before native restore can open the destination.
+
+Policy-declared derived virtual tables omitted from a Managed dump are created
+in the sandbox from the destination's migrated definitions. Their triggers must
+still be present and compatible; omitting those triggers remains a schema
+refusal. The dump statement allowlist still refuses all `CREATE VIRTUAL TABLE`
+statements, including declared names. A native copy-normalization SQLite failure
+is reported as `copy_normalization_failed`, without SQL diagnostics or row values.
 
 The current intake supports one database and declared buckets, local Workers
 transport, stored ZIP members, at most 10,000 entries and statements, a 128 MiB
