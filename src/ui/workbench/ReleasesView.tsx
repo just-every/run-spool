@@ -1,3 +1,4 @@
+import { sourceMapByteLimit, validateMap } from '../../domain/source-map-validation';
 import { Link } from '@tanstack/react-router';
 import { hrefFor } from './location';
 import { MissingContent } from './NotFound';
@@ -23,10 +24,11 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
   const [handledTarget, setHandledTarget] = useDraft(`${project}.map-handled-target`, '');
   const [context, setContext] = useDraft<UploadTarget | undefined>(`${project}.map-context`, undefined);
   const [edited, setEdited] = useDraft(`${project}.map-edited`, false);
+  const [readingMap, setReadingMap] = useState(false);
   const selection = useRef(0), fileInput = useRef<HTMLInputElement>(null), pendingTarget = target?.id !== handledTarget ? target : undefined;
   function applyTarget(next: UploadTarget) {
     // Replacing a draft is one explicit action, including its selected file.
-    ++selection.current; setSelected(next.release); setDebug(next.debugId); setMap(null);
+    ++selection.current; setReadingMap(false); setSelected(next.release); setDebug(next.debugId); setMap(null);
     if (fileInput.current) fileInput.current.value = '';
     setError(''); setResult(''); setEdited(false); setContext(next); setHandledTarget(next.id);
   }
@@ -67,13 +69,30 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
     {pendingTarget && (edited || map) && <div className="callout" role="status"><strong>Your source map draft is still here.</strong><p>Use the requested issue’s release and debug ID only if you want to replace this draft. Replacing it also clears the selected map file.</p><button className="text-button" onClick={() => setHandledTarget(pendingTarget.id)}>Keep current draft</button><button className="text-button" onClick={() => applyTarget(pendingTarget)}>Replace draft with this issue</button></div>}
     <form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
       if (!release || !map) throw new Error('Choose a registered release and a source map.');
-      await request(`/api/projects/${project}/artifacts`, 'POST', { release: release.name, build: release.build, debugId: debug, map: map.value });
-      setMap(null); setEdited(false); if (fileInput.current) fileInput.current.value = ''; setResult('Source map uploaded. Matching frames can now show their original source.'); refresh();
-    }); }}><label className="form-field">Release<select required value={selected} onChange={e => { setSelected(e.target.value); setEdited(true); }}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><Field label="Bundle debug ID" required aria-describedby="map-debug-help" value={debug} onChange={e => { setDebug(e.target.value); setEdited(true); }} /><label className="form-field">Source map file · max 256 KiB<input ref={fileInput} type="file" accept=".map,.json,application/json" aria-invalid={!!error} aria-describedby={error ? 'map-error' : undefined} onChange={e => {
-      const current = ++selection.current, file = e.target.files?.[0]; setMap(null); setError(''); setResult(''); setEdited(true);
-      if (!file) return;
-      void (async () => { try { if (file.size > 262144) throw new Error('Map exceeds 256 KiB.'); const value = JSON.parse(await file.text()); if (!value || value.version !== 3 || !Array.isArray(value.sources) || typeof value.mappings !== 'string') throw new Error('Choose a flat Source Map V3 file.'); if (selection.current === current) { setMap({ name: file.name, value }); if (typeof (value.debug_id ?? value.debugId) === 'string') setDebug(value.debug_id ?? value.debugId); } } catch (failure) { if (selection.current === current) setError(failure instanceof SyntaxError ? 'Invalid source map JSON.' : (failure as Error).message); } })();
-    }} /></label>{error && <p id="map-error" role="alert">{error}</p>}{map && <p>Ready to upload: {map.name}</p>}<button className="primary-button" disabled={busy || !map || !release}>Upload matching map</button></form>{result && <p role="status">{result}</p>}{context && <button className="text-button" onClick={() => onUploaded(context.issue)}>Return to issue</button>}<Details title="Source map requirements"><p id="map-debug-help">Use the map’s <code>debug_id</code> or the bundle’s <code>//# debugId=…</code> comment. Missing both? Run the setup above.</p><p>Maps must be flat Source Map V3 files, up to 256 KiB, with exact project, release, build and debug ID matches. Each project holds up to 20 maps. Source contents remain private and are excluded from issue packets. No remote source URL is fetched.</p><p>The debug ID joins a built bundle to its map. Use the build plugin or CLI in the setup on this page to generate and stamp both files, then deploy those exact output files. Selecting a prepared map reads its <code>debug_id</code> into the form.</p></Details></section>
+      await request(`/api/projects/${project}/artifacts`, 'POST', { release: release.name, build: release.build, debugId: debug, file: map.name, map: map.value });
+      setMap(null); setError(''); setEdited(false); if (fileInput.current) fileInput.current.value = ''; setResult('Source map uploaded. Matching frames can now show their original source.'); refresh();
+    }); }}><label className="form-field">Release<select required value={selected} onChange={e => { setSelected(e.target.value); setEdited(true); }}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><Field label="Bundle debug ID" required aria-describedby="map-debug-help" value={debug} onChange={e => { setDebug(e.target.value); setEdited(true); }} /><label className="form-field">Source map file · max 1 MiB<input ref={fileInput} type="file" accept=".map,.json,application/json" aria-invalid={!!error} aria-describedby={error ? 'map-error' : undefined} onChange={e => {
+      const current = ++selection.current, file = e.target.files?.[0];
+      if (!file) { setReadingMap(false); return; }
+      setReadingMap(true); setError(''); setResult(''); setEdited(true);
+      void (async () => {
+        try {
+          if (file.size > sourceMapByteLimit) throw new Error('Map exceeds 1 MiB.');
+          const value = JSON.parse(await file.text());
+          const { debug_id, debugId, ...payload } = value ?? {};
+          validateMap(payload);
+          if (selection.current === current) {
+            setMap({ name: file.name, value });
+            if (typeof (debug_id ?? debugId) === 'string') setDebug(debug_id ?? debugId);
+          }
+        } catch (failure) {
+          if (selection.current === current) {
+            setError(failure instanceof SyntaxError ? 'Invalid source map JSON.' : (failure as Error).message);
+            if (fileInput.current) fileInput.current.value = '';
+          }
+        } finally { if (selection.current === current) setReadingMap(false); }
+      })();
+    }} /></label>{error && <p id="map-error" role="alert">{error}</p>}{map && <p>Ready to upload: {map.name}</p>}<button className="primary-button" disabled={busy || readingMap || !map || !release}>Upload matching map</button></form>{result && <p role="status">{result}</p>}{context && <button className="text-button" onClick={() => onUploaded(context.issue)}>Return to issue</button>}<Details title="Source map requirements"><p id="map-debug-help">Use the map’s <code>debug_id</code> or the bundle’s <code>//# debugId=…</code> comment. Missing both? Run the setup above.</p><p>Flat and inline indexed Source Map V3 files are accepted up to 1 MiB each, within the parser limits documented in the source-map guide. Project, release, build and debug ID must match exactly. There is no lifetime map count; an optional project byte cap limits future uploads. Source contents remain private and are excluded from issue packets. No remote source URL is fetched.</p><p>The debug ID joins a built bundle to its map. Use the build plugin or CLI in the setup on this page to generate and stamp both files, then deploy those exact output files. Selecting a prepared map reads its <code>debug_id</code> into the form.</p></Details></section>
     <section className="evidence"><h2>Release history</h2><Details title="Events without a release"><p>{noRelease === null ? 'The count of events without a release is unavailable.' : `${noRelease} events have no release.`} <a className="inline-link" href={`${hrefFor(project)}?q=${encodeURIComponent('!has:release')}`}>Find events without a release</a></p></Details>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">First seen</th><th scope="col"><span className="visually-hidden">Details</span></th></tr></thead><tbody>{releases.map(row => <tr className="data-row" key={row.name}><th scope="row"><Link className="inline-link" to={hrefFor(project, 'releases', row.name) as any}><strong>{row.name}</strong></Link>{row.auto_created===1&&<span> · Created automatically</span>}{row.first_environment&&<p>{row.first_environment}</p>}</th><td data-label="Build identifier"><code>{row.build}</code></td><td data-label="First seen">{date(row.first_seen ?? row.created)}</td><td><Details title={`Release ${row.name}`}><ReleaseFacts row={row} /></Details></td></tr>)}</tbody></table></div> : <p>Register your first release above before connecting your application.</p>}</section>
   </>;
 }

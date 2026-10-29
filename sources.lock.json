@@ -3665,7 +3665,7 @@
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
-      "sha256": "da5a6e4c918477136c1d91eb49d488872e9bf74809e3f883507b5103816a4b32",
+      "sha256": "a05296df018fa7533adb346d100aa97b6898e8c87ca6f255191ba5b9ec0b7e33",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
@@ -4885,7 +4885,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "53939eda765a6895f459783cd2fde1cf037459ff1865f6fb3a91ca932132f9f9",
+      "sha256": "a135db0f16f1a9ac716fc2d94a71262844d1042e70f49046e928c030c4397d85",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -8445,7 +8445,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "5730cc9fef12c7bd5a3d49598f9f778813aadaa0cd380daa264948a8227c3d9e",
+      "sha256": "3945182602ffab4c7afd374c9d6a4d5553bd6abad2c9059c8e226e16b4ec6fe8",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -8549,7 +8549,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "d168b3c743a5b6c9995e247584f426ca5f6958e65fe24400da6633fe0f24295b",
+      "sha256": "6be13ef947a4f1d0957347b64e04bf453e5d22e65be8f9086202859ed4cee867",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -9377,7 +9377,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "5130ac5933ff5e3cf3f6025c5418d92e49853617aa8a8c822325004dab8e3aae",
+      "sha256": "eee8f2bdac19f768ad2d7d1bb49f260d9006da9950af0aa588039808460bc597",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
@@ -9405,7 +9405,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "2bfae45ea99dc981f7407b89e4aa0633f12cae6a5f70522ba9c97a8a8880da07",
+      "sha256": "8ab99a6284e9205a1cc2b787bd542255211d5d92518452a9287cdef78da91d91",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

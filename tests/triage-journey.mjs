@@ -61,7 +61,7 @@ try {
  await (await workbenchLink(page,'Issues',false)).click();await page.locator('.unseen-label').waitFor();
  const row=page.locator('tbody tr').first();assert.match(await row.innerText(),/New/);await row.getByRole('link').click();await page.locator('.missing-map').waitFor();assert.equal(await page.locator('.missing-map').count(),1);
  await page.getByRole('button',{name:'Upload map',exact:true}).click();await page.getByLabel('Bundle debug ID',{exact:true}).waitFor();assert.equal(await page.getByLabel('Bundle debug ID',{exact:true}).inputValue(),'dispatch-map');
- await page.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
+ await page.getByLabel('Source map file · max 1 MiB',{exact:true}).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
  await page.getByRole('button',{name:'Upload matching map',exact:true}).click();await page.getByRole('status').filter({hasText:'Source map uploaded'}).waitFor();
  await capture('map-upload',width);
  await page.getByRole('button',{name:'Return to issue',exact:true}).click();await page.locator('.mapped-frame').first().waitFor();
