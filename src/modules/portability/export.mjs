@@ -1,10 +1,11 @@
-import { all, statement, state, guard, job, save, partStatements, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
+import { statement, state, guard, job, save, partStatements, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
 import { catalogue, encodedRow } from './catalogue.mjs';
+import { checkReferences } from './references.mjs';
 import { createCopy,readCopy,normalizeCopy } from './copies.mjs';
 import { canonicalJson, utf8, base64, StreamHash } from './hash.mjs';
 import { FORMAT, makePart, checkPart, ContentVerifier, ArchiveVerifier } from './format.mjs';
 import { journal } from './journal.mjs';
-import { appliedMigrations } from './bridge.mjs';
+import { readLedger, platformOrigin } from './ledgers.mjs';
 import { capturePayload, payloadRange } from './payloads.mjs';
 import { dropProviderData } from './provider-data.mjs';
 import { dropDevData } from './dev-data.mjs';
@@ -22,11 +23,13 @@ export async function createExport(context,actor='direct') {
   }
   objects.sort((a,b)=>a.bucket<b.bucket?-1:a.bucket>b.bucket?1:a.key<b.key?-1:a.key>b.key?1:0);
   const copies=Object.fromEntries(cat.tables.map((t,i)=>[t.name,'rer_portability_snap_'+id.replaceAll('-','')+'_'+i]));
-  const migrations=await appliedMigrations(db);
-  const manifest={kind:'manifest',format:FORMAT,version:2,product:config.product,exportedAt:new Date().toISOString(),sourceIdentity:s.source_identity,schema:cat.identity,tables:cat.tables,objects,payloads:[],excludedTables:cat.excludedTables,excludedColumns:config.secretColumns,requiredConfiguration:config.requiredConfiguration,partCount:0,epoch:s.epoch,journal:await journal(db,s.source_identity),...(migrations?{migrations}:{})};
+  const ledger=await readLedger(db),origin=await platformOrigin(ledger,context.migrations),migrations=origin?origin.entries.map(entry=>entry.name):ledger?.entries.map(entry=>entry.name);
+  const manifest={kind:'manifest',format:FORMAT,version:2,product:config.product,exportedAt:new Date().toISOString(),sourceIdentity:s.source_identity,schema:cat.identity,tables:cat.tables,schemaObjects:cat.schemaObjects,objects,payloads:[],excludedTables:cat.excludedTables,excludedColumns:config.secretColumns,requiredConfiguration:config.requiredConfiguration,partCount:0,epoch:s.epoch,journal:await journal(db,s.source_identity),...(migrations?{migrations}:{}),...(origin?{migrationLedger:origin}:{})};
   const row={id,kind:'export',actor,phase:'building',completed:0,metadata:{manifest,copies,cursor:{table:0,row:0,binary:0,offset:0},partBytes:config.partBytes}};
+  const audit=context.onExport?context.onExport({id,actor:actor==='direct'?null:actor,scope:'installation'}):[];
   await db.batch([guard(db,'EXISTS(SELECT 1 FROM rer_portability_state WHERE id=1 AND applying=0 AND source_identity=? AND epoch=?)',s.source_identity,s.epoch),
-    ...cat.tables.flatMap(t=>createCopy(db,t,copies[t.name],true)),statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'export',actor,row.phase,canonicalJson(row.metadata)),db.prepare('DELETE FROM rer_portability_guard')]);
+    ...cat.tables.flatMap(t=>createCopy(db,t,copies[t.name],true)),statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'export',actor,row.phase,canonicalJson(row.metadata)),db.prepare('DELETE FROM rer_portability_guard'),
+    ...audit.map(([sql,args])=>statement(db,sql,...args))]);
   try {
     await dropDevData(db,cat.tables,copies);
     await dropProviderData(db,cat.tables,copies);
@@ -36,16 +39,9 @@ export async function createExport(context,actor='direct') {
       const descriptor=await capturePayload(db,id,manifest.payloads.length,await producer.produce());manifest.payloads.push({name,...descriptor});
     }
     await run(db,'UPDATE rer_portability_jobs SET metadata=? WHERE id=?',canonicalJson(row.metadata),id);
-    await checkReferences(context,row);
+    await checkReferences(context,copies,objects);
     return id;
   }catch(e){await abortExport(context,id);throw e;}
-}
-async function checkReferences({db,config},row) {
-  for(const [binding,spec] of Object.entries(config.buckets)) if(spec.objectReferences) {
-    const {table,keyColumn}=spec.objectReferences,keys=new Set((await all(db,`SELECT DISTINCT ${quote(keyColumn)} AS key FROM ${quote(row.metadata.copies[table])} WHERE ${quote(keyColumn)} IS NOT NULL`)).map(x=>x.key));
-    const objects=row.metadata.manifest.objects.filter(x=>x.bucket===binding);
-    insist(objects.length===keys.size && objects.every(x=>keys.has(x.key)),'object_references:'+binding);
-  }
 }
 async function nextItems(context,row) {
   const {db,config,buckets}=context,{manifest,cursor,copies,partBytes}=row.metadata;
@@ -106,7 +102,7 @@ export async function advanceExport(context,id,{expectedPart,maxParts=1}={}) {
       if(expectedPart!==undefined)expectedPart++;
     }else{
       // References are checked again against the archived, normalized snapshot.
-      await checkReferences(context,row);
+      await checkReferences(context,row.metadata.copies,row.metadata.manifest.objects);
       row.metadata.manifest.partCount=row.completed;
       const verifier=new ContentVerifier(row.metadata.manifest),archive=new ArchiveVerifier(row.metadata.manifest);
       for await(const part of parts(context.db,id,row.completed)){archive.add(part);for(const item of part.items)verifier.add(item);}

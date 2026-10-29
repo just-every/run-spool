@@ -1,3 +1,4 @@
+import type { NativeAuthority } from '../agent-door/native-authority';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import type { OwnerSession } from '../owner-authority';
 import { statement as s } from '../alerts/types';
@@ -6,14 +7,14 @@ export async function teamContext(db:D1Database,project:string) {
  return s(db,'SELECT organization,team FROM spool_project_teams WHERE project=?',project).first<{organization:string;team:string}>();
 }
 
-export async function memberForSession(db:D1Database,session:OwnerSession) {
+export async function memberForSession(db:D1Database,session:NativeAuthority) {
  return s(db,"SELECT id,organization FROM spool_members WHERE operator_id=? AND state='active'",session.operator.id).first<{id:string;organization:string}>();
 }
 
 // A project maintainer can affect a whole team only while maintaining every
 // project in that team. Admin and installation-owner authority still use their
 // normal batch fence at commit.
-export async function requireTeamWriter(db:D1Database,session:OwnerSession,organization:string,team:string) {
+export async function requireTeamWriter(db:D1Database,session:NativeAuthority,organization:string,team:string) {
  if(session.operator.role==='owner')return;
  const member=session.membership;
  if(!member||member.organization!==organization||member.role==='billing'||member.role==='read-only')throw new AuthError('Project not found',404);
@@ -23,7 +24,7 @@ export async function requireTeamWriter(db:D1Database,session:OwnerSession,organ
  if(missing)throw new AuthError('Project not found',404);
 }
 
-export function teamWriterGuard(db:D1Database,session:OwnerSession,organization:string,team:string) {
+export function teamWriterGuard(db:D1Database,session:NativeAuthority,organization:string,team:string) {
  if(session.operator.role==='owner')return s(db,'SELECT 1');
  const member=session.membership!;
  return s(db,`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(

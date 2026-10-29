@@ -78,3 +78,6 @@ html:has([data-rer-label="Demo"]) .brand .wordmark{font-size:30px}
 }
 
 @media(max-width:380px){.sidebar-brand{flex-wrap:wrap}.menu-button{margin-left:auto}}
+/* The native pages reached from agent decisions retain the same touch target at
+   desktop and phone widths. Marketing and sign-in styles are unchanged. */
+.workbench-shell .text-button,.workbench-shell .navigation a,.workbench-shell .project-picker select{min-height:44px}

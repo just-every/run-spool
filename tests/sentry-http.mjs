@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { releaseIdentityFlow, team004Flow } from './release-identity-flow.mjs';
 import { groupingRulesFlow } from './grouping-rules-flow.mjs';
 import { investigationFlow } from './investigation-flow.mjs';
@@ -12,7 +13,7 @@ import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 const worker=await startTestWorker(15522),{origin}=worker;
 try{
-  const cookie=await signIn(origin);
+  const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
   const req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Connection:'close',Origin:origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{},...headers},...body?{body:typeof body==='string'||body instanceof Uint8Array?body:JSON.stringify(body)}:{}});
   const json=async(path,method,body,headers)=>{const response=await req(path,method,body,headers);assert.ok(response.ok,`${path}: HTTP ${response.status}`);return response.json()};
   const project=await json('/api/projects','POST',{id:'wire',name:'Wire flow'}),other=await json('/api/projects','POST',{id:'other',name:'Other project'});
