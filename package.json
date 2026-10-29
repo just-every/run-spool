@@ -64,7 +64,10 @@
     "test:tunnel": "node tests/tunnel-flow.mjs",
     "test:wizard": "node tests/setup-flow.mjs",
     "integration:sync": "node scripts/sync-integration.mjs --write",
-    "integration:check": "node scripts/sync-integration.mjs --check"
+    "integration:check": "node scripts/sync-integration.mjs --check",
+    "test:agent-door": "node tests/agent-door.mjs",
+    "agent-surface:generate": "node scripts/agent-door/surface.mjs",
+    "agent-surface:check": "node scripts/agent-door/surface.mjs --check"
   },
   "dependencies": {
     "@babel/parser": "7.29.8",
@@ -80,8 +83,9 @@
     "@cloudflare/vite-plugin": "1.54.5",
     "@cloudflare/workers-types": "5.20260908.1",
     "@ghostery/adblocker": "2.20.1",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "@playwright/test": "1.63.0",
-    "@runeditrun/rer": "0.2.82",
+    "@runeditrun/rer": "0.2.89",
     "@sentry/browser": "11.6.0",
     "@sentry/cli": "3.8.1",
     "@sentry/esbuild-plugin": "11.8.0",

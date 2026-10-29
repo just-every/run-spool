@@ -1,0 +1,22 @@
+{
+  "push": [
+    {
+      "name": "spool",
+      "browser": true,
+      "hosted": true,
+      "commands": [
+        "node scripts/installer/verify.mjs"
+      ]
+    }
+  ],
+  "nightly": [
+    {
+      "name": "commands",
+      "browser": true,
+      "hosted": false,
+      "commands": [
+        "pnpm test:commands"
+      ]
+    }
+  ]
+}

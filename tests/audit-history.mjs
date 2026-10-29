@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {archiveProjection,nativeArchive} from './archive.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
@@ -14,6 +15,7 @@ const strip=({sequence,...row})=>row;
 const app=await startTestWorker(15555),origin=app.origin;let browser,target;
 try {
  const cookie=await signIn(origin),{req,json}=client(origin,cookie);
+ await chooseLocalAgentPolicy(origin,cookie);
  const facts=async()=>(await json('/api/audit/export?format=json')).rows;
  // The window excludes the history reads themselves (audit.read/audit.export).
  const since=async work=>{const mark=(await facts()).length;await work();return (await facts()).slice(mark).filter(row=>!row.action.startsWith('audit.'));};
