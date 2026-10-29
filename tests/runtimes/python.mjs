@@ -40,7 +40,10 @@ export default {
    for(const exception of detail.event.sentry.exceptions)await page.locator('article.exception h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
   };
   await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
-  await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
+  assert.equal(await page.getByRole('button',{name:'Previous event',exact:true}).isEnabled(),false,'oldest matching event has no predecessor');
+  await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);
+  assert.equal(await page.getByRole('button',{name:'Next event',exact:true}).isEnabled(),false,'latest matching event has no successor');
+  await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
   assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
