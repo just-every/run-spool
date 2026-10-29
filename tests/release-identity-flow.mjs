@@ -312,14 +312,14 @@ export async function collaborativeRecurrenceFlow({req,json}) {
  assert.equal((await nextDiscussion()).recurrence.sameRelease,1,'next-release repeats are counted in shared history');
  assert.ok((await nextDiscussion()).activity.some(a=>a.kind==='resolved_release_recurrence'&&a.detail.release==='checkout@2.0.0'&&a.detail.count===1));
  const nextPolicy=await json(base+'/recurrence-policy'),nextPreview=await json(base+'/recurrence-policy','POST',{revision:nextPolicy.revision,reopenSameRelease:true,preview:true});
- assert.equal(nextPreview.preview.affectedResolvedCount,1,'policy preview includes the next-release boundary');
+ assert.equal(nextPreview.preview.affectedResolvedCount,0,'next-release resolution retains the SDK-009 strictly-later boundary');
  const frozen=await row();await json(base+'/recurrence-policy','POST',{revision:nextPolicy.revision,reopenSameRelease:true,apply:true,preview:nextPreview.preview});assert.deepEqual(await row(),frozen,'policy saving does not replay retained repeats');
  await send('checkout@1.0.0');assert.equal((await row()).state,'resolved','older events cannot reopen a next-release resolution');
  const alertsBefore=(await json(base+'/alerts')).filter(a=>a.kind==='regression').length;
- await send('checkout@2.0.0');assert.equal((await row()).state,'open','the explicit policy reopens a next-release same-release repeat');
- await send('checkout@2.0.0');assert.equal((await json(base+'/alerts')).filter(a=>a.kind==='regression').length,alertsBefore+1,'one regression alert is raised for the reopening');
+ await send('checkout@2.0.0');assert.equal((await row()).state,'resolved','the same-release policy preserves SDK-009 next-release semantics pending the conflicting TEAM-003 ruling');
+ assert.equal((await nextDiscussion()).recurrence.sameRelease,2);assert.equal((await json(base+'/alerts')).filter(a=>a.kind==='regression').length,alertsBefore,'a non-regressing repeat sends no regression alert');
  const enabledNext=await json(base+'/recurrence-policy'),reset=await json(base+'/recurrence-policy','POST',{revision:enabledNext.revision,reopenSameRelease:false,preview:true});await json(base+'/recurrence-policy','POST',{revision:enabledNext.revision,reopenSameRelease:false,apply:true,preview:reset.preview});
- await resolve('next');await send('checkout@3.0.0');assert.equal((await row()).state,'open','the first later release regresses next-release resolution');
+ await resolve('next');await send('checkout@3.0.0');assert.equal((await row()).state,'open','the first later release regresses next-release resolution');await send('checkout@3.0.0');assert.equal((await json(base+'/alerts')).filter(a=>a.kind==='regression').length,alertsBefore+1,'a new-release recurrence raises one regression alert');
  await resolve('current');const id=(await row()).id,discussion=()=>json(base+'/issues/'+id+'/discussion');
  await send('checkout@3.0.0');assert.equal((await row()).state,'resolved');let activity=await discussion();assert.ok(activity.activity.some(a=>a.kind==='resolved_release_recurrence'&&a.detail.release==='checkout@3.0.0'&&a.detail.count===1));
  await send('checkout@1.0.0');assert.equal((await row()).state,'resolved');activity=await discussion();assert.ok(activity.activity.some(a=>a.kind==='older_release_recurrence'&&a.detail.release==='checkout@1.0.0'));

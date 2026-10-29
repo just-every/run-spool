@@ -8,7 +8,7 @@ import type { OwnerSession } from '../owner-authority';
 export type DiscussionComment = {id:string;body:string;version:number;created:number;updated:number;author:string;canEdit:boolean;mentions:string[]};
 export type Subscription = {subscribed:boolean;explicit:'subscribed'|'unsubscribed'|null;reasons:string[];version:number};
 export type DiscussionData = {issue:string;revision:number;canWrite:boolean;comments:DiscussionComment[];subscription:Subscription;limit:number};
-export type ActivityRow = {actor_name?:string|null;id:string;kind:string;actor_kind:string;actor_label:string;detail:Record<string,unknown>;created:number};
+export type ActivityRow = {assignee_name?:string|null;actor_name?:string|null;id:string;kind:string;actor_kind:string;actor_label:string;detail:Record<string,unknown>;created:number};
 
 export function fields(input:any, names:string[]) {
  if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>!names.includes(key)))throw new AuthError('invalid_discussion_request',400);

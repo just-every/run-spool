@@ -8,7 +8,7 @@ import { shortIdCorrection } from '../short-ids/corrections';
 const routes=new Hono<any>();
 type Move={event:string;occurrence:string;from:string;to:string};
 type Snapshot={id:string;revision:number;count:number;after:number};
-type Plan={version:1;project:string;kind:'split'|'merge';moves:Move[];issues:Snapshot[];target:string;fingerprint:string|null};
+export type Plan={version:1;project:string;kind:'split'|'merge';moves:Move[];issues:Snapshot[];target:string;fingerprint:string|null};
 const revision=(db:D1Database,project:string,item:Snapshot,undo=false)=>guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=? AND count=?)',project,item.id,item.revision+(undo?1:0),undo?item.after:item.count);
 routes.get('/:project/corrections',async c=>{const auth=await authorize(c);if('response' in auth)return auth.response;return c.json((await s(c.env.DB,'SELECT * FROM grouping_corrections WHERE project=? ORDER BY created DESC,id',c.req.param('project')).all()).results.map((row:any)=>({...row,plan:JSON.parse(row.plan)})))});
 export async function previewCorrection(db:D1Database,project:string,b:any,id:string=crypto.randomUUID()){
@@ -42,9 +42,9 @@ routes.post('/:project/corrections/preview',async c=>{
  try{await write(c,auth.session,[...plan.issues.map(i=>revision(db,project,i)),s(db,"UPDATE grouping_proposals SET state='stale',correction=NULL,updated=? WHERE project=? AND correction IN (SELECT id FROM grouping_corrections WHERE project=? AND state='preview')",Date.now(),project,project),s(db,"DELETE FROM grouping_corrections WHERE project=? AND state='preview'",project),s(db,"INSERT INTO grouping_corrections VALUES(?,?,?,'preview',?,?,?)",id,project,b.kind,JSON.stringify(plan),Date.now(),Date.now())]);return c.json(preview,201)}catch(e){return conflict(c,e)}
 });
 
-routes.post('/:project/corrections/:id/:action',async c=>{
- const auth=await authorize(c);if('response' in auth)return auth.response;const b=await body(c);if(b.confirm!==true)throw new Error('Explicit confirmation required');
- const db=c.env.DB,project=c.req.param('project'),id=c.req.param('id'),action=c.req.param('action'),undo=action==='undo';if(!['apply','undo'].includes(action))return c.notFound();
+export async function applyCorrection(c:any,session:any,project:string,id:string,action:string,b:any){
+ if(b.confirm!==true)throw new Error('Explicit confirmation required');
+ const db=c.env.DB,undo=action==='undo';if(!['apply','undo'].includes(action))return c.notFound();
  const row=await s(db,'SELECT * FROM grouping_corrections WHERE project=? AND id=?',project,id).first<any>();if(!row)return c.json({error:'Preview not found'},404);
  if(row.state!==(undo?'applied':'preview'))return c.json({error:'Correction state conflict'},409);
  const p:Plan=JSON.parse(row.plan),jobs=[guard(db,'EXISTS(SELECT 1 FROM grouping_corrections WHERE project=? AND id=? AND state=?)',project,id,row.state),...p.issues.map(i=>revision(db,project,i,undo))];
@@ -75,6 +75,10 @@ routes.post('/:project/corrections/:id/:action',async c=>{
  jobs.push(...shortIdCorrection(db,project,id,p,undo,Date.now()));
  jobs.push(s(db,"UPDATE grouping_proposals SET state=?,updated=? WHERE project=? AND correction=? AND state=?",undo?'undone':'applied',Date.now(),project,id,undo?'applied':'approved'));
  jobs.push(s(db,'UPDATE grouping_corrections SET state=?,updated=? WHERE project=? AND id=?',undo?'undone':'applied',Date.now(),project,id),audit(db,project,undo?'grouping_undone':'grouping_applied',{correction:id}));
- try{await write(c,auth.session,jobs);return c.json({id,state:undo?'undone':'applied',moves:p.moves})}catch(e){return conflict(c,e)}
+ try{await write(c,session,jobs);return c.json({id,state:undo?'undone':'applied',moves:p.moves})}catch(e){return conflict(c,e)}
+}
+routes.post('/:project/corrections/:id/:action',async c=>{
+ const auth=await authorize(c);if('response' in auth)return auth.response;
+ return applyCorrection(c,auth.session,c.req.param('project'),c.req.param('id'),c.req.param('action'),await body(c));
 });
 export default routes;

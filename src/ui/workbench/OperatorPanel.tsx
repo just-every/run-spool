@@ -133,6 +133,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         refresh();
       })}>Unassign</button>
     </form>
+    {state?.assignments.find((row:any)=>row.issue===issue.id)?.memberName&&<p>Assigned member: {state.assignments.find((row:any)=>row.issue===issue.id).memberName}</p>}
     <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
 
     <div className="operator-controls" role="group" aria-label="Operator controls">

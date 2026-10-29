@@ -6,11 +6,12 @@ export async function readRecurrencePolicy(db:D1Database,project:string):Promise
  return row?{revision:row.revision,reopenSameRelease:row.reopen_same_release===1,updated:row.updated}:{revision:0,reopenSameRelease:false,updated:null};
 }
 
-/** Same-release policy covers current, next and observed named resolutions.
- * The default next boundary remains strictly later. Saving never replays events. */
+/** Named resolution already regresses at its chosen release; next resolution
+ * deliberately waits above its boundary. Current and already-observed named-resolution equality
+ * changes when this project policy changes. Stored issue states never change. */
 export async function recurrencePreview(db:D1Database,project:string,current:RecurrencePolicy,reopenSameRelease:boolean):Promise<RecurrencePreview> {
  const row=await db.prepare(`SELECT COUNT(*) count FROM issues i
-  JOIN issue_resolutions z ON z.project=i.project AND z.issue=i.id AND (z.mode IN ('current','next') OR z.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=i.project AND snapshot.issue=i.id AND snapshot.boundary_seq=z.boundary_seq AND snapshot.seen_at_resolution=1))
+  JOIN issue_resolutions z ON z.project=i.project AND z.issue=i.id AND (z.mode='current' OR z.mode='named' AND EXISTS(SELECT 1 FROM issue_recurrence_boundaries snapshot WHERE snapshot.project=i.project AND snapshot.issue=i.id AND snapshot.boundary_seq=z.boundary_seq AND snapshot.seen_at_resolution=1))
   JOIN releases r ON r.project=i.project AND r.seq=COALESCE(z.boundary_seq,i.resolved_seq)
   WHERE i.project=? AND i.state='resolved' AND i.latest_release_seq IS NOT NULL
    AND i.algorithm IN ('js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1')`).bind(project).first<{count:number}>();

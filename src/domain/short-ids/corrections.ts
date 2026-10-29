@@ -16,7 +16,7 @@ export function shortIdCorrection(db: D1Database, project: string, correction: s
   s(db, "INSERT INTO issue_short_id_moves(project,correction,short_id,direction,from_issue,to_issue,created) SELECT project,correction,short_id,'undo',to_issue,from_issue,? FROM issue_short_id_moves WHERE correction=? AND direction='apply'", time, correction),
   s(db, "UPDATE issue_short_ids SET issue=(SELECT from_issue FROM issue_short_id_moves m WHERE m.correction=? AND m.direction='apply' AND m.short_id=issue_short_ids.short_id) WHERE project=? AND short_id IN (SELECT short_id FROM issue_short_id_moves WHERE correction=? AND direction='apply')", correction, project, correction),
  ] : [
-  s(db, "INSERT INTO issue_short_id_moves(project,correction,short_id,direction,from_issue,to_issue,created) SELECT project,?,short_id,'apply',issue,?,? FROM issue_short_ids WHERE project=? AND issue=?", correction, target, time, project, source),
-  s(db, 'UPDATE issue_short_ids SET issue=? WHERE project=? AND issue=?', target, project, source),
+  s(db, "INSERT INTO issue_short_id_moves(project,correction,short_id,direction,from_issue,to_issue,created) SELECT project,?,short_id,'apply',issue,?,? FROM issue_short_ids WHERE project=? AND issue IN (SELECT value FROM json_each(?))", correction, target, time, project, JSON.stringify(plan.issues.filter(issue=>issue.id!==target).map(issue=>issue.id))),
+  s(db, 'UPDATE issue_short_ids SET issue=? WHERE project=? AND issue IN (SELECT value FROM json_each(?))', target, project, JSON.stringify(plan.issues.filter(issue=>issue.id!==target).map(issue=>issue.id))),
  ];
 }

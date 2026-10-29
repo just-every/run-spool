@@ -8,8 +8,8 @@ export const matchArgs=(project:string,fingerprint:string,release:string,message
 const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');
- const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,'SELECT * FROM issue_assignments WHERE project=?',p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
- return c.json({policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A bounded operator label, not an account, invitation, permission or notification.'});
+ const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,"SELECT a.*,(SELECT o.display_name FROM audit_actor_links l JOIN oa_operators o ON o.id=l.owner_id WHERE l.label=a.label AND l.kind IN ('owner','member') LIMIT 1) memberName FROM issue_assignments a WHERE a.project=?",p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
+ return c.json({policies:policies.results,assignments:assignments.results.map((row:any)=>({...row,memberName:row.memberName?scrub(row.memberName):null})),audit:audits.results,assignmentSemantics:'A member alias or operator label records responsibility without granting access or sending notifications.'});
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);

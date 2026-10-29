@@ -1,4 +1,4 @@
-import {busyMemberWrites} from './busy-member-writes.mjs';
+import {busyMemberWrites,collaborativeBulk} from './busy-member-writes.mjs';
 import {chromium,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {legacyMailRows} from './legacy-mail.mjs';
@@ -83,6 +83,7 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  assert.ok(!packet.includes('Concurrent discussion'),'discussion stays outside evidence packets');
  assert.deepEqual(await legacyMailRows(owner.origin),outboxBefore,'discussion, mentions and subscriptions send nothing');
  const busy=await busyMemberWrites(owner,first,second,reader,projects[0]);
+ const bulk=await collaborativeBulk(owner,first,second,reader,projects[0]);
  const priorityBrowser=await chromium.launch({headless:true});try{
   const context=await priorityBrowser.newContext({viewport:{width:1440,height:1000}});const split=first.cookie.indexOf('=');
   await context.addCookies([{name:first.cookie.slice(0,split),value:first.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
@@ -94,6 +95,28 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
   await page.screenshot({path:resolve(folder,'member-priority-1440.png'),fullPage:true});
   await page.setViewportSize({width:390,height:900});
   await page.screenshot({path:resolve(folder,'member-priority-390.png'),fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.goto(owner.origin+'/projects/'+projects[0].id+'/issues');
+  await page.getByRole('searchbox',{name:'Search issues'}).fill('BulkMember');
+  await expect(page.getByRole('status').filter({hasText:'3 issues matching'})).toBeVisible();
+  await page.getByRole('button',{name:'Select this page',exact:true}).click();
+  await page.getByLabel('Bulk action',{exact:true}).selectOption('assigned');await page.getByLabel('Member handle',{exact:true}).fill('@synthetic-spool-2');
+  await page.getByRole('button',{name:'Preview triage',exact:true}).click();await expect(page.getByRole('heading',{name:'Review 3 issues',exact:true})).toBeVisible();
+  await Promise.all([page.waitForResponse(response=>response.url().includes('/issue-search?')&&response.ok()),page.getByRole('button',{name:'Apply to 3 issues',exact:true}).click()]);await expect(page.getByRole('status').filter({hasText:'3 issues assigned.'})).toBeVisible();
+  await page.getByRole('button',{name:'Select this page',exact:true}).click();await page.getByLabel('Bulk action',{exact:true}).selectOption('merged');await page.getByLabel('Merge into',{exact:true}).selectOption(bulk.target);
+  const mergePreviewResponse=page.waitForResponse(response=>response.url().endsWith('/bulk-triage')&&response.request().method()==='POST');await page.getByRole('button',{name:'Preview triage',exact:true}).click();const mergePreview=await mergePreviewResponse;assert.equal(mergePreview.status(),200,await mergePreview.text());await page.getByText('Review 2 exact event moves',{exact:true}).click();
+  const beforeMerge=await first.json(bulk.root+'/issues');
+  await expect(page.getByRole('heading',{name:'Review 3 issues',exact:true})).toBeVisible();
+  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'bulk preview reflows');await page.screenshot({path:resolve(folder,'member-bulk-'+width+'.png'),fullPage:true})}
+  await page.setViewportSize({width:1440,height:1000});
+  const accessibility=await new AxeBuilder({page}).include('.bulk-triage').analyze();assert.deepEqual(accessibility.violations.filter(row=>['serious','critical'].includes(row.impact)),[]);
+  await page.getByRole('button',{name:'Apply to 3 issues',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'3 issues merged.'})).toBeVisible();
+  const merged=await first.json(bulk.root+'/issues'),events=await first.json(bulk.root+'/issues/'+bulk.target+'/events');assert.equal(events.total,3);
+  assert.equal(merged.find(row=>row.id===bulk.target).count,3);for(const row of bulk.originals.filter(row=>row.id!==bulk.target))assert.equal(merged.find(issue=>issue.id===row.id).count,0);
+  const correction=(await first.json(bulk.root+'/corrections')).find(row=>row.state==='applied'&&row.plan.target===bulk.target);assert.ok(correction);
+  for(const original of bulk.originals){const packet=await first.json(bulk.root+'/issues/'+original.short_id+'/packet');assert.equal(packet.issue.id,bulk.target,'every original short ID follows the survivor')}
+  await first.json(bulk.root+'/corrections/'+correction.id+'/undo','POST',{confirm:true});
+  const undone=await first.json(bulk.root+'/issues');for(const original of bulk.originals){assert.equal(undone.find(row=>row.id===original.id).count,beforeMerge.find(row=>row.id===original.id).count);assert.equal((await first.json(bulk.root+'/issues/'+original.short_id+'/packet')).issue.id,original.id,'undo restores every source alias')}
   await context.close();
  }finally{await priorityBrowser.close()}
  console.log('[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed');

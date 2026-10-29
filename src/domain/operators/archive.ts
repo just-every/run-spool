@@ -26,12 +26,12 @@ export async function validateOperators(data:any){
  for(const r of data.grouping_corrections){
   assert(uuid(r.id)&&['split','merge'].includes(r.kind)&&['preview','applied','undone'].includes(r.state)&&integer(r.created)&&integer(r.updated)&&r.updated>=r.created);
   const p=JSON.parse(r.plan);fields(p,['version','project','kind','moves','issues','target','fingerprint']);
-  assert(p.version===1&&p.project===r.project&&p.kind===r.kind&&digest(p.target)&&Array.isArray(p.moves)&&p.moves.length>0&&p.moves.length<=200&&Array.isArray(p.issues)&&p.issues.length===(p.kind==='split'?1:2));
+  assert(p.version===1&&p.project===r.project&&p.kind===r.kind&&digest(p.target)&&Array.isArray(p.moves)&&p.moves.length>0&&p.moves.length<=200&&Array.isArray(p.issues)&&(p.kind==='split'?p.issues.length===1:p.issues.length>=2&&p.issues.length<=100)&&new Set(p.issues.map((i:any)=>i.id)).size===p.issues.length);
   const seen=new Set();
-  for(const m of p.moves){fields(m,['event','occurrence','from','to']);assert(typeof m.event==='string'&&m.event.length<=128&&typeof m.occurrence==='string'&&m.to===p.target&&m.from===p.issues[0].id&&m.from!==m.to&&!seen.has(m.event));seen.add(m.event)}
-  for(const [index,i] of p.issues.entries()){fields(i,['id','revision','count','after']);assert(digest(i.id)&&issues.get(i.id)?.project===r.project&&integer(i.revision)&&integer(i.count)&&integer(i.after)&&i.after===i.count+(index===0?-p.moves.length:p.moves.length));}
+  for(const m of p.moves){fields(m,['event','occurrence','from','to']);assert(typeof m.event==='string'&&m.event.length<=128&&typeof m.occurrence==='string'&&m.to===p.target&&p.issues.some((i:any)=>i.id===m.from&&i.id!==p.target)&&m.from!==m.to&&!seen.has(m.event));seen.add(m.event)}
+  for(const i of p.issues){fields(i,['id','revision','count','after']);assert(digest(i.id)&&issues.get(i.id)?.project===r.project&&integer(i.revision)&&integer(i.count)&&integer(i.after)&&i.after===i.count+(i.id===p.target?p.moves.length:-p.moves.filter((m:any)=>m.from===i.id).length));}
   if(p.kind==='split'){assert(p.fingerprint===await hash('operator-split:'+r.id)&&p.target===await hash(r.project+':'+p.fingerprint));if(r.state!=='preview')assert(issues.get(p.target)?.project===r.project&&issues.get(p.target)?.fingerprint===p.fingerprint)}
-  else assert(p.fingerprint===null&&p.issues[1].id===p.target);
+  else assert(p.fingerprint===null&&p.issues.some((i:any)=>i.id===p.target));
   corrections.set(r.id,{...r,plan:p});
  }
  const originals=new Map<string,any>();

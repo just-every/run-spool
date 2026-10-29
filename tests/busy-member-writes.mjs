@@ -77,3 +77,43 @@ export async function busyMemberWrites(owner,first,second,reader,project) {
  assert.deepEqual((await first.json(base+'/discussion')).activity.find(row=>row.id===manualChoice.id),manualChoice,'low and its original member actor remain visible together after escalation');
  return {issue:fixture.id,actor:second.member.name};
 }
+
+/** Members use the same populated search selection for every bulk verb. */
+export async function collaborativeBulk(owner,first,second,reader,project) {
+ const root='/api/projects/'+project.id,dsn=new URL(project.dsn),door='/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7';
+ for(const type of ['BulkMemberFirst','BulkMemberSecond','BulkMemberThird']){
+  const event={event_id:crypto.randomUUID().replaceAll('-',''),release:'synthetic-spool-1',level:'warning',exception:{values:[{type,value:'Collaborative search selection'}]}};
+  assert.equal(await status(first.req(door,'POST','{}\n{"type":"event"}\n'+JSON.stringify(event),{Cookie:''})),200);
+ }
+ const search=()=>first.json(root+'/issue-search?q=BulkMember'),read=()=>first.json(root+'/issues');
+ const selected=async()=>({issues:(await search()).rows.map(({id,revision})=>({id,revision})),apply:false});
+ const originals=(await search()).rows;assert.equal(originals.length,3);
+ const snapshot=async()=>({issues:await read(),events:await Promise.all(originals.map(row=>first.json(root+'/issues/'+row.id+'/events'))),assignments:(await first.json(root+'/operator-state')).assignments});
+ let input={...await selected(),action:'assign',member:'@synthetic-spool-2'},before=await snapshot();
+ const plan=await first.json(root+'/bulk-triage','POST',input);assert.deepEqual(await snapshot(),before,'member assignment preview changes no issue, event or assignment');
+ for(const actor of [reader])assert.ok([401,403,404].includes(await status(actor.req(root+'/bulk-triage','POST',{...input,apply:true,preview:plan.preview}))));
+ assert.equal(await status(first.req(root+'/bulk-triage','POST',{...input,member:'@synthetic-spool-unknown',apply:true,preview:plan.preview})),400);
+ assert.equal(await status(first.req(root+'/bulk-triage','POST',{...input,issues:[...input.issues,{id:'synthetic-spool-foreign',revision:1}],apply:true,preview:plan.preview})),409);
+ assert.deepEqual(await snapshot(),before,'read-only, inaccessible assignee and foreign selection refusals preserve all selected data');
+ await second.json(root+'/bulk-triage','POST',{...input,apply:true,preview:plan.preview});
+ const assigned=(await first.json(root+'/operator-state')).assignments.filter(row=>originals.some(issue=>issue.id===row.issue));assert.equal(assigned.length,3);assert.ok(assigned.every(row=>/^audit:[a-f0-9]{32}$/.test(row.label)&&row.memberName===second.member.name));
+ before=await snapshot();assert.equal(await status(first.req(root+'/bulk-triage','POST',{...input,apply:true,preview:plan.preview})),409);assert.deepEqual(await snapshot(),before,'a stale bulk assignment changes nothing');
+ for(const issue of originals){const timeline=await first.json(root+'/issues/'+issue.id+'/discussion'),entry=timeline.activity.find(row=>row.kind==='assignment');assert.equal(entry.actor_name,second.member.name);assert.equal(entry.assignee_name,second.member.name);assert.equal(entry.detail.assignee,assigned.find(row=>row.issue===issue.id).label)}
+ for(const state of ['acknowledged','resolved','suppressed','open']){
+  input={...await selected(),state,...state==='resolved'?{resolution:'plain'}:{},...state==='suppressed'?{suppression:{mode:'forever',reason:'Investigating the searched checkout failures'}}:{}};
+  before=await read();const preview=await first.json(root+'/bulk-triage','POST',input);assert.deepEqual(await read(),before,'bulk '+state+' preview changes no issue');
+  await second.json(root+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview});assert.ok((await search()).rows.every(row=>row.state===state));
+ }
+ // A three-issue merge must preserve every source, target and original identity.
+ const target=originals[1].id;
+ input={...await selected(),action:'merge',target};const preview=await first.json(root+'/bulk-triage','POST',input);before=await snapshot();
+ assert.equal(preview.plan.moves.length,2);assert.deepEqual(preview.plan.issues.map(row=>row.id).toSorted(),originals.map(row=>row.id).toSorted());
+ assert.deepEqual(await snapshot(),before,'merge preview moves no retained event or aggregate');
+ assert.equal(await status(reader.req(root+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})),404);
+ assert.equal(await status(second.req(root+'/bulk-triage','POST',{...input,target:originals[0].id,apply:true,preview:preview.preview})),409);
+ assert.deepEqual(await snapshot(),before,'a refused merge changes no issue or occurrence');
+ await first.json(root+'/issues/'+originals[0].id+'/comments','POST',{body:'Review the selected merge with @synthetic-spool-2'});
+ const afterComment=await snapshot();assert.equal(await status(second.req(root+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})),409);assert.deepEqual(await snapshot(),afterComment,'a stale member decision cannot partially merge the selection');
+ input={...await selected(),action:'merge',target};
+ return {root,originals,input,target};
+}
