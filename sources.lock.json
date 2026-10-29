@@ -8749,7 +8749,7 @@
       "executable": false
     },
     "tests/business-import.mjs": {
-      "sha256": "0c3108aed04f8d4f69d89929eb92386a6db1fb3932771c19e99ba76549300a5f",
+      "sha256": "22845c9f002ebf43c740c1849ed6f68a6e05f8de9f61067e127c7d12a3bf696c",
       "executable": false
     },
     "tests/busy-member-writes.mjs": {

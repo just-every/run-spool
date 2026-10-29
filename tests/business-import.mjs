@@ -79,8 +79,10 @@ const worker=await startTestWorker(port,{
 
 try {
  const cookie=await signIn(origin);
+ // One connection per request, as the other local journeys do: a reused keep-alive
+ // socket the local workerd has closed fails a request as "other side closed".
  const ownerRequest=(path,method='GET',body,authenticated=true)=>fetch(origin+path,{
-  method,redirect:'manual',headers:{Origin:origin,...authenticated?{Cookie:cookie}:{},
+  method,redirect:'manual',headers:{Origin:origin,Connection:'close',...authenticated?{Cookie:cookie}:{},
    ...body===undefined?{}:{'Content-Type':'application/json'}},
   ...body===undefined?{}:{body:JSON.stringify(body)},
  });
@@ -110,7 +112,7 @@ try {
   return message+'.'+Buffer.from(signature).toString('base64url');
  }
  const doorRequest=async(action,grantNamespace,body,extra={})=>fetch(`${origin}/api/rer/import/${action}`,{
-  method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${await grant(action,grantNamespace,extra)}`},
+  method:'POST',headers:{'Content-Type':'application/json',Connection:'close',Authorization:`Bearer ${await grant(action,grantNamespace,extra)}`},
   body:JSON.stringify(body),
  });
  const doorJson=async(action,grantNamespace,body,extra)=>json(await doorRequest(action,grantNamespace,body,extra));
