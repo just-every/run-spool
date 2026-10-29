@@ -20,7 +20,7 @@ Attachments, audited viewing and downloads, the project audit API, streamed whol
 
 ### Observed session report
 
-SDK-005 adds the bounded version-1 `/api/projects/:project/release-health` read door and matching JSON download under the same owner/exact-project read authority. It reports aggregate observed health and uncertainty, not a paginated session-record or release-record API. See [session report shapes and denominators](SENTRY-SESSIONS.md#read-and-export). The retained record doors below complement this report; they do not replace its observed health and uncertainty calculations.
+SDK-005 adds the bounded version-1 `/api/projects/:project/release-health` read door and matching JSON download under the same owner-session or exact-project grant authority. It reports aggregate observed health and uncertainty, not a paginated session-record or release-record API. See [session report shapes and denominators](SENTRY-SESSIONS.md#read-and-export). The retained record doors below complement this report; they do not replace its observed health and uncertainty calculations.
 
 
 ## Version-1 release and session records

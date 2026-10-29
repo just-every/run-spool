@@ -56,6 +56,8 @@ export async function recordReadFlow({ req, json, db }) {
  assert.equal((await req(foreignRead + '?cursor=' + encodeURIComponent(firstRelease.next), 'GET', undefined, {Cookie:'',Authorization:`Bearer ${foreign.key}`})).status, 400, 'release cursors are project-bound even for a separately authorized reader');
  await json(root + '/keys/' + grant.hash, 'DELETE');
  assert.equal((await req(root + '/release-records', 'GET', undefined, auth)).status, 401);
+ assert.equal((await req(root + '/release-records', 'GET', undefined, {Cookie:''})).status, 401);
+ assert.equal((await req(root + '/release-records', 'GET', undefined, {Authorization:'Bearer synthetic-spool-invalid'})).status, 401, 'a malformed bearer cannot borrow owner authority');
  const replacement = await json(root + '/keys', 'POST', {kind:'agent'}); auth.Authorization = `Bearer ${replacement.key}`;
  assert.deepEqual((await paginate(root + '/release-records')).rows, releaseRead.rows, 'denied and revoked reads change no records');
  const report = (await paginate(root + '/feedback-reports')).rows[0]; await json(root + '/feedback/' + report.id, 'DELETE');
