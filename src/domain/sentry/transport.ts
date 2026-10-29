@@ -1,5 +1,6 @@
 import * as zlib from 'node:zlib';
 import { Readable } from 'node:stream';
+import { zstdFrames } from './zstd-frames.ts';
 
 /** Default envelope bound shared by Sentry intake and the server tunnels. */
 export const limit = 1_048_576;
@@ -36,6 +37,23 @@ export async function decodeBounded(bytes: Uint8Array, encoding: string | null, 
     return readBounded(new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream(encoding)), max);
   }
   if (encoding !== 'br' && encoding !== 'zstd') return undefined;
+  if (encoding === 'br') return inflateBounded(bytes, encoding, max);
+  // Node 22 does not report an unfinished Zstandard frame at EOF. Check framing first,
+  // then decode each complete frame so native content-size and checksum validation runs for all of them.
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (const frame of zstdFrames(bytes)) {
+    const chunk = await inflateBounded(frame, encoding, max - size);
+    chunks.push(chunk);
+    size += chunk.length;
+  }
+  const output = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+  return output;
+}
+
+async function inflateBounded(bytes: Uint8Array, encoding: 'br' | 'zstd', max: number): Promise<Uint8Array> {
   // Native streams pause at their high-water mark; never inflate the whole input before checking output.
   // A frame cannot ask Zstandard to allocate an unbounded history window before producing its first byte.
   const inflater = encoding === 'br' ? zlib.createBrotliDecompress({ chunkSize: 16_384 }) : zlib.createZstdDecompress({
@@ -43,6 +61,10 @@ export async function decodeBounded(bytes: Uint8Array, encoding: string | null, 
   });
   const output = Readable.toWeb(inflater, { strategy: { highWaterMark: 16_384, size: chunk => chunk.byteLength } }) as ReadableStream<Uint8Array>;
   inflater.end(bytes);
-  try { return await readBounded(output, max); }
+  try {
+    const plain = await readBounded(output, max);
+    if (encoding === 'zstd' && inflater.bytesWritten !== bytes.length) throw new Error('Incomplete Zstandard decoding');
+    return plain;
+  }
   finally { inflater.destroy(); }
 }

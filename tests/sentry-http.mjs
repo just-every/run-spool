@@ -65,8 +65,9 @@ try{
       assert.equal(detail.events[0].id,value.event_id,`${encoding} persists the actual event`);
     }
     if(encoding==='br'||encoding==='zstd'){
+      const valid=compress(Buffer.from(envelope({...event,event_id:(++encodingSequence).toString(16).padStart(32,'0'),message:'Checkout failed '+'x'.repeat(195000)})));
+      assert.equal((await transport(valid,encoding,false)).status,200,`${encoding} accepts the complete multi-block envelope before its final byte is removed`);
       const before=await storedCounts();
-      const valid=compress(Buffer.from(envelope({...event,event_id:'8'.repeat(32)})));
       for(const chunked of [false,true]){
         for(const corrupt of [Buffer.from('synthetic-spool-invalid'),valid.subarray(0,valid.length-1)]){
           const response=await transport(corrupt,encoding,chunked);

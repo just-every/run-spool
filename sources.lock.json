@@ -5909,11 +5909,15 @@
       "executable": false
     },
     "src/domain/sentry/transport.ts": {
-      "sha256": "0fd9430b738688c7a3195f83098072b45df6ffa43970ca6b28b38534056ed809",
+      "sha256": "4003e9e9c07e3874e219cfc3269f6ab7afa26d5e6ea5e1a1d4bc428ebb85c997",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
       "sha256": "0cf580735c95c3e3f73acb647d906e9a8c2b12179e4fe5f2b68800e7a3c19740",
+      "executable": false
+    },
+    "src/domain/sentry/zstd-frames.ts": {
+      "sha256": "cf535f12714ac5840d854b03ef4eb8eb4fa8b509a39683ba4d091123d964ec5b",
       "executable": false
     },
     "src/domain/sessions/archive.ts": {
@@ -9345,7 +9349,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "d2c18573a32df0b4d607c53a3a743d58297d4bdc9dc7a5fa4a3cba040227abf6",
+      "sha256": "d9dc306a1daeb40e2f5df4ed2a04c3ec33a93ad5125a91c4888a5aa606e6fc43",
       "executable": false
     },
     "tests/sentry-import.mjs": {
