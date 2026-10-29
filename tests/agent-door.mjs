@@ -73,6 +73,11 @@ try{
  assert.equal(deploymentResource.error?.data?.capability,'resources');
  assert.equal(done(await app.call('spool.deployments.read',{project})).rows.find(row=>row.id===deployment.id).manifest.commitSha,'b'.repeat(40),'An observed deployment reads back as a recorded fact through its native tool');
  await app.adopt(heldPolicy());
+ const approvalsBeforeUnavailable=await app.json('/agents/api/approvals');
+ const unavailable=await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision+1,idempotency_key:randomUUID()});
+ assert.equal(code(unavailable),'native_worker_admission_unavailable');
+ assert.equal(unavailable._meta?.['com.runeditrun/approval'],undefined,'Company approval cannot make an unavailable native execution path available');
+ assert.deepEqual(await app.json('/agents/api/approvals'),approvalsBeforeUnavailable,'Unavailable native work creates no pending company approval');
  const held=await app.call('spool.issues.update',{project,issue,state:'suppressed',revision:packet.issue.revision,idempotency_key:randomUUID()});
  const pending=held._meta?.['com.runeditrun/approval']??held._meta?.['com.runeditrun/error']?.approval;assert.ok(pending?.id,JSON.stringify(held));
  assert.deepEqual(await app.json(`/api/projects/${project}/issues`),before);
