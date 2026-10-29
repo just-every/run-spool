@@ -65,7 +65,8 @@ try{
  restored=await executionRuntime(restoredState,15477,{GITHUB_CONNECTION:github.connection});await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  const historical={reproducers:before.reproducers.map(row=>({...row,runs:row.runs.map(run=>({...run,historical:true}))})),workflows:before.workflows.map(row=>({...row,historical:true,status:'historical'}))};
  assert.deepEqual(await views(restored),historical,'all reproducer, run, workflow, receipt and exposure facts survive as inert history');
- assert.deepEqual((await archiveProjection(await restored.request('/api/archive'))).data,(await archiveProjection(new Response(archive))).data,'every stored product row restores unchanged');
+ const restoredData=(await archiveProjection(await restored.request('/api/archive'))).data;
+ assert.deepEqual(restoredData,(await archiveProjection(new Response(archive))).data,'every stored product row restores unchanged');
  const sourceToken=await fetch(restored.origin+new URL(pending.url).pathname,{headers:{Authorization:'Bearer '+pending.token}});assert.equal(sourceToken.status,401,'a queued source run token cannot claim restored work');await sourceToken.body?.cancel();
  const sourceGrant=await fetch(restored.origin+`${p}/issues/${reproduced.issue}/packet`,{headers:{Authorization:'Bearer '+agent}});assert.equal(sourceGrant.status,401);await sourceGrant.body?.cancel();
  const sent=github.requests.length;
@@ -75,6 +76,7 @@ try{
  for(const workflow of historical.workflows)for(const step of ['advance','approve']){const response=await restored.request(`${p}/fixes/${workflow.id}/${step}`,'POST',{revision:workflow.revision});assert.equal(response.status,409);assert.match((await response.json()).error,/Restored history/);}
  const historicalRun=await restored.request(`${p}/fixes`,'POST',{reproducer:reproduced.reproducer.id,run:reproduced.run.id,repository:'just-every/run-spool',flow:'checkout'});assert.equal(historicalRun.status,409,'historical passing results cannot authorize a new fix');assert.match((await historicalRun.json()).error,/Restored history/);
  assert.deepEqual(await views(restored),historical,'refused historical authority changes no work or receipt');assert.equal(github.requests.length,sent,'no provider dispatch from restored work');
+ assert.deepEqual((await archiveProjection(await restored.request('/api/archive'))).data,restoredData,'refused historical authority and scheduled evaluation change no restored product row');
  browser=await launchBrowser();results.restoredCaptures=await restoredExecutionPanel(restored,browser,directory,reproduced.issue);await browser.close();browser=null;
  const rerun=await restored.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});const fresh=await runner(rerun.command);assert.equal(fresh.code,0,fresh.output);
  const refreshed=(await restored.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers.find(row=>row.id===reproduced.reproducer.id).runs.find(row=>row.id===rerun.run);

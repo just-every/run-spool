@@ -12,9 +12,9 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 4 | Hand it to your coding agent: a read-only agent key reads that project's issues and evidence, and changes nothing. | `ERR-004` done; `ERR-007` done | done |
 | 5 | Know when it comes back: if a resolved issue returns in a later release, Spool opens it again and names that release. | `ERR-006` partial | partial |
 | 6 | Your data stays yours: emails, tokens and passwords are scrubbed before anything is saved, and your source maps stay private. | `ERR-003` done; `ERR-005` partial | partial |
-| 7 | Take it all with you: export everything to one file and restore it into a fresh copy of Spool, on any computer. | `ERR-009` partial | partial |
+| 7 | Take it all with you: export everything to one file and restore it into a fresh copy of Spool, on any computer. | `ERR-009` done | done |
 | 8 | Try it beside what you have: add Spool's capture helper next to your current error tracker and compare the two. | `ERR-001` done; `MIG-001` partial | partial |
 | 9 | Running in three commands: Node 22 and pnpm are all you need; setup asks for your email, then dev prints a link that opens Spool. | `OPS-001` partial | partial |
 | 10 | Spool catches an error on a release, maps it to the line in your original source and has its evidence packet ready to download. | `ERR-001` done; `ERR-005` partial; `ERR-007` done | partial |
 
-Claims: 10; 1 done, 9 partial, 0 missing.
+Claims: 10; 2 done, 8 partial, 0 missing.

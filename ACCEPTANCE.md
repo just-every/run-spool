@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 47 | 24 | 87 |
+| Core | 17 | 46 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 47 | 29 | 92 |
+| Full target | 17 | 46 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `fe729d66a5ebc7c49b714574d5033fb703d68ad7` (29 October 2026). ERR-009 browser download and public rer export preserve populated private product rows and maps; independent native and legacy restores preserve history and refuse unsafe imports. Restored records are historical, without active grants, dispatch or current repair proof; explicit fresh runs can establish new proof. Manual cutoff preserves repair facts, checks and snapshot identities with explicit retention gaps and a witnessed historical recurrence. The landing candidate adds an unchanged-row assertion to the restored-authority journey. Exact-candidate Verify and guarded publication remain landing gates. Existing clause judgments, volume boundaries and held provider qualifications are unchanged. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -155,7 +155,7 @@ Core · published · **done** · Rules D-4
 
 #### ERR-009 — Archive, restore and retention
 
-Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
+Core · published · **done** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
 
 **Requirement.** Versioned private archives carry stored source bytes, checksums, migration identity, triage, maps, repairs/checks, operator corrections and inert agent grouping proposals (including server-computed review snapshots), reproduction/fix/exposure history, sanitized Sentry evidence, feedback, capture/grouping/release policies and erasure journal. HTTP/CLI and legacy v1/v2 decoding share semantic validation. Source and maps are portable; run tokens, step leases, owner sessions, project grants, alert destination records/credentials and dispatch queues never travel; retained alert rules restore disabled and delivery history is historical. Restored schedules and quiet hours are disabled, restored snoozes and scheduled mail are historical and never send, and raw recipient receipts and passing-test authority do not travel. Older archives restore newly introduced collections empty under versioned rules. An archive holds at most 10,000 events per project and refuses more with `Archive event budget`; GOV-003 carries streaming archives of any retained volume, SRC-004 the artifact capacity and GOV-002 scheduled policies. Manual cutoff retention removes private derived content, keeps repair snapshots with coverage gaps and exposes the deduplication horizon. Imported history creates no active grant, dispatch or current repair proof.
 
@@ -168,8 +168,8 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rule
 6. An import into a nonempty target is refused before any mutation.
 7. After a manual retention cutoff, repair snapshots keep their coverage gaps.
 
-**Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs`
-**Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work holding no active grant (only the archive's lack of credentials, sessions and ingest key is asserted), starting no dispatch and holding no current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, an archive without credentials, sessions or ingest key, and refusal of tampered, conflicting and nonempty-target imports before mutation.
+**Evidence.** Acceptance 1: `tests/triage-journey.mjs` journey (Download private archive, verified downloaded rows and private maps at 1440 and 390); `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import equality, credential exclusion and fresh owner setup), invoked by `tests/repair-recovery.mjs`. Supplementary public rer export and import equality assertions remain in `tests/commands.mjs`; qualification here relies on the completed clause journeys. Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` independent empty restore and unchanged-row refusals; `tests/old-archive.mjs` published and current independent restores, mismatched schema, corruption and occupied-target refusals. Acceptance 3: `tests/repair-recovery/archive.mjs` archiveProof (source session and grant refusals, historical repair verification); `tests/execution-journey.mjs` archive (unchanged historical facts, excluded tokens and leases, zero dispatch, refused historical approval and passing-run authority, fresh-run recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical states, Axe and reflow at 1440 and 390). Acceptance 7: `tests/repair-recovery/archive.mjs` archiveProof (all repair and check rows and ordered snapshot identifiers preserved, exact removed_by_retention markers and retained recurrence). D-6: `src/domain/restored-work.ts`, `migrations/core/0084_restored_work.sql`, `src/domain/portability.ts`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
+**Gap.** None.
 
 #### ERR-010 — Release gates
 
