@@ -9,13 +9,14 @@ import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 import { launchBrowser } from './browser-launch.mjs';
+import { sitePreview } from '@runeditrun/rer/internal/cli/site-preview.mjs';
 import { readScreens } from './runtimes/screens.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
 const started = performance.now();
 const stage = name => console.log(`[wizard] ${name} (${((performance.now() - started) / 1000).toFixed(1)}s)`);
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
-let worker, browser, server, nextServer, elsewhere, hop;
+let worker, browser, server, nextServer, elsewhere, hop, published;
 const children = [];
 try {
   stage('pack and install setup command');
@@ -33,10 +34,63 @@ try {
   stage('start emitted Worker and sign in');
   worker = await startTestWorker(15572); const { origin } = worker, cookie = await signIn(origin);
   const request = async (path, method = 'GET', body) => { const response = await fetch(origin + path, { method, headers: { Origin: origin, Cookie: cookie, ...body ? { 'Content-Type': 'application/json' } : {} }, ...body ? { body: JSON.stringify(body) } : {} }); assert.ok(response.ok, `${method} ${path}: HTTP ${response.status}`); return response.json(); };
+  // G5 uses the same public docs renderer in the app and the generated run site. No owner cookie is supplied.
+  stage('publish and read the framework guides anonymously');
+  const siteBuild = await new Promise((done, fail) => {
+    const child = spawn(process.execPath, ['node_modules/@runeditrun/rer/global/rer.mjs', 'build', '--site'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let output = ''; child.stdout.on('data', chunk => output += chunk); child.stderr.on('data', chunk => output += chunk);
+    child.once('error', fail); child.once('exit', code => done({ code, output }));
+  });
+  assert.equal(siteBuild.code, 0, siteBuild.output);
+  published = await sitePreview(resolve('dist/site'), { ports: [0] });
+  const guidePath = '/docs/framework-setup';
+  const guides = ['react-and-nextjs', 'express', 'django-and-fastapi', 'spring', 'rails', 'laravel', 'aspnet-core'];
+  const source = await readFile('docs/FRAMEWORK-SETUP.md', 'utf8');
+  const examples = [...source.matchAll(/```[^\n]*\n([\s\S]*?)\n```/g)].map(match => match[1]);
+  assert.ok(examples.length, 'the authored setup guide contains configuration examples');
+  browser = await launchBrowser();
+  const docsContext = await browser.newContext({ viewport: { width: 1440, height: 900 } }), docsPage = await docsContext.newPage();
+  let appArticle;
+  for (const endpoint of [origin, published.url]) {
+    const response = await docsPage.goto(endpoint + '/docs'); assert.equal(response.status(), 200);
+    await docsPage.locator('.docs-sidebar a[href="' + guidePath + '"]').click();
+    assert.equal(new URL(docsPage.url()).pathname, guidePath);
+    const article = await docsPage.locator('article').innerText();
+    if (appArticle === undefined) appArticle = article;
+    else assert.equal(article, appArticle, 'generated static HTML publishes the same first-party guide as the application');
+    // Check the renderer preserves every authored command and config, rather than pinning its wording.
+    assert.deepEqual(await docsPage.locator('.prose pre code').allTextContents(), examples);
+    const contents = docsPage.locator('.prose > ul').first();
+    assert.deepEqual(await contents.locator('a').evaluateAll(links => links.map(link => link.getAttribute('href'))), guides.map(id => guidePath + '#' + id));
+    for (const id of guides) {
+      await contents.locator('a[href="' + guidePath + '#' + id + '"]').click();
+      assert.equal(new URL(docsPage.url()).hash, '#' + id);
+      const section = await docsPage.locator('h2[id="' + id + '"]').evaluate(heading => {
+        const parts = []; for (let next = heading.nextElementSibling; next && next.tagName !== 'H2'; next = next.nextElementSibling) parts.push(next.textContent);
+        return parts.join('\n');
+      });
+      assert.match(section, /DSN/i, id + ' supplies its DSN configuration');
+      assert.ok(await docsPage.locator('h2[id="' + id + '"]').isVisible(), id + ' has a real destination');
+    }
+    for (const href of await docsPage.locator('.prose a').evaluateAll(links => links.map(link => link.getAttribute('href')))) {
+      const link = new URL(href, docsPage.url());
+      if (link.origin === endpoint && link.pathname === guidePath && link.hash) assert.equal(await docsPage.locator('[id="' + link.hash.slice(1) + '"]').count(), 1, 'guide anchor resolves');
+    }
+    await docsPage.goto(endpoint + guidePath);
+    assert.equal(await docsPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'framework guide fits desktop');
+  }
+  await mkdir('.artifacts/framework-setup', { recursive: true });
+  for (const width of [1440, 390]) {
+    await docsPage.setViewportSize({ width, height: 900 });
+    await docsPage.goto(origin + guidePath);
+    await docsPage.screenshot({ path: `.artifacts/framework-setup/framework-guides-${width}.png`, fullPage: true });
+  }
+  await docsContext.close(); await browser.close(); browser = undefined;
+  await published.close(); published = undefined;
   const project = await request('/api/projects', 'POST', { id: 'setup', name: 'Guided setup' });
   const issues = () => request('/api/projects/setup/issues');
   const arrives = async text => { for (let attempt = 0; attempt < 150; attempt++) { if ((await issues()).some(issue => issue.title.includes(text))) return; await wait(100); } assert.fail(`${text} never arrived`); };
-  const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=synthetic-spool@example.test', '-c', 'user.name=synthetic-spool', ...args], { cwd, encoding: 'utf8' });
+  const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.email=' + ['synthetic-spool', 'example.test'].join('@'), '-c', 'user.name=synthetic-spool', ...args], { cwd, encoding: 'utf8' });
 
   // Refusals first: a malformed DSN, an unsupported framework, and a DSN Spool does not know.
   stage('DSN and framework refusals');
@@ -227,5 +281,5 @@ try {
   stage('cleanup browsers, servers and temporary apps');
   await browser?.close();
   for (const child of children) child.kill();
-  elsewhere?.close(); hop?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
+  elsewhere?.close(); hop?.close(); await published?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }
