@@ -1,3 +1,4 @@
+import projectAuditRoutes from './audit/project-routes';
 import suppressionRoutes from './suppression/routes';
 import {discussionRoutes} from './discussion/routes';
 import recurrenceRoutes from './recurrence/routes';
@@ -85,6 +86,7 @@ api.route('/api/reports',reportRoutes);
 api.route('/api/reporting',reportingRoutes);
 // These bounded read doors independently enforce exact-project authority.
 api.route('/api/projects',recordRoutes);
+api.route('/api/projects',projectAuditRoutes);
 api.route('/api/projects',sessionRoutes);
 api.route('/api/projects',identityReadRoutes);
 const now=()=>Date.now();

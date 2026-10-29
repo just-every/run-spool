@@ -52,6 +52,7 @@ export async function recordReadFlow({ req, json, db }) {
   for (const key of [foreign.key, deploy.key, p.ingestKey]) { const r = await req(path, 'GET', undefined, { Cookie: '', Authorization: `Bearer ${key}` }); denied.push([r.status, await r.json()]); }
   assert.deepEqual(denied[0], denied[1]); assert.deepEqual(denied[1], denied[2]); assert.equal(denied[0][0], 401);
  }
+ await projectAuditReadFlow({req,json,p,root,auth,foreign});
  const foreignRead = `/api/projects/${other.id}/release-records`;
  assert.equal((await req(foreignRead + '?cursor=' + encodeURIComponent(firstRelease.next), 'GET', undefined, {Cookie:'',Authorization:`Bearer ${foreign.key}`})).status, 400, 'release cursors are project-bound even for a separately authorized reader');
  await json(root + '/keys/' + grant.hash, 'DELETE');
@@ -93,4 +94,29 @@ export async function recordReadFlow({ req, json, db }) {
  assert.equal((await req(root + '/occurrences', 'GET', undefined, auth)).status, 401, 'erasure retires the read grant too');
  assert.equal((await req(root + '/release-records')).status, 404); assert.equal((await req(root + '/release-records', 'GET', undefined, auth)).status, 401);
  console.log('[API-001] occurrence, feedback and tied release pages reconcile with owner reads and private restore; cursor, scope and revocation refusals, withdrawal and erasure passed');
+}
+
+// The project audit is a public read of the existing permanent chronology.
+async function projectAuditReadFlow({req,json,p,root,auth,foreign}) {
+ const read=async(path=root+'/audit-records',headers=auth)=>{
+  const rows=[];let cursor,pages=0,first;
+  do{assert.ok(pages++<100);const response=await req(path+(cursor?(path.includes('?')?'&':'?')+'cursor='+encodeURIComponent(cursor):''),'GET',undefined,headers);assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');const page=await response.json();first??=page;assert.equal(page.version,1);assert.equal(page.highWater,first.highWater);rows.push(...page.rows);cursor=page.next}while(cursor);
+  assert.equal(rows.length,first.total);assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);return {rows,first,pages};
+ };
+ const history=await read();assert.ok(history.pages>1,'project audit traverses populated pages');
+ const label=history.rows[0].project_label;assert.ok(history.rows.every(row=>row.project_label===label));
+ assert.ok(history.rows.some(row=>row.action==='release.register'&&row.outcome==='succeeded'));
+ const all=await json('/api/audit/export'),atPin=all.rows.filter(row=>row.project_label===label&&row.sequence<=history.first.highWater);
+ assert.deepEqual(history.rows,[...atPin].reverse(),'project history equals the organization projection through its fixed high water');
+ const old=await read(root+'/audit-records?order=oldest');assert.deepEqual(old.rows.filter(row=>row.sequence<=history.first.highWater),[...history.rows].reverse());
+ for(const query of ['action=release.register','outcome=denied']){const filtered=await read(root+'/audit-records?'+query);const [field,value]=query.split('=');assert.ok(filtered.rows.every(row=>row[field]===value));if(field==='action')assert.ok(filtered.rows.length>=30)}
+ // Reading the audit appends its own fact; an existing traversal never chases those appends.
+ const continued=await req(root+'/audit-records?cursor='+encodeURIComponent(history.first.next),'GET',undefined,auth);assert.equal(continued.status,200);assert.equal((await continued.json()).highWater,history.first.highWater);
+ for(const query of ['order=oldest','action=release.register','outcome=succeeded'])assert.equal((await req(root+'/audit-records?'+query+'&cursor='+encodeURIComponent(history.first.next),'GET',undefined,auth)).status,400);
+ for(const query of ['cursor=','cursor=broken','action=unknown','outcome=unknown','q=secret','order=newest&order=oldest'])assert.equal((await req(root+'/audit-records?'+query,'GET',undefined,auth)).status,400);
+ for(const key of [foreign.key,p.ingestKey,(await json(root+'/keys','POST',{kind:'deploy'})).key,'synthetic-spool-invalid'])assert.equal((await req(root+'/audit-records','GET',undefined,{Authorization:'Bearer '+key})).status,401,'wrong-purpose or foreign bearers cannot borrow owner authority');
+ assert.equal((await req('/api/projects/synthetic-spool-records-other/audit-records?cursor='+encodeURIComponent(history.first.next),'GET',undefined,{Cookie:'',Authorization:'Bearer '+foreign.key})).status,400);
+ const revoked=await json(root+'/keys','POST',{kind:'agent'});await json(root+'/keys/'+revoked.hash,'DELETE');assert.equal((await req(root+'/audit-records','GET',undefined,{Cookie:'',Authorization:'Bearer '+revoked.key})).status,401);
+ const wire=JSON.stringify(history);for(const value of [p.ingestKey,auth.Authorization.slice(7),'lookup_hash','operator_id',p.id+'"'+':'])assert.ok(!wire.includes(value));
+ return {label,rows:history.rows};
 }
