@@ -14,7 +14,7 @@ let browser;
 try {
  const cookie=await signIn(origin),req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...body?{'Content-Type':typeof body==='string'?'application/x-ndjson':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
  const json=async(...args)=>{const r=await req(...args);assert.ok(r.ok,`${args[0]} ${r.status}: ${await r.clone().text()}`);return r.json()};
- await releaseOrderFlow({req,json});
+ await releaseOrderFlow({req,json,db:await app.db()});
  const project=await json('/api/projects','POST',{id:'deployment-history',name:'Cedar checkout deployment history'}),base='/api/projects/'+project.id;
  await json(base+'/releases','POST',{name:'checkout@1.0.0',build:'web-1'});await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web-2'});
  const deploy=await json(base+'/keys','POST',{kind:'deploy'}),agent=await json(base+'/keys','POST',{kind:'agent'}),service={Cookie:'',Authorization:'Bearer '+deploy.key};

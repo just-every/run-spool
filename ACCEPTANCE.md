@@ -517,8 +517,8 @@ Core · target · **partial** · From SDK-009 · Rules D-4
 5. `release:latest`, release comparisons and regression use the chosen order.
 6. Under registered sequence only, chosen with its preview, an unregistered release and a missing release are each refused with the named reason and counted in project outcomes and usage.
 
-**Evidence.** `src/domain/releases/`; `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: the mixed-history first-seen and semver lists and latest, repeat-call stability, permutations, transitivity and tie breaks (lists and latest are asserted in tests/release-order-flow.mjs, which this clause does not cite; permutations and transitivity nowhere), `release:latest` and comparisons, and the counting of registered-sequence refusals in outcomes and usage. Asserted: semver protection of a resolved issue and the named refusal reasons.
+**Evidence.** `src/domain/releases/`; `tests/release-identity-flow.mjs` releaseIdentityFlow and sdk009ReleaseResolution; `tests/deployment-history.mjs` deployment history journey invokes `tests/release-order-flow.mjs` releaseOrderFlow and `tests/release-order-properties.mjs` releaseOrderProperties: mixed-history lists and latest, all 120 fixed-metadata permutations, stable repeated sorts, all comparison triples, first-seen fallback, equal-time UTF-8 ties and equal-precedence build metadata; production comparator agrees with the public SQL list.
+**Gap.** Remaining: acceptance 1 and 2 across every release list and export, acceptance 5 comparisons beyond the existing semver latest and regression assertions, and acceptance 6 exact registered-sequence refusal quantities in project outcomes and usage. The native mixed-history list and latest already pass; the Sentry-compatible list, health export and suspect comparison need qualification under the chosen rule. Private archive snapshots currently use Base primary-key order rather than project release order.
 
 #### SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request
 

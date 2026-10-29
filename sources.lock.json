@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e0ab3c11e28f00b58a223af1230a8969946114e34101552f59ec02b4c787cd06",
+      "sha256": "fda1acb08ae1568f43b0a1d162e4e533a58cd8085b8536181880f07467903b31",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "544d3bcbe28dfc15a516eb642c36578c9e120785054390dff3b386eaa36f979f",
+      "sha256": "bc4c3875c26f55166f24bec6228f1c13aedb32e0f7621bc3279786efcf356786",
       "executable": false
     },
     "DEMO.md": {
@@ -8757,7 +8757,7 @@
       "executable": false
     },
     "tests/deployment-history.mjs": {
-      "sha256": "fecdc37e1b475e709039007823495895f89417683f98bc7496b5af3723e7e3c1",
+      "sha256": "042d47391fdbdd8507ad2d6fa726d5998fedde997dbc80db1e56b5a340f2bdd5",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
@@ -9033,7 +9033,11 @@
       "executable": false
     },
     "tests/release-order-flow.mjs": {
-      "sha256": "2a0e169b18a038852af176e9c780784498c9464000cac0d23736c5435055a24e",
+      "sha256": "46f180f369564bf10d8f1e1455a7a8fe3ea536fc2701d6701c8ee902c86f1333",
+      "executable": false
+    },
+    "tests/release-order-properties.mjs": {
+      "sha256": "0ecd53d14a50edacb5b86b9acbb01969499e44f0eb293dd7ecb2e12a176552d7",
       "executable": false
     },
     "tests/repair-recovery.mjs": {
