@@ -25,7 +25,7 @@ try {
   await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario),mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
@@ -88,8 +88,11 @@ try {
   const destination=issuePath+'?context=synthetic-spool-1';
   const recoveryScreens=async name=>{for(const screen of [1440,390])await capture(name,screen);await page.setViewportSize({width,height:900});};
   // The document loads online; its first workspace read meets an actual offline browser.
-  await page.route(origin+'/api/projects',async route=>{await context.setOffline(true);await route.continue();});
+  let openRead;const opening=new Promise(resolve=>{openRead=resolve});
+  await page.route(origin+'/api/projects',async route=>{await opening;await context.setOffline(true);await route.continue();});
   await page.goto(origin+destination);
+  await expect(page.getByRole('heading',{name:'Opening your workspace',exact:true})).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('Checking your session');openRead();
   await expect(page.getByRole('heading',{name:'Your workspace is unavailable',exact:true})).toBeVisible();
   await expect(page.getByRole('alert')).toContainText(/offline/i);
   assert.equal(await page.locator('.issue').count(),0,'an unread issue is never presented as retained evidence');
@@ -97,12 +100,21 @@ try {
   await recoveryScreens('offline-workspace');
   await context.setOffline(false);await page.unroute(origin+'/api/projects');
   await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('.mapped-frame').first().waitFor();
-  assert.equal(new URL(page.url()).pathname+new URL(page.url()).search,destination,'recovery preserves the requested destination');
+  assert.equal(new URL(page.url()).pathname,issuePath,'recovery preserves the requested issue');
+  assert.equal(new URL(page.url()).searchParams.get('context'),'synthetic-spool-1');
   await page.route(origin+'/api/projects',route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
   await page.reload();await expect(page.getByRole('alert')).toContainText(/unavailable/i);
   await recoveryScreens('unavailable-workspace');
   await page.unroute(origin+'/api/projects');await page.getByRole('button',{name:'Try again',exact:true}).click();
   await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  const packetUrl=origin+'/api/projects/cedar/issues/'+admitted.issue+'/packet';
+  await page.route(packetUrl,route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
+  await page.reload();await expect(page.getByRole('heading',{name:'Issue evidence unavailable',exact:true})).toBeVisible();
+  await expect(page.getByRole('alert').filter({hasText:'Evidence unavailable.'})).toContainText(/unavailable/i);
+  assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
+  await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
+  await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  const retainedDestination=page.url();
   const draft='synthetic-spool-1 unsent investigation';
   const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
   const writes=[];const watch=request=>{if(request.method()!=='GET')writes.push(request.method()+' '+new URL(request.url()).pathname)};
@@ -111,13 +123,12 @@ try {
   const stale=page.getByRole('alert').filter({hasText:'Retained information is stale.'});
   await expect(stale).toContainText(/offline/i);
   await expect(page.locator('.mapped-frame').first()).toBeVisible();await expect(comment).toHaveValue(draft);await expect(comment).toBeFocused();
-  assert.equal(new URL(page.url()).pathname+new URL(page.url()).search,destination);
+  assert.equal(page.url(),retainedDestination,'the selected event and occurrence stay in the destination');
   assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
   await recoveryScreens('stale-offline-issue');
   await context.setOffline(false);await stale.getByRole('button',{name:'Try again',exact:true}).click();
   await expect(stale).toHaveCount(0);await expect(comment).toHaveValue(draft);
   // A server outage of only the packet also marks the retained issue stale.
-  const packetUrl=origin+'/api/projects/cedar/issues/'+admitted.issue+'/packet';
   await page.route(packetUrl,route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
   await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(stale).toContainText(/unavailable/i);
   await expect(page.locator('.mapped-frame').first()).toBeVisible();await expect(comment).toHaveValue(draft);

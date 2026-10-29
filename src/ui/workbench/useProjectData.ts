@@ -41,6 +41,6 @@ export function useProjectData(project: string, view: View, selected: string | u
     } catch (error) { if (!signal.aborted) { setPacketFailure((error as Error).message); setPacketStatus(current ? 'stale' : 'error'); } }
   }, [project, selected, refreshCount, request], { enabled: !!project && !!selected, live: view === 'issues' });
   return { issues: issues.rows, releases: scoped?.releases ?? [], keys: scoped?.keys ?? [], outcomes: scoped?.outcomes ?? null,
-    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: packetFailure || issues.failed || failed, stale: packetStatus === 'stale' || (!!scoped && !!(issues.failed || failed)), panels,
+    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: (selected ? packetFailure : '') || issues.failed || failed, stale: (!!selected && packetStatus === 'stale') || (!!scoped && !!(issues.failed || failed)), panels,
     packet: packet?.project === project && (packet?.issue?.id === selected || packet?.shortIdRequest?.requested === selected) ? packet : null, packetStatus };
 }

@@ -4,6 +4,8 @@ import {resolve} from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 import {launchBrowser} from './browser-launch.mjs';
+import {startDispatchApp} from './triage-app.mjs';
+import {workbenchLink} from './navigation.mjs';
 
 const organization='/api/organization';
 const invitationIdentity=['synthetic-spool-6','example.test'].join('@');
@@ -81,6 +83,8 @@ export async function memberBrowser(actor,project,issue) {
   const path='/projects/'+project.id+'/issues/'+issue.id;
   await page.goto(actor.origin+path);
   await expect(page.getByRole('main')).toContainText(issue.title);
+  await page.waitForLoadState('networkidle');
+  const destination=new URL(page.url()).pathname+new URL(page.url()).search;
   return {
    async removed() {
     // The next ordinary read must clear an already open private screen immediately.
@@ -88,7 +92,7 @@ export async function memberBrowser(actor,project,issue) {
     await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await denied;
     await expect(page.getByRole('heading',{name:'Session ended',exact:true})).toBeVisible();
     const signIn=page.getByRole('link',{name:'Sign in again',exact:true});
-    await expect(signIn).toHaveAttribute('href','/sign-in?returnTo='+encodeURIComponent(path));
+    await expect(signIn).toHaveAttribute('href','/sign-in?returnTo='+encodeURIComponent(destination));
     assert.equal(new URL(page.url()).pathname,path,'revocation preserves the private destination without navigating');
     await expect(page.getByRole('main')).not.toContainText(issue.title);
     const folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
@@ -97,10 +101,58 @@ export async function memberBrowser(actor,project,issue) {
     await page.setViewportSize({width:390,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'the removed member sign-in fits the phone viewport');
     await page.screenshot({path:resolve(folder,'removed-390.png')});
-    await signIn.click();await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===path);
-    await page.reload();await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===path);
+    await signIn.click();await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===destination);
+    await page.goto(actor.origin+destination);await expect(page).toHaveURL(url=>url.pathname==='/sign-in'&&url.searchParams.get('returnTo')===destination);
    },
    close:()=>browser.close(),
   };
  }catch(error){await browser.close();throw error}
+}
+
+/** UX-001: one native team shares a real captured failure through its entire triage path. */
+export async function teamTriage(owner,member,project) {
+ const browser=await launchBrowser();let application;
+ const root='/api/projects/'+project.id,origin=owner.origin;
+ const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
+ try {
+  await owner.json(root+'/releases','POST',{name:'synthetic-spool-ux',build:'web'});
+  application=await startDispatchApp({endpoint:origin,project:project.id,ingestKey:project.ingestKey,release:'synthetic-spool-ux',build:'web',environment:'production',debugId:'synthetic-spool-ux'});
+  await owner.json(root+'/browser-origins','POST',{origin:application.origin});
+  const capturePage=await browser.newPage();await capturePage.goto(application.origin);await capturePage.getByRole('button',{name:'Prepare delivery',exact:true}).click();await capturePage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');
+  const issue=(await capturePage.evaluate(()=>window.captureOutcome)).issue;assert.ok(issue);await capturePage.close();
+  await owner.json(root+'/artifacts','POST',{release:'synthetic-spool-ux',build:'web',debugId:'synthetic-spool-ux',map:application.map});
+  const packet=await owner.json(root+'/issues/'+issue+'/packet');assert.equal(packet.events[0].currentLookup[0].original.line,application.originalLine);
+  async function contextFor(cookie) {const context=await browser.newContext({viewport:{width:1440,height:900},hasTouch:true});const split=cookie.indexOf('=');await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);return context;}
+  const memberContext=await contextFor(member.cookie),ownerContext=await contextFor(owner.cookie);
+  const memberPage=await memberContext.newPage(),ownerPage=await ownerContext.newPage(),path='/projects/'+project.id+'/issues/'+issue;
+  const errors=[];for(const page of [memberPage,ownerPage])page.on('pageerror',error=>errors.push(error.message));
+  async function screens(page,name) {for(const width of [1440,390]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,name+' reflow');if(name==='team-repair-approved')await page.locator('.repairs').scrollIntoViewIfNeeded();else await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:resolve(folder,name+'-'+width+'.png'),fullPage:false});}await page.setViewportSize({width:1440,height:900});}
+  await memberPage.goto(origin+'/projects/'+project.id+'/issues');await memberPage.getByLabel('Search issues',{exact:true}).fill('release:synthetic-spool-ux');
+  const match=memberPage.locator('tbody tr').filter({has:memberPage.locator('a[href="'+path+'"]')});await expect(match).toHaveCount(1);await match.getByRole('link').click();
+  await expect(memberPage.locator('.frame-coordinate').first()).toContainText(packet.events[0].currentLookup[0].original.file);
+  await memberPage.getByLabel('Assigned to',{exact:true}).fill('Cedar responder');
+  let releaseAssignment;const gate=new Promise(resolve=>{releaseAssignment=resolve});let assignments=0;
+  await memberPage.route('**/assignment',async route=>{if(route.request().method()==='PATCH'){assignments++;await gate;}await route.continue();});
+  const saved=memberPage.waitForResponse(response=>response.url().endsWith('/assignment')&&response.request().method()==='PATCH');
+  const save=memberPage.getByRole('button',{name:'Save assignment',exact:true});await save.click();await expect(save).toBeDisabled();
+  assert.equal(await save.evaluate(button=>button.disabled),true,'a pending assignment refuses a duplicate activation');await save.evaluate(button=>button.click());releaseAssignment();assert.equal((await saved).status(),200);
+  await memberPage.unroute('**/assignment');await expect(save).toBeEnabled();assert.equal(assignments,1);
+  assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Cedar responder');
+  const body='synthetic-spool-1 investigating the mapped delivery failure';await memberPage.getByLabel('Comment',{exact:true}).fill(body);await memberPage.getByRole('button',{name:'Post comment',exact:true}).click();
+  await expect(memberPage.getByRole('region',{name:'Discussion',exact:true})).toContainText(body);assert.ok((await owner.json(root+'/issues/'+issue+'/discussion')).comments.some(row=>row.body===body&&row.author===member.member.name));
+  assert.deepEqual((await new AxeBuilder({page:memberPage}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
+  await screens(memberPage,'team-investigation');await (await workbenchLink(memberPage,'Alerts')).click();
+  const alert=memberPage.locator('.alert-records li').filter({hasText:packet.issue.title}).first();await alert.waitFor();await screens(memberPage,'team-alert');
+  await memberPage.setViewportSize({width:390,height:900});await alert.getByRole('button',{name:'Open issue',exact:true}).tap();await memberPage.setViewportSize({width:1440,height:900});
+  await memberPage.locator('.mapped-frame').first().waitFor();assert.equal(new URL(memberPage.url()).pathname,path,'the touched alert opens the same mapped issue');
+  await ownerPage.goto(origin+path);await ownerPage.getByLabel('Branch or pull request link (https)',{exact:true}).fill('https://code.example.test/cedar/repair');await ownerPage.getByLabel('Note',{exact:true}).fill('synthetic-spool-1 reviewed with Cedar responder');
+  await ownerPage.getByRole('button',{name:'Record repair',exact:true}).click();const record=ownerPage.locator('article.repair').filter({has:ownerPage.getByRole('link',{name:'https://code.example.test/cedar/repair',exact:true})});
+  await record.getByRole('button',{name:'Mark approved',exact:true}).click();await expect(record.getByRole('button',{name:'Mark approved',exact:true})).toHaveCount(0);
+  assert.ok((await owner.json(root+'/repairs?issue='+issue)).repairs.find(row=>row.link==='https://code.example.test/cedar/repair').facts.approved,'the approval is recorded, not merely displayed');
+  await screens(ownerPage,'team-repair-approved');
+  const missing=await memberPage.goto(origin+'/projects/synthetic-spool-unavailable/issues');assert.equal(missing.status(),404);await expect(memberPage.getByRole('heading',{name:'This project is unavailable',exact:true})).toBeVisible();
+  await expect(memberPage.getByRole('main')).toContainText('access');await expect(memberPage.getByRole('main')).not.toContainText(packet.issue.title);await screens(memberPage,'team-permission');
+  assert.deepEqual(errors,[],'the team path has no browser errors');
+  console.log('[UX-001] native team onboarded, actual browser error captured and mapped, searched, assigned without duplicate writes, commented, alert followed by touch and repair approval recorded; 1440 and 390 screens');
+ }finally{await browser.close();await application?.stop();}
 }

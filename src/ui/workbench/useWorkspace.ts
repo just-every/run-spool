@@ -9,7 +9,6 @@ export function useWorkspace() {
   const [notice, setNotice] = useState(''), [busy, setBusy] = useState(false), [revision, setRevision] = useState(0);
   useEffect(() => {
     let alive = true;
-    setReadFailure('');
     const expired = () => { alive = false; };
     window.addEventListener('spool-session-expired', expired);
     Promise.all([api('/api/projects'), api('/auth/session'), api('/api/organization/me')]).then(([rows, session, membership]) => { if (alive) { setAccess(membership); setProjects(membership.role === 'billing' ? [] : rows); setOwnerName(session.operator.displayName); setSignedIn(true); setReadFailure(''); } }).catch(error => { if (alive) { setReadFailure(error.message); if (error.status === 401) setSignedIn(false); } });

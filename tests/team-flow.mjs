@@ -7,7 +7,7 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser} from './team-browser.mjs';
+import {browserMembers,memberBrowser,teamTriage} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -350,6 +350,7 @@ export async function teamFlow() {
   await memberDeployment(owner,second,projects[1]);
   const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);
   await browserMembers(owner,projects);
+  await teamTriage(owner,first,projects[0]);
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
