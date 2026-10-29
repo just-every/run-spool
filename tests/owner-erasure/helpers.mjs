@@ -8,7 +8,7 @@ import { signIn, testOwner } from '../auth.mjs';
 export async function runtime(extra={}) {
  const issuer='https://owner-erasure-issuer.test',installationId=randomUUID();
  const {privateKey,publicKey}=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
- const app=await admissionRuntime({RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify({erasure:publicKey.export({format:'jwk'})}),...extra},{hostedMail:true});
+ const app=await admissionRuntime({RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:'https://spool.example',RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify({erasure:publicKey.export({format:'jwk'})}),...extra},{hostedMail:true});
  try {
   const now=Math.floor(Date.now()/1000),encode=value=>Buffer.from(JSON.stringify(value)).toString('base64url');
   const body=encode({alg:'ES256',typ:'rer-owner-claim+jwt',kid:'erasure'})+'.'+encode({v:1,iss:issuer,aud:'https://spool.example',installationId,email:testOwner,jti:randomUUID(),iat:now,exp:now+240});

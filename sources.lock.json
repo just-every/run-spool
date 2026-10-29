@@ -5559,7 +5559,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "fbde160f72e5003f0b94c762a70fef0bc5ff33d632c9fde270f6ba7807624795",
+      "sha256": "e736016028685ea1f0d2831435dc6a87020f75c0d04be19e22f5cc97762bcaf7",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -9431,7 +9431,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "df30d84aba5ed155f64955879133c342ea80ff66299ddfc31ba31a99fcf25a80",
+      "sha256": "78e9e9e9957013eff87af73271ea7d552f901f4bf9808011d49e83a753a4fb74",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -9483,7 +9483,7 @@
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
-      "sha256": "b7b1bb889c045344724c73b60784f437a99e6e1bc2e2618d6f24101c15c779f0",
+      "sha256": "594bd71377fbfdd65c3b9cd5c04a139fc950e5f41329a5f05d31538cba009e23",
       "executable": false
     },
     "tests/preview-session.mjs": {
@@ -9599,7 +9599,7 @@
       "executable": false
     },
     "tests/retention-flow.mjs": {
-      "sha256": "a6e06c61ca35bd36f9504849d45ea4253ff8641e0e6e51e4da1a409f52c6752f",
+      "sha256": "2d6e70d6abefafc1110cfa0a3ee4e8f70b98a1c636c6685da4d073506f7f6ef5",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {
@@ -9871,7 +9871,7 @@
       "executable": false
     },
     "tests/session-flow.mjs": {
-      "sha256": "0d9590e65a60eeacb0e4b2aa3173fb14c566d6128cf0dcdff1edc5c66fa09ff7",
+      "sha256": "44d11729b5f2e931bf12eba4faabc65bc9f334e6fa2a5fbc99be6274f534e044",
       "executable": false
     },
     "tests/setup-flow.mjs": {

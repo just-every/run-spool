@@ -183,6 +183,15 @@ laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_colla
 const agentMigrations=['0081_agent_door.sql','0082_business_settings.sql','0090_business_people.sql','0084_native_agent_attribution.sql','0085_agent_runner_custody.sql','0086_native_agent_repository_consent.sql','0087_repository_proof_reference.sql','0088_agent_erasure_custody.sql','0089_native_action_actor_links.sql'];
 for(const later of laterTables)later.migrations.push(...agentMigrations);
 laterTables.unshift({tables:[],migrations:agentMigrations});
+// Match the exact archive inventory from before native attribution was added.
+// Current archives retain and validate their declared attribution columns.
+function beforeAgentAttribution(table:any,manifest:any){
+ if(manifest.migrations?.includes('0084_native_agent_attribution.sql'))return table;
+ const field=table.name==='repairs'?'recorded_by':table.name==='grouping_proposals'?'prepared_by':null;
+ if(!field)return table;
+ const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
+ return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
+}
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
@@ -193,7 +202,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
  for (const later of laterTables) {
   // A set that adds no archived table matches today's schema, so it applies only to an archive missing its migrations.
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
-  const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  const earlier = current.tables.filter((table: any) => !later.tables.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
@@ -206,13 +215,29 @@ async function earlierManifest(db: D1Database, manifest: any) {
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
+ const attributionDefaults=new Map<string,Record<string,unknown>>();
+ const archivedAttributionColumns=new Map<string,string[]>();
  try {
   for await (const record of readArchive(source)) {
    if (record.kind === 'manifest') {
-    const manifest = retireArchiveSetupToken((db ? await earlierManifest(db, record) : null) ?? record, portabilityPolicy.requiredConfiguration);
+    const earlier=db ? await earlierManifest(db,record) : null;
+    const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
+     const archived=record.tables.find((entry:any)=>entry.name===table);
+     if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
+    }
     rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
    }
-   else if (record.kind === 'part') { binding.add(record); await service.imports.uploadPart(id, record.index, record); }
+   else if (record.kind === 'part') {
+    // readArchive verifies the original bytes; bind translated parts to the
+    // recognized current inventory using only this migration's exact defaults.
+    const part=attributionDefaults.size?await makePart(record.index,record.items.map((item:any)=>{
+     if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
+     if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
+     return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
+    })):record;
+    binding.add(part); await service.imports.uploadPart(id, part.index, part);
+   }
    else closing = record;
   }
   if (!closing) throw new Error('Archive closing record missing');
