@@ -2899,7 +2899,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "f7e4a59c42cc057b63a3d7a8da07455957525ee5017dbfadc16aa3ad7625fcc8",
+      "sha256": "95fffffc890bfa3781478bade17e54a9ace0cc232eb67d8d16b7330b9ad6e030",
       "executable": false
     },
     "docs/agents.md": {
@@ -9207,7 +9207,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "c85b91d515450a06c703b2ad2b5986d714745a3f998a71f29ef82b2f53a18db1",
+      "sha256": "add8c5893fc017663ce132b17734621f46218f417ec4b0f37daa96ad82e9be0a",
       "executable": false
     },
     "tests/agent-door/people.mjs": {

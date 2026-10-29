@@ -54,6 +54,11 @@ Archives retain named consent history, while live proof references are excluded;
 restoring history does not restore provider authority.
 An absent connection is visibly unavailable.
 
+Recognized archives from before agent attribution retain their original schema,
+inventory and checksum checks. Restore adds only the historical person-owned
+defaults: repairs are recorded by `owner`, and grouping proposals have no agent
+preparer. It does not create consent, credentials or permission to resume work.
+
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
 not replace independent capture, release, cohort, recurrence or exposure evidence.
 Quiet or lost telemetry remains inconclusive. Recording an observed deployment
