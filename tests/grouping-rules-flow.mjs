@@ -68,6 +68,10 @@ export async function groupingRulesFlow({req,json,origin,cookie}){
  const hiddenChanged=structuredClone(hiddenOriginal);hiddenChanged.event_id=event().event_id;
  Object.assign(hiddenChanged.exception.values[0].stacktrace.frames[2],{filename:'/app/other-hidden.py',function:'other_hidden',lineno:250});
  const hiddenFirst=await hiddenDetail(hiddenOriginal),hiddenSecond=await hiddenDetail(hiddenChanged);
+ for(const [detail,input] of [[hiddenFirst,hiddenOriginal],[hiddenSecond,hiddenChanged]]){
+  const retained=detail.event.sentry.exceptions[0].stacktrace.frames[2],sent=input.exception.values[0].stacktrace.frames[2];
+  assert.deepEqual([retained.filename,retained.function,retained.lineno],[sent.filename,sent.function,sent.lineno],'Both differing hidden frame identities survive intake before grouping is compared');
+ }
  for(const detail of [hiddenFirst,hiddenSecond]){
   assert.equal(detail.grouping.variant,'exception chain');assert.equal(detail.grouping.revision,0);assert.equal(detail.grouping.projectFingerprintRule,null);assert.equal(detail.event.sentry.fingerprint,undefined);
   assert.equal(detail.grouping.exceptions[0].frames[0].contributes,true,'Default grouping still hashes the visible application frame');
