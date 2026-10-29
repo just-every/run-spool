@@ -1428,6 +1428,8 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 ## Status
 
+Judged from the code and tests at commit `4214471f5498cca37a031729bbb9420cff71aa16` (29 October 2026). SDK-020 G1 to G5 passed through the packed setup journey and anonymous documentation routes, including generated static output. The landing candidate retains those source and test bytes; this judgment adds only the SDK-020 status and generated documents. Other clauses retain their recorded judgments.
+
 Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments.
 
 Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639fb0` (23 October 2026).
@@ -1435,8 +1437,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 5 | 7 | 0 | 12 |
-| Target and push further | 8 | 43 | 29 | 80 |
-| All | 13 | 50 | 29 | 92 |
+| Target and push further | 9 | 42 | 29 | 80 |
+| All | 14 | 49 | 29 | 92 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1479,7 +1481,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `SDK-017` | Unmodified React Native SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-018` | Unmodified Flutter SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-019` | Unmodified Kotlin Multiplatform SDK | target | missing |  | No implementation proof yet. |
-| `SDK-020` | Guided setup command and published framework setup | target | partial | G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`. | Not asserted in the cited tests: G5, the seven framework guides published (they exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them). Asserted: G1 to G4. |
+| `SDK-020` | Guided setup command and published framework setup | target | done | G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed and applied patch equality on fresh Next.js and Django, real production error before and after map upload, Spool receipt and no-write refusals). G5: `tests/setup-flow.mjs` (publish and read the framework guides anonymously: navigation and all seven guide anchors, configuration examples, application and generated static HTML equality); `tests/runtime.mjs` (anonymous framework guide GET and HEAD, write refusal); `docs/FRAMEWORK-SETUP.md`. |  |
 | `SDK-021` | Tunnel handlers and ad-blocker delivery | target | partial | `packages/sdk/src/tunnel.ts`; `packages/sdk/src/next.ts`; `packages/tunnel-python/spool_tunnel.py`; `tests/tunnel-flow.mjs`; `docs/SENTRY-SWITCHING.md` | Node, Next.js and Python tunnels with the DSN check, forwarded origin, rate-limit reply and bounded body; the default route blocked and the tunnel delivered under the EasyPrivacy Sentry rules in the Ghostery engine. Tunnels forward `X-Forwarded-For`, but no tunnel is trusted yet, so `{{auto}}` resolves only from the connecting address and events through a tunnel carry the tunnel server's address. Remaining: trusted ingress configuration with positive spoof-refusal proof (RL-101), a real ad-blocker browser extension and the MIG-001 dual run. |
 | `SDK-022` | First-party ingest subdomain | target | missing |  | No implementation proof yet. The hosted deployment, the DNS zone and managed TLS are engineering work recorded in the clause. |
 | `SDK-023` | JavaScript Loader Script per DSN key | target | done | `tests/sentry-sdk.mjs` ([SDK-023] loaderFlow); `tests/loader-flow.mjs`: lazy call/error capture API/UI, eager and both hooks, force load, key settings/integrations, uniform key refusal, direct-SDK identity/grouping/outcomes and release-less intake; `tests/loader-upgrade.mjs`: populated same-key upgrade; `tests/old-archive.mjs`: released upgrade/restore; public archive/restore/erasure in `tests/loader-flow.mjs`; push verify (sdk) and verify (runtime); screens `docs/retained-verification/sdk023/`. |  |

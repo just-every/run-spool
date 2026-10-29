@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e0ab3c11e28f00b58a223af1230a8969946114e34101552f59ec02b4c787cd06",
+      "sha256": "67cbb3971ed4a7b1f8c5cee19219993951d4b03729cb2885ec295a4b595b9e2a",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "544d3bcbe28dfc15a516eb642c36578c9e120785054390dff3b386eaa36f979f",
+      "sha256": "f31d34215dcb76c96a4796834bcb4bd124ae9941e4e154eaa9f91bbe952b0041",
       "executable": false
     },
     "DEMO.md": {
@@ -2962,6 +2962,10 @@
     },
     "docs/FEEDBACK.md": {
       "sha256": "f631e109fa5d6a0357b737c0203d783006f890abe630e698e9ac8b5db85a3b6d",
+      "executable": false
+    },
+    "docs/FRAMEWORK-SETUP.md": {
+      "sha256": "dab94e4db625658e94c3d4c0af0e588c895e8f7c85bb6c668e65494dc02fb811",
       "executable": false
     },
     "docs/getting-started.md": {

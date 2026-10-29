@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 13 | 50 | 24 | 87 |
+| Core | 14 | 49 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 13 | 50 | 29 | 92 |
+| Full target | 14 | 49 | 29 | 92 |
 
-Judged from the code and tests at commit `19bfd316bdfff4664fca43a6f034d8bff8a4a54a` (28 October 2026). TEAM-001 native membership, project roles, removal, scoped services, maintainer policies, audit, member deployment, team notification and inert custody journeys passed. Application source is unchanged; later proof assertions and generated documents are checked on the landing candidate. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `4214471f5498cca37a031729bbb9420cff71aa16` (29 October 2026). SDK-020 G1 to G5 passed through the packed setup journey and anonymous documentation routes, including generated static output. The landing candidate retains those source and test bytes; this judgment adds only the SDK-020 status and generated documents. Other clauses retain their recorded judgments. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -668,7 +668,7 @@ Core · target · **missing** · Rules D-5
 
 #### SDK-020 — Guided setup command and published framework setup
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A guided setup command, comparable to the Sentry setup wizard, detects the framework, installs the SDK, writes the DSN, release and source-map configuration as a reviewable diff, sends a test event, and writes nothing when it refuses. Spool publishes framework setup for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core. Setup names Sentry's `tunnelRoute` limitation and its replacement (SDK-021). Source-map configuration is a JavaScript-framework step: Python frameworks have no source maps to configure, and Django setup says so.
 
@@ -679,8 +679,8 @@ Core · target · **partial**
 4. G4: a bad DSN or an unsafe path writes nothing.
 5. G5: the seven framework guides are published.
 
-**Evidence.** G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`.
-**Gap.** Not asserted in the cited tests: G5, the seven framework guides published (they exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them). Asserted: G1 to G4.
+**Evidence.** G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed and applied patch equality on fresh Next.js and Django, real production error before and after map upload, Spool receipt and no-write refusals). G5: `tests/setup-flow.mjs` (publish and read the framework guides anonymously: navigation and all seven guide anchors, configuration examples, application and generated static HTML equality); `tests/runtime.mjs` (anonymous framework guide GET and HEAD, write refusal); `docs/FRAMEWORK-SETUP.md`.
+**Gap.** None.
 
 #### SDK-021 — Tunnel handlers and ad-blocker delivery
 
