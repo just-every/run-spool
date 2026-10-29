@@ -12,10 +12,13 @@ export async function reviewInboxFlow({req,json,origin}){
  await send('FirstError');await send('SecondError');
  const search=()=>json(base+'/issue-search?q=review:pending'),all=await search();assert.equal(all.total,2);assert.equal(all.reviewPending,2);
  const selected=all.rows.map(({id,revision})=>({id,revision}));
+ const evidence=async()=>({issues:await json(base+'/issues'),occurrences:await Promise.all(selected.map(({id})=>json(base+'/issues/'+id+'/occurrences')))});
+ const initialEvidence=await evidence();
  const mark=async issues=>{const input={action:'reviewed',issues,apply:false},preview=await json(base+'/bulk-triage','POST',input);return {input,preview,apply:()=>json(base+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})}};
- let pending=await mark(selected);assert.equal((await search()).total,2,'[FIND-001] preview changes nothing');
+ let pending=await mark(selected);assert.equal((await search()).total,2,'[FIND-001] preview changes nothing');assert.deepEqual(await evidence(),initialEvidence,'review preview preserves issue and occurrence data');
  await json(base+'/issues/'+selected[0].id,'PATCH',{state:'acknowledged',revision:selected[0].revision});
- assert.equal((await req(base+'/bulk-triage','POST',{...pending.input,apply:true,preview:pending.preview.preview})).status,409);assert.equal((await search()).total,2,'[FIND-001] stale selection is atomic');
+ const staleEvidence=await evidence();
+ assert.equal((await req(base+'/bulk-triage','POST',{...pending.input,apply:true,preview:pending.preview.preview})).status,409);assert.equal((await search()).total,2,'[FIND-001] stale selection is atomic');assert.deepEqual(await evidence(),staleEvidence,'stale preview preserves the whole retained selection');
  let before=(await json(base+'/issue-search')).rows,current=before.map(({id,revision})=>({id,revision}));pending=await mark([current[0]]);assert.equal((await pending.apply()).changed,1);assert.equal((await search()).total,1);assert.deepEqual((await json(base+'/issue-search')).rows.map(({review_pending,...row})=>row),before.map(({review_pending,...row})=>row),'[FIND-001] review changes no issue field');
  pending=await mark(current);assert.equal((await pending.apply()).changed,1);assert.equal((await search()).total,0);
  pending=await mark(current);assert.equal((await pending.apply()).changed,0,'already reviewed selection is a no-op');
@@ -40,5 +43,5 @@ export async function reviewInboxFlow({req,json,origin}){
   const cookie=await signIn(target.origin),r=(path,method='GET',body)=>fetch(target.origin+path,{method,headers:{Origin:target.origin,Cookie:cookie,...body?{'content-type':'application/json','x-confirm-restore':'yes'}:{}},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}}),j=async(...args)=>{const res=await r(...args);assert.ok(res.ok,`[FIND-001] round trip ${args[0]} ${res.status}`);return res.json()};await j('/api/restore','POST',archive);assert.deepEqual((await j(base+'/review/views')).views,(await json(base+'/review/views')).views);assert.equal((await j(base+'/issue-search?q=review:pending')).total,1);
   const plan=await j(base+'/erasure');let receipt=await j(base+'/erasure','POST',{confirm:p,planHash:plan.planHash});for(let n=0;n<50&&receipt.phase!=='complete';n++)receipt=await j(`/api/erasures/${receipt.id}/resume`,'POST',{});assert.equal(receipt.phase,'complete');for(const table of ['review_stamps','review_views'])assert.equal((await(await target.db()).prepare('SELECT COUNT(*) n FROM '+table+' WHERE project=?').bind(p).first()).n,0,'[FIND-001] erasure deletes '+table);
  }finally{await target.stop()}
- console.log('[FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, owner views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed');
+ console.log('[FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, project views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed');
 }

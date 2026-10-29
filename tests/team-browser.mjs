@@ -97,3 +97,47 @@ export async function memberBrowser(actor,project,issue) {
   };
  }catch(error){await browser.close();throw error}
 }
+
+// The writer saves through the real screen; a separate native session reopens it.
+export async function sharedViewBrowser(writer,teammate,project,query) {
+ const browser=await launchBrowser(),folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
+ await mkdir(folder,{recursive:true});
+ async function open(actor,width) {
+  const context=await browser.newContext({viewport:{width,height:1000}}),split=actor.cookie.indexOf('=');
+  await context.addCookies([{name:actor.cookie.slice(0,split),value:actor.cookie.slice(split+1),url:actor.origin.replace('http:','https:'),secure:true}]);
+  const page=await context.newPage();await page.goto(actor.origin+'/projects/'+project.id+'/issues');
+  await expect(page.locator('.issue-browser')).toHaveAttribute('aria-busy','false');
+  return {context,page};
+ }
+ try {
+  const {context,page}=await open(writer,1440);let view,expected;
+  try {
+   await page.getByRole('searchbox',{name:'Search issues',exact:true}).fill(query.q);
+   await page.getByRole('combobox',{name:/^Sort/}).selectOption(query.sort);
+   await expect(page.locator('.issue-browser')).toHaveAttribute('aria-busy','false');
+   const saved=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/review/views')&&r.request().method()==='POST');
+   await page.getByRole('button',{name:'Save current view',exact:true}).click();const response=await saved;assert.equal(response.status(),201);view=await response.json();assert.deepEqual(view.query,query);
+   await expect(page.getByLabel('Saved views',{exact:true})).toHaveValue(view.id);
+   expected=await page.locator('.issue-table tbody tr').allTextContents();assert.ok(expected.length>0,'the saved query has visible retained results');
+   await page.screenshot({path:resolve(folder,'saved-view-writer-1440.png'),fullPage:true});
+  }finally{await context.close()}
+  for(const width of [1440,390]) {
+   const {context,page}=await open(teammate,width);
+   try {
+    await expect(page.getByLabel('Saved views',{exact:true}).locator('option[value="'+view.id+'"]')).toHaveCount(1);
+    await page.getByLabel('Saved views',{exact:true}).selectOption(view.id);
+    await expect(page.getByRole('searchbox',{name:'Search issues',exact:true})).toHaveValue(query.q);
+    await expect(page.getByRole('combobox',{name:/^Sort/})).toHaveValue(query.sort);
+    await expect(page.locator('.issue-browser')).toHaveAttribute('aria-busy','false');
+    await expect(page.locator('.issue-table tbody tr')).toHaveText(expected);
+    if(width===1440) {
+     assert.equal(await page.locator('.issue-browser input,.issue-browser select,.issue-browser button,.issue-browser p,.issue-browser td').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true);
+     const violations=(await new AxeBuilder({page}).include('.issue-browser').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact));assert.deepEqual(violations,[]);
+    }
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'a shared saved query fits the viewport');
+    await page.screenshot({path:resolve(folder,'shared-view-'+width+'.png'),fullPage:true});
+   }finally{await context.close()}
+  }
+  return view;
+ }finally{await browser.close()}
+}

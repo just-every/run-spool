@@ -7,7 +7,7 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser} from './team-browser.mjs';
+import {browserMembers,memberBrowser,sharedViewBrowser} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -89,6 +89,40 @@ async function concurrentTriage(owner,first,second,reader,projects,issues) {
  assert.ok(['resolved','open'].includes(after.state));
 }
 
+// FIND-001: current native members share review boundaries and saved queries.
+async function sharedReviewFlow(owner,first,second,reader,projects,db) {
+ const base=projectRoot(projects[0]),foreign=projectRoot(projects[1]);
+ const pending=()=>second.json(base+'/issue-search?q=review:pending');
+ const before=await pending();assert.ok(before.total>0,'a teammate starts with populated pending evidence');
+ const issue=before.rows[0],input={action:'reviewed',issues:[{id:issue.id,revision:issue.revision}],apply:false};
+ const data=async()=>({issues:await owner.json(base+'/issues'),events:await owner.json(base+'/issues/'+issue.id+'/occurrences')});
+ const original=await data(),preview=await first.json(base+'/bulk-triage','POST',input);
+ assert.deepEqual(await data(),original,'member preview changes neither issues nor occurrences');
+ assert.deepEqual(await pending(),before,'preview leaves the other member inbox unchanged');
+ const session=await first.json('/auth/session'),alias=await db.prepare("SELECT label FROM audit_actor_links WHERE kind='member' AND owner_id=?").bind(session.operator.id).first();assert.ok(alias);
+ const auditBefore=new Set((await owner.json('/api/audit/export?format=json')).rows.map(row=>row.id));
+ assert.equal((await first.json(base+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview})).changed,1);
+ const after=await pending();assert.equal(after.total,before.total-1);assert.equal(after.reviewPending,before.reviewPending-1);assert.ok(!after.rows.some(row=>row.id===issue.id),'review disappears for the other member on the next read');
+ assert.deepEqual(await data(),original,'review leaves all issue fields and captured occurrences unchanged');
+ const facts=(await owner.json('/api/audit/export?format=json')).rows.filter(row=>!auditBefore.has(row.id)&&row.action==='issue.bulk_triage'&&row.source==='transaction'&&row.outcome==='succeeded');
+ assert.equal(facts.length,1);assert.equal(facts[0].actor_kind,'member');assert.equal(facts[0].actor_label,alias.label,'the committed review names the actual reviewing member alias');
+ const query={q:'environment:production',status:'all',release:'all',sort:'latest'};
+ const view=await sharedViewBrowser({...first,origin:owner.origin},{...second,origin:owner.origin},projects[0],query);
+ const reopened=(await second.json(base+'/review/views')).views.find(row=>row.id===view.id);assert.deepEqual(reopened,view);
+ const queryPath='/issue-search?'+new URLSearchParams(query);
+ assert.deepEqual(await first.json(base+queryPath),await second.json(base+queryPath),'saved query results agree between current members');
+ const sealedViews=await owner.json(base+'/review/views'),sealedPending=await pending();
+ for(const [actor,root] of [[reader,base],[first,foreign]]) {
+  await denied(actor.req(root+'/bulk-triage','POST',{...input,apply:true,preview:preview.preview}),'read-only and foreign-project members cannot review');
+  await denied(actor.req(root+'/review/views','POST',query),'read-only and foreign-project members cannot save');
+  await denied(actor.req(root+'/review/views/'+view.id,'DELETE'),'read-only and foreign-project members cannot delete a shared view');
+ }
+ await concealed(first,foreign+'/review/views');await concealed(first,foreign+queryPath);
+ assert.deepEqual(await owner.json(base+'/review/views'),sealedViews,'forbidden view writes preserve shared definitions');
+ assert.deepEqual(await pending(),sealedPending);assert.deepEqual(await data(),original,'forbidden review changes no retained evidence');
+ console.log('[FIND-001] member review, truthful member audit, shared saved-query equality, foreign-project and read-only refusals passed');
+}
+
 async function memberDeployment(owner,member,project) {
  const root=projectRoot(project),release='synthetic-spool-2';
  await member.json(root+'/releases','POST',{name:release,build:'web'});
@@ -103,7 +137,8 @@ async function memberDeployment(owner,member,project) {
 async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const browser=await memberBrowser({...removed,origin:owner.origin},projects[1],issue);
  try {
- const root=projectRoot(projects[1]),keys={};
+ const root=projectRoot(projects[1]),shared=projectRoot(projects[0]),keys={};
+ const sharedViews=await removed.json(shared+'/review/views');assert.ok(sharedViews.views.length>0,'the removed member previously had a real shared view');
  for(const kind of ['agent','deploy','ingest'])keys[kind]=await removed.json(root+'/keys','POST',{kind});
  const bearer=kind=>({Cookie:'',Authorization:'Bearer '+keys[kind].key});
  assert.equal(await status(owner.req(root+'/issues/'+issue.id+'/packet','GET',undefined,bearer('agent'))),200);
@@ -121,8 +156,13 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
  assert.notEqual((await cli(['packet',issue.id,'--format','json'],agentEnv)).code,0,'the same CLI grant is denied immediately after removal');
  await mcpDoor(origin,projects[1],keys.agent.key,issue.id,false);
- for(const path of ['/auth/session',organization+'/me','/api/projects',root+'/issues',root+'/issues/'+issue.id+'/packet',root+'/issue-export?format=json',root+'/sentry-uploads'])await denied(removed.req(path),'removal denies the old session on every private transport');
+ for(const path of ['/auth/session',organization+'/me','/api/projects',root+'/issues',root+'/issues/'+issue.id+'/packet',root+'/issue-export?format=json',root+'/sentry-uploads',root+'/review/views',root+'/issue-search?q=environment:production'])await denied(removed.req(path),'removal denies the old session on every private transport');
+ for(const path of [shared+'/review/views',shared+'/issue-search?q=environment:production'])await denied(removed.req(path),'removal denies the SAME previously accessible shared view and result');
+ await denied(removed.req(shared+'/review/views/'+sharedViews.views[0].id,'DELETE'),'removal cannot delete a previously accessible shared view');
+ assert.deepEqual(await owner.json(shared+'/review/views'),sharedViews,'removed member writes preserve the shared view');
  const document=await removed.req('/projects/'+projects[1].id+'/issues/'+issue.id);assert.equal(document.status,303);assert.equal(new URL(document.headers.get('location'),owner.origin).pathname,'/sign-in');await document.body?.cancel();
+ await denied(removed.req(root+'/review/views','POST',{q:'environment:production',status:'all',release:'all',sort:'latest'}),'removed members cannot save a query');
+ await denied(removed.req(root+'/bulk-triage','POST',{action:'reviewed',issues:[{id:issue.id,revision:before.revision}],apply:false}),'removed members cannot preview review');
  await denied(removed.req(root+'/keys','POST',{kind:'agent'}),'removed session cannot mint another grant');
  await denied(owner.req(root+'/issues/'+issue.id+'/packet','GET',undefined,bearer('agent')),'removal revokes minted agent evidence authority');
  await denied(owner.req(root+'/releases','POST',{name:'synthetic-spool-4',build:'web'},bearer('deploy')),'removal revokes minted deploy authority');
@@ -352,6 +392,7 @@ export async function teamFlow() {
   await browserMembers(owner,projects);
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
+  await sharedReviewFlow(owner,first,second,reader,projects,worker.DB);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
   await revokedAuthority(owner,second,first,projects,issues[1]);

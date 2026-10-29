@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "15cb94f145f921cbc1d859045f594686a8209654300bcc8ccd82c10cefe7946b",
+      "sha256": "d374745b034b88141f56c98d7ba0910d932d5e547ab5e8348dd6ae9fe5d86649",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "61a07350e7d12dacd393126ba22a5c7f4bec9f776c46309f5f5d370b5808fb9b",
+      "sha256": "eceebe20f379e8d78e6876a14eade84c15fe49b0d9afc6b8f837febbf4b98253",
       "executable": false
     },
     "DEMO.md": {
@@ -3633,7 +3633,7 @@
       "executable": false
     },
     "docs/REVIEW-INBOX.md": {
-      "sha256": "e8e61b3f32c90f9da21a198f7c145d5e4a173e53ea252ff161ecfdc0d48ef568",
+      "sha256": "1fc474ae9c6d06a67e13fc3059c915a636e259f5ead677db65e105f1e16a0a3d",
       "executable": false
     },
     "docs/SENTRY-CLI.md": {
@@ -8377,7 +8377,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueList.tsx": {
-      "sha256": "4844b582581b4e6e24ef412fac47c8e7832c26832016800f360601f002e679ac",
+      "sha256": "f5760ecfbc987638fd4435e91df080b95976974df2adfcdd507dde3e0a68553d",
       "executable": false
     },
     "src/ui/workbench/issuePanels.ts": {
@@ -9101,7 +9101,7 @@
       "executable": false
     },
     "tests/review-inbox-flow.mjs": {
-      "sha256": "224137163eb791680506fb736304521118e54ac497844a902b5a322e5f1c030d",
+      "sha256": "ba31a1bb2eb54cfb8e447a3abcb68f8286b4e3ea5233dd3d06eea006ff9b3826",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {
@@ -9401,11 +9401,11 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "5305c87202e2a6c81f68e57b5bb618d427b6daa68910e7d1d4c6f974c83ca117",
+      "sha256": "936e9f55104c8af68dba2e48f0187563e2c72eb36b1bd031042d53e1f481521c",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "7a9f0f1e2eda495570f37a5c2b205c42c33be9eaf7577b92b692cef50ac4c5ae",
+      "sha256": "294a06afba86b6c249587b7faa7d63f7aab8f00729bf2dc5b17d6c07b8683192",
       "executable": false
     },
     "tests/triage-app.mjs": {
