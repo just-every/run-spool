@@ -13,7 +13,7 @@ import { useRouter } from '@tanstack/react-router';
 import { ArchiveSettings } from './ArchiveSettings';
 import { RetentionSettings } from './RetentionSettings';
 import { ProjectErasure } from './ProjectErasure';
-import { ProjectForm } from './ProjectForm';
+import { ProjectForm, projectDefaultsNote } from './ProjectForm';
 import { InboundFilters } from './InboundFilters';
 import { FeedbackPanel } from './FeedbackPanel';
 import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
@@ -46,7 +46,7 @@ export function SettingsView({ section, canonical, project, projects, keys, rele
   const visible = settingsSections.filter(item => item.visible({ project: !!project, configure, manager: organizationManager, owner }));
   const current = visible.find(item => item.id === section) ?? visible[0];
   useEffect(() => { if (canonical && project && current && section !== current.id) void router.navigate({ to: settingsHref(project, current.id), replace: true } as any); }, [canonical, project, section, current?.id]);
-  const create = organizationManager && <section className="evidence" key="create"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>;
+  const create = organizationManager && <section className="evidence" key="create"><SectionHead title={projects.length ? 'Create another project' : 'Create your first project'} about={<p>{projectDefaultsNote}</p>} /><ProjectForm {...{ request, run, busy, onCreated }} note={false} /></section>;
   const parts: Record<string, ReactNode> = {
     'keys-and-capture': <>
       <ProjectKeys {...{ project, keys, credentialKinds, configure, request, run, busy, refresh, onKey }} member={projectRole === 'member'} />
