@@ -11,12 +11,31 @@ export default async function({tool}){
 // Establish the real person's exact native repository consent at that boundary;
 // the later proof hook supplies its reference without changing native custody.
 export async function beforeStep({step,args,request,origin,cookie}){
- if(step.tool!=='spool.fixes.advance')return;
+ if(!['spool.fixes.advance','spool.alerts.read','spool.followups.update'].includes(step.tool))return;
  const json=async(path,method='GET',body)=>{
   const response=await request(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,'content-type':'application/json'},...body===undefined?{}:{body:JSON.stringify(body)}});
   if(!response.ok)throw Error('Native repository consent lifecycle HTTP '+response.status);
   return response.json();
  };
+ // Disabling a person's active configuration is a supported live narrowing,
+ // independent of the still-unavailable agent standing-worker setup. Prepare
+ // that actual native state before the read/revision and no-effect baselines.
+ // The required agent enable/set steps remain unchanged and fail visibly.
+ if(step.id==='alert-final'){
+  const path='/api/projects/'+encodeURIComponent(args.project)+'/alerting/rules';
+  const [rule]=await json(path);
+  if(!rule)throw Error('Native alert narrowing fixture is unavailable');
+  await json(path+'/'+encodeURIComponent(rule.id),'PUT',{name:rule.name,enabled:true,channel:rule.channel,destination:rule.destination,kinds:JSON.parse(rule.kinds),windowMs:rule.window_ms,threshold:rule.threshold,revision:rule.revision});
+  return;
+ }
+ if(step.id==='followup-reset'){
+  const path='/api/projects/'+encodeURIComponent(args.project);
+  const [rule]=await json(path+'/alerting/rules');
+  if(!rule)throw Error('Native follow-up narrowing fixture is unavailable');
+  await json(path+'/follow-up/alternate','PUT',{destination:rule.destination,channel:rule.channel});
+  return;
+ }
+ if(step.tool!=='spool.fixes.advance')return;
  const project=encodeURIComponent(args.project),path='/api/projects/'+project+'/fixes';
  let workflow;
  for(const issue of await json('/api/projects/'+project+'/issues')){

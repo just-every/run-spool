@@ -66,10 +66,13 @@ Archives retain named consent history, while live proof references are excluded;
 restoring history does not restore provider authority.
 An absent connection is visibly unavailable.
 
-Recognized archives from before agent attribution retain their original schema,
-inventory and checksum checks. Restore adds only the historical person-owned
-defaults: repairs are recorded by `owner`, and grouping proposals have no agent
-preparer. It does not create consent, credentials or permission to resume work.
+Archive restore retains schema, inventory and checksum checks and cannot create
+consent, credentials or permission to resume work. Published rer 0.2.89 cannot
+yet restore the genuine pre-attribution legacy archive through Spool's in-process
+portability door: that door lacks the migration replayer required by Base's
+legacy-schema verification. It refuses `schema_mismatch:legacy_schema`. Existing
+archive bytes and validation remain authoritative; no acknowledgment bypass is
+offered by this adoption.
 
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
 not replace independent capture, release, cohort, recurrence or exposure evidence.
@@ -91,7 +94,9 @@ the shared queued-consent continuation. Agent attempts to enable an alert rule,
 set a follow-up destination or update retention therefore refuse with
 `native_worker_admission_unavailable` before saving settings or opening company
 approval. A person's policy approval cannot make an unavailable execution path
-available. Agent disabling and native person controls remain available. These required tool/class journeys
+available. Agents can disable a person's active alert rule or clear a configured
+follow-up alternate; the server computes those real active changes as live.
+Native person controls remain available. These required tool/class journeys
 remain declared and cannot pass conformance until final worker admission is wired.
 
 ## Compatibility and limits
@@ -144,7 +149,9 @@ Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
 catalogue acknowledgement limit, fresh-key injection probes against consumed
 native actions, native runner event identity, held erasure custody,
-standing-worker admission and refused approval execution accounting. Current
+standing-worker admission, refused approval execution accounting and legacy
+archive migration replay. Standing-worker admission still requires seed work;
+an upstream continuation alone does not qualify Spool's workers. Current
 repair revisions and sandbox-confirmed fixture identities are obtained through
 their native lifecycle, independently of mutable list ordering. The remaining
 dependencies are pending assertions,

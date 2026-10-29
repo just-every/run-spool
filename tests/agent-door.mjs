@@ -48,7 +48,7 @@ try{
  const checked=done(await app.call('spool.repairs.check',{project,id:repair.id,revision:repair.revision,name:'Agent reported unit check',outcome:'passed',note:'Asserted, not an independent observation.',idempotency_key:randomUUID()}));
  assert.notEqual(checked.observation.verdict,'fixed');
  const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
- done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
+ const destinationTest=done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
  assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');
  // Pending SPOOL-BASE-STANDING-WORKER-2026-10-28: these are capability
  // refusals, not company policy defaults or skipped journey requirements.
@@ -65,6 +65,17 @@ try{
  assert.equal(code(await app.call('spool.retention.update',{project,revision:preview.revision,windows:preview.windows,at:preview.at,token:preview.token,idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
  const retentionAfter=await app.json(`/api/projects/${project}/retention-policy`);
  assert.deepEqual([retentionAfter.revision,retentionAfter.windows],[retentionBefore.revision,retentionBefore.windows]);
+ // Current people can configure native workers. Agents can narrow that live
+ // configuration without acquiring permission to enable future worker effects.
+ await app.json(`/api/projects/${project}/alerting/destinations/${destination.id}/review`,'POST',{testId:destinationTest.id});
+ const activeRule=await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:'Person configured notice',enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2});
+ const disabled=await app.call('spool.alerts.update',{project,id:activeRule.id,name:'Person configured notice',enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:activeRule.revision,idempotency_key:randomUUID()});
+ done(disabled);assert.deepEqual(disabled._meta['com.runeditrun/decision'].classes.map(item=>item.class),['live']);
+ assert.equal((await app.json(`/api/projects/${project}/alerting/rules`)).find(row=>row.id===activeRule.id).enabled,0);
+ await app.json(`/api/projects/${project}/follow-up/alternate`,'PUT',{destination:destination.id,channel:'mail'});
+ const cleared=await app.call('spool.followups.update',{project,destination:null,idempotency_key:randomUUID()});
+ done(cleared);assert.deepEqual(cleared._meta['com.runeditrun/decision'].classes.map(item=>item.class),['live']);
+ assert.equal((await app.json(`/api/projects/${project}/follow-up`)).alternate.destination,null);
  done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()}));
  done(await app.call('spool.followups.update',{project,destination:null,idempotency_key:randomUUID()}));
  const deployment=done(await app.call('spool.deployments.record',{project,release:'1.0.0',build:'web-1',manifest:{commitSha:'b'.repeat(40),repository:'https://github.com/example/checkout',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'},idempotency_key:randomUUID()}));
