@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {localRuntime} from './local-runtime.mjs';
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
@@ -76,7 +77,7 @@ async function req(path,method='GET',value,headers={}){
  Object.defineProperty(response,'fixtureRequest',{value:requestId});return response;
 }
 async function json(path,method,value,headers){const r=await req(path,method,value,headers);try{assert.ok(r.ok,'product HTTP request succeeds');return await (path==='/api/archive'?archiveProjection(r):r.json())}catch(error){error.productRequest={method:method??'GET',status:r.status,ordinal:r.fixtureRequest};throw error}}
-async function login(options){cookie=await signIn(origin,options)}
+async function login(options){cookie=await signIn(origin,options);await chooseLocalAgentPolicy(origin,cookie)}
 async function setupLocation(expected){const r=await fetch(origin+'/setup',{headers:{Cookie:cookie},redirect:'manual'});assert.equal(r.status,expected?303:200);if(expected)assert.equal(r.headers.get('location'),'/');}
 
 try {

@@ -1,10 +1,11 @@
+import type { NativeAuthority } from './agent-door/native-authority';
 import { resolveMembership } from './members/resolver';
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from './agent-door/native-authority';
 import { ownerBatch, type OwnerSession } from './owner-authority';
 import { runtimeBindings, type Bindings } from '../auth/bindings';
 
-export type OwnerContext = { Bindings: Bindings; Variables: { ownerSession: OwnerSession } };
+export type OwnerContext = { Bindings: Bindings; Variables: { ownerSession: NativeAuthority } };
 // A project router that authenticates its own direct transport as well as its
 // parent API mount: owner session, same-origin writes, an existing project.
 export function ownerProjectRouter() {
