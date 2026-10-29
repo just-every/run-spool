@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "fee05b3ac515636263e0c74dab6169a1f7f54aada6e48c3d9a92391ab1886104",
+      "sha256": "fe3d122ad911cf9f4e9b7fbd6cc1555a28d33625ed42737f5647caca318d3f89",
       "executable": false
     },
     "DEMO.md": {
@@ -4202,7 +4202,7 @@
       "executable": false
     },
     "packages/sdk/src/tunnel-body.ts": {
-      "sha256": "d807e57cd700862320223cd8e6a43bc25b4ace27444bf6532a441328c90c4fc9",
+      "sha256": "ec9e9514871832865ffbfbc63a2ac87dd372e2f2ef2bbecb94d8952f50674b0f",
       "executable": false
     },
     "packages/sdk/src/tunnel.ts": {
@@ -6661,8 +6661,12 @@
       "sha256": "b65cbc9793fd22da1065cba2068ca2f30a145e5b0e5874a8859dbfb687e244cb",
       "executable": false
     },
+    "src/domain/sentry/transport.ts": {
+      "sha256": "0fd9430b738688c7a3195f83098072b45df6ffa43970ca6b28b38534056ed809",
+      "executable": false
+    },
     "src/domain/sentry/wire.ts": {
-      "sha256": "9f121af78d763facaa667c05e5cfcba0a519382a258ffb704249267b09f99e30",
+      "sha256": "0ff2fd35195ef8e3028124273d8e552edfb96dd63194af46a0dfc4d037ce53cc",
       "executable": false
     },
     "src/domain/sessions/archive.ts": {
