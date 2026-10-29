@@ -68,6 +68,12 @@ export async function fidelityFlow({req,json,origin,db}) {
  assert.equal((await req(eventBase,'GET',undefined,{Cookie:''})).status,401);
  const grant=await json(base+'/keys','POST',{kind:'agent'});assert.equal((await req(eventBase,'GET',undefined,{Cookie:'',Authorization:'Bearer '+grant.key})).status,403,'agent cannot acquire owner local-variable scope');
  assert.equal((await req(eventBase+'/'+second.event_id+'?occurrence='+list.oldest.occurrence)).status,404,'exact issue and occurrence checked');
+ const agentHeaders={Cookie:'',Authorization:'Bearer '+grant.key},packetPath=base+'/issues/'+issue+'/packet';
+ const permittedPacket=await json(packetPath,'GET',undefined,agentHeaders);
+ for(const local of ['PRIVATE_PASSWORD','order-123','charge(order)'])assert.ok(!JSON.stringify(permittedPacket).includes(local),'an authorized agent receives no frame-local or SDK source context');
+ await json(base+'/keys/'+grant.hash,'DELETE');
+ for(const door of [eventBase,packetPath])assert.equal((await req(door,'GET',undefined,agentHeaders)).status,401,'revocation closes rich detail and the sanitized packet immediately');
+ assert.equal((await json(eventBase)).total,30,'credential revocation preserves the owner\'s captured events');
  const filtered=await json(eventBase+'?q=tenant:acme');assert.equal(filtered.total,16);assert.equal((await req(eventBase+'?q=tenant:acme&cursor='+encodeURIComponent(list.next))).status,400);
  const grouped=chain();grouped.exception.values=[{type:'ValueError',value:'child one',mechanism:{exception_id:1,parent_id:0},stacktrace:{frames:[frame('child_one',30)]}},{type:'TypeError',value:'child two',mechanism:{exception_id:2,parent_id:0},stacktrace:{frames:[frame('child_two',35)]}},{type:'ExceptionGroup',value:'parallel checkout',mechanism:{is_exception_group:true,exception_id:0},stacktrace:{frames:[frame('parallel',40)]}}];await send(grouped);
  const message={event_id:(++sequence).toString(16).padStart(32,'0'),release:'checkout@2.0.0',dist:'web',level:'warning',logentry:{message:'quota exceeded for %s',params:['checkout'],formatted:'quota exceeded for checkout'}};await send(message);await send({...message,event_id:(++sequence).toString(16).padStart(32,'0'),logentry:{...message.logentry,params:['billing'],formatted:'quota exceeded for billing'}});

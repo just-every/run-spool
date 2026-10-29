@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "5f7d376fc93ce652cb0756768b458cc90ef93ff7dd71fb91217e9a2a25d099b3",
+      "sha256": "f4b576007406e2c8208a917648757a2648f3bfc156a3e79b9664b1e5a809fbbf",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "997eacd8a288115b79ca273ae4ab525d7686e2d01163c76de5db6d4477e5084c",
+      "sha256": "8b9f6cf1071000818d8172b1c4e4d57e8e9cdafb1c72af2469034eacf8c04f14",
       "executable": false
     },
     "DEMO.md": {
@@ -8821,7 +8821,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "08ea90b0ce4217d3d800aef5cdb980717e0757add7bb9c0a2d6b6dcbf5284351",
+      "sha256": "e86ccf3ae14e81a3774f5a701040505a320eca977c3a90f989df7b7804b7d7dd",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
