@@ -33,6 +33,12 @@ Each explicit Upload map action has a unique request identity. The draft keeps
 its consumed request and return issue across navigation; a new request cannot
 overwrite edited fields or a selected file without explicit replacement.
 
+Move in (`/move-in`) is installation-wide: `MoveIn` decides the owner gate from
+`access.role` before any import call, `useMoveIn` keeps one session in a draft
+(so in-app navigation keeps a review; a reload resumes from the door's history),
+`move-in-model` holds its states and every sentence, and `move-in-client` calls
+the owner door. Import calls answer their own 401 on the page.
+
 `Details` uses a modal native dialog: heading focus, contained Tab/Shift+Tab,
 Escape close and trigger focus return. Children stay mounted so closing does not
 discard drafts. Exact IDs, grouping algorithms, receipt snapshots and raw JSON

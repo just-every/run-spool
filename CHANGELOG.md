@@ -1,5 +1,10 @@
 # Changelog
 
+## 29 October 2026 — Move in: the owner's Sentry import page
+
+- **Move in** (`/move-in`, owner only, after Settings in the navigation) moves Sentry history in from an export file on one page: choose the file, review an exact dry run (per-kind changes, records not imported by reason, Sentry fields Spool doesn't keep, removed credentials and the plan's fingerprint beside the only control that writes), apply exactly that plan, see Spool's own reconciliation and undo it. Every door refusal is shown in words; a stopped apply, undo or roll back resumes from the import history on the next visit, and an import call's 401 never signs the workbench out.
+- Settings' Business imports modal is gone: its switch, trusted keys, history and Undo are Move in's last two sections, and Settings keeps one row linking there. A member who opens `/move-in` sees that imports stay with the owner and the page makes no import call.
+
 ## 28 October 2026 — membership status carried into contract cleanup
 
 Main's TEAM-001 evidence now covers public-door membership and inherited riders. The clause remains partial pending ct's fresh judge. Main's Gap said status promotion and generated acceptance/count synchronization awaited a missing Lander-Regenerate command and absent contract-docs generator, and left generated acceptance and claims unchanged for the lander. Those mechanism claims are superseded on the cleanup branch: the generator and both Lander-Regenerate commands already exist, and the generated documents are synchronized here.

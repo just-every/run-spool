@@ -19,7 +19,8 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { Details } from './Details';
 import { OriginStep, SdkSetup, SentryIntake } from './SdkSetup';
 import { SchedulerStatus } from './SchedulerStatus';
-import { BusinessImports } from './BusinessImports';
+import { Link } from '@tanstack/react-router';
+import { hrefFor } from './location';
 import { date, type Request, type Run } from './shared';
 import { Members, type OrganizationAccess } from './Members';
 export function SettingsView({ project, projects, keys, releases, request, run, busy, refresh, onCreated, onKey, access, revision }: {
@@ -52,7 +53,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {access.role === 'owner' && <SchedulerStatus />}
     {!!project&&organizationManager&&<FeedbackPanel key={`feedback:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<InboundFilters key={project} {...{project,request,run,busy}}/>}
-    {access.role === 'owner' && <BusinessImports {...{ request, run, busy }} />}
+    {access.role === 'owner' && <section className="evidence"><div className="data-row"><strong>Business imports</strong><Link className="text-button" to={hrefFor('', 'move-in') as any}>On Move in</Link></div></section>}
     {organizationManager && <AuditHistory {...{request,run,busy}} />}
     {access.role === 'owner' && <ArchiveSettings busy={busy} empty={!projects.length} run={run} refresh={refresh} />}
     {!!project && configure && <RetentionSettings {...{ project, request, run, busy, refresh }} />}

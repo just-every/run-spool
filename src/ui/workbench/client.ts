@@ -1,6 +1,8 @@
-export async function ownerFetch(path: string, options?: RequestInit) {
+/** An import call passes `signsOut: false`: Move in answers its 401 on the page,
+ * and the workbench's own session reads decide whether the session ended. */
+export async function ownerFetch(path: string, options?: RequestInit, signsOut = true) {
   const response = await fetch(path, { credentials: 'same-origin', ...options });
-  if (response.status === 401) {
+  if (response.status === 401 && signsOut) {
     window.dispatchEvent(new Event('spool:auth-lost'));
     window.dispatchEvent(new Event('spool-session-expired'));
   }

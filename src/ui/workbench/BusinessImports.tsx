@@ -1,64 +1,41 @@
-import { useState } from 'react';
-import { Details } from './Details';
-import type { Request, Run } from './shared';
+import { Confirm } from './MoveInBand';
+import { Fold } from './MoveInPlan';
+import { caption, chips, failureWords, historyName, plural, words, type HistoryRow, type Imports } from './move-in-model';
 
-type BusinessImportState = {
-  configured: boolean;
-  enabled: boolean;
-  keys: { kid: string; revoked: boolean }[];
-  history: { planId: string; jobId: string; namespace: string; fingerprint: string; state: string; caption: string }[];
-};
+/** Move in's History: every door import, the owner's and Business's, newest
+ * first. Undo sits on the newest completed import of each organization while
+ * nothing blocks it, whichever authority approved it and with Business on or off. */
+export function History({ imports, held, onUndo }: { imports: Imports; held?: string[]; onUndo: (row: HistoryRow) => void }) {
+  const newest = new Set<string>(), seen = new Set<string>();
+  for (const row of imports.history) if (row.state === 'completed' && !seen.has(row.namespace)) { seen.add(row.namespace); newest.add(row.planId); }
+  return <section className="evidence" aria-labelledby="move-in-history"><h2 id="move-in-history">History</h2>
+    {!imports.history.length ? <p>No imports yet.</p> : <div className="table-region move-in-rows">{imports.history.map(row => <div className="move-in-row move-in-history-row" key={row.planId}>
+      <div className="move-in-row-name"><strong>{historyName(row)}</strong><p className="muted">{caption(row, row.approvedAt)}</p>{held?.includes(row.planId) && <p className="muted">Holds records this file writes.</p>}</div>
+      <div className="move-in-row-state"><span className="state-chip">{chips[row.state] ?? row.state}</span>
+        <span>{row.counts ? plural(row.counts.effects, 'record') : imports.reasonLabels[row.countsReasonCode ?? '']}{row.state === 'failed' ? ` · ${failureWords(row.failureCode)}` : ''}</span></div>
+      {newest.has(row.planId) && row.undo.available && <Confirm opener="Undo this import" question={words.confirmUndo} confirm="Undo this import" keep="Keep the import" onConfirm={() => onUndo(row)} />}
+      <details className="move-in-details"><summary>Technical details</summary><dl className="move-in-technical">
+        <div><dt>Fingerprint</dt><dd><code>{row.fingerprint}</code></dd></div><div><dt>Plan ID</dt><dd>{row.planId}</dd></div><div><dt>Job ID</dt><dd>{row.jobId}</dd></div>
+      </dl></details>
+    </div>)}</div>}
+  </section>;
+}
 
-export function BusinessImports({ request, run, busy }: { request: Request; run: Run; busy: boolean }) {
-  const [state, setState] = useState<BusinessImportState | null>(null);
-  const [pending, setPending] = useState(false);
-  const [problem, setProblem] = useState('');
-  const path = '/api/imports/business';
-  const disabled = busy || pending;
-
-  async function load() { setState(await request(path)); }
-  function perform(work: () => Promise<unknown>) {
-    return run(async () => {
-      setPending(true); setProblem('');
-      try { await work(); }
-      catch (error) { setProblem((error as Error).message); throw error; }
-      finally { setPending(false); }
-    });
-  }
-
-  return <section className="evidence"><div className="data-row">
-    <strong>Business imports</strong>
-    <span>{state ? state.enabled ? 'Enabled' : 'Off' : 'Off by default'}</span>
-    <Details title="Business imports" onOpen={() => void perform(load)}>
-      <p>Enable imports from trusted business keys. Imports are off by default.</p>
-      {problem && <p role="alert">{problem}</p>}
-      {pending && <p role="status">Working…</p>}
-      {state && <>
-        {!state.configured && <p>Owner-claim trust configuration is required before enabling business imports.</p>}
-        <button className="text-button" disabled={disabled || (!state.configured && !state.enabled)} onClick={() => void perform(async () => {
-          setState(await request(path, 'POST', { enabled: !state.enabled }));
-        })}>{state.enabled ? 'Disable business imports' : 'Enable business imports'}</button>
-        <h3>Trusted keys</h3>
-        {!state.keys.length && <p>No trusted business keys configured.</p>}
-        {state.keys.map(key => <div className="data-row" key={key.kid}>
-          <code>{key.kid}</code><span>{key.revoked ? 'Revoked' : 'Trusted'}</span>
-          {!key.revoked && <button className="text-button" disabled={disabled} aria-label={`Revoke trusted key ${key.kid}`} onClick={() => void perform(async () => {
-            setState(await request(path, 'POST', { enabled: state.enabled, revokedKids: [...state.keys.filter(row => row.revoked).map(row => row.kid), key.kid] }));
-          })}>Revoke key</button>}
-        </div>)}
-        <h3>Import history</h3>
-        {!state.history.length && <p>No business imports yet.</p>}
-        {state.history.map(job => <div className="data-row" key={job.jobId}>
-          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}><p>{job.caption}</p><p><code>{job.namespace}</code></p></div>
-          <span>{job.state}</span>
-          {(job.state === 'completed' || job.state === 'undoing') && <button className="text-button" disabled={disabled} aria-label={`Undo import ${job.caption}`} onClick={() => void perform(async () => {
-            await request(`${path}/${encodeURIComponent(job.planId)}/undo`, 'POST');
-            await load();
-          })}>Undo</button>}
-        </div>)}
-        {state.history.some(job => job.state === 'undoing') && <p>Undo is in progress. Click Undo again to continue.</p>}
-      </>}
-      <button className="text-button" disabled={disabled} onClick={() => void perform(load)}>Refresh business imports</button>
-    </Details>
-  </div></section>;
+/** Business imports: one chip and its sentence, the switch, and the trusted keys. */
+export function BusinessImports({ imports, onSettings }: { imports: Imports; onSettings: (change: { enabled: boolean; revokedKids?: string[] }) => void }) {
+  const revoked = imports.keys.filter(key => key.revoked).map(key => key.kid);
+  const [chip, sentence] = !imports.configured ? ['Unavailable', words.businessUnavailable] : imports.enabled ? ['On', words.businessOn] : ['Off', words.businessOff];
+  return <section className="evidence" aria-labelledby="move-in-business"><h2 id="move-in-business">Business imports</h2>
+    <p className="move-in-chip-line"><span className="state-chip">{chip}</span> <span>{sentence}</span></p>
+    {imports.configured && <button className="text-button" onClick={() => onSettings({ enabled: !imports.enabled })}>{imports.enabled ? 'Turn off Business imports' : 'Turn on Business imports'}</button>}
+    {imports.configured && !imports.enabled && <p className="muted">Business can then upload, plan and apply here. Each apply carries your approval from Business.</p>}
+    {!!imports.keys.length && <div className="move-in-folds"><Fold label="Trusted keys" summary={plural(imports.keys.length, 'key')}>
+      {imports.keys.map(key => <div className="move-in-row move-in-key" key={key.kid}>
+        <span>RER signing key · {key.revoked ? 'Revoked' : 'Trusted'} · <code>{key.kid}</code></span>
+        {!key.revoked && <Confirm opener="Revoke key" detail={<p><code>{key.kid}</code></p>} question={words.revoke} confirm="Revoke key" keep="Keep the key"
+          onConfirm={() => onSettings({ enabled: imports.enabled, revokedKids: [...revoked, key.kid] })} />}
+      </div>)}
+      {imports.keys.some(key => key.name === null) && <p className="muted">{imports.reasonLabels.key_metadata_not_provided}</p>}
+    </Fold></div>}
+  </section>;
 }

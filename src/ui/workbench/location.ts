@@ -1,9 +1,11 @@
 import { useRouter, useRouterState } from '@tanstack/react-router';
-export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts' | 'reports';
+export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts' | 'reports' | 'move-in';
 export type Destination = { project: string; view: View; issue?: string; release?: string; section?: string; redirect?: boolean; unknown?: boolean };
 const views: string[] = ['issues', 'releases', 'capture', 'settings', 'alerts', 'reports'];
 export function destination(path: string): Destination {
   if (path === '/') return { project: '', view: 'issues' };
+  // Move in is installation-wide: imports create projects, so it needs none.
+  if (path === '/move-in') return { project: '', view: 'move-in' };
   const parts = path.split('/').filter(Boolean);
   try {
     if (parts[0] !== 'projects') return { project: '', view: 'issues', unknown: true };
@@ -17,6 +19,7 @@ export function destination(path: string): Destination {
 }
 
 export function hrefFor(project: string, view: View = 'issues', issue?: string) {
+  if (view === 'move-in') return '/move-in';
   return project ? `/projects/${encodeURIComponent(project)}/${view}${(view === 'issues' || view === 'releases') && issue ? '/' + encodeURIComponent(issue) : ''}` : '/';
 }
 export function sourceMapHref(project: string) { return `${hrefFor(project, 'releases')}/setup/source-maps`; }

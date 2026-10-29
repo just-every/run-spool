@@ -15,7 +15,8 @@ export async function resolveMembership(request: Request, env: Bindings, session
  // Reporting is a neutral session door. Its handlers intersect every item,
  // query and export with memberProjects and independently fence all writes.
  if (path==='/api/reports'||path==='/api/reporting'||path.startsWith('/api/reporting/')) return member.role==='billing' ? missing() : result;
- if (['/','/app','/sign-in','/signin','/projects','/api/projects','/api/organization/me'].includes(path)) {
+ // Move in's page tells a member that imports stay with the owner; it reads no import data.
+ if (['/','/app','/sign-in','/signin','/projects','/move-in','/api/projects','/api/organization/me'].includes(path)) {
   if (read(request) || path==='/api/projects' && member.role==='admin') return result;
   return missing();
  }

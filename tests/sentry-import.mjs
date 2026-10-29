@@ -9,6 +9,7 @@ import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 import { sentryImportCli, sentryDoorClient } from '../scripts/sentry-import.mjs';
 import { readableImport, unknownTimes, refusedImportReads } from './sentry-import/reads.mjs';
+import { moveInFlow } from './move-in-flow.mjs';
 // Hosted auth sends invitations through the existing mail-provider edge;
 // development mode intentionally suppresses mail and cannot prove member reads.
 const worker=await admissionRuntime({}, {port:15523,hostedMail:true}),{origin}=worker;
@@ -135,5 +136,7 @@ try{
     const restoredDoor=sentryDoorClient({endpoint:restored.origin,cookie:restoredCookie,organization:'fixture-org'});
     await assert.rejects(restoredDoor.status(secondPlan.planId),error=>error.status===404,'native archives do not transfer private source originals or executable import jobs');
   }finally{await restored.stop()}
+  // The same import door through the owner's Move in page.
+  await moveInFlow(fixture.pathname);
   console.log('Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.');
 }finally{await stopWorker();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_TEST_SESSION}

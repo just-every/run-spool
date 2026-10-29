@@ -1,0 +1,85 @@
+/* Move in: the status row, the file's facts, the kind table and its phone rows, folds, bands and rows.
+   Tokens and components come from /theme/spool.css, shell.css and views.css; nothing here adds a colour. */
+.move-in-status{margin:14px 0 0}
+.move-in-status:empty{margin:0}
+.move-in-status .state-chip,.move-in-chip-line .state-chip{margin-right:10px}
+/* Notices take the status row's place; one even border, never a rule on one side of a rounded box. */
+.move-in-notice.status-notice{margin:20px 0 0;border:var(--rule)}
+
+.move-in-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;margin:16px 0 20px}
+.move-in-facts dt,.move-in-label,.move-in-technical dt{font-size:14px;font-weight:600}
+.move-in-facts dd,.move-in-technical dd{margin:2px 0 0;overflow-wrap:anywhere}
+.move-in .move-in-label{margin:0 0 6px}
+.move-in .move-in-consequence{margin:8px 0 12px}
+.move-in-strong{font-weight:600}
+.move-in-picker{position:relative}
+.move-in-picker:focus-within{outline:2px solid var(--ink);outline-offset:3px}
+
+/* The kind × outcome table: counts at the right; body type, never smaller. */
+.data-table.move-in-kinds{font-size:16px}
+.data-table.move-in-kinds tbody th{font-weight:400}
+.data-table.move-in-kinds :is(td,thead th+th){text-align:right}
+
+/* Folds: native details rows, label left, muted summary right, a down chevron that turns when open. */
+.move-in-folds{margin-top:24px;border-top:var(--hairline-border)}
+.move-in-fold{border-bottom:var(--hairline-border)}
+.move-in-fold>summary{display:flex;align-items:center;gap:8px 16px;min-height:52px;cursor:pointer;list-style:none}
+.move-in-fold>summary::-webkit-details-marker,.move-in-records>summary::-webkit-details-marker,.move-in-details>summary::-webkit-details-marker{display:none}
+.move-in-fold>summary>:first-child{flex:1;min-width:0}
+.move-in-fold>summary::after{content:"";flex:none;width:8px;height:8px;margin:0 6px 4px 2px;border:solid var(--ink);border-width:0 1.5px 1.5px 0;transform:rotate(45deg);transition:transform .15s}
+.move-in-fold[open]>summary::after{margin-bottom:-4px;transform:rotate(-135deg)}
+@media(prefers-reduced-motion:reduce){.move-in-fold>summary::after{transition:none}}
+.move-in-fold-body{padding:0 0 16px}
+.move-in-fold-body>:first-child{margin-top:0}
+.move-in-list{margin:8px 0;padding-left:20px}
+.move-in-list li+li{margin-top:4px}
+.move-in-reason{padding:10px 0;border-top:var(--hairline-border)}
+.move-in-reason:first-child{border-top:0}
+.move-in .move-in-reason>p{margin:0}
+.move-in-records>summary,.move-in-details>summary{display:inline-flex;align-items:center;min-height:36px;font:500 15px/1.3 var(--font-text);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px;cursor:pointer;list-style:none}
+.move-in-technical{display:grid;gap:8px;margin:8px 0}
+
+/* Bands: the explanation, then a hairline, then the controls (stacked below 901 px). */
+.move-in-band-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px 32px;align-items:start}
+.move-in-band-side{padding-left:32px;border-left:var(--hairline-border)}
+.move-in-band-side>.text-button{margin-top:4px}
+.move-in .move-in-band p:first-of-type{margin-top:0}
+.move-in-fingerprint{max-width:72ch;margin:0 0 4px}
+.move-in-confirm{display:grid;justify-items:start;gap:8px}
+.move-in .move-in-confirm p{margin:0}
+.move-in-confirm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px}
+
+/* History, Undo's records and the trusted keys: hairline rows in one card. */
+.move-in-rows{margin:16px 0}
+.move-in-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:14px 20px;border-bottom:var(--hairline-border)}
+.move-in-row:last-child{border-bottom:0}
+.move-in-row-name{flex:2 1 280px;min-width:0;overflow-wrap:anywhere}
+.move-in .move-in-row-name p{margin:2px 0 0}
+.move-in-row-state{display:flex;flex:1 1 180px;flex-wrap:wrap;align-items:center;gap:4px 12px}
+.move-in-details[open]{flex-basis:100%}
+.move-in-key code{overflow-wrap:anywhere}
+.move-in-projects{margin:20px 0 8px}
+.move-in .move-in-projects p{margin:4px 0}
+.move-in-projects a+a{margin-left:20px}
+
+@media(max-width:900px){
+ .move-in-facts,.move-in-band-grid{grid-template-columns:minmax(0,1fr)}
+ .move-in-band-side{padding-left:0;border-left:0}
+}
+@media(max-width:760px){
+ /* A's rows: each kind is one hairline row of words, from the same table. */
+ .data-table.move-in-kinds tr{display:block;padding:12px 16px}
+ .data-table.move-in-kinds :is(th,td){padding:0}
+ .data-table.move-in-kinds tbody th{display:block;margin-bottom:2px;font-weight:600}
+ .data-table.move-in-kinds td{display:inline;text-align:left}
+ .data-table.move-in-kinds td::after{content:" " attr(data-unit)}
+ .data-table.move-in-kinds td+td::before{content:" · "}
+ .move-in :is(.primary-button,.danger-button){width:100%}
+ .move-in :is(.text-button,.move-in-records>summary,.move-in-details>summary){min-height:44px}
+ .move-in .inline-link{display:inline-flex;align-items:center;min-height:44px}
+ .move-in-row{padding:12px 16px}
+ .move-in-row-name,.move-in-row-state{flex-basis:100%}
+ .move-in-confirm{justify-items:stretch}
+ .move-in-file-refused{display:flex;flex-direction:column;align-items:stretch}
+ .move-in-file-refused>.move-in-facts{order:1;margin-top:24px}
+}
