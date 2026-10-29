@@ -254,7 +254,7 @@ export async function reportingTeamFlow(owner,first,second,reader,billing,projec
  const key=await owner.json(projectRoot(projects[0])+'/keys','POST',{kind:'ingest'});
  for(const path of [root+'/'+shared.id,root+'/'+shared.id+'/export',report])await denied(owner.req(path,'GET',undefined,{Cookie:'',Authorization:'Bearer '+key.key}),'ingest credentials have no reporting evidence');
  await first.json(root+'/'+own.id,'DELETE',{revision:own.revision});
- console.log('[FIND-002 R3] read-only omissions/exports, current roles, concealed ids and denied-write nonmutation passed');
+ console.log('[FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed');
  return shared.id;
 }
 
