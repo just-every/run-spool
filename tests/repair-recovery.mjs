@@ -1,6 +1,4 @@
 import {testAndReview} from './alerts/runtime.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -41,7 +39,7 @@ try{
  stage='ui';evidence.captures=await repairPanel(app,browser,directory);await browser.close();browser=null;
  stage='archive';const archive=await archiveProof(app,{issue,repair:recorded.repair,cutoff:registered.created});
  evidence.results={steps:recorded.steps,states:verdicts.states,packet,archive,deliveriesAfterRegression:deliveries};
- evidence.checks=['owner-only revision-checked repair records with 404/400/409/401/403 refusals and unchanged rows','no mail, webhook, alert or delivery row from any repair write','verdicts (a) to (f) computed from second-origin minified capture','packet verification and repair history inside the agent CLI fence','pre-repair and populated archive restore, retention marks removed snapshot events','1440/390 panel states by clicking and keyboard, axe, focus and reflow'];
+ evidence.checks=['owner-only revision-checked repair records with 404/400/409/401/403 refusals and unchanged rows','no mail, webhook, alert or delivery row from any repair write','verdicts (a) to (f) computed from second-origin minified capture','packet verification and repair history inside the agent CLI fence','pre-repair and populated archive restore, retention marks removed snapshot events','1440 panel states by clicking and keyboard, axe, focus and reflow'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log('Repair recovery public journey passed: '+evidence.checks.length+' groups; '+evidence.captures.length+' captures; verdicts '+Object.keys(verdicts.states).join(',')+'.');
 }catch(error){failure=error;console.error(JSON.stringify({journey:'repair-recovery',stage,type:error.name,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}finally{

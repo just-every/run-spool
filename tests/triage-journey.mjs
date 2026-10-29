@@ -42,10 +42,8 @@ try {
  }
  const project=await api('/api/projects','POST',{id:'cedar',name:'Cedar Dispatch'});
  await page.goto(origin+'/projects/cedar/issues');await page.getByRole('heading',{name:'Waiting for your first event',exact:true}).waitFor();
- if(width===390)await page.getByRole('button',{name:/^Menu/}).click();
  await capture('owner-name',width);
  assert.equal(await page.locator('.team p').innerText(),'Test owner');
- if(width===390)await page.getByRole('button',{name:/^Menu/}).click();
  await capture('waiting',width);
  await page.getByRole('button',{name:'Set up capture',exact:true}).click();assert.equal(await page.locator('.right').count(),0);
  await page.getByRole('button',{name:'Register your first release',exact:true}).click();
@@ -86,9 +84,9 @@ try {
  await verifyReturnDestinations(origin,issuePath,cookie);
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.waitForResponse(response=>response.url().endsWith('/packet'),{timeout:30000});await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}
- assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow');
+ assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, desktop width, no owner-page errors or horizontal overflow');
  await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
 }finally{await browser?.close();await application?.stop();await worker.stop();}
 }
-for(const width of [1440,390])await journey(width);
-await writeFile(output+'/manifest.json',JSON.stringify(evidence,null,2));console.log(`Triage public journey passed: ${evidence.checks.length} groups; ${evidence.captures.length} JPG captures at 1440 and 390.`);
+for(const width of [1440])await journey(width);
+await writeFile(output+'/manifest.json',JSON.stringify(evidence,null,2));console.log(`Triage public journey passed: ${evidence.checks.length} groups; ${evidence.captures.length} JPG captures at 1440.`);

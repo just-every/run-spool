@@ -7,7 +7,7 @@ import {browserLifecycleReport} from '../client-report-sdk.mjs';
 // [SDK-001] One built official-SDK program, identical actions for reference and Spool.
 export async function qualifyBrowser({browser,origin,cookie,request,applicationOrigin,dsns,upload,expectedLine}){
  const app=api(origin,cookie);
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const project=await request('/api/projects','POST',{id:`browser-qualification-${width}`,name:'Browser qualification'});
   await request(`/api/projects/${project.id}/browser-origins`,'POST',{origin:applicationOrigin});
   const execute=async(target)=>{

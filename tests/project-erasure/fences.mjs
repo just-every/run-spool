@@ -1,3 +1,5 @@
+import {commandCheckout} from '../command-runner.mjs';
+import {freePort} from '../admission-runtime.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -28,27 +30,27 @@ const reason=result=>/Archive operation refused \(([^)]+)\)/.exec(result.output)
 
 // Older archives against the restore fence, through public HTTP and rer import.
 export async function fenceProof(app,{pre,project,erased}){
- const root=app.checkout.root,child=await childArchive(pre,project,erased),results={};
- await mkdir(resolve(root,'exports'),{recursive:true,mode:0o700});
- for(const [name,text] of [['pre',pre.text],['child',child]])await writeFile(resolve(root,'exports',name+'.rer'),text,{mode:0o600});
- // Same installation: the fence answers before any occupancy check.
+ const child=await childArchive(pre,project,erased),results={};
  results.sameHttpPre=await httpRestore(app,pre.text);assert.deepEqual(results.sameHttpPre,{status:400,error:'erasure_epoch'});
  results.sameHttpChild=await httpRestore(app,child);assert.deepEqual(results.sameHttpChild,{status:400,error:'erased_row:events'});
- await app.stopDev();
- const post=await app.checkout.command(['export','--output','exports/post.rer'],null);assert.equal(post.code,0,'rer export of the post-erasure installation');
- const same=await app.checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.sameCliPre={exit:same.code,reason:reason(same)};assert.deepEqual(results.sameCliPre,{exit:4,reason:'erasure_epoch'});
- // A fresh destination that first received the post-erasure archive.
- const fresh=async()=>{assert.equal((await app.checkout.command(['reset','--yes'],null)).code,0);assert.equal((await app.checkout.command(['setup','--owner-email',testOwner,'--port',new URL(app.origin).port],null)).code,0);};
- await fresh();
- const first=await app.checkout.command(['import','--input','exports/post.rer','--yes'],null);results.freshPost={exit:first.code};assert.equal(first.code,0,'the post-erasure archive restores: '+reason(first));
- const old=await app.checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.freshCliPre={exit:old.code,reason:reason(old)};assert.deepEqual(results.freshCliPre,{exit:4,reason:'erasure_epoch'});
- await app.startDev();
- results.freshHttpChild=await httpRestore(app,child);assert.deepEqual(results.freshHttpChild,{status:400,error:'erased_row:events'});
- await app.stopDev();
- // The stated limit: a brand-new store given only the older archive accepts it;
- // the newer archive as a later journal refuses it.
- await fresh();
- const journal=await app.checkout.command(['import','--input','exports/pre.rer','--journal','exports/post.rer','--yes'],null);results.newStoreWithJournal={exit:journal.code,reason:reason(journal)};assert.deepEqual(results.newStoreWithJournal,{exit:4,reason:'erased_row'});
- const limit=await app.checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.newStoreAlone={exit:limit.code,limit:'a brand-new store has no later journal and accepts the older archive'};assert.equal(limit.code,0);
- return results;
+ // The CLI consumes the post-erasure archive in an independent installation;
+ // the same journal must bind both public restore transports.
+ const post=await app.archive(),checkout=await commandCheckout();
+ try {
+  const root=checkout.root;
+  await mkdir(resolve(root,'exports'),{recursive:true,mode:0o700});
+  for(const [name,text] of [['pre',pre.text],['child',child],['post',post.text]])await writeFile(resolve(root,'exports',name+'.rer'),text,{mode:0o600});
+  await checkout.command(['install']);
+  const fresh=async()=>{await checkout.command(['reset','--yes']);await checkout.command(['setup','--owner-email',testOwner,'--port',String(await freePort())]);};
+  await checkout.command(['setup','--owner-email',testOwner,'--port',String(await freePort())]);
+  const imported=await checkout.command(['import','--input','exports/post.rer','--yes'],null);results.freshPost={exit:imported.code};assert.equal(imported.code,0,'post-erasure recovery through rer import');
+  const exported=await checkout.command(['export','--output','exports/recovered.rer'],null);assert.equal(exported.code,0,'rer export of the recovered post-erasure installation');
+  const same=await checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.sameCliPre={exit:same.code,reason:reason(same)};assert.deepEqual(results.sameCliPre,{exit:4,reason:'erasure_epoch'});
+  await app.resetRestore(post.text);
+  results.freshHttpChild=await httpRestore(app,child);assert.deepEqual(results.freshHttpChild,{status:400,error:'erased_row:events'});
+  await fresh();
+  const journal=await checkout.command(['import','--input','exports/pre.rer','--journal','exports/post.rer','--yes'],null);results.newStoreWithJournal={exit:journal.code,reason:reason(journal)};assert.deepEqual(results.newStoreWithJournal,{exit:4,reason:'erased_row'});
+  const limit=await checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.newStoreAlone={exit:limit.code,limit:'a brand-new store has no later journal and accepts the older archive'};assert.equal(limit.code,0);
+  return results;
+ }finally{assert.deepEqual(await checkout.close(),{children:'stopped',directory:'removed'})}
 }

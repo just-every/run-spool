@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {noSecrets} from './packet.mjs';
 export async function scopeProof(app,grant,issue,otherIssue,project){
  const packet=`/api/projects/a/issues/${issue}/packet`,agent={agent:grant.key};
- assert.equal((await app.request(packet,'GET',undefined,{...agent,dev:false})).status,401,'dev-minted grant needs checkout gate');
+ // Ordinary installed grants use their exact scope; dev-grant packet gating is
+ // exercised against both real entry points in dev-credentials.mjs.
  const reads=['/api/projects/a/issues',packet,'/api/projects/a/outcomes','/api/projects/a/alerts'];
  for(const path of reads){const response=await app.request(path,'GET',undefined,agent);assert.equal(response.status,200);noSecrets(await response.json());}
  const cross=['/api/projects/b/issues',`/api/projects/b/issues/${otherIssue}/packet`,'/api/projects/b/outcomes','/api/projects/b/alerts',`/api/projects/a/issues/${otherIssue}/packet`];

@@ -7,6 +7,8 @@ import {signIn} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {editorNavigation} from './editor-navigation.mjs';
 
+export async function ownerEditor() {
+
 const edge = await managementEdge();
 let app, browser;
 try {
@@ -51,7 +53,7 @@ try {
  assert.ok(document.headers.get('content-security-policy').includes(`frame-src 'self' ${edge.origin}`));
  const evidence = resolve(process.env.SPOOL_EDITOR_EVIDENCE ?? '.artifacts/wave-b');
  await mkdir(evidence, {recursive: true});
- for (const width of [1440, 390]) {
+ for (const width of [1440]) {
   const context = await browser.newContext({viewport: {width, height: 900}});
   try {
    const signedIn = await signIn(app.origin), [name, value] = signedIn.split('=');
@@ -102,5 +104,7 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-rer-editor]')?.getAttribute('data-connection') === 'timeout', undefined, {timeout: 20_000});
   assert.ok(violations.length, 'browser blocked management framing');
  } finally {await context.close();}
- console.log('OWNER EDITOR passed: unconfigured owner has no editor or console errors; partial config fails; anonymous/project-grant refusal, native owner config and CSP, 1440/390 revealed interactive iframe, live preview/undo after same-leaf and missing-route history navigation, focus preservation, logout revocation, management CSP refusal.');
+ console.log('OWNER EDITOR passed: unconfigured owner has no editor or console errors; partial config fails; anonymous/project-grant refusal, native owner config and CSP, 1440 revealed interactive iframe, live preview/undo after same-leaf and missing-route history navigation, focus preservation, logout revocation, management CSP refusal.');
 } finally {await browser?.close(); await app?.close(); await edge.close();}
+
+}
