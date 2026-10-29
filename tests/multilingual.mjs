@@ -125,7 +125,13 @@ try{
  const preview=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'languages',planHash:preview.planHash}));
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  await restored.stop();restored=null;await rm(state,{recursive:true,force:true});
- app=await executionRuntime(state,15484);await app.json('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});
+ app=await executionRuntime(state,15484);
+ // Rebind all checksums: different behavioral schema must still refuse before
+ // any native row changes, even for a recognized earlier table inventory.
+ const changedObjects=await mappingArchive(previous,()=>{},false,manifest=>{const index=manifest.schemaObjects.find(object=>object.type==='index');assert.ok(index);index.sql+=' WHERE 0';});
+ await app.json('/api/restore','POST',changedObjects,{'X-Confirm-Restore':'yes'},400);
+ assert.deepEqual(await app.json('/api/projects'),[],'changed behavioral inventory leaves the destination empty');
+ await app.json('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});
  assert.equal((await app.json(`${p}/releases`))[0].build,release.build);assert.ok(archive.includes('PRIVATE_CONTEXT'),'SDK source context retained in private archive');assert.ok(archive.includes('PRIVATE_EXTRA'),'ordinary structured extra retained in private archive');
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM inbound_filter_policies').first()).n,0,'pre-mapping archive starts inbound policies empty');

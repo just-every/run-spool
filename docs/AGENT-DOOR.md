@@ -74,6 +74,12 @@ legacy-schema verification. It refuses `schema_mismatch:legacy_schema`. Existing
 archive bytes and validation remain authoritative; no acknowledgment bypass is
 offered by this adoption.
 
+Recognized earlier native table inventories can restore when the archive carries
+the complete behavioral-object inventory and it exactly matches this installation.
+Spool uses Base's typed schema identity for that comparison and retains the
+original checksum and column checks. A missing or changed behavioral inventory
+still requires Base's migration verification and receives no compatibility waiver.
+
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
 not replace independent capture, release, cohort, recurrence or exposure evidence.
 `spool.repairs.read` accepts an optional repair ID within the visible issue, so
