@@ -53,7 +53,7 @@ const definitions=[
  ['alerts.test','POST','alert-test',fields({id:str}),false,['external'],['ALERT-001']],
  ['followups.read','GET','followup',fields({}),true,['standard'],['ALERT-004']],
  ['followups.update','PUT','followup',fields({destination:{type:['string','null']},channel:{enum:['mail','webhook']},revision:num},['project','destination']),false,['standard','live'],['ALERT-004']],
- ['access.read','GET','access',object({}),true,['standard'],['TEAM-001']],
+ ['access.read','GET','access',object({id:str},[]),true,['standard'],['TEAM-001']],
  ['access.update','PUT','access-member',object({id:str,version:num,role:{enum:['admin','billing','member','read-only']},grants}),false,['access'],['TEAM-001']],
  ['credentials.list','GET','credentials',fields({}),true,['standard'],['ERR-004']],
  ['credentials.read','GET','credential',object({id:str}),true,['standard'],['ERR-004']],

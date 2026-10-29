@@ -93,6 +93,10 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  }
  if(route==='issues')value=value.map(issueProjection);
  if(['issue-search','issue-export'].includes(route)&&Array.isArray(value.rows))value={...value,rows:value.rows.map(issueProjection)};
+ if(route==='access'&&method==='GET'&&a.id){
+  const member=value.members.find((row:any)=>row.id===a.id);if(!member)throw new ToolRefusal('not_found');
+  value={...value,members:[member]};
+ }
  if(route==='repairs'&&method==='GET'&&a.id){
   const repair=value.repairs.find((row:any)=>row.id===a.id);if(!repair)throw new ToolRefusal('not_found');
   value={available:1,repairs:[repair]};

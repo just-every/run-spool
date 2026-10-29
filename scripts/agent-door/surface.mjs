@@ -36,7 +36,7 @@ add('check','repairs.check',{project,id:from('repair','/id'),revision:from('repa
 add('repair-after-check','repairs.read',{project,issue,id:from('repair','/id')});
 add('fact','repairs.record_fact',{project,id:from('repair','/id'),revision:from('repair-after-check','/repairs/0/revision'),fact:'merged'});
 add('fixes','fixes.read',{project,issue});
-add('fix','fixes.create',{project,reproducer:from('reproducers','/reproducers/0/id'),run:from('reproducers','/reproducers/0/runs/0/id'),repository:'synthetic/spool-door',flow:'checkout'});
+add('fix','fixes.create',{project,reproducer:fixture('reproducer'),run:fixture('run'),repository:'synthetic/spool-door',flow:'checkout'});
 add('advance','fixes.advance',{project,id:from('fix','/id')},['external']);
 add('releases','releases.read',{project});
 add('release','releases.record',{project,name:'agent-recorded-release',build:'recorded-build'});
@@ -53,7 +53,8 @@ add('followup-read','followups.read',{project});
 add('followup-off','followups.update',{project,destination:null});
 add('followup-on','followups.update',{project,destination:from('alerts','/items/0/destination'),channel:'mail'},['live']);
 add('access','access.read',{});
-add('narrow-member','access.update',{id:fixture('member'),version:fixture('memberVersion'),role:'read-only',grants:[]},['access']);
+add('member-current','access.read',{id:fixture('member')});
+add('narrow-member','access.update',{id:fixture('member'),version:from('member-current','/members/0/version'),role:'read-only',grants:[]},['access']);
 add('credentials','credentials.list',{project});
 add('credential','credentials.read',{id:from('credentials','/items/0/hash')});
 add('revoke','credentials.update',{id:from('credentials','/items/0/hash')},['access','security']);

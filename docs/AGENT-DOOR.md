@@ -35,6 +35,8 @@ Read a sanitized issue, bounded packet, capture-loss/traffic context and native
 outcomes. Create an inert split, merge or rule proposal. Submission does not
 apply grouping, alter alerts or change capture. The separate grouping preview,
 apply and undo actions retain native occurrence and revision fences.
+`spool.grouping.read` reads the current native correction catalogue, so a client
+can select a current preview instead of assuming an older preview still exists.
 
 Record a JavaScript reproducer for a mapped occurrence and request its bounded,
 single-use native runner handoff. Source bytes stay out of ordinary resources.
@@ -70,7 +72,10 @@ preparer. It does not create consent, credentials or permission to resume work.
 
 Repair links, notes, checks and merge/deploy facts are attributed claims. They do
 not replace independent capture, release, cohort, recurrence or exposure evidence.
-Quiet or lost telemetry remains inconclusive. Recording an observed deployment
+Quiet or lost telemetry remains inconclusive. `spool.repairs.read` can select a
+repair by native ID within its issue and returns its current revision;
+`spool.access.read` can similarly select a native member before a narrowed grant
+update. Missing selected IDs return `not_found` under the same native authority. Recording an observed deployment
 records a native release manifest; it does not perform a deployment or notify a
 provider.
 
@@ -135,5 +140,6 @@ Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
 catalogue acknowledgement limit, fresh-key injection probes, native runner event
 identity, held erasure custody, standing-worker admission and refused approval
-execution accounting. These are pending assertions,
+execution accounting. Standing-worker admission also requires seed integration;
+the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,
 never passing results or completed shared duties. Spend caps remain unenforced.
