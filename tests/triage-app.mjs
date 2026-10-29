@@ -25,7 +25,7 @@ document.querySelector('#track').addEventListener('click', () => { document.quer
   if(request.url==='/dispatch.js'){response.setHeader('Content-Type','text/javascript');response.end(bundle);return;}
   if(request.url==='/errors-capture.js'){response.setHeader('Content-Type','text/javascript');response.end(helper);return;}
   response.setHeader('Content-Type','text/html');
-  response.end(`<!doctype html><html lang="en"><title>Cedar Dispatch</title><h1>Cedar Dispatch</h1><p>Order for North Market</p><button id="dispatch">Prepare delivery</button><button id="track">Track delivery</button><p id="address"></p><script>window.captureConfig=${JSON.stringify(current).replaceAll('<','\\u003c')}</script><script type="module" src="/dispatch.js"></script></html>`);
+  response.end(`<!doctype html><html lang="en"><title>Cedar Dispatch</title><h1>Cedar Dispatch</h1><p>Order for North Market</p><button id="dispatch">Prepare delivery</button><button id="track">Track delivery</button><p id="address"></p><script>window.addEventListener('error',event=>{window.captureFailure={file:event.filename,line:event.lineno,column:event.colno-1};});window.captureConfig=${JSON.stringify(current).replaceAll('<','\\u003c')}</script><script type="module" src="/dispatch.js"></script></html>`);
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  return {origin:`http://127.0.0.1:${server.address().port}`,map,originalLine:4,setRelease(release,build){current={...current,release,build};},async stop(){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}};
