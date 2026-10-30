@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "0e1dbba58573fda1041943331445b45e7ed4f1e718b39055754872304c487713",
+      "sha256": "1a97289826d4048613a3df75e87bd99a97c8ff445abb810d8db874480092fa76",
       "executable": false
     },
     "DEMO.md": {
@@ -5306,6 +5306,10 @@
     },
     "src/domain/identities/conversion.ts": {
       "sha256": "5cff1fef8d3549c4b1a979a762f3dc6a835609f3f5a00a8708f1064cf73b4467",
+      "executable": false
+    },
+    "src/domain/identities/erasure-preview.ts": {
+      "sha256": "0df8b69a82da8b63d0d6bb9c03b254185ef1afe386c7f9143ac57fc5575b4fa6",
       "executable": false
     },
     "src/domain/identities/intake.ts": {
@@ -8312,6 +8316,10 @@
       "sha256": "cd5afe5571eff3d584623401774a8bd83404fe3ee8cb3d8ac5351fdb8d25c540",
       "executable": false
     },
+    "src/ui/workbench/EndUserErasurePreview.tsx": {
+      "sha256": "c664f14af4edd7dc64d12ced311e0c4f58929497c01f84a4fc3511b8a9490a62",
+      "executable": false
+    },
     "src/ui/workbench/event-explorer.css": {
       "sha256": "40649d83b7cae9c7c7c9f2dddd8e6af646045ea5880c02a74570aab996299435",
       "executable": false
@@ -8782,6 +8790,10 @@
     },
     "tests/editor-navigation.mjs": {
       "sha256": "ab56a2506577540f4ebc1a35e3a388510ddbf1f44d3e3eca6f815b5e572b96ef",
+      "executable": false
+    },
+    "tests/end-user-erasure-preview.mjs": {
+      "sha256": "7998512ff549dc0377e19f4d9ef6102b5ed78b7a987c5ed3269f8d38f349f683",
       "executable": false
     },
     "tests/execution-journey.mjs": {
