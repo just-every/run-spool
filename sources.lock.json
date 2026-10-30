@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2e2906ef2b48e83acb84c90b190927161ab91515a9de32b92fd0209ad3486e20",
+      "sha256": "209f801715f2e667da287eddf82aaa2af0fe741e54d538f921bdf55f14108063",
       "executable": false
     },
     "DEMO.md": {
@@ -8645,7 +8645,7 @@
       "executable": false
     },
     "tests/agent-handoff/selector-refusals.mjs": {
-      "sha256": "6e76d82661f4b175f52d976f6ba614aa4c3014383b60171b825027c23cd1de4a",
+      "sha256": "2fd11e3551bc682b83a348c220f340dfcfb248c962920b5f4c64d59f7e386ae4",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {

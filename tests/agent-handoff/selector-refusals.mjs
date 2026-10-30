@@ -37,6 +37,7 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   compatible(packet);
   assert.ok(packet.events.some(row=>row.event.message.includes(injection)),
    'instruction canary remains untrusted packet data in the positive control');
+  const auditBefore=(await app.json('/api/audit/export?format=json')).rows;
   const positive=async()=>{
    const http=await fetch(origin+packetPath,{headers:{authorization:'Bearer '+grant.key,'x-rer-dev-key':app.devKey}});
    assert.equal(http.status,200);assert.deepEqual(await http.json(),packet);
@@ -64,6 +65,7 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
    const output=await cli(['packet',selector,'--format','json'],clientEnv);
    assert.equal(output.code,3,kind+' selector refused by CLI packet');
    assert.equal(output.stdout,'');assert.match(output.stderr,/Invalid issue identity/);
+   noSecrets(output.stderr);
    const tool=await mcp.call('get_packet',{issue:selector});
    assert.equal(tool.isError,true,kind+' selector refused by official MCP get_packet');
    assert.match(tool.content[0].text,/Invalid issue identity/);
@@ -81,8 +83,17 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   assert.deepEqual((await app.archive()).data,before,'selector refusals change no archived product rows');
   assert.deepEqual(await Promise.all(['a','b'].map(project=>app.json(`/api/projects/${project}/keys`))),keys,
    'selectors neither widen nor revoke credential authority');
-  console.log('AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.');
-  return {selectors:proof,wholePacketEquality:true,untrustedCanary:true,productRowsUnchanged:true,credentialAuthorityUnchanged:true};
+  const auditAfter=(await app.json('/api/audit/export?format=json')).rows;
+  assert.deepEqual(auditAfter.slice(0,auditBefore.length),auditBefore,'existing safe audit facts remain immutable');
+  const facts=auditAfter.slice(auditBefore.length).filter(row=>row.actor_kind==='agent');
+  assert.equal(facts.length,attacks.length+6,'only the attempted HTTP reads reach the agent audit');
+  assert.equal(facts.filter(row=>row.action==='evidence.packet'&&row.outcome==='succeeded'&&row.status===200).length,6);
+  assert.equal(facts.filter(row=>row.action==='evidence.packet'&&row.outcome==='denied'&&row.status===403).length,attacks.length,
+   'each HTTP refusal keeps a truthful safe audit fact');
+  noSecrets(facts);
+  for(const [,selector] of attacks)assert.ok(!JSON.stringify(facts).includes(selector),'safe facts retain no malicious input');
+  console.log('AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved with truthful safe audit facts.');
+  return {selectors:proof,wholePacketEquality:true,untrustedCanary:true,productRowsUnchanged:true,credentialAuthorityUnchanged:true,safeAudit:{successful:6,denied:attacks.length,priorFactsUnchanged:true}};
  }finally{
   try{await mcp?.close();}finally{proxy.closeAllConnections();await new Promise(accept=>proxy.close(accept));}
  }
