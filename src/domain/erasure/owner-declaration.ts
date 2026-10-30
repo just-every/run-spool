@@ -21,6 +21,10 @@ export async function ownerDeclaration(db: D1Database) {
  const attributed=columns.some(column=>column.name==='minted_by');
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
  edges:[
+  {table:'follow_up_settings',from:'oa_operators',where:'? IS NOT NULL',params:['id']},
+  {table:'follow_up_attention',from:'oa_operators',where:'? IS NOT NULL',params:['id']},
+  {table:'follow_up_notices',from:'follow_up_attention',on:{attention:'id'}},
+  {table:'follow_up_attempts',from:'follow_up_notices',on:{notice:'id'}},
   child('issue_comments'),child('issue_subscriptions'),
   child('spool_members'),
   {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},

@@ -1,12 +1,16 @@
 import { createWebhookProtocol } from '../../modules/integrations/core/webhook';
 import { validateDestination } from '../../modules/integrations/core/destination';
 import { validateMessage } from '../../modules/mail/src/core/validation.mjs';
-import { findDestination, destinationHash, keyBytes } from '../alerts/destinations.server';
+import { findDestination, destinationHash, destinationFingerprint, keyBytes } from '../alerts/destinations.server';
+import { requireReviewedTest } from '../alerts/destination-tests.server';
+import { sendSlack } from '../alerts/slack.server';
 import { sender } from '../alerts/mail';
 import { auditSubject, serviceActor } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { s, type Environment } from './types';
 import { activeProjectRecipient } from '../members/notifications';
+type NoticeResult={state:string;code:string;messageId?:string;retryAfterMs?:number};
+type PreparedNotice={digest:string;provider?:'slack';send:(claim:string,now:()=>number)=>Promise<NoticeResult>};
 
 export async function queueNotices(env:Environment,time:number) {
  // A notice is keyed by the original attention item and destination, never by
@@ -26,7 +30,7 @@ export async function queueNotices(env:Environment,time:number) {
   ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
 }
 
-async function prepare(env:Environment,row:any,time:number) {
+async function prepare(env:Environment,row:any,time:number):Promise<PreparedNotice> {
  const memberId=row.destination.startsWith('member:')?row.destination.slice(7):null;
  const destination:any=memberId?{recipient:(await activeProjectRecipient(env.DB,row.project,memberId))?.email}:await findDestination(env,row.project,row.destination,row.channel);
  if(memberId&&!destination.recipient)throw new Error('member_unavailable');
@@ -44,6 +48,36 @@ async function prepare(env:Environment,row:any,time:number) {
   }};
  }
  if(!env.INTEGRATION_EGRESS)throw new Error('egress_unconfigured');
+ if(destination.kind==='slack'){
+  await requireReviewedTest(env,row.project,row.destination,row.channel);
+  const digest=await destinationFingerprint(env,destination);
+  return {digest,provider:'slack',send:async(claim,now)=>{
+   const fact={source:'service' as const,actor:await serviceActor(env.DB,'slack'),action:'notification.attempt' as const,subject:await auditSubject(env.DB,'delivery',row.id,row.project)};
+   await recordAudit(env.DB,{...fact,outcome:'started'});
+   // The credential, reviewed test, claim and alternate must still be current
+   // after the audit awaits, immediately before crossing the provider boundary.
+   const authority=await s(env.DB,`SELECT n.claim_until FROM follow_up_notices n
+    JOIN follow_up_settings c ON c.project=n.project AND c.destination=n.destination AND c.channel=n.channel
+    JOIN slack_destinations d ON d.project=n.project AND d.id=n.destination
+    JOIN alert_destination_tests t ON t.project=d.project AND t.destination=d.id
+    JOIN follow_up_attention a ON a.id=n.attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')
+    WHERE n.id=? AND n.claim=? AND n.state='running' AND n.claim_until>?
+     AND d.channel_id=? AND d.bot_token=? AND t.fingerprint=? AND t.state='passing' AND t.reviewed_at IS NOT NULL
+     AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=n.project)`,row.id,claim,now(),destination.channelId,destination.token,digest).first<{claim_until:number}>();
+   if(!authority||authority.claim_until<=now()){
+    await recordAudit(env.DB,{...fact,outcome:'denied'});
+    return {state:'blocked',code:'destination_changed'};
+   }
+   try{
+    const result=await sendSlack(env,destination,JSON.parse(row.body),now),outcome=result.outcome;
+    await recordAudit(env.DB,{...fact,outcome:outcome.kind==='accepted'?'accepted':outcome.kind==='uncertain'?'uncertain':'failed'});
+    return {state:outcome.kind==='accepted'?'completed':outcome.kind==='retryable'?'queued':outcome.kind==='rejected'?'failed':'uncertain',code:outcome.code,messageId:result.messageId,retryAfterMs:outcome.kind==='retryable'?outcome.retryAfterMs:undefined};
+   }catch(error){
+    await recordAudit(env.DB,{...fact,outcome:'uncertain'});
+    return {state:'uncertain',code:(error as Error).message==='slack_timeout'?'slack_timeout':'slack_transport_failed'};
+   }
+  }};
+ }
  const protocol=createWebhookProtocol({resolveDestination:async()=>destination.url!,signingKey:async()=>keyBytes(destination.key)});
  const wire=await protocol.prepare({id:'follow-up-'+row.id,tenant:'spool.'+row.project,destinationId:row.destination,event:'spool.automation.attention',protocol:'webhook',body:row.body},time);
  validateDestination(wire.url);
@@ -53,7 +87,7 @@ async function prepare(env:Environment,row:any,time:number) {
   try{
    const response=await env.INTEGRATION_EGRESS!.send(wire),outcome=protocol.classify(response,Date.now());
    await recordAudit(env.DB,{...fact,outcome:outcome.kind==='accepted'?'accepted':outcome.kind==='uncertain'?'uncertain':'failed'});
-   return {state:outcome.kind==='accepted'?'completed':outcome.kind==='retryable'?'queued':outcome.kind==='rejected'?'failed':'uncertain',code:outcome.code};
+   return {state:outcome.kind==='accepted'?'completed':outcome.kind==='retryable'?'queued':outcome.kind==='rejected'?'failed':'uncertain',code:outcome.code,retryAfterMs:outcome.kind==='retryable'?outcome.retryAfterMs:undefined};
   }catch(error){await recordAudit(env.DB,{...fact,outcome:'uncertain'});throw error;}
  }};
 }
@@ -74,10 +108,10 @@ export async function dispatchNotices(env:Environment,time:number) {
   }
   const claim=crypto.randomUUID(),clockStart=Date.now(),now=()=>time+Date.now()-clockStart;
   const result=await env.DB.batch([
-   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?) WHERE id=? AND state='queued' AND attempts<4
+   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?),provider=COALESCE(provider,?) WHERE id=? AND state='queued' AND attempts<4
     AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=follow_up_notices.project AND c.destination=follow_up_notices.destination AND c.channel=follow_up_notices.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=c.project))
      OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=follow_up_notices.project AND follow_up_notices.destination='member:'||m.member AND follow_up_notices.channel='mail'))
-    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,row.id),
+    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,prepared.provider??null,row.id),
    s(env.DB,'INSERT INTO follow_up_attempts(id,notice,project,number,started) SELECT claim,id,project,attempts,? FROM follow_up_notices WHERE id=? AND claim=?',now(),row.id,claim),
   ]);
   if(!result[0].results.length)continue;
@@ -85,16 +119,17 @@ export async function dispatchNotices(env:Environment,time:number) {
   const authority=await s(env.DB,`SELECT n.claim_until FROM follow_up_notices n WHERE n.id=? AND n.claim=? AND n.state='running' AND n.claim_until>?
    AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=n.project AND c.destination=n.destination AND c.channel=n.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=n.project))
     OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=n.project AND n.destination='member:'||m.member AND n.channel='mail'))`,row.id,claim,now()).first<{claim_until:number}>();
-  let state='blocked',code='alternate_changed';
+  let state='blocked',code='alternate_changed',messageId:string|undefined,retryAfterMs:number|undefined;
   if(authority&&authority.claim_until>now()&&(!row.destination.startsWith('member:')||await activeProjectRecipient(env.DB,row.project,row.destination.slice(7)))){
    state='uncertain';code='response_unknown';
-   try{const result=await prepared.send();state=result.state;code=result.code;}catch{/* A started effect cannot establish rejection. */}
+   try{const result=await prepared.send(claim,now);state=result.state;code=result.code;messageId=result.messageId;retryAfterMs=result.retryAfterMs;}catch{/* A started effect cannot establish rejection. */}
   }
   if(state==='queued'&&row.attempts+1>=4)state='failed';
   const finished=now();
+  const backoff=1000*Math.pow(5,row.attempts),retryDelay=Number.isFinite(retryAfterMs)?Math.max(backoff,retryAfterMs!):backoff;
   await env.DB.batch([
    s(env.DB,`UPDATE follow_up_attempts SET finished=?,state=?,code=? WHERE id=? AND finished IS NULL AND EXISTS(SELECT 1 FROM follow_up_notices WHERE id=? AND claim=? AND state='running' AND claim_until>?)`,finished,state,code,claim,row.id,claim,finished),
-   s(env.DB,"UPDATE follow_up_notices SET state=?,code=?,next_at=?,claim=NULL,claim_until=NULL WHERE id=? AND claim=? AND state='running' AND claim_until>?",state,code,finished+1000*Math.pow(5,row.attempts),row.id,claim,finished),
+   s(env.DB,"UPDATE follow_up_notices SET state=?,code=?,next_at=?,message_id=COALESCE(?,message_id),claim=NULL,claim_until=NULL WHERE id=? AND claim=? AND state='running' AND claim_until>?",state,code,finished+retryDelay,messageId??null,row.id,claim,finished),
   ]);
  }
 }

@@ -2,6 +2,7 @@ import { runtimeBindings } from '../../auth/bindings';
 import { ownerProjectRouter,ownerWrites,jsonBody } from '../owner-router';
 import { auditCommit } from '../audit/context';
 import { findDestination } from '../alerts/destinations.server';
+import { requireReviewedTest } from '../alerts/destination-tests.server';
 import { IntegrationsRepository } from '../../modules/integrations/core/repository';
 import { D1SqlDatabase } from '../../modules/integrations/core/database';
 import { attentionAction } from './actions';
@@ -24,7 +25,7 @@ routes.get('/',async c=>{
    attempts=history?.channel==='webhook'?await new IntegrationsRepository(new D1SqlDatabase(db),'spool.'+project).log(row.source_id):(await s(db,'SELECT number,started,finished,state,code FROM alert_mail_attempts WHERE delivery_id=? ORDER BY number',row.source_id).all()).results;
   }else if(row.source==='fix')attempts=(await s(db,'SELECT id,step,method,state,started,finished,due,evidence FROM follow_up_fix_steps WHERE project=? AND workflow=? ORDER BY started,id',project,row.source_id).all()).results;
   else attempts=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_deployment_attempts WHERE project=? AND deployment=? ORDER BY number',project,row.source_id).all()).results;
-  const notices=(await s(db,'SELECT id,destination,channel,state,attempts,code,next_at FROM follow_up_notices WHERE attention=? ORDER BY id',row.id).all<any>()).results;
+  const notices=(await s(db,'SELECT id,destination,channel,state,attempts,code,next_at,provider,message_id FROM follow_up_notices WHERE attention=? ORDER BY id',row.id).all<any>()).results;
   for(const notice of notices)notice.log=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_attempts WHERE notice=? ORDER BY number',notice.id).all()).results;
   const loss=/^loss:(\d+):(.+)$/.exec(row.source_id);
   const captureLoss=loss?Number((await s(db,'SELECT count FROM outcomes WHERE project=? AND window=? AND reason=?',project,Number(loss[1]),loss[2]).first<any>())?.count??0):null;
@@ -48,8 +49,9 @@ routes.put('/alternate-member',async c=>{
 routes.put('/alternate',async c=>{
  const body=await jsonBody(c.req.raw,1024),project=c.req.param('project')!,env=runtimeBindings(c.env);
  if(body.destination!==null&&(typeof body.destination!=='string'||!['mail','webhook'].includes(body.channel)))throw new Error('Choose a project destination or no alternate.');
- if(body.destination!==null&&(await findDestination(env,project,body.destination,body.channel)).kind==='slack')throw new Error('Slack destinations currently route issue alerts only; choose email or a signed webhook for alternate notices.');
+ const reviewed=body.destination!==null&&(await findDestination(env,project,body.destination,body.channel)).kind==='slack'?await requireReviewedTest(env,project,body.destination,body.channel):null;
  await ownerWrites(c,[
+  ...reviewed?[reviewed]:[],
   s(env.DB,'INSERT INTO follow_up_settings(project,destination,channel,updated) VALUES(?,?,?,?) ON CONFLICT(project) DO UPDATE SET destination=excluded.destination,channel=excluded.channel,revision=revision+1,updated=excluded.updated',project,body.destination,body.destination===null?null:body.channel,Date.now()),
   auditCommit(env.DB),
   s(env.DB,"UPDATE follow_up_notices SET state='canceled',code='alternate_changed' WHERE project=? AND state='queued' AND (destination IS NOT ? OR channel IS NOT ?)",project,body.destination,body.destination===null?null:body.channel),
