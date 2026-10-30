@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "39d7e9e066510abb72ffadc7486984322960fc85177ea1af9a9314d0a73ea9c9",
+      "sha256": "5bcef7712b6f4529bfc1b827b05713e4ed18731536a67f6dd303e370288078c1",
       "executable": false
     },
     "DEMO.md": {
@@ -8385,7 +8385,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "e057d0e7bb50d6b752b3d5e82f6476e54528702c9715cf42c6c062a1224d467a",
+      "sha256": "18a4a9056f5950fa3b82b3207798994f48ad46e04c4655739b8d3606450d560e",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8857,7 +8857,7 @@
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
-      "sha256": "bc8f8f5a38969ae13dc36c0d7a9779a0215631082fcad36b7734f71d4c58d13c",
+      "sha256": "d23462f57ea27477b1df31d27803a7b9e74c42fced5c2c35f537b2c428137838",
       "executable": false
     },
     "tests/identity-flow.mjs": {
