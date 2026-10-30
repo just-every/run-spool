@@ -13,7 +13,7 @@ The primary journey: a US development team points its existing error capture at 
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Landing replay retains the isolated Node release identity and alert assertions from candidate 86068c95640e979e33852d900ee7a96f6209c0d3. Main's SDK-009 partial judgment and its recorded evidence and gap remain authoritative; these additional assertions do not promote the clause. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
