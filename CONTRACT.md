@@ -1441,8 +1441,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 7 | 5 | 0 | 12 |
-| Target and push further | 9 | 42 | 29 | 80 |
-| All | 16 | 47 | 29 | 92 |
+| Target and push further | 9 | 43 | 28 | 80 |
+| All | 16 | 48 | 28 | 92 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1526,7 +1526,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `UX-001` | Mobile operations and accessible investigation | target | partial | `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` | Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent. |
 | `AUDIT-001` | Permanent privacy-safe action audit | target | partial | `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs` | Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history. |
 | `INT-001` | Vercel and Netlify deployment connectors | target | missing |  | No implementation proof yet: vercel and Netlify deployment connectors. |
-| `SURFACE-001` | The registry equals this table and the Base harness passes | target | missing |  | No implementation proof yet: the MCP door, the tool registry with classes and the Base conformance harness are absent; the stdio agent package serves five read and proposal tools without classes. |
+| `SURFACE-001` | The registry equals this table and the Base harness passes | target | partial | `tests/agent-handoff.mjs` Agent handoff public journey; `tests/agent-handoff/clients.mjs` mcpReadAliases: acceptance 4 compares complete populated reads and safe proposal summaries under legacy and canonical MCP names, submits the same validated inert proposal through both names, and retains invalid-call, exact-project, next-call revocation, secret-exclusion and forbidden-write refusals. | Acceptance 1–3 and 5 remain unproved: the complete tool registry with computed classes and Core clause metadata, every Core clause and not-a-tool reason, all seven resource templates and the Base conformance harness under both company policies. Canonical aliases qualify only the existing exact-project evidence reads and inert grouping proposals; broader policy execution and unimplemented tools remain absent. |
 | `SURFACE-002` | External and money are computed per call | target | missing |  | No implementation proof yet: no tool computes external or money. |
 | `SURFACE-003` | Live, security, access and destructive are computed per call | target | missing |  | No implementation proof yet: no tool computes live, security, access or destructive. |
 | `SURFACE-004` | Commitment, accounts and gated are computed per call | target | missing |  | No implementation proof yet: no tool computes commitment, accounts or gated. |

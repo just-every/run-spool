@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { AgentError, positiveInteger, validateIssue } from './options.mjs';
 import { redact } from './format.mjs';
 import { PROPOSAL_BYTES } from './proposal.mjs';
+import { resolveOperation } from './operations.mjs';
 
 export function isLoopback(url) {
   return url.hostname === 'localhost' || url.hostname === '[::1]' || /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname);
@@ -33,6 +34,7 @@ export async function configuration(options, env = process.env) {
 }
 
 export function endpoint(config, operation, args = {}) {
+  operation = resolveOperation(operation, args);
   const url = new URL(config.root);
   if (operation === 'list_issues') {
     url.pathname += '/issues';
@@ -47,7 +49,8 @@ export function endpoint(config, operation, args = {}) {
   return url;
 }
 
-export async function request(config, operation, args) {
+export async function request(config, operation, args = {}) {
+  operation = resolveOperation(operation, args);
   const url = endpoint(config, operation, args);
   const body = operation === 'propose_grouping' ? JSON.stringify(args) : undefined;
   if (body !== undefined && Buffer.byteLength(body) > PROPOSAL_BYTES) throw new AgentError('Proposal exceeds 32768 UTF-8 bytes.');

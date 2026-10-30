@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f039eaf22e96ec6fe638b313192753ad660aeafa4f47fb60dcb3e425d658a0b7",
+      "sha256": "e84e36276af21b2c0bd26324291bbbe1cdb1a524df57d0496902bfe333c3472d",
       "executable": false
     },
     "DEMO.md": {
@@ -4049,7 +4049,11 @@
       "executable": false
     },
     "packages/agent/src/mcp.mjs": {
-      "sha256": "880b4c696f44f6b3fe7830f39547f61c0e4205435e17eba0e758268e1a700a89",
+      "sha256": "cf0b44f5e683f9c3ff447c9deda39d2573cdad83b0d236d8794fff6307b7115e",
+      "executable": false
+    },
+    "packages/agent/src/operations.mjs": {
+      "sha256": "a31a2afb37e075da3cacfa331b87ac43a05c2ccb19475327e8a717e90c59b6a8",
       "executable": false
     },
     "packages/agent/src/options.mjs": {
@@ -4065,7 +4069,7 @@
       "executable": false
     },
     "packages/agent/src/transport.mjs": {
-      "sha256": "089717a908aa79cecf732448a9118e921675b8b499e597a09f884924e34fc761",
+      "sha256": "25855089eafb16b8a81d8e379470d7fe919da03fe9044cf03e43a03f0655a917",
       "executable": false
     },
     "packages/sdk/build.mjs": {
@@ -8609,7 +8613,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "7adc6db41dd84015c233c7dcad9f6f8e649278ac0f655e993ce8645bbcafe282",
+      "sha256": "e618a96686dbe8502ac2a905befc17430488539d73862ff330f90618d55b120e",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -8617,7 +8621,7 @@
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
-      "sha256": "8cc32ee1c6808674328723f57e34f3baf3ba4820400417c93d2006a3e5c13e6b",
+      "sha256": "a91ca204d0604028a58a5e787f1d4c9271cfb65f3b0685f3856c9d79bf428c65",
       "executable": false
     },
     "tests/agent-handoff/dev-output.mjs": {
