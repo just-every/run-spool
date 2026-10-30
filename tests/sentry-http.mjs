@@ -149,6 +149,16 @@ try{
   assert.equal(isolatedCount('accepted'),18);assert.equal(isolatedCount('feedback_invalid'),8);assert.equal(isolatedCount('feedback_oversized'),2);assert.equal(isolatedCount('invalid_item'),8);
   const isolatedIssues=await json('/api/projects/synthetic-spool-7/issues');assert.equal(isolatedIssues.length,1);assert.equal(isolatedIssues[0].count,18);
   assert.deepEqual((await json('/api/projects/synthetic-spool-7/feedback')).items,[]);
+  const diagnosticsProject=await json('/api/projects','POST',{id:'synthetic-spool-8',name:'Synthetic diagnostic-only capture'}),diagnosticsDsn=new URL(diagnosticsProject.dsn);
+  const diagnosticsPath='/api'+diagnosticsDsn.pathname+'/envelope/?sentry_key='+diagnosticsDsn.username+'&sentry_version=7';
+  const diagnosticsItems=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}']];
+  const diagnosticsWire='{}\n'+diagnosticsItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
+  const diagnosticsResponse=await req(diagnosticsPath,'POST',diagnosticsWire,{Cookie:''});assert.equal(diagnosticsResponse.status,200);
+  assert.deepEqual(await diagnosticsResponse.json(),{dropped:{sentry_unsupported_statsd:2,sentry_unsupported_unknown:3}},'an envelope without errors still returns every item receipt');
+  assert.deepEqual(Object.fromEntries((await json('/api/projects/synthetic-spool-8/outcomes')).rows.map(({reason,count})=>[reason,count])),{sentry_unsupported_statsd:2,sentry_unsupported_unknown:3},'diagnostic-only capture counts items without accepted error volume');
+  assert.deepEqual(await json('/api/projects/synthetic-spool-8/issues'),[],'unsupported items create no issue');
+  const diagnosticsArchive=await archiveProjection(await req('/api/archive'));
+  assert.deepEqual(diagnosticsArchive.data.events.filter(row=>row.project==='synthetic-spool-8'),[],'unsupported items create no retained occurrence');
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
   await fidelityFlow({req,json,origin});
