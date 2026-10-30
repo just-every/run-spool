@@ -17,7 +17,7 @@ const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github
 const app=await agentRuntime(15916,{GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));
 let screens;
 const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
-const done=answer=>{assert.ok(answer&&!answer.isError,code(answer)??'Missing tool result');return answer.structuredContent;};
+const done=answer=>{assert.ok(answer&&!answer.isError,JSON.stringify(answer?._meta?.['com.runeditrun/error'])??'Missing tool result');return answer.structuredContent;};
 try{
  await app.json('/api/organization','POST',{id:'door-company',name:'Harbor Shop'});
  const p=await app.json('/api/projects','POST',{id:'door-triage',name:'Checkout failures'});
@@ -51,7 +51,8 @@ try{
  assert.equal(selectedRepair.repairs[0].revision,checked.revision,'The selected native repair exposes its current revision for subsequent claims');
  assert.equal(code(await app.call('spool.repairs.read',{project,issue,id:'not-a-repair'})),'not_found','A selected missing repair has no record projection');
  const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
- done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
+ const destinationTest=done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
+ await app.json(`/api/projects/${project}/alerting/destinations/${destination.id}/review`,'POST',{testId:destinationTest.id});
  assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');
  // Native configuration now binds the original admission atomically. Later
  // worker effects must enter the same door under that retained identity.
@@ -68,7 +69,8 @@ try{
  assert.deepEqual(custody.map(row=>row.kind).sort(),['alert','followup','retention']);
  for(const row of custody){const principal=JSON.parse(row.principal);assert.equal(principal.consent,app.context.consent);assert.equal(principal.agent.id,app.context.agentId);assert.ok(principal.operationId&&principal.idempotencyKey);}
  assert.ok(!names.some(name=>name.startsWith('spool.workers.')),'Worker execution is never offered to MCP clients');
- assert.equal(code(await app.call('spool.workers.alert_mail',{id:'not-a-job',item:'not-an-item',idempotency_key:randomUUID()})),'tool_not_found');
+ const hiddenWorker=await app.mcp('tools/call',{name:'spool.workers.alert_mail',arguments:{id:'not-a-job',item:'not-an-item',idempotency_key:randomUUID()}},{},'2025-11-25',400);
+ assert.equal(hiddenWorker.error?.data?.code,'tool_not_found');
  done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:enabled.revision,idempotency_key:randomUUID()}));
  done(await app.call('spool.followups.update',{project,destination:null,idempotency_key:randomUUID()}));
  const deployment=done(await app.call('spool.deployments.record',{project,release:'1.0.0',build:'web-1',manifest:{commitSha:'b'.repeat(40),repository:'https://github.com/example/checkout',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'},idempotency_key:randomUUID()}));

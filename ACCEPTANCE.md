@@ -1463,7 +1463,7 @@ Agent surface · target · **partial**
 6. The seed's embedded agents appear in the audit as calls to the same tools.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. The native catalogue and generated descriptor match; the specialist journey uses real native persistence, exact project grants, sandbox and configured GitHub network edges.
-**Gap.** Standing alert, follow-up and retention configuration still refuses before saving; target-only future jobs are not added by this adoption.
+**Gap.** Native alert, follow-up and retention configuration now retains its originating admission and passes the declared autonomous and held journeys. Target-only future jobs and the complete queued lifecycle are not qualified by this adoption.
 
 #### BASE-AGENT-003 — Records are resources
 
@@ -1531,7 +1531,7 @@ Agent surface · target · **partial**
 6. A refused call's audit row still records its computed classes.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Declared tool/class pairs compute native facts; the specialist asserts inert proposals, live suppression, external draft data PRs and scope restrictions.
-**Gap.** Standing-worker refusal prevents its live/destructive journeys and dependent reset classifications. Optional families and future money, accounts, commitment and provider-person steps are unqualified.
+**Gap.** Declared live/destructive configuration and dependent reset classifications pass on rer 0.2.94. Optional families and future money, accounts, commitment and provider-person steps remain unqualified.
 
 #### BASE-AGENT-007 — The company's policy decides, at one chokepoint
 
@@ -1550,7 +1550,7 @@ Agent surface · target · **partial**
 8. A policy document with a bad signature or another Business's id is rejected, and the door keeps the last valid revision.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Unset, blocked, Pause, signed adoption, all twelve renewal refusals, exact native summaries, held execution and reviewer Undo are asserted.
-**Gap.** Held standing-worker operations and erasure remain incomplete. Base modules/agent-door/ADOPTING.md:349-357 and 1019-1029; seed integration and atomic erasure custody are still required.
+**Gap.** Declared held alert, follow-up, retention and erasure operations now complete with sponsor receipts. Optional families and the complete queued/timed lifecycle remain unqualified.
 
 #### BASE-AGENT-008 — Truthful attribution
 
@@ -1567,7 +1567,7 @@ Agent surface · target · **partial**
 6. Activity and exports at 1440 and 390 show `"<agent> for <person>"` for every agent act.
 7. Mail an agent sends to an outside address names `"<agent> for <person>"` as its sender.
 
-**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native repairs, grouping activity, repository grant, GitHub draft payload and reviewer Undo name the real agent, sponsor and independent person. Agents and approval pages are covered by the native browser journey.
+**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native repairs, grouping activity, repository grant, GitHub draft payload and reviewer Undo name the real agent, sponsor and independent person. Agents and approval pages are covered by the native browser journey. Project erasure preserves the actual sponsor approver IDs in pending, execution and replay audit history after deleting private approval custody.
 **Gap.** Attribution for unqualified standing workers, optional mail edges and the full target surface remains unproved.
 
 #### BASE-AGENT-009 — Every agent action is audited with its class and decision
@@ -1586,7 +1586,7 @@ Agent surface · target · **partial**
 7. The Agents page works at 1440 and 390 with no serious or critical axe findings.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Private reads, refusals, held calls, exact execution links and native activity retain named actors, native targets and policy decisions; native tests assert zero differs_from_policy.
-**Gap.** The shared audit checker still requires a private create outcome after real project erasure removes it: Base modules/agent-door/conformance/audit.mjs:68-90 and ADOPTING.md:1019-1029. Full audit acceptance remains incomplete.
+**Gap.** The declared Core audit count, ordered calls and named erasure approvers now pass. Private approval custody and results are erased while safe decision chronology remains; tests/agent-door/review-erasure.mjs asserts the pending, execution and replay history through the paged audit API. Optional public event and lifecycle families remain unqualified.
 
 #### BASE-AGENT-010 — Agents can follow changes
 
@@ -1621,7 +1621,7 @@ Agent surface · target · **partial**
 7. An agent token cannot resume.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Business Pause, current-person controls, revoked consent, scoped credentials and queued native sandbox/erasure refusals are asserted.
-**Gap.** Standing-worker final admission awaits the worker continuation and seed integration. Base provider spend caps remain unenforced; no cap-enforcement acceptance is claimed.
+**Gap.** Native standing configuration binds its original admission and later attempts re-enter the shared door. Complete queued/timed lifecycle proof remains unqualified. Base provider spend caps remain unenforced; no cap-enforcement acceptance is claimed.
 
 #### BASE-AGENT-012 — Writes are idempotent and conflict-safe
 
@@ -1637,7 +1637,7 @@ Agent surface · target · **partial**
 5. A job handle used by another person's token reads as not found.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native proposal replay is one effect; changed arguments conflict, current authority precedes cached outcomes and native revisions fence mutations.
-**Gap.** Held erasure custody and complete queued/timed lifecycle acceptance remain unqualified; preserving a native single-use refusal is not successful repeated execution.
+**Gap.** Held erasure retains its original admission and successful receipt without weakening the native plan hash. Complete queued/timed lifecycle acceptance remains unqualified; preserving a native single-use refusal is not successful repeated execution.
 
 #### BASE-AGENT-013 — Manifest, docs and the conformance journey
 
@@ -1653,7 +1653,7 @@ Agent surface · target · **partial**
 5. A stranger agent given only the seed URL completes the specialist journey through MCP.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Normal installed rer verify runs the shared harness; the descriptor is generated from the native catalogue and the real specialist journey uses signed owner/settings and isolated provider edges. CI runs the same harness in the existing owner-ui job.
-**Gap.** Shared closed-schema narrowing injection, standing-worker, held-erasure and erased-audit failures remain on rer 0.2.94. Optional families and the complete target specialist week are not qualified.
+**Gap.** On rer 0.2.94 the installed shared checker passes 7914/7915 points; only BASE-AGENT-005.5.autonomous.revoke remains failing. Base conformance/journey.mjs:129 requires injected revoke arguments to succeed, while pipeline.ts:88-89 and ADOPTING.md:190 require invalid_arguments for undeclared narrowing fields. No schema or assertion is relaxed. Optional families and the complete target specialist week remain unqualified.
 
 ### Agent surface
 
@@ -1709,7 +1709,7 @@ Agent surface · target · **partial** · From new · Cites BASE-AGENT-006
 8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Current native access/security, suppression, destructive erasure and live setting classifications are declared and exercised where native completion is supported.
-**Gap.** Standing-worker live/destructive journeys remain refused and their reset facts incomplete; the broader target settings and worker surface is unqualified.
+**Gap.** Declared alert, follow-up and retention live/destructive configuration and reset facts pass on rer 0.2.94. The broader target settings and complete worker lifecycle remain unqualified.
 
 #### SURFACE-004 — Commitment, accounts and gated are computed per call
 

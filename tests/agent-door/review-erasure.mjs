@@ -30,12 +30,16 @@ export async function reviewErasureFlow(app,screens){
  await app.adopt(heldPolicy());
  const eraseArgs={project:disposable.id,planHash:erasure.planHash,idempotency_key:randomUUID()};
  const held=await app.call('spool.privacy.erase',eraseArgs);
- const approvalId=held._meta['com.runeditrun/approval'].id;
+ const pending=held._meta?.['com.runeditrun/approval']??held._meta?.['com.runeditrun/error']?.approval;
+ assert.ok(pending?.id,JSON.stringify(held._meta));
+ const approvalId=pending.id;
  const {approval}=await app.json('/agents/api/approvals/'+approvalId);
  await app.json('/agents/api/approvals/'+approvalId+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
  const replay=await app.call('spool.privacy.erase',eraseArgs),accepted=done(replay);
  assert.equal(accepted.phase,'deleting');
- assert.ok(replay._meta['com.runeditrun/receipt'].approved_by.includes(app.context.person.sub));
+ const sponsor=(await app.json('/api/organization')).members.find(member=>member.role==='owner').operator_id;
+ assert.ok(replay._meta['com.runeditrun/receipt'].approved_by.includes(sponsor));
+ await app.adopt();
  const foreign=await app.call('spool.privacy.continue',{id:accepted.id,idempotency_key:randomUUID()},{act:{sub:'another-agent',name:'Other triage',specialist:'triage engineer'}});assert.equal(foreign._meta['com.runeditrun/error'].code,'not_found','Accepted erasure custody cannot move to another agent');
  await app.adopt(autonomousPolicy(),{paused:true});
  const paused=await app.call('spool.privacy.continue',{id:accepted.id,idempotency_key:randomUUID()});assert.equal(paused._meta['com.runeditrun/error'].code,'agents_paused');
@@ -47,7 +51,7 @@ export async function reviewErasureFlow(app,screens){
  while(true){const audit=await app.json('/agents/api/audit'+(after?'?after='+after:''));assert.equal(audit.differs_from_policy,0);rows.push(...audit.rows);if(audit.rows.length<200)break;after=audit.cursor;}
  const history=rows.filter(row=>row.approval?.id===approvalId);
  assert.deepEqual(history.map(row=>row.outcome).sort(),['done','pending','replayed']);
- for(const row of history){assert.deepEqual(row.approval.by,[app.context.person.sub],'Erased approval history names its actual approver');assert.equal(row.resource,null);assert.ok(!JSON.stringify(row).includes(disposable.id),'Audit history retains no erased native target');}
+ for(const row of history){assert.deepEqual(row.approval.by,[sponsor],'Erased approval history names its actual approver');assert.equal(row.resource,null);assert.ok(!JSON.stringify(row).includes(disposable.id),'Audit history retains no erased native target');}
  await app.adopt();
  console.log('Spool review/erasure: independent native reviewer Undo with no agent identity, durable erasure custody, paused continuation and current person completion passed.');
 }

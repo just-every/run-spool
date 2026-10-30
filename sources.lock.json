@@ -2640,7 +2640,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "78aaff09420dc62ecf94c10fc4b25ea511945fc6584a9f0e3135b045d8ab2e6d",
+      "sha256": "867294a1ea788536dd2fbf6d0cfae443409587c69268ecd5e019fab68f42c43a",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2672,7 +2672,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6f374b0046d9c1eb91602afbb5327314924d93e8ecf2077a75e5265a1ee1adba",
+      "sha256": "f428e9be273bf8391be6a92d497cb642bdca9b8e1e66d677c30d41cbdd6f51df",
       "executable": false
     },
     "DEMO.md": {
@@ -2904,7 +2904,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "ea0b553bbd9c709b2cb0bd96d647fccb4da0398e85163d69fe7d36df1d788f24",
+      "sha256": "3deb4bdc1e8ce6a776be78f713e1a071240215106cfc58c335fc12a317b8687e",
       "executable": false
     },
     "docs/agents.md": {
@@ -10084,7 +10084,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "b3caa3c68d5a4fea8455a9edabbcb305f50431dddf0a81ec231b1f4799813313",
+      "sha256": "6351cc3cd9f15b44050d57c49dfd1b04e04c5ccb84ec70670ba44ab4340f6038",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10112,7 +10112,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "8ef17ada6c06f84a2f758ff619bcb5d784072dbcf60236be7b99a4ae1a3f1fe9",
+      "sha256": "db55b5c5463eef8b9d178b4bfcdc60185e04b86f17c38984abc9b2496439c1b5",
       "executable": false
     },
     "tests/agent-door/people.mjs": {
@@ -10128,7 +10128,7 @@
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {
-      "sha256": "024c74872b4212cf73376d1086e08a42c8019885e29a1bc6352cd86824d03b77",
+      "sha256": "1645d640b8a3f58ed883f2ec70ab9d62978f71788ca2c6bd5d297115adf75288",
       "executable": false
     },
     "tests/agent-door/reviewer.mjs": {

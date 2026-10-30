@@ -86,13 +86,18 @@ visibility, revision and outbox restrictions still apply. Enabling a notificatio
 rule is not evidence that a notice was delivered. Erasure is irreversible and
 uses the native count-only preview and plan hash. Retention is not project
 erasure. Native configured schedules and provider receipts must be inspected
-separately from the agent's configuration action. Final admission and attribution
-for standing alert, follow-up and retention workers remain unqualified pending
-the shared queued-consent continuation. Agent attempts to enable an alert rule,
-set a follow-up destination or update retention therefore refuse with
-`native_worker_admission_unavailable` before saving settings. Agent disabling
-and native person controls remain available. These required tool/class journeys
-remain declared and cannot pass conformance until final worker admission is wired.
+separately from the agent's configuration action. Native alert, follow-up and retention configuration atomically retains its
+originating agent, sponsor, consent, operation and native revision. Later native
+attempts re-enter the shared door under that identity and current policy; a
+person's subsequent configuration supersedes the binding. These configuration
+operations and their resets now pass the declared autonomous and held journeys.
+The complete queued/timed lifecycle and real-provider delivery remain unqualified.
+
+Project erasure removes private approval arguments, summaries and results while
+retaining safe decision chronology. Before custody deletion, it snapshots actual
+approver IDs into the linked pending and execution audit rows. The audit reader
+uses that snapshot after custody is gone; it never reconstructs permission from
+history. Erased targets and project policy payloads leave the audit as well.
 
 ## Compatibility and limits
 
@@ -149,17 +154,20 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
-catalogue acknowledgement limit, the shared narrowing/injection assertion conflict,
-native runner event identity, held erasure custody, standing-worker admission and
-the shared audit checker’s treatment of private outcomes removed by real project
-erasure. Published 0.2.94 keeps the original admitted arguments and idempotency
-key for mutation injection probes. This fixes fresh-key retries of single-use
-actions without relaxing native revision or replay fences. The closed revoke-only
-input still refuses undeclared confirmation and class fields. Refused approval
-executions, stale sponsor email and policy-renewal refusals retain their existing
-checks. These fixes do not qualify the remaining native erasure or worker boundaries. Standing-worker admission also requires seed integration;
-the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,
-never passing results or completed shared duties. Spend caps remain unenforced.
+catalogue acknowledgement limit, the shared narrowing/injection contradiction
+and native runner event identity. On rer 0.2.94 the installed conformance checker
+now passes 7914/7915 points, compared with 4933/4954 before worker admission was
+wired and 7912/7915 at the saved continuation head. Successful operations let the
+harness reach additional assertions. Every seed-owned failure is cleared; the
+only failing point is `BASE-AGENT-005.5.autonomous.revoke`.
+
+Base `modules/agent-door/conformance/journey.mjs:129` requires injected revoke
+arguments to succeed, while `modules/agent-door/pipeline.ts:88-89` and
+`ADOPTING.md:190` require undeclared narrowing fields to refuse `invalid_arguments`.
+Spool keeps its closed revoke-only schema and no-effect negative assertions.
+The checker and its failure exit remain intact. This is a saved candidate pending
+the Base contradiction; no green Verify or full target-surface completion follows
+from the local result. Spend caps remain unenforced.
 
 The refreshed portability runtime includes the optional Worker migration-evidence
 adapter. Spool has not declared its build plugin or connected that adapter to its
