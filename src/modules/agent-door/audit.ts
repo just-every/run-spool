@@ -86,7 +86,9 @@ export async function auditPage(rt: Runtime, url: URL) {
     }
     if (row.approval) {
       const item = await rt.options.db.prepare('SELECT approvals FROM agent_door_approvals WHERE id=?').bind(row.approval.id).first<{ approvals: string }>()
-      row.approval.by = item ? [...new Set((JSON.parse(item.approvals) as Array<{ person: string }>).map(item => item.person))] : []
+      // Project erasure removes private approval custody. Its audit snapshot
+      // still records who approved; absence of custody must not erase history.
+      if (item) row.approval.by = [...new Set((JSON.parse(item.approvals) as Array<{ person: string }>).map(item => item.person))]
     }
     if (row.review) row.review.by = (await rt.options.db.prepare('SELECT marked_by FROM agent_door_reviews WHERE id=?').bind(row.review.id).first<{ marked_by: string | null }>())?.marked_by ?? null
     visible.push(row)

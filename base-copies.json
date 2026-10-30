@@ -2059,7 +2059,16 @@
         "modules/agent-door/transport.ts",
         "modules/agent-door/types.ts",
         "modules/agent-door/wire.ts"
-      ]
+      ],
+      "adapted": {
+        "src/modules/agent-door/audit.ts": "e881e6f66ce7cd737d17dbeb945995aab83c30d8"
+      },
+      "acknowledged": {
+        "src/modules/agent-door/audit.ts": {
+          "sha256": "2565795e781d1a5cd097efd6aa7337c58a14f66ce8b09888b437dc42ad8cda5d",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "src/modules/business-settings",

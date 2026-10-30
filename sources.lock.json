@@ -2656,7 +2656,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "645734efa1d3503d61970d816a6327fa4959355ea76503ff61d6ec2b9bbe57d4",
+      "sha256": "b8e37b4f001e10a0c0d91bbbcbd2a9c16ff054db980f2481bc80f201213fb6ba",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -5436,7 +5436,7 @@
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
-      "sha256": "bf067ee32e35d79495603bfe70d8245e8303cf7e49e532fa4596fe6dd972ecdb",
+      "sha256": "dd1e07e794431744194f91abe8da8fa7aaa306571d6c644a7fddc0124ea767f4",
       "executable": false
     },
     "src/domain/agent-door/events.ts": {
@@ -6944,7 +6944,7 @@
       "executable": false
     },
     "src/modules/agent-door/audit.ts": {
-      "sha256": "8ed6c72459407c8f015d1e04d867764f041b0c7d3239aca619ca7d42195c2621",
+      "sha256": "2565795e781d1a5cd097efd6aa7337c58a14f66ce8b09888b437dc42ad8cda5d",
       "executable": false
     },
     "src/modules/agent-door/capabilities.d.mts": {
@@ -10128,7 +10128,7 @@
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {
-      "sha256": "231c1ec302566dda14c8569a6680c39b373361660fc9163d7528686e0e700336",
+      "sha256": "024c74872b4212cf73376d1086e08a42c8019885e29a1bc6352cd86824d03b77",
       "executable": false
     },
     "tests/agent-door/reviewer.mjs": {
