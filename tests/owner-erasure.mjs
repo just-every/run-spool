@@ -77,6 +77,10 @@ try {
  await app.json('/api/organization/invites',{email:'quinn@spool.test',name:other,role:'admin',grants:[]},202);
  await app.json('/api/organization/invites',{email:'synthetic-spool-8@example.test',name:'synthetic-spool-8',role:'member',grants:[{project:'personal-capture',role:'member'}]},202);
  const team=(await app.json('/api/organization')),ownerMember=team.members.find(m=>m.operator_id===owner.id),teamInvite=(await app.DB.prepare("SELECT id FROM oa_tokens WHERE issuer_id=? AND operator_id IN (SELECT operator_id FROM spool_members WHERE email='synthetic-spool-8@example.test')").bind(owner.id).first()).id;
+ const assignmentPath='/api/projects/personal-capture/issues/'+captured.issue+'/assignment';
+ const assignmentRevision=(await app.json(assignmentPath)).revision;
+ const assignmentSaved=await app.request(assignmentPath,{revision:assignmentRevision,member:ownerMember.id},{},'PATCH');assert.equal(assignmentSaved.status,200);await assignmentSaved.body?.cancel();
+ const ownerAssignment=await app.json(assignmentPath);assert.equal(ownerAssignment.current.member,ownerMember.id);
  const service=await app.json('/api/organization/services',{name:'synthetic-spool-1',scopes:[{project:'personal-capture',kind:'ingest'}]},201);
  const {hash:serviceHash}=await app.json('/api/organization/services/'+service.id+'/keys',{project:'personal-capture',kind:'ingest'},201);
  const otherService=await app.json('/api/organization/services',{name:'synthetic-spool-2',scopes:[{project:'personal-capture',kind:'agent'}]},201,{Cookie:otherCookies['quinn@spool.test']});
@@ -108,6 +112,9 @@ try {
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
 
  for(const table of ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
+ assert.equal(after.issue_assignment_history.length,1);assert.equal(after.issue_assignment_history[0].member,null,'owner erasure removes the private assignee link');
+ assert.deepEqual({...after.issue_assignment_history[0],member:ownerMember.id},before.issue_assignment_history[0],'owner erasure preserves the original safe assignment fact');
+ console.log('PROBE TEAM-002 owner erasure: owner assignment then personal erasure -> private assignee link removed, original safe aliases and chronology unchanged');
  assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
  for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);
  for(const table of ['spool_service_accounts','spool_service_scopes','spool_service_credentials'])assert.deepEqual(after[table],before[table].filter(row=>row.id!==service.id&&row.service!==service.id),'other service authority preserved: '+table);
