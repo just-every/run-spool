@@ -719,7 +719,7 @@ The primary journey: a US development team points its existing error capture at 
 
 #### FIND-003 — Trends, dashboards and team reports
 
-*Tier:* Core · *From:* FIND-002 · *Rules:* D-4
+*Tier:* Core · *From:* FIND-002 · *Rules:* D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
