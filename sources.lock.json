@@ -8877,7 +8877,7 @@
       "executable": false
     },
     "tests/journeys.mjs": {
-      "sha256": "c509d8490458bc0064cd716dde33cbff1eda36d40e16f083e9a1e923e4e5ebe9",
+      "sha256": "2a2912168a555b8d344ef3db5ec310e79d64f8ced0820b4dc5476ff475fcb2f1",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -8905,7 +8905,7 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "67ac81130c3cd384c4f54895fb92d8b368edfee80827781a2d24b8179554e22f",
+      "sha256": "0d261b4848f2d25140d52da535cb1f2bbbbfe8297b436e27034e661baa0fb14c",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
@@ -9001,7 +9001,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "a3d0e2428301812d33230573bdeb7f389d271891fa601f5b4ebc5744ab80471b",
+      "sha256": "946154eb1f8ef60135f79086950a35d65dee26f960f77320c9c0bf817557c9b4",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
@@ -9386,6 +9386,10 @@
     },
     "tests/slack-ui.mjs": {
       "sha256": "e0d566a4689d0a3a266721e7c063f007aaff4afa6d0c8430d9bcdf60990207af",
+      "executable": false
+    },
+    "tests/source-import.mjs": {
+      "sha256": "ac729052c9774405dcfdec854c43c41d1c5877f0d6bbbe0b86a8c953c5ed5504",
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
