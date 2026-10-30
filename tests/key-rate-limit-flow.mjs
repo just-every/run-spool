@@ -77,7 +77,7 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  await configure(2);await refused(await send());
  await configure(4);assert.equal((await send()).status,200);await refused(await send());
  const stale=await req(path,'PUT',{revision:config.revision-1,limit:99,period:'hour'});assert.equal(stale.status,409);assert.equal((await json(path)).limit,4);
- console.log('PROBE BILL-001 5 hour and concurrency: six public envelopes at one remaining slot -> one accepted, five key-limited; restart and lower/raise preserve spend');
+ console.log('PROBE BILL-001 5 hour and concurrency: six public envelopes at one remaining slot -> one accepted, five key-limited; restart and lower or higher limits preserve spend');
 
  const beforeUnauthorized=await json(path),beforeRows=await rows();
  for(const headers of [{Cookie:''},{Cookie:'',Authorization:'Bearer '+project.ingestKey},{Cookie:'',Authorization:'Bearer '+(await json(root+'/keys','POST',{kind:'agent'})).key},{Origin:'https://foreign.example'}]){
@@ -101,7 +101,7 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  await configure(1);await refused(await send());
  const mixed=await send(project.ingestKey,[['event',{event_id:randomUUID().replaceAll('-',''),message:'synthetic-spool-2'}],['event',{event_id:randomUUID().replaceAll('-',''),message:'synthetic-spool-3'}],['client_report',{timestamp:123,discarded_events:[{reason:'before_send',category:'error',quantity:7}]}]]);
  const mixedReceipt=await refused(mixed);assert.equal(mixedReceipt.dropped.key_rate_limited,2);assert.equal(mixedReceipt.clientReports.discarded['client_discarded:error:before_send'],7);
- console.log('PROBE BILL-001 5 deadline and configuration: public envelope after expired persisted buckets -> accepted; disable/re-enable retains spend; mixed refusal count=2 and SDK discard count=7');
+ console.log('PROBE BILL-001 5 deadline and configuration: public envelope after expired persisted buckets -> accepted; disabling and re-enabling retain spend; mixed refusal count=2 and SDK discard count=7');
 
  // Fresh clients and unchanged SDK DSNs: the limited SDK sends one refusal,
  // suppresses its next error locally, and the independent SDK still delivers.
