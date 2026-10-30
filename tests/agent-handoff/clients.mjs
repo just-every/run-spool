@@ -48,9 +48,12 @@ export async function mcpReadAliases(app,mcp,agent,issue,shortId,mappedIssue,oth
   if(legacy==='list_issues')assert.ok(alias.length>0,'issue equality uses populated reads');
   noSecrets(alias);
  }
+ const foreignResults=[];
  for(const name of ['get_packet','spool.issues.read']){
   const denied=await mcp.call(name,{issue:otherIssue});assert.equal(denied.isError,true);assert.match(denied.content[0].text,/"exitCode": 3/);assert.ok(!JSON.stringify(denied).includes('PROJECT_B_PRIVATE'));
+  foreignResults.push(denied);
  }
+ assert.deepEqual(foreignResults[1],foreignResults[0],'both packet names return the same complete foreign-issue refusal');
  assert.deepEqual((await app.archive()).data,before,'all legacy and canonical reads preserve archived rows');
  return {readPairs:pairs.length,completeResultsEqual:true,foreignIssueDenied:true};
 }
