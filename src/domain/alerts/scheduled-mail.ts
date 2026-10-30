@@ -1,3 +1,4 @@
+import { ownerDigestEnabled, personalDigestExists } from '../notifications/digest-identity';
 import { auditedBatch, auditCommit } from '../audit/context';
 import { serviceActor,auditSubject,projectAuditLabel } from '../audit/identity';
 import { sender } from './mail';
@@ -14,6 +15,12 @@ export async function scheduledMail(env:AlertEnvironment,time:number){
    if(row.updated+60000<=time)await alertServiceBatch(env,row.project,[s(env.DB,"UPDATE alert_scheduled_mail SET state='uncertain',code='claim_expired',updated=? WHERE id=? AND state='running' AND updated+60000<=?",time,row.id,time)]);
    continue;
   }
+  // A newer personal schedule owns unsent work; a durable period already in
+  // that queue also prevents an Alerts re-enable from resending it.
+  const personalAvailable=`(scope<>'personal' OR kind NOT IN('daily','weekly') OR NOT (${ownerDigestEnabled('alert_scheduled_mail.project','alert_scheduled_mail.kind')} OR ${personalDigestExists('alert_scheduled_mail.project','alert_scheduled_mail.kind','alert_scheduled_mail.period')}))`;
+  if(row.scope==='personal'&&['daily','weekly'].includes(row.kind)){
+   await alertServiceBatch(env,row.project,[s(env.DB,`UPDATE alert_scheduled_mail SET state='canceled',code='personal_schedule',updated=? WHERE id=? AND state='queued' AND NOT ${personalAvailable}`,time,row.id)]);
+  }
   let recipient:string|undefined;
   if(row.scope==='personal')recipient=(await s(env.DB,"SELECT email FROM oa_operators WHERE role='owner' AND status='active'").first<any>())?.email;
   else {const settings=await s(env.DB,'SELECT destination FROM alert_digest_settings WHERE project=?',row.project).first<any>();
@@ -22,7 +29,7 @@ export async function scheduledMail(env:AlertEnvironment,time:number){
   let mail;try{mail=sender(env);if(!recipient)throw 0}catch{
    await alertServiceBatch(env,row.project,[s(env.DB,"UPDATE alert_scheduled_mail SET state='blocked',code='mail_unconfigured',updated=? WHERE id=? AND state='queued'",time,row.id)]);continue;
   }
-  const claim=await alertServiceBatch(env,row.project,[s(env.DB,"UPDATE alert_scheduled_mail SET state='running',updated=? WHERE id=? AND state='queued' AND historical=0 RETURNING id",time,row.id)]);
+  const claim=await alertServiceBatch(env,row.project,[s(env.DB,`UPDATE alert_scheduled_mail SET state='running',updated=? WHERE id=? AND state='queued' AND historical=0 AND ${personalAvailable} RETURNING id`,time,row.id)]);
   if(!claim[0].results.length)continue;
   let state='uncertain',code='response_unknown';
   try{const result=await mail.send({deliveryId:row.id,from:env.MAIL_FROM!,to:[recipient!],subject:row.kind==='resumption'?'Spool snooze expired — held alerts need attention':`Spool ${row.kind} ${row.scope} error digest`,text:row.body});state=result.status==='development'?'accepted':result.status==='rate_limited'?'queued':result.status;code='mail_'+result.status}catch{}
