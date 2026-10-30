@@ -76,7 +76,7 @@ const categories: Record<string, string> = {
   session: 'session', sessions: 'session', transaction: 'performance', span: 'performance', attachment: 'attachment',
   client_report: 'client_report', replay_event: 'replay', replay_recording: 'replay', replay_video: 'replay',
   profile: 'profile', profile_chunk: 'profile', feedback: 'feedback', user_report: 'feedback',
-  log: 'other_telemetry', logs: 'other_telemetry', metrics: 'other_telemetry', statsd: 'other_telemetry', security: 'other_telemetry',
+  log: 'other_telemetry', logs: 'other_telemetry', metrics: 'other_telemetry', statsd: 'statsd', security: 'other_telemetry',
 };
 // sentry-ruby labels its error events `type: "event"` inside the payload; Sentry's own intake takes it as an error.
 export function isErrorEventType(type: unknown): boolean { return type === 'error' || type === 'event' }
