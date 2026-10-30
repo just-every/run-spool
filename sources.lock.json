@@ -2640,7 +2640,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "7d1c2c51f5211c8043d49dcc1b8e65eb10111eed951d4997a9d5a4829c2f9051",
+      "sha256": "aa3b00072f12cf738e51ca6059770758fe1cde8cc2bcdd45c2faf8244574ccab",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2672,7 +2672,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2cc619612fccb97bfa618c8a5d8a64f957ee8d6f022d1fce94009b5804699fd1",
+      "sha256": "e353f6bd450d5549d56e35c1e1d282d54199faeda776bbf193666687877864d2",
       "executable": false
     },
     "DEMO.md": {
@@ -10692,7 +10692,7 @@
       "executable": false
     },
     "tests/runtimes/electron/renderer.cjs": {
-      "sha256": "655e83e5f18f19f2a2d8296bd207ec1908c53127c9bb5b01b43d944c7478b525",
+      "sha256": "93f50a077418bd7c367f6b31d54a6f5ad5610336691f357e0ce5ef0d0d93ff1b",
       "executable": false
     },
     "tests/runtimes/elixir.mjs": {

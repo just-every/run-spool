@@ -8,6 +8,9 @@ class RendererHandledError extends Error{constructor(){super('synthetic-spool-el
 class RendererUnhandledError extends Error{constructor(){super('synthetic-spool-electron-renderer-unhandled');this.name='RendererUnhandledError'}}
 function checkout(){throw new RendererHandledError()}
 (async()=>{
+ // Replay takes its initial DOM snapshot at load. Do not finish the short
+ // synthetic session before that real lifecycle event has started recording.
+ if(document.readyState!=='complete')await new Promise(resolve=>window.addEventListener('load',resolve,{once:true}));
  const mode=await ipcRenderer.invoke('fixture:mode');
  document.querySelector('#status').textContent='Checkout attempted';
  Sentry.logger.info('synthetic-spool-renderer-log');
