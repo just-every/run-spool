@@ -151,7 +151,7 @@ function execute(args, cwd, limitMs) {
 }
 export async function sandboxVersion() { return (await execute(['--version'], tmpdir(), 10000)).output.trim(); }
 
-export async function runSandbox(input) {
+export async function runSandbox(input, remainingMs = SANDBOX.wallClockMs) {
  const job = validJob(input), directory = await mkdtemp(join(tmpdir(), 'spool-sandbox-')), output = join(directory, 'out'), random = randomBytes(16).toString('hex');
  const names = { module: `spool-entry-${random}.js`, primordials: `spool-primordials-${random}.js`, entrypoint: `Spool${random}` };
  try {
@@ -164,7 +164,7 @@ export async function runSandbox(input) {
    writeFile(join(directory, 'config.capnp'), config(job.modules, job.environment.compatibilityDate, names, output)),
    ...job.modules.map((m, index) => writeFile(join(directory, `m${index}.js`), m.source)),
   ]);
-  const started = Date.now(), result = await execute(['test', 'config.capnp'], directory, job.environment.wallClockMs);
+  const started = Date.now(), result = await execute(['test', 'config.capnp'], directory, Math.max(1, Math.min(job.environment.wallClockMs, remainingMs)));
   if (result.killed) return { phase: 'timed_out', afterMs: Date.now() - started };
   const written = await readFile(join(output, 'observation.json'), 'utf8').catch(() => null);
   if (written !== null) return JSON.parse(written);

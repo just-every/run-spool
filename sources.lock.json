@@ -3025,7 +3025,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "c7bc2607696e3fe876394a8d309bd51148bc67db27570732edfdefe6c094fa05",
+      "sha256": "bd6f280c8d9de7c3b4c654ff011c744c05b35dc9ca1ac3e77d54cbaec08521bf",
       "executable": false
     },
     "docs/retained-verification/ai005/agent-handoff-1440.png": {
@@ -4561,11 +4561,11 @@
       "executable": false
     },
     "scripts/reproduce/runner.mjs": {
-      "sha256": "9779467649efd7976a2f111c1434e40af7aaff2f1d75987657568cfa62e18d0e",
+      "sha256": "c805f0338769a74ee11c3da575e2cd968409f540aa19609657732cb06affc22e",
       "executable": false
     },
     "scripts/reproduce/sandbox.mjs": {
-      "sha256": "a394643d9c772becc85709da01b00b6313d48851aeeb4b6986849e4fe7e87074",
+      "sha256": "4042a131b0010ddacceabbc8449b75791f0a46acf69441062f4dedf527b040a7",
       "executable": false
     },
     "scripts/sentry-import.mjs": {
@@ -5673,11 +5673,11 @@
       "executable": false
     },
     "src/domain/reproducers/check.ts": {
-      "sha256": "598e299aebc294b3bbb4986d061442d4a354b36c39527845a600dc0fd606d1be",
+      "sha256": "808bf67c8551e2125b7bcb0bbfa0d42ed3d21dc283851fe1dd42aabdbb1cb149",
       "executable": false
     },
     "src/domain/reproducers/classify.ts": {
-      "sha256": "8a5390492943570211eb3bd09589518327a90dd0be3850da6aae175e279f9e8a",
+      "sha256": "5c17a23c2d806445133a677c97cb56c97930402e8b3a3d5d60eed63fc7fee6ea",
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
@@ -5685,7 +5685,7 @@
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
-      "sha256": "38e5f0dd5cf581a4c0d1307ad6709ecd8101b25e41d01aefd5f6f06d20df1fc9",
+      "sha256": "ef6b923dff6303d65a564cd74e891d29241dd317a2321b6c1a3fc5df13c3ba03",
       "executable": false
     },
     "src/domain/reproducers/sandbox.ts": {
@@ -5693,7 +5693,7 @@
       "executable": false
     },
     "src/domain/reproducers/view.ts": {
-      "sha256": "4b9882e1b873bc3bf78bec989ce0edf5024eda852202e0a22ac26c726f12ad10",
+      "sha256": "c323688ace259462a0c196c26b97ed113fc014505b1ab9e36dfb1cf1598b14b2",
       "executable": false
     },
     "src/domain/rer-cutover-status.server.ts": {
@@ -8785,7 +8785,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "d5a5e7fb245d9f311c4f2f8f708b8c22abbe0b70df054d83cc5593104ec89839",
+      "sha256": "55713bb73c5140c023e2471674a5e50a02aa206e57b4f9c867bf32093085cc1f",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8809,7 +8809,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "e85a53e42a3cc7f6ea8261e2d76d88fd8a7096cd45cc60a6115d73078d2ab8ef",
+      "sha256": "4a7f6f18b355c2e590c4cd7803003062bc08b5d11b665bed9c4a5a94cf639c32",
       "executable": false
     },
     "tests/execution/runtime.mjs": {

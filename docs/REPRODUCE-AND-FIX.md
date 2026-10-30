@@ -28,6 +28,16 @@ The modules a reproducer runs come from your project's own authenticated source-
 
 Run the same reproducer against a later registered release whose map carries the same file to check a fix's behavior: **Not reproduced** there is independent evidence that the fixed code behaves differently.
 
+### Bounded input reduction and experiments
+
+The authenticated project reproducer door accepts `minimize: true` when recording a call. An optional `experiments` array contains up to three named alternative argument lists, for example `[{"name":"Present empty lines","input":[{"lines":[]}]}]`. These inputs pass the same privacy and size checks as the original call. Existing calls run once unless this mode was explicitly selected.
+
+The printed runner command first checks the recorded baseline. If it reproduces, it runs the named input experiments and greedily removes individual arguments, object properties and array elements. Every trial starts a fresh isolated sandbox with the same uploaded modules, export and restrictions. Successful reductions restart the deletion search. Spool independently checks every observation against the original captured failure and reconstructs each trial input from the authorized plan; the runner cannot add a different experiment or claim its own outcome.
+
+Each run allows at most twelve additional trials and thirty seconds in total, including the baseline, with the existing ten-second kill on each call. There is no provider call, dependency installation, paid model or new network authority. A time or trial limit leaves a best-known input and the explicit unresolved stop reason. Setup failures and timeouts remain failed trials and cannot establish minimality. A nonreproducing baseline produces no reduction claim.
+
+The project reproducer read returns `analysis` on the finished run: the retained failing `input`, every experiment and attempted reduction with its observation, checks and outcome, and the stop reason. `minimal: true` means that every individual deletion from that input was tried without reproducing the original failure. It is one-deletion minimal within this search, not a globally smallest program or a confirmed cause. A named experiment is a counterexample to that input hypothesis only; it never changes the top-level baseline verdict. Analysis travels in private archives and is removed with the project's execution evidence on erasure.
+
 The sandbox runs on the machine where you run the command. Spool's own Worker never executes reproducer code, and the workerd Worker Loader binding that would let it is not part of the Base deployment contract.
 
 ## 2. Fix branch under an exact, expiring grant

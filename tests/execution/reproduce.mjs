@@ -80,5 +80,34 @@ export async function reproduceProof(app,fixture,ingest){
  const reproduced=view.runs.find(run=>run.outcome==='reproduced');
  assert.deepEqual(reproduced.checks.filter(c=>c.required).map(c=>[c.check,c.passed]),[['exception_type',true],['message',true],['frame_source',true],['frame_line',true]]);
  assert.match(reproduced.tools.workerd,/^workerd /);assert.equal(reproduced.state,'finished');
- return {issue,r1,reproducer:view,run:reproduced,loadFailures,outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
+ // The same captured failure, with extraneous input, is reduced automatically.
+ // Competing explanations run as explicit input experiments, not conclusions
+ // taken from captured text. Each observation is checked by the server.
+ const minimized=await app.json(`${p}/reproducers`,'POST',{event:'cart-0',input:[{noise:'synthetic-spool-1',nested:{unused:42}}],minimize:true,experiments:[{name:'Missing order',input:[]},{name:'Present empty lines',input:[{lines:[]}]}]});
+ const reductions=[];
+ for(let repeat=0;repeat<2;repeat++){
+  const queued=await app.json(`${p}/reproducers/${minimized.id}/runs`,'POST',{});
+  const result=await runner(queued.command);assert.equal(result.code,0,result.output);
+  const run=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===minimized.id).runs.find(row=>row.id===queued.run);
+  assert.deepEqual([run.outcome,run.analysis.minimal,run.analysis.stop,run.analysis.input],['reproduced',true,'complete',[{}]],'the retained minimal failing input is not the supplied noisy input');
+  const experiments=run.analysis.trials.filter(trial=>trial.kind==='experiment');
+  assert.deepEqual(experiments.map(trial=>[trial.name,trial.outcome,trial.observation.phase]),[['Missing order','not_reproduced','threw'],['Present empty lines','not_reproduced','returned']],'missing order is a different failure; an empty collection disproves the captured failure');
+  assert.match(experiments[0].observation.message,/reading 'lines'/);
+  assert.equal(experiments[1].observation.preview,'"0 items"');
+  assert.ok(run.analysis.trials.some(trial=>trial.kind==='reduction'&&trial.outcome==='reproduced'));
+  assert.ok(run.analysis.trials.some(trial=>trial.kind==='reduction'&&trial.outcome==='not_reproduced'));
+  assert.equal(run.analysis.trials.filter(trial=>trial.kind==='reduction').at(-1).outcome,'not_reproduced','removing the last argument is checked and does not preserve the captured failure');
+  reductions.push(run.analysis);
+ }
+ const cases=analysis=>({input:analysis.input,minimal:analysis.minimal,stop:analysis.stop,trials:analysis.trials.map(({kind,name,input,outcome,checks})=>({kind,name,input,outcome,checks}))});
+ assert.deepEqual(cases(reductions[1]),cases(reductions[0]),'repeated reduction yields the same cases, counterexamples and behaviour checks');
+ // A partial search cannot claim minimality, and a failed experiment remains
+ // failed. These are real sandbox calls under the same hard run budget.
+ const limited=await app.json(`${p}/reproducers`,'POST',{event:'cart-0',input:[Object.fromEntries(Array.from({length:15},(_,n)=>['noise'+n,n]))],minimize:true});
+ const limitedTicket=await app.json(`${p}/reproducers/${limited.id}/runs`,'POST',{});
+ const limitedResult=await runner(limitedTicket.command);assert.equal(limitedResult.code,0,limitedResult.output);
+ const limitedRun=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===limited.id).runs[0];
+ assert.deepEqual([limitedRun.outcome,limitedRun.analysis.minimal,limitedRun.analysis.stop],['reproduced',false,'trial_budget']);
+ assert.ok(Object.keys(limitedRun.analysis.input[0]).length>0,'budget exhaustion retains an honest best case with unresolved input');
+ return {issue,r1,reproducer:view,minimized:minimized.id,reduction:reductions[0],limited:limitedRun.analysis,run:reproduced,loadFailures,outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
 }

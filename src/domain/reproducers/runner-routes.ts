@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { Bindings } from '../../auth/bindings';
 import { canonical, hash } from '../privacy';
 import { jsonBody } from '../owner-router';
-import { behaviourCheck, reportInput } from './check';
+import { analysisCheck, behaviourCheck, reportInput } from './check';
 import { mapModules, recorded, RUNNER_PROTOCOL } from './sandbox';
 import { attributeAuditScope, auditCommit, auditedBatch } from '../audit/context';
 import { serviceActor } from '../audit/identity';
@@ -30,7 +30,7 @@ routes.get('/runs/:run', async c => {
  // The job carries exactly the modules recorded when the run was queued.
  for (const artifact of artifacts) {
   const modules = await mapModules(artifact.payload);
-  if (canonical(recorded(modules)) === canonical(JSON.parse(run.modules))) return c.json({ run: run.id, protocol: RUNNER_PROTOCOL, environment: spec.environment, call: spec.call, modules: modules.map(({ name, source }) => ({ name, source })) });
+  if (canonical(recorded(modules)) === canonical(JSON.parse(run.modules))) return c.json({ run: run.id, protocol: RUNNER_PROTOCOL, environment: spec.environment, call: spec.call, modules: modules.map(({ name, source }) => ({ name, source })), ...(spec.analysis ? { analysis: spec.analysis, expected: { type: spec.event.type, message: spec.event.message, module: spec.call.module, line: spec.event.frame.original.line } } : {}) });
  }
  return c.json({ error: 'The stored map for this run changed after it was queued' }, 409);
 });
@@ -38,11 +38,12 @@ routes.get('/runs/:run', async c => {
 routes.post('/runs/:run/observation', async c => {
  const run = await authorized(c); if (!run) return denied(c);
  if (run.state !== 'claimed') return c.json({ error: 'Fetch the job before reporting' }, 409);
- const { tools, observation } = reportInput(await jsonBody(c.req.raw, 16384));
+ const { tools, observation, trials } = reportInput(await jsonBody(c.req.raw, 131072));
  const reproducer = await s(c.env.DB, 'SELECT spec FROM reproducers WHERE id=?', run.reproducer).first<any>();
- const result = behaviourCheck(JSON.parse(reproducer.spec), JSON.parse(run.modules), observation), time = Date.now();
+ const spec = JSON.parse(reproducer.spec), modules = JSON.parse(run.modules);
+ const result = behaviourCheck(spec, modules, observation), analysis = analysisCheck(spec, modules, result.outcome, trials), time = Date.now();
  const [finished] = await auditedBatch(c.env.DB, [
-  s(c.env.DB, "UPDATE reproducer_runs SET state='finished',outcome=?,observation=?,checks=?,tools=?,finished=? WHERE id=? AND state='claimed'", result.outcome, JSON.stringify(observation), JSON.stringify({ reason: result.reason, checks: result.checks }), JSON.stringify(tools), time, run.id),
+  s(c.env.DB, "UPDATE reproducer_runs SET state='finished',outcome=?,observation=?,checks=?,tools=?,finished=? WHERE id=? AND state='claimed'", result.outcome, JSON.stringify(observation), JSON.stringify({ reason: result.reason, checks: result.checks, ...(analysis ? { analysis } : {}) }), JSON.stringify(tools), time, run.id),
   s(c.env.DB, 'DELETE FROM reproducer_run_tokens WHERE run=? AND changes()=1', run.id),
   s(c.env.DB, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), run.project, 'reproducer_run_finished', JSON.stringify({ reproducer: run.reproducer, run: run.id, outcome: result.outcome }), time),
  ]);

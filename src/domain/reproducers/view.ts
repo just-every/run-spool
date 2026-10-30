@@ -17,6 +17,7 @@ export function runView(row: any, now = Date.now()) {
   label: OUTCOME_LABELS[expired ? 'failed' : row.outcome] ?? null, basis: VERDICT_BASIS,
   reason: expired ? 'The run token expired before the runner reported an observation.' : result?.reason ?? null,
   checks: result?.checks ?? [], observation: json(row.observation), tools: json(row.tools),
+  ...(result?.analysis ? { analysis: result.analysis } : {}),
   created: row.created, expires: row.expires, claimed: row.claimed, finished: row.finished,
  };
 }
