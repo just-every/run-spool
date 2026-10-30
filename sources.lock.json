@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a90b1da48b62ebf408d1caf43e6ec0ae7c7273d9d6af1f921793c550ef26921e",
+      "sha256": "dddf75153d52a7f7ca4fd34a462452cff5509e342600bbafbe6112bafc6e75dd",
       "executable": false
     },
     "DEMO.md": {
@@ -3641,7 +3641,7 @@
       "executable": false
     },
     "docs/SENTRY-IDENTITY.md": {
-      "sha256": "634688c5b0cb33396273cdce30f692f315ffefc7b7b8b7b75ff35b3085afdb6c",
+      "sha256": "fec1cb41382d4c3b3256c06693d8c2376fc76089437b53aafa187d394016fd7b",
       "executable": false
     },
     "docs/SENTRY-RELEASES.md": {
@@ -8861,7 +8861,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "16b83c3bc6cfe80cffd3aa140757268a9ae4dad6393a1915f6fb21358715e41d",
+      "sha256": "7d61b6485b55318b9a6c3e5bdee5207e5dd9d48ddac6de9cf598e179cbbc3ba8",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {

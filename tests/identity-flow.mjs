@@ -59,6 +59,36 @@ export async function identityFlow({origin,cookie,browser}){
   for(const mode of ['hash','drop']){if(mode==='drop'){await configure('drop');await execute(ref.dsn);await execute(p.dsn);await stream(null,28)}for(const width of [1440,390]){const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();try{await browserSignIn(page,origin);await page.goto(origin+'/projects/'+p.id+'/issues/'+issues[0].id);const section=page.getByRole('region',{name:'Affected users',exact:true});await section.getByText(mode==='drop'?'unavailable (policy: drop)':'5 distinct affected users',{exact:false}).waitFor();await section.getByText('Owner identity values',{exact:true}).click();await snapshot(page,mode,width,'Affected users');await showStream(page,mode,width,mode==='drop'?28:21)}finally{await context.close()}}}
   assert.equal((await app.json(root+'/issues')).reduce((n,r)=>n+r.count,0),ref.sent.filter(i=>i.type==='event').length,'later keep/hash/drop intake preserves exact SDK error counts');
   after=await archiveProjection(await app.request('/api/archive'));assert.ok(!raw.some(v=>after.text.includes(v)));assert.ok(after.data.event_identities.filter(r=>r.project===p.id).every(r=>r.payload==='{}'&&r.user_key===null));assert.equal(after.data.audit.filter(r=>r.project===p.id&&r.kind==='identity_policy_changed').length,3,'one audited entry for keep, hash and drop');
+  // Exercise all-drop counts beyond one cursor page, with a native-key control.
+  // Each matched Sentry issue also has an occurrence outside the selected environment.
+  const dsn=new URL(p.dsn),store=`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`;
+  for(let index=0;index<26;index++)for(const [offset,environment] of ['staging','production'].entries()){
+   const response=await app.request(store,'POST',{event_id:(100+index*2+offset).toString(16).padStart(32,'0'),message:'synthetic-spool-page-'+index,fingerprint:['synthetic-spool-page-'+index],environment,user:{id:raw[0]}});
+   assert.equal(response.status,200);await response.body?.cancel();
+  }
+  await app.json(root+'/releases','POST',{name:'synthetic-spool-native@1',build:'web'});
+  const native=await app.request('/api/ingest/'+p.id,'POST',{version:1,eventId:'synthetic-spool-native',release:'synthetic-spool-native@1',build:'web',environment:'staging',type:'SyntheticNativeError',message:'synthetic-spool-native',frames:[{file:'https://synthetic.example/native.js',function:'nativeControl',line:1,column:0}],breadcrumbs:[],client:'synthetic-spool-native-client'},{Cookie:'',Authorization:'Bearer '+p.ingestKey});
+  assert.equal(native.status,201);await native.body?.cancel();
+  for(const [query,total,events] of [['',29,109],['environment:staging',27,53]]){
+   const seen=new Set();let cursor='',retained=0,pages=0;
+   do{
+    const params=new URLSearchParams({q:query,cursor}),page=await app.json(root+'/issue-search?'+params),restricted=await app.json(root+'/issue-search?'+params,'GET',undefined,grantHeaders);
+    assert.equal(page.total,total);assert.deepEqual(restricted.rows.map(row=>row.affectedUsers),page.rows.map(row=>row.affectedUsers));pages++;
+    for(const row of page.rows){
+     assert.ok(!seen.has(row.id),'All-drop cursor pages never repeat an issue');seen.add(row.id);
+     const {version,rows,bounds,...detail}=await app.json(root+'/issues/'+row.id+'/affected-users');
+     assert.deepEqual(row.affectedUsers,detail);assert.equal(detail.events,row.count);retained+=row.count;
+     assert.equal((await app.json(root+'/issues/'+row.id+'/events')).total,row.count);
+     if(row.title.includes('SyntheticNativeError')){assert.equal(detail.affectedUsers,1);assert.equal(detail.unattributed,0)}
+     else{assert.equal(detail.affectedUsers,null);assert.equal(detail.reason,'unavailable (policy: drop)');assert.equal(detail.unattributed,row.count);assert.ok(rows.every(identity=>Object.keys(identity.values).length===0))}
+    }
+    for(const response of [page,restricted]){const wire=JSON.stringify(response);assert.ok(!raw.some(value=>wire.includes(value)));assert.ok(!wire.includes('synthetic-spool-native-client'));assert.ok(!wire.includes('user_key'));assert.ok(!wire.includes('field_hash'))}
+    cursor=page.next;
+   }while(cursor);
+   assert.equal(seen.size,total);assert.equal(pages,2);assert.equal(retained,events,'Filtered pages retain whole-issue quantities');
+   console.log('PROBE SDK-008 acceptance-4: issue-search '+(query||'all')+' -> '+total+' issues in '+pages+' pages, '+retained+' retained events; dropped Users unavailable, native Users 1');
+  }
+  after=await archiveProjection(await app.request('/api/archive'));assert.ok(!raw.some(value=>after.text.includes(value)));assert.ok(after.data.event_identities.filter(row=>row.project===p.id).every(row=>row.payload==='{}'&&row.user_key===null));
   const denied=await app.request(root+'/identity-policy','PUT',{policy:initial.policy,revision:3,token:'synthetic-spool-denied'},{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal(denied.status,403);
   await app.json(root+'/keys/'+grant.hash,'DELETE');assert.equal((await app.request(root+'/issue-search','GET',undefined,grantHeaders)).status,401,'Revoked project grants cannot read identity counts');
   const plan=await app.json(root+'/erasure');await followErasure(app.json,await app.json(root+'/erasure','POST',{confirm:p.id,planHash:plan.planHash}));const erased=await archiveProjection(await app.request('/api/archive'));for(const table of ['identity_policies','event_identities','project_identity_keys'])assert.ok(!erased.data[table].some(r=>r.project===p.id));
