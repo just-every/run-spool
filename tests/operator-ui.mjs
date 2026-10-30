@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import {traceProposalFixture} from './operator-flow.mjs';
 import {testAndReview} from './alerts/runtime.mjs';
 import assert from 'node:assert/strict';
@@ -148,6 +149,10 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const traceOutside=proposalReview.getByRole('heading',{name:'Look-alike events outside the group',exact:true}).locator('+ ul');
  if(page.viewportSize().width===1440){
  assert.equal(await traceAffected.count(),8);
+ const reference=proposalReview.locator('.grouping-explanation > p').filter({hasText:'Reference event'});
+ assert.ok((await reference.innerText()).includes(traceFixture.ids[0]));assert.ok((await reference.innerText()).includes(traceFixture.traceA));
+ assert.deepEqual((await new AxeBuilder({page}).include('.grouping-proposals').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(row=>row.id),[],'The rendered trace review has no automated accessibility violations');
+ assert.deepEqual(await proposalReview.locator('.grouping-explanation').evaluate(element=>[...element.querySelectorAll('*')].filter(node=>node.textContent.trim()&&Number.parseFloat(getComputedStyle(node).fontSize)<13).map(node=>node.tagName)),[],'Trace review text remains readable');
  assert.ok((await firstTrace.innerText()).includes(traceFixture.traceA));assert.match(await firstTrace.innerText(),/same as reference/);
  assert.ok((await differentTrace.innerText()).includes(traceFixture.traceB));assert.match(await differentTrace.innerText(),/different from reference/);
  assert.match(await traceAffected.nth(3).innerText(),/unavailable: no retained trace context/);assert.match(await traceAffected.nth(5).innerText(),/unavailable: trace identity is not a nonzero/);

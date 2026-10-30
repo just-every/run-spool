@@ -24,6 +24,11 @@ function Variants({ rows, inside }: { rows: any[]; inside?: boolean }) {
 export function GroupingExplanation({ explanation }: { explanation: any }) {
   return <div className="grouping-explanation">
     <p>Spool computed these effects from retained evidence. Decided proposals keep the review snapshot; subsequent repair observations remain in the issue packet.</p>
+    <h4>Trace comparison</h4>
+    {typeof explanation.trace==='string'?<p>{explanation.trace}</p>:<>
+      <p>{explanation.trace.scope}</p>
+      <p>{explanation.trace.reference?<>Reference event <code>{explanation.trace.reference.event}</code> · occurrence <code>{explanation.trace.reference.occurrence}</code>: {explanation.trace.reference.id?<code>{explanation.trace.reference.id}</code>:<>trace unavailable: {traceReason(explanation.trace.reference.unavailable)}</>}.</>:<>Trace comparison unavailable: no retained reference event.</>}</p>
+    </>}
     <h4>Exact affected events ({explanation.affected.length})</h4>
     {explanation.affected.length ? <ol>{explanation.affected.map((row: any) => <li key={`${row.event}:${row.occurrence}`}>
       <p>Event <code>{row.event}</code> · occurrence <code>{row.occurrence}</code></p>
@@ -32,11 +37,6 @@ export function GroupingExplanation({ explanation }: { explanation: any }) {
     </li>)}</ol> : <p>No events move. Rule changes apply to future events.</p>}
     <h4>Counterexamples inside the group</h4><Variants rows={explanation.counterexamples.inside} inside />
     <h4>Look-alike events outside the group</h4><Variants rows={explanation.counterexamples.outside} />
-    <h4>Trace comparison</h4>
-    {typeof explanation.trace==='string'?<p>{explanation.trace}</p>:<>
-      <p>{explanation.trace.scope}</p>
-      <p>{explanation.trace.reference?<>Reference event <code>{explanation.trace.reference.event}</code> · occurrence <code>{explanation.trace.reference.occurrence}</code>: {explanation.trace.reference.id?<code>{explanation.trace.reference.id}</code>:<>trace unavailable: {traceReason(explanation.trace.reference.unavailable)}</>}.</>:<>Trace comparison unavailable: no retained reference event.</>}</p>
-    </>}
     <h4>Projected counts and rates</h4>
     <p>Retained window: {date(explanation.window.start)} → {date(explanation.window.end)}.</p>
     <ul>{explanation.rates.map((row: any) => <li key={row.issue}><code>{row.issue}</code>: {row.before} → {row.after} events (change {row.delta}); {row.perMinuteBefore} → {row.perMinuteAfter} per minute.</li>)}</ul>

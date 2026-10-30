@@ -8349,7 +8349,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "ad694ef4bc41dbd9386e6aae837d22753b07825e0b169ab1961da9b111c59664",
+      "sha256": "d560a61e43d0c8927df31c5c280e2a8e429a0b993c24cc84fced05a49f51ed72",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
@@ -8929,7 +8929,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "4af3888f2c9c688393e6aef875dfe8c740a8da729510a9f28532ab03c6ebd286",
+      "sha256": "84f715d7a11bacea3b17b04f128a929445a3fe70ecdaf9f4393696910b39f643",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
