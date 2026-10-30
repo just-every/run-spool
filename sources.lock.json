@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "34bf550bdf83d7cda35a6cd61c14ecc44f3d8edd80f9e7e84b4d9d4c96f79e41",
+      "sha256": "34b983ed58b19ca254d90c71968e95d34e99edbc592350b3edeaba5695138247",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c23ab3949869df61e3cd3eedecce3e479ba2ceb564a181513cef225f197ae123",
+      "sha256": "56a503499c1ddd1966c5439bc37e075db6a4c92fb3358937257b1bf34a4667e4",
       "executable": false
     },
     "DEMO.md": {
@@ -8633,7 +8633,7 @@
       "executable": false
     },
     "src/ui/workbench/StackTrace.tsx": {
-      "sha256": "78dd794915ec490830e030f94df8267bebd010be28a247815f95a6d017c3c77c",
+      "sha256": "e5dde8f07dc2d96d0eafbba6ca4b6a031036586b5aa3fc3fa255e24d18793c5d",
       "executable": false
     },
     "src/ui/workbench/Suppression.tsx": {
@@ -8849,7 +8849,7 @@
       "executable": false
     },
     "tests/deployment-history.mjs": {
-      "sha256": "aebd6b659d7cf37dbc64bea79367ab4d00d684af68ed18b360ecc9cd027efcf3",
+      "sha256": "c1890aaf7b7c0ca5545fa9bf0baffadac5b49dea25fb1013327a1df020ee009e",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
@@ -8941,7 +8941,7 @@
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
-      "sha256": "688893d5304c6143ec0a6cfeed5e3f862e2e46edd3f7620d7c44282d036303dd",
+      "sha256": "348a0fd701b1f4a641a4ef6563152f17feafd87100aee08cd35611b80b0c6bc9",
       "executable": false
     },
     "tests/identity-flow.mjs": {
@@ -8953,7 +8953,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "6905d51ced227e80dd82fe3884b1136d8e4c6d20db66c2a9272ac6222c205fbb",
+      "sha256": "46a0ffc7907a374c371e68c2d1826eb8db9ae90ae8c92465b015623a91ccd9f6",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -9009,11 +9009,11 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "0009a2d43970dc471bd84b50c195c36465490115ff82ec3ae32cc9489f98854d",
+      "sha256": "d4308c84a99970af89730442f46f0568ea2bfd496f166fe9606dc489feac6c42",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "8c99157104040d2965bcd4b2aa4b8ecc275c2aeb11c22356bcb273b87a352ab6",
+      "sha256": "6b4d8ce7558e45e6b2dc8eb287dce501c12aa1affbb3f4d50c04350a07249735",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -9077,7 +9077,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "0e8ffd283580f8272078367504dafddc66a94b325eff75d847dadc7d3e4eeebc",
+      "sha256": "a3d0e2428301812d33230573bdeb7f389d271891fa601f5b4ebc5744ab80471b",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
@@ -9169,7 +9169,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "a8d9e7e4e60c13fd865c9e1462cc4c1590149af98ad3b13e8c8910320e2092e8",
+      "sha256": "f757be5be29e55e9bda946001125bae643483d004ccb415a46eb9f59cbb3fb5b",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
@@ -9289,7 +9289,7 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "e1319621b838295fcf057773150d5ffd43b95c02261b3b892299135aff16fb92",
+      "sha256": "5068be2ae1e69aa07bea87c5c84d728e5cc842d1af08adebbc5b8641b6de7b2a",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
@@ -9489,7 +9489,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "58a1e34b05f3ebba95c010e2b2ae7b18b26a01e9c6a01f51a7bb7b1701f7f382",
+      "sha256": "8a01844f90089cc4abd6c56a531fca2eedc4ba35850efecdf7ec4abac84fe6c1",
       "executable": false
     },
     "tests/triage-app.mjs": {
@@ -9501,7 +9501,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "2e83e5794154dddbbb5a9531d47cd6fd5ace058fbee623ff12fec24137f8235f",
+      "sha256": "a5ac0b6c3c6055e616a061212ef20174a9c818bc125e170cc36278570802edd4",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

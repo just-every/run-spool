@@ -6,11 +6,34 @@ import { SentryEvent } from './SentryEvent';
 import { IconButton } from './Tip';
 import { displayFile } from './shared';
 
+// Match the bounded diagnostic projection back to its retained SDK frames in order.
+// Keeping original indices preserves repository links and native frame classifications.
+function hiddenSourceRows(event: any) {
+  const hidden = new Set<number>(), sentry = event?.sentry;
+  if (!sentry) return hidden;
+  const exceptions = sentry.exceptions ?? [];
+  const stack = exceptions.at(-1)?.stacktrace ?? sentry.stacktrace ?? [...exceptions].reverse().find(exception => exception.stacktrace)?.stacktrace;
+  const reported = [...(stack?.frames ?? [])].reverse();
+  let next = 0;
+  for (const [index, frame] of (event.frames ?? []).entries()) {
+    while (next < reported.length) {
+      const source = reported[next++];
+      if ((source.abs_path ?? source.filename) !== frame.file || source.lineno !== frame.line ||
+          (source.colno == null ? null : source.colno - 1) !== frame.column || (source.function ?? '<anonymous>') !== frame.function) continue;
+      const flag = source.vars?.__traceback_hide__;
+      if (flag === true || flag === 'true' || flag === 'True') hidden.add(index);
+      break;
+    }
+  }
+  return hidden;
+}
+
 /** Where it broke, first: the frames in one bordered list, the first frame on sunk fill, each frame's repository
  * line one tap away. Grouping and source evidence sit behind the two controls beside the frame count. */
 export function StackTrace({ packet, event, grouping, readOnly, onUpload }: { packet: any; event: any; grouping: any; readOnly: boolean; onUpload: (release: string, debugId: string) => void }) {
   const [allFrames, setAllFrames] = useState(false);
-  const group = packet.issue, frames: any[] = event?.currentLookup ?? [];
+  const group = packet.issue, hidden = hiddenSourceRows(event?.event);
+  const frames: any[] = (event?.currentLookup ?? []).map((frame: any, sourceIndex: number) => ({...frame, sourceIndex})).filter((frame: any) => !hidden.has(frame.sourceIndex));
   const missing = frames.filter(frame => !['mapped', 'go_path_mapped', 'python_source'].includes(frame.status));
   const language = event?.event.language, imported = event?.historical === true, sample = event?.event.environment === 'spool-test';
   return <section className="evidence stack-section issue" aria-labelledby="stack-title">
@@ -26,7 +49,7 @@ export function StackTrace({ packet, event, grouping, readOnly, onUpload }: { pa
     {language === 'go' && !!missing.length && <p className="callout">{missing.some(frame => frame.status === 'go_mapping_unavailable') ? 'No path mappings are recorded for this release, build and environment. Register a deployment manifest with path mappings in Releases.' : 'Some reported paths do not match the recorded deployment prefixes.'}</p>}
     {!language && !imported && !sample && !!missing.length && <div className="callout missing-map"><strong>Original source unavailable for {missing.length === 1 ? 'one frame' : `${missing.length} frames`}</strong><p>{missing.some(frame => frame.status === 'missing_debug_id') ? 'Some frames have no debug ID. Add the bundle’s debug ID to capture and upload its matching map.' : missing.every(frame => ['unmapped_position', 'invalid_artifact'].includes(frame.status)) ? 'The stored map could not locate these positions. Check the generated coordinates and map diagnostics in Details.' : 'Upload the map matching this release, build and debug ID to locate the original source.'}</p>{!readOnly && <button className="text-button" onClick={() => onUpload(event.event.release, missing.find(frame => frame.generated.debugId)?.generated.debugId ?? '')}>Upload map</button>}</div>}
     {event?.event.sentry && <h3>Primary exception source lookup</h3>}
-    <ol className="stack frame-list readable-stack">{frames.slice(0, allFrames ? 30 : 6).map((frame, index) => <Frame key={index} frame={frame} index={index} sample={sample} language={language} source={event?.repositorySources?.[index]} library={!event?.event.sentry && grouping?.frames?.[index]?.inApp === false} />)}</ol>
+    <ol className="stack frame-list readable-stack">{frames.slice(0, allFrames ? 30 : 6).map((frame, index) => <Frame key={index} frame={frame} index={index} sample={sample} language={language} source={event?.repositorySources?.[frame.sourceIndex]} library={!event?.event.sentry && grouping?.frames?.[frame.sourceIndex]?.inApp === false} />)}</ol>
     {!frames.length && <p>No retained stack frames.</p>}
     {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}
   </section>;

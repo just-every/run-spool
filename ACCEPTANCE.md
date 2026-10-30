@@ -13,7 +13,7 @@ The primary journey: a US development team points its existing error capture at 
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Landing replay retains the isolated Node release identity and alert assertions from candidate 86068c95640e979e33852d900ee7a96f6209c0d3. Main's SDK-009 partial judgment and its recorded evidence and gap remain authoritative; these additional assertions do not promote the clause. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`
-**Gap.** Not asserted in the cited tests: the issue's reopened state after a newer-release event, and a later older-release event leaving a release-resolved issue closed (both asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: the newer-release regression alert and its single delivery, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership.
+**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** Main's partial judgment is retained during this landing replay. The candidate adds the cited regression, inert-preview and issue-view correction assertions; a fresh acceptance review of that evidence remains separate from conflict resolution.
 
 #### ERR-007 — Sanitized evidence packet
 
@@ -807,7 +807,7 @@ Core · target · **partial**
 
 #### FIND-003 — Trends, dashboards and team reports
 
-Core · target · **missing** · From FIND-002 · Rules D-4
+Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
