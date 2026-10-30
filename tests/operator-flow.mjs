@@ -150,21 +150,24 @@ export async function traceProposalFixture({req,json},id='synthetic-spool-traces
  const ids=contexts.map((_,index)=>'a'.repeat(30)+(index+1).toString(16).padStart(2,'0'));
  const dsn=new URL(project.dsn),store=`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`;
  await json(root+'/releases','POST',{name:'synthetic-spool-trace-r1',build:'synthetic-spool-trace-b1'});
- const capture=async(index)=>{
-  const context=contexts[index],input={event_id:ids[index],platform:'javascript',release:'synthetic-spool-trace-r1',dist:'synthetic-spool-trace-b1',environment:'production',transaction:'/checkout',exception:{values:[{type:'Error',value:'synthetic-spool-trace-failure',stacktrace:{frames:[{filename:'https://assets.example.test/trace.js',lineno:12,colno:3,function:'checkout',in_app:true}]}}]},contexts:{...(context===undefined?{}:{trace:context}),private:{note:privateContext}}};
-  const response=await req(store,'POST',input,{Cookie:''});assert.equal(response.status,200);assert.equal((await response.json()).id,ids[index]);return input;
+ const capture=async(index,overrides={})=>{
+  const context=contexts[index],input={event_id:ids[index],platform:'javascript',release:'synthetic-spool-trace-r1',dist:'synthetic-spool-trace-b1',environment:'production',transaction:'/checkout',exception:{values:[{type:'Error',value:'synthetic-spool-trace-failure',stacktrace:{frames:[{filename:'https://assets.example.test/trace.js',lineno:12,colno:3,function:'checkout',in_app:true}]}}]},contexts:{...(context===undefined?{}:{trace:context}),private:{note:privateContext}},...overrides};
+  const response=await req(store,'POST',input,{Cookie:''});assert.equal(response.status,200);assert.equal((await response.json()).id,input.event_id);return input;
  };
  for(let index=0;index<ids.length;index++)await capture(index);
  const issues=await json(root+'/issues');assert.equal(issues.length,1,'Trace identity does not change admission grouping');
  const source=issues[0].id,packet=()=>json(root+'/issues/'+source+'/packet'),first=await packet();
  const native=await json('/api/ingest/'+id,'POST',{...first.events[0].event,eventId:'synthetic-spool-native',sentry:undefined,grouping:undefined},{Cookie:'',Authorization:'Bearer '+project.ingestKey});
+ const targetIds=['c'.repeat(30)+'01','c'.repeat(30)+'02'];
+ for(const [index,id] of targetIds.entries())await capture(index===0?0:2,{event_id:id,fingerprint:['synthetic-spool-trace-target']});
+ const target=(await json(root+'/issues')).find(issue=>issue.id!==source&&issue.id!==native.issue).id;
  const submit=async({kind='split',events=ids.slice(0,8),sourceId=source,variant}={})=>{
   const p=await json(root+'/issues/'+sourceId+'/packet'),event=p.events[0].event,now=Date.now();
-  const change=kind==='split'?{events}:{policy:(await json(root+'/grouping-rules')).policy,policyRevision:(await json(root+'/grouping-rules')).revision};
+  const change=kind==='split'?{events}:kind==='merge'?{target,targetRevision:(await json(root+'/issues/'+target+'/packet')).issue.revision}:{policy:(await json(root+'/grouping-rules')).policy,policyRevision:(await json(root+'/grouping-rules')).revision};
   const input={kind,source:sourceId,revision:p.issue.revision,...change,variants:[variant??{stack:JSON.stringify(event.frames),release:event.release,route:sourceId===source?'/checkout':''}],rationale:'Compare retained trace identity without changing captures.',window:{start:now-60000,end:now}};
   const response=await req(endpoint,'POST',input,agent);assert.equal(response.status,201);const proposal=await response.json();assert.ok(!Object.hasOwn(proposal,'explanation'));return {proposal,input};
  };
- return {project,root,endpoint,grant,agent,ids,source,native,traceA,traceB,privateContext,packet,submit,capture};
+ return {project,root,endpoint,grant,agent,ids,source,native,traceA,traceB,privateContext,packet,submit,capture,target,targetIds};
 }
 
 export async function retainedTraceProposalFlow({req,json}){
@@ -193,6 +196,15 @@ export async function retainedTraceProposalFlow({req,json}){
  assert.deepEqual(await projection(),before,'Refused trace access cannot change captured data');
  const native=await f.submit({sourceId:f.native.issue,events:['synthetic-spool-native']});assert.equal((await json(endpoint+'/'+native.proposal.id)).explanation.affected[0].variant.trace.unavailable,'native_event');
  const rule=await f.submit({kind:'rule'}),ruleReview=(await json(endpoint+'/'+rule.proposal.id)).explanation;assert.equal(ruleReview.affected.length,0);assert.equal(ruleReview.trace.reference.id,traceA,'A no-move rule uses retained source evidence');
+ const unavailable=await f.submit({events:ids.slice(3,8)}),unavailableReview=(await json(endpoint+'/'+unavailable.proposal.id)).explanation;
+ assert.deepEqual(unavailableReview.trace.reference,{event:ids[3],occurrence:unavailableReview.affected[0].occurrence,id:null,unavailable:'missing_trace_context'});
+ assert.ok(unavailableReview.affected.every(row=>row.variant.trace.comparison==='unavailable'),'Missing selected traces never compare equal');
+ assert.deepEqual(unavailableReview.counterexamples.outside.find(row=>row.event===ids[0]).variant.trace,{id:traceA,unavailable:null,comparison:'unavailable'},'A valid outside trace cannot replace the missing selected reference');
+ assert.deepEqual(unavailableReview.counterexamples.inside,[],'Unknown identities cannot manufacture trace counterexamples');
+ const laterReference=await f.submit({events:[ids[3],ids[8]]}),laterReview=(await json(endpoint+'/'+laterReference.proposal.id)).explanation;
+ assert.equal(laterReview.trace.reference.event,ids[8],'A valid selected trace is preferred over an earlier missing identity');
+ assert.equal(laterReview.affected.find(row=>row.event===ids[3]).variant.trace.comparison,'unavailable');
+ assert.equal(laterReview.affected.find(row=>row.event===ids[8]).variant.trace.comparison,'same');
  const approved=await json(endpoint+'/'+proposal.id+'/approve','POST',{});assert.deepEqual(approved.explanation,review);
  assert.deepEqual(await projection(),before,'Approval still does not apply correction moves');
  assert.equal((await req(root+'/corrections/'+approved.correction+'/apply','POST',{confirm:false})).status,400);
@@ -203,6 +215,21 @@ export async function retainedTraceProposalFlow({req,json}){
  const duplicate=await f.capture(0);assert.equal((await f.packet()).issue.count,11,'Replayed capture adds no occurrence or trace comparison evidence');
  duplicate.event_id='b'.repeat(32);const dsn=new URL(f.project.dsn);assert.equal((await req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',duplicate,{Cookie:''})).status,200);
  assert.deepEqual((await json(endpoint+'/'+proposal.id)).explanation,review,'Later intake cannot rewrite a decided trace snapshot');assert.deepEqual((await json(endpoint+'/'+second.proposal.id)).explanation,rejected.explanation,'Rejected snapshots are immutable too');
+ const merge=await f.submit({kind:'merge'}),mergeReview=(await json(endpoint+'/'+merge.proposal.id)).explanation,mergeBefore=await projection();
+ assert.deepEqual(new Set(mergeReview.affected.map(row=>row.event)),new Set([...ids,'b'.repeat(32)]),'Merge review names every retained source event');
+ assert.ok(mergeReview.affected.every(row=>row.to===f.target));
+ assert.deepEqual(mergeReview.counterexamples.inside.filter(row=>row.differing.includes('trace')).map(row=>row.event),[ids[2],ids[9]],'Merge also exposes trace-only source counterexamples');
+ assert.deepEqual(f.targetIds.map(id=>mergeReview.counterexamples.outside.find(row=>row.event===id).variant.trace.comparison),['same','different'],'Destination events compare their traces before merge');
+ await json(endpoint+'/'+merge.proposal.id+'/approve','POST',{});
+ assert.deepEqual(await projection(),mergeBefore,'Merge approval preserves all capture and grouping projections');
+ await json(root+'/corrections/'+merge.proposal.id+'/apply','POST',{confirm:true});
+ assert.equal((await f.packet()).issue.count,0);
+ assert.equal((await json(root+'/issues/'+f.target+'/packet')).issue.count,mergeReview.affected.length+2);
+ await json(root+'/corrections/'+merge.proposal.id+'/undo','POST',{confirm:true});
+ assert.equal((await f.packet()).issue.count,mergeReview.affected.length);
+ assert.equal((await json(root+'/issues/'+f.target+'/packet')).issue.count,2);
+ assert.deepEqual((await json(endpoint+'/'+merge.proposal.id)).explanation,mergeReview,'Merge apply and undo retain the decided trace snapshot');
+ for(const row of mergeBefore.events)assert.deepEqual((await projection()).events.find(current=>current.id===row.id),row,'Merge undo restores captured membership without rewriting evidence');
  await json(root+'/keys/'+f.grant.hash,'DELETE');for(const [method,path,body] of [['GET',endpoint,undefined],['GET',endpoint+'/'+proposal.id,undefined],['POST',endpoint,input]])assert.equal((await req(path,method,body,agent)).status,401,'Revocation closes every proposal read and submit door');
  console.log('PROBE CTX-001 acceptance-4: Sentry store and owner grouping review -> same, different and unavailable traces reconciled; inert decisions, exact-project refusal, revocation and immutable captures passed.');
 }

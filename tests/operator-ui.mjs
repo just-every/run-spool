@@ -167,6 +167,15 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await traceInside.evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-counterexamples');
  await traceOutside.evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-outside');
  for(const control of await proposalReview.getByRole('button').all())if(!await control.innerText())assert.ok(await control.getAttribute('aria-label'),'Icon controls retain an accessible label');
+ const unavailableProposal=(await traceFixture.submit({events:traceFixture.ids.slice(3,8)})).proposal;
+ await review(unavailableProposal);
+ if(page.viewportSize().width===1440){
+  assert.match(await proposalReview.locator('.grouping-explanation > p').filter({hasText:'Reference event'}).innerText(),/trace unavailable: no retained trace context/);
+  const outside=proposalReview.getByRole('heading',{name:'Look-alike events outside the group',exact:true}).locator('+ ul');
+  assert.match(await outside.innerText(),/comparison unavailable: reference has no valid trace identity/,'Retained outside identities never imply a comparison when the reference is unavailable');
+  assert.ok((await outside.innerText()).includes(traceFixture.traceA));
+ }
+ await proposalReview.getByRole('heading',{name:'Trace comparison',exact:true}).evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-reference-unavailable');
  console.log('PROBE CTX-001 UI: owner Settings proposal review -> affected traces, trace-only counterexample, outside look-alikes and explicit native or missing reasons visible.');
  // Expire the browser authority at the real auth boundary while leaving the owner API harness intact.
  await page.context().clearCookies();await page.getByRole('button',{name:'Refresh grouping proposals',exact:true}).click();await page.getByRole('link',{name:'Sign in again',exact:true}).waitFor();await capture('grouping-proposal-denied');

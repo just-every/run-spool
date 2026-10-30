@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a106fe0c93593e839098149bac3a6d8b50d29d24474e6e33fcdc713dce17ad0d",
+      "sha256": "5e211b8889426557a9dbc575d4d1169db4b3ebfefeb23f2b946d1ad8d72a5700",
       "executable": false
     },
     "DEMO.md": {
@@ -8925,11 +8925,11 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "6436f5d8a5ea0c54450b6e40b60e1a504f280f93444fbd9fb490c8fab7e5dc05",
+      "sha256": "996991ff6838eefce19dcea683ebab385dee03311160b2c0689499b4daf5f4d6",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "84f715d7a11bacea3b17b04f128a929445a3fe70ecdaf9f4393696910b39f643",
+      "sha256": "92b73563f55476e60e50983ac6c84e1da951858316f47f01e2ebed53e5b9a5f6",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
