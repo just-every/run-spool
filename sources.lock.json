@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c23ab3949869df61e3cd3eedecce3e479ba2ceb564a181513cef225f197ae123",
+      "sha256": "6fdf2a4d1345c1d0c39b753eb84c3beae5068f896ceb3ff285a1539150c8b5af",
       "executable": false
     },
     "DEMO.md": {
@@ -8765,7 +8765,7 @@
       "executable": false
     },
     "tests/deployment-history.mjs": {
-      "sha256": "66796ba2a2d0080b37a3a3076149df74c7afd010bd3c77f001460be0ee34e40c",
+      "sha256": "9248856251261b1e40bb0820fdca7d0ed68468982daf82402787cec9f3d0d584",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
