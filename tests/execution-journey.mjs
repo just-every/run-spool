@@ -9,7 +9,7 @@ import {launchBrowser} from './browser-launch.mjs';
 import {executionRuntime} from './execution/runtime.mjs';
 import {githubDouble} from './execution/github-double.mjs';
 import {shopFixture} from './execution/fixture.mjs';
-import {reproduceProof,runner} from './execution/reproduce.mjs';
+import {reproduceProof,runner,missingQueuedMap} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
 import {disconnectedGitHubSetup,executionPanel} from './execution/ui.mjs';
@@ -26,7 +26,7 @@ try{
  app=await executionRuntime(state,15476);
  const {ingestKey}=await app.json('/api/projects','POST',{id:'shop',name:'Harbor Shop'});
  await app.json(`${p}/releases`,'POST',r1);await app.json(`${p}/artifacts`,'POST',{release:r1.name,build:r1.build,debugId:'cart-map',map:fixture.broken});
- stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.loadFailures=reproduced.loadFailures;results.reduction=reproduced.reduction;results.limited=reproduced.limited;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
+ stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.loadFailures=reproduced.loadFailures;results.reduction=reproduced.reduction;results.limited=reproduced.limited;results.malicious=reproduced.malicious;results.missingArtifacts=reproduced.missingArtifacts;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
  const agent=(await app.json(`${p}/keys`,'POST',{kind:'agent'})).key;
  for(const path of [`${p}/reproducers?issue=${reproduced.issue}`,`${p}/fixes?issue=${reproduced.issue}`]){const r=await fetch(app.origin+path,{headers:{Authorization:'Bearer '+agent}});assert.equal(r.status,403,'agent keys cannot read reproducers or fix workflows');await r.body?.cancel();}
  stage='baseline';await baseline(app,ingestKey,r1);
@@ -62,6 +62,7 @@ try{
  stage='expiry';results.expiry=await finishExpiry();
  stage='follow-up';results.followUp=await executionFollowUp(app,github,reproduced);
  browser=await launchBrowser();results.attentionCaptures=await attentionCaptures(app,browser,directory);await browser.close();browser=null;
+ stage='missing-queued-map';results.missingQueuedMap=await missingQueuedMap(app,fixture);
  stage='archive';
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
@@ -72,13 +73,17 @@ try{
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
- await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
+ const erasedTicket=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
  const tables=['reproducers','reproducer_runs','reproducer_run_tokens','fix_workflows','fix_receipts','exposures','follow_up_attention','follow_up_fix_steps'];
  const counts=async()=>Object.fromEntries(await Promise.all(tables.map(async table=>[table,(await app.db.prepare(`SELECT COUNT(*) n FROM ${table} WHERE project='shop'`).first()).n])));
  const planted=await counts();assert.ok(Object.values(planted).every(n=>n>0),JSON.stringify(planted));
  const preview=await app.json(`${p}/erasure`);
  const erased=await followErasure(app.json,await app.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:preview.planHash}));assert.equal(erased.phase,'complete');
  assert.deepEqual(await counts(),Object.fromEntries(tables.map(table=>[table,0])),'project erasure deletes reproducers, runs, tokens, workflows, receipts and exposure');
+ const erasedToken=await fetch(erasedTicket.url,{headers:{Authorization:'Bearer '+erasedTicket.token}});assert.equal(erasedToken.status,401,'an erased run token cannot recover source or restart execution');await erasedToken.body?.cancel();
+ const replayed=await app.request('/api/ingest/shop','POST',{version:1,eventId:'cart-0',release:r1.name,build:r1.build,environment:'production',type:fixture.type,message:fixture.message,frames:fixture.frames,breadcrumbs:[]},{Authorization:'Bearer '+ingestKey,Cookie:''});
+ assert.equal(replayed.status,401,'a replay with the erased ingest credential is denied');await replayed.body?.cancel();
+ assert.deepEqual(await counts(),Object.fromEntries(tables.map(table=>[table,0])),'replayed capabilities cannot resurrect erased execution evidence');
  results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);
  await writeFile(resolve(directory,'results.json'),JSON.stringify(results,null,2)+'\n');

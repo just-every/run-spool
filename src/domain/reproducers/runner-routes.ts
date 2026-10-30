@@ -21,6 +21,16 @@ async function authorized(c: any) {
 }
 const denied = (c: any) => c.json({ error: 'Valid run token required' }, 401);
 
+async function finish(c: any, run: any, observation: any, tools: any, result: any, analysis: any) {
+ const time = Date.now();
+ const [finished] = await auditedBatch(c.env.DB, [
+  s(c.env.DB, "UPDATE reproducer_runs SET state='finished',outcome=?,observation=?,checks=?,tools=?,finished=? WHERE id=? AND state='claimed'", result.outcome, JSON.stringify(observation), JSON.stringify({ reason: result.reason, checks: result.checks, ...(analysis ? { analysis } : {}) }), tools === null ? null : JSON.stringify(tools), time, run.id),
+  s(c.env.DB, 'DELETE FROM reproducer_run_tokens WHERE run=? AND changes()=1', run.id),
+  s(c.env.DB, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), run.project, 'reproducer_run_finished', JSON.stringify({ reproducer: run.reproducer, run: run.id, outcome: result.outcome }), time),
+ ]);
+ return !!finished.meta.changes;
+}
+
 routes.get('/runs/:run', async c => {
  const run = await authorized(c); if (!run) return denied(c);
  const [claimed] = await auditedBatch(c.env.DB, [s(c.env.DB, "UPDATE reproducer_runs SET state='claimed',claimed=? WHERE id=? AND state='queued'", Date.now(), run.id), auditCommit(c.env.DB, 'changes()=1')]);
@@ -32,7 +42,12 @@ routes.get('/runs/:run', async c => {
   const modules = await mapModules(artifact.payload);
   if (canonical(recorded(modules)) === canonical(JSON.parse(run.modules))) return c.json({ run: run.id, protocol: RUNNER_PROTOCOL, environment: spec.environment, call: spec.call, modules: modules.map(({ name, source }) => ({ name, source })), ...(spec.analysis ? { analysis: spec.analysis, expected: { type: spec.event.type, message: spec.event.message, module: spec.call.module, line: spec.event.frame.original.line } } : {}) });
  }
- return c.json({ error: 'The stored map for this run changed after it was queued' }, 409);
+ // Retention can remove an unreferenced alternate-release map between queue
+ // and claim. This is a durable setup failure, not an indefinitely claimed run.
+ const observation = { phase: 'load_failed', detail: 'The stored map for this run changed or became unavailable after it was queued.' };
+ const result = behaviourCheck(spec, JSON.parse(run.modules), observation);
+ await finish(c, run, observation, null, result, analysisCheck(spec, JSON.parse(run.modules), result.outcome, spec.analysis ? [] : undefined));
+ return c.json({ error: observation.detail, outcome: result.outcome, reason: result.reason }, 409);
 });
 
 routes.post('/runs/:run/observation', async c => {
@@ -41,13 +56,8 @@ routes.post('/runs/:run/observation', async c => {
  const { tools, observation, trials } = reportInput(await jsonBody(c.req.raw, 131072));
  const reproducer = await s(c.env.DB, 'SELECT spec FROM reproducers WHERE id=?', run.reproducer).first<any>();
  const spec = JSON.parse(reproducer.spec), modules = JSON.parse(run.modules);
- const result = behaviourCheck(spec, modules, observation), analysis = analysisCheck(spec, modules, result.outcome, trials), time = Date.now();
- const [finished] = await auditedBatch(c.env.DB, [
-  s(c.env.DB, "UPDATE reproducer_runs SET state='finished',outcome=?,observation=?,checks=?,tools=?,finished=? WHERE id=? AND state='claimed'", result.outcome, JSON.stringify(observation), JSON.stringify({ reason: result.reason, checks: result.checks, ...(analysis ? { analysis } : {}) }), JSON.stringify(tools), time, run.id),
-  s(c.env.DB, 'DELETE FROM reproducer_run_tokens WHERE run=? AND changes()=1', run.id),
-  s(c.env.DB, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), run.project, 'reproducer_run_finished', JSON.stringify({ reproducer: run.reproducer, run: run.id, outcome: result.outcome }), time),
- ]);
- if (!finished.meta.changes) return c.json({ error: 'Run already reported' }, 409);
+ const result = behaviourCheck(spec, modules, observation), analysis = analysisCheck(spec, modules, result.outcome, trials);
+ if (!await finish(c, run, observation, tools, result, analysis)) return c.json({ error: 'Run already reported' }, 409);
  return c.json({ outcome: result.outcome, reason: result.reason });
 });
 

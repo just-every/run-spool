@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "568cd18ca039cb23f27bf7ef6676992bcdd3b150b9c8589750d891f04f27b8b8",
+      "sha256": "ace68065174195bd5fd26d66cd30fcb5aefd0970e49eb04b5c64106b5d1a49b6",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c3d903e3a171d789b1eb91529f0e48f31c9f0eb0c4debab2c5deaafdc16cacca",
+      "sha256": "49ee6f31cd65c68f2cc4302a184f597ee1608e5353ec85482e8498f0d4169066",
       "executable": false
     },
     "DEMO.md": {
@@ -3025,7 +3025,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "bd6f280c8d9de7c3b4c654ff011c744c05b35dc9ca1ac3e77d54cbaec08521bf",
+      "sha256": "2b6085138fa6e545c70f97511f96f0aea91e407a169ff4c179391b27953c360a",
       "executable": false
     },
     "docs/retained-verification/ai005/agent-handoff-1440.png": {
@@ -4561,7 +4561,7 @@
       "executable": false
     },
     "scripts/reproduce/runner.mjs": {
-      "sha256": "c805f0338769a74ee11c3da575e2cd968409f540aa19609657732cb06affc22e",
+      "sha256": "957960c35c700aed7f8895e4be3748e839def0c3efd5e472c800e16e8dad77a3",
       "executable": false
     },
     "scripts/reproduce/sandbox.mjs": {
@@ -5680,12 +5680,16 @@
       "sha256": "5c17a23c2d806445133a677c97cb56c97930402e8b3a3d5d60eed63fc7fee6ea",
       "executable": false
     },
+    "src/domain/reproducers/reduction.mjs": {
+      "sha256": "023c85065ebda814ad60a9ce317a53571a3c04ed6366a2097c5d007b1c077c70",
+      "executable": false
+    },
     "src/domain/reproducers/routes.ts": {
       "sha256": "a2251efca0bc5565ec3a449ed6b2d10f192ae445dc70f5c5e3bee12e534153a6",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
-      "sha256": "ef6b923dff6303d65a564cd74e891d29241dd317a2321b6c1a3fc5df13c3ba03",
+      "sha256": "25e64504cc86def00dc6afb949946daffd9b10c76b1e1fbe595c8180f7119096",
       "executable": false
     },
     "src/domain/reproducers/sandbox.ts": {
@@ -8785,7 +8789,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "55713bb73c5140c023e2471674a5e50a02aa206e57b4f9c867bf32093085cc1f",
+      "sha256": "c74e63faa57d1b232155b68324c9956461726e47ac8573e8b07e941947b9be63",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8809,7 +8813,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "4a7f6f18b355c2e590c4cd7803003062bc08b5d11b665bed9c4a5a94cf639c32",
+      "sha256": "97819e953b3909f871cda6cd39a7830d49b692b67ebc7ef8676f2cda0fb42136",
       "executable": false
     },
     "tests/execution/runtime.mjs": {

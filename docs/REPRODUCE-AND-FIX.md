@@ -38,6 +38,8 @@ Each run allows at most twelve additional trials and thirty seconds in total, in
 
 The project reproducer read returns `analysis` on the finished run: the retained failing `input`, every experiment and attempted reduction with its observation, checks and outcome, and the stop reason. `minimal: true` means that every individual deletion from that input was tried without reproducing the original failure. It is one-deletion minimal within this search, not a globally smallest program or a confirmed cause. A named experiment is a counterexample to that input hypothesis only; it never changes the top-level baseline verdict. Analysis travels in private archives and is removed with the project's execution evidence on erasure.
 
+If the selected release has no stored source, queueing refuses without creating a run. If retention removes a map after queueing, claiming the job records a terminal setup failure, spends its token and returns an error to the command. The missing map can never count as a successful fixed-release check.
+
 The sandbox runs on the machine where you run the command. Spool's own Worker never executes reproducer code, and the workerd Worker Loader binding that would let it is not part of the Base deployment contract.
 
 ## 2. Fix branch under an exact, expiring grant

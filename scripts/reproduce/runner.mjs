@@ -14,7 +14,7 @@ const fetched = await fetch(url, { headers });
 if (!fetched.ok) { console.error(`Job not available: HTTP ${fetched.status} ${(await fetched.json().catch(() => ({}))).error ?? ''}`); process.exit(1); }
 const job = await fetched.json();
 let observation, trials;
-const started = Date.now();
+const started = performance.now();
 try { observation = await runSandbox(job); }
 catch (error) { observation = { phase: 'sandbox_failed', detail: String(error.message).slice(0, 2000) }; }
 if (job.analysis) {
@@ -23,7 +23,7 @@ if (job.analysis) {
  if (matchesCapture(job.expected, observation)) {
   const plan = reductionPlan(job.call.input, job.analysis.experiments);
   for (;;) {
-   const remaining = REDUCTION.wallClockMs - (Date.now() - started);
+   const remaining = REDUCTION.wallClockMs - (performance.now() - started);
    if (remaining <= 0) break;
    const trial = plan.next(); if (!trial) break;
    let observed;
