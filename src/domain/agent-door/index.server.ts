@@ -3,6 +3,8 @@ import type { Bindings } from '../../auth/bindings';
 import { localCredentialId } from './native-authority';
 import { spoolPeople, businessSettings } from './people';
 import { spoolTools } from './tools';
+import { standingTools } from './standing';
+import type { AlertEnvironment } from '../alerts/types';
 import { spoolResources } from './resources';
 import { localScopes, notTools } from './catalogue.mjs';
 import { agentProject } from '../agent-access';
@@ -34,7 +36,7 @@ export function spoolAgentDoor(env:Bindings,name='Spool') {
     AND EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=a.person AND o.status='active' AND (o.role='owner' OR EXISTS(SELECT 1 FROM spool_members m WHERE m.operator_id=o.id AND m.role='admin' AND m.state='active')))`)
     .bind(reference,args.id,args.project,Date.now(),principal.person.id,principal.agent.id,principal.consent??null).first();return !!row;
   }},
-  tools:spoolTools(env),resources:spoolResources(env),notTools:notTools as AgentDoorOptions['notTools'],
+  tools:[...spoolTools(env),...standingTools(env as Bindings & AlertEnvironment)],resources:spoolResources(env),notTools:notTools as AgentDoorOptions['notTools'],
   localCredentials:request=>localAgent(request,env),
   async currentScopes(principal:Principal){
    if(!localCredentialId(principal.clientId))return principal.scopes;

@@ -5436,7 +5436,7 @@
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
-      "sha256": "cd3d4e78b17c442d1d516eff95db07e47bb7dcfa81ab69b7db032a7c0c814290",
+      "sha256": "bf067ee32e35d79495603bfe70d8245e8303cf7e49e532fa4596fe6dd972ecdb",
       "executable": false
     },
     "src/domain/agent-door/events.ts": {
@@ -5444,7 +5444,7 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "50c06ec4c475b44f2b01a6bb855a590beba043669338f2303883d02959766af1",
+      "sha256": "af4143ab9e3788497f839c6e60ec456ef9ea1b512d327aa230d7a1a54a4529c1",
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
@@ -5456,7 +5456,7 @@
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "a2d79ff6b680404664ac6ed7169eee7a58c573d6a8e906bb695741bf05f62263",
+      "sha256": "4b0b53ab4a9d7efaeeaf2d4f1393d3de9e27f031c9a7ff0a4be8f888828e15c4",
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
@@ -5467,12 +5467,16 @@
       "sha256": "17a92d539dfb0b51d1186af8c904ad6dfcd80350c52c16ef705d287571eb49f9",
       "executable": false
     },
+    "src/domain/agent-door/standing.ts": {
+      "sha256": "f0134d3ed83c667258f03652b1d2b53d716c4df3cd92698156af7ba95cadcdc4",
+      "executable": false
+    },
     "src/domain/agent-door/targets.ts": {
       "sha256": "4ec26c75a2239a4aece3a93d1f3c30c7c47393f94b7f33393de57e7b336dc9a4",
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "2eec423be69d4f06f48c315242f314289521e2a0db1cb6ca0822e8732b57ffc1",
+      "sha256": "8e26bcdea52037ba4165dcde96663a9a38ea18104120dc94718739c76cdb82ec",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -5524,7 +5528,7 @@
       "executable": false
     },
     "src/domain/alerts/mail.ts": {
-      "sha256": "6dae5897a2797240363fcd80855d4c2f25724fa5486d013acf0a916668e948a5",
+      "sha256": "644f1858aade01a3ad4e8879c95bebdd8cafcd0688233dac5c7a143e0deca0c4",
       "executable": false
     },
     "src/domain/alerts/payload.ts": {
@@ -5588,7 +5592,7 @@
       "executable": false
     },
     "src/domain/alerts/webhook.server.ts": {
-      "sha256": "9e3812cb3d9eca488916f6c9fb13a4d009b23ba15396551654bfd9b9ce5ad02b",
+      "sha256": "a67b104b14b2b45a8b868f69bc419097873be15cd91a416b895d2ee82f65f068",
       "executable": false
     },
     "src/domain/api.ts": {
@@ -5804,7 +5808,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "730c6db5f8f28382e7f9b6aabd0c2000c276990759cd02f548f71f9f0e8db58b",
+      "sha256": "c7af441302dff3aa16a09dc024e7c4b907a8d1c5dcb8a4d041197e0f5cf9e072",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -5976,7 +5980,7 @@
       "executable": false
     },
     "src/domain/follow-up/notices.ts": {
-      "sha256": "68a22b76648c2685bbcb4665d39294c2e9fd79f87ba4f1dbd05c117156149e8a",
+      "sha256": "50dee2b4f78d21d592bfcdfeb7b3facb482fcf531a94ca531c65a1883cf756df",
       "executable": false
     },
     "src/domain/follow-up/routes.ts": {
@@ -6428,7 +6432,7 @@
       "executable": false
     },
     "src/domain/retention-schedule.ts": {
-      "sha256": "708fad073ad7f8b9142b19828d1f54e00d0d5d48dbcdab2a590a02927eef781a",
+      "sha256": "0c81d26d6a64d03658de4cdaa2f1bdc638465c943b2d44d0b2a7f9e39a840068",
       "executable": false
     },
     "src/domain/retention.ts": {
@@ -9544,7 +9548,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "9ebd5cbd708613854172f0ffe93b8ffcb377bc6b2e578bd4f1737830b81ee93e",
+      "sha256": "b2596cf176e5cb98cee61cc042ad6a56f1f0b9f8ece3e4be3a0f5d257f827c50",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -10080,7 +10084,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "9d88222d10c47b4bcada7a48ad3395445c504df2811ef03aaa2f62c15455f0c1",
+      "sha256": "b3caa3c68d5a4fea8455a9edabbcb305f50431dddf0a81ec231b1f4799813313",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {

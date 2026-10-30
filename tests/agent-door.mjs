@@ -53,22 +53,23 @@ try{
  const destination=await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Triage test recipient',recipient:'triage-test@synthetic.invalid'});
  done(await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:randomUUID()}));
  assert.ok((await app.mail()).some(message=>message.subject==='Spool TEST — destination check'&&message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Native external destination tests identify their agent and sponsor');
- // Pending SPOOL-BASE-STANDING-WORKER-2026-10-28: these are capability
- // refusals, not company policy defaults or skipped journey requirements.
+ // Native configuration now binds the original admission atomically. Later
+ // worker effects must enter the same door under that retained identity.
  const ruleCreated=await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:'Queued notice',enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2});
- const rulesBefore=await app.json(`/api/projects/${project}/alerting/rules`),rule=rulesBefore.find(row=>row.id===ruleCreated.id);assert.ok(rule);
- assert.equal(code(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
- assert.deepEqual(await app.json(`/api/projects/${project}/alerting/rules`),rulesBefore,'An unqualified agent worker cannot acquire standing notification permission');
- const alternateBefore=(await app.json(`/api/projects/${project}/follow-up`)).alternate;
- assert.ok(done(await app.call('spool.followups.read',{project})),'Reading follow-up custody creates no standing worker permission');
- assert.equal(code(await app.call('spool.followups.update',{project,destination:destination.id,channel:'mail',idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
- assert.deepEqual((await app.json(`/api/projects/${project}/follow-up`)).alternate,alternateBefore);
- const retentionBefore=await app.json(`/api/projects/${project}/retention-policy`);
+ const rule=(await app.json(`/api/projects/${project}/alerting/rules`)).find(row=>row.id===ruleCreated.id);assert.ok(rule);
+ const enabled=done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()}));
+ assert.equal((await app.json(`/api/projects/${project}/alerting/rules`)).find(row=>row.id===rule.id).enabled,1);
+ done(await app.call('spool.followups.update',{project,destination:destination.id,channel:'mail',idempotency_key:randomUUID()}));
+ assert.equal((await app.json(`/api/projects/${project}/follow-up`)).alternate.destination,destination.id);
  const preview=done(await app.call('spool.retention.preview',{project,windows:Object.fromEntries(['events','artifacts','feedback','exposures','commits','sessions'].map(type=>[type,90]))}));
- assert.equal(code(await app.call('spool.retention.update',{project,revision:preview.revision,windows:preview.windows,at:preview.at,token:preview.token,idempotency_key:randomUUID()})),'native_worker_admission_unavailable');
- const retentionAfter=await app.json(`/api/projects/${project}/retention-policy`);
- assert.deepEqual([retentionAfter.revision,retentionAfter.windows],[retentionBefore.revision,retentionBefore.windows]);
- done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()}));
+ done(await app.call('spool.retention.update',{project,revision:preview.revision,windows:preview.windows,at:preview.at,token:preview.token,idempotency_key:randomUUID()}));
+ assert.equal((await app.json(`/api/projects/${project}/retention-policy`)).revision,preview.revision+1);
+ const custody=(await app.DB.prepare('SELECT kind,principal FROM spool_agent_custody WHERE project=?').bind(project).all()).results;
+ assert.deepEqual(custody.map(row=>row.kind).sort(),['alert','followup','retention']);
+ for(const row of custody){const principal=JSON.parse(row.principal);assert.equal(principal.consent,app.context.consent);assert.equal(principal.agent.id,app.context.agentId);assert.ok(principal.operationId&&principal.idempotencyKey);}
+ assert.ok(!names.some(name=>name.startsWith('spool.workers.')),'Worker execution is never offered to MCP clients');
+ assert.equal(code(await app.call('spool.workers.alert_mail',{id:'not-a-job',item:'not-an-item',idempotency_key:randomUUID()})),'tool_not_found');
+ done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:enabled.revision,idempotency_key:randomUUID()}));
  done(await app.call('spool.followups.update',{project,destination:null,idempotency_key:randomUUID()}));
  const deployment=done(await app.call('spool.deployments.record',{project,release:'1.0.0',build:'web-1',manifest:{commitSha:'b'.repeat(40),repository:'https://github.com/example/checkout',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'},idempotency_key:randomUUID()}));
  const deploymentResource=await app.mcp('resources/read',{uri:`spool://projects/${project}/deployments/${encodeURIComponent(deployment.id)}`});

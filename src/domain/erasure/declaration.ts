@@ -1,5 +1,6 @@
 import { defineErasure } from '../../modules/erasure/index.mjs';
 import { erasureCompletionFact } from './audit-fact';
+import { eraseAgentAudit } from '../agent-door/erasure';
 
 // ERASE-001 (Base BASE-DATA-003) project erasure. The selected project and every row that
 // depends on it are deleted through Base erasure, so each deleted row also gets
@@ -21,10 +22,7 @@ export const projectErasure = defineErasure({
   {table:'agent_door_events',from:'projects',where:"uri='spool://projects/'||? OR instr(uri,'spool://projects/'||?||'/')=1",params:['id','id']},
   ...['agent_door_approvals','agent_door_reviews'].map(table=>({table,from:'projects',where:"json_extract(saved,'$.args.project')=?",params:['id']})),
   {table:'agent_door_calls',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(outcome,'$.resources') r WHERE json_extract(r.value,'$.uri')='spool://projects/'||? OR instr(json_extract(r.value,'$.uri'),'spool://projects/'||?||'/')=1)",params:['id','id']},
-  {table:'agent_door_audit',from:'agent_door_calls',on:{id:'decision_id'}},
-  ...['agent_door_approvals','agent_door_reviews'].map(from=>({table:'agent_door_audit',from,where:"id=json_extract(?,'$.decision_id')",params:['saved']})),
-  {table:'agent_door_audit',from:'projects',where:"json_extract(row,'$.resource')='spool://projects/'||? OR instr(json_extract(row,'$.resource'),'spool://projects/'||?||'/')=1 OR EXISTS(SELECT 1 FROM json_tree(row,'$.classes') WHERE key='service' AND value=?)",params:['id','id','id']},
-  {table:'agent_door_usage',from:'agent_door_audit',on:{decision_id:'id'}},
+  {table:'agent_door_usage',from:'projects',where:"EXISTS(SELECT 1 FROM json_tree(classes) WHERE key='service' AND value=?)",params:['id']},
   // Multi-project definitions retain their other widgets; a sole-project item
   // and all its grants leave with the last project they describe.
   {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
@@ -63,7 +61,9 @@ export const projectErasure = defineErasure({
   { table: 'alert_scheduler', from: 'projects', where: 'last_project=?', params: ['id'], set: { last_project: '' }, reason: 'The alert scheduler cursor keeps no project identifier.' },
   { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
  ],
+ beforeStatements: async ({db,subject}) => eraseAgentAudit(db,String(subject.id)),
  retain: [
+  {table:'agent_door_audit',reason:'Installation decision chronology survives without native targets or project policy payloads; private arguments and results are erased.'},
   {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},
   { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },
   { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },
