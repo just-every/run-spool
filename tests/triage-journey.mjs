@@ -98,6 +98,13 @@ try {
  assert.ok(privateMap,'uploaded private map travels');assert.deepEqual(JSON.parse(privateMap.payload),application.map,'private source bytes survive the download');
  for(const credential of [project.ingestKey,cookie.slice(cookie.indexOf('=')+1)])assert.equal(downloaded.text.includes(credential),false,'active credential bytes never travel');
  for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(downloaded.data,table),false,'private authority is excluded');
+ const destination=await startTestWorker(15483);
+ try{
+  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
+  assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
+  assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
+ }finally{await destination.stop();}
  await page.getByRole('button',{name:'Download private archive',exact:true}).scrollIntoViewIfNeeded();await capture('private-archive',width);
  checked('Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions');
 
