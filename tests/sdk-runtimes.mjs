@@ -51,9 +51,6 @@ try{
   assert.deepEqual([...stored].sort(),[...sent].sort(),`${name}: release and dist equal what the SDK sent`);
   const releases=await app.json(`/api/projects/${project.id}/releases`);
   for(const [release] of [...sent].map(value=>JSON.parse(value)))if(release)assert.ok(releases.some(r=>r.name===release&&r.auto_created===1&&JSON.parse(r.creating_sdk).name.startsWith(runtime.sdk)),`${name}: release ${release} is created automatically`);
-  // The handled occurrence reads the same through the UI, at desktop and phone width.
-  const outer=runtime.chain.at(-1);
-  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled})}}]);
   // Failure handling: a wrong key or an unreachable intake never breaks the application.
   const before=await app.json(`/api/projects/${project.id}/issues`);
   const url=new URL(project.dsn);
@@ -61,7 +58,10 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  if(runtime.verify)await runtime.verify({app,project,details,dir,origin,cookie});
+  const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,referenceSent:reference.sent});
+  // The handled occurrence reads the same through the UI, at desktop and phone width.
+  const outer=runtime.chain.at(-1);
+  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);
   console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes),identity:[...sent]}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}
