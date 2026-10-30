@@ -1428,6 +1428,8 @@ Inherits BASE-AGENT-001 to BASE-AGENT-013. The company's policy decides every ca
 
 ## Status
 
+Judged from the code and tests at commit `15b9854ff327acdee8f7cc1ba93a208aaee822ce` (30 October 2026): AI-002 alternate-release syntax-error and unresolved-import setup failures passed the execution journey through source-map upload, queued runner commands and finished-run reads. The candidate strengthens the fixed-release public read-back; application source and acceptance requirements are unchanged. AI-002 remains partial with automatic minimization, competing-cause experiments and broader qualification named in its Gap. Exact-candidate Verify and guarded publication remain landing gates.
+
 Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained.
 
 Landing replay of candidate `54d2fd9a2b3bb93109abc3b530849c6935f0117a` retains main's partial ERR-006 judgment. Its additional emitted Worker, HTTP and issue-view assertions cover delayed older-release capture, inert split and merge previews, exact reviewed moves, immutable provenance and guarded undo. Application source and acceptance requirements are unchanged; the replay does not promote any clause.

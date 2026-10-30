@@ -13,7 +13,7 @@ The primary journey: a US development team points its existing error capture at 
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `15b9854ff327acdee8f7cc1ba93a208aaee822ce` (30 October 2026): AI-002 alternate-release syntax-error and unresolved-import setup failures passed the execution journey through source-map upload, queued runner commands and finished-run reads. The candidate strengthens the fixed-release public read-back; application source and acceptance requirements are unchanged. AI-002 remains partial with automatic minimization, competing-cause experiments and broader qualification named in its Gap. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 

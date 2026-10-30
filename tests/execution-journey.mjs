@@ -47,6 +47,9 @@ try{
  // The same reproducer against the fixed release: the fix's behaviour, checked independently.
  const fixedRun=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{release:r2.name});
  const ran=await runner(fixedRun.command);assert.equal(ran.code,0,ran.output);assert.match(ran.output,/^not_reproduced: The call returned string/m);results.fixedRelease=ran.output.trim();
+ const fixedRecord=(await app.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers.find(row=>row.id===reproduced.reproducer.id).runs.find(row=>row.id===fixedRun.run);
+ assert.deepEqual([fixedRecord.release,fixedRecord.state,fixedRecord.outcome,fixedRecord.observation.phase],[r2.name,'finished','not_reproduced','returned'],'only the loaded fixed-release call supplies the successful-return control');
+ assert.deepEqual(fixedRecord.checks.filter(check=>check.required).map(check=>[check.check,check.passed]),[['threw',false]],'the fixed call is checked against the captured failure');
  stage='exposure';const verdicts=await exposureVerdicts(app,ingestKey,{issue:reproduced.issue,id:awaiting.id,r2,fixture});
  results.tiny=(await verdicts.tiny()).reasons;results.low=(await verdicts.low()).reasons;const reached=await verdicts.reached();results.reached={reasons:reached.reasons,denominators:reached.denominators};
  stage='ui';browser=await launchBrowser();results.captures=await executionPanel(app,browser,directory,reproduced.issue,reproduced.reproducer);await browser.close();browser=null;
@@ -75,7 +78,7 @@ try{
  results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);
  await writeFile(resolve(directory,'results.json'),JSON.stringify(results,null,2)+'\n');
- console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
+ console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; module loading ${Object.entries(results.loadFailures).map(([name,run])=>`${name} ${run.state} ${run.outcome} ${run.phase}`).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
 }catch(error){console.error(JSON.stringify({journey:'execution',stage,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}
 finally{
  const outcomes=await Promise.allSettled([browser?.close(),app?.stop(),restored?.stop(),github?.stop()]);
