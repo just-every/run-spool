@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "34bf550bdf83d7cda35a6cd61c14ecc44f3d8edd80f9e7e84b4d9d4c96f79e41",
+      "sha256": "79ac2326f8f4e083324995e7a900810ee33f2e2566ff494d4ce244966781a645",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c23ab3949869df61e3cd3eedecce3e479ba2ceb564a181513cef225f197ae123",
+      "sha256": "b7b53e055fa4a46630949f0a6403310e87586fd95890f4f5ee2f09888609a222",
       "executable": false
     },
     "DEMO.md": {
@@ -9349,7 +9349,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "e983b3c0a526ecc3ee0463b244211373ed597ab4592c9a357c5a0630af3024b1",
+      "sha256": "b4c83281caba943f1dbda3188b1ec775b8aa4701326139fceddbc3611224c423",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -9417,7 +9417,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "35302497e85aa11a82cc2e3039f24100129f0499f8f717da414a64319659b78a",
+      "sha256": "6852dd1b673f43b2a98d4a6cedffa67b60595dcdc37268e138437d54e6698b45",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

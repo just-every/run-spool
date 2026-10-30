@@ -75,7 +75,7 @@ try{
         for(let step=0;erased.phase!=='complete'&&step<20;step++){const resumed=await request(`/api/erasures/${erased.id}/resume`,'POST');assert.ok(resumed.ok);erased=await resumed.json()}
         assert.equal(erased.phase,'complete');assert.equal(erased.deleted.outcomes,preview.deleted.outcomes);
         assert.deepEqual((await archiveProjection(await request('/api/archive'))).data.outcomes.filter(row=>row.project==='wire'),[],'erasure removes every restored item counter');
-        assert.equal((await request('/api/restore','POST',snapshot.text)).status,409,'old archive cannot resurrect erased counters');
+        const replay=await request('/api/restore','POST',snapshot.text);assert.equal(replay.status,400);assert.equal((await replay.json()).error,'erasure_epoch','old archive cannot resurrect erased counters');
         assert.deepEqual((await archiveProjection(await request('/api/archive'))).data.outcomes.filter(row=>row.project==='wire'),[]);
       }
     }finally{await destination.stop()}
