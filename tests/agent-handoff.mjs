@@ -44,12 +44,13 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  }
  const target=issues.find(row=>row.id!==issue);assert.ok(target,'merge parity uses a second populated issue in the same project');
  const policy=await app.json('/api/projects/a/grouping-rules'),beforePolicy=structuredClone(policy);
- const {events,...common}=input,additional=[];
+ const {events,...common}=input,additional=[],additionalInputs=[];
  for(const change of [
   {kind:'merge',target:target.id,targetRevision:target.revision},
   {kind:'rule',policy:{version:1,stack:'',fingerprint:'message:* -> synthetic-spool-87'},policyRevision:policy.revision},
  ]){
   const proposedInput={...common,...change};
+  additionalInputs.push(proposedInput);
   const legacy=mcpValue(await mcp.call('propose_grouping',proposedInput)),canonical=mcpValue(await mcp.call('spool.grouping.propose',proposedInput));
   assert.notEqual(canonical.id,legacy.id);
   assert.deepEqual(operation(canonical),operation(legacy),change.kind+' names submit the same complete validated operation');
@@ -76,6 +77,10 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
    [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],
    [name,{...input,window:{start:1,end:1}}],[name,{...input,source:otherIssue}],
    [name,{...input,policy:{version:1,stack:'',fingerprint:''}}],
+   [name,{...input,variants:[{...input.variants[0],unexpected:'synthetic-spool-87'}]}],
+   [name,{...additionalInputs[0],target:otherIssue}],[name,{...additionalInputs[0],targetRevision:target.revision+1}],
+   [name,{...additionalInputs[1],policyRevision:policy.revision+1}],
+   [name,{...additionalInputs[1],policy:{...additionalInputs[1].policy,unexpected:'synthetic-spool-87'}}],
   ]),
   ...['approve_grouping','apply_grouping','undo_grouping','spool.grouping.correct','spool.issues.triage','synthetic-spool-unknown'].map(name=>[name,input]),
  ]){const refused=await mcp.call(name,args);assert.equal(refused.isError,true,'refuse '+name);assert.ok(!JSON.stringify(refused).includes('PROJECT_B_PRIVATE'));}
@@ -83,6 +88,9 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  try{
   for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue:otherIssue}],['spool.issues.read',{issue:otherIssue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],['propose_grouping',{...input,source:otherIssue}],['spool.grouping.propose',{...input,source:otherIssue}]]){
    const denied=await cross.call(name,args);assert.equal(denied.isError,true);assert.match(denied.content[0].text,/"exitCode": 3/);assert.ok(!JSON.stringify(denied).includes('PROJECT_B_PRIVATE'));
+  }
+  for(const candidate of additionalInputs)for(const name of ['propose_grouping','spool.grouping.propose']){
+   const denied=await cross.call(name,candidate);assert.equal(denied.isError,true);assert.match(denied.content[0].text,/"exitCode": 3/);noSecrets(denied);
   }
  }finally{await cross.close();}
  assert.deepEqual((await app.archive()).data,beforeRefusals,'invalid calls, forbidden operations and foreign-project calls change no archived rows');
@@ -171,10 +179,11 @@ try{
  assert.deepEqual((await app.archive()).data,beforePacketReads,'HTTP, CLI and official MCP reads change no archived rows');
  evidence.aliases=await mcpReadAliases(app,mcp,agent,admitted.issue,shortId,thrown.issue,otherAdmitted.issue);
  stage='grouping-proposals';evidence.proposals=await groupingProposalHandoff(app,env,agent,mcp,admitted.issue,otherAdmitted.issue);
- const replayInput=(await json('/api/projects/a/grouping-proposals','GET',undefined,agent))[0].input;
+ const proposalInputs=(await json('/api/projects/a/grouping-proposals','GET',undefined,agent)).map(row=>row.input);
+ const replayInputs=['split','merge','rule'].map(kind=>proposalInputs.find(row=>row.kind===kind));assert.ok(replayInputs.every(Boolean));
  await json('/api/projects/a/keys/'+grant.hash,'DELETE');assert.equal((await request(packetPath,'GET',undefined,agent)).status,401);assert.equal((await cli(['packet',admitted.issue],env)).code,2);const revoked=await mcp.call('get_packet',{issue:admitted.issue});assert.equal(revoked.isError,true);assert.match(revoked.content[0].text,/"exitCode": 2/);
  const revokedBefore=(await app.archive()).data;
- for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue:admitted.issue}],['spool.issues.read',{issue:admitted.issue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],['propose_grouping',replayInput],['spool.grouping.propose',replayInput]]){
+ for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue:admitted.issue}],['spool.issues.read',{issue:admitted.issue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],...replayInputs.flatMap(input=>[['propose_grouping',input],['spool.grouping.propose',input]])]){
   const result=await mcp.call(name,args);assert.equal(result.isError,true,'next-call revocation for '+name);assert.match(result.content[0].text,/"exitCode": 2/);noSecrets(result);
  }
  assert.deepEqual((await app.archive()).data,revokedBefore,'replayed calls with a revoked grant change no archived rows');
