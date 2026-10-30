@@ -51,8 +51,12 @@ export interface UndoContext {
 }
 export interface ToolDefinition {
   name: string; title: string; description: string; scope: string; readOnly: boolean
+  /** Only invoke may call this tool; omitted keeps MCP discovery and calls. */
+  exposure?: 'invoke'
   inputSchema: JsonSchemaObject; outputSchema: JsonSchema; classes: ClassId[]; clauses: string[]
-  classify(args: Record<string, unknown>, ctx: ToolContext): ClassAndFacts[] | Promise<ClassAndFacts[]>
+  /** Always enforce current native authority. On completed replay, use the
+   * recorded effect facts instead of requiring consumed preparation state. */
+  classify(args: Record<string, unknown>, ctx: ToolContext, completed?: readonly ClassAndFacts[]): ClassAndFacts[] | Promise<ClassAndFacts[]>
   run(args: Record<string, unknown>, ctx: ToolContext): Promise<{ result: unknown; resources?: Array<{ uri: string; name: string }>; undo?: unknown }>
   revisionType?: 'integer' | 'number' | 'string'
   revision?(args: Record<string, unknown>, ctx: ToolContext): Promise<string | number | null>

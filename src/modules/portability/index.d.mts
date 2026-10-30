@@ -48,6 +48,8 @@ export interface MigrationReplay {names:string[];/** Seed-declared data-only Pla
 /** Export job creation only; no record data, object keys or file paths. */
 export interface ExportEvent {id:string;/** Opaque caller id; the direct/CLI sentinel is normalized to null. */actor:string|null;scope:'installation'}
 export interface PortabilityOptions {
+  /** Node checkout root for automatic legacy evidence; defaults to cwd. */
+  migrationRoot?:string;
   db:D1Database;buckets?:Record<string,R2Bucket>;policy:ArchivePolicy;migrations?:()=>Promise<MigrationReplay>;
   /** Seed-owned audit SQL, appended to the snapshot/job batch. Throwing or SQL failure refuses creation. */
   onExport?:(event:ExportEvent)=>[sql:string,args:unknown[]][];

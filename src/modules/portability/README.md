@@ -249,7 +249,15 @@ provider operation.
 | Unknown hash/name, ambiguous hash/alias or conflicting name/hash | `migration_ledger:unknown`, `:ambiguous` or `:conflict`; use the matching checkout and declaration. |
 
 Refusals throw `PortabilityError` with status 409 and a constant `code`;
-ledger values never enter these diagnostics. Propagate failures and stop before
+ledger values never enter these diagnostics. `migration` names a pending
+checkout file, and `identity` may name a checkout
+file, a declared alias or the known `rer_migrations` table. The worker appends
+these safe identities to its public refusal token, retaining
+`migration_ledger:unapplied:<file>`, `migration_ledger:multiple:rer_migrations`
+and named `unknown`, `ambiguous` or `conflict` tokens only when the name exactly
+equals a checkout filename or declared alias. Historical
+`migration_ledger:unknown:initial-page.sql` stays category-only without that
+provenance. Propagate failures and stop before
 native apply. IO and provider failures also propagate. A successful check
 creates no ledger, changes no row and does not attest unrecorded historical
 bytes in a plain Wrangler ledger. It never silently skips pending migrations.
@@ -367,7 +375,7 @@ extra-payload recovery responsibilities and transfer erasure behavior still appl
 The UTF-8 JSON-lines archive has a manifest, indexed checksummed parts and a
 closing record. `readArchive(stream)` uses the shared bounded, fatal UTF-8 line
 reader. The default maximum line size is 24 MiB; callers can set a smaller bound.
-No runtime or CLI materializes the whole archive. The manifest opens the archive and holds the final part count and payload hashes, so an export builds all its parts in the job before any byte is written; `exportArchive` and `importArchive` take an optional `progress` callback (`progress.mjs` turns its events into throttled lines with a time-left estimate). Readers enforce a 16 MiB
+Current-archive paths do not materialize the whole archive; the legacy ledger collector described below buffers its initial upload. The manifest opens the archive and holds the final part count and payload hashes, so an export builds all its parts in the job before any byte is written; `exportArchive` and `importArchive` take an optional `progress` callback (`progress.mjs` turns its events into throttled lines with a time-left estimate). Readers enforce a 16 MiB
 canonical UTF-8 part limit; `readArchive(stream,{partBytes})` can lower it.
 Import uploads enforce the policy's part limit before any staging write.
 A part has at most 1,000 rows;
@@ -399,6 +407,14 @@ joined stream is tokenized again and must reproduce those same tokens.
 Comments and harmless inter-token whitespace therefore compare equally, while
 `x '31'` and `x'31'`, separated minus signs, numbers and combined operators stay
 distinct. No regular expression rewrites SQL.
+
+Restore may omit an archived schema object from its compatibility comparison
+only when its table is in the archive's excluded inventory, the destination
+policy also excludes it, neither side restores it, and the destination lacks
+it. This permits transient export snapshots without installing source SQL.
+Objects on restorable tables and excluded tables present at the destination
+remain verified against the unchanged live and migration-replay catalogues;
+the original manifest and parts still supply the archive digest.
 
 Quoted identifiers (double quotes, backticks, brackets, or a single-quoted string
 used as a name), strings, blobs, numbers, variables and ordinary identifiers keep
@@ -547,6 +563,37 @@ preserving CHECK rebuild described below. The
 archive's tables restore with their archived columns, later columns take their
 defaults, and later tables stay empty unless their eligible seed or backfill is
 replayed below. This applies to normal v2 import and to backup-only v1 recovery.
+
+The Node in-process library door also verifies old v2 archives carrying a
+hash-bearing migration ledger without caller-supplied replay or ledger rows.
+`createPortability({db,policy})` reads the checkout's single D1 migration directory
+from `wrangler.jsonc` (or use `migrationRoot` to name the checkout), matches its
+files to the destination ledger, and collects the original parts in memory until
+finalize authenticates their hashes and closing binding. The archived ledger must
+be a hash-matched prefix; recorded replay must reproduce the archived tables and
+full replay the complete destination identity before any durable import job is
+created. Keep the same service instance through this initial upload; restarting
+it requires uploading again. Acknowledged recovery and runner-supplied evidence
+retain their existing paths.
+
+Worker evidence remains pending: a Worker has neither checkout files nor Node
+SQLite, and `db` plus `policy` cannot reveal migration SQL that is absent from the
+live schema. The required refresh/lock integration should generate a seed-owned
+module containing ordered file hashes, SQL statements, complete sqlite_master
+inventories and seeded row images for every migration prefix. Bind that artifact
+to the destination's hashed ledger, apply the runtime policy to each inventory,
+and verify both historical and complete live identities before admitting the
+same collector. Do not import archive SQL or substitute the live schema for a
+historical replay. Until that artifact is wired into seed builds, this automatic
+library path refuses in Workers with `schema_mismatch:legacy_evidence`.
+
+Later data statements also qualify when a surviving trigger from that same
+migration repeats the complete statement block, in order, on Base's restore
+commit transition. Those statements run through that destination-owned trigger,
+not a second finalize replay.
+Absent tables count as empty only with an empty full replay and proof that every
+later insert and possible trigger writer preserves emptiness; a bounded empty
+copy/drop/rename rebuild and a SELECT from such an empty source carry no row.
 
 The Base CLI runners (local Workers and container) pass `createPortability` a
 `migrations` replayer (`migration-history.mjs`, Node only) built from the
@@ -1018,6 +1065,7 @@ modules/portability/schema-identity.mjs
 modules/portability/schema-legacy.mjs
 modules/portability/sqlite-tokens.mjs
 modules/portability/bookkeeping.mjs
+modules/portability/snapshot-objects.mjs
 modules/portability/storage.mjs
 modules/portability/copies.mjs
 modules/portability/derived.mjs
@@ -1027,6 +1075,8 @@ modules/portability/policy-data.mjs
 modules/portability/generated.mjs
 modules/portability/restore-safety.mjs
 modules/portability/bridge.mjs
+modules/portability/library-history.mjs
+modules/portability/migration-history.mjs
 modules/portability/ledgers.mjs
 modules/portability/migration-statements.mjs
 modules/portability/sql-text.mjs

@@ -1,3 +1,4 @@
+import { libraryMigrations } from './library-history.mjs';
 import { all, statement, state, guard, job, save, partQueries, parts, readPart, dropCopyStatements, cleanCopyStatements, quote, stream, insist, run } from './storage.mjs';
 import { stagePart } from './import-staging.mjs';
 import { normalizeStaged } from './import-safety.mjs';
@@ -7,6 +8,7 @@ import { refusePolicyApprovals } from './policy-data.mjs';
 import { refuseDevData } from './dev-data.mjs';
 import { catalogue, validateRow, bindCell, writableColumns } from './catalogue.mjs';
 import { platformTable, restorableManifest } from './bookkeeping.mjs';
+import { withoutAbsentExcludedObjects } from './snapshot-objects.mjs';
 import { canonicalJson, unbase64 } from './hash.mjs';
 import { checkManifest, checkPart, ContentVerifier, ArchiveVerifier } from './format.mjs';
 import { fence, mergeJournal, tombstone } from './journal.mjs';
@@ -15,13 +17,13 @@ import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
 import { additiveBridge, sameSchemaMigrations, appliedMigrations, verifiedLegacySchema } from './bridge.mjs';
 import { replayStatements } from './backfills.mjs';
-import { checkArchivedLedgers, archivedHistory } from './ledgers.mjs';
+import { checkArchivedLedgers, archivedHistory, archivedLedgerTables, ledgerReader, matchMigrationLedger } from './ledgers.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
 import { checkReferences } from './references.mjs';
 import { rebuildDerivedStatements } from './derived.mjs';
 // ledgers: the rows of each migration ledger table the archive carries, as the
 // caller read them from it ({table:rows}); uploadPart binds them to its parts.
-export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers,acknowledgeUnverifiedSchemaObjects=false) {
+export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers,acknowledgeUnverifiedSchemaObjects=false,id=crypto.randomUUID()) {
   const {db,config,buckets}=context;await checkManifest(manifest);checkArchivedLedgers(manifest,ledgers);
   insist(manifest.product===config.product,'wrong_product');
   // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
@@ -29,6 +31,7 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   const original=manifest;manifest=await restorableManifest(original);
   const skippedTables=original.tables.filter(table=>platformTable(table.name)).map(table=>table.name);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
+  manifest=await withoutAbsentExcludedObjects(manifest,cat,config);
   const legacy=original.version===2 && manifest.schemaObjects===undefined;
   // An explicit acknowledgment keeps its existing recovery semantics. Without
   // it, legacy v2 needs positive replay evidence for its recorded schema and
@@ -70,7 +73,7 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
     if(!(await importLeaseStatus(db,await job(db,previous,'import'))).stale)throw await importRunning(db,previous);
     await abortImport(context,previous,{staleOnly:true});
   }
-  const id=crypto.randomUUID(),copies=Object.fromEntries(targets.map((t,i)=>[t.name,'rer_portability_stage_'+id.replaceAll('-','')+'_'+i]));
+  const copies=Object.fromEntries(targets.map((t,i)=>[t.name,'rer_portability_stage_'+id.replaceAll('-','')+'_'+i]));
   const row={id,kind:'import',actor,phase:'staging',completed:0,metadata:{manifest:original,...(unverified?{schemaUnverified:{reason:'acknowledged recovery of a version 2 archive without schemaObjects',sourceIdentity:original.sourceIdentity,exportedAt:original.exportedAt,acknowledgedAt:new Date().toISOString()}}:{}),...(skippedTables.length?{restoreManifest:manifest,skippedTables}:{}),copies,targets,triggers:cat.triggers,...(bridge.fromSchema?{bridge}:{}),...(replays?{replays}:{}),...(legacyRecovery?{legacyRecovery}: {}),...(ledgers?{ledgers}:{})}};
   try {
     await db.batch([guard(db,'(SELECT import_job FROM rer_portability_state WHERE id=1) IS NULL'),
@@ -272,4 +275,56 @@ export async function abortAbandonedImport(context) {
   const id=(await state(context.db)).import_job;
   if(!id)return null;
   await abortImport(context,id,{soleOperator:true});return id;
+}
+
+// A ledger carried in parts cannot authorize a durable job at create time.
+// Collect this legacy upload in the service instance, authenticate it in full,
+// then enter the ordinary durable import path. A lost collector is re-uploaded;
+// it owns no destination data, lock, staging table or job to recover.
+export function libraryImports(context,direct,migrationRoot) {
+  const pending=new Map();
+  const status=row=>({id:row.id,kind:'import',phase:row.phase,completed:row.parts.length,total:row.manifest.partCount,contentHash:null,requiredConfiguration:[]});
+  return {
+    ...direct,
+    async create(manifest,actor='direct',options={}) {
+      if(manifest?.version!==2 || manifest.schemaObjects!==undefined || options.acknowledgeUnverifiedSchemaObjects || options.ledgers)return direct.create(manifest,actor,options);
+      await checkManifest(manifest);
+      if(!archivedLedgerTables(manifest).length)return direct.create(manifest,actor,options);
+      insist(manifest.product===context.config.product,'wrong_product');
+      await appliedMigrations(context.db);
+      insist(!(await statement(context.db,'SELECT import_job FROM rer_portability_state WHERE id=1').first())?.import_job && ![...pending.values()].some(row=>row.phase==='staging'),'import_running',409);
+      context.migrations??=await libraryMigrations(context.db,context.inputPolicy,migrationRoot);
+      const id=crypto.randomUUID();pending.set(id,{id,manifest:structuredClone(manifest),actor,parts:[],phase:'staging'});return id;
+    },
+    async uploadPart(id,index,part) {
+      const row=pending.get(id);if(!row)return direct.uploadPart(id,index,part);
+      insist(row.phase==='staging','import_phase',409);await checkPart(part,index,context.config.partBytes);
+      if(row.parts[index]){insist(row.parts[index].sha256===part.sha256,'part_conflict',409);return status(row);}
+      insist(index===row.parts.length && index<row.manifest.partCount,'part_order',409);
+      row.parts.push(structuredClone(part));return status(row);
+    },
+    async finalize(id,options={}) {
+      const row=pending.get(id);if(!row)return direct.finalize(id,options);
+      const {manifest,parts}=row;insist(row.phase==='staging','import_phase',409);insist(parts.length===manifest.partCount,'parts_missing');
+      const content=new ContentVerifier(manifest),archive=new ArchiveVerifier(manifest),reader=ledgerReader();reader.add(manifest);
+      for(const part of parts){archive.add(part);reader.add(part);for(const item of part.items)content.add(item);}
+      const digest=content.digest();
+      if(options.contentHash!==undefined)insist(digest===options.contentHash,'content_checksum');
+      insist(options.archiveHash===archive.digest(),'archive_checksum',409);
+      const ledgers=reader.ledgers(),history=archivedHistory(manifest,ledgers);
+      insist(history?.length && history.every(entry=>entry.sha256),'schema_mismatch:legacy_schema',409);
+      const replay=await context.migrations(),files=replay.names.map(name=>({name,sha256:replay.sha256?.(name),aliases:replay.aliases?.(name)}));
+      const recorded=matchMigrationLedger(history,files,replay);
+      insist(canonicalJson(recorded)===canonicalJson(replay.names.slice(0,recorded.length)),'schema_mismatch:migration_history',409);
+      const actual=await direct.create(manifest,row.actor,{ledgers,id});
+      pending.delete(id);
+      for(const part of parts)await direct.uploadPart(actual,part.index,part);
+      return direct.finalize(actual,options);
+    },
+    async status(id){return pending.has(id)?status(pending.get(id)):direct.status(id);},
+    async active(actor='direct'){const row=[...pending.values()].find(row=>row.actor===actor && row.phase==='staging');return row?status(row):direct.active(actor);},
+    async abort(id){const row=pending.get(id);if(!row)return direct.abort(id);row.phase='aborted';row.parts=[];return status(row);},
+    async lookup(id){return pending.has(id)?status(pending.get(id)):direct.lookup(id);},
+    async actor(id){return pending.get(id)?.actor??direct.actor(id);},
+  };
 }
