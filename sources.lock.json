@@ -5504,7 +5504,7 @@
       "executable": false
     },
     "src/domain/alerts/delivery-archive.ts": {
-      "sha256": "375aaee094765ff5e6d99d5aef51c7417118f10da11467444a458bd874e9392a",
+      "sha256": "0df3a840566e588762308c1767a8dc82a06ba62d21219ab84c04c9b7bd308fb8",
       "executable": false
     },
     "src/domain/alerts/destination-management.server.ts": {
@@ -5519,8 +5519,12 @@
       "sha256": "fb909a9e632446a002d72144059dc44e4d40c269689d41914a71e47c9fabdd0c",
       "executable": false
     },
+    "src/domain/alerts/digest-text.ts": {
+      "sha256": "884565712381b2d541fddbe94e9083cff24302adaa7abf560e4a04c71beea096",
+      "executable": false
+    },
     "src/domain/alerts/digests.ts": {
-      "sha256": "1b4499497a24779bf8ce7b95e76e4a9bdf5f29f156aac472186d3a5cde2b0440",
+      "sha256": "b0b464cc6eda8d68680bf244a4cb4b88e79857f79ad352e9dfe1f56259610472",
       "executable": false
     },
     "src/domain/alerts/dispatch.ts": {
