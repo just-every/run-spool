@@ -5177,6 +5177,10 @@
       "sha256": "f2b17bddba8125aa41ddeae0b195d211acc945b68da5d06ed51cc8fdc5976250",
       "executable": false
     },
+    "src/archive-evidence.d.ts": {
+      "sha256": "50cb898f4c82d621ad701e5a998f62155b629fd7998f00574aae12a305c5e943",
+      "executable": false
+    },
     "src/auth/bindings.ts": {
       "sha256": "b74c20601e82640d151aa561c230f347c3b37e3167e39d8d82cc356a09f0f61a",
       "executable": false
@@ -6135,6 +6139,10 @@
     },
     "src/domain/path-mappings.ts": {
       "sha256": "757440c7cfccd75c96ca740af2566c755c96c9eb1449b04c335a6904f2063eb9",
+      "executable": false
+    },
+    "src/domain/portability-worker.ts": {
+      "sha256": "db3abfbd12c2fa81f9e570840bb779ad86b872985e9c8589f3154d5ed59ddfbc",
       "executable": false
     },
     "src/domain/portability.ts": {
@@ -9759,6 +9767,10 @@
     },
     "tests/managed-sign-in.mjs": {
       "sha256": "79731d401eb3d6575181eb926366c543710504c616e6372b80f3e3f31d7265bd",
+      "executable": false
+    },
+    "tests/migration-evidence.mjs": {
+      "sha256": "4ea11c2229e74e1c8e7d3900c85a4f7b7fd892afc76c264ea717077e4a121a10",
       "executable": false
     },
     "tests/multilingual.mjs": {
