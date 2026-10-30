@@ -33,6 +33,8 @@
 .segmented::-webkit-scrollbar{display:none}
 .segment{display:inline-flex;align-items:center;gap:10px;padding:0 14px;border:0;border-radius:5px;background:none;color:var(--ink);font:400 15px/1.2 var(--font-text);white-space:nowrap;cursor:pointer}
 .segment:is([aria-pressed=true],[aria-current=page]){background:var(--paper-sunk);font-weight:500}
+/* The group scrolls inside itself at phone width, so a segment's focus ring sits inside the segment, never clipped. */
+.segment:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .segment .count{font:400 14px/1 var(--font-code);color:var(--ink-soft)}
 .segment:is([aria-pressed=true],[aria-current=page]) .count{color:var(--ink)}
 
