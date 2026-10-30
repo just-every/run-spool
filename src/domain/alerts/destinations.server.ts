@@ -1,3 +1,4 @@
+import { personalRuleRecipient } from '../notifications/rule-mail';
 import { savedSlack } from './slack-destinations.server';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 import { productionMailConfig } from '../../auth/mail.server.mjs';
@@ -30,7 +31,7 @@ export async function findDestination(env:AlertEnvironment,project:string,id:str
 }
 export async function authorizedDestination(env:AlertEnvironment,intent:Intent) {
  const allowed=await s(env.DB,'SELECT 1 FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND channel=? AND destination=?',intent.project,intent.rule_id,intent.rule_revision,intent.channel,intent.destination).first();
- if(!allowed)throw new Error('rule_revoked');return findDestination(env,intent.project,intent.destination,intent.channel);
+ if(!allowed)throw new Error('rule_revoked');const destination=await findDestination(env,intent.project,intent.destination,intent.channel);if(intent.channel==='mail')await personalRuleRecipient(env,intent,destination.recipient!);return destination;
 }
 export async function destinationHash(env:AlertEnvironment,value:string) { return `hmac:${await hmac(keyBytes(env.ALERT_DESTINATION_HASH_KEY),value)}`; }
 export async function destinationChoices(env:AlertEnvironment,project:string) {

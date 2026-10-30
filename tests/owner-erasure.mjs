@@ -89,8 +89,15 @@ try {
  const reporting=await app.json('/api/reporting/items',{kind:'dashboard',name:`Test owner with ${other}`,widgets:[{project:project.id,name:'Owner evidence',config:{metric:'count',q:'message:"Test owner"',...reportingWindow}}]},201);
  const preferencePath='/api/projects/personal-capture/notifications/preferences';
  const preference=await app.json(preferencePath);
- const savedPreference=await app.request(preferencePath,{revision:preference.revision,email:{...preference.email,weekly_report:true}},{},'PUT');assert.equal(savedPreference.status,200);await savedPreference.arrayBuffer();
+ const savedPreference=await app.request(preferencePath,{revision:preference.revision,email:{...preference.email,weekly_report:true,comment:true}},{},'PUT');assert.equal(savedPreference.status,200);await savedPreference.arrayBuffer();
  const otherPreference=await app.request(preferencePath,{revision:0,email:{...preference.email,comment:true}},{Cookie:otherCookies[['quinn','spool.test'].join('@')]},'PUT');assert.equal(otherPreference.status,200);await otherPreference.arrayBuffer();
+ const personalIssue='/api/projects/'+project.id+'/issues/'+captured.issue;
+ let personalResponse=await app.request(personalIssue+'/bookmark',{bookmarked:true},{},'PUT');assert.equal(personalResponse.status,200);await personalResponse.arrayBuffer();
+ personalResponse=await app.request('/api/projects/'+project.id+'/notifications/digest',{revision:0,timezone:'UTC',hour:9,daily:true,weekly:true},{},'PUT');assert.equal(personalResponse.status,200);await personalResponse.arrayBuffer();
+ await app.json(personalIssue+'/comments',{body:'synthetic-spool-personal-comment'},201,{Cookie:otherCookies[['quinn','spool.test'].join('@')]});
+ const personalTick=await fetch(app.origin+'/cdn-cgi/local/scheduled?time='+(Date.now()+1000)+'&cron=*+*+*+*+*&format=json');assert.equal(personalTick.status,200);await personalTick.arrayBuffer();
+ const personalLinks=(await app.DB.prepare('SELECT message FROM rer_mail_development_outbox').all()).results.map(row=>JSON.parse(row.message)).filter(row=>row.subject==='Spool personal comment'&&row.to.includes(testOwner));assert.equal(personalLinks.length,1);
+ const retiredPersonalLink=new URL(personalLinks[0].text.match(/https:\/\/\S+\/notifications\/unsubscribe\/[a-f0-9]{64}/)[0]).pathname;
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
@@ -104,7 +111,7 @@ try {
  before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
- const latest=await app.json('/api/owner/erasure');assert.equal(latest.deleted.spool_notification_preferences,1,'owner erasure previews personal preference custody');
+ const latest=await app.json('/api/owner/erasure');assert.equal(latest.deleted.spool_notification_preferences,1,'owner erasure previews personal preference custody');for(const table of ['spool_personal_mail','spool_personal_unsubscribe','spool_issue_follows','spool_personal_digest_settings'])assert.ok(latest.deleted[table]>0,'owner erasure previews '+table);
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
@@ -112,6 +119,8 @@ try {
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
 
  assert.equal(after.spool_notification_preferences.length,1,'owner erasure preserves another current person’s preferences');assert.equal(after.spool_notification_preferences[0].operator_id,otherId);
+ for(const table of ['spool_personal_mail','spool_personal_unsubscribe','spool_issue_follows','spool_personal_digest_settings'])assert.equal(after[table].length,0,'former owner personal notification authority erased: '+table);
+ assert.equal((await app.request(retiredPersonalLink,undefined,{Cookie:''})).status,404,'erased owner message capability cannot revive choices');
  for(const table of ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
  assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
  for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);

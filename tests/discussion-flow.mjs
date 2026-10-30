@@ -1,6 +1,5 @@
 import {launchBrowser} from './browser-launch.mjs';
 import {busyMemberWrites} from './busy-member-writes.mjs';
-import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {legacyMailRows} from './legacy-mail.mjs';
 import assert from 'node:assert/strict';

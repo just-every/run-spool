@@ -1,3 +1,4 @@
+import { personalRuleMessage } from '../notifications/rule-mail';
 import { serviceActor,auditSubject } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
@@ -23,9 +24,10 @@ export function sender(env:AlertEnvironment) {
 }
 export async function expandMail(env:AlertEnvironment,intent:Intent,time:number) {
  const destination=await authorizedDestination(env,intent);sender(env);
- const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,destination.recipient!);validateMessage(message,env.MAIL_PROVIDER);
+ const personal=await personalRuleMessage(env,intent,destination.recipient!);
+ const message=mailMessage(intent.id,intent.body,env.MAIL_FROM!,destination.recipient!);if(personal)message.text+=personal.text;validateMessage(message,env.MAIL_PROVIDER);
  const digest=await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER]));
- await s(env.DB,`INSERT INTO alert_mail_jobs(id,project,message,destination_hash,next_at) VALUES(?,?,?,?,?) ON CONFLICT(id) DO NOTHING`,intent.id,intent.project,JSON.stringify(message),digest,time).run();
+ await s(env.DB,`INSERT INTO alert_mail_jobs(id,project,message,destination_hash,next_at,personal_operator,personal_member_version,personal_operator_version) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING`,intent.id,intent.project,JSON.stringify(message),digest,time,personal?.recipient.operator_id??null,personal?.recipient.member_version??null,personal?.recipient.operator_version??null).run();
  const stored=await s(env.DB,'SELECT message,destination_hash FROM alert_mail_jobs WHERE id=? AND project=?',intent.id,intent.project).first<any>();
  if(stored.message!==JSON.stringify(message)||stored.destination_hash!==digest)throw new Error('mail_identity_conflict');
 }
@@ -60,6 +62,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   if(!authority||authority.claim_until<=clock()){
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }
+  try{await authorizedDestination(env,job)}catch{await finishMail(env,job.id,claim,'blocked','recipient_unavailable',null,clock(),null);continue;}
   let state='uncertain',code='response_unknown',receipt:string|null=null;
   try {const result=await mail.send(JSON.parse(job.message));state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
   const finished=clock();

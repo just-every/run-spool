@@ -45,11 +45,12 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries:
   </>;
 }
 
-export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
+export function OperatorPanel({ project, packet, busy, request, run, refresh, initial, canManage=true }: { canManage?:boolean; initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
+  const [assignee,setAssignee] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
@@ -70,10 +71,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
-      const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
+      const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), canManage?request(`${root}/corrections`):Promise.resolve([])]));
       if (signal.aborted) return;
       setState(operatorState); setHistory(corrections); setFailure('');
-      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
+      if (!labelEdited.current) {setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');setAssignee(operatorState.nativeAssignments?.find((row:any)=>row.issue===issue.id)?.target??'');}
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
@@ -111,18 +112,19 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   };
 
   return <section className="evidence">
-    <h2>Operator decisions</h2>
+    <h2>{canManage?'Operator decisions':'Assignment'}</h2>
     {failure && <p role="alert">{failure}</p>}
     <form className="form-grid" onSubmit={event => {
       event.preventDefault();
       void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null,...assignee.startsWith('member:')?{member:assignee.slice(7)}:assignee.startsWith('team:')?{team:assignee.slice(5)}:{} });
         setAssignmentRevision(saved.revision);
         labelEdited.current = false;
         setState(null);
         refresh();
       });
     }}>
+      {!!state?.assignmentMembers?.length&&<label className="form-field">Assignment target<select aria-label="Assignment target" disabled={busy||!ready} value={assignee} onChange={event=>{labelEdited.current=true;setAssignee(event.target.value);if(event.target.value)setLabel(event.target.value.startsWith('team:')?state.assignmentTeam:state.assignmentMembers.find((row:any)=>'member:'+row.id===event.target.value)?.name??'');}}><option value="">Responsibility label only</option>{state.assignmentTeam&&<option value={'team:'+state.assignmentTeam}>Team: {state.assignmentTeam}</option>}{state.assignmentMembers.map((row:any)=><option key={row.id} value={'member:'+row.id}>{row.name}</option>)}</select></label>}
       <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
       <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
       <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void run(async () => {
@@ -133,9 +135,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         refresh();
       })}>Unassign</button>
     </form>
-    <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
+    <p>A responsibility label grants no access. A native member or team target subscribes current project members, using their personal notification choices.</p>
 
-    <div className="operator-controls" role="group" aria-label="Operator controls">
+    {canManage&&<div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
         <fieldset>
@@ -187,7 +189,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       <Details title="Operator audit" triggerLabel="Operator audit">
         {state ? <OperatorAudit rows={state.audit} issue={issue} /> : <p role="status">Loading changes…</p>}
       </Details>
-    </div>
+    </div>}
   </section>;
 }
 
