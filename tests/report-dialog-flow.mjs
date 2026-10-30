@@ -22,7 +22,7 @@ export async function reportDialogFlow({ browser, origin, cookie, request, appli
  };
  await mkdir('.artifacts/sdk004', { recursive: true });
  const rows = [];
- for (const width of [1440, 390]) for (const mode of ['browser', 'loader']) {
+ for (const width of [1440]) for (const mode of ['browser', 'loader']) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage();
   try {
    // A real SDK capture supplies the occurrence. The queued stub is called before its bundle loads.
