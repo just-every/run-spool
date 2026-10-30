@@ -3,23 +3,30 @@ import { notificationTypes } from './types';
 import { emailPreferences } from './model';
 
 export const personalNotificationTables = {
- spool_personal_mail:['id','project','source','type','issue','operator_id','recipient_label','member_version','operator_version','state','code','created','updated','historical'],
+ spool_personal_mail:['id','project','source','type','issue','operator_id','recipient_label','member_version','operator_version','state','code','created','updated','historical','period_start','period_end','timezone','rule_delivery'],
+ spool_personal_rule_settings:['project','rule_id','mandatory','revision','updated','historical'],
+ spool_personal_digest_settings:['project','actor_label','operator_id','timezone','hour','daily','weekly','revision','created','updated','historical'],
  spool_issue_follows:['project','issue','operator_id','actor_label','reason','updated','historical'],
 };
 
 export const notificationPreferenceTables = {...personalNotificationTables,spool_notification_preferences:['project','actor_label','operator_id','email','revision','updated','historical']};
 export const notificationPreferenceDefaults = (data:any) => ({...Object.fromEntries(Object.keys(notificationPreferenceTables).map(table=>[table,[]])),...data});
-export const notificationPreferenceExportRow = (table:string,row:any) => table === 'spool_notification_preferences'||table==='spool_issue_follows' ? {...row,operator_id:null,historical:1} : table==='spool_personal_mail' ? {...row,operator_id:null,member_version:0,operator_version:0,state:'historical',code:'archive_inert',historical:1} : row;
-export function validateNotificationPreferences(data:any) {
+export const notificationPreferenceExportRow = (table:string,row:any) => table === 'spool_notification_preferences'||table==='spool_issue_follows' ? {...row,operator_id:null,historical:1} : table==='spool_personal_digest_settings'?{...row,operator_id:null,daily:0,weekly:0,historical:1}: table==='spool_personal_rule_settings'?{...row,mandatory:0,historical:1}:table==='spool_personal_mail' ? {...row,rule_delivery:null,operator_id:null,member_version:0,operator_version:0,state:'historical',code:'archive_inert',historical:1} : row;
+export function validateNotificationPreferences(data:any,alertRules:any[] = []) {
  const projects=new Set(data.projects.map((row:any)=>row.id)),issues=new Map(data.issues.map((row:any)=>[row.id,row.project]));
  const require=(ok:any)=>{if(!ok)throw new Error('Invalid personal notification archive');};
  const ids=new Set(),keys=new Set();
  for(const row of data.spool_personal_mail){
   require(typeof row.id==='string'&&/^[a-f0-9]{32}$/.test(row.id)&&!ids.has(row.id));ids.add(row.id);
-  require(projects.has(row.project)&&typeof row.source==='string'&&row.source.length<=200&&notificationTypes.includes(row.type));
+  require(projects.has(row.project)&&typeof row.source==='string'&&row.source.length<=200&&[...notificationTypes,'daily_digest','weekly_digest'].includes(row.type));
   require(row.issue===null||issues.get(row.issue)===row.project);
   require(row.operator_id===null&&safeAlias(row.recipient_label)&&row.member_version===0&&row.operator_version===0&&row.state==='historical'&&row.code==='archive_inert'&&row.historical===1);
   require(Number.isSafeInteger(row.created)&&row.created>=0&&Number.isSafeInteger(row.updated)&&row.updated>=row.created);
+ }
+ for(const row of data.spool_personal_rule_settings)require(projects.has(row.project)&&alertRules.some((rule:any)=>rule.project===row.project&&rule.id===row.rule_id)&&row.mandatory===0&&row.historical===1&&Number.isSafeInteger(row.revision)&&row.revision>=1&&Number.isSafeInteger(row.updated));
+ for(const row of data.spool_personal_digest_settings){
+  require(projects.has(row.project)&&safeAlias(row.actor_label)&&row.operator_id===null&&row.historical===1&&row.daily===0&&row.weekly===0&&Number.isInteger(row.hour)&&row.hour>=0&&row.hour<=23&&Number.isSafeInteger(row.revision)&&row.revision>=1&&Number.isSafeInteger(row.created)&&Number.isSafeInteger(row.updated));
+  try {new Intl.DateTimeFormat('en',{timeZone:row.timezone})}catch{require(false)}
  }
  for(const row of data.spool_issue_follows){
   const key=JSON.stringify([row.project,row.issue,row.actor_label,row.reason]);require(!keys.has(key));keys.add(key);

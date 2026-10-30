@@ -10,7 +10,13 @@ const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');
  const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,'SELECT * FROM issue_assignments WHERE project=?',p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
- return c.json({policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A label alone grants no authority. Explicit native member or team targets add subscription reasons for current project members.'});
+ const assignmentMembers=(await s(db,`SELECT m.id,m.name FROM spool_members m JOIN oa_operators o ON o.id=m.operator_id AND o.status='active' JOIN spool_project_teams t ON t.organization=m.organization AND t.project=?
+  WHERE m.state='active' AND (o.role='owner' OR m.role='admin' OR m.role='member' AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=t.project AND g.role<>'read-only')) ORDER BY m.name,m.id`,p).all()).results;
+ const assignmentTeam=(await s(db,'SELECT team FROM spool_project_teams WHERE project=?',p).first<any>())?.team??null;
+ const nativeAssignments=(await s(db,`SELECT f.issue,CASE f.reason WHEN 'assignment' THEN 'member:'||m.id ELSE 'team:'||t.team END target FROM spool_issue_follows f
+  JOIN spool_members m ON m.operator_id=f.operator_id AND m.state='active' JOIN spool_project_teams t ON t.project=f.project AND t.organization=m.organization
+  WHERE f.project=? AND f.historical=0 AND f.reason IN('assignment','team') GROUP BY f.issue,target`,p).all()).results;
+ return c.json({assignmentMembers,assignmentTeam,nativeAssignments,policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A label alone grants no authority. Explicit native member or team targets add subscription reasons for current project members.'});
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);

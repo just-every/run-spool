@@ -30,8 +30,9 @@ async function expandIntent(env:AlertEnvironment,service:ReturnType<typeof webho
   else await expandMail(env,intent,time);
   await s(env.DB,`UPDATE alert_intents SET expanded=1,state='queued',code=NULL WHERE id=? AND state IN ('pending','blocked')`,intent.id).run();
  } catch(error) {
-  const reason=(error as Error).message==='egress_unconfigured'?'egress_unconfigured':'configuration_or_authority';
-  await s(env.DB,`UPDATE alert_intents SET state='blocked',code=? WHERE id=? AND expanded=0 AND state IN ('pending','blocked')`,reason,intent.id).run();
+  const personal=['personal_opt_out','personal_recipient_unavailable','personal_already_routed'].includes((error as Error).message);
+  const reason=personal?(error as Error).message:(error as Error).message==='egress_unconfigured'?'egress_unconfigured':'configuration_or_authority';
+  await s(env.DB,`UPDATE alert_intents SET state=?,code=? WHERE id=? AND expanded=0 AND state IN ('pending','blocked')`,personal?'cancelled':'blocked',reason,intent.id).run();
  }
 }
 /** Sends the new-issue and regression alerts one admitted event routed now, instead of at the next scheduled run. */

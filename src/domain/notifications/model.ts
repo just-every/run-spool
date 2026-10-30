@@ -13,3 +13,8 @@ export async function readPreferences(db: D1Database, project: string, operator:
  const row = await db.prepare('SELECT email,revision,updated FROM spool_notification_preferences WHERE project=? AND operator_id=? AND historical=0').bind(project,operator).first<{email:string;revision:number;updated:number}>();
  return row ? {email:emailPreferences(JSON.parse(row.email)),revision:row.revision,updated:row.updated} : {email:defaultEmailPreferences(),revision:0,updated:null};
 }
+
+export async function readDigestSettings(db:D1Database,project:string,operator:string) {
+ const row=await db.prepare('SELECT timezone,hour,daily,weekly,revision FROM spool_personal_digest_settings WHERE project=? AND operator_id=? AND historical=0').bind(project,operator).first<any>();
+ return row?{...row,daily:!!row.daily,weekly:!!row.weekly}:{timezone:'UTC',hour:9,daily:false,weekly:false,revision:0};
+}

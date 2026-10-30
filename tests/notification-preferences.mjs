@@ -43,6 +43,14 @@ async function preferenceBrowser(owner,actors,projects,expected) {
     assert.equal(await panel.locator('p,label,button,legend').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true,'personal settings text is readable');
     const violations=(await new AxeBuilder({page}).include('[aria-labelledby="personal-notifications-title"]').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact));
     assert.deepEqual(violations,[],'personal preferences has no serious accessibility violation');
+    const digestPath=door(project).replace(/preferences$/,'digest'),zone=index===0?['America','New_York'].join('/'):'UTC',hour=index===0?11:15;
+    await panel.getByRole('textbox',{name:'Digest timezone',exact:true}).fill(zone);
+    await panel.getByRole('spinbutton',{name:'Digest delivery hour',exact:true}).fill(String(hour));
+    const scheduleSaved=page.waitForResponse(response=>new URL(response.url()).pathname===digestPath&&response.request().method()==='PUT');
+    await panel.getByRole('button',{name:'Save digest schedule',exact:true}).click();assert.equal((await scheduleSaved).status(),200);
+    assert.deepEqual(await actor.json(digestPath),{timezone:zone,hour,daily:false,weekly:false,revision:1});
+    await page.reload();await expect(panel.getByRole('textbox',{name:'Digest timezone',exact:true})).toHaveValue(zone);
+    await expect(panel.getByRole('spinbutton',{name:'Digest delivery hour',exact:true})).toHaveValue(String(hour));
     if(index===0&&projectIndex===0){
      const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
      await panel.screenshot({path:resolve(folder,'preferences-1440.png')});
