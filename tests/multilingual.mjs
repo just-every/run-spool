@@ -1,6 +1,4 @@
 import {followErasure} from './project-erasure/follow.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdir,mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';

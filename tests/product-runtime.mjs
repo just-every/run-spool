@@ -1,10 +1,11 @@
+import {auditJourney} from './audit-history.mjs';
+import {deploymentJourney} from './deployment-history.mjs';
+import {demoJourney} from './demo-capture.mjs';
 import {localRuntime} from './local-runtime.mjs';
 import {nativeRefusal,outcomeTotals} from './admission-proof.mjs';
 import { operatorArchiveTamper, operatorRetentionAndErasure } from './operator-archive.mjs';
 import { operatorFlow } from './operator-flow.mjs';
 import { bundleGroupingFlow } from './bundle-grouping.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import {authBindings,signIn,browserSignIn} from './auth.mjs';
 import {archiveProjection,nativeArchive,archiveConfiguration} from './archive.mjs';
 import assert from 'node:assert/strict';
@@ -248,3 +249,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  ]});
  if(result.failed){console.error('Product acceptance failed:',JSON.stringify(result));process.exitCode=1}
 }
+
+await auditJourney();
+await deploymentJourney();
+await demoJourney();
