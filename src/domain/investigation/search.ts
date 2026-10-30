@@ -9,7 +9,7 @@ import { ownerIssue } from '../stored-text';
 import { hash } from '../privacy';
 import { eventQuery } from './query';
 import { prioritySql } from '../issue-priority/model';
-import { ensureReleaseOrderKeys } from '../releases/order';
+import { ensureReleaseOrderKeys,issueReleasesSql,releaseOrderSql } from '../releases/order';
 import { ensureShortIds } from '../short-ids/assign';
 import { decodeShortIds, shortIdColumnsSql } from '../short-ids/lookup';
 import { commitResolutionSql, commitSharing } from '../commits/sharing';
@@ -33,13 +33,13 @@ async function search(c:any,exporting=false){
  if(!['all','open','acknowledged','resolved','suppressed'].includes(state))throw new Error('Invalid issue status');
  if(!['priority','latest','occurrences'].includes(sort))throw new Error('Invalid issue sort');
  const query=eventQuery(q,c.get('agent')),where=['i.project=?'],args:any[]=[project];
- if(query.usesLatest)await ensureReleaseOrderKeys(c.env.DB,project);
+ await ensureReleaseOrderKeys(c.env.DB,project);
  await ensureShortIds(c.env.DB,project);
  if(state!=='all'){where.push('i.state=?');args.push(state)}
  if(query.reviewPending)where.push(pendingReview('i'));
  for(const priority of query.issuePriorities){where.push(`${prioritySql('i')}=?`);args.push(priority)}
  if(query.hasEventTerms||release!=='all'){where.push(`EXISTS(SELECT 1 FROM events e WHERE e.project=i.project AND e.issue=i.id AND ${query.sql}${release!=='all'?' AND e.release=?':''})`);args.push(...query.args,...release!=='all'?[release]:[])}
- const filtered=`SELECT i.*, ${prioritySql('i')} priority, ${pendingReview('i')} review_pending, ${shortIdColumnsSql('i')}, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,(SELECT json_group_array(DISTINCT release) FROM events WHERE project=i.project AND issue=i.id) releases FROM issues i WHERE ${where.join(' AND ')}`;
+ const filtered=`SELECT i.*, ${prioritySql('i')} priority, ${pendingReview('i')} review_pending, ${shortIdColumnsSql('i')}, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE project=i.project AND issue=i.id ORDER BY received DESC,id DESC LIMIT 1) last_release,${issueReleasesSql('i')} releases FROM issues i WHERE ${where.join(' AND ')}`;
  const cte=`WITH filtered AS (${filtered}), ranked AS (SELECT *,${sort==='occurrences'?'count':sort==='priority'?"(CASE priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END)*3+CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END":'last_seen'} rank FROM filtered)`;
  const db=c.env.DB,statement=(sql:string,...extra:any[])=>db.prepare(cte+' '+sql).bind(...args,...extra);
  const signature=await hash(JSON.stringify([project,q,state,release,sort]));
@@ -58,7 +58,7 @@ async function search(c:any,exporting=false){
  const eventPredicate=query.sql+(release!=='all'?' AND e.release=?':''),eventArgs=[...query.args,...release!=='all'?[release]:[]];
  const [statuses,releases,environments,tags]=await Promise.all([
  statement('SELECT state value,COUNT(*) count FROM ranked GROUP BY state').all(),
- statement(`SELECT e.release value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project WHERE ${eventPredicate} GROUP BY e.release ORDER BY count DESC,value`,...eventArgs).all(),
+ statement(`SELECT e.release value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project LEFT JOIN releases r ON r.project=e.project AND r.name=e.release WHERE ${eventPredicate} GROUP BY e.release ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}`,...eventArgs).all(),
  statement(`SELECT e.environment value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project WHERE ${eventPredicate} GROUP BY e.environment ORDER BY count DESC,value`,...eventArgs).all(),
  statement(`SELECT t.key,CAST(t.value AS TEXT) value,COUNT(DISTINCT e.issue) count FROM events e JOIN ranked i ON i.id=e.issue AND i.project=e.project,json_each(e.payload,'$.sentry.tags') t WHERE ${eventPredicate} GROUP BY t.key,t.value ORDER BY t.key,count DESC,value LIMIT 1001`,...eventArgs).all(),
  ]);

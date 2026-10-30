@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import { releaseOrderKeyStatement } from '../releases/order';
+import { releaseOrderKeyStatement, releaseOrderSql } from '../releases/order';
 import { releaseIdentity, releaseVersionKey } from '../releases/identity';
 import { absentDist } from '../releases/build';
 import { scrub } from '../privacy';
@@ -77,7 +77,8 @@ export async function releaseView(db: D1Database, project: string, name: string)
  };
 }
 export async function listReleases(c: Context, who: CliAuthority): Promise<Response> {
- const names = (await s(c.env.DB, 'SELECT name FROM releases WHERE project=? ORDER BY seq DESC LIMIT 100', who.project).all<{ name: string }>()).results;
+ await readReleasePolicy(c.env.DB, who.project);
+ const names = (await s(c.env.DB, `SELECT name FROM releases WHERE project=? ORDER BY ${releaseOrderSql()} LIMIT 100`, who.project).all<{ name: string }>()).results;
  const views = await Promise.all(names.map(row => releaseView(c.env.DB, who.project, row.name)));
  return c.json(views.filter(Boolean));
 }
