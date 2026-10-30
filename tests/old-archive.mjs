@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {mkdtemp, readFile, readdir, rm} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -10,7 +11,8 @@ import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
 const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
-const citationTables = ['spool_notification_preferences','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const personalTables = ['spool_notification_preferences','spool_personal_mail','spool_personal_rule_settings','spool_personal_digest_settings','spool_issue_follows'];
+const citationTables = [...personalTables,'issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.ndjson', 'utf8');
@@ -28,7 +30,7 @@ const migrations = JSON.parse(await readFile('management/integration/deployment-
 // Published tag bytes, fetched independently of this checkout's history.
 const released = JSON.parse(await readFile('tests/fixtures/deployment-spec-v0.6.0.json', 'utf8')).migrations;
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-old-archive-'));
-let runtime;
+let runtime, worker;
 const rows = async (db, sql) => (await db.prepare(sql).all()).results;
 const canonicalRows = data => data.map(row => JSON.stringify(Object.fromEntries(Object.entries(row).sort()))).sort();
 try {
@@ -66,14 +68,24 @@ try {
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
   assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
-  if(name!=='spool_audit_events')assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
+  if(name!=='spool_audit_events') {
+   let actual=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
+   if(name==='alert_mail_jobs') {
+    const columns=await rows(upgrade,'PRAGMA table_info(alert_mail_jobs)');
+    const personal=columns.filter(column=>column.name.startsWith('personal_'));
+    assert.equal(personal.length,3);
+    assert.ok(personal.every(column=>column.notnull===0&&column.dflt_value===null&&column.pk===0),'old queued mail gains no inferred personal authority');
+    actual=actual.replace(/, personal_operator TEXT, personal_member_version INTEGER, personal_operator_version INTEGER\)$/,')');
+   }
+   assert.equal(actual, sql, `populated upgrade preserves released table schema: ${name}`);
+  }
  }
  for(const table of ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_destinations'), [], 'populated upgrade connects no Slack destination');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_delivery_meta'), [], 'populated upgrade invents no Slack acknowledgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM suspect_decisions'), [], 'populated upgrade invents no suspect judgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
- assert.deepEqual(await rows(upgrade, 'SELECT * FROM spool_notification_preferences'), [], 'a populated upgrade never invents personal opt-ins');
+ for(const table of [...personalTables,'spool_personal_unsubscribe'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'a populated upgrade never invents personal opt-ins or delivery authority: '+table);
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM checkin_routes'), [], 'existing projects start with cron check-in forwarding off');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM loader_settings'), [], 'existing capture keys start with lazy, optional-capture-off defaults');
  assert.equal((await upgrade.prepare("SELECT COUNT(*) n FROM credentials WHERE project=? AND kind='ingest' AND revoked IS NULL").bind(existingProject).first()).n, 1, 'the populated upgrade keeps the active capture key');
@@ -86,7 +98,7 @@ try {
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
  const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
- const newTables = ['spool_notification_preferences','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
+ const newTables = [...personalTables,'issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
  transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }
@@ -145,6 +157,52 @@ try {
  for (const name of ['projects', 'releases', 'issues', 'events', 'artifacts', 'audit', 'alerts', 'alert_destinations', 'alert_mail_jobs', 'feedback', 'grouping_policies', 'grouping_proposals', 'repairs', 'repair_checks', 'rer_erasure_operations', 'rer_dependency_installation', 'rer_dependency_link']) assert.equal(platformTable(name), false, `${name} is person-owned`);
  assert.throws(() => policy({...transfer.portabilityPolicy, includeTables: ['rer_migrations']}));
  console.log('PASS current archive independently restores and mandatory bookkeeping exclusions retain person-owned tables');
+
+ // Qualification against an independent current-main checkout: do not synthesize
+ // an older manifest from the candidate exporter or erase either migration ledger.
+ if(process.env.SPOOL_MAIN_ROOT) {
+  const candidateRoot=process.cwd(),sourceRoot=resolve(process.env.SPOOL_MAIN_ROOT);
+  const migrationFiles=async root=>Promise.all((await readdir(resolve(root,'migrations/core'))).filter(name=>name.endsWith('.sql')).sort().map(async name=>{
+   const sql=await readFile(resolve(root,'migrations/core',name),'utf8');
+   return {name,sql,sha256:createHash('sha256').update(sql).digest('hex')};
+  }));
+  const sourceMigrations=await migrationFiles(sourceRoot);
+  await runtime.dispose();runtime=undefined;
+  const {startTestWorker}=await import('./worker.mjs'),{signIn}=await import('./auth.mjs');
+  let mainArchive;
+  try {
+   process.chdir(sourceRoot);
+   const {startTestWorker:mainWorker}=await import(pathToFileURL(resolve(sourceRoot,'tests/worker.mjs')));
+   worker=await mainWorker(15788);
+   const source=await worker.db(),cookie=await signIn(worker.origin);
+   await source.prepare(ledgerTable.sql).run();
+   await source.batch(sourceMigrations.map(m=>source.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name,m.sha256)));
+   const baseline=await fetch(worker.origin+'/api/restore',{method:'POST',headers:{Origin:worker.origin,Cookie:cookie,'Content-Type':'application/x-ndjson','x-confirm-restore':'yes'},body:archive});
+   assert.equal(baseline.status,200,await baseline.text());
+   const exported=await fetch(worker.origin+'/api/archive',{headers:{Cookie:cookie}});
+   assert.equal(exported.status,200);mainArchive=await exported.text();
+  } finally {await worker?.stop();worker=undefined;process.chdir(candidateRoot);}
+  const mainRecords=[];for await(const record of readArchive(new Response(mainArchive).body))mainRecords.push(record);
+  assert.deepEqual(mainRecords[0].migrations,sourceMigrations.map(m=>m.name),'genuine main export carries its complete applied ledger');
+  const mainRows=Object.fromEntries(mainRecords[0].tables.map(table=>[table.name,[]]));
+  for(const part of mainRecords.filter(record=>record.kind==='part'))for(const item of part.items)if(item.kind==='row')mainRows[item.table].push(item.row);
+  assert.ok(mainRows.projects.length&&mainRows.events.length,'main archive contains populated evidence');
+  worker=await startTestWorker(15789);
+  const destination=await worker.db(),destinationMigrations=await migrationFiles(process.cwd());
+  await destination.prepare(ledgerTable.sql).run();
+  await destination.batch(destinationMigrations.map(m=>destination.prepare('INSERT INTO rer_migrations(name,sha256) VALUES(?,?)').bind(m.name,m.sha256)));
+  const beforeLedger=await rows(destination,'SELECT * FROM rer_migrations ORDER BY name');
+  const cookie=await signIn(worker.origin);
+  const restored=await fetch(worker.origin+'/api/restore',{method:'POST',headers:{Origin:worker.origin,Cookie:cookie,'Content-Type':'application/x-ndjson','x-confirm-restore':'yes'},body:mainArchive});
+  const restoredBody=await restored.text();
+  assert.equal(restored.status,200,'genuine current-main archive restores through HTTP with every destination migration recorded: '+restoredBody);
+  for(const [table,data] of Object.entries(mainRows))assert.deepEqual(canonicalRows(await rows(destination,`SELECT * FROM "${table}"`)),canonicalRows(data),'HTTP restore retains main evidence: '+table);
+  for(const table of personalTables)assert.deepEqual(await rows(destination,'SELECT * FROM '+table),[],'HTTP restore invents no personal authority: '+table);
+  assert.deepEqual(await rows(destination,'SELECT * FROM rer_migrations ORDER BY name'),beforeLedger,'HTTP restore retains the complete destination ledger');
+  console.log('PROBE TEAM-005 A1: main GET /api/archive ('+sourceMigrations.length+' migrations) -> candidate POST /api/restore HTTP '+restored.status+' '+restoredBody+'; complete destination migrations='+JSON.stringify(beforeLedger.map(row=>row.name)));
+ }
 } finally {
- try { await runtime?.dispose(); } finally { await rm(temporary, {recursive: true, force: true}); }
+ try { await worker?.stop(); } finally {
+  try { await runtime?.dispose(); } finally { await rm(temporary, {recursive: true, force: true}); }
+ }
 }

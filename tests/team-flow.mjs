@@ -12,7 +12,7 @@ import {legacyMailRows} from './legacy-mail.mjs';
 import {browserMembers,memberBrowser} from './team-browser.mjs';
 
 const organization = '/api/organization';
-const client = (origin,cookie='') => {
+export const client = (origin,cookie='') => {
  const req = (path,method='GET',value,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
  const json = async (...args) => {const response=await req(...args);assert.ok(response.ok,`${args[0]} HTTP ${response.status}`);return response.json()};
  return {req,json};
@@ -42,7 +42,7 @@ async function mcpDoor(origin,project,key,issue,allowed) {
 }
 
 
-async function invite(owner,origin,input) {
+export async function invite(owner,origin,input) {
  const previousIds=(await legacyMailRows(origin)).map(row=>row.id);
  assert.equal(await status(owner.req(organization+'/invites','POST',input)),202);
  const pending=(await owner.json(organization)).members.find(row=>row.email===input.email);

@@ -1,3 +1,4 @@
+import { legacyDigestStarted } from './digest-identity';
 import { auditedBatch, auditCommit } from '../audit/context';
 import { serviceActor, auditSubject, projectAuditLabel } from '../audit/identity';
 import { sender } from '../alerts/mail';
@@ -16,6 +17,7 @@ export const recipientAuthority = (mail='q') => `EXISTS(SELECT 1 FROM spool_memb
  AND m.state='active' AND o.status='active' AND (json_extract(p.email,'$.'||${mail}.type)=1 OR ${mail}.type='issue_alert' AND EXISTS(SELECT 1 FROM spool_personal_rule_settings x JOIN alert_rules r ON r.project=x.project AND r.id=x.rule_id AND r.enabled=1 JOIN alerts a ON a.project=x.project AND a.id=${mail}.source,json_each(r.kinds) k WHERE x.project=${mail}.project AND x.mandatory=1 AND x.historical=0 AND k.value=a.kind) OR
  ${mail}.type IN('daily_digest','weekly_digest') AND EXISTS(SELECT 1 FROM spool_personal_digest_settings d WHERE d.project=${mail}.project AND d.operator_id=o.id AND d.historical=0 AND CASE ${mail}.type WHEN 'daily_digest' THEN d.daily ELSE d.weekly END=1))
  AND (o.role='owner' OR m.role='admin' OR m.role IN('member','read-only') AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=t.project))
+ AND NOT ${legacyDigestStarted(mail)}
  AND (${mail}.issue IS NULL OR EXISTS(SELECT 1 FROM issues WHERE project=${mail}.project AND id=${mail}.issue)
   AND (${mail}.type='issue_alert' OR NOT EXISTS(SELECT 1 FROM issue_subscriptions x WHERE x.project=${mail}.project AND x.issue=${mail}.issue AND x.operator_id=o.id AND x.reason='manual' AND x.state='unsubscribed'))))`;
 export async function personalBatch(env:AlertEnvironment,project:string,jobs:D1PreparedStatement[]) {
@@ -34,7 +36,10 @@ async function queuePersonalDigests(env:AlertEnvironment,time:number) {
   const period=digestPeriod(time,row.timezone,type==='daily_digest'?'daily':'weekly',row.hour);
   if(period.due<(type==='weekly_report'?row.updated:row.digest_updated))continue;
   await personalBatch(env,row.project,[s(db,`INSERT INTO spool_personal_mail(id,project,source,type,issue,operator_id,recipient_label,member_version,operator_version,created,updated,period_start,period_end,timezone)
-   VALUES(?,?,?,?,NULL,?,?,?,?,?,?,?,?,?) ON CONFLICT(project,source,type,recipient_label) DO NOTHING`,crypto.randomUUID().replaceAll('-',''),row.project,type+':'+period.key,type,row.operator_id,row.actor_label,row.member_version,row.operator_version,time,time,period.start,period.end,row.timezone)]);
+   SELECT ?,?,?,?,NULL,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(
+    SELECT 1 FROM alert_scheduled_mail a JOIN oa_operators o ON o.id=? AND o.role='owner'
+    WHERE a.project=? AND a.scope='personal' AND a.historical=0 AND a.kind||'_digest'=? AND a.period=? AND a.state IN('running','accepted','uncertain'))
+   ON CONFLICT(project,source,type,recipient_label) DO NOTHING`,crypto.randomUUID().replaceAll('-',''),row.project,type+':'+period.key,type,row.operator_id,row.actor_label,row.member_version,row.operator_version,time,time,period.start,period.end,row.timezone,row.operator_id,row.project,type,period.key)]);
  }
 }
 async function content(env:AlertEnvironment,row:any,time:number) {
@@ -101,10 +106,20 @@ export async function personalUnsubscribe(request:Request,env:AlertEnvironment):
  AND m.version=? AND o.version=? AND m.state='active' AND o.status='active'
  AND (o.role='owner' OR m.role='admin' OR m.role IN('member','read-only') AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=t.project)))`;
  await personalBatch(env,row.project,[
-  ...row.type.endsWith('_digest')?[s(db,`UPDATE spool_personal_digest_settings SET ${row.type==='daily_digest'?'daily':'weekly'}=0,revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND ${active.replaceAll('spool_notification_preferences','spool_personal_digest_settings')}`,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version)]:[s(db,`UPDATE spool_notification_preferences SET email=json_set(email,?,json('false')),revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND ${active}`, '$.'+row.type,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version)],
+  ...row.type.endsWith('_digest')?[s(db,`UPDATE spool_personal_digest_settings SET ${row.type==='daily_digest'?'daily':'weekly'}=0,revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND ${row.type==='daily_digest'?'daily':'weekly'}=1 AND ${active.replaceAll('spool_notification_preferences','spool_personal_digest_settings')}`,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version)]:[s(db,`UPDATE spool_notification_preferences SET email=json_set(email,?,json('false')),revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND json_extract(email,?)=1 AND ${active}`, '$.'+row.type,Date.now(),row.project,row.operator_id,'$.'+row.type,row.member_version,row.operator_version)],
+  auditCommit(db,'changes()>0'),
   s(db,`UPDATE spool_personal_mail SET state='canceled',code='unsubscribed',updated=MAX(updated,?) WHERE project=? AND operator_id=? AND type=? AND state='queued' AND changes()>0
    AND (type<>'issue_alert' OR NOT EXISTS(SELECT 1 FROM spool_personal_rule_settings x JOIN alert_rules r ON r.project=x.project AND r.id=x.rule_id AND r.enabled=1
     JOIN alerts a ON a.project=x.project AND a.id=spool_personal_mail.source,json_each(r.kinds) k WHERE x.project=spool_personal_mail.project AND x.mandatory=1 AND x.historical=0 AND k.value=a.kind))`,Date.now(),row.project,row.operator_id,row.type),
+  ...row.type.endsWith('_digest')?[
+   s(db,`UPDATE alert_digest_settings SET personal_${row.type==='daily_digest'?'daily':'weekly'}=0,updated=? WHERE project=? AND personal_${row.type==='daily_digest'?'daily':'weekly'}=1
+    AND EXISTS(SELECT 1 FROM spool_notification_preferences WHERE project=alert_digest_settings.project AND operator_id=? AND historical=0 AND ${active})
+    AND EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND role='owner' AND status='active')`,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version,row.operator_id),
+   auditCommit(db,'changes()>0'),
+   s(db,`UPDATE alert_scheduled_mail SET state='canceled',code='unsubscribed',updated=MAX(updated,?) WHERE project=? AND scope='personal' AND kind=? AND state='queued'
+    AND EXISTS(SELECT 1 FROM spool_notification_preferences WHERE project=alert_scheduled_mail.project AND operator_id=? AND historical=0 AND ${active})
+    AND EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND role='owner' AND status='active')`,Date.now(),row.project,row.type==='daily_digest'?'daily':'weekly',row.operator_id,row.member_version,row.operator_version,row.operator_id),
+  ]:[],
  ]);
  return new Response('Optional email notifications of this type are off for this project. Other members are unaffected.',{headers});
 }
