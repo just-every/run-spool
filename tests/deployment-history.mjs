@@ -14,7 +14,8 @@ let browser;
 try {
  const cookie=await signIn(origin),req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...body?{'Content-Type':typeof body==='string'?'application/x-ndjson':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
  const json=async(...args)=>{const r=await req(...args);assert.ok(r.ok,`${args[0]} ${r.status}: ${await r.clone().text()}`);return r.json()};
- await releaseOrderFlow({req,json});
+ browser=await launchBrowser();
+ await releaseOrderFlow({req,json,db:await app.db(),origin,cookie,browser});
  const project=await json('/api/projects','POST',{id:'deployment-history',name:'Cedar checkout deployment history'}),base='/api/projects/'+project.id;
  await json(base+'/releases','POST',{name:'checkout@1.0.0',build:'web-1'});await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web-2'});
  const deploy=await json(base+'/keys','POST',{kind:'deploy'}),agent=await json(base+'/keys','POST',{kind:'agent'}),service={Cookie:'',Authorization:'Bearer '+deploy.key};
@@ -23,7 +24,7 @@ try {
  const start=(id,more={})=>({id,release:'checkout@2.0.0',build:'web-2',environment:'production',repository:'https://example.test/cedar/checkout',commitSha:sha,previousCommit:prior,includedCommits:[prior,sha],startedAt:new Date(now-60000).toISOString(),deadline:new Date(now+3600000).toISOString(),destination:dest.id,...more});
  const callback=(state,exposure=100,more={})=>({callback:state,state,exposure,at:new Date(now).toISOString(),...more});
  assert.deepEqual((await json(root)).rows,[]);
- browser=await launchBrowser();await mkdir('.artifacts/REL-001',{recursive:true});
+ await mkdir('.artifacts/REL-001',{recursive:true});
  const screens=async(label)=>{for(const width of [1440,390]){const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/releases');const panel=page.locator('#deployment-history');await panel.getByRole('heading',{name:'Deployment history',exact:true}).waitFor();await panel.getByText(label==='empty'?'No deployment runs recorded.':'Caller recorded; repository ancestry has not been read back.',{exact:true}).first().waitFor({state:label==='empty'?'visible':'attached'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'REL-001 responsive history');await panel.screenshot({path:`.artifacts/REL-001/${label}-${width}.png`});if(label!=='empty')for(const card of await panel.locator('article').all()){const id=(await card.locator('h3').innerText()).split(' · ')[0];await card.locator('summary').click();assert.deepEqual(await card.locator('details li').allTextContents(),[prior,sha]);await card.screenshot({path:`.artifacts/REL-001/${id}-${width}.png`})}await context.close()}};
  await screens('empty');
  await json(root,'POST',start('deploy-only'),service);assert.equal((await req(root,'POST',start('deploy-only'),service)).status,200);
