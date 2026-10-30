@@ -1,3 +1,4 @@
+import { restoredWork } from '../restored-work';
 import { observe } from './observation';
 
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
@@ -14,6 +15,7 @@ export async function repairView(db: D1Database, row: any) {
  ]);
  const present = new Set(retained.results.map(event => event.id));
  return {
+  ...(await restoredWork(db,row.project,'repair',row.id)?{historical:true}:{}),
   id: row.id, issue: row.issue, revision: row.revision, recordedBy: 'owner', trust: REPAIR_TRUST, link: row.link, note: row.note, created: row.created, updated: row.updated,
   snapshot: { issueRevision: row.snapshot_revision, releaseSequence: row.snapshot_release_seq, events: ids.map(id => ({ id, state: present.has(id) ? 'retained' : 'removed_by_retention' })) },
   facts: { proposed: row.created, approved: row.approved, merged: row.merged,
