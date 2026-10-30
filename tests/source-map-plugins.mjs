@@ -115,6 +115,16 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  const {sourceMapCli}=await import('../packages/sdk/src/sourcemaps/cli.mjs');
  const late=resolve(app,'withheld.js');await writeFile(late,'throw new Error("synthetic-spool-17");');await writeFile(late+'.map',JSON.stringify({version:3,sources:['src/late.js'],sourcesContent:['throw new Error("synthetic-spool-17");'],names:[],mappings:'AAAA'}));
  const declared=(await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}))).data.source_map_builds;
+ for(const row of incomplete){
+  const expected=JSON.parse(declared.find(set=>set.project==='synthetic-spool-17'&&set.release===row.release&&set.build===row.build).expected);
+  const narrowed=await fetch(origin+base+'/releases',{method:'POST',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({name:row.release,build:row.build,requiredArtifacts:expected.filter(name=>name!=='withheld.js.map')})});
+  assert.equal(narrowed.status,409,row.release+': an incomplete set cannot become complete by dropping its missing map');await narrowed.body?.cancel();
+  const stillIncomplete=await fetch(origin+base+'/artifact-builds/verify',{method:'POST',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({release:row.release,build:row.build})});
+  assert.equal(stillIncomplete.status,409);const {error,...state}=await stillIncomplete.json();assert.deepEqual(state,row,'refused declaration changes preserve the exact missing map list');assert.match(error,/withheld\.js\.map/);
+ }
+ const afterRefusal=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ assert.deepEqual(afterRefusal.data.source_map_builds,declared,'refused set narrowing preserves every original declaration');
+ assert.deepEqual((await request(base+'/sentry-uploads')).artifacts,before,'refused set narrowing changes no existing artifact');
  for(const row of incomplete)await sourceMapCli(['--endpoint',origin,'--project','synthetic-spool-17','--release',row.release,'--build','b1','--key-env','SYNTHETIC_SPOOL_BUILD',...JSON.parse(declared.find(set=>set.project==='synthetic-spool-17'&&set.release===row.release&&set.build===row.build).expected).flatMap(name=>['--required-map',name]),late]);
  const completed=await request(base+'/sentry-uploads');assert.ok(completed.builds.every(row=>row.state==='complete'));for(const row of before)assert.ok(completed.artifacts.some(after=>after.release===row.release&&after.debug===row.debug&&after.digest===row.digest),'late maps preserve earlier identities');
  // A corrupted checksum is refused by name through the authenticated native upload door.
@@ -141,10 +151,12 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
    assert.equal(response.status,status,label+': native '+path+' refuses without deploy authority');await response.body?.cancel();
   }
  }
+ const credentialsBefore=await request(base+'/keys');
  for(const [path,method,body] of [[base+'/sentry-uploads','GET'],[base+'/issues','GET'],['/api/archive','GET'],[base+'/keys','POST',{kind:'agent'}],[base+'/artifact-storage','PUT',{revision:0,artifact_storage_cap:0}],[base+'/retention','POST',{cutoff:Date.now(),apply:true}]]){
   const response=await grantRequest(origin,path,method,deploy.key,body);
   assert.equal(response.status,401,'deploy authority cannot reach '+path);await response.body?.cancel();
  }
+ assert.deepEqual(await request(base+'/keys'),credentialsBefore,'a denied credential mint creates no authority');
  await request(base+'/keys/'+deploy.hash,'DELETE');
  for(const [path,body] of [['/releases',{name:'synthetic-spool-revoked-replay',build:'b1'}],['/artifacts',upload],['/artifact-builds/verify',verify]]){
   const response=await grantRequest(origin,base+path,'POST',deploy.key,body);assert.equal(response.status,401,'revocation immediately denies a previously successful deploy grant');await response.body?.cancel();
