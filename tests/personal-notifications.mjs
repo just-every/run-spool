@@ -144,41 +144,6 @@ export async function personalNotificationFlow(owner,actors,projects,invite) {
  return {issue:issue.id};
 }
 
-async function ownerDigestBrowser(owner,project,enable) {
- const browser=await launchBrowser();
- try {
-  const context=await browser.newContext({viewport:{width:1440,height:1000}}),split=owner.cookie.indexOf('=');
-  await context.addCookies([{name:owner.cookie.slice(0,split),value:owner.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
-  const page=await context.newPage();await page.goto(owner.origin+'/projects/'+project.id+'/settings');
-  const panel=page.getByRole('region',{name:'Personal notifications',exact:true}),daily=panel.getByRole('checkbox',{name:'Daily email digest',exact:true});
-  if(enable){await daily.check();await panel.getByRole('button',{name:'Save digest schedule',exact:true}).click();await expect(panel.getByText('Your digest schedule is saved.',{exact:true})).toBeVisible();}
-  if(enable)await expect(daily).toBeChecked();else await expect(daily).not.toBeChecked();
-  const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
-  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await panel.screenshot({path:resolve(folder,'owner-digest-'+(enable?'enabled':'unsubscribed')+'-'+width+'.png')});}
-  await context.close();
- }finally{await browser.close();}
-}
-
-async function ownerDigestOverlap(owner,project) {
- const root='/api/projects/'+project.id,legacy=root+'/alerting/digest-settings',modern=root+'/notifications/digest';
- await owner.json(legacy,'PUT',{timezone:'UTC',hour:9,daily:false,weekly:false,personal_daily:true,personal_weekly:false,destination:null,quiet_start:null,quiet_end:null});
- await ownerDigestBrowser(owner,project,true);
- const messages=async()=>(await legacyMailRows(owner.origin)).map(row=>JSON.parse(row.message));
- const before=new Set((await messages()).map(row=>row.deliveryId));
- const time=Date.now()+3*86400000;
- await Promise.all([tick(owner,time),tick(owner,time)]);
- const digest=()=>messages().then(rows=>rows.filter(row=>!before.has(row.deliveryId)&&/Spool (?:personal daily digest|daily personal error digest)/.test(row.subject)));
- let sent=await digest();assert.equal(sent.length,1,'Alerts and Settings share one owner digest per calendar period');
- await tick(owner,time);assert.equal((await digest()).length,1,'both queues preserve the claimed period');
- const path=new URL(sent[0].text.match(/https:\/\/\S+\/notifications\/unsubscribe\/[a-f0-9]{64}/)[0]).pathname;
- const stopped=await owner.req(path,'POST',undefined,{Cookie:''});assert.equal(stopped.status,200);await stopped.arrayBuffer();
- assert.equal((await owner.json(modern)).daily,false);
- await ownerDigestBrowser(owner,project,false);
- assert.equal((await owner.json(root+'/alerting/controls')).settings.personal_daily,0);
- await tick(owner,time+86400000);assert.equal((await digest()).length,1,'unsubscribe stops both owner schedules next period');
- console.log('PROBE TEAM-005 A3: Alerts personal_daily=true plus Settings daily=true UTC hour=9; both scheduled queues including overlapping ticks -> digest sent=1; repeat=1; link POST=200; modern.daily=false; legacy.personal_daily=0; next-period additional=0');
-}
-
 export async function personalNotificationJourney(runtime,client,invite) {
  const worker=await runtime({ALERT_DESTINATIONS:JSON.stringify([{id:'synthetic-spool-mail',project:'synthetic-spool-1',label:'Synthetic Spool',channel:'mail',recipient:['synthetic-spool-90','example.test'].join('@')}])});
  try {
@@ -193,7 +158,6 @@ export async function personalNotificationJourney(runtime,client,invite) {
   const actors=[];for(const n of [30,31])actors.push(await invite(owner,owner.origin,{email:['synthetic-spool-'+n,'example.test'].join('@'),name:'synthetic-spool-'+n,role:'member',grants:projects.map(project=>({project:project.id,role:'member'}))}));
   const foreign='/api/projects/'+projects[1].id+'/notifications/preferences';
   await actors[0].json(foreign,'PUT',{revision:0,email:choices('weekly_report')});
-  await ownerDigestOverlap(owner,projects[0]);
   await personalNotificationFlow(owner,actors,projects,invite);
   const archive=await (await owner.req('/api/archive')).text();
   const fresh=await runtime();

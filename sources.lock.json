@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8a77e3f51b1a9f8c8958f567b4a04d7dcc887fde954905abeb9a246fe00a1eda",
+      "sha256": "11221aa8019e3e5718739c51bc3c06a219b87686b121161080f2d9a1656046ab",
       "executable": false
     },
     "DEMO.md": {
@@ -4817,7 +4817,7 @@
       "executable": false
     },
     "src/domain/alerts/digests.ts": {
-      "sha256": "8e7409430bcef9f8d2fd30070df8f77abc6906108e3943c181f2d703049e9c00",
+      "sha256": "1b4499497a24779bf8ce7b95e76e4a9bdf5f29f156aac472186d3a5cde2b0440",
       "executable": false
     },
     "src/domain/alerts/dispatch.ts": {
@@ -4849,7 +4849,7 @@
       "executable": false
     },
     "src/domain/alerts/scheduled-mail.ts": {
-      "sha256": "e598691caea97460ce68be3a120a357d38b44870d16d178e8130768439bed9e5",
+      "sha256": "99e900422e9eba712358c6c40d03efdc76e4145d4ecad8d407f3a7557596784b",
       "executable": false
     },
     "src/domain/alerts/slack-archive.ts": {
@@ -5469,7 +5469,7 @@
       "executable": false
     },
     "src/domain/notifications/digest-identity.ts": {
-      "sha256": "0c54a8e6be2002ef9bf5ca72faa892b0d275ac42a77f27b9b471921dee59765f",
+      "sha256": "3ff35be8ba2fdac53c97a32f94605caef0002a87723a765bf6064307c1d9ce44",
       "executable": false
     },
     "src/domain/notifications/model.ts": {
@@ -9033,7 +9033,7 @@
       "executable": false
     },
     "tests/personal-notifications.mjs": {
-      "sha256": "ed6e4a6596acf59cb00460ac038609d6230b0ed255fad63d350749eb79dd7e29",
+      "sha256": "97e22bcb237c8e7d0eade089860847f8012518ebf3d94196217783c1c0e27f1c",
       "executable": false
     },
     "tests/preview-session.mjs": {
