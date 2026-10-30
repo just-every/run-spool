@@ -83,7 +83,15 @@ routes.on('POST',paths,async c=>{
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
       }
       const identity=await prepareEventIdentity(c.env.DB,scope.project,raw.user);
-      events.push({event:convertSentry(raw,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined),digest:await hash(canonical(raw)),identity});
+      let event;
+      // Conversion validates only this item's fields. A bad companion must not
+      // suppress the envelope's diagnostic receipts or other valid errors.
+      try{event=convertSentry(raw,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined)}
+      catch(error){
+        if(store||envelope.items.length===1)throw error;
+        dropped.set('invalid_item',(dropped.get('invalid_item')??0)+1);continue;
+      }
+      events.push({event,digest:await hash(canonical(raw)),identity});
     }
     if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
     // Keep a standalone feedback refusal explicit; a bad companion item must

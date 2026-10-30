@@ -121,8 +121,14 @@ try{
   const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
   const isolatedProject=await json('/api/projects','POST',{id:'synthetic-spool-7',name:'Synthetic companion isolation'}),isolatedDsn=new URL(isolatedProject.dsn);
   const isolatedPath='/api'+isolatedDsn.pathname+'/envelope/?sentry_key='+isolatedDsn.username+'&sentry_version=7';
+  const invalidCompanionItems=[...invalidFeedbackItems,
+    ['event','{}','invalid_item'],
+    ['event',JSON.stringify({event_id:'synthetic-spool-8',message:'Synthetic invalid identity'}),'invalid_item'],
+    ['event',JSON.stringify({...event,event_id:'8'.repeat(32),debug_meta:{images:[{type:'sourcemap',code_file:'https://app.example/app.js?token=PRIVATE_URL',debug_id:'synthetic-spool-8'},{type:'sourcemap',code_file:'https://app.example/app.js?token=PRIVATE_URL',debug_id:'synthetic-spool-9'}]}}),'invalid_item'],
+    ['event',JSON.stringify({event_id:'9'.repeat(32),environment:{},message:'Synthetic invalid environment'}),'invalid_item']
+  ];
   let companionNumber=0;
-  for(const [type,body,refusal] of invalidFeedbackItems)for(const invalidFirst of [true,false]){
+  for(const [type,body,refusal] of invalidCompanionItems)for(const invalidFirst of [true,false]){
     const companionId=(++companionNumber).toString(16).padStart(32,'0');
     const good=['event',JSON.stringify({event_id:companionId,release:'synthetic-spool-7',message:'Synthetic companion error'})];
     const bad=[type,body],items=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],...(invalidFirst?[bad,good]:[good,bad])];
@@ -132,9 +138,9 @@ try{
     assert.deepEqual(receipt.dropped,{sentry_unsupported_statsd:2,sentry_unsupported_unknown:3,[refusal]:1});
   }
   const isolatedCounts=await json('/api/projects/synthetic-spool-7/outcomes'),isolatedCount=reason=>isolatedCounts.rows.find(row=>row.reason===reason)?.count??0;
-  assert.equal(isolatedCount('sentry_unsupported_statsd'),20);assert.equal(isolatedCount('sentry_unsupported_unknown'),30);
-  assert.equal(isolatedCount('accepted'),10);assert.equal(isolatedCount('feedback_invalid'),8);assert.equal(isolatedCount('feedback_oversized'),2);
-  const isolatedIssues=await json('/api/projects/synthetic-spool-7/issues');assert.equal(isolatedIssues.length,1);assert.equal(isolatedIssues[0].count,10);
+  assert.equal(isolatedCount('sentry_unsupported_statsd'),36);assert.equal(isolatedCount('sentry_unsupported_unknown'),54);
+  assert.equal(isolatedCount('accepted'),18);assert.equal(isolatedCount('feedback_invalid'),8);assert.equal(isolatedCount('feedback_oversized'),2);assert.equal(isolatedCount('invalid_item'),8);
+  const isolatedIssues=await json('/api/projects/synthetic-spool-7/issues');assert.equal(isolatedIssues.length,1);assert.equal(isolatedIssues[0].count,18);
   assert.deepEqual((await json('/api/projects/synthetic-spool-7/feedback')).items,[]);
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});

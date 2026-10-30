@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "2dcff2929e7f2ce709f2be3b6d63e770836ebb4d49b8eb1048e65531a222b7ba",
+      "sha256": "914165d2827cb38c15530d9bfba321c86ae5592314e596608e1b4255cbc1169f",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "90bc6ee2b0464109874611f14230619a17f8f13965275c2afe995978dbe7e8ac",
+      "sha256": "dec26f2d57f35a974d53131121d7381f61e72f386436c4624f58009c77e5f56e",
       "executable": false
     },
     "DEMO.md": {
@@ -5905,7 +5905,7 @@
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
-      "sha256": "898436ade85cfdda1e8664831c765a46f3a2a26fba1fb6c814a21fe3674c7ad6",
+      "sha256": "1b832f3638c06afcbab334f18240f7648ca6af4267332f7cd8b391047dd9075b",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -8265,7 +8265,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureReceipts.tsx": {
-      "sha256": "e003e54005c3efeca28e3c0680fafd1f3695a088646ab4e41357d6362d76bd67",
+      "sha256": "3bdf0b0db1b9fd94bbfd49aae9bbd664e53309d861b501e4c556dcaa9402ea8d",
       "executable": false
     },
     "src/ui/workbench/captureStatus.ts": {
@@ -9349,7 +9349,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "9575e6183ca7c4ccd51cfd0ac459f77ccb7a93dbd3f7656edca52b9b52e18803",
+      "sha256": "27a14cd8e9685385dd873221dfca4a93f4c4b9d52219ca7216968db1782cf24f",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -9417,7 +9417,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "131e2393eec2c806f7458d1fe185a568cb9f8fe0f40fa2a2d8890c2c9dad5d87",
+      "sha256": "acde99faf5e1e292f2d96cee56849eeaa7da27a0f4fef66711430842352fa69a",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
