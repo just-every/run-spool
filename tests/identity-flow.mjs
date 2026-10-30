@@ -20,7 +20,7 @@ export async function identityFlow({browser}){
   await page.context().addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
  };
  const app=api(origin,cookie),p=await app.json('/api/projects','POST',{id:'synthetic-spool-identity',name:'Checkout identity policy'}),root='/api/projects/'+p.id,dir=await mkdtemp(join(tmpdir(),'spool-identity-')),ref=await referenceCollector(),canary=crypto.randomUUID().replace(/[0-9]/g,d=>String.fromCharCode(97+Number(d)));
- const users=[{id:'synthetic-spool-id-'+canary},{email:'synthetic-spool-'+canary+'@example.test'},{username:'synthetic-spool-user-'+canary},{ip_address:'{{auto}}'},{ip_address:'{{auto}}'},{ip_address:'192.0.2.41'},{ip_address:'2001:db8::42'}],raw=users.flatMap(u=>Object.values(u)).filter(v=>v!=='{{auto}}');let server,restored;
+ const users=[{id:'synthetic-spool-id-'+canary},{email:['synthetic-spool-'+canary,'example.test'].join('@')},{username:'synthetic-spool-user-'+canary},{ip_address:'{{auto}}'},{ip_address:'{{auto}}'},{ip_address:'192.0.2.41'},{ip_address:'2001:db8::42'}],raw=users.flatMap(u=>Object.values(u)).filter(v=>v!=='{{auto}}');let server,restored;
  try{
   const dsn=new URL(p.dsn),transport=new URL(origin);dsn.protocol=transport.protocol;dsn.host=transport.host;p.dsn=dsn.href;
   const initial=await app.json(root+'/identity-policy');assert.deepEqual(Object.values(initial.policy),['drop','drop','drop','drop']);
@@ -63,7 +63,9 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
  const foreignIssues=await app.json(foreignRoot+'/issues');assert.equal(foreignIssues.length,1);assert.equal(foreignIssues[0].count,1);
  const foreignIssue=foreignRoot+'/issues/'+foreignIssues[0].id;
  assert.equal((await app.json(foreignIssue+'/packet')).events.length,1,'foreign-project refusal addresses a real retained SDK capture');
- const identity={email:['synthetic-spool-reader','example.test'].join('@'),name:'Identity reader',role:'read-only',grants:[{project:project.id,role:'read-only'}]};
+ // Both organization-wide and project-only read-only authority use the same retained evidence.
+ for(const role of ['read-only','member']) {
+ const identity={email:['synthetic-spool-reader-'+role,'example.test'].join('@'),name:'Identity reader',role,grants:[{project:project.id,role:'read-only'}]};
  const invited=await inviteMember(app,origin,identity);
  // Sign in again normally so authority does not depend on the invitation cookie.
  const cookie=await emailSignIn(origin,identity.email),reader=api(origin,cookie);
@@ -119,10 +121,11 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
    assert.match(await section.innerText(),/2 of 7 occurrences have no retained user key/);
    assert.equal(await section.getByText('Owner identity values',{exact:true}).count(),0);
    privateFree(await page.content(),'Rendered issue detail');
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'the populated collaborator issue fits the desktop viewport');
    assert.deepEqual((await new AxeBuilder({page}).include('[aria-label="Affected users"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
    for(const width of [1440,390]) {
     await page.setViewportSize({width,height:1000});
-    await page.getByRole('main').screenshot({path:`.artifacts/identity/reader-${index}-${width}.png`});
+    await page.getByRole('main').screenshot({path:`.artifacts/identity/reader-${role}-${index}-${width}.png`});
    }
   }
   const received=(await Promise.all(responses)).filter(Boolean);
@@ -137,6 +140,7 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
   await page.reload();await page.waitForURL(url=>url.pathname==='/sign-in');
   privateFree(await page.content(),'Removed collaborator screen');
   for(const issue of issues){const owner=await app.json(root+'/issues/'+issue.id+'/affected-users');assert.equal(owner.events,7);assert.equal(owner.affectedUsers,5);assert.equal(owner.unattributed,2);assert.ok(raw.every(value=>JSON.stringify(owner.rows).includes(value)),'refusals leave the owner evidence unchanged')}
-  console.log('[SDK-026] native read-only collaborator: each SDK issue has 5 users and 2 unattributed of 7; no identity rows or raw values in HTTP, rendered detail, packets or JSON and CSV exports; owner positive control, foreign-project and next-read removal refusals; 1440 and 390 screens passed');
+  console.log('[SDK-026] native '+role+' with read-only project authority: each SDK issue has 5 users and 2 unattributed of 7; no identity rows or raw values in HTTP, rendered detail, packets or JSON and CSV exports; owner positive control, foreign-project and next-read removal refusals; 1440 and 390 screens passed');
  } finally {await context.close()}
+ }
 }
