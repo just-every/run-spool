@@ -102,7 +102,9 @@ export async function personalUnsubscribe(request:Request,env:AlertEnvironment):
  AND (o.role='owner' OR m.role='admin' OR m.role IN('member','read-only') AND EXISTS(SELECT 1 FROM spool_project_grants g WHERE g.member=m.id AND g.project=t.project)))`;
  await personalBatch(env,row.project,[
   ...row.type.endsWith('_digest')?[s(db,`UPDATE spool_personal_digest_settings SET ${row.type==='daily_digest'?'daily':'weekly'}=0,revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND ${active.replaceAll('spool_notification_preferences','spool_personal_digest_settings')}`,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version)]:[s(db,`UPDATE spool_notification_preferences SET email=json_set(email,?,json('false')),revision=revision+1,updated=? WHERE project=? AND operator_id=? AND historical=0 AND ${active}`, '$.'+row.type,Date.now(),row.project,row.operator_id,row.member_version,row.operator_version)],
-  s(db,"UPDATE spool_personal_mail SET state='canceled',code='unsubscribed',updated=MAX(updated,?) WHERE project=? AND operator_id=? AND type=? AND state='queued' AND changes()>0",Date.now(),row.project,row.operator_id,row.type),
+  s(db,`UPDATE spool_personal_mail SET state='canceled',code='unsubscribed',updated=MAX(updated,?) WHERE project=? AND operator_id=? AND type=? AND state='queued' AND changes()>0
+   AND (type<>'issue_alert' OR NOT EXISTS(SELECT 1 FROM spool_personal_rule_settings x JOIN alert_rules r ON r.project=x.project AND r.id=x.rule_id AND r.enabled=1
+    JOIN alerts a ON a.project=x.project AND a.id=spool_personal_mail.source,json_each(r.kinds) k WHERE x.project=spool_personal_mail.project AND x.mandatory=1 AND x.historical=0 AND k.value=a.kind))`,Date.now(),row.project,row.operator_id,row.type),
  ]);
- return new Response('Email notifications of this type are off for this project. Other members are unaffected.',{headers});
+ return new Response('Optional email notifications of this type are off for this project. Other members are unaffected.',{headers});
 }
