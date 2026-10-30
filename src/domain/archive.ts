@@ -103,7 +103,7 @@ export async function validateArchiveRows(data:any,legacy=false,alertRules:any[]
     if(fieldsHaveProject(table)&&row.project!==null&&!projects.has(row.project))throw new Error('Archive project reference');
     if(row.issue && (issues.get(row.issue) as any)?.project!==row.project)throw new Error('Archive issue reference');
   }
-  validateNotificationPreferences(data);
+  validateNotificationPreferences(data,alertRules);
   validateLifecycleArchive(data);
   validateIssueReleases(data);
   await validateBundleRoutes(data);

@@ -13,7 +13,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
- alert_rules: ['name'], rer_mail_development_outbox: ['message'],
+ alert_mail_jobs:['message'], alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
  // TEAM-004: a cited commit's author is matched like any captured value, as whole tokens.
  commits: ['author_name','author_email','message'],
@@ -21,7 +21,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  sentry_releases: ['url'], sentry_deploys: ['name','url'],
 };
 const jsonColumns = new Set(['payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
-const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';
+const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || ['alert_mail_jobs','rer_mail_development_outbox'].includes(table) && column === 'message';
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));
 const containsValue = (value: any, needles: string[]): boolean => typeof value==='string' ? contains(value,needles) : Array.isArray(value) ? value.some(item=>containsValue(item,needles)) : !!value && typeof value==='object' && Object.entries(value).some(([key,item])=>contains(key,needles)||containsValue(item,needles));
