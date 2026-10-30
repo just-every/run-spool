@@ -39,9 +39,10 @@ export function subscribe(db:D1Database,project:string,issue:string,operator:str
 }
 export async function subscription(db:D1Database,project:string,issue:string,operator:string):Promise<Subscription> {
  const rows=(await s(db,'SELECT reason,state,updated FROM issue_subscriptions WHERE project=? AND issue=? AND operator_id=?',project,issue,operator).all<{reason:string;updated:number;state:'subscribed'|'unsubscribed'}>()).results;
+ const follows=(await s(db,'SELECT reason FROM spool_issue_follows WHERE project=? AND issue=? AND operator_id=? AND historical=0',project,issue,operator).all<{reason:string}>()).results;
  const manualRow=rows.find(row=>row.reason==='manual'),manual=manualRow?.state;
  const explicit=manual==='subscribed'||manual==='unsubscribed'?manual:null;
- const reasons=rows.filter(row=>row.state==='subscribed').map(row=>row.reason);
+ const reasons=[...new Set([...rows.filter(row=>row.state==='subscribed').map(row=>row.reason),...follows.map(row=>row.reason)])];
  return {subscribed:explicit==='unsubscribed'?false:reasons.length>0,explicit,reasons,version:manualRow?.updated??0};
 }
 

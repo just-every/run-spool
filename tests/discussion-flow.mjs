@@ -1,3 +1,4 @@
+import {launchBrowser} from './browser-launch.mjs';
 import {busyMemberWrites} from './busy-member-writes.mjs';
 import {chromium} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -63,7 +64,7 @@ export async function discussionFlow(owner,first,second,reader,projects,issues,b
  assert.ok(current.activity.some(row=>row.kind==='unsubscribed'));
  await (admin??owner).json(base+'/comments/'+created.id,'DELETE',{revision:current.revision,version:edited.version});
  current=await read();assert.ok(!current.comments.some(row=>row.id===created.id),'an administrator can delete a comment');
- const browser=await chromium.launch({headless:true});try{
+ const browser=await launchBrowser();try{
   const context=await browser.newContext({viewport:{width:1440,height:1000}});await context.addCookies(first.cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:owner.origin.replace('http:','https:'),secure:true})));const page=await context.newPage();
   await page.goto(owner.origin+'/projects/'+projects[0].id+'/issues/'+issues[0].id);await page.getByLabel('Priority',{exact:true}).waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();
   await Promise.all([page.waitForResponse(response=>response.url().endsWith('/priority')&&response.ok()),page.waitForResponse(response=>response.url().endsWith('/discussion')&&response.ok()),page.getByLabel('Priority',{exact:true}).selectOption('medium')]);

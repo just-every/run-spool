@@ -1,3 +1,4 @@
+import { assignmentStatements } from '../notifications/assignment';
 import { Hono } from 'hono';
 import { scrub } from '../privacy';
 import { policyInput } from './validation';
@@ -9,12 +10,13 @@ const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');
  const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,'SELECT * FROM issue_assignments WHERE project=?',p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
- return c.json({policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A bounded operator label, not an account, invitation, permission or notification.'});
+ return c.json({policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A label alone grants no authority. Explicit native member or team targets add subscription reasons for current project members.'});
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);
  if(!Number.isSafeInteger(b.revision)||b.label!==null&&(typeof b.label!=='string'||!b.label.trim()||b.label.length>80||scrub(b.label)!==b.label))throw new Error('Use a scrubbed operator label up to 80 characters, or null to unassign');
- try{await write(c,auth.session,[guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',p,issue,b.revision),s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',p,issue),s(db,'INSERT INTO issue_assignments VALUES(?,?,?,?) ON CONFLICT(issue) DO UPDATE SET label=excluded.label,updated=excluded.updated',p,issue,b.label,Date.now()),audit(db,p,'issue_assigned',{issue,label:b.label,revision:b.revision+1})]);return c.json({issue,label:b.label,revision:b.revision+1})}catch(e){return conflict(c,e)}
+ const native=await assignmentStatements(db,p,issue,b);
+ try{await write(c,auth.session,[...native,guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',p,issue,b.revision),s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',p,issue),s(db,'INSERT INTO issue_assignments VALUES(?,?,?,?) ON CONFLICT(issue) DO UPDATE SET label=excluded.label,updated=excluded.updated',p,issue,b.label,Date.now()),audit(db,p,'issue_assigned',{issue,label:b.label,revision:b.revision+1})]);return c.json({issue,label:b.label,revision:b.revision+1})}catch(e){return conflict(c,e)}
 });
 routes.post('/:project/suppression-policies',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),b=policyInput(await body(c)),id=crypto.randomUUID(),time=Date.now();
