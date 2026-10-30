@@ -27,8 +27,8 @@ export async function personalNotificationFlow(owner,actors,projects,invite) {
  await capture('synthetic-spool-personal-1');
  const issue=(await owner.json(root+'/issues')).find(row=>row.type==='SyntheticSpoolNotification'||row.title.includes('synthetic-spool-notification'));assert.ok(issue);
  const door=root+'/issues/'+issue.id;
- const drain=async(time=Date.now()+1000)=>{const before=new Set((await personal(owner)).map(row=>row.deliveryId));await tick(owner,time);return (await personal(owner)).filter(row=>!before.has(row.deliveryId));};
- let sent=await drain();assert.deepEqual(addresses(kind(sent,'issue_alert')),actors.map(actor=>actor.member.email).sort(),'personal issue alerts reach both opted-in project members');assert.equal((await personal(owner)).length,initial+2);
+ const drain=async(time=Date.now()+1000,concurrent=false)=>{const before=new Set((await personal(owner)).map(row=>row.deliveryId));if(concurrent)await Promise.all([tick(owner,time),tick(owner,time)]);else await tick(owner,time);return (await personal(owner)).filter(row=>!before.has(row.deliveryId));};
+ let sent=await drain(Date.now()+1000,true);assert.deepEqual(addresses(kind(sent,'issue_alert')),actors.map(actor=>actor.member.email).sort(),'overlapping scheduler claims deliver once to both opted-in project members');assert.equal((await personal(owner)).length,initial+2);
  await a.json(door+'/bookmark','PUT',{bookmarked:true});
  let discussion=await b.json(door+'/discussion');await b.json(door+'/subscription','PUT',{subscribed:true,version:discussion.subscription.version});
  assert.ok((await a.json(door+'/discussion')).subscription.reasons.includes('bookmark'));
