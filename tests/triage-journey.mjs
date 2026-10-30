@@ -112,7 +112,6 @@ try {
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.waitForResponse(response=>response.url().endsWith('/packet'),{timeout:30000});await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}
  assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow');
- await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
  const diagnostics=await api('/api/projects','POST',{id:'synthetic-spool-1',name:'Synthetic item diagnostics'}),dsn=new URL(diagnostics.dsn);
  const diagnosticItems=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],['event',JSON.stringify({event_id:'7'.repeat(32),release:'synthetic-spool-1',message:'Synthetic diagnostic companion error'})]];
  const diagnosticWire='{}\n'+diagnosticItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
@@ -127,6 +126,8 @@ try {
   assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
  }
  await capture('capture-item-diagnostics',width);checked('Capture receipts name statsd and unknown item counts separately from the accepted companion error');
+
+ await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
 
 }finally{await browser?.close();await application?.stop();await worker.stop();}
 }
