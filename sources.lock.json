@@ -5267,6 +5267,10 @@
       "sha256": "2e5601c686e839b593eebd2e2c0cb4e54ebc00b3ecfcd30bcc2ff1ad55de4b6d",
       "executable": false
     },
+    "src/base/contract-anchor.mjs": {
+      "sha256": "b63993a57cff119f3f1d4407963d2623abe18733fffb0f04de12f43bc503821d",
+      "executable": false
+    },
     "src/base/contract-docs.mjs": {
       "sha256": "9df82c57404ec33c5807973e25dda23514dde977c5d9de7ff025386ebf21a75c",
       "executable": false
@@ -6779,6 +6783,10 @@
       "sha256": "2f2411c94af00854c4d040ae74a8e6bd11da98308e7d5b0211473f46679d791a",
       "executable": false
     },
+    "src/foundation/runtime/contract-anchor.mjs": {
+      "sha256": "b63993a57cff119f3f1d4407963d2623abe18733fffb0f04de12f43bc503821d",
+      "executable": false
+    },
     "src/foundation/runtime/CONTRACT-DOCS.md": {
       "sha256": "b6d963e711b68cfd4343d729028437b5df058c8cb88d95492d87e276b114335c",
       "executable": false
@@ -6947,6 +6955,10 @@
       "sha256": "0568321ca8cc6c5ff5056d3e12868795aadfedd17c51aa693dd4517450a9e867",
       "executable": false
     },
+    "src/modules/agent-door/company-policy.ts": {
+      "sha256": "884846582a35c7783aab697752a3fc3ae682424897139ac6c73302450e25abb0",
+      "executable": false
+    },
     "src/modules/agent-door/conformance/audit-pages.mjs": {
       "sha256": "87ea913c66198c17ad1154b513c1d3cf8a95026b833f8c0de6cc87178c71369c",
       "executable": false
@@ -7069,6 +7081,10 @@
     },
     "src/modules/agent-door/conformance/webhooks.mjs": {
       "sha256": "0ab018eacc5568b8f4e9c6302ed1ca28c01221cad943723136ff96544bf2a7ee",
+      "executable": false
+    },
+    "src/modules/agent-door/continuation-audit.ts": {
+      "sha256": "ca2a853aaa666ab175dd2bf17a4d6c0ade27483969498054bf4a3640b07b4f64",
       "executable": false
     },
     "src/modules/agent-door/counting.ts": {
@@ -9299,6 +9315,10 @@
       "sha256": "171304e9f409f9c43b74af69d635ba89c9ba489ad7560db2e822dd41a7069b9f",
       "executable": false
     },
+    "src/modules/portability/checkout-history.mjs": {
+      "sha256": "4d7fbca178e9393daf19307f92615d90cfcb38fcb5269cfc3316ddff20abe190",
+      "executable": false
+    },
     "src/modules/portability/cli-options.mjs": {
       "sha256": "b9f966f13711e879b3dbc7ed036f1c607ee81d47f8a48ba2edd4eb2a33275526",
       "executable": false
@@ -9485,6 +9505,14 @@
     },
     "src/modules/portability/transient-tables.mjs": {
       "sha256": "ab979701cb97593daab22d623c6b6dc413c35efdc20ac7a5cebbd9d62b12cbdd",
+      "executable": false
+    },
+    "src/modules/portability/worker-history.d.mts": {
+      "sha256": "050cb830c5d901c116b7bf7df0642be4a42e562e3aeafff68f47430c061da935",
+      "executable": false
+    },
+    "src/modules/portability/worker-history.mjs": {
+      "sha256": "dcefc7021209fb45f642a5accf67ee2d79504444ed9a1d3fee70a38d74663b2a",
       "executable": false
     },
     "src/router.tsx": {
