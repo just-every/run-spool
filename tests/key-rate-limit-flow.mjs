@@ -118,6 +118,9 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  }finally{await sdk.close();await sdk2.close()}
  const independent=await json(root+'/issues');assert.ok(independent.some(row=>row.title.includes('synthetic-spool-sdk-other')));assert.ok(!independent.some(row=>row.title.includes('synthetic-spool-sdk-backed-off')));
  const reconciled=await rows();assert.equal(count(reconciled,'accepted'),9);assert.equal(count(reconciled,'key_rate_limited'),13);assert.equal(count(reconciled,'invalid'),1);assert.equal(count(reconciled,'conflict'),1);assert.equal(independent.reduce((sum,row)=>sum+row.count,0),9);
+ const reportWindow={from:Date.now()-3600000,to:Date.now()+1000};
+ const report=await json('/api/reports?'+new URLSearchParams({projects:project.id,from:String(reportWindow.from),to:String(reportWindow.to),timeZone:'UTC'}));assert.equal(report.metadata.dropped.serverRefused,14,'reports include all thirteen key refusals plus the malformed capture');
+ const widget=await json('/api/reporting/preview','POST',{project:project.id,config:{metric:'count',q:'',...reportWindow}});assert.equal(widget.metadata.dropped.serverRefused,14,'widget loss agrees with reports and receipts');
  console.log('PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error');
 
  const audit=await json('/api/audit?limit=100');assert.ok(JSON.stringify(audit).includes('credential.rate_limit'),'configuration has a permanent safe audit fact');
@@ -138,6 +141,7 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  for(const table of ['key_rate_limits','key_rate_usage'])assert.equal((await db.prepare('SELECT COUNT(*) n FROM '+table+' WHERE project=?').bind(project.id).first()).n,0);
  assert.equal((await send()).status,401,'erased project keys cannot replay capture');
  console.log('PROBE BILL-001 5 custody: private archive and fresh restore -> no key authority or quota state; owner project erasure -> both tables removed and replay refused');
+ await keyLimitRepairCoverage({req,json});
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
@@ -177,4 +181,22 @@ export async function keyRateLimitScreens({req,json,origin,cookie,width=1440}) {
   await page.screenshot({path:output+'/receipts-'+width+'.png'});
   console.log('PROBE BILL-001 5 UI '+width+': Settings save -> one event per hour; Capture receipts -> accepted=1 and capture-key-limited=1; keyboard, Axe and reflow passed');
  }finally{await browser.close()}
+}
+
+async function keyLimitRepairCoverage({req,json}) {
+ const project=await json('/api/projects','POST',{id:'key-limit-repair',name:'Capture loss and repair observation'}),root='/api/projects/'+project.id;
+ const native=(id,release,type)=>({version:1,eventId:id,release,build:'web',environment:'test',type,message:type,frames:[{file:'app.js',line:1,column:0,function:type}],breadcrumbs:[]});
+ const capture=(id,release,type)=>json('/api/ingest/'+project.id,'POST',native(id,release,type),{Cookie:'',Authorization:'Bearer '+project.ingestKey});
+ await json(root+'/releases','POST',{name:'synthetic-spool-old',build:'web'});
+ const original=await capture('synthetic-spool-1','synthetic-spool-old','TypeError');
+ let repair=await json(root+'/repairs','POST',{issue:original.issue,link:'https://example.test/pull/1',note:'Check capture loss'});
+ await json(root+'/releases','POST',{name:'synthetic-spool-fixed',build:'web'});await capture('synthetic-spool-2','synthetic-spool-fixed','RangeError');
+ await json(root+'/artifacts','POST',{release:'synthetic-spool-fixed',build:'web',debugId:'synthetic-spool-map',map:{version:3,sources:['source.js'],sourcesContent:['throw new Error()'],names:[],mappings:'AAAA'}});
+ repair=await json(root+'/repairs/'+repair.id+'/facts','POST',{revision:repair.revision,fact:'deployed',release:'synthetic-spool-fixed'});
+ repair=await json(root+'/repairs/'+repair.id+'/facts','POST',{revision:repair.revision,fact:'exercised',note:'Exercised the affected flow'});assert.equal(repair.observation.verdict,'no_recurrence_after_exercise');
+ await json(root+'/keys/'+digest(project.ingestKey)+'/rate-limit','PUT',{revision:0,limit:2,period:'hour'});
+ const refusal=await req('/api/ingest/'+project.id,'POST',native('synthetic-spool-3','synthetic-spool-fixed','TypeError'),{Cookie:'',Authorization:'Bearer '+project.ingestKey});assert.equal(refusal.status,429);assert.equal((await refusal.json()).reason,'key_rate_limited');
+ const observed=(await json(root+'/repairs?issue='+original.issue)).repairs.find(row=>row.id===repair.id).observation;
+ assert.equal(observed.verdict,'inconclusive','a key-limited capture cannot support a clean repair verdict');assert.deepEqual(observed.evidence.loss,[{reason:'key_rate_limited',count:1}]);
+ console.log('PROBE BILL-001 5 loss: native capture refused by key limit -> repair verdict becomes inconclusive; reports and widgets reconcile server refusals');
 }

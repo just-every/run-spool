@@ -15,7 +15,7 @@ export async function reportCoverage(db:D1Database,projects:string[],data:Report
  return {bounds:{retainedInputRows:reportScopeLimit,complete:true,definition:'A report above the retained-input row budget is refused with report_scope_limit; no input rows are silently truncated. Choose fewer projects or a narrower window.'},
   sampling:'Every retained event in the requested receipt-time window is counted; no server query sampling. Upstream SDK sampling and losses before receipt are unknown. These are observed retained counts, not an estimate of all real failures.',
   retention,outcomes:data.outcomes,dropped:{
-   serverRefused:count(r=>['rate_limited','budget','rejected','invalid','oversized','unregistered_release_or_build','missing_release_register_required'].includes(r)),
+   serverRefused:count(r=>['rate_limited','key_rate_limited','budget','rejected','invalid','oversized','unregistered_release_or_build','missing_release_register_required'].includes(r)),
    clientDiscardedErrors:count(r=>r.startsWith('client_discarded:error:')),
    nativeClientDropped:data.events.reduce((n,r)=>n+(typeof r.dropped==='number'&&Number.isSafeInteger(r.dropped)&&r.dropped>0?r.dropped:0),0),
    filtered:count(r=>r==='filtered'),
