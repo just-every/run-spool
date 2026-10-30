@@ -107,11 +107,13 @@ export async function dispatchNotices(env:Environment,time:number) {
    await s(env.DB,"UPDATE follow_up_notices SET state='blocked',code='preflight_failed' WHERE id=? AND state='queued'",row.id).run();continue;
   }
   const claim=crypto.randomUUID(),clockStart=Date.now(),now=()=>time+Date.now()-clockStart;
+  // An overlapping tick may already have attempted and deferred this snapshot
+  // (Retry-After or backoff). Claim only the selected attempt while still due.
   const result=await env.DB.batch([
-   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?) WHERE id=? AND state='queued' AND attempts<4
+   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?) WHERE id=? AND state='queued' AND next_at<=? AND attempts=? AND attempts<4
     AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=follow_up_notices.project AND c.destination=follow_up_notices.destination AND c.channel=follow_up_notices.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=c.project))
      OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=follow_up_notices.project AND follow_up_notices.destination='member:'||m.member AND follow_up_notices.channel='mail'))
-    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,row.id),
+    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,row.id,time,row.attempts),
    s(env.DB,'INSERT INTO follow_up_attempts(id,notice,project,number,started) SELECT claim,id,project,attempts,? FROM follow_up_notices WHERE id=? AND claim=?',now(),row.id,claim),
    ...prepared.provider?[s(env.DB,'INSERT INTO follow_up_notice_meta(notice,project,provider,message_id) SELECT id,project,?,NULL FROM follow_up_notices WHERE id=? AND claim=? ON CONFLICT(notice) DO NOTHING',prepared.provider,row.id,claim)]:[],
   ]);

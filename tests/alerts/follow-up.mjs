@@ -33,7 +33,7 @@ export async function slackFollowUp(receiver,edge){
  const {alertRuntime,event,rule,testAndReview}=await import('./runtime.mjs'),{archiveProjection}=await import('../archive.mjs'),{followErasure}=await import('../project-erasure/follow.mjs');
  const state=await mkdtemp(join(tmpdir(),'spool-slack-follow-up-')),path='/api/projects/web/follow-up',base='/api/projects/web/alerting';let app;
  const token='synthetic-spool-'+crypto.randomUUID(),connect=value=>({kind:'slack',label:'Alternate operator',channelId:'synthetic-spool-alternate',token:value});
- const open=()=>alertRuntime(receiver,{state,configure:false,egressBridge:wire=>edge.send(wire),extraBindings:{SLACK_TIMEOUT_MS:'100'}});
+ const open=(timeout='100')=>alertRuntime(receiver,{state,configure:false,egressBridge:wire=>edge.send(wire),extraBindings:{SLACK_TIMEOUT_MS:timeout}});
  try{
   app=await open();const project=await app.json('/api/projects','POST',{id:'web',name:'Follow-up qualification'}),auth={Authorization:`Bearer ${project.ingestKey}`};
   await app.json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});await app.json('/api/projects','POST',{id:'other',name:'Other project'});
@@ -64,6 +64,19 @@ export async function slackFollowUp(receiver,edge){
   const lost=await capture('alternate-lost');edge.behavior='never';await app.schedule(Date.now());row=await forIssue(lost.issue);assert.equal(row.notices[0].state,'uncertain');assert.equal(row.notices[0].code,'slack_timeout');assert.equal(row.notices[0].message_id,null);const lostId=row.id,lostNotice=row.notices[0].id;
   edge.behavior='posted';await app.close();app=await open();await Promise.all([app.schedule(Date.now()+600000),app.schedule(Date.now()+600000)]);row=await forIssue(lost.issue);assert.equal(row.notices.length,1);assert.equal(row.notices[0].id,lostNotice);assert.equal(row.notices[0].state,'uncertain');assert.equal(noticeCalls(lostId).length,1,'unknown provider effect is never resent or recursively notified');assert.equal((await app.json(path)).rows.length,3,'alternate failures never become new attention sources');
   const beforeReconcile=edge.calls.length;await app.json(path+'/'+row.id+'/reconcile','POST',{revision:row.revision,state:'accepted',evidence:'receiver_confirmed'});row=await forIssue(lost.issue);assert.equal(row.state,'completed');assert.equal(row.notices[0].state,'uncertain','source reconciliation does not fabricate an alternate recipient receipt');assert.equal(edge.calls.length,beforeReconcile);
+  // Overlapping ticks: A snapshots two due notices and waits on the first at the
+  // edge while B defers the second with Retry-After; A's stale snapshot must not
+  // resend it. The longer timeout keeps A's first call in flight until released.
+  await app.close();app=await open('10000');const overlap=[await capture('alternate-overlap-x'),await capture('alternate-overlap-y')],beforeOverlap=edge.calls.length;
+  edge.behavior='hold';const tickA=app.schedule(Date.now());for(let i=0;!edge.held.length;i++){assert.ok(i<1000,'scheduler A reaches the Slack edge');await new Promise(r=>setTimeout(r,10));}
+  edge.behavior='rate';const deferredAt=Date.now();await app.schedule(deferredAt);edge.behavior='posted';edge.held.shift()();await tickA;
+  const pair=await Promise.all(overlap.map(c=>forIssue(c.issue))),heldText=JSON.parse(edge.calls[beforeOverlap].body).text,x=pair.find(r=>heldText.includes('Item: '+r.id+'.')),y=pair.find(r=>r!==x);
+  assert.equal(noticeCalls(y.id).length,1,'stale overlapping snapshot resent the deferred notice at '+noticeCalls(y.id).map(w=>w.at).join(' and '));
+  assert.equal(x.notices[0].state,'completed');assert.equal(x.notices[0].code,'slack_posted');assert.equal(noticeCalls(x.id).length,1);
+  let deferred=y.notices[0];assert.equal(deferred.state,'queued');assert.equal(deferred.code,'slack_rate_limited');assert.equal(deferred.attempts,1);assert.equal(deferred.log.length,1);assert.ok(deferred.next_at>=deferredAt+60000);
+  await app.schedule(deferredAt+59000);assert.equal(noticeCalls(y.id).length,1,'no tick crosses the durable Retry-After boundary early');
+  await Promise.all([app.schedule(deferred.next_at+1),app.schedule(deferred.next_at+1)]);deferred=(await app.json(path)).rows.find(r=>r.id===y.id).notices[0];
+  assert.equal(deferred.id,y.notices[0].id);assert.equal(deferred.state,'completed');assert.equal(deferred.log.length,2);assert.match(deferred.message_id,/^\d+\.\d+$/);assert.equal(noticeCalls(y.id).length,2,'the due retry posts once across overlapping ticks');
   // A queued, definitely rate-limited notice must not cross the old credential
   // boundary after rotation or revocation, including across a process restart.
   const held=await capture('alternate-rotation');edge.behavior='rate';await app.schedule(Date.now());row=await forIssue(held.issue);const oldNotice=row.notices[0].id;assert.equal(row.notices[0].state,'queued');
@@ -78,6 +91,7 @@ export async function slackFollowUp(receiver,edge){
   console.log('PROBE ALERT-002 alternate: reviewed exact-project Slack -> one posted notice, attempt, message identifier and safe follow-up fact across concurrent ticks and restart');
   console.log('PROBE ALERT-002 uncertainty: provider timeout -> uncertain once without automatic resend or recursive notices; source reconciliation preserves unknown alternate receipt');
   console.log('PROBE ALERT-002 rate: HTTP 429 with Retry-After 60 -> no early retry; restart continues the same notice and records the posted message');
+  console.log('PROBE ALERT-002 retry: overlapping ticks, one waiting on a held notice while the other receives HTTP 429 Retry-After 60 -> the stale snapshot sends nothing before the durable boundary; the due retry posts the same notice once');
   console.log('PROBE ALERT-002 credentials: foreign and unreviewed alternates refused; rotation and revocation cancel old queued notices across restart');
   console.log('PROBE ALERT-002 custody: archive excludes notice queues and tokens; project erasure removes operational notice custody and no later send occurs');
  }finally{await app?.close();await rm(state,{recursive:true,force:true})}
