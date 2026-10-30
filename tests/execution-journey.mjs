@@ -80,6 +80,10 @@ try{
  const refreshed=(await restored.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers.find(row=>row.id===reproduced.reproducer.id).runs.find(row=>row.id===rerun.run);
  assert.equal(refreshed.outcome,'reproduced');assert.equal(refreshed.historical,undefined,'only a fresh run establishes current proof');
  const freshProposal=await restored.json(`${p}/fixes`,'POST',{reproducer:reproduced.reproducer.id,run:rerun.run,repository:'just-every/run-spool',flow:'checkout'});assert.equal(freshProposal.status,'proposed','fresh measured proof may propose a new grant');
+ const custody=(await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n;assert.ok(custody>0,'restore established destination custody');
+ const restoredPlan=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:restoredPlan.planHash}));
+ assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n,0,'project erasure removes destination custody with its work');
+ const replay=await restored.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(replay.status,409,'an erased project cannot return through an old archive');await replay.body?.cancel();assert.deepEqual(await restored.json('/api/projects'),[],'refused archive replay leaves the erased destination empty');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';

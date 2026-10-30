@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import {mkdir,readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {archiveProjection} from '../archive.mjs';
 import {readArchive,makePart} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 import {canonicalJson,sha256} from '../../src/modules/portability/hash.mjs';
@@ -42,6 +45,13 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  const source=await app.archive();assert.ok(source.data.repairs.length&&source.data.repair_checks.length);
  const read=async()=>(await app.json(`/api/projects/a/repairs?issue=${issue}`)).repairs.find(row=>row.id===repair.id);
  const before=await read();
+ // The public rer export runs against this populated, stopped installation.
+ await app.stopDev();await mkdir(resolve(app.checkout.root,'exports'),{recursive:true});
+ await app.checkout.command(['export','--output','exports/repair-private.jsonl']);
+ const cli=await archiveProjection(new Response(await readFile(resolve(app.checkout.root,'exports/repair-private.jsonl'))));
+ assert.deepEqual(cli.data,source.data,'public rer export carries the same populated product, private maps, repairs and checks as HTTP');
+ for(const credential of Object.values(credentials))assert.equal(cli.text.includes(credential),false,'public rer export excludes active project keys');
+ await app.startDev();
  await app.resetRestore(await preRepairArchive(source.text));
  let restored=await app.archive();assert.deepEqual(restored.data.repairs,[]);assert.deepEqual(restored.data.repair_checks,[]);
  for(const table of [...laterCustodyTables,...loaderTables,...deliveryTables,...operatorTables,...executionTables,'grouping_routes','inbound_filter_policies','feedback','grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'])assert.deepEqual(restored.data[table],[],'pre-repair archive starts '+table+' empty');
