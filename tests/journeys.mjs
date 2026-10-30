@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 // Keep the same grouping for local verification and the shared-build CI matrix.
 export const shards={
  'product-tools':['product-runtime','triage-journey','phone-smoke','sentry-cli-compat','tunnel-flow','setup-flow'],
- 'sdk':['sentry-http','sentry-sdk','sdk-package'],
+ 'sdk':['sentry-http','sentry-sdk','sdk-package','multilingual','old-archive'],
  'delivery':['alerts-runtime','alerts-ui','alerts-egress','execution-journey'],
  'evidence':['agent-handoff','repair-recovery','sentry-import'],
  'project-erasure':['project-erasure'],
