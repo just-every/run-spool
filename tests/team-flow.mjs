@@ -56,7 +56,7 @@ async function policyAuthority(owner,maintainer,member,reader,projects,admin) {
  const quotaKey=await owner.json(root+'/keys','POST',{kind:'ingest'}),quotaPath=root+'/keys/'+quotaKey.hash+'/rate-limit';
  const quota=await admin.json(quotaPath,'PUT',{revision:0,limit:2,period:'hour'});assert.equal(quota.limit,2,'BILL-001 native admin configures an active key');
  for(const actor of [maintainer,member,reader])await denied(actor.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'BILL-001 project roles cannot change a key budget');
- assert.deepEqual(await owner.json(quotaPath),quota,'refused project roles leave key configuration and usage unchanged');
+ assert.deepEqual({...await owner.json(quotaPath),retryAfter:0},{...quota,retryAfter:0},'refused project roles leave key configuration and usage unchanged');
  await owner.json(root+'/keys/'+quotaKey.hash,'DELETE');await denied(admin.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'revoked keys cannot receive a new rate limit');
  const filters=await maintainer.json(root+'/inbound-filters'),policy=structuredClone(filters.policy);
  policy.filters.messages.enabled=true;policy.filters.messages.values=['*synthetic-spool-filter*'];

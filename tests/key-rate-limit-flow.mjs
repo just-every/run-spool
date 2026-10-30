@@ -44,6 +44,9 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
   assert.equal(response.headers.get('X-Sentry-Error'),'key_rate_limited');return result;
  };
  await configure(2,'minute');
+ // Begin with enough of the server's advertised window left for this burst.
+ // Follow its deadline rather than assuming a particular time of day.
+ if(config.retryAfter<=15){await new Promise(resolve=>setTimeout(resolve,(config.retryAfter+1)*1000));config=await json(path)}
  const same={event_id:randomUUID().replaceAll('-',''),message:'synthetic-spool-retry'};
  assert.equal((await send(project.ingestKey,[['event',same]])).status,200);
  assert.equal((await send(project.ingestKey,[['event',same]])).status,200);
