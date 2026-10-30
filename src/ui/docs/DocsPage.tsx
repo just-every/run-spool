@@ -12,7 +12,8 @@ function DocsNav({ sections, current, label, contract }: { sections: DocsSection
 
 /** One docs page: the landing's header and footer around a page rendered at build time from the repository's Markdown. */
 export function DocsPage({ repository, sections, page, pages, variant, styles }: { repository: string; sections: DocsSection[]; page: Page; pages: Page[]; variant?: 'site'; styles?: string[] }) {
-  const index = pages.indexOf(page), previous = pages[index - 1], next = pages[index + 1];
+  const listed = pages.filter(candidate => !candidate.unlisted);
+  const index = listed.indexOf(page), previous = listed[index - 1], next = index >= 0 ? listed[index + 1] : undefined;
   return <html lang="en">
     <PublicHead title={page.slug ? `${page.title} · Spool docs` : 'Spool docs'} description={page.description} stylesheet="/theme/docs.css" styles={styles} />
     <body className="landing docs">
@@ -21,7 +22,7 @@ export function DocsPage({ repository, sections, page, pages, variant, styles }:
         <details className="docs-menu"><summary>Docs pages</summary><DocsNav sections={sections} current={page.slug} label="Docs pages" contract={variant === 'site'} /></details>
         <aside className="docs-sidebar"><DocsNav sections={sections} current={page.slug} label="Docs" contract={variant === 'site'} /></aside>
         <main className="docs-main">
-          <article className="docs-article" aria-labelledby="docs-title">
+          <article className="docs-article" data-doc={page.slug} aria-labelledby="docs-title">
             <p className="docs-eyebrow">{page.section}</p>
             <h1 id="docs-title">{page.title}</h1>
             <div className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />

@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+
+export async function peopleFlow(app){
+ const foreignProject=await app.json('/api/projects','POST',{id:'foreign-project',name:'Private billing service'});
+ await app.json('/api/projects/foreign-project/releases','POST',{name:'1.0.0',build:'private-1'});
+ const foreignIssue=(await app.json('/api/ingest/foreign-project','POST',{version:1,eventId:'foreign-private',release:'1.0.0',build:'private-1',environment:'production',type:'TypeError',message:'Private foreign failure',frames:[{file:'https://private.example/service.js',line:1,column:0,function:'privateService'}],breadcrumbs:[]},{Authorization:'Bearer '+foreignProject.ingestKey})).issue;
+ const project='door-triage',email='riley@spool.test',sub=randomUUID(),agentId=randomUUID();
+ const invited=await app.json('/api/organization/invites','POST',{email,name:'Riley Engineer',role:'member',grants:[{project,role:'member'}]});
+ const message=(await app.mail()).find(row=>row.to?.includes(email));assert.ok(message,'Native invitation reaches the controlled mail edge');
+ const token=message.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token,'Native invitation contains a confirmation');
+ const accepted=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(accepted.status,303,'The invited native person confirms their own email');
+ const cookie=accepted.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');await accepted.body?.cancel();
+ await app.syncSettings([{id:sub,email,name:'Riley Engineer',role:'member',invite:1}]);
+ const claims={sub,email,act:{sub:agentId,name:'Scoped triage',specialist:'triage engineer'}};
+ const stale=await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{...claims,email:'owner@spool.test'},'2025-11-25',401);
+ assert.equal(stale.error.code,-32001,'A different email cannot authenticate the mapped Business subject or select the owner');
+ const list=await app.call('spool.issues.list',{project},claims);assert.ok(!list.isError,'The durable Business subject and current email admit only the mapped native teammate');
+ const roster=await app.json('/api/organization'),member=roster.members.find(m=>m.id===invited.id);
+ const self=await app.call('spool.access.update',{id:member.operator_id,version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);
+ assert.equal(self._meta['com.runeditrun/error'].code,'self_escalation');
+ const emailSelf=await app.call('spool.access.update',{id:email.toUpperCase(),version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);
+ assert.equal(emailSelf._meta['com.runeditrun/error'].code,'self_escalation');
+ const response=await app.request(`/api/projects/${project}/keys`,'POST',{kind:'agent'},{Cookie:cookie});assert.equal(response.status,201);const key=await response.json();
+ const local=async(target,name='spool.issues.list')=>{
+  const r=await app.request('/mcp','POST',{jsonrpc:'2.0',id:randomUUID(),method:'tools/call',params:{name,arguments:{project:target}}},{Authorization:`Bearer ${key.key}`,'MCP-Protocol-Version':'2025-11-25'});return {status:r.status,body:await r.json()};
+ };
+ assert.ok(!(await local(project)).body.result.isError,'The local credential retains its original project evidence authority');
+ assert.ok(!(await local(project,'spool.issues.export')).body.result.isError,'The project key retains its existing sanitized export authority');
+ const csv=await app.request(`/api/projects/${project}/issue-export?format=csv`,'GET',undefined,{Cookie:'',Authorization:`Bearer ${key.key}`});assert.equal(csv.status,200);assert.match(csv.headers.get('content-type'),/^text\/csv/);assert.ok((await csv.text()).startsWith('short_id,id,title,'),'The compatibility CSV export uses the same current project authority');
+ assert.equal((await local('foreign-project','spool.issues.export')).body.result._meta['com.runeditrun/error'].code,'not_found','The project key cannot export another project');
+ assert.equal((await local('foreign-project')).body.result._meta['com.runeditrun/error'].code,'not_found');
+ const currentIssue=list.structuredContent.items[0],write={project,issue:currentIssue.id,revision:currentIssue.revision,state:'acknowledged',idempotency_key:randomUUID()};
+ assert.ok(!(await app.call('spool.issues.update',write,claims)).isError,'The native member performs its supported triage write');
+ await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});
+ assert.equal((await local(project)).status,401,'Narrowing permanently retires a previously minted key');
+ assert.equal((await app.call('spool.issues.update',write,claims))._meta['com.runeditrun/error'].code,'not_found','A cached mutation cannot bypass current native read-only authority');
+ const current=list.structuredContent.items[0];
+ const hidden=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/'+foreignIssue},claims);
+ const missing=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/not-present'},claims);
+ assert.equal(hidden.error?.data?.code,'capability_not_declared');
+ assert.equal(hidden.error?.data?.capability,'resources');
+ assert.deepEqual(hidden.error,missing.error,'Missing and restricted resources have equivalent JSON-RPC refusals');
+ assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:foreignIssue},claims))._meta['com.runeditrun/error'].code,'not_found');
+ assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:'not-present'},claims))._meta['com.runeditrun/error'].code,'not_found','Native tools preserve equivalent missing and restricted refusals');
+ const denied=await app.call('spool.issues.update',{project,issue:current.id,revision:current.revision,state:'acknowledged',idempotency_key:randomUUID()},claims);
+ assert.equal(denied._meta['com.runeditrun/error'].code,'not_found','Company autonomy preserves native read-only membership');
+ await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version+1,role:'member',grants:[{project,role:'member'}]});
+ assert.equal((await local(project)).status,401,'Later widening cannot revive the old key');
+ await app.json('/api/organization/members/'+member.id,'DELETE',{version:member.version+2});
+ assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},claims,'2025-11-25',401)).httpStatus,401,'Inactive native people are refused');
+ console.log('Spool people: native invitation, signed teammate mapping, stale-email refusal, ID/email self-escalation, exact local project scope and permanent key retirement passed.');
+}

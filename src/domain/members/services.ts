@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { auditCommit } from '../audit/context';
 import { recordDevMint } from '../dev-credentials';
