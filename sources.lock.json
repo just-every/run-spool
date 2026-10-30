@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "99c7c2e5ed5f415e9da3f99abfcd332e14c0a2e4a82f852530c5c3f5c7ba50b5",
+      "sha256": "c2a77ce6a266bbebd6c8cd26f06010f6ac720e22410be533af1247a4c480d9f2",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "11e5078345d4e4cf8c8a7ab83ce423c3083e382a707c50fb6a344c63f701846e",
+      "sha256": "aa879de2c6ab3423841e4afa9017aea4cd1f1907c1f76ba2a4f89d811f188306",
       "executable": false
     },
     "DEMO.md": {
@@ -8785,7 +8785,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "15ac8e8857f6c30176cb709c049ce0a292b233ac3fc0afac39899521b4754dd0",
+      "sha256": "a5ad92d50646b25f2772ece7657f79abb9f508500fdff2da2b72d504f921a480",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8797,7 +8797,7 @@
       "executable": false
     },
     "tests/execution/fixture.mjs": {
-      "sha256": "77ae512b5e0d2eb897edf37af1daadc65e23cf8c1a1034b398bfefa114f2cca6",
+      "sha256": "01fdffc18b133a4e5e9f62b2ebab969023f51f7b06889567f6ea4a95054dd08e",
       "executable": false
     },
     "tests/execution/follow-up.mjs": {
@@ -8809,7 +8809,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "b928a09662d881c988e808501bc68629bee53a946079a52f87fe27c37e1f8ddc",
+      "sha256": "e85a53e42a3cc7f6ea8261e2d76d88fd8a7096cd45cc60a6115d73078d2ab8ef",
       "executable": false
     },
     "tests/execution/runtime.mjs": {

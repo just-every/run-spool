@@ -1349,8 +1349,8 @@ Core · push-further · **partial** · Cites BASE-AGENT-011 · Register R-1
 3. Repeated against the fixed release, the failure no longer reproduces.
 4. A failed setup never becomes a not-reproduced success.
 
-**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`
-**Gap.** Bounded mapped-JavaScript reproductions with supplied calls exist; automatic minimization, cause experiments and non-JS/mobile reproduction do not.
+**Evidence.** `tests/execution/reproduce.mjs` reproduceProof: captured mapped-JavaScript failure, reproduced and returned outcomes, missing export, timeout, isolation, single-use tokens and alternate-release syntax-error and unresolved-import load failures (acceptance 2 and 4); `tests/execution-journey.mjs` execution journey: fixed-release return, private archive restore and project erasure (acceptance 3 and custody controls).
+**Gap.** Bounded mapped-JavaScript reproductions with supplied calls exist. Acceptance 1 automatic minimization and competing-cause experiments remain absent; expanded malicious-telemetry and missing-artifact qualification beyond existing acceptance-2 controls, broader repository-scope, budget and stop-policy qualification, and non-JavaScript and mobile reproduction remain unproved. Physical native-device qualification remains in R-1.
 
 #### AI-003 — Minimal code repair as a tested pull request
 
