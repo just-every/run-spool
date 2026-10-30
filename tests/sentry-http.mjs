@@ -36,7 +36,7 @@ try{
   const foreign='https://app.example';await json('/api/projects/wire/browser-origins','POST',{origin:foreign});
   const preflight=await req(path,'OPTIONS',undefined,{Origin:foreign,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-sentry-auth'});assert.equal(preflight.status,204);assert.equal(preflight.headers.get('access-control-allow-origin'),foreign);
   const malformed=Buffer.concat([Buffer.from(envelope(event)),Buffer.from('\n{"type":"attachment","length":10}\nshort')]);assert.equal((await req(path,'POST',malformed)).status,400);assert.equal((await json('/api/projects/wire/issues')).length,0,'bad trailing framing admits no earlier event');
-  const invalidFeedbackItems=[['feedback','{}'],['feedback','notJSON'],['event',JSON.stringify({type:'feedback',event_id:'1'.repeat(32),contexts:{feedback:{message:''}}})],['user_report',JSON.stringify({event_id:'2'.repeat(32),comments:''})],['feedback',JSON.stringify({event_id:'3'.repeat(32),contexts:{feedback:{message:'x'.repeat(1001)}}})]];
+  const invalidFeedbackItems=[['feedback','{}','feedback_invalid'],['feedback','notJSON','feedback_invalid'],['event',JSON.stringify({type:'feedback',event_id:'1'.repeat(32),contexts:{feedback:{message:''}}}),'feedback_invalid'],['user_report',JSON.stringify({event_id:'2'.repeat(32),comments:''}),'feedback_invalid'],['feedback',JSON.stringify({event_id:'3'.repeat(32),contexts:{feedback:{message:'x'.repeat(1001)}}}),'feedback_oversized']];
   const invalidFeedbackWire=invalidFeedbackItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
   const wire=Buffer.concat([Buffer.from('{}\n{"type":"attachment","length":0}\n\n{"type":"attachment","length":4}\n'),Buffer.from([0,10,255,65]),Buffer.from('\n'+invalidFeedbackWire+'\n{"type":"session"}\n{}\n{"type":"statsd","length":4}\na:1c\n{"type":"statsd","length":4}\nb:1c\n{"type":"unexpected-vendor-kind"}\n{}\n{"type":"synthetic-spool-2"}\n{}\n{"type":"synthetic-spool-3"}\n{}\n{"type":"event"}\n'+JSON.stringify(event))]);
   const beforeDenied=(await json('/api/projects/wire/outcomes')).rows;
@@ -119,6 +119,23 @@ try{
   await json('/api/projects/wire/keys/'+deploy.hash,'DELETE');assert.equal((await req('/api/projects/wire/releases','POST',release,deployHeaders)).status,401);
   const ingest=(await json('/api/projects/wire/keys')).find(row=>row.kind==='ingest');await json('/api/projects/wire/keys/'+ingest.hash,'DELETE');assert.equal((await req(path,'POST',envelope(event))).status,401);
   const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
+  const isolatedProject=await json('/api/projects','POST',{id:'synthetic-spool-7',name:'Synthetic companion isolation'}),isolatedDsn=new URL(isolatedProject.dsn);
+  const isolatedPath='/api'+isolatedDsn.pathname+'/envelope/?sentry_key='+isolatedDsn.username+'&sentry_version=7';
+  let companionNumber=0;
+  for(const [type,body,refusal] of invalidFeedbackItems)for(const invalidFirst of [true,false]){
+    const companionId=(++companionNumber).toString(16).padStart(32,'0');
+    const good=['event',JSON.stringify({event_id:companionId,release:'synthetic-spool-7',message:'Synthetic companion error'})];
+    const bad=[type,body],items=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],...(invalidFirst?[bad,good]:[good,bad])];
+    const framed='{}\n'+items.map(([itemType,payload])=>JSON.stringify({type:itemType,length:Buffer.byteLength(payload)})+'\n'+payload).join('\n');
+    const result=await req(isolatedPath,'POST',framed,{Cookie:''});assert.equal(result.status,200,`${type} failure isolates with error ${invalidFirst?'after':'before'} it`);
+    const receipt=await result.json();assert.equal(receipt.id,companionId);
+    assert.deepEqual(receipt.dropped,{sentry_unsupported_statsd:2,sentry_unsupported_unknown:3,[refusal]:1});
+  }
+  const isolatedCounts=await json('/api/projects/synthetic-spool-7/outcomes'),isolatedCount=reason=>isolatedCounts.rows.find(row=>row.reason===reason)?.count??0;
+  assert.equal(isolatedCount('sentry_unsupported_statsd'),20);assert.equal(isolatedCount('sentry_unsupported_unknown'),30);
+  assert.equal(isolatedCount('accepted'),10);assert.equal(isolatedCount('feedback_invalid'),8);assert.equal(isolatedCount('feedback_oversized'),2);
+  const isolatedIssues=await json('/api/projects/synthetic-spool-7/issues');assert.equal(isolatedIssues.length,1);assert.equal(isolatedIssues[0].count,10);
+  assert.deepEqual((await json('/api/projects/synthetic-spool-7/feedback')).items,[]);
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
   await fidelityFlow({req,json,origin});
