@@ -29,6 +29,7 @@ export async function personalNotificationFlow(owner,actors,projects,invite) {
  const door=root+'/issues/'+issue.id;
  const drain=async(time=Date.now()+1000,concurrent=false)=>{const before=new Set((await personal(owner)).map(row=>row.deliveryId));if(concurrent)await Promise.all([tick(owner,time),tick(owner,time)]);else await tick(owner,time);return (await personal(owner)).filter(row=>!before.has(row.deliveryId));};
  let sent=await drain(Date.now()+1000,true);assert.deepEqual(addresses(kind(sent,'issue_alert')),actors.map(actor=>actor.member.email).sort(),'overlapping scheduler claims deliver once to both opted-in project members');assert.equal((await personal(owner)).length,initial+2);
+ const priorAlertLink=new URL(kind(sent,'issue_alert').find(row=>row.to.includes(b.member.email)).text.match(/https:\/\/\S+\/notifications\/unsubscribe\/[a-f0-9]{64}/)[0]).pathname;
  await a.json(door+'/bookmark','PUT',{bookmarked:true});
  let discussion=await b.json(door+'/discussion');await b.json(door+'/subscription','PUT',{subscribed:true,version:discussion.subscription.version});
  assert.ok((await a.json(door+'/discussion')).subscription.reasons.includes('bookmark'));
@@ -108,6 +109,10 @@ export async function personalNotificationFlow(owner,actors,projects,invite) {
  mailBefore=await all();await capture('synthetic-spool-rule-2','synthetic-spool-1',12);await drain();ruleMail=await delivered(mailBefore);
  assert.deepEqual(addresses(ruleMail),actors.map(actor=>actor.member.email).sort(),'a mandatory rule reaches the opted-out current person exactly once, without duplicating optional delivery');
  const mandatory=ruleMail.find(row=>row.to.includes(a.member.email));assert.match(mandatory.text,/mandatory/i);assert.match(mandatory.text,/Settings: https:\/\//);assert.match(mandatory.text,/Unsubscribe/);
+ mailBefore=await all();await capture('synthetic-spool-rule-required-queue','synthetic-spool-1',14);
+ await (await owner.req(priorAlertLink,'POST',undefined,{Cookie:''})).arrayBuffer();assert.equal((await b.json(settings)).email.issue_alert,false);
+ await drain();assert.deepEqual(addresses(await delivered(mailBefore)),actors.map(actor=>actor.member.email).sort(),'optional unsubscribe preserves queued mandatory delivery until an administrator changes the rule');
+ await set(b,choices('issue_alert'));
  await mandatorySettingsBrowser(owner,a,project);
  await owner.json(policy,'PUT',{revision:1,mandatory:false});
  mailBefore=await all();await capture('synthetic-spool-rule-3','synthetic-spool-1',13);await drain();assert.deepEqual(addresses(await delivered(mailBefore)),[b.member.email]);
