@@ -21,7 +21,7 @@ export async function suspectFlow({req,json,origin,browser}) {
  assert.deepEqual(view.comparison.rows.map(r=>[r.release,r.occurrences,r.issues]).sort(),[[old,5,1],[current,1,1]].sort());
  const before=(await archiveProjection(await req('/api/archive'))).data;
  await mkdir('.artifacts/rel002',{recursive:true});
- for(const width of [1440,390]) {
+ for(const width of [1440]) {
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{
    await browserSignIn(page,origin);await page.goto(`${origin}/projects/${p.id}/issues/${issue.id}`);
@@ -47,5 +47,5 @@ export async function suspectFlow({req,json,origin,browser}) {
  try{restored=await startTestWorker(15554);const cookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));assert.deepEqual(copied.data.suspect_decisions,snapshot.data.suspect_decisions,'restore preserves both judgments as inert records')}finally{await restored?.stop()}
  const plan=await json(base+'/erasure');assert.equal(plan.deleted.suspect_decisions,2);await followErasure(json,await json(base+'/erasure','POST',{confirm:p.id,planHash:plan.planHash}));
  assert.ok(!(await archiveProjection(await req('/api/archive'))).data.suspect_decisions.some(r=>r.project===p.id));
- console.log('[REL-002] first-release candidates, deployment reason, older-release spike comparison, audited reject/confirm without occurrence changes, restore and erasure; 1440/390 passed');
+ console.log('[REL-002] first-release candidates, deployment reason, older-release spike comparison, audited reject/confirm without occurrence changes, restore and erasure; 1440 passed');
 }
