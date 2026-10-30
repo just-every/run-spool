@@ -20,10 +20,13 @@ export async function operatorFlow({req,json}){
  assert.ok(falseMerge&&falseSplit);assert.equal(falseMerge.results[0].issue,falseMerge.results[1].issue,'minified columns expose default false merge');assert.notEqual(falseSplit.results[0].issue,falseSplit.results[1].issue,'bundle location drift exposes default false split');
  const readArchive=async()=>archiveProjection(await req('/api/archive'));
  const original=await readArchive(),originalEvents=original.data.events.filter(e=>e.project===project.id);
+ const groupingSnapshot=async()=>{const {data}=await readArchive();return Object.fromEntries(['events','issues','event_grouping'].map(table=>[table,data[table].filter(row=>row.project===project.id)]));};
+
  const receipts=async()=>{const a=await readArchive();return {outcomes:a.data.outcomes.filter(e=>e.project===project.id),alerts:a.data.alerts.filter(e=>e.project===project.id),history:a.data.alert_history.filter(e=>e.project===project.id)}};
  const before=await receipts(),source=falseMerge.results[0].issue,selected=falseMerge.case.events[1].event.eventId;
- let current=await packet(source);
+ let current=await packet(source);const beforeSplitPreview=await groupingSnapshot();
  const preview=await json(`${p}/corrections/preview`,'POST',{kind:'split',source,revision:current.issue.revision,events:[selected]});
+ assert.deepEqual(await groupingSnapshot(),beforeSplitPreview,'HTTP split preview preserves every occurrence, aggregate and revision');
  assert.equal(preview.plan.moves.length,1);assert.equal(preview.plan.moves[0].event,selected);assert.equal(preview.plan.issues[0].after,current.issue.count-1);assert.equal((await packet(source)).issue.count,current.issue.count,'preview does not move anything');
  assert.equal((await req(`${p}/corrections/${preview.id}/apply`,'POST',{confirm:false})).status,400);
  await json(`${p}/corrections/${preview.id}/apply`,'POST',{confirm:true});
@@ -37,7 +40,9 @@ export async function operatorFlow({req,json}){
  await json(`${p}/corrections/${preview.id}/undo`,'POST',{confirm:true});assert.equal((await packet(source)).issue.count,current.issue.count);
  assert.equal((await packet(splitIds[source])).issue.short_id,splitIds[source],'the original ID never moves');assert.equal((await packet(splitIds[preview.plan.target])).issue.id,source,'undo: the split-out ID resolves where its occurrences returned');
  const from=falseSplit.results[1].issue,to=falseSplit.results[0].issue,a=await packet(from),b=await packet(to);
+ const beforeMergePreview=await groupingSnapshot();
  const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:to,targetRevision:b.issue.revision});
+ assert.deepEqual(await groupingSnapshot(),beforeMergePreview,'HTTP merge preview preserves every occurrence, aggregate and revision');
  assert.deepEqual(merge.plan.issues.map(i=>[i.count,i.after]),[[a.issue.count,0],[b.issue.count,b.issue.count+a.issue.count]]);
  await json(`${p}/corrections/${merge.id}/apply`,'POST',{confirm:true});assert.equal((await packet(to)).issue.count,b.issue.count+a.issue.count);
  // TEAM-004: the absorbed short ID is an alias of the survivor in packets and search; guarded undo restores it.

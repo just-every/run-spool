@@ -161,6 +161,20 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await json('/api/projects/web/releases','POST',{name:'r2',build:'b2'});
  const regressed=await json('/api/ingest/web','POST',{...event,eventId:'new-release',release:'r2',build:'b2'},auth);assert.equal(regressed.diagnostic[0].status,'identity_mismatch');
  groups=await json('/api/projects/web/issues');assert.equal(groups.find(g=>g.id===group.id).state,'open');assert.ok((await json('/api/projects/web/alerts')).some(a=>a.kind==='regression'));
+ const reopened=groups.find(g=>g.id===group.id);
+ await json('/api/projects/web/issues/'+group.id,'PATCH',{state:'resolved',revision:reopened.revision});
+ const newerResolution=(await json('/api/projects/web/issues')).find(g=>g.id===group.id);
+ const regressionsBefore=(await json('/api/projects/web/alerts')).filter(a=>a.kind==='regression'&&a.issue===group.id);
+ assert.equal(regressionsBefore.length,1,'The newer recurrence creates one regression alert');
+ assert.ok(newerResolution.resolved_seq>group.latest_release_seq,'Resolution is in the strictly newer registered release');
+ const delayed=await json('/api/ingest/web','POST',{...event,eventId:'synthetic-spool-delayed-older'},auth);
+ assert.equal(delayed.issue,group.id);
+ const stillResolved=(await json('/api/projects/web/issues')).find(g=>g.id===group.id);
+ assert.equal(stillResolved.state,'resolved','A strictly older release cannot reopen the newer-release resolution');
+ assert.equal(stillResolved.resolved_seq,newerResolution.resolved_seq);
+ assert.equal(stillResolved.count,newerResolution.count+1,'The delayed occurrence is retained and counted');
+ assert.deepEqual((await json('/api/projects/web/alerts')).filter(a=>a.kind==='regression'&&a.issue===group.id),regressionsBefore,'Delayed older capture creates no regression alert');
+
  assert.equal((await req('/api/ingest/web','POST',{...event,eventId:'bad',headers:{secret:'hidden'}},auth)).status,400);
  assert.equal((await req('/api/projects/web/artifacts','POST',{release:'r1',build:'b1',debugId:'bad',map:{version:3,sources:[],names:[],mappings:''}})).status,400);
  for(const mappings of ['!','g','!AAA','AAggggggEA'])assert.equal((await req('/api/projects/web/artifacts','POST',{release:'r1',build:'b1',debugId:'lexical-'+mappings.replace('!','invalid'),map:{version:3,sources:['fake.ts'],names:[],mappings}})).status,400);
