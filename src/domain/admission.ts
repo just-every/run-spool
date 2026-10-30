@@ -74,7 +74,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     const releaseSequence=event.release?`(SELECT seq FROM releases WHERE project=? AND name=?)`:'0';
     const releaseArgs=event.release?[project,event.release]:[];
     const count=await stmt(db,'SELECT COUNT(*) total FROM events WHERE project=?',project).first<any>();
-    if(count.total>=10000){await record('budget');return c.json({outcome:'dropped',reason:'retained_event_budget'},429)}
+    if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);

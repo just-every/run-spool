@@ -1,6 +1,6 @@
 import { wildcardMatch } from '../filters/matcher';
 import { scrub } from '../scrub';
-import { ensureReleaseOrderKeys } from './order';
+import { ensureReleaseOrderKeys,releaseOrderSql } from './order';
 export interface ReleasePolicy{version:1;order:'sentry'|'first_seen'|'semver'|'registered';pattern:string}
 export const defaultReleasePolicy=():ReleasePolicy=>({version:1,order:'sentry',pattern:'*'});
 export function validateReleasePolicy(v:any):ReleasePolicy{
@@ -13,4 +13,9 @@ export async function readReleasePolicy(db:D1Database,project:string){
  return row?{revision:row.revision,policy:validateReleasePolicy(JSON.parse(row.policy))}:{revision:0,policy:defaultReleasePolicy()};
 }
 export const autoReleaseAllowed=(name:string,policy:ReleasePolicy)=>wildcardMatch(name,policy.pattern);
+export async function releaseOrderRanks(db:D1Database,project:string){
+ await readReleasePolicy(db,project);
+ const rows=await db.prepare(`SELECT name FROM releases WHERE project=? ORDER BY ${releaseOrderSql()}`).bind(project).all<{name:string}>();
+ return new Map(rows.results.map((row,index)=>[row.name,index]));
+}
 export const releasePolicyFence=(db:D1Database,project:string,revision:number)=>db.prepare('INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN COALESCE((SELECT revision FROM release_policies WHERE project=?),0)=? THEN 1 ELSE 0 END').bind(project,revision);
