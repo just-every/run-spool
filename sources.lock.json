@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d31f3d3fbf32ca29de305e533ec61106000971c24ee7c22c512df3c838c6d786",
+      "sha256": "dfefff196545c38a56483eb9565dd8e3f35e83db934b66e4a44f4fc92f98a78b",
       "executable": false
     },
     "DEMO.md": {
@@ -2997,7 +2997,7 @@
       "executable": false
     },
     "docs/NOTIFICATIONS.md": {
-      "sha256": "168075d18e1afaa82ba1d500ecaf9de47416c8fba420cf7f2aab15fb7c8e3212",
+      "sha256": "22192c1cf5bc194758d28e7c8436a66dbf82edc03b2a5318bd31219f84bd3151",
       "executable": false
     },
     "docs/OPERATOR-CORRECTIONS.md": {
@@ -3713,7 +3713,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "3867a7be80e06ed0f5ff10bbb4db4e1a53c9e23be38e5ce01ecd8026c5565453",
+      "sha256": "46d3f5dce802cba5e8280a61feb545c8b10dcc095a58de7782cdd1796fd8a435",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -8817,7 +8817,7 @@
       "executable": false
     },
     "tests/deployment-history.mjs": {
-      "sha256": "7a3af61a392788faa49703e6d3d8f0e4e80cffed4aabd08b7ff929453424301b",
+      "sha256": "9248856251261b1e40bb0820fdca7d0ed68468982daf82402787cec9f3d0d584",
       "executable": false
     },
     "tests/dev-credentials.mjs": {
@@ -8973,7 +8973,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "b1e922c911134645570aab7c27e3f2fe2467ebfa92d8969be838563606ce393a",
+      "sha256": "fce68fb627963a59872a2a489a1ceca92ca9a70b368deee313936a32bb37d8b1",
       "executable": false
     },
     "tests/operator-archive.mjs": {
