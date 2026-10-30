@@ -84,3 +84,18 @@ export async function emailSignIn(origin, email, {returnTo = '/'} = {}) {
  await response.body?.cancel();
  return confirmEmailLink(origin, email, {previousIds});
 }
+
+export async function inviteMember(owner, origin, input) {
+ const organization = '/api/organization';
+ const previousIds = (await legacyMailRows(origin)).map(row => row.id);
+ const response = await (owner.request ?? owner.req)(organization + '/invites', 'POST', input);
+ assert.equal(response.status, 202);
+ await response.body?.cancel();
+ const pending = (await owner.json(organization)).members.find(row => row.email === input.email);
+ assert.ok(pending);
+ assert.equal(pending.operatorStatus, 'invited');
+ const cookie = await confirmEmailLink(origin, input.email, {previousIds});
+ const member = (await owner.json(organization)).members.find(row => row.id === pending.id);
+ assert.equal(member.operatorStatus, 'active');
+ return {cookie, member};
+}
