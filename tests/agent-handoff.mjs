@@ -68,13 +68,15 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  for(const id of [mcpProposal.id,canonicalProposal.id])assert.ok(canonicalList.some(row=>row.id===id));
  for(const submitted of [mcpProposal,canonicalProposal,...additional])assert.deepEqual(canonicalList.find(row=>row.id===submitted.id),submitted,'safe summaries retain the complete submitted operation');
  for(const row of canonicalList){assert.match(row.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(canonicalList);
+ const ingest=(await app.json('/api/projects/a/keys','POST',{kind:'ingest'})).key;
+ const deploy=(await app.json('/api/projects/a/keys','POST',{kind:'deploy'})).key;
  const beforeRefusals=(await app.archive()).data;
  for(const [name,args] of [
   ...tools.map(row=>[row.name,{unexpected:'synthetic-spool-82'}]),
   ...['list_issues','spool.issues.read'].flatMap(name=>[[name,{state:'invalid'}],[name,{state:null}],[name,{limit:0}],[name,{limit:'2'}]]),
   ['spool.issues.read',{issue,state:'all'}],['spool.issues.read',{issue:'../b'}],
   ...['propose_grouping','spool.grouping.propose'].flatMap(name=>[
-   [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],
+   [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],[name,{...input,revision:input.revision+1}],
    [name,{...input,window:{start:1,end:1}}],[name,{...input,source:otherIssue}],
    [name,{...input,policy:{version:1,stack:'',fingerprint:''}}],
    [name,{...input,variants:[{...input.variants[0],unexpected:'synthetic-spool-87'}]}],
@@ -93,6 +95,14 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
    const denied=await cross.call(name,candidate);assert.equal(denied.isError,true);assert.match(denied.content[0].text,/"exitCode": 3/);noSecrets(denied);
   }
  }finally{await cross.close();}
+ for(const key of [ingest,deploy]){
+  const client=await mcpClient(app,key);
+  try{
+   for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue}],['spool.issues.read',{issue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],['propose_grouping',input],['spool.grouping.propose',input]]){
+    const denied=await client.call(name,args);assert.equal(denied.isError,true,'ingest and deploy grants cannot authorize '+name);assert.match(denied.content[0].text,/"exitCode": [23]/);noSecrets(denied);
+   }
+  }finally{await client.close();}
+ }
  assert.deepEqual((await app.archive()).data,beforeRefusals,'invalid calls, forbidden operations and foreign-project calls change no archived rows');
  for(const [route,method,body] of [[path+'/'+proposal.id,'GET'],...[ 'approve','reject','apply','undo'].map(action=>[path+'/'+proposal.id+'/'+action,'POST',{}]),['/api/projects/a/corrections/preview','POST',input],['/api/projects/a/corrections/'+proposal.id+'/apply','POST',{confirm:true}],['/api/projects/a/grouping-rules','PUT',{revision:0,policy:{version:1,stack:'',fingerprint:''}}]]){
   const denied=await app.request(route,method,body,agent);assert.equal(denied.status,403,method+' '+route);await denied.body?.cancel();
@@ -101,7 +111,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const foreign=await app.request(path,'POST',{...input,source:otherIssue},agent);assert.ok([400,403,404].includes(foreign.status));assert.ok(!(await foreign.text()).includes('PROJECT_B_PRIVATE'));
  assert.deepEqual(await app.json(packetPath,'GET',undefined,agent),packet,'proposals and denied decisions preserve packet evidence');assert.deepEqual(await app.json('/api/projects/a/issues'),issues);assert.deepEqual(await app.json('/api/projects/a/alerts'),alerts);
  assert.equal((await cli(['propose','--stdin','--key-stdin'],env,JSON.stringify(input))).code,4);assert.equal((await cli(['propose','--stdin'],env,'{')).code,4);
- return {submitted:8,proposalKinds:['split','merge','rule'],canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
+ return {submitted:8,proposalKinds:['split','merge','rule'],canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,otherGrantKindsDenied:true,inert:true};
 }
 let app,browser,secondOrigin,mcp,redirectServer,receivingServer,failure,stage='setup';const evidence={checks:[],captures:[]};
 try{

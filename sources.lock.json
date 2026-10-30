@@ -8613,7 +8613,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "07dc0a0b6bea82eaa7a6f5701ca14b2b963e81ec8df35ff65819bcd35af5dfe3",
+      "sha256": "c0afb17bd06707cc799a4f152c43d47b221d0694f742c1a3376a784db8d5ec43",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
