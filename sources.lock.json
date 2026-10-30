@@ -9061,7 +9061,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "93c88f668dbe6299262f7a33c2c7c169d243631bbe425c210f82f81359ad498f",
+      "sha256": "a3ee0abf458f73cb3a200fed0ecb5c8455fde98979521f1472139016604ba3da",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
