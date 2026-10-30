@@ -8761,7 +8761,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232",
+      "sha256": "08b49629ed512df20033ed2b04debc44d1d7e7e4153d0178374ebe037f43076e",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
@@ -9089,7 +9089,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "848040aa87c1c097a5f8ce31c4e3bd4050aaba30f79ec072dc6e0bd59e08c0cf",
+      "sha256": "e21645cf6ada06db0bec71c776e796be490404ae4f3bd092648e0be452abbac0",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
@@ -9378,6 +9378,10 @@
     },
     "tests/slack-ui.mjs": {
       "sha256": "e0d566a4689d0a3a266721e7c063f007aaff4afa6d0c8430d9bcdf60990207af",
+      "executable": false
+    },
+    "tests/source-import.mjs": {
+      "sha256": "ac729052c9774405dcfdec854c43c41d1c5877f0d6bbbe0b86a8c953c5ed5504",
       "executable": false
     },
     "tests/source-map-capacity.mjs": {

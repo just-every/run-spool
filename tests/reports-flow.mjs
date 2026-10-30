@@ -1,4 +1,4 @@
-import {chromium} from '@playwright/test';
+import {launchBrowser} from './browser-launch.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
@@ -7,7 +7,7 @@ import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 
 async function reportWorkbench(origin,project,from,to,expected){
- const browser=await chromium.launch({headless:true});
+ const browser=await launchBrowser();
  try {
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),cookie=await signIn(origin,{bootstrap:false});
   await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
