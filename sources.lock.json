@@ -8709,7 +8709,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "a897cbe174c41a4de8b83e3d8bdc0b5aefd7220c88f3af9e8495a97b42571048",
+      "sha256": "4a2e1e4c82199a7667acce686e3dc61cce558ab4d13c10d906de229ea33c8a0f",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -9069,7 +9069,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "a27dc5a86097d902146b9b7425876a3c63ebf50decb3a535a59acfd4d86d4190",
+      "sha256": "216f43748042bc85a537b87b2d313d35dbc5bfa2a788a38470f38c7077853a23",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
@@ -9077,7 +9077,7 @@
       "executable": false
     },
     "tests/repair-recovery/packet.mjs": {
-      "sha256": "496ec632938adff4a1a820179b17eea1dea44e9d59da171b19067a9b02038bff",
+      "sha256": "22ca955c797f2618a8409957313d1545b63e2f20e7378f4866c6409cb576d6c8",
       "executable": false
     },
     "tests/repair-recovery/recording.mjs": {

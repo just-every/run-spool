@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {cli,clientEnvironment} from '../agent-handoff/clients.mjs';
-const previousKeys=['affectedUsers','version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','retentionPolicy','releaseHistory','links','bounds','gaps'];
+const previousKeys=['affectedUsers','suspects','version','project','issue','events','loss','trust','sourceContent','verification','grouping','deployments','retentionPolicy','releaseHistory','links','bounds','gaps'];
 // Before any repair, the deployment-aware packet carries an empty repair list (and TEAM-004's empty, SHA-only commit section).
 export function packetBeforeRepair(packet){
  assert.deepEqual(Object.keys(packet).filter(key=>!['repairs','commits'].includes(key)),previousKeys);assert.deepEqual(packet.repairs,[]);assert.deepEqual(packet.commits,{sharing:'sha_only',rows:[]});
