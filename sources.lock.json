@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1a97289826d4048613a3df75e87bd99a97c8ff445abb810d8db874480092fa76",
+      "sha256": "8e137d35d4757ccd69156a6b9251cd0d3edddc44620540947d7129a471d51752",
       "executable": false
     },
     "DEMO.md": {
@@ -8373,7 +8373,7 @@
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
-      "sha256": "c217351eba196e06392efd995573083861243fd14a5f0ce06b0ab605f69f971f",
+      "sha256": "30c04b0a7162f1cadc916aec9efdd621eadf9881f753e66fb878b33bca8bace0",
       "executable": false
     },
     "src/ui/workbench/inbound-filters.css": {
@@ -8793,7 +8793,7 @@
       "executable": false
     },
     "tests/end-user-erasure-preview.mjs": {
-      "sha256": "7998512ff549dc0377e19f4d9ef6102b5ed78b7a987c5ed3269f8d38f349f683",
+      "sha256": "3c616cd7d490d97580af47e66652fa8f6577b2807cfdab59ccd4ba2bd09dbd00",
       "executable": false
     },
     "tests/execution-journey.mjs": {

@@ -105,7 +105,7 @@ export async function endUserErasurePreviewFlow() {
    assert.deepEqual(await region.locator('button').evaluateAll(nodes=>nodes.filter(n=>!n.textContent.trim()).map(n=>n.outerHTML)),[],'all preview controls have text');
    assert.deepEqual(await region.locator('p,li,label,input,button').evaluateAll(nodes=>nodes.filter(n=>parseFloat(getComputedStyle(n).fontSize)<13).map(n=>n.tagName)),[]);
   };
-  for(const width of [1440,390]) {
+  for(const width of [390,1440]) {
    const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
    try {
     const split=maintainer.cookie.indexOf('=');await context.addCookies([{name:maintainer.cookie.slice(0,split),value:maintainer.cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
@@ -122,12 +122,33 @@ export async function endUserErasurePreviewFlow() {
     await unavailableRegion.getByRole('status').getByText('Event matching unavailable',{exact:false}).waitFor();
     if(width===1440)await assertScreen(page,unavailableRegion);
     await unavailableRegion.screenshot({path:`.artifacts/erasure-preview/unavailable-${width}.png`});
+    if(width===1440){
+     await page.goto(origin+'/projects/'+project.id+'/settings');
+     const currentRegion=page.getByRole('region',{name:'End-user erasure preview',exact:true});
+     await currentRegion.getByLabel('Email to match').fill(email);
+     await currentRegion.getByRole('button',{name:'Preview matching records'}).click();
+     await currentRegion.getByRole('status').getByText('3 matching events',{exact:false}).waitFor();
+     // Saving a stricter policy changes the retained population. Old preview
+     // counts must disappear even when the project and component stay mounted.
+     const policyRegion=page.getByRole('region',{name:'User identity policy',exact:true});
+     await policyRegion.getByLabel('User email',{exact:true}).selectOption('drop');
+     await policyRegion.getByRole('button',{name:'Preview identity policy',exact:true}).click();
+     await policyRegion.getByRole('button',{name:'Save identity policy',exact:true}).click();
+     await policyRegion.getByText('Identity policy saved.',{exact:false}).waitFor();
+     assert.equal(await currentRegion.getByRole('status').count(),0,'policy conversion invalidates the old retained-email count');
+     assert.equal(await currentRegion.getByLabel('Email to match').inputValue(),'');
+     await currentRegion.getByLabel('Email to match').fill(email);
+     await currentRegion.getByRole('button',{name:'Preview matching records'}).click();
+     await currentRegion.getByRole('status').getByText('Event matching unavailable',{exact:false}).waitFor();
+     assert.ok(!(await currentRegion.innerText()).includes(email),'the refreshed result still contains counts and reasons only');
+    }
    } finally {await context.close()}
   }
   console.log('PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.');
   console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; sessions, feedback, attachments, replays and search explicitly unavailable.');
   console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
+  console.log('PROBE SDK-027 policy-conversion: save email drop through Settings -> prior matching count cleared; a fresh preview reports unavailable without the supplied value.');
  } finally {await browser?.close();await app.close()}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)await endUserErasurePreviewFlow();
