@@ -19,15 +19,43 @@ export async function issueRevisions(db:D1Database,project:string,input:any,prev
  if(!rows.some(r=>r.id===input.source&&r.revision===input.revision)||input.target&&!rows.some(r=>r.id===input.target&&r.revision===input.targetRevision))throw new Error('Issue revision conflict');
  return ids.map(id=>({id,revision:rows.find(r=>r.id===id)?.revision??0}));
 }
-export const variantOf=(row:any):Record<string,string>=>{const e=normalize(JSON.parse(row.payload));return {stack:JSON.stringify(e.frames),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:'')}};
+export const traceUnavailableReasons=['native_event','missing_trace_context','invalid_trace_context','missing_trace_id','invalid_trace_id'] as const;
+type TraceIdentity={id:string|null;unavailable:typeof traceUnavailableReasons[number]|null};
+function traceIdentity(event:ReturnType<typeof normalize>):TraceIdentity {
+ const unavailable=(reason:typeof traceUnavailableReasons[number]):TraceIdentity=>({id:null,unavailable:reason});
+ if(!event.sentry)return unavailable('native_event');
+ const context=event.sentry.contexts?.trace;
+ if(context===undefined)return unavailable('missing_trace_context');
+ if(!context||typeof context!=='object'||Array.isArray(context))return unavailable('invalid_trace_context');
+ const id=context.trace_id;
+ if(id===undefined)return unavailable('missing_trace_id');
+ if(typeof id!=='string'||!(/^[a-f0-9]{32}$/i.test(id))||/^0{32}$/.test(id))return unavailable('invalid_trace_id');
+ return {id:id.toLowerCase(),unavailable:null};
+}
+export const variantOf=(row:any)=>{
+ const e=normalize(JSON.parse(row.payload));
+ return {stack:JSON.stringify(e.frames),release:e.release,route:e.sentry?.transaction??(typeof e.sentry?.request?.url==='string'?e.sentry.request.url:''),trace:traceIdentity(e)};
+};
 export async function explainProposal(db:D1Database,row:any,preview:any){
  const input=typeof row.input==='string'?JSON.parse(row.input):row.input,project=row.project;
  const all=(await s(db,`SELECT e.*,EXISTS(SELECT 1 FROM event_suppressions x WHERE x.project=e.project AND x.event=e.id AND x.occurrence=e.occurrence) suppressed,EXISTS(SELECT 1 FROM event_grouping g WHERE g.project=e.project AND g.event=e.id AND g.occurrence=e.occurrence) corrected FROM events e WHERE project=? ORDER BY id`,project).all<any>()).results;
  const byId=new Map(all.map(e=>[e.id,e])),moves=input.kind==='rule'?preview.rows.filter((r:any)=>r.changed).map((r:any)=>({event:r.event,occurrence:r.occurrence,from:r.issue,to:r.destination})):preview.plan.moves;
- const affected=moves.map((m:any)=>({...m,variant:variantOf(byId.get(m.event))})),moving=new Set(moves.map((m:any)=>m.event));
- const same=(a:any,b:any)=>['stack','release','route'].every(k=>a[k]===b[k]);
- const inside=affected.filter((m:any)=>!input.variants.some((v:any)=>same(m.variant,v))).map((m:any)=>({...m,issue:m.from,differing:input.variants.map((v:any)=>['stack','release','route'].filter(k=>v[k]!==m.variant[k])).sort((a:any,b:any)=>a.length-b.length)[0]}));
- const outside=all.filter(e=>!moving.has(e.id)).map(e=>({event:e.id,occurrence:e.occurrence,issue:e.issue,variant:variantOf(e)})).filter(e=>input.variants.some((v:any)=>['stack','release','route'].some(k=>v[k]!==''&&v[k]===e.variant[k])));
+ const variants=new Map(all.map(e=>[e.id,variantOf(e)])),moving=new Set(moves.map((m:any)=>m.event));
+ // The reference is derived from retained affected events, never agent-supplied
+ // trace claims. A rule with no moves uses retained events in its source issue.
+ const candidates=all.filter(e=>moving.size?moving.has(e.id):e.issue===input.source);
+ const referenceRow=candidates.find(e=>variants.get(e.id)!.trace.id!==null)??candidates[0];
+ const reference=referenceRow?{event:referenceRow.id,occurrence:referenceRow.occurrence,...variants.get(referenceRow.id)!.trace}:null;
+ const compared=(id:string)=>{
+  const variant=variants.get(id)!,trace=variant.trace;
+  return {...variant,trace:{...trace,comparison:!reference?.id||!trace.id?'unavailable':reference.id===trace.id?'same':'different'}};
+ };
+ const affected=moves.map((m:any)=>({...m,variant:compared(m.event)}));
+ const inside=affected.map((m:any)=>{
+  const differing=input.variants.map((v:any)=>['stack','release','route'].filter(k=>v[k]!==m.variant[k])).sort((a:any,b:any)=>a.length-b.length)[0];
+  return {...m,issue:m.from,differing:[...differing,...m.variant.trace.comparison==='different'?['trace']:[]]};
+ }).filter((m:any)=>m.differing.length);
+ const outside=all.filter(e=>!moving.has(e.id)).map(e=>({event:e.id,occurrence:e.occurrence,issue:e.issue,variant:compared(e.id)})).filter(e=>input.variants.some((v:any)=>(['stack','release','route'] as const).some(k=>v[k]!==''&&v[k]===e.variant[k])));
  const ids=[...new Set<string>([input.source,...input.target?[input.target]:[],...moves.flatMap((m:any)=>[m.from,m.to])])],duration=(input.window.end-input.window.start)/60000;
  const issues=(await s(db,'SELECT i.id,i.state,a.label FROM issues i LEFT JOIN issue_assignments a ON a.project=i.project AND a.issue=i.id WHERE i.project=? AND i.id IN (SELECT value FROM json_each(?))',project,JSON.stringify(ids)).all<any>()).results;
  const inWindow=(e:any,w:any)=>!e.historical&&e.received>=w.start&&e.received<w.end;
@@ -48,6 +76,6 @@ export async function explainProposal(db:D1Database,row:any,preview:any){
  const repairs=(await s(db,'SELECT * FROM repairs WHERE project=? AND issue IN (SELECT value FROM json_each(?)) ORDER BY created,id',project,JSON.stringify(ids)).all<any>()).results;
  const observations=await Promise.all(repairs.map(async repair=>({id:repair.id,issue:repair.issue,created:repair.created,observation:await observe(db,repair),correctionAuditTimes:(await s(db,"SELECT created,kind FROM audit WHERE project=? AND kind IN ('grouping_applied','grouping_undone') AND created>=? ORDER BY created,id",project,repair.created).all()).results})));
  const policy=input.kind==='rule'?{before:(await readGroupingPolicy(db,project)).policy,after:input.policy,revision:input.policyRevision}:null;
- const explanation={policy,affected,counterexamples:{inside,outside},window:input.window,rates:ids.map(rate),ownership:ids.map(issue=>({issue,label:issues.find(i=>i.id===issue)?.label??null})),alerts:{rules:alertRules,open,behavior:'Corrections create no alerts or accepted units. Existing alerts and prior decisions are preserved. Moved occurrences leave spike eligibility, including after undo; suppression policies are unchanged. Rule activation affects future capture only.'},repair:{observations,behavior:'Witnessed recurrence is preserved through original membership and correction audit times. Apply and undo introduce a grouping-change coverage gap; regrouping cannot establish better repair verification. Rule changes preserve recurrence and also add this gap.'},trace:'trace identity unavailable',behavior:input.kind==='rule'?'Exact native-rule comparison; retained events and their rates do not move on activation. Candidate destinations describe future intake.':'Exact correction moves; original payloads, membership evidence and prior decisions are preserved.'};
+ const explanation={policy,affected,counterexamples:{inside,outside},window:input.window,rates:ids.map(rate),ownership:ids.map(issue=>({issue,label:issues.find(i=>i.id===issue)?.label??null})),alerts:{rules:alertRules,open,behavior:'Corrections create no alerts or accepted units. Existing alerts and prior decisions are preserved. Moved occurrences leave spike eligibility, including after undo; suppression policies are unchanged. Rule activation affects future capture only.'},repair:{observations,behavior:'Witnessed recurrence is preserved through original membership and correction audit times. Apply and undo introduce a grouping-change coverage gap; regrouping cannot establish better repair verification. Rule changes preserve recurrence and also add this gap.'},trace:{reference,scope:'Retained Sentry error contexts only; matching identities do not establish a complete trace or sampled spans.'},behavior:input.kind==='rule'?'Exact native-rule comparison; retained events and their rates do not move on activation. Candidate destinations describe future intake.':'Exact correction moves; original payloads, membership evidence and prior decisions are preserved.'};
  return scrubProposalSnapshot(explanation);
 }
