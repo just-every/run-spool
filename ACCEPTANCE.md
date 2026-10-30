@@ -465,8 +465,8 @@ Core · target · **partial** · From SDK-008 · Cites BASE-ROLE-001 · Rules D-
 4. A search on a dropped field says the field is unsearchable.
 5. Packets, agent egress, alert and chat deliveries and unfurls carry counts only.
 
-**Evidence.** `src/domain/identities/`; `src/ui/workbench/AffectedUsers.tsx`; `tests/identity-flow.mjs`; `docs/SENTRY-IDENTITY.md`
-**Gap.** Exact-project read-only grants and packets receive counts only. User search and facets, saved-search previews and project member identity roles remain absent.
+**Evidence.** `tests/identity-flow.mjs` identityFlow: the same unmodified browser and Python captures retain five known users and two unattributed occurrences per issue; the permitted owner reads the retained values, while a native project read-only collaborator receives counts without identity rows or raw values in HTTP, rendered issue detail, packets and JSON and CSV issue exports, with 1440 and 390 screens; foreign-project and next-read removal refusals preserve owner evidence. `tests/team-flow.mjs` teamFlow: native invitations, current project roles and removal. `src/domain/identities/`; `src/ui/workbench/AffectedUsers.tsx`; `docs/SENTRY-IDENTITY.md`.
+**Gap.** Acceptance 1, 3 and 4 remain unproved: identity search, facets, CIDR and saved-search previews. Configurable identity-visibility grants and hashed-token visibility remain absent; acceptance 5 still needs model egress, alert and chat deliveries and unfurls. SDK-008 keeps its sent-default ruling hold and two unresolved auto-address visitors; the literal IPv4 and IPv6 fixture qualifies this authority slice only, never auto-address behavior or MIG-001 real dual-run proof. SDK-021 trusted-tunnel qualification and all existing provider, device and release prerequisites remain held.
 
 #### SDK-027 — End-user erasure
 

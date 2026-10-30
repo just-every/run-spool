@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "99c7c2e5ed5f415e9da3f99abfcd332e14c0a2e4a82f852530c5c3f5c7ba50b5",
+      "sha256": "ff2e2caaf3f5213fb2afda7ddefe26e1831c01941398e0e5273236d48a1d70c2",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "11e5078345d4e4cf8c8a7ab83ce423c3083e382a707c50fb6a344c63f701846e",
+      "sha256": "83b29f108b139f7905f641d251071a67f737327e2a13625e174ca579a97c8b0b",
       "executable": false
     },
     "DEMO.md": {
@@ -8705,7 +8705,7 @@
       "executable": false
     },
     "tests/auth.mjs": {
-      "sha256": "cb4a9d2beae20d067a6546fe97f38b1a79b4937a9f36714bb6305d9e2efabb2d",
+      "sha256": "32d20705e126f29052d5145e1a0bc8bc725616108d946d910c8d2f6490afa964",
       "executable": false
     },
     "tests/browser-launch.mjs": {
@@ -8861,7 +8861,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "d0404e706e033121f3da57643c1b148c766ca81a5755875bc1eea8fb1d93bbf5",
+      "sha256": "2285f3068a2a8ee17c3f8d7db1d52f2f037952bf1c58fe7637b7ef501b38b1d6",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
@@ -9405,7 +9405,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "7a9f0f1e2eda495570f37a5c2b205c42c33be9eaf7577b92b692cef50ac4c5ae",
+      "sha256": "23cd162ea24c58e089b68952c3c19b90f99e99bfdd7250cd9821b0b45a703907",
       "executable": false
     },
     "tests/triage-app.mjs": {
