@@ -1,9 +1,8 @@
-import { catalogue, policy } from './catalogue.mjs';
 import { sha256 } from './hash.mjs';
-import { destinationLedger, matchMigrationLedger } from './ledgers.mjs';
 import { splitStatements } from './sql-text.mjs';
 import { insist, PortabilityError } from './storage.mjs';
 import { migrationReplay } from './migration-history.mjs';
+import { checkoutHistory } from './checkout-history.mjs';
 
 // Node library callers have the same checkout evidence as the runner. Resolve
 // only its single declared D1 migration directory, never an archive-supplied path.
@@ -25,11 +24,7 @@ async function checkoutMigrations(db,config,root) {
     const bytes=await readFile(resolve(directory,name));
     return {name,sha256:await sha256(bytes),statements:splitStatements(bytes.toString('utf8'))};
   }));
-  const ledger=await destinationLedger(db)??[];
-  insist(ledger.length && ledger.every(row=>row.sha256),'schema_mismatch:legacy_evidence',409);
-  const applied=matchMigrationLedger(ledger,files);
-  const replay=migrationReplay(applied.map(name=>files.find(file=>file.name===name)),config);
-  insist(await replay.schemaAfter(replay.names)===(await catalogue(db,policy(config))).identity,'schema_mismatch');
+  const replay=await checkoutHistory(db,config,files,applied=>migrationReplay(applied.map(name=>files.find(file=>file.name===name)),config));
   return async()=>replay;
 }
 

@@ -576,16 +576,47 @@ created. Keep the same service instance through this initial upload; restarting
 it requires uploading again. Acknowledged recovery and runner-supplied evidence
 retain their existing paths.
 
-Worker evidence remains pending: a Worker has neither checkout files nor Node
-SQLite, and `db` plus `policy` cannot reveal migration SQL that is absent from the
-live schema. The required refresh/lock integration should generate a seed-owned
-module containing ordered file hashes, SQL statements, complete sqlite_master
-inventories and seeded row images for every migration prefix. Bind that artifact
-to the destination's hashed ledger, apply the runtime policy to each inventory,
-and verify both historical and complete live identities before admitting the
-same collector. Do not import archive SQL or substitute the live schema for a
-historical replay. Until that artifact is wired into seed builds, this automatic
-library path refuses in Workers with `schema_mismatch:legacy_evidence`.
+Workers can opt into seed-owned build evidence. Add `legacyMigrationEvidence()`
+from `@runeditrun/rer/portability-evidence` to the seed's existing Vite plugins.
+It reads the declared D1 binding's `migrations_dir` through the same accessor
+used by native migration checks and deployment packaging; pass `{binding:'DB'}`
+to select a different binding. It never reads the live installation or an archive.
+Import its generated module only in the archive's server adapter:
+
+```js
+import evidence from 'virtual:rer-legacy-migration-evidence';
+import { workerMigrations } from '@runeditrun/rer/modules/portability/worker-history';
+
+const service = await createPortability({
+ db, policy,
+ migrations: () => workerMigrations(db, policy, evidence),
+});
+```
+
+For TypeScript, declare the virtual module in the seed's server declarations:
+
+```ts
+declare module 'virtual:rer-legacy-migration-evidence' {
+ const evidence: import('@runeditrun/rer/modules/portability/worker-history').MigrationEvidence;
+ export default evidence;
+}
+```
+
+The generated JavaScript contains ordered checkout file hashes and statements,
+deduplicated complete schema inventories for every prefix, and hashed identities
+of bounded deterministic seeded rows. Volatile seeded rows cannot be vouched for;
+their values are never bundled. Runtime policy projects each inventory through
+the same schema identity code as live SQLite. The Worker adapter binds evidence
+to the live hashed ledger and complete schema, then supplies the existing legacy
+collector, archived-ledger validation, bridge and restore guards. Archive SQL is
+never executed as evidence. Unsupported migration selections and missing evidence
+fail closed with `schema_mismatch:legacy_evidence` (the public HTTP vocabulary
+reports `schema_mismatch`). The ordinary automatic Node library path is unchanged.
+
+The plugin runs for direct Vite builds and managed builds, rejects client imports,
+and puts its module in the existing Worker bundle/package path. Seeds that do not
+declare it generate no evidence module and need no migration or configuration
+change. Keep the same service instance throughout the initial legacy upload.
 
 Later data statements also qualify when a surviving trigger from that same
 migration repeats the complete statement block, in order, on Base's restore
@@ -1076,6 +1107,7 @@ modules/portability/generated.mjs
 modules/portability/restore-safety.mjs
 modules/portability/bridge.mjs
 modules/portability/library-history.mjs
+modules/portability/checkout-history.mjs
 modules/portability/migration-history.mjs
 modules/portability/ledgers.mjs
 modules/portability/migration-statements.mjs
