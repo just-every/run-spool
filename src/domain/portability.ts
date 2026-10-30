@@ -16,6 +16,7 @@ import {followUpExcludedTables} from './follow-up/types';
 import { safeAuditExcludedTables, auditPayload, SAFE_AUDIT_PAYLOAD } from './audit/archive';
 import { deploymentTables,deploymentExportRow } from './deployments/archive';
 import { releaseTables } from './releases/archive';
+import { orderedReleaseExports } from './releases/archive-order';
 import { groupingTables } from './grouping/archive';
 import {inboundFilterTables} from './filters/archive';
 import { feedbackTables } from './feedback/archive';
@@ -49,7 +50,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['restored_work','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -60,7 +61,10 @@ export const portabilityPolicy = {
 export async function portability(db: D1Database, safeAudit = true) {
  const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
  const service = await createPortability({ db, policy });
- return { ...service, db, imports: { ...service.imports,
+ const exports=orderedReleaseExports(service.exports);
+ return { ...service, db, exports, status:async(id:string)=>{
+  const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
+ }, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
@@ -184,6 +188,9 @@ laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_colla
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
 laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+// Destination custody is excluded, so earlier archives need no added product rows.
+for(const later of laterTables)later.migrations.push('0084_restored_work.sql');
+laterTables.unshift({tables:[],migrations:['0084_restored_work.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

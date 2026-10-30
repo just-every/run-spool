@@ -133,5 +133,5 @@ export async function dashboardFlow({req,json}){
  const attached=await json(root+'/items/'+preOrganization.id+'/shares','PUT',{revision:preOrganization.revision,shares:[{kind:'role',target:'read-only'}]});assert.ok(attached.shares[0].active);await json(root+'/items/'+attached.id,'DELETE',{revision:attached.revision});
  await json(base+'/review/views/'+view.id,'DELETE');assert.equal((await json(root+'/items/'+table.id)).widgets.length,0,'Deleting the referenced saved query removes its table widget');
  for(const id of [savedId,table.id,reportItem.id]){const current=await json(root+'/items/'+id);await json(root+'/items/'+id,'DELETE',{revision:current.revision});assert.equal((await req(root+'/items/'+id)).status,404)}
- console.log('[FIND-002 R2/R3] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed');
+ console.log('[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed');
 }

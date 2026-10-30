@@ -21,6 +21,17 @@ export function event(id,patch={}){return {version:1,eventId:id,release:'z-relea
 export function noSecrets(value){const text=typeof value==='string'?value:JSON.stringify(value);for(const canary of canaries)assert.ok(!text.includes(canary),`confidential canary absent: ${canary}`);assert.ok(!text.includes('sourcesContent'));assert.ok(!text.includes('sourceContent":"HANDOFF'));}
 export function survives(text){assert.ok(text.includes(plainText),'ordinary text survives scrubbing');}
 export function gap(packet,pattern){const found=packet.gaps.find(row=>pattern.test(row.code+' '+row.reason));assert.ok(found,'named gap '+pattern);assert.equal(typeof found.code,'string');assert.ok(found.reason.length>0);return found;}
+export function generatedFrames(packet,id,frames,status){
+ const row=packet.events.find(event=>event.id===id);assert.ok(row,'captured event remains in packet');
+ assert.deepEqual(row.event.frames,frames,'reported generated frames remain unchanged');
+ for(const label of ['atAdmission','currentLookup']){
+  assert.equal(row[label].length,frames.length,'all generated frames remain in '+label);
+  assert.deepEqual(row[label].map(frame=>frame.generated),frames,'generated coordinates remain unchanged in '+label);
+  for(const frame of row[label]){assert.equal(frame.status,status);assert.equal(Object.hasOwn(frame,'original'),false,'a mismatched or missing map supplies no original coordinates');}
+ }
+ const reason=packet.gaps.find(gap=>gap.code===status&&gap.event===id);assert.ok(reason,'named reason for this event');assert.ok(reason.reason.length>0);assert.equal(reason.frames,frames.length);
+ noSecrets(packet);return row;
+}
 export function compatible(packet){for(const key of ['version','project','issue','events','loss','trust','sourceContent','verification','grouping'])assert.ok(key in packet,key);assert.equal(packet.project,'a');assert.equal(packet.sourceContent,'excluded');assert.equal(packet.verification.state,'inconclusive');assert.match(packet.trust,/untrusted/i);assert.match(packet.trust,/never instructions|no.execution/i);for(const item of packet.events)for(const key of ['id','received','historical','digest','event','atAdmission','currentLookup'])assert.ok(key in item,key);noSecrets(packet);}
 export function bounded(packet){const text=JSON.stringify(packet),bytes=Buffer.byteLength(text);const cap=packet.bounds?.byteCap??packet.byteCap??packet.limits?.bytes;assert.ok(Number.isSafeInteger(cap),'declared byte cap');assert.ok(bytes<=cap,'complete packet UTF-8 fits declared cap');return {bytes,cap};}
 export async function importGap(app){

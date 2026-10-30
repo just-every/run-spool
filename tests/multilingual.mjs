@@ -10,6 +10,8 @@ import {launchBrowser} from './browser-launch.mjs';
 import {openGate} from './auth.mjs';
 import {mappingArchive} from './multilingual/archive.mjs';
 import {exceptionTrust} from './multilingual/trust.mjs';
+import {archiveProjection} from './archive.mjs';
+import {nativeRefusal} from './admission-proof.mjs';
 const state=await mkdtemp(join(tmpdir(),'spool-languages-')),restoredState=await mkdtemp(join(tmpdir(),'spool-languages-restore-'));
 let app,restored,browser;
 try{
@@ -25,6 +27,7 @@ try{
  const python=`Traceback (most recent call last):\n  File "${posixHome}/old.py", line 2, in old\n    PRIVATE_SOURCE\nKeyError: prior\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File "${posixHome}/main.py", line 8, in run\n    PRIVATE_SOURCE\n  File "${posixHome}/cart.py?private=PRIVATE_QUERY", line 42, in checkout\n    PRIVATE_SOURCE = "ExceptionGroup"\nValueError: quantity\nPRIVATE_NOTE\n  File "PRIVATE_NOTE.py", line 9, in note\nTraceback (most recent call last):\n  File "PRIVATE_NOTE.py", line 10, in note\nValueError: note`;
  const go='panic: quantity\n\ngoroutine 4 [runnable]:\nother.ready(PRIVATE_OTHER)\n\t/private/other.go:99 +0x1\n\ngoroutine 7 [running]:\nmain.(*账本[go.shape.int]).Checkout(0x1234, PRIVATE_ARGS)\n\t/build/service/cart.go:42 +0x42\nmain.main()\n\t/build/service/main.go:8 +0x12\n\ngoroutine 1 [chan receive]:\nother.wait(PRIVATE_OTHER)\n\t/private/other.go:99 +0x1';
  const ingest=async(value,status=201)=>{try{return await app.json('/api/ingest/languages','POST',value,headers,status);}catch(error){error.message=`Native fixture ${value.eventId}: ${error.message}`;throw error;}};
+ const refusal=(value,options)=>nativeRefusal({snapshot:async()=>archiveProjection(await app.request('/api/archive')),send:()=>app.request('/api/ingest/languages','POST',value,headers),project:'languages',...options});
  const py=await ingest({...base,eventId:'python-raw',language:'python',stack:python}),goResult=await ingest({...base,eventId:'go-raw',language:'go',stack:go});
  const packet=issue=>app.json(`${p}/issues/${issue}/packet`);
  let pyPacket=await packet(py.issue),goPacket=await packet(goResult.issue);
@@ -49,7 +52,12 @@ try{
  await app.json(`${p}/artifacts`,'POST',{release:release.name,build:release.build,debugId:'evil-map',map:{version:3,sources:['evil.js'],sourcesContent:['export default function main(){throw Error("never run")}'],names:[],mappings:'AAAA'}});
  for(const language of ['python','go']){const blocked=await app.json(`${p}/reproducers`,'POST',{event:language+'-deceptive',input:[]});assert.equal(blocked.support,'unsupported');}
  await ingest({...base,eventId:'python-raw',language:'python',stack:python},200);
- await ingest({...base,eventId:'python-raw',language:'python',stack:python.replace('PRIVATE_SOURCE','ALTERED_SOURCE')},409);
+ await refusal({...base,eventId:'python-raw',language:'python',stack:python.replace('PRIVATE_SOURCE','ALTERED_SOURCE')},{status:409,outcome:'conflict',counter:'conflict'});
+ for(const language of ['python','go']){
+  const sample={...base,eventId:'foreign-'+language,language,stack:language==='python'?python:go};
+  await nativeRefusal({snapshot:async()=>archiveProjection(await app.request('/api/archive')),send:()=>app.request('/api/ingest/languages','POST',sample,{Cookie:'',Authorization:'Bearer '+other.ingestKey}),project:'languages',status:401,outcome:'rejected',reason:'invalid_ingest_key'});
+  await refusal({...sample,eventId:'oversized-'+language,stack:'x'.repeat(40000)},{status:400,outcome:'rejected',reason:'Body exceeds limit',counter:'oversized'});
+ }
  for(const input of [
   {...base,eventId:'bad-python',language:'python',stack:'ExceptionGroup: unsupported'},
   {...base,eventId:'bad-python-location',language:'python',stack:python.replace('line 42','line -1')},
@@ -60,7 +68,7 @@ try{
   ...['python','go'].map(language=>({...base,eventId:'bad-empty-'+language,language,type:'Error',message:'bad',frames:[{file:'?query=only',line:1,function:'crash'}]})),
   {...base,eventId:'large',language:'go',stack:'a'.repeat(32769)},
   {...base,eventId:'bad',language:'python',stack:'not a traceback'},
- ])await ingest(input,400);
+ ]){const body=await refusal(input,{status:400,outcome:'rejected',counter:input.eventId==='large'?'oversized':'invalid'});assert.ok(body.reason,'invalid native stack has an explicit refusal reason');}
  const manifest={commitSha:'0123456789abcdef0123456789abcdef01234567',repository:'https://github.com/just-every/run-spool',deployedAt:'2026-10-15T00:00:00.000Z',environment:'production',pathMappings:[{from:'/build',to:'fallback'},{from:'/build/service',to:'src'},{from:'example.com/service',to:'.'}]};
  const deploy=await app.json(`${p}/keys`,'POST',{kind:'deploy'}),agent=await app.json(`${p}/keys`,'POST',{kind:'agent'});
  for(const denied of [{Cookie:''},{Cookie:'',Authorization:'Bearer '+agent.key},{Cookie:'',Authorization:'Bearer '+other.ingestKey}]){
