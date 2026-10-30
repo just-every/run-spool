@@ -87,6 +87,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await capture('operator-merge-applied');
  await page.getByRole('button',{name:'Details: merge · applied',exact:true}).click();
  await Promise.all([page.waitForResponse(response=>response.url().endsWith('/corrections/'+mergePreview.id+'/undo')&&response.status()===200),page.getByRole('button',{name:'Undo this correction',exact:true}).click()]);
+ await page.getByRole('button',{name:'Details: merge · undone',exact:true}).waitFor();
  const mergeUndone=await groupingSnapshot();assertMoves(beforeMergePreview,mergeUndone,mergePreview.plan,true);
  for(const original of beforeMergePreview.events){
   const restored=(await api(root+'/issues/'+original.issue+'/packet')).events.find(event=>event.id===original.id);
