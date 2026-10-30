@@ -83,7 +83,7 @@ try{
  const custody=(await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n;assert.ok(custody>0,'restore established destination custody');
  const restoredPlan=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:restoredPlan.planHash}));
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n,0,'project erasure removes destination custody with its work');
- const replay=await restored.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(replay.status,409,'an erased project cannot return through an old archive');await replay.body?.cancel();assert.deepEqual(await restored.json('/api/projects'),[],'refused archive replay leaves the erased destination empty');
+ const replay=await restored.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(replay.status,400,'an erased project cannot return through an old archive');assert.equal((await replay.json()).error,'erasure_epoch','the erasure fence rejects the old epoch before restoring rows');assert.deepEqual(await restored.json('/api/projects'),[],'refused archive replay leaves the erased destination empty');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
