@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "914165d2827cb38c15530d9bfba321c86ae5592314e596608e1b4255cbc1169f",
+      "sha256": "bd03801f84065861b5479abb29c6a572510642026b42a8617ee8f4bb33c2a67a",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "dec26f2d57f35a974d53131121d7381f61e72f386436c4624f58009c77e5f56e",
+      "sha256": "02ab6d93c562a0e2a055f15eb28f6b47b98e94b3634e502e41964942518b3467",
       "executable": false
     },
     "DEMO.md": {
@@ -9349,7 +9349,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "27a14cd8e9685385dd873221dfca4a93f4c4b9d52219ca7216968db1782cf24f",
+      "sha256": "e72e0016886619c26ffd580193d337dc27a44d60a2b8ec08a647d549038cf4cd",
       "executable": false
     },
     "tests/sentry-import.mjs": {

@@ -121,6 +121,13 @@ try{
   const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
   const isolatedProject=await json('/api/projects','POST',{id:'synthetic-spool-7',name:'Synthetic companion isolation'}),isolatedDsn=new URL(isolatedProject.dsn);
   const isolatedPath='/api'+isolatedDsn.pathname+'/envelope/?sentry_key='+isolatedDsn.username+'&sentry_version=7';
+  for(const [endpoint,payload] of [[isolatedPath,'{}\n{"type":"event"}\n{}'],[isolatedPath.replace('/envelope/','/store/'),'{}']]){
+    const refused=await req(endpoint,'POST',payload,{Cookie:''});assert.equal(refused.status,400,'standalone invalid event retains its explicit refusal');
+    assert.equal((await refused.json()).reason,'invalid_event_id');
+  }
+  assert.deepEqual(await json('/api/projects/synthetic-spool-7/issues'),[],'standalone refusals create no issue');
+  const standaloneCounts=(await json('/api/projects/synthetic-spool-7/outcomes')).rows;
+  assert.deepEqual(standaloneCounts.map(({reason,count})=>({reason,count})),[{reason:'invalid',count:2}],'standalone refusals attribute only their invalid outcomes');
   const invalidCompanionItems=[...invalidFeedbackItems,
     ['event','{}','invalid_item'],
     ['event',JSON.stringify({event_id:'synthetic-spool-8',message:'Synthetic invalid identity'}),'invalid_item'],
@@ -151,5 +158,5 @@ try{
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
-  console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts despite malformed companion feedback, with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
+  console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts despite malformed companion feedback and invalid event fields, with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}
