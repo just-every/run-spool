@@ -141,6 +141,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue,assignmen
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
  const assignmentPending=assignmentProof?await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},assignmentProof.path,{revision:(await assignmentProof.state()).revision,member:remaining.member.id},{method:'PATCH'}):null;
+ const targetPending=assignmentProof?await heldOwnerRequest({origin,cookie:remaining.cookie,request:path=>remaining.req(path)},assignmentProof.path,{revision:(await assignmentProof.state()).revision,member:removed.member.id},{method:'PATCH'}):null;
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
  const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
@@ -149,6 +150,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue,assignmen
   const departed=await state();
   try{const late=await assignmentPending.release();assert.equal(late.status,409);assert.deepEqual(late.body,{error:'authority_changed'});assert.deepEqual(await state(),departed,'an assignment admitted before writer removal commits no late history or revision');}finally{assignmentPending.close()}
 
+  try{const late=await targetPending.release();assert.equal(late.status,404,'an active writer cannot assign a member removed while its request body was pending');assert.deepEqual(await state(),departed,'target departure commits no assignment history or issue revision');}finally{targetPending.close()}
   assert.equal(departed.current.active,false);assert.equal(departed.current.member,null);assert.equal(departed.current.alias,formerAlias);
   assert.ok(departed.history.some(row=>row.target.alias===formerAlias&&row.target.name==='Former project member'),'departure preserves truthful safe historical attribution');
   const sealed=await state();assert.equal(await status(remaining.req(path,'PATCH',{revision:sealed.revision,member:formerId})),404);
@@ -436,6 +438,12 @@ export async function teamFlow() {
    assert.equal(await status(owner.req(base+'/issues/'+issues[0].id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+transferKeys.agent.key})),200,'the SAME agent key keeps authority across transfer');
    assert.equal(await status(owner.req(base+'/releases','POST',{name:'synthetic-successor-'+stage,build:'web'},{Cookie:'',Authorization:'Bearer '+successorKey.key})),201,'the promoted admin keeps existing keys too');
   }
+  const ownerAssignmentPath=projectRoot(projects[0])+'/issues/'+issues[0].id+'/assignment';
+  const predecessor=(await owner.json(organization)).members.find(row=>row.role==='owner');
+  await first.json(ownerAssignmentPath,'PATCH',{revision:(await first.json(ownerAssignmentPath)).revision,member:predecessor.id});
+  const ownerAssigned=await first.json(ownerAssignmentPath),ownerFact=ownerAssigned.history[0];
+  assert.equal(ownerAssigned.current.member,predecessor.id,'the original installation owner holds the issue assignment before handoff');
+  const predecessorCookie=await emailSignIn(origin,testOwner);
   await captureAfterTransfer('before');
   await owner.json(organization+'/transfer','POST',{member:successor.id,version:successor.version});
   await captureAfterTransfer('after');
@@ -447,7 +455,25 @@ export async function teamFlow() {
   assert.ok((await next.json(projectRoot(projects[0])+'/keys')).find(row=>row.hash===retired.hash)?.revoked,'the retired credential is listed Revoked');
   assert.ok((await first.json('/api/projects')).some(row=>row.id===projects[0].id),'owner transfer preserves other active members');
   const former=(await next.json(organization)).members.find(row=>row.role==='admin'&&row.email===testOwner);
+  const formerCookie=await emailSignIn(origin,testOwner),formerActor={...client(origin,formerCookie),origin,cookie:formerCookie};
+  const formerBrowser=await memberBrowser(formerActor,projects[0],issues[0]);
+  const historyBrowser=await assignmentBrowser({...first,origin},projects[0],issues[0],former,first.member,{...first,origin});
+  const beforeOwnerRemoval=await first.json(ownerAssignmentPath);
   await next.json(organization+'/members/'+former.id,'DELETE',{version:former.version});
+  try {
+   const departed=await first.json(ownerAssignmentPath);
+   assert.equal(departed.current.alias,ownerFact.target.alias);assert.equal(departed.current.member,null);assert.equal(departed.current.active,false);
+   assert.deepEqual(departed.history.map(({target,...fact})=>fact),beforeOwnerRemoval.history.map(({target,...fact})=>fact),'owner removal keeps assignment identities, actors, revisions and times unchanged');
+   assert.ok(!JSON.stringify(departed).includes(predecessor.id),'the removed owner membership link is absent from current and historical assignment views');
+   assert.equal(await status(first.req(ownerAssignmentPath,'PATCH',{revision:departed.revision,member:former.id})),404);
+   assert.deepEqual(await first.json(ownerAssignmentPath),departed,'refusing the removed owner as target changes nothing');
+   await historyBrowser.reassign();
+   const reassigned=await first.json(ownerAssignmentPath);
+   assert.equal(reassigned.current.member,first.member.id);assert.ok(reassigned.history.some(row=>row.target.alias===ownerFact.target.alias&&row.target.active===false));
+   for(const actor of [formerActor,client(origin,predecessorCookie)])for(const path of [ownerAssignmentPath,projectRoot(projects[0])+'/issues/'+issues[0].id+'/packet',projectRoot(projects[0])+'/issue-export?format=json'])await denied(actor.req(path),'neither the pre-transfer nor the freshly signed-in former owner regains evidence after removal and reassignment');
+   await formerBrowser.removed();
+   console.log('PROBE TEAM-002 owner handoff: assign original owner, transfer, remove, reassign through issue control -> safe chronology retained; fresh and old former-owner sessions remain denied');
+  } finally {await historyBrowser.close();await formerBrowser.close()}
   const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
   assert.equal(await status(next.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-removed'),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),401,'removing the former owner stops that SAME capture key');
   assert.equal(await status(next.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{event_id:'d'.repeat(32),message:'synthetic-transfer-removed'},{Cookie:''})),401,'removal stops the SAME Sentry DSN');

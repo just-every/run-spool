@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5a5339d1d853bb55a53e9bbdcdfbb56818393fffd35b6a45e6441e6ce96f8ddf",
+      "sha256": "d896d033ae460139ca462ee8123e828069f3d64a7493b8cfb4f37479456de7cd",
       "executable": false
     },
     "DEMO.md": {
@@ -9417,7 +9417,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "6410dd484b87f3c4868b23a40d46b9b094dde62e64db4615302ace5c724b9f8b",
+      "sha256": "8ab954fb3eecd2a37eba3927c3fb562f4319bbe103b754c3e12502d7e40d7e7b",
       "executable": false
     },
     "tests/triage-app.mjs": {
