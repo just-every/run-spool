@@ -1,5 +1,5 @@
 import { all,statement,guard,quote,insist } from './storage.mjs';
-import { canonicalJson } from './hash.mjs';
+import { canonicalJson, sha256 } from './hash.mjs';
 const identifier=value=>value.replace(/[A-Z]/g,c=>c.toLowerCase());
 
 export async function excludedDependentGuards(db,targets,replaceable) {
@@ -40,12 +40,15 @@ export async function migrationSeeded(db,names,migrations) {
  const requests=[];
  for(const name of names)requests.push({name,columns:(await all(db,`SELECT name FROM pragma_table_info(?)`,name)).map(c=>c.name)});
  // Without a usable replay no seed is vouched for, so those rows count as the installation's own.
- const expected=await migrations().then(replay=>replay.rowImages(requests,MAX_SEED_ROWS),()=>new Map()),seeded=[];
+ const replay=await migrations().catch(()=>null);
+ const hashed=Boolean(replay?.rowHashes);
+ const expected=replay?await (hashed?replay.rowHashes(requests,MAX_SEED_ROWS):replay.rowImages(requests,MAX_SEED_ROWS)):new Map(),seeded=[];
  for(const {name,columns} of requests) {
   const want=expected.get(name);
   if(!want || (await statement(db,`SELECT count(*) AS n FROM ${quote(name)}`).first()).n!==want.length)continue;
   const found=(await all(db,imageSql(name,columns))).map(r=>r.image).sort();
-  if(canonicalJson(found)===canonicalJson(want))seeded.push({name,columns,images:found});
+  const identities=hashed?(await Promise.all(found.map(sha256))).sort():found;
+  if(canonicalJson(identities)===canonicalJson(want))seeded.push({name,columns,images:found});
  }
  return seeded;
 }

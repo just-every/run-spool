@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { operatorUi } from './operator-ui.mjs';
 import {archiveProjection} from './archive.mjs';
 import assert from 'node:assert/strict';
@@ -16,7 +17,7 @@ async function journey(width) {
  const worker=await startTestWorker(15482),origin=worker.origin;let browser,application;
  const checked=name=>evidence.checks.push({width,name});
 try {
- const cookie=await signIn(origin);
+ const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
  async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);

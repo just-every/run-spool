@@ -1,3 +1,5 @@
+import { dispatchStanding } from '../agent-door/standing';
+import type { Bindings } from '../../auth/bindings';
 import { createWebhookProtocol } from '../../modules/integrations/core/webhook';
 import { validateDestination } from '../../modules/integrations/core/destination';
 import { validateMessage } from '../../modules/mail/src/core/validation.mjs';
@@ -58,13 +60,14 @@ async function prepare(env:Environment,row:any,time:number) {
  }};
 }
 
-export async function dispatchNotices(env:Environment,time:number) {
+export async function dispatchNotices(env:Environment,time:number,only?:string[]) {
  await env.DB.batch([
   s(env.DB,"UPDATE follow_up_attempts SET state='uncertain',code='claim_expired',finished=? WHERE finished IS NULL AND id IN(SELECT claim FROM follow_up_notices WHERE state='running' AND claim_until<=?)",time,time),
   s(env.DB,"UPDATE follow_up_notices SET state='uncertain',code='claim_expired',claim=NULL,claim_until=NULL WHERE state='running' AND claim_until<=?",time),
  ]);
- const rows=(await s(env.DB,"SELECT * FROM follow_up_notices WHERE state='queued' AND next_at<=? ORDER BY next_at,id LIMIT 30",time).all<any>()).results;
+ const rows=(await s(env.DB,"SELECT * FROM follow_up_notices WHERE state='queued' AND next_at<=? AND (? IS NULL OR id IN (SELECT value FROM json_each(?))) ORDER BY next_at,id LIMIT 30",time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const row of rows) {
+  if(await dispatchStanding(env as Bindings&Environment,'followup',row.id))continue;
   let prepared;
   try {
    prepared=await prepare(env,row,time);
