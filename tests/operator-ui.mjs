@@ -69,6 +69,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.keyboard.press('Escape');await page.keyboard.press('Escape');
  await page.goto(origin+'/projects/'+project+'/issues/'+issue);
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();
+ await openSection(page,'Operator decisions');
  const mergeTarget=(await api(root+'/issues')).find(row=>row.id!==issue&&row.count>0);
  assert.ok(mergeTarget,'A distinct captured failure is available as the merge target');
  const beforeMergePreview=await groupingSnapshot();

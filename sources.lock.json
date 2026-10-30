@@ -9013,7 +9013,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "6b4d8ce7558e45e6b2dc8eb287dce501c12aa1affbb3f4d50c04350a07249735",
+      "sha256": "d6eda211b7be829d648c9056b9cf93f63a3501b7c5849a3369a89fb18676fb82",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
