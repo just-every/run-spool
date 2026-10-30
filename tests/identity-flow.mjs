@@ -69,6 +69,9 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
  const projectRole=role==='read-only'?'member':'read-only';
  const identity={email:['synthetic-spool-reader-'+role,'example.test'].join('@'),name:'Identity reader',role,grants:[{project:project.id,role:projectRole}]};
  const invited=await inviteMember(app,origin,identity);
+ assert.equal(invited.member.role,role,'native invitation preserves the organization role');
+ const granted=(await app.json(organization)).grants.filter(row=>row.member===invited.member.id);
+ assert.deepEqual(granted.map(row=>({project:row.project,role:row.role})),identity.grants,'native invitation preserves the distinct project authority');
  // Sign in again normally so authority does not depend on the invitation cookie.
  const cookie=await emailSignIn(origin,identity.email),reader=api(origin,cookie);
  assert.deepEqual((await reader.json('/api/projects')).map(row=>[row.id,row.role]),[[project.id,'read-only']]);
