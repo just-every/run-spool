@@ -31,12 +31,16 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const mcpProposal=mcpValue(await mcp.call('propose_grouping',input));assert.equal(mcpProposal.label,proposal.label);assert.ok(mcpValue(await mcp.call('list_grouping_proposals')).some(row=>row.id===mcpProposal.id));
  const canonicalProposal=mcpValue(await mcp.call('spool.grouping.propose',input));
  assert.notEqual(canonicalProposal.id,mcpProposal.id,'both proposal names submit an operation');
- const operation=({id,created,updated,...value})=>value;
+ // Each split has its own proposed destination; it does not create that issue.
+ const operation=({id,created,updated,revisions,...value})=>value;
  assert.deepEqual(operation(canonicalProposal),operation(mcpProposal),'both names submit the same validated inert operation');
  assert.deepEqual(canonicalProposal.input,input);assert.equal(canonicalProposal.state,'proposed');
+ const existingRevisions=row=>row.revisions.filter(revision=>issues.some(issue=>issue.id===revision.id));
+ assert.deepEqual(existingRevisions(canonicalProposal),existingRevisions(mcpProposal),'both names bind the same current issue revisions');
  for(const row of [mcpProposal,canonicalProposal]){
   assert.ok(!Object.hasOwn(row,'explanation'));noSecrets(row);
-  const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,row.input);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
+  const future=row.revisions.filter(revision=>!issues.some(issue=>issue.id===revision.id));assert.equal(future.length,1);assert.equal(future[0].revision,0);
+  const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,row.input);assert.deepEqual(stored.revisions,row.revisions);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
  }
  const legacyList=mcpValue(await mcp.call('list_grouping_proposals')),canonicalList=mcpValue(await mcp.call('spool.grouping.propose'));
  assert.deepEqual(canonicalList,legacyList,'populated safe proposal summaries are completely equal');

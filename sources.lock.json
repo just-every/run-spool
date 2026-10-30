@@ -3681,7 +3681,7 @@
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
-      "sha256": "b777f6f0c63a87327e2834644f72eccd662578ba873cf876b7b11b1f074bbfd5",
+      "sha256": "9b82ba28a2537b98d0b413be093aa6289bc12b025ac3cff7da10b8513606f1db",
       "executable": false
     },
     "DUPLICATE-TRANSPORT.md": {
@@ -8613,7 +8613,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "e618a96686dbe8502ac2a905befc17430488539d73862ff330f90618d55b120e",
+      "sha256": "58e25d3da980275a9bec0a934f8873aa229148653a3e801eb352da1b97b502c6",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
