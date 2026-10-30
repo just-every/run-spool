@@ -1,3 +1,4 @@
+import { personalNotifications, personalUnsubscribe } from './domain/notifications/delivery';
 import {scheduleSuppression} from './domain/suppression/schedule';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
@@ -48,6 +49,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
   await scanFollowUp(env,event.scheduledTime);
   await queueDigests(env,event.scheduledTime);
   await scheduledMail(env,event.scheduledTime);
+  await personalNotifications(env,event.scheduledTime);
   await queueNotices(env,event.scheduledTime);
   await dispatchNotices(env,event.scheduledTime);
  }
@@ -78,6 +80,7 @@ async function handle(request: Request, bindings: Bindings & AlertEnvironment, e
  if (privateRuntimePath(request.url)) return new Response('Not found', { status: 404 });
  const env = runtimeBindings(bindings as Bindings);
  const path = new URL(request.url).pathname;
+ const unsubscribed=await personalUnsubscribe(request,env);if(unsubscribed)return unsubscribed;
  const providerEvent=await providerEventResponse(request,env);if(providerEvent)return providerEvent;
  const reportDialog = await reportDialogResponse(request, env); if (reportDialog) return reportDialog;
  const loader = await loaderResponse(request, env); if (loader) return loader;

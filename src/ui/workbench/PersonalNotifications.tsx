@@ -10,7 +10,7 @@ export function PersonalNotifications({project,request,run,busy}:{project:string
  async function load() {const row = await request(root);setCurrent(row);setDraft(row.email);setError('');}
  useEffect(() => {let alive = true;request(root).then(row => {if(alive){setCurrent(row);setDraft(row.email);}}).catch(e => {if(alive)setError(e.message);});return () => {alive = false;};},[root,request]);
  return <section className="evidence" aria-labelledby="personal-notifications-title"><h2 id="personal-notifications-title">Personal notifications</h2>
-  <p>Your email choices for this project. Weekly reports start off. These preferences are saved for your account; personal notification delivery is not connected yet.</p>
+  <p>Your email choices for this project. Weekly reports start off. Email follows these choices. Workflow mail goes to issue subscribers except the actor. Deploy mail matches your recorded commit address. Weekly reports use Monday at 09:00 UTC. Each message has an unsubscribe link.</p>
   {error && <p role="alert">{error} <button className="text-button" disabled={busy} onClick={() => void run(load)}>Reload saved preferences</button></p>}
   {!draft ? !error && <p role="status">Loading your preferences…</p> : <form onSubmit={event => {event.preventDefault();void run(async() => {
    try {setError('');setStatus('');const row = await request(root,'PUT',{revision:current!.revision,email:draft});setCurrent(row);setDraft(row.email);setStatus('Your email preferences are saved.');}

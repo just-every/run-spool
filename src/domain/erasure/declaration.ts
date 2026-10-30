@@ -16,7 +16,8 @@ export const projectErasure = defineErasure({
  entity: 'project',
  root: { table: 'projects' },
  edges: [
-  ...['spool_notification_preferences','issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
+  {table:'rer_mail_development_outbox',from:'spool_personal_mail',where:"CASE WHEN json_valid(message) THEN json_extract(message,'$.deliveryId') END=?",params:['id']},
+  ...['spool_personal_unsubscribe','spool_personal_mail','spool_issue_follows','spool_notification_preferences','issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
   // Multi-project definitions retain their other widgets; a sole-project item
   // and all its grants leave with the last project they describe.
   {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
