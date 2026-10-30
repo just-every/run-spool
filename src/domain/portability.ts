@@ -187,7 +187,7 @@ for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables
 laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
-laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(comparisonTables));later.migrations.push('0084_suspect_comparisons.sql')}
 laterTables.unshift({tables:Object.keys(comparisonTables),migrations:['0084_suspect_comparisons.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
