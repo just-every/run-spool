@@ -25,6 +25,7 @@ export async function ownerDeclaration(db: D1Database) {
   {table:'follow_up_attention',from:'oa_operators',where:'? IS NOT NULL',params:['id']},
   {table:'follow_up_notices',from:'follow_up_attention',on:{attention:'id'}},
   {table:'follow_up_attempts',from:'follow_up_notices',on:{notice:'id'}},
+  {table:'follow_up_notice_meta',from:'follow_up_notices',on:{notice:'id'}},
   child('issue_comments'),child('issue_subscriptions'),
   child('spool_members'),
   {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},

@@ -188,6 +188,8 @@ laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_colla
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
 laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+for(const later of laterTables)later.migrations.push('0084_follow_up_acknowledgment.sql');
+laterTables.unshift({tables:[],migrations:['0084_follow_up_acknowledgment.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

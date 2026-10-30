@@ -472,8 +472,8 @@
     {
       "binding": "DB",
       "name": "0084_follow_up_acknowledgment.sql",
-      "sha256": "ea869dd0a1523b46d23bdb3896633f58909c325c25f42468a882df903b37a638",
-      "sql": "-- Operational notices remain excluded from archives. Existing notices keep\n-- their state and never acquire a fabricated provider acknowledgment.\nALTER TABLE follow_up_notices ADD COLUMN provider TEXT CHECK(provider IS NULL OR provider='slack');\nALTER TABLE follow_up_notices ADD COLUMN message_id TEXT;\n"
+      "sha256": "ea6bc5bf81c408e2a4555029596f481e1a04e517ea27584bf59bd5ddcdcccf3d",
+      "sql": "-- Keep populated notice rows and their released schema unchanged. This\n-- operational metadata never restores as runnable work or a recipient receipt.\nCREATE TABLE follow_up_notice_meta (\n notice TEXT PRIMARY KEY REFERENCES follow_up_notices(id),\n project TEXT NOT NULL REFERENCES projects(id),\n provider TEXT NOT NULL CHECK(provider='slack'),\n message_id TEXT\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

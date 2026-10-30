@@ -62,7 +62,8 @@ try {
  // A populated operational Slack acknowledgment belongs to the accountable owner.
  const noticeAttention=randomUUID(),noticeId=randomUUID();
  await app.DB.prepare("INSERT INTO follow_up_attention(id,project,source,source_id,due,state,reason,created,updated) VALUES(?,'personal-capture','alert',?,?,'uncertain','slack_timeout',?,?)").bind(noticeAttention,captured.issue,Date.now(),Date.now(),Date.now()).run();
- await app.DB.prepare("INSERT INTO follow_up_notices(id,attention,project,destination,channel,state,next_at,body,provider,message_id) VALUES(?,?,'personal-capture','synthetic-spool-1','webhook','completed',?,'{}','slack','1900000000.1')").bind(noticeId,noticeAttention,Date.now()).run();
+ await app.DB.prepare("INSERT INTO follow_up_notices(id,attention,project,destination,channel,state,next_at,body) VALUES(?,?,'personal-capture','synthetic-spool-1','webhook','completed',?,'{}')").bind(noticeId,noticeAttention,Date.now()).run();
+ await app.DB.prepare("INSERT INTO follow_up_notice_meta(notice,project,provider,message_id) VALUES(?,'personal-capture','slack','1900000000.1')").bind(noticeId).run();
  await app.DB.prepare("INSERT INTO follow_up_attempts(id,notice,project,number,started,state,code) VALUES(?,?,'personal-capture',1,?,'completed','slack_posted')").bind(randomUUID(),noticeId,Date.now()).run();
  // [REL-002] An owner-authored suspect judgment is erased with its author.
  const judgment=await app.request('/api/projects/personal-capture/suspects/issues/'+captured.issue,{release:'r1',sha:null,judgment:'rejected',note:'Test owner reviewed this correlation.',revision:0},{},'PUT');assert.equal(judgment.status,200);await judgment.body?.cancel();
@@ -109,7 +110,7 @@ try {
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
- for(const table of ['follow_up_attention','follow_up_notices','follow_up_attempts'])assert.equal(after[table].length,0,'owner erasure removes operational Slack custody: '+table);
+ for(const table of ['follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts'])assert.equal(after[table].length,0,'owner erasure removes operational Slack custody: '+table);
  assert.equal(after.spool_reporting_items.find(row=>row.id===reporting.id).author,null,'Reporting author becomes erased without discarding the shared definition');
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
 

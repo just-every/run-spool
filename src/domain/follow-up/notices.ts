@@ -108,11 +108,12 @@ export async function dispatchNotices(env:Environment,time:number) {
   }
   const claim=crypto.randomUUID(),clockStart=Date.now(),now=()=>time+Date.now()-clockStart;
   const result=await env.DB.batch([
-   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?),provider=COALESCE(provider,?) WHERE id=? AND state='queued' AND attempts<4
+   s(env.DB,`UPDATE follow_up_notices SET state='running',claim=?,claim_until=?,attempts=attempts+1,destination_hash=COALESCE(destination_hash,?) WHERE id=? AND state='queued' AND attempts<4
     AND (EXISTS(SELECT 1 FROM follow_up_settings c WHERE c.project=follow_up_notices.project AND c.destination=follow_up_notices.destination AND c.channel=follow_up_notices.channel AND NOT EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=c.project))
      OR EXISTS(SELECT 1 FROM spool_follow_up_alternates m WHERE m.project=follow_up_notices.project AND follow_up_notices.destination='member:'||m.member AND follow_up_notices.channel='mail'))
-    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,prepared.provider??null,row.id),
+    AND EXISTS(SELECT 1 FROM follow_up_attention a WHERE a.id=attention AND a.historical=0 AND a.state NOT IN ('completed','canceled')) RETURNING id`,claim,now()+60000,prepared.digest,row.id),
    s(env.DB,'INSERT INTO follow_up_attempts(id,notice,project,number,started) SELECT claim,id,project,attempts,? FROM follow_up_notices WHERE id=? AND claim=?',now(),row.id,claim),
+   ...prepared.provider?[s(env.DB,'INSERT INTO follow_up_notice_meta(notice,project,provider,message_id) SELECT id,project,?,NULL FROM follow_up_notices WHERE id=? AND claim=? ON CONFLICT(notice) DO NOTHING',prepared.provider,row.id,claim)]:[],
   ]);
   if(!result[0].results.length)continue;
   // Claim and current alternate are checked once more after preparation yields.
@@ -129,7 +130,8 @@ export async function dispatchNotices(env:Environment,time:number) {
   const backoff=1000*Math.pow(5,row.attempts),retryDelay=Number.isFinite(retryAfterMs)?Math.max(backoff,retryAfterMs!):backoff;
   await env.DB.batch([
    s(env.DB,`UPDATE follow_up_attempts SET finished=?,state=?,code=? WHERE id=? AND finished IS NULL AND EXISTS(SELECT 1 FROM follow_up_notices WHERE id=? AND claim=? AND state='running' AND claim_until>?)`,finished,state,code,claim,row.id,claim,finished),
-   s(env.DB,"UPDATE follow_up_notices SET state=?,code=?,next_at=?,message_id=COALESCE(?,message_id),claim=NULL,claim_until=NULL WHERE id=? AND claim=? AND state='running' AND claim_until>?",state,code,finished+retryDelay,messageId??null,row.id,claim,finished),
+   ...messageId?[s(env.DB,"UPDATE follow_up_notice_meta SET message_id=? WHERE notice=? AND project=? AND EXISTS(SELECT 1 FROM follow_up_notices n WHERE n.id=notice AND n.claim=? AND n.state='running' AND n.claim_until>?)",messageId,row.id,row.project,claim,finished)]:[],
+   s(env.DB,"UPDATE follow_up_notices SET state=?,code=?,next_at=?,claim=NULL,claim_until=NULL WHERE id=? AND claim=? AND state='running' AND claim_until>?",state,code,finished+retryDelay,row.id,claim,finished),
   ]);
  }
 }

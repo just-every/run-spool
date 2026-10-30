@@ -25,7 +25,7 @@ routes.get('/',async c=>{
    attempts=history?.channel==='webhook'?await new IntegrationsRepository(new D1SqlDatabase(db),'spool.'+project).log(row.source_id):(await s(db,'SELECT number,started,finished,state,code FROM alert_mail_attempts WHERE delivery_id=? ORDER BY number',row.source_id).all()).results;
   }else if(row.source==='fix')attempts=(await s(db,'SELECT id,step,method,state,started,finished,due,evidence FROM follow_up_fix_steps WHERE project=? AND workflow=? ORDER BY started,id',project,row.source_id).all()).results;
   else attempts=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_deployment_attempts WHERE project=? AND deployment=? ORDER BY number',project,row.source_id).all()).results;
-  const notices=(await s(db,'SELECT id,destination,channel,state,attempts,code,next_at,provider,message_id FROM follow_up_notices WHERE attention=? ORDER BY id',row.id).all<any>()).results;
+  const notices=(await s(db,'SELECT n.id,n.destination,n.channel,n.state,n.attempts,n.code,n.next_at,m.provider,m.message_id FROM follow_up_notices n LEFT JOIN follow_up_notice_meta m ON m.notice=n.id AND m.project=n.project WHERE n.attention=? ORDER BY n.id',row.id).all<any>()).results;
   for(const notice of notices)notice.log=(await s(db,'SELECT number,started,finished,state,code FROM follow_up_attempts WHERE notice=? ORDER BY number',notice.id).all()).results;
   const loss=/^loss:(\d+):(.+)$/.exec(row.source_id);
   const captureLoss=loss?Number((await s(db,'SELECT count FROM outcomes WHERE project=? AND window=? AND reason=?',project,Number(loss[1]),loss[2]).first<any>())?.count??0):null;
