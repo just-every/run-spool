@@ -58,7 +58,7 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  for(const table of lifecycleTables.filter(table=>table!=='issue_priorities'))assert.deepEqual(restored.data[table],[],'pre-repair archive has no collaborative history');
  assert.deepEqual(restored.data.issue_priorities.map(canonical).sort(),source.data.issue_priorities.map(canonical).sort(),'older native errors receive the same automatic priority');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
- await app.resetRestore(source.text);restored=await app.archive();
+ await app.resetRestore(cli.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
  const after=await read(),stable=row=>({...row,observation:{...row.observation,evidence:{...row.observation.evidence,window:{start:row.observation.evidence.window.start}}}});
  const {historical,...restoredHistory}=after;assert.equal(historical,true,'restore labels preserved repair evidence as historical');
