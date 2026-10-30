@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f039eaf22e96ec6fe638b313192753ad660aeafa4f47fb60dcb3e425d658a0b7",
+      "sha256": "5a5339d1d853bb55a53e9bbdcdfbb56818393fffd35b6a45e6441e6ce96f8ddf",
       "executable": false
     },
     "DEMO.md": {
@@ -5453,7 +5453,7 @@
       "executable": false
     },
     "src/domain/operators/assignments.ts": {
-      "sha256": "e1903cec9c63c2a1133e2aae46f10a9656a3fb055784027cfb1fe962307152ef",
+      "sha256": "6dafd60dfaf9355acef2595f167316845c53a96f48f2330faa9533fb1b698086",
       "executable": false
     },
     "src/domain/operators/bulk-triage.ts": {
@@ -5477,7 +5477,7 @@
       "executable": false
     },
     "src/domain/operators/policies.ts": {
-      "sha256": "642aef1b745211ee9a0e312ed9c78f1b8771c366fd6243324c47ade1a8236531",
+      "sha256": "90eee51143c3e0db067d09e9bc1cd6c205a4132af67d5d2f385a5095ead81c3c",
       "executable": false
     },
     "src/domain/operators/provenance.ts": {
@@ -8425,7 +8425,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "d636b593292a22e88e4d8ce5651afa972d6bb4b46ec5825b09c6377b018a9a70",
+      "sha256": "71367e806b5da42da1d54e146cd8e8bd66de653fcd2caedc3c426c4ca736250c",
       "executable": false
     },
     "src/ui/workbench/Priority.tsx": {
@@ -9413,11 +9413,11 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "ecb78ea1d16fb2b62608c34e2e22d4f6b25dc2af7244b7f9d179957784a6486f",
+      "sha256": "f69d5bce97e3176ea36953de3ac90d2e2a0259286c25c0b515fdc6786da23e34",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "020b81b4f576120bffb1eafb7e0a16aac6d1805794266f8125a222b121b4fb92",
+      "sha256": "6410dd484b87f3c4868b23a40d46b9b094dde62e64db4615302ace5c724b9f8b",
       "executable": false
     },
     "tests/triage-app.mjs": {

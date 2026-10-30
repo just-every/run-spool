@@ -111,6 +111,7 @@ async function memberAssignments(owner,first,second,reader,projects,issues) {
  let assigned=await state();assert.equal(assigned.current.member,first.member.id);assert.equal(assigned.current.name,first.member.name);
  await assign(second.member.id);
  assigned=await state();assert.equal(assigned.current.member,second.member.id);assert.equal(assigned.history[0].actor.kind,'member');assert.equal(assigned.history[1].target.member,first.member.id);
+ const readerAssignment=await reader.json(path);assert.equal(readerAssignment.canAssign,false);assert.deepEqual(readerAssignment.members,[],'read-only history does not expose the project assignment directory');
  const sealed=await state();
  for(const [actor,body,expected] of [[first,{revision:sealed.revision-1,member:first.member.id},409],[first,{revision:sealed.revision,member:reader.member.id},404],[first,{revision:sealed.revision,member:'synthetic-spool-unknown'},404],[reader,{revision:sealed.revision,member:first.member.id},404]]) {
   assert.equal(await status(actor.req(path,'PATCH',body)),expected);assert.deepEqual(await state(),sealed,'stale and unauthorized assignment attempts change neither current state nor history');
@@ -119,7 +120,7 @@ async function memberAssignments(owner,first,second,reader,projects,issues) {
  assert.equal(await status(second.req(foreign,'PATCH',{revision:foreignState.revision,member:first.member.id})),404,'an active member from a foreign project cannot be assigned');
  assert.deepEqual(await second.json(foreign),foreignState,'foreign target refusal changes no issue or history');
  await assign(first.member.id);
- const browser=await assignmentBrowser({...first,origin:owner.origin},projects[0],issues[0],second.member,first.member);
+ const browser=await assignmentBrowser({...second,origin:owner.origin},projects[0],issues[0],second.member,first.member,{...first,origin:owner.origin});
  const afterUi=await state();assert.equal(afterUi.current.member,second.member.id,'the real issue control persists the selected native member');
  console.log('PROBE TEAM-002 native assignment: project HTTP and issue control -> two active native members assigned; foreign, read-only and stale targets refused without mutation');
  return {root,path,state,browser,formerAlias:afterUi.current.alias,formerId:second.member.id,remaining:first.member};
@@ -139,12 +140,15 @@ async function revokedAuthority(owner,removed,remaining,projects,issue,assignmen
  await mcpDoor(origin,projects[1],keys.agent.key,issue.id,true);
  const before=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);
  const pending=await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},root+'/issues/'+issue.id,{revision:before.revision,state:'resolved'},{method:'PATCH'});
+ const assignmentPending=assignmentProof?await heldOwnerRequest({origin,cookie:removed.cookie,request:path=>remaining.req(path)},assignmentProof.path,{revision:(await assignmentProof.state()).revision,member:remaining.member.id},{method:'PATCH'}):null;
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
  const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
  if(assignmentProof) {
   const {path,state,formerId,formerAlias,browser,remaining:target}=assignmentProof;
   const departed=await state();
+  try{const late=await assignmentPending.release();assert.equal(late.status,409);assert.deepEqual(late.body,{error:'authority_changed'});assert.deepEqual(await state(),departed,'an assignment admitted before writer removal commits no late history or revision');}finally{assignmentPending.close()}
+
   assert.equal(departed.current.active,false);assert.equal(departed.current.member,null);assert.equal(departed.current.alias,formerAlias);
   assert.ok(departed.history.some(row=>row.target.alias===formerAlias&&row.target.name==='Former project member'),'departure preserves truthful safe historical attribution');
   const sealed=await state();assert.equal(await status(remaining.req(path,'PATCH',{revision:sealed.revision,member:formerId})),404);
