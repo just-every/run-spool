@@ -45,7 +45,7 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries:
   </>;
 }
 
-export function OperatorPanel({ project, packet, busy, request, run, refresh, initial }: { initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
+export function OperatorPanel({ project, packet, busy, request, run, refresh, initial, manageProject = true, readOnly = false }: { manageProject?: boolean; readOnly?: boolean; initial?: Promise<any[]>; project: string; packet: any; busy: boolean; request: Request; run: Run; refresh: () => void }) {
   const [state, setState] = useState<any>(null);
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -73,17 +73,17 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
-      const [[operatorState, corrections], assigned] = await Promise.all([prefetched ? initial! : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]), request(`${root}/issues/${issue.id}/assignment`)]);
+      const [[operatorState, corrections], assigned] = await Promise.all([manageProject ? (prefetched ? initial! : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)])) : Promise.resolve([{policies:[],audit:[]},[]]), request(`${root}/issues/${issue.id}/assignment`)]);
       if (signal.aborted) return;
       setState(operatorState); setHistory(corrections); setAssignment(assigned); setFailure('');
       if (!labelEdited.current) {
-        setAssignmentKind(assigned.current.kind === 'label' ? 'label' : 'member');
+        setAssignmentKind(assigned.current.kind === 'label' || !assigned.members.length ? 'label' : 'member');
         setMember(assigned.current.member ?? '');
         setLabel(assigned.current.kind === 'label' ? assigned.current.label : '');
       }
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
-  }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
+  }, [root, issue.id, issue.revision, assignmentRevision, request, initial, manageProject], { live: !initial });
 
   const createPreview = (kind: string) => run(async () => {
     let destination: any;
@@ -120,7 +120,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   return <section className="evidence">
     <h2>Operator decisions</h2>
     {failure && <p role="alert">{failure}</p>}
-    <form className="form-grid" onSubmit={event => {
+    {!readOnly && <form className="form-grid" onSubmit={event => {
       event.preventDefault();
       void run(async () => {
         const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, ...(assignmentKind === 'member' ? { member } : { label: label.trim() || null }) });
@@ -130,8 +130,8 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         refresh();
       });
     }}>
-      <label className="form-field">Assignment type<select disabled={busy || !ready} value={assignmentKind} onChange={event => { labelEdited.current = true; setAssignmentKind(event.target.value); }}><option value="member">Project member</option><option value="label">Operator label</option></select></label>
-      {assignmentKind === 'member' ? <label className="form-field">Assigned member<select disabled={busy || !ready} value={member} onChange={event => { labelEdited.current = true; setMember(event.target.value); }} required>
+      <label className="form-field">Assignment type<select aria-label="Assignment type" disabled={busy || !ready} value={assignmentKind} onChange={event => { labelEdited.current = true; setAssignmentKind(event.target.value); }}><option value="member">Project member</option><option value="label">Operator label</option></select></label>
+      {assignmentKind === 'member' ? <label className="form-field">Assigned member<select aria-label="Assigned member" disabled={busy || !ready} value={member} onChange={event => { labelEdited.current = true; setMember(event.target.value); }} required>
         <option value="">Choose an active project member</option>
         {assignment?.members.map((person: any) => <option key={person.id} value={person.id}>{person.name}</option>)}
       </select></label> : <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} /> }
@@ -143,7 +143,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         setState(null);
         refresh();
       })}>Unassign</button>
-    </form>
+    </form>}
     <p aria-live="polite">Current assignment: {assignment ? assignmentDescription(assignment.current) : 'Loading…'}</p>
     <p>Assign an active project member who can triage, or retain an operator label. Assignment grants no access and sends no notification.</p>
     <Details title="Assignment history" triggerLabel="Assignment history">
@@ -154,7 +154,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       })}>Load earlier assignments</button>}
     </Details>
 
-    <div className="operator-controls" role="group" aria-label="Operator controls">
+    {manageProject && <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
         <fieldset>
@@ -206,7 +206,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
       <Details title="Operator audit" triggerLabel="Operator audit">
         {state ? <OperatorAudit rows={state.audit} issue={issue} /> : <p role="status">Loading changes…</p>}
       </Details>
-    </div>
+    </div>}
   </section>;
 }
 

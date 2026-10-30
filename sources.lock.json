@@ -4020,6 +4020,10 @@
       "sha256": "53893f28910a01e00263296a0f0011a42f29de779e3d4066c41bd5f78bd99a86",
       "executable": false
     },
+    "migrations/core/0084_member_assignments.sql": {
+      "sha256": "5c3de72768962aa19074eb3f03e427e86f3dc248bf0ecea870758907b65f72c6",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "2b201e837e3caa66d4181b8955360372cd215f8288c108a81c383146a5806467",
       "executable": false
@@ -5442,6 +5446,14 @@
     },
     "src/domain/operators/archive.ts": {
       "sha256": "f8ef31f9b546a2995330c8c4a104d6df559b2d047a80408304a4a2b87de7c375",
+      "executable": false
+    },
+    "src/domain/operators/assignment-archive.ts": {
+      "sha256": "62ff61fde11534d99b4a6959847dfad585f06864fcf4fda7a8689ff3181d9725",
+      "executable": false
+    },
+    "src/domain/operators/assignments.ts": {
+      "sha256": "e1903cec9c63c2a1133e2aae46f10a9656a3fb055784027cfb1fe962307152ef",
       "executable": false
     },
     "src/domain/operators/bulk-triage.ts": {
@@ -8385,7 +8397,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "e057d0e7bb50d6b752b3d5e82f6476e54528702c9715cf42c6c062a1224d467a",
+      "sha256": "4a514ddf654632f0c032903bd248d9ae92731780f507f488b242ff782aced35c",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8413,7 +8425,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "721ef77ebe9683154248bd2bf5f3d456c6cf1acd76a0c67dd6c4d845e7114bb1",
+      "sha256": "d636b593292a22e88e4d8ce5651afa972d6bb4b46ec5825b09c6377b018a9a70",
       "executable": false
     },
     "src/ui/workbench/Priority.tsx": {
@@ -8693,7 +8705,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "a897cbe174c41a4de8b83e3d8bdc0b5aefd7220c88f3af9e8495a97b42571048",
+      "sha256": "7206f33b2c4122de118ddd9363223fb28b46e61c030cb601d0a6ce5edaebaf2c",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -8925,7 +8937,7 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "d4308c84a99970af89730442f46f0568ea2bfd496f166fe9606dc489feac6c42",
+      "sha256": "47c095998800af0588feae9c2e2f07b00de838fe8acc94fe2abc6192f3d9554f",
       "executable": false
     },
     "tests/operator-ui.mjs": {
@@ -9401,11 +9413,11 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "1afd5468a8c4b01049854a16f4c5bdc0ff02edde3f393e5d768853741bcf4aad",
+      "sha256": "ecb78ea1d16fb2b62608c34e2e22d4f6b25dc2af7244b7f9d179957784a6486f",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "86bdeeb0eddbc834ac9a9742502f8794b3ab0321aa9d94008bd947cb08d46fa3",
+      "sha256": "020b81b4f576120bffb1eafb7e0a16aac6d1805794266f8125a222b121b4fb92",
       "executable": false
     },
     "tests/triage-app.mjs": {
