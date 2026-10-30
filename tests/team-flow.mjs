@@ -1,3 +1,4 @@
+import {notificationPreferencesFlow} from './notification-preferences.mjs';
 import {discussionFlow} from './discussion-flow.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
@@ -267,6 +268,9 @@ async function inertTeamArchive(owner,projects,formerCookie) {
  assert.ok(before.rows.some(row=>row.actor_kind==='service'&&row.action==='evidence.packet'&&row.outcome==='succeeded'),'scoped service evidence has its own safe actor');
  for(const actor of ['member','service'])assert.ok(before.rows.some(row=>row.actor_kind===actor&&row.outcome==='denied'),'new human and service denials remain truthful audit observations');
  const response=await owner.req('/api/archive');assert.equal(response.status,200);const archive=await response.text();
+ const preferenceRows=archive.trim().split('\n').flatMap(line=>JSON.parse(line).items??[]).filter(item=>item.kind==='row'&&item.table==='spool_notification_preferences').map(item=>item.row);
+ assert.ok(preferenceRows.length>=5,'the archive contains real saved personal preferences');
+ assert.ok(preferenceRows.every(row=>row.historical===1&&row.operator_id===null),'archived preferences retain choices without live account authority');
  const fresh=await runtime();
  try{
   const next={...client(fresh.origin,fresh.cookie),origin:fresh.origin,cookie:fresh.cookie};
@@ -274,6 +278,10 @@ async function inertTeamArchive(owner,projects,formerCookie) {
   assert.equal(restoredResponse.status,200,'the private archive restores through the public HTTP door: '+JSON.stringify(restoreResult));
   const carriedReports=await next.json('/api/reporting/items');assert.ok(carriedReports.items.length>0);for(const item of carriedReports.items){const detail=await next.json('/api/reporting/items/'+item.id);assert.equal(detail.author,'[erased]');assert.ok(detail.shares.every(share=>!share.active),'restored shares stay inert')}
   await denied(client(fresh.origin,formerCookie).req('/api/reporting/items'),'a source member gains no restored report access');
+  const carriedPreferences=(await fresh.DB.prepare('SELECT * FROM spool_notification_preferences ORDER BY project,actor_label').all()).results;
+  assert.deepEqual(carriedPreferences,preferenceRows.toSorted((a,b)=>a.project.localeCompare(b.project)||a.actor_label.localeCompare(b.actor_label)),'independent restore preserves inert preference history');
+  for(const project of projects){const own=await next.json(projectRoot(project)+'/notifications/preferences');assert.equal(own.revision,0);assert.ok(Object.values(own.email).every(value=>value===false),'historical settings cannot become a new owner preference');}
+  console.log('PROBE TEAM-005 custody: private archive and independent restore -> preserved choices, null account bindings, inert history and no revived email opt-in');
   const restored=await next.json(organization);
   assert.ok(restored.members.length>=6);assert.ok(restored.members.every(row=>row.state==='inert'&&row.operator_id===null&&row.operatorStatus==='inert'));
   assert.ok(restored.grants.length>0);assert.ok(restored.invites.length>0&&restored.invites.every(row=>row.state==='inert'));
@@ -347,6 +355,7 @@ export async function teamFlow() {
    await actor.json(own+'/issues/'+issue.id+'/packet');
    for(const suffix of ['/issue-search?q=synthetic-spool-1','/issues/'+issues[1-index].id+'/events','/issues/'+issues[1-index].id+'/packet','/issue-export?format=csv'])await concealed(actor,foreign+suffix);
   }
+  await notificationPreferencesFlow(owner,projects,invite,reader);
   await policyAuthority(owner,first,second,reader,projects);
   await memberDeployment(owner,second,projects[1]);
   const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);

@@ -1,0 +1,9 @@
+# Personal notification preferences
+
+In a project's Settings, Personal notifications saves the current person's email choices for resolutions, regressions, assignments, comments, mentions, issue alerts, deploys and weekly reports. All choices start off; weekly reports require an explicit opt-in. Each project has independent choices. Read-only collaborators can save their own preferences without changing project policy.
+
+The native HTTP door is `GET` or `PUT` at `/api/projects/{project}/notifications/preferences`. A save supplies the current `revision` and the complete `email` boolean map with keys `resolution`, `regression`, `assignment`, `comment`, `mention`, `issue_alert`, `deploy` and `weekly_report`. A stale revision is refused. Unknown fields and query selectors are refused; the authenticated person is always the subject, including for an owner or administrator. Project credentials cannot use this door. Removed members and people without current project access cannot read or change preferences.
+
+Saving does not send a notification or change issue subscriptions. Personal event delivery, message-link unsubscribe, Slack direct messages and Microsoft Teams chats are still pending. The existing comment, mention and manual issue subscription controls and explicit-unsubscribe precedence remain independent.
+
+Each preference read, save and refusal records a privacy-safe audit fact. Private archives retain the choices as historical rows with account bindings removed. Restoring preserves that history without activating any choice, sending mail or reattaching it to a current person. Older archives start with no preference rows. Project erasure deletes all project preferences. Installation-owner erasure deletes that person's preferences and attribution links while keeping permanent safe audit chronology. Downloaded archives remain the holder's separate custody.
