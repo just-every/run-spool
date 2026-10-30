@@ -203,6 +203,16 @@ async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
  for(const table of ['events','issues','health_sessions','health_aggregates'])assert.deepEqual((await archiveProjection(await req('/api/archive'))).data[table],archiveBefore[table],'judgment and packet reads leave '+table+' unchanged');
  const foreign=await json('/api/projects','POST',{id:'synthetic-spool-comparison-foreign',name:'Other comparison'}),foreignAgent=await json('/api/projects/'+foreign.id+'/keys','POST',{kind:'agent'});
  assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+foreignAgent.key})).status,403);
+ const foreignBase='/api/projects/'+foreign.id,foreignDsn=new URL(foreign.dsn),foreignIntake=`/api${foreignDsn.pathname}/envelope/?sentry_key=${foreignDsn.username}&sentry_version=7`;
+ const foreignSend=async(type,value)=>{const response=await req(foreignIntake,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value),{Cookie:''});assert.equal(response.status,200,await response.text())};
+ for(const release of [old,current]){await json(foreignBase+'/releases','POST',{name:release,build:release===old?'web-1':'web-2'});await foreignSend('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(time).toISOString(),status:'exited',attrs:{release,environment:'production',user_agent:'Windows NT 10.0; Win64; x64'}})}
+ await foreignSend('event',{event_id:crypto.randomUUID().replaceAll('-',''),release:current,dist:'web-2',environment:'production',exception:{values:[{type:'CheckoutError',value:'Unknown client cohort',stacktrace:{frames:[{filename:'checkout.js',lineno:12,colno:1,function:'confirm',in_app:true}]}}]}});
+ const incompleteIssue=(await json(foreignBase+'/issues'))[0],incomplete=await json(foreignBase+'/suspects/issues/'+incompleteIssue.id);
+ assert.equal(incomplete.comparison.cohorts.loss.unattributedIssueEvents,1);
+ assert.ok(incomplete.comparison.cohorts.rows.filter(r=>r.release===current&&r.device==='desktop').every(r=>r.rateQualified===false&&r.issueEventsPerSession===null),'missing event dimensions cannot invent a zero error rate for a known session cohort');
+ assert.deepEqual(incomplete.comparison.cohorts.contrasts,[]);
+ assert.ok(incomplete.candidates.every(candidate=>!candidate.reason.some(reason=>reason.kind==='rate_change')));
+
  await json(base+'/keys/'+agent.hash,'DELETE');assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,auth)).status,401);
  return {project:p.id,issue:issue.id,base,path,packet,view:await json(path)};
 }

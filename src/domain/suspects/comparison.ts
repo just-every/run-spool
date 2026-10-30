@@ -25,9 +25,13 @@ export async function cohortComparison(db:D1Database,project:string,issue:string
  const releaseMap=new Map(releases.results.map(row=>[row.name,row])),order=(a:any,b:any)=>compareReleases(releaseMap.get(a.release),releaseMap.get(b.release),policy.order);
  const cohortKey=(r:any)=>JSON.stringify([r.environment,r.device,r.os]),totals=new Map<string,number>();
  for(const row of groups.values())totals.set(cohortKey(row),(totals.get(cohortKey(row))??0)+row.sessions);
+ const unattributed=new Map<string,number>();
+ for(const row of groups.values())if(row.device==='unknown'||row.os==='unknown'){const id=JSON.stringify([row.release,row.environment]);unattributed.set(id,(unattributed.get(id)??0)+row.issueEvents)}
+ const qualified=(row:any)=>row.sessions>0&&row.device!=='unknown'&&row.os!=='unknown'&&!(unattributed.get(JSON.stringify([row.release,row.environment]))??0);
  const rows=[...groups.values()].sort((a,b)=>cohortKey(a).localeCompare(cohortKey(b))||order(a,b)).map(row=>({...row,
   comparable:row.sessions>0&&row.device!=='unknown'&&row.os!=='unknown',
-  issueEventsPerSession:row.sessions?row.issueEvents/row.sessions:null,
+  rateQualified:qualified(row),unattributedIssueEvents:unattributed.get(JSON.stringify([row.release,row.environment]))??0,
+  issueEventsPerSession:qualified(row)?row.issueEvents/row.sessions:null,
   unhealthySessionRate:row.sessions?row.unhealthy/row.sessions:null,
   interval:wilson(row.unhealthy,row.sessions),adoptionShare:totals.get(cohortKey(row))?row.sessions/totals.get(cohortKey(row))!:null,
  }));
@@ -35,15 +39,15 @@ export async function cohortComparison(db:D1Database,project:string,issue:string
  for(const row of rows){
   if(!row.comparable)continue;
   const earlier=previous.get(cohortKey(row));previous.set(cohortKey(row),row);
-  if(earlier)contrasts.push({release:row.release,previousRelease:earlier.release,environment:row.environment,device:row.device,os:row.os,
+  if(row.rateQualified&&earlier?.rateQualified)contrasts.push({release:row.release,previousRelease:earlier.release,environment:row.environment,device:row.device,os:row.os,
    sessions:row.sessions,previousSessions:earlier.sessions,issueEvents:row.issueEvents,previousIssueEvents:earlier.issueEvents,
    issueRate:row.issueEventsPerSession,previousIssueRate:earlier.issueEventsPerSession,issueRateChange:row.issueEventsPerSession!-earlier.issueEventsPerSession!,
    unhealthySessionRate:row.unhealthySessionRate,previousUnhealthySessionRate:earlier.unhealthySessionRate,unhealthyRateChange:row.unhealthySessionRate!-earlier.unhealthySessionRate!,
    adoptionShare:row.adoptionShare,previousAdoptionShare:earlier.adoptionShare,
    attribution:'Observed correlation only; matched coarse cohorts do not demonstrate cause. Unreported loss and sampling remain unknown.'});
  }
- return {rows:rows.slice(0,200),contrasts:contrasts.slice(0,100),bounds:{availableRows:rows.length,rowLimit:200,availableContrasts:contrasts.length,contrastLimit:100},loss:{outcomes:outcomes.results,retention:retention.results,aggregateSessions:aggregates.sessions,
+ return {rows:rows.slice(0,200),contrasts:contrasts.slice(0,100),bounds:{availableRows:rows.length,rowLimit:200,availableContrasts:contrasts.length,contrastLimit:100},loss:{outcomes:outcomes.results,retention:retention.results,aggregateSessions:aggregates.sessions,unattributedIssueEvents:[...unattributed.values()].reduce((n,count)=>n+count,0),
   unknownCohortSessions:rows.filter(row=>!row.comparable).reduce((n,row)=>n+row.sessions,0),unreported:'unknown',
   attribution:'Project-wide receipt-minute losses cannot be assigned to a release or cohort; absence of a counter does not prove loss-free capture. Impact attribution is withheld.'},
-  method:'Individual sessions grouped by the same environment, coarse device family and OS family over the same requested window. Device and OS come from protocol user agents; raw user agents are discarded. Unknown and aggregate cohorts are not comparable. Adoption is observed session share within each cohort, not installed-device share. Event receipt times and session start times differ; events per session is a frequency, not a probability. Active sessions are incomplete; sampling, unseen clients and unreported loss are unknown. 95% Wilson intervals describe unhealthy-session proportions only.'};
+  method:'Individual sessions grouped by the same environment, coarse device family and OS family over the same requested window. Device and OS come from protocol user agents; raw user agents are discarded. Unknown and aggregate cohorts are not comparable. An issue event with missing cohort dimensions withholds event-rate contrasts for that release and environment; it is never assigned to a known cohort. Adoption is observed session share within each cohort, not installed-device share. Event receipt times and session start times differ; events per session is a frequency, not a probability. Active sessions are incomplete; sampling, unseen clients and unreported loss are unknown. 95% Wilson intervals describe unhealthy-session proportions only.'};
 }
