@@ -933,8 +933,8 @@ Core · target · **partial** · Rules D-2 · Register R-13
 3. Authorized Datadog and Splunk context opens, and revoked export credentials stop forwarding.
 4. Grouping proposals compare trace variants alongside stack, release and route.
 
-**Evidence.** `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs`
-**Gap.** Only bounded OTLP/HTTP JSON logs are accepted; trace/span identity is not persisted and traces/metrics are refused. Forwarders are absent. OTLP intake shares the 120-a-minute and 10,000-event caps that GOV-003 removes. CTX-001 inherits AI-005 trace-variant comparison; current grouping proposals name trace identity unavailable.
+**Evidence.** `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs`; `tests/operator-flow.mjs` retainedTraceProposalFlow: constructed Sentry store captures compare affected and outside trace identities beside fixed stack, release and route, with missing and malformed reasons, inert decisions, immutable snapshots, exact-project refusals and revocation; `tests/operator-ui.mjs` operatorUi: owner Settings review displays trace comparisons and counterexamples; `tests/operator-archive.mjs` operatorArchiveTamper and operatorRetentionAndErasure: historical explanation compatibility, validated inert restore and erased comparison custody; `tests/checkin-flow.mjs` checkInFlow: existing retained Sentry error trace context
+**Gap.** Comparison proof covers sanitized retained Sentry error contexts only. The full AI-005 trace-variant rider remains open beyond those contexts. OTLP trace and span persistence, browser-to-service-to-job waterfalls, correlated profiles, logs and metrics, transaction p50 and p95 duration and throughput, web-vitals p75 views, forwarding and GOV-003 sustained-rate qualification remain unproved. Only bounded OTLP HTTP JSON logs are accepted; trace and metric items are refused. Authorized Datadog and Splunk context and revoked-export-credential proof remain account-held. Existing intake caps, queue scopes and release prerequisites are unchanged.
 
 #### CTX-002 — Privacy-controlled session replay
 

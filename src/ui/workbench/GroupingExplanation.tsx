@@ -6,11 +6,17 @@ function RecordedEvidence({ rows, empty }: { rows: any[]; empty: string }) {
   return rows.length ? <ul>{rows.map((row, index) => <li key={index}><pre>{JSON.stringify(row, null, 2)}</pre></li>)}</ul> : <p>{empty}</p>;
 }
 
+const traceReason=(reason:string)=>({native_event:'native event has no Sentry trace context',missing_trace_context:'no retained trace context',invalid_trace_context:'malformed trace context',missing_trace_id:'trace context has no identity',invalid_trace_id:'trace identity is not a nonzero 32-character hexadecimal ID'}[reason]??'no retained reference event');
+function Variant({ variant }: { variant:any }) {
+ const {trace,...base}=variant;
+ return <><pre>{JSON.stringify(base,null,2)}</pre>{trace&&<p>Trace {trace.id?<><code>{trace.id}</code> · {trace.comparison==='same'?'same as reference':trace.comparison==='different'?'different from reference':'comparison unavailable: reference has no valid trace identity'}</>:<>unavailable: {traceReason(trace.unavailable)}</>}.</p>}</>;
+}
+
 function Variants({ rows, inside }: { rows: any[]; inside?: boolean }) {
   if (!rows.length) return <p>No {inside ? 'differing variants inside the selected group' : 'look-alike events outside the selected group'} in the retained evidence.</p>;
   return <ul>{rows.map((row, index) => <li key={row.event ?? index}>
     <p>Event <code>{row.event}</code>{row.issue && <> · issue <code>{row.issue}</code></>}{row.occurrence && <> · occurrence <code>{row.occurrence}</code></>}</p>
-    <pre>{JSON.stringify(row.variant, null, 2)}</pre>
+    <Variant variant={row.variant} />
     {inside && <p>Differs in: {row.differing.join(', ') || 'no recorded differences'}.</p>}
   </li>)}</ul>;
 }
@@ -22,11 +28,15 @@ export function GroupingExplanation({ explanation }: { explanation: any }) {
     {explanation.affected.length ? <ol>{explanation.affected.map((row: any) => <li key={`${row.event}:${row.occurrence}`}>
       <p>Event <code>{row.event}</code> · occurrence <code>{row.occurrence}</code></p>
       <p><code>{row.from}</code> → <code>{row.to}</code></p>
-      <pre>{JSON.stringify(row.variant, null, 2)}</pre>
+      <Variant variant={row.variant} />
     </li>)}</ol> : <p>No events move. Rule changes apply to future events.</p>}
     <h4>Counterexamples inside the group</h4><Variants rows={explanation.counterexamples.inside} inside />
     <h4>Look-alike events outside the group</h4><Variants rows={explanation.counterexamples.outside} />
-    <p>{explanation.trace}</p>
+    <h4>Trace comparison</h4>
+    {typeof explanation.trace==='string'?<p>{explanation.trace}</p>:<>
+      <p>{explanation.trace.scope}</p>
+      <p>{explanation.trace.reference?<>Reference event <code>{explanation.trace.reference.event}</code> · occurrence <code>{explanation.trace.reference.occurrence}</code>: {explanation.trace.reference.id?<code>{explanation.trace.reference.id}</code>:<>trace unavailable: {traceReason(explanation.trace.reference.unavailable)}</>}.</>:<>Trace comparison unavailable: no retained reference event.</>}</p>
+    </>}
     <h4>Projected counts and rates</h4>
     <p>Retained window: {date(explanation.window.start)} → {date(explanation.window.end)}.</p>
     <ul>{explanation.rates.map((row: any) => <li key={row.issue}><code>{row.issue}</code>: {row.before} → {row.after} events (change {row.delta}); {row.perMinuteBefore} → {row.perMinuteAfter} per minute.</li>)}</ul>
