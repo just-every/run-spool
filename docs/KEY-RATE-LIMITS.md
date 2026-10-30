@@ -1,6 +1,6 @@
 # Capture key event limits
 
-An installation owner or organization admin can open Settings, find an active capture key under Project keys, open its Details and save an individual event limit per minute or hour. Other project roles and project credentials cannot configure these limits. Revoked, stopped, foreign and non-capture keys cannot be configured.
+An installation owner or organization admin can open Settings, find an active capture key under Project keys, open its Details and save an individual event limit per minute or hour. Reopening Details refreshes the accepted-event usage while preserving an unsaved limit. Other project roles and project credentials cannot configure these limits. Revoked, stopped, foreign and non-capture keys cannot be configured.
 
 Each key has independent UTC minute and hour counters. A newly accepted native error or Sentry error spends one event in the same database transaction that stores its occurrence. Filtered events, duplicate retries, conflicting retries, invalid events and refused events spend none. Both counters run even while the individual limit is off. Changing the number, switching periods, disabling and re-enabling a limit, or restarting the installation preserves current usage. Reducing a limit below current usage blocks subsequent new events until the selected UTC period expires or the owner increases the limit. Increasing a limit permits only the additional unused allowance.
 

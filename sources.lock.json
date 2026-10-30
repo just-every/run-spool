@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f1ff394fcbdca78d51a2ef3ff0b9fa6fd704965c102c7ea58b79df1e72abe876",
+      "sha256": "3ee35434da4a3c8638a1306b462c0f53e2402755ae210dc3b996df411888e2c3",
       "executable": false
     },
     "DEMO.md": {
@@ -2993,7 +2993,7 @@
       "executable": false
     },
     "docs/KEY-RATE-LIMITS.md": {
-      "sha256": "798c984f213117d22790df4d5c5f8afeb2666e35d08b4676bce63ebce3a543a7",
+      "sha256": "d6e9df6b10ac8323e016ec11da9c64f852461f5d04f4c947e918207391acbc5f",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -8405,7 +8405,7 @@
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
-      "sha256": "a331d6b8d497b5ac2fe555d7f2bf78703e84553a3164a668b437a6c169943b69",
+      "sha256": "9b92b69bb79d4e71c216603f6387b3e9c442d52199b1da22e7633f77b750eaf9",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8561,7 +8561,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "c63b5b90615c7469406e7aecfd43ce8893ba13e9fa698fa34e3c65ccddada24e",
+      "sha256": "81e16068a98b70048ff4ebe047afc0a7757946ee484cd92763433d41c0f3e5a9",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -8893,7 +8893,7 @@
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {
-      "sha256": "4e402abe0125411ec5986f5e5744d3838af2d7d61ba49c5b542f05bdb4ea3a51",
+      "sha256": "dea96b5a3d29a664cf5d6536057d47f1baba088debb8d17080c490affd87549f",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
