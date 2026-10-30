@@ -121,7 +121,39 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  const tampered=await fetch(origin+base+'/artifacts',{method:'POST',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({release:'synthetic-esbuild@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000017',file:'tampered.js.map',checksum:'0'.repeat(64),map:{version:3,sources:['a.js'],names:[],mappings:'AAAA'}})});assert.equal(tampered.status,400);assert.match((await tampered.json()).error,/tampered\.js\.map: checksum mismatch/);
  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.reload();await page.getByText('incomplete-esbuild@1 / b1: complete',{exact:true}).waitFor();const out=process.env.SPOOL_PROOF_DIR?resolve(process.env.SPOOL_PROOF_DIR,'../src001'):'.artifacts/src001';await page.screenshot({path:resolve(out,'complete-'+width+'.png'),fullPage:true});await page.locator('#source-map-setup-heading').evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,'complete-view-'+width+'.png')});}
  await context.close();
+ // Exercise the native deployment doors against a populated, fully mapped build.
+ const grantRequest=(endpoint,path,method,key,body)=>fetch(endpoint+path,{method,headers:{Connection:'close',...key?{Authorization:'Bearer '+key}:{},...body?{'Content-Type':'application/json'}:{}},...body?{body:JSON.stringify(body)}:{}});
+ const custodyTables=['releases','release_builds','artifacts','source_map_builds','source_map_build_files','artifact_storage_settings','events','issues'];
+ const custody=data=>Object.fromEntries(custodyTables.map(table=>[table,data[table].filter(row=>row.project==='synthetic-spool-17').map(canonical).sort()]));
+ const agent=await request(base+'/keys','POST',{kind:'agent'}),foreign=await request('/api/projects/synthetic-spool-16/keys','POST',{kind:'deploy'}),revoked=await request(base+'/keys','POST',{kind:'deploy'});
+ await request(base+'/keys/'+revoked.hash,'DELETE');
+ const protectedState=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const sample=protectedState.data.artifacts.find(row=>row.project==='synthetic-spool-17'&&row.release===releases[0].name);
+ assert.ok(sample,'authority probes use an existing private map');
+ const sampleFile=protectedState.data.source_map_build_files.find(row=>row.project===sample.project&&row.release===sample.release&&row.debug===sample.debug);
+ const upload={release:sample.release,build:sample.build,debugId:sample.debug,file:sampleFile.name,checksum:sample.digest,map:JSON.parse(sample.payload)};
+ const verify={release:sample.release,build:sample.build};
+ const verified=await grantRequest(origin,base+'/artifact-builds/verify','POST',deploy.key,verify);
+ assert.equal(verified.status,200);assert.deepEqual(await verified.json(),{...verify,state:'complete',missing:[]},'the exact deploy grant verifies a complete set');
+ for(const [label,key,status] of [['absent',null,401],['ingest',project.ingestKey,401],['agent',agent.key,403],['foreign',foreign.key,403],['revoked',revoked.key,401]]){
+  for(const [path,body] of [['/releases',{name:'synthetic-spool-denied-'+label,build:'b1',requiredArtifacts:[sampleFile.name]}],['/artifacts',upload],['/artifact-builds/verify',verify]]){
+   const response=await grantRequest(origin,base+path,'POST',key,body);
+   assert.equal(response.status,status,label+': native '+path+' refuses without deploy authority');await response.body?.cancel();
+  }
+ }
+ for(const [path,method,body] of [[base+'/sentry-uploads','GET'],[base+'/issues','GET'],['/api/archive','GET'],[base+'/keys','POST',{kind:'agent'}],[base+'/artifact-storage','PUT',{revision:0,artifact_storage_cap:0}],[base+'/retention','POST',{cutoff:Date.now(),apply:true}]]){
+  const response=await grantRequest(origin,path,method,deploy.key,body);
+  assert.equal(response.status,401,'deploy authority cannot reach '+path);await response.body?.cancel();
+ }
+ await request(base+'/keys/'+deploy.hash,'DELETE');
+ for(const [path,body] of [['/releases',{name:'synthetic-spool-revoked-replay',build:'b1'}],['/artifacts',upload],['/artifact-builds/verify',verify]]){
+  const response=await grantRequest(origin,base+path,'POST',deploy.key,body);assert.equal(response.status,401,'revocation immediately denies a previously successful deploy grant');await response.body?.cancel();
+ }
+ const currentDeploy=await request(base+'/keys','POST',{kind:'deploy'});
+ const currentVerification=await grantRequest(origin,base+'/artifact-builds/verify','POST',currentDeploy.key,verify);assert.equal(currentVerification.status,200);await currentVerification.body?.cancel();
  const archived=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ assert.deepEqual(custody(archived.data),custody(protectedState.data),'all refused reads and writes leave complete build, event and issue custody unchanged');
+ for(const secret of [deploy.key,currentDeploy.key,agent.key,foreign.key,revoked.key,project.ingestKey])assert.equal(archived.text.includes(secret),false,'private archives exclude every project credential');
  const coordinates=rows=>rows.map(({id,occurrence,release,event,atAdmission,currentLookup})=>({id,occurrence,release,build:event.build,atAdmission,currentLookup})).sort((a,b)=>a.occurrence.localeCompare(b.occurrence));
  const archivedCoordinates=coordinates(await events());
  assert.ok(archived.data.artifacts.some(row=>JSON.parse(row.payload).ignoreList?.length),'[SRC-004] private ignore lists survive export');
@@ -134,12 +166,24 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
   assert.deepEqual((await read(base+'/sentry-uploads')).builds,completed.builds,'[SRC-001] declared map sets restore complete');
   assert.deepEqual((await read(base+'/sentry-uploads')).artifacts,completed.artifacts,'[SRC-001] all three releases retain their complete artifact identities on independent restore');
   assert.deepEqual(coordinates(await events(read)),archivedCoordinates,'[SRC-001] every restored failure retains its release and original admission and current coordinates');
+  for(const [path,method,body] of [[base+'/artifact-builds/verify','POST',verify],[base+'/artifacts','POST',upload],[base+'/sentry-uploads','GET']]){
+   const response=await grantRequest(target.origin,path,method,currentDeploy.key,body);assert.equal(response.status,401,'restore never reactivates a source deploy credential');await response.body?.cancel();
+  }
+  const restoredIngest=await grantRequest(target.origin,'/api/ingest/synthetic-spool-17','POST',project.ingestKey,{version:1});assert.equal(restoredIngest.status,401,'restore never reactivates a source ingest credential');await restoredIngest.body?.cancel();
+  const freshDeploy=await fetch(target.origin+base+'/keys',{method:'POST',headers:{Cookie:targetCookie,Origin:target.origin,'Content-Type':'application/json'},body:JSON.stringify({kind:'deploy'})});assert.equal(freshDeploy.status,201);const fresh=(await freshDeploy.json()).key;
+  for(const release of releases){
+   const response=await grantRequest(target.origin,base+'/artifact-builds/verify','POST',fresh,{release:release.name,build:'b1'});assert.equal(response.status,200);assert.deepEqual(await response.json(),{release:release.name,build:'b1',state:'complete',missing:[]},'fresh destination authority verifies every restored release');
+  }
+  assert.deepEqual(custody((await archiveProjection(await fetch(target.origin+'/api/archive',{headers:{Cookie:targetCookie}}))).data),custody(archived.data),'restored credential refusals and successful verification change no product custody');
  }finally{await target.stop();}
  for(const id of ['synthetic-spool-16','synthetic-spool-17']){
   const path='/api/projects/'+id+'/erasure',preview=await request(path);await followErasure(request,await request(path,'POST',{confirm:id,planHash:preview.planHash}));
  }
+ for(const [path,method,key,body] of [[base+'/artifacts','POST',currentDeploy.key,upload],[base+'/artifact-builds/verify','POST',currentDeploy.key,verify],[base+'/sentry-uploads','GET',currentDeploy.key],['/api/ingest/synthetic-spool-17','POST',project.ingestKey,{version:1}]]){
+  const response=await grantRequest(origin,path,method,key,body);assert.equal(response.status,401,'erasure cannot be reversed by replaying an old project credential');await response.body?.cancel();
+ }
  const erased=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  for(const table of ['artifact_storage_settings','source_map_builds','source_map_build_files','artifacts'])assert.ok(erased.data[table].every(row=>!['synthetic-spool-16','synthetic-spool-17'].includes(row.project)),table+': project erasure removes custody');
- console.log('[SRC-001] Packed Vite, Rollup, webpack and esbuild: three emitted maps used in each of three consecutive releases at b1; all 36 mapped failures with distinct source positions and earlier artifact sets reconciled across event pages; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore preserves every failure coordinate; erasure and checksum tampering refusal passed; 1440 and 390 overflow and Axe passed.');
+ console.log('[SRC-001] Packed Vite, Rollup, webpack and esbuild: three emitted maps used in each of three consecutive releases at b1; all 36 mapped failures with distinct source positions and earlier artifact sets reconciled across event pages; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore preserves every failure coordinate; wrong-scope, revoked and restored credential refusals preserve custody; erasure replay and checksum tampering refusal passed; 1440 and 390 overflow and Axe passed.');
  }finally{delete process.env.SYNTHETIC_SPOOL_BUILD;}
 }

@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "cc0cea1e0085f549acd6778d7f009bc37edd30ecde9390a7223f7857d4c1c54c",
+      "sha256": "c3574046e640a31363030022df77458bfd61877b1acc30f4de6f78a0b51b49dc",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1c3d32fdbb3b0b8c7fc0a1fa340ac443349b015123e0d598c712c14c0ca91133",
+      "sha256": "fff8990e96fabc0c4b4d25a08fb83cd860a17f0ffcbbf033988a9713ce66ce67",
       "executable": false
     },
     "DEMO.md": {
@@ -9393,7 +9393,7 @@
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
-      "sha256": "e72cb19a5b09bef289aa4ec8e949380916bbfd59dee2c53ae3b45f8137df2648",
+      "sha256": "67dbea3232d3661879b83f5c3b9255bee80d539508a4f7434649738491e453d3",
       "executable": false
     },
     "tests/suspect-flow.mjs": {
