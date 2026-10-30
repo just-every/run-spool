@@ -79,6 +79,6 @@ function RepairRecord({ project, repair, releases, busy, write, request }: { pro
       <Field label="Check note" maxLength={300} value={check.note} onChange={event => setCheck({ ...check, note: event.target.value })} />
       <button className="text-button" disabled={busy}>Add check</button>
     </form>
-    <Details title="Evidence snapshot"><p>Issue revision {repair.snapshot.issueRevision}, release sequence {repair.snapshot.releaseSequence} when the repair was recorded.</p><ul>{repair.snapshot.events.map((event: any) => <li key={event.id}><code>{event.id}</code>{event.state === 'removed_by_retention' ? ' (removed by retention)' : ''}</li>)}</ul></Details>
+    <Details title="Evidence snapshot" triggerLabel="Evidence snapshot"><p>Issue revision {repair.snapshot.issueRevision}, release sequence {repair.snapshot.releaseSequence} when the repair was recorded.</p><ul>{repair.snapshot.events.map((event: any) => <li key={event.id}><code>{event.id}</code>{event.state === 'removed_by_retention' ? ' (removed by retention)' : ''}</li>)}</ul></Details>
   </article>;
 }

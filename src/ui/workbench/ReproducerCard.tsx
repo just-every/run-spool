@@ -37,7 +37,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
       {run.outcome && run.outcome !== 'failed' && <p className="execution-meta">{run.basis}</p>}
       {!!run.checks.length && <ul className="run-checks">{run.checks.map((check: any) => <li key={check.check}>{check.passed ? '✓' : '✗'} {check.check.replace('_', ' ')}: expected {String(check.expected)}, observed {String(check.observed)}{check.required ? '' : ' (shown, not required)'}</li>)}</ul>}
       {run.tools && <p className="execution-meta">Tools: {run.tools.workerd}, Node {run.tools.node}, {run.tools.runner}</p>}
-      {run.observation && <Details title="Sandbox observation"><pre>{JSON.stringify(run.observation, null, 2)}</pre></Details>}
+      {run.observation && <Details title="Sandbox observation" triggerLabel="Sandbox observation"><pre>{JSON.stringify(run.observation, null, 2)}</pre></Details>}
     </div>)}
     {!!reproduced.length && <form className="form-grid" onSubmit={propose} aria-label="Propose a fix branch">
       {reproduced.length > 1 && <label className="form-field">Reproduced run<select value={proposal.run} onChange={change => setProposal({ ...proposal, run: change.target.value })}>{reproduced.map((run: any) => <option key={run.id} value={run.id}>{run.release}, {date(run.finished)}</option>)}</select></label>}
