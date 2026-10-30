@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "080783b3069bbc8a92ef3aed5f3cdb3841c6507ad10c1441a2ac0ad9462fd924",
+      "sha256": "34b983ed58b19ca254d90c71968e95d34e99edbc592350b3edeaba5695138247",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1bfb56e4f01a56960993d1fb973d043be19b74bfa9c7b48b1da9327c6976e191",
+      "sha256": "c64d5aa22ab7fb093121c0e6e95e04cb7610566c9f6c1d8d1b411d5fac73cf96",
       "executable": false
     },
     "DEMO.md": {
@@ -8869,7 +8869,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "b70e1ff019c8f73f9c7e4aa37c0248bd14625bd7602fc1878fd116c45b826bc8",
+      "sha256": "2e9b7bcd97edb3ad306c5156340ea5fbb80b11c1123d0cff0bb9f014c3878c0e",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -9085,7 +9085,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "d2a56ebab82b4d88d994ef93c740ff082dded36866dbe57702faeedff4cfe77b",
+      "sha256": "848040aa87c1c097a5f8ce31c4e3bd4050aaba30f79ec072dc6e0bd59e08c0cf",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
@@ -9405,7 +9405,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "7a9f0f1e2eda495570f37a5c2b205c42c33be9eaf7577b92b692cef50ac4c5ae",
+      "sha256": "48103943bd1e467139faef1055adfed80a5a26a197a2abe4c5f9d6b46b51e9fc",
       "executable": false
     },
     "tests/triage-app.mjs": {
