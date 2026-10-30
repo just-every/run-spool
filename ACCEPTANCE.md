@@ -1514,7 +1514,7 @@ Agent surface · target · **partial**
 5. An injection fixture yields no out-of-grant call and no change of class: record text asking for a wider action, or claiming that a recipient is internal.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native roles, grants, ID/email self-escalation, narrowed members and permanent credential retirement are asserted.
-**Gap.** Shared injection probes still mint fresh keys for single-use native actions and demand success from closed revoke-only inputs. Base modules/agent-door/conformance/injection.mjs:21-23, protocol.mjs:129-131 and journey.mjs:126-129; native fences remain intact.
+**Gap.** Published rer 0.2.94 retains admitted mutation arguments and replay keys. Its generic injection probe still demands success from closed revoke-only inputs, while its narrowing probe requires those undeclared fields to refuse. Base modules/agent-door/pipeline.ts:89 and conformance/journey.mjs:119,126-129; native fences remain intact.
 
 #### BASE-AGENT-006 — Every action declares its risk class
 
@@ -1653,7 +1653,7 @@ Agent surface · target · **partial**
 5. A stranger agent given only the seed URL completes the specialist journey through MCP.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Normal installed rer verify runs the shared harness; the descriptor is generated from the native catalogue and the real specialist journey uses signed owner/settings and isolated provider edges. CI runs the same harness in the existing owner-ui job.
-**Gap.** Shared injection, standing-worker, held-erasure and erased-audit failures remain. Optional families and the complete target specialist week are not qualified.
+**Gap.** Shared closed-schema narrowing injection, standing-worker, held-erasure and erased-audit failures remain on rer 0.2.94. Optional families and the complete target specialist week are not qualified.
 
 ### Agent surface
 

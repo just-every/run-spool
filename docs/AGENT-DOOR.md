@@ -132,7 +132,7 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.93
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.94
 CLI; the door, settings and actor runtime carry matching recorded source.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;
@@ -149,12 +149,21 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
-catalogue acknowledgement limit, fresh-key injection probes, the shared
-narrowing/injection assertion conflict, native runner event
-identity, held erasure custody, standing-worker admission and the shared audit checker’s treatment of
-private outcomes removed by real project erasure. Published 0.2.93 now accounts
-for refused approval executions and rejects stale sponsor email; policy-renewal
-refusals retain the adopted authority. These fixes do not qualify the remaining
-native erasure or worker boundaries. Standing-worker admission also requires seed integration;
+catalogue acknowledgement limit, the shared narrowing/injection assertion conflict,
+native runner event identity, held erasure custody, standing-worker admission and
+the shared audit checker’s treatment of private outcomes removed by real project
+erasure. Published 0.2.94 keeps the original admitted arguments and idempotency
+key for mutation injection probes. This fixes fresh-key retries of single-use
+actions without relaxing native revision or replay fences. The closed revoke-only
+input still refuses undeclared confirmation and class fields. Refused approval
+executions, stale sponsor email and policy-renewal refusals retain their existing
+checks. These fixes do not qualify the remaining native erasure or worker boundaries. Standing-worker admission also requires seed integration;
 the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,
 never passing results or completed shared duties. Spend caps remain unenforced.
+
+The refreshed portability runtime includes the optional Worker migration-evidence
+adapter. Spool has not declared its build plugin or connected that adapter to its
+archive service, so legacy ledgers through the Worker restore route remain
+unqualified. The automatic Node library restore and the Worker route are separate
+proof boundaries. No Worker legacy-restore acceptance follows from the library
+archive regression.
