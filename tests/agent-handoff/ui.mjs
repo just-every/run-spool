@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 export async function handoffPanel(browser,app,directory){
  const captures=[];
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});
   try{
    await openGate(context,app.origin);

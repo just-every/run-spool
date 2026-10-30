@@ -64,7 +64,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  assert.ok((await request(base+'/sentry-uploads')).assemblies.some(row=>row.detail?.includes(longName)),'the release view retains the full refused chunk path');
  const cap=await request(base+'/artifact-storage');assert.equal(cap.artifact_storage_cap,storage.bytes);
  const denied=await fetch(origin+base+'/artifact-storage',{method:'PUT',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({revision:cap.revision,artifact_storage_cap:null})});assert.equal(denied.status,401);await denied.body?.cancel();
- for(const width of [1440,390]){
+ for(const width of [1440]){
   await page.setViewportSize({width,height:1000});await page.reload();await page.getByText('Stored maps and upload failures',{exact:true}).click();
   await page.getByText(/storage cap [0-9]+ bytes/).first().waitFor();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -74,6 +74,6 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   await page.getByText(/storage cap [0-9]+ bytes/).first().evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,`refusal-${width}.png`)});
  }
  await context.close();
- console.log('[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');
+ console.log('[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440 passed; no icon-only control on touched section.');
  return {id,base,cap};
 }

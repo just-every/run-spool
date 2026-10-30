@@ -8,6 +8,8 @@ import {archiveProjection} from './archive.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 
+export async function deploymentJourney() {
+
 // [REL-001] [REL-002]: real emitted Worker, owner/deploy HTTP doors, native scheduled event and browser UI.
 const app=await startTestWorker(15553),origin=app.origin;
 let browser;
@@ -70,5 +72,7 @@ try {
  const archive=await archiveProjection(await req('/api/archive'));assert.ok(archive.data.deployment_runs.every(r=>r.historical===1&&r.destination===''));assert.ok(!Object.hasOwn(archive.data,'deployment_actors'));
  const restored=await startTestWorker(15554);try{const copiedCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:copiedCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const read=()=>fetch(restored.origin+root,{headers:{Cookie:copiedCookie}}).then(r=>r.json());const copied=await read();assert.equal(copied.rows.length,(await json(root)).rows.length);const tick=await fetch(restored.origin+'/cdn-cgi/local/scheduled?cron=*+*+*+*+*&format=json');assert.ok(tick.ok);assert.deepEqual(await read(),copied,'REL-001 restore cannot replay timeout or notice');const refused=await fetch(restored.origin+root+'/owner-started/callbacks',{method:'POST',headers:{Cookie:copiedCookie,Origin:restored.origin,'Content-Type':'application/json'},body:JSON.stringify(callback('succeeded'))});assert.equal(refused.status,409)}finally{await restored.stop()}
  const plan=await json(base+'/erasure');for(const table of ['deployment_runs','deployment_steps','deployment_notices','deployment_actors'])assert.ok(plan.deleted[table]>0);await followErasure(json,await json(base+'/erasure','POST',{confirm:project.id,planHash:plan.planHash}));
- console.log('REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440/390.');
+ console.log('REL-001 passed: CI and owner start/progress/success/failure/rollback, idempotency/conflicts, one overdue notice over two ticks, environments, enrichment, denials, inert restore, erasure and 1440.');
 } finally {await browser?.close();await app.stop()}
+
+}

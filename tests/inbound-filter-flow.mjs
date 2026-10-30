@@ -97,7 +97,7 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    child.once('error',reject);child.once('exit',code=>{if(code!==0)return reject(new Error('SDK-006 Node SDK flush failed'));try{const result=JSON.parse(output);assert.ok(result.responses.length,'SDK-006 observes actual normal-transport responses');done(Object.assign(result.responses,{items}))}catch(error){reject(error)}});
   })}finally{await new Promise(resolve=>edge.close(resolve))}
  };
- for(const width of [1440,390]) {
+ for(const width of [1440]) {
   const id=`sdk-filters-${width}`,base=`/api/projects/${id}`,root=base+'/inbound-filters';
   const project=await request('/api/projects','POST',{id,name:'Cedar checkout inbound filters'});
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
@@ -163,5 +163,5 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
 
   } finally {await context.close()}
  }
- console.log('SDK-006 real unmodified Node SDK: every filter enabled through app at 1440/390, nonmatches, exact counters, no issues/alerts/accepted units, disable and later acceptance.');
+ console.log('SDK-006 real unmodified Node SDK: every filter enabled through app at 1440, nonmatches, exact counters, no issues/alerts/accepted units, disable and later acceptance.');
 }

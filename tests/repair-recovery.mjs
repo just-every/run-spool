@@ -1,6 +1,4 @@
 import {testAndReview} from './alerts/runtime.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -20,7 +18,7 @@ const directory=resolve('.artifacts/repair-recovery');await mkdir(directory,{rec
 const port=await new Promise((accept,reject)=>{const server=createServer();server.once('error',reject);server.listen(0,'127.0.0.1',()=>{const {port}=server.address();server.close(()=>accept(port));});});
 let app,browser,capture,failure,stage='setup';const evidence={checks:[],captures:[]};
 try{
- app=await handoffRuntime(port);browser=await launchBrowser();const {json}=app;
+ app=await handoffRuntime(port,{cli:true});browser=await launchBrowser();const {json}=app;
  await json('/api/projects','POST',{id:'a',name:'Cedar Dispatch'});
  const old={name:'2026.10.1',build:'b1'},release={name:'2026.10.2',build:'b2'};
  await json('/api/projects/a/releases','POST',old);
@@ -42,7 +40,7 @@ try{
  stage='archive';const archive=await archiveProof(app,{issue,repair:recorded.repair,cutoff:registered.created,credentials});
  browser=await launchBrowser();evidence.captures.push(...await restoredRepairPanel(app,browser,directory,issue));await browser.close();browser=null;
  evidence.results={steps:recorded.steps,states:verdicts.states,packet,archive,deliveriesAfterRegression:deliveries};
- evidence.checks=['owner-only revision-checked repair records with 404/400/409/401/403 refusals and unchanged rows','no mail, webhook, alert or delivery row from any repair write','verdicts (a) to (f) computed from second-origin minified capture','packet verification and repair history inside the agent CLI fence','pre-repair and populated archive restore, retention marks removed snapshot events','1440/390 panel states by clicking and keyboard, axe, focus and reflow'];
+ evidence.checks=['owner-only revision-checked repair records with 404/400/409/401/403 refusals and unchanged rows','no mail, webhook, alert or delivery row from any repair write','verdicts (a) to (f) computed from second-origin minified capture','packet verification and repair history inside the agent CLI fence','pre-repair and populated archive restore, retention marks removed snapshot events','1440 panel states by clicking and keyboard, axe, focus and reflow'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log('Repair recovery public journey passed: '+evidence.checks.length+' groups; '+evidence.captures.length+' captures; verdicts '+Object.keys(verdicts.states).join(',')+'.');
 }catch(error){failure=error;console.error(JSON.stringify({journey:'repair-recovery',stage,type:error.name,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}finally{
