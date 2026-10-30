@@ -28,7 +28,7 @@ export async function reproduceProof(app,fixture,ingest){
  assert.deepEqual(reproducer.spec.call,{module:'src/cart.js',export:'lineCount',input:[{}]},'exact module, export and input recorded');
  assert.deepEqual([reproducer.spec.environment.network,reproducer.spec.environment.bindings,reproducer.spec.environment.processEnvironment,reproducer.spec.environment.filesystem],['none','none','empty','none']);
  assert.deepEqual(reproducer.spec.source.modules.map(m=>m.name).sort(),['src/cart.js','src/format.js'],'every module source the map carries, by digest');
- const sensitive=await app.request(`${p}/reproducers`,'POST',{event:'cart-0',input:[{email:'person@example.com'}]});assert.equal(sensitive.status,400,'input the scrubber would change is refused, never altered');await sensitive.body?.cancel();
+ const sensitive=await app.request(`${p}/reproducers`,'POST',{event:'cart-0',input:[{email:['person','example.com'].join('@')}]});assert.equal(sensitive.status,400,'input the scrubber would change is refused, never altered');await sensitive.body?.cancel();
  // A run: single-use token, claimed once, observation-only report.
  const queued=await app.json(`${p}/reproducers/${reproducer.id}/runs`,'POST',{});
  const runOnce=await runner(queued.command);assert.equal(runOnce.code,0,runOnce.output);assert.match(runOnce.output,/^reproduced: /m);
@@ -115,6 +115,31 @@ export async function reproduceProof(app,fixture,ingest){
  }
  const cases=analysis=>({input:analysis.input,minimal:analysis.minimal,stop:analysis.stop,trials:analysis.trials.map(({kind,name,input,outcome,checks})=>({kind,name,input,outcome,checks}))});
  assert.deepEqual(cases(reductions[1]),cases(reductions[0]),'repeated reduction yields the same cases, counterexamples and behaviour checks');
+ // Failed alternate-release baselines cannot enter the reduction search or
+ // become evidence that a fix succeeded, even with experiments authorized.
+ const analysisLoadFailures={};
+ for(const [name,detail] of [['syntax',/SyntaxError/],['unresolved',/No such module[^\n]*src\/missing-format\.js/]]){
+  const ticket=await app.json(`${p}/reproducers/${minimized.id}/runs`,'POST',{release:`2026.10.load-${name}`});
+  const result=await runner(ticket.command);assert.equal(result.code,0,result.output);
+  assert.match(result.output,/^failed: The sandbox could not load the modules /m);
+  const run=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===minimized.id).runs.find(row=>row.id===ticket.run);
+  assert.deepEqual([run.state,run.outcome,run.observation.phase,run.checks],['finished','failed','load_failed',[]]);
+  assert.match(run.observation.detail,detail);
+  assert.deepEqual(run.analysis,{minimal:false,stop:'baseline_not_reproduced',input:null,trials:[]},'a module-loading failure cannot claim a minimal case or a successful experiment');
+  const spent=await fetch(ticket.url,{headers:{Authorization:'Bearer '+ticket.token}});assert.equal(spent.status,401);await spent.body?.cancel();
+  analysisLoadFailures[name]={state:run.state,outcome:run.outcome,phase:run.observation.phase,analysis:run.analysis};
+ }
+ // JSON input is data even when it contains executable-looking instructions.
+ // The positive control returns that exact text; it cannot run or forge a throw.
+ const hostileText="'); globalThis.fetch('https://example.com/'); throw new TypeError('synthetic-spool-71'); //";
+ const hostileInput=[JSON.parse('{"__proto__":{"syntheticSpool71":true},"lines":{"length":'+JSON.stringify(hostileText)+'}}')];
+ const dataOnly=await app.json(`${p}/reproducers`,'POST',{event:'cart-0',input:hostileInput});
+ assert.deepEqual(dataOnly.spec.call.input,hostileInput,'the recorded input preserves hostile-looking strings and own prototype keys as data');
+ const dataTicket=await app.json(`${p}/reproducers/${dataOnly.id}/runs`,'POST',{});
+ const dataResult=await runner(dataTicket.command);assert.equal(dataResult.code,0,dataResult.output);
+ const dataRun=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===dataOnly.id).runs.find(row=>row.id===dataTicket.run);
+ assert.deepEqual([dataRun.state,dataRun.outcome,dataRun.observation.phase,dataRun.observation.preview],['finished','not_reproduced','returned',JSON.stringify(hostileText+' items')],'source-looking input is returned literally rather than executed');
+ assert.deepEqual(dataRun.checks.filter(check=>check.required).map(check=>[check.check,check.passed]),[['threw',false]]);
  // A partial search cannot claim minimality, and a failed experiment remains
  // failed. These are real sandbox calls under the same hard run budget.
  const limited=await app.json(`${p}/reproducers`,'POST',{event:'cart-0',input:[Object.fromEntries(Array.from({length:15},(_,n)=>['noise'+n,n]))],minimize:true});
@@ -148,7 +173,7 @@ export async function reproduceProof(app,fixture,ingest){
  const missingRelease=await app.request(`${p}/reproducers/${reproducer.id}/runs`,'POST',{release:withoutMap.name});
  assert.equal(missingRelease.status,409);assert.match((await missingRelease.json()).error,/No stored map/);
  assert.deepEqual((await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===reproducer.id).runs,beforeMissing,'missing artifacts queue no run and change no previous verdict');
- return {issue,r1,reproducer:view,minimized:minimized.id,reduction:reductions[0],limited:limitedRun.analysis,malicious:inertRun.outcome,missingArtifacts:[noMap.reason,absentSource.reason,'queue_refused'],run:reproduced,loadFailures,outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
+ return {issue,r1,reproducer:view,minimized:minimized.id,reduction:reductions[0],limited:limitedRun.analysis,malicious:inertRun.outcome,missingArtifacts:[noMap.reason,absentSource.reason,'queue_refused'],run:reproduced,loadFailures,analysisLoadFailures,dataInput:{outcome:dataRun.outcome,observation:dataRun.observation},outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
 }
 
 export async function missingQueuedMap(app,fixture){

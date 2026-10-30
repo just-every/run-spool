@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "ace68065174195bd5fd26d66cd30fcb5aefd0970e49eb04b5c64106b5d1a49b6",
+      "sha256": "c1babc7560b0f9c62c4caf6f6296f4d090462e49ada24de238557253c6b5ec43",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "49ee6f31cd65c68f2cc4302a184f597ee1608e5353ec85482e8498f0d4169066",
+      "sha256": "924013aeba8cd959ec1600afb3ef20c075e61d667672c5ee9aec05adcc374185",
       "executable": false
     },
     "DEMO.md": {
@@ -3025,7 +3025,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "2b6085138fa6e545c70f97511f96f0aea91e407a169ff4c179391b27953c360a",
+      "sha256": "6196bc002565337aab139c33acc0839895b782fe7992398cb5963f4d45ed055e",
       "executable": false
     },
     "docs/retained-verification/ai005/agent-handoff-1440.png": {
@@ -8789,7 +8789,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "c74e63faa57d1b232155b68324c9956461726e47ac8573e8b07e941947b9be63",
+      "sha256": "58764f4c7e2dab0a059f258efb259b85de6cdb9dcbfc224fb4d2733856e6d709",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8813,7 +8813,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "97819e953b3909f871cda6cd39a7830d49b692b67ebc7ef8676f2cda0fb42136",
+      "sha256": "46e5b4435c33b2dfe7cf751d1a1d0c8a5e1c511c7e8746917854488f363543c2",
       "executable": false
     },
     "tests/execution/runtime.mjs": {
@@ -9209,7 +9209,7 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "e1319621b838295fcf057773150d5ffd43b95c02261b3b892299135aff16fb92",
+      "sha256": "5068be2ae1e69aa07bea87c5c84d728e5cc842d1af08adebbc5b8641b6de7b2a",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
