@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 47 | 24 | 87 |
+| Core | 17 | 46 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 47 | 29 | 92 |
+| Full target | 17 | 46 | 29 | 92 |
 
-Judged from the code and tests at commit `c33c5383417b89fff0812d644883a0bf30fa247e` (29 October 2026). SDK-028 native ordering, every existing release read and export, permutation and tie properties, policy boundaries and exact strict-refusal accounting passed the deployment history journey. The landing candidate adds an explicit whole-release archive preservation assertion; application source is unchanged. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held provider qualifications are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `d2bbd452f6cf3ea9d29f42fa5313b7dd7cfbe8ef` (30 October 2026). REL-002 native release correlations, comparable observed cohorts, changed-path receipts and scrubbed judgment provenance are qualified through the deployment history journey. The landing candidate adds the mixed legacy and new unknown-cohort restore case and its aggregation correction. AI-006 retains later agent execution and learning obligations; REL-002 records their evidence without automatic action. Exact-candidate Verify and guarded publication remain landing gates. Other clause judgments and held scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -910,7 +910,7 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 
 #### REL-002 — Suspect change and release comparisons
 
-Core · target · **partial**
+Core · target · **done** · Cites BASE-AGENT-003, BASE-DATA-003
 
 **Requirement.** Connect first occurrence, reactivation and rate change to the release/deployment window, suspect commit and changed source; compare release cohorts, adoption and loss before attributing impact. Keep correlation distinct from a demonstrated cause and preserve older-release failures during rollout. An engineer can confirm or reject a suspect and record evidence for later agent learning.
 
@@ -918,8 +918,8 @@ Core · target · **partial**
 1. With two commits deployed while old clients are retained, first and regressed errors and an unrelated spike show candidate reasons and comparable release rates.
 2. A false suspect is rejected without changing occurrences.
 
-**Evidence.** `src/domain/suspects/`; `src/ui/workbench/SuspectChanges.tsx`; `migrations/core/0070_suspect_decisions.sql`; `tests/deployment-history.mjs` deployment history journey invokes `tests/suspect-flow.mjs` suspectFlow and reactivationFixture: acceptance 1 first-retained and strictly-later native reactivation candidates, exact regression alert, both recorded commits and deployment window, older-client spike counts, correlation and unavailable-rate disclosures, desktop and phone issue views; acceptance 2 audited confirm and reject with unchanged event and issue archives, grant refusal, inert restore and project erasure. `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `docs/SUSPECT-CHANGES.md`
-**Gap.** First-retained and reactivated candidates now have public HTTP and issue-view proof, including the exact regression-alert identity and both commits in the recorded deployment window. Same-window occurrence and distinct-issue counts preserve older-release failures; `tests/session-flow.mjs` adds observed SDK-005 session rates, denominators, adoption share and Wilson intervals. Native comparison work in progress: coarse device and OS cohorts from session user agents, within-cohort adoption and observed rate contrasts with explicit loss, caller-recorded changed paths and bounded judgment provenance in agent packets; public journey qualification is pending. Remaining: qualification of those comparisons and custody boundaries, and later agent learning under AI-006; no causal attribution or real-device qualification is claimed. Builder defaults remain in `docs/contract/adopted-defaults.md`.
+**Evidence.** `src/domain/suspects/`; `src/ui/workbench/SuspectChanges.tsx`; `migrations/core/0070_suspect_decisions.sql`; `migrations/core/0084_suspect_comparisons.sql`; `tests/deployment-history.mjs` deployment history journey invokes `tests/suspect-flow.mjs` suspectFlow, reactivationFixture and comparableFixture. Acceptance 1: first-retained and strictly-later regressed errors, exact alert identity, both recorded commits and deployment windows, older-client unrelated spike, matched environment and coarse device and OS rates, adoption and known loss, missing-dimension refusal, exact changed-path overlap and unavailable source evidence; HTTP and issue views at 1440 and 390. Acceptance 2: audited confirm and reject with scrubbed notes and unchanged occurrences, issue aggregates and sessions; rejected hypotheses and provenance retained for later AI-006 learning through exact-project packets. Custody: replay, foreign and revoked grants, immutable receipt refusal, legacy and new unknown cohort reconciliation, inert private restore, retention and project erasure. `tests/agent-handoff.mjs` Agent handoff public journey: complete HTTP, CLI JSON, embedded Markdown and official MCP packet equality, bounded private evidence and authority. `tests/old-archive.mjs` populated upgrade; `tests/owner-erasure.mjs` owner erasure and archive fences; `tests/sentry-sdk.mjs` sessionFlow: installed SDK denominators and privacy. `docs/SUSPECT-CHANGES.md`.
+**Gap.** None.
 
 #### CTX-001 — Error-linked traces, logs and request performance
 

@@ -11,7 +11,7 @@ export async function cohortComparison(db:D1Database,project:string,issue:string
  const [sessions,aggregates,events,outcomes,retention,releases,{policy}]=await Promise.all([
   db.prepare(`SELECT s.release,s.environment,COALESCE(c.device,'unknown') device,COALESCE(c.os,'unknown') os,COUNT(*) sessions,
    SUM(s.status IN ('crashed','abnormal','unhandled')) unhealthy,SUM(s.status='ok') active
-   FROM health_sessions s LEFT JOIN health_session_cohorts c ON c.project=s.project AND c.sid=s.sid WHERE s.project=? AND s.started>=? AND s.started<? GROUP BY s.release,s.environment,c.device,c.os`).bind(project,from,to).all<any>(),
+   FROM health_sessions s LEFT JOIN health_session_cohorts c ON c.project=s.project AND c.sid=s.sid WHERE s.project=? AND s.started>=? AND s.started<? GROUP BY s.release,s.environment,COALESCE(c.device,'unknown'),COALESCE(c.os,'unknown')`).bind(project,from,to).all<any>(),
   db.prepare('SELECT COALESCE(SUM(quantity),0) sessions FROM health_aggregates WHERE project=? AND started>=? AND started<?').bind(project,from,to).first<any>(),
   db.prepare(`SELECT release,environment,json_extract(payload,'$.sentry.contexts.device.family') device,json_extract(payload,'$.sentry.contexts.os.name') os,COUNT(*) occurrences,SUM(issue=?) issueEvents FROM events WHERE project=? AND received>=? AND received<? AND release<>'' GROUP BY release,environment,device,os`).bind(issue,project,from,to).all<any>(),
   db.prepare("SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? AND window<? AND reason<>'accepted' AND reason<>'session_stored' GROUP BY reason ORDER BY reason").bind(project,Math.floor(from/60000)*60000,to).all<any>(),

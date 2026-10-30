@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 import {archiveProjection} from './archive.mjs';
+import {archiveText} from './agent-handoff/caps.mjs';
 import {browserSignIn,signIn} from './auth.mjs';
 import {startTestWorker} from './worker.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
@@ -80,14 +81,19 @@ export async function suspectFlow({req,json,origin,browser}) {
  assert.equal(after.audit.filter(r=>r.kind==='suspect_judged'&&r.project===p.id).length,2,'one audited entry per judgment');
  const denied=await json(base+'/keys','POST',{kind:'agent'});
  assert.equal((await req(path,'PUT',{release:current,sha:falseSha,judgment:'confirmed',note:'denied',revision:1},{Cookie:'',Authorization:`Bearer ${denied.key}`})).status,403);
- const snapshot=await archiveProjection(await req('/api/archive'));let restored;
- try{restored=await startTestWorker(15554);const cookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));assert.deepEqual(copied.data.suspect_decisions,snapshot.data.suspect_decisions,'restore preserves both judgments as inert records');
+ const snapshot=await archiveProjection(await req('/api/archive')),legacyCohorts=structuredClone(snapshot.data);let restored;
+ // Before cohort metadata existed, retained sessions had no companion row. Mix one such
+ // observation with new unknown observations in the same release and environment.
+ const legacySid=legacyCohorts.health_session_cohorts.find(row=>row.project===comparison.project&&row.device==='unknown').sid;
+ legacyCohorts.health_session_cohorts=legacyCohorts.health_session_cohorts.filter(row=>row.project!==comparison.project||row.sid!==legacySid);
+ const legacyArchive=await archiveText(snapshot,legacyCohorts);
+ try{restored=await startTestWorker(15554);const cookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:legacyArchive});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));assert.deepEqual(copied.data.suspect_decisions,snapshot.data.suspect_decisions,'restore preserves both judgments as inert records');
  const restoredRead=await fetch(restored.origin+comparison.path+`?from=${comparison.view.comparison.from}&to=${comparison.view.comparison.to}`,{headers:{Cookie:cookie}}).then(r=>r.json());
- assert.deepEqual(restoredRead.comparison.cohorts,comparison.view.comparison.cohorts,'private restore preserves exact recorded cohort denominators and loss');
+ assert.deepEqual(restoredRead.comparison.cohorts,comparison.view.comparison.cohorts,'private restore preserves cohort denominators and loss when legacy and new unknown sessions share a bucket');
  const copiedPacket=await fetch(restored.origin+comparison.base+'/issues/'+comparison.issue+'/packet',{headers:{Cookie:cookie}}).then(r=>r.json());
  const historicalSuspects=structuredClone(comparison.packet.suspects);for(const candidate of historicalSuspects.candidates)for(const deployment of candidate.deployments)deployment.historical=1;
  assert.deepEqual(copiedPacket.suspects,historicalSuspects,'private restore preserves judgment provenance with explicitly inert deployment history');
- for(const table of ['suspect_commit_files','health_session_cohorts'])assert.deepEqual(copied.data[table],snapshot.data[table],'private archive retains '+table);
+ for(const table of ['suspect_commit_files','health_session_cohorts'])assert.deepEqual(copied.data[table],legacyCohorts[table],'private archive retains recorded '+table);
  const cutoff=Date.now(),retained=await fetch(restored.origin+comparison.base+'/retention',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/json'},body:JSON.stringify({cutoff,apply:true})});assert.equal(retained.status,200,await retained.text());
  const expired=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));
  for(const table of ['suspect_commit_files','health_session_cohorts'])assert.ok(!expired.data[table].some(row=>row.project===comparison.project),'retention removes '+table);
@@ -209,7 +215,8 @@ async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
  await foreignSend('event',{event_id:crypto.randomUUID().replaceAll('-',''),release:current,dist:'web-2',environment:'production',exception:{values:[{type:'CheckoutError',value:'Unknown client cohort',stacktrace:{frames:[{filename:'checkout.js',lineno:12,colno:1,function:'confirm',in_app:true}]}}]}});
  const incompleteIssue=(await json(foreignBase+'/issues'))[0],incomplete=await json(foreignBase+'/suspects/issues/'+incompleteIssue.id);
  assert.equal(incomplete.comparison.cohorts.loss.unattributedIssueEvents,1);
- assert.ok(incomplete.comparison.cohorts.rows.filter(r=>r.release===current&&r.device==='desktop').every(r=>r.rateQualified===false&&r.issueEventsPerSession===null),'missing event dimensions cannot invent a zero error rate for a known session cohort');
+ const incompleteKnown=incomplete.comparison.cohorts.rows.filter(r=>r.release===current&&r.device==='desktop');assert.equal(incompleteKnown.length,1);
+ assert.deepEqual(incompleteKnown.map(r=>[r.sessions,r.rateQualified,r.issueEventsPerSession]),[[1,false,null]],'missing event dimensions cannot invent a zero error rate for a known session cohort');
  assert.deepEqual(incomplete.comparison.cohorts.contrasts,[]);
  assert.ok(incomplete.candidates.every(candidate=>!candidate.reason.some(reason=>reason.kind==='rate_change')));
 
