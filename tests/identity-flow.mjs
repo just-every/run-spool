@@ -65,7 +65,9 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
  assert.equal((await app.json(foreignIssue+'/packet')).events.length,1,'foreign-project refusal addresses a real retained SDK capture');
  // Both organization-wide and project-only read-only authority use the same retained evidence.
  for(const role of ['read-only','member']) {
- const identity={email:['synthetic-spool-reader-'+role,'example.test'].join('@'),name:'Identity reader',role,grants:[{project:project.id,role:'read-only'}]};
+ // A broader project grant must not override the organization read-only floor.
+ const projectRole=role==='read-only'?'member':'read-only';
+ const identity={email:['synthetic-spool-reader-'+role,'example.test'].join('@'),name:'Identity reader',role,grants:[{project:project.id,role:projectRole}]};
  const invited=await inviteMember(app,origin,identity);
  // Sign in again normally so authority does not depend on the invitation cookie.
  const cookie=await emailSignIn(origin,identity.email),reader=api(origin,cookie);
