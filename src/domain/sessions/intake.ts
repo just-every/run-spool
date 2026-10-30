@@ -24,7 +24,8 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
   if(prepared.refusal){await record(prepared.refusal,[outcomeStatement(db,p,'session_release_refused')]);continue}
   if(!prepared.event?.release){await record('session_release_refused');continue}
   const cutoff=Date.now()-90*86400000;if(rows.some(r=>r.started<cutoff)){await record('session_invalid');continue}
-  const jobs=[...prepared.jobs!,stmt(db,'DELETE FROM health_sessions WHERE project=? AND started<?',p,cutoff),stmt(db,'DELETE FROM health_aggregates WHERE project=? AND started<?',p,cutoff)];
+  // Expiry belongs to the bounded policy path, which records gaps and restore fences.
+  const jobs=[...prepared.jobs!];
   const identity=rows.some(r=>r.did)?await prepareIdentityKey(db,p):null;if(identity)jobs.push(...identity.jobs);
   let conflict=false;
   for(const row of rows){
