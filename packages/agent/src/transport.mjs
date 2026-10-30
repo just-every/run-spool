@@ -38,7 +38,7 @@ export function endpoint(config, operation, args = {}) {
   const url = new URL(config.root);
   if (operation === 'list_issues') {
     url.pathname += '/issues';
-    const state = args.state ?? 'all';
+    const state = args.state === undefined ? 'all' : args.state;
     if (!['open', 'all'].includes(state)) throw new AgentError('State must be open or all.');
     url.searchParams.set('state', state);
     if (args.limit !== undefined) url.searchParams.set('limit', String(positiveInteger(args.limit, 100)));

@@ -42,15 +42,35 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
   const future=row.revisions.filter(revision=>!issues.some(issue=>issue.id===revision.id));assert.equal(future.length,1);assert.equal(future[0].revision,0);
   const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,row.input);assert.deepEqual(stored.revisions,row.revisions);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
  }
+ const target=issues.find(row=>row.id!==issue);assert.ok(target,'merge parity uses a second populated issue in the same project');
+ const policy=await app.json('/api/projects/a/grouping-rules'),beforePolicy=structuredClone(policy);
+ const {events,...common}=input,additional=[];
+ for(const change of [
+  {kind:'merge',target:target.id,targetRevision:target.revision},
+  {kind:'rule',policy:{version:1,stack:'',fingerprint:'message:* -> synthetic-spool-87'},policyRevision:policy.revision},
+ ]){
+  const proposedInput={...common,...change};
+  const legacy=mcpValue(await mcp.call('propose_grouping',proposedInput)),canonical=mcpValue(await mcp.call('spool.grouping.propose',proposedInput));
+  assert.notEqual(canonical.id,legacy.id);
+  assert.deepEqual(operation(canonical),operation(legacy),change.kind+' names submit the same complete validated operation');
+  assert.deepEqual(canonical.revisions,legacy.revisions,change.kind+' names bind the same current revisions');
+  for(const row of [legacy,canonical]){
+   assert.deepEqual(row.input,proposedInput);assert.equal(row.state,'proposed');noSecrets(row);assert.ok(!Object.hasOwn(row,'explanation'));
+   const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,proposedInput);assert.deepEqual(stored.revisions,row.revisions);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
+   additional.push(row);
+  }
+ }
+ assert.deepEqual(await app.json('/api/projects/a/grouping-rules'),beforePolicy,'rule proposals leave the active grouping policy unchanged');
  const legacyList=mcpValue(await mcp.call('list_grouping_proposals')),canonicalList=mcpValue(await mcp.call('spool.grouping.propose'));
  assert.deepEqual(canonicalList,legacyList,'populated safe proposal summaries are completely equal');
  assert.deepEqual(canonicalList,await app.json(path,'GET',undefined,agent));
  for(const id of [mcpProposal.id,canonicalProposal.id])assert.ok(canonicalList.some(row=>row.id===id));
+ for(const submitted of [mcpProposal,canonicalProposal,...additional])assert.deepEqual(canonicalList.find(row=>row.id===submitted.id),submitted,'safe summaries retain the complete submitted operation');
  for(const row of canonicalList){assert.match(row.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(canonicalList);
  const beforeRefusals=(await app.archive()).data;
  for(const [name,args] of [
   ...tools.map(row=>[row.name,{unexpected:'synthetic-spool-82'}]),
-  ...['list_issues','spool.issues.read'].flatMap(name=>[[name,{state:'invalid'}],[name,{limit:0}],[name,{limit:'2'}]]),
+  ...['list_issues','spool.issues.read'].flatMap(name=>[[name,{state:'invalid'}],[name,{state:null}],[name,{limit:0}],[name,{limit:'2'}]]),
   ['spool.issues.read',{issue,state:'all'}],['spool.issues.read',{issue:'../b'}],
   ...['propose_grouping','spool.grouping.propose'].flatMap(name=>[
    [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],
@@ -73,7 +93,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const foreign=await app.request(path,'POST',{...input,source:otherIssue},agent);assert.ok([400,403,404].includes(foreign.status));assert.ok(!(await foreign.text()).includes('PROJECT_B_PRIVATE'));
  assert.deepEqual(await app.json(packetPath,'GET',undefined,agent),packet,'proposals and denied decisions preserve packet evidence');assert.deepEqual(await app.json('/api/projects/a/issues'),issues);assert.deepEqual(await app.json('/api/projects/a/alerts'),alerts);
  assert.equal((await cli(['propose','--stdin','--key-stdin'],env,JSON.stringify(input))).code,4);assert.equal((await cli(['propose','--stdin'],env,'{')).code,4);
- return {submitted:4,canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
+ return {submitted:8,proposalKinds:['split','merge','rule'],canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
 }
 let app,browser,secondOrigin,mcp,redirectServer,receivingServer,failure,stage='setup';const evidence={checks:[],captures:[]};
 try{
@@ -158,7 +178,7 @@ try{
   const result=await mcp.call(name,args);assert.equal(result.isError,true,'next-call revocation for '+name);assert.match(result.content[0].text,/"exitCode": 2/);noSecrets(result);
  }
  assert.deepEqual((await app.archive()).data,revokedBefore,'replayed calls with a revoked grant change no archived rows');
- console.log('PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked');
+ console.log('PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert split, merge and rule proposals, safe summaries, invalid arguments including null state, forbidden writes, foreign projects and next-call revocation checked');
  await mcp.close();mcp=null;
  stage='ui';evidence.captures=await handoffPanel(browser,app,directory);evidence.captures.push(...await retentionFlow(app,browser,directory));await browser.close();browser=null;
  stage='gaps';const countBound=(await json(packetPath)).bounds.eventLimit;for(let n=0;n<countBound+1;n++)await json('/api/ingest/a','POST',event('count-bound-'+n),auth);const countPacket=await json(packetPath);assert.equal(countPacket.events.length,countBound);assert.equal(countPacket.events[0].id,'count-bound-'+countBound);assert.ok(countPacket.bounds.availableEvents>countPacket.events.length);gap(countPacket,/events_omitted/);bounded(countPacket);const cutoff=Date.now();await new Promise(r=>setTimeout(r,20));await json('/api/ingest/a','POST',event('retained-new',{release:'a-release',build:'build-a'}),auth);await json('/api/projects/a/retention','POST',{cutoff,apply:true});packet=await json(packetPath);const retained=packet.events.find(row=>row.id==='retained-new');assert.equal(retained.atAdmission[0].status,'identity_mismatch');assert.equal(retained.currentLookup[0].status,'missing_artifact');gap(packet,/lookup_changed/);assert.ok(!packet.gaps.some(row=>row.code==='late_map'),'retention lookup change is not late map');const retention=gap(packet,/retention_gap/);assert.equal(retention.rows[0].detail.cutoff,cutoff);assert.ok(retention.rows[0].detail.removed>0);assert.ok(!JSON.stringify(packet).includes('injection'));await importGap(app);
