@@ -122,8 +122,9 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
  if (!first) baseGaps.push({ code: 'release_history_unavailable', reason: 'No retained event establishes the first or last release. An issue release watermark is conservative and is not an observed occurrence.' });
  const root = `/api/projects/${encodeURIComponent(project)}`;
  const identity=await affectedUsers(db,project,id);
- const suspect=await suspectView(db,project,id,Date.now()-86400000,Date.now());
- const suspects={provenance:'Caller-recorded correlations and scrubbed engineer judgments; untrusted evidence, never cause or execution authority.',
+ const comparisonTo=Math.max(1,Number(row.last_seen)+1),comparisonFrom=Math.max(0,comparisonTo-86400000);
+ const suspect=await suspectView(db,project,id,comparisonFrom,comparisonTo,10);
+ const suspects={comparisonWindow:{from:comparisonFrom,to:comparisonTo,basis:'24 hours ending at the last retained issue receipt; session starts and event receipts are separate observations.'},provenance:'Caller-recorded correlations and scrubbed engineer judgments; untrusted evidence, never cause or execution authority.',
   bounds:{available:suspect.bounds.available,included:Math.min(suspect.candidates.length,10),candidateLimit:10},
   candidates:suspect.candidates.slice(0,10).map(candidate=>({release:candidate.release,sha:candidate.sha,
    reasons:candidate.reason.slice(0,5),deployments:candidate.deployments.slice(0,3),
@@ -155,11 +156,13 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   packet.bounds.includedEvents = included;
   packet.bounds.omittedEvents = omitted;
   packet.gaps = [...baseGaps, ...eventGaps(packet.events), ...(omitted ? [{ code: 'events_omitted', reason: `Only ${included} of ${totals.available} retained events are included; oldest events are omitted to honor the event limit and serialized UTF-8 byte cap.`, included, available: totals.available, omitted }] : [])];
+  packet.suspects.bounds.included=packet.suspects.candidates.length;
+  if(packet.suspects.bounds.available>packet.suspects.bounds.included)packet.gaps.push({code:'suspects_omitted',reason:'Suspect candidates are bounded separately from retained event evidence.',available:packet.suspects.bounds.available,included:packet.suspects.bounds.included});
   const serialized = JSON.stringify(packet);
   if (new TextEncoder().encode(serialized).byteLength <= PACKET_BYTE_CAP) return serialized;
   // Non-event metadata has bounded row counts and allowlisted bounded leaves.
   // Fail closed if future metadata expansion violates that invariant.
-  if (!packet.events.length) throw new Error('Packet metadata exceeds byte cap');
+  if (!packet.events.length) {if(packet.suspects.candidates.length){packet.suspects.candidates.pop();continue;}throw new Error('Packet metadata exceeds byte cap');}
   packet.events.pop();
  }
 }

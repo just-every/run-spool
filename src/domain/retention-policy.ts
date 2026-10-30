@@ -20,7 +20,7 @@ function retentionSpecifications(cutoffs:RetentionWindows){
  artifacts:['artifacts','created',`created<? AND NOT EXISTS(SELECT 1 FROM events e WHERE e.project=artifacts.project AND e.release=artifacts.release AND e.build=artifacts.build AND e.received>=?)`,[cutoffs.artifacts,cutoffs.events],'length(CAST(payload AS BLOB))'],
  feedback:['feedback','received',`received<? OR EXISTS(SELECT 1 FROM events e WHERE e.project=feedback.project AND e.id=feedback.event_id AND e.occurrence=feedback.occurrence AND e.received<?)`,[cutoffs.feedback,cutoffs.events],'length(CAST(message AS BLOB))'],
  exposures:['exposures','last','last<?',[cutoffs.exposures],'128'],
- commits:['commits','received','received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL',[cutoffs.commits],'COALESCE(length(CAST(message AS BLOB)),0)+COALESCE(length(CAST(author_name AS BLOB)),0)+COALESCE(length(CAST(author_email AS BLOB)),0)'],
+ commits:['commits','received','(received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL) OR EXISTS(SELECT 1 FROM suspect_commit_files f WHERE f.project=commits.project AND f.sha=commits.sha AND f.received<?)',[cutoffs.commits,cutoffs.commits],'COALESCE(length(CAST(message AS BLOB)),0)+COALESCE(length(CAST(author_name AS BLOB)),0)+COALESCE(length(CAST(author_email AS BLOB)),0)+COALESCE((SELECT length(CAST(files AS BLOB)) FROM suspect_commit_files f WHERE f.project=commits.project AND f.sha=commits.sha),0)'],
  sessions:['health_sessions','updated','updated<?',[cutoffs.sessions],'192'],
  } as const;
 }

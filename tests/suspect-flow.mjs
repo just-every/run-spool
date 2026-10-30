@@ -81,9 +81,26 @@ export async function suspectFlow({req,json,origin,browser}) {
  const denied=await json(base+'/keys','POST',{kind:'agent'});
  assert.equal((await req(path,'PUT',{release:current,sha:falseSha,judgment:'confirmed',note:'denied',revision:1},{Cookie:'',Authorization:`Bearer ${denied.key}`})).status,403);
  const snapshot=await archiveProjection(await req('/api/archive'));let restored;
- try{restored=await startTestWorker(15554);const cookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));assert.deepEqual(copied.data.suspect_decisions,snapshot.data.suspect_decisions,'restore preserves both judgments as inert records')}finally{await restored?.stop()}
+ try{restored=await startTestWorker(15554);const cookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));assert.deepEqual(copied.data.suspect_decisions,snapshot.data.suspect_decisions,'restore preserves both judgments as inert records');
+ const restoredRead=await fetch(restored.origin+comparison.path+`?from=${comparison.view.comparison.from}&to=${comparison.view.comparison.to}`,{headers:{Cookie:cookie}}).then(r=>r.json());
+ assert.deepEqual(restoredRead.comparison.cohorts,comparison.view.comparison.cohorts,'private restore preserves exact recorded cohort denominators and loss');
+ const copiedPacket=await fetch(restored.origin+comparison.base+'/issues/'+comparison.issue+'/packet',{headers:{Cookie:cookie}}).then(r=>r.json());
+ const historicalSuspects=structuredClone(comparison.packet.suspects);for(const candidate of historicalSuspects.candidates)for(const deployment of candidate.deployments)deployment.historical=1;
+ assert.deepEqual(copiedPacket.suspects,historicalSuspects,'private restore preserves judgment provenance with explicitly inert deployment history');
+ for(const table of ['suspect_commit_files','health_session_cohorts'])assert.deepEqual(copied.data[table],snapshot.data[table],'private archive retains '+table);
+ const cutoff=Date.now(),retained=await fetch(restored.origin+comparison.base+'/retention',{method:'POST',headers:{Cookie:cookie,Origin:restored.origin,'Content-Type':'application/json'},body:JSON.stringify({cutoff,apply:true})});assert.equal(retained.status,200,await retained.text());
+ const expired=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:cookie}}));
+ for(const table of ['suspect_commit_files','health_session_cohorts'])assert.ok(!expired.data[table].some(row=>row.project===comparison.project),'retention removes '+table);
+ const expiredView=await fetch(restored.origin+comparison.path,{headers:{Cookie:cookie}}).then(r=>r.json());
+ assert.deepEqual(expiredView.comparison.cohorts.rows,[]);assert.ok(expiredView.comparison.cohorts.loss.retention.length>0,'expired evidence is a visible comparison gap');
+ assert.ok(expiredView.candidates.every(candidate=>!candidate.changedSource.available),'expired paths cannot establish source overlap')}finally{await restored?.stop()}
  const plan=await json(base+'/erasure');assert.equal(plan.deleted.suspect_decisions,2);await followErasure(json,await json(base+'/erasure','POST',{confirm:p.id,planHash:plan.planHash}));
  assert.ok(!(await archiveProjection(await req('/api/archive'))).data.suspect_decisions.some(r=>r.project===p.id));
+ const comparisonPlan=await json(comparison.base+'/erasure');
+ assert.equal(comparisonPlan.deleted.suspect_commit_files,2);assert.equal(comparisonPlan.deleted.health_session_cohorts,37);
+ await followErasure(json,await json(comparison.base+'/erasure','POST',{confirm:comparison.project,planHash:comparisonPlan.planHash}));
+ assert.equal((await req(comparison.path)).status,404);
+ for(const table of ['suspect_commit_files','health_session_cohorts','suspect_decisions'])assert.ok(!(await archiveProjection(await req('/api/archive'))).data[table].some(row=>row.project===comparison.project),'erasure removes '+table);
  console.log('[REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed');
 }
 
@@ -138,14 +155,16 @@ async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
  const d=new URL(p.dsn),intake=`/api${d.pathname}/envelope/?sentry_key=${d.username}&sentry_version=7`;
  const send=async(type,value)=>{const response=await req(intake,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value),{Cookie:''});assert.equal(response.status,200,await response.clone().text());return response.json()};
  const time=Date.now()-1000;
- const session=async(release,os,device,status='exited',offset=0)=>send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(time+offset).toISOString(),status,attrs:{release,environment:'production',user_agent:os==='Windows'?'Mozilla/5.0 (Windows NT 10.0; Win64; x64)':os==='Android'?'Mozilla/5.0 (Linux; Android 14; Mobile)':'synthetic-spool-unknown'}});
+ const destination=await json(base+'/alerting/destinations','POST',{label:'Comparable rollout owner',recipient:['synthetic-spool-rollout','example.test'].join('@')});
+ await json(base+'/deployments','POST',{id:'synthetic-spool-comparable-rollout',release:current,build:'web-2',environment:'production',repository:'https://example.test/synthetic-spool/checkout',commitSha:trueSha,includedCommits:[falseSha,trueSha],startedAt:new Date(time-60000).toISOString(),deadline:new Date(time+3600000).toISOString(),destination:destination.id});
+ const session=async(release,os,device,status='exited',offset=0)=>send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(time+offset).toISOString(),status,attrs:{release,environment:'production',user_agent:os==='Windows'?'Windows NT 10.0; Win64; x64':os==='Android'?'Linux; Android 14; Mobile':'synthetic-spool-unknown'}});
  for(let i=0;i<10;i++)await session(old,'Windows','desktop');
  for(let i=0;i<4;i++)await session(current,'Windows','desktop',i<2?'crashed':'exited');
  for(let i=0;i<20;i++)await session(current,'Android','mobile');
  for(let i=0;i<3;i++)await session(current,'unknown','unknown');
  await send('sessions',{attrs:{release:old,environment:'production'},aggregates:[{started:new Date(time).toISOString(),exited:5}]});
  let counter=0;
- const event=async(release,spike=false)=>send('event',{event_id:(++counter).toString(16).padStart(32,'0'),release,dist:release===old?'web-1':'web-2',environment:'production',contexts:{device:{family:'desktop'},os:{name:'Windows'}},exception:{values:[{type:'CheckoutError',value:spike?'Older basket spike':'Confirmation missing',stacktrace:{frames:[{filename:spike?'basket.js':'checkout.js',lineno:spike?30:12,colno:0,function:spike?'basket':'confirm',in_app:true}]}}]}});
+ const event=async(release,spike=false)=>send('event',{event_id:(++counter).toString(16).padStart(32,'0'),release,dist:release===old?'web-1':'web-2',environment:'production',contexts:{device:{family:'desktop'},os:{name:'Windows'}},exception:{values:[{type:'CheckoutError',value:spike?'Older basket spike':'Confirmation missing',stacktrace:{frames:[{filename:spike?'basket.js':'checkout.js',lineno:spike?30:12,colno:1,function:spike?'basket':'confirm',in_app:true}]}}]}});
  await event(old);
  let issue=(await json(base+'/issues'))[0];await json(base+'/issues/'+issue.id,'PATCH',{revision:issue.revision,state:'resolved',resolution:'current'});
  await event(current);await event(current);
@@ -162,9 +181,17 @@ async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
  for(const [reason,count] of [['session_invalid',1],['client_discarded:error:before_send',3],['client_discarded:session:before_send',2]])assert.equal(cohorts.loss.outcomes.find(r=>r.reason===reason)?.count,count);
  assert.ok(cohorts.loss.attribution.includes('withheld'));
  const candidates=view.candidates.filter(c=>c.release===current);assert.deepEqual(candidates.map(c=>c.sha).sort(),[falseSha,trueSha]);
- for(const c of candidates){assert.ok(c.reason.some(r=>r.kind==='reactivation'));assert.ok(c.reason.some(r=>r.kind==='rate_change'&&r.record.previousRelease===old&&r.record.issueRateChange===.4));assert.equal(c.changedSource.available,true)}
+ for(const c of candidates){assert.deepEqual(c.deployments.map(d=>[d.id,d.started,d.deadline]),[['synthetic-spool-comparable-rollout',time-60000,time+3600000]]);assert.ok(c.reason.some(r=>r.kind==='reactivation'));assert.ok(c.reason.some(r=>r.kind==='rate_change'&&r.record.previousRelease===old&&r.record.issueRateChange===.4));assert.equal(c.changedSource.available,true)}
  assert.deepEqual(candidates.find(c=>c.sha===falseSha).changedSource.matches,[],'an unrelated path is not a source match');
  assert.deepEqual(candidates.find(c=>c.sha===trueSha).changedSource.matches.map(m=>[m.event,m.frame,m.file,m.basis]).sort(),[['00000000000000000000000000000002',0,'checkout.js','reported_frame'],['00000000000000000000000000000003',0,'checkout.js','reported_frame']]);
+ const beforeRepeat=(await json(base+'/issues')).map(row=>[row.id,row.count,row.state]);
+ const replay={event_id:'00000000000000000000000000000003',release:current,dist:'web-2',environment:'production',contexts:{device:{family:'desktop'},os:{name:'Windows'}},exception:{values:[{type:'CheckoutError',value:'Confirmation missing',stacktrace:{frames:[{filename:'checkout.js',lineno:12,colno:1,function:'confirm',in_app:true}]}}]}};
+ await send('event',replay);assert.deepEqual((await json(base+'/issues')).map(row=>[row.id,row.count,row.state]),beforeRepeat,'replayed capture does not create another occurrence or reactivation');
+ await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:trueSha,files:['checkout.js']}]});
+ const receiptBefore=(await archiveProjection(await req('/api/archive'))).data;
+ assert.equal((await req(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:trueSha,files:['other.js']}]})).status,409,'a changed immutable receipt is refused');
+ assert.equal((await req(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:trueSha,files:['../private.js']}]})).status,400,'traversing paths are refused before storage');
+ for(const table of ['events','issues','commits','release_commits','suspect_commit_files'])assert.deepEqual((await archiveProjection(await req('/api/archive'))).data[table],receiptBefore[table],'refused receipt changes no '+table);
  const archiveBefore=(await archiveProjection(await req('/api/archive'))).data;
  await json(path,'PUT',{release:current,sha:falseSha,judgment:'rejected',note:'Layout is unrelated. Keep this rejected hypothesis visible.',revision:0});
  await json(path,'PUT',{release:current,sha:trueSha,judgment:'confirmed',note:'Recorded overlap and observed rate increase; reproduction is still required.',revision:0});
@@ -177,5 +204,5 @@ async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
  const foreign=await json('/api/projects','POST',{id:'synthetic-spool-comparison-foreign',name:'Other comparison'}),foreignAgent=await json('/api/projects/'+foreign.id+'/keys','POST',{kind:'agent'});
  assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+foreignAgent.key})).status,403);
  await json(base+'/keys/'+agent.hash,'DELETE');assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,auth)).status,401);
- return {project:p.id,issue:issue.id,base,path,packet};
+ return {project:p.id,issue:issue.id,base,path,packet,view:await json(path)};
 }

@@ -10,6 +10,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  spool_team_digest_settings: ['team'], spool_team_snoozes: ['team','target'], spool_team_mail: ['team','body'],
  spool_organizations: ['name'], spool_project_teams: ['team'], spool_service_accounts: ['name'],
  suspect_decisions: ['note'],
+ suspect_commit_files: ['files'],
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
@@ -65,6 +66,7 @@ export async function capturePlan(db: D1Database, needles: string[]) {
   for (const row of rows) {
    // Authored judgments and sponsored services leave through the owner graph.
    // Only retained records need content redaction here.
+   if (table === 'suspect_commit_files') continue; // All receipts leave through the owner graph.
    if ((table === 'suspect_decisions' && row.operator_id === needles[0]) || (table === 'spool_service_accounts' && row.sponsor === needles[0])) continue;
    if(Object.entries(row).some(([column,value])=>!columns.includes(column) && contains(value,needles)))hold='identifier_in_structural_key';
    const after: Record<string,unknown> = {}, before: Record<string,unknown> = {};

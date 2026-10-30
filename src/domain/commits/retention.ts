@@ -6,7 +6,7 @@ import { withdrawCommitIdentity } from '../alerts/retention';
 export function commitRetentionStatements(db: D1Database, project: string, cutoff: number, time: number, limit?:number) {
  return [
   db.prepare('UPDATE commits SET message=NULL,author_name=NULL,author_email=NULL,expired=? WHERE project=? AND received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL AND rowid IN (SELECT rowid FROM commits WHERE project=? AND received<? AND expired IS NULL AND COALESCE(message,author_name,author_email) IS NOT NULL ORDER BY received LIMIT ?)').bind(cutoff, project, cutoff, project, cutoff, limit??10000),
-  db.prepare('DELETE FROM suspect_commit_files WHERE project=? AND received<?').bind(project,cutoff),
+  db.prepare('DELETE FROM suspect_commit_files WHERE rowid IN (SELECT rowid FROM suspect_commit_files WHERE project=? AND received<? ORDER BY received,sha LIMIT ?)').bind(project,cutoff,limit??10000),
   ...withdrawCommitIdentity(db, project, time),
  ];
 }

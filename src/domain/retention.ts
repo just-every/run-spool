@@ -83,6 +83,7 @@ export async function applyRetention(db: D1Database, project: string, cutoff: nu
   statement(db, "INSERT INTO audit SELECT ?,?,'retention_gap',json_object('cutoff',?,'removed',?,'dedupHorizon',?),?", auditId, project, cutoff, events.length, cutoff, Date.now()),
   ...retentionAlertStatements(db,project,cutoff,Date.now()),
   ...feedbackJobs,
+  statement(db,'INSERT OR IGNORE INTO rer_portability_journal SELECT ?,? WHERE EXISTS(SELECT 1 FROM suspect_commit_files WHERE project=? AND received<?)',before.source_identity,sessionFence,project,windows.commits),
   ...commitRetentionStatements(db,project,windows.commits,Date.now(),limit),
   ...eventJobs,
   statement(db, 'UPDATE issues SET count=(SELECT COUNT(*) FROM events WHERE project=issues.project AND issue=issues.id),title=?,revision=revision+1 WHERE project=?', RETAINED_HEADLINE, project),
