@@ -36,13 +36,18 @@ try{
   const foreign='https://app.example';await json('/api/projects/wire/browser-origins','POST',{origin:foreign});
   const preflight=await req(path,'OPTIONS',undefined,{Origin:foreign,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-sentry-auth'});assert.equal(preflight.status,204);assert.equal(preflight.headers.get('access-control-allow-origin'),foreign);
   const malformed=Buffer.concat([Buffer.from(envelope(event)),Buffer.from('\n{"type":"attachment","length":10}\nshort')]);assert.equal((await req(path,'POST',malformed)).status,400);assert.equal((await json('/api/projects/wire/issues')).length,0,'bad trailing framing admits no earlier event');
-  const wire=Buffer.concat([Buffer.from('{}\n{"type":"attachment","length":0}\n\n{"type":"attachment","length":4}\n'),Buffer.from([0,10,255,65]),Buffer.from('\n{"type":"session"}\n{}\n{"type":"statsd","length":4}\na:1c\n{"type":"statsd","length":4}\nb:1c\n{"type":"unexpected-vendor-kind"}\n{}\n{"type":"synthetic-spool-2"}\n{}\n{"type":"synthetic-spool-3"}\n{}\n{"type":"event"}\n'+JSON.stringify(event))]);
+  const invalidFeedbackItems=[['feedback','{}'],['feedback','notJSON'],['event',JSON.stringify({type:'feedback',event_id:'1'.repeat(32),contexts:{feedback:{message:''}}})],['user_report',JSON.stringify({event_id:'2'.repeat(32),comments:''})],['feedback',JSON.stringify({event_id:'3'.repeat(32),contexts:{feedback:{message:'x'.repeat(1001)}}})]];
+  const invalidFeedbackWire=invalidFeedbackItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
+  const wire=Buffer.concat([Buffer.from('{}\n{"type":"attachment","length":0}\n\n{"type":"attachment","length":4}\n'),Buffer.from([0,10,255,65]),Buffer.from('\n'+invalidFeedbackWire+'\n{"type":"session"}\n{}\n{"type":"statsd","length":4}\na:1c\n{"type":"statsd","length":4}\nb:1c\n{"type":"unexpected-vendor-kind"}\n{}\n{"type":"synthetic-spool-2"}\n{}\n{"type":"synthetic-spool-3"}\n{}\n{"type":"event"}\n'+JSON.stringify(event))]);
   const beforeDenied=(await json('/api/projects/wire/outcomes')).rows;
+  assert.equal((await req(path,'POST',Buffer.concat([wire,Buffer.from('\n{"type":"feedback","length":10}\nshort')]))).status,400);
+  assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeDenied,'malformed framing attributes no earlier diagnostic or invalid-item counters');
   for(const deniedKey of ['synthetic-spool-invalid',other.ingestKey]){
     assert.equal((await req(path.replace(key,deniedKey),'POST',wire,{Cookie:''})).status,401);
     assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeDenied,'invalid and foreign ingest grants attribute no item counters');
+    assert.deepEqual((await json('/api/projects/other/outcomes')).rows,[],'a foreign grant attributes no counters to its own project either');
   }
-  const accepted=await req(path,'POST',wire,{Origin:foreign,'Content-Type':'text/plain;charset=UTF-8'});assert.equal(accepted.status,200);assert.equal(accepted.headers.get('access-control-allow-origin'),foreign);const receipt=await accepted.json();assert.equal(receipt.id,event.event_id);assert.deepEqual(receipt.dropped,{sentry_unsupported_attachment:2,sentry_unsupported_statsd:2,sentry_unsupported_unknown:3},'one receipt per unsupported item; valid companion error continues');
+  const accepted=await req(path,'POST',wire,{Origin:foreign,'Content-Type':'text/plain;charset=UTF-8'});assert.equal(accepted.status,200);assert.equal(accepted.headers.get('access-control-allow-origin'),foreign);const receipt=await accepted.json();assert.equal(receipt.id,event.event_id);assert.deepEqual(receipt.dropped,{sentry_unsupported_attachment:2,feedback_invalid:4,feedback_oversized:1,sentry_unsupported_statsd:2,sentry_unsupported_unknown:3},'one receipt per unsupported item; valid companion error continues');
   assert.equal((await req(path,'POST',envelope(event))).status,200);assert.equal((await req(path,'POST',envelope({...event,message:'different raw input'}))).status,409);
   const groups=await json('/api/projects/wire/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,1);
   const packet=await json(`/api/projects/wire/issues/${groups[0].id}/packet`);assert.equal(packet.events[0].event.frames[0].line,2);assert.equal(packet.events[0].event.frames[0].column,2);assert.equal(packet.events[0].event.frames[0].debugId,'fixture-debug');for(const privateValue of ['PRIVATE_EVENT','PRIVATE_URL','PRIVATE_COOKIE','private@example.com','unexpected-vendor-kind'])assert.ok(!JSON.stringify(packet).includes(privateValue));
@@ -51,6 +56,8 @@ try{
   assert.equal(count('sentry_unsupported_other_telemetry'),0,'statsd is no longer pooled with other telemetry');
   assert.equal(count('accepted'),1,'unsupported items never create accepted error volume');
   assert.equal(count('sentry_unsupported_attachment'),2);assert.equal(count('session_invalid'),1);
+  assert.equal(count('feedback_invalid'),4);assert.equal(count('feedback_oversized'),1);
+  assert.deepEqual((await json('/api/projects/wire/feedback')).items,[],'malformed feedback creates no stored descriptions');
   const snapshot=await archiveProjection(await req('/api/archive'));
   const legacyData=structuredClone(snapshot.data);
   for(const row of legacyData.outcomes)if(row.reason==='sentry_unsupported_statsd')row.reason='sentry_unsupported_other_telemetry';
@@ -121,5 +128,5 @@ try{
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
-  console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
+  console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts despite malformed companion feedback, with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}

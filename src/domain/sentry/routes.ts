@@ -8,7 +8,7 @@ import { authorizeIngest, admitEvent, recordIngest, ingestBatch, ingestFailure, 
 import { ingestOrigin } from '../origins';
 import { sentryKey } from './auth.ts';
 import { convertSentry } from './convert.ts';
-import { feedbackInput } from '../feedback/input';
+import { feedbackInput, type FeedbackInput } from '../feedback/input';
 import { admitFeedback } from '../feedback/admission';
 import { clientReportCounts } from './client-reports';
 import { admitCheckIns } from '../checkins/intake';
@@ -47,8 +47,18 @@ routes.on('POST',paths,async c=>{
     // Parse ALL item byte boundaries before authenticating, counting or admitting anything.
     const envelope=store?{header:{},items:[{header:{type:'event'},bytes}]}:parseEnvelope(bytes);
     const auth=await sentryAuthority(c,envelope.header);if('response' in auth)return auth.response;scope=auth.scope;
-    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
+    const dropped=new Map<string,number>(),clientDiscarded=new Map<string,number>(),events=[],feedback:FeedbackInput[]=[],checkIns:typeof envelope.items=[],sessions:typeof envelope.items=[];
     let clientReports=0,invalidReports=0,filteredReports=0;
+    let invalidFeedback:SentryWireError|undefined;
+    const queueFeedback=async(bytes:Uint8Array,kind:'feedback'|'user_report',raw?:WireObject)=>{
+      try{feedback.push(await feedbackInput(raw??objectJson(bytes),kind,envelope.header.event_id))}
+      catch(error){
+        if(store||!(error instanceof SentryWireError))throw error;
+        invalidFeedback??=error;
+        const reason=error.status===413?'feedback_oversized':'feedback_invalid';
+        dropped.set(reason,(dropped.get(reason)??0)+1);
+      }
+    };
     for(const item of envelope.items){
       if(item.header.type==='client_report'){
         clientReports++;
@@ -57,7 +67,7 @@ routes.on('POST',paths,async c=>{
         continue;
       }
       if(item.header.type==='feedback'||item.header.type==='user_report'){
-        feedback.push(await feedbackInput(objectJson(item.bytes),item.header.type,envelope.header.event_id));continue;
+        await queueFeedback(item.bytes,item.header.type);continue;
       }
       if(item.header.type==='session'||item.header.type==='sessions'){sessions.push(item);continue}
       if(item.header.type==='check_in'){checkIns.push(item);continue}
@@ -67,7 +77,7 @@ routes.on('POST',paths,async c=>{
         if(store||!(error instanceof SentryWireError))throw error;
         dropped.set('invalid_item',(dropped.get('invalid_item')??0)+1);continue;
       }
-      if(raw.type==='feedback'){feedback.push(await feedbackInput(raw,'feedback',envelope.header.event_id));continue}
+      if(raw.type==='feedback'){await queueFeedback(item.bytes,'feedback',raw);continue}
       if(raw.type!==undefined&&!isErrorEventType(raw.type)){
         if(store)throw new SentryWireError('unsupported_event_type',422);
         const reason=unsupportedReason(typeof raw.type==='string'?raw.type:'unknown');dropped.set(reason,(dropped.get(reason)??0)+1);continue;
@@ -76,6 +86,9 @@ routes.on('POST',paths,async c=>{
       events.push({event:convertSentry(raw,envelope.header.event_id,raw.user!==undefined?'identity_'+identity.reason:undefined),digest:await hash(canonical(raw)),identity});
     }
     if(dropped.size||clientDiscarded.size)await ingestBatch(c,scope,[...dropped,...clientDiscarded].map(([reason,count])=>outcomeStatement(c.env.DB,scope!.project,reason,count)));
+    // Keep a standalone feedback refusal explicit; a bad companion item must
+    // not hide other item receipts or prevent a valid error from arriving.
+    if(invalidFeedback&&envelope.items.length===1){c.header('X-Sentry-Error',invalidFeedback.reason);return c.json({outcome:'rejected',reason:invalidFeedback.reason},invalidFeedback.status as any)}
     let id:string|undefined;
     for(const {event,digest,identity} of events){const response=await admitEvent(c,scope,event,digest,true,identity);if(!response.ok){const result=await response.json() as any;c.header('X-Sentry-Error',String(result.reason??result.outcome));return c.json(result,response.status as any)}id=event.eventId}
     const receipts=[];
