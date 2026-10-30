@@ -26,6 +26,7 @@ async function reportWorkbench(origin,project,from,to,expected){
   const assertEvents=data=>{assert.equal(data.total,expected.total);assert.deepEqual(data.rows.map(row=>row.id).sort(),expected.ids,'The table contains exactly the known events, including the release-less event');assert.equal(data.rows.find(row=>row.id===expected.noRelease).release,'');assert.equal(data.bounds.complete,true)};
   const run=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assertEvents(await(await run).json());await table.locator('tbody tr').nth(3).waitFor();assert.equal(await table.locator('tbody tr').count(),4);
   const saved=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/review/views')&&response.request().method()==='POST'&&response.status()===201);await table.getByRole('button',{name:/^Save query/}).click();const view=await(await saved).json();
+  const dashboardDownload=page.waitForEvent('download');await dashboard.getByRole('link',{name:'Export view JSON',exact:true}).click();assert.equal(await(await dashboardDownload).failure(),null);
   // Reopen from persisted definitions, after an unrelated draft proves that the
   // selected saved query, rather than the current inputs, supplies the results.
   await page.reload();await table.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await table.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
