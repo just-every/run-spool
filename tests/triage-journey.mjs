@@ -1,4 +1,5 @@
 import { operatorUi } from './operator-ui.mjs';
+import {archiveProjection} from './archive.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -16,7 +17,7 @@ async function journey(width) {
  const checked=name=>evidence.checks.push({width,name});
 try {
  const cookie=await signIn(origin);
- async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return response.json();}
+ async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
@@ -24,7 +25,7 @@ try {
   await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping&&!scenario.startsWith('operator-'),mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
