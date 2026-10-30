@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Field } from '../workbench/shared';
+import { settingsHref } from '../workbench/location';
 import { alertApi } from './client';
 
 export function AlertDestinations({project,rows,configuration,refresh}:{project:string;rows:any[];configuration:string;refresh:()=>void}) {
@@ -18,6 +19,6 @@ export function AlertDestinations({project,rows,configuration,refresh}:{project:
  <Field label="Destination email" type="email" required value={recipient} onChange={e=>setRecipient(e.target.value)} autoComplete="email"/>
  <p className="muted">Email addresses stay in this installation and are excluded from private archives. Changing an address updates its rules and stops queued deliveries to the old address. A send already in progress cannot be retracted. Local development suppresses all email, including tests. Webhooks require operator setup in the guide.</p>
  <div><button className="primary-button" disabled={busy}>{busy?'Working…':editing?'Save destination':'Add destination'}</button>{editing&&<button className="text-button" type="button" disabled={busy} onClick={clear}>Cancel destination edit</button>}</div></form>
- <p><a className="inline-link" href={`/projects/${encodeURIComponent(project)}/settings#slack-destinations`}>Manage Slack destinations in Settings</a></p>
+ <p><a className="inline-link" href={settingsHref(project, 'alerts')}>Manage Slack destinations in Settings</a></p>
  {error&&<p className="callout" role="alert">{error}</p>}{message&&<p className="callout" role="status">{message}</p>}</section>;
 }

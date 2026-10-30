@@ -1,9 +1,10 @@
 import { useRouter, useRouterState } from '@tanstack/react-router';
+import { settingsSections } from './settingsSections';
 export type View = 'issues' | 'releases' | 'capture' | 'settings' | 'alerts' | 'reports';
 export type Destination = { project: string; view: View; issue?: string; release?: string; section?: string; redirect?: boolean; unknown?: boolean };
 const views: string[] = ['issues', 'releases', 'capture', 'settings', 'alerts', 'reports'];
 /** Settings has one path per section; /settings opens the first section the role can see. */
-export const settingsSectionIds = ['keys-and-capture', 'grouping', 'releases-and-commits', 'users-and-feedback', 'alerts', 'reports', 'data', 'members', 'audit', 'imports-and-archive'];
+const settingsSectionIds = settingsSections.map(section => section.id);
 export function destination(path: string): Destination {
   if (path === '/') return { project: '', view: 'issues' };
   const parts = path.split('/').filter(Boolean);

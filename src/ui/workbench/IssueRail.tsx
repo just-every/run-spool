@@ -59,7 +59,8 @@ export function IssueMore({ project, packet, discussion, busy, request, run, ref
     <div id={body} className="more-body" hidden={!open}>
       <button type="button" className="menu-item" onClick={() => void run(async () => { await navigator.clipboard.writeText(new URL(hrefFor(project, 'issues', group.id), location.origin).href); setCopied(true); })}>{copied ? 'Link copied' : 'Copy link'}</button>
       {discussion.data?.canWrite && <><button type="button" className="menu-item" disabled={discussion.busy} onClick={() => void discussion.toggle()}>{discussion.subscribed ? 'Unsubscribe' : 'Subscribe'}</button><p className="meta">{discussion.subscription} Notifications are not sent yet.</p></>}
-      {!readOnly && <Details title="Archive issue" triggerClass="menu-item" trigger="Archive issue"><Suppression {...{ project, request, run, busy }} issue={group} onChange={refresh} /></Details>}
+      {/* A read-only role sees the archive itself (condition, reason, follow-up, history) without the form. */}
+      {readOnly ? <Suppression {...{ project, request, run, busy }} issue={group} onChange={refresh} readOnly /> : <Details title="Archive issue" triggerClass="menu-item" trigger="Archive issue"><Suppression {...{ project, request, run, busy }} issue={group} onChange={refresh} /></Details>}
     </div>
   </section>;
 }

@@ -7,7 +7,7 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser} from './team-browser.mjs';
+import {browserMembers,memberBrowser,readOnlyArchive} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -87,6 +87,17 @@ async function concurrentTriage(owner,first,second,reader,projects,issues) {
  const after=(await owner.json(projectRoot(projects[0])+'/issues')).find(row=>row.id===shared.id);
  assert.equal(after.revision,shared.revision+1,'the stale contender makes no second change');
  assert.ok(['resolved','open'].includes(after.state));
+}
+
+/** A read-only collaborator still sees an archived issue's archive on its issue page, without the archive form. */
+async function readOnlyArchiveView(owner,reader,project) {
+ const root=projectRoot(project),event={...nativeEvent('synthetic-spool-archive'),type:'SyntheticSpoolArchive',frames:[{file:'https://synthetic-spool.example/archive.js',function:'archive',line:1,column:0}]};
+ assert.equal(await status(owner.req('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+project.ingestKey})),201);
+ const issue=(await owner.json(root+'/issues')).find(row=>row.title.startsWith('SyntheticSpoolArchive'));assert.ok(issue);
+ const path=root+'/issues/'+issue.id+'/suppression',reason='synthetic-spool-archive-reason',suppression={mode:'until',reason,until:Date.now()+7*86400000};
+ const {version}=await owner.json(path),preview=await owner.json(path,'POST',{version,suppression,apply:false});
+ await owner.json(path,'POST',{version,suppression,apply:true,preview:preview.preview});
+ await readOnlyArchive({...reader,origin:owner.origin},project,issue,reason);
 }
 
 async function memberDeployment(owner,member,project) {
@@ -353,6 +364,7 @@ export async function teamFlow() {
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
+  await readOnlyArchiveView(owner,reader,projects[0]);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
   await revokedAuthority(owner,second,first,projects,issues[1]);
   for(const path of ['/api/reporting/items/'+reportingId,'/api/reporting/items/'+reportingId+'/export','/api/reports?projects='+projects[1].id])await denied(second.req(path),'member removal immediately fences reports, definitions and exports');

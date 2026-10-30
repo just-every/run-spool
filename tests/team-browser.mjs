@@ -97,3 +97,31 @@ export async function memberBrowser(actor,project,issue) {
   };
  }catch(error){await browser.close();throw error}
 }
+
+/** A read-only member opens an archived issue: More shows the archive itself (condition, reason, follow-up and
+ * history) and no archive form. */
+export async function readOnlyArchive(actor,project,issue,reason) {
+ const browser=await launchBrowser();
+ try {
+  const context=await browser.newContext({viewport:{width:1440,height:1000}});
+  const split=actor.cookie.indexOf('=');
+  await context.addCookies([{name:actor.cookie.slice(0,split),value:actor.cookie.slice(split+1),url:actor.origin.replace('http:','https:'),secure:true}]);
+  const page=await context.newPage();
+  await page.goto(actor.origin+'/projects/'+project.id+'/issues/'+issue.id);
+  await expect(page.getByRole('main')).toContainText(issue.title);
+  await page.getByRole('button',{name:'More',exact:true}).click();
+  const more=page.locator('.more-body'),archive=more.locator('.callout');
+  for(const text of ['Archived · until',reason,'Follow-up due '])await expect(archive).toContainText(text);
+  await more.locator('summary').filter({hasText:'Archive history (1)'}).click();
+  await expect(more.locator('details li')).toContainText('until · active');
+  for(const name of ['Archive condition','Archive reason'])await expect(page.getByLabel(name,{exact:true})).toHaveCount(0);
+  for(const name of ['Preview archive','Archive issue'])await expect(page.getByRole('button',{name,exact:true})).toHaveCount(0);
+  const folder=process.env.SPOOL_TEAM_EVIDENCE || '.artifacts/team';
+  await mkdir(folder,{recursive:true});
+  await page.locator('.rail-more').screenshot({path:resolve(folder,'read-only-archive-1440.png')});
+  await page.setViewportSize({width:390,height:900});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'the read-only archive fits the phone viewport');
+  await page.locator('.rail-more').screenshot({path:resolve(folder,'read-only-archive-390.png')});
+  await context.close();
+ }finally{await browser.close()}
+}

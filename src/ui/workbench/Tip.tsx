@@ -7,9 +7,13 @@ import './controls.css';
  * A disabled control keeps its tip (the host, not the control, takes the pointer). */
 export function Tip({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   const [shown, setShown] = useState(false), [place, setPlace] = useState<{ left: number; top: number } | null>(null);
-  const host = useRef<HTMLSpanElement>(null), tip = useRef<HTMLSpanElement>(null), timer = useRef(0);
-  const hide = () => { window.clearTimeout(timer.current); setShown(false); setPlace(null); };
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const host = useRef<HTMLSpanElement>(null), tip = useRef<HTMLSpanElement>(null), timer = useRef(0), frame = useRef(0);
+  const cancel = () => { window.clearTimeout(timer.current); cancelAnimationFrame(frame.current); };
+  const hide = () => { cancel(); setShown(false); setPlace(null); };
+  // Keyboard focus scrolls an off-screen control into view, and that scroll is dispatched on the next frame.
+  // Showing two frames after focus places the tip where the control landed; only a later scroll closes it.
+  const showAfterFocusScroll = () => { cancel(); frame.current = requestAnimationFrame(() => { frame.current = requestAnimationFrame(() => setShown(true)); }); };
+  useEffect(() => cancel, []);
   useEffect(() => {
     if (!shown) return;
     const key = (event: KeyboardEvent) => { if (event.key === 'Escape') hide(); };
@@ -26,7 +30,7 @@ export function Tip({ label, children, className }: { label: string; children: R
   return <span ref={host} className={`tip${className ? ' ' + className : ''}`}
     onPointerEnter={event => { if (event.pointerType !== 'mouse') return; window.clearTimeout(timer.current); timer.current = window.setTimeout(() => setShown(true), 300); }}
     onPointerLeave={hide}
-    onFocus={event => { if ((event.target as HTMLElement).matches(':focus-visible')) setShown(true); }}
+    onFocus={event => { if ((event.target as HTMLElement).matches(':focus-visible')) showAfterFocusScroll(); }}
     onBlur={hide}>
     {children}
     {shown && <span ref={tip} className="tip-text" role="tooltip" style={place ? { left: place.left, top: place.top } : { visibility: 'hidden' }}>{label}</span>}

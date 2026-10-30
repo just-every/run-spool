@@ -3,7 +3,7 @@ import { BrowserOrigins } from '../BrowserOrigins';
 import { captureException } from '../../domain/capture';
 import { Details } from './Details';
 import { CaptureReceipts, requiresRelease, receiptLabel } from './CaptureReceipts';
-import { hrefFor } from './location';
+import { hrefFor, settingsHref } from './location';
 import { Field, useDraft, type Request, type Run } from './shared';
 import { captureStatus, type CaptureOutcomes } from './captureStatus';
 import { SdkSetup, SentryIntake } from './SdkSetup';
@@ -30,7 +30,7 @@ export function CaptureView({ project, releases, issues, outcomes, busy, request
     {manageProject && <BrowserOrigins key={project} project={project} busy={busy} request={request} run={run} />}
     <section className="evidence"><h2>{manageProject ? '3.' : '2.'} Connect your application</h2>
       {endpoint ? <SdkSetup endpoint={endpoint} project={project} ingestKey="YOUR_INGEST_KEY" release={release?.name ?? 'REGISTERED_RELEASE'} build={release?.build ?? 'REGISTERED_BUILD'} /> : <p>Preparing your service endpoint…</p>}
-      <p className="muted">Use the ingest key shown when you created the project, or create one in <a className="inline-link" href={hrefFor(project, 'settings')}>Settings</a>. No bundler? Download <a className="inline-link" href="/errors-capture.js" download="errors-capture.js">the browser capture file</a> and call its <code>installBrowserCapture</code> with the same options.</p>
+      <p className="muted">Use the ingest key shown when you created the project, or create one in <a className="inline-link" href={settingsHref(project, 'keys-and-capture')}>Settings</a>. No bundler? Download <a className="inline-link" href="/errors-capture.js" download="errors-capture.js">the browser capture file</a> and call its <code>installBrowserCapture</code> with the same options.</p>
       <SentryIntake />
     </section>
     <section className="evidence"><h2>{manageProject ? '4.' : '3.'} Verify capture</h2><p>Trigger an error in your application; it will appear above. Or send a test from this browser.</p><form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {

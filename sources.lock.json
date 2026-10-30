@@ -4597,7 +4597,7 @@
       "executable": false
     },
     "src/auth/document-path.ts": {
-      "sha256": "54df5adeee779c805ed62a3f625a5e72fc7b5d5a6fbab57fc1deb608e2c2df61",
+      "sha256": "dc39746c4ec74dd6808a8ccac6b030f409bea6c39b214fdffb44629502223355",
       "executable": false
     },
     "src/auth/local.server.mjs": {
@@ -8097,7 +8097,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
-      "sha256": "f9ffca3b6b28770bf69802bb46c27543832c9ad86be863f615f18c6be6986ca0",
+      "sha256": "03698aacf728f0010805723d7a77630a049b55ba217fd991b847b70a36184538",
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
@@ -8277,7 +8277,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureView.tsx": {
-      "sha256": "a4371c3f329a41e753f09dac165d3dfa14f3cbe432ce877c28ffec6900286214",
+      "sha256": "935c497c60f0fd3a52742a2b005ec7510071725cd9ea95aa02d30aa5e4a4466f",
       "executable": false
     },
     "src/ui/workbench/CheckInLink.tsx": {
@@ -8409,7 +8409,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueRail.tsx": {
-      "sha256": "1f0071335d74e794b70f962528b28c75764784706318b8a3be75dea722cc3d3a",
+      "sha256": "95bb9c80b146f9b6f3f5c447da6c15b01e0289af07c85865190626085dfdd4db",
       "executable": false
     },
     "src/ui/workbench/issues.css": {
@@ -8437,7 +8437,7 @@
       "executable": false
     },
     "src/ui/workbench/location.ts": {
-      "sha256": "409c03c4d5aee66820da1e090414d8761f6dd9ca12d72d9f836511f54f1e76f7",
+      "sha256": "8446dc47b216f3126d731839c5c060329fdd834f542b7c5e51578715b2fe9486",
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
@@ -8609,11 +8609,11 @@
       "executable": false
     },
     "src/ui/workbench/settingsSections.ts": {
-      "sha256": "950a191f1f04f29ac1abc3fc60e976b5c3aa3eca4a2b3408668dc824694e5815",
+      "sha256": "650429927170a39e73e715c73f9f2ff556d8742b1e76ace4a15c7de63e29fc96",
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "97d6a90ec9f3ad40bee8426ae85fda8c41af402871fc382c7728cb4cf32f4b3b",
+      "sha256": "bac11fb5cec18502116f9481827651b84f54ec57385b18afa026aaeccc0beff7",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -8645,7 +8645,7 @@
       "executable": false
     },
     "src/ui/workbench/Tip.tsx": {
-      "sha256": "07aa14fb61b4e65019f5598391494b6b3c46ce306a6b9bf4e57322cdbad6d389",
+      "sha256": "346cce33981ba5705150a4d922ccc48b30da9f6e318be40f15f82bdbfda305ae",
       "executable": false
     },
     "src/ui/workbench/useAutoPreview.ts": {
@@ -9193,7 +9193,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "becf2ce5eed112192346a5206c0b72f70d7e57691a8653c756c22e7301164cda",
+      "sha256": "9eba7b50b789454df622ff015c8f2964ef419a1b0eae062b8bbdbb0be91b5b6b",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
@@ -9485,11 +9485,11 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "dc58eb44a9ffc422d93019dd067479549920027ce64808c4d479e82c83bb6110",
+      "sha256": "f890bf008bb9bb8dcef57dfcc105e7430e670f7bed0a8bbd8ec4275b32256f8b",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "7a9f0f1e2eda495570f37a5c2b205c42c33be9eaf7577b92b692cef50ac4c5ae",
+      "sha256": "58a1e34b05f3ebba95c010e2b2ae7b18b26a01e9c6a01f51a7bb7b1701f7f382",
       "executable": false
     },
     "tests/triage-app.mjs": {

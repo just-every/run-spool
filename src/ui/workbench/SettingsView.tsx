@@ -9,7 +9,7 @@ import { CommitSharing } from './CommitSharing';
 import { GroupingRules } from './GroupingRules';
 import { GroupingProposals } from './GroupingProposals';
 import { useEffect, useState, type ReactNode } from 'react';
-import { useRouter } from '@tanstack/react-router';
+import { useRouter, useRouterState } from '@tanstack/react-router';
 import { ArchiveSettings } from './ArchiveSettings';
 import { RetentionSettings } from './RetentionSettings';
 import { ProjectErasure } from './ProjectErasure';
@@ -29,11 +29,12 @@ import { Members, type OrganizationAccess } from './Members';
 import './settings.css';
 
 /** Settings, one section per path: the section list beside one section's content. Every part keeps today's role
- * check; a section shows when the role sees one of its parts, and /settings opens the first such section. */
+ * check; a section shows when the role sees one of its parts, and /settings opens the first such section (or, for an
+ * old one-page anchor such as /settings#slack-destinations, the section that now holds it). */
 export function SettingsView({ section, canonical, project, projects, keys, releases, request, run, busy, refresh, onCreated, onKey, access, revision }: {
   section?: string; canonical: boolean; access: OrganizationAccess; revision: number; project: string; projects: any[]; keys: any[]; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void; onCreated: (project: any) => void; onKey: (grant: { key: string; dsn?: string; kind: string }) => void;
 }) {
-  const router = useRouter();
+  const router = useRouter(), hash = useRouterState({ select: state => state.location.hash });
   const [endpoint, setEndpoint] = useState('');
   const [rulePreview, setRulePreview] = useState<any>(null);
   const [proposalVersion, setProposalVersion] = useState(0);
@@ -44,8 +45,9 @@ export function SettingsView({ section, canonical, project, projects, keys, rele
   const configure = organizationManager || projectRole === 'maintainer';
   const credentialKinds = configure ? ['ingest', 'agent', 'deploy'] : projectRole === 'member' ? ['deploy'] : [];
   const visible = settingsSections.filter(item => item.visible({ project: !!project, configure, manager: organizationManager, owner }));
-  const current = visible.find(item => item.id === section) ?? visible[0];
-  useEffect(() => { if (canonical && project && current && section !== current.id) void router.navigate({ to: settingsHref(project, current.id), replace: true } as any); }, [canonical, project, section, current?.id]);
+  const anchored = section ? undefined : visible.find(item => hash && item.anchors?.includes(hash));
+  const current = visible.find(item => item.id === section) ?? anchored ?? visible[0];
+  useEffect(() => { if (canonical && project && current && section !== current.id) void router.navigate({ to: settingsHref(project, current.id), hash: anchored ? hash : undefined, replace: true } as any); }, [canonical, project, section, current?.id]);
   const create = organizationManager && <section className="evidence" key="create"><SectionHead title={projects.length ? 'Create another project' : 'Create your first project'} about={<p>{projectDefaultsNote}</p>} /><ProjectForm {...{ request, run, busy, onCreated }} note={false} /></section>;
   const parts: Record<string, ReactNode> = {
     'keys-and-capture': <>
