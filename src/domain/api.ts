@@ -56,7 +56,8 @@ import { decodeShortIds, resolveIssue, shortIdColumnsSql } from './short-ids/loo
 type Bindings = OwnerBindings & AlertEnvironment;
 import { normalize, identity, hash, token, scrub, canonical } from './privacy';
 import { ownerAlert, ownerIssue } from './stored-text';
-import { portability, archiveStream, restoreStream } from './portability';
+import { archiveStream, restoreStream } from './portability';
+import { portability } from './portability-worker';
 import { PortabilityError } from '../modules/portability/index.mjs';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
 import { nativeBody } from './native-wire';

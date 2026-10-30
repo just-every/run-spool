@@ -39,6 +39,9 @@ import { shortIdTables } from './short-ids/archive';
 import { commitTables } from './commits/archive';
 import { sentryCliTables, sentryCliExcludedTables } from './sentry-cli/archive';
 import { ensureShortIds } from './short-ids/assign';
+import type { ArchivePolicy, MigrationReplay } from '../modules/portability/index.mjs';
+
+export type MigrationProvider = (db: D1Database, policy: ArchivePolicy) => Promise<MigrationReplay>;
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
@@ -58,17 +61,18 @@ export const portabilityPolicy = {
 // Current archives carry the safe audit chronology as a payload. Previous
 // formats have none; restoring one uses the payload-free policy, and the
 // restore commit gives its journal rows legacy facts instead.
-export async function portability(db: D1Database, safeAudit = true) {
+export async function portability(db: D1Database, safeAudit = true, migrationProvider?: MigrationProvider) {
  const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
- const service = await createPortability({ db, policy });
+ const migrations = migrationProvider ? () => migrationProvider(db, policy) : undefined;
+ const service = await createPortability({ db, policy, migrations });
  const exports=orderedReleaseExports(service.exports);
- return { ...service, db, exports, status:async(id:string)=>{
+ return { ...service, db, migrationProvider, exports, status:async(id:string)=>{
   const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
  }, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
-   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
+   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) }, migrations }) : service;
    return checked.imports.finalize(id, options);
   },
  } };
@@ -237,7 +241,7 @@ async function templateManifest(service:any){
  return manifest;
 }
 async function legacyRecords(input: any, value: unknown) {
- const service=await portability(input.db,false),legacy=await validateArchive(value);
+ const service=await portability(input.db,false,input.migrationProvider),legacy=await validateArchive(value);
  const data:Record<string,any[]>={...legacy,...Object.fromEntries(deliveryTables.map(table=>[table,[]])),alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
@@ -287,13 +291,13 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
  // Only a current or later-additive archive carries the journal identity a later archive can extend.
  if(laterJournal&&(first?.kind!=='manifest'||isPreviousSchema(first.schema)))throw new PortabilityError('later_journal');
  if(first?.kind==='manifest'&&isPreviousSchema(first.schema)){
-  const previous=await readPreviousArchive(input),legacy=await portability(service.db,false);
+  const previous=await readPreviousArchive(input),legacy=await portability(service.db,false,service.migrationProvider);
   const normalized=await normalizePreviousArchive(previous,await templateManifest(legacy));
   return restoreRows(legacy,normalized.data,normalized.manifest);
  }
  if (first?.kind === 'manifest') {
   const carried = Array.isArray(first.payloads) && first.payloads.some((payload: any) => payload?.name === SAFE_AUDIT_PAYLOAD);
-  return importRecords(carried ? service : await portability(service.db, false), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
+  return importRecords(carried ? service : await portability(service.db, false, service.migrationProvider), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
  }
  const legacyReader = input.getReader(); let count = 0, text = ''; const decoder = new TextDecoder();
  try {

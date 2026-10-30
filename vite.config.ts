@@ -7,6 +7,7 @@ import { documentBoundary } from './vite/document-boundary'
 import { excludeLocalVariables } from '@runeditrun/rer/local-variables-output'
 import { docsSite } from './vite/docs-site'
 import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
+import { legacyMigrationEvidence } from '@runeditrun/rer/portability-evidence'
 
 // Only `vite dev` loads the local-only entry and the checkout's dev key; a build keeps src/server.ts
 // and never sees either (rer build checks its output).
@@ -25,5 +26,5 @@ export default defineConfig(({ command, isPreview }) => ({
   // .dev.vars that arrives while dev serves (a late file-watch delivery for setup's own write)
   // would make the Cloudflare plugin restart the dev server and drop every request in flight.
   server: { cors: false, fs: { strict: true, allow, deny }, watch: { ignored: ['**/.dev.vars', '**/.dev.vars.*'] } },
-  plugins: [demoSockets(), documentBoundary(), cloudflare({ inspectorPort: false, viteEnvironment: { name: 'ssr' }, persistState: { path: process.env.RER_STATE_DIR ?? '.wrangler/state' }, ...(command === 'serve' && !isPreview ? { config: serve } : process.env.RER_DEV_ORIGIN ? { config: { vars: local('RER_DEV_ORIGIN') } } : {}) }), tanstackStart(), react(), excludeLocalVariables(), docsSite(), archiveOutputGuard()],
+  plugins: [demoSockets(), documentBoundary(), cloudflare({ inspectorPort: false, viteEnvironment: { name: 'ssr' }, persistState: { path: process.env.RER_STATE_DIR ?? '.wrangler/state' }, ...(command === 'serve' && !isPreview ? { config: serve } : process.env.RER_DEV_ORIGIN ? { config: { vars: local('RER_DEV_ORIGIN') } } : {}) }), tanstackStart(), react(), excludeLocalVariables(), docsSite(), archiveOutputGuard(), legacyMigrationEvidence()],
 }))

@@ -7,6 +7,7 @@ import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
+import {migrationEvidence} from './migration-evidence.mjs';
 
 // Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -22,7 +23,7 @@ const documentStub={name:'document-stub',setup(build){
  build.onLoad({filter:/^docs$/,namespace:'stub'},()=>({loader:'js',contents:"export const repository='';export default {repository:'',sections:[],pages:[]}"}));
  build.onLoad({filter:/^document$/,namespace:'stub'},()=>({loader:'js',contents:"export default {fetch:async()=>new Response('<!doctype html><title>Spool</title><body>document</body>',{headers:{'content-type':'text/html'}})}"}));
 }};
-const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
+const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub,migrationEvidence],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
 
 // The linked Auth install's published key, the only network edge: a loopback JWKS.
 const {publicKey,privateKey}=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
