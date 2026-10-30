@@ -444,6 +444,9 @@ export async function teamFlow() {
   const ownerAssigned=await first.json(ownerAssignmentPath),ownerFact=ownerAssigned.history[0];
   assert.equal(ownerAssigned.current.member,predecessor.id,'the original installation owner holds the issue assignment before handoff');
   const predecessorCookie=await emailSignIn(origin,testOwner);
+  const formerAgentEnv=agentEnvironment(origin,projects[0],transferKeys.agent.key);
+  assert.equal((await cli(['packet',issues[0].id,'--format','json'],formerAgentEnv)).code,0,'the assigned owner grant reaches the official CLI before handoff');
+  await mcpDoor(origin,projects[0],transferKeys.agent.key,issues[0].id,true);
   await captureAfterTransfer('before');
   await owner.json(organization+'/transfer','POST',{member:successor.id,version:successor.version});
   await captureAfterTransfer('after');
@@ -471,8 +474,13 @@ export async function teamFlow() {
    const reassigned=await first.json(ownerAssignmentPath);
    assert.equal(reassigned.current.member,first.member.id);assert.ok(reassigned.history.some(row=>row.target.alias===ownerFact.target.alias&&row.target.active===false));
    for(const actor of [formerActor,client(origin,predecessorCookie)])for(const path of [ownerAssignmentPath,projectRoot(projects[0])+'/issues/'+issues[0].id+'/packet',projectRoot(projects[0])+'/issue-export?format=json'])await denied(actor.req(path),'neither the pre-transfer nor the freshly signed-in former owner regains evidence after removal and reassignment');
+   assert.notEqual((await cli(['packet',issues[0].id,'--format','json'],formerAgentEnv)).code,0,'reassignment never restores the former owner CLI credential');
+   await mcpDoor(origin,projects[0],transferKeys.agent.key,issues[0].id,false);
+   for(const suffix of ['/issue-export?format=json','/issue-export?format=csv'])await denied(next.req(projectRoot(projects[0])+suffix,'GET',undefined,{Cookie:'',Authorization:'Bearer '+transferKeys.agent.key}),'the removed owner grant cannot export after reassignment');
+   await denied(formerActor.req(ownerAssignmentPath,'PATCH',{revision:reassigned.revision,member:first.member.id}),'the removed owner cannot write another assignment');
+   assert.deepEqual(await first.json(ownerAssignmentPath),reassigned,'removed owner transports change neither the reassigned issue nor its history');
    await formerBrowser.removed();
-   console.log('PROBE TEAM-002 owner handoff: assign original owner, transfer, remove, reassign through issue control -> safe chronology retained; fresh and old former-owner sessions remain denied');
+   console.log('PROBE TEAM-002 owner handoff: assign original owner, transfer, remove, reassign through issue control -> safe chronology retained; fresh and old former-owner sessions, CLI, MCP and exports remain denied');
   } finally {await historyBrowser.close();await formerBrowser.close()}
   const project=projects[0],base=projectRoot(project),dsn=new URL(project.dsn);
   assert.equal(await status(next.req('/api/ingest/'+project.id,'POST',nativeEvent('synthetic-transfer-removed'),{Cookie:'',Authorization:'Bearer '+project.ingestKey})),401,'removing the former owner stops that SAME capture key');
