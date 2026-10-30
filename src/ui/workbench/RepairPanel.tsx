@@ -48,7 +48,7 @@ function RepairRecord({ project, repair, releases, busy, write, request }: { pro
   const label = `repair-${repair.id}`;
   return <article className="repair" aria-labelledby={label}>
     <h3 id={label}><a href={repair.link} target="_blank" rel="noopener noreferrer">{repair.link}</a></h3>
-    <p className="repair-meta">Recorded by the owner {date(repair.created)}. The link is shown as text you can open; Spool never fetches it.</p>
+    <p className="repair-meta">Recorded by {repair.recordedBy === 'owner' ? 'the owner' : repair.recordedBy} {date(repair.created)}. The link is shown as text you can open; Spool never fetches it.</p>
     {repair.note && <p>{repair.note}</p>}
     <div className={`callout verdict ${o.verdict}`}><strong>Verdict: {verdicts[o.verdict] ?? o.verdict}</strong>
       <ul>{o.reasons.map((reason: any) => <li key={reason.code}>{reason.reason}</li>)}</ul>

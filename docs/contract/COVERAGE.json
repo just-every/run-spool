@@ -6369,8 +6369,12 @@
       "file": "ACCEPTANCE.md",
       "line": 13,
       "text": "**ERR-001 — Bounded admission. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-001"
+      ],
+      "note": "ERR-001 historical Status header; the ERR-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6383,15 +6387,20 @@
       "file": "ACCEPTANCE.md",
       "line": 15,
       "text": "Current evidence: `src/domain/admission.ts`; `src/domain/capture.ts`; `migrations/core/0008_occurrence_identity.sql`; `tests/product-runtime.mjs`; `tests/multilingual.mjs` Python/Go tests use constructed envelopes; broad runtime SDK compatibility is SDK-001 and SDK-012 to SDK-019. Removing the 120-a-minute and 10,000-retained limits is GOV-003.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:17. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 17,
       "text": "**ERR-002 — Atomic acceptance. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-002"
+      ],
+      "note": "ERR-002 historical Status header; the ERR-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6404,15 +6413,23 @@
       "file": "ACCEPTANCE.md",
       "line": 19,
       "text": "Current evidence: `src/domain/admission.ts`; `src/domain/capture.ts`; `tests/product-runtime.mjs`",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-002"
+      ],
+      "note": "ERR-002 historical Evidence/Gap header; the ERR-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 21,
       "text": "**ERR-003 — Scrub before storage. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-003"
+      ],
+      "note": "ERR-003 historical Status header; the ERR-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6425,15 +6442,20 @@
       "file": "ACCEPTANCE.md",
       "line": 23,
       "text": "Current evidence: `src/domain/privacy.ts`; `src/domain/scrub.ts`; `tests/privacy-table.mjs` Coverage is the present native/Sentry projection; new context and replay controls remain unfinished.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:25. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 25,
       "text": "**ERR-004 — Separated authority. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-004"
+      ],
+      "note": "ERR-004 historical Status header; the ERR-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6446,15 +6468,23 @@
       "file": "ACCEPTANCE.md",
       "line": 27,
       "text": "Current evidence: `src/domain/api.ts`; `src/domain/credential-fence.ts`; `src/domain/agent-access.ts`; `tests/agent-handoff.mjs`; `tests/dev-credentials.mjs`",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-004"
+      ],
+      "note": "ERR-004 historical Evidence/Gap header; the ERR-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 29,
       "text": "**ERR-005 — Source map identity. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-005"
+      ],
+      "note": "ERR-005 historical Status header; the ERR-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6467,8 +6497,9 @@
       "file": "ACCEPTANCE.md",
       "line": 31,
       "text": "Current evidence: `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs` Indexed maps, `sourceRoot` and published capacity are SRC-004; broader artifact processing is SRC-001 and SDK-002.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-005 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:33. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6481,8 +6512,12 @@
       "file": "ACCEPTANCE.md",
       "line": 35,
       "text": "**ERR-006 — Audited triage and regression. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-006"
+      ],
+      "note": "ERR-006 historical Status header; the ERR-006 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6495,15 +6530,20 @@
       "file": "ACCEPTANCE.md",
       "line": 37,
       "text": "Current evidence: `src/domain/admission.ts`; `src/domain/releases/order.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`; `tests/release-identity-flow.mjs` Resolve in the current release retains its registered native watermark and older-release protection; SDK-009 now also implements plain, current, next and named owner/bulk Resolve and automatic Sentry releases. TEAM-003 inherits collaborative discussion, priority, suppression and recurrence-policy controls. REL-001 now shares the SDK-009 first-seen/semver/registered total order across release lists, latest selection and Sentry regression; other SDK-009 gaps remain as stated there.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-006 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:39. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 39,
       "text": "**ERR-007 — Sanitized evidence packet. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-007"
+      ],
+      "note": "ERR-007 historical Status header; the ERR-007 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6516,15 +6556,23 @@
       "file": "ACCEPTANCE.md",
       "line": 41,
       "text": "Current evidence: `src/domain/packet.ts`; `src/domain/agent-projection.ts`; `packages/agent/bin/spool-agent.mjs`; `tests/agent-handoff.mjs`",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-007"
+      ],
+      "note": "ERR-007 historical Evidence/Gap header; the ERR-007 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 43,
       "text": "**ERR-008 — Loss counters and repair observation. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-008"
+      ],
+      "note": "ERR-008 historical Status header; the ERR-008 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6537,15 +6585,20 @@
       "file": "ACCEPTANCE.md",
       "line": 45,
       "text": "Current evidence: `src/domain/repairs/observation.ts`; `src/domain/exposure/proof.ts`; `src/domain/sentry/client-reports.ts`; `tests/client-report-flow.mjs`; `tests/repair-recovery.mjs` Windowed server receipts and SDK-reported error discards are explicit loss inputs; reported discarded errors prevent a quiet feed from proving a repair. Existing revision-fenced manual repair observation remains. Unknown pre-transport loss, full session denominators and live agent proof remain gaps.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-008 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:47. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 47,
       "text": "**ERR-009 — Archive, restore and retention. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-009"
+      ],
+      "note": "ERR-009 historical Status header; the ERR-009 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6560,8 +6613,9 @@
       "file": "ACCEPTANCE.md",
       "line": 49,
       "text": "Current evidence: `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs` This is the retained Base portability replacement: source/maps are portable; installation authority and executable grants are not. Scheduled policies are GOV-002; streaming archives above 10,000 events or 20 artifacts per project are GOV-003 and SRC-004.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-009 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:51. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6574,8 +6628,12 @@
       "file": "ACCEPTANCE.md",
       "line": 53,
       "text": "**ERR-010 — Release gates. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERR-010"
+      ],
+      "note": "ERR-010 historical Status header; the ERR-010 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6588,15 +6646,20 @@
       "file": "ACCEPTANCE.md",
       "line": 55,
       "text": "Current evidence: `tests/triage-journey.mjs`; `tests/agent-handoff.mjs`; `tests/repair-recovery.mjs`; `tests/execution-journey.mjs` Local journeys exist; full target, hosted/provider and native-device acceptance remain open.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ERR-010 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:57. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 57,
       "text": "**OPS-001 — Base commands and native admission. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "OPS-001"
+      ],
+      "note": "OPS-001 historical Status header; the OPS-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6609,15 +6672,20 @@
       "file": "ACCEPTANCE.md",
       "line": 59,
       "text": "Current evidence: `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs` Local command behavior is implemented; actual owner-account deployment and provider acceptance are separate gates.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "OPS-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:61. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 61,
       "text": "**BASE-DATA-003 — Project and installation-owner erasure. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ERASE-001"
+      ],
+      "note": "BASE-DATA-003 historical Status header; the ERASE-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6630,15 +6698,20 @@
       "file": "ACCEPTANCE.md",
       "line": 63,
       "text": "Current evidence: `src/domain/erasure/declaration.ts`; `src/domain/erasure/owner-declaration.ts`; `src/modules/erasure`; `tests/project-erasure.mjs`; `tests/project-erasure-cap.mjs`; `tests/owner-erasure.mjs` Done for the current declared store and exact-identifier policy, including the current feedback, filter/grouping policy and release stores. Completion is measured at 10,000 retained events within 300 seconds; GOV-003 retains the 150,000-event and higher-volume obligation. Future mobile/replay stores must join the declaration before release. CONTRACT.md's retained custody section preserves successor transfer, holds, resume/write freezes, anonymized audit, journal fences and external-copy limits.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "BASE-DATA-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:65. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 69,
       "text": "**TEAM-001 — Organizations, members and project permissions. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-001"
+      ],
+      "note": "TEAM-001 historical Status header; the TEAM-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6653,8 +6726,9 @@
       "file": "ACCEPTANCE.md",
       "line": 71,
       "text": "Current evidence: `src/auth/session.server.ts`; `src/domain/owner-authority.ts`; `tests/owner-erasure.mjs` Only one active owner and isolated projects exist. Successor invitation is transfer, not team membership.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TEAM-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:73. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6700,8 +6774,12 @@
       "file": "ACCEPTANCE.md",
       "line": 80,
       "text": "**TEAM-002 — Accountable assignment and ownership rules. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-002"
+      ],
+      "note": "TEAM-002 historical Status header; the TEAM-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6714,15 +6792,20 @@
       "file": "ACCEPTANCE.md",
       "line": 82,
       "text": "Current evidence: `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TEAM-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:84. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 84,
       "text": "**TEAM-003 — Collaborative lifecycle and bulk triage. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-003"
+      ],
+      "note": "TEAM-003 historical Status header; the TEAM-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6735,15 +6818,20 @@
       "file": "ACCEPTANCE.md",
       "line": 86,
       "text": "Current evidence: `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/BulkTriage.tsx`; `src/domain/releases/routes.ts`; `tests/bulk-triage-flow.mjs`; `tests/release-identity-flow.mjs`; `docs/BULK-TRIAGE.md` Owner search results support page selection, preview and atomic acknowledge, reopen, current-release and plain resolution with project/revision/occurrence/authority fences and per-issue audit. Single-issue literal suppression and split/merge corrections remain. Comments, member assignment, manual priority, next/named resolution and collaborative recurrence/suppression policies remain absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TEAM-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:88. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 88,
       "text": "**TEAM-004 — Issue short IDs and resolution from commits and pull requests. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-004"
+      ],
+      "note": "TEAM-004 historical Status header; the TEAM-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6756,15 +6844,17 @@
       "file": "ACCEPTANCE.md",
       "line": 90,
       "text": "Proved journey **TEAM-004 short IDs, commit citations, resolution and unknown-ID link log**, through owner, deploy-key and agent HTTP, Sentry SDK envelopes, the agent CLI and MCP, private archive restore, retention and project/owner erasure doors, and the emitted app at 1440 and 390: issues receive stable per-project short IDs (`CHECKOUT-WEB-1`) shown in the issue list and view, found by search in any case, carried by JSON/CSV exports, packets, `spool-agent issues`/`packet <SHORT-ID>`, MCP `get_packet`, alert email and webhook bodies and digests. A deploy-key release registration with two citing commits (`fixes checkout-web-1`, `CLOSES CHECKOUT-WEB-2`) links both issues at once on their **Commits and resolution** timelines and resolves them in that release with commit SHA and author (PR empty); the same registration repeated adds nothing; a deployment start with a commit object resolves in its release. `Fixes BILLING-1` (another project), `Resolves NOPE-9` and `Fixes CHECKOUT-WEB-ZZ` (unknown) and a citation of imported history (inaccessible) change nothing and appear in the owner's repository link log with literal citation, SHA and reason. A newer-release occurrence regresses the issue with one regression alert carrying short ID and SHA; an older-release occurrence does not; a stale owner triage after resolution is refused. An auto-created release named by a commit's full SHA resolves the issue when that commit arrives later and the SHA release orders first. An SDK SHA release admitted after the registration that delivered its commit is associated with it (`sha_release`) while the earlier resolution, its revision and older-release protection stand, and an occurrence in it regresses the issue once. Merging moves the absorbed short ID to the survivor as an alias for packets, search, citations and deep links; splitting gives the split-out issue a new ID; guarded undo restores the mapping. Packets, agent alerts and exports omit author and message until the owner's audited sharing choice is on; packets, agent alerts and exports then carry them. A retention pass removes author and message (SHA, link and resolution stay; alert email, outbox and webhook copies lose them, and pending deliveries are cancelled `retention_removed`); project erasure removes every new store and retires the prefix; owner erasure replaces the owner as commit author with `[erased]`. A private archive restores every short ID, alias, link and resolution byte-identical with no resolution re-run, and a populated v0.6.0 upgrade keeps every row while migration 0059 numbers its issues exactly as a restore of its archive does.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TEAM-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:92. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 92,
       "text": "Current evidence: `src/domain/short-ids/`; `src/domain/commits/`; `migrations/core/0059_short_ids_commit_citations.sql`; `src/ui/workbench/CommitTimeline.tsx`; `src/ui/workbench/RepositoryLinkLog.tsx`; `src/ui/workbench/CommitSharing.tsx`; `tests/release-identity-flow.mjs` (run by `tests/sentry-http.mjs`); `tests/operator-flow.mjs`; `tests/agent-handoff.mjs`; `tests/alerts-runtime.mjs`; `tests/alerts/delivery-flow.mjs`; `tests/sentry-import.mjs`; `tests/old-archive.mjs`; `tests/project-erasure.mjs`; `tests/owner-erasure.mjs`; `docs/SHORT-IDS.md`. Retained 1440/390 states: `docs/retained-verification/team004/`.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TEAM-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:94. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6786,8 +6876,12 @@
       "file": "ACCEPTANCE.md",
       "line": 98,
       "text": "**TEAM-005 — Per-member notification settings and issue subscriptions. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-005"
+      ],
+      "note": "TEAM-005 historical Status header; the TEAM-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6800,8 +6894,12 @@
       "file": "ACCEPTANCE.md",
       "line": 100,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TEAM-005"
+      ],
+      "note": "TEAM-005 historical Evidence/Gap header; the TEAM-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6814,8 +6912,12 @@
       "file": "ACCEPTANCE.md",
       "line": 107,
       "text": "**SDK-001 — Multi-language SDKs and DSN-compatible intake: browser JavaScript and Node.js. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-001"
+      ],
+      "note": "SDK-001 historical Status header; the SDK-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6891,71 +6993,84 @@
       "file": "ACCEPTANCE.md",
       "line": 120,
       "text": "Current evidence: [SDK-001] `tests/sdk-runtimes.mjs node` (push Verify `runtime (node)`) and `tests/sentry-sdk.mjs` (push Verify sdk shard), using unmodified `@sentry/node` and `@sentry/browser` 11.6.0. Each qualification program runs against the reference collector and Spool with only its DSN changed.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:122. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 121,
       "text": "Q1/Q2: `tests/runtimes/node/app.mjs` uses manual capture and the default uncaught-exception integration; `tests/runtimes/browser/app.js` uses manual capture and the default global handler. Both persist through the public API; the issue UI is read at 1440 and 390.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:123. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 122,
       "text": "Q3: `tests/sdk-runtimes.mjs` asserts the restarted Node process groups into the same issue; `tests/runtimes/browser.mjs` asserts handled and automatic failures group across reloads, with unique occurrence IDs and exact reference error counts.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:124. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 123,
       "text": "Q4: the same journeys reconcile every reference item with persisted or category/reason-counted outcomes. Default integrations remain active; Node sends sessions, spans, logs, attachments and feedback; the browser also sends transactions, replay events/recordings and the actual feedback widget submission. Sessions, tracing, logs, replay and attachments remain counted as unsupported, with storage owned by SDK-025.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:125. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 124,
       "text": "Q5: both journeys compare release/dist with the SDK-sent identity and assert automatic release creation. `tests/sentry-sdk.mjs` resolves the real browser failure to its original source line with the build-plugin map and CLI upload, at 1440 and 390.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:126. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 125,
       "text": "Q6: Node flush reports and browser lifecycle reports reconcile into `client_discarded:error:before_send` through BILL-001's project outcomes usage door. `tests/client-report-sdk.mjs` minimizes the actual headless window after releasing the pinned Playwright session's focus lock; the SDK's own visibility listener emits the report. Before reloading, its bounded reason and exact quantity must appear in the reference collector or Spool outcomes. No synthetic DOM event or constructed report is used.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:127. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 126,
       "text": "Q7: `tests/sdk-runtimes.mjs` proves wrong-key and undeliverable Node events create nothing; `tests/sentry-sdk.mjs` retains browser release refusal and filter assertions with no accepted occurrence.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:128. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 127,
       "text": "Inherited SDK-009 Node duties: `tests/runtimes/node.mjs` proves no-release and inferred-SHA intake, a release-less alert and release-scoped no-release counts, with Releases and Alerts UI reads at both widths. Existing gzip, feedback, release identity and inbound-filter assertions remain in `tests/sentry-sdk.mjs` and `tests/release-identity-flow.mjs`.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:129. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 128,
       "text": "Retained screens: `docs/retained-verification/sdk001/`. Gap: none for this bounded qualification. No real provider, device or consent was used.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:130. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 130,
       "text": "**SDK-002 — Native crashes and symbolication. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-002"
+      ],
+      "note": "SDK-002 historical Status header; the SDK-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6970,15 +7085,23 @@
       "file": "ACCEPTANCE.md",
       "line": 132,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-002"
+      ],
+      "note": "SDK-002 historical Evidence/Gap header; the SDK-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 134,
       "text": "**SDK-003 — Automatic breadcrumbs and private context. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-003"
+      ],
+      "note": "SDK-003 historical Status header; the SDK-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -6991,8 +7114,9 @@
       "file": "ACCEPTANCE.md",
       "line": 136,
       "text": "Current evidence: `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs` Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:138. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7005,8 +7129,12 @@
       "file": "ACCEPTANCE.md",
       "line": 140,
       "text": "**SDK-004 — User feedback attached to failures. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-004"
+      ],
+      "note": "SDK-004 historical Status header; the SDK-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7019,15 +7147,20 @@
       "file": "ACCEPTANCE.md",
       "line": 142,
       "text": "Current evidence: `src/domain/feedback/`, `src/ui/workbench/FeedbackPanel.tsx`, `tests/feedback-flow.mjs`, `tests/sentry-sdk.mjs` and `docs/FEEDBACK.md` cover text feedback intake, exact occurrence association, owner review/withdrawal and archive/erasure custody. `tests/sentry-sdk.mjs` ([SDK-004] `reportDialogFlow`, `tests/report-dialog-flow.mjs`) qualifies the unmodified browser SDK and queued loader stub through the hosted crash-report modal at 1440/390: explicit consent, exact occurrence association, empty/consent/send/minute-limit errors, focus/close behavior, identical key-state refusal, contact-option exclusion and withdrawal from the next export. Screens:. Default ADOPTED: description-only qualifies the crash-report-modal sentence; contact stays a Gap. Spool’s independent localized widget, contact/replies, screenshots/attachment review, broader abuse policy and full end-user erasure remain gaps.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:144. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 144,
       "text": "**SDK-005 — Crash-free sessions and release health. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-005"
+      ],
+      "note": "SDK-005 historical Status header; the SDK-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7042,8 +7175,9 @@
       "file": "ACCEPTANCE.md",
       "line": 146,
       "text": "Current evidence: `src/domain/sessions/`; `src/domain/identities/key.ts`; `tests/sentry-sdk.mjs` ([SDK-005] sessionFlow); `tests/session-flow.mjs`; `tests/sdk-runtimes.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0072_release_sessions.sql`; `docs/SENTRY-SESSIONS.md`. Observed individual/aggregate session intake, per-project keyed DID hashes, automatic release identity, bounded owner/exact-project read and JSON health export, explicit denominators, observed adoption and 95% Wilson intervals now exist. Unmodified default Node healthy/crashed and browser healthy/unhandled sessions reconcile against a reference collector with only DSN changed; browser unhandled is preserved separately from process crash. Sessions create no occurrence, issue, alert or accepted-error unit. Origin and available category filters, per-item refusal and named bounds apply; session client-discard protocol tokens remain counted. Populated upgrade, private key/aggregate archive restore and project/owner erasure are proven. Releases and suspect comparisons reflow at 1440/390 without serious Axe findings or icon-only controls. Gap: Mobile session modes, device/OS/version cohorts and ANR rates, comparable adoption cohorts, rollback, trends, the 20% rollout acceptance, runtime-specific health qualification beyond Node/browser, Spool-SDK sessions and full SDK-008 policy/role scope remain absent. Idle-project expiry, aggregate replay deduplication and category backpressure headers remain gaps. Unauthenticated key refusals do not mutate project counters; loader disabled state is not an independently disabled ingest-key policy. The inherited sentence \"sessions accept no release\" remains unmet: this brief and SDK-007 require release-less sessions counted invalid. Default ADOPTED: session users use keyed per-project hashes only until full SDK-008 policy; the key is private-archive-only.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-005 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:148. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7056,8 +7190,12 @@
       "file": "ACCEPTANCE.md",
       "line": 150,
       "text": "**SDK-006 — Ingest-time inbound filters and allowed domains. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-006"
+      ],
+      "note": "SDK-006 historical Status header; the SDK-006 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7072,15 +7210,20 @@
       "file": "ACCEPTANCE.md",
       "line": 152,
       "text": "Current evidence: `src/domain/filters/`; `src/domain/admission.ts`; `src/domain/origins.ts`; `src/ui/workbench/InboundFilters.tsx`; `tests/inbound-filter-flow.mjs`; `docs/INBOUND-FILTERS.md` SDK-006 public journeys exercise every named filter through native intake and the installed unmodified Node SDK with app-enabled policies at 1440/390; browser SDK intake, preview, revision/audit fencing, counters, disabling, no occurrence/alert/accepted unit and Origin/Referer refusal without CORS are covered. Feedback and client reports enforce available transport fields; feedback also filters supplied release/environment, while error-message rules remain error-only. Filtered client reports never add SDK-discard quantities. Settings names category coverage and unavailable historical fields. Owner acts as maintainer until TEAM-001; SDK-002/005/007 and CTX-001/002 inherit category filtering before shipping. BILL-001 inherits these admission counters; commercial invoices are not claimed.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-006 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:154. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 154,
       "text": "**SDK-007 — Sentry envelope item coverage from unmodified SDKs. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-007"
+      ],
+      "note": "SDK-007 historical Status header; the SDK-007 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7095,15 +7238,22 @@
       "file": "ACCEPTANCE.md",
       "line": 156,
       "text": "Current evidence: `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs` Errors, text feedback and client_report items are routed after complete envelope framing. SDK-reported discards are counted by bounded reason/category and quantity, separately from accepted events; invalid reports are individually counted while valid companion errors continue. The real Node SDK flush emits reports through its normal transport; automatic browser lifecycle report emission is qualified by the [SDK-001] journey in `tests/sentry-sdk.mjs`. Unsupported categories remain diagnosed. Check-ins are routed under SDK-024. Bounded sessions and release health are routed under SDK-005, with keyed DID hashes and named limitations. Traces, profiles, replay, logs, metrics, dedicated crash/security doors, category backpressure and full runtime qualification remain absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-007 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:158. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 158,
       "text": "**SDK-008 — Sentry user identity policy, affected users and end-user erasure. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-008",
+        "SDK-026",
+        "SDK-027"
+      ],
+      "note": "SDK-008 historical Status header; the SDK-008, SDK-026, SDK-027 Status rows carry the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7116,8 +7266,9 @@
       "file": "ACCEPTANCE.md",
       "line": 160,
       "text": "Current evidence: `src/domain/identities/`; `src/ui/workbench/IdentityPolicy.tsx`; `src/ui/workbench/AffectedUsers.tsx`; `migrations/core/0073_identity_policy.sql`; `tests/sentry-sdk.mjs` ([SDK-008] identityFlow); `tests/identity-flow.mjs`; `tests/execution/exposure.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `docs/SENTRY-IDENTITY.md`. Four-field id/email/username/ip_address keep/hash/drop policy, count-only preview, stale approval refusal, audited atomic stricter conversion and later intake now exist. The owner issue section shows known and unattributed users; exact-project read-only grants and packets receive counts only. Unmodified browser and Python programs reconcile with a reference collector with only DSN changed: three explicit identity types and two literal IPs count 5 known users; two auto-address visitors stay unattributed. Hash preserves the count without raw values in storage, views, packets or archives; drop shows unavailable with its reason. Native random-client counts agree with repair exposure. Migration 0066 preserves populated upgrades, private archive restore and project/installation-owner erasure; a successor chooses a fresh policy above the safe historical revision floor. Settings and issue sections pass 1440/390 overflow and serious Axe checks with no icon-only controls. Gap: Default ADOPTED: all four fields drop; keep/hash require an explicit owner choice. The clause's keep-as-sent default remains an open ruling. Project creation policy display, name/geo/segment/custom/default-PII fields, per-field session DID policy, user search/facets and saved-search previews, project member identity roles, end-user erasure by email, organization floor (TEAM-001), MIG-001 import/dual run, issue-stream/sort, alert/report/cohort shared figures remain absent. The Worker exposes no connecting socket address: auto remains unavailable, so the specified five-user acceptance using two auto visitors is unproven. No forwarded header or tunnel is trusted; SDK-021's existing open rule is unchanged. SDK-005 session DID stays keyed-hash-only.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-008 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:162. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7139,8 +7290,13 @@
       "file": "ACCEPTANCE.md",
       "line": 166,
       "text": "**SDK-009 — Release identity from unmodified Sentry SDKs: no release, automatic releases, ordering and plain Resolve. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-009",
+        "SDK-028"
+      ],
+      "note": "SDK-009 historical Status header; the SDK-009, SDK-028 Status rows carry the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7153,15 +7309,20 @@
       "file": "ACCEPTANCE.md",
       "line": 168,
       "text": "Current evidence: `tests/release-identity-flow.mjs` and `tests/bulk-triage-flow.mjs` exercise SDK-009 through owner HTTP and the emitted app, including no-dist/explicit-dist separation, automatic semver and SHA releases, next/named single and bulk resolution, older and release-less protection, policy-bound previews, and 1440/390 pickers. The shared total order is implemented by `src/domain/releases/order.ts`; local unmodified Node SDK capture qualifies no release and inferred SHA. Sessions (SDK-005), unmodified CLI/plugins (SRC-003), linked commits (SRC-002/TEAM-004), release-less alert conditions (ALERT-001), broader runtimes/devices (SDK-012 to SDK-019), migration reconciliation (MIG-001) and chat Resolve (ALERT-005) retain their inherited journeys in their own text. Owner acts as maintainer until TEAM-001.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-009 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:170. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 170,
       "text": "**SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-010"
+      ],
+      "note": "SDK-010 historical Status header; the SDK-010 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7244,15 +7405,20 @@
       "file": "ACCEPTANCE.md",
       "line": 183,
       "text": "Current evidence: `tests/fidelity-flow.mjs` (SDK-010 request query strings are kept scrubbed and every exclusion is named) covers decoded query secrets and repeated diagnostic parameters, named exclusions, archive/packet privacy, causes/groups, 1,000-frame retention and named middle omission. Existing local Node/browser intake is qualified; constructed Python/Java envelopes qualify conversion. ERR-007 packets exclude source and locals until AI-001 previewed selection.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-010 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:185. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 185,
       "text": "**SDK-011 — Sentry intake encodings, published size limits and per-item refusal. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-011"
+      ],
+      "note": "SDK-011 historical Status header; the SDK-011 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7314,15 +7480,20 @@
       "file": "ACCEPTANCE.md",
       "line": 194,
       "text": "Current evidence: `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs` Uncompressed, `gzip` and `deflate` bodies are accepted with bounded decompression. Public-door SDK-011 proof checks deflate issue creation and expanded-size refusal, unsupported encodings named in 415 responses and counted with header/query ingest grants, and malformed event JSON refused as `invalid_item` while a valid companion is admitted without extra accepted units. The whole request remains capped at 256 KiB compressed, 1 MiB expanded and 100 items; `br`/`zstd`, Sentry-equal limits, oversized-item isolation, streamed heavy-item storage and full usage/dual-run reconciliation remain absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-011 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:196. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 196,
       "text": "**SDK-012 — Unmodified server-runtime SDKs: Python, Go, Java/JVM, Ruby, PHP, .NET, Rust and Elixir. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-012"
+      ],
+      "note": "SDK-012 historical Status header; the SDK-012 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7398,99 +7569,116 @@
       "file": "ACCEPTANCE.md",
       "line": 209,
       "text": "Current evidence, by acceptance point (journeys are scripts; names below are their assertion labels): `tests/sdk-runtimes.mjs <runtime>` runs each unmodified SDK program twice, against a local reference collector and against Spool with only the DSN changed, in the push Verify jobs `runtime (python)`, `runtime (go)`, `runtime (java)`, `runtime (ruby)`, `runtime (php)`, `runtime (dotnet)`, `runtime (rust)` and `runtime (elixir)`.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:211. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 210,
       "text": "**Q1:** \"every SDK error event is a persisted occurrence\" and \"handled exception chain … persisted\" through the public API, and the handled issue read through the UI at 1440 and 390 (`tests/runtimes/screens.mjs`, screen `<runtime>-issue`).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:212. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 211,
       "text": "**Q2:** \"unhandled failure persisted as unhandled\": `mechanism.handled` false as each SDK sent it; sentry-go v0.50.0 marks a recovered panic only with level `fatal` (`RecoverWithContext`, `client.go:805`), which Spool keeps. In `runtime (elixir)` the crash is a `Task` that fails and is reported by the SDK's logger handler with `handled: false`; `tests/runtimes/elixir/app.exs` attaches its cart in the process that runs the checkout, because sentry 14.0.0 loses the crash report when the crashing process's caller holds an attachment (the handler passes the caller's context as capture options, `lib/sentry/logger_utils.ex:30`; `Sentry.Event.create_event/1` refuses `:attachments`, `lib/sentry/event.ex:196`; the handler swallows the error, `lib/sentry/logger_handler.ex:475`).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:213. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 212,
       "text": "**Q3:** \"the restarted process groups into the same issue\" (handled, crash, handled across three processes) with \"every SDK error event is a persisted occurrence\" (no duplicate).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:214. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 213,
       "text": "**Q4:** \"Spool outcomes reconcile with SDK-sent items\", each runtime's `required` items asserted as sent: tracing, logs and an attachment everywhere; sessions from Python (application mode), Java (`Sentry.startSession`, its release read through external configuration), Ruby (request mode, the crash run's Rack request through the SDK middleware), .NET (`AutoSessionTracking`) and Rust (`auto_session_tracking`); no session is offered by sentry-go v0.50.0 (no session API), sentry/sentry 4.34.0 (no session item type, `src/EventType.php`) or sentry 14.0.0 for Elixir (no session option, `lib/sentry/config.ex`).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:215. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 214,
       "text": "**Q5:** \"release and dist equal what the SDK sent\" (`SENTRY_RELEASE` and `SENTRY_DIST` as each SDK reads them, the absent dist as none) and \"release … is created automatically\" with its creating SDK.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:216. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 215,
       "text": "**Q6:** the `client_discarded:<category>:<reason>` rows of the same reconciliation in project outcomes, BILL-001's usage door (`/api/projects/:project/outcomes`, shown in capture receipts), for Python, Go, Java, .NET, Rust and Elixir (a sampled-out message on the SDK's 30-second report timer, `lib/sentry/client_report/sender.ex:23`; a `before_send` exclusion records none, `lib/sentry/client.ex:102`). Named instead: sentry/sentry 4.34.0 sends none (a `before_send` drop is only logged, `src/Client.php:354-366`, and the SDK never calls its `ClientReportAggregator`); sentry-ruby 7.1.0 sends none from this process (`Sentry.close` forces the report flush, `lib/sentry-ruby.rb:303`, before it stops the worker, `:312`, that records the discard, `lib/sentry/client.rb:252`; sending synchronously delivers it but then raises out of `Sentry.close` on a refused or unreachable intake, `lib/sentry/transport.rb:188`).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:217. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 216,
       "text": "**Q7:** \"refused or undeliverable events create nothing\" (a wrong key and an unreachable intake; the program exits normally).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:218. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 217,
       "text": "**P1:** `tests/runtimes/python.mjs` verify: \"release-less capture creates no pretend release\", \"the release-less event raises one new-issue alert\", \"release-less alert names no release\", \"SDK-inferred git SHA is the release\", \"inferred release is created automatically\", \"the release-less event counts in the issue total\", \"release-scoped no-release count\" (`noReleaseEvents`, `!has:release`, `release:<sha>`), and the Releases and Alerts screens (`python-releases`, `python-alerts`) at 1440 and 390.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:219. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 218,
       "text": "**P2:** `tests/runtimes/python.mjs`: the handled `raise ValueError(...) from` chain (`ZeroDivisionError`, `ValueError`), `group.py` `ExceptionGroup` with every member, default `include_local_variables` (\"an ordinary local survives\", `password` and `api_key` redacted), SDK context and default integrations, and Django request data over a real WSGI request (\"Django request headers are kept\", cookie removed, secret query masked).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:220. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 219,
       "text": "**J1:** `tests/runtimes/java.mjs` verify: a `Caused by` chain with a suppressed exception keeps all three with their `chained` and `suppressed` relations.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:221. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 220,
       "text": "Real runs also fixed four intake gaps: sentry-go `exception` arrays and RFC 3339 client-report timestamps (`tests/client-report-flow.mjs`), sentry-ruby `type: \"event\"`, and sentry-elixir's protocol version 5 in `X-Sentry-Auth` (`src/domain/sentry/auth.ts`).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:222. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 222,
       "text": "Outside this clause: persisted session, trace, log and attachment outcomes (SDK-025), check-ins (SDK-024), and the Rust SDK's native-style frames without file and line (SDK-002 symbolication).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-012 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:224. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 224,
       "text": "**SDK-013 — Unmodified Electron SDK. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-013"
+      ],
+      "note": "SDK-013 historical Status header; the SDK-013 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7503,71 +7691,84 @@
       "file": "ACCEPTANCE.md",
       "line": 226,
       "text": "Current evidence: [SDK-013] `tests/sdk-runtimes.mjs electron`, push Verify `runtime (electron)`, runs one packaged app twice with only its DSN changed. The first Linux proof is job 120145163135 in run 39870933106. Exact versions: @sentry/electron 8.3.0, Electron 45.0.0 and @electron/packager 20.3.0. The app is packaged into an unpacked Linux directory with ASAR, run under Xvfb, and never launched on macOS. Native minidumps remain SDK-002 and SDK-011.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:228. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 227,
       "text": "Q1: `tests/runtimes/electron/main.cjs` and `tests/runtimes/electron/renderer.cjs` capture their own handled failures; the generic journey asserts every reference error is a persisted occurrence. Main and renderer issues are read through the public API and UI at 1440 and 390.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:229. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 228,
       "text": "Q2: the same app raises a real main uncaught exception through the default integration and a renderer timer error through the default global handler. `tests/runtimes/electron.mjs` asserts both exception types persist with `mechanism.handled:false`.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:230. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 229,
       "text": "Q3: handled, crash, handled across packaged-app relaunches; the generic journey and Electron adapter assert both handled groups count two, both unhandled groups count one, and all six occurrence IDs are unique.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:231. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 230,
       "text": "Q4: the runtime journey reconciles every reference item exactly with Spool outcomes. The first proof sends six errors, six logs, six transactions, five sessions, four attachments, five feedback items, three replay events, three replay recordings and six client reports. Errors and feedback persist; other telemetry is counted by category and reason, with storage remaining SDK-025. Main/renderer defaults stay enabled except `SentryMinidump`, explicitly disabled identically for both collectors; ordinary main sessions remain enabled. Replay is enabled in the renderer. No native minidump or abnormal-session recovery claim is made.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:232. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 231,
       "text": "Q5: the generic journey compares release/dist with SDK-sent identities and asserts automatic creation with the creating SDK.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:233. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 232,
       "text": "Q6: SDK-generated `before_send` discards reconcile into BILL-001's project outcomes usage door, six discarded errors in the first proof.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:234. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 233,
       "text": "Q7: the same packaged app with a refused key and an undeliverable DSN exits normally, and the public issue counts remain unchanged.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:235. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 234,
       "text": "The SDK's supported online `makeElectronTransport` is used for both collectors. This qualifies flush/relaunch grouping; durable offline transport recovery is not claimed. Network requests are restricted to the DSN origin; fixture IPC and local files remain local. Retained screens: `docs/retained-verification/sdk013/`. Gap: none for this bounded JavaScript qualification. No real provider, device or consent was used.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-013 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:236. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 236,
       "text": "**SDK-014 — Unmodified Unity SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-014"
+      ],
+      "note": "SDK-014 historical Status header; the SDK-014 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7580,15 +7781,20 @@
       "file": "ACCEPTANCE.md",
       "line": 238,
       "text": "Current evidence: No implementation evidence yet. The CI job needs an activated Unity license; obtaining one is engineering work, not a waiver.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-014 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:240. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 240,
       "text": "**SDK-015 — Unmodified iOS (Apple) SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-015"
+      ],
+      "note": "SDK-015 historical Status header; the SDK-015 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7601,15 +7807,20 @@
       "file": "ACCEPTANCE.md",
       "line": 242,
       "text": "Current evidence: No implementation evidence yet. A named macOS job with an iOS simulator or device is engineering work.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-015 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:244. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 244,
       "text": "**SDK-016 — Unmodified Android SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-016"
+      ],
+      "note": "SDK-016 historical Status header; the SDK-016 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7622,15 +7833,20 @@
       "file": "ACCEPTANCE.md",
       "line": 246,
       "text": "Current evidence: No implementation evidence yet. A named job with an Android emulator or device is engineering work.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-016 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:248. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 248,
       "text": "**SDK-017 — Unmodified React Native SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-017"
+      ],
+      "note": "SDK-017 historical Status header; the SDK-017 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7643,15 +7859,20 @@
       "file": "ACCEPTANCE.md",
       "line": 250,
       "text": "Current evidence: No implementation evidence yet. iOS and Android jobs are engineering work.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-017 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:252. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 252,
       "text": "**SDK-018 — Unmodified Flutter SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-018"
+      ],
+      "note": "SDK-018 historical Status header; the SDK-018 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7664,15 +7885,20 @@
       "file": "ACCEPTANCE.md",
       "line": 254,
       "text": "Current evidence: No implementation evidence yet. iOS and Android jobs are engineering work.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-018 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:252. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 256,
       "text": "**SDK-019 — Unmodified Kotlin Multiplatform SDK. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-019"
+      ],
+      "note": "SDK-019 historical Status header; the SDK-019 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7685,15 +7911,23 @@
       "file": "ACCEPTANCE.md",
       "line": 258,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-019"
+      ],
+      "note": "SDK-019 historical Evidence/Gap header; the SDK-019 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 260,
       "text": "**SDK-020 — Guided setup command and published framework setup. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-020"
+      ],
+      "note": "SDK-020 historical Status header; the SDK-020 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7734,29 +7968,36 @@
       "file": "ACCEPTANCE.md",
       "line": 267,
       "text": "Current evidence, by acceptance point:",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-020"
+      ],
+      "note": "SDK-020 historical Evidence/Gap header; the SDK-020 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 268,
       "text": "G1, G3 and G4: Guided setup on a fresh Next.js and Django app, reviewable `git apply` patch equal to the applied change, SDK installed, test event accepted, the configured apps report real failures, other frameworks get guidance, bad DSNs refused: `tests/setup-flow.mjs`. The test event is sent before anything is written and counts only Spool's own receipt for it; a wrong key, a redirect, a host that is not Spool, a secret key (never printed or written), control characters, a project file that is a link or a hard link to a file outside the project, a link swapped in while the test event's receipt is held, and a settings module that is not a dotted name each write nothing (\"A refused setup writes nothing\", \"hard link: refused\", \"link swapped in: refused\", \"a settings module that is not a dotted name is refused\"; the dry run prints no patch for the last).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-020 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:270. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 269,
       "text": "G5: Framework setup published for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core: `docs/SENTRY-SWITCHING.md#framework-setup` (run through a framework only for Next.js and Django).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-020 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:271. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 271,
       "text": "G2: `tests/setup-flow.mjs` ([SDK-020] packed setup journey) applies the reviewed Next.js source-map configuration, builds the production app and delivers its real uncaught error. Before the upload the stored occurrence and issue UI show generated coordinates; the generated `spool-build.mjs` invokes the existing `spool-sourcemaps` uploader, and a subsequent occurrence resolves to original `app/page.js:2` through the public API and UI at 1440 and 390. Retained screens: `docs/retained-verification/sdk020/`. The source-map files also refuse links and shared hard links with no other write.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-020 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:273. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7771,8 +8012,12 @@
       "file": "ACCEPTANCE.md",
       "line": 275,
       "text": "**SDK-021 — Tunnel handlers and ad-blocker delivery. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-021"
+      ],
+      "note": "SDK-021 historical Status header; the SDK-021 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7785,43 +8030,55 @@
       "file": "ACCEPTANCE.md",
       "line": 277,
       "text": "Current evidence:",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-021"
+      ],
+      "note": "SDK-021 historical Evidence/Gap header; the SDK-021 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 278,
       "text": "Tunnels for the SDK `tunnel` option (Node, Next.js route handler, Python): envelope DSN checked against the project, another project refused with nothing forwarded, browser origin and agent forwarded, Spool's rate-limit reply returned, Spool's allowed origins still enforced, Sentry's `tunnelRoute` rewrites shown to reach only sentry.io, setup names that limitation: `tests/tunnel-flow.mjs` and `tests/setup-flow.mjs`. Hostile requests (`tests/tunnel-flow.mjs`, all three tunnels): a TRACE and an abandoned upload leave the host serving and no upstream 301/302/303/307/308 is followed or relayed (step 7), and the 1 MiB limit holds while the body is read and inflated: the same 255 KiB of gzip expanding to 256 MiB is refused with under 32 MiB of peak host memory on the Node, Python and Next.js (`next build`/`next start`) hosts (\"Bounded body\": \"refuses an envelope over 1 MiB once decoded\", \"refuses it within 32 MiB of peak memory\"; the cost is the serving process's own peak after the request minus its resident memory before it, and the journey prints each host's figures).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-021 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:280. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 279,
       "text": "Blocked default route and delivered tunnel under the EasyPrivacy Sentry rules, enforced by the Ghostery engine on a real `@sentry/browser` page and a real `next build`/`next start` app: `tests/tunnel-flow.mjs`. An excerpt of the list and an engine, not a browser extension.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-021 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:281. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 281,
       "text": "Remaining Gap (SDK-021 stays partial):",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-021"
+      ],
+      "note": "SDK-021 historical Gap header; the SDK-021 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 282,
       "text": "A real ad-blocker browser extension and the MIG-001 dual-run reconciliation (blocked) are unexercised.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-021 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:284. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 283,
       "text": "Client address through a tunnel: tunnels forward `X-Forwarded-For`, but Spool honours no forwarded address (SDK-008).",
-      "to": "generated",
-      "note": "Status note for SDK-021, which its Gap carries."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-021 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:285. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7836,8 +8093,12 @@
       "file": "ACCEPTANCE.md",
       "line": 285,
       "text": "**SDK-022 — First-party ingest subdomain. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-022"
+      ],
+      "note": "SDK-022 historical Status header; the SDK-022 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7850,15 +8111,20 @@
       "file": "ACCEPTANCE.md",
       "line": 287,
       "text": "Current evidence: No implementation evidence yet. The hosted deployment, the DNS zone and managed TLS for the buyer's subdomain are engineering work recorded in this clause; no hosted account was authorized for it.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-022 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:289. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 289,
       "text": "**SDK-023 — JavaScript Loader Script per DSN key. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-023"
+      ],
+      "note": "SDK-023 historical Status header; the SDK-023 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7871,50 +8137,60 @@
       "file": "ACCEPTANCE.md",
       "line": 291,
       "text": "Current evidence, in `tests/sentry-sdk.mjs` ([SDK-023] `loaderFlow`, push `verify (sdk)`), with `tests/loader-flow.mjs` and `tests/loader-page.mjs`:",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-023"
+      ],
+      "note": "SDK-023 historical Evidence/Gap header; the SDK-023 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 292,
       "text": "Per-key script and key settings: `/sdk/<public-ingest-key>.min.js`, the shipped pinned official browser SDK bundled locally, SDK version plus explicit tracing/replay rates and feedback settings in the existing key dialog. Reload honors feedback, BrowserTracing and Replay integrations and selected rates. Optional capture defaults to off; unsupported telemetry keeps its existing outcomes and storage duties.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:294. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 293,
       "text": "Lazy delivery: no bundle request before capture; non-capture calls queue; a capture stub and an actual uncaught error each load one SDK and become occurrences through public API/UI. `data-lazy=\"no\"`, `forceLoad`, `Sentry.onLoad` and `window.sentryOnLoad` run with the key's initialized client; later callbacks run immediately once.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:295. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 294,
       "text": "Uniform refusal: disabled, revoked and unknown keys give the same 404 without a script or DSN; only the selected key's public DSN/options travel. SDK-006 Origin/Referer and allowed-domain intake remain unchanged. No script answer cache or per-visitor state is kept.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:296. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 295,
       "text": "SDK-009 receiving duty: direct and loader captures of the same error group together, retain their release/dist and count once. A loader event without release is accepted and counted as no release and no dist, without inventing a release.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:297. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 296,
       "text": "Custody: migration `0061_loader_settings.sql`; `tests/loader-upgrade.mjs` keeps the existing project/key/occurrence and captures once with that key after upgrade using default lazy settings. `tests/old-archive.mjs` preserves every populated released row/schema. Public archive/restore retains key settings inertly without a raw key or credential; project erasure removes them.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:298. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 297,
       "text": "UI: `docs/retained-verification/sdk023/`, key dialog and occurrence at 1440/390, no horizontal overflow or serious/critical Axe finding; no icon-only control on the touched settings screen.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-023 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:299. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7937,8 +8213,12 @@
       "file": "ACCEPTANCE.md",
       "line": 301,
       "text": "**SDK-024 — Cron check-ins routed to Uptime. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-024"
+      ],
+      "note": "SDK-024 historical Status header; the SDK-024 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7951,15 +8231,20 @@
       "file": "ACCEPTANCE.md",
       "line": 303,
       "text": "Current evidence: `src/domain/checkins/`; `migrations/core/0069_checkin_routes.sql`; `src/ui/workbench/CheckInRoutes.tsx`; `tests/sentry-sdk.mjs` ([SDK-024] checkInFlow); `tests/checkin-flow.mjs`: connected start/success/failure receipts, unconnected check-in counted unrouted, refusals and failures, trace link, custody and populated upgrade; `tests/sdk-runtimes.mjs` with `tests/runtimes/harness.mjs`: server-runtime check-ins counted unrouted in Q4; `tests/old-archive.mjs`; `docs/CHECK-INS.md`. Receiving duties retained: SDK-006 filters and Origin before acceptance, SDK-011 per-item refusal, SDK-007 diagnostics. Gap: The receiver in the proof is a recorded double of Uptime's documented heartbeat door at the egress edge: no real Uptime installation received a receipt, and DONE needs Uptime's own heartbeat route (run-uptime main read at `9f50e5050d206551ca4c7e2af8dbbe2cb5b405b5`, not run). Linking: the unmodified Node SDK (`@sentry/core` 11.6.0 `captureCheckIn`, `contexts.trace`) and Python SDK (`sentry-sdk` 2.72.0 `scope.py` `_apply_contexts_to_event`) stamp the check-in and the job's errors with one trace id, which Spool shows on the occurrence (Node proven through the UI and API; Python read from source only); sentry-go v0.50.0 (`interfaces.go` `checkInMarshalJSON`) and sentry-elixir 14.0.0 (`lib/sentry/check_in.ex`, caller-supplied `contexts`) send no trace on a check-in, so their errors have no link. Sentry's duration, monitor config, release, environment and check-in id have no receiving field in Uptime's heartbeat door and are not forwarded; receipts keep arrival order. Defaults ADOPTED: DONE needs the real Uptime door; only what the SDK data truthfully carries links an error to a check-in. No real provider call, device, live Uptime installation or consent was used.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-024 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:305. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 305,
       "text": "**SDK-025 — Persisted non-error outcomes for every SDK-001 runtime. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SDK-025"
+      ],
+      "note": "SDK-025 historical Status header; the SDK-025 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7972,15 +8257,17 @@
       "file": "ACCEPTANCE.md",
       "line": 307,
       "text": "Current evidence: `tests/sentry-sdk.mjs` (browser and Node `captureFeedback` attached to its issue), `tests/client-report-flow.mjs` (client-report discards kept by reason and category), `tests/sdk-runtimes.mjs` (Java and .NET feedback attached to its issue).",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-025 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:309. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 309,
       "text": "Bounded session observations now persist under SDK-005; `tests/session-flow.mjs` proves Node/browser health and `tests/sdk-runtimes.mjs` reconciles emitted items. Remaining Gap: trace, replay, log and attachment items are counted as `sentry_unsupported_<category>` (reconciled exactly in the SDK-012 runs) but not stored; they belong to SDK-005, SDK-007, CTX-001, CTX-002 and API-001.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SDK-025 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:311. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -7993,8 +8280,12 @@
       "file": "ACCEPTANCE.md",
       "line": 315,
       "text": "**GROUP-001 — Explainable grouping and durable corrections. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "GROUP-001"
+      ],
+      "note": "GROUP-001 historical Status header; the GROUP-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8009,15 +8300,20 @@
       "file": "ACCEPTANCE.md",
       "line": 317,
       "text": "Current evidence: `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/grouping-rules-flow.mjs`; `tests/operator-flow.mjs`; `tests/fidelity-flow.mjs`; `docs/GROUPING-RULES.md` GROUP-001 public journeys cover native JavaScript/Python/Go and Sentry matching/unmatched rules, no-write retained-event previews, audited revision-fenced forward activation, immutable policy versions and per-occurrence contribution snapshots. Default native identities remain unchanged without matching rules. Explicit selected-occurrence split/merge and guarded undo preserve original membership, payloads, counters, alert history and repair coverage; policy activation itself adds an honest repair gap. Rules, versions and snapshots survive private archive restore and are removed by project erasure. Native and Sentry preview/save/conflict and explanation screens are exercised at 1440/390. Owner acts as maintainer until TEAM-001; TEAM-001 and MIG-001 inherit their role/import doors before completion.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "GROUP-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:319. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 319,
       "text": "**FIND-001 — Search, facets and saved investigation views. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "FIND-001"
+      ],
+      "note": "FIND-001 historical Status header; the FIND-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8030,15 +8326,21 @@
       "file": "ACCEPTANCE.md",
       "line": 321,
       "text": "Current evidence: `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `src/ui/workbench/IssueList.tsx`; `tests/investigation-flow.mjs`; `tests/bulk-triage-flow.mjs`; `docs/INVESTIGATION.md`; `docs/BULK-TRIAGE.md` Full retained-project search, combined event filters, whole-query facets/counts, cursor pages and bounded JSON/CSV exports work. The owner can select the displayed result page and preview atomic triage; counts and exports reflect the changes. Team/identity/priority search, collaborative review inbox and saved shared views remain absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "FIND-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:323. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 323,
       "text": "**FIND-002 — Impact, trends and team reporting. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "FIND-002",
+        "FIND-003"
+      ],
+      "note": "FIND-002 historical Status header; the FIND-002, FIND-003 Status rows carry the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8051,15 +8353,20 @@
       "file": "ACCEPTANCE.md",
       "line": 325,
       "text": "Current evidence: `src/domain/investigation/events.ts`; `src/ui/workbench/EventExplorer.tsx`; `src/ui/workbench/SentryEvent.tsx`; `src/ui/workbench/RepositorySource.tsx`; `tests/fidelity-flow.mjs`; `tests/repository-source-flow.mjs` Owner detail selects exact retained occurrences with cursor pages, combined event queries, navigation, chain/context/raw evidence and all-issue tag counts. Selected source frames now link through explicit recorded mappings to exact repository revisions, distinct from SDK context and map coordinates. User/session analytics, custom dashboards, team reports, permissioned report exports and provider qualification remain absent; agent packets retain their minimized scope.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "FIND-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:327. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 327,
       "text": "**SRC-001 — Build artifacts and CI pipelines. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SRC-001"
+      ],
+      "note": "SRC-001 historical Status header; the SRC-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8072,15 +8379,20 @@
       "file": "ACCEPTANCE.md",
       "line": 329,
       "text": "Current evidence: `packages/sdk/src/sourcemaps/`; `src/domain/source-map-builds.ts`; `tests/sdk-package.mjs` (sourceMapPlugins, [SRC-001]); `tests/source-map-plugins.mjs`; `docs/SOURCE-MAPS.md`. Real local packed Vite/Rollup/webpack/esbuild builds upload through the shared path and map captured minified errors; withheld maps fail all four builds before output, immutable required sets expose missing names, late uploads complete the same sets, tampered checksums are refused by name, oversized declarations are refused before registration, and archive/restore/erasure preserve custody. Required sets hold at most 2000 names and 256 KiB. Release complete/incomplete states pass 1440/390 overflow and serious/critical Axe checks. YAML examples parse; real GitHub Actions and GitLab application CI jobs, full SRC-003 client matrix, private source bundles/native symbols, deployment access/retention beyond exact deploy authority and the artifact set, and Next.js/Hermes remain gaps.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SRC-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:331. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 331,
       "text": "**SRC-002 — GitHub, GitLab and Bitbucket source context. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SRC-002"
+      ],
+      "note": "SRC-002 historical Status header; the SRC-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8093,8 +8405,9 @@
       "file": "ACCEPTANCE.md",
       "line": 333,
       "text": "Current evidence: `src/domain/repository-links.ts`; `src/domain/operators/deployments.ts`; `src/ui/workbench/RepositorySource.tsx`; `tests/repository-source-flow.mjs`; `docs/REPOSITORY-SOURCE.md` Explicit owner/deploy-recorded manifest and path mappings link Python/Go reported coordinates and mapped JavaScript originals to full-SHA GitHub, GitLab and Bitbucket file/line URLs. Missing/unsafe/unmatched evidence is visibly unmapped; links are labeled unverified and no source is fetched. Provider grants, access revocation, automatic mappings, suspect commits, CODEOWNERS, PR comments and real-account qualification remain absent. Existing GitHub draft-PR read-back uses a provider double.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SRC-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:335. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8134,8 +8447,12 @@
       "file": "ACCEPTANCE.md",
       "line": 342,
       "text": "**SRC-003 — sentry-cli and Sentry build-plugin compatibility. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SRC-003"
+      ],
+      "note": "SRC-003 historical Status header; the SRC-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8148,15 +8465,17 @@
       "file": "ACCEPTANCE.md",
       "line": 344,
       "text": "Current evidence: `src/domain/sentry-cli/`; `src/domain/sentry/convert.ts`; `src/domain/artifacts.ts`; `migrations/core/0060_sentry_cli.sql`; `src/domain/audit/classify.ts`; `tests/sentry-cli-compat.mjs`; `tests/sentry-cli/`; `docs/SENTRY-CLI.md`; `docs/retained-verification/src003/` The released `sentry-cli` 3.8.1, the unmodified `@sentry/node` SDK and the Vite, esbuild, Rollup and webpack plugins (11.8.0, which run the `sentry` 0.45.0 CLI) run against the emitted Worker with only the URL, slugs and a deploy key set. Covered: ingest, read-only, revoked, unknown and other-project tokens refused with nothing stored; an SDK-created release enriched by `releases new` with one identity and original first-seen time; finalize and deploys (`releases deploys new`, `deploys new`) recorded and repeat-safe; `releases set-commits` with `--auto`, `--commit` and `--local` registering a real git history through TEAM-004 (own-project citation resolved in the release, unknown and other-project citations logged by reason, older-release protection and newer-release regression); `sourcemaps inject` and `upload` by debug ID and by release and dist, with the SDK's real failure mapped to its original line; repeat upload idempotence; a refused file named with its reason in client output and failing the command; a multi-chunk upload interrupted by a dropped connection and resumed; the 21st map refused as `storage_cap`; wrong chunk and assembly checksums storing nothing; `debug-files upload` refused by name with nothing sent, and `debug-files check`, `bundle-sources` and `send-event` working; unserved routes answering `501` by name; archive, inert restore with no grants, and project erasure of the new tables; AUDIT-001 actions for every door. A single local run recorded in `docs/retained-verification/src003/` covers Next.js `withSentryConfig`, Fastlane's create-release, upload-sourcemap, finalize and create-deploy actions and an Expo/Hermes upload, with the refusals each met.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SRC-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:346. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 346,
       "text": "Owed, exactly (this clause is not done until each has a real receipt): the GitHub Actions **and** GitLab CI matrix for every command and integration; the Android Gradle plugin, Xcode build-phase script and `sentry_dart_plugin` (no toolchain on the build host); `debug-files upload` and Fastlane `sentry_debug_files_upload` for dSYM, ELF/DWARF, Breakpad, ProGuard/R8 and Dart symbols with symbolication (SDK-002), including genuine Breakpad, ProGuard/R8, dSYM and Dart symbol fixtures; three consecutive production-sized Next.js and React Native Hermes releases with no refusal for artifact count or a map within SRC-004's size (today's 20 flat maps of 256 KiB and 100 sources refuse them: three local Next.js webpack builds each stored 6 maps and had 4 refused, the Turbopack run stored 2 of 37, and the Expo run's 7.1 MB map was refused); `set-commits --auto` and `--commit` through a connected repository, and the newer `sentry` CLI's `--auto` and `--commit` (SRC-002, with its real GitHub PR and GitLab MR receipts); older plugin releases on `@sentry/cli` 2.x; and the Next.js, Fastlane and Expo runs repeated in CI. SDK-009's `releases new` enrichment and TEAM-004's `set-commits` receipts are proved here for the client builds above; their provider receipts remain SRC-002's.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SRC-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:348. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8196,8 +8515,12 @@
       "file": "ACCEPTANCE.md",
       "line": 355,
       "text": "**SRC-004 — Published source map and debug-file capacity. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "SRC-004"
+      ],
+      "note": "SRC-004 historical Status header; the SRC-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8210,8 +8533,9 @@
       "file": "ACCEPTANCE.md",
       "line": 357,
       "text": "Current evidence: `src/domain/artifacts.ts`; `src/domain/source-map-storage.ts`; `tests/sdk-package.mjs` (`sourceMapCapacity`, [SRC-004]); `tests/sentry-cli-compat.mjs` (`chunkFlow`, `durableFlow`); `docs/SOURCE-MAPS.md`. Public-door journeys cover 27 maps per project through both CLIs, indexed/rooted and >256 KiB maps resolving original frames, the 1 MiB stored ceiling, owner byte cap with preserved unsaved drafts and every refused file named in CLI/release details, and cap/map archive restore and erasure. Remaining: 190 MiB maps/2 GiB debug files and native symbolication, streamed assembly, use-based artifact expiry and USD pricing, source fetching, ignore-list frame classification, expanded SDK-010 source lookup projection, production Next.js App Router and Hermes builds. The prepared-map picker retains its flat/256 KiB path.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "SRC-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:359. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8224,8 +8548,12 @@
       "file": "ACCEPTANCE.md",
       "line": 361,
       "text": "**REL-001 — Release and deployment history. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "REL-001"
+      ],
+      "note": "REL-001 historical Status header; the REL-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8247,8 +8575,12 @@
       "file": "ACCEPTANCE.md",
       "line": 365,
       "text": "**REL-002 — Suspect change and release comparisons. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "REL-002"
+      ],
+      "note": "REL-002 historical Status header; the REL-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8261,15 +8593,20 @@
       "file": "ACCEPTANCE.md",
       "line": 367,
       "text": "Current evidence: `tests/deployment-history.mjs` ([REL-002] suspectFlow), `tests/suspect-flow.mjs`, `src/domain/suspects/`, `docs/SUSPECT-CHANGES.md` and: two releases with recorded commits and a deployment, first-seen failure in the second and an unrelated older-release spike, explicit candidate reasons, owner reject/confirm notes with occurrence and issue rows byte-identical, private restore and project erasure, 1440/390 reflow and Axe. `tests/old-archive.mjs` proves populated additive migration 0063; `tests/owner-erasure.mjs` removes authored judgments. `tests/session-flow.mjs` adds observed SDK-005 session rates, denominators, adoption share and Wilson intervals beside the count comparison. Default ADOPTED: correlation only, judgments never alter issues and nothing goes automatically to an agent. Gap: comparable device/OS adoption cohorts beyond SDK-005’s observed session rates; rate-change attribution, changed-source matching beyond recorded frame paths (no commit file lists today), agent packet provenance and learning (AI-006). Status stays partial.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "REL-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:369. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 369,
       "text": "**CTX-001 — Error-linked traces, logs and request performance. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-001"
+      ],
+      "note": "CTX-001 historical Status header; the CTX-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8284,15 +8621,20 @@
       "file": "ACCEPTANCE.md",
       "line": 371,
       "text": "Current evidence: `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs` Only bounded OTLP/HTTP JSON logs are accepted; trace/span identity is not persisted and traces/metrics are refused. Forwarders are absent. OTLP intake shares the 120-a-minute and 10,000-event caps that GOV-003 removes.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "CTX-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:373. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 373,
       "text": "**CTX-002 — Privacy-controlled session replay. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-002"
+      ],
+      "note": "CTX-002 historical Status header; the CTX-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8307,15 +8649,23 @@
       "file": "ACCEPTANCE.md",
       "line": 375,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-002"
+      ],
+      "note": "CTX-002 historical Evidence/Gap header; the CTX-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 377,
       "text": "**CTX-003 — Third-party replay connectors. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-003"
+      ],
+      "note": "CTX-003 historical Status header; the CTX-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8328,15 +8678,23 @@
       "file": "ACCEPTANCE.md",
       "line": 379,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-003"
+      ],
+      "note": "CTX-003 historical Evidence/Gap header; the CTX-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 381,
       "text": "**CTX-004 — Performance issues from transactions and spans. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-004"
+      ],
+      "note": "CTX-004 historical Status header; the CTX-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8349,15 +8707,23 @@
       "file": "ACCEPTANCE.md",
       "line": 383,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "CTX-004"
+      ],
+      "note": "CTX-004 historical Evidence/Gap header; the CTX-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 387,
       "text": "**ALERT-001 — Filtered rules and real anomaly detection. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-001"
+      ],
+      "note": "ALERT-001 historical Status header; the ALERT-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8370,8 +8736,9 @@
       "file": "ACCEPTANCE.md",
       "line": 389,
       "text": "Current evidence: `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs` New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ALERT-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:391. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8384,8 +8751,12 @@
       "file": "ACCEPTANCE.md",
       "line": 393,
       "text": "**ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-002"
+      ],
+      "note": "ALERT-002 historical Status header; the ALERT-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8398,8 +8769,9 @@
       "file": "ACCEPTANCE.md",
       "line": 395,
       "text": "Current evidence: `src/domain/alerts/slack.server.ts`; `src/domain/alerts/slack-destinations.server.ts`; `tests/alerts-egress.mjs` ([ALERT-002] slackFlow); `tests/alerts-ui.mjs` ([ALERT-002] slackUI); `tests/slack-flow.mjs`; `tests/slack-ui.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0071_slack_destinations.sql`; `docs/ALERT-WEBHOOKS.md`. Page-managed email and signed generic webhooks remain; native Slack issue alerts now share the durable queue and INTEGRATION_EGRESS, require a reviewed test, retain a posted message identifier separately from recipient receipt, stop on rotation/revocation, expose bounded API/HTTP/timeout/egress failures and exclude tokens from every read/archive. Safe acknowledgments restore inert; migration 0064 preserves populated upgrades, and project/owner erasure removes the new stores. Existing follow-up states account for failed Slack issue alerts; alternate notices use email or signed webhooks. Gap: Teams, Oncall and PagerDuty adapters, Discord channel webhooks, chat actions (ALERT-005/TEAM-001), broader recovery/update semantics, Slack as an alternate follow-up destination and real Slack qualification (NOT RUN). Default ADOPTED: Slack posts a sanitized summary and exact issue link only; no interactive action or Slack app endpoint, and the recorded edge double earns no real-Slack claim.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ALERT-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:397. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8428,8 +8800,12 @@
       "file": "ACCEPTANCE.md",
       "line": 403,
       "text": "**ALERT-003 — Destination tests, digests and snoozing. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-003"
+      ],
+      "note": "ALERT-003 historical Status header; the ALERT-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8442,8 +8818,9 @@
       "file": "ACCEPTANCE.md",
       "line": 405,
       "text": "Current evidence: `src/domain/alerts/`; `src/ui/alerts/`; migration `migrations/core/0058_alert_delivery.sql`; `tests/alerts-runtime.mjs`; `tests/alerts-egress.mjs`; `tests/alerts-ui.mjs`; `docs/ALERT-DELIVERY.md`, and the real provider receipt below.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ALERT-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:407. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8477,8 +8854,12 @@
       "file": "ACCEPTANCE.md",
       "line": 415,
       "text": "**ALERT-004 — Durable follow-up and visible automation failure. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-004"
+      ],
+      "note": "ALERT-004 historical Status header; the ALERT-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8498,8 +8879,9 @@
       "file": "ACCEPTANCE.md",
       "line": 419,
       "text": "Current evidence: `tests/alerts-runtime.mjs` and `tests/execution-journey.mjs` exercise ALERT-004 interrupted delivery, uncertain provider response, expired lease, repeated scheduled scans, one safe audit follow-up, nonrecursive alternate notices, explicit reconciliation/resend, inert restore and 1440/390 Needs attention. Provider behavior is qualified with network-edge test receivers; no real external channel certification is claimed.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "ALERT-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:421. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8512,8 +8894,12 @@
       "file": "ACCEPTANCE.md",
       "line": 423,
       "text": "**ALERT-005 — Chat and paging triage actions and link unfurls. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-005"
+      ],
+      "note": "ALERT-005 historical Status header; the ALERT-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8526,8 +8912,12 @@
       "file": "ACCEPTANCE.md",
       "line": 425,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "ALERT-005"
+      ],
+      "note": "ALERT-005 historical Evidence/Gap header; the ALERT-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8547,8 +8937,12 @@
       "file": "ACCEPTANCE.md",
       "line": 433,
       "text": "**TRACK-001 — Vector, Jira and Linear issue sync. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "TRACK-001"
+      ],
+      "note": "TRACK-001 historical Status header; the TRACK-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8561,8 +8955,9 @@
       "file": "ACCEPTANCE.md",
       "line": 435,
       "text": "Current evidence: `src/domain/repairs/routes.ts`; `src/domain/fixes/workflow.ts`; `tests/repair-recovery.mjs` Manual repair links and draft PR history exist; tracker creation and status synchronization do not.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "TRACK-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:437. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8582,8 +8977,12 @@
       "file": "ACCEPTANCE.md",
       "line": 443,
       "text": "**MIG-001 — Sentry organization migration. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-001"
+      ],
+      "note": "MIG-001 historical Status header; the MIG-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8598,8 +8997,9 @@
       "file": "ACCEPTANCE.md",
       "line": 445,
       "text": "Current evidence: `src/domain/sentry-import/source.ts`; `src/domain/sentry-import/mapping.ts`; `tests/sentry-import.mjs`; `tests/sentry-sdk.mjs` Custom bounded synthetic organization bundles and browser/Node DSNs work; real Sentry export/API reconciliation and full collection mapping are unproved.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "MIG-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:447. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8629,8 +9029,12 @@
       "file": "ACCEPTANCE.md",
       "line": 451,
       "text": "**MIG-002 — Datadog Error Tracking migration. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-002"
+      ],
+      "note": "MIG-002 historical Status header; the MIG-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8643,15 +9047,23 @@
       "file": "ACCEPTANCE.md",
       "line": 453,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-002"
+      ],
+      "note": "MIG-002 historical Evidence/Gap header; the MIG-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 455,
       "text": "**MIG-003 — Rollbar migration. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-003"
+      ],
+      "note": "MIG-003 historical Status header; the MIG-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8664,15 +9076,23 @@
       "file": "ACCEPTANCE.md",
       "line": 457,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-003"
+      ],
+      "note": "MIG-003 historical Evidence/Gap header; the MIG-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 459,
       "text": "**MIG-004 — Bugsnag migration. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-004"
+      ],
+      "note": "MIG-004 historical Status header; the MIG-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8685,15 +9105,23 @@
       "file": "ACCEPTANCE.md",
       "line": 461,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-004"
+      ],
+      "note": "MIG-004 historical Evidence/Gap header; the MIG-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 463,
       "text": "**MIG-005 — Up-and-comer switching paths. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-005"
+      ],
+      "note": "MIG-005 historical Status header; the MIG-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8706,15 +9134,23 @@
       "file": "ACCEPTANCE.md",
       "line": 465,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "MIG-005"
+      ],
+      "note": "MIG-005 historical Evidence/Gap header; the MIG-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 467,
       "text": "**API-001 — Public APIs, attachments and full export. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "API-001"
+      ],
+      "note": "API-001 historical Status header; the API-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8727,15 +9163,20 @@
       "file": "ACCEPTANCE.md",
       "line": 469,
       "text": "Current evidence: `src/domain/investigation/records.ts`, `tests/investigation-flow.mjs` ([API-001] recordReadFlow), `tests/records-flow.mjs` and `docs/INVESTIGATION.md`: an exact-project read-only grant paginates project/issue occurrences and feedback across two pages, reconciles with issue-detail/inbox totals, receives uniform foreign/deploy/ingest refusals, and sees withdrawal and erasure on the next read. No migration. Gap: attachments (storage, viewing audit and download), release/session record pagination beyond SDK-005’s bounded health report, audit API, streaming exports and archives at GOV-003 volume, and the 160,000-event acceptance. Status stays partial.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "API-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:471. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 471,
       "text": "**API-002 — Sentry Web API and Terraform compatibility. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "API-002"
+      ],
+      "note": "API-002 historical Status header; the API-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8748,15 +9189,23 @@
       "file": "ACCEPTANCE.md",
       "line": 473,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "API-002"
+      ],
+      "note": "API-002 historical Evidence/Gap header; the API-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 477,
       "text": "**GOV-001 — Enterprise identity and administration. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "GOV-001"
+      ],
+      "note": "GOV-001 historical Status header; the GOV-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8769,15 +9218,20 @@
       "file": "ACCEPTANCE.md",
       "line": 479,
       "text": "Current evidence: `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs` Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "GOV-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:481. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 481,
       "text": "**GOV-002 — Retention, residency and data custody. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "GOV-002"
+      ],
+      "note": "GOV-002 historical Status header; the GOV-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8790,8 +9244,9 @@
       "file": "ACCEPTANCE.md",
       "line": 483,
       "text": "Current evidence: `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs` Manual cutoff, tombstones and explicit gaps exist; scheduled/plan retention, residency choice and legal holds do not.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "GOV-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:485. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8813,8 +9268,12 @@
       "file": "ACCEPTANCE.md",
       "line": 490,
       "text": "**GOV-003 — Published retention, retained volume and sustained intake rate. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "GOV-003"
+      ],
+      "note": "GOV-003 historical Status header; the GOV-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8827,8 +9286,9 @@
       "file": "ACCEPTANCE.md",
       "line": 492,
       "text": "Current evidence: `src/domain/retention.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure-cap.mjs` An owner-run retention cutoff with occurrence tombstones, deduplication horizon and named retention gaps exists, and over-limit intake returns 429 with `Retry-After` and a counted outcome. Today `src/domain/admission.ts` and `migrations/core/0008_occurrence_identity.sql` refuse every new event once a project retains 10,000 (`retained_event_budget`) and above 120 a minute (`minute_budget`), and `src/domain/archive.ts` refuses a project archive above 10,000 events. Automatic expiry, published windows and plan volume, the published sustained rate and the named volume reasons are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "GOV-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:494. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8850,8 +9310,13 @@
       "file": "ACCEPTANCE.md",
       "line": 499,
       "text": "**BILL-001 — Predictable USD usage and ingestion budgets. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "BILL-001",
+        "BILL-002"
+      ],
+      "note": "BILL-001 historical Status header; the BILL-001, BILL-002 Status rows carry the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8864,15 +9329,20 @@
       "file": "ACCEPTANCE.md",
       "line": 501,
       "text": "Current evidence: `src/domain/admission.ts`; `src/domain/sentry/client-reports.ts`; `src/ui/workbench/CaptureReceipts.tsx`; `tests/client-report-flow.mjs`; `docs/CLIENT-REPORTS.md`; `src/domain/filters/` Settings and capture receipts separate accepted, filtered and SDK client-discarded quantities; SDK discards retain reason/category without creating issues, alerts or accepted units, and survive private archive restore. Commercial USD tiers, forecasts, billing, spike protection, key limits and the named volume reasons remain absent. Fixed 120-a-minute and 10,000-retained-event refusals remain GOV-003 gaps.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "BILL-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:503. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 503,
       "text": "**UX-001 — Mobile operations and accessible investigation. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "UX-001"
+      ],
+      "note": "UX-001 historical Status header; the UX-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8885,15 +9355,20 @@
       "file": "ACCEPTANCE.md",
       "line": 505,
       "text": "Current evidence: `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs` Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "UX-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:507. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 507,
       "text": "**AUDIT-001 — Permanent privacy-safe action audit. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AUDIT-001"
+      ],
+      "note": "AUDIT-001 historical Status header; the AUDIT-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8908,15 +9383,20 @@
       "file": "ACCEPTANCE.md",
       "line": 509,
       "text": "Current proof: `tests/audit-history.mjs` (AUDIT-001), `tests/old-archive.mjs` (legacy facts for a previous archive format), `tests/owner-erasure.mjs`, `src/domain/audit/`, `migrations/core/0051_safe_audit.sql`, `migrations/core/0053_audit_transactions.sql`. Base-owned operator-auth and import-kit writes are attributed by their request observation. TEAM-001, SRC-002/003, TRACK-001, ALERT-002/005, INT-001, SDK-008, GOV-002/003 and AI-001/003 inherit all audit obligations in their own entries.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AUDIT-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:511. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 511,
       "text": "**INT-001 — Vercel and Netlify deployment connectors. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "INT-001"
+      ],
+      "note": "INT-001 historical Status header; the INT-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8929,8 +9409,12 @@
       "file": "ACCEPTANCE.md",
       "line": 513,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "INT-001"
+      ],
+      "note": "INT-001 historical Evidence/Gap header; the INT-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8950,8 +9434,12 @@
       "file": "ACCEPTANCE.md",
       "line": 522,
       "text": "**AI-001 — Controlled coding-agent handoff. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-001"
+      ],
+      "note": "AI-001 historical Status header; the AI-001 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8964,8 +9452,9 @@
       "file": "ACCEPTANCE.md",
       "line": 524,
       "text": "Current evidence: `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs` Generic read-only CLI/MCP is implemented; named client qualification and model-egress controls for automated work are incomplete.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AI-001 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:526. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -8987,8 +9476,12 @@
       "file": "ACCEPTANCE.md",
       "line": 530,
       "text": "**AI-002 — Generate and test the smallest reproduction. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-002"
+      ],
+      "note": "AI-002 historical Status header; the AI-002 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9001,15 +9494,20 @@
       "file": "ACCEPTANCE.md",
       "line": 532,
       "text": "Current evidence: `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs` Bounded mapped-JavaScript reproductions with supplied calls exist; automatic minimization, cause experiments and non-JS/mobile reproduction do not.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AI-002 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:534. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 534,
       "text": "**AI-003 — Minimal code repair as a tested pull request. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-003"
+      ],
+      "note": "AI-003 historical Status header; the AI-003 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9022,8 +9520,9 @@
       "file": "ACCEPTANCE.md",
       "line": 536,
       "text": "Current evidence: `src/domain/fixes/workflow.ts`; `src/domain/fixes/provider.ts`; `tests/execution-journey.mjs` Current GitHub double journey opens a data-only artifact PR and observes merge/checks; generated code fixes, real repository acceptance and GitLab are absent.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AI-003 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:538. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9045,8 +9544,12 @@
       "file": "ACCEPTANCE.md",
       "line": 542,
       "text": "**AI-004 — Prove the released repair from live rates. Status: partial.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-004"
+      ],
+      "note": "AI-004 historical Status header; the AI-004 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9059,8 +9562,9 @@
       "file": "ACCEPTANCE.md",
       "line": 544,
       "text": "Current evidence: `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs` Current proof already compares baseline rates with a confidence bound, affected cohorts, rollout and capture gaps; autonomous production measurement, an ongoing watch and real-account acceptance remain missing.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AI-004 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:546. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9073,8 +9577,12 @@
       "file": "ACCEPTANCE.md",
       "line": 548,
       "text": "**AI-005 — Explain grouping proposals before applying. Status: done.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-005"
+      ],
+      "note": "AI-005 historical Status header; the AI-005 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9087,15 +9595,20 @@
       "file": "ACCEPTANCE.md",
       "line": 550,
       "text": "Current evidence: `src/domain/proposals/`; migration `0057_grouping_proposals.sql`; `packages/agent/`; `src/ui/workbench/GroupingProposals.tsx`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs`. The public flow \"AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible\" covers deceptively similar and rebuilt failures, server-computed inside/outside counterexamples, exact event moves, ownership labels, windowed rates, spike conditions/open alerts and preserved recurrence/coverage gaps. Proposed advice preserves the complete live archive projection. The scripted CLI/MCP agent can submit/list inert labelled proposals only; owners reject or approve into the existing explicit correction/rule preview, apply, undo or roll back versions. Ingest/deploy/agent authority denials and stale revisions refuse; originals, prior decisions, inert archive round trips, populated v0.6.0 upgrade and project/owner erasure are exercised. Empty, proposed, rejected, approved, applied, undone, stale and denied workbench states are exercised at 1440 and 390. Retained UI captures: `docs/retained-verification/ai005/`. All agent proposals show \"proposed by agent <alias>\". Approval, rejection and apply remain owner-only until TEAM-001; CTX-001 inherits AI-005 trace-variant comparison, with \"trace identity unavailable\" shown now.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "docs",
+      "path": "docs/contract/acceptance-before-cleanup.md",
+      "note": "AI-005 historical proof, mechanism or remaining-work narrative is retained verbatim at docs/contract/acceptance-before-cleanup.md:552. Current acceptance and judgments remain in CONTRACT.md; this historical receipt does not establish completion."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 552,
       "text": "**AI-006 — Prevent related failures from recurring. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-006"
+      ],
+      "note": "AI-006 historical Status header; the AI-006 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9108,15 +9621,23 @@
       "file": "ACCEPTANCE.md",
       "line": 554,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-006"
+      ],
+      "note": "AI-006 historical Evidence/Gap header; the AI-006 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
       "line": 556,
       "text": "**AI-007 — Agent-runtime failure diagnosis and evaluated improvements. Status: missing.**",
-      "to": "generated",
-      "note": "Clause heading and status, which the generator writes."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-007"
+      ],
+      "note": "AI-007 historical Status header; the AI-007 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9129,8 +9650,12 @@
       "file": "ACCEPTANCE.md",
       "line": 558,
       "text": "Current evidence: No implementation evidence yet.",
-      "to": "generated",
-      "note": "The contract generator writes this status or count."
+      "to": "section",
+      "section": "Status",
+      "ids": [
+        "AI-007"
+      ],
+      "note": "AI-007 historical Evidence/Gap header; the AI-007 Status row carries the current judgment, evidence and gap. The historical wording does not change that judgment."
     },
     {
       "file": "ACCEPTANCE.md",
@@ -9382,16 +9907,8 @@
       "line": 734,
       "cell": "gap",
       "text": "Public-door membership and inherited riders are implemented. Status promotion and generated acceptance/count synchronization await the repository's missing Lander-Regenerate command: AGENTS.md declares none and src/base/contract-docs.mjs is absent. Generated ACCEPTANCE.md and claims files remain unchanged for the lander.",
-      "to": "gap",
-      "ids": [
-        "TEAM-001"
-      ],
-      "also": [
-        {
-          "to": "changelog"
-        }
-      ],
-      "note": "Membership evidence and partial status are carried; the main-only missing-generator claim is superseded by the existing cleanup generator and commands, recorded in CHANGELOG.md."
+      "to": "changelog",
+      "note": "The obsolete missing-generator and pending-membership-status receipt is retained in CHANGELOG.md under \"28 October 2026 — membership status carried into contract cleanup\". TEAM-001 is now done on main and has no Gap; its newer judgment is unchanged."
     }
   ]
 }

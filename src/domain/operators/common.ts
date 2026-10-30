@@ -1,5 +1,5 @@
 import { resolveMembership } from '../members/resolver';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { ownerBatch } from '../owner-authority';
 export const s=(db:D1Database,sql:string,...args:any[])=>db.prepare(sql).bind(...args);
 export const guard=(db:D1Database,sql:string,...args:any[])=>s(db,`INSERT INTO operator_guards SELECT CASE WHEN (${sql}) THEN 1 ELSE 0 END`,...args);

@@ -14,7 +14,7 @@ export async function repairView(db: D1Database, row: any) {
  ]);
  const present = new Set(retained.results.map(event => event.id));
  return {
-  id: row.id, issue: row.issue, revision: row.revision, recordedBy: 'owner', trust: REPAIR_TRUST, link: row.link, note: row.note, created: row.created, updated: row.updated,
+  id: row.id, issue: row.issue, revision: row.revision, recordedBy: row.recorded_by ?? 'owner', trust: row.recorded_by && row.recorded_by!=='owner' ? 'Agent-asserted claim; independent native observation remains separate. Links and notes are untrusted and never fetched.' : REPAIR_TRUST, link: row.link, note: row.note, created: row.created, updated: row.updated,
   snapshot: { issueRevision: row.snapshot_revision, releaseSequence: row.snapshot_release_seq, events: ids.map(id => ({ id, state: present.has(id) ? 'retained' : 'removed_by_retention' })) },
   facts: { proposed: row.created, approved: row.approved, merged: row.merged,
    deployed: row.deployed === null ? null : { release: row.deployed_release, sequence: row.deployed_seq, at: row.deployed },

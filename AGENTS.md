@@ -49,3 +49,14 @@ Lander-Regenerate: node src/base/contract-docs.mjs write
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
 Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
+
+## Shared agent door
+
+Application-agent work enters `src/domain/agent-door/index.server.ts`. Native
+services accept the explicit server-owned agent authority; never mint or borrow
+a person's session. `agent-surface.json` and the runtime catalogue must match;
+use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
+[docs/AGENT-DOOR.md](docs/AGENT-DOOR.md) for scopes, native consent, runner custody
+and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
+Keep the existing core-flow registration and CI shard count. Contract judgments
+remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.

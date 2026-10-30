@@ -47,12 +47,15 @@ importers:
       '@ghostery/adblocker':
         specifier: 2.20.1
         version: 2.20.1
+      '@modelcontextprotocol/sdk':
+        specifier: 1.32.1
+        version: 1.32.1(zod@4.6.3)
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
       '@runeditrun/rer':
-        specifier: 0.2.82
-        version: 0.2.82
+        specifier: 0.2.94
+        version: 0.2.94
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -89,6 +92,9 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+      miniflare:
+        specifier: 5.20260907.0-alpha
+        version: 5.20260907.0-alpha(@types/node@22.20.5)
       rollup:
         specifier: 4.64.12
         version: 4.64.12
@@ -1151,8 +1157,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@runeditrun/rer@0.2.82':
-    resolution: {integrity: sha512-XzL86f2maarwZNl1RsC0j2eCR6rkY69wgQiy0vy5TvUkT4s5KMqOkx2bDh6YDkQ77CXtEIakuup6Fp1TXRVtmQ==}
+  '@runeditrun/rer@0.2.94':
+    resolution: {integrity: sha512-F+URqV6t0nTLmognzhm0X66Fd0N9JmDxqa7UP6Hz7rLYigdU4U2rvN6tji3Ml7ivZqp+0k3rHH8ERizQ9/cTtA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -3324,7 +3330,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.64.12':
     optional: true
 
-  '@runeditrun/rer@0.2.82': {}
+  '@runeditrun/rer@0.2.94': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:
