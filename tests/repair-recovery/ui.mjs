@@ -74,3 +74,20 @@ export async function repairPanel(app,browser,directory){
  }
  return captures;
 }
+
+export async function restoredRepairPanel(app,browser,directory,issue){
+ const captures=[];
+ for(const width of [1440,390]){
+  const context=await browser.newContext({viewport:{width,height:900}});
+  try{
+   await openGate(context,app.origin);await context.addCookies(app.cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:app.origin})));
+   const page=await context.newPage();await page.goto(`${app.origin}/projects/a/issues/${issue}`);await openSection(page,'Repairs');
+   const repair=page.locator('section.repairs article.repair').first();await repair.getByText('Historical verdict: Recurred',{exact:true}).waitFor();
+   await repair.getByText(/It does not establish current repair proof/).waitFor();
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'restored repair fits');
+   const audit=await new AxeBuilder({page}).include('section.repairs').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(row=>row.id),[]);
+   const path=`${directory}/restored-repair-${width}.png`;await repair.screenshot({path});captures.push(path);
+  }finally{await context.close();}
+ }
+ return captures;
+}

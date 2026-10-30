@@ -1,7 +1,7 @@
 import { operatorUi } from './operator-ui.mjs';
-import {archiveProjection} from './archive.mjs';
 import assert from 'node:assert/strict';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {archiveProjection} from './archive.mjs';
 import {execFileSync} from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import {startTestWorker} from './worker.mjs';
@@ -25,7 +25,7 @@ try {
   await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping&&!scenario.startsWith('operator-'),mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')},mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
@@ -83,6 +83,30 @@ try {
  await page.locator('tbody tr').first().getByRole('link').click();await page.getByText('Regressed in winter-deliveries',{exact:true}).waitFor();checked('Resolved issue recurs in next release; late older release does not replace regression identity');
  // Check drafts across destinations without relying on browser refresh persistence.
  await (await workbenchLink(page,'Releases')).click();await openSection(page,'Register a release');await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();await openSection(page,'Register a release');assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
+
+ // Open the actual browser download, including its verified closing hashes.
+ await (await workbenchLink(page,'Settings')).click();await settingsSection(page,'Imports and archive');
+ await page.getByRole('heading',{name:'Archive and restore',exact:true}).waitFor();
+ const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
+ assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
+ const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
+ assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
+ assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');
+ assert.ok(downloaded.data.issues.some(issue=>issue.id===admitted.issue),'actual triaged issue travels');
+ const privateMap=downloaded.data.artifacts.find(map=>map.release==='autumn-deliveries'&&map.debug==='dispatch-map');
+ assert.ok(privateMap,'uploaded private map travels');assert.deepEqual(JSON.parse(privateMap.payload),application.map,'private source bytes survive the download');
+ for(const credential of [project.ingestKey,cookie.slice(cookie.indexOf('=')+1)])assert.equal(downloaded.text.includes(credential),false,'active credential bytes never travel');
+ for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(downloaded.data,table),false,'private authority is excluded');
+ const destination=await startTestWorker(15483);
+ try{
+  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
+  assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
+  assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
+ }finally{await destination.stop();}
+ await page.getByRole('button',{name:'Download private archive',exact:true}).scrollIntoViewIfNeeded();await capture('private-archive',width);
+ checked('Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions');
 
  // Settings has one path per section: /settings opens the first section this role sees, the section list moves
  // between paths (one control at phone width), a reload keeps the section and an unknown section is a real 404.

@@ -2,7 +2,7 @@ import { Details } from './Details';
 import { date, type Request } from './shared';
 
 const statusLabel: Record<string, string> = {
-  proposed: 'Proposed, waiting for your approval', approved_awaiting_connection: 'Approved, awaiting connection', approved: 'Approved', grant_expired: 'Grant expired',
+  historical: 'Restored history; no active grant', proposed: 'Proposed, waiting for your approval', approved_awaiting_connection: 'Approved, awaiting connection', approved: 'Approved', grant_expired: 'Grant expired',
   pull_request_open: 'Draft pull request open', merged: 'Merged', deployed: 'Deployed',
 };
 const verdictLabel: Record<string, string> = { reached: 'Reached the affected users', recurred: 'Recurred after the deploy', inconclusive: 'Inconclusive' };
@@ -16,6 +16,7 @@ export function FixWorkflowCard({ project, workflow, busy, write, request }: Pro
   return <article className="fix" aria-labelledby={label}>
     <h3 id={label}>{grant.repository}: <code>{grant.branch}</code> → <code>{grant.base}</code></h3>
     <p className={`fix-status ${workflow.status}`}><strong>{statusLabel[workflow.status] ?? workflow.status}</strong></p>
+    {workflow.historical && <p className="callout">Archived approvals, checks and exposure are historical. Queue a fresh run and propose a new workflow to act in this installation.</p>}
     <dl className="execution-facts">
       <div><dt>Proposed</dt><dd>{date(states.proposed.at)}</dd></div>
       <div><dt>Approved</dt><dd>{states.approved ? `${date(states.approved.at)}; ${states.approved.expired ? 'expired' : 'expires'} ${date(states.approved.expires)}` : 'Not approved'}</dd></div>
@@ -36,8 +37,8 @@ export function FixWorkflowCard({ project, workflow, busy, write, request }: Pro
       </ul>
     </Details>
     <div className="fix-actions">
-      {approvable && <button className="primary-button" disabled={busy} onClick={() => void act('approve')}>{states.approved ? 'Approve a renewed grant' : 'Approve this exact grant'}</button>}
-      {states.approved && !states.approved.expired && connected && !states.deployed && <button className="text-button" disabled={busy} onClick={() => void act('advance')}>{states.pullRequest ? 'Read pull request, checks and deployments' : 'Open branch and draft pull request'}</button>}
+      {!workflow.historical && approvable && <button className="primary-button" disabled={busy} onClick={() => void act('approve')}>{states.approved ? 'Approve a renewed grant' : 'Approve this exact grant'}</button>}
+      {!workflow.historical && states.approved && !states.approved.expired && connected && !states.deployed && <button className="text-button" disabled={busy} onClick={() => void act('advance')}>{states.pullRequest ? 'Read pull request, checks and deployments' : 'Open branch and draft pull request'}</button>}
     </div>
     {workflow.exposure && <Exposure proof={workflow.exposure} />}
     <Details title={`Receipts (${workflow.receipts.length})`} triggerLabel="Show receipts">

@@ -1,3 +1,4 @@
+import { restoredWork, RESTORED_WORK_REASON } from '../restored-work';
 import { hash, scrub } from '../privacy';
 import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
@@ -31,6 +32,7 @@ async function deployment(db: D1Database, row: any, grant: any, rows: any[]): Pr
 
 export async function workflowView(db: D1Database, env: any, row: any, now = Date.now()) {
  const grant = JSON.parse(row.grant_spec), rows = await receipts(db, row.id), link = connection(env);
+ const historical = await restoredWork(db,row.project,'fix',row.id);
  const deployed = await deployment(db, row, grant, rows), checks = succeeded(rows, 'read_checks').at(-1);
  const branch = succeeded(rows, 'create_branch')[0], pull = succeeded(rows, 'open_draft_pull_request')[0], merge = succeeded(rows, 'read_pull_request').find(r => r.detail.merged);
  const expired = row.approved !== null && now >= row.expires;
@@ -38,7 +40,7 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
  const status = deployed ? 'deployed' : row.merged ? 'merged' : row.approved === null ? 'proposed' : expired ? 'grant_expired'
   : row.pull_number ? 'pull_request_open' : link.state === 'configured' ? 'approved' : 'approved_awaiting_connection';
  return {
-  id: row.id, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status,
+  id: row.id, issue: row.issue, reproducer: row.reproducer, run: row.run, flow: row.flow, revision: row.revision, grant, status: historical ? 'historical' : status, ...(historical?{historical:true}:{}),
   connection: publicConnection(link),
   states: {
    proposed: { at: row.proposed },
@@ -59,6 +61,7 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
 // request, or read its state, checks and whether a deployment contains it.
 // The token is minted for this call only and revoked before returning.
 export async function advance(db: D1Database, env: any, row: any) {
+ if(await restoredWork(db,row.project,'fix',row.id))throw new GrantRefused(RESTORED_WORK_REASON);
  const link = connection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
