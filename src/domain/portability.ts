@@ -188,10 +188,12 @@ for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables
 laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
-laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+// Later additions extend each compatibility set. Keep the complete reporting
+// collection independent so its carried-collection check stays authoritative.
+laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 const preferenceNames=Object.keys(notificationPreferenceTables);
 for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0084_notification_preferences.sql')}
-laterTables.unshift({tables:preferenceNames,migrations:['0084_notification_preferences.sql']});
+laterTables.unshift({tables:[...preferenceNames],migrations:['0084_notification_preferences.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
