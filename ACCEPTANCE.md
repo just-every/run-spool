@@ -1567,7 +1567,7 @@ Agent surface · target · **partial**
 6. Activity and exports at 1440 and 390 show `"<agent> for <person>"` for every agent act.
 7. Mail an agent sends to an outside address names `"<agent> for <person>"` as its sender.
 
-**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native repairs, grouping activity, repository grant, GitHub draft payload and reviewer Undo name the real agent, sponsor and independent person. Agents and approval pages are covered by the native browser journey.
+**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Native repairs, grouping activity, repository grant, GitHub draft payload and reviewer Undo name the real agent, sponsor and independent person. Agents and approval pages are covered by the native browser journey. `tests/agent-door/review-erasure.mjs` reviewErasureFlow proves that both pending and execution audit history keep the named person approver after native project erasure deletes private approval arguments, summaries, results and project content, without changing audit IDs, sequence or time.
 **Gap.** Attribution for unqualified standing workers, optional mail edges and the full target surface remains unproved.
 
 #### BASE-AGENT-009 — Every agent action is audited with its class and decision
@@ -1585,8 +1585,8 @@ Agent surface · target · **partial**
 6. Removing the agent keeps its rows and its name.
 7. The Agents page works at 1440 and 390 with no serious or critical axe findings.
 
-**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Private reads, refusals, held calls, exact execution links and native activity retain named actors, native targets and policy decisions; native tests assert zero differs_from_policy.
-**Gap.** The shared audit checker still requires a private create outcome after real project erasure removes it: Base modules/agent-door/conformance/audit.mjs:68-90 and ADOPTING.md:1019-1029. Full audit acceptance remains incomplete.
+**Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Private reads, refusals, held calls, exact execution links and native activity retain named actors, native targets and policy decisions; native tests assert zero differs_from_policy. `tests/agent-door/review-erasure.mjs` reviewErasureFlow proves ordered decision chronology and named approval history survive project erasure while private custody and content are deleted.
+**Gap.** The declared CORE audit journey retains its erasure history. Optional lifecycle families and the complete target surface remain unqualified; this evidence does not promote full audit acceptance.
 
 #### BASE-AGENT-010 — Agents can follow changes
 
@@ -1653,7 +1653,7 @@ Agent surface · target · **partial**
 5. A stranger agent given only the seed URL completes the specialist journey through MCP.
 
 **Evidence.** `src/domain/agent-door`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/people.mjs`; `tests/agent-door/specialist.mjs`; `tests/agent-door/continuation.mjs`; the normal installed rer verify. Normal installed rer verify runs the shared harness; the descriptor is generated from the native catalogue and the real specialist journey uses signed owner/settings and isolated provider edges. CI runs the same harness in the existing owner-ui job.
-**Gap.** Shared closed-schema narrowing injection, standing-worker, held-erasure and erased-audit failures remain on rer 0.2.94. Optional families and the complete target specialist week are not qualified.
+**Gap.** The shared closed-schema narrowing injection contradiction remains on rer 0.2.94: BASE-AGENT-005.5.autonomous.revoke. Erasure audit attribution is covered by `tests/agent-door/review-erasure.mjs` reviewErasureFlow; native authority and the shared conformance assertions remain unchanged. Optional families and the complete target specialist week are not qualified.
 
 ### Agent surface
 

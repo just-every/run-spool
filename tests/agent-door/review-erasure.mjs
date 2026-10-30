@@ -26,6 +26,16 @@ export async function reviewErasureFlow(app,screens){
  await screens?.capture('native-reviewer-audit',`/projects/${project}/issues/${issue.id}`,'Undid a grouping correction',page=>page.getByRole('button',{name:'Details: Operator audit',exact:true}).click());
  await app.adopt();
  const disposable=done(await app.call('spool.projects.create',{name:'Ephemeral privacy probe',idempotency_key:randomUUID()}));
+ const approvalPolicy=heldPolicy();approvalPolicy.rules=approvalPolicy.rules.filter(rule=>rule.class!=='standard');await app.adopt(approvalPolicy);
+ const held=await app.call('spool.releases.record',{project:disposable.id,name:'Private approval custody',build:'private-erasure-build',idempotency_key:randomUUID()});
+ const pending=held._meta?.['com.runeditrun/approval']??held._meta?.['com.runeditrun/error']?.approval;assert.ok(pending?.id,JSON.stringify(held));
+ const approval=(await app.json('/agents/api/approvals/'+pending.id)).approval;
+ await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+ const auditRows=async()=>{const rows=[];let after='0';for(;;){const page=await app.json('/agents/api/audit?after='+encodeURIComponent(after));rows.push(...page.rows);if(!page.rows.length)return rows;after=page.cursor;}};
+ const beforeAudit=await auditRows(),approvedRows=beforeAudit.filter(row=>row.approval?.id===pending.id);
+ assert.deepEqual(approvedRows.map(row=>row.outcome),['pending','done']);
+ for(const row of approvedRows)assert.deepEqual(row.approval.by,[row.sponsor.id],'Both pending and execution history name the real approver');
+ await app.adopt();
  const erasure=done(await app.call('spool.privacy.preview',{project:disposable.id}));
  const accepted=done(await app.call('spool.privacy.erase',{project:disposable.id,planHash:erasure.planHash,idempotency_key:randomUUID()}));assert.equal(accepted.phase,'deleting');
  const foreign=await app.call('spool.privacy.continue',{id:accepted.id,idempotency_key:randomUUID()},{act:{sub:'another-agent',name:'Other triage',specialist:'triage engineer'}});assert.equal(foreign._meta['com.runeditrun/error'].code,'not_found','Accepted erasure custody cannot move to another agent');
@@ -34,6 +44,11 @@ export async function reviewErasureFlow(app,screens){
  assert.ok((await app.json('/api/projects')).some(p=>p.id===disposable.id),'Pause leaves the accepted job unexecuted');
  const completed=await app.json('/api/erasures/'+accepted.id+'/resume','POST',{});assert.equal(completed.phase,'complete','A real person retains native erasure authority');assert.ok(completed.deleted.agent_door_events>=1,'Native project erasure removes its retained private resource events');
  assert.ok(!(await app.json('/api/projects')).some(p=>p.id===disposable.id));
+ const afterAudit=await auditRows();assert.deepEqual(afterAudit.slice(0,beforeAudit.length).map(row=>[row.id,row.sequence,row.at]),beforeAudit.map(row=>[row.id,row.sequence,row.at]),'Erasure retains the entire ordered decision chronology');
+ for(const row of approvedRows){const retained=afterAudit.find(item=>item.id===row.id);assert.deepEqual(retained.approval,row.approval,'Erasing private approval custody preserves its named approver');assert.equal(retained.resource,null);}
+ const erasedApproval=await app.request('/agents/api/approvals/'+pending.id);assert.equal(erasedApproval.status,404,'Private approval arguments and summary are no longer available');await erasedApproval.body?.cancel();
+ assert.equal(await app.DB.prepare('SELECT 1 FROM agent_door_approvals WHERE id=?').bind(pending.id).first(),null,'Private approval custody is deleted');
+ assert.equal((await app.DB.prepare('SELECT 1 FROM releases WHERE project=?').bind(disposable.id).all()).results.length,0,'Private native content is deleted');
  await app.adopt();
  console.log('Spool review/erasure: independent native reviewer Undo with no agent identity, durable erasure custody, paused continuation and current person completion passed.');
 }

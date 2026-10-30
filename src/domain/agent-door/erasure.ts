@@ -32,7 +32,17 @@ export function agentErasureDatabase(db:D1Database,actor:AgentAuthority):D1Datab
  * target and project-scoped policy payload. Private results still leave through
  * the ordinary erasure graph; the audit never keeps their arguments/results. */
 export function eraseAgentAudit(db:D1Database,project:string):D1PreparedStatement[] {
- return [db.prepare(`UPDATE agent_door_audit SET row=json_set(json_remove(row,'$.trace','$.ignored_arguments'),
+ return [
+ // Pending and execution rows share the approval handle. Preserve the actual
+ // people who decided it before the graph deletes arguments, summaries and
+ // results; retaining a decision does not retain permission to execute it.
+ db.prepare(`UPDATE agent_door_audit SET row=json_set(row,'$.approval.by',json((
+  SELECT json_group_array(DISTINCT json_extract(mark.value,'$.person'))
+  FROM agent_door_approvals a,json_each(a.approvals) mark
+  WHERE a.id=json_extract(agent_door_audit.row,'$.approval.id'))))
+  WHERE EXISTS(SELECT 1 FROM agent_door_approvals a
+   WHERE a.id=json_extract(agent_door_audit.row,'$.approval.id') AND json_extract(a.saved,'$.args.project')=?)`).bind(project),
+ db.prepare(`UPDATE agent_door_audit SET row=json_set(json_remove(row,'$.trace','$.ignored_arguments'),
   '$.resource',NULL,'$.classes',json(COALESCE((SELECT json_group_array(json(CASE WHEN json_extract(value,'$.facts.service')=? THEN json_set(value,'$.facts.service','erased') ELSE value END)) FROM json_each(row,'$.classes')),'[]'))),evidence=NULL
   WHERE id IN (SELECT decision_id FROM agent_door_calls WHERE EXISTS(SELECT 1 FROM json_each(outcome,'$.resources') r WHERE json_extract(r.value,'$.uri')='spool://projects/'||? OR instr(json_extract(r.value,'$.uri'),'spool://projects/'||?||'/')=1))
   OR id IN (SELECT json_extract(saved,'$.decision_id') FROM agent_door_approvals WHERE json_extract(saved,'$.args.project')=?)
