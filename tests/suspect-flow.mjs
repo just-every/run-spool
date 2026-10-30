@@ -20,6 +20,7 @@ export async function suspectFlow({req,json,origin,browser}) {
  let view=await json(path);assert.equal(view.candidates.length,2);assert.ok(view.candidates.every(c=>c.reason[0].kind==='first_retained_occurrence'&&c.reason[0].record.id==='synthetic-spool-new'&&c.deployments.some(d=>d.id==='synthetic-spool-rollout')&&!c.changedSource.available));
  assert.deepEqual(view.comparison.rows.map(r=>[r.release,r.occurrences,r.issues]).sort(),[[old,5,1],[current,1,1]].sort());
  const reactivation=await reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time});
+ const comparison=await comparableFixture({req,json,old,current,falseSha,trueSha});
  const before=(await archiveProjection(await req('/api/archive'))).data;
  await mkdir('.artifacts/rel002',{recursive:true});
  for(const width of [1440,390]) {
@@ -57,6 +58,20 @@ export async function suspectFlow({req,json,origin,browser}) {
     assert.deepEqual((await new AxeBuilder({page}).include('[aria-label="Suspect changes"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
    }
    await regressed.screenshot({path:`.artifacts/rel002/suspect-reactivation-${width}.png`});
+   await page.goto(`${origin}/projects/${comparison.project}/issues/${comparison.issue}`);
+   const compared=page.getByRole('region',{name:'Suspect changes',exact:true});
+   await compared.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
+   await compared.getByText(/Engineer judgment: rejected/).waitFor();
+   await compared.locator('summary').filter({hasText:'Comparable cohorts and loss'}).click();
+   if(width===1440){
+    assert.equal(await compared.getByText(/Observed rate increase/).count(),2);
+    assert.ok((await compared.innerText()).includes('2 issue events, 4 observed sessions, 2 unhealthy; adoption 28.6%'));
+    assert.ok((await compared.innerText()).includes('Impact attribution is withheld.'));
+    assert.ok((await compared.innerText()).includes('Changed path checkout.js'));
+    assert.deepEqual((await new AxeBuilder({page}).include('[aria-label="Suspect changes"]').analyze()).violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
+   }
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'cohort comparison reflows');
+   await compared.screenshot({path:`.artifacts/rel002/suspect-comparison-${width}.png`});
   }finally{await context.close()}
  }
  const after=(await archiveProjection(await req('/api/archive'))).data;
@@ -113,4 +128,54 @@ async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorS
  assert.deepEqual(view.comparison.rows.map(r=>[r.release,r.occurrences,r.issues]).sort(),[[old,1,1],[current,1,1]].sort());
  assert.deepEqual(view.comparison.health.rows,[],'no session denominator is invented for recurrence');
  return {project:p.id,issue:issue.id,alert,deployment};
+}
+
+// One populated public journey qualifies the comparison and the provenance an engineer or agent reads.
+async function comparableFixture({req,json,old,current,falseSha,trueSha}) {
+ const p=await json('/api/projects','POST',{id:'synthetic-spool-comparison',name:'Comparable checkout rollout'}),base='/api/projects/'+p.id;
+ await json(base+'/releases','POST',{name:old,build:'web-1'});
+ await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:falseSha,files:['layout.js']},{sha:trueSha,files:['checkout.js']}]});
+ const d=new URL(p.dsn),intake=`/api${d.pathname}/envelope/?sentry_key=${d.username}&sentry_version=7`;
+ const send=async(type,value)=>{const response=await req(intake,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value),{Cookie:''});assert.equal(response.status,200,await response.clone().text());return response.json()};
+ const time=Date.now()-1000;
+ const session=async(release,os,device,status='exited',offset=0)=>send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(time+offset).toISOString(),status,attrs:{release,environment:'production',user_agent:os==='Windows'?'Mozilla/5.0 (Windows NT 10.0; Win64; x64)':os==='Android'?'Mozilla/5.0 (Linux; Android 14; Mobile)':'synthetic-spool-unknown'}});
+ for(let i=0;i<10;i++)await session(old,'Windows','desktop');
+ for(let i=0;i<4;i++)await session(current,'Windows','desktop',i<2?'crashed':'exited');
+ for(let i=0;i<20;i++)await session(current,'Android','mobile');
+ for(let i=0;i<3;i++)await session(current,'unknown','unknown');
+ await send('sessions',{attrs:{release:old,environment:'production'},aggregates:[{started:new Date(time).toISOString(),exited:5}]});
+ let counter=0;
+ const event=async(release,spike=false)=>send('event',{event_id:(++counter).toString(16).padStart(32,'0'),release,dist:release===old?'web-1':'web-2',environment:'production',contexts:{device:{family:'desktop'},os:{name:'Windows'}},exception:{values:[{type:'CheckoutError',value:spike?'Older basket spike':'Confirmation missing',stacktrace:{frames:[{filename:spike?'basket.js':'checkout.js',lineno:spike?30:12,colno:0,function:spike?'basket':'confirm',in_app:true}]}}]}});
+ await event(old);
+ let issue=(await json(base+'/issues'))[0];await json(base+'/issues/'+issue.id,'PATCH',{revision:issue.revision,state:'resolved',resolution:'current'});
+ await event(current);await event(current);
+ for(let i=0;i<4;i++)await event(old,true);
+ await send('session',{attrs:{release:current}});
+ await send('client_report',{timestamp:Date.now()/1000,discarded_events:[{reason:'before_send',category:'error',quantity:3},{reason:'before_send',category:'session',quantity:2}]});
+ const path=base+'/suspects/issues/'+issue.id,view=await json(path),cohorts=view.comparison.cohorts;
+ assert.deepEqual(view.comparison.rows.map(r=>[r.release,r.occurrences,r.issues]).sort(),[[old,5,2],[current,2,1]].sort(),'older-client unrelated spike remains in the same rollout window');
+ const known=cohorts.rows.filter(r=>r.device==='desktop'&&r.os==='Windows');
+ assert.deepEqual(known.map(r=>[r.release,r.sessions,r.issueEvents,r.unhealthy,r.adoptionShare]),[[old,10,1,0,10/14],[current,4,2,2,4/14]]);
+ assert.ok(known.every(r=>r.comparable&&r.interval&&r.environment==='production'));
+ assert.deepEqual(cohorts.contrasts.map(r=>[r.previousRelease,r.release,r.device,r.os,r.previousIssueRate,r.issueRate,r.issueRateChange,r.unhealthyRateChange]),[[old,current,'desktop','Windows',.1,.5,.4,.5]],'a new mobile cohort cannot be pooled into the existing desktop denominator');
+ assert.equal(cohorts.loss.aggregateSessions,5);assert.equal(cohorts.loss.unknownCohortSessions,3);assert.equal(cohorts.loss.unreported,'unknown');
+ for(const [reason,count] of [['session_invalid',1],['client_discarded:error:before_send',3],['client_discarded:session:before_send',2]])assert.equal(cohorts.loss.outcomes.find(r=>r.reason===reason)?.count,count);
+ assert.ok(cohorts.loss.attribution.includes('withheld'));
+ const candidates=view.candidates.filter(c=>c.release===current);assert.deepEqual(candidates.map(c=>c.sha).sort(),[falseSha,trueSha]);
+ for(const c of candidates){assert.ok(c.reason.some(r=>r.kind==='reactivation'));assert.ok(c.reason.some(r=>r.kind==='rate_change'&&r.record.previousRelease===old&&r.record.issueRateChange===.4));assert.equal(c.changedSource.available,true)}
+ assert.deepEqual(candidates.find(c=>c.sha===falseSha).changedSource.matches,[],'an unrelated path is not a source match');
+ assert.deepEqual(candidates.find(c=>c.sha===trueSha).changedSource.matches.map(m=>[m.event,m.frame,m.file,m.basis]).sort(),[['00000000000000000000000000000002',0,'checkout.js','reported_frame'],['00000000000000000000000000000003',0,'checkout.js','reported_frame']]);
+ const archiveBefore=(await archiveProjection(await req('/api/archive'))).data;
+ await json(path,'PUT',{release:current,sha:falseSha,judgment:'rejected',note:'Layout is unrelated. Keep this rejected hypothesis visible.',revision:0});
+ await json(path,'PUT',{release:current,sha:trueSha,judgment:'confirmed',note:'Recorded overlap and observed rate increase; reproduction is still required.',revision:0});
+ const agent=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:'Bearer '+agent.key};
+ const packet=await json(base+'/issues/'+issue.id+'/packet','GET',undefined,auth);
+ assert.deepEqual(packet.suspects.candidates.filter(c=>c.release===current).map(c=>[c.sha,c.judgment.judgment,c.judgment.note]).sort(),[[falseSha,'rejected','Layout is unrelated. Keep this rejected hypothesis visible.'],[trueSha,'confirmed','Recorded overlap and observed rate increase; reproduction is still required.']]);
+ assert.ok(packet.suspects.provenance.includes('never cause or execution authority'));assert.ok(packet.suspects.learning.includes('exact project'));
+ assert.ok(!JSON.stringify(packet.suspects).includes('operator_id'));assert.ok(!JSON.stringify(packet.suspects).includes('layout.js'),'the packet does not disclose unmatched repository paths');
+ for(const table of ['events','issues','health_sessions','health_aggregates'])assert.deepEqual((await archiveProjection(await req('/api/archive'))).data[table],archiveBefore[table],'judgment and packet reads leave '+table+' unchanged');
+ const foreign=await json('/api/projects','POST',{id:'synthetic-spool-comparison-foreign',name:'Other comparison'}),foreignAgent=await json('/api/projects/'+foreign.id+'/keys','POST',{kind:'agent'});
+ assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+foreignAgent.key})).status,403);
+ await json(base+'/keys/'+agent.hash,'DELETE');assert.equal((await req(base+'/issues/'+issue.id+'/packet','GET',undefined,auth)).status,401);
+ return {project:p.id,issue:issue.id,base,path,packet};
 }

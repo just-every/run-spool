@@ -1,8 +1,9 @@
 import { objectJson, SentryWireError, type SentryItem } from '../sentry/wire';
 import { sentryRelease } from '../releases/identity';
+import { sessionCohort } from '../suspects/metadata';
 import { scrub } from '../privacy';
 export const sessionOutcomes=['session_stored','session_invalid','session_missing_release','session_item_too_large','session_filtered','session_rate_limited','session_capacity','session_release_refused'];
-export type SessionRow={sid?:string;release:string;environment:string;started:number;updated:number;status:string;errors:number;did?:string;quantity:number};
+export type SessionRow={sid?:string;release:string;environment:string;started:number;updated:number;status:string;errors:number;did?:string;quantity:number;cohort?:{device:string;os:string}};
 const integer=(n:unknown)=>Number.isSafeInteger(n)&&Number(n)>=0&&Number(n)<=1000000;
 export function sessionTime(value:unknown){const n=typeof value==='number'?value*1000:typeof value==='string'?Date.parse(value):NaN;if(!Number.isFinite(n)||n<0||n>Date.now()+300000)throw new SentryWireError('session_invalid',422);return Math.floor(n)}
 export function parseSessions(item:SentryItem):SessionRow[]{
@@ -24,5 +25,5 @@ export function parseSessions(item:SentryItem):SessionRow[]{
  if(typeof v.sid!=='string'||! /^(?:[a-f0-9]{32}|[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/i.test(v.sid)||!['ok','exited','errored','crashed','abnormal','unhandled'].includes(status)||!integer(v.errors??0)||v.init!==undefined&&typeof v.init!=='boolean'||v.duration!==undefined&&(typeof v.duration!=='number'||!Number.isFinite(v.duration)||v.duration<0))throw invalid();
  if(v.did!==undefined&&v.did!==null&&(typeof v.did!=='string'&&typeof v.did!=='number'||String(v.did).length>1000))throw invalid();
  const started=sessionTime(v.started),updated=v.timestamp===undefined?started:sessionTime(v.timestamp);if(updated<started)throw invalid();
- return [{sid:v.sid.replaceAll('-','').toLowerCase(),release,environment,started,updated,status,errors:v.errors??0,...v.did!==undefined&&v.did!==null&&String(v.did)?{did:String(v.did)}:{},quantity:1}];
+ return [{sid:v.sid.replaceAll('-','').toLowerCase(),release,environment,started,updated,status,errors:v.errors??0,...v.did!==undefined&&v.did!==null&&String(v.did)?{did:String(v.did)}:{},quantity:1,cohort:sessionCohort(attrs.user_agent)}];
 }

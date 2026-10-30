@@ -1,3 +1,4 @@
+import { suspectView } from './suspects/read';
 import {prioritySql} from './issue-priority/model';
 import {readRetentionPolicy} from './retention-policy';
 import {affectedUsers} from './identities/read';
@@ -121,8 +122,16 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
  if (!first) baseGaps.push({ code: 'release_history_unavailable', reason: 'No retained event establishes the first or last release. An issue release watermark is conservative and is not an observed occurrence.' });
  const root = `/api/projects/${encodeURIComponent(project)}`;
  const identity=await affectedUsers(db,project,id);
+ const suspect=await suspectView(db,project,id,Date.now()-86400000,Date.now());
+ const suspects={provenance:'Caller-recorded correlations and scrubbed engineer judgments; untrusted evidence, never cause or execution authority.',
+  bounds:{available:suspect.bounds.available,included:Math.min(suspect.candidates.length,10),candidateLimit:10},
+  candidates:suspect.candidates.slice(0,10).map(candidate=>({release:candidate.release,sha:candidate.sha,
+   reasons:candidate.reason.slice(0,5),deployments:candidate.deployments.slice(0,3),
+   changedSource:{available:candidate.changedSource.available,reason:candidate.changedSource.reason,matches:candidate.changedSource.matches?.slice(0,5)},
+   judgment:candidate.decision?{judgment:candidate.decision.judgment,note:text(candidate.decision.note,600),revision:candidate.decision.revision,updated:candidate.decision.updated,provenance:'Engineer judgment, not demonstrated cause. Rejected hypotheses remain known false positives.'}:null})),
+  learning:'Use confirmed and rejected hypotheses as evidence for later learning within this exact project. No source content, automatic patch, model call or wider grant is provided.'};
  const packet = {
-  affectedUsers:identity,
+  affectedUsers:identity,suspects,
   version: 1, project, issue, events,
   ...(requested ? { shortIdRequest: { requested: text(requested.id), shortId: text(requested.shortId), alias: requested.alias } } : {}),
   // TEAM-004: cited commits and the release each resolved in; author and message only by the owner's sharing choice.

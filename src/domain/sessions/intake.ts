@@ -34,6 +34,7 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
     jobs.push(stmt(db,`INSERT INTO health_sessions VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(project,sid) DO UPDATE SET
      updated=MAX(updated,excluded.updated),errors=MAX(errors,excluded.errors),user_hash=COALESCE(user_hash,excluded.user_hash),
      status=CASE WHEN status='crashed' OR excluded.status='crashed' THEN 'crashed' WHEN status='abnormal' OR excluded.status='abnormal' THEN 'abnormal' WHEN status='unhandled' OR excluded.status='unhandled' THEN 'unhandled' WHEN excluded.updated>=updated THEN excluded.status ELSE status END`,p,row.sid,release,environment,row.started,row.updated,row.status,row.errors,row.did?await identityHash(identity!.key,row.did):null));
+   if(row.cohort)jobs.push(stmt(db,'INSERT INTO health_session_cohorts VALUES(?,?,?,?) ON CONFLICT(project,sid) DO NOTHING',p,row.sid,row.cohort.device,row.cohort.os));
    }else jobs.push(stmt(db,'INSERT INTO health_aggregates VALUES(?,?,?,?,?,?) ON CONFLICT(project,release,environment,started,status) DO UPDATE SET quantity=quantity+excluded.quantity',p,release,environment,row.started,row.status,row.quantity));
   }
   if(conflict){await record('session_invalid');continue}

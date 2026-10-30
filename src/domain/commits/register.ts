@@ -29,6 +29,8 @@ export function commitStatements(db: D1Database, project: string, release: strin
   s(db, 'INSERT INTO release_commits(project,release,sha,source,created) SELECT ?,?,value,?,? FROM json_each(?) WHERE true ON CONFLICT(project,release,sha) DO NOTHING', project, release, source, time, shas),
   // SDK-009 commit-SHA association: a release named by a commit's full SHA includes it.
   s(db, "INSERT INTO release_commits(project,release,sha,source,created) SELECT r.project,r.name,r.name,'sha_release',? FROM releases r WHERE r.project=? AND r.name IN (SELECT value FROM json_each(?)) ON CONFLICT(project,release,sha) DO NOTHING", time, project, shas),
+  s(db, `INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM json_each(?) k JOIN suspect_commit_files f ON f.project=? AND f.sha=json_extract(k.value,'$.sha') WHERE json_type(k.value,'$.files')='array' AND f.files<>json_extract(k.value,'$.files')) THEN 1 ELSE 0 END`, rows, project),
+  s(db, `INSERT INTO suspect_commit_files(project,sha,files,received) SELECT ?,json_extract(k.value,'$.sha'),json_extract(k.value,'$.files'),? FROM json_each(?) k WHERE json_type(k.value,'$.files')='array' ON CONFLICT(project,sha) DO NOTHING`, project, time, rows),
   ...resolutionStatements(db, project, time),
  ];
 }

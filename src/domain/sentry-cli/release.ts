@@ -57,7 +57,7 @@ export function sentryCommits(value: unknown): CommitInput[] {
    if (!commit || typeof commit !== 'object' || typeof commit.id !== 'string') throw new Error('Each commit has an id');
    const present = (text: unknown) => typeof text === 'string' && text.length ? text : undefined;
    const author = { name: present(commit.author_name)?.slice(0, 200), email: present(commit.author_email)?.slice(0, 320) };
-   return { sha: commit.id, message: present(commit.message)?.slice(0, 8192), author: Object.fromEntries(Object.entries(author).filter(([, v]) => v !== undefined)) };
+   return { sha: commit.id, ...(Array.isArray(commit.patch_set) ? {files:commit.patch_set.map((file:any)=>file.path)} : {}), message: present(commit.message)?.slice(0, 8192), author: Object.fromEntries(Object.entries(author).filter(([, v]) => v !== undefined)) };
   }));
  } catch (error) { return refuse(400, (error as Error).message); }
 }
