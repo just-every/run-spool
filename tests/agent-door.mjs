@@ -86,7 +86,8 @@ try{
  const pendingView=await app.json('/agents/api/approvals/'+pending.id);const approval=pendingView.approval;
  await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
  assert.equal((await app.json(`/api/projects/${project}/issues`))[0].state,'suppressed');
- await screens.capture('approval-executed','/agents/approvals/'+pending.id,'executed');
+ assert.equal((await app.json('/agents/api/approvals/'+pending.id)).approval.state,'executed','The refreshed person wording retains the executed native state');
+ await screens.capture('approval-executed','/agents/approvals/'+pending.id,'Approved and done');
  await app.adopt(autonomousPolicy(),{paused:true});
  assert.equal(code(await app.call('spool.issues.update',{project,issue,state:'open',revision:packet.issue.revision+1,idempotency_key:randomUUID()})),'agents_paused');
  await screens.capture('agents-paused','/agents','paused');

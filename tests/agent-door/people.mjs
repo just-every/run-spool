@@ -12,8 +12,10 @@ export async function peopleFlow(app){
  const accepted=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(accepted.status,303,'The invited native person confirms their own email');
  const cookie=accepted.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');await accepted.body?.cancel();
  await app.syncSettings([{id:sub,email,name:'Riley Engineer',role:'member',invite:1}]);
- const claims={sub,email:'owner@spool.test',act:{sub:agentId,name:'Scoped triage',specialist:'triage engineer'}};
- const list=await app.call('spool.issues.list',{project},claims);assert.ok(!list.isError,'Durable Business subject maps to the current native teammate despite token email');
+ const claims={sub,email,act:{sub:agentId,name:'Scoped triage',specialist:'triage engineer'}};
+ const stale=await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{...claims,email:'owner@spool.test'},'2025-11-25',401);
+ assert.equal(stale.error.code,-32001,'A different email cannot authenticate the mapped Business subject or select the owner');
+ const list=await app.call('spool.issues.list',{project},claims);assert.ok(!list.isError,'The durable Business subject and current email admit only the mapped native teammate');
  const roster=await app.json('/api/organization'),member=roster.members.find(m=>m.id===invited.id);
  const self=await app.call('spool.access.update',{id:member.operator_id,version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);
  assert.equal(self._meta['com.runeditrun/error'].code,'self_escalation');
@@ -47,5 +49,5 @@ export async function peopleFlow(app){
  assert.equal((await local(project)).status,401,'Later widening cannot revive the old key');
  await app.json('/api/organization/members/'+member.id,'DELETE',{version:member.version+2});
  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},claims,'2025-11-25',401)).httpStatus,401,'Inactive native people are refused');
- console.log('Spool people: native invitation, signed teammate mapping, token-email non-authority, ID/email self-escalation, exact local project scope and permanent key retirement passed.');
+ console.log('Spool people: native invitation, signed teammate mapping, stale-email refusal, ID/email self-escalation, exact local project scope and permanent key retirement passed.');
 }

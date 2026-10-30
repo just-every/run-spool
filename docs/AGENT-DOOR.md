@@ -17,7 +17,8 @@ remain unscoped; this declaration makes no completion claim for them.
 
 A Business access token names a durable Business person, an agent, consent and
 scopes. Signed Business settings at `/api/rer/business-settings` bind the owner
-and existing native teammates by ID. A token's email never chooses its sponsor.
+and existing native teammates by ID. A token's email never chooses its sponsor. It must match that person's current
+native address; a stale address requires a fresh token and cannot rebind identity.
 Team invitations and project grants use Spool's native team lifecycle. Roster
 sync does not grant project access or turn an existing native member into an
 organization administrator. An inactive, removed or unmapped person cannot act.
@@ -131,11 +132,13 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.89
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.93
 CLI; the door, settings and actor runtime carry matching recorded source.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;
-it does not disable the shared harness or change its failure exit.
+it does not disable the shared harness or change its failure exit. The existing
+CI owner-ui job also runs that installed harness after hosted-output and hydration
+checks, preserving its failure exit and the existing shard count.
 
 The verifier declares a disposable GitHub App binding generator and an isolated
 provider network edge, plus fresh native projects, captures, sandbox observations,
@@ -148,7 +151,10 @@ Native audit target checks now follow the cursor beyond the first 200 rows.
 Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
 catalogue acknowledgement limit, fresh-key injection probes, the shared
 narrowing/injection assertion conflict, native runner event
-identity, held erasure custody, standing-worker admission and refused approval
-execution accounting. Standing-worker admission also requires seed integration;
+identity, held erasure custody, standing-worker admission and the shared audit checker’s treatment of
+private outcomes removed by real project erasure. Published 0.2.93 now accounts
+for refused approval executions and rejects stale sponsor email; policy-renewal
+refusals retain the adopted authority. These fixes do not qualify the remaining
+native erasure or worker boundaries. Standing-worker admission also requires seed integration;
 the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,
 never passing results or completed shared duties. Spend caps remain unenforced.
