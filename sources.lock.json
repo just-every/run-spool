@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "44a43af7af810a67c74d5cd3694728f47c203dc500512d4a2307d66c8f191c64",
+      "sha256": "1bfb56e4f01a56960993d1fb973d043be19b74bfa9c7b48b1da9327c6976e191",
       "executable": false
     },
     "DEMO.md": {
@@ -9317,7 +9317,7 @@
       "executable": false
     },
     "tests/sentry-cli/debug-flow.mjs": {
-      "sha256": "2cccc2912e48fd80c5a6b330a95199fe8e39895869b774a57f142c550fb639eb",
+      "sha256": "40bfd4d9143f74e0d51b6654ed4ad6af234d2865e208973025a9f6a7c9cf79d1",
       "executable": false
     },
     "tests/sentry-cli/denials.mjs": {
