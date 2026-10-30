@@ -90,6 +90,7 @@ try {
  const preferencePath='/api/projects/personal-capture/notifications/preferences';
  const preference=await app.json(preferencePath);
  const savedPreference=await app.request(preferencePath,{revision:preference.revision,email:{...preference.email,weekly_report:true}},{},'PUT');assert.equal(savedPreference.status,200);await savedPreference.arrayBuffer();
+ const otherPreference=await app.request(preferencePath,{revision:0,email:{...preference.email,comment:true}},{Cookie:otherCookies[['quinn','spool.test'].join('@')]},'PUT');assert.equal(otherPreference.status,200);await otherPreference.arrayBuffer();
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
@@ -110,7 +111,8 @@ try {
  assert.equal(after.spool_reporting_items.find(row=>row.id===reporting.id).author,null,'Reporting author becomes erased without discarding the shared definition');
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
 
- for(const table of ['spool_notification_preferences','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
+ assert.equal(after.spool_notification_preferences.length,1,'owner erasure preserves another current person’s preferences');assert.equal(after.spool_notification_preferences[0].operator_id,otherId);
+ for(const table of ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
  assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
  for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);
  for(const table of ['spool_service_accounts','spool_service_scopes','spool_service_credentials'])assert.deepEqual(after[table],before[table].filter(row=>row.id!==service.id&&row.service!==service.id),'other service authority preserved: '+table);
