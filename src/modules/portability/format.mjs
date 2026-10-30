@@ -36,6 +36,7 @@ async function checkManifestFields(m) {
   insist(typeof m.product==='string' && typeof m.sourceIdentity==='string' && typeof m.exportedAt==='string','manifest_identity');
   insist(Number.isSafeInteger(m.partCount) && m.partCount>=0 && Number.isSafeInteger(m.epoch) && m.epoch>=0,'manifest_counts');
   insist(Array.isArray(m.tables) && Array.isArray(m.objects) && Array.isArray(m.payloads) && Array.isArray(m.journal) && Array.isArray(m.requiredConfiguration),'manifest_inventory');
+  insist(m.schemaObjects===undefined || m.excludedTables===undefined || (Array.isArray(m.excludedTables) && m.excludedTables.every(name=>typeof name==='string') && new Set(m.excludedTables).size===m.excludedTables.length),'manifest_inventory');
   // Applied product migrations, recorded by archives since additive restore.
   insist(m.migrations===undefined || (Array.isArray(m.migrations) && m.migrations.every(x=>typeof x==='string')),'manifest_inventory');
   // The ledger an export from a RER Platform installation records, by migration identity.

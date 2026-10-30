@@ -65,6 +65,10 @@ export function excludedTable(table,input={}) {
 async function archived(db,config) {
   const objects=await all(db,"SELECT name,sql,type,tbl_name FROM sqlite_master WHERE sql IS NOT NULL AND substr(lower(name),1,7) <> 'sqlite_' AND substr(lower(name),1,4) <> '_cf_' ORDER BY name");
   const kinds=await all(db,'PRAGMA table_list');
+ return archivedInventory({objects,kinds},config);
+}
+function archivedInventory({objects:input,kinds},config) {
+ const objects=[...input];
   const derived=config.derivedTables;
   const excluded=objects.filter(x=>x.type==='table' && (excludedTable(x.name,config) || (!config.includeTables.includes(x.name) &&
     derived.some(p=>x.name===p || (kinds.find(k=>k.name===x.name)?.type==='shadow' && x.name.startsWith(p+'_'))))));
@@ -76,7 +80,13 @@ async function archived(db,config) {
 }
 // The archive schema identity alone, for databases that need not satisfy the policy.
 export async function schemaIdentity(db,config,{legacyExcludedObjects=false,tablesOnly=false}={}) {
-  const {entries,excluded,schemaObjects}=await archived(db,config);
+  return inventoryIdentity(await archived(db,config),{legacyExcludedObjects,tablesOnly});
+}
+// Build evidence and live SQLite use exactly the same policy projection.
+export function inventorySchemaIdentity(inventory,config,options) {
+  return inventoryIdentity(archivedInventory(inventory,config),options);
+}
+function inventoryIdentity({entries,excluded,schemaObjects},{legacyExcludedObjects=false,tablesOnly=false}={}) {
   // Acknowledged v1 recovery places an old backup using its historical
   // projection; acknowledged recovery of a version 2 archive without an object
   // inventory compares tables only. Current archives always retain the
