@@ -113,6 +113,21 @@ try {
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}
  assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow');
  await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
+ const diagnostics=await api('/api/projects','POST',{id:'synthetic-spool-1',name:'Synthetic item diagnostics'}),dsn=new URL(diagnostics.dsn);
+ const diagnosticItems=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],['event',JSON.stringify({event_id:'7'.repeat(32),release:'synthetic-spool-1',message:'Synthetic diagnostic companion error'})]];
+ const diagnosticWire='{}\n'+diagnosticItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
+ const diagnosed=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7',{method:'POST',body:diagnosticWire});assert.equal(diagnosed.status,200);
+ await page.goto(origin+'/projects/synthetic-spool-1/capture');await page.getByText('Unsupported statsd items',{exact:true}).waitFor();
+ const receipts=page.locator('.capture-accounting');
+ if(width===1440){
+  for(const [name,quantity] of [['Unsupported statsd items','2'],['Unsupported unknown items','3'],['Events received','1']]){
+   const row=receipts.locator('dl > div').filter({has:page.getByText(name,{exact:true})});assert.equal(await row.locator('dd').innerText(),quantity,`${name} shows its independent item count`);
+  }
+  assert.equal(await receipts.locator('dt,dd').evaluateAll(elements=>elements.every(element=>parseFloat(getComputedStyle(element).fontSize)>=13)),true);
+  assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
+ }
+ await capture('capture-item-diagnostics',width);checked('Capture receipts name statsd and unknown item counts separately from the accepted companion error');
+
 }finally{await browser?.close();await application?.stop();await worker.stop();}
 }
 for(const width of [1440,390])await journey(width);

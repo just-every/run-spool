@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 import { gzipSync, deflateSync } from 'node:zlib';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
+import { archiveProjection, nativeArchive } from './archive.mjs';
+import { freePort } from './admission-runtime.mjs';
 const worker=await startTestWorker(15522),{origin}=worker;
 try{
   const cookie=await signIn(origin);
@@ -34,12 +36,50 @@ try{
   const foreign='https://app.example';await json('/api/projects/wire/browser-origins','POST',{origin:foreign});
   const preflight=await req(path,'OPTIONS',undefined,{Origin:foreign,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-sentry-auth'});assert.equal(preflight.status,204);assert.equal(preflight.headers.get('access-control-allow-origin'),foreign);
   const malformed=Buffer.concat([Buffer.from(envelope(event)),Buffer.from('\n{"type":"attachment","length":10}\nshort')]);assert.equal((await req(path,'POST',malformed)).status,400);assert.equal((await json('/api/projects/wire/issues')).length,0,'bad trailing framing admits no earlier event');
-  const wire=Buffer.concat([Buffer.from('{}\n{"type":"attachment","length":0}\n\n{"type":"attachment","length":4}\n'),Buffer.from([0,10,255,65]),Buffer.from('\n{"type":"session"}\n{}\n{"type":"unexpected-vendor-kind"}\n{}\n{"type":"event"}\n'+JSON.stringify(event))]);
-  const accepted=await req(path,'POST',wire,{Origin:foreign,'Content-Type':'text/plain;charset=UTF-8'});assert.equal(accepted.status,200);assert.equal(accepted.headers.get('access-control-allow-origin'),foreign);assert.equal((await accepted.json()).id,event.event_id);
+  const wire=Buffer.concat([Buffer.from('{}\n{"type":"attachment","length":0}\n\n{"type":"attachment","length":4}\n'),Buffer.from([0,10,255,65]),Buffer.from('\n{"type":"session"}\n{}\n{"type":"statsd","length":4}\na:1c\n{"type":"statsd","length":4}\nb:1c\n{"type":"unexpected-vendor-kind"}\n{}\n{"type":"synthetic-spool-2"}\n{}\n{"type":"synthetic-spool-3"}\n{}\n{"type":"event"}\n'+JSON.stringify(event))]);
+  const beforeDenied=(await json('/api/projects/wire/outcomes')).rows;
+  for(const deniedKey of ['synthetic-spool-invalid',other.ingestKey]){
+    assert.equal((await req(path.replace(key,deniedKey),'POST',wire,{Cookie:''})).status,401);
+    assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeDenied,'invalid and foreign ingest grants attribute no item counters');
+  }
+  const accepted=await req(path,'POST',wire,{Origin:foreign,'Content-Type':'text/plain;charset=UTF-8'});assert.equal(accepted.status,200);assert.equal(accepted.headers.get('access-control-allow-origin'),foreign);const receipt=await accepted.json();assert.equal(receipt.id,event.event_id);assert.deepEqual(receipt.dropped,{sentry_unsupported_attachment:2,sentry_unsupported_statsd:2,sentry_unsupported_unknown:3},'one receipt per unsupported item; valid companion error continues');
   assert.equal((await req(path,'POST',envelope(event))).status,200);assert.equal((await req(path,'POST',envelope({...event,message:'different raw input'}))).status,409);
   const groups=await json('/api/projects/wire/issues');assert.equal(groups.length,1);assert.equal(groups[0].count,1);
   const packet=await json(`/api/projects/wire/issues/${groups[0].id}/packet`);assert.equal(packet.events[0].event.frames[0].line,2);assert.equal(packet.events[0].event.frames[0].column,2);assert.equal(packet.events[0].event.frames[0].debugId,'fixture-debug');for(const privateValue of ['PRIVATE_EVENT','PRIVATE_URL','PRIVATE_COOKIE','private@example.com','unexpected-vendor-kind'])assert.ok(!JSON.stringify(packet).includes(privateValue));
-  const counted=await json('/api/projects/wire/outcomes');for(const reason of ['sentry_unsupported_attachment','session_invalid','sentry_unsupported_unknown'])assert.ok(counted.rows.some(row=>row.reason===reason));
+  const counted=await json('/api/projects/wire/outcomes'),count=reason=>counted.rows.find(row=>row.reason===reason)?.count??0;
+  assert.equal(count('sentry_unsupported_statsd'),2);assert.equal(count('sentry_unsupported_unknown'),3);
+  assert.equal(count('sentry_unsupported_other_telemetry'),0,'statsd is no longer pooled with other telemetry');
+  assert.equal(count('accepted'),1,'unsupported items never create accepted error volume');
+  assert.equal(count('sentry_unsupported_attachment'),2);assert.equal(count('session_invalid'),1);
+  const snapshot=await archiveProjection(await req('/api/archive'));
+  const legacyData=structuredClone(snapshot.data);
+  for(const row of legacyData.outcomes)if(row.reason==='sentry_unsupported_statsd')row.reason='sentry_unsupported_other_telemetry';
+  for(const [format,text,statsd,otherTelemetry] of [['current',snapshot.text,2,0],['legacy',JSON.stringify(nativeArchive(legacyData)),0,2]]){
+    const destination=await startTestWorker(await freePort());
+    try{
+      const destinationCookie=await signIn(destination.origin);
+      const request=(url,method='GET',body)=>fetch(destination.origin+url,{method,headers:{Origin:destination.origin,Cookie:destinationCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
+      const read=async url=>{const response=await request(url);assert.equal(response.status,200);return response.json()};
+      const restored=await request('/api/restore','POST',text);assert.equal(restored.status,200,`${format} item counters restore: ${await restored.text()}`);
+      const rows=(await read('/api/projects/wire/outcomes')).rows,quantity=reason=>rows.find(row=>row.reason===reason)?.count??0;
+      assert.equal(quantity('sentry_unsupported_statsd'),statsd);assert.equal(quantity('sentry_unsupported_unknown'),3);
+      assert.equal(quantity('sentry_unsupported_other_telemetry'),otherTelemetry,'historical pooled counts stay pooled');
+      assert.equal(quantity('accepted'),1);assert.equal((await read('/api/projects/wire/issues'))[0].count,1);
+      const restoredArchive=await archiveProjection(await request('/api/archive'));
+      assert.deepEqual(restoredArchive.data.outcomes.filter(row=>row.project==='wire'),(format==='legacy'?legacyData:snapshot.data).outcomes.filter(row=>row.project==='wire'),'independent archive preserves exact reasons, windows and quantities');
+      if(format==='current'){
+        const preview=await read('/api/projects/wire/erasure');
+        assert.equal(preview.deleted.outcomes,snapshot.data.outcomes.filter(row=>row.project==='wire').length);
+        const started=await request('/api/projects/wire/erasure','POST',{confirm:'wire',planHash:preview.planHash});assert.equal(started.status,202);
+        let erased=await started.json();
+        for(let step=0;erased.phase!=='complete'&&step<20;step++){const resumed=await request(`/api/erasures/${erased.id}/resume`,'POST');assert.ok(resumed.ok);erased=await resumed.json()}
+        assert.equal(erased.phase,'complete');assert.equal(erased.deleted.outcomes,preview.deleted.outcomes);
+        assert.deepEqual((await archiveProjection(await request('/api/archive'))).data.outcomes.filter(row=>row.project==='wire'),[],'erasure removes every restored item counter');
+        assert.equal((await request('/api/restore','POST',snapshot.text)).status,409,'old archive cannot resurrect erased counters');
+        assert.deepEqual((await archiveProjection(await request('/api/archive'))).data.outcomes.filter(row=>row.project==='wire'),[]);
+      }
+    }finally{await destination.stop()}
+  }
   const gzip=gzipSync(Buffer.from(envelope({...event,event_id:'b'.repeat(32),extra:{value:'x'.repeat(40000)}})));assert.equal((await req(path,'POST',gzip,{'Content-Encoding':'gzip'})).status,200);
   assert.equal((await req(path,'POST',gzipSync(Buffer.alloc(1048577)),{'Content-Encoding':'gzip'})).status,413);
   // SDK-011: compressed transports, attributable refusals and malformed-item isolation.
@@ -71,6 +111,7 @@ try{
   await json('/api/projects/wire/browser-origins','DELETE',{origin:foreign});assert.equal((await req(path,'POST',envelope(event),{Origin:foreign})).status,403);
   await json('/api/projects/wire/keys/'+deploy.hash,'DELETE');assert.equal((await req('/api/projects/wire/releases','POST',release,deployHeaders)).status,401);
   const ingest=(await json('/api/projects/wire/keys')).find(row=>row.kind==='ingest');await json('/api/projects/wire/keys/'+ingest.hash,'DELETE');assert.equal((await req(path,'POST',envelope(event))).status,401);
+  const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
   await fidelityFlow({req,json,origin});
@@ -80,5 +121,5 @@ try{
   await inboundFilterFlow({req,json,origin});
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
-  console.log('Sentry HTTP public flows passed: shared admission/privacy/dedupe, SDK-011 deflate/counted 415/item isolation, strict framing/binary/zero/gzip, CORS/auth agreement/revocation/isolation, deploy scope and idempotent artifacts.');
+  console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
 }finally{await worker.stop()}
