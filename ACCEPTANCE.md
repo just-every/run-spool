@@ -995,8 +995,8 @@ Core · target · **partial**
 5. Of two plain-resolved issues, one receiving an event in the same release and the other an event with no release, each fires one regression alert.
 6. With unmodified Sentry tracing, a transaction's p95 duration and a page's LCP pushed over warning, then critical, then back each fire one alert per transition and a resolve.
 
-**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`
-**Gap.** New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
+**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once, including `tests/alerts/plain-resolve.mjs` plainResolvedRegressions (acceptance 5: two distinct Sentry issues plain-resolved, same-release and release-less recurrence, one correctly identified regression each, one intent per reviewed matching rule, duplicate capture and repeated scheduling without replay); `tests/alerts-runtime.mjs` alert public journey (authority, destination review, isolation, revocation and inert restore)
+**Gap.** New and regression conditions and fixed-window count rules exist. Remaining: acceptance 1 to 4 and 6, broader filtered-transition qualification, historical baselines accounting for traffic, seasonality, sampling and missing capture, affected-user and session conditions with unavailable-data refusals, crash-rate and metric conditions, rich routing filters, and the counted seen-with-no-release-after-release-resolution condition. TEAM-003's recorded reopening-policy conflict with SDK-009, SDK-008's sent-default ruling, SDK-021's tunnel-trust ruling, and all existing queue scopes and release prerequisites remain unchanged.
 
 #### ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty
 
