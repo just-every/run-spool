@@ -1,3 +1,4 @@
+import {personalNotificationJourney} from './personal-notifications.mjs';
 import {notificationPreferencesFlow} from './notification-preferences.mjs';
 import {discussionFlow} from './discussion-flow.mjs';
 import assert from 'node:assert/strict';
@@ -303,6 +304,7 @@ async function inertTeamArchive(owner,projects,formerCookie) {
 
 /** [TEAM-001] Membership lifecycle through the real emitted Worker and native mail proof. */
 export async function teamFlow() {
+ await personalNotificationJourney(runtime,client,invite);
  const worker=await runtime();
  try {
   const origin=worker.origin,cookie=worker.cookie,owner={...client(origin,cookie),origin,cookie};
