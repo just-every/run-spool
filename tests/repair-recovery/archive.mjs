@@ -53,8 +53,16 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  assert.deepEqual(stable(after),stable(before),'restored repair, checks and computed verdict');
  // Retention keeps the repair and marks its snapshot events that are gone.
  await app.json('/api/projects/a/retention','POST',{cutoff,apply:true});
- const retained=await read();assert.equal(retained.id,repair.id);assert.deepEqual(retained.checks,before.checks);
- assert.ok(retained.snapshot.events.some(row=>row.state==='removed_by_retention'),'snapshot event removed by retention is marked');
- assert.equal(retained.snapshot.events.length,before.snapshot.events.length);assert.equal(retained.observation.verdict,'recurred');
+ const retained=await read(),retainedArchive=await app.archive();
+ assert.deepEqual(retainedArchive.data.repairs,restored.data.repairs,'cutoff preserves every stored repair fact and snapshot');
+ assert.deepEqual(retainedArchive.data.repair_checks,restored.data.repair_checks,'cutoff preserves every stored check');
+ assert.equal(retained.id,repair.id);assert.deepEqual(retained.checks,before.checks);assert.deepEqual(retained.facts,before.facts);
+ assert.deepEqual(retained.snapshot.events.map(row=>row.id),before.snapshot.events.map(row=>row.id),'snapshot identities and order survive cutoff');
+ const expired=new Set(restored.data.events.filter(row=>row.project==='a'&&row.received<cutoff).map(row=>row.id));
+ assert.ok(before.snapshot.events.some(row=>expired.has(row.id)),'cutoff actually expires snapshotted evidence');
+ assert.deepEqual(retained.snapshot,{...before.snapshot,events:before.snapshot.events.map(row=>({...row,state:expired.has(row.id)?'removed_by_retention':row.state}))},'every expired snapshot has an explicit coverage gap');
+ assert.ok(retained.observation.evidence.recurrence.events.length>0,'a retained recurrence still witnesses the failed repair');
+ assert.ok(retained.observation.evidence.recurrence.events.every(row=>retainedArchive.data.events.some(event=>event.id===row.id&&event.received>=cutoff)),'the recurrence is backed by retained evidence after cutoff');
+ assert.equal(retained.observation.verdict,'recurred');
  return {restoredTables:Object.keys(source.data).length,repairs:source.data.repairs.length,checks:source.data.repair_checks.length,snapshot:retained.snapshot.events};
 }
