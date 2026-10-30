@@ -35,7 +35,7 @@ export async function identityFlow({browser}){
   const issues=await app.json(root+'/issues');assert.equal(issues.length,2);for(const issue of issues){assert.equal(issue.count,7);const count=await app.json(root+'/issues/'+issue.id+'/affected-users');assert.equal(count.affectedUsers,5);assert.equal(count.unattributed,2);assert.ok(raw.every(value=>JSON.stringify(count).includes(value)));}
   const archive=await archiveProjection(await app.request('/api/archive'));assert.ok(raw.every(value=>archive.text.includes(value)),'keep is an explicit owner choice in the private archive');
   const grant=await app.json(root+'/keys','POST',{kind:'agent'});for(const issue of issues){const count=await app.json(root+'/issues/'+issue.id+'/affected-users','GET',undefined,{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal(count.affectedUsers,5);assert.equal(count.rows,undefined);assert.ok(!raw.some(v=>JSON.stringify(count).includes(v)));const packet=await app.json(root+'/issues/'+issue.id+'/packet','GET',undefined,{Cookie:'',Authorization:'Bearer '+grant.key});assert.equal(packet.affectedUsers.affectedUsers,5);assert.ok(!raw.some(v=>JSON.stringify(packet).includes(v)))}
-  await collaboratorIdentity({app,origin,browser,project:p,issues,raw});
+  await collaboratorIdentity({app,origin,browser,project:p,issues,raw,capture:objectJson(ref.sent.find(item=>item.type==='event').bytes)});
   const stalePolicy=Object.fromEntries(Object.keys(initial.policy).map(f=>[f,'hash'])),stale=await app.json(root+'/identity-policy/preview','POST',{policy:stalePolicy});await execute(ref.dsn);await execute(p.dsn);assert.equal((await app.request(root+'/identity-policy','PUT',{revision:stale.revision,policy:stalePolicy,token:stale.token})).status,409,'a count-only preview cannot approve newly retained identity records');
   await mkdir('.artifacts/c15/sdk008',{recursive:true});
   const snapshot=async(page,name,width,region)=>{assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.deepEqual((await new AxeBuilder({page}).include(`[aria-label="${region}"]`).analyze()).violations.filter(v=>['serious','critical'].includes(v.impact)),[]);assert.deepEqual(await page.locator('button').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&!n.textContent.trim()).map(n=>n.getAttribute('aria-label'))),[]);await page.getByRole('region',{name:region,exact:true}).screenshot({path:`.artifacts/c15/sdk008/${name}-${width}.png`})};
@@ -53,10 +53,16 @@ export async function identityFlow({browser}){
 }
 
 // The same retained SDK events qualify both native authority and presentation.
-async function collaboratorIdentity({app,origin,browser,project,issues,raw}) {
+async function collaboratorIdentity({app,origin,browser,project,issues,raw,capture}) {
  const organization='/api/organization',root='/api/projects/'+project.id;
  await app.json(organization,'POST',{id:'synthetic-spool-identity',name:'Identity collaborators'});
  const foreign=await app.json('/api/projects','POST',{id:'synthetic-spool-identity-foreign',name:'Private unrelated project'});
+ const foreignDsn=new URL(foreign.dsn),foreignRoot='/api/projects/'+foreign.id;
+ const captured=await app.request('/api'+foreignDsn.pathname+'/store/?sentry_key='+foreignDsn.username+'&sentry_version=7','POST',capture,{Cookie:''});
+ assert.equal(captured.status,200);await captured.body?.cancel();
+ const foreignIssues=await app.json(foreignRoot+'/issues');assert.equal(foreignIssues.length,1);assert.equal(foreignIssues[0].count,1);
+ const foreignIssue=foreignRoot+'/issues/'+foreignIssues[0].id;
+ assert.equal((await app.json(foreignIssue+'/packet')).events.length,1,'foreign-project refusal addresses a real retained SDK capture');
  const identity={email:['synthetic-spool-reader','example.test'].join('@'),name:'Identity reader',role:'read-only',grants:[{project:project.id,role:'read-only'}]};
  const invited=await inviteMember(app,origin,identity);
  // Sign in again normally so authority does not depend on the invitation cookie.
@@ -91,7 +97,8 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw}) {
   paths.push(root+'/issue-export?format='+format);
  }
  for(const path of paths) {
-  const response=await reader.request(path.replace(root,'/api/projects/'+foreign.id));
+  const suffix=path.slice(root.length).replace(/^\/issues\/[^/]+/,'/issues/'+foreignIssues[0].id);
+  const response=await reader.request(foreignRoot+suffix);
   assert.equal(response.status,404,'a current collaborator cannot read a foreign project');
   privateFree(await response.text(),'Foreign-project refusal');
  }
