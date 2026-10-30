@@ -12,6 +12,16 @@ import { launchBrowser } from './browser-launch.mjs';
 import { readScreens } from './runtimes/screens.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
+// Django does not report its bound port when given 0. Ask the OS immediately
+// before spawning it; Next.js below binds 0 itself and reports its actual port.
+const freePort = () => new Promise((done, fail) => {
+  const listener = createServer();
+  listener.once('error', fail);
+  listener.listen(0, '127.0.0.1', () => {
+    const { port } = listener.address();
+    listener.close(error => error ? fail(error) : done(port));
+  });
+});
 const started = performance.now();
 const stage = name => console.log(`[wizard] ${name} (${((performance.now() - started) / 1000).toFixed(1)}s)`);
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-setup-')), tool = resolve(temporary, 'tool');
@@ -118,7 +128,7 @@ try {
   // The configured app reports a real request failure through the Django integration, with no further setup.
   stage('capture real Django failure');
   await writeFile(resolve(django, 'shop/urls.py'), "from django.urls import path\n\ndef boom(request):\n    raise RuntimeError('django setup failure')\n\nurlpatterns = [path('boom', boom)]\n");
-  const djangoPort = 20000 + Math.floor(Math.random() * 20000);
+  const djangoPort = await freePort();
   const runserver = spawn(python, ['manage.py', 'runserver', '--noreload', `127.0.0.1:${djangoPort}`], { cwd: django, env: { ...process.env, SPOOL_DSN: project.dsn, DEBUG: '' }, stdio: 'ignore' });
   children.push(runserver);
   for (let attempt = 0; attempt < 100; attempt++) { try { await fetch(`http://127.0.0.1:${djangoPort}/boom`); break; } catch { await wait(200); } }
@@ -156,10 +166,10 @@ try {
   const nextBin = resolve(next, 'node_modules/next/dist/bin/next'), env = { ...process.env, NEXT_TELEMETRY_DISABLED: '1', CIRCLE_NODE_TOTAL: '2', NEXT_PUBLIC_SPOOL_RELEASE: 'synthetic-spool-setup-1', SPOOL_BUILD: 'synthetic-spool-1', NEXT_PUBLIC_SPOOL_BUILD: 'synthetic-spool-1', SPOOL_ENDPOINT: origin, SPOOL_PROJECT: 'setup', SPOOL_DEPLOY_KEY: deploy.key };
   stage('build Next.js before map upload');
   execFileSync(process.execPath, [nextBin, 'build', '--webpack'], { cwd: next, env, stdio: 'pipe' });
-  const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
+  let nextOrigin;
   const startNext = async () => {
     stage('wait for Next.js readiness (30-second deadline)');
-    nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: next, env, stdio: ['ignore', 'pipe', 'inherit'] });
+    nextServer = spawn(process.execPath, [nextBin, 'start', '-p', '0', '-H', '127.0.0.1'], { cwd: next, env, stdio: ['ignore', 'pipe', 'inherit'] });
     children.push(nextServer);
     const child = nextServer;
     await new Promise((done, fail) => {
@@ -172,13 +182,20 @@ try {
       const failed = error => finish(error);
       const exited = (code, signal) => finish(new Error(`Next.js exited before readiness (code=${code}, signal=${signal})`));
       // Keep a bounded tail so a Ready line split across chunks still completes the wait.
-      const ready = chunk => { output = (output + chunk).slice(-4096); if (/Ready/.test(output)) finish(); };
+      const ready = chunk => {
+        output = (output + chunk).slice(-4096);
+        if (!/Ready/.test(output)) return;
+        const port = Number(output.match(/Local:\s+http:\/\/[^:\s]+:(\d+)/)?.[1]);
+        if (!port) return finish(new Error('Next.js became Ready without an assigned port'));
+        nextOrigin = `http://127.0.0.1:${port}`;
+        finish();
+      };
       const timer = setTimeout(() => finish(new Error('Next.js did not become Ready within 30 seconds')), 30_000);
       child.once('error', failed); child.once('exit', exited); child.stdout.on('data', ready);
     });
+    await request('/api/projects/setup/browser-origins', 'POST', { origin: nextOrigin });
   };
   await startNext();
-  await request('/api/projects/setup/browser-origins', 'POST', { origin: nextOrigin });
   const engine = FiltersEngine.parse(await readFile('tests/fixtures/adblock/easyprivacy-sentry.txt', 'utf8'));
   browser = await launchBrowser();
   const context = await browser.newContext(), page = await context.newPage(), blocked = [];
