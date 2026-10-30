@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "44a43af7af810a67c74d5cd3694728f47c203dc500512d4a2307d66c8f191c64",
+      "sha256": "f2a753fb63d9a0c8515db026d5a71b4e4c812a03c0bf8fae50bd25161dc1c3e0",
       "executable": false
     },
     "DEMO.md": {
@@ -9121,7 +9121,7 @@
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
-      "sha256": "ca575b374106f3fe6100588a6d9407e04c6fd410c7befdbf1964c443e900cf52",
+      "sha256": "9ea75a4a12899100bf47988f7ebbbd7a114eb2e1867bd9e7b46d0104e3534f40",
       "executable": false
     },
     "tests/runtimes/dotnet/App.csproj": {
@@ -9172,6 +9172,10 @@
       "sha256": "25e0af99df9c22a2f5f896b71d622a40ee7f4f2a6fb8a1b89bdbc0910ecfd602",
       "executable": false
     },
+    "tests/runtimes/feedback-proof.mjs": {
+      "sha256": "278033e5f699d213309e2be60c824184e2c41a75a77e28a03b06eb10babe3d9d",
+      "executable": false
+    },
     "tests/runtimes/go.mjs": {
       "sha256": "b4a80c00b7a01f3ad72f472fccdbb6f84a8f8cf6e60abcfb390e7c56523d61b1",
       "executable": false
@@ -9193,7 +9197,7 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "b616fd7668439d71716b4eeb221795e0b6d5c3ae0f62cb5c8564c200f8782ed0",
+      "sha256": "4e43bb7aa8d975b2746391ae4f7505f59847cacab9fb8fa0f68023ed60f7ee20",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
@@ -9297,7 +9301,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "bfda7221ec6a25228b710f7e641bdf407628cde0534d68210dfc37c6d7514acf",
+      "sha256": "2de12a24acc0e06d1a64842e55d50e876fdbb26c13935ba66b871ede4c6553a6",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
