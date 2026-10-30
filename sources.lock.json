@@ -8921,7 +8921,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "2677fb2f939579e47254a560d102bc1238d6570ef6a7a20388a1ba1c3e908375",
+      "sha256": "193d85a65f9a6a228506ba0d5a0a0fb373db4cff618fda167c9179eb94715c16",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
