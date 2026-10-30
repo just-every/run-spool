@@ -5561,7 +5561,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "2fb08aed1e27976cc8d77f7a517325ec3554f2939bffe7c4b1b343dbb18eead4",
+      "sha256": "dfca35269b3298d44b088af48ee9556fad3131548d2142536ade7bf031a27bca",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -8957,7 +8957,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "e2e846dd3239fd9c2f296cde628d02107eab24620ae7849f160a909c6ed013df",
+      "sha256": "fc4b0f8955c1a0baa920c3f77701e7fc803c12cd710fd6c91ccf2a147344baff",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {

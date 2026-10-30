@@ -192,8 +192,8 @@ for(const later of laterTables){later.tables.push(...reportingNames);later.migra
 // collection independent so its carried-collection check stays authoritative.
 laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 const preferenceNames=Object.keys(notificationPreferenceTables);
-for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0084_notification_preferences.sql')}
-laterTables.unshift({tables:[...preferenceNames],migrations:['0084_notification_preferences.sql']});
+for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0084_notification_preferences.sql','0085_personal_notifications.sql','0086_personal_digests.sql','0087_personal_rule_delivery.sql')}
+laterTables.unshift({tables:[...preferenceNames],migrations:['0084_notification_preferences.sql','0085_personal_notifications.sql','0086_personal_digests.sql','0087_personal_rule_delivery.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
