@@ -39,7 +39,7 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
   const options=convertV4MiniflareOptions({
    ...worker,bindings:{...worker.bindings,...authBindings(origin),...bindings},
    log,handleStructuredLogs:({message})=>output.add(message+'\n'),
-   resourcePersistencePath:resolve(temporary,'state/v3'),host:'127.0.0.1',port,
+   resourcePersistencePath:resolve(temporary,'.wrangler/state/v3'),host:'127.0.0.1',port,
    unsafeTriggerHandlers:triggers.length>0
   });
   // V4 conversion omits cron declarations. Preserve them in Miniflare's native
@@ -84,7 +84,7 @@ export async function startTestWorker(port, bindings={}, {beforeMigration,deferM
    }
    assert.equal(health.status,200,'Emitted Worker health succeeds');
   } finally { await health.body?.cancel(); }
-  return {origin,stop,migrate,scheduled:time=>fetch(origin+'/cdn-cgi/local/scheduled?time='+time+'&cron=*+*+*+*+*&format=json'),db:()=>native.getD1Database(database.binding),restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
+  return {origin,root:temporary,stop,migrate,scheduled:time=>fetch(origin+'/cdn-cgi/local/scheduled?time='+time+'&cron=*+*+*+*+*&format=json'),db:()=>native.getD1Database(database.binding),restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
  }catch(failure){
   output.add(String(failure));
   const result=await finishProductRun({failure,output,artifactDirectory,runId,cleanup:[['test-worker',stop]]});
