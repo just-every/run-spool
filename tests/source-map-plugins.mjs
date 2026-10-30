@@ -23,11 +23,12 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  const options={endpoint:origin,project:'synthetic-spool-17',build:'b1',keyEnv:'SYNTHETIC_SPOOL_BUILD'};
  const plugin=async name=>import(pathToFileURL(resolve(app,'node_modules/@just-every/spool/dist',name+'.js')));
  const program=`import * as Sentry from ${JSON.stringify(sdkPath)};\nSentry.init({dsn:process.env.DSN,release:process.env.REL,dist:'b1',environment:'test',defaultIntegrations:false});\nfunction syntheticCheckout(){\n const account={};return account.address.city;\n}\ntry{syntheticCheckout()}catch(error){Sentry.captureException(error)}\nawait Sentry.flush(5000);\n`;
- const fixtures={entry:{program,fn:'syntheticCheckout'},refund:{program:program.replaceAll('syntheticCheckout','syntheticRefund'),fn:'syntheticRefund'}};
+ const fixtures={entry:{program,fn:'syntheticCheckout'},refund:{program:program.replaceAll('syntheticCheckout','syntheticRefund'),fn:'syntheticRefund'},receipt:{program:program.replaceAll('syntheticCheckout','syntheticReceipt'),fn:'syntheticReceipt'}};
  // Webpack maps the failing expression to its return statement; the other minifiers retain the property token.
  const originalColumns={esbuild:41,webpack:18,rollup:41,vite:41};
  const inputs=root=>Object.fromEntries(Object.keys(fixtures).map(name=>[name,resolve(root,name+'.mjs')]));
- const prepare=async root=>{await mkdir(root);for(const [name,fixture] of Object.entries(fixtures))await writeFile(resolve(root,name+'.mjs'),fixture.program);};
+ // Move the same application's source in each release so another release's map cannot satisfy the lookup.
+ const prepare=async(root,version=1)=>{await mkdir(root,{recursive:true});for(const [name,fixture] of Object.entries(fixtures))await writeFile(resolve(root,name+'.mjs'),'\n'.repeat(version-1)+fixture.program);};
  const external=new RegExp(sdkPath.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').split('/build/')[0]);
  const builders={
   async esbuild(root,config){await esbuild({entryPoints:inputs(root),outdir:resolve(root,'out'),outExtension:{'.js':'.mjs'},bundle:true,platform:'node',format:'esm',minify:true,sourcemap:true,external:[sdkPath],logLevel:'silent',plugins:[(await plugin('esbuild')).spoolSourceMaps(config)]});},
@@ -36,11 +37,11 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
   async vite(root,config){await vite({root,configFile:false,logLevel:'silent',plugins:[(await plugin('vite')).spoolSourceMaps(config)],build:{outDir:resolve(root,'out'),sourcemap:true,minify:true,lib:{entry:inputs(root),formats:['es'],fileName:(_format,name)=>name+'.mjs'},rollupOptions:{external:[external]}}});},
  };
  // Owner event detail enumerates the complete retained set, beyond the bounded agent packet.
- const events=async()=>{
+ const events=async(read=request)=>{
   const rows=[];let cursor;
-  do{const page=await request(base+'/occurrences'+(cursor?'?cursor='+encodeURIComponent(cursor):''));rows.push(...page.rows);cursor=page.next;if(!cursor)assert.equal(rows.length,page.total,'every retained occurrence is enumerated');}while(cursor);
+  do{const page=await read(base+'/occurrences'+(cursor?'?cursor='+encodeURIComponent(cursor):''));rows.push(...page.rows);cursor=page.next;if(!cursor)assert.equal(rows.length,page.total,'every retained occurrence is enumerated');}while(cursor);
   assert.equal(new Set(rows.map(row=>row.occurrence)).size,rows.length);
-  return Promise.all(rows.map(row=>request(base+'/issues/'+row.issue+'/events/'+row.id+'?occurrence='+encodeURIComponent(row.occurrence))));
+  return Promise.all(rows.map(row=>read(base+'/issues/'+row.issue+'/events/'+row.id+'?occurrence='+encodeURIComponent(row.occurrence))));
  };
  const releases=[];
  const reconcile=async()=>{
@@ -63,20 +64,22 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  assert.equal(oversized.status,400,'[SRC-001] a declaration too large for portable custody is rejected');await oversized.body?.cancel();
  assert.equal((await request(base+'/releases')).some(row=>row.name==='synthetic-oversized@1'),false,'a rejected declaration registers no partial release');
  for(const [name,build] of Object.entries(builders)){
-  const root=resolve(app,'synthetic-'+name);await prepare(root);
+  const root=resolve(app,'synthetic-'+name);
   for(const version of [1,2,3]){
    const release={name:'synthetic-'+name+'@'+version,maps:[]};
+   await prepare(root,version);
    await rm(resolve(root,'out'),{recursive:true,force:true});
    await build(root,{...options,release:release.name});
    const names=(await readdir(resolve(root,'out'))).filter(file=>file.endsWith('.map')).sort();
-   assert.equal(names.length,Object.keys(fixtures).length,name+': both independent entry maps are emitted');
+   assert.equal(names.length,Object.keys(fixtures).length,name+': every independent entry map is emitted');
    for(const mapName of names){
     const built=resolve(root,'out',mapName.slice(0,-4)),code=await readFile(built,'utf8');
     const {debug_id:snake,debugId:camel,...payload}=JSON.parse(await readFile(built+'.map','utf8')),debug=snake??camel;
     assert.match(debug,/^[a-f0-9-]{36}$/i);assert.ok(code.includes(debug));assert.ok(!code.includes(deploy.key),'deploy authority never enters emitted JavaScript');
     const source=Object.keys(fixtures).find(key=>payload.sources.some(path=>path.endsWith('/'+key+'.mjs')||path===key+'.mjs'));
     assert.ok(source,name+': emitted map retains its original entry source');
-    release.maps.push({name:mapName,debug,digest:createHash('sha256').update(canonical(payload)).digest('hex'),source,fn:fixtures[source].fn,column:originalColumns[name]});
+    assert.ok(releases.filter(prior=>prior.name.startsWith('synthetic-'+name+'@')).every(prior=>prior.maps.every(map=>map.debug!==debug)),release.name+': changed source has a distinct debug ID from earlier releases');
+    release.maps.push({name:mapName,debug,digest:createHash('sha256').update(canonical(payload)).digest('hex'),source,fn:fixtures[source].fn,line:version+3,column:originalColumns[name]});
     await runNode(built,{DSN:project.dsn,REL:release.name});
    }
    releases.push(release);
@@ -89,7 +92,7 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
      const matches=matching.filter(row=>row.event.frames.some(frame=>frame.debugId===map.debug));assert.equal(matches.length,1,prior.name+': exact emitted debug ID selects its failure');
      const event=matches[0];assert.equal(event.event.release,prior.name);assert.equal(event.event.build,'b1');
      const frame=event.atAdmission.find(row=>row.generated.debugId===map.debug);assert.equal(frame?.status,'mapped',prior.name+': real built error maps');
-     assert.ok(frame.original.file.endsWith(map.source+'.mjs'));assert.equal(frame.original.line,4);assert.equal(frame.original.column,map.column,prior.name+': original column');assert.equal(frame.original.function,map.fn);assert.equal(frame.artifactDigest,map.digest);
+     assert.ok(frame.original.file.endsWith(map.source+'.mjs'));assert.equal(frame.original.line,map.line,prior.name+': original line selects this release rather than another release');assert.equal(frame.original.column,map.column,prior.name+': original column');assert.equal(frame.original.function,map.fn);assert.equal(frame.artifactDigest,map.digest);
      assert.deepEqual(event.currentLookup,event.atAdmission,prior.name+': current lookup preserves earlier release coordinates');
     }
    }
@@ -119,6 +122,8 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await page.reload();await page.getByText('incomplete-esbuild@1 / b1: complete',{exact:true}).waitFor();const out=process.env.SPOOL_PROOF_DIR?resolve(process.env.SPOOL_PROOF_DIR,'../src001'):'.artifacts/src001';await page.screenshot({path:resolve(out,'complete-'+width+'.png'),fullPage:true});await page.locator('#source-map-setup-heading').evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,'complete-view-'+width+'.png')});}
  await context.close();
  const archived=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const coordinates=rows=>rows.map(({id,occurrence,release,event,atAdmission,currentLookup})=>({id,occurrence,release,build:event.build,atAdmission,currentLookup})).sort((a,b)=>a.occurrence.localeCompare(b.occurrence));
+ const archivedCoordinates=coordinates(await events());
  assert.ok(archived.data.artifacts.some(row=>JSON.parse(row.payload).ignoreList?.length),'[SRC-004] private ignore lists survive export');
  const target=await startTestWorker(15562);
  try{
@@ -128,12 +133,13 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
   assert.equal((await read('/api/projects/synthetic-spool-16/artifact-storage')).artifact_storage_cap,archived.data.artifact_storage_settings.find(row=>row.project==='synthetic-spool-16').artifact_storage_cap);
   assert.deepEqual((await read(base+'/sentry-uploads')).builds,completed.builds,'[SRC-001] declared map sets restore complete');
   assert.deepEqual((await read(base+'/sentry-uploads')).artifacts,completed.artifacts,'[SRC-001] all three releases retain their complete artifact identities on independent restore');
+  assert.deepEqual(coordinates(await events(read)),archivedCoordinates,'[SRC-001] every restored failure retains its release and original admission and current coordinates');
  }finally{await target.stop();}
  for(const id of ['synthetic-spool-16','synthetic-spool-17']){
   const path='/api/projects/'+id+'/erasure',preview=await request(path);await followErasure(request,await request(path,'POST',{confirm:id,planHash:preview.planHash}));
  }
  const erased=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  for(const table of ['artifact_storage_settings','source_map_builds','source_map_build_files','artifacts'])assert.ok(erased.data[table].every(row=>!['synthetic-spool-16','synthetic-spool-17'].includes(row.project)),table+': project erasure removes custody');
- console.log('[SRC-001] Packed Vite, Rollup, webpack and esbuild: two emitted maps used in each of three consecutive releases at b1; all 24 mapped failures and earlier artifact sets reconciled; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore and erasure; checksum tampering refused by file; 1440/390 overflow and Axe passed.');
+ console.log('[SRC-001] Packed Vite, Rollup, webpack and esbuild: three emitted maps used in each of three consecutive releases at b1; all 36 mapped failures with distinct source positions and earlier artifact sets reconciled across event pages; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore preserves every failure coordinate; erasure and checksum tampering refusal passed; 1440 and 390 overflow and Axe passed.');
  }finally{delete process.env.SYNTHETIC_SPOOL_BUILD;}
 }
