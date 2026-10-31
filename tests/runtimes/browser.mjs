@@ -32,16 +32,32 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
      assert.notEqual(unhandledId,handledId,'the automatic and handled captures have distinct SDK event IDs');
      const eventId=round===0?handledId:unhandledId;
      const message=`synthetic-spool-browser-widget round ${round+1}`;
-     reports.push({eventId,message,kind:round===0?'handled':'unhandled'});
+     const submitted={eventId,message,kind:round===0?'handled':'unhandled'};
+     reports.push(submitted);
      await page.evaluate(()=>window.stopReplay());
      await page.evaluate(id=>window.openFeedback(id),eventId);
      await page.getByRole('button',{name:'Report a Bug',exact:true}).click();
      await page.getByRole('textbox',{name:'Description',exact:false}).fill(message);
      await page.getByRole('button',{name:'Send Bug Report',exact:true}).click();
-     try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__===true||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
+     try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__!==null||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
      catch(error){console.log(JSON.stringify({stage:'widget-submit',target,round,observed:await page.evaluate(()=>({sent:window.__SPOOL_SENT__,responses:window.__SPOOL_RESPONSES__,error:window.__SPOOL_FEEDBACK_ERROR__}))}));throw error}
      assert.equal(await page.evaluate(()=>window.__SPOOL_FEEDBACK_ERROR__),undefined,'the actual widget submission succeeds');
      await page.evaluate(()=>window.flushSDK());
+     const receipt=await page.evaluate(()=>window.__SPOOL_FEEDBACK__);
+     assert.equal(receipt.message,message,'the SDK submit-success callback identifies the submitted description');
+     assert.match(receipt.id,/^[a-f0-9]{32}$/);
+     submitted.id=receipt.id;
+     if(target==='qualification'){
+      const inbox=await app.json(`/api/projects/${project.id}/feedback`);
+      assert.deepEqual(inbox.items.map(row=>row.id).sort(),reports.map(row=>row.id).sort(),'each round retains exactly the widget reports acknowledged so far');
+      assert.equal(inbox.total,round+1);
+      const row=inbox.items.find(row=>row.id===receipt.id);
+      assert.equal(row.message,message);
+      assert.equal(row.eventId,eventId);
+      assert.equal(row.association,'attached');
+      assert.ok(row.issueId,'the acknowledged widget report already belongs to a retained issue before reload');
+      assert.equal((await outcomeMap(app,project.id)).get('feedback_accepted'),round+1,'accepted quantity reconciles before each reload');
+     }
      await page.evaluate(()=>window.queueDiscards());
      await page.waitForFunction(()=>window.__SPOOL_DISCARDS__===3);
      await page.evaluate(()=>window.flushSDK()); // finish capture processing; ordinary browser flush leaves reports buffered.
@@ -68,12 +84,12 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
     assert.equal(matches.length,1,'every submitted description identifies exactly one SDK feedback item');
     const event=matches[0];
     assert.match(event.event_id,/^[a-f0-9]{32}$/);
+    assert.equal(event.event_id,report.id,'the emitted feedback ID equals the SDK submit-success ID');
     assert.equal(event.contexts.feedback.source,'widget');
     assert.equal(event.contexts.feedback.associated_event_id,report.eventId,'the real widget sends the intended captured error reference');
     const error=sent.filter(item=>item.type==='event').map(item=>objectJson(item.bytes)).find(event=>event.event_id===report.eventId);
     assert.ok(error,'the reference belongs to an error actually emitted by this SDK program');
     assert.equal(error.exception.values.some(value=>value.mechanism?.handled===false),report.kind==='unhandled');
-    report.id=event.event_id;
    }
    assert.equal(new Set(reports.map(report=>report.id)).size,reports.length,'reloads create distinct report IDs');
    return {sent,reports};
@@ -111,6 +127,9 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
   assert.equal(feedback.total,observedSpool.reports.length);
   assert.equal(feedback.next,null,'the complete report set is read');
   assert.equal(archived.length,observedSpool.reports.length,'every widget report has exactly one stored row');
+  const acknowledgedIds=observedSpool.reports.map(row=>row.id).sort();
+  assert.deepEqual(feedback.items.map(row=>row.id).sort(),acknowledgedIds,'the complete public inbox equals the SDK-acknowledged report set');
+  assert.deepEqual(archived.map(row=>row.id).sort(),acknowledgedIds,'the complete archived report set equals the SDK-acknowledged report set');
   assert.equal(outcomes.get('feedback_accepted'),observedSpool.reports.length,'accepted quantity equals distinct persisted widget reports');
   const issueReports=new Map();
   for(const report of observedSpool.reports){
@@ -155,6 +174,7 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
    {name:`browser-${width}-diagnostics`,path:`/projects/${project.id}/capture`,check:page=>page.getByRole('heading',{name:'SDK discarded',exact:true}).waitFor()},
   ]);
   console.log(JSON.stringify({qualification:'[SDK-001] browser',width,sent:Object.fromEntries(inventory),outcomes:Object.fromEntries(outcomes)}));
+  console.log(`PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at ${width} -> ${acknowledgedIds.length} callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=${outcomes.get('feedback_accepted')}`);
   async function widgetReportsVisible(page,issue){
    const panel=page.getByRole('region',{name:'Issue feedback',exact:true});
    for(const report of issueReports.get(issue)??[]){

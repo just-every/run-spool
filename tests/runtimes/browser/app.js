@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/browser';
 window.__SPOOL_SENT__ = [];
 window.__SPOOL_DISCARDS__ = 0;
-window.__SPOOL_FEEDBACK__ = false;
+window.__SPOOL_FEEDBACK__ = null;
 window.__SPOOL_RESPONSES__ = [];
 let widgetEventId;
 Sentry.init({
@@ -15,7 +15,7 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({ minReplayDuration: 0, flushMinDelay: 60000, flushMaxDelay: 60000 }),
     Sentry.feedbackIntegration({ autoInject: false, enableScreenshot: false, showEmail: false, showName: false,
-      onSubmitSuccess: () => { window.__SPOOL_FEEDBACK__ = true; },
+      onSubmitSuccess: (data, eventId) => { window.__SPOOL_FEEDBACK__ = { id: eventId, message: data.message }; },
       onSubmitError: error => { window.__SPOOL_FEEDBACK_ERROR__ = String(error); },
     }),
   ],
