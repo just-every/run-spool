@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "5829cd6d2c0af3b0db21a51a3766e933878a7d6b5afa1b50f8fdc5040ebb23f8",
+      "sha256": "d65a2404bb869312d62c2a83c05c8354049f3130ef4ce33b73c9e4329fc77afc",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e21d472e1169cadda1c675b1744cf35ddb58ef992aeb692d5a27de92d70efacd",
+      "sha256": "4622327d42f226836a277d96bc53cc306c8f3a1be850450316849be1c8635384",
       "executable": false
     },
     "DEMO.md": {
@@ -3649,7 +3649,7 @@
       "executable": false
     },
     "docs/SENTRY-SESSIONS.md": {
-      "sha256": "4d6618739ef901b59eadf5418b24282662600e244d6b8d76851086a6b317c5e1",
+      "sha256": "6ccd9fb5e55b5579a034171761dac6a751da8bdb27f01e914ec7d290d855d5ab",
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
@@ -5913,7 +5913,7 @@
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
-      "sha256": "200c8705d8ae1dd2e5cb5156e798b9b66bc221d3cd0639eab4e6e31d3e669bcd",
+      "sha256": "ba69053b26598670588a974a74f6765bae6cdc4eb194a333b04dfc62208e740b",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -5929,7 +5929,7 @@
       "executable": false
     },
     "src/domain/sessions/intake.ts": {
-      "sha256": "7e8fb9011fd96fa715f5b793ff71016735e488c66468aefb56f05cfdbf313c6c",
+      "sha256": "f358bbee375518cf4e7ef6fb32ea437e25cf90503bc585b2b0494810bddf00d0",
       "executable": false
     },
     "src/domain/sessions/item.ts": {
@@ -9372,8 +9372,12 @@
       "sha256": "7a41d3fa8e0f2f865e0387aebc6e50ce61b3d8c8c751cb59acd0420935357c19",
       "executable": false
     },
+    "tests/session-backpressure.mjs": {
+      "sha256": "821932e2b51be8ec15b530845cac800c06c2733a0449f835a94764dd65366c76",
+      "executable": false
+    },
     "tests/session-flow.mjs": {
-      "sha256": "0d9590e65a60eeacb0e4b2aa3173fb14c566d6128cf0dcdff1edc5c66fa09ff7",
+      "sha256": "a1641bbe94b587e8aee4d11e9f9cb259b679db11467914023927f03f3c611b2e",
       "executable": false
     },
     "tests/setup-flow.mjs": {
