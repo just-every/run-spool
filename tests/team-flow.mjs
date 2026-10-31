@@ -7,7 +7,7 @@ import {resolve} from 'node:path';
 import {heldOwnerRequest} from './owner-erasure-inflight.mjs';
 import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
-import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
+import {signIn,inviteMember,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
 import {browserMembers,memberBrowser,teamTriage} from './team-browser.mjs';
 
@@ -43,13 +43,7 @@ async function mcpDoor(origin,project,key,issue,allowed) {
 
 
 async function invite(owner,origin,input) {
- const previousIds=(await legacyMailRows(origin)).map(row=>row.id);
- assert.equal(await status(owner.req(organization+'/invites','POST',input)),202);
- const pending=(await owner.json(organization)).members.find(row=>row.email===input.email);
- assert.ok(pending);assert.equal(pending.operatorStatus,'invited');
- const cookie=await confirmEmailLink(origin,input.email,{previousIds});
- const member=(await owner.json(organization)).members.find(row=>row.id===pending.id);
- assert.equal(member.operatorStatus,'active');
+ const {cookie,member}=await inviteMember(owner,origin,input);
  return {...client(origin,cookie),cookie,member};
 }
 
