@@ -58,7 +58,7 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,referenceSent:reference.sent});
+  const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,db:await worker.db(),referenceSent:reference.sent});
   // The handled occurrence reads the same through the UI, at desktop and phone width.
   const outer=runtime.chain.at(-1);
   await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);
