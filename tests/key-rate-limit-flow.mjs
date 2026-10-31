@@ -6,9 +6,10 @@ import { createInterface } from 'node:readline';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { archiveProjection } from './archive.mjs';
+import { runtime as nativeTeamRuntime } from './owner-erasure/helpers.mjs';
 import { startTestWorker } from './worker.mjs';
 import { freePort } from './admission-runtime.mjs';
-import { signIn } from './auth.mjs';
+import { signIn, confirmEmailLink, testOwner } from './auth.mjs';
 import { registerLegacyMail } from './legacy-mail.mjs';
 
 const digest=value=>createHash('sha256').update(value).digest('hex');
@@ -61,9 +62,12 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  assert.equal((await json(path)).used,1,'invalid captures and conflicting retries do not spend quota');
  assert.equal((await send()).status,200);
  await refused(await send(),60);
+ assert.equal((await send(project.ingestKey,[['event',same]])).status,200,'a full key still recognizes an already accepted event');
+ assert.equal((await send(project.ingestKey,[['event',{event_id:randomUUID().replaceAll('-',''),message:'synthetic-spool-filter'}]])).status,200,'a full key still applies inbound filters before quota');
+ assert.equal((await json(path)).used,2,'filtered and duplicate deliveries at the limit spend no extra quota');
  assert.equal((await send(second.key)).status,200,'another key in the same project remains admitted');
- assert.equal(count(await rows(),'accepted'),3);assert.equal(count(await rows(),'duplicate'),1);assert.equal(count(await rows(),'filtered'),1);assert.equal(count(await rows(),'key_rate_limited'),1);
- console.log('PROBE BILL-001 5 minute: public envelope, two key grants -> accepted=3, duplicate=1, filtered=1, key_rate_limited=1; second key accepted');
+ assert.equal(count(await rows(),'accepted'),3);assert.equal(count(await rows(),'duplicate'),2);assert.equal(count(await rows(),'filtered'),2);assert.equal(count(await rows(),'key_rate_limited'),1);
+ console.log('PROBE BILL-001 5 minute: public envelope, two key grants -> accepted=3, duplicate=2, filtered=2, key_rate_limited=1; second key accepted');
 
  // Configuration changes preserve BOTH UTC counters. Raising does not create a
  // fresh allowance and changing period includes earlier admissions this hour.
@@ -123,7 +127,12 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  const widget=await json('/api/reporting/preview','POST',{project:project.id,config:{metric:'count',q:'',...reportWindow}});assert.equal(widget.metadata.dropped.serverRefused,14,'widget loss agrees with reports and receipts');
  console.log('PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error');
 
- const audit=await json('/api/audit?limit=100');assert.ok(JSON.stringify(audit).includes('credential.rate_limit'),'configuration has a permanent safe audit fact');
+ const audit=await json('/api/audit?limit=100');
+ const changes=audit.rows.filter(row=>row.action==='credential.rate_limit');
+ assert.ok(changes.some(row=>row.source==='transaction'&&row.outcome==='succeeded'&&row.actor_kind==='owner'),'saved configuration has a committed owner audit fact');
+ assert.ok(changes.some(row=>row.outcome==='denied'),'unauthorized configuration is recorded truthfully');
+ for(const row of changes){assert.match(row.actor_label,/^audit:[a-f0-9]{32}$/);assert.match(row.subject_label,/^audit:[a-f0-9]{32}$/)}
+ for(const value of [project.ingestKey,second.key,key,key2])assert.ok(!JSON.stringify(audit).includes(value),'safe audit exposes neither credentials nor their hashes');
  const snapshot=await archiveProjection(await req('/api/archive'));
  for(const table of ['key_rate_limits','key_rate_usage','credentials'])assert.equal(snapshot.data[table],undefined,'key authority and quota custody never export');
  for(const value of [project.ingestKey,second.key])assert.ok(!snapshot.text.includes(value));
@@ -133,6 +142,10 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
   const cookie=await signIn(destination.origin);
   const response=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{Origin:destination.origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(response.ok,await response.text());
   const restoredDb=await destination.db();for(const table of ['credentials','key_rate_limits','key_rate_usage'])assert.equal((await restoredDb.prepare('SELECT COUNT(*) n FROM '+table).first()).n,0);
+  const restoredResponse=await fetch(destination.origin+root+'/outcomes',{headers:{Cookie:cookie}});assert.equal(restoredResponse.status,200);
+  assert.deepEqual((await restoredResponse.json()).rows,await rows(),'fresh restore retains exact named usage without the original credential authority');
+  const revokedReplay=await fetch(destination.origin+`/api${new URL(project.dsn).pathname}/envelope/?sentry_key=${project.ingestKey}&sentry_version=7`,{method:'POST',body:'{}\n{"type":"event"}\n'+JSON.stringify({event_id:randomUUID().replaceAll('-',''),message:'synthetic-spool-restored'})});
+  assert.equal(revokedReplay.status,401,'an archived key cannot regain capture authority at the destination');await revokedReplay.body.cancel();
  }finally{await destination.stop()}
  const preview=await json(root+'/erasure');assert.equal(preview.deleted.key_rate_limits,1);assert.equal(preview.deleted.key_rate_usage,2);
  let erase=await json(root+'/erasure','POST',{confirm:project.id,planHash:preview.planHash});
@@ -141,6 +154,7 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
  for(const table of ['key_rate_limits','key_rate_usage'])assert.equal((await db.prepare('SELECT COUNT(*) n FROM '+table+' WHERE project=?').bind(project.id).first()).n,0);
  assert.equal((await send()).status,401,'erased project keys cannot replay capture');
  console.log('PROBE BILL-001 5 custody: private archive and fresh restore -> no key authority or quota state; owner project erasure -> both tables removed and replay refused');
+ await keyLimitRoleAuthority();
  await combinedCategoryBackoff({req,json});
  await keyLimitRepairCoverage({req,json});
 }
@@ -238,4 +252,39 @@ async function combinedCategoryBackoff({req,json}) {
   return;
  }
  assert.fail('public intake did not reach combined category backpressure');
+}
+
+// Native invitations establish real role sessions; only the mail edge is read.
+async function keyLimitRoleAuthority() {
+ const app=await nativeTeamRuntime();
+ try {
+ const {origin}=app;
+ const req=(path,method='GET',body,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:app.cookie,...body!==undefined?{'Content-Type':'application/json'}:{},...headers},...body!==undefined?{body:JSON.stringify(body)}:{}});
+ const json=async(...args)=>{const response=await req(...args);assert.ok(response.ok,`${args[0]} HTTP ${response.status}`);return response.json()};
+ await json('/api/organization','POST',{id:'synthetic-spool-key-team',name:'Capture key administrators'});
+ const project=await json('/api/projects','POST',{id:'key-limit-roles',name:'Key limit authority'}),root='/api/projects/'+project.id,path=root+'/keys/'+digest(project.ingestKey)+'/rate-limit';
+ let admin;
+ for(const [index,role] of ['admin','maintainer','member','read-only','billing'].entries()) {
+  const email=testOwner.replace('owner','synthetic-spool-key-'+index);
+  const input={email,name:'synthetic-spool-'+index,role:['maintainer','member'].includes(role)?'member':role,grants:['maintainer','member','read-only'].includes(role)?[{project:project.id,role}]:[]};
+  assert.equal((await req('/api/organization/invites','POST',input)).status,202);
+  const cookie=await confirmEmailLink(origin,email),headers={Cookie:cookie};
+  if(role==='admin') {
+   admin={headers,member:(await json('/api/organization')).members.find(row=>row.email===email)};
+   const saved=await req(path,'PUT',{revision:0,limit:2,period:'hour'},headers);assert.equal(saved.status,200);assert.equal((await saved.json()).limit,2);
+  } else {
+   const before=await json(path);
+   for(const method of ['GET','PUT']) {
+    const response=await req(path,method,method==='PUT'?{revision:before.revision,limit:99,period:'hour'}:undefined,headers);
+    assert.ok([401,403,404].includes(response.status),role+' cannot configure or inspect a key budget');await response.body.cancel();
+   }
+   assert.deepEqual({...await json(path),retryAfter:0},{...before,retryAfter:0},role+' refusal leaves configuration and usage unchanged');
+  }
+ }
+ const before=await json(path);
+ await json('/api/organization/members/'+admin.member.id,'PUT',{version:admin.member.version,role:'read-only',grants:[]});
+ const revoked=await req(path,'PUT',{revision:before.revision,limit:99,period:'hour'},admin.headers);assert.ok([401,403,404].includes(revoked.status));await revoked.body.cancel();
+ assert.deepEqual({...await json(path),retryAfter:0},{...before,retryAfter:0},'demoted admin session cannot change the saved limit');
+ console.log('PROBE BILL-001 5 roles: native invited admin saves a key limit; maintainer, member, read-only, billing and demoted admin are refused without changing it');
+ }finally{await app.close()}
 }
