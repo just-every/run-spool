@@ -3,6 +3,7 @@ const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)pr
 import {test} from 'node:test';
 import {nativeAlertRuntime} from './alerts/native-runtime.mjs';
 import {prepareNativeAlerts,newIssue,regression,spike,capture,verifyNoReplay} from './alerts/native-journey.mjs';
+import {plainResolvedRegressions} from './alerts/plain-resolve.mjs';
 
 await test('native scheduled event delivers a new issue with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();
@@ -10,7 +11,7 @@ await test('native scheduled event delivers a new issue with silent local mail o
 });
 await test('native scheduled event delivers a later-release regression with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();
- try{const fixture=await prepareNativeAlerts(app,['regression']);await capture(app,fixture,'initial');await regression(app,fixture);await verifyNoReplay(app)}finally{await app.close()}
+ try{const fixture=await prepareNativeAlerts(app,['regression']);await capture(app,fixture,'initial');await regression(app,fixture);await plainResolvedRegressions(app,fixture);await verifyNoReplay(app)}finally{await app.close()}
 });
 await test('native scheduled event completes a real spike window and completes with silent local mail once',async()=>{
  const app=await nativeAlertRuntime();

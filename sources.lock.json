@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "186411c0f0bc9b4d470d126d1fc1809980161a91e60882324e9a20254b0f9ea6",
+      "sha256": "c877e8712cf6c2f23ac799d61a7840a56061d9e2756c4fef0de778e7ef5b6a05",
       "executable": false
     },
     "DEMO.md": {
@@ -8661,7 +8661,7 @@
       "executable": false
     },
     "tests/alerts-native.mjs": {
-      "sha256": "d7a3741c20591ae41ae00a2bd91ddc3a98a94664644a16fe8666e27922dcd50d",
+      "sha256": "7e52dd773adb85b6452249543645372bbb2f48f870cc1527e219078490dbcf0b",
       "executable": false
     },
     "tests/alerts-runtime.mjs": {
@@ -8686,6 +8686,10 @@
     },
     "tests/alerts/native-runtime.mjs": {
       "sha256": "b445b3d3e17c1dfc10f16d974547d81e7bd9e3d9577c7bd6a8ab89bc48e12a07",
+      "executable": false
+    },
+    "tests/alerts/plain-resolve.mjs": {
+      "sha256": "c0e2fae6aedaa328435601b5d3ad39ff1c524792b4bee98d53f8c7e2e74ca2c4",
       "executable": false
     },
     "tests/alerts/receiver.mjs": {
