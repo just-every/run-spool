@@ -38,6 +38,8 @@ export async function resolveMembership(request: Request, env: Bindings, session
  }
  const tail=match[2]??'', isRead=read(request), document=!path.startsWith('/api/');
  const policy=/^(?:inbound-filters|grouping-rules|identity-policy|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
+ // Personal settings never change project policy or another person's data.
+ if(tail==='notifications/preferences' && (isRead || request.method==='PUT')) return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };
  const operational=/^(?:fixes|reproducers|repairs)(?:\/|$)/.test(tail);
  if (member.role!=='admin' && (operational || policy && role!=='maintainer')) return missing();
  if (!isRead && role!=='admin') {
