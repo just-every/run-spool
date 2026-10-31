@@ -121,7 +121,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
  assert.notEqual((await cli(['packet',issue.id,'--format','json'],agentEnv)).code,0,'the same CLI grant is denied immediately after removal');
  await mcpDoor(origin,projects[1],keys.agent.key,issue.id,false);
- for(const path of ['/auth/session',organization+'/me','/api/projects',root+'/issues',root+'/issues/'+issue.id+'/packet',root+'/issue-export?format=json',root+'/sentry-uploads'])await denied(removed.req(path),'removal denies the old session on every private transport');
+ for(const path of ['/auth/session',organization+'/me','/api/projects',root+'/issues',root+'/issue-search',root+'/issues/'+issue.id+'/packet',root+'/issue-export?format=json',root+'/sentry-uploads'])await denied(removed.req(path),'removal denies the old session on every private transport');
  const document=await removed.req('/projects/'+projects[1].id+'/issues/'+issue.id);assert.equal(document.status,303);assert.equal(new URL(document.headers.get('location'),owner.origin).pathname,'/sign-in');await document.body?.cancel();
  await denied(removed.req(root+'/keys','POST',{kind:'agent'}),'removed session cannot mint another grant');
  await denied(owner.req(root+'/issues/'+issue.id+'/packet','GET',undefined,bearer('agent')),'removal revokes minted agent evidence authority');
