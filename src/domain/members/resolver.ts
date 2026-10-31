@@ -36,7 +36,9 @@ export async function resolveMembership(request: Request, env: Bindings, session
   if (!grant) return missing();
   role=member.role==='read-only'?'read-only':grant.role;
  }
- const tail=match[2]??'', isRead=read(request), document=!path.startsWith('/api/');
+ const tail=match[2]??'';
+ if(/^keys\/[^/]+\/rate-limit$/.test(tail)&&member.role!=='admin')return missing();
+ const isRead=read(request), document=!path.startsWith('/api/');
  const policy=/^(?:inbound-filters|grouping-rules|identity-policy|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
  const operational=/^(?:fixes|reproducers|repairs)(?:\/|$)/.test(tail);
  if (member.role!=='admin' && (operational || policy && role!=='maintainer')) return missing();
