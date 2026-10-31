@@ -47,6 +47,9 @@ function releaseKeySql(release:string,order:string){
 export function releaseOrderSql(release='releases',direction:'ASC'|'DESC'='ASC',order=releasePolicyOrderSql(release+'.project')){
  return releaseKeySql(release,order).map(key=>`${key} ${direction}`).join(',');
 }
+export function issueReleasesSql(issue='i'){
+ return `(SELECT json_group_array(name) FROM (SELECT DISTINCT e.release name FROM events e LEFT JOIN releases r ON r.project=e.project AND r.name=e.release WHERE e.project=${issue}.project AND e.issue=${issue}.id ORDER BY CASE WHEN e.release='' THEN 0 ELSE 1 END,${releaseOrderSql('r')}))`;
+}
 export function releaseComparisonSql(left:string,right:string,order=releasePolicyOrderSql(left+'.project')){
  return `(${releaseKeySql(left,order).join(',')})>(${releaseKeySql(right,order).join(',')})`;
 }
