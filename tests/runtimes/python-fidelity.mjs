@@ -82,6 +82,7 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
  for(const capture of captured){
   const row=archive.data.events.find(row=>row.project===capture.project.id&&row.id===capture.event.id&&row.occurrence===capture.event.occurrence);
   assert.ok(row,'actual archive contains the captured occurrence');
+  assert.deepEqual(JSON.parse(row.payload),capture.payload,'the private archive preserves the complete scrubbed persisted event');
   const event=JSON.parse(row.payload); // No product normalization at this boundary.
   if(capture===chain)maskedLocals(event,'private archive payload');else requestEvidence(event,'private archive payload');
   const root=`/api/projects/${capture.project.id}`,eventPath=`${root}/issues/${capture.detail.issue.id}/events/${capture.event.id}?occurrence=${capture.event.occurrence}`;
