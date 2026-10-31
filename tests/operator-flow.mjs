@@ -92,6 +92,7 @@ export async function operatorFlow({req,json}){
  await admit({...base,eventId:'deployment-unknown',environment:'staging'});observed=await packet(groups[0].results[0].issue);assert.equal(observed.deployments.last.manifest,null,'production binding cannot attribute staging');
  await admit({...base,eventId:'rollback',environment:'production'});observed=await packet(groups[0].results[0].issue);assert.equal(observed.deployments.last.release,base.release);assert.equal(observed.deployments.last.manifest.commit_sha,manifest.commitSha);
  await agentProposalFlow({req,json},corpus);
+ await retainedTraceProposalFlow({req,json});
  return {project:project.id,correctedIssue:guarded.plan.target,correction:guarded.id};
 }
 
@@ -123,7 +124,7 @@ async function agentProposalFlow({req,json},corpus){
  let detail=await json(endpoint+'/'+rejected.id);assert.ok(detail.explanation.counterexamples.inside.length);assert.ok(detail.explanation.counterexamples.outside.some(e=>e.event==='proposal-rebuilt'));assert.ok(detail.explanation.repair.observations.find(r=>r.id===repair.id).observation.evidence.window.end>=detail.explanation.repair.observations.find(r=>r.id===repair.id).observation.evidence.release.registered,'A historical rate window cannot backdate the current repair observation');assert.equal(detail.explanation.ownership.length,2);assert.deepEqual(new Set(detail.explanation.ownership.map(r=>r.label)),new Set(['Runtime engineer','Release engineer']));
  await json(endpoint+'/'+rejected.id+'/reject','POST',{});assert.equal((await json(endpoint+'/'+rejected.id)).state,'rejected');assert.deepEqual(await projectRows(),before,'Reject changes no application projection');
  const proposed=await json(endpoint,'POST',await input(),agent);detail=await json(endpoint+'/'+proposed.id);
- assert.equal(detail.explanation.affected.length,2);assert.deepEqual(new Set(detail.explanation.affected.map(e=>e.event)),new Set(['proposal-recurred','proposal-deceptive']));assert.equal(detail.explanation.rates.find(r=>r.issue===first.issue).delta,-2);assert.equal(detail.explanation.trace,'trace identity unavailable');
+ assert.equal(detail.explanation.affected.length,2);assert.deepEqual(new Set(detail.explanation.affected.map(e=>e.event)),new Set(['proposal-recurred','proposal-deceptive']));assert.equal(detail.explanation.rates.find(r=>r.issue===first.issue).delta,-2);assert.equal(detail.explanation.trace.reference.unavailable,'native_event');assert.ok(detail.explanation.affected.every(row=>row.variant.trace.comparison==='unavailable'));
  const condition=detail.explanation.alerts.rules.find(r=>r.id===rule.id).issues.find(i=>i.issue===first.issue);assert.equal(condition.before,3);assert.equal(condition.after,1);assert.equal(condition.conditionBefore,true);assert.equal(condition.conditionAfter,false);assert.ok(detail.explanation.alerts.open.length);
  const observation=detail.explanation.repair.observations.find(r=>r.id===repair.id);assert.equal(observation.observation.verdict,'recurred');
  for(const token of [project.ingestKey,deploy.key])for(const [path,body] of [[endpoint,await input()],[endpoint+'/'+proposed.id+'/approve',{}],[endpoint+'/'+proposed.id+'/reject',{}]])assert.ok([401,403].includes((await req(path,'POST',body,{Cookie:'',Authorization:'Bearer '+token})).status));
@@ -138,4 +139,70 @@ async function agentProposalFlow({req,json},corpus){
  const untouched=await json(endpoint,'POST',await input('merge'),agent);assert.equal((await json(endpoint+'/'+untouched.id)).state,'proposed');
  const safe=(await json('/api/audit?limit=100')).rows;assert.ok(safe.some(r=>r.action==='grouping.propose'&&r.actor_kind==='service'&&r.actor_label===proposed.actor));assert.ok(!JSON.stringify(safe).includes('private-canary'));
  console.log(name+' passed.');
+}
+
+/** Constructed Sentry errors qualify retained identity comparison only. */
+export async function traceProposalFixture({req,json},id='synthetic-spool-traces'){
+ const project=await json('/api/projects','POST',{id,name:'Retained trace investigation'}),root='/api/projects/'+id,endpoint=root+'/grouping-proposals';
+ const grant=await json(root+'/keys','POST',{kind:'agent'}),agent={Cookie:'',Authorization:'Bearer '+grant.key};
+ const traceA='ab'.repeat(16),traceB='cd'.repeat(16),privateContext='synthetic-spool-context-private';
+ const contexts=[{trace_id:traceA},{trace_id:traceA.toUpperCase()},{trace_id:traceB},undefined,{}, {trace_id:'synthetic-spool-malformed'}, {trace_id:'0'.repeat(32)},[],{trace_id:traceA},{trace_id:traceB},undefined];
+ const ids=contexts.map((_,index)=>'a'.repeat(30)+(index+1).toString(16).padStart(2,'0'));
+ const dsn=new URL(project.dsn),store=`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`;
+ await json(root+'/releases','POST',{name:'synthetic-spool-trace-r1',build:'synthetic-spool-trace-b1'});
+ const capture=async(index)=>{
+  const context=contexts[index],input={event_id:ids[index],platform:'javascript',release:'synthetic-spool-trace-r1',dist:'synthetic-spool-trace-b1',environment:'production',transaction:'/checkout',exception:{values:[{type:'Error',value:'synthetic-spool-trace-failure',stacktrace:{frames:[{filename:'https://assets.example.test/trace.js',lineno:12,colno:3,function:'checkout',in_app:true}]}}]},contexts:{...(context===undefined?{}:{trace:context}),private:{note:privateContext}}};
+  const response=await req(store,'POST',input,{Cookie:''});assert.equal(response.status,200);assert.equal((await response.json()).id,ids[index]);return input;
+ };
+ for(let index=0;index<ids.length;index++)await capture(index);
+ const issues=await json(root+'/issues');assert.equal(issues.length,1,'Trace identity does not change admission grouping');
+ const source=issues[0].id,packet=()=>json(root+'/issues/'+source+'/packet'),first=await packet();
+ const native=await json('/api/ingest/'+id,'POST',{...first.events[0].event,eventId:'synthetic-spool-native',sentry:undefined,grouping:undefined},{Cookie:'',Authorization:'Bearer '+project.ingestKey});
+ const submit=async({kind='split',events=ids.slice(0,8),sourceId=source,variant}={})=>{
+  const p=await json(root+'/issues/'+sourceId+'/packet'),event=p.events[0].event,now=Date.now();
+  const change=kind==='split'?{events}:{policy:(await json(root+'/grouping-rules')).policy,policyRevision:(await json(root+'/grouping-rules')).revision};
+  const input={kind,source:sourceId,revision:p.issue.revision,...change,variants:[variant??{stack:JSON.stringify(event.frames),release:event.release,route:sourceId===source?'/checkout':''}],rationale:'Compare retained trace identity without changing captures.',window:{start:now-60000,end:now}};
+  const response=await req(endpoint,'POST',input,agent);assert.equal(response.status,201);const proposal=await response.json();assert.ok(!Object.hasOwn(proposal,'explanation'));return {proposal,input};
+ };
+ return {project,root,endpoint,grant,agent,ids,source,native,traceA,traceB,privateContext,packet,submit,capture};
+}
+
+export async function retainedTraceProposalFlow({req,json}){
+ const f=await traceProposalFixture({req,json}),{root,endpoint,ids,agent,traceA,traceB}=f;
+ const projection=async()=>{const archive=await archiveProjection(await req('/api/archive'));return Object.fromEntries(['events','issues','event_grouping','alerts','outcomes','repairs'].map(table=>[table,archive.data[table].filter(row=>row.project===f.project.id)]));};
+ const before=await projection(),packetBefore=await f.packet(),{proposal,input}=await f.submit(),detail=await json(endpoint+'/'+proposal.id),review=detail.explanation;
+ assert.deepEqual(await projection(),before,'Trace review is inert across capture, grouping, alert, loss and repair projections');
+ assert.deepEqual(review.trace.reference,{event:ids[0],occurrence:review.affected[0].occurrence,id:traceA,unavailable:null});
+ assert.deepEqual(review.affected.map(row=>row.event),ids.slice(0,8));
+ const variants=review.affected.map(row=>row.variant),bases=variants.map(({trace,...base})=>base);
+ for(const base of bases){assert.deepEqual(JSON.parse(base.stack),JSON.parse(input.variants[0].stack),'Only trace identity varies; stack stays fixed');assert.equal(base.release,input.variants[0].release);assert.equal(base.route,input.variants[0].route);}
+ assert.deepEqual(variants.slice(0,3).map(v=>[v.trace.id,v.trace.comparison]),[[traceA,'same'],[traceA,'same'],[traceB,'different']]);
+ assert.deepEqual(variants.slice(3).map(v=>[v.trace.id,v.trace.comparison,v.trace.unavailable]),['missing_trace_context','missing_trace_id','invalid_trace_id','invalid_trace_id','invalid_trace_context'].map(reason=>[null,'unavailable',reason]));
+ assert.deepEqual(review.counterexamples.inside.map(row=>[row.event,row.differing]),[[ids[2],['trace']]],'A trace-only difference is an inside counterexample');
+ for(const [id,comparison] of [[ids[8],'same'],[ids[9],'different'],[ids[10],'unavailable']])assert.equal(review.counterexamples.outside.find(row=>row.event===id).variant.trace.comparison,comparison,'Outside look-alikes compare their retained trace');
+ assert.equal(review.counterexamples.outside.find(row=>row.event==='synthetic-spool-native').variant.trace.unavailable,'native_event');
+ assert.deepEqual(await f.packet(),packetBefore,'Owner comparisons do not widen or change the existing bounded packet projection');
+ assert.ok(!JSON.stringify(review).includes(f.privateContext),'Unrelated retained context never enters the owner comparison');
+ assert.ok(!JSON.stringify(review).includes('synthetic-spool-malformed'),'Malformed identity is represented only by an unavailable reason');
+ assert.equal((await req(endpoint+'/'+proposal.id,'GET',undefined,agent)).status,403,'Agent cannot read owner trace explanations');
+ const summaries=await json(endpoint,'GET',undefined,agent);assert.ok(summaries.every(row=>!Object.hasOwn(row,'explanation')));assert.ok(!JSON.stringify(summaries).includes(traceA));
+ assert.equal((await req(endpoint,'POST',{...input,variants:input.variants.map(v=>({...v,trace:traceA}))},agent)).status,400,'Legacy citation shape stays unchanged; agents cannot inject trace identity');
+ const outsider=await json('/api/projects','POST',{id:'synthetic-spool-trace-other',name:'Trace isolation'}),foreign=await json('/api/projects/'+outsider.id+'/keys','POST',{kind:'agent'});
+ const foreignHeaders={Cookie:'',Authorization:'Bearer '+foreign.key};
+ for(const [method,path,body] of [['GET',endpoint+'/'+proposal.id,undefined],['POST',endpoint,input]])assert.equal((await req(path,method,body,foreignHeaders)).status,403,'A foreign grant cannot inspect or create trace proposals');
+ assert.deepEqual(await projection(),before,'Refused trace access cannot change captured data');
+ const native=await f.submit({sourceId:f.native.issue,events:['synthetic-spool-native']});assert.equal((await json(endpoint+'/'+native.proposal.id)).explanation.affected[0].variant.trace.unavailable,'native_event');
+ const rule=await f.submit({kind:'rule'}),ruleReview=(await json(endpoint+'/'+rule.proposal.id)).explanation;assert.equal(ruleReview.affected.length,0);assert.equal(ruleReview.trace.reference.id,traceA,'A no-move rule uses retained source evidence');
+ const approved=await json(endpoint+'/'+proposal.id+'/approve','POST',{});assert.deepEqual(approved.explanation,review);
+ assert.deepEqual(await projection(),before,'Approval still does not apply correction moves');
+ assert.equal((await req(root+'/corrections/'+approved.correction+'/apply','POST',{confirm:false})).status,400);
+ await json(root+'/corrections/'+approved.correction+'/apply','POST',{confirm:true});assert.deepEqual((await json(endpoint+'/'+proposal.id)).explanation,review,'Apply retains the decided trace snapshot');
+ await json(root+'/corrections/'+approved.correction+'/undo','POST',{confirm:true});assert.deepEqual((await json(endpoint+'/'+proposal.id)).explanation,review,'Undo retains the decided trace snapshot');
+ const originalEvents=(await projection()).events;for(const row of before.events)assert.deepEqual(originalEvents.find(current=>current.id===row.id),row,'Apply and undo preserve immutable capture payloads and membership');
+ const second=await f.submit();await json(endpoint+'/'+second.proposal.id+'/reject','POST',{});const rejected=await json(endpoint+'/'+second.proposal.id);
+ const duplicate=await f.capture(0);assert.equal((await f.packet()).issue.count,11,'Replayed capture adds no occurrence or trace comparison evidence');
+ duplicate.event_id='b'.repeat(32);const dsn=new URL(f.project.dsn);assert.equal((await req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',duplicate,{Cookie:''})).status,200);
+ assert.deepEqual((await json(endpoint+'/'+proposal.id)).explanation,review,'Later intake cannot rewrite a decided trace snapshot');assert.deepEqual((await json(endpoint+'/'+second.proposal.id)).explanation,rejected.explanation,'Rejected snapshots are immutable too');
+ await json(root+'/keys/'+f.grant.hash,'DELETE');for(const [method,path,body] of [['GET',endpoint,undefined],['GET',endpoint+'/'+proposal.id,undefined],['POST',endpoint,input]])assert.equal((await req(path,method,body,agent)).status,401,'Revocation closes every proposal read and submit door');
+ console.log('PROBE CTX-001 acceptance-4: Sentry store and owner grouping review -> same, different and unavailable traces reconciled; inert decisions, exact-project refusal, revocation and immutable captures passed.');
 }
