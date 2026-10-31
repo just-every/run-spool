@@ -29,6 +29,7 @@ export async function feedbackProof({app,project,details,referenceSent}){
  for(const report of feedback.items){
   const match=events.find(({event})=>event.id===report.eventId);
   assert.ok(match,'each report references a retained SDK occurrence');
+  assert.ok(typeof match.event.occurrence==='string'&&match.event.occurrence.length>0,'the linked SDK event has a retained occurrence identity');
   assert.equal(report.association,'attached','each report remains attached');
   assert.equal(report.issueId,match.issue.id,'the report belongs to its retained occurrence issue');
   const stored=retained.find(row=>row.id===report.id);
