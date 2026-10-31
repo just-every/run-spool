@@ -13,7 +13,7 @@ The primary journey: a US development team points its existing error capture at 
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `d0f261508c50ae3a19168bc9adcc5aae8f942bae` (30 October 2026). Replayed the candidate onto current main. Retained its browser and public rer archive equality assertions, inert restored-work custody, fresh-run recovery, erasure replay refusal and retention snapshot assertions. ERR-009 remains partial with main's recorded Gap; this conflict resolution does not promote acceptance. Current main's newer ERR-005 judgment and all other clause rows are retained. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `aa72e57e1804674a3ecda76777564a4ea0a2a65d` (31 October 2026). AI-002 landing replay retains main's partial Status and recorded Gap. The execution journey adds alternate-release syntax-error and unresolved-import setup failures through source-map upload, queued runner commands and finished-run reads, plus fixed-release successful-return read-back. Application source and acceptance requirements are unchanged; the added assertions do not establish automatic minimization, competing-cause experiments or broader runtime/mobile qualification. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -1349,7 +1349,7 @@ Core · push-further · **partial** · Cites BASE-AGENT-011 · Register R-1
 3. Repeated against the fixed release, the failure no longer reproduces.
 4. A failed setup never becomes a not-reproduced success.
 
-**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`
+**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`; `tests/execution/reproduce.mjs` reproduceProof: captured mapped-JavaScript failure, reproduced and returned outcomes, missing export, timeout, isolation, single-use tokens and alternate-release syntax-error and unresolved-import load failures (acceptance 2 and 4)
 **Gap.** Bounded mapped-JavaScript reproductions with supplied calls exist; automatic minimization, cause experiments and non-JS/mobile reproduction do not.
 
 #### AI-003 — Minimal code repair as a tested pull request

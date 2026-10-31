@@ -42,6 +42,17 @@ export async function shopFixture(){
   let error;try{(await import(before.url)).lineCount({});}catch(thrown){error=thrown;}
   // Spool's own stack parser, with the bundle served from the shop's origin.
   const stack=frames(error.stack.split(before.url).join('https://shop.example/assets/cart.js'),'cart-map').filter(frame=>frame.file==='https://shop.example/assets/cart.js');
-  return {broken:before.map,fixed:after.map,type:error.name,message:error.message,frames:stack};
+  // Valid maps can carry modules that fail to load in another release. Keep
+  // the captured entry and mappings intact while breaking its dependency.
+  const dependency=before.map.sources.findIndex(source=>source.endsWith('/format.js'));
+  if(dependency<0)throw new Error('The captured fixture must carry its format module');
+  const loadFailures=Object.fromEntries([
+   ['syntax','export const label = ;\n'],
+   ['unresolved',"export { label } from './missing-format.js';\n"],
+  ].map(([name,source])=>{
+   const map=structuredClone(before.map);map.sourcesContent[dependency]=source;
+   return [name,map];
+  }));
+  return {broken:before.map,fixed:after.map,loadFailures,type:error.name,message:error.message,frames:stack};
  }finally{await rm(directory,{recursive:true,force:true});}
 }
