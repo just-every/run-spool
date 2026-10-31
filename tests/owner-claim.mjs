@@ -1,3 +1,6 @@
+import {devCredentials} from './dev-credentials.mjs';
+import {ownerEditor} from './owner-editor.mjs';
+import {managedSignIn} from './managed-sign-in.mjs';
 import assert from 'node:assert/strict';
 import {assertAuditAppendOnly} from './audit-state.mjs';
 import {createHash, generateKeyPairSync, randomUUID, sign} from 'node:crypto';
@@ -140,5 +143,11 @@ try {
 } finally {await app?.close();}
 
 await teamFlow();
+
+await managedSignIn();
+
+await ownerEditor();
+
+await devCredentials();
 
 await endUserErasurePreviewFlow();

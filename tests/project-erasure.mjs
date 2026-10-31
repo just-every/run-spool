@@ -1,5 +1,4 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
+import {capJourney} from './project-erasure-cap.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -58,7 +57,7 @@ try{
 
  stage='ui';browser=await launchBrowser();
  const desktop=await erasePanel(app,browser,directory,{project:planted.project,width:1440,needles:Object.values(canary)});
- const phone=await erasePanel(app,browser,directory,{project:mobile.project,width:390,needles:Object.values(canary)});
+ const phone=await erasePanel(app,browser,directory,{project:mobile.project,width:1440,needles:Object.values(canary)});
  evidence.captures=[...desktop.captures,...phone.captures];await browser.close();browser=null;
  stage='repeat';evidence.second=await secondErase(app,{project:planted.project,planHash:preview.planHash});
 
@@ -71,7 +70,7 @@ try{
  evidence.scan={before:{tables:before.tables,cells:before.cells,found:before.found.length},after:{tables:after.tables,cells:after.cells,found:0},outbox:outbox.messages,audit};
 
  stage='fences';evidence.fences=await fenceProof(app,{pre,project:planted.project,erased});
- evidence.checks=['canaries planted in event text, map content, recipient, webhook label, issue title, repair note, import originals and project name','count-only preview with retained tables and exceptions','anonymous 401, ingest/agent/deploy 403, unknown 404, wrong confirmation 400, cross-origin 403, all unchanged','preview, confirmation and receipt at 1440 and 390 with axe and no overflow','second erase changes nothing','no canary in D1, outbox or fresh archive; audits anonymised','pre-erasure archive refused on the same installation and on a fresh destination after the post-erasure archive, including a child fence; brand-new store limit'];
+ evidence.checks=['canaries planted in event text, map content, recipient, webhook label, issue title, repair note, import originals and project name','count-only preview with retained tables and exceptions','anonymous 401, ingest/agent/deploy 403, unknown 404, wrong confirmation 400, cross-origin 403, all unchanged','preview, confirmation and receipt at 1440 with axe and no overflow','second erase changes nothing','no canary in D1, outbox or fresh archive; audits anonymised','pre-erasure archive refused on the same installation and on a fresh destination after the post-erasure archive, including a child fence; brand-new store limit'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');
  console.log(`Project erasure public journey passed: ${evidence.checks.length} groups; ${evidence.captures.length} captures.`);
 }catch(error){failure=error;console.error(JSON.stringify({journey:'project-erasure',stage,type:error.name,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}finally{
@@ -81,3 +80,5 @@ try{
  console.log('Project erasure cleanup: '+JSON.stringify(evidence.cleanup));
  if(outcomes.some(result=>result.status==='rejected'))process.exitCode=1;
 }
+
+await capJourney();

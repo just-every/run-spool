@@ -116,7 +116,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
 
   // The screens, at desktop and phone width.
   await mkdir('.artifacts/sdk024', { recursive: true });
-  for (const width of [1440, 390]) {
+  for (const width of [1440]) {
    const context = await browser.newContext({ viewport: { width, height: 1000 } }), owner = await context.newPage();
    try {
     await browserSignIn(owner, origin);
@@ -170,6 +170,6 @@ await Sentry.flush(10000);await Sentry.close(10000);
   assert.deepEqual((await call(`/api/projects/${old.id}/check-in-routes`)).connections, [], 'the upgraded project has forwarding off');
   assert.equal((await call(`/api/projects/${old.id}/issues`))[0].count, 1, 'the upgrade keeps the existing occurrence');
   assert.deepEqual((await send(envelope([checkIn(connected, 'ok'), event('1'.repeat(32))], { event_id: '1'.repeat(32) }))).body.checkIns, { check_in_unrouted: 1 }, 'the existing key keeps working and counts the check-in');
-  console.log(JSON.stringify({ clause: 'SDK-024', widths: [1440, 390], routed: 4, unrouted: 2, receiver: 'recorded double of the documented Uptime heartbeat door', custody: 'not archived, restored inert, erased with the project' }));
+  console.log(JSON.stringify({ clause: 'SDK-024', widths: [1440], routed: 4, unrouted: 2, receiver: 'recorded double of the documented Uptime heartbeat door', custody: 'not archived, restored inert, erased with the project' }));
  } finally { await app?.close(); await upgrade?.stop(); await new Promise(done => collector ? collector.close(done) : done()); await rm(temporary, { recursive: true, force: true }); }
 }

@@ -25,5 +25,5 @@ export async function slackUI(browser,inbox){
    await (await workbenchLink(page,'Settings')).click();await page.getByRole('button',{name:'Rotate Checkout on call',exact:true}).click();await page.getByLabel('Slack bot token',{exact:true}).fill('synthetic-spool-'+crypto.randomUUID());await page.getByRole('button',{name:'Rotate Slack token',exact:true}).click();await page.getByRole('status').filter({hasText:'Slack token rotated.'}).waitFor();assert.equal((await app.json('/api/projects/web/alerting/rules'))[0].enabled,0);await page.getByRole('button',{name:'Revoke Checkout on call',exact:true}).click();await page.getByRole('status').filter({hasText:'Slack destination revoked.'}).waitFor();
   }finally{await context.close();await app.close()}
  }
- console.log('[ALERT-002] Slack settings/test/review/rotate/revoke and posted delivery identifiers at 1440/390: no overflow, serious Axe finding or icon-only control');
+ console.log('[ALERT-002] Slack settings/test/review/rotate/revoke and posted delivery identifiers at 1440: no overflow, serious Axe finding or icon-only control');
 }

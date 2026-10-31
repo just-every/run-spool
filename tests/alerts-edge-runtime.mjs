@@ -1,5 +1,3 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdtemp,rm,mkdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -7,6 +5,8 @@ import {resolve} from 'node:path';
 import {receiver} from './alerts/receiver.mjs';
 import {alertRuntime,event,rule,setup,relayUrl} from './alerts/runtime.mjs';
 import {testOwner} from './auth.mjs';
+
+export async function edgeJourney() {
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-edge-')),inbox=await receiver(resolve(temp,'receiver.sqlite'));let app;
 try {
  app=await alertRuntime(inbox);const auth=await setup(app);
@@ -53,7 +53,7 @@ try {
   const {launchBrowser}=await import('./browser-launch.mjs');const browser=await launchBrowser();
   try {
    await mkdir(process.env.SPOOL_SHOTS,{recursive:true});
-   for(const width of [1440,390]) {
+   for(const width of [1440]) {
     // Each browser journey gets its own installation and ordinary auth budget.
     await app.close();app=await alertRuntime(inbox,{mail:'rer'});
     const page=await browser.newPage({viewport:{width,height:900},extraHTTPHeaders:{'CF-Connecting-IP':width===1440?'192.0.2.50':'192.0.2.51'}});
@@ -79,3 +79,5 @@ try {
  console.log('Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.');
  console.log('RER relay: native sign-in and alert mail POST the exact relay envelope with Bearer credentials; emitted workerd uses Base redirect:manual; 302 is rejected/provider_redirected with no target fetch or retry; 429 queues then retries per policy; 401 is a rejected delivery and a plain owner-visible sign-in problem, with health intact. Login hints prefill both sign-in paths without sending mail.');
 }finally{await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}
+
+}

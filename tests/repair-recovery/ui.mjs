@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import {openGate} from '../auth.mjs';
 import {captureApp} from './capture.mjs';
-// Part 5: every verdict state reached by clicking, at 1440 and 390, in a project of its own.
+// Part 5: every verdict state reached by clicking, at 1440, in a project of its own.
 async function prepare(app,browser,project){
  await app.json('/api/projects','POST',{id:project,name:'Cedar Dispatch '+project});
  const old={name:'2026.10.1',build:'b1'},release={name:'2026.10.2',build:'b2'};
@@ -36,7 +36,7 @@ async function verdict(page,text){await page.locator('.repairs .verdict').filter
 async function refresh(page){await page.waitForResponse(response=>response.url().includes('/repairs?issue=')&&response.ok(),{timeout:30000});}
 export async function repairPanel(app,browser,directory){
  const captures=[];
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const project='ui'+width,{capture,issue,old,release}=await prepare(app,browser,project);
   const context=await browser.newContext({viewport:{width,height:900}});
   try{

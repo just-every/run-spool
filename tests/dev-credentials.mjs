@@ -1,5 +1,3 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
@@ -7,6 +5,8 @@ import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
+
+export async function devCredentials() {
 
 // Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -83,6 +83,12 @@ try{
   assert.equal(await status(await probe(remote,true)),401,`a dev-minted ${name} is refused by the deployed entry`);
  }
  assert.equal(await status(await local('/api/ingest/minted',{method:'POST',bearer:ingest,body:event('second')})),201,'Settings ingest keys work without the owner gate');
+ const captured=(await (await local('/api/projects/minted/issues',{cookie:dev,key:true})).json())[0];
+ const packetPath='/api/projects/minted/issues/'+captured.id+'/packet';
+ assert.equal(await status(await local(packetPath,{bearer:agent})),401,'a dev-minted packet grant needs the owner gate');
+ assert.equal(await status(await local(packetPath,{bearer:agent,key:true})),200);
+ assert.equal(await status(await remote(packetPath,{bearer:agent,key:true})),401,'deployed packet reads reject dev grants');
+
  // A fence from the linked Auth install ends the owner's session and fences every agent and deploy key a session of
  // theirs minted; signing in again brings none back, and keys minted after the fence work. (Link and binding rows are
  // what a completed link and an Auth sign-in leave.)
@@ -104,4 +110,6 @@ try{
  console.log('Spool dev credentials: local ingest/deploy work with scoped keys alone; agent reads and owner sessions retain the gate; deployed entries reject dev grants; identity fences retire agent/deploy keys.');
 }finally{
  await mf.dispose();await rm(directory,{recursive:true,force:true});jwks.close();
+}
+
 }
