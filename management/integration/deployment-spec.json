@@ -498,6 +498,12 @@
       "name": "0088_scrubbing_rules.sql",
       "sha256": "898f094c9732763ae030e994014ae2a66e017d5beee7f4d4ecd7f59fd2ca3203",
       "sql": "CREATE TABLE scrubbing_policies (id TEXT PRIMARY KEY, project TEXT, revision INTEGER NOT NULL CHECK(revision>0), policy TEXT NOT NULL, updated INTEGER NOT NULL);\nCREATE UNIQUE INDEX scrubbing_project_policy ON scrubbing_policies(project) WHERE project IS NOT NULL;\nCREATE TABLE scrubbing_previews (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, installation_revision INTEGER NOT NULL, digest TEXT NOT NULL, created INTEGER NOT NULL);\nCREATE TABLE scrubbing_changes (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, detail TEXT NOT NULL, created INTEGER NOT NULL);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0089_key_rate_limits.sql",
+      "sha256": "8492525183134629970c961a17fdcdf23cf7e114524312d76af2749db3df362e",
+      "sql": "-- Per-key event quotas are installation custody, like the credentials they bind.\nCREATE TABLE key_rate_limits(\n project TEXT NOT NULL REFERENCES projects(id),\n key_hash TEXT NOT NULL REFERENCES credentials(hash) ON DELETE CASCADE,\n revision INTEGER NOT NULL CHECK(revision>0),\n event_limit INTEGER CHECK(event_limit IS NULL OR event_limit>0),\n period_seconds INTEGER NOT NULL CHECK(period_seconds IN (60,3600)),\n updated INTEGER NOT NULL,\n PRIMARY KEY(project,key_hash)\n);\nCREATE TABLE key_rate_usage(\n project TEXT NOT NULL REFERENCES projects(id),\n key_hash TEXT NOT NULL REFERENCES credentials(hash) ON DELETE CASCADE,\n minute_start INTEGER NOT NULL, minute_count INTEGER NOT NULL CHECK(minute_count>=0),\n hour_start INTEGER NOT NULL, hour_count INTEGER NOT NULL CHECK(hour_count>=0),\n PRIMARY KEY(project,key_hash)\n);\nCREATE TRIGGER key_event_limit_insert BEFORE INSERT ON key_rate_usage\nWHEN EXISTS(SELECT 1 FROM key_rate_limits l WHERE l.project=NEW.project AND l.key_hash=NEW.key_hash AND l.event_limit IS NOT NULL\n AND CASE l.period_seconds WHEN 60 THEN NEW.minute_count ELSE NEW.hour_count END>l.event_limit)\nBEGIN SELECT RAISE(ABORT,'key_rate_limited'); END;\nCREATE TRIGGER key_event_limit_update BEFORE UPDATE ON key_rate_usage\nWHEN EXISTS(SELECT 1 FROM key_rate_limits l WHERE l.project=NEW.project AND l.key_hash=NEW.key_hash AND l.event_limit IS NOT NULL\n AND CASE l.period_seconds WHEN 60 THEN NEW.minute_count ELSE NEW.hour_count END>l.event_limit)\nBEGIN SELECT RAISE(ABORT,'key_rate_limited'); END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
