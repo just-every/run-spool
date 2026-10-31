@@ -12,7 +12,7 @@ export function KeyRateLimit({project,keyHash,request,run,busy}:{project:string;
   {snapshot&&<form onSubmit={event=>{event.preventDefault();void run(async()=>{const next=await request(path,'PUT',{revision:snapshot.revision,limit:enabled?Number(limit):null,period});setSnapshot(next);setSaved(true)})}}>
    <label><input type="checkbox" checked={enabled} onChange={event=>{setEnabled(event.target.checked);setSaved(false)}}/> Limit this capture key</label>
    <Field label="Accepted events per period" type="number" min="1" step="1" required disabled={!enabled} value={limit} onChange={event=>{setLimit(event.target.value);setSaved(false)}}/>
-   <label>Rate period<select value={period} onChange={event=>{setPeriod(event.target.value);setSaved(false)}}><option value="minute">Minute</option><option value="hour">Hour</option></select></label>
+   <label className="form-field"><span>Rate period</span><select value={period} onChange={event=>{setPeriod(event.target.value);setSaved(false)}}><option value="minute">Minute</option><option value="hour">Hour</option></select></label>
    <p>{snapshot.limit===null?'No individual key limit.':`${snapshot.used} of ${snapshot.limit} events accepted in the current UTC ${snapshot.period}.`} Project limits also apply.</p>
    <p>Only new accepted errors spend this limit. Filtered events and duplicate retries do not. Changes keep current minute and hour usage. Other keys continue independently.</p>
    <button className="primary-button" disabled={busy}>Save key rate limit</button>{saved&&<p role="status">Key rate limit saved.</p>}
