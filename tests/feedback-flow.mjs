@@ -3,6 +3,7 @@ import { archiveProjection } from './archive.mjs';
 import { startTestWorker } from './worker.mjs';
 import { freePort } from './admission-runtime.mjs';
 import { signIn } from './auth.mjs';
+import { feedbackAbuseFlow } from './feedback-abuse-flow.mjs';
 
 async function restoreFeedback(before, after, expected) {
  const destination = await startTestWorker(await freePort());
@@ -25,6 +26,7 @@ async function restoreFeedback(before, after, expected) {
 
 /** One feedback journey through Sentry transport, owner reads and withdrawal. */
 export async function feedbackFlow({ req, json, origin }) {
+ await feedbackAbuseFlow({ req, json });
  const project = await json('/api/projects', 'POST', { id: 'feedback-flow', name: 'Feedback flow' });
  const other = await json('/api/projects', 'POST', { id: 'feedback-other', name: 'Other feedback project' });
  const dsn = new URL(project.dsn), root = '/api/projects/feedback-flow';
