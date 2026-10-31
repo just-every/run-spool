@@ -33,6 +33,11 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   mcp=await mcpClient({origin,devKey:app.devKey},grant.key);
   const before=(await app.archive()).data;
   const keys=await Promise.all(['a','b'].map(project=>app.json(`/api/projects/${project}/keys`)));
+  const unchanged=async door=>{
+   assert.deepEqual((await app.archive()).data,before,door+' refusal preserves every archived product row');
+   assert.deepEqual(await Promise.all(['a','b'].map(project=>app.json(`/api/projects/${project}/keys`))),keys,
+    door+' refusal preserves both projects and credential authority');
+  };
   const packet=await app.json(packetPath,'GET',undefined,{agent:grant.key});
   compatible(packet);
   assert.ok(packet.events.some(row=>row.event.message.includes(injection)),
@@ -62,14 +67,17 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
    assert.ok(!JSON.stringify(body).includes('PROJECT_B_PRIVATE'));
    assert.deepEqual(paths.slice(start),[{method:'GET',path}],
     'HTTP carries one encoded selector inside the original project packet path');
+   await unchanged(kind+' HTTP');
    const output=await cli(['packet',selector,'--format','json'],clientEnv);
    assert.equal(output.code,3,kind+' selector refused by CLI packet');
    assert.equal(output.stdout,'');assert.match(output.stderr,/Invalid issue identity/);
    noSecrets(output.stderr);
+   await unchanged(kind+' CLI packet');
    const tool=await mcp.call('get_packet',{issue:selector});
    assert.equal(tool.isError,true,kind+' selector refused by official MCP get_packet');
    assert.match(tool.content[0].text,/Invalid issue identity/);
    assert.match(tool.content[0].text,/"exitCode": 3/);noSecrets(tool);
+   await unchanged(kind+' official MCP get_packet');
    assert.deepEqual(paths.slice(start),[{method:'GET',path}],
     'malicious CLI and MCP selectors cause no upstream request or expanded path');
    proof.push({kind,http:403,cli:output.code,mcp:'refused',clientRequests:0});
@@ -93,7 +101,7 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   noSecrets(facts);
   for(const [,selector] of attacks)assert.ok(!JSON.stringify(facts).includes(selector),'safe facts retain no malicious input');
   console.log('AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved with truthful safe audit facts.');
-  return {selectors:proof,wholePacketEquality:true,untrustedCanary:true,productRowsUnchanged:true,credentialAuthorityUnchanged:true,safeAudit:{successful:6,denied:attacks.length,priorFactsUnchanged:true}};
+  return {selectors:proof,wholePacketEquality:true,untrustedCanary:true,productRowsUnchanged:true,credentialAuthorityUnchanged:true,unchangedAfterEachRefusal:true,safeAudit:{successful:6,denied:attacks.length,priorFactsUnchanged:true}};
  }finally{
   try{await mcp?.close();}finally{proxy.closeAllConnections();await new Promise(accept=>proxy.close(accept));}
  }
