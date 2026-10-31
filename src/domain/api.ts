@@ -28,6 +28,7 @@ import { releaseOrderSql,currentReleaseSequenceSql,issueReleasesSql } from './re
 import { resolutionInput,resolutionTarget,resolutionBoundarySql,resolutionTargetFence } from './releases/resolution';
 import { groupingRoutes as projectGroupingRoutes } from './grouping/routes';
 import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filters';
+import { notificationPreferenceRoutes } from './notifications/routes';
 import { Hono } from 'hono';
 import { rejectedResponse } from '../base/rejected-response';
 import { AuthError } from '../modules/operator-auth/index.mjs';
@@ -167,6 +168,7 @@ api.use('/api/*',async(c,next)=>{
 });
 api.route('/api/projects',priorityRoutes);
 api.route('/api/projects',suppressionRoutes);
+api.route('/api/projects',notificationPreferenceRoutes);
 api.route('/api/projects',discussionRoutes);
 api.route('/api/projects',recurrenceRoutes);
 api.route('/api/projects',investigationRoutes);
