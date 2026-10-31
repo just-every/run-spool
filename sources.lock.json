@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "199a194b993df83878ff25a05f976a791be46d315aa177266464e57a7f98d2b9",
+      "sha256": "3640052fedd29117b9eed6874a0646b369f49f6ef45035a0e79a8f772d2e39fe",
       "executable": false
     },
     "DEMO.md": {
@@ -11074,11 +11074,11 @@
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
-      "sha256": "dd37fe1ca0c6266a3927732bb9f2a288c0088767249b21b159513ac52653aebe",
+      "sha256": "439f871ecc3203feeaf8a973fa6b8bc751761e7e035a6bde666753c74e49b1ef",
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
+      "sha256": "f796ecfa0d8f9145cd83428a49a9c42226726ff7048f3e9eb69fedc7b1a2f8a2",
       "executable": false
     },
     "tests/runtimes/chain-proof.mjs": {
