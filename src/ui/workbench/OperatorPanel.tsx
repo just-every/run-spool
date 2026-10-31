@@ -144,10 +144,10 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         refresh();
       })}>Unassign</button>
     </form>}
-    <p aria-live="polite">Current assignment: {assignment ? assignmentDescription(assignment.current) : 'Loading…'}</p>
+    <p aria-live="polite" style={{ overflowWrap: 'anywhere' }}>Current assignment: {assignment ? assignmentDescription(assignment.current) : 'Loading…'}</p>
     <p>Assign an active project member who can triage, or retain an operator label. Assignment grants no access and sends no notification.</p>
     <Details title="Assignment history" triggerLabel="Assignment history">
-      {assignment?.history.length ? <ol>{assignment.history.map((entry: any) => <li key={entry.id}>{assignmentDescription(entry.target)} · {date(entry.created)} · {entry.actor.kind} <code>{entry.actor.label}</code></li>)}</ol> : <p>No recorded assignment changes. Earlier operator labels retain their original audit history.</p>}
+      {assignment?.history.length ? <ol style={{ overflowWrap: 'anywhere' }}>{assignment.history.map((entry: any) => <li key={entry.id}>{assignmentDescription(entry.target)} · {date(entry.created)} · {entry.actor.kind} <code>{entry.actor.label}</code></li>)}</ol> : <p>No recorded assignment changes. Earlier operator labels retain their original audit history.</p>}
       {assignment?.next && <button type="button" className="text-button" disabled={busy} onClick={() => void run(async () => {
         const earlier = await request(`${root}/issues/${issue.id}/assignment?before=${assignment.next}`);
         setAssignment((current: any) => ({ ...current, history: [...current.history, ...earlier.history], next: earlier.next }));

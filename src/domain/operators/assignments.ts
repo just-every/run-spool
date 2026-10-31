@@ -21,7 +21,7 @@ export function assignmentTarget(row:any, members:any[]) {
  }
  return {kind:row.kind,label:row.target_label};
 }
-export async function readAssignment(db:D1Database,project:string,issue:string,before?:string) {
+export async function readAssignment(db:D1Database,project:string,issue:string,before?:string,canAssign=false) {
  const found=await s(db,'SELECT revision FROM issues WHERE project=? AND id=?',project,issue).first<any>();
  if(!found)throw new AuthError('Issue not found',404);
  if(before!==undefined&&(!/^[1-9][0-9]*$/.test(before)||!Number.isSafeInteger(Number(before))))throw new AuthError('Invalid assignment cursor',400);
@@ -31,7 +31,7 @@ export async function readAssignment(db:D1Database,project:string,issue:string,b
   s(db,'SELECT * FROM issue_assignments WHERE project=? AND issue=?',project,issue).first<any>(),
   s(db,`SELECT * FROM issue_assignment_history WHERE project=? AND issue=?${before?' AND revision<?':''} ORDER BY revision DESC LIMIT 51`,project,issue,...before?[Number(before)]:[]).all<any>(),
  ]);
- return {issue,revision:found.revision,members,current:latest?assignmentTarget(latest,members):{kind:legacy?.label?'label':'unassigned',label:legacy?.label??null},
+ return {issue,revision:found.revision,canAssign,members:canAssign?members:[],current:latest?assignmentTarget(latest,members):{kind:legacy?.label?'label':'unassigned',label:legacy?.label??null},
   history:history.results.slice(0,50).map(row=>({id:row.id,revision:row.revision,target:assignmentTarget(row,members),actor:{kind:row.actor_kind,label:row.actor_label},created:row.created})),
   next:history.results.length>50?String(history.results[49].revision):null};
 }

@@ -14,7 +14,8 @@ routes.get('/:project/operator-state',async c=>{
 routes.get('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;
  c.header('Cache-Control','no-store');
- return c.json(await readAssignment(c.env.DB,c.req.param('project'),c.req.param('issue'),c.req.query('before')));
+ const session=auth.session,canAssign=session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.role==='member'&&session.membership.projectRole!=='read-only';
+ return c.json(await readAssignment(c.env.DB,c.req.param('project'),c.req.param('issue'),c.req.query('before'),canAssign));
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;
