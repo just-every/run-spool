@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c9dac97deb90437fda71ae31db768579c82750611a6fefcef94cf004c7bec748",
+      "sha256": "50813eee73c5bfc5ba90bf9c49357890da3fafebc574a1528a4085e419eaab64",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "240b3aa445ffd7f3aaf6364f932ba4975c7cfcb623b0aa905d3bee189ae0a7a3",
+      "sha256": "9a9cb5bef5a8d1171258b78bd87647f5dc1ec3047f0a70995474543e70b23e3a",
       "executable": false
     },
     "DEMO.md": {
@@ -4885,7 +4885,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "9c2fe318d94b55fbbbb415c0ff0d9b0784cba393aed88d8ccfc877eef24164a5",
+      "sha256": "d623b800c05c943d9abfb07631d93605c181f76b70405a477994fa41a909cfee",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -5917,7 +5917,7 @@
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
-      "sha256": "c50fb51c634b232053cf7d1f53c24d13894e1ca47b293d40d90f058e46744b80",
+      "sha256": "c6ab42e6808b5c07cd165b6e37e3b3460959d3be8f0b774dfc725f429856c4c5",
       "executable": false
     },
     "src/domain/sessions/archive.ts": {
@@ -8273,7 +8273,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureReceipts.tsx": {
-      "sha256": "67c2c8d47f543b36fef179d2e1bb44242e0f09331c5caec058d8cbc906456ed7",
+      "sha256": "52135f67021b29ed5a305975030e81f17ff599209ab52fd48de03490def6f2d5",
       "executable": false
     },
     "src/ui/workbench/captureStatus.ts": {
@@ -9361,7 +9361,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "749d2854f3f69e6000367f34bb48110b8e4e0d5a525da395ad7a1bb8afa500b5",
+      "sha256": "b4c83281caba943f1dbda3188b1ec775b8aa4701326139fceddbc3611224c423",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -9433,7 +9433,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "a0ad60be75764e6eaad38a9416fd1f3fea6055afe1dfe1b96edb160faf9ee384",
+      "sha256": "1c305ae948ce9359b11339b6d2941305f856987fffb41b5796659e275d78d6fa",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

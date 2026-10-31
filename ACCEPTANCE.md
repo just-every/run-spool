@@ -433,7 +433,7 @@ Core · target · **partial** · Rules D-2
 7. A `statsd` item and an unknown item type each appear in capability diagnostics with their count and no silent drop.
 8. With a replay-category budget exhausted, `X-Sentry-Rate-Limits` names only that category while errors are still accepted.
 
-**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`
+**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`; `tests/triage-journey.mjs` Capture receipts item diagnostics (literal named quantities at 1440; screens at 1440 and 390)
 **Gap.** Errors, text feedback and client_report items are routed after complete envelope framing. SDK-reported discards are counted by bounded reason/category and quantity, separately from accepted events; invalid reports are individually counted while valid companion errors continue. The real Node SDK flush emits reports through its normal transport; automatic browser lifecycle report emission is qualified by the [SDK-001] journey in `tests/sentry-sdk.mjs`. Unsupported categories remain diagnosed. Check-ins are routed under SDK-024. Bounded sessions and release health are routed under SDK-005, with keyed DID hashes and named limitations. Traces, profiles, replay, logs, metrics, dedicated crash/security doors, category backpressure and full runtime qualification remain absent.
 
 #### SDK-008 — Sentry user identity policy and affected users
