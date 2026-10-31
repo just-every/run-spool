@@ -52,7 +52,11 @@ window.qualifyHandled = async () => {
 window.stopReplay = () => Sentry.getReplay().stop();
 window.openFeedback = eventId => {
   widgetEventId = eventId;
-  return Sentry.getFeedback().createWidget();
+  window.__SPOOL_FEEDBACK__ = null;
+  delete window.__SPOOL_FEEDBACK_ERROR__;
+  const feedback = Sentry.getFeedback();
+  feedback.remove();
+  return feedback.createWidget();
 };
 window.queueDiscards = () => { for (let i = 0; i < 3; i++) Sentry.captureMessage('synthetic-spool-browser-discard ' + i); };
 window.flushSDK = () => Sentry.flush(10000);

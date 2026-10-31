@@ -30,33 +30,39 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
      await page.evaluate(()=>window.flushSDK());
      const unhandledId=await page.evaluate(()=>window.lastErrorId());
      assert.notEqual(unhandledId,handledId,'the automatic and handled captures have distinct SDK event IDs');
-     const eventId=round===0?handledId:unhandledId;
-     const message=`synthetic-spool-browser-widget round ${round+1}`;
-     const submitted={eventId,message,kind:round===0?'handled':'unhandled'};
-     reports.push(submitted);
-     await page.evaluate(()=>window.stopReplay());
-     await page.evaluate(id=>window.openFeedback(id),eventId);
-     await page.getByRole('button',{name:'Report a Bug',exact:true}).click();
-     await page.getByRole('textbox',{name:'Description',exact:false}).fill(message);
-     await page.getByRole('button',{name:'Send Bug Report',exact:true}).click();
-     try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__!==null||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
-     catch(error){console.log(JSON.stringify({stage:'widget-submit',target,round,observed:await page.evaluate(()=>({sent:window.__SPOOL_SENT__,responses:window.__SPOOL_RESPONSES__,error:window.__SPOOL_FEEDBACK_ERROR__}))}));throw error}
-     assert.equal(await page.evaluate(()=>window.__SPOOL_FEEDBACK_ERROR__),undefined,'the actual widget submission succeeds');
-     await page.evaluate(()=>window.flushSDK());
-     const receipt=await page.evaluate(()=>window.__SPOOL_FEEDBACK__);
-     assert.equal(receipt.message,message,'the SDK submit-success callback identifies the submitted description');
-     assert.match(receipt.id,/^[a-f0-9]{32}$/);
-     submitted.id=receipt.id;
-     if(target==='qualification'){
-      const inbox=await app.json(`/api/projects/${project.id}/feedback`);
-      assert.deepEqual(inbox.items.map(row=>row.id).sort(),reports.map(row=>row.id).sort(),'each round retains exactly the widget reports acknowledged so far');
-      assert.equal(inbox.total,round+1);
-      const row=inbox.items.find(row=>row.id===receipt.id);
-      assert.equal(row.message,message);
-      assert.equal(row.eventId,eventId);
-      assert.equal(row.association,'attached');
-      assert.ok(row.issueId,'the acknowledged widget report already belongs to a retained issue before reload');
-      assert.equal((await outcomeMap(app,project.id)).get('feedback_accepted'),round+1,'accepted quantity reconciles before each reload');
+     assert.match(handledId,/^[a-f0-9]{32}$/);
+     assert.match(unhandledId,/^[a-f0-9]{32}$/);
+     // Reuse this page's captured errors while switching the widget target.
+     // Reverse the report order after reload so neither last-capture nor first-report wins.
+     const targets=[['handled',handledId],['unhandled',unhandledId]];
+     for(const [kind,eventId] of round===0?targets:targets.toReversed()){
+      const message=`synthetic-spool-browser-widget ${kind} round ${round+1}`;
+      const submitted={eventId,message,kind};
+      reports.push(submitted);
+      await page.evaluate(()=>window.stopReplay());
+      await page.evaluate(id=>window.openFeedback(id),eventId);
+      await page.getByRole('button',{name:'Report a Bug',exact:true}).click();
+      await page.getByRole('textbox',{name:'Description',exact:false}).fill(message);
+      await page.getByRole('button',{name:'Send Bug Report',exact:true}).click();
+      try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__!==null||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
+      catch(error){console.log(JSON.stringify({stage:'widget-submit',target,round,observed:await page.evaluate(()=>({sent:window.__SPOOL_SENT__,responses:window.__SPOOL_RESPONSES__,error:window.__SPOOL_FEEDBACK_ERROR__}))}));throw error}
+      assert.equal(await page.evaluate(()=>window.__SPOOL_FEEDBACK_ERROR__),undefined,'the actual widget submission succeeds');
+      await page.evaluate(()=>window.flushSDK());
+      const receipt=await page.evaluate(()=>window.__SPOOL_FEEDBACK__);
+      assert.equal(receipt.message,message,'the SDK submit-success callback identifies the submitted description');
+      assert.match(receipt.id,/^[a-f0-9]{32}$/);
+      submitted.id=receipt.id;
+      if(target==='qualification'){
+       const inbox=await app.json(`/api/projects/${project.id}/feedback`);
+       assert.deepEqual(inbox.items.map(row=>row.id).sort(),reports.map(row=>row.id).sort(),'each round retains exactly the widget reports acknowledged so far');
+       assert.equal(inbox.total,reports.length);
+       const row=inbox.items.find(row=>row.id===receipt.id);
+       assert.equal(row.message,message);
+       assert.equal(row.eventId,eventId);
+       assert.equal(row.association,'attached');
+       assert.ok(row.issueId,'the acknowledged widget report already belongs to a retained issue before reload');
+       assert.equal((await outcomeMap(app,project.id)).get('feedback_accepted'),reports.length,'accepted quantity reconciles before each reload');
+      }
      }
      await page.evaluate(()=>window.queueDiscards());
      await page.waitForFunction(()=>window.__SPOOL_DISCARDS__===3);
@@ -78,7 +84,7 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
     }
    }finally{await context.close()}
    const feedback=sent.filter(item=>item.type==='feedback').map(item=>objectJson(item.bytes));
-   assert.equal(feedback.length,reports.length,'each reload round sends exactly one actual widget report');
+   assert.equal(feedback.length,reports.length,'each report action sends exactly one actual widget report');
    for(const report of reports){
     const matches=feedback.filter(event=>event.contexts.feedback.message===report.message);
     assert.equal(matches.length,1,'every submitted description identifies exactly one SDK feedback item');
