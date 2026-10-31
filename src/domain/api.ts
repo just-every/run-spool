@@ -1,3 +1,4 @@
+import { keyRateRoutes } from './key-rate-limits/routes';
 import suppressionRoutes from './suppression/routes';
 import {discussionRoutes} from './discussion/routes';
 import recurrenceRoutes from './recurrence/routes';
@@ -172,6 +173,7 @@ api.route('/api/projects',recurrenceRoutes);
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
+api.route('/api/projects/:project/keys/:hash/rate-limit',keyRateRoutes);
 api.route('/api/projects/:project/review',reviewRoutes);
 api.route('/api/projects/:project/retention-policy',retentionPolicyRoutes);
 api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
