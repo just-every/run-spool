@@ -3,6 +3,7 @@ import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {run,runOk,exceptionTypes,issueDetails} from './harness.mjs';
 import {readScreens} from './screens.mjs';
+import {pythonFidelity} from './python-fidelity.mjs';
 
 const here=resolve(import.meta.dirname,'python');
 // Every environment variable sentry-sdk reads to infer a release; cleared to prove "no release".
@@ -39,7 +40,7 @@ export default {
   const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
   await page.keyboard.press('Escape');
  },
- async verify({app,details,dir,origin,cookie}){
+ async verify({app,details,dir,origin,cookie,db}){
   const events=details.flatMap(d=>d.events.map(e=>e.event.sentry));
   // SDK-010: local variables, SDK context and default integrations, as the unmodified SDK sent them.
   const failing=events.find(sentry=>sentry.exceptions.some(x=>x.stacktrace?.frames.some(f=>f.vars?.order_note)));
@@ -51,6 +52,9 @@ export default {
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
    assert.equal(result.code,0,`${script}: ${result.stderr.slice(-500)}`);return issueDetails(app,created.id);
   };
+  await pythonFidelity({app,origin,cookie,db,send:async(dsn,script)=>{
+   const spec=command(dir,script,undefined,dsn);return run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
+  }});
   // SDK-009: no release (no environment variable, not a git checkout) is accepted, alerted and counted as release-less.
   const releasesProject=await create('rt-python-releases'),root='/api/projects/rt-python-releases';
   const empty=resolve(dir,'no-release');await mkdir(empty,{recursive:true});
