@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "301fc4f7a824a417610dfd3b6c9fdf115b14e2b8b5e8b26c9c33560caa37e587",
+      "sha256": "8680e63f07548ee7a0c8dd8d7c5afa8e4ffa2321f455d11aaf60e463d3e7712d",
       "executable": false
     },
     ".gitignore": {
@@ -4549,7 +4549,7 @@
       "executable": false
     },
     "scripts/installer/verify.mjs": {
-      "sha256": "56f0ede7bce178ce4aae58292ab3cc8659b1753f7b16a8280dd09330717ab8be",
+      "sha256": "29c580ec58ee4e55bb5a4ef33a0ff062140af35da75b3d969064ee529ddbf593",
       "executable": false
     },
     "scripts/installer/wal-inspection.mjs": {
@@ -8877,7 +8877,7 @@
       "executable": false
     },
     "tests/journeys.mjs": {
-      "sha256": "4187ef321043393f8ebcab8fbe2ee4bf5f64095257ea7e237a12e25d45dfe6f3",
+      "sha256": "d94ced246977d323dad0fd0b3ff13de74e09f13306cbfb10bc5ba571438d378b",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
