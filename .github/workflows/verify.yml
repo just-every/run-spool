@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [product-tools, qualification, sdk, delivery, evidence, project-erasure, identity-import, runtimes-a, runtimes-b]
+        shard: [product-tools, qualification, sdk, delivery, evidence, repair-recovery, sentry-import, project-erasure, identity-import, runtimes-a, runtimes-b]
     steps:
       # Keep the default checkout root on every runner: emitted configs can
       # contain absolute paths from the build job's checkout.
