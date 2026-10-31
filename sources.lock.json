@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "47d1883009044e2659464a321cdd15748053b93a979eacc4cf6b8aa44a21cda7",
+      "sha256": "115062afd393d1d828be0ec4257bd822798e32efffe9f280ef3bec5781c917aa",
       "executable": false
     },
     "DEMO.md": {
@@ -2993,7 +2993,7 @@
       "executable": false
     },
     "docs/KEY-RATE-LIMITS.md": {
-      "sha256": "d6e9df6b10ac8323e016ec11da9c64f852461f5d04f4c947e918207391acbc5f",
+      "sha256": "3085a9d77a714c9a03b212b773644a28b34a2c941cb2c5868ccfaaab84ea9383",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -8901,7 +8901,7 @@
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {
-      "sha256": "4e755bab574983c8a1783b7ca703f292d573ad6fb0f38de2c7fd5e91b14fe688",
+      "sha256": "98dfb0b78f0f324a483b7924700fc17daa656d716f992655fee82d965acc8d87",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
