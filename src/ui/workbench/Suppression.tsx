@@ -3,7 +3,10 @@ import {date,type Request,type Run} from './shared';
 import type {SuppressionInput,SuppressionMode,SuppressionPlan} from '../../domain/suppression/model';
 
 export const initialSuppression:SuppressionInput={mode:'forever',reason:''};
-const localTime=(time:number)=>new Date(time-new Date(time).getTimezoneOffset()*60000).toISOString().slice(0,16);
+const localTime=(time:number)=>{
+ const date=new Date(time),pad=(part:number)=>String(part).padStart(2,'0');
+ return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
 export function SuppressionFields({value,onChange,disabled}:{value:SuppressionInput;onChange:(input:SuppressionInput)=>void;disabled:boolean}){
  const mode=(next:SuppressionMode)=>onChange({mode:next,reason:value.reason,...next==='until'?{until:Date.now()+3600000}:next==='count'?{count:10}:next==='users'?{users:10}:next==='snooze'?{durationMs:3600000}:{}});
  return <>
