@@ -2633,7 +2633,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d65a2404bb869312d62c2a83c05c8354049f3130ef4ce33b73c9e4329fc77afc",
+      "sha256": "3b127a0b627175e5d34e8a7aaaf68cc77d46bac8b28740d72cd88aa0e668a1b9",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "136a6919e4529fa79d4b1a1d552b9071b65eeb3d1d5e9db795b18eae7a5e8704",
+      "sha256": "2c24593feb45dc2820c0ce9539ad63c1b69021ef250f143f57e24aa0f9c88701",
       "executable": false
     },
     "DEMO.md": {
@@ -8793,7 +8793,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "51596df598854f6b1626fe22b6c595c6e74a6a06748d493a572671ee3f6da739",
+      "sha256": "2096c344500a83339222ed955a063dd75c36ed5f686fbfc4441be72a3ac53caf",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8805,7 +8805,7 @@
       "executable": false
     },
     "tests/execution/fixture.mjs": {
-      "sha256": "77ae512b5e0d2eb897edf37af1daadc65e23cf8c1a1034b398bfefa114f2cca6",
+      "sha256": "01fdffc18b133a4e5e9f62b2ebab969023f51f7b06889567f6ea4a95054dd08e",
       "executable": false
     },
     "tests/execution/follow-up.mjs": {
@@ -8817,7 +8817,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "b928a09662d881c988e808501bc68629bee53a946079a52f87fe27c37e1f8ddc",
+      "sha256": "e85a53e42a3cc7f6ea8261e2d76d88fd8a7096cd45cc60a6115d73078d2ab8ef",
       "executable": false
     },
     "tests/execution/runtime.mjs": {
@@ -9237,7 +9237,7 @@
       "executable": false
     },
     "tests/runtimes/python-fidelity.mjs": {
-      "sha256": "93a61c9c86f9288ccb16ecba2c8ad0057ef82248455ba93a5ff98f42b2d33861",
+      "sha256": "2de657ac8b22909b689ca7cd8c6f6e8b4858d25ecbdf592af2ae60af167f2fb5",
       "executable": false
     },
     "tests/runtimes/python.mjs": {
