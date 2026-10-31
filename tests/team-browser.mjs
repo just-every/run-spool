@@ -120,15 +120,15 @@ export async function assignmentBrowser(actor,project,issue,departing,remaining)
     await expect(panel.getByText('Current assignment:',{exact:false})).toContainText('Former project member');
     await expect(panel.getByLabel('Assigned member',{exact:true}).locator('option[value="'+departing.id+'"]')).toHaveCount(0);
     await save(remaining);
-    await panel.getByRole('button',{name:'Assignment history',exact:true}).click();
+    await panel.getByRole('button',{name:'Details: Assignment history',exact:true}).click();
     await expect(panel.getByText(/Former project member/).first()).toBeVisible();
     assert.equal(await panel.locator('input,select,button,label,p,li').evaluateAll(nodes=>nodes.filter(node=>node.getClientRects().length).every(node=>parseFloat(getComputedStyle(node).fontSize)>=13)),true);
     const violations=(await new AxeBuilder({page}).include('main').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact));assert.deepEqual(violations,[],'the issue assignment controls have no serious accessibility violation');
     const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
-    await panel.screenshot({path:resolve(folder,'assignment-1440.png')});
+    await page.screenshot({path:resolve(folder,'assignment-1440.png'),fullPage:true});
     await page.setViewportSize({width:390,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'assignment controls and history fit the phone viewport');
-    await panel.screenshot({path:resolve(folder,'assignment-390.png')});
+    await page.screenshot({path:resolve(folder,'assignment-390.png'),fullPage:true});
    },
    close:()=>browser.close(),
   };

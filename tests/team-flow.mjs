@@ -175,7 +175,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue,assignmen
  assert.deepEqual(await owner.json(root+'/releases'),sealedReleases,'revoked deployment and SDK management requests create no release');
  await browser.removed();
  console.log('PROBE TEAM-002 revoked access: same session, HTTP, CLI, MCP, SDK management and exports -> next reads denied; replayed capture changes no retained issues or releases');
- }finally{await browser.close()}
+ }finally{await browser.close();await assignmentProof?.browser.close()}
 }
 
 async function teamRiders(owner,first,second,reader,projects) {
