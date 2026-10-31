@@ -8864,6 +8864,10 @@
       "sha256": "ea096ab1647753b5bbd89c85754c46bfcc2bd213fc56ed01358cd51a74e189ba",
       "executable": false
     },
+    "tests/governance-step-up.mjs": {
+      "sha256": "b0bc14af87de7512fbc3b258ed63d29fa83e0bbeeb66a268391526f064a9b381",
+      "executable": false
+    },
     "tests/grouping-rules-flow.mjs": {
       "sha256": "d23462f57ea27477b1df31d27803a7b9e74c42fced5c2c35f537b2c428137838",
       "executable": false
@@ -8945,7 +8949,7 @@
       "executable": false
     },
     "tests/owner-claim.mjs": {
-      "sha256": "f89154e66cf1dcc26006234d90de496e99c361bc44af6608821ff93627e0c38b",
+      "sha256": "deebc60441aa864f4f16577092dcac24283db787ab1c12bce89baa23a2f5bfce",
       "executable": false
     },
     "tests/owner-editor.mjs": {
