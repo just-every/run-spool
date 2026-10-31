@@ -56,6 +56,7 @@ export async function operatorFlow({req,json}){
  assert.equal((await req(`${p}/corrections/${stale.id}/apply`,'POST',{confirm:true})).status,409);
  assert.equal((await req(`${p}/issues/${source}/assignment`,'PATCH',{revision:current.issue.revision,label:'Stale operator'})).status,409);
  current=await packet(source);await json(`${p}/issues/${source}/assignment`,'PATCH',{revision:current.issue.revision,label:'Release operator'});
+ const legacyAssignment=await json(`${p}/issues/${source}/assignment`);assert.equal(legacyAssignment.current.kind,'label');assert.equal(legacyAssignment.current.label,'Release operator');assert.equal(legacyAssignment.history[0].target.kind,'label','legacy labels retain their explicit non-account semantics');
  current=await packet(source);await json(`${p}/issues/${source}/assignment`,'PATCH',{revision:current.issue.revision,label:null});assert.equal((await json(`${p}/operator-state`)).assignments.find(a=>a.issue===source).label,null);
  current=await packet(source);const guarded=await json(`${p}/corrections/preview`,'POST',{kind:'split',source,revision:current.issue.revision,events:[selected]});await json(`${p}/corrections/${guarded.id}/apply`,'POST',{confirm:true});
  const targetPacket=await packet(guarded.plan.target);await json(`${p}/issues/${guarded.plan.target}`,'PATCH',{revision:targetPacket.issue.revision,state:'acknowledged'});assert.equal((await req(`${p}/corrections/${guarded.id}/undo`,'POST',{confirm:true})).status,409);

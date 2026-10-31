@@ -4025,7 +4025,7 @@
       "executable": false
     },
     "migrations/core/0085_member_assignments.sql": {
-      "sha256": "d32654ed781ae1bd1258b194059b516451c95018168dcc0d4e963c72134ce966",
+      "sha256": "5c3de72768962aa19074eb3f03e427e86f3dc248bf0ecea870758907b65f72c6",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -8405,7 +8405,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "18a4a9056f5950fa3b82b3207798994f48ad46e04c4655739b8d3606450d560e",
+      "sha256": "27ac65d4e239d9e7c6f6647fcc73e09380bbb118ca2f0c1c2dc9d00e30f01508",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8433,7 +8433,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "721ef77ebe9683154248bd2bf5f3d456c6cf1acd76a0c67dd6c4d845e7114bb1",
+      "sha256": "d636b593292a22e88e4d8ce5651afa972d6bb4b46ec5825b09c6377b018a9a70",
       "executable": false
     },
     "src/ui/workbench/Priority.tsx": {
@@ -8713,7 +8713,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "a897cbe174c41a4de8b83e3d8bdc0b5aefd7220c88f3af9e8495a97b42571048",
+      "sha256": "7206f33b2c4122de118ddd9363223fb28b46e61c030cb601d0a6ce5edaebaf2c",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -8945,7 +8945,7 @@
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "d4308c84a99970af89730442f46f0568ea2bfd496f166fe9606dc489feac6c42",
+      "sha256": "47c095998800af0588feae9c2e2f07b00de838fe8acc94fe2abc6192f3d9554f",
       "executable": false
     },
     "tests/operator-ui.mjs": {
@@ -9421,11 +9421,11 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "1afd5468a8c4b01049854a16f4c5bdc0ff02edde3f393e5d768853741bcf4aad",
+      "sha256": "ecb78ea1d16fb2b62608c34e2e22d4f6b25dc2af7244b7f9d179957784a6486f",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "86bdeeb0eddbc834ac9a9742502f8794b3ab0321aa9d94008bd947cb08d46fa3",
+      "sha256": "020b81b4f576120bffb1eafb7e0a16aac6d1805794266f8125a222b121b4fb92",
       "executable": false
     },
     "tests/triage-app.mjs": {
