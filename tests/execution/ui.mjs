@@ -61,3 +61,21 @@ export async function executionPanel(app,browser,directory,issue,reproducer){
  }
  return captures;
 }
+
+export async function restoredExecutionPanel(app,browser,directory,issue){
+ const captures=[];
+ for(const width of [1440,390]){
+  const context=await browser.newContext({viewport:{width,height:900}});
+  try{
+   await openGate(context,app.origin);await context.addCookies([{name:app.cookie.slice(0,app.cookie.indexOf('=')),value:app.cookie.slice(app.cookie.indexOf('=')+1),url:app.origin}]);
+   const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);const section=page.locator('section.execution');
+   await section.getByText('Restored history; no active grant',{exact:true}).first().waitFor();await section.getByText(/Historical result:/).first().waitFor();
+   assert.equal(await section.locator('.fix-actions button').count(),0,'restored grants offer no dispatch controls');
+   assert.equal(await section.getByRole('button',{name:'Propose fix branch',exact:true}).count(),0,'historical passing results offer no fix authority');
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'restored execution fits');
+   const audit=await new AxeBuilder({page}).include('section.execution').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(row=>row.id),[]);
+   for(const [name,card] of [['fix',section.locator('article.fix').first()],['run',section.locator('article.reproducer').first()]]){const path=`${directory}/restored-${name}-${width}.png`;await card.screenshot({path});captures.push(path);}
+  }finally{await context.close();}
+ }
+ return captures;
+}
