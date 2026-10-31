@@ -50,6 +50,9 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
+  const [assignment, setAssignment] = useState<any>(null);
+  const [assignmentKind, setAssignmentKind] = useState('member');
+  const [member, setMember] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
@@ -64,16 +67,20 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
+  useEffect(() => { labelEdited.current = false; setState(null); setAssignment(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
     if (waitingForPacket) return;
     try {
       const prefetched = !background && initial && initial !== consumedInitial.current;
       consumedInitial.current = initial;
-      const [operatorState, corrections] = await (prefetched ? initial : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]));
+      const [[operatorState, corrections], assigned] = await Promise.all([prefetched ? initial! : Promise.all([request(`${root}/operator-state`), request(`${root}/corrections`)]), request(`${root}/issues/${issue.id}/assignment`)]);
       if (signal.aborted) return;
-      setState(operatorState); setHistory(corrections); setFailure('');
-      if (!labelEdited.current) setLabel(operatorState.assignments.find((assignment: any) => assignment.issue === issue.id)?.label ?? '');
+      setState(operatorState); setHistory(corrections); setAssignment(assigned); setFailure('');
+      if (!labelEdited.current) {
+        setAssignmentKind(assigned.current.kind === 'label' ? 'label' : 'member');
+        setMember(assigned.current.member ?? '');
+        setLabel(assigned.current.kind === 'label' ? assigned.current.label : '');
+      }
       if (!state) setValue(packet.events?.[0]?.originalGrouping?.fingerprint ?? issue.fingerprint);
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
@@ -116,15 +123,19 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     <form className="form-grid" onSubmit={event => {
       event.preventDefault();
       void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
+        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, ...(assignmentKind === 'member' ? { member } : { label: label.trim() || null }) });
         setAssignmentRevision(saved.revision);
         labelEdited.current = false;
         setState(null);
         refresh();
       });
     }}>
-      <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
-      <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
+      <label className="form-field">Assignment type<select disabled={busy || !ready} value={assignmentKind} onChange={event => { labelEdited.current = true; setAssignmentKind(event.target.value); }}><option value="member">Project member</option><option value="label">Operator label</option></select></label>
+      {assignmentKind === 'member' ? <label className="form-field">Assigned member<select disabled={busy || !ready} value={member} onChange={event => { labelEdited.current = true; setMember(event.target.value); }} required>
+        <option value="">Choose an active project member</option>
+        {assignment?.members.map((person: any) => <option key={person.id} value={person.id}>{person.name}</option>)}
+      </select></label> : <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} /> }
+      <button className="primary-button" disabled={busy || !ready || assignmentKind === 'member' && !member}>Save assignment</button>
       <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void run(async () => {
         const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
         setAssignmentRevision(saved.revision);
@@ -133,7 +144,15 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         refresh();
       })}>Unassign</button>
     </form>
-    <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
+    <p aria-live="polite">Current assignment: {assignment ? assignmentDescription(assignment.current) : 'Loading…'}</p>
+    <p>Assign an active project member who can triage, or retain an operator label. Assignment grants no access and sends no notification.</p>
+    <Details title="Assignment history" triggerLabel="Assignment history">
+      {assignment?.history.length ? <ol>{assignment.history.map((entry: any) => <li key={entry.id}>{assignmentDescription(entry.target)} · {date(entry.created)} · {entry.actor.kind} <code>{entry.actor.label}</code></li>)}</ol> : <p>No recorded assignment changes. Earlier operator labels retain their original audit history.</p>}
+      {assignment?.next && <button type="button" className="text-button" disabled={busy} onClick={() => void run(async () => {
+        const earlier = await request(`${root}/issues/${issue.id}/assignment?before=${assignment.next}`);
+        setAssignment((current: any) => ({ ...current, history: [...current.history, ...earlier.history], next: earlier.next }));
+      })}>Load earlier assignments</button>}
+    </Details>
 
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
@@ -203,4 +222,8 @@ function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {
       : `Recorded deployment of ${detail.release} in ${detail.environment}`;
     return <li key={row.id}>{label} · {date(row.created)}</li>;
   })}</ul>;
+}
+
+function assignmentDescription(target: any): string {
+  return target.kind === 'member' ? `${target.name} · ${target.alias}` : target.kind === 'label' ? `Operator label: ${target.label}` : 'Unassigned';
 }

@@ -1,5 +1,6 @@
 import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
 import { keyRateTables } from './key-rate-limits/model';
+import { assignmentTables, assignmentExportRow } from './operators/assignment-archive';
 import {ensureIssuePriorities} from './issue-priority/model';
 import {ensureRecurrenceBoundaries} from './recurrence/model';
 import {suppressionExportRow} from './suppression/archive';
@@ -57,7 +58,7 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,'restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
+ exportRow: (table: string, row: any) => scrubExportRow(table, assignmentExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -212,6 +213,9 @@ laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrub
 // Key quota state is bound to excluded credentials; restored projects need fresh keys.
 for(const later of laterTables)later.migrations.push('0089_key_rate_limits.sql');
 laterTables.unshift({tables:[],migrations:['0089_key_rate_limits.sql']});
+const assignmentNames=Object.keys(assignmentTables);
+for(const later of laterTables){later.tables.push(...assignmentNames);later.migrations.push('0090_member_assignments.sql')}
+laterTables.unshift({tables:assignmentNames,migrations:['0090_member_assignments.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
