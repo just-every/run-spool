@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "186411c0f0bc9b4d470d126d1fc1809980161a91e60882324e9a20254b0f9ea6",
+      "sha256": "b2c570cb7b7fd2c50814fcb2d5c068875b96202f69d22aaa04609699c5b3cc6e",
       "executable": false
     },
     "DEMO.md": {
@@ -9237,7 +9237,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "62be0160bed7c105133f19a0732f72770bc4be11f5ad5cbd11e53893538a901d",
+      "sha256": "7b85c66fcaf343ebc78185ec7e84bf7689ca4e769d784671b6564ec308403cff",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
@@ -9305,7 +9305,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "bfda7221ec6a25228b710f7e641bdf407628cde0534d68210dfc37c6d7514acf",
+      "sha256": "b4ed0be83b4c4018f62a64a3ff84cea80fd1adfbed7991a0b5d5b502a534f56d",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
