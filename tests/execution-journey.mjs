@@ -27,7 +27,7 @@ try{
  app=await executionRuntime(state,15476);
  const {ingestKey}=await app.json('/api/projects','POST',{id:'shop',name:'Harbor Shop'});
  await app.json(`${p}/releases`,'POST',r1);await app.json(`${p}/artifacts`,'POST',{release:r1.name,build:r1.build,debugId:'cart-map',map:fixture.broken});
- stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
+ stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.loadFailures=reproduced.loadFailures;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
  const agent=(await app.json(`${p}/keys`,'POST',{kind:'agent'})).key;
  for(const path of [`${p}/reproducers?issue=${reproduced.issue}`,`${p}/fixes?issue=${reproduced.issue}`]){const r=await fetch(app.origin+path,{headers:{Authorization:'Bearer '+agent}});assert.equal(r.status,403,'agent keys cannot read reproducers or fix workflows');await r.body?.cancel();}
  stage='baseline';await baseline(app,ingestKey,r1);
