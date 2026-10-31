@@ -21,7 +21,7 @@ const app = await startTestWorker(15611), origin = app.origin, temporary = await
 process.env.SENTRY_CONFIG_DIR = resolve(temporary, 'sentry-config');
 try {
  const cookie = await signIn(origin);
- const req = (path, method = 'GET', body, headers = {}) => fetch(origin + path, {method, headers: {Origin: origin, Cookie: cookie, ...body ? {'Content-Type': 'application/json'} : {}, ...headers}, ...body ? {body: JSON.stringify(body)} : {}});
+ const req = (path, method = 'GET', body, headers = {}) => fetch(origin + path, {method, headers: {Origin: origin, Cookie: cookie, ...body && !(body instanceof FormData) ? {'Content-Type': 'application/json'} : {}, ...headers}, ...body ? {body: body instanceof FormData ? body : JSON.stringify(body)} : {}});
  const api = async (...args) => { const response = await req(...args); assert.ok(response.ok, `${args[0]} ${response.status}: ${await response.clone().text()}`); return response.json(); };
  const web = await api('/api/projects', 'POST', {id: 'web', name: 'Web storefront'}), other = await api('/api/projects', 'POST', {id: 'other', name: 'Other project'});
  await api('/api/projects', 'POST', {id: 'chunks', name: 'Chunked uploads'});
