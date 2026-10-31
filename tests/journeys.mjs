@@ -7,9 +7,9 @@ export const shards={
  'qualification':['product-runtime-qualification','multilingual-qualification','old-archive-qualification'],
  'sdk':['sentry-http','sentry-sdk','sdk-package'],
  'delivery':['alerts-runtime','alerts-ui','alerts-egress','execution-journey'],
- 'evidence':['agent-handoff','repair-recovery'],
+ 'evidence':['agent-handoff','repair-recovery','sentry-import'],
  'project-erasure':['project-erasure'],
- 'identity-import':['owner-claim','owner-erasure','sentry-import'],
+ 'identity-import':['owner-claim','owner-erasure'],
  'runtimes-a':['sdk-runtimes:electron,node,python,go,java,rust'],
  'runtimes-b':['sdk-runtimes:ruby,php,dotnet,elixir'],
 };
