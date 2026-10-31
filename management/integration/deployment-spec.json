@@ -474,6 +474,12 @@
       "name": "0084_restored_work.sql",
       "sha256": "a442dd526b1b5f3dffc628f28a24389938e3b92363f66d4f6f8dbb4f275b0f6e",
       "sql": "-- Destination-only custody: archived facts survive, their authority does not.\nCREATE TABLE restored_work (\n project TEXT NOT NULL REFERENCES projects(id),\n kind TEXT NOT NULL CHECK(kind IN ('repair','run','fix')),\n record TEXT NOT NULL,\n PRIMARY KEY(project,kind,record)\n);\n-- Base commits the rows and clears import_job in one D1 batch. Aborted imports\n-- never mark work. This also covers CLI and legacy archive restores.\nCREATE TRIGGER restored_work_commit AFTER UPDATE OF import_job ON rer_portability_state\n WHEN OLD.import_job IS NOT NULL AND NEW.import_job IS NULL AND OLD.applying=1 BEGIN\n INSERT OR IGNORE INTO restored_work SELECT project,'repair',id FROM repairs;\n INSERT OR IGNORE INTO restored_work SELECT project,'run',id FROM reproducer_runs;\n INSERT OR IGNORE INTO restored_work SELECT project,'fix',id FROM fix_workflows;\nEND;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0085_follow_up_acknowledgment.sql",
+      "sha256": "ea6bc5bf81c408e2a4555029596f481e1a04e517ea27584bf59bd5ddcdcccf3d",
+      "sql": "-- Keep populated notice rows and their released schema unchanged. This\n-- operational metadata never restores as runnable work or a recipient receipt.\nCREATE TABLE follow_up_notice_meta (\n notice TEXT PRIMARY KEY REFERENCES follow_up_notices(id),\n project TEXT NOT NULL REFERENCES projects(id),\n provider TEXT NOT NULL CHECK(provider='slack'),\n message_id TEXT\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
