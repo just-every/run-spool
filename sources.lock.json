@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "186411c0f0bc9b4d470d126d1fc1809980161a91e60882324e9a20254b0f9ea6",
+      "sha256": "febdc2c528dccdb7e7de506db23f5d35b016da0cdf30c663af3645fa072cf3a4",
       "executable": false
     },
     "DEMO.md": {
@@ -2990,6 +2990,10 @@
     },
     "docs/INVESTIGATION.md": {
       "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "executable": false
+    },
+    "docs/KEY-RATE-LIMITS.md": {
+      "sha256": "a5f9ed00992c331491f7b65a91404aa5c282745ed77b64c34a7681c91442c5c8",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -5105,7 +5109,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
-      "sha256": "df3aa6480fdd7676a3dd1722c62f65d9f8d46d17491b1795b95b0218e5d943d6",
+      "sha256": "92885fa770cc1755bd6be560e22088873c54bea810b4cef6c9d199ada25e173d",
       "executable": false
     },
     "src/domain/erasure/owner-operation.ts": {
@@ -8409,7 +8413,7 @@
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
-      "sha256": "323ad4c7e0b3dc27cc2def8ce1c1f67aea413a96b12a70e16b2a9157a97ae100",
+      "sha256": "a331d6b8d497b5ac2fe555d7f2bf78703e84553a3164a668b437a6c169943b69",
       "executable": false
     },
     "src/ui/workbench/live-copy.css": {
@@ -8733,7 +8737,7 @@
       "executable": false
     },
     "tests/browser-launch.mjs": {
-      "sha256": "f239832d29136c9677323c40720e60e57bd9c684bb0f02189d9585abebcac8f8",
+      "sha256": "0f2188a8f620a6105988ee51c756ee66e49dcd414ca52d666ea77eb46392fa61",
       "executable": false
     },
     "tests/browser-origins-runtime.mjs": {
@@ -8897,7 +8901,7 @@
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {
-      "sha256": "bc5a01b57fe2a62860a458657846433ab2b3190c815d98093145949b4767d6b9",
+      "sha256": "552fb5862159632ee3497291a8cf89240cda9a91ee0062fbd363b2b0e8ccf0fd",
       "executable": false
     },
     "tests/legacy-mail.mjs": {

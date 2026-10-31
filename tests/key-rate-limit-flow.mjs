@@ -107,7 +107,9 @@ export async function keyRateLimitFlow({req,json,worker,origin}) {
   const initial=await rows();await sdk.capture('synthetic-spool-sdk-refused');const after=await rows();assert.equal(count(after,'key_rate_limited'),count(initial,'key_rate_limited')+1);
   await sdk.capture('synthetic-spool-sdk-backed-off');await sdk2.capture('synthetic-spool-sdk-other');
   const final=await rows();assert.equal(count(final,'key_rate_limited'),count(after,'key_rate_limited'),'SDK obeys error category backoff instead of sending another limited capture');assert.equal(count(final,'accepted'),count(after,'accepted')+1,'other DSN SDK still ingests');
+  await configure(null);
   await db.prepare('UPDATE key_rate_usage SET minute_start=minute_start-60000,hour_start=hour_start-3600000 WHERE project=? AND key_hash=?').bind(project.id,key).run();
+  await configure(1);
   await sdk.advance(3601000);await sdk.capture('synthetic-spool-sdk-recovered');
   assert.equal(count(await rows(),'accepted'),count(final,'accepted')+1,'unmodified SDK resumes after its clock passes the backoff deadline');
  }finally{await sdk.close();await sdk2.close()}
