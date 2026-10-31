@@ -23,6 +23,7 @@ function retireSlack(env:AlertEnvironment,project:string,previous:string,time:nu
   s(env.DB,"UPDATE alert_intents SET state='cancelled',code='rule_revised' WHERE project=? AND destination=? AND expanded=0 AND code IS NOT 'retention_removed'",project,previous),
   s(env.DB,`UPDATE alert_rules SET ${replacement?'destination=?,':''}enabled=0,revision=revision+1,updated=? WHERE project=? AND destination=?`,...replacement?[replacement]:[],time,project,previous),
   s(env.DB,'DELETE FROM alert_destination_tests WHERE project=? AND destination=?',project,previous),
+  s(env.DB,"UPDATE follow_up_notices SET state='canceled',code='destination_retired' WHERE project=? AND destination=? AND channel='webhook' AND state='queued'",project,previous),
   s(env.DB,'DELETE FROM alert_cursors WHERE project=? AND rule_id IN(SELECT id FROM alert_rules WHERE project=? AND destination=?)',project,project,replacement??previous),
  ];
 }
