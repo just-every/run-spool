@@ -9,6 +9,7 @@ import { identityHash,prepareIdentityKey } from '../identities/key';
 import { parseSessions } from './item';
 export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],sdk?:any){
  const db=c.env.DB as D1Database,p=scope.project,counts:Record<string,number>={};
+ let retryUntil=0;
  const record=async(reason:string,jobs:D1PreparedStatement[]=[])=>{await ingestBatch(c,scope,[...jobs,outcomeStatement(db,p,reason)]);counts[reason]=(counts[reason]??0)+1};
  for(const item of items){
   if(item.bytes.byteLength>102400){await record('session_item_too_large');continue}
@@ -17,8 +18,9 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
    if(error.reason==='session_missing_release'&&releasePolicy.policy.order==='registered')await record('missing_release_register_required',[outcomeStatement(db,p,'session_missing_release')]);
    else await record(error.reason==='session_missing_release'?'session_missing_release':'session_invalid');continue}
   const {release,environment}=rows[0];if((await filterCategory(c,scope,{release,environment})).length){await record('session_filtered');continue}
-  const used=await stmt(db,"SELECT COALESCE(SUM(count),0) n FROM outcomes WHERE project=? AND window>=? AND reason IN ('session_stored','session_invalid','session_missing_release','session_item_too_large','session_filtered','session_capacity','session_release_refused')",p,Math.floor(Date.now()/60000)*60000).first<{n:number}>();
-  if(used!.n>=1200){await record('session_rate_limited');continue}
+  const now=Date.now(),minute=Math.floor(now/60000)*60000;
+  const used=await stmt(db,"SELECT COALESCE(SUM(count),0) n FROM outcomes WHERE project=? AND window>=? AND reason IN ('session_stored','session_invalid','session_missing_release','session_item_too_large','session_filtered','session_capacity','session_release_refused')",p,minute).first<{n:number}>();
+  if(used!.n>=1200){await record('session_rate_limited');retryUntil=Math.max(retryUntil,minute+60000);continue}
   if(releasePolicy.policy.order!=='registered'&&!autoReleaseAllowed(release,releasePolicy.policy)&&!await stmt(db,'SELECT 1 FROM releases WHERE project=? AND name=?',p,release).first()){await record('session_release_refused');continue}
   const prepared=await prepareRelease(db,p,{version:1,eventId:'session',release,environment:environment||'unknown',build:absentDist,type:'Session',message:'',frames:[],breadcrumbs:[],sentry:{version:1,exceptions:[],truncation:[],tags:{},contexts:{},...sdk?{sdk}:{}}} as Envelope,true);
   if(prepared.refusal){await record(prepared.refusal,[outcomeStatement(db,p,'session_release_refused')]);continue}
@@ -40,5 +42,5 @@ export async function admitSessions(c:any,scope:IngestScope,items:SentryItem[],s
   if(conflict){await record('session_invalid');continue}
   try{await record('session_stored',jobs)}catch(error){if(!String((error as Error).message).includes('session_capacity'))throw error;await record('session_capacity')}
  }
- return counts;
+ return {counts,retryAfter:retryUntil?Math.max(1,Math.ceil((retryUntil-Date.now())/1000)):0};
 }
