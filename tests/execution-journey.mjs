@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
+import {archiveProjection} from './archive.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {executionRuntime} from './execution/runtime.mjs';
 import {githubDouble} from './execution/github-double.mjs';
@@ -12,7 +13,7 @@ import {shopFixture} from './execution/fixture.mjs';
 import {reproduceProof,runner} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
-import {disconnectedGitHubSetup,executionPanel} from './execution/ui.mjs';
+import {disconnectedGitHubSetup,executionPanel,restoredExecutionPanel} from './execution/ui.mjs';
 import {executionFollowUp,attentionCaptures} from './execution/follow-up.mjs';
 // [SDK-008] A captured failure reproduced in the isolated sandbox, carried through a fix
 // branch under an exact expiring grant, and measured after the deploy, through
@@ -56,12 +57,35 @@ try{
  stage='follow-up';results.followUp=await executionFollowUp(app,github,reproduced);
  browser=await launchBrowser();results.attentionCaptures=await attentionCaptures(app,browser,directory);await browser.close();browser=null;
  stage='archive';
+ const pending=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
  const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
  const before=await views(app);
- restored=await executionRuntime(restoredState,15477);await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
- assert.deepEqual(await views(restored),before,'reproducers, runs, workflows, receipts and exposure verdicts restore unchanged');
+ restored=await executionRuntime(restoredState,15477,{GITHUB_CONNECTION:github.connection});await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
+ const historical={reproducers:before.reproducers.map(row=>({...row,runs:row.runs.map(run=>({...run,historical:true}))})),workflows:before.workflows.map(row=>({...row,historical:true,status:'historical'}))};
+ assert.deepEqual(await views(restored),historical,'all reproducer, run, workflow, receipt and exposure facts survive as inert history');
+ const restoredData=(await archiveProjection(await restored.request('/api/archive'))).data;
+ assert.deepEqual(restoredData,(await archiveProjection(new Response(archive))).data,'every stored product row restores unchanged');
+ const sourceToken=await fetch(restored.origin+new URL(pending.url).pathname,{headers:{Authorization:'Bearer '+pending.token}});assert.equal(sourceToken.status,401,'a queued source run token cannot claim restored work');await sourceToken.body?.cancel();
+ const sourceGrant=await fetch(restored.origin+`${p}/issues/${reproduced.issue}/packet`,{headers:{Authorization:'Bearer '+agent}});assert.equal(sourceGrant.status,401);await sourceGrant.body?.cancel();
+ const sent=github.requests.length;
+ const dispatch=async()=>Promise.all(['alert_intents','alert_mail_jobs','integration_deliveries','follow_up_attempts','reproducer_run_tokens','fix_leases'].map(async table=>(await restored.db.prepare(`SELECT COUNT(*) n FROM ${table}`).first()).n));
+ assert.deepEqual(await dispatch(),[0,0,0,0,0,0],'restore creates no dispatch, token or lease');
+ await restored.schedule(Date.now());assert.deepEqual(await dispatch(),[0,0,0,0,0,0],'scheduled evaluation cannot dispatch restored work');
+ for(const workflow of historical.workflows)for(const step of ['advance','approve']){const response=await restored.request(`${p}/fixes/${workflow.id}/${step}`,'POST',{revision:workflow.revision});assert.equal(response.status,409);assert.match((await response.json()).error,/Restored history/);}
+ const historicalRun=await restored.request(`${p}/fixes`,'POST',{reproducer:reproduced.reproducer.id,run:reproduced.run.id,repository:'just-every/run-spool',flow:'checkout'});assert.equal(historicalRun.status,409,'historical passing results cannot authorize a new fix');assert.match((await historicalRun.json()).error,/Restored history/);
+ assert.deepEqual(await views(restored),historical,'refused historical authority changes no work or receipt');assert.equal(github.requests.length,sent,'no provider dispatch from restored work');
+ assert.deepEqual((await archiveProjection(await restored.request('/api/archive'))).data,restoredData,'refused historical authority and scheduled evaluation change no restored product row');
+ browser=await launchBrowser();results.restoredCaptures=await restoredExecutionPanel(restored,browser,directory,reproduced.issue);await browser.close();browser=null;
+ const rerun=await restored.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});const fresh=await runner(rerun.command);assert.equal(fresh.code,0,fresh.output);
+ const refreshed=(await restored.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers.find(row=>row.id===reproduced.reproducer.id).runs.find(row=>row.id===rerun.run);
+ assert.equal(refreshed.outcome,'reproduced');assert.equal(refreshed.historical,undefined,'only a fresh run establishes current proof');
+ const freshProposal=await restored.json(`${p}/fixes`,'POST',{reproducer:reproduced.reproducer.id,run:rerun.run,repository:'just-every/run-spool',flow:'checkout'});assert.equal(freshProposal.status,'proposed','fresh measured proof may propose a new grant');
+ const custody=(await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n;assert.ok(custody>0,'restore established destination custody');
+ const restoredPlan=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:restoredPlan.planHash}));
+ assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n,0,'project erasure removes destination custody with its work');
+ const replay=await restored.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(replay.status,400,'an erased project cannot return through an old archive');assert.equal((await replay.json()).error,'erasure_epoch','the erasure fence rejects the old epoch before restoring rows');assert.deepEqual(await restored.json('/api/projects'),[],'refused archive replay leaves the erased destination empty');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
