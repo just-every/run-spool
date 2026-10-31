@@ -7,7 +7,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createServer} from 'node:http';
 import {handoffRuntime} from './agent-handoff/runtime.mjs';
-import {cli,credentialInputs,mcpClient} from './agent-handoff/clients.mjs';
+import {cli,credentialInputs,mcpClient,mcpValue,mcpReadAliases} from './agent-handoff/clients.mjs';
 import {compatible,bounded,gap,event,generatedFrames,injection,noSecrets,importGap,plainText,survives} from './agent-handoff/packet.mjs';
 import {scopeProof} from './agent-handoff/scope.mjs';
 import {capArchive,capProof} from './agent-handoff/caps.mjs';
@@ -15,7 +15,6 @@ import {handoffPanel} from './agent-handoff/ui.mjs';
 import {startDispatchApp} from './triage-app.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 const directory=resolve('.artifacts/agent-handoff');await mkdir(directory,{recursive:true});
-function mcpValue(result){assert.ok(!result.isError);const text=result.content[0].text;assert.match(text,/^UNTRUSTED TELEMETRY/);const fence=/\n(`+)json\n/.exec(text)[1];return JSON.parse(text.split(fence)[1].replace(/^json\n/,''));}
 async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const path='/api/projects/a/grouping-proposals',packetPath='/api/projects/a/issues/'+issue+'/packet';
  const packet=await app.json(packetPath,'GET',undefined,agent),issues=await app.json('/api/projects/a/issues'),alerts=await app.json('/api/projects/a/alerts');
@@ -30,6 +29,43 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const listed=await cli(['proposals','--format','json'],env);assert.equal(listed.code,0);const summaries=JSON.parse(listed.stdout);assert.ok(summaries.some(row=>row.id===proposal.id));for(const row of summaries){assert.match(row.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(summaries);
  const tools=(await mcp.client.listTools()).tools;assert.equal(tools.find(row=>row.name==='propose_grouping').annotations.readOnlyHint,false);
  const mcpProposal=mcpValue(await mcp.call('propose_grouping',input));assert.equal(mcpProposal.label,proposal.label);assert.ok(mcpValue(await mcp.call('list_grouping_proposals')).some(row=>row.id===mcpProposal.id));
+ const canonicalProposal=mcpValue(await mcp.call('spool.grouping.propose',input));
+ assert.notEqual(canonicalProposal.id,mcpProposal.id,'both proposal names submit an operation');
+ // Each split has its own proposed destination; it does not create that issue.
+ const operation=({id,created,updated,revisions,...value})=>value;
+ assert.deepEqual(operation(canonicalProposal),operation(mcpProposal),'both names submit the same validated inert operation');
+ assert.deepEqual(canonicalProposal.input,input);assert.equal(canonicalProposal.state,'proposed');
+ const existingRevisions=row=>row.revisions.filter(revision=>issues.some(issue=>issue.id===revision.id));
+ assert.deepEqual(existingRevisions(canonicalProposal),existingRevisions(mcpProposal),'both names bind the same current issue revisions');
+ for(const row of [mcpProposal,canonicalProposal]){
+  assert.ok(!Object.hasOwn(row,'explanation'));noSecrets(row);
+  const future=row.revisions.filter(revision=>!issues.some(issue=>issue.id===revision.id));assert.equal(future.length,1);assert.equal(future[0].revision,0);
+  const stored=await app.json(path+'/'+row.id);assert.deepEqual(stored.input,row.input);assert.deepEqual(stored.revisions,row.revisions);assert.equal(stored.state,'proposed');assert.equal(stored.correction,null);
+ }
+ const legacyList=mcpValue(await mcp.call('list_grouping_proposals')),canonicalList=mcpValue(await mcp.call('spool.grouping.propose'));
+ assert.deepEqual(canonicalList,legacyList,'populated safe proposal summaries are completely equal');
+ assert.deepEqual(canonicalList,await app.json(path,'GET',undefined,agent));
+ for(const id of [mcpProposal.id,canonicalProposal.id])assert.ok(canonicalList.some(row=>row.id===id));
+ for(const row of canonicalList){assert.match(row.label,/^proposed by agent \S+$/);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(canonicalList);
+ const beforeRefusals=(await app.archive()).data;
+ for(const [name,args] of [
+  ...tools.map(row=>[row.name,{unexpected:'synthetic-spool-82'}]),
+  ...['list_issues','spool.issues.read'].flatMap(name=>[[name,{state:'invalid'}],[name,{limit:0}],[name,{limit:'2'}]]),
+  ['spool.issues.read',{issue,state:'all'}],['spool.issues.read',{issue:'../b'}],
+  ...['propose_grouping','spool.grouping.propose'].flatMap(name=>[
+   [name,{...input,kind:'apply'}],[name,{...input,revision:-1}],
+   [name,{...input,window:{start:1,end:1}}],[name,{...input,source:otherIssue}],
+   [name,{...input,policy:{version:1,stack:'',fingerprint:''}}],
+  ]),
+  ...['approve_grouping','apply_grouping','undo_grouping','spool.grouping.correct','spool.issues.triage','synthetic-spool-unknown'].map(name=>[name,input]),
+ ]){const refused=await mcp.call(name,args);assert.equal(refused.isError,true,'refuse '+name);assert.ok(!JSON.stringify(refused).includes('PROJECT_B_PRIVATE'));}
+ const cross=await mcpClient(app,env.SPOOL_AGENT_KEY,'b');
+ try{
+  for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue:otherIssue}],['spool.issues.read',{issue:otherIssue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],['propose_grouping',{...input,source:otherIssue}],['spool.grouping.propose',{...input,source:otherIssue}]]){
+   const denied=await cross.call(name,args);assert.equal(denied.isError,true);assert.match(denied.content[0].text,/"exitCode": 3/);assert.ok(!JSON.stringify(denied).includes('PROJECT_B_PRIVATE'));
+  }
+ }finally{await cross.close();}
+ assert.deepEqual((await app.archive()).data,beforeRefusals,'invalid calls, forbidden operations and foreign-project calls change no archived rows');
  for(const [route,method,body] of [[path+'/'+proposal.id,'GET'],...[ 'approve','reject','apply','undo'].map(action=>[path+'/'+proposal.id+'/'+action,'POST',{}]),['/api/projects/a/corrections/preview','POST',input],['/api/projects/a/corrections/'+proposal.id+'/apply','POST',{confirm:true}],['/api/projects/a/grouping-rules','PUT',{revision:0,policy:{version:1,stack:'',fingerprint:''}}]]){
   const denied=await app.request(route,method,body,agent);assert.equal(denied.status,403,method+' '+route);await denied.body?.cancel();
  }
@@ -37,7 +73,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  const foreign=await app.request(path,'POST',{...input,source:otherIssue},agent);assert.ok([400,403,404].includes(foreign.status));assert.ok(!(await foreign.text()).includes('PROJECT_B_PRIVATE'));
  assert.deepEqual(await app.json(packetPath,'GET',undefined,agent),packet,'proposals and denied decisions preserve packet evidence');assert.deepEqual(await app.json('/api/projects/a/issues'),issues);assert.deepEqual(await app.json('/api/projects/a/alerts'),alerts);
  assert.equal((await cli(['propose','--stdin','--key-stdin'],env,JSON.stringify(input))).code,4);assert.equal((await cli(['propose','--stdin'],env,'{')).code,4);
- return {submitted:3,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
+ return {submitted:4,canonicalSubmissionEqual:true,completeSummaryListsEqual:true,invalidCallsUnchanged:true,ownerActionsDenied:true,crossProjectDenied:true,inert:true};
 }
 let app,browser,secondOrigin,mcp,redirectServer,receivingServer,failure,stage='setup';const evidence={checks:[],captures:[]};
 try{
@@ -110,17 +146,26 @@ try{
  const byShortId=await cli(['packet',shortId.toLowerCase(),'--format','json'],env);assert.equal(byShortId.code,0);assert.equal(JSON.parse(byShortId.stdout).issue.id,admitted.issue);assert.equal(JSON.parse(byShortId.stdout).issue.short_id,shortId);
  assert.equal((await cli(['issues'],{...env,SPOOL_AGENT_KEY:'invalid-grant'})).code,2);assert.equal((await cli(['packet',otherAdmitted.issue],env)).code,3);assert.equal((await cli(['issues'],{...env,SPOOL_URL:'http://127.0.0.1:1/api/projects/a'})).code,4);assert.equal((await cli(['issues'],{...env,SPOOL_URL:'http://evil.example/api/projects/a'})).code,4);
  let received=0;receivingServer=createServer((req,res)=>{if(req.headers.authorization)received++;res.end('{}');});await new Promise(r=>receivingServer.listen(0,'127.0.0.1',r));redirectServer=createServer((req,res)=>{res.writeHead(302,{location:'http://127.0.0.1:'+receivingServer.address().port+'/stolen'});res.end();});await new Promise(r=>redirectServer.listen(0,'127.0.0.1',r));assert.equal((await cli(['issues'],{...env,SPOOL_URL:'http://127.0.0.1:'+redirectServer.address().port+'/api/projects/a'})).code,4);assert.equal(received,0,'no bearer sent across origin redirect');redirectServer.removeAllListeners('request');redirectServer.on('request',()=>{});assert.equal((await cli(['issues','--timeout-ms','50'],{...env,SPOOL_URL:'http://127.0.0.1:'+redirectServer.address().port+'/api/projects/a'})).code,4,'real network-edge timeout');
- mcp=await mcpClient(app,grant.key);const tools=await mcp.client.listTools();assert.deepEqual(tools.tools.map(row=>row.name).sort(),['get_outcomes','get_packet','list_grouping_proposals','list_issues','propose_grouping']);for(const [name,args] of [['list_issues',{state:'all',limit:2}],['get_packet',{issue:admitted.issue}],['get_outcomes',{}]]){const result=await mcp.call(name,args);assert.ok(!result.isError);noSecrets(result);if(name==='get_packet')survives(result.content[0].text);const toolText=result.content[0].text;assert.match(toolText,/^UNTRUSTED TELEMETRY/);const toolFence=/\n(`+)json\n/.exec(toolText)[1],toolValue=JSON.parse(toolText.split(toolFence)[1].replace(/^json\n/,''));const route=name==='list_issues'?'/api/projects/a/issues?state=all&limit=2':name==='get_outcomes'?'/api/projects/a/outcomes':packetPath;assert.deepEqual(toolValue,await json(route,'GET',undefined,agent));if(name==='get_packet')assert.deepEqual(toolValue,packet,'official MCP equals the complete HTTP and CLI packet');}const mappedTool=await mcp.call('get_packet',{issue:thrown.issue});const mappedText=mappedTool.content[0].text,mappedFence=/\n(`+)json\n/.exec(mappedText)[1],mappedPacket=JSON.parse(mappedText.split(mappedFence)[1].replace(/^json\n/,''));const mappedOriginal=mappedPacket.events.find(row=>row.id===thrown.eventId);assert.ok(mappedOriginal);assert.equal(mappedOriginal.currentLookup[0].original.line,late.currentLookup[0].original.line);assert.deepEqual(mappedOriginal.atAdmission,realSnapshot);assert.deepEqual(mappedPacket,await json(realPath,'GET',undefined,agent));const scoped=await mcp.call('get_packet',{issue:otherAdmitted.issue});assert.equal(scoped.isError,true);assert.match(scoped.content[0].text,/"exitCode": 3/);
+ mcp=await mcpClient(app,grant.key);const tools=await mcp.client.listTools();assert.deepEqual(tools.tools.map(row=>row.name).sort(),['get_outcomes','get_packet','list_grouping_proposals','list_issues','propose_grouping','spool.grouping.propose','spool.issues.read','spool.outcomes.read']);for(const [name,args] of [['list_issues',{state:'all',limit:2}],['get_packet',{issue:admitted.issue}],['get_outcomes',{}]]){const result=await mcp.call(name,args);assert.ok(!result.isError);noSecrets(result);if(name==='get_packet')survives(result.content[0].text);const toolText=result.content[0].text;assert.match(toolText,/^UNTRUSTED TELEMETRY/);const toolFence=/\n(`+)json\n/.exec(toolText)[1],toolValue=JSON.parse(toolText.split(toolFence)[1].replace(/^json\n/,''));const route=name==='list_issues'?'/api/projects/a/issues?state=all&limit=2':name==='get_outcomes'?'/api/projects/a/outcomes':packetPath;assert.deepEqual(toolValue,await json(route,'GET',undefined,agent));if(name==='get_packet')assert.deepEqual(toolValue,packet,'official MCP equals the complete HTTP and CLI packet');}const mappedTool=await mcp.call('get_packet',{issue:thrown.issue});const mappedText=mappedTool.content[0].text,mappedFence=/\n(`+)json\n/.exec(mappedText)[1],mappedPacket=JSON.parse(mappedText.split(mappedFence)[1].replace(/^json\n/,''));const mappedOriginal=mappedPacket.events.find(row=>row.id===thrown.eventId);assert.ok(mappedOriginal);assert.equal(mappedOriginal.currentLookup[0].original.line,late.currentLookup[0].original.line);assert.deepEqual(mappedOriginal.atAdmission,realSnapshot);assert.deepEqual(mappedPacket,await json(realPath,'GET',undefined,agent));const scoped=await mcp.call('get_packet',{issue:otherAdmitted.issue});assert.equal(scoped.isError,true);assert.match(scoped.content[0].text,/"exitCode": 3/);
  assert.equal(mcpValue(await mcp.call('get_packet',{issue:shortId})).issue.id,admitted.issue,'TEAM-004 MCP get_packet accepts a short ID');
  assert.deepEqual((await app.archive()).data,beforePacketReads,'HTTP, CLI and official MCP reads change no archived rows');
+ evidence.aliases=await mcpReadAliases(app,mcp,agent,admitted.issue,shortId,thrown.issue,otherAdmitted.issue);
  stage='grouping-proposals';evidence.proposals=await groupingProposalHandoff(app,env,agent,mcp,admitted.issue,otherAdmitted.issue);
- await json('/api/projects/a/keys/'+grant.hash,'DELETE');assert.equal((await request(packetPath,'GET',undefined,agent)).status,401);assert.equal((await cli(['packet',admitted.issue],env)).code,2);const revoked=await mcp.call('get_packet',{issue:admitted.issue});assert.equal(revoked.isError,true);assert.match(revoked.content[0].text,/"exitCode": 2/);await mcp.close();mcp=null;
+ const replayInput=(await json('/api/projects/a/grouping-proposals','GET',undefined,agent))[0].input;
+ await json('/api/projects/a/keys/'+grant.hash,'DELETE');assert.equal((await request(packetPath,'GET',undefined,agent)).status,401);assert.equal((await cli(['packet',admitted.issue],env)).code,2);const revoked=await mcp.call('get_packet',{issue:admitted.issue});assert.equal(revoked.isError,true);assert.match(revoked.content[0].text,/"exitCode": 2/);
+ const revokedBefore=(await app.archive()).data;
+ for(const [name,args] of [['list_issues',{}],['spool.issues.read',{}],['get_packet',{issue:admitted.issue}],['spool.issues.read',{issue:admitted.issue}],['get_outcomes',{}],['spool.outcomes.read',{}],['list_grouping_proposals',{}],['spool.grouping.propose',{}],['propose_grouping',replayInput],['spool.grouping.propose',replayInput]]){
+  const result=await mcp.call(name,args);assert.equal(result.isError,true,'next-call revocation for '+name);assert.match(result.content[0].text,/"exitCode": 2/);noSecrets(result);
+ }
+ assert.deepEqual((await app.archive()).data,revokedBefore,'replayed calls with a revoked grant change no archived rows');
+ console.log('PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked');
+ await mcp.close();mcp=null;
  stage='ui';evidence.captures=await handoffPanel(browser,app,directory);evidence.captures.push(...await retentionFlow(app,browser,directory));await browser.close();browser=null;
  stage='gaps';const countBound=(await json(packetPath)).bounds.eventLimit;for(let n=0;n<countBound+1;n++)await json('/api/ingest/a','POST',event('count-bound-'+n),auth);const countPacket=await json(packetPath);assert.equal(countPacket.events.length,countBound);assert.equal(countPacket.events[0].id,'count-bound-'+countBound);assert.ok(countPacket.bounds.availableEvents>countPacket.events.length);gap(countPacket,/events_omitted/);bounded(countPacket);const cutoff=Date.now();await new Promise(r=>setTimeout(r,20));await json('/api/ingest/a','POST',event('retained-new',{release:'a-release',build:'build-a'}),auth);await json('/api/projects/a/retention','POST',{cutoff,apply:true});packet=await json(packetPath);const retained=packet.events.find(row=>row.id==='retained-new');assert.equal(retained.atAdmission[0].status,'identity_mismatch');assert.equal(retained.currentLookup[0].status,'missing_artifact');gap(packet,/lookup_changed/);assert.ok(!packet.gaps.some(row=>row.code==='late_map'),'retention lookup change is not late map');const retention=gap(packet,/retention_gap/);assert.equal(retention.rows[0].detail.cutoff,cutoff);assert.ok(retention.rows[0].detail.removed>0);assert.ok(!JSON.stringify(packet).includes('injection'));await importGap(app);
  assert.equal((await request('/api/ingest/a','POST',{...event('bad'),unknown:'not allowed'},auth)).status,400);assert.equal((await request('/api/ingest/a','POST',event('oversized',{message:'x'.repeat(40000)}),auth)).status,400);packet=await json(packetPath);const loss=gap(packet,/windowed_loss/);for(const reason of ['invalid','oversized'])assert.ok(loss.rows.some(row=>row.reason===reason&&row.count>0));assert.match(loss.reason,/before transport is unknown/);
  stage='scheduled-retention';await retentionScheduleFlow();
  stage='caps';const archive=await capArchive(app,admitted.issue);await app.resetRestore(archive.text,archive.invalidText);evidence.cap=await capProof(app,archive);
- evidence.checks=['compatible bounded packet and immutable late-map provenance','real second-origin captures before and after map upload; immutable diagnostics, release and build mismatch refusal, confidential-source exclusion','exact project grant surface and state-preserving owner mutation refusal','CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial','whole HTTP, CLI JSON, embedded Markdown JSON and official MCP packet equality; unchanged archived rows; key inputs, inert formatting, exit codes and redirect refusal','official SDK stdio initialization and every tool, next-call revocation','1440/390 once-shown handoff, axe/reflow/reload','retention, imported history, windowed loss and restored retained-event/byte cap'];
+ evidence.checks=['compatible bounded packet and immutable late-map provenance','real second-origin captures before and after map upload; immutable diagnostics, release and build mismatch refusal, confidential-source exclusion','exact project grant surface and state-preserving owner mutation refusal','CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial','whole HTTP, CLI JSON, embedded Markdown JSON and official MCP packet equality; unchanged archived rows; key inputs, inert formatting, exit codes and redirect refusal','official SDK stdio initialization, every legacy and canonical operation pair, complete read equality, validated inert proposals, invalid argument and forbidden-operation refusal, next-call revocation','1440/390 once-shown handoff, axe/reflow/reload','retention, imported history, windowed loss and restored retained-event/byte cap'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');console.log('Agent handoff public journey passed: '+evidence.checks.length+' groups; '+evidence.captures.length+' masked captures; complete packet '+evidence.cap.bytes+'/'+evidence.cap.cap+' UTF-8 bytes.');
 }catch(error){failure=error;console.error(JSON.stringify({journey:'agent-handoff',stage,type:error.name,message:error.message.includes('HTTP')||error.message.includes('lifecycleMarker')?error.message:'assertion failed',stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,3)}));process.exitCode=1;}finally{
  const cleanup=[['mcp',()=>mcp?.close()],['browser',()=>browser?.close()],['second-origin',()=>secondOrigin?.stop()],...[[redirectServer,'redirect-edge'],[receivingServer,'receiving-edge']].map(([server,name])=>[name,async()=>{if(server){server.closeAllConnections();await new Promise(r=>server.close(r));}}]),['checkout',()=>app?.close()]];
