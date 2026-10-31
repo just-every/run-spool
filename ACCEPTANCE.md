@@ -13,7 +13,7 @@ The primary journey: a US development team points its existing error capture at 
 | Later | 0 | 0 | 0 | 0 |
 | Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `d0f261508c50ae3a19168bc9adcc5aae8f942bae` (30 October 2026). Replayed the candidate onto current main. Retained its browser and public rer archive equality assertions, inert restored-work custody, fresh-run recovery, erasure replay refusal and retention snapshot assertions. ERR-009 remains partial with main's recorded Gap; this conflict resolution does not promote acceptance. Current main's newer ERR-005 judgment and all other clause rows are retained. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `aa72e57e1804674a3ecda76777564a4ea0a2a65d` (31 October 2026). AI-002 landing replay retains main's partial Status and recorded Gap. The execution journey adds alternate-release syntax-error and unresolved-import setup failures through source-map upload, queued runner commands and finished-run reads, plus fixed-release successful-return read-back. Application source and acceptance requirements are unchanged; the added assertions do not establish automatic minimization, competing-cause experiments or broader runtime/mobile qualification. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -381,7 +381,7 @@ Core · target · **partial** · Rules D-2
 2. A new version rolled out to about 20% of devices with a higher crash rate shows both releases' crash-free session and user rates over the same window, with its adoption share and confidence.
 3. After a rollback, the rolled-back release stops gaining sessions and the comparison shows the restored release's rates beside it.
 
-**Evidence.** `src/domain/sessions/`; `src/domain/identities/key.ts`; `tests/sentry-sdk.mjs` ([SDK-005] sessionFlow); `tests/session-flow.mjs`; `tests/sdk-runtimes.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0072_release_sessions.sql`; `docs/SENTRY-SESSIONS.md` Observed individual/aggregate session intake, per-project keyed DID hashes, automatic release identity, bounded owner/exact-project read and JSON health export, explicit denominators, observed adoption and 95% Wilson intervals now exist. Unmodified default Node healthy/crashed and browser healthy/unhandled sessions reconcile against a reference collector with only DSN changed; browser unhandled is preserved separately from process crash. Sessions create no occurrence, issue, alert or accepted-error unit. Origin and available category filters, per-item refusal and named bounds apply; session client-discard protocol tokens remain counted. Populated upgrade, private key/aggregate archive restore and project/owner erasure are proven. Releases and suspect comparisons reflow at 1440/390 without serious Axe findings or icon-only controls.
+**Evidence.** `src/domain/sessions/`; `src/domain/identities/key.ts`; `tests/sentry-sdk.mjs` ([SDK-005] sessionFlow); `tests/session-flow.mjs` sessionFlow; `tests/session-backpressure.mjs` sessionBackpressureFlow (public bucket exhaustion, unmodified SDK session backoff with continued errors, deadline recovery, exact refusal and discard accounting, invalid and revoked and foreign grant fences); `tests/sdk-runtimes.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0072_release_sessions.sql`; `docs/SENTRY-SESSIONS.md` Observed individual/aggregate session intake, per-project keyed DID hashes, automatic release identity, bounded owner/exact-project read and JSON health export, explicit denominators, observed adoption and 95% Wilson intervals now exist. Unmodified default Node healthy/crashed and browser healthy/unhandled sessions reconcile against a reference collector with only DSN changed; browser unhandled is preserved separately from process crash. Sessions create no occurrence, issue, alert or accepted-error unit. Origin and available category filters, per-item refusal and named bounds apply; session client-discard protocol tokens remain counted. Bounded session-only X-Sentry-Rate-Limits now preserve companion errors, separate rate and capacity and invalid outcomes, and admit fresh SDK captures after the deadline without replaying suppressed sessions. Populated upgrade, private key/aggregate archive restore and project/owner erasure are proven. Releases and suspect comparisons reflow at 1440/390 without serious Axe findings or icon-only controls.
 **Gap.** Mobile session modes, device/OS/version cohorts and ANR rates, comparable adoption cohorts, rollback, trends, the 20% rollout acceptance, runtime-specific health qualification beyond Node/browser, Spool-SDK sessions and full SDK-008 policy/role scope remain absent. Idle-project expiry, aggregate replay deduplication and category backpressure headers remain gaps. Unauthenticated key refusals do not mutate project counters; loader disabled state is not an independently disabled ingest-key policy. The inherited sentence "sessions accept no release" remains unmet: this brief and SDK-007 require release-less sessions counted invalid. Session users use keyed per-project hashes only, a builder default recorded in docs/contract/adopted-defaults.md.
 
 #### SDK-006 — Ingest-time inbound filters and allowed domains
@@ -433,7 +433,7 @@ Core · target · **partial** · Rules D-2
 7. A `statsd` item and an unknown item type each appear in capability diagnostics with their count and no silent drop.
 8. With a replay-category budget exhausted, `X-Sentry-Rate-Limits` names only that category while errors are still accepted.
 
-**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`
+**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`; `tests/triage-journey.mjs` Capture receipts item diagnostics (literal named quantities at 1440; screens at 1440 and 390)
 **Gap.** Errors, text feedback and client_report items are routed after complete envelope framing. SDK-reported discards are counted by bounded reason/category and quantity, separately from accepted events; invalid reports are individually counted while valid companion errors continue. The real Node SDK flush emits reports through its normal transport; automatic browser lifecycle report emission is qualified by the [SDK-001] journey in `tests/sentry-sdk.mjs`. Unsupported categories remain diagnosed. Check-ins are routed under SDK-024. Bounded sessions and release health are routed under SDK-005, with keyed DID hashes and named limitations. Traces, profiles, replay, logs, metrics, dedicated crash/security doors, category backpressure and full runtime qualification remain absent.
 
 #### SDK-008 — Sentry user identity policy and affected users
@@ -748,7 +748,7 @@ Core · target · **partial** · Rules D-5
 **Acceptance.**
 1. As each owning clause ships storage, every runtime family's rerun qualification run reconciles the persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes.
 
-**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs`
+**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs`; `tests/runtimes/feedback-proof.mjs` feedbackProof (SDK-produced quantity, per-occurrence descriptions, exact retained associations, issue reads and rendered feedback)
 **Gap.** Feedback text and client-report discards persist for browser/Node (and Java and .NET feedback in the SDK-012 runs); bounded sessions persist under SDK-005 (Node/browser health qualified; other runtime health remains a gap), while traces, replay, logs and attachments are counted as unsupported.
 
 ### Investigation and source
@@ -995,7 +995,7 @@ Core · target · **partial**
 5. Of two plain-resolved issues, one receiving an event in the same release and the other an event with no release, each fires one regression alert.
 6. With unmodified Sentry tracing, a transaction's p95 duration and a page's LCP pushed over warning, then critical, then back each fire one alert per transition and a resolve.
 
-**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`
+**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`; `tests/alerts/plain-resolve.mjs` qualifies two distinct plain-resolved Sentry issues, same-release and release-less recurrence, one correctly identified regression each, reviewed matching-rule fan-out, duplicate capture and repeated scheduling without replay
 **Gap.** New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
 
 #### ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty
@@ -1334,7 +1334,7 @@ Core · push-further · **partial** · Cites BASE-DATA-004, BASE-AGENT-004, BASE
 2. Cross-project, mutation and prompt-injection requests are refused.
 3. After the grant is revoked, the next HTTP, CLI and MCP call is denied.
 
-**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`
+**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`; `tests/agent-handoff/selector-refusals.mjs` selectorRefusals qualifies traversal, command-shaped and instruction-shaped issue-selector refusal through HTTP, CLI packet and official MCP get_packet, preserving project scope, product rows and credential authority; the valid packet retains untrusted telemetry.
 **Gap.** Generic read-only CLI/MCP is implemented; named client qualification and model-egress controls for automated work are incomplete.
 
 #### AI-002 — Generate and test the smallest reproduction
@@ -1349,7 +1349,7 @@ Core · push-further · **partial** · Cites BASE-AGENT-011 · Register R-1
 3. Repeated against the fixed release, the failure no longer reproduces.
 4. A failed setup never becomes a not-reproduced success.
 
-**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`
+**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`; `tests/execution/reproduce.mjs` reproduceProof: captured mapped-JavaScript failure, reproduced and returned outcomes, missing export, timeout, isolation, single-use tokens and alternate-release syntax-error and unresolved-import load failures (acceptance 2 and 4)
 **Gap.** Bounded mapped-JavaScript reproductions with supplied calls exist; automatic minimization, cause experiments and non-JS/mobile reproduction do not.
 
 #### AI-003 — Minimal code repair as a tested pull request
