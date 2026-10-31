@@ -1,3 +1,4 @@
+import {traceProposalFixture} from './operator-flow.mjs';
 import {testAndReview} from './alerts/runtime.mjs';
 import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
@@ -135,6 +136,33 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  assert.equal((await api(endpoint+'/'+rule.id)).state,'undone');await capture('grouping-rule-undone');
  const stale=await propose();await review(stale);const current=await api(`${root}/issues/${issue}/packet`);await api(`${root}/issues/${issue}/assignment`,'PATCH',{revision:current.issue.revision,label:'Newer operator decision'});
  await proposalReview.getByRole('button',{name:'Approve proposal and open preview',exact:true}).click();await proposalReview.getByRole('heading',{name:'split proposal · stale',exact:true}).waitFor();await capture('grouping-proposal-stale');assert.equal((await api(endpoint+'/'+stale.id)).state,'stale');
+ // The retained-Sentry comparison is visible beside the existing variants.
+ const traceRequest=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{'Content-Type':'application/json',...headers},...(value?{body:JSON.stringify(value)}:{})});
+ const traceJson=async(path,method,value,headers)=>{if(!headers)return api(path,method,value);const response=await traceRequest(path,method,value,headers);assert.ok(response.ok);return response.json();};
+ const traceFixture=await traceProposalFixture({req:traceRequest,json:traceJson},'synthetic-spool-ui-traces'),traceProposal=(await traceFixture.submit()).proposal;
+ await page.goto(origin+'/projects/'+traceFixture.project.id+'/settings');
+ await page.getByRole('button',{name:'Review grouping proposal '+traceProposal.id,exact:true}).click();
+ await proposalReview.getByRole('heading',{name:'Trace comparison',exact:true}).waitFor();
+ const traceAffected=proposalReview.locator('.grouping-explanation > ol > li'),firstTrace=traceAffected.nth(0),differentTrace=traceAffected.nth(2);
+ const traceInside=proposalReview.getByRole('heading',{name:'Counterexamples inside the group',exact:true}).locator('+ ul');
+ const traceOutside=proposalReview.getByRole('heading',{name:'Look-alike events outside the group',exact:true}).locator('+ ul');
+ if(page.viewportSize().width===1440){
+ assert.equal(await traceAffected.count(),8);
+ assert.ok((await firstTrace.innerText()).includes(traceFixture.traceA));assert.match(await firstTrace.innerText(),/same as reference/);
+ assert.ok((await differentTrace.innerText()).includes(traceFixture.traceB));assert.match(await differentTrace.innerText(),/different from reference/);
+ assert.match(await traceAffected.nth(3).innerText(),/unavailable: no retained trace context/);assert.match(await traceAffected.nth(5).innerText(),/unavailable: trace identity is not a nonzero/);
+ assert.ok(!(await proposalReview.innerText()).includes(traceFixture.privateContext));
+ assert.match(await traceInside.innerText(),/Differs in: trace/);assert.ok((await traceInside.innerText()).includes(traceFixture.ids[2]));
+ for(const id of traceFixture.ids.slice(8))assert.ok((await traceOutside.innerText()).includes(id));
+ assert.match(await traceOutside.innerText(),/native event has no Sentry trace context/);
+ }
+ await proposalReview.getByRole('heading',{name:'Trace comparison',exact:true}).evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-comparison');
+ await firstTrace.evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-affected');
+ await traceAffected.nth(3).evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-unavailable');
+ await traceInside.evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-counterexamples');
+ await traceOutside.evaluate(element=>element.scrollIntoView({block:'start'}));await capture('operator-trace-outside');
+ for(const control of await proposalReview.getByRole('button').all())if(!await control.innerText())assert.ok(await control.getAttribute('aria-label'),'Icon controls retain an accessible label');
+ console.log('PROBE CTX-001 UI: owner Settings proposal review -> affected traces, trace-only counterexample, outside look-alikes and explicit native or missing reasons visible.');
  // Expire the browser authority at the real auth boundary while leaving the owner API harness intact.
  await page.context().clearCookies();await page.getByRole('button',{name:'Refresh grouping proposals',exact:true}).click();await page.getByRole('link',{name:'Sign in again',exact:true}).waitFor();await capture('grouping-proposal-denied');
 

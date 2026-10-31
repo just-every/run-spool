@@ -1,3 +1,6 @@
+import {startTestWorker} from './worker.mjs';
+import {signIn} from './auth.mjs';
+import {canonical} from '../src/domain/privacy.ts';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
 import { makePart } from '../src/modules/portability/index.mjs';
@@ -12,7 +15,13 @@ async function encode(original,edit){
  return [manifest,...parts,{kind:'closing',partCount:parts.length,contentHash:content.digest(),archiveHash:binding.digest()}].map(r=>JSON.stringify(r)).join('\n')+'\n';
 }
 export async function operatorArchiveTamper({archive,req,json}){
+ const traceRow=data=>data.grouping_proposals.find(row=>row.project==='synthetic-spool-traces'&&row.state==='undone');
+ const editTrace=(data,edit)=>{const row=traceRow(data),review=JSON.parse(row.explanation);edit(review);row.explanation=canonical(review);};
  const probes=[
+  d=>editTrace(d,review=>{review.affected[0].variant.trace.comparison='different';}),
+  d=>editTrace(d,review=>{review.affected[0].variant.trace.id='a'.repeat(64);}),
+  d=>editTrace(d,review=>{review.affected[3].variant.trace.unavailable='synthetic-spool-untrusted-reason';}),
+  d=>editTrace(d,review=>{review.affected[0].variant.trace.rawContext={note:'synthetic-spool-untrusted-context'};}),
   d=>{d.event_grouping[0].fingerprint='0'.repeat(64)},
   d=>{const r=d.grouping_corrections.find(r=>r.state==='applied'),p=JSON.parse(r.plan);p.moves[0].to=p.moves[0].from;r.plan=JSON.stringify(p)},
   d=>{d.issue_assignments[0].project='operator-other'},
@@ -21,6 +30,24 @@ export async function operatorArchiveTamper({archive,req,json}){
   d=>{d.deployment_manifests[0].repository='https://example.test/repo?credential=hidden'},
  ];
  for(const edit of probes){const response=await req('/api/restore','POST',await encode(archive,edit));assert.equal(response.status,400,'valid archive checksums do not excuse semantic operator tampering');assert.deepEqual(await json('/api/projects'),[],'semantic refusal mutates no project rows')}
+ // Exercise historical explanations through independent restore, preserving
+ // their original unavailable statement rather than deriving newer evidence.
+ const legacyData=structuredClone(archive.data);
+ for(const row of legacyData.grouping_proposals){
+  const review=JSON.parse(row.explanation);review.trace='trace identity unavailable';
+  for(const value of [...review.affected,...review.counterexamples.inside,...review.counterexamples.outside]){delete value.variant.trace;if(value.differing)value.differing=value.differing.filter(key=>key!=='trace');}
+  row.explanation=canonical(review);
+ }
+ const legacy=await encode(archive,data=>{data.grouping_proposals=legacyData.grouping_proposals;}),worker=await startTestWorker(15553);
+ try{
+  const cookie=await signIn(worker.origin),response=await fetch(worker.origin+'/api/restore',{method:'POST',headers:{Cookie:cookie,Origin:worker.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:legacy});
+  assert.equal(response.status,200,'Historical proposal explanations still restore through the public door');
+  const restored=await archiveProjection(await fetch(worker.origin+'/api/archive',{headers:{Cookie:cookie}}));
+  assert.deepEqual(restored.data.grouping_proposals,legacyData.grouping_proposals,'Legacy inputs and explanations round trip without invented traces or decisions');
+  const row=legacyData.grouping_proposals.find(row=>row.state==='undone'),detail=await fetch(worker.origin+'/api/projects/'+row.project+'/grouping-proposals/'+row.id,{headers:{Cookie:cookie}});
+  assert.equal(detail.status,200);assert.equal((await detail.json()).explanation.trace,'trace identity unavailable');
+ }finally{await worker.stop();}
+ console.log('PROBE CTX-001 archive: independent private restore -> historical unavailable explanations preserved; malformed trace snapshots refused without rows.');
 }
 export async function operatorRetentionAndErasure({req,json}){
  const p='/api/projects/operator-other',key=await json(`${p}/keys`,'POST',{kind:'ingest'});await json(`${p}/releases`,'POST',{name:'retention-r1',build:'b1'});
@@ -36,5 +63,9 @@ export async function operatorRetentionAndErasure({req,json}){
  for(const table of ['grouping_corrections','event_grouping','issue_assignments','suppression_policies','event_suppressions','deployment_manifests'])assert.ok(plan.deleted[table]>0,'erasure traverses populated operator custody');
  const receipt=await followErasure(json,await json(path,'POST',{confirm:project,planHash:plan.planHash}));assert.equal(receipt.phase,'complete');
  const proposalPath='/api/projects/agent-grouping/erasure',proposalPlan=await json(proposalPath);assert.ok(proposalPlan.deleted.grouping_proposals>0,'Erasure lists populated agent proposals');const proposalReceipt=await followErasure(json,await json(proposalPath,'POST',{confirm:'agent-grouping',planHash:proposalPlan.planHash}));assert.equal(proposalReceipt.phase,'complete');
- const after=await archiveProjection(await req('/api/archive'));for(const rows of Object.values(after.data))for(const row of rows)assert.notEqual(row.project,project,'erased operator project leaves no project row');assert.ok(!JSON.stringify(after.data).includes(project),'audit anonymization removes erased operator identifiers');
+ const tracePath='/api/projects/synthetic-spool-traces/erasure',tracePlan=await json(tracePath);
+ assert.ok(tracePlan.deleted.grouping_proposals>0);assert.ok(tracePlan.deleted.events>0);
+ assert.equal((await followErasure(json,await json(tracePath,'POST',{confirm:'synthetic-spool-traces',planHash:tracePlan.planHash}))).phase,'complete');
+ const after=await archiveProjection(await req('/api/archive'));
+ assert.ok(!JSON.stringify(after.data).includes('synthetic-spool-traces'),'Project erasure removes trace captures, comparisons and proposal snapshots');for(const rows of Object.values(after.data))for(const row of rows)assert.notEqual(row.project,project,'erased operator project leaves no project row');assert.ok(!JSON.stringify(after.data).includes(project),'audit anonymization removes erased operator identifiers');
 }

@@ -1,3 +1,4 @@
+import { traceUnavailableReasons } from './explanation';
 import { canonical, identity } from '../privacy';
 import { scrubText } from '../scrub';
 import { scrubStack, scrubProposalSnapshot } from './text';
@@ -88,7 +89,25 @@ function validateProposalExplanation(encoded:any,data:any,project:string,input:a
  const issue=(id:any)=>{insist(digest(id),'explanation issue');const row=data.issues.find((row:any)=>row.id===id);insist(!row || row.project===project,'explanation issue reference');};
  const event=(id:any,occurrence?:any)=>{identity(id,'event');if(occurrence!==undefined)validateOccurrence(occurrence);};
  const window=(value:any)=>{fields(value,['start','end']);insist(Number.isSafeInteger(value.start) && Number.isSafeInteger(value.end),'explanation window');};
- const variant=(value:any)=>{fields(value,['stack','release','route']);insist(typeof value.stack==='string'&&scrubStack(value.stack)===value.stack,'explanation stack');text(value.release,200);text(value.route);};
+ const legacyTrace=typeof review.trace==='string';
+ const traceIdentity=(value:any)=>{
+  insist(value.id===null?traceUnavailableReasons.includes(value.unavailable):typeof value.id==='string'&&/^[a-f0-9]{32}$/.test(value.id)&&!/^0{32}$/.test(value.id)&&value.unavailable===null,'explanation trace identity');
+ };
+ if(legacyTrace)text(review.trace,200);
+ else{
+  fields(review.trace,['reference','scope']);text(review.trace.scope,200);
+  const reference=review.trace.reference;
+  if(reference!==null){fields(reference,['event','occurrence','id','unavailable']);event(reference.event,reference.occurrence);traceIdentity(reference);}
+ }
+ const variant=(value:any)=>{
+  fields(value,['stack','release','route',...legacyTrace?[]:['trace']]);
+  insist(typeof value.stack==='string'&&scrubStack(value.stack)===value.stack,'explanation stack');text(value.release,200);text(value.route);
+  if(!legacyTrace){
+   fields(value.trace,['id','unavailable','comparison']);traceIdentity(value.trace);
+   const expected=!review.trace.reference?.id||!value.trace.id?'unavailable':review.trace.reference.id===value.trace.id?'same':'different';
+   insist(value.trace.comparison===expected,'explanation trace comparison');
+  }
+ };
  const counter=(value:any,rate=false)=>{
   fields(value,['issue','before','after','delta',...(rate?['perMinuteBefore','perMinuteAfter']:['conditionBefore','conditionAfter'])]);issue(value.issue);
   insist(integer(value.before) && integer(value.after) && value.before<=10000 && value.after<=10000 && value.delta===value.after-value.before,'explanation count');
@@ -97,7 +116,7 @@ function validateProposalExplanation(encoded:any,data:any,project:string,input:a
  };
  const move=(value:any,inside=false)=>{
   fields(value,['event','occurrence','from','to','variant',...(inside?['issue','differing']:[])]);event(value.event,value.occurrence);issue(value.from);issue(value.to);variant(value.variant);
-  if(inside){insist(value.issue===value.from,'explanation inside issue');list(value.differing,3);insist(new Set(value.differing).size===value.differing.length && value.differing.every((key:any)=>['stack','release','route'].includes(key)),'explanation differing');}
+  if(inside){insist(value.issue===value.from,'explanation inside issue');list(value.differing,legacyTrace?3:4);insist(new Set(value.differing).size===value.differing.length && value.differing.every((key:any)=>['stack','release','route',...legacyTrace?[]:['trace']].includes(key)),'explanation differing');}
  };
  list(review.affected);review.affected.forEach((value:any)=>move(value));
  fields(review.counterexamples,['inside','outside']);list(review.counterexamples.inside);review.counterexamples.inside.forEach((value:any)=>move(value,true));
@@ -130,5 +149,5 @@ function validateProposalExplanation(encoded:any,data:any,project:string,input:a
   }
   list(evidence.loss);for(const loss of evidence.loss){fields(loss,['reason','count']);text(loss.reason,200);insist(integer(loss.count),'explanation loss');}
  }
- text(review.trace,200);text(review.behavior);
+ text(review.behavior);
 }
