@@ -2617,7 +2617,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "3f4282ecf5f371a5f1e3f5c5fb5c72bf6f81aefd82056951b47da7c95f8fc815",
+      "sha256": "301fc4f7a824a417610dfd3b6c9fdf115b14e2b8b5e8b26c9c33560caa37e587",
       "executable": false
     },
     ".gitignore": {
@@ -8624,8 +8624,16 @@
       "sha256": "2d16ae4b392f275dfc0ceef51e6cf96a401dd794e5873e8a6985382910dd77ab",
       "executable": false
     },
+    "tests/agent-handoff/cli-runtime.mjs": {
+      "sha256": "59e05ab568b4b0b50e02a5fd6055dcc1aea43620c1253da1604917ed0236edb5",
+      "executable": false
+    },
     "tests/agent-handoff/clients.mjs": {
       "sha256": "8cc32ee1c6808674328723f57e34f3baf3ba4820400417c93d2006a3e5c13e6b",
+      "executable": false
+    },
+    "tests/agent-handoff/dev-output.mjs": {
+      "sha256": "5266498d0a9acf2f640423318934f18d26e1418770e56f02b7abedec885f36e4",
       "executable": false
     },
     "tests/agent-handoff/packet.mjs": {
