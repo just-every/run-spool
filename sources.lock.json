@@ -8953,7 +8953,7 @@
       "executable": false
     },
     "tests/notification-preferences.mjs": {
-      "sha256": "6f6c9b01e28b14dab981bc677ef2f79758c067ab127691fbfff6180c0ad11fa4",
+      "sha256": "68e2083fb004126e09642af0b0b2ae175f4c25f90baaacfb829ce2fc396d3a53",
       "executable": false
     },
     "tests/old-archive.mjs": {
@@ -9005,7 +9005,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "46c2a2c9b8804462b85357d12bf87ea808a02bc0dff491d9c314c12794d75772",
+      "sha256": "65cac4cb11c59488aee51d7f2fcf43c0430773141025e97aeddd6b92f498ac1e",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
