@@ -9181,7 +9181,7 @@
       "executable": false
     },
     "tests/runtimes/feedback-proof.mjs": {
-      "sha256": "278033e5f699d213309e2be60c824184e2c41a75a77e28a03b06eb10babe3d9d",
+      "sha256": "81c054d973bfdc36b10cc871e2dcfb52fb893384d43fab65c7cc410db4a4e947",
       "executable": false
     },
     "tests/runtimes/go.mjs": {
