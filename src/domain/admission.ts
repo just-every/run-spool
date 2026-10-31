@@ -1,3 +1,4 @@
+import { spendKeyEvent, keyLimitedResponse } from './key-rate-limits/model';
 import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
 import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
@@ -45,6 +46,7 @@ export async function ingestFailure(c:any,scope:IngestScope,error:unknown){
   if(policy.revision!==scope.revision)return c.json({outcome:'rejected',reason:'inbound_policy_changed'},409);
   const grant=await stmt(c.env.DB,`SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='ingest' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)}`,scope.keyHash,scope.project).first();
   if(!grant)return c.json({outcome:'rejected',reason:'invalid_ingest_key'},401);
+  if(message.includes('key_rate_limited')){await recordIngest(c,scope,'key_rate_limited');return keyLimitedResponse(c,scope)}
   if(message.includes('spool_authority_guards')||message.includes('CHECK constraint failed'))return c.json({outcome:'rejected',reason:'ingest_authority_changed'},403);
   if(message.includes('minute_budget')||message.includes('retained_event_budget')){
     const reason=message.includes('minute_budget')?'minute_budget':'retained_event_budget';c.header('Retry-After','60');
@@ -79,7 +81,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
-    const jobs=[...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
+    const jobs=[spendKeyEvent(db,project,scope.keyHash),...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),

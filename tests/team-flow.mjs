@@ -51,8 +51,13 @@ async function invite(owner,origin,input) {
  return {...client(origin,cookie),cookie,member};
 }
 
-async function policyAuthority(owner,maintainer,member,reader,projects) {
+async function policyAuthority(owner,maintainer,member,reader,projects,admin) {
  const root=projectRoot(projects[0]),foreign=projectRoot(projects[1]);
+ const quotaKey=await owner.json(root+'/keys','POST',{kind:'ingest'}),quotaPath=root+'/keys/'+quotaKey.hash+'/rate-limit';
+ const quota=await admin.json(quotaPath,'PUT',{revision:0,limit:2,period:'hour'});assert.equal(quota.limit,2,'BILL-001 native admin configures an active key');
+ for(const actor of [maintainer,member,reader])await denied(actor.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'BILL-001 project roles cannot change a key budget');
+ assert.deepEqual(await owner.json(quotaPath),quota,'refused project roles leave key configuration and usage unchanged');
+ await owner.json(root+'/keys/'+quotaKey.hash,'DELETE');await denied(admin.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'revoked keys cannot receive a new rate limit');
  const filters=await maintainer.json(root+'/inbound-filters'),policy=structuredClone(filters.policy);
  policy.filters.messages.enabled=true;policy.filters.messages.values=['*synthetic-spool-filter*'];
  await maintainer.json(root+'/inbound-filters/preview','POST',{policy});
@@ -347,7 +352,7 @@ export async function teamFlow() {
    await actor.json(own+'/issues/'+issue.id+'/packet');
    for(const suffix of ['/issue-search?q=synthetic-spool-1','/issues/'+issues[1-index].id+'/events','/issues/'+issues[1-index].id+'/packet','/issue-export?format=csv'])await concealed(actor,foreign+suffix);
   }
-  await policyAuthority(owner,first,second,reader,projects);
+  await policyAuthority(owner,first,second,reader,projects,admin);
   await memberDeployment(owner,second,projects[1]);
   const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);
   await browserMembers(owner,projects);
