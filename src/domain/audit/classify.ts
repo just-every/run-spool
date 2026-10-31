@@ -6,6 +6,7 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/notifications\/preferences$/,action:'notification.preferences',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/rate-limit$/,methods:['PUT'],action:'credential.rate_limit',kind:'credential'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/suppression$/,action:'suppression.change',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/(?:comments(?:\/[^/]+)?|subscription|discussion)$/,action:'issue.triage',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/recurrence-policy$/,action:'release.policy',kind:'project'},

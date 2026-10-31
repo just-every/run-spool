@@ -1,3 +1,4 @@
+import { keyRateLimitFlow, keyRateLimitScreens } from './key-rate-limit-flow.mjs';
 import { releaseIdentityFlow, team004Flow } from './release-identity-flow.mjs';
 import { groupingRulesFlow } from './grouping-rules-flow.mjs';
 import { investigationFlow } from './investigation-flow.mjs';
@@ -122,4 +123,6 @@ try{
   await feedbackFlow({req,json,origin});
   await clientReportFlow({req,json,origin});
   console.log('Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.');
+  await keyRateLimitFlow({req,json,worker,origin});
+  await keyRateLimitScreens({req,json,origin,cookie});
 }finally{await worker.stop()}

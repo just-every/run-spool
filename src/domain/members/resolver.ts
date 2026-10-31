@@ -37,6 +37,7 @@ export async function resolveMembership(request: Request, env: Bindings, session
   role=member.role==='read-only'?'read-only':grant.role;
  }
  const tail=match[2]??'', isRead=read(request), document=!path.startsWith('/api/');
+ if(/^keys\/[^/]+\/rate-limit$/.test(tail)&&member.role!=='admin')return missing();
  const policy=/^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
  // Personal settings never change project policy or another person's data.
  if(tail==='notifications/preferences' && (isRead || request.method==='PUT')) return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };
