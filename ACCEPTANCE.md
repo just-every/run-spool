@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 48 | 24 | 87 |
+| Core | 16 | 47 | 24 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 48 | 29 | 92 |
+| Full target | 16 | 47 | 29 | 92 |
 
-Judged from the code and tests at commit `de0845c8c6396c9e8e96dad5050608394c933e1b` (29 October 2026): ERR-007 complete client projection equality, private bounded packets and authority checks passed the Agent handoff public journey. The landing candidate adds explicit no-write coverage across all packet readers and second-origin ERR-005 map-identity checks; its exact-SHA Verify remains the publication gate. Existing judgments and prerequisite scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `d0f261508c50ae3a19168bc9adcc5aae8f942bae` (30 October 2026). Replayed the candidate onto current main. Retained its browser and public rer archive equality assertions, inert restored-work custody, fresh-run recovery, erasure replay refusal and retention snapshot assertions. ERR-009 remains partial with main's recorded Gap; this conflict resolution does not promote acceptance. Current main's newer ERR-005 judgment and all other clause rows are retained. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -96,7 +96,7 @@ Core · published · **partial** · Cites BASE-INPUT-003
 4. keeps generated frames with a reason when the uploaded map does not match;
 5. and its evidence packet excludes the confidential source.
 
-**Evidence.** `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs`; `tests/agent-handoff.mjs` Agent handoff public journey, second-origin captures: generated frames before upload, originals after upload, immutable admission snapshot beside current lookup, release and build mismatch refusals, confidential-source exclusion.
+**Evidence.** `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs`; `tests/agent-handoff.mjs` Agent handoff public journey, second-origin captures: generated frames before upload, originals after upload, immutable admission snapshot beside current lookup, release and build mismatch refusals, confidential-source exclusion. Independent release-only and build-only mismatches preserve every generated frame with an identity_mismatch reason and no original coordinates; a fresh matching capture proves original file, one-based line and zero-based column. `tests/agent-handoff/packet.mjs` generatedFrames and compatible assertions.
 **Gap.** The five browser source-map acceptance outcomes are asserted through the second-origin Agent handoff public journey. Remaining inherited work: expanded SDK-010 mapped lookup beyond the current 30-coordinate bound and SRC-004's recorded capacity, streaming, artifact lifecycle, isolated opt-in source fetching, ignore-list and production-build qualification. Native-device qualification remains held under SDK-002 and SRC-004; commercial qualification still needs BILL-001's pricing ruling. Existing queue scopes and release prerequisites are unchanged.
 
 #### ERR-006 — Audited triage and regression
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/alerts-native.mjs`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`
-**Gap.** Not asserted in the cited tests: the issue's reopened state after a newer-release event, and a later older-release event leaving a release-resolved issue closed (both asserted in tests/product-runtime.mjs, which this clause does not cite); a merge preview moving nothing; and previews moving nothing and a merge applied and undone through the issue view. Asserted: the newer-release regression alert and its single delivery, split and merge apply and undo over HTTP, split apply and undo through the issue view, stale-revision refusal and original membership.
+**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** Main's partial judgment is retained during this landing replay. The candidate adds the cited regression, inert-preview and issue-view correction assertions; a fresh acceptance review of that evidence remains separate from conflict resolution.
 
 #### ERR-007 — Sanitized evidence packet
 
@@ -168,7 +168,7 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rule
 6. An import into a nonempty target is refused before any mutation.
 7. After a manual retention cutoff, repair snapshots keep their coverage gaps.
 
-**Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs`
+**Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs` Supplementary replayed candidate evidence (status and recorded Gap retain current main's judgment): Acceptance 1: `tests/triage-journey.mjs` journey (Download private archive, verified downloaded rows and private maps at 1440 and 390); `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import equality, credential exclusion and fresh owner setup), invoked by `tests/repair-recovery.mjs`. Supplementary public rer export and import equality assertions remain in `tests/commands.mjs`; qualification here relies on the completed clause journeys. Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` independent empty restore and unchanged-row refusals; `tests/old-archive.mjs` published and current independent restores, mismatched schema, corruption and occupied-target refusals. Acceptance 3: `tests/repair-recovery/archive.mjs` archiveProof (source session and grant refusals, historical repair verification); `tests/execution-journey.mjs` archive (unchanged historical facts, excluded tokens and leases, zero dispatch, refused historical approval and passing-run authority, fresh-run recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical states, Axe and reflow at 1440 and 390). Acceptance 7: `tests/repair-recovery/archive.mjs` archiveProof (all repair and check rows and ordered snapshot identifiers preserved, exact removed_by_retention markers and retained recurrence). D-6: `src/domain/restored-work.ts`, `migrations/core/0084_restored_work.sql`, `src/domain/portability.ts`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
 **Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work holding no active grant (only the archive's lack of credentials, sessions and ingest key is asserted), starting no dispatch and holding no current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, an archive without credentials, sessions or ingest key, and refusal of tampered, conflicting and nonempty-target imports before mutation.
 
 #### ERR-010 — Release gates
@@ -268,8 +268,8 @@ Core · target · **partial** · Rules D-1, D-4
 7. A new fatal error opens as high priority and a warning as medium.
 8. A priority set to low by hand stays low after a later escalation, with its actor shown.
 
-**Evidence.** `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/BulkTriage.tsx`; `tests/bulk-triage-flow.mjs` bulkTriageFlow; `tests/investigation-flow.mjs` investigationFlow; `docs/BULK-TRIAGE.md`. SDK-009 supplies plain, current, next and named owner and bulk resolution. Acceptance 7: `tests/release-identity-flow.mjs` issuePriorityFlow asserts fatal high and warning medium. Acceptance 8: issuePriorityFlow retains owner low priority through escalation and regression with its timeline actor; `tests/owner-claim.mjs` owner-claim and team journey invokes `tests/team-flow.mjs` teamFlow, `tests/discussion-flow.mjs` discussionFlow and `tests/busy-member-writes.mjs` busyMemberWrites: an ordinary project member sets low, a later fatal event reaches that same issue, and the priority read, issue list, shared timeline and rendered issue retain low and the original member actor; read-only refusal and concurrent stale-write nonmutation remain asserted.
-**Gap.** Acceptance 7 and the member-priority outcome in acceptance 8 are qualified. Remaining work and qualification: acceptance 1 to 6 across shared-member searched bulk triage, collaborative recurrence and suppression policies, accountable follow-up and stale decisions; real member assignment and expanded bulk assignment and merge. In particular, acceptance 2 still needs next-release same-repeat counting and policy-switch reopening proof; the current next-release implementation preserves SDK-009's strictly-later boundary, so that unresolved semantic is not claimed here. TEAM-005 owns notification delivery and settings that use priority. ERR-006 and SDK-009 retain their recurrence and resolution obligations; existing provider, device, policy and release prerequisites remain unchanged.
+**Evidence.** `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/BulkTriage.tsx`; `tests/bulk-triage-flow.mjs`; `tests/investigation-flow.mjs`; `docs/BULK-TRIAGE.md` SDK-009 supplies plain/current/next/named owner and bulk resolution.
+**Gap.** Shared team discussion, member assignment, priority and collaborative recurrence/suppression policies remain absent.
 
 #### TEAM-004 — Issue short IDs and resolution from commits and pull requests
 
@@ -505,7 +505,7 @@ Core · target · **partial** · Rules D-4
 
 #### SDK-028 — Release ordering rule
 
-Core · target · **partial** · From SDK-009 · Rules D-4
+Core · target · **done** · From SDK-009 · Rules D-4
 
 **Requirement.** Each project shows its release ordering rule in project settings. One transitive total order governs release lists and exports, resolve in the current or next release, TEAM-004 resolution, regression, `release:latest` and REL-002 comparison. Lists use ascending order (a descending view reverses that same order); "latest" is always its final release, never a separately guessed version or registered sequence. The default, first seen, orders all releases by first-seen time, with registration counting as seen when it precedes intake; equal first-seen times are broken by release name in UTF-8 byte order, and later enrichment never changes first-seen time. The optional semver rule puts every name that parses as a semantic version, including `package@1.2.3+45` and `1.2.3`, first, ranked by semver precedence (major, minor, patch and prerelease; build metadata does not affect precedence), with equal precedence broken by first-seen time and then release name in UTF-8 byte order; every non-semver name (SHA, date or free text) follows the semver releases, ordered by first-seen time and then release name in UTF-8 byte order, and a pair never switches comparison rules based on the other release's name. A maintainer can instead choose registered sequence only, the stricter rule Spool's native intake uses: order by registered sequence, and refuse a Sentry SDK event or session with no release, or with an unregistered release or `dist`, with its named reason (`missing_release_register_required` or `unregistered_release_or_build`) and a pointer to registration, each refusal counted under that reason in project outcomes, BILL-001 usage and the MIG-001 dual run. A rule change is previewed (which resolved issues' regression boundaries move), audited and applies to later events; the first-seen, semver and registered total orders share the same list, latest, preview, current-resolution and regression comparison.
 
@@ -517,8 +517,8 @@ Core · target · **partial** · From SDK-009 · Rules D-4
 5. `release:latest`, release comparisons and regression use the chosen order.
 6. Under registered sequence only, chosen with its preview, an unregistered release and a missing release are each refused with the named reason and counted in project outcomes and usage.
 
-**Evidence.** `src/domain/releases/`; `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: the mixed-history first-seen and semver lists and latest, repeat-call stability, permutations, transitivity and tie breaks (lists and latest are asserted in tests/release-order-flow.mjs, which this clause does not cite; permutations and transitivity nowhere), `release:latest` and comparisons, and the counting of registered-sequence refusals in outcomes and usage. Asserted: semver protection of a resolved issue and the named refusal reasons.
+**Evidence.** `src/domain/releases/`; `tests/deployment-history.mjs` deployment history journey invokes `tests/release-order-flow.mjs` releaseOrderFlow: acceptance 1 and 2 native and Sentry-compatible lists, unmodified release-list CLI, issue release arrays and filter choices, health and report JSON and CSV exports, ordered private archives and lossless restore; acceptance 3 `tests/release-order-properties.mjs` releaseOrderProperties, all 120 fixed-metadata permutations, repeated sorts and all comparison triples under every setting; acceptance 4 releaseOrderTies, equal-time UTF-8 names, equal-precedence build metadata and legacy first-seen fallback, with production comparator and public SQL agreement; acceptance 5 changedBoundaries, inert preview, audited later-only policy, current and next resolution, comparisons, latest reads and exact regression alerts; acceptance 6 registeredRefusals, named event and session refusals, exact outcomes and usage, unchanged data, revoked grant refusal and registered recovery. `tests/release-identity-flow.mjs` releaseIdentityFlow and sdk009ReleaseResolution cover enrichment, semantic older-release protection, named and next resolution; `tests/sentry-http.mjs` also invokes team004Flow for commit resolution.
+**Gap.** None.
 
 #### SDK-010 — Sentry event fidelity: exception chains, frames, local variables, tags, contexts and request
 
@@ -807,7 +807,7 @@ Core · target · **partial**
 
 #### FIND-003 — Trends, dashboards and team reports
 
-Core · target · **missing** · From FIND-002 · Rules D-4
+Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
