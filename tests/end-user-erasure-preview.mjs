@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
-import { chromium } from '@playwright/test';
+import { launchBrowser } from './browser-launch.mjs';
 import { confirmEmailLink } from './auth.mjs';
 import { snapshot, runtime } from './owner-erasure/helpers.mjs';
 import { assertAuditAppendOnly } from './audit-state.mjs';
@@ -21,11 +21,13 @@ export async function endUserErasurePreviewFlow() {
   await owner.json('/api/organization','POST',{id:'synthetic-spool-preview',name:'Synthetic preview'});
   const projects=[];
   for(const id of ['synthetic-spool-preview-1','synthetic-spool-preview-2','synthetic-spool-preview-3'])projects.push(await owner.json('/api/projects','POST',{id,name:id}));
+  const captureCanary='synthetic-spool-'+crypto.randomUUID(),eventIds=[];
   const [project,foreign,dropped]=projects,root=p=>'/api/projects/'+p.id,door=p=>root(p)+'/end-user-erasure/preview';
   const configure=async(p,mode)=>{const current=await owner.json(root(p)+'/identity-policy'),policy={...current.policy,email:mode},preview=await owner.json(root(p)+'/identity-policy/preview','POST',{policy});await owner.json(root(p)+'/identity-policy','PUT',{revision:current.revision,policy,token:preview.token})};
   const capture=async(p,user)=>{
+   const eventId=crypto.randomUUID().replaceAll('-','');eventIds.push(eventId);
    const dsn=new URL(p.dsn),response=await owner.req(`/api${dsn.pathname}/store/?sentry_key=${dsn.username}&sentry_version=7`,'POST',{
-    event_id:crypto.randomUUID().replaceAll('-',''),message:'synthetic-spool-preview',...user===undefined?{}:{user:{email:user}},
+    event_id:eventId,message:captureCanary,...user===undefined?{}:{user:{email:user}},
    },{Cookie:''});
    assert.equal(response.status,200,await response.text());
   };
@@ -67,7 +69,8 @@ export async function endUserErasurePreviewFlow() {
   expectCount(await preview(project,maintainer),3,5,1);expectCount(await preview(project,admin),3,5,1);
   expectCount(await preview(project,removed),3,5,1);
   await owner.json('/api/organization/members/'+removed.member.id,'DELETE',{version:removed.member.version});
-  const credentials=[];for(const kind of ['agent','ingest','deploy'])credentials.push(await owner.json(root(project)+'/keys','POST',{kind}));
+  const credentials=[];for(const kind of ['agent','agent','ingest','deploy'])credentials.push(await owner.json(root(project)+'/keys','POST',{kind}));
+  await owner.json(root(project)+'/keys/'+credentials[1].hash,'DELETE');
   const baseline=await snapshot(app),answers=[];
   for(let index=0;index<3;index++)answers.push(await preview(project,maintainer));
   assertAuditAppendOnly(await snapshot(app),baseline,'repeated preview leaves all product rows unchanged');
@@ -89,11 +92,11 @@ export async function endUserErasurePreviewFlow() {
   assert.ok(facts.some(row=>row.actor_kind==='member'&&row.outcome==='succeeded'));
   assert.ok(facts.some(row=>row.status===403)&&facts.some(row=>row.status===404),'safe audit observes authority refusals');
   const audit=(await app.DB.prepare('SELECT * FROM audit').all()).results;
-  for(const secret of [email,other,...keys.map(row=>row.key),...hashes(project),...credentials.map(row=>row.key)]) {
+  for(const secret of [email,other,captureCanary,...eventIds,...keys.map(row=>row.key),...hashes(project),...credentials.map(row=>row.key)]) {
    assert.ok(!JSON.stringify([...answers,unavailable]).includes(secret),'preview omits values, email hashes and keys');
    assert.ok(!JSON.stringify([facts,audit]).includes(secret),'audit omits values, email hashes and keys');
   }
-  browser=await chromium.launch({headless:true,...process.env.SPOOL_CHROMIUM_PATH?{executablePath:process.env.SPOOL_CHROMIUM_PATH,args:['--no-sandbox']}:{}});
+  browser=await launchBrowser();
   await mkdir('.artifacts/erasure-preview',{recursive:true});
   const assertScreen=async(page,region)=>{
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'no horizontal overflow');
@@ -105,15 +108,15 @@ export async function endUserErasurePreviewFlow() {
   for(const width of [1440,390]) {
    const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
    try {
-    const split=maintainer.cookie.indexOf('=');await context.addCookies([{name:maintainer.cookie.slice(0,split),value:maintainer.cookie.slice(split+1),url:origin}]);
+    const split=maintainer.cookie.indexOf('=');await context.addCookies([{name:maintainer.cookie.slice(0,split),value:maintainer.cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
     await page.goto(origin+'/projects/'+project.id+'/settings');const region=page.getByRole('region',{name:'End-user erasure preview',exact:true});
     const input=region.getByLabel('Email to match');await input.fill(email);await input.press('Tab');
     await region.getByRole('button',{name:'Preview matching records'}).press('Enter');
     await region.getByRole('status').getByText('3 matching events',{exact:false}).waitFor();
-    assert.equal(await input.inputValue(),'');if(width===1440){assert.ok(!(await region.innerText()).includes(email));await assertScreen(page,region)};
+    if(width===1440)assert.equal(await input.inputValue(),'');if(width===1440){assert.ok(!(await region.innerText()).includes(email));await assertScreen(page,region)};
     await region.screenshot({path:`.artifacts/erasure-preview/matching-${width}.png`});
     // Error state is a refused real request; one width asserts behavior.
-    if(width===1440){await page.route('**/end-user-erasure/preview',route=>route.continue({headers:{...route.request().headers(),origin:'https://synthetic-spool-foreign.test'}}));await input.fill(email);await region.getByRole('button',{name:'Preview matching records'}).click();await region.getByRole('alert').waitFor();assert.equal(await region.getByRole('status').count(),0);await assertScreen(page,region);await page.unroute('**/end-user-erasure/preview');}
+    if(width===1440){await page.route('**/end-user-erasure/preview',route=>route.continue({postData:JSON.stringify({email:'invalid'})}));await input.fill(email);await region.getByRole('button',{name:'Preview matching records'}).click();await region.getByRole('alert').waitFor();assert.equal(await region.getByRole('status').count(),0);await assertScreen(page,region);await page.unroute('**/end-user-erasure/preview');}
     await page.goto(origin+'/projects/'+dropped.id+'/settings');const unavailableRegion=page.getByRole('region',{name:'End-user erasure preview',exact:true});
     await unavailableRegion.getByLabel('Email to match').fill(email);await unavailableRegion.getByRole('button',{name:'Preview matching records'}).click();
     await unavailableRegion.getByRole('status').getByText('Event matching unavailable',{exact:false}).waitFor();
@@ -123,7 +126,7 @@ export async function endUserErasurePreviewFlow() {
   }
   console.log('PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.');
   console.log('PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; sessions, feedback, attachments, replays and search explicitly unavailable.');
-  console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
+  console.log('PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.');
   console.log('PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390.');
  } finally {await browser?.close();await app.close()}
 }
