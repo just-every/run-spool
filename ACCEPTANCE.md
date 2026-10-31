@@ -1334,7 +1334,7 @@ Core · push-further · **partial** · Cites BASE-DATA-004, BASE-AGENT-004, BASE
 2. Cross-project, mutation and prompt-injection requests are refused.
 3. After the grant is revoked, the next HTTP, CLI and MCP call is denied.
 
-**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`
+**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`; `tests/agent-handoff/selector-refusals.mjs` selectorRefusals qualifies traversal, command-shaped and instruction-shaped issue-selector refusal through HTTP, CLI packet and official MCP get_packet, preserving project scope, product rows and credential authority; the valid packet retains untrusted telemetry.
 **Gap.** Generic read-only CLI/MCP is implemented; named client qualification and model-egress controls for automated work are incomplete.
 
 #### AI-002 — Generate and test the smallest reproduction
