@@ -30,15 +30,15 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
   commits: [{id: 'f'.repeat(40), message: `Fixes ${issue.short_id}`}],
  };
  const doors = [
-  ['POST', root + '/', {version: 'synthetic-spool-org-create', ...release}, 'cli.release'],
-  ['POST', '/api/0/projects/acme/web/releases/', {version: 'synthetic-spool-project-create', ...release}, 'cli.release'],
-  ['PUT', `${root}/${version}/`, release, 'cli.release'],
-  ['POST', `${root}/${version}/deploys/`, {environment: 'field-refusal', name: 'synthetic-spool-deploy', url: 'https://example.test/deploy', dateStarted: '2026-01-01T00:00:00Z', dateFinished: '2026-01-02T00:00:00Z'}, 'cli.deploy'],
+  ['POST', root + '/', {version: 'synthetic-spool-org-create', ...release}, 'cli.release', '/api/0/organizations/:org/releases/'],
+  ['POST', '/api/0/projects/acme/web/releases/', {version: 'synthetic-spool-project-create', ...release}, 'cli.release', '/api/0/projects/:org/:project/releases/'],
+  ['PUT', `${root}/${version}/`, release, 'cli.release', '/api/0/organizations/:org/releases/:version/'],
+  ['POST', `${root}/${version}/deploys/`, {environment: 'field-refusal', name: 'synthetic-spool-deploy', url: 'https://example.test/deploy', dateStarted: '2026-01-01T00:00:00Z', dateFinished: '2026-01-02T00:00:00Z'}, 'cli.deploy', '/api/0/organizations/:org/releases/:version/deploys/'],
  ];
  const send = (method, path, body, token = keys.deploy) => fetch(origin + path, {
   method, headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + token, Connection: 'close'}, body: JSON.stringify(body),
  });
- for (const [method, path, body, action] of doors) {
+ for (const [method, path, body, action, endpoint] of doors) {
   // Null and false are still supplied fields; long names cannot produce an unbounded diagnostic.
   for (const [field, value] of [['unsupportedField', canary], ['unsupportedNull', null], ['unsupportedFalse', false], ['long' + 'x'.repeat(1000), canary]]) {
    const sequence = (await database.prepare('SELECT COALESCE(MAX(sequence),0) n FROM spool_audit_events').first()).n;
@@ -47,7 +47,7 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
    const result = await response.json();
    assert.equal(result.error, result.detail);
    assert.ok(result.detail.includes('Unsupported field') && result.detail.includes(field.slice(0, 64)), 'the field is named');
-   assert.ok(result.detail.includes(method) && result.detail.includes('/api/0/') && result.detail.includes('/releases/'), 'the endpoint is named');
+   assert.ok(result.detail.endsWith(`for ${method} ${endpoint}.`), 'the specific endpoint is named without reflecting route identifiers');
    assert.ok(result.detail.length < 650, 'the field diagnostic is bounded');
    assert.ok(!JSON.stringify(result).includes(canary), 'no field value is reflected');
    const facts = (await database.prepare('SELECT * FROM spool_audit_events WHERE sequence>? ORDER BY sequence').bind(sequence).all()).results;
@@ -61,12 +61,9 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
    assert.equal(response.status, status, 'authentication precedes field validation');
    assert.ok(!(await response.text()).includes('unsupportedField'), 'no validation detail before authentication');
   }
-  const foreignBody = {...body, ...action === 'cli.release' ? {projects: ['web']} : {}};
-  if (action === 'cli.release') {
-   const response = await send(method, path, {...foreignBody, unsupportedField: canary}, keys.other);
-   assert.equal(response.status, 403, 'project scope precedes field validation');
-   assert.ok(!(await response.text()).includes('unsupportedField'));
-  }
+  const foreign = await send(method, path, {...body, projects: ['web'], unsupportedField: canary}, keys.other);
+  assert.equal(foreign.status, 403, 'project scope precedes field validation, including deployment bodies');
+  assert.ok(!(await foreign.text()).includes('unsupportedField'));
   console.log(`PROBE API-002 ${method} ${path}: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first`);
  }
  // Both create aliases must also refuse an attempted change to an existing release.
