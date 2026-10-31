@@ -5,7 +5,6 @@ import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {boundedCleanup,journeyDiagnostics,classifyCommandOutput} from './command-diagnostics.mjs';
-import {resourceRefusalFamily,waitForServerResources} from './command-resources.mjs';
 import {legacyCheckout} from './legacy-mail.mjs';
 import {commandCustody} from '@runeditrun/rer/internal/onboarding/command-custody.mjs';
 import {createProcessBaseline,createProcessScope,processScopeEnvironment} from '@runeditrun/rer/process-scope';
@@ -88,43 +87,23 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
    }finally{clearTimeout(timeout);}
   }
   async function ready(args,origin){
-   const admissionDeadline=Date.now()+20*60*1000;
-   let admissionRefusal;
-   for(;;){
-   if(admissionRefusal&&Date.now()>=admissionDeadline)throw admissionRefusal;
-   const diagnostic=diagnostics.started(args[0]);
-   diagnostic.resourcePreflight='checking';
-   try{await waitForServerResources(root,{timeoutMilliseconds:Math.max(0,admissionDeadline-Date.now())});diagnostic.resourcePreflight='passed';}catch(error){
-    diagnostic.resourcePreflightRefusal=resourceRefusalFamily(error);
-    diagnostic.resourcePreflight=diagnostic.resourcePreflightRefusal==='unknown'?'failed':'refused';
-    throw error;
-   }
-   const item=start(args,diagnostic);let timeout;
-   const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>{item.diagnostic.timedOut=true;reject(new Error('Managed server failed readiness'));},5*60*1000);});
+   const item=start(args);let timeout;
+   const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Managed server failed readiness')),5*60*1000)});
    async function poll(){
     for(let i=0;i<1200;i++){
      if(item.item.spawnError)throw item.item.spawnError;
      if(item.child.exitCode!==null||item.item.settled)throw new Error('Managed server exited before readiness: '+JSON.stringify({exitCode:item.child.exitCode,...classifyCommandOutput(item.output(),args[0])}));
      if(item.output().split('\n').some(line=>{try{return JSON.parse(line).event==='ready'}catch{return false}})){
       item.diagnostic.readinessObserved=true;
-      assert.equal((await fetch(origin+'/health')).status,200);item.diagnostic.healthChecked=true;
-      assert.equal((await fetch(origin+'/__dev/outbox')).status,404);return item;
+      const health=await fetch(origin+'/health',{headers:{Connection:'close'}});assert.equal(health.status,200);await health.body?.cancel();item.diagnostic.healthChecked=true;
+      const hidden=await fetch(origin+'/__dev/outbox',{headers:{Connection:'close'}});assert.equal(hidden.status,404);await hidden.body?.cancel();item.diagnostic.outboxChecked=true;
+      return item;
      }
      await delay(250);
     }
-    item.diagnostic.timedOut=true;throw new Error('Managed server failed readiness');
+    throw new Error('Managed server failed readiness');
    }
-   try{return await Promise.race([poll(),expired]);}catch(error){
-    // The CLI checks again after preparing the app. Its exact "Not started"
-    // refusal admits no server; wait for resources before asking it to start.
-    // Application failures and every other refusal still fail immediately.
-    if(!diagnostic.exited||diagnostic.exitCode!==4||diagnostic.cliErrorCode!=='safety_refusal'
-     ||diagnostic.refusalFamily!=='resource-load'||diagnostic.readinessObserved||Date.now()>=admissionDeadline)throw error;
-    admissionRefusal=error;
-    console.log('Spool server launch was not admitted for shared-machine load; waiting before admission.');
-    await delay(Math.min(60_000,admissionDeadline-Date.now()));
-   }finally{clearTimeout(timeout);}
-   }
+   try{return await Promise.race([poll(),expired])}finally{clearTimeout(timeout)}
   }
   return {root,env,command,ready,start,close};
  }catch(error){

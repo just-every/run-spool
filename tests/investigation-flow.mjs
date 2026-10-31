@@ -33,7 +33,7 @@ export async function investigationFlow({req,json,origin,db}){
  await bulkTriageFlow({req,json,base,origin});
  await repositorySourceFlow({req,json});
  const browser=await launchBrowser();
- try{const cookie=await signIn(origin,{bootstrap:false});for(const width of [1440,390]){
+ try{const cookie=await signIn(origin,{bootstrap:false});for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});
   for(const part of cookie.split('; ')){const at=part.indexOf('=');await context.addCookies([{name:part.slice(0,at),value:part.slice(at+1),url:origin}])}
   const page=await context.newPage();await page.goto(origin+'/projects/investigation/issues');

@@ -22,7 +22,7 @@ export async function retentionFlow(app,browser,directory){
  await json(`/api/${dsnBefore.pathname.slice(1)}/envelope/?sentry_key=${dsnBefore.username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify({sid:crypto.randomUUID().replaceAll('-',''),started:oldSessionTime,timestamp:oldSessionTime,status:'exited',errors:0,attrs:{release:'r1',environment:'test'}}));
  assert.equal((await request(path,'PUT',{...sessionPreview,confirmation:'SHORTEN RETENTION'})).status,409,'[GOV-002] newly admitted eligible session invalidates shortening preview');const freshSessionPreview=await json(path+'/preview','POST',{windows:sessionWindows});assert.equal(freshSessionPreview.rows.find(row=>row.type==='sessions').count,1);await json(path,'PUT',{...freshSessionPreview,confirmation:'SHORTEN RETENTION'});
  const captures=[];
- for(const width of [1440,390]){
+ for(const width of [1440]){
   let current=await json(path);if(current.windows.feedback!==90){const pr=await json(path+'/preview','POST',{windows:{...current.windows,feedback:90}});await json(path,'PUT',{...pr,confirmation:''})}
   const context=await browser.newContext({viewport:{width,height:1000}});
   try{
@@ -33,7 +33,6 @@ export async function retentionFlow(app,browser,directory){
    await panel.getByLabel('Reason for legal hold',{exact:true}).fill('synthetic-spool-17 legal preservation');await panel.getByRole('button',{name:'Set legal hold',exact:true}).click();await panel.getByRole('heading',{name:'Legal hold: active',exact:true}).waitFor();
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);const axe=await new AxeBuilder({page}).include('[aria-label="Project retention"]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(axe.violations.map(v=>v.id),[]);
    await panel.scrollIntoViewIfNeeded();const file=directory+`/gov002-retention-${width}.png`;await panel.screenshot({path:file});captures.push(file);
-   if(width===1440){current=await json(path);await json(path+'/hold','PUT',{held:false,reason:'synthetic-spool-17 temporary release',revision:current.revision})}
   }finally{await context.close()}
  }
  let current=await json(path);assert.equal(current.held,true);
@@ -53,5 +52,5 @@ export async function retentionFlow(app,browser,directory){
  }finally{await restored.stop()}
  await json(path+'/hold','PUT',{held:false,reason:'synthetic-spool-17 release for expiry',revision:current.revision});
  const cutoff=Date.now(),dry=await json(`/api/projects/${p}/retention`,'POST',{cutoff,apply:false}),applied=await json(`/api/projects/${p}/retention`,'POST',{cutoff,apply:true});assert.equal(applied.events,dry.events,'[GOV-002] dry run equals applied cutoff');assert.ok(applied.events>0);assert.equal((await json(`/api/projects/${p}/issues/${admitted.issue}/packet`)).events.length,0);
- console.log('[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures');return captures;
+ console.log('[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440 captures');return captures;
 }

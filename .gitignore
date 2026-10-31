@@ -21,3 +21,6 @@ packages/sdk/LICENSE
 tests/runtimes/rust/target/
 
 public/spool-sentry-sdk.js
+
+# Python SDK and tunnel journey caches are local build output.
+__pycache__/

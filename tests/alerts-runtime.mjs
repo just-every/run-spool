@@ -1,6 +1,6 @@
+import {nativeDeliveryJourney} from './alerts-native.mjs';
+import {edgeJourney} from './alerts-edge-runtime.mjs';
 import {deliveryFlow} from './alerts/delivery-flow.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -22,7 +22,11 @@ try {
   [deliveryPath+'/rules','POST',rule('webhook'),{Origin:'https://attacker.example'}],
   [deliveryPath+'/rules','POST',rule('mail',{destination:'other-v1'}),{}],
  ];for(const args of denied)assert.ok((await app.request(...args)).status>=400);
+ const tickBefore=(await app.json('/health')).alerts.lastScheduledRun;
  const admitted=await app.json('/api/ingest/web','POST',event('first'),auth);
+ const immediate=await app.json(deliveryPath+'/deliveries');
+ for(const channel of ['mail','webhook'])assert.ok(immediate.some(row=>row.channel===channel&&row.state==='accepted'),'ingest dispatches '+channel+' before cron');
+ assert.equal(inbox.effects(),1);assert.equal((await app.json('/health')).alerts.lastScheduledRun,tickBefore);
  const duplicate=await Promise.all(Array.from({length:4},()=>app.request('/api/ingest/web','POST',event('first'),auth)));assert.ok(duplicate.every(r=>r.status===200));
  await app.schedule(Date.now());
  let logs=await app.json(deliveryPath+'/deliveries');assert.equal(logs.length,2);assert.ok(logs.some(r=>r.channel==='mail'&&r.state==='accepted'));assert.ok(logs.some(r=>r.channel==='webhook'&&r.state==='accepted'));assert.equal(inbox.effects(),1);
@@ -105,3 +109,7 @@ try {
  await app.close();app=null;await deliveryFlow(inbox);
  console.log('ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
 } finally {await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}
+
+await edgeJourney();
+
+await nativeDeliveryJourney();

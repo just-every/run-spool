@@ -1,8 +1,3 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
-// Privacy table: plants one native-ingest issue per secret form (message, title
-// and breadcrumbs) and one Sentry store event, delivers alerts, then reads all
-// 14 output paths and requires every secret gone and every ordinary line kept.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -12,6 +7,11 @@ import { resolve } from 'node:path';
 import { alertRuntime, rule, prepareDestinations } from './alerts/runtime.mjs';
 import { receiver } from './alerts/receiver.mjs';
 import { forms, ordinary } from './privacy-table/forms.mjs';
+
+export async function privacyJourney() {
+// Privacy table: plants one native-ingest issue per secret form (message, title
+// and breadcrumbs) and one Sentry store event, delivers alerts, then reads all
+// 14 output paths and requires every secret gone and every ordinary line kept.
 const root = process.cwd();
 const outDir = resolve('.artifacts/privacy-table');
 const stateDir = await mkdtemp(resolve(tmpdir(), 'spool-privacy-'));
@@ -80,4 +80,6 @@ assert.equal(Object.keys(results).length, 14, 'all 14 output paths read');
 for (const [path, { secrets, ordinaryLost }] of Object.entries(results)) {
   assert.deepEqual(secrets, [], `${path}: secrets survive`);
   assert.deepEqual(ordinaryLost, [], `${path}: ordinary text changed`);
+}
+
 }

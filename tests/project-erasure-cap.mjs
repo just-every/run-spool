@@ -1,5 +1,3 @@
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {createServer} from 'node:net';
 import {handoffRuntime} from './agent-handoff/runtime.mjs';
@@ -7,6 +5,8 @@ import {canary} from './project-erasure/fixture.mjs';
 import {plantCap} from './project-erasure/plant.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 import {scanDatabase,scanText} from './project-erasure/scan.mjs';
+
+export async function capJourney() {
 
 // Keep the full retained-event cap independent of the archive-fence journey:
 // its 10,000-row pre-erasure archive need not be imported again for every fence.
@@ -42,3 +42,5 @@ try {
  assert.deepEqual(scanText((await app.archive()).text,needles),[],'the cap project and canary are absent from a fresh archive');
  console.log('Project erasure retained-event cap passed: '+JSON.stringify({events:10000,requestMs,completionMs:ms,receiptSeconds:receipt.seconds}));
 } finally {await app?.close();}
+
+}
