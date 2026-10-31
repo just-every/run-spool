@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import {readScreens} from './runtimes/screens.mjs';
 
-export async function fidelityFlow({req,json}) {
+export async function fidelityFlow({req,json,origin,cookie}) {
  const project=await json('/api/projects','POST',{id:'fidelity',name:'Cedar checkout diagnostics'}),base='/api/projects/fidelity';
  await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web'});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;
@@ -51,6 +52,11 @@ export async function fidelityFlow({req,json}) {
  assert.ok(!anonymous.event.sentry.truncation.some(note=>note.path==='user'),'SDK-008 does not report identity exclusion when the SDK sent no user');
  const recursion=chain('RecursionError');recursion.exception.values=[{type:'RecursionError',value:'recursion',stacktrace:{frames:Array.from({length:1200},(_,i)=>({filename:'/app/recursion.py',function:'recurse',lineno:i+1}))}}];await send(recursion);
  const recursiveIssue=(await json(base+'/issue-search?q=error.type:RecursionError')).rows[0].id,recursiveList=await json(base+'/issues/'+recursiveIssue+'/events');const recursiveDetail=await json(base+'/issues/'+recursiveIssue+'/events/'+recursion.event_id+'?occurrence='+recursiveList.latest.occurrence);assert.equal(recursiveDetail.event.sentry.exceptions[0].stacktrace.frames.length,1000);assert.ok(recursiveDetail.event.sentry.truncation.some(t=>t.omitted===200));
+ await readScreens(origin,cookie,[{name:'fidelity-recursion',path:`/projects/fidelity/issues/${recursiveIssue}`,check:async page=>{
+  await page.getByRole('heading',{name:'Reported capture bounds',exact:true}).waitFor();
+  if(page.viewportSize().width===1440){assert.equal(await page.locator('.exception-stack > li').count(),1000);await page.getByText('200 frames omitted', {exact:false}).waitFor()}
+ }}]);
+ console.log('PROBE SDK-010 acceptance 8 recursion: public envelope with 1200 frames -> owner detail and issue screen retain 1000 and disclose 200 frames omitted');
  const java=chain('IllegalStateException');java.platform='java';java.exception.values[0].stacktrace.frames=[{filename:'Checkout.java',module:'com.cedar.Checkout',function:'charge',lineno:12}];await send(java);
  const longQuery=chain('QueryBoundError');longQuery.request.query_string='diagnostic='+encodeURIComponent('🧭'.repeat(6000))+'&token=PRIVATE_QUERY_LONG';await send(longQuery);
  const queryIssue=(await json(base+'/issue-search?q=error.type:QueryBoundError')).rows[0].id,queryRows=await json(base+'/issues/'+queryIssue+'/events');

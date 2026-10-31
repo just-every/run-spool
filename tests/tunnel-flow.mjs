@@ -14,6 +14,8 @@ import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 import { launchBrowser } from './browser-launch.mjs';
+import {readScreens} from './runtimes/screens.mjs';
+import {api,issueDetails} from './runtimes/harness.mjs';
 
 const require = createRequire(import.meta.url), wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-tunnel-')), app = resolve(temporary, 'app'), site = resolve(temporary, 'site');
@@ -150,6 +152,17 @@ try {
   await mkdir(resolve(nextDir, 'app/peak-rss'));
   await writeFile(resolve(nextDir, 'app/peak-rss/route.js'), "export const dynamic = 'force-dynamic';\nexport function GET() { return Response.json({ pid: process.pid, maxRSS: process.resourceUsage().maxRSS }); }\n");
   await writeFile(resolve(nextDir, 'instrumentation-client.js'), "import * as Sentry from '@sentry/nextjs';\nSentry.init({ dsn: process.env.NEXT_PUBLIC_SPOOL_DSN, tunnel: '/monitoring', release: 'next@1.0.0', environment: 'next' });\n");
+  // SDK-010: a real server route captures a wrapped error with the unchanged Next SDK.
+  await mkdir(resolve(nextDir,'app','server-chain'));
+  await writeFile(resolve(nextDir,'app','server-chain','route.js'), `import * as Sentry from '@sentry/nextjs';
+export const runtime='nodejs';
+export const dynamic='force-dynamic';
+export async function GET(){
+ Sentry.init({dsn:process.env.NEXT_PUBLIC_SPOOL_DSN,release:'next@1.0.0',environment:'next'});
+ try{throw new Error('synthetic-spool-next-wrapper',{cause:new TypeError('synthetic-spool-next-root')})}
+ catch(error){Sentry.captureException(error);await Sentry.close(10000);return Response.json({captured:true},{status:500})}
+}
+`);
   nextBuild();
   const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
   nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: nextDir, env: nextEnv, stdio: ['ignore', 'pipe', 'inherit'] });
@@ -163,6 +176,16 @@ try {
   const tunnelled = nextPage.waitForResponse(response => response.url() === `${nextOrigin}/monitoring` && (response.request().postData() ?? '').includes('next checkout failure'));
   await nextPage.getByRole('button').click(); assert.equal((await tunnelled).status(), 200, 'the Next tunnel forwards the click’s error'); await nextPage.context().close();
   await arrives('next checkout failure');
+  const chainResponse=await fetch(nextOrigin+'/server-chain');assert.equal(chainResponse.status,500);assert.deepEqual(await chainResponse.json(),{captured:true});
+  const [serverChain]= (await issueDetails(api(origin,cookie),'tunnel')).filter(detail=>detail.issue.title.includes('synthetic-spool-next-wrapper'));
+  assert.ok(serverChain,'the Next.js server route produces a persisted wrapped error');
+  assert.deepEqual(serverChain.events[0].event.sentry.exceptions.map(e=>e.type),['TypeError','Error']);
+  await readScreens(origin,cookie,[{name:'next-server-root-cause',path:`/projects/tunnel/issues/${serverChain.issue.id}`,check:async page=>{
+   await page.locator('article.exception h3').filter({hasText:'synthetic-spool-next-wrapper'}).waitFor();
+   if(page.viewportSize().width===1440)assert.equal(await page.locator('article.exception h3').filter({hasText:'synthetic-spool-next-root'}).locator('small').innerText(),'Root cause');
+  }}]);
+  console.log('PROBE SDK-010 acceptance 4 Next.js: actual built server route -> TypeError cause and Error wrapper persist, with the inner cause marked in issue detail');
+
 
 
   // 5. A tunnel is not an open relay: another project, a malformed header and a wrong method forward nothing.

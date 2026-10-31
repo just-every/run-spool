@@ -23,6 +23,11 @@ Sentry.init({
     return event;
   },
 });
+// Supply observed browser metadata through the SDK's public context door.
+Sentry.setTag('tenant', 'acme');
+const browserVersion = /Chrome\/([\d.]+)/.exec(navigator.userAgent)?.[1];
+if (browserVersion) Sentry.setContext('browser', { name: 'Chrome', version: browserVersion });
+Sentry.setContext('os', { name: navigator.userAgentData?.platform || navigator.platform });
 Sentry.getClient().on('beforeEnvelope', envelope => {
   window.__SPOOL_SENT__.push(...envelope[1].map(item => item[0].type));
 });

@@ -56,6 +56,20 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
  assert.ok(sentLocal,'the unmodified Python SDK actually captured locals');
  assert.ok(JSON.stringify(sentLocal.vars.password).includes(secrets[0]),'reference sees the password canary before Spool');
  assert.ok(JSON.stringify(sentLocal.vars.api_key).includes(secrets[1]),'reference sees the API-key canary before Spool');
+ for(const [index,sent] of chain.reference.exception.values.entries()){
+  const kept=chain.event.event.sentry.exceptions[index];
+  assert.equal(kept.value,sent.value);assert.equal(kept.module??null,sent.module??null);
+  const identity=frame=>[frame.filename?.split(/[\\/]/).at(-1),frame.function,frame.lineno];
+  assert.deepEqual(kept.stacktrace.frames.map(identity),sent.stacktrace.frames.map(identity),'each exception retains all its own SDK frame identities');
+  for(const [at,frame] of sent.stacktrace.frames.entries()){
+   const stored=kept.stacktrace.frames[at];
+   for(const key of ['pre_context','post_context']){
+    assert.equal(stored[key].length,frame[key].length,'SDK source context lines retained');
+    for(const [line,text] of frame[key].entries())if(!secrets.some(secret=>text.includes(secret)))assert.equal(stored[key][line],text);
+   }
+   if(!secrets.some(secret=>frame.context_line.includes(secret)))assert.equal(stored.context_line,frame.context_line);
+  }
+ }
  maskedLocals(chain.payload,'persisted event');maskedLocals(chain.event.event,'owner detail');
  const sentRequest=django.reference.request;
  assert.equal(sentRequest.method,'GET');assert.equal(new URL(sentRequest.url).pathname,'/checkout');
@@ -87,6 +101,8 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
   await app.json(root+'/keys/'+grant.hash,'DELETE');
   const revoked=await app.request(`${root}/issues/${capture.detail.issue.id}/packet`,'GET',undefined,agent);
   assert.equal(revoked.status,401,'revoked grant cannot expose the previously permitted packet');
+  const after=await db.prepare('SELECT payload FROM events WHERE project=? AND id=? AND occurrence=?').bind(capture.project.id,capture.event.id,capture.event.occurrence).first();
+  assert.deepEqual(JSON.parse(after.payload),capture.payload,'owner reads, packet reads and refused access preserve persisted evidence');
  }
  const pages=[{
   name:'python-private-chain',path:`/projects/${chain.project.id}/issues/${chain.detail.issue.id}`,
@@ -98,6 +114,8 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
    await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();
    const dialog=page.getByRole('dialog',{name:'Raw stack trace',exact:true});await dialog.waitFor();
    if(page.viewportSize().width===1440){
+    assert.equal(await page.locator('article.exception').count(),2,'both exceptions appear in issue detail');
+    assert.equal(await page.locator('article.exception .sdk-context').count(),sentFrames.length,'every frame presents SDK source context');
     const text=await dialog.locator('pre').innerText();noSecrets(text,'displayed raw chain');
     const traces=text.split('\n\nThe above exception was the cause/context of the following exception:\n\n');
     assert.equal(traces.length,2,'both complete Python tracebacks shown');
@@ -129,4 +147,35 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
  console.log('PROBE SDK-010 acceptance 2: pinned Python SDK intake -> raw persisted and private archive payloads mask both canaries; owner ordinary locals survive; packets omit locals and refused grants reveal none');
  console.log('PROBE SDK-010 acceptance 6: real Django WSGI request -> URL, GET and User-Agent retained; cookie and Authorization canaries absent from storage, owner view, archive and packet');
  console.log('PROBE SDK-010 acceptance 8 copied chain: issue raw-stack dialog -> clipboard equals both complete sanitized KeyError and ValueError tracebacks; screens recorded at 1440 and 390');
+}
+
+export async function pythonGroups({app,origin,cookie,send}){
+ const pages=[];
+ for(const mode of [undefined,'taskgroup']){
+  const collector=await referenceCollector();
+  try{const result=await send(collector.dsn,mode);assert.equal(result.code,0,result.stderr)}finally{await collector.close()}
+  const sent=objectJson(collector.sent.find(item=>item.type==='event').bytes);
+  const project=await app.json('/api/projects','POST',{id:mode?'rt-python-taskgroup':'rt-python-related',name:'Python related exceptions'});
+  const result=await send(project.dsn,mode);assert.equal(result.code,0,result.stderr);
+  const [detail]=await issueDetails(app,project.id),exceptions=detail.events[0].event.sentry.exceptions;
+  assert.deepEqual(exceptions.map(e=>e.type),sent.exception.values.map(e=>e.type));
+  const stacks=values=>values.map(exception=>exception.stacktrace?.frames.map(frame=>[frame.function,frame.lineno]));
+  assert.deepEqual(stacks(exceptions),stacks(sent.exception.values),'every group member keeps its own sent frames');
+  const parent=exceptions.find(e=>e.mechanism?.is_exception_group);
+  assert.ok(parent,'exception group kept');
+  const children=exceptions.filter(e=>e.mechanism?.parent_id===parent.mechanism.exception_id);
+  assert.deepEqual(children.map(e=>e.type).sort(),['TypeError','ValueError'],'both actual failures survive');
+  pages.push({name:mode?'python-taskgroup':'python-related',path:`/projects/${project.id}/issues/${detail.issue.id}`,check:async page=>{
+   await page.getByRole('heading',{name:'Related Exceptions',exact:true}).waitFor();
+   const group=page.locator('article.exception').filter({has:page.locator(':scope > h3').filter({hasText:'ExceptionGroup'})});
+   await group.locator(':scope > .exception-children').waitFor();
+   if(page.viewportSize().width===1440){
+    const headings=await group.locator(':scope > .exception-children > article.exception > h3').allTextContents();
+    assert.equal(headings.length,2,'Related Exceptions presents every child under its group');
+    for(const type of ['TypeError','ValueError'])assert.ok(headings.some(text=>text.includes(type)));
+   }
+  }});
+ }
+ await readScreens(origin,cookie,pages);
+ console.log('PROBE SDK-010 acceptance 4 Python: unmodified ExceptionGroup and asyncio.TaskGroup captures -> both actual children retained and nested under Related Exceptions');
 }
