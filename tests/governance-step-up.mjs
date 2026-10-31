@@ -87,6 +87,7 @@ export async function governanceStepUp() {
   assert.equal(preview.headers.get('set-cookie'), null);
   await preview.arrayBuffer();
   const sessionsBefore = (await snapshot()).oa_sessions;
+  const confirmationIds = new Set((await facts(cookie)).map(row => row.id));
   const confirmed = await call('/auth/confirm', {token}, cookie);
   assert.equal(confirmed.status, 303);
   assert.equal(confirmed.headers.get('location'), destination);
@@ -94,6 +95,9 @@ export async function governanceStepUp() {
   await confirmed.arrayBuffer();
   assert.deepEqual((await snapshot()).oa_sessions, sessionsBefore, 'the same native sessions survive confirmation unchanged');
   assert.deepEqual(await json('/auth/session', undefined, cookie), session);
+  const confirmedFacts = (await facts(cookie)).filter(row => row.action === 'auth.confirm' && !confirmationIds.has(row.id));
+  assert.deepEqual(confirmedFacts.map(row => [row.source, row.actor_kind, row.actor_label, row.outcome, row.status]),
+   [['request', 'owner', ownerAlias, 'succeeded', 303]], 'the step-up confirmation itself records the current owner without relying on another sign-in');
   await refuse('/auth/confirm', {token}, cookie, 400, 'invalid_or_expired', {authAttempts: true});
   console.log('PROBE GOV-001 confirmation and replay: requesting session confirms -> settings redirect with no replacement cookie; replay -> invalid_or_expired');
 
