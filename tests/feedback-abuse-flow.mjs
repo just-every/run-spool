@@ -93,7 +93,8 @@ export async function feedbackAbuseFlow({ req, json }) {
  const independent = report('feedback', 300), independentResponse = await send([independent], otherDsn);
  assert.equal(independentResponse.status, 200);
  assert.equal((await independentResponse.json()).feedback[0].outcome, 'accepted');
- assert.deepEqual((await json(otherRoot + '/feedback')).items.map(row => [row.id, row.message]), [[identity(independent), 'synthetic-spool-300']]);
+ const foreignRetained = await json(otherRoot + '/feedback');
+ assert.deepEqual(foreignRetained.items.map(row => [row.id, row.message]), [[identity(independent), 'synthetic-spool-300']]);
  assert.equal(count(await counters(otherRoot), 'feedback_accepted'), 1, 'another project has its own feedback allowance');
 
  const beforeDenied = await counters(root), otherBeforeDenied = await counters(otherRoot);
@@ -108,6 +109,8 @@ export async function feedbackAbuseFlow({ req, json }) {
  }
  assert.deepEqual(await counters(root), beforeDenied, 'invalid, foreign and revoked credentials attribute no project counters');
  assert.deepEqual(await counters(otherRoot), otherBeforeDenied, 'a foreign grant cannot attribute counters to its own project through this alias');
+ assert.deepEqual(await json(otherRoot + '/feedback'), foreignRetained, 'denied credentials cannot write reports into the foreign project');
+ assert.deepEqual(await json(otherRoot + '/issues'), [], 'denied companion errors cannot enter the foreign project');
  assert.deepEqual(await inbox(), retained);
  assert.deepEqual((await json(eventPath)).rows, events);
  const archive = await archiveProjection(await req('/api/archive'));
