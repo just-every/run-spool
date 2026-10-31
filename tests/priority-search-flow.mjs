@@ -3,6 +3,15 @@ import {mkdir} from 'node:fs/promises';
 import {launchBrowser} from './browser-launch.mjs';
 import {signIn} from './auth.mjs';
 
+const projection=rows=>rows.map(({id,priority})=>({id,priority}));
+const csvProjection=text=>{
+ const [header,...lines]=text.split('\r\n'),keys=header.split(',');
+ return lines.map(line=>{
+  const cells=line.match(/"(?:[^"]|"")*"/g).map(cell=>cell.slice(1,-1).replaceAll('""','"'));
+  return {id:cells[keys.indexOf('id')],priority:cells[keys.indexOf('priority')]};
+ });
+};
+
 // One public journey covers the complete priority result, rather than just the
 // first page or one matching issue. No search response supplies the expected IDs.
 export async function prioritySearchFlow({req,json,origin}) {
@@ -44,7 +53,6 @@ export async function prioritySearchFlow({req,json,origin}) {
   expected.push(...bucket);
  }
  assert.equal(new Set(expected.map(row=>row.id)).size,90);
- const projection=rows=>rows.map(({id,priority})=>({id,priority}));
  const collect=async(q='',sort='priority')=>{
   const rows=[],pages=[],cursors=new Set();let cursor;
   do{
@@ -57,13 +65,6 @@ export async function prioritySearchFlow({req,json,origin}) {
   assert.equal(rows.length,pages[0].total,'Every matching issue appears');
   assert.equal(new Set(rows.map(row=>row.id)).size,rows.length,'No issue repeats across pages');
   return {rows,pages};
- };
- const csvProjection=text=>{
-  const [header,...lines]=text.split('\r\n'),keys=header.split(',');
-  return lines.map(line=>{
-   const cells=line.match(/"(?:[^"]|"")*"/g).map(cell=>cell.slice(1,-1).replaceAll('""','"'));
-   return {id:cells[keys.indexOf('id')],priority:cells[keys.indexOf('priority')]};
-  });
  };
  for(const q of ['',...['high','medium','low'].map(priority=>'priority:'+priority),'priority:low environment:production','priority:medium environment:staging has:release','priority:high priority:low']){
   const wanted=expected.filter(row=>(!q.includes('priority:')||q.includes('priority:'+row.priority))&&(!q.includes('environment:')||q.includes('environment:'+row.environment)));
@@ -102,18 +103,48 @@ export async function prioritySearchScreen({origin,project,expected,width}){
   const page=await context.newPage();await page.goto(origin+'/projects/'+project+'/issues');
   await page.getByRole('status').filter({hasText:'90 issues'}).waitFor();
   assert.equal(await page.getByRole('combobox',{name:'Sort',exact:true}).inputValue(),'priority');
-  await page.getByRole('combobox',{name:'Sort',exact:true}).selectOption({label:'Highest priority'});
   const pageRows=()=>page.locator('tbody tr').evaluateAll(rows=>rows.map(row=>({id:row.querySelector('.issue-open').getAttribute('href').split('/').at(-1),priority:row.querySelector('.priority-chip').textContent.toLowerCase()})));
-  const wanted=rows=>rows.map(({id,priority})=>({id,priority}));
+  const wanted=projection;
   assert.deepEqual(await pageRows(),wanted(expected.slice(0,25)));
-  await page.getByRole('button',{name:'Next',exact:true}).click();
-  await page.getByText('Page 2 · 90 issues',{exact:true}).waitFor();
-  await page.waitForFunction(id=>document.querySelector('.issue-open')?.getAttribute('href')?.endsWith(id),expected[25].id);
-  assert.deepEqual(await pageRows(),wanted(expected.slice(25,50)));
+  const sort=page.getByRole('combobox',{name:'Sort',exact:true});
+  await sort.selectOption({label:'Latest received'});
+  const latest=[...expected].sort((a,b)=>b.last_seen-a.last_seen||(a.id<b.id?1:a.id>b.id?-1:0));
+  await page.waitForFunction(id=>document.querySelector('.issue-open')?.getAttribute('href')?.endsWith(id),latest[0].id);
+  assert.deepEqual(await pageRows(),wanted(latest.slice(0,25)),'Changing the visible sort changes the result');
+  await sort.selectOption({label:'Highest priority'});
+  await page.waitForFunction(id=>document.querySelector('.issue-open')?.getAttribute('href')?.endsWith(id),expected[0].id);
+  const seen=[];
+  for(let index=0;index<4;index++){
+   await page.getByText(`Page ${index+1} · 90 issues`,{exact:true}).waitFor();
+   await page.waitForFunction(id=>document.querySelector('.issue-open')?.getAttribute('href')?.endsWith(id),expected[index*25].id);
+   const rows=await pageRows();
+   assert.deepEqual(rows,wanted(expected.slice(index*25,(index+1)*25)),'The rendered page follows the complete priority order');
+   seen.push(...rows);
+   if(index<3)await page.getByRole('button',{name:'Next',exact:true}).click();
+  }
+  assert.deepEqual(seen,wanted(expected),'Every rendered issue appears once in priority order');
+  assert.equal(await page.getByRole('button',{name:'Next',exact:true}).isDisabled(),true);
+  await page.getByRole('button',{name:'Previous',exact:true}).click();
+  await page.getByText('Page 3 · 90 issues',{exact:true}).waitFor();
+  await page.waitForFunction(id=>document.querySelector('.issue-open')?.getAttribute('href')?.endsWith(id),expected[50].id);
+  assert.deepEqual(await pageRows(),wanted(expected.slice(50,75)),'Previous returns to the same ordered page');
+  // Export links retain the active page cursor. The downloaded result must still
+  // contain the full query, including issues before and after the visible page.
+  for(const format of ['JSON','CSV']){
+   const downloadPromise=page.waitForEvent('download');
+   await page.getByRole('link',{name:'Export '+format,exact:true}).click();
+   const download=await downloadPromise;assert.equal(await download.failure(),null);
+   const stream=await download.createReadStream(),chunks=[];
+   for await(const chunk of stream)chunks.push(chunk);
+   const text=Buffer.concat(chunks).toString();
+   const exported=format==='JSON'?wanted(JSON.parse(text).rows):csvProjection(text);
+   assert.deepEqual(exported,wanted(expected),'The actual '+format+' download preserves the whole priority query from page 3');
+  }
   await mkdir('.artifacts/priority-search',{recursive:true});
   await page.screenshot({path:`.artifacts/priority-search/ordered-${width}.png`,fullPage:true});
   await page.getByRole('searchbox',{name:'Search issues'}).fill('priority:low environment:production');
   await page.getByRole('status').filter({hasText:'15 issues matching'}).waitFor();
+  assert.equal(await page.getByRole('navigation',{name:'Issue pages'}).count(),0,'Changing filters clears the old page cursor');
   assert.deepEqual(await pageRows(),wanted(expected.filter(row=>row.priority==='low'&&row.environment==='production')));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Priority results reflow');
   await page.screenshot({path:`.artifacts/priority-search/filtered-${width}.png`,fullPage:true});
