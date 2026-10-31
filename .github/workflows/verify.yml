@@ -58,7 +58,8 @@ jobs:
     name: verify (${{ matrix.shard }})
     needs: build
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # The public CLI archive proof retains setup/export/import in this shard.
+    timeout-minutes: ${{ matrix.shard == 'evidence' && 25 || 15 }}
     env:
       RER_SERVERS_DISK_FLOOR_GIB: '4'
       NODE_DEBUG: '@cloudflare:vite-plugin'
