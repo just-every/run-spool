@@ -6,7 +6,7 @@
 .repairs .repair-meta{font-size:var(--font-small);color:var(--spool-muted)}
 .repairs .repair p,.repairs .repair li{overflow-wrap:anywhere}
 .repairs .verdict ul{margin:8px 0 0;padding-left:18px;line-height:1.6}
-.repairs .verdict.recurred{border-left:3px solid #a13719}
+.repairs .verdict.recurred{border:1px solid #a13719}
 .repairs .repair-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
 .repairs .repair-facts dt{color:var(--spool-muted);font-size:var(--font-small);margin-bottom:4px}
 .repairs .repair-facts dd{margin:0;font-size:var(--font-small);overflow-wrap:anywhere}
