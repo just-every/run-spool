@@ -5777,11 +5777,15 @@
       "executable": false
     },
     "src/domain/sentry-cli/deploys.ts": {
-      "sha256": "2f44cc7dda18a250e7d83590c2f3dc5493d7835a4939b83c25beb50b4bbd3b18",
+      "sha256": "5c7fe8c72d847db2599591e3679c61d5672fae1eb5ff67f51ab7b26090b84788",
       "executable": false
     },
     "src/domain/sentry-cli/errors.ts": {
       "sha256": "c7ffd82bef0bc628f1c5d078728eb0c1368bff699bc94e83349f8934bdc13539",
+      "executable": false
+    },
+    "src/domain/sentry-cli/fields.ts": {
+      "sha256": "21873ac481f06445751d4398af134521f116f7c6a14b27a176cca43d9ff82386",
       "executable": false
     },
     "src/domain/sentry-cli/limits.ts": {
@@ -5801,11 +5805,11 @@
       "executable": false
     },
     "src/domain/sentry-cli/release.ts": {
-      "sha256": "1444d31dc203c182f0b9c8512b594c42b9b33006a174511186da4ab739d14a32",
+      "sha256": "763fab0fca745f56e8b2dd933ffbad55fcf2571bfbaf317602e241934bc88d60",
       "executable": false
     },
     "src/domain/sentry-cli/routes.ts": {
-      "sha256": "7cacf4f560a3d41cd17e3e7f52e83bfac5dfffadcab7deec540144973b322e7a",
+      "sha256": "8b42ed5ee39d377388e9702b7708c5b945b2aedfa3faea312c3dfb14fc6e86c6",
       "executable": false
     },
     "src/domain/sentry-cli/zip.ts": {
@@ -9309,7 +9313,7 @@
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
-      "sha256": "0d5a480e52d997bfb77a553e99da084fed14395e1ac12f28865e31b749ee235d",
+      "sha256": "1f848dc2d3baa0b0b985f870fb14b95757d821b95f6747b73f04bea3e5852567",
       "executable": false
     },
     "tests/sentry-cli/bundlers.mjs": {
@@ -9334,6 +9338,10 @@
     },
     "tests/sentry-cli/durable.mjs": {
       "sha256": "a1ec59653303c2386d22eeec7ac95ff1516631387b241f5eaa3e6983a4835dfe",
+      "executable": false
+    },
+    "tests/sentry-cli/field-refusals.mjs": {
+      "sha256": "6cbfcca1dc15e452d224f78137c7757a7cb2fa73dbe8052bc07ff4a85041fb30",
       "executable": false
     },
     "tests/sentry-cli/fixtures.mjs": {

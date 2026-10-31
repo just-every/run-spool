@@ -11,6 +11,7 @@ import { ensureShortIds } from '../short-ids/assign';
 import { deployBatch } from '../sentry/deploy';
 import type { CliAuthority } from './auth';
 import { cliError, CliRefusal, refuse } from './errors';
+import { supportedFields } from './fields';
 
 const s = (db: D1Database, sql: string, ...args: unknown[]) => db.prepare(sql).bind(...args);
 
@@ -87,10 +88,11 @@ export const deployView = (row: any) => ({ id: row.id, environment: row.environm
 export const repositoryRefsRefusal = 'Repository refs (--auto, --commit) name a connected repository (SRC-002), and this installation has none, so Spool cannot read commits from one. Send the commits with their messages and authors instead: `set-commits --local`, or no flag, which falls back to the local git history.';
 
 /** POST /releases/ (create) and PUT /releases/:version/ (finalize, URL, commits): one idempotent upsert. */
-export async function upsertRelease(c: Context, who: CliAuthority, body: any, created: boolean): Promise<Response> {
+export async function upsertRelease(c: Context, who: CliAuthority, body: any, created: boolean, version?: string): Promise<Response> {
  const db = c.env.DB as D1Database, { project, auth } = who;
  try {
-  const name = releaseName(body.version), commits = sentryCommits(body.commits);
+  supportedFields(c, body, [...created ? ['version'] : [], 'projects', 'commits', 'refs', 'url', 'dateStarted', 'dateReleased']);
+  const name = releaseName(created ? body.version : version), commits = sentryCommits(body.commits);
   if (body.refs !== undefined && body.refs !== null && (!Array.isArray(body.refs) || body.refs.length)) return cliError(c, 501, repositoryRefsRefusal);
   const started = instant(body.dateStarted, 'dateStarted'), released = instant(body.dateReleased, 'dateReleased');
   let url: string | null = null;
