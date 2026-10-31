@@ -81,6 +81,35 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
   const sent=sentIdentities(reference);
   const stored=new Set(details.flatMap(d=>d.events.map(e=>JSON.stringify([e.release,e.event.build]))));
   assert.deepEqual([...stored].sort(),[...sent].sort());
+  const summaries=new Map();
+  if(width===1440){
+  // SDK-010: compare every real SDK event with its owner read, then reconcile the whole issue.
+  const sentEvents=observedSpool.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  const referenceEvents=reference.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  assert.equal(sentEvents.length,referenceEvents.length);
+  for(const sent of sentEvents){
+   const owner=details.flatMap(d=>d.events).find(event=>event.id===sent.event_id);assert.ok(owner);
+   assert.equal(owner.event.sentry.tags.tenant,'acme');
+   for(const key of ['browser','os']){
+    assert.ok(sent.contexts[key]?.name,`the SDK actually sends ${key} context`);
+    assert.deepEqual(owner.event.sentry.contexts[key],sent.contexts[key],`owner ${key} equals the transmitted context`);
+    assert.deepEqual(sent.contexts[key],referenceEvents[0].contexts[key],`only DSN changes, including ${key}`);
+   }
+  }
+  for(const detail of details){
+   const summary=await app.json(`/api/projects/${project.id}/issues/${detail.issue.id}/events`);
+   assert.equal(summary.tags.events,detail.events.length,'summary denominator covers the entire known issue');
+   for(const key of ['tenant','browser.name','os.name']){
+    const expected=new Map();for(const event of detail.events){const value=event.event.sentry.tags[key];expected.set(value,(expected.get(value)??0)+1)}
+    const actual=summary.tags.rows.filter(row=>row.key===key);
+    assert.deepEqual(actual.map(row=>[row.value,row.count]).sort(),[...expected].sort(),`${key} whole-issue counts`);
+    for(const row of actual)assert.equal(row.percent,100*expected.get(row.value)/detail.events.length,`${key} whole-issue percentage`);
+   }
+   summaries.set(detail.issue.id,summary);
+  }
+  const selected=await app.json(`/api/projects/${project.id}/issue-search?q=`+encodeURIComponent('tenant:acme browser.name:Chrome'));
+  assert.deepEqual(selected.rows.map(row=>row.id).sort(),details.map(detail=>detail.issue.id).sort(),'browser and tenant search find precisely the known issues');
+  }
   const releases=await request(`/api/projects/${project.id}/releases`);
   for(const [release] of [...sent].map(JSON.parse))assert.ok(releases.some(r=>r.name===release&&r.auto_created===1),'SDK release is automatically created before artifact registration');
   await upload(project.id);
@@ -88,7 +117,20 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
   const mapped=details.flatMap(d=>d.events).flatMap(e=>e.currentLookup??[]).find(f=>f.status==='mapped'&&f.original.line===expectedLine);
   assert.ok(mapped,'the build-plugin map resolves the actual original failure line');
   await readScreens(origin,cookie,[
-   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:page=>page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor()},
+   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{
+    await page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor();
+    const contexts=page.locator('.event-sections > details').filter({has:page.locator(':scope > summary').filter({hasText:'Contexts'})});await contexts.locator('summary').click();
+    await page.locator('.event-tags-summary > summary').click();
+    if(width===1440&&page.viewportSize().width===1440){
+     const shown=JSON.parse(await contexts.locator('pre').innerText());
+     for(const key of ['browser','os'])assert.deepEqual(shown[key],handled.events[0].event.sentry.contexts[key]);
+     const summary=summaries.get(handled.issue.id);
+     for(const key of ['tenant','browser.name','os.name']){
+      const section=page.locator('.event-tags-summary > div').filter({has:page.getByRole('heading',{name:key,exact:true})});
+      for(const row of summary.tags.rows.filter(row=>row.key===key))assert.ok((await section.innerText()).includes(`${row.value} — ${row.count} (${row.percent.toFixed(1)}%)`));
+     }
+    }
+   }},
    {name:`browser-${width}-mapped`,path:`/projects/${project.id}/issues/${unhandled.issue.id}`,check:page=>page.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor()},
    {name:`browser-${width}-diagnostics`,path:`/projects/${project.id}/capture`,check:page=>page.getByRole('heading',{name:'SDK discarded',exact:true}).waitFor()},
   ]);
