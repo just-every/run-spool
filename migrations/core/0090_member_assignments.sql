@@ -6,7 +6,7 @@ CREATE TABLE issue_assignment_history (
  issue TEXT NOT NULL REFERENCES issues(id),
  revision INTEGER NOT NULL CHECK(revision>0),
  kind TEXT NOT NULL CHECK(kind IN ('member','label','unassigned')),
- member TEXT REFERENCES spool_members(id) ON DELETE SET NULL,
+ member TEXT REFERENCES spool_members(id),
  target_label TEXT,
  actor_kind TEXT NOT NULL,
  actor_label TEXT NOT NULL,
