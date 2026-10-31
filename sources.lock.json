@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "74e87ad379f94aa61bac0a47f3fcc71bb97b064aa896ddf61fa7c7cccfedc4a4",
+      "sha256": "6ce05e6637c56a9a53f2b4da85bdeeaad9106a85f5ebfaf0431e8f0e1825b7f6",
       "executable": false
     },
     "DEMO.md": {
@@ -8877,7 +8877,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "2e9b7bcd97edb3ad306c5156340ea5fbb80b11c1123d0cff0bb9f014c3878c0e",
+      "sha256": "b92709e129032fcf7fe22be1b70e3b66e429f6942062ff6f7bb96ac9dbe16fdf",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -8982,6 +8982,10 @@
     },
     "tests/preview-session.mjs": {
       "sha256": "07d5418b0e803bfc8408b0f9497d43b6bbb3d15499377b5a14b105068a4a0486",
+      "executable": false
+    },
+    "tests/priority-search-flow.mjs": {
+      "sha256": "779e280ff3067c196a55596ffa6964d7689c0cfd2710b709fda42506111aa1b2",
       "executable": false
     },
     "tests/privacy-table.mjs": {

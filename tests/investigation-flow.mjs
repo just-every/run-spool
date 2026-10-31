@@ -1,4 +1,5 @@
 import { reportsFlow } from './reports-flow.mjs';
+import { prioritySearchFlow } from './priority-search-flow.mjs';
 // [API-001] Retained records through versioned, exact-project read doors.
 import { recordReadFlow } from './records-flow.mjs';
 import { repositorySourceFlow } from './repository-source-flow.mjs';
@@ -7,6 +8,7 @@ import assert from 'node:assert/strict';
 import {launchBrowser} from './browser-launch.mjs';
 import {signIn} from './auth.mjs';
 export async function investigationFlow({req,json,origin,db}){
+ await prioritySearchFlow({req,json,origin});
  const p=await json('/api/projects','POST',{id:'investigation',name:'Cedar checkout'}),base='/api/projects/investigation';
  await json(base+'/releases','POST',{name:'checkout-2026',build:'web'});
  for(let i=0;i<108;i++){
