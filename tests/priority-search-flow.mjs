@@ -71,6 +71,14 @@ export async function prioritySearchFlow({req,json,origin}) {
   const exact=q==='priority:high priority:low'?[]:wanted;
   const result=await collect(q),identities=projection(exact);
   assert.deepEqual(projection(result.rows),identities,'Complete priority ordering and combined predicates: '+q);
+  const facets=(rows,key)=>[...new Set(rows.map(row=>row[key]))].map(value=>({value,count:rows.filter(row=>row[key]===value).length})).sort((a,b)=>a.value.localeCompare(b.value));
+  const ordered=rows=>[...rows].sort((a,b)=>a.value.localeCompare(b.value));
+  for(const page of result.pages){
+   assert.equal(page.total,exact.length,'Every cursor page retains the query-wide total');
+   assert.deepEqual(ordered(page.facets.statuses),facets(exact.map(row=>({...row,state:row.attention==='none'?'resolved':'open'})),'state'),'Status facets cover the full priority query on every page');
+   assert.deepEqual(ordered(page.facets.environments),facets(exact,'environment'),'Environment facets cover the full priority query on every page');
+   assert.deepEqual(page.facets.releases,exact.length?[{value:'synthetic-priority-1',count:exact.length}]:[],'Release facets count every matched issue once');
+  }
   const exported=await json(base+'/issue-export?'+new URLSearchParams({q,sort:'priority'}));
   assert.equal(exported.total,exact.length);assert.equal(exported.bounds.complete,true);
   assert.deepEqual(projection(exported.rows),identities,'JSON export preserves the complete ordered priority result');
