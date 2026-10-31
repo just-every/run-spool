@@ -49,7 +49,11 @@ export async function governanceStepUp() {
   const project = await json('/api/projects', {id: 'synthetic-spool-110', name: 'Synthetic step-up evidence'}, cookie, 201);
   await json('/api/projects/' + project.id + '/releases', {name: 'synthetic-spool-1', build: 'web'}, cookie, 201);
   const captured = await app.call('/api/ingest/' + project.id, {version: 1, eventId: 'synthetic-spool-110', release: 'synthetic-spool-1', build: 'web', environment: 'production', type: 'SyntheticSpoolError', message: 'synthetic-spool-110', frames: [{file: 'https://synthetic-spool.example/app.js', function: 'capture', line: 12, column: 0}], breadcrumbs: []}, {Authorization: 'Bearer ' + project.ingestKey});
-  assert.equal(captured.status, 201); await captured.arrayBuffer();
+  assert.equal(captured.status, 201);
+  const capturedIssue = (await captured.json()).issue;
+  const issuesDoor = '/api/projects/' + project.id + '/issues';
+  const retainedIssues = await json(issuesDoor, undefined, cookie);
+  assert.ok(retainedIssues.some(row => row.id === capturedIssue), 'the protected product evidence is present');
   await refuse(successorDoor, successor, cookie, 403, 'step_up_required');
   assert.equal(await app.DB.prepare('SELECT * FROM spool_owner_successor').first(), null);
   let rows = (await facts(cookie)).filter(row => row.action === 'owner.successor');
@@ -104,6 +108,10 @@ export async function governanceStepUp() {
   assert.equal(invitations.length, 1, 'exactly one native invitation was issued');
   assert.equal(invitations[0].issuer_id, session.operator.id);
   assert.equal(invitations[0].operator_id, invited[0].id);
+  const invitationMail = (await legacyMailRows(app.origin)).map(row => JSON.parse(row.message)).filter(message => message.to?.includes(successor.email));
+  assert.equal(invitationMail.length, 1, 'the one allowed invitation reaches its intended successor');
+  assert.match(invitationMail[0].text, /\/auth\/confirm\?token=[A-Za-z0-9_-]+/);
+  assert.deepEqual(await json(issuesDoor, undefined, cookie), retainedIssues, 'inviting a successor preserves the populated issue history');
   rows = await facts(cookie);
   const allowed = rows.filter(row => row.action === 'owner.successor' && row.source === 'request' && row.outcome === 'accepted');
   assert.equal(allowed.length, 1);
