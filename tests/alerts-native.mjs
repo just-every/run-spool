@@ -7,7 +7,7 @@ const native=await nativeAlertRuntime();
 try {
  const fixture=await prepareNativeAlerts(native,['new_issue','regression','spike']);
  await newIssue(native,fixture);await regression(native,fixture);
-  await plainResolvedRegressions(native,fixture);
+ await plainResolvedRegressions(native,fixture);
  await spike(native,fixture);await verifyNoReplay(native);
 } finally {await native.close()}
 }
