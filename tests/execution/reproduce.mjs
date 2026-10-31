@@ -57,9 +57,28 @@ export async function reproduceProof(app,fixture,ingest){
  assert.equal(outcomes.probe.outcome,'not_reproduced');
  assert.deepEqual([outcomes.forge.outcome,outcomes.forge.observation.phase],['not_reproduced','returned'],'job code that rewrites console.log cannot forge the observation');
  assert.match(outcomes.probe.observation.preview,/^"(no process object|empty environment); network blocked: /,'no environment and no network inside the sandbox: '+outcomes.probe.observation.preview);
+ // Reuse the real capture's recorded call against alternate-release maps.
+ // Loading failures must finish as failed, never as evidence of a fixed call.
+ const loadFailures={};
+ for(const [name,detail] of [['syntax',/SyntaxError/],['unresolved',/No such module[^\n]*src\/missing-format\.js/]]){
+  const release={name:`2026.10.load-${name}`,build:`load-${name}`};
+  await app.json(`${p}/releases`,'POST',release);
+  await app.json(`${p}/artifacts`,'POST',{release:release.name,build:release.build,debugId:'cart-map',map:fixture.loadFailures[name]});
+  const queued=await app.json(`${p}/reproducers/${reproducer.id}/runs`,'POST',{release:release.name});
+  const result=await runner(queued.command);assert.equal(result.code,0,result.output);
+  assert.match(result.output,/^failed: The sandbox could not load the modules /m);
+  const record=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===reproducer.id);
+  const run=record.runs.find(row=>row.id===queued.run);
+  assert.deepEqual([run.release,run.build,run.state,run.outcome,run.observation.phase],[release.name,release.build,'finished','failed','load_failed'],`${name} module loading is a setup failure`);
+  assert.match(run.reason,/^The sandbox could not load the modules /);
+  assert.match(run.observation.detail,detail,`${name} loading failure preserves its diagnostic`);
+  assert.deepEqual(run.checks,[],'a failed setup supplies no successful behaviour checks');
+  const spent=await fetch(queued.url,{headers:{Authorization:'Bearer '+queued.token}});assert.equal(spent.status,401,'a failed setup also spends its run token');await spent.body?.cancel();
+  loadFailures[name]={state:run.state,outcome:run.outcome,phase:run.observation.phase,reason:run.reason,detail:run.observation.detail};
+ }
  const view=(await app.json(`${p}/reproducers?issue=${issue}`)).reproducers.find(row=>row.id===reproducer.id);
  const reproduced=view.runs.find(run=>run.outcome==='reproduced');
  assert.deepEqual(reproduced.checks.filter(c=>c.required).map(c=>[c.check,c.passed]),[['exception_type',true],['message',true],['frame_source',true],['frame_line',true]]);
  assert.match(reproduced.tools.workerd,/^workerd /);assert.equal(reproduced.state,'finished');
- return {issue,r1,reproducer:view,run:reproduced,outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
+ return {issue,r1,reproducer:view,run:reproduced,loadFailures,outcomes:{reproduced:reproduced.outcome,forged:lie.outcome,missing:outcomes.missing.outcome,spin:outcomes.spin.outcome,probe:outcomes.probe.outcome,unsupported:unsupported.support},probe:outcomes.probe.observation.preview,checks:reproduced.checks,tools:reproduced.tools};
 }

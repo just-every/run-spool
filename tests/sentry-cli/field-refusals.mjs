@@ -10,6 +10,11 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
  assert.ok(issue, 'a populated open issue makes accidental commit resolution observable');
  // This credential has never deployed: a refused request must not allocate its deployment actor.
  const fresh = (await api('/api/projects/web/keys', 'POST', {kind: 'deploy'})).key;
+ const pendingVersion = 'synthetic-spool-unfinalized', finalizedAt = '2026-01-02T00:00:00.000Z';
+ const pendingPath = `${root}/${pendingVersion}/`;
+ const pending = await fetch(origin + root + '/', {method: 'POST', headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + keys.deploy}, body: JSON.stringify({version: pendingVersion, projects: ['web']})});
+ assert.equal(pending.status, 201);
+ assert.equal((await pending.json()).dateReleased, null, 'the finalization target starts unfinalized');
  const bytes = Buffer.from('synthetic-spool-staged-field-refusal'), form = new FormData();
  form.append('file_gzip', new Blob([gzipSync(bytes)]), createHash('sha1').update(bytes).digest('hex'));
  const staged = await fetch(origin + '/api/0/organizations/acme/chunk-upload/', {method: 'POST', headers: {Authorization: 'Bearer ' + keys.deploy}, body: form});
@@ -33,6 +38,7 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
   ['POST', root + '/', {version: 'synthetic-spool-org-create', ...release}, 'cli.release', '/api/0/organizations/:org/releases/'],
   ['POST', '/api/0/projects/acme/web/releases/', {version: 'synthetic-spool-project-create', ...release}, 'cli.release', '/api/0/projects/:org/:project/releases/'],
   ['PUT', `${root}/${version}/`, release, 'cli.release', '/api/0/organizations/:org/releases/:version/'],
+  ['PUT', pendingPath, {projects: ['web'], dateReleased: finalizedAt}, 'cli.release', '/api/0/organizations/:org/releases/:version/'],
   ['POST', `${root}/${version}/deploys/`, {environment: 'field-refusal', name: 'synthetic-spool-deploy', url: 'https://example.test/deploy', dateStarted: '2026-01-01T00:00:00Z', dateFinished: '2026-01-02T00:00:00Z'}, 'cli.deploy', '/api/0/organizations/:org/releases/:version/deploys/'],
  ];
  const send = (method, path, body, token = keys.deploy) => fetch(origin + path, {
@@ -80,4 +86,13 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
  assert.equal(unsupported.status, 501); assert.ok((await unsupported.json()).detail.includes('POST /api/0/organizations/acme/unsupported/'));
  assert.deepEqual(await snapshot(), before, 'auth, project, refs and endpoint refusals preserve populated product state');
  console.log('PROBE API-002 refs and endpoint: named 501; read-only, revoked and foreign grants: auth refusal; no product changes');
+ const stillPending = await send('GET', pendingPath);
+ assert.equal(stillPending.status, 200);
+ assert.equal((await stillPending.json()).dateReleased, null, 'refused finalization leaves the release unfinalized');
+ for (const dateReleased of [finalizedAt, '2026-01-03T00:00:00Z']) {
+  const valid = await send('PUT', pendingPath, {projects: ['web'], dateReleased});
+  assert.equal(valid.status, 200, 'supported finalization and its retry succeed');
+  assert.equal((await valid.json()).dateReleased, finalizedAt, 'the first successful finalization stands');
+ }
+ console.log('PROBE API-002 finalization: extra fields leave dateReleased=null; supported retry -> 200, first successful date retained');
 }
