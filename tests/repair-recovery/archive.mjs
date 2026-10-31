@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import {mkdir,readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {archiveProjection} from '../archive.mjs';
 import {readArchive,makePart} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 import {canonicalJson,sha256} from '../../src/modules/portability/hash.mjs';
@@ -37,7 +40,8 @@ export async function preRepairArchive(text){
 const withoutRepairs=data=>Object.fromEntries(Object.entries(data).filter(([table])=>![...lifecycleTables,...laterCustodyTables,...repairTables,...citationTables,...loaderTables,'grouping_policies','release_policies','release_metadata','release_builds','issue_resolutions','deployment_runs','deployment_steps','deployment_notices'].includes(table)).map(([table,rows])=>[table,(table==='audit'?rows.filter(row=>!row.kind.startsWith('repair_')):rows).map(canonical).sort()]));
 // Part 4: a pre-repair archive restores with empty repair tables; a populated
 // archive restores repairs, checks and every verdict input intact.
-export async function archiveProof(app,{issue,repair,cutoff}){
+export async function archiveProof(app,{issue,repair,cutoff,credentials}){
+ const originalCookie=app.cookie;
  const source=await app.archive();assert.ok(source.data.repairs.length&&source.data.repair_checks.length);
  const read=async()=>(await app.json(`/api/projects/a/repairs?issue=${issue}`)).repairs.find(row=>row.id===repair.id);
  const before=await read();
@@ -49,12 +53,43 @@ export async function archiveProof(app,{issue,repair,cutoff}){
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
+ // Restored deliveries are historical, so reconciliation cannot change the
+ // snapshot while the public stopped-installation export starts.
+ const cliCredentials={};for(const kind of ['agent','ingest','deploy'])cliCredentials[kind]=(await app.json('/api/projects/a/keys','POST',{kind})).key;
+ assert.ok((await app.json(`/api/projects/a/issues/${issue}/packet`,'GET',undefined,{agent:cliCredentials.agent})).bounds.availableEvents>0,'the new source agent key is active before export');
+ const cliCookie=app.cookie,cliSource=await app.archive();
+ await app.stopDev();await mkdir(resolve(app.checkout.root,'exports'),{recursive:true});
+ await app.checkout.command(['export','--output','exports/repair-private.jsonl']);
+ const cli=await archiveProjection(new Response(await readFile(resolve(app.checkout.root,'exports/repair-private.jsonl'))));
+ assert.deepEqual(cli.data,cliSource.data,'public rer export carries the same populated product, private maps, repairs and checks as HTTP');
+ for(const credential of [...Object.values(cliCredentials),cliCookie.slice(cliCookie.indexOf('=')+1)])assert.equal(cli.text.includes(credential),false,'public rer export excludes active authority bytes');
+ for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(cli.data,table),false,'public rer export excludes authority tables');
+ await app.restoreCliFile('exports/repair-private.jsonl');restored=await app.archive();
+ for(const table of Object.keys(cli.data))assert.deepEqual(restored.data[table].map(canonical).sort(),cli.data[table].map(canonical).sort(),'public rer import preserves every row in '+table);
+
  const after=await read(),stable=row=>({...row,observation:{...row.observation,evidence:{...row.observation.evidence,window:{start:row.observation.evidence.window.start}}}});
- assert.deepEqual(stable(after),stable(before),'restored repair, checks and computed verdict');
+ const {historical,...restoredHistory}=after;assert.equal(historical,true,'restore labels preserved repair evidence as historical');
+ assert.deepEqual(stable(restoredHistory),stable(before),'restored repair, checks and computed historical verdict');
+ const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);assert.equal(packet.repairs.find(row=>row.id===repair.id).historical,true);
+ assert.equal(packet.verification.state,'inconclusive');assert.match(packet.verification.reason,/Restored history has no current repair proof/);
+ const denied=async(path,options)=>{const response=await app.request(path,'GET',undefined,options);assert.equal(response.status,401,'source authority is not restored');await response.body?.cancel();};
+ for(const cookie of [originalCookie,cliCookie])await denied('/api/projects',{headers:{Cookie:cookie}});
+ for(const key of [credentials.agent,cliCredentials.agent])await denied(`/api/projects/a/issues/${issue}/packet`,{agent:key});
+ for(const kind of ['ingest','deploy'])for(const authority of [credentials,cliCredentials]){const response=await app.request(kind==='ingest'?'/api/ingest/a':'/api/projects/a/releases','POST',kind==='ingest'?{version:1,eventId:'synthetic-spool-restore'}:{name:'synthetic-spool-restore',build:'restore'},{agent:authority[kind]});assert.equal(response.status,401,'restored project grants cannot write');await response.body?.cancel();}
+ const quiet=await app.archive();assert.deepEqual(quiet.data,restored.data,'source grant refusals change no restored product rows');
+ assert.ok(restored.data.alert_rules.length>0,'restore includes a real previously enabled rule');assert.ok(restored.data.alert_rules.every(row=>row.enabled===0),'restored rules are disabled');
  // Retention keeps the repair and marks its snapshot events that are gone.
  await app.json('/api/projects/a/retention','POST',{cutoff,apply:true});
- const retained=await read();assert.equal(retained.id,repair.id);assert.deepEqual(retained.checks,before.checks);
- assert.ok(retained.snapshot.events.some(row=>row.state==='removed_by_retention'),'snapshot event removed by retention is marked');
- assert.equal(retained.snapshot.events.length,before.snapshot.events.length);assert.equal(retained.observation.verdict,'recurred');
+ const retained=await read(),retainedArchive=await app.archive();
+ assert.deepEqual(retainedArchive.data.repairs,restored.data.repairs,'cutoff preserves every stored repair fact and snapshot');
+ assert.deepEqual(retainedArchive.data.repair_checks,restored.data.repair_checks,'cutoff preserves every stored check');
+ assert.equal(retained.id,repair.id);assert.deepEqual(retained.checks,before.checks);assert.deepEqual(retained.facts,before.facts);
+ assert.deepEqual(retained.snapshot.events.map(row=>row.id),before.snapshot.events.map(row=>row.id),'snapshot identities and order survive cutoff');
+ const expired=new Set(restored.data.events.filter(row=>row.project==='a'&&row.received<cutoff).map(row=>row.id));
+ assert.ok(before.snapshot.events.some(row=>expired.has(row.id)),'cutoff actually expires snapshotted evidence');
+ assert.deepEqual(retained.snapshot,{...before.snapshot,events:before.snapshot.events.map(row=>({...row,state:expired.has(row.id)?'removed_by_retention':row.state}))},'every expired snapshot has an explicit coverage gap');
+ assert.ok(retained.observation.evidence.recurrence.events.length>0,'a retained recurrence still witnesses the failed repair');
+ assert.ok(retained.observation.evidence.recurrence.events.every(row=>retainedArchive.data.events.some(event=>event.id===row.id&&event.received>=cutoff)),'the recurrence is backed by retained evidence after cutoff');
+ assert.equal(retained.observation.verdict,'recurred');
  return {restoredTables:Object.keys(source.data).length,repairs:source.data.repairs.length,checks:source.data.repair_checks.length,snapshot:retained.snapshot.events};
 }

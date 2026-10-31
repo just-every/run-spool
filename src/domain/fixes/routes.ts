@@ -1,3 +1,4 @@
+import { restoredWork, RESTORED_WORK_REASON } from '../restored-work';
 import { runtimeBindings } from '../../auth/bindings';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { reproducerView } from '../reproducers/view';
@@ -51,6 +52,7 @@ routes.post('/', async c => {
  const row = typeof b.reproducer === 'string' ? await s(c.env.DB, 'SELECT * FROM reproducers WHERE project=? AND id=?', project, b.reproducer).first<any>() : null;
  if (!row) return c.json({ error: 'Reproducer not found' }, 404);
  const reproducer = await reproducerView(c.env.DB, row), run = reproducer.runs.find(item => item.id === b.run);
+ if (run?.historical) return c.json({ error: RESTORED_WORK_REASON }, 409);
  if (!run || run.outcome !== 'reproduced') return c.json({ error: 'A fix branch needs a run that Spool confirmed as reproduced' }, 409);
  const id = crypto.randomUUID(), time = Date.now(), grant = await grantSpec(id, input, reproducer, run);
  try {
@@ -66,6 +68,7 @@ routes.post('/', async c => {
 routes.post('/:fix/approve', async c => {
  const b = await jsonBody(c.req.raw, 1024), expected = revision(b.revision), row = await current(c), time = Date.now();
  if (!row) return c.json({ error: 'Workflow not found' }, 404);
+ if(await restoredWork(c.env.DB,row.project,'fix',row.id))return c.json({ error: RESTORED_WORK_REASON },409);
  if (row.approved !== null && time < row.expires) return c.json({ error: 'The grant is already approved and unexpired' }, 409);
  const minutes = JSON.parse(row.grant_spec).durationMinutes;
  const [updated] = await ownerWrites(c, [
@@ -85,6 +88,7 @@ routes.post('/:fix/approve', async c => {
 routes.post('/:fix/advance', async c => {
  const b = await jsonBody(c.req.raw, 1024), expected = revision(b.revision), row = await current(c);
  if (!row) return c.json({ error: 'Workflow not found' }, 404);
+ if(await restoredWork(c.env.DB,row.project,'fix',row.id))return c.json({ error: RESTORED_WORK_REASON },409);
  if (row.approved === null) return c.json({ error: 'Approve the grant first' }, 409);
  // Claim this step by revision so two clicks cannot open two branches.
  // Order matters: the lease and the audit row follow the claim, each on changes()=1.
