@@ -63,6 +63,10 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
  const foreignIssues=await app.json(foreignRoot+'/issues');assert.equal(foreignIssues.length,1);assert.equal(foreignIssues[0].count,1);
  const foreignIssue=foreignRoot+'/issues/'+foreignIssues[0].id;
  assert.equal((await app.json(foreignIssue+'/packet')).events.length,1,'foreign-project refusal addresses a real retained SDK capture');
+ const foreignEvents=await app.json(foreignIssue+'/events');
+ assert.equal(foreignEvents.total,1);
+ const foreignEvent=foreignEvents.rows[0],foreignDetail=foreignIssue+'/events/'+foreignEvent.id+'?occurrence='+foreignEvent.occurrence;
+ assert.equal((await app.json(foreignDetail)).occurrence,foreignEvent.occurrence,'the foreign event-detail refusal has a populated owner control');
  // Both organization-wide and project-only read-only authority use the same retained evidence.
  for(const role of ['read-only','member']) {
  // A broader project grant must not override the organization read-only floor.
@@ -93,7 +97,12 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
   privateFree(JSON.stringify(packet),'Packet HTTP');
   const events=await reader.json(path+'/events');assert.equal(events.total,7);
   privateFree(JSON.stringify(events),'Event list HTTP');
-  for(const event of events.rows)privateFree(JSON.stringify(await reader.json(path+'/events/'+event.id+'?occurrence='+event.occurrence)),'Event detail HTTP');
+  for(const event of events.rows){
+   const detailPath=path+'/events/'+event.id+'?occurrence='+event.occurrence,detail=await reader.json(detailPath);
+   assert.equal(detail.id,event.id);assert.equal(detail.occurrence,event.occurrence,'the read-only projection returns the requested retained occurrence');
+   privateFree(JSON.stringify(detail),'Event detail HTTP');
+   paths.push(detailPath);
+  }
   paths.push(path+'/affected-users',path+'/packet',path+'/events');
  }
  for(const format of ['json','csv']) {
@@ -109,6 +118,9 @@ async function collaboratorIdentity({app,origin,browser,project,issues,raw,captu
   assert.equal(response.status,404,'a current collaborator cannot read a foreign project');
   privateFree(await response.text(),'Foreign-project refusal');
  }
+ const concealedDetail=await reader.request(foreignDetail);
+ assert.equal(concealedDetail.status,404,'a current collaborator cannot read a known foreign occurrence directly');
+ privateFree(await concealedDetail.text(),'Foreign event-detail refusal');
  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
  const split=cookie.indexOf('=');
  await context.addCookies([{name:cookie.slice(0,split),value:cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
