@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "186411c0f0bc9b4d470d126d1fc1809980161a91e60882324e9a20254b0f9ea6",
+      "sha256": "cf3a1c7bcd26e31746f59d6717f9bb772d22c44a2f721da4e35a4115c9fbc8a2",
       "executable": false
     },
     "DEMO.md": {
@@ -8793,7 +8793,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "51596df598854f6b1626fe22b6c595c6e74a6a06748d493a572671ee3f6da739",
+      "sha256": "a343450adf216adbcb5ad14b3fc67ea21ffd045543f0c909b939d29056178b26",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -8805,7 +8805,7 @@
       "executable": false
     },
     "tests/execution/fixture.mjs": {
-      "sha256": "77ae512b5e0d2eb897edf37af1daadc65e23cf8c1a1034b398bfefa114f2cca6",
+      "sha256": "01fdffc18b133a4e5e9f62b2ebab969023f51f7b06889567f6ea4a95054dd08e",
       "executable": false
     },
     "tests/execution/follow-up.mjs": {
@@ -8817,7 +8817,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "b928a09662d881c988e808501bc68629bee53a946079a52f87fe27c37e1f8ddc",
+      "sha256": "e85a53e42a3cc7f6ea8261e2d76d88fd8a7096cd45cc60a6115d73078d2ab8ef",
       "executable": false
     },
     "tests/execution/runtime.mjs": {
