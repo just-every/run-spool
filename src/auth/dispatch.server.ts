@@ -1,5 +1,6 @@
 import { resolveMembership } from '../domain/members/resolver';
-import { devNotFound, safeReturnTo } from '../modules/operator-auth/index.mjs';
+import { AuthError, devNotFound, safeReturnTo } from '../modules/operator-auth/index.mjs';
+import { fontHead } from '../base/font-head';
 import { fontDocumentResponse } from '../base/font-response';
 import { authResponse, ownerSession } from './session.server';
 import { signInPage } from './sign-in.server';
@@ -25,6 +26,10 @@ export async function authenticationResponse(request: Request, env: Bindings): P
  return null;
 }
 export async function authorizeDocument(request: Request, env: Bindings): Promise<Response | null> {
- if (await ownerSession(request,env,resolveMembership)) return null;
+ try { if (await ownerSession(request,env,resolveMembership)) return null; }
+ catch (error) {
+  if (!(error instanceof AuthError) || error.status !== 404 || !new URL(request.url).pathname.startsWith('/projects/')) throw error;
+  return new Response(request.method === 'HEAD' ? null : `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Project unavailable · Spool</title>${fontHead}<link rel="stylesheet" href="/theme/spool.css"><link rel="stylesheet" href="/theme/sign-in.css"></head><body><main class="signin"><header class="signin-header"><a class="wordmark" href="/">Spool</a></header><section class="signin-panel card"><h1>This project is unavailable</h1><p class="signin-intro">This project may have been removed or your access may have changed. Ask an administrator or return to your issues.</p><a class="primary-button" href="/">Back to issues</a></section></main></body></html>`, { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'" } });
+ }
  return new Response(null, { status: 303, headers: { Location: '/sign-in?returnTo=' + encodeURIComponent(safeReturnTo(new URL(request.url).pathname + new URL(request.url).search, '/')), 'Cache-Control': 'no-store' } });
 }
