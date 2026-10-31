@@ -56,11 +56,13 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
        const inbox=await app.json(`/api/projects/${project.id}/feedback`);
        assert.deepEqual(inbox.items.map(row=>row.id).sort(),reports.map(row=>row.id).sort(),'each round retains exactly the widget reports acknowledged so far');
        assert.equal(inbox.total,reports.length);
-       const row=inbox.items.find(row=>row.id===receipt.id);
-       assert.equal(row.message,message);
-       assert.equal(row.eventId,eventId);
-       assert.equal(row.association,'attached');
-       assert.ok(row.issueId,'the acknowledged widget report already belongs to a retained issue before reload');
+       for(const acknowledged of reports){
+        const row=inbox.items.find(row=>row.id===acknowledged.id);
+        assert.equal(row.message,acknowledged.message);
+        assert.equal(row.eventId,acknowledged.eventId,'later widget submissions never retarget earlier reports');
+        assert.equal(row.association,'attached');
+        assert.ok(row.issueId,'each acknowledged widget report belongs to a retained issue before reload');
+       }
        assert.equal((await outcomeMap(app,project.id)).get('feedback_accepted'),reports.length,'accepted quantity reconciles before each reload');
       }
      }
