@@ -1,6 +1,6 @@
 import {spawnSync} from 'node:child_process';
 
-const suites = ['product-tools','qualification','sdk','delivery','evidence','project-erasure','identity-import','runtimes-a','runtimes-b','commands'];
+const suites = ['product-tools','qualification','sdk','delivery','evidence','repair-recovery','sentry-import','project-erasure','identity-import','runtimes-a','runtimes-b','commands'];
 const requested = process.env.SPOOL_VERIFY_SUITES?.split(',');
 if(requested?.some(name=>!suites.includes(name)))throw Error('Unknown SPOOL_VERIFY_SUITES selection');
 // Full runtime qualification belongs to CI; the public Node-only installation
