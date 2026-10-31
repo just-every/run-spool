@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "74e87ad379f94aa61bac0a47f3fcc71bb97b064aa896ddf61fa7c7cccfedc4a4",
+      "sha256": "6af276af1f1ea626ad324052f7ee9f794b5896b513e6f05cd9a092743545b097",
       "executable": false
     },
     "DEMO.md": {
@@ -3653,7 +3653,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "028c8c3b4cd440709ff7403f4ecb8957c345e51d08ac58f4d6b9380065b19d7a",
+      "sha256": "99ccde238b02183447d9b2c6201e433dbe4edf697fe6d9cad72cb1c833e08c00",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -8840,6 +8840,10 @@
       "sha256": "5471d2ebafa0037d6cd843db239aa1f79fac1f66bf2e0ae48c13c7d33ebfbd1d",
       "executable": false
     },
+    "tests/fixtures/adblock/ubol-release.json": {
+      "sha256": "f4ef9a105fc1882cf92f50b7686e80277ae1a0495b74112098977f818f137301",
+      "executable": false
+    },
     "tests/fixtures/archive-fc75a7ac.md": {
       "sha256": "86f063d3329cb06cbd4edec976038ee5bbc578e72181d4bf7c4c9b295763c980",
       "executable": false
@@ -9433,7 +9437,11 @@
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
-      "sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7",
+      "sha256": "db4b6958b0bca3940a8bfd63566037176ea5cb94a6f445ec6a80ae77fbd18e71",
+      "executable": false
+    },
+    "tests/tunnel/extension.mjs": {
+      "sha256": "d2eeda801babcfbcce68ad0423416b3ce893bda098e8f5c4fdb1a2c310427964",
       "executable": false
     },
     "tests/tunnel/server.mjs": {

@@ -14,6 +14,7 @@ import { FiltersEngine, Request as AdRequest } from '@ghostery/adblocker';
 import { startTestWorker } from './worker.mjs';
 import { signIn } from './auth.mjs';
 import { launchBrowser } from './browser-launch.mjs';
+import { extensionFlow } from './tunnel/extension.mjs';
 
 const require = createRequire(import.meta.url), wait = ms => new Promise(done => setTimeout(done, ms));
 const temporary = await mkdtemp(resolve(tmpdir(), 'spool-tunnel-')), app = resolve(temporary, 'app'), site = resolve(temporary, 'site');
@@ -149,7 +150,7 @@ try {
   // This journey's own measurement route (bounded body, above), never part of what setup writes: the process's id and peak memory.
   await mkdir(resolve(nextDir, 'app/peak-rss'));
   await writeFile(resolve(nextDir, 'app/peak-rss/route.js'), "export const dynamic = 'force-dynamic';\nexport function GET() { return Response.json({ pid: process.pid, maxRSS: process.resourceUsage().maxRSS }); }\n");
-  await writeFile(resolve(nextDir, 'instrumentation-client.js'), "import * as Sentry from '@sentry/nextjs';\nSentry.init({ dsn: process.env.NEXT_PUBLIC_SPOOL_DSN, tunnel: '/monitoring', release: 'next@1.0.0', environment: 'next' });\n");
+  await writeFile(resolve(nextDir, 'instrumentation-client.js'), "import * as Sentry from '@sentry/nextjs';\nSentry.init({ dsn: process.env.NEXT_PUBLIC_SPOOL_DSN, tunnel: new URLSearchParams(location.search).has('direct') ? undefined : '/monitoring', release: 'next@1.0.0', environment: 'next' });\nwindow.report = async messages => { const ids = []; for (const message of messages) { ids.push(Sentry.captureException(new Error(message))); await Sentry.flush(5000); } return ids; };\n");
   nextBuild();
   const nextPort = 20000 + Math.floor(Math.random() * 20000), nextOrigin = `http://127.0.0.1:${nextPort}`;
   nextServer = spawn(process.execPath, [nextBin, 'start', '-p', String(nextPort), '-H', '127.0.0.1'], { cwd: nextDir, env: nextEnv, stdio: ['ignore', 'pipe', 'inherit'] });
@@ -201,7 +202,8 @@ try {
     assert.equal(reply.status, 502, `${base} refuses an upstream ${redirectStatus}`); assert.ok(!(await reply.text()).includes('synthetic-spool-foreign-body'), 'the redirected host’s body is never relayed');
   }
   assert.deepEqual(foreignHits, [], 'nothing reaches the host a redirect names');
-  console.log(JSON.stringify({ passed: true, memory: { platform: process.platform, source: process.platform === 'linux' ? '/proc/<pid>/status VmHWM after minus VmRSS before (KiB)' : 'getrusage maxRSS after minus ps rss before (KiB)', hosts: memory }, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts.' }));
+  const extension = await extensionFlow({ temporary, browser, nextOrigin, request });
+  console.log(JSON.stringify({ passed: true, extension, memory: { platform: process.platform, source: process.platform === 'linux' ? '/proc/<pid>/status VmHWM after minus VmRSS before (KiB)' : 'getrusage maxRSS after minus ps rss before (KiB)', hosts: memory }, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts.' }));
 } finally {
   await browser?.close(); python?.kill(); nextServer?.kill(); nodeServer?.kill(); capture?.close(); redirector?.close(); foreign?.close(); await worker?.stop(); await rm(temporary, { recursive: true, force: true });
 }
