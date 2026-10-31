@@ -50,6 +50,9 @@ try {
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
  // [SDK-005] Session hashes and their private project key leave with installation-owner erasure.
+ const quotaHash=(await app.DB.prepare("SELECT hash FROM credentials WHERE project='personal-capture' AND kind='ingest'").first()).hash;
+ const quotaPath='/api/projects/personal-capture/keys/'+quotaHash+'/rate-limit';
+ const quotaSaved=await app.request(quotaPath,{revision:0,limit:100,period:'hour'},{},'PUT');assert.equal(quotaSaved.status,200);await quotaSaved.body.cancel();
  const sessionDsn=new URL(project.dsn),sessionValue={sid:randomUUID().replaceAll('-',''),started:new Date().toISOString(),status:'exited',did:'synthetic-spool-session-owner',attrs:{release:'r1',environment:'test'}};
  const sessionResponse=await fetch(app.origin+`/api/${sessionDsn.pathname.slice(1)}/envelope/?sentry_key=${sessionDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"session"}\n'+JSON.stringify(sessionValue)});assert.equal(sessionResponse.status,200);assert.equal((await sessionResponse.json()).sessions.session_stored,1);
  // [SDK-008] Owner-selected identity, preview and key share the same erasure custody.
@@ -138,6 +141,7 @@ try {
  assert.ok(app.cookie);await app.json('/api/projects');
  const erasedReport=await app.call('/api/reporting/items/'+reporting.id,undefined,{Cookie:app.cookie});assert.equal(erasedReport.status,200);assert.equal((await erasedReport.json()).author,'[erased]');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
+ const retainedQuota=await (await app.request(quotaPath)).json();assert.equal(retainedQuota.limit,100);assert.ok(retainedQuota.used>=2,'BILL-001 personal erasure keeps project key quota and admissions without predecessor attribution');
  // SDK-008: the successor chooses a new policy above the erased policy's safe revision floor.
  const nextIdentityPolicy={id:'hash',email:'hash',username:'hash',ip_address:'hash'},nextIdentityPreview=await app.json('/api/projects/personal-capture/identity-policy/preview',{policy:nextIdentityPolicy});
  const nextIdentityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:nextIdentityPolicy,revision:nextIdentityPreview.revision,token:nextIdentityPreview.token},{},'PUT');assert.equal(nextIdentityWrite.status,200);const nextIdentity=await nextIdentityWrite.json();assert.ok(nextIdentity.revision>identityPreview.revision+1,'successor does not reuse an erased policy revision');
