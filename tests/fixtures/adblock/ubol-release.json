@@ -1,0 +1,20 @@
+{
+  "name": "uBlock Origin Lite",
+  "version": "2026.1026.1812",
+  "release": "https://github.com/uBlockOrigin/uBOL-home/releases/tag/2026.1026.1812",
+  "archive": "https://github.com/uBlockOrigin/uBOL-home/releases/download/2026.1026.1812/uBOLite_2026.1026.1812.chromium.zip",
+  "bytes": 9009606,
+  "sha256": "d3788eac9f0a44c67f3745a43c3fd446ef33d56b1121f469b19e0fa0a836c2b5",
+  "license": "GPL-3.0-only",
+  "privacyList": {
+    "id": "easyprivacy",
+    "name": "EasyPrivacy",
+    "version": "release-bundled 2026.1026.1812",
+    "source": "https://easylist.to/easylist/easyprivacy.txt",
+    "path": "rulesets/main/easyprivacy.json",
+    "sha256": "e592a1bd771f968ac3cb0857946425820df31a450621708b65888ea8fd9f14b1",
+    "metadataPath": "rulesets/ruleset-details.json",
+    "metadataSha256": "0117c1724796bf231363faf51989b1469309f9eb76b7ca57df2ee0dc7e7ac026",
+    "license": "GPL-3.0-or-later OR CC-BY-SA-3.0"
+  }
+}
