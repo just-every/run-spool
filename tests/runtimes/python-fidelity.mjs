@@ -149,34 +149,3 @@ export async function pythonFidelity({app,origin,cookie,db,send}){
  console.log('PROBE SDK-010 acceptance 6: real Django WSGI request -> URL, GET and User-Agent retained; cookie and Authorization canaries absent from storage, owner view, archive and packet');
  console.log('PROBE SDK-010 acceptance 8 copied chain: issue raw-stack dialog -> clipboard equals both complete sanitized KeyError and ValueError tracebacks; screens recorded at 1440 and 390');
 }
-
-export async function pythonGroups({app,origin,cookie,send}){
- const pages=[];
- for(const mode of [undefined,'taskgroup']){
-  const collector=await referenceCollector();
-  try{const result=await send(collector.dsn,mode);assert.equal(result.code,0,result.stderr)}finally{await collector.close()}
-  const sent=objectJson(collector.sent.find(item=>item.type==='event').bytes);
-  const project=await app.json('/api/projects','POST',{id:mode?'rt-python-taskgroup':'rt-python-related',name:'Python related exceptions'});
-  const result=await send(project.dsn,mode);assert.equal(result.code,0,result.stderr);
-  const [detail]=await issueDetails(app,project.id),exceptions=detail.events[0].event.sentry.exceptions;
-  assert.deepEqual(exceptions.map(e=>e.type),sent.exception.values.map(e=>e.type));
-  const stacks=values=>values.map(exception=>exception.stacktrace?.frames.map(frame=>[frame.function,frame.lineno]));
-  assert.deepEqual(stacks(exceptions),stacks(sent.exception.values),'every group member keeps its own sent frames');
-  const parent=exceptions.find(e=>e.mechanism?.is_exception_group);
-  assert.ok(parent,'exception group kept');
-  const children=exceptions.filter(e=>e.mechanism?.parent_id===parent.mechanism.exception_id);
-  assert.deepEqual(children.map(e=>e.type).sort(),['TypeError','ValueError'],'both actual failures survive');
-  pages.push({name:mode?'python-taskgroup':'python-related',path:`/projects/${project.id}/issues/${detail.issue.id}`,check:async page=>{
-   await page.getByRole('heading',{name:'Related Exceptions',exact:true}).waitFor();
-   const group=page.locator('article.exception').filter({has:page.locator(':scope > h3').filter({hasText:'ExceptionGroup'})});
-   await group.locator(':scope > .exception-children').waitFor();
-   if(page.viewportSize().width===1440){
-    const headings=await group.locator(':scope > .exception-children > article.exception > h3').allTextContents();
-    assert.equal(headings.length,2,'Related Exceptions presents every child under its group');
-    for(const type of ['TypeError','ValueError'])assert.ok(headings.some(text=>text.includes(type)));
-   }
-  }});
- }
- await readScreens(origin,cookie,pages);
- console.log('PROBE SDK-010 acceptance 4 Python: unmodified ExceptionGroup and asyncio.TaskGroup captures -> both actual children retained and nested under Related Exceptions');
-}

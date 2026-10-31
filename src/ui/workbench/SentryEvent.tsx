@@ -21,8 +21,8 @@ function Frame({frame,index,classification}:{frame:any;index:number;classificati
  </>;
  return <li>{(classification?classification.inApp===false:frame.in_app===false)?<details><summary>Library frame · not in app</summary>{content}</details>:content}</li>;
 }
-function Exception({exception,index,children,classification}:{exception:any;index:number;children?:any;classification?:any}) {
- return <article className="exception"><h3>{exception.type??'Error'}: {exception.value??''} {index===0&&!exception.mechanism?.is_exception_group&&<small>Root cause</small>}</h3>
+function Exception({exception,index,grouped,children,classification}:{exception:any;index:number;grouped:boolean;children?:any;classification?:any}) {
+ return <article className="exception"><h3>{exception.type??'Error'}: {exception.value??''} {index===0&&!grouped&&<small>Root cause</small>}</h3>
   {exception.mechanism&&<p className="muted">{exception.mechanism.type??'Reported exception'} · {exception.mechanism.handled===false?'Unhandled':exception.mechanism.handled===true?'Handled':'Handling unknown'}{exception.mechanism.is_exception_group?' · Exception group':''}</p>}
   {exception.stacktrace?.frames?.length?<ol className="exception-stack">{exception.stacktrace.frames.map((frame:any,i:number)=><Frame key={i} frame={frame} index={i} classification={classification?.frames?.[i]}/>)}</ol>:<p>No stack sent for this exception.</p>}
   {children&&<div className="exception-children">{children}</div>}
@@ -30,8 +30,8 @@ function Exception({exception,index,children,classification}:{exception:any;inde
 }
 export function SentryEvent({data,grouping}:{data:any;grouping:any}) {
  const [copied,setCopied]=useState(false),[failure,setFailure]=useState('');
- const exceptions=data.exceptions??[],seen=new Set<number>();
- const tree=(index:number):any=>{if(seen.has(index))return null;seen.add(index);const exception=exceptions[index],id=exception.mechanism?.exception_id;const children=id===undefined?[]:exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===id&&i!==index?[i]:[]);return <Exception key={index} exception={exception} index={index} classification={grouping?.exceptions?.[index]}>{children.map(tree)}</Exception>};
+ const exceptions=data.exceptions??[],seen=new Set<number>(),grouped=exceptions.some((e:any)=>e.mechanism?.is_exception_group);
+ const tree=(index:number):any=>{if(seen.has(index))return null;seen.add(index);const exception=exceptions[index],id=exception.mechanism?.exception_id;const children=id===undefined?[]:exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===id&&i!==index?[i]:[]);return <Exception key={index} exception={exception} index={index} grouped={grouped} classification={grouping?.exceptions?.[index]}>{children.map(tree)}</Exception>};
  const roots=exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===undefined||!exceptions.some((p:any)=>p.mechanism?.exception_id===e.mechanism.parent_id)?[i]:[]);
  const trees=roots.map(tree);trees.push(...exceptions.map((_:any,i:number)=>tree(i)));
  const raw=rawStack(data),sections=['tags','contexts','request','extra','threads','breadcrumbs','sdk','modules','debug_meta','_meta'];
