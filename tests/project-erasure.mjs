@@ -27,6 +27,9 @@ try{
  await json('/api/projects/'+planted.project+'/alerting/team-digests','PUT',{member:member.id,timezone:'America/New_York',daily:true,weekly:true,hour:9});
  await json('/api/projects/'+planted.project+'/alerting/team-snoozes','POST',{scope:'team',target:canary.NAME,until:Date.now()+3600000});
  await json('/api/projects/'+planted.project+'/follow-up/alternate-member','PUT',{member:member.id});
+ const assignmentPath='/api/projects/'+planted.project+'/issues/'+planted.issue+'/assignment',assignmentBefore=await json(assignmentPath);
+ await json(assignmentPath,'PATCH',{revision:assignmentBefore.revision,member:member.id});
+ assert.equal((await json(assignmentPath)).current.member,member.id,'the project erasure fixture holds a real native member assignment');
  const retainedProject=(await json('/api/projects')).find(row=>row.id!==planted.project&&row.id!==mobile.project);assert.ok(retainedProject,'the fixture has an unrelated project');
  const reportingWindow={from:Date.now()-60000,to:Date.now()+1000};
  let reporting=await json('/api/reporting/items','POST',{kind:'dashboard',name:'Cross-project retained report',widgets:[{project:planted.project,name:canary.NAME,config:{metric:'count',q:'',...reportingWindow}},{project:retainedProject.id,name:'Other project observations',config:{metric:'count',q:'',...reportingWindow}}]});
@@ -70,6 +73,7 @@ try{
  const audit=auditReport(app.checkout.root,{erased,expected:auditBefore});
  evidence.scan={before:{tables:before.tables,cells:before.cells,found:before.found.length},after:{tables:after.tables,cells:after.cells,found:0},outbox:outbox.messages,audit};
 
+ console.log('PROBE TEAM-002 project erasure: assigned issue project erasure -> assignment rows removed, unrelated records retained, older archive resurrection fenced');
  stage='fences';evidence.fences=await fenceProof(app,{pre,project:planted.project,erased});
  evidence.checks=['canaries planted in event text, map content, recipient, webhook label, issue title, repair note, import originals and project name','count-only preview with retained tables and exceptions','anonymous 401, ingest/agent/deploy 403, unknown 404, wrong confirmation 400, cross-origin 403, all unchanged','preview, confirmation and receipt at 1440 and 390 with axe and no overflow','second erase changes nothing','no canary in D1, outbox or fresh archive; audits anonymised','pre-erasure archive refused on the same installation and on a fresh destination after the post-erasure archive, including a child fence; brand-new store limit'];
  await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');

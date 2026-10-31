@@ -97,3 +97,40 @@ export async function memberBrowser(actor,project,issue) {
   };
  }catch(error){await browser.close();throw error}
 }
+
+// Member assignment uses the same issue controls and native session as ordinary triage.
+export async function assignmentBrowser(actor,project,issue,departing,remaining) {
+ const browser=await launchBrowser();
+ try {
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),split=actor.cookie.indexOf('=');
+  await context.addCookies([{name:actor.cookie.slice(0,split),value:actor.cookie.slice(split+1),url:actor.origin.replace('http:','https:'),secure:true}]);
+  const page=await context.newPage(),url=actor.origin+'/projects/'+project.id+'/issues/'+issue.id;
+  const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Operator decisions',exact:true})});
+  async function save(member) {
+   await panel.getByLabel('Assigned member',{exact:true}).selectOption(member.id);
+   const saved=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/assignment')&&response.request().method()==='PATCH');
+   await panel.getByRole('button',{name:'Save assignment',exact:true}).click();assert.equal((await saved).status(),200);
+   await expect(panel.getByText('Current assignment:',{exact:false})).toContainText(member.name);
+   await expect(panel.getByLabel('Assigned member',{exact:true})).toBeEnabled();
+  }
+  await page.goto(url);await save(departing);
+  return {
+   async reassign() {
+    await page.reload();
+    await expect(panel.getByText('Current assignment:',{exact:false})).toContainText('Former project member');
+    await expect(panel.getByLabel('Assigned member',{exact:true}).locator('option[value="'+departing.id+'"]')).toHaveCount(0);
+    await save(remaining);
+    await panel.getByRole('button',{name:'Assignment history',exact:true}).click();
+    await expect(panel.getByText(/Former project member/).first()).toBeVisible();
+    assert.equal(await panel.locator('input,select,button,label,p,li').evaluateAll(nodes=>nodes.filter(node=>node.getClientRects().length).every(node=>parseFloat(getComputedStyle(node).fontSize)>=13)),true);
+    const violations=(await new AxeBuilder({page}).include('main').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact));assert.deepEqual(violations,[],'the issue assignment controls have no serious accessibility violation');
+    const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
+    await panel.screenshot({path:resolve(folder,'assignment-1440.png')});
+    await page.setViewportSize({width:390,height:900});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'assignment controls and history fit the phone viewport');
+    await panel.screenshot({path:resolve(folder,'assignment-390.png')});
+   },
+   close:()=>browser.close(),
+  };
+ }catch(error){await browser.close();throw error}
+}

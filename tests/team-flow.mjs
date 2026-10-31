@@ -7,7 +7,7 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser} from './team-browser.mjs';
+import {browserMembers,memberBrowser,assignmentBrowser} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
@@ -100,7 +100,32 @@ async function memberDeployment(owner,member,project) {
  assert.equal(run.steps.at(-1).state,'succeeded');
 }
 
-async function revokedAuthority(owner,removed,remaining,projects,issue) {
+async function memberAssignments(owner,first,second,reader,projects,issues) {
+ const root=projectRoot(projects[0]),path=root+'/issues/'+issues[0].id+'/assignment';
+ const state=()=>first.json(path),assign=async member=>first.json(path,'PATCH',{revision:(await state()).revision,member});
+ const before=await state();
+ assert.ok(before.members.some(row=>row.id===first.member.id)&&before.members.some(row=>row.id===second.member.id),'two real native project members are assignable');
+ assert.ok(!before.members.some(row=>row.id===reader.member.id),'read-only access is not triage authority');
+ assert.ok(before.members.every(row=>!Object.hasOwn(row,'email')),'the project picker exposes no private directory fields');
+ await assign(first.member.id);
+ let assigned=await state();assert.equal(assigned.current.member,first.member.id);assert.equal(assigned.current.name,first.member.name);
+ await assign(second.member.id);
+ assigned=await state();assert.equal(assigned.current.member,second.member.id);assert.equal(assigned.history[0].actor.kind,'member');assert.equal(assigned.history[1].target.member,first.member.id);
+ const sealed=await state();
+ for(const [actor,body,expected] of [[first,{revision:sealed.revision-1,member:first.member.id},409],[first,{revision:sealed.revision,member:reader.member.id},404],[first,{revision:sealed.revision,member:'synthetic-spool-unknown'},404],[reader,{revision:sealed.revision,member:first.member.id},404]]) {
+  assert.equal(await status(actor.req(path,'PATCH',body)),expected);assert.deepEqual(await state(),sealed,'stale and unauthorized assignment attempts change neither current state nor history');
+ }
+ const foreign=projectRoot(projects[1])+'/issues/'+issues[1].id+'/assignment',foreignState=await second.json(foreign);
+ assert.equal(await status(second.req(foreign,'PATCH',{revision:foreignState.revision,member:first.member.id})),404,'an active member from a foreign project cannot be assigned');
+ assert.deepEqual(await second.json(foreign),foreignState,'foreign target refusal changes no issue or history');
+ await assign(first.member.id);
+ const browser=await assignmentBrowser({...first,origin:owner.origin},projects[0],issues[0],second.member,first.member);
+ const afterUi=await state();assert.equal(afterUi.current.member,second.member.id,'the real issue control persists the selected native member');
+ console.log('PROBE TEAM-002 native assignment: project HTTP and issue control -> two active native members assigned; foreign, read-only and stale targets refused without mutation');
+ return {root,path,state,browser,formerAlias:afterUi.current.alias,formerId:second.member.id,remaining:first.member};
+}
+
+async function revokedAuthority(owner,removed,remaining,projects,issue,assignmentProof) {
  const browser=await memberBrowser({...removed,origin:owner.origin},projects[1],issue);
  try {
  const root=projectRoot(projects[1]),keys={};
@@ -117,6 +142,19 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  const member=(await owner.json(organization)).members.find(row=>row.id===removed.member.id);
  const sealedIssues=await owner.json(root+'/issues'),sealedReleases=await owner.json(root+'/releases');
  await owner.json(organization+'/members/'+member.id,'DELETE',{version:member.version});
+ if(assignmentProof) {
+  const {path,state,formerId,formerAlias,browser,remaining:target}=assignmentProof;
+  const departed=await state();
+  assert.equal(departed.current.active,false);assert.equal(departed.current.member,null);assert.equal(departed.current.alias,formerAlias);
+  assert.ok(departed.history.some(row=>row.target.alias===formerAlias&&row.target.name==='Former project member'),'departure preserves truthful safe historical attribution');
+  const sealed=await state();assert.equal(await status(remaining.req(path,'PATCH',{revision:sealed.revision,member:formerId})),404);
+  assert.deepEqual(await state(),sealed,'removed target refusal adds no history or revision');
+  await denied(removed.req(path),'the former assignee cannot read assignment history');
+  await denied(removed.req(path,'PATCH',{revision:sealed.revision,member:target.id}),'assignment never restores removed writer authority');
+  try{await browser.reassign();}finally{await browser.close()}
+  const reassigned=await state();assert.equal(reassigned.current.member,target.id);assert.equal(reassigned.history[1].target.alias,formerAlias);assert.equal(reassigned.history[1].target.active,false);
+  console.log('PROBE TEAM-002 departure and reassignment: organization DELETE then remaining member issue control -> former alias retained, removed target denied, reassignment succeeds without restoring access');
+ }
  try{const response=await pending.release();assert.equal(response.status,409);assert.deepEqual(response.body,{error:'authority_changed'});}finally{pending.close()}
  const after=(await owner.json(root+'/issues')).find(row=>row.id===issue.id);assert.deepEqual({state:after.state,revision:after.revision},{state:before.state,revision:before.revision},'the pre-removal triage commits no late state or revision');
  assert.notEqual((await cli(['packet',issue.id,'--format','json'],agentEnv)).code,0,'the same CLI grant is denied immediately after removal');
@@ -136,6 +174,7 @@ async function revokedAuthority(owner,removed,remaining,projects,issue) {
  assert.deepEqual(await owner.json(root+'/issues'),sealedIssues,'revoked sessions, management and replayed capture requests leave retained issue data unchanged');
  assert.deepEqual(await owner.json(root+'/releases'),sealedReleases,'revoked deployment and SDK management requests create no release');
  await browser.removed();
+ console.log('PROBE TEAM-002 revoked access: same session, HTTP, CLI, MCP, SDK management and exports -> next reads denied; replayed capture changes no retained issues or releases');
  }finally{await browser.close()}
 }
 
@@ -261,6 +300,9 @@ export async function reportingTeamFlow(owner,first,second,reader,billing,projec
 
 async function inertTeamArchive(owner,projects,formerCookie) {
  const before=await owner.json('/api/audit/export?format=json');
+ const originalAssignments=await owner.json(projectRoot(projects[0])+'/issues').then(async rows=>Promise.all(rows.map(row=>owner.json(projectRoot(projects[0])+'/issues/'+row.id+'/assignment'))));
+ assert.ok(before.rows.some(row=>row.action==='issue.assign'&&row.actor_kind==='member'&&row.outcome==='succeeded'));
+ assert.ok(before.rows.some(row=>row.action==='issue.assign'&&row.outcome==='conflict'));
  for(const action of ['organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','alert.digest.settings','alert.snooze','automation.follow_up','notification.attempt','evidence.packet','evidence.export','reporting.create','reporting.change','reporting.share','reporting.view','reporting.export','report.export']){
   assert.ok(before.rows.some(row=>row.action===action&&['succeeded','accepted'].includes(row.outcome)),'safe organization history records the truthful new action: '+action);
  }
@@ -288,6 +330,13 @@ async function inertTeamArchive(owner,projects,formerCookie) {
   const sends=(await legacyMailRows(fresh.origin)).length;
   const tick=await fetch(fresh.origin+'/cdn-cgi/local/scheduled?time='+(Date.now()+14*86400000)+'&cron=*+*+*+*+*&format=json');assert.equal(tick.status,200);await tick.body?.cancel();
   assert.equal((await legacyMailRows(fresh.origin)).length,sends,'restored members, digests and snoozes send no mail');
+  for(const original of originalAssignments.filter(row=>row.history.length)) {
+   const carriedAssignment=await next.json(base+'/issues/'+original.issue+'/assignment');
+   assert.deepEqual(carriedAssignment.history.map(({target,...row})=>({...row,target:target.kind==='member'?{kind:target.kind,alias:target.alias}:target})),original.history.map(({target,...row})=>({...row,target:target.kind==='member'?{kind:target.kind,alias:target.alias}:target})),'restored assignment chronology retains identities, times, actors and safe target aliases');
+   assert.ok(carriedAssignment.history.filter(row=>row.target.kind==='member').every(row=>row.target.active===false&&row.target.member===null));
+   assert.deepEqual(carriedAssignment.members,[],'restored assignment history creates no assignable native account');
+  }
+  console.log('PROBE TEAM-002 custody: private archive and independent restore -> safe assignment chronology preserved with inert membership and no restored credentials');
   const carried=await next.json('/api/audit/export?format=json'),withoutSequence=({sequence,...row})=>row;
   for(const row of before.rows)assert.deepEqual(withoutSequence(carried.rows.find(item=>item.id===row.id)),withoutSequence(row),'organization audit facts retain identity, time, aliases and outcomes after restore');
  }finally{await fresh.close()}
@@ -355,7 +404,8 @@ export async function teamFlow() {
   await concurrentTriage(owner,first,second,reader,projects,issues);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
   const serviceKeys=await serviceAuthority(owner,projects,issues[0]);
-  await revokedAuthority(owner,second,first,projects,issues[1]);
+  const assignmentProof=await memberAssignments(owner,first,second,reader,projects,issues);
+  await revokedAuthority(owner,second,first,projects,issues[1],assignmentProof);
   for(const path of ['/api/reporting/items/'+reportingId,'/api/reporting/items/'+reportingId+'/export','/api/reports?projects='+projects[1].id])await denied(second.req(path),'member removal immediately fences reports, definitions and exports');
   const audit=await owner.json('/api/audit/export?format=json');
   assert.ok(audit.rows.some(row=>row.action==='issue.triage'&&row.outcome==='succeeded'&&row.actor_kind==='member'),'committed triage names a member actor');
