@@ -22,6 +22,27 @@ import { ExecutionPanel } from './ExecutionPanel';
 import { attentionLabel, type Alert } from './attention';
 import { hrefFor } from './location';
 import { date, displayFile, download, stateLabel, states, type Request, type Run } from './shared';
+// Match the bounded diagnostic projection back to its retained SDK frames in order.
+// Keeping original indices preserves repository links and native frame classifications.
+function hiddenSourceRows(event: any) {
+  const hidden = new Set<number>(), sentry = event?.sentry;
+  if (!sentry) return hidden;
+  const exceptions = sentry.exceptions ?? [];
+  const stack = exceptions.at(-1)?.stacktrace ?? sentry.stacktrace ?? [...exceptions].reverse().find(exception => exception.stacktrace)?.stacktrace;
+  const reported = [...(stack?.frames ?? [])].reverse();
+  let next = 0;
+  for (const [index, frame] of (event.frames ?? []).entries()) {
+    while (next < reported.length) {
+      const source = reported[next++];
+      if ((source.abs_path ?? source.filename) !== frame.file || source.lineno !== frame.line ||
+          (source.colno == null ? null : source.colno - 1) !== frame.column || (source.function ?? '<anonymous>') !== frame.function) continue;
+      const flag = source.vars?.__traceback_hide__;
+      if (flag === true || flag === 'true' || flag === 'True') hidden.add(index);
+      break;
+    }
+  }
+  return hidden;
+}
 // The evidence rail follows the stack trace: beside it on wide screens, directly under it on narrow ones.
 export function IssueView({ project, packet, panels, status, alert, busy, request, run, refresh, onUpload, onViewed, rail, readOnly = false, manageProject = true, manageOrganization = true }: {
   project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
@@ -32,7 +53,8 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   useEffect(()=>setSelectedEvent(null),[project,packet?.issue.id]);
   useEffect(() => { if (packet && alert) onViewed(alert.id); }, [packet, alert?.id, onViewed]);
   if (!packet) return <section className="evidence">{status === 'loading' ? <p role="status">Loading issue evidence…</p> : <><h2>Issue evidence unavailable</h2><p>The issue may have been removed, or its evidence could not be loaded.</p><button className="text-button" onClick={refresh}>Retry evidence</button></>}</section>;
-  const group = packet.issue, event = selectedEvent ?? packet.events?.[0], frames: any[] = event?.currentLookup ?? [];
+  const group = packet.issue, event = selectedEvent ?? packet.events?.[0], hidden = hiddenSourceRows(event?.event);
+  const frames: any[] = (event?.currentLookup ?? []).map((frame: any, sourceIndex: number) => ({...frame, sourceIndex})).filter((frame: any) => !hidden.has(frame.sourceIndex));
   const missing = frames.filter(frame => !['mapped','go_path_mapped','python_source'].includes(frame.status));
   const language = event?.event.language;
   const imported = event?.historical === true;
@@ -62,9 +84,9 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {!language && !imported && !sample && !!missing.length && <div className="callout missing-map"><strong>Original source unavailable for {missing.length === 1 ? 'one frame' : `${missing.length} frames`}</strong><p>{missing.some(frame => frame.status === 'missing_debug_id') ? 'Some frames have no debug ID. Add the bundle’s debug ID to capture and upload its matching map.' : missing.every(frame => ['unmapped_position', 'invalid_artifact'].includes(frame.status)) ? 'The stored map could not locate these positions. Check the generated coordinates and map diagnostics in Details.' : 'Upload the map matching this release, build and debug ID to locate the original source.'}</p>{!readOnly && <button className="text-button" onClick={() => onUpload(event.event.release, missing.find(frame => frame.generated.debugId)?.generated.debugId ?? '')}>Upload map</button>}</div>}
       <ol className="stack readable-stack">{frames.slice(0, allFrames ? 30 : 6).map((frame, index) => {
         const mapped = ['mapped','go_path_mapped'].includes(frame.status), position = mapped ? frame.original : frame.generated;
-        const row=<><span className="line-no" aria-hidden="true">{index + 1}</span><div className="frame-text"><code className="frame-coordinate">{displayFile(position.file)}:{position.line}{position.column == null ? '' : `:${position.column}`}</code>{position.function ? <code className="frame-function">{position.function}</code> : <span className="frame-function">Anonymous function</span>}<RepositorySource source={event?.repositorySources?.[index]}/></div><span className="frame-source">{sample ? 'Spool sample' : frame.status === 'go_path_mapped' ? 'Repository path' : language ? 'Reported source' : mapped ? 'Original source' : frame.status === 'imported_symbolicated_stack' ? 'Exported symbolicated location' : frame.status === 'imported_raw_stack' ? 'Exported raw location' : 'Generated source'}</span></>;
+        const row=<><span className="line-no" aria-hidden="true">{index + 1}</span><div className="frame-text"><code className="frame-coordinate">{displayFile(position.file)}:{position.line}{position.column == null ? '' : `:${position.column}`}</code>{position.function ? <code className="frame-function">{position.function}</code> : <span className="frame-function">Anonymous function</span>}<RepositorySource source={event?.repositorySources?.[frame.sourceIndex]}/></div><span className="frame-source">{sample ? 'Spool sample' : frame.status === 'go_path_mapped' ? 'Repository path' : language ? 'Reported source' : mapped ? 'Original source' : frame.status === 'imported_symbolicated_stack' ? 'Exported symbolicated location' : frame.status === 'imported_raw_stack' ? 'Exported raw location' : 'Generated source'}</span></>;
         const rowClass=`stack-row ${mapped ? 'mapped-frame' : 'generated-frame'}${index ? '' : ' mark-bar'}`;
-        return !event?.event.sentry&&(selectedEvent?.grouping??event?.originalGrouping)?.frames?.[index]?.inApp===false?<li key={index}><details><summary>Library frame · not in app</summary><div className={rowClass}>{row}</div></details></li>:<li className={rowClass} key={index}>{row}</li>;
+        return !event?.event.sentry&&(selectedEvent?.grouping??event?.originalGrouping)?.frames?.[frame.sourceIndex]?.inApp===false?<li key={index}><details><summary>Library frame · not in app</summary><div className={rowClass}>{row}</div></details></li>:<li className={rowClass} key={index}>{row}</li>;
       })}</ol>
       {!frames.length && <p>No retained stack frames.</p>}
       {frames.length > 6 && <button className="text-button" onClick={() => setAllFrames(!allFrames)}>{allFrames ? 'Show fewer frames' : `Show all ${frames.length} frames`}</button>}

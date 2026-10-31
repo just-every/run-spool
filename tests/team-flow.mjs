@@ -229,7 +229,7 @@ async function serviceAuthority(owner,projects,issue) {
 }
 
 export async function reportingTeamFlow(owner,first,second,reader,billing,projects) {
- const from=Date.now()-60000,to=Date.now()+1000,root='/api/reporting/items';
+ const from=Date.now()-86400000,to=Date.now()+1000,root='/api/reporting/items';
  const widgets=projects.map(project=>({project:project.id,name:'Retained project events',config:{metric:'count',q:'',from,to}}));
  let shared=await owner.json(root,'POST',{kind:'dashboard',name:'Shared team impact',widgets});
  shared=await owner.json(root+'/'+shared.id+'/shares','PUT',{revision:shared.revision,shares:[{kind:'role',target:'read-only'},{kind:'role',target:'member'},{kind:'team',target:projects[0].id}]});
@@ -237,7 +237,8 @@ export async function reportingTeamFlow(owner,first,second,reader,billing,projec
  const view=await reader.json(root+'/'+shared.id);assert.equal(view.omittedProjects,1);assert.deepEqual(view.widgets.map(w=>w.project),[projects[0].id]);assert.equal(view.editable,false);
  for(const format of ['json','csv']){
   const response=await reader.req(root+'/'+shared.id+'/export?format='+format);assert.equal(response.status,200);const text=await response.text();assert.ok(!text.includes(projects[1].id));assert.ok(!text.includes('synthetic-spool-9@example.test'),'read-only exports contain no retained identity values');
-  if(format==='json'){const data=JSON.parse(text);assert.equal(data.omittedProjects,1);assert.equal(data.bounds.complete,true)}
+  assert.ok(text.includes(projects[0].id),'read-only exports retain the accessible populated project');
+  if(format==='json'){const data=JSON.parse(text);assert.equal(data.omittedProjects,1);assert.equal(data.bounds.complete,true);assert.deepEqual(data.widgets.map(widget=>({project:widget.project,count:widget.data.value})),[{project:projects[0].id,count:1}])}
  }
  const report='/api/reports?'+new URLSearchParams({projects:projects.map(p=>p.id).join(','),from:String(from),to:String(to),timeZone:'UTC',format:'json'});
  const limited=await reader.json(report);assert.equal(limited.omission.projects,1);assert.deepEqual(limited.scope.projects,[projects[0].id]);assert.ok(!JSON.stringify(limited).includes(projects[1].id));
@@ -254,7 +255,7 @@ export async function reportingTeamFlow(owner,first,second,reader,billing,projec
  const key=await owner.json(projectRoot(projects[0])+'/keys','POST',{kind:'ingest'});
  for(const path of [root+'/'+shared.id,root+'/'+shared.id+'/export',report])await denied(owner.req(path,'GET',undefined,{Cookie:'',Authorization:'Bearer '+key.key}),'ingest credentials have no reporting evidence');
  await first.json(root+'/'+own.id,'DELETE',{revision:own.revision});
- console.log('[FIND-002 R3] read-only omissions/exports, current roles, concealed ids and denied-write nonmutation passed');
+ console.log('[FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed');
  return shared.id;
 }
 
