@@ -9,7 +9,10 @@ Sentry.init({
   beforeSend: event => event.message === 'synthetic-spool-discard' ? null : event,
 });
 function checkout() { throw new TypeError('synthetic-spool-node-handled'); }
-if (mode === 'identity') {
+if (mode === 'cause') {
+  try { throw new Error('synthetic-spool-node-wrapper', { cause: new RangeError('synthetic-spool-node-root') }); }
+  catch (error) { Sentry.captureException(error); }
+} else if (mode === 'identity') {
   try { checkout(); } catch (error) { Sentry.captureException(error); }
 } else {
   Sentry.logger.info('synthetic-spool-node-log', { step: 'checkout' });

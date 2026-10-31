@@ -61,7 +61,7 @@ try{
   const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,db:await worker.db(),referenceSent:reference.sent});
   // The handled occurrence reads the same through the UI, at desktop and phone width.
   const outer=runtime.chain.at(-1);
-  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);
+  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.chain.length>1&&page.viewportSize().width===1440){const root=page.locator('article.exception h3').filter({hasText:runtime.chain[0]});assert.equal(await root.locator('small').innerText(),'Root cause',`${name}: the inner exception is marked as root cause`)}if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);
   console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes),identity:[...sent]}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}

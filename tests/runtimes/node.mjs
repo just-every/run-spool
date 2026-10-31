@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {cp, mkdir, symlink} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {run, issueDetails} from './harness.mjs';
+import {run, issueDetails,referenceCollector} from './harness.mjs';
 import {readScreens} from './screens.mjs';
 const here=resolve(import.meta.dirname,'node');
 export default {
@@ -11,6 +11,19 @@ export default {
  async prepare(dir){await cp(here,dir,{recursive:true});await symlink(resolve('node_modules'),resolve(dir,'node_modules'),'dir')},
  command(mode,dir,dsn){return {command:process.execPath,args:[resolve(dir,'app.mjs'),mode],cwd:dir,env:{SPOOL_FIXTURE_DSN:dsn}}},
  async verify({app,dir,origin,cookie}){
+  const collector=await referenceCollector();
+  const capture=async dsn=>{const spec=this.command('cause',dir,dsn);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env});assert.equal(result.code,0,result.stderr)};
+  try{await capture(collector.dsn)}finally{await collector.close()}
+  const reference=JSON.parse(new TextDecoder().decode(collector.sent.find(item=>item.type==='event').bytes));
+  assert.deepEqual(reference.exception.values.map(e=>e.type),['RangeError','Error'],'default LinkedErrors sends both causes');
+  const chainProject=await app.json('/api/projects','POST',{id:'rt-node-chain',name:'Node linked errors'});await capture(chainProject.dsn);
+  const [chain]=await issueDetails(app,chainProject.id);
+  assert.deepEqual(chain.events[0].event.sentry.exceptions.map(e=>e.type),reference.exception.values.map(e=>e.type));
+  await readScreens(origin,cookie,[{name:'node-root-cause',path:`/projects/${chainProject.id}/issues/${chain.issue.id}`,check:async page=>{
+   await page.locator('article.exception h3').filter({hasText:'synthetic-spool-node-wrapper'}).waitFor();
+   if(page.viewportSize().width===1440)assert.equal(await page.locator('article.exception h3').filter({hasText:'synthetic-spool-node-root'}).locator('small').innerText(),'Root cause');
+  }}]);
+  console.log('PROBE SDK-010 acceptance 4 Node: default LinkedErrors -> both sent causes persist and the inner RangeError is marked Root cause');
   const project=await app.json('/api/projects','POST',{id:'rt-node-releases',name:'Node release identities'}),root='/api/projects/rt-node-releases';
   const cwd=resolve(dir,'identity');await mkdir(cwd);
   // This exact official-SDK program infers from the same CI environment door used by real applications.

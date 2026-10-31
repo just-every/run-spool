@@ -114,7 +114,7 @@ try{
   const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
-  await fidelityFlow({req,json,origin});
+  await fidelityFlow({req,json,origin,cookie});
   await groupingRulesFlow({req,json,origin,cookie});
   await releaseIdentityFlow({req,json,origin,cookie});
   await team004Flow({req,json,origin,cookie});
