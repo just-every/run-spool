@@ -6,7 +6,7 @@ export type SubjectKind = typeof subjectKinds[number];
 export const auditActions = [
  'report.read','report.export','reporting.create','reporting.change','reporting.share','reporting.view','reporting.export','reporting.query',
  'organization.create','member.invite','member.change','member.remove','member.transfer','team.change','service.create','service.credential','service.remove','billing.read',
- 'review.views','retention.policy','retention.hold','retention.scheduled','identity.preview','identity.policy','project.create','credential.create','credential.revoke','credential.loader','checkin.route','issue.suspect','origin.change','issue.triage','issue.assign','issue.bulk_triage','suppression.change',
+ 'review.views','retention.policy','retention.hold','retention.scheduled','identity.preview','identity.erasure_preview','identity.policy','project.create','credential.create','credential.revoke','credential.loader','checkin.route','issue.suspect','origin.change','issue.triage','issue.assign','issue.bulk_triage','suppression.change',
  'grouping.propose','grouping.proposals','grouping.approve','grouping.reject','grouping.preview','grouping.apply','grouping.undo','grouping.policy','filter.preview','filter.change','release.preview','release.policy','release.register','commit.sharing','artifact.upload',
  'evidence.packet','evidence.export','archive.export','archive.restore','retention.preview_or_apply','erasure.preview','erasure.start','erasure.resume','owner.erasure','owner.successor',
  'alert.destination.create','alert.destination.change','alert.destination.test','alert.rule.create','alert.rule.change','alert.delivery.resolve','alert.digest.settings','alert.snooze','notification.attempt','automation.follow_up',
