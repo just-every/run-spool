@@ -88,6 +88,19 @@ export async function prioritySearchFlow({req,json,origin}) {
   if(!q){assert.equal(result.pages.length,4);assert.deepEqual(result.pages.map(page=>page.rows.length),[25,25,25,15]);}
   else if(!q.includes(' '))assert.equal(result.pages.length,2,'Each priority itself crosses a page boundary');
  }
+ // Ordinary list controls must compose with priority predicates in downloads,
+ // rather than broadening them back to every issue with that priority.
+ const resolvedParams=new URLSearchParams({q:'priority:low',status:'resolved',release:'synthetic-priority-1',sort:'priority'});
+ const resolvedExpected=projection(expected.filter(row=>row.priority==='low'&&row.attention==='none'));
+ const resolvedPage=await json(base+'/issue-search?'+resolvedParams);
+ assert.equal(resolvedPage.total,10);assert.equal(resolvedPage.next,null);
+ assert.deepEqual(projection(resolvedPage.rows),resolvedExpected,'Status and release controls compose with the priority query');
+ const resolvedJson=await json(base+'/issue-export?'+resolvedParams);
+ assert.equal(resolvedJson.total,10);assert.equal(resolvedJson.bounds.complete,true);
+ assert.deepEqual(projection(resolvedJson.rows),resolvedExpected,'JSON retains status, release and priority predicates');
+ const resolvedCsv=await req(base+'/issue-export?'+resolvedParams+'&format=csv');
+ assert.equal(resolvedCsv.status,200);
+ assert.deepEqual(csvProjection(await resolvedCsv.text()),resolvedExpected,'CSV retains status, release and priority predicates');
  const first=await json(base+'/issue-search'),cursor=first.next;
  for(const params of [{q:'priority:low'},{q:'environment:production'},{sort:'latest'},{sort:'occurrences'},{status:'open'},{release:'synthetic-priority-1'}]){
   const refused=await req(base+'/issue-search?'+new URLSearchParams({...params,cursor}));
