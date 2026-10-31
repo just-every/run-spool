@@ -12,6 +12,7 @@ import {pluginFlow} from './sentry-cli/plugin-flow.mjs';
 import {chunkFlow} from './sentry-cli/chunk-flow.mjs';
 import {debugFlow} from './sentry-cli/debug-flow.mjs';
 import {durableFlow} from './sentry-cli/durable.mjs';
+import {fieldRefusalFlow} from './sentry-cli/field-refusals.mjs';
 
 // SRC-003: the released sentry-cli and the unmodified Node SDK against the real emitted Worker. Only the Sentry URL,
 // organization and project slugs and the auth token are set, as a team's existing CI would set them.
@@ -28,13 +29,14 @@ try {
  const key = async (project, kind) => (await api(`/api/projects/${project}/keys`, 'POST', {kind}));
  const revoked = await key('web', 'deploy'); await api(`/api/projects/web/keys/${revoked.hash}`, 'DELETE');
  const keys = {deploy: (await key('web', 'deploy')).key, ingest: (await key('web', 'ingest')).key, agent: (await key('web', 'agent')).key, revoked: revoked.key, other: (await key('other', 'deploy')).key, chunks: (await key('chunks', 'deploy')).key};
- const emitter = await writeEmitter(temporary), context = {origin, api, req, keys, dsn: web.dsn, otherDsn: other.dsn, emitter, temporary};
+ const emitter = await writeEmitter(temporary), context = {origin, api, req, keys, dsn: web.dsn, otherDsn: other.dsn, emitter, temporary, db: app.db};
  await denialFlow(context);
  await hostileBundleFlow(context);
  await releaseFlow(context);
  await mapFlow(context);
  await pluginFlow(context);
  await chunkFlow(context);
+ await fieldRefusalFlow(context);
  await debugFlow(context);
  await durableFlow(context);
  console.log('[SRC-004] SRC-003 sentry-cli journey passed: denials, release/commit/deploy enrichment, debug-ID and release/dist maps, the Vite, esbuild, Rollup and webpack plugins, chunk interruption and resume, refusals by name, archive, restore and erasure.');
