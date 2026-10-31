@@ -995,7 +995,7 @@ Core · target · **partial**
 5. Of two plain-resolved issues, one receiving an event in the same release and the other an event with no release, each fires one regression alert.
 6. With unmodified Sentry tracing, a transaction's p95 duration and a page's LCP pushed over warning, then critical, then back each fire one alert per transition and a resolve.
 
-**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`
+**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`; `tests/alerts/plain-resolve.mjs` qualifies two distinct plain-resolved Sentry issues, same-release and release-less recurrence, one correctly identified regression each, reviewed matching-rule fan-out, duplicate capture and repeated scheduling without replay
 **Gap.** New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
 
 #### ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty
