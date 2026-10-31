@@ -8617,7 +8617,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "6324498df64f0d9a31084a36af081fef8221b8f54e5dfa6e8f5e921882e1a7b7",
+      "sha256": "66a41d2745621078fa963d09cabb1eb1c243145b922383011fc4892e3e490c0b",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -8645,7 +8645,7 @@
       "executable": false
     },
     "tests/agent-handoff/selector-refusals.mjs": {
-      "sha256": "0795075f18b13e3e9f5a187cc4256cac5938acc2a3da42aafa87095108666396",
+      "sha256": "6e76d82661f4b175f52d976f6ba614aa4c3014383b60171b825027c23cd1de4a",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
