@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "74e87ad379f94aa61bac0a47f3fcc71bb97b064aa896ddf61fa7c7cccfedc4a4",
+      "sha256": "d831945a851a1bc6023de4e91eaf830a895a53fbc3b2b1b9b1815be3d2cd106b",
       "executable": false
     },
     "DEMO.md": {
@@ -9121,11 +9121,11 @@
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
-      "sha256": "dd37fe1ca0c6266a3927732bb9f2a288c0088767249b21b159513ac52653aebe",
+      "sha256": "223226b542fe9d7691470107f0a10cbe27f47d4bf2513434e87c493da17e7d50",
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
+      "sha256": "aab8bff965b909e6a7cfe888469dd694666f72fa75ce4aa1cffbbf3f34d65b52",
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
