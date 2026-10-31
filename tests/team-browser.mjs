@@ -99,7 +99,7 @@ export async function memberBrowser(actor,project,issue) {
 }
 
 // Member assignment uses the same issue controls and native session as ordinary triage.
-export async function assignmentBrowser(actor,project,issue,departing,remaining) {
+export async function assignmentBrowser(actor,project,issue,departing,remaining,remainingActor=actor) {
  const browser=await launchBrowser();
  try {
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),split=actor.cookie.indexOf('=');
@@ -116,6 +116,9 @@ export async function assignmentBrowser(actor,project,issue,departing,remaining)
   await page.goto(url);await save(departing);
   return {
    async reassign() {
+    await context.clearCookies();
+    const separator=remainingActor.cookie.indexOf('=');
+    await context.addCookies([{name:remainingActor.cookie.slice(0,separator),value:remainingActor.cookie.slice(separator+1),url:remainingActor.origin.replace('http:','https:'),secure:true}]);
     await page.reload();
     await expect(panel.getByText('Current assignment:',{exact:false})).toContainText('Former project member');
     await expect(panel.getByLabel('Assigned member',{exact:true}).locator('option[value="'+departing.id+'"]')).toHaveCount(0);
@@ -125,10 +128,11 @@ export async function assignmentBrowser(actor,project,issue,departing,remaining)
     assert.equal(await panel.locator('input,select,button,label,p,li').evaluateAll(nodes=>nodes.filter(node=>node.getClientRects().length).every(node=>parseFloat(getComputedStyle(node).fontSize)>=13)),true);
     const violations=(await new AxeBuilder({page}).include('main').analyze()).violations.filter(row=>['serious','critical'].includes(row.impact));assert.deepEqual(violations,[],'the issue assignment controls have no serious accessibility violation');
     const folder=process.env.SPOOL_TEAM_EVIDENCE||'.artifacts/team';await mkdir(folder,{recursive:true});
-    await page.screenshot({path:resolve(folder,'assignment-1440.png'),fullPage:true});
+    await page.screenshot({path:resolve(folder,'assignment-1440.png')});
     await page.setViewportSize({width:390,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'assignment controls and history fit the phone viewport');
-    await page.screenshot({path:resolve(folder,'assignment-390.png'),fullPage:true});
+    assert.equal(await page.getByRole('dialog',{name:'Assignment history',exact:true}).evaluate(node=>node.scrollWidth<=node.clientWidth),true,'safe aliases remain inspectable without horizontal clipping');
+    await page.screenshot({path:resolve(folder,'assignment-390.png')});
    },
    close:()=>browser.close(),
   };
