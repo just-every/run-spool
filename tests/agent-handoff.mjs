@@ -1,7 +1,6 @@
+import {privacyJourney} from './privacy-table.mjs';
 import {retentionScheduleFlow} from './retention-schedule-flow.mjs';
 import {retentionFlow} from './retention-flow.mjs';
-import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
-const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -64,7 +63,7 @@ try{
  await json('/api/projects/a/artifacts','POST',{release:'z-release',build:'build-z',debugId:'unmapped',map:{version:3,sources:['empty.ts'],names:[],mappings:''}});
  const unmapped=await json('/api/ingest/a','POST',event('unmapped',{frames:[{file:'https://app.example/unmapped.js',line:1,column:0,function:'missing',debugId:'unmapped'}]}),auth);gap(await json('/api/projects/a/issues/'+unmapped.issue+'/packet','GET',undefined,agent),/unmapped_position/);
  stage='second-origin';
- // A real app uses its dev-minted ingest key without receiving the owner gate.
+ // A real app uses its scoped ingest key without receiving the owner gate.
  const browserIngest={key:project.ingestKey};
  secondOrigin=await startDispatchApp({endpoint:app.origin,project:'a',ingestKey:browserIngest.key,release:'z-release',build:'build-z',environment:'browser',debugId:'dispatch-map'});
  await json('/api/projects/a/browser-origins','POST',{origin:secondOrigin.origin});for(const [origin,status] of [[secondOrigin.origin,204],['https://unconfigured.example',403]]){const preflight=await request('/api/ingest/a','OPTIONS',undefined,{headers:{Cookie:'',Origin:origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization, content-type'}});assert.equal(preflight.status,status,'native project origin preflight');await preflight.body?.cancel();}browser=await launchBrowser();const throwPage=await browser.newPage();await throwPage.goto(secondOrigin.origin);await throwPage.getByRole('button',{name:'Prepare delivery'}).click();await throwPage.waitForFunction(()=>window.captureOutcome?.outcome==='accepted');const thrown=await throwPage.evaluate(()=>window.captureOutcome);
@@ -130,3 +129,5 @@ try{
  if(outcomes.some(result=>result.status==='rejected'))process.exitCode=1;
  if(!failure)await writeFile(directory+'/results.json',JSON.stringify(evidence,null,2)+'\n');
 }
+
+await privacyJourney();

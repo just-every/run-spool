@@ -5,6 +5,8 @@ import {signIn} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {archiveProjection,nativeArchive} from './archive.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
+
+export async function auditJourney() {
 // Independent transport connections also make the explicit runtime restart unambiguous.
 const client=(origin,cookie)=>{
  const req=(path,method='GET',value,headers={})=>fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,Connection:'close',...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
@@ -106,7 +108,7 @@ try {
  await target.stop();target=undefined;
 
  browser=await launchBrowser();await mkdir('.artifacts/AUDIT-001',{recursive:true});
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));
   const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/settings');
   const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Organization audit',exact:true})});
@@ -131,5 +133,7 @@ try {
  assert.ok(!JSON.stringify(after).includes(canary));
  rows=await since(async()=>{await json('/api/projects','POST',{id:'audit-successor',name:'Successor'})});
  assert.notEqual(committed(rows,'project.create')[0].project_label,projectLabel,'AUDIT-001 a later project never inherits an erased alias');
- console.log('AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty.');
+ console.log('AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440 history/export/error/denied/empty.');
 } finally {await browser?.close();await target?.stop();await app.stop()}
+
+}

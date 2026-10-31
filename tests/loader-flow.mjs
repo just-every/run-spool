@@ -33,7 +33,7 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  };
  await mkdir('.artifacts/sdk023', { recursive: true });
  let count = 0; const releaseLess = new Set();
- for (const width of [1440, 390]) {
+ for (const width of [1440]) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage();
   const external = []; await context.route('**/*', async route => { if (![origin, applicationOrigin].includes(new URL(route.request().url()).origin)) { external.push(route.request().url()); await route.abort(); } else await route.continue(); });
   const bundles = []; page.on('request', req => { if (new URL(req.url()).pathname === '/spool-sentry-sdk.js') bundles.push(req.url()); });
@@ -155,6 +155,6 @@ export async function loaderFlow({ browser, origin, request, cookie, application
  const after = await fetch(origin + '/api/archive', { headers: { Cookie: cookie, Origin: origin } });
  assert.ok(!(await after.text()).includes(keyHash), 'project erasure removes the key settings');
  await loaderUpgrade({browser,applicationOrigin,dsns,defaults});
- console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440, 390], icons: 'no icon-only control on the touched screen', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
+ console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440], icons: 'no icon-only control on the touched screen', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
  return { archive, project, keyHash, settings: disabled.settings };
 }

@@ -1,9 +1,12 @@
+import {freePort} from './admission-runtime.mjs';
 import assert from 'node:assert/strict';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 
+export async function demoJourney() {
+
 // One flow through the real demo hook, native ingest and owner HTTP doors.
-const app=await startTestWorker(15561,{RER_DEMO:'1'});
+const app=await startTestWorker(await freePort(),{RER_DEMO:'1'});
 try {
  const cookie=await signIn(app.origin);
  const request=path=>fetch(app.origin+path,{headers:{Cookie:cookie}});
@@ -30,3 +33,5 @@ try {
  assert.equal((await facts()).filter(row=>row.source==='transaction').length,3,'restart never seeds duplicate captures');
  console.log('Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged');
 } finally {await app.stop();}
+
+}

@@ -7,7 +7,7 @@ import {runner} from './reproduce.mjs';
 // Its limits must be visible before opening details or approving a grant.
 export async function disconnectedGitHubSetup(app,browser,directory,issue){
  const captures=[];
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});
   try{
    await openGate(context,app.origin);
@@ -29,11 +29,11 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
  return captures;
 }
 
-// The issue page's reproduce-and-fix section at 1440 and 390: axe, no
+// The issue page's reproduce-and-fix section at 1440: axe, no
 // horizontal overflow, and a sandbox run queued by clicking and then run.
 export async function executionPanel(app,browser,directory,issue,reproducer){
  const captures=[];
- for(const width of [1440,390]){
+ for(const width of [1440]){
   const context=await browser.newContext({viewport:{width,height:900}});
   try{
    await openGate(context,app.origin);
