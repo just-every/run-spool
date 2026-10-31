@@ -67,8 +67,10 @@ export async function pythonExceptionGroups({app,origin,cookie,send}){
  }
  await readScreens(origin,cookie,captured.map(capture=>({name:`python-${capture.script.replace('.py','').replace('_','-')}`,path:`/projects/${capture.project.id}/issues/${capture.detail.issue.id}`,check:async page=>{
   const width=page.viewportSize().width;
+  // The issue first paints its minimized packet event; compare the owner's selected occurrence.
+  await page.locator(`.metadata[data-event-id="${capture.detail.events[0].id}"]`).waitFor();
+  await page.locator('.event-diagnostic summary',{hasText:'Local variables · sent by SDK'}).first().waitFor();
   await page.getByRole('heading',{name:'Related Exceptions',exact:true}).waitFor();
-  await page.locator('.event-diagnostic article.exception').nth(capture.values.length-1).waitFor();
   assert.deepEqual(await renderedTree(page),capture.tree,`${capture.script} at ${width}: every SDK-sent member appears once, with its own frames, beneath its parent`);
   assert.equal(await page.locator('.event-diagnostic article.exception').count(),capture.values.length,`${capture.script} at ${width}: no member is repeated`);
   assert.equal(await page.locator('.event-diagnostic article.exception h3 small').count(),0,`${capture.script} at ${width}: no group member is marked as the root cause`);

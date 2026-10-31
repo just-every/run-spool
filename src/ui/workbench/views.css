@@ -2,7 +2,7 @@
 .evidence{padding:28px 0 32px}
 .evidence+.evidence{border-top:var(--rule)}
 .evidence h2{margin-bottom:12px;font-size:clamp(24px,2.3vw,32px);overflow-wrap:anywhere}
-.evidence h3{margin:20px 0 6px;font-size:20px}
+.evidence h3{margin:20px 0 6px;font-size:20px;overflow-wrap:anywhere}
 .evidence p{max-width:72ch;margin:10px 0}
 .evidence>.form-field{margin:16px 0 12px}
 .muted{color:var(--ink-soft);font-size:14px}
