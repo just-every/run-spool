@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d444e41697163262b14dfb79571246190f361f2edc133ce59fe7b1106e4b1c97",
+      "sha256": "3efa7f4dd9eef9f0f1d676477bc6c8ba8ffa2e5631c13421050c8848322d787f",
       "executable": false
     },
     "DEMO.md": {
@@ -2989,7 +2989,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "sha256": "84fa4c3faef0765a02f2ce63100e94bbddbb47699a2d5f523b3d08713d88f027",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -8989,7 +8989,7 @@
       "executable": false
     },
     "tests/priority-search-flow.mjs": {
-      "sha256": "6533bf48fe82859a4109e9665a699a88ef3531f6511b561c0c685c210019b49c",
+      "sha256": "e65d3641d578b661bed2e585ef3a6eeba27059ba81b4b6a2a66d3d4b63371c22",
       "executable": false
     },
     "tests/privacy-table.mjs": {
