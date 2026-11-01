@@ -474,6 +474,18 @@
       "name": "0084_restored_work.sql",
       "sha256": "a442dd526b1b5f3dffc628f28a24389938e3b92363f66d4f6f8dbb4f275b0f6e",
       "sql": "-- Destination-only custody: archived facts survive, their authority does not.\nCREATE TABLE restored_work (\n project TEXT NOT NULL REFERENCES projects(id),\n kind TEXT NOT NULL CHECK(kind IN ('repair','run','fix')),\n record TEXT NOT NULL,\n PRIMARY KEY(project,kind,record)\n);\n-- Base commits the rows and clears import_job in one D1 batch. Aborted imports\n-- never mark work. This also covers CLI and legacy archive restores.\nCREATE TRIGGER restored_work_commit AFTER UPDATE OF import_job ON rer_portability_state\n WHEN OLD.import_job IS NOT NULL AND NEW.import_job IS NULL AND OLD.applying=1 BEGIN\n INSERT OR IGNORE INTO restored_work SELECT project,'repair',id FROM repairs;\n INSERT OR IGNORE INTO restored_work SELECT project,'run',id FROM reproducer_runs;\n INSERT OR IGNORE INTO restored_work SELECT project,'fix',id FROM fix_workflows;\nEND;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0085_alert_conditions.sql",
+      "sha256": "b34b04d95578a711673618dacffedc3f137b1f9ac7871d806746dfa2c9e4f8c3",
+      "sql": "CREATE TABLE alert_rule_configs(rule_id TEXT PRIMARY KEY,project TEXT NOT NULL,revision INTEGER NOT NULL,config TEXT NOT NULL);\nCREATE TABLE alert_rule_previews(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT,digest TEXT NOT NULL,policy_revision INTEGER NOT NULL,created INTEGER NOT NULL);\nCREATE INDEX alert_rule_previews_project ON alert_rule_previews(project,created);\nCREATE TABLE alert_decisions(id TEXT PRIMARY KEY,project TEXT NOT NULL,rule_id TEXT NOT NULL,revision INTEGER NOT NULL,issue TEXT NOT NULL,start INTEGER NOT NULL,end INTEGER NOT NULL,fired INTEGER NOT NULL,reason TEXT NOT NULL,UNIQUE(rule_id,revision,issue,start));\nCREATE INDEX alert_decisions_project ON alert_decisions(project,end);\nCREATE TABLE alert_reactivation_markers(project TEXT NOT NULL,issue TEXT NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(project,issue));\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0086_scrubbing_rules.sql",
+      "sha256": "898f094c9732763ae030e994014ae2a66e017d5beee7f4d4ecd7f59fd2ca3203",
+      "sql": "CREATE TABLE scrubbing_policies (id TEXT PRIMARY KEY, project TEXT, revision INTEGER NOT NULL CHECK(revision>0), policy TEXT NOT NULL, updated INTEGER NOT NULL);\nCREATE UNIQUE INDEX scrubbing_project_policy ON scrubbing_policies(project) WHERE project IS NOT NULL;\nCREATE TABLE scrubbing_previews (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, installation_revision INTEGER NOT NULL, digest TEXT NOT NULL, created INTEGER NOT NULL);\nCREATE TABLE scrubbing_changes (id TEXT PRIMARY KEY, project TEXT, scope TEXT NOT NULL, revision INTEGER NOT NULL, detail TEXT NOT NULL, created INTEGER NOT NULL);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
