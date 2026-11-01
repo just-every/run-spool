@@ -46,6 +46,7 @@ Spool declares its own fonts (self-hosted Zilla Slab, IBM Plex Sans and IBM Plex
 CONTRACT.md is the only acceptance text and status source; ACCEPTANCE.md and docs/CLAIMS.md are generated from it. After editing it, regenerate, check and relock:
 
 Lander-Regenerate: node src/base/contract-docs.mjs write
+Lander-Regenerate: node scripts/archive-history.mjs
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
 Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.

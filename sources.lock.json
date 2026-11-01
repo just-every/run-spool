@@ -2653,7 +2653,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "f9ae75314df47d79675de93d70610b52acc8ff41f270e2dd2fb4a242db3b7b55",
+      "sha256": "1f79a9b27b037785853ec1a0ed3af490d6f414c06f79d75bf9548f76111b71b5",
       "executable": false
     },
     "base-copies.json": {
@@ -10089,7 +10089,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "002be24e47c50341135245a894e9d23cb182e5c8bb01f1ec51fd242ee3c033a0",
+      "sha256": "b1c7afc1f3f477722ae576e9b59010cce4778d922558c05aaff1bd43b4719c77",
       "executable": false
     },
     "tests/agent-door/people.mjs": {
