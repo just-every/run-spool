@@ -46,7 +46,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     {!!project&&configure&&<GroupingRules key={`grouping:${project}`} {...{project,request,run,busy}} approvedPreview={rulePreview?.project===project?rulePreview.preview:null} onSaved={()=>{setProposalVersion(value=>value+1);refresh();}}/>}
     {!!project&&configure&&<GroupingProposals key={`proposals:${project}`} {...{project,request,run,busy,refresh}} refreshVersion={proposalVersion} onRulePreview={preview=>setRulePreview({project,preview})}/>}
     {!!project&&configure&&<SlackDestinationForm key={`slack:${project}`} project={project}/>}
-    {!!project&&configure&&<ScrubbingRules key={`scrubbing:${project}`} {...{project,request,run,busy}}/>}
+    {!!project&&configure&&<ScrubbingRules key={`scrubbing:${project}`} {...{project,request,run,busy}} installation={access.role === 'owner'}/>}
     {!!project&&configure&&<IdentityPolicy key={`identity:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<RecurrencePolicy key={`recurrence:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
