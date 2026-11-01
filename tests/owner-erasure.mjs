@@ -122,7 +122,7 @@ try {
  before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
- const latest=await app.json('/api/owner/erasure');
+ const latest=await app.json('/api/owner/erasure');assert.equal(latest.deleted.spool_notification_preferences,1,'owner erasure previews personal preference custody');
  const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);

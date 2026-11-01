@@ -53,7 +53,7 @@ function stagedValidation(later: string[] = []) {
 
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: ['restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
+ exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
@@ -189,17 +189,21 @@ for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables
 laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
-// The reporting set gets its own array: later sets add tables to every earlier set, and reportingNames must stay the reporting names.
+// Later additions extend each compatibility set. Keep the complete reporting
+// collection independent so its carried-collection check stays authoritative.
 laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 // Destination custody is excluded, so earlier archives need no added product rows.
 for(const later of laterTables)later.migrations.push('0084_restored_work.sql');
 laterTables.unshift({tables:[],migrations:['0084_restored_work.sql']});
 for(const later of laterTables)later.migrations.push('0085_follow_up_acknowledgment.sql');
 laterTables.unshift({tables:[],migrations:['0085_follow_up_acknowledgment.sql']});
-for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0086_alert_conditions.sql')}
-laterTables.unshift({tables:['alert_rule_configs'],migrations:['0086_alert_conditions.sql']});
-for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0087_scrubbing_rules.sql')}
-laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0087_scrubbing_rules.sql']});
+const preferenceNames=Object.keys(notificationPreferenceTables);
+for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0086_notification_preferences.sql')}
+laterTables.unshift({tables:[...preferenceNames],migrations:['0086_notification_preferences.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0087_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0087_alert_conditions.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0088_scrubbing_rules.sql')}
+laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrubbing_rules.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
