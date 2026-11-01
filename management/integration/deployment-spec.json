@@ -480,6 +480,12 @@
       "name": "0085_follow_up_acknowledgment.sql",
       "sha256": "ea6bc5bf81c408e2a4555029596f481e1a04e517ea27584bf59bd5ddcdcccf3d",
       "sql": "-- Keep populated notice rows and their released schema unchanged. This\n-- operational metadata never restores as runnable work or a recipient receipt.\nCREATE TABLE follow_up_notice_meta (\n notice TEXT PRIMARY KEY REFERENCES follow_up_notices(id),\n project TEXT NOT NULL REFERENCES projects(id),\n provider TEXT NOT NULL CHECK(provider='slack'),\n message_id TEXT\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0086_notification_preferences.sql",
+      "sha256": "55b812c1832efdcb071fc6e03e95671a9e479cf09262e27fed441d5adccf3162",
+      "sql": "CREATE TABLE spool_notification_preferences (\n project TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,\n actor_label TEXT NOT NULL,\n operator_id TEXT,\n email TEXT NOT NULL CHECK(json_valid(email)),\n revision INTEGER NOT NULL CHECK(revision>=1),\n updated INTEGER NOT NULL,\n historical INTEGER NOT NULL DEFAULT 0 CHECK(historical IN (0,1)),\n PRIMARY KEY(project,actor_label),\n CHECK(historical=1 OR operator_id IS NOT NULL)\n);\nCREATE UNIQUE INDEX spool_notification_preferences_person ON spool_notification_preferences(project,operator_id) WHERE historical=0;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
