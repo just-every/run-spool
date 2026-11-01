@@ -7533,6 +7533,10 @@
       "sha256": "684734c78e7704d1eac0ea006b2c4e10122f4f7bea2e24780ba4224f4ceb2dd1",
       "executable": false
     },
+    "src/modules/import-kit/src/d1/snapshot-text.ts": {
+      "sha256": "897102ef7d40325dba49573c2b53be45a19d18d0c81d07244015f2bb87d6e84c",
+      "executable": false
+    },
     "src/modules/import-kit/src/d1/staged-creation.ts": {
       "sha256": "4bdca5668ea08f7c275498fcdd272e979307343623b638aa909b5267e216bf2a",
       "executable": false
