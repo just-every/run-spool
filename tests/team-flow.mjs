@@ -1,4 +1,5 @@
 import {discussionFlow} from './discussion-flow.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
@@ -154,7 +155,7 @@ async function teamRiders(owner,first,second,reader,projects) {
   const target=await owner.json(base+'/destinations','POST',{label:'synthetic-spool-'+(20+index),recipient:'synthetic-spool-'+(20+index)+'@example.test'});
   const test=await owner.json(base+'/destinations/'+target.id+'/test','POST',{});
   await owner.json(base+'/destinations/'+target.id+'/review','POST',{testId:test.id});
-  await owner.json(base+'/rules','POST',{name:'synthetic-spool-'+(20+index),enabled:true,channel:'mail',destination:target.id,kinds:['new_issue'],windowMs:60000,threshold:2});
+  await owner.json(base+'/rules','POST',await reviewRule(owner.json,base+'/rules','POST',{name:'synthetic-spool-'+(20+index),enabled:true,channel:'mail',destination:target.id,kinds:['new_issue'],windowMs:60000,threshold:2}));
   const event={...nativeEvent('synthetic-spool-rider-'+index),type:'SyntheticSpoolRider'+index,frames:[{file:'https://synthetic-spool.example/rider'+index+'.js',function:'rider'+index,line:1,column:0}]};
   assert.equal(await status(owner.req('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+project.ingestKey})),201);
   const held=await owner.json(base+'/controls');assert.ok(held.held.some(row=>row.snooze_id===snooze.id&&!row.released_at),'a team snooze durably lists each held project alert');
