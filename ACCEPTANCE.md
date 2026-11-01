@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 48 | 23 | 87 |
+| Core | 16 | 49 | 22 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 48 | 28 | 92 |
+| Full target | 16 | 49 | 27 | 92 |
 
 Judged from the code and tests at commit `aa72e57e1804674a3ecda76777564a4ea0a2a65d` (31 October 2026). AI-002 landing replay retains main's partial Status and recorded Gap. The execution journey adds alternate-release syntax-error and unresolved-import setup failures through source-map upload, queued runner commands and finished-run reads, plus fixed-release successful-return read-back. Application source and acceptance requirements are unchanged; the added assertions do not establish automatic minimization, competing-cause experiments or broader runtime/mobile qualification. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -290,7 +290,7 @@ Core · target · **done** · Rules D-6
 
 #### TEAM-005 — Per-member notification settings and issue subscriptions
 
-Core · target · **missing** · Rules D-4
+Core · target · **partial** · Rules D-1, D-4, D-6
 
 **Requirement.** Each member chooses, per project and per notification type, what reaches them and on which personal channel (email, Slack direct message, Microsoft Teams chat). The types are workflow (resolution, regression, assignment, comment, mention), issue alert, deploy and weekly report. A member is subscribed to an issue by being assigned directly or through a team, commenting, being mentioned, bookmarking it or pressing subscribe; the issue shows why, and an explicit unsubscribe overrides automatic subscription until the member subscribes again. Workflow notifications go to subscribers other than the actor. Deploy notifications go to members whose commits are in the release. The weekly report is opt-in per member. A member can opt out of a project's personal alert email without disabling the rule for others; only an admin can make a rule's delivery mandatory, and the member's settings show it. Every message carries a settings and one-click unsubscribe link that applies before the next message. ALERT-003's personal digests arrive with member notifications: each member's daily/weekly schedules, timezone, channel selection and unsubscribe controls preserve one digest per calendar period and loss/backlog reporting.
 
@@ -299,8 +299,8 @@ Core · target · **missing** · Rules D-4
 2. An assignment, comment, mention, resolution, regression, issue alert, a deploy containing one member's commit and the weekly report each reach exactly the members and channels they chose.
 3. Unsubscribing through a message link stops the next qualifying message to that member, while the other member is unaffected.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: per-member notification settings and issue subscriptions.
+**Evidence.** `tests/team-flow.mjs` teamFlow with `tests/notification-preferences.mjs` notificationPreferencesFlow (acceptance 1 native email slice: two current members independently save and reopen workflow, issue-alert, deploy and opt-in weekly-report choices for two projects through HTTP and Settings; self-only authority, truthful safe audit, no notification on save, inert independent archive restore); `tests/discussion-flow.mjs` discussionFlow (comment, mention and manual issue subscriptions with explicit-unsubscribe precedence); `tests/project-erasure.mjs` and `tests/owner-erasure.mjs` (D-6 preference custody); `src/domain/notifications/`; `src/ui/workbench/PersonalNotifications.tsx`
+**Gap.** Native personal email preferences persist per project and workflow event or notification type; defaults are off, including weekly reports, and saves send no notification. Existing comment, mention and manual subscriptions remain intact. Remaining: personal Slack direct-message and Microsoft Teams chat channels; acceptance 2 event-to-recipient delivery for assignment, comment, mention, resolution, regression, issue alert, commit-matched deploy and weekly report; acceptance 3 message-link unsubscribe and settings links; assignment, team and bookmark subscription reasons and their explanations; actor exclusion, commit-recipient matching, personal alert opt-out applied to delivery, admin-only mandatory-rule controls and their disclosure; personal timezone, channel and daily or weekly digest schedules, one digest per calendar period and unsubscribe, loss and backlog qualification. ALERT-002 buyer-account and real-Slack qualification and ALERT-005 provider prerequisites remain unchanged.
 
 ### Capture and release health
 
