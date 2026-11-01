@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "parent": null,
   "edition": "just-every/spool",
-  "manifest": "14e933ed01464b3d3e40c5fdc4f44f4578919d114e6b4d18ea7ee21dd600e08b",
+  "manifest": "b177fb004373979fae3b7653c3a63bb4b97ea581a1a992be0a3f8764ce334eb5",
   "toolchain": {
     "id": "runeditrun/edition-authoring",
     "version": "1.1.0",
@@ -57,7 +57,8 @@
           "agent-surface.json",
           "scripts/agent-door",
           "verification.json",
-          "scripts/archive-history.mjs"
+          "scripts/archive-history.mjs",
+          "scripts/contract-history.mjs"
         ]
       },
       "baseline": null
@@ -2653,7 +2654,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "1f79a9b27b037785853ec1a0ed3af490d6f414c06f79d75bf9548f76111b71b5",
+      "sha256": "1005d0af2a209a1a5d6aac835714743e55102e25734f7258105cd25066d206d9",
       "executable": false
     },
     "base-copies.json": {
@@ -3705,7 +3706,7 @@
       "executable": false
     },
     "edition.json": {
-      "sha256": "14e933ed01464b3d3e40c5fdc4f44f4578919d114e6b4d18ea7ee21dd600e08b",
+      "sha256": "b177fb004373979fae3b7653c3a63bb4b97ea581a1a992be0a3f8764ce334eb5",
       "executable": false
     },
     "HANDOVER.md": {
@@ -4089,7 +4090,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "1ac28c7697ad8edaf10988db719977c748df419f4f319be0a6ab6289031e443b",
+      "sha256": "3c8b083ad3c5da398c7a274619678b64f018cee5aa6abf2c5962a9b529189d00",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4426,6 +4427,10 @@
     },
     "scripts/build-delivery-artifact.mjs": {
       "sha256": "24cde4dd5cf8723acdfe27f6f92c1fe14402894ee3a63db185e1ce1bdbefa035",
+      "executable": false
+    },
+    "scripts/contract-history.mjs": {
+      "sha256": "a03bc674dba06f42f5816485a0a82e4cd9fae4a0ff5f9a1cd90703a06413b9e5",
       "executable": false
     },
     "scripts/delivery/base/artifact.mjs": {

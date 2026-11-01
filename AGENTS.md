@@ -63,3 +63,5 @@ Keep the existing core-flow registration and CI shard count. Contract judgments
 remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.
 
 Native archive compatibility uses the trusted migration-prefix replay in `src/domain/archive-history.json`. After changing core migrations or the archive exclusion policy, regenerate it with `node scripts/archive-history.mjs`, then run `node scripts/archive-history.mjs --check`. This runs before source-lock validation through `pnpm source:check`; regenerate the source lock last. Never replace replay evidence with an unverified schema acknowledgment.
+
+`pnpm source:check` retrieves only missing immutable Git commits recorded by contract prose/claim provenance before validating them. This keeps the established shallow Verify checkout and its source-retention checks intact; it never changes HEAD or a branch.

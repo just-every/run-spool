@@ -39,7 +39,7 @@
     "test:commands": "node tests/commands.mjs",
     "test:setup": "playwright install chromium",
     "source:lock": "node scripts/edition-authoring/cli.mjs lock",
-    "source:check": "node scripts/archive-history.mjs --check && node scripts/edition-authoring/cli.mjs check",
+    "source:check": "node scripts/contract-history.mjs && node scripts/archive-history.mjs --check && node scripts/edition-authoring/cli.mjs check",
     "sourcemaps": "node packages/sdk/src/sourcemaps/bin.mjs",
     "sdk:pack": "node packages/sdk/build.mjs --pack",
     "sentry:import": "node scripts/sentry-import.mjs",
