@@ -28,7 +28,7 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   insist(manifest.product===config.product,'wrong_product');
   // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
   await appliedMigrations(db);
-  const original=manifest;manifest=await restorableManifest(original);
+  const original=manifest;manifest=await restorableManifest(original,{canonical:true});
   const skippedTables=original.tables.filter(table=>platformTable(table.name)).map(table=>table.name);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
   manifest=await withoutAbsentExcludedObjects(manifest,cat,config);

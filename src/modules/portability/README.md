@@ -608,7 +608,30 @@ of bounded deterministic seeded rows. Volatile seeded rows cannot be vouched for
 their values are never bundled. Runtime policy projects each inventory through
 the same schema identity code as live SQLite. The Worker adapter binds evidence
 to the live hashed ledger and complete schema, then supplies the existing legacy
-collector, archived-ledger validation, bridge and restore guards. Archive SQL is
+collector, archived-ledger validation, bridge and restore guards.
+
+The same explicit build-evidence adoption supports native Wrangler's plain
+`d1_migrations` ledger. Keep the reviewed, unchanged applied migration files in
+the binding's declared directory when building. Every live name must select the
+exact ordered prefix of those files, and replay of that prefix must reproduce
+the complete live schema, including indexes and triggers on excluded tables.
+Unknown names, gaps, reordered names, tracked but missing hashes, and schema
+drift refuse before restore writes. Existing hashes must still match; the
+Node automatic checkout path still requires hashed history. This binds the
+reviewed build to the verified current installation; it does not attest bytes
+Wrangler never recorded. Do not adopt an installation whose applied source
+cannot be established from its retained checkout/build provenance. No ledger
+row, ID, timestamp or schema is changed, no historical hash is backfilled, and
+no archive ancestry is inferred. The archive still needs its own authenticated
+recorded history and schema proof through the existing collector. Native
+seed adapters that normalize an older product format remain responsible for
+that format's existing validation. `restorableManifest` preserves a recognized
+raw table-hash representation carrying an object inventory when projecting out
+bookkeeping so those native
+adapters can recognize their retained formats. Base's importer requests the
+complete canonical identity independently; it never uses that raw projection as
+schema compatibility evidence. Older inventory-free archives retain their
+existing projection and verified legacy-history path. Archive SQL is
 never executed as evidence. Unsupported migration selections and missing evidence
 fail closed with `schema_mismatch:legacy_evidence` (the public HTTP vocabulary
 reports `schema_mismatch`). The ordinary automatic Node library path is unchanged.
@@ -616,7 +639,10 @@ reports `schema_mismatch`). The ordinary automatic Node library path is unchange
 The plugin runs for direct Vite builds and managed builds, rejects client imports,
 and puts its module in the existing Worker bundle/package path. Seeds that do not
 declare it generate no evidence module and need no migration or configuration
-change. Keep the same service instance throughout the initial legacy upload.
+change. Refresh installed helpers and any copied portability runtime together;
+constructor-issued refusals retain their identity across those module copies,
+while arbitrary errors are not promoted to `PortabilityError`. Keep the same
+service instance throughout the initial legacy upload.
 
 Later data statements also qualify when a surviving trigger from that same
 migration repeats the complete statement block, in order, on Base's restore

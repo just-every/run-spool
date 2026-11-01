@@ -1,8 +1,14 @@
 import { canonicalJson } from './hash.mjs';
-const errorCodes = new WeakMap();
+// Installed helpers and copied runtimes can coexist in one Worker. Share only
+// constructor-issued identities, so arbitrary objects with code/status fields
+// never become PortabilityError instances across that boundary.
+const registry = Symbol.for('runeditrun.portability.errors.v1');
+if (!Object.hasOwn(globalThis,registry)) Object.defineProperty(globalThis,registry,{value:new WeakMap()});
+const errorCodes = globalThis[registry];
 // A verifier's original machine code remains independent of mutable properties.
 export const portabilityErrorCode = error => errorCodes.get(error);
 export class PortabilityError extends Error {
+  static [Symbol.hasInstance](error) { return errorCodes.has(error); }
   constructor(code, status=400) { super(code); this.code=code; this.status=status; errorCodes.set(this,code); }
 }
 export function insist(condition, code, status=400) { if (!condition) throw new PortabilityError(code,status); }
