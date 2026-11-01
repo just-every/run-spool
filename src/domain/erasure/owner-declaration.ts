@@ -22,7 +22,10 @@ export async function ownerDeclaration(db: D1Database) {
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
  edges:[
   child('issue_comments'),child('issue_subscriptions'),
-  child('spool_members'),
+  child('spool_members'),child('spool_native_approvals','person'),
+  {table:'agent_door_agents',from:'oa_operators',on:{sponsor:'id'}},
+  {table:'agent_door_calls',from:'agent_door_agents',on:{agent:'id'}},
+  {table:'agent_door_usage',from:'agent_door_agents',on:{agent:'id'}},
   {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},
   {table:'spool_team_snoozes',from:'spool_members',on:{creator:'id'}},
   {table:'spool_team_mail',from:'spool_members',on:{member:'id'}},

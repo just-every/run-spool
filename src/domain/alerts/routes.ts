@@ -1,7 +1,8 @@
+import type { NativeAuthority } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
 import { revokeSlack } from './slack-destinations.server';
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import type { Bindings } from '../../auth/bindings';
@@ -18,7 +19,7 @@ import { testDestination, reviewTest, requireReviewedTest } from './destination-
 type Env=Bindings&AlertEnvironment;
 import { controlsRoutes } from './controls-routes';
 import { teamControls } from './team-controls';
-const routes=new Hono<{Bindings:Env;Variables:{alertSession:OwnerSession}}>();
+const routes=new Hono<{Bindings:Env;Variables:{alertSession:NativeAuthority}}>();
 // This router authenticates its own direct transport as well as its parent API mount.
 routes.use('*',async(c,next)=>{const env=runtimeBindings(c.env);const session=await ownerSession(c.req.raw,env,resolveMembership);if(!session)return c.json({error:'Owner session required'},401);c.set('alertSession',session);if(!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,env))return c.json({error:'Same-origin required'},403);if(!await s(env.DB,'SELECT 1 FROM projects WHERE id=?',c.req.param('project')!).first())return c.json({error:'Project not found'},404);await next()});
 async function input(c:any) {

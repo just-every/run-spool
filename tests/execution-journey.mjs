@@ -63,7 +63,7 @@ try{
  const pending=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
- const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
+ const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,proofReference,...row})=>row)});
  const before=await views(app);
  restored=await executionRuntime(restoredState,15477,{GITHUB_CONNECTION:github.connection});await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  const historical={reproducers:before.reproducers.map(row=>({...row,runs:row.runs.map(run=>({...run,historical:true}))})),workflows:before.workflows.map(row=>({...row,historical:true,status:'historical'}))};
@@ -89,6 +89,7 @@ try{
  const restoredPlan=await restored.json(`${p}/erasure`);await followErasure(restored.json,await restored.json(`${p}/erasure`,'POST',{confirm:'shop',planHash:restoredPlan.planHash}));
  assert.equal((await restored.db.prepare('SELECT COUNT(*) n FROM restored_work WHERE project=?').bind('shop').first()).n,0,'project erasure removes destination custody with its work');
  const replay=await restored.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(replay.status,400,'an erased project cannot return through an old archive');assert.equal((await replay.json()).error,'erasure_epoch','the erasure fence rejects the old epoch before restoring rows');assert.deepEqual(await restored.json('/api/projects'),[],'refused archive replay leaves the erased destination empty');
+ assert.ok((await restored.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.every(row=>row.proofReference===null),'Restored history never restores live repository proof');
  results.archive={reproducers:before.reproducers.length,runs:before.reproducers.reduce((n,r)=>n+r.runs.length,0),workflows:before.workflows.length,receipts:before.workflows.reduce((n,w)=>n+w.receipts.length,0)};
  // Erasure removes every new table's rows for the project, an unused run token included.
  stage='erasure';
