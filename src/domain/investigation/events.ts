@@ -1,7 +1,7 @@
 import { resolveMembership } from '../members/resolver';
 import { linkedCheckIns } from '../checkins/intake';
 import { Hono } from 'hono';
-import { ownerSession } from '../../auth/session.server';
+import { requestAuthority as ownerSession } from '../agent-door/native-authority';
 import { normalize, hash, grouping } from '../privacy';
 import { diagnose } from '../artifacts';
 import { diagnosticProjection } from '../agent-projection';

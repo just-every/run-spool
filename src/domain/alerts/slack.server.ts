@@ -3,7 +3,7 @@ import { retryAfter } from '../../modules/integrations/core/webhook';
 import type { AlertEnvironment } from './types';
 export const slackEndpoint = 'https://slack.com/api/chat.postMessage';
 export type SlackDestination = { token?: string; channelId?: string };
-export const slackSummary = (payload: any) => payload.test ? 'Spool TEST — destination check. No issue or alert was created.' : `Spool ${String(payload.kind).replaceAll('_',' ')}: ${payload.title}\n${payload.issueUrl ?? 'Issue link unavailable: configure an HTTPS installation origin.'}`;
+export const slackSummary = (payload: any) => payload.test ? 'Spool TEST — destination check. No issue or alert was created.'+(payload.preparedBy?.label?` Prepared by ${payload.preparedBy.label}.`:'')+(payload.approvers?.length?` Approved by ${payload.approvers.map((p:any)=>p.name).join(', ')}.`:'') : `Spool ${String(payload.kind).replaceAll('_',' ')}: ${payload.title}\n${payload.issueUrl ?? 'Issue link unavailable: configure an HTTPS installation origin.'}`;
 export function slackPayload(destination: SlackDestination, payload: any) {
  const text=slackSummary(payload);
  if (text.length>3500 || !destination.channelId || !destination.token) throw new Error('slack_configuration');

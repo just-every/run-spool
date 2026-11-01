@@ -12,7 +12,9 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  suspect_decisions: ['note'],
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
- repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
+ agent_door_calls:['outcome'],agent_door_audit:['row','evidence'],agent_door_approvals:['saved','approvals','result'],agent_door_reviews:['saved'],agent_door_events:['event'],
+ spool_native_audit_actors:['actor','approvers'],spool_agent_operations:['actor','approvers'],spool_agent_custody:['principal','actor'],spool_erasure_agents:['principal','actor'],
+ repairs: ['recorded_by','note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
  // TEAM-004: a cited commit's author is matched like any captured value, as whole tokens.
@@ -20,7 +22,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  // SRC-003: free text a CI job sent with a release or a deploy.
  sentry_releases: ['url'], sentry_deploys: ['name','url'],
 };
-const jsonColumns = new Set(['payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
+const jsonColumns = new Set(['outcome','actor','approvers','principal','row','evidence','saved','approvals','result','event','payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
 const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));
