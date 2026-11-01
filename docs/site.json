@@ -16,7 +16,8 @@
         {
           "slug": "install",
           "source": "docs/install.md",
-          "label": "Run it on your computer"
+          "label": "Run it on your computer",
+          "unlisted": true
         },
         {
           "slug": "capture",

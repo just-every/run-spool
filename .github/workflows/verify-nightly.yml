@@ -1,0 +1,307 @@
+name: Nightly journeys
+
+on:
+  schedule:
+    - cron: '11 4 * * 1,4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Check source and portable contract
+        run: |
+          pnpm run check -- --profile first-party
+          pnpm source:check
+          node src/base/contract-docs.mjs check
+          node scripts/edition-authoring/cli.mjs verify-base --offline
+      - name: Build application
+        run: pnpm run build:app
+      - name: Check integration and types
+        run: |
+          pnpm integration:check
+          pnpm typecheck
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verify-build
+          # Only build output, including hidden Vite manifests and asset rules.
+          # Never transfer local settings, state, or installation data.
+          path: |
+            dist/
+            public/errors-capture.js
+            !dist/**/.dev.vars*
+            !dist/**/.env*
+            !dist/**/.wrangler/**
+            !dist/**/.rer/**
+            !dist/**/.seed/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  runtimes:
+    # Real Sentry SDK programs, one runtime per job, against Spool's public intake.
+    name: runtime (${{ matrix.runtime }})
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
+    env:
+      RER_SERVERS_DISK_FLOOR_GIB: '4'
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [electron, python, go, java, ruby, php, dotnet, rust, elixir, node]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: verify-build
+          path: .
+      - if: matrix.runtime == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - if: matrix.runtime == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: false
+      - if: matrix.runtime == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - if: matrix.runtime == 'ruby'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - if: matrix.runtime == 'php'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+      - if: matrix.runtime == 'dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - if: matrix.runtime == 'elixir'
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27'
+          elixir-version: '1.18'
+      - if: matrix.runtime == 'rust'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ${{ runner.temp }}/cargo-target
+          key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
+      # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
+      # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
+      - run: pnpm exec playwright install chromium
+      - if: matrix.runtime == 'electron'
+        name: Install Electron virtual display
+        run: |
+          # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
+          # Three 60s attempts plus kill grace/backoff fit within the existing cap.
+          mirrors=(http://azure.archive.ubuntu.com/ubuntu http://mirrors.edge.kernel.org/ubuntu http://us-east-1.ec2.archive.ubuntu.com/ubuntu)
+          sudo mkdir -p /var/tmp/spool-electron-apt/archives
+          cat <<'APT' | sudo tee /var/tmp/spool-electron-apt/apt.conf > /dev/null
+          Dir::Cache::archives "/var/tmp/spool-electron-apt/archives";
+          APT::Keep-Downloaded-Packages "true";
+          APT::Update::Error-Mode "any";
+          Acquire::Retries "2";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          APT
+          started=$SECONDS
+          for attempt in 1 2 3; do
+            mirror=${mirrors[attempt - 1]}
+            sudo sed -i -E "s@^(URIs:[[:space:]]*)https?://(([a-z0-9.-]+\.)?archive\.ubuntu\.com|security\.ubuntu\.com|mirrors\.edge\.kernel\.org)/ubuntu/?@\1${mirror}/@" /etc/apt/sources.list.d/ubuntu.sources
+            printf 'Electron apt: display attempt %s/3 (60s deadline; mirror %s)\n' "$attempt" "$mirror"
+            if sudo env APT_CONFIG=/var/tmp/spool-electron-apt/apt.conf timeout --kill-after=5s 60s bash -ec '
+              dpkg --configure -a
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xvfb xauth
+            '; then
+              printf 'Electron apt: display complete (attempts=%s mirror=%s seconds=%s)\n' "$attempt" "$mirror" "$((SECONDS - started))"
+              exit 0
+            else
+              status=$?
+              printf 'Electron apt: display attempt %s/3 failed (mirror %s, exit %s, seconds=%s)\n' "$attempt" "$mirror" "$status" "$((SECONDS - started))" >&2
+            fi
+            if (( attempt < 3 )); then sleep "$((attempt * 2))"; fi
+          done
+          printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
+          exit 1
+      - name: Run ${{ matrix.runtime }} SDK journey
+        env:
+          CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
+        run: |
+          if [ "${{ matrix.runtime }}" = electron ]; then
+            xvfb-run -a node tests/sdk-runtimes.mjs electron
+          else
+            node tests/sdk-runtimes.mjs "${{ matrix.runtime }}"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: matrix.runtime == 'electron' && success()
+        with:
+          name: electron-screens
+          path: .artifacts/runtimes/
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-output-runtime-${{ matrix.runtime }}
+          path: |
+            .artifacts/worker-output/
+            .artifacts/runtimes/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
+  tests:
+    name: verify (${{ matrix.shard }})
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
+      RER_SERVERS_DISK_FLOOR_GIB: '4'
+      # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
+      # workerd crash) only under this flag; the kept server output below then carries it.
+      NODE_DEBUG: '@cloudflare:vite-plugin'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: runtime
+            command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+          - shard: owner-ui
+            command: pnpm test:accessibility && pnpm test:admission
+          - shard: alerts
+            command: pnpm test:alerts && pnpm test:alerts-ui
+          - shard: sdk
+            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+          - shard: sentry-cli
+            command: pnpm test:sentry:cli
+          - shard: tunnel
+            command: pnpm test:tunnel
+          - shard: wizard
+            command: pnpm test:wizard
+          - shard: agent-handoff
+            command: pnpm test:agent-handoff && pnpm test:privacy
+          - shard: repair-recovery
+            command: pnpm test:repair-recovery
+          - shard: execution
+            command: pnpm test:execution
+          - shard: project-erasure
+            command: pnpm test:project-erasure
+          - shard: project-erasure-cap
+            command: pnpm test:project-erasure-cap
+          - shard: owner-erasure
+            command: pnpm test:owner-erasure
+    steps:
+      # Keep the default checkout root on every runner: emitted configs can
+      # contain absolute paths from the build job's checkout.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: verify-build
+          path: .
+      # Only the browser: the runner image's Chrome already brings its system libraries, and
+      # apt from the image's mirror has run past the 10-minute job limit.
+      - run: pnpm exec playwright install chromium
+        env:
+          DEBUG: pw:install
+      - name: Run suites
+        if: matrix.shard != 'wizard'
+        run: ${{ matrix.command }}
+      - name: Run suites (wizard, 8-minute deadline)
+        if: matrix.shard == 'wizard'
+        env:
+          SUITE_COMMAND: ${{ matrix.command }}
+        run: |
+          # This journey installs and builds real apps. Bound the entire process group,
+          # including stuck npm/pip/build children, before the job cap skips artifacts.
+          if timeout --kill-after=10s 8m bash -e -o pipefail -c "$SUITE_COMMAND"; then
+            exit 0
+          else
+            status=$?
+            if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
+              echo '::error::Wizard suite exceeded its 8-minute deadline (10-second kill grace). See the last [wizard] stage for the stalled operation.'
+            fi
+            exit "$status"
+          fi
+      # Each journey's dev server (rer, Vite, workerd) and test Worker output, with the
+      # checkout's secrets redacted, for diagnosing a failed run.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-output-${{ matrix.shard }}
+          path: |
+            .artifacts/dev-server/
+            .artifacts/worker-output/
+            .artifacts/wave-b/
+            .artifacts/latest-product-worker.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Check hosted output and hydration
+        if: matrix.shard == 'owner-ui'
+        # These are the post-verify:app checks from the pinned rer verify.
+        # Node 22 detects module syntax; --input-type breaks Miniflare's file-based worker thread.
+        run: |
+          node <<'NODE'
+          import {checkHostedOutput} from '@runeditrun/rer/internal/cli/hosted-output.mjs';
+          import {checkHydration} from '@runeditrun/rer/internal/cli/hydration/check.mjs';
+          import {commandAdapter} from './scripts/installer/local.mjs';
+          const root = process.cwd();
+          const declaration = commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration;
+          console.log(await checkHostedOutput(root, {declaration}));
+          console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
+          NODE
+
+  commands:
+    uses: ./.github/workflows/command-journey.yml

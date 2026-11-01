@@ -44,6 +44,10 @@
 .prose pre[data-language]::before{content:attr(data-language);position:absolute;top:10px;right:16px;font:500 var(--font-small)/1 var(--font-code);letter-spacing:.06em;color:var(--ink-soft)}
 .prose pre code{padding:0;background:none;font-size:inherit;overflow-wrap:normal}
 
+/* The install recipe stays readable in full on a phone. */
+.docs-article[data-doc="getting-started"] pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.docs-article[data-doc="getting-started"] pre code{overflow-wrap:anywhere}
+
 /* Callouts: a quoted note on a quiet marker tint, within one even rule. */
 .prose blockquote{margin:18px 0 0;padding:14px 20px 14px 25px;background:var(--mark-tint);border:var(--inner-border);border-radius:var(--radius-input)}
 .prose blockquote>*+*{margin-top:10px}

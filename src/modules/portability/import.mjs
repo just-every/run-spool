@@ -1,4 +1,4 @@
-import { all, statement, state, guard, job, save, partQueries, parts, readPart, cleanCopies, quote, stream, insist, run } from './storage.mjs';
+import { all, statement, state, guard, job, save, partQueries, parts, readPart, dropCopyStatements, cleanCopyStatements, quote, stream, insist, run } from './storage.mjs';
 import { stagePart } from './import-staging.mjs';
 import { normalizeStaged } from './import-safety.mjs';
 import { ensureImportLeases, createImportLease, importLeaseStatus, importRunning, withImportLease } from './import-lease.mjs';
@@ -13,23 +13,44 @@ import { fence, mergeJournal, tombstone } from './journal.mjs';
 import { writeObject } from './payloads.mjs';
 import { createCopy,sidecar,readCopy,restoreCopy } from './copies.mjs';
 import { excludedDependentGuards, migrationSeeded, seededCondition } from './restore-safety.mjs';
-import { additiveBridge, sameSchemaMigrations, appliedMigrations } from './bridge.mjs';
+import { additiveBridge, sameSchemaMigrations, appliedMigrations, verifiedLegacySchema } from './bridge.mjs';
 import { replayStatements } from './backfills.mjs';
 import { checkArchivedLedgers, archivedHistory } from './ledgers.mjs';
 import { legacyEmptyGuards, legacyAuditStatements, requireLegacyEmpty } from './legacy-safety.mjs';
+import { checkReferences } from './references.mjs';
+import { rebuildDerivedStatements } from './derived.mjs';
 // ledgers: the rows of each migration ledger table the archive carries, as the
 // caller read them from it ({table:rows}); uploadPart binds them to its parts.
-export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers) {
+export async function createImport(context,manifest,actor='direct',legacyRecovery,ledgers,acknowledgeUnverifiedSchemaObjects=false) {
   const {db,config,buckets}=context;await checkManifest(manifest);checkArchivedLedgers(manifest,ledgers);
   insist(manifest.product===config.product,'wrong_product');
   // Explicit schema upgrades can reconcile rows, but cannot attest an interrupted deployment.
-  await appliedMigrations(db);await state(db);
+  await appliedMigrations(db);
   const original=manifest;manifest=await restorableManifest(original);
   const skippedTables=original.tables.filter(table=>platformTable(table.name)).map(table=>table.name);
   const cat=await catalogue(db,config),upgrade=config.acceptedSchemas[original.schema];
-  const same=manifest.schema===cat.identity,history=()=>archivedHistory(original,ledgers);
-  const {replays,...bridge}=same || upgrade?{}:await additiveBridge(db,manifest,cat,context.migrations,history);
-  if(same && !upgrade)await sameSchemaMigrations(db,manifest,cat,context.migrations,history);
+  const legacy=original.version===2 && manifest.schemaObjects===undefined;
+  // An explicit acknowledgment keeps its existing recovery semantics. Without
+  // it, legacy v2 needs positive replay evidence for its recorded schema and
+  // the complete destination. The ordinary bridge then checks later migrations.
+  const unverified=legacy && acknowledgeUnverifiedSchemaObjects===true;
+  const verifyingLegacy=legacy && !unverified && !legacyRecovery;
+  const history=()=>archivedHistory(original,ledgers,{allowOlderShape:unverified || verifyingLegacy});
+  const verified=(verifyingLegacy || (!legacy && manifest.schema!==cat.identity)) && await verifiedLegacySchema(db,manifest,cat,context.migrations,history);
+  insist(!legacy || legacyRecovery || unverified || verified,'schema_mismatch:legacy_schema',409);
+  if(verified)manifest={...manifest,schema:verified};
+  if(unverified)for(const table of manifest.tables) {
+    const target=cat.tables.find(t=>t.name===table.name);
+    insist(target,'schema_mismatch:table:'+table.name,409);
+    for(const column of table.columns)insist(target.columns.some(c=>canonicalJson(c)===canonicalJson(column)),'schema_mismatch:column:'+table.name+':'+column.name,409);
+    insist(table.dependencies.every(d=>target.dependencies.includes(d)),'schema_mismatch:dependencies:'+table.name,409);
+  }
+  const same=manifest.schema===cat.identity;
+  const {replays,...bridge}=unverified?await additiveBridge(db,manifest,cat,context.migrations,history,legacyRecovery,true):upgrade?{}:same?(await sameSchemaMigrations(db,manifest,cat,context.migrations,history)??{}):await additiveBridge(db,manifest,cat,context.migrations,history,legacyRecovery);
+  // Finalize checks object references on the staged rows; a later migration
+  // replayed into a reference table would publish rows that check never saw.
+  const referenced=replays?.find(r=>Object.values(config.buckets).some(spec=>spec.objectReferences?.table===r.table));
+  insist(!referenced,'schema_mismatch:migration_data:'+referenced?.migration);
   if(!bridge.fromSchema)insist(canonicalJson(manifest.tables.map(x=>x.name))===canonicalJson(cat.tables.map(x=>x.name)),'table_inventory');
   if(!upgrade && !bridge.fromSchema)for(const table of manifest.tables) {
     const target=cat.tables.find(t=>t.name===table.name);
@@ -42,6 +63,7 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
   insist(canonicalJson(manifest.requiredConfiguration)===canonicalJson(config.requiredConfiguration),'configuration_inventory');
   for(const o of manifest.objects) insist(buckets[o.bucket] && config.buckets[o.bucket] && o.key.startsWith(config.buckets[o.bucket].prefix??''),'bucket_inventory');
   insist(canonicalJson(manifest.payloads.map(x=>x.name))===canonicalJson(Object.keys(config.extraPayloads).sort()),'payload_inventory');
+  if(unverified)await destinationState(context,{metadata:{targets:cat.tables,manifest:original}});
   await ensureImportLeases(db);
   const previous=(await state(db)).import_job;
   if(previous) {
@@ -49,10 +71,10 @@ export async function createImport(context,manifest,actor='direct',legacyRecover
     await abortImport(context,previous,{staleOnly:true});
   }
   const id=crypto.randomUUID(),copies=Object.fromEntries(targets.map((t,i)=>[t.name,'rer_portability_stage_'+id.replaceAll('-','')+'_'+i]));
-  const row={id,kind:'import',actor,phase:'staging',completed:0,metadata:{manifest:original,...(skippedTables.length?{restoreManifest:manifest,skippedTables}:{}),copies,targets,triggers:cat.triggers,...(bridge.fromSchema?{bridge}:{}),...(replays?{replays}:{}),...(legacyRecovery?{legacyRecovery}: {}),...(ledgers?{ledgers}:{})}};
+  const row={id,kind:'import',actor,phase:'staging',completed:0,metadata:{manifest:original,...(unverified?{schemaUnverified:{reason:'acknowledged recovery of a version 2 archive without schemaObjects',sourceIdentity:original.sourceIdentity,exportedAt:original.exportedAt,acknowledgedAt:new Date().toISOString()}}:{}),...(skippedTables.length?{restoreManifest:manifest,skippedTables}:{}),copies,targets,triggers:cat.triggers,...(bridge.fromSchema?{bridge}:{}),...(replays?{replays}:{}),...(legacyRecovery?{legacyRecovery}: {}),...(ledgers?{ledgers}:{})}};
   try {
     await db.batch([guard(db,'(SELECT import_job FROM rer_portability_state WHERE id=1) IS NULL'),
-      statement(db,'UPDATE rer_portability_state SET import_job=? WHERE id=1',id),
+      statement(db,'UPDATE rer_portability_state SET import_job=?,applying=? WHERE id=1',id,unverified?1:0),
       ...targets.flatMap(t=>createCopy(db,t,copies[t.name])),
       statement(db,'INSERT INTO rer_portability_jobs(id,kind,actor,phase,metadata) VALUES(?,?,?,?,?)',id,'import',actor,row.phase,canonicalJson(row.metadata)),createImportLease(db,id),db.prepare('DELETE FROM rer_portability_guard')]);
   }catch(e){const running=(await state(db)).import_job;if(running)throw await importRunning(db,running);throw e;}
@@ -182,8 +204,10 @@ async function finalizeLeasedImport(context,id,{contentHash,archiveHash,laterJou
   await refusePolicyApprovals(db,row.metadata.copies);
   await normalizeStaged(context,row);
   await refusePolicyApprovals(db,row.metadata.copies);
+  // The rows publication restores may name only this archive's objects, in their namespace.
+  await checkReferences(context,row.metadata.copies,manifest.objects);
   if(config.validateStaged) {
-    const read=async table=>{insist(row.metadata.copies[table],'staged_table');const target=row.metadata.targets.find(t=>t.name===table);return (await readCopy(db,target,row.metadata.copies[table],0,row.metadata.manifest.tables.find(t=>t.name===table)?.count??0)).map(x=>x.row);};
+    const read=async table=>{insist(row.metadata.copies[table],'staged_table:'+table);const target=row.metadata.targets.find(t=>t.name===table);return (await readCopy(db,target,row.metadata.copies[table],0,row.metadata.manifest.tables.find(t=>t.name===table)?.count??0)).map(x=>x.row);};
     insist(await config.validateStaged({db,tables:{...row.metadata.copies},read,manifest})!==false,'staged_validation');
   }
   row.phase='applying';
@@ -199,27 +223,32 @@ async function finalizeLeasedImport(context,id,{contentHash,archiveHash,laterJou
       insist(hash.digest()===object.sha256,'object_write_checksum');
     }
     for(const payload of manifest.payloads)await config.extraPayloads[payload.name].consume(binaryStream(context,id,payload,binaryIndexes),payload);
+    const derived=await rebuildDerivedStatements(db,config);
     row.phase='complete';row.metadata.contentHash=digest;
+    if(row.metadata.schemaUnverified)row.metadata.schemaUnverified.archiveHash=archiveHash;
     await db.batch([db.prepare('PRAGMA defer_foreign_keys=ON'),...emptyGuards(context,row,seeded),...seeded.map(t=>guard(db,...seededCondition(t))),...dependentGuards,...legacyEmptyGuards(db,row),
       guard(db,'NOT EXISTS(SELECT 1 FROM rer_portability_epochs WHERE source=? AND epoch>?) AND NOT EXISTS(SELECT 1 FROM rer_portability_state WHERE source_identity=? AND epoch>?)',manifest.sourceIdentity,checked.epoch,manifest.sourceIdentity,checked.epoch),
       ...row.metadata.targets.map(t=>guard(db,`NOT EXISTS(SELECT 1 FROM ${quote(sidecar(row.metadata.copies[t.name]))} s JOIN rer_portability_journal j ON j.source=? AND j.tombstone=s.rer_portability_tombstone)`,manifest.sourceIdentity)),
       ...row.metadata.triggers.map(t=>db.prepare(`DROP TRIGGER ${quote(t.name)}`)),
       ...replaced.map(t=>db.prepare(`DELETE FROM ${quote(t)}`)),
       ...row.metadata.targets.flatMap(t=>restoreCopy(db,t,row.metadata.copies[t.name])),save(db,row),...replayStatements(db,row),
-      ...row.metadata.triggers.map(t=>db.prepare(t.sql)),...mergeJournal(db,manifest,checked),...legacyAuditStatements(db,row),
+      ...row.metadata.triggers.map(t=>db.prepare(t.sql)),...derived,...mergeJournal(db,manifest,checked),...legacyAuditStatements(db,row),
+      // Publication and removal of this import's scratch commit together. A lost
+      // acknowledgement still finds a complete job with no staging left behind.
+      ...dropCopyStatements(db,row),
       db.prepare('UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1'),db.prepare('DELETE FROM rer_portability_guard')]);
   }catch(e){
     // D1 may have committed even when its acknowledgement failed.
     if((await job(db,id)).phase==='complete')return importStatus(context,id);
     if(!await context.importLease.owned())throw new (await import('./storage.mjs')).PortabilityError('import_lease_expired',409);
-    await removeOwned(context,id);row.phase='staging';await db.batch([save(db,row),db.prepare('UPDATE rer_portability_state SET applying=0 WHERE id=1')]);throw e;
+    await removeOwned(context,id);row.phase='staging';await db.batch([save(db,row),statement(db,'UPDATE rer_portability_state SET applying=? WHERE id=1',row.metadata.schemaUnverified?1:0)]);throw e;
   }
   return importStatus(context,id);
 }
 // Upload receipts stay idempotent; the status door exposes the moving lease.
 export async function importStatus(context,id,{includeLease=true}={}) {
   const row=await job(context.db,id,'import');return {id,kind:'import',phase:row.phase,completed:row.completed,total:row.metadata.manifest.partCount,...(includeLease?await importLeaseStatus(context.db,row):{}),
-    contentHash:row.metadata.contentHash??null,requiredConfiguration:row.phase==='complete'?row.metadata.manifest.requiredConfiguration:[],...(row.metadata.bridge?{bridged:row.metadata.bridge}:{}),...(row.metadata.skippedTables?{skippedTables:row.metadata.skippedTables}:{}),...(row.metadata.safetyChanges?{safetyChanges:row.metadata.safetyChanges}:{})};
+    contentHash:row.metadata.contentHash??null,...(row.phase==='complete' && row.metadata.schemaUnverified?{schemaUnverified:row.metadata.schemaUnverified}:{}),requiredConfiguration:row.phase==='complete'?row.metadata.manifest.requiredConfiguration:[],...(row.metadata.bridge?{bridged:row.metadata.bridge}:{}),...(row.metadata.skippedTables?{skippedTables:row.metadata.skippedTables}:{}),...(row.metadata.safetyChanges?{safetyChanges:row.metadata.safetyChanges}:{})};
 }
 export async function activeImport(context,actor='direct') {
   const id=(await state(context.db)).import_job;
@@ -232,8 +261,8 @@ export async function abortImport(context,id,options={}) {
 }
 async function abortLeasedImport(context,row) {
   const id=row.id;
-  await removeOwned(context,id);await cleanCopies(context.db,row);row.phase='aborted';
-  await context.db.batch([save(context.db,row),statement(context.db,'UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1 AND import_job=?',id)]);
+  await removeOwned(context,id);row.phase='aborted';
+  await context.db.batch([...cleanCopyStatements(context.db,row),save(context.db,row),statement(context.db,'UPDATE rer_portability_state SET import_job=NULL,applying=0 WHERE id=1 AND import_job=?',id)]);
   return importStatus(context,id);
 }
 // A restore's staging outlives a worker that died mid-restore (a crashed process or workerd) and refuses

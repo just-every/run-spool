@@ -16,8 +16,8 @@ import { tableNames, splitStatements } from './sql-text.mjs';
 // operator-auth or other excluded tables that no trigger links to restorable ones.
 // `empty` lists the restorable tables the archive holds no rows of: restore
 // leaves them empty, and an UPDATE or DELETE of an empty table changes nothing
-// (no row fires a trigger either), so such a statement changes data only if it
-// names another reached table (one it could write, or read into its writes).
+// (no row fires a trigger either), regardless of the tables it reads. This
+// exemption requires a bounded data statement whose target can be read.
 // Any other statement naming an empty table still does: an INSERT would leave
 // rows the restore lacks. A chunk holding several statements (sql-text.mjs
 // splitStatements) changes data when any of them does.
@@ -27,28 +27,30 @@ export function changesData(sql,reached,empty=[]) {
 function statementChanges(sql,reached,empty) {
   const list=tokens(sql),words=list.map(t=>t.quoted?undefined:folded(t.text)),kind=kindOf(words);
   if(kind==='create table')return topLevelWords(list,words).includes('as');
-  if(kind==='create index')return false;
+  if(['create index','create view','drop view'].includes(kind))return false;
   if(kind==='alter table' && words.find((w,i)=>i>2 && ['add','rename','drop'].includes(w))==='add')return false;
   if(kind==='create trigger' && createdTrigger(list))return false;
   if(kind==='drop trigger' && droppedTrigger(list))return false;
-  const skipped=new Set(['update','delete'].includes(words[0])?empty.map(folded):[]);
-  return names(list,new Set(reached.map(folded).filter(name=>!skipped.has(name))));
+  const data=dataStatement(sql);
+  if(data && ['update','delete'].includes(data.verb) && empty.map(folded).includes(data.target))return false;
+  return names(list,new Set(reached.map(folded)));
 }
 // The restorable tables and every table whose writes reach one through a
 // trigger any of `statements` creates, or through a foreign key action (ON
 // DELETE/UPDATE CASCADE or SET) declared by a reached table: a write to such a
 // table during a later migration changes restorable rows the archive lacks. A
-// trigger counts when its statement names a reached table anywhere; one this
-// parser cannot bound adds every table name it holds (sql-text.mjs tableNames:
-// never a keyword, function, qualified column or literal).
+// bounded trigger with a writing body counts when its statement names a reached
+// table anywhere; a read-only body (including SELECT RAISE) writes nothing.
+// One this parser cannot bound adds every table name it holds (sql-text.mjs
+// tableNames: never a keyword, function, qualified column or literal).
 export function reachingTables(statements,restorable) {
   const reached=new Set(restorable.map(folded)),parsed=statements.flatMap(splitStatements).map(sql=>tokens(sql)).map(list=>({list,words:list.map(t=>t.quoted?undefined:folded(t.text))}));
-  const triggers=parsed.filter(({words})=>kindOf(words)==='create trigger').map(({list})=>({list,on:createdTrigger(list)?.on}));
+  const triggers=parsed.filter(({words})=>kindOf(words)==='create trigger').map(({list})=>({list,created:createdTrigger(list)})).filter(({created})=>!created || created.writes);
   const actions=parsed.filter(({words})=>['create table','alter table'].includes(kindOf(words)) && words.some((w,i)=>w==='cascade' || (w==='set' && ['delete','update'].includes(words[i-1])))).map(({list})=>referencing(list));
   for(let grew=true;grew;) {
     grew=false;
     const add=name=>{if(!reached.has(name)){reached.add(name);grew=true;}};
-    for(const {list,on} of triggers)if(names(list,reached))(on===undefined?tableNames(list):[on]).forEach(add);
+    for(const {list,created} of triggers)if(names(list,reached))(created===undefined?tableNames(list):[created.on]).forEach(add);
     for(const {table,parents} of actions)if(table===undefined?parents.some(name=>reached.has(name)):reached.has(table))parents.forEach(add);
   }
   return [...reached];
@@ -115,7 +117,7 @@ function closing(parts,start) {
   for(let i=start;i<parts.length;i++){if(parts[i].quoted)continue;if(parts[i].text==='(')depth++;else if(parts[i].text===')' && !--depth)return i+1;}
   return parts.length;
 }
-// The table names in the bodies of triggers on `table` that `statements`
+// The table names in writing bodies of triggers on `table` that `statements`
 // create, and every one in a trigger this parser cannot bound that names the table.
 export function triggerBodies(statements,table) {
   const result=[];
@@ -123,7 +125,7 @@ export function triggerBodies(statements,table) {
     if(kindOf(list.map(t=>t.quoted?undefined:folded(t.text)))!=='create trigger')continue;
     const created=createdTrigger(list);
     if(!created){if(tableNames(list).includes(table))result.push(...tableNames(list));}
-    else if(created.on===table)result.push(...tableNames(atoms(list).slice(created.begin+1)));
+    else if(created.on===table && created.writes)result.push(...tableNames(atoms(list).slice(created.begin+1)));
   }
   return result;
 }
@@ -149,9 +151,11 @@ function atoms(list) {
 }
 const semicolon=a=>!a.quoted && a.text===';';
 const word=(a,value)=>a && !a.quoted && folded(a.text)===value;
-// {on} for CREATE [TEMP] TRIGGER ... ON table ... BEGIN statement; ... END and
-// nothing after it. The body ends at the first END that starts a statement;
-// CASE ... END inside a statement does not. Anything else is unbounded.
+// {on,begin,writes} for CREATE [TEMP] TRIGGER ... ON table ... BEGIN statement;
+// ... END and nothing after it. Only body DML counts as writing; WHEN reads
+// and the header's INSERT/UPDATE/DELETE event do not. The body ends at the first
+// END that starts a statement; CASE ... END inside a statement does not.
+// Anything else is unbounded.
 function createdTrigger(list) {
   const parts=atoms(list);let depth=0,begin=-1,on;
   for(let i=0;i<parts.length && begin<0;i++) {
@@ -170,11 +174,12 @@ function createdTrigger(list) {
     }else if(!depth && word(a,'begin'))begin=i;
   }
   if(begin<0 || on===undefined)return;
-  let start=true,statements=0;
+  let start=true,statements=0,writes=false;
   for(let i=begin+1;i<parts.length;i++) {
     const a=parts[i];
-    if(start && word(a,'end'))return i===parts.length-1 && statements && !depth?{on,begin}:undefined;
+    if(start && word(a,'end'))return i===parts.length-1 && statements && !depth?{on,begin,writes}:undefined;
     if(semicolon(a)){if(start || depth)return;start=true;statements++;continue;}
+    if(['insert','replace','update','delete'].some(verb=>word(a,verb)))writes=true;
     if(!a.quoted){if(a.text==='(')depth++;else if(a.text===')' && --depth<0)return;}
     start=false;
   }
