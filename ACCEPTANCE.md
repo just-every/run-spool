@@ -1287,7 +1287,7 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 �
 1. A realistic team project is onboarded, an error captured and mapped, searched, assigned and commented on, an alert followed and a repair's approval recorded.
 2. Revoked and offline sessions show their named states.
 
-**Evidence.** `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs`
+**Evidence.** `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs`; `tests/owner-claim.mjs`; `tests/team-browser.mjs`; native-device qualification remains with its SDK clauses, and human screen-reader and VPAT proof stays in R-16 and R-17.
 **Gap.** Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.
 
 #### AUDIT-001 — Permanent privacy-safe action audit

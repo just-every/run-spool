@@ -20,7 +20,7 @@ import type { useWorkspace } from './useWorkspace';
 const titles = { issues: 'Issues', releases: 'Releases and source maps', capture: 'Connect your application', settings: 'Settings', alerts: 'Alerts', reports: 'Reports' };
 const descriptions = { settings: 'Manage projects, access and stored evidence.', alerts: 'Review alerts, delivery rules and their outcomes.' };
 export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: ReturnType<typeof useWorkspace>; data: ReturnType<typeof useProjectData>; renderAlerts: (project: string, onIssue: (id: string) => void) => ReactNode }) {
-  const { projects, ownerName, access, revision, notice, busy, run, refresh } = workspace;
+  const { projects, ownerName, access, revision, notice, readFailure, busy, run, refresh } = workspace;
   const route = useDestination(), project = route.project || projects[0]?.id || '', currentProject = projects.find(row => row.id === project);
   const attention = useAttention(project, data.issues);
   const [freshKey, setFreshKey] = useDraft<{ project: string; value: string; dsn?: string; kind?: string } | null>('fresh-key', null);
@@ -59,7 +59,8 @@ export function WorkspaceView({ workspace, data, renderAlerts }: { workspace: Re
     <main id="content" className="main" tabIndex={-1}>
       {!known ? <MissingContent project={!!route.project} /> : <>
         <header className="hero"><div className="crumb">{currentProject?.name ?? 'Your installation'} / {billing ? 'Settings' : titles[route.view]}</div><h1>{billing || (!projects.length && access?.role !== 'owner' && access?.role !== 'admin') ? 'Settings' : !projects.length ? 'Create your first project' : issueView ? data.packet?.issue?.title ?? 'Issue' : titles[route.view]}</h1>{!issueView && (billing || route.view === 'settings' || route.view === 'alerts') && <p className="description">{billing || route.view === 'settings' ? descriptions.settings : descriptions.alerts}</p>}</header>
-        {(notice || data.failed) && <p role="alert" className="callout status-notice">{notice || data.failed}</p>}
+        {(readFailure || data.failed) && <div role="alert" className="callout status-notice"><p><strong>{data.stale || readFailure ? 'Retained information is stale.' : 'Evidence unavailable.'}</strong> {data.failed || readFailure}</p><button className="text-button" disabled={busy} onClick={refresh}>Try again</button></div>}
+        {notice && <p role="alert" className="callout status-notice">{notice}</p>}
         {!readOnly && !billing && freshKey && freshKey.project === project && (freshKey.kind === 'agent' ? <AgentHandoff project={project} agentKey={freshKey.value} onDismiss={() => setFreshKey(null)} /> : <div className="callout secret-key"><strong>Copy this key now; it is shown once.</strong><code className="key-value mark-bar">{freshKey.value}</code>{freshKey.kind === 'ingest' && <p>Use it as <code>ingestKey</code> in the Spool SDK’s <code>init</code>, shown on <a className="inline-link" href={hrefFor(project, 'capture')}>Capture</a>.</p>}{freshKey.dsn && <SentryIntake dsn={freshKey.dsn} />}{freshKey.kind === 'deploy' && <p>Store this deploy key in your CI secret store. Pass its environment variable name to the source-map CLI or build plugin.</p>}<button onClick={() => setFreshKey(null)}>Dismiss key</button></div>)}
         {content}
       </>}
