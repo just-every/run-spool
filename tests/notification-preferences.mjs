@@ -5,6 +5,7 @@ import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {launchBrowser} from './browser-launch.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
+import {heldOwnerRequest} from './owner-erasure-inflight.mjs';
 
 const types=['resolution','regression','assignment','comment','mention','issue_alert','deploy','weekly_report'];
 const labels=['Resolutions','Regressions','Assignments','Comments','Mentions','Issue alerts','Deploys','Weekly reports'];
@@ -86,9 +87,15 @@ export async function notificationPreferencesFlow(owner,projects,invite,reader) 
  // Read-only collaborators can change their personal delivery choices without
  // gaining permission to mutate project policy or someone else's settings.
  const readOnly=await reader.json(root);await reader.json(root,'PUT',{revision:readOnly.revision,email:choices('comment')});
+ const beforeRemoval=await records(owner);
  const removed=(await owner.json('/api/organization')).members.find(row=>row.id===actors[1].member.id);
- await owner.json('/api/organization/members/'+removed.id,'DELETE',{version:removed.version});
+ const pending=await heldOwnerRequest({origin:owner.origin,cookie:actors[1].cookie,request:path=>owner.req(path)},root,{revision:(await actors[1].json(root)).revision,email:choices('weekly_report')},{method:'PUT'});
+ try {
+  await owner.json('/api/organization/members/'+removed.id,'DELETE',{version:removed.version});
+  assert.equal((await pending.release()).status,409,'an admitted save cannot commit after membership removal');
+ } finally {pending.close();}
  const sealed=await records(owner);
+ assert.deepEqual(sealed,beforeRemoval,'revocation cannot resurrect a delayed preference write');
  for(const project of projects)for(const method of ['GET','PUT'])await refused(actors[1].req(door(project),method,method==='PUT'?valid:undefined));
  assert.deepEqual(await records(owner),sealed,'removed-member reads and writes cannot mutate or revive preferences');
  for(const [j,project] of projects.entries())assert.deepEqual((await actors[0].json(door(project))).email,expected[0][j],'removing one member leaves the other member unaffected');
