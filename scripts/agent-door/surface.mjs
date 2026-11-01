@@ -18,8 +18,11 @@ const proposal={project,kind:'split',source:issue,revision:from('issue','/revisi
 add('proposal','proposals.create',proposal);
 add('proposal-read','proposals.read',{project,id:from('proposal','/id')});
 add('preview','grouping.preview',{project,kind:'split',source:issue,revision:from('issue','/revision'),events:[from('packet','/events/1/id')]});
-add('apply','grouping.apply',{project,id:from('preview','/id')});
-add('undo','grouping.undo',{project,id:from('preview','/id')});
+// The native UI keeps one current preview. Injection is another real preview,
+// so select the current saved correction through the same permissioned read.
+add('corrections','grouping.read',{project});
+add('apply','grouping.apply',{project,id:from('corrections','/items/0/id')});
+add('undo','grouping.undo',{project,id:from('corrections','/items/0/id')});
 add('current','issues.read',{project,issue});
 add('triage','issues.update',{project,issue,state:'acknowledged',revision:from('current','/revision')});
 add('triage-current','issues.read',{project,issue});
@@ -30,10 +33,14 @@ add('queue','reproducers.run',{project,id:from('reproducer','/id')});
 add('claim','reproducers.claim',{project,id:from('queue','/run')});
 add('repairs','repairs.read',{project,issue});
 add('repair','repairs.record',{project,issue,link:'https://github.com/synthetic/spool-door/pull/1',note:'Agent claim; observation is independent.'});
-add('check','repairs.check',{project,id:from('repair','/id'),revision:from('repair','/revision'),name:'Asserted check',outcome:'passed',note:'This is not independent repair proof.'});
-add('fact','repairs.record_fact',{project,id:from('repair','/id'),revision:from('check','/revision'),fact:'merged'});
+add('repair-current','repairs.read',{project,issue,id:from('repair','/id')});
+add('check','repairs.check',{project,id:from('repair','/id'),revision:from('repair-current','/revision'),name:'Asserted check',outcome:'passed',note:'This is not independent repair proof.'});
+add('repair-checked','repairs.read',{project,issue,id:from('repair','/id')});
+add('fact','repairs.record_fact',{project,id:from('repair','/id'),revision:from('repair-checked','/revision'),fact:'merged'});
 add('fixes','fixes.read',{project,issue});
-add('fix','fixes.create',{project,reproducer:from('reproducers','/reproducers/0/id'),run:from('reproducers','/reproducers/0/runs/0/id'),repository:'synthetic/spool-door',flow:'checkout'});
+// Retain the native sandbox-confirmed fixture identity; a later recipe created
+// by the journey or an injection is not evidence that its own run reproduced.
+add('fix','fixes.create',{project,reproducer:fixture('confirmedReproducer'),run:fixture('confirmedRun'),repository:'synthetic/spool-door',flow:'checkout'});
 add('advance','fixes.advance',{project,id:from('fix','/id')},['external']);
 add('releases','releases.read',{project});
 add('release','releases.record',{project,name:'agent-recorded-release',build:'recorded-build'});

@@ -21,6 +21,25 @@ export async function continuationFlow(app,{project,issue,proposal,created}){
  await app.adopt();
  assert.deepEqual((await app.call('spool.proposals.create',proposal)).structuredContent,created);
  assert.deepEqual(await app.json('/api/projects/'+project+'/grouping-proposals'),before,'No replay admission variant repeats the effect');
+ // Published 0.2.89 re-runs an aggregate read after its exact approval. The
+ // retained approval cannot expose rows from before a native person edit.
+ await app.adopt({schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'read-approval',class:'*',do:'approval',approver:['sponsor'],wait:'PT1H'}],spend:{none:true}});
+ const readArgs={project},pendingRead=await app.mcp('tools/call',{name:'spool.issues.list',arguments:readArgs},{},'2026-07-28');
+ const handle=pendingRead._meta?.['com.runeditrun/approval'];assert.ok(handle?.id);
+ const {approval}=await app.json('/agents/api/approvals/'+handle.id);
+ await app.json('/agents/api/approvals/'+handle.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+ const read=()=>app.mcp('tools/call',{name:'spool.issues.list',arguments:readArgs,requestState:pendingRead.requestState},{},'2026-07-28');
+ const firstRead=await read();assert.ok(!firstRead.isError);assert.ok(firstRead._meta?.['com.runeditrun/receipt']);
+ const original=firstRead.structuredContent.items.find(row=>row.id===issue);assert.ok(original);
+ const nextState=original.state==='acknowledged'?'open':'acknowledged';
+ await app.json(`/api/projects/${project}/issues/${issue}`,'PATCH',{state:nextState,revision:original.revision});
+ const currentRead=await read();assert.ok(!currentRead.isError);assert.ok(currentRead._meta?.['com.runeditrun/receipt']);
+ const current=currentRead.structuredContent.items.find(row=>row.id===issue);
+ assert.equal(current.state,nextState,'An approved aggregate replay returns the current native projection');
+ assert.equal(current.revision,original.revision+1);
+ assert.equal((await app.json('/agents/api/approvals/'+handle.id)).approval.state,'executed');
+ await app.json(`/api/projects/${project}/issues/${issue}`,'PATCH',{state:original.state,revision:current.revision});
+ await app.adopt();
  const missing=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/issues/no-such-issue'});
  assert.equal(missing.error?.data?.code,'capability_not_declared','Undeclared resources have a machine code in JSON-RPC error.data');
  assert.equal(missing.error?.data?.capability,'resources');
