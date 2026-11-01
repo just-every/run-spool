@@ -1,3 +1,4 @@
+import { restoredWork } from '../restored-work';
 import { UNSUPPORTED } from './classify';
 
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
@@ -23,7 +24,7 @@ export function runView(row: any, now = Date.now()) {
 export async function reproducerView(db: D1Database, row: any) {
  const runs = await query(db, 'SELECT * FROM reproducer_runs WHERE reproducer=? ORDER BY created DESC,id DESC', row.id).all<any>();
  return { id: row.id, issue: row.issue, event: row.event, defectClass: row.defect_class, support: row.support, reason: row.reason, reasonText: row.reason ? UNSUPPORTED[row.reason] : null,
-  spec: JSON.parse(row.spec), created: row.created, trust: REPRODUCER_TRUST, runs: runs.results.map(run => runView(run)) };
+  spec: JSON.parse(row.spec), created: row.created, trust: REPRODUCER_TRUST, runs: await Promise.all(runs.results.map(async run => ({...runView(run),...(await restoredWork(db,row.project,'run',run.id)?{historical:true}:{})}))) };
 }
 export async function issueReproducers(db: D1Database, project: string, issue: string) {
  const rows = await query(db, 'SELECT * FROM reproducers WHERE project=? AND issue=? ORDER BY created DESC,id DESC', project, issue).all<any>();

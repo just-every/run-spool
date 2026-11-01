@@ -50,7 +50,8 @@ function RepairRecord({ project, repair, releases, busy, write, request }: { pro
     <h3 id={label}><a href={repair.link} target="_blank" rel="noopener noreferrer">{repair.link}</a></h3>
     <p className="repair-meta">Recorded by the owner {date(repair.created)}. The link is shown as text you can open; Spool never fetches it.</p>
     {repair.note && <p>{repair.note}</p>}
-    <div className={`callout verdict ${o.verdict}`}><strong>Verdict: {verdicts[o.verdict] ?? o.verdict}</strong>
+    {repair.historical && <p className="callout">Restored history is preserved here. It does not establish current repair proof in this installation; record a new repair for current verification.</p>}
+    <div className={`callout verdict ${o.verdict}`}><strong>{repair.historical ? 'Historical verdict' : 'Verdict'}: {verdicts[o.verdict] ?? o.verdict}</strong>
       <ul>{o.reasons.map((reason: any) => <li key={reason.code}>{reason.reason}</li>)}</ul>
       {!!o.evidence.recurrence.count && <p>Recurring events: {o.evidence.recurrence.events.map((event: any) => `${event.id} (release ${event.release})`).join(', ')}{o.evidence.recurrence.count > o.evidence.recurrence.events.length ? ` and ${o.evidence.recurrence.count - o.evidence.recurrence.events.length} more` : ''}.</p>}
       {!!o.evidence.olderReleaseEvents.count && <p>Not counted: {o.evidence.olderReleaseEvents.count} event{o.evidence.olderReleaseEvents.count === 1 ? '' : 's'} from releases older than {o.evidence.release?.name} ({o.evidence.olderReleaseEvents.events.map((event: any) => event.id).join(', ')}).</p>}

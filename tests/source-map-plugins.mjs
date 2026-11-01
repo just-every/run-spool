@@ -5,7 +5,7 @@ import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
-import {mkdir,writeFile,readFile,readdir} from 'node:fs/promises';
+import {mkdir,writeFile,readFile,readdir,rm} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {build as esbuild,transform} from 'esbuild';
@@ -23,29 +23,78 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  const options={endpoint:origin,project:'synthetic-spool-17',build:'b1',keyEnv:'SYNTHETIC_SPOOL_BUILD'};
  const plugin=async name=>import(pathToFileURL(resolve(app,'node_modules/@just-every/spool/dist',name+'.js')));
  const program=`import * as Sentry from ${JSON.stringify(sdkPath)};\nSentry.init({dsn:process.env.DSN,release:process.env.REL,dist:'b1',environment:'test',defaultIntegrations:false});\nfunction syntheticCheckout(){\n const account={};return account.address.city;\n}\ntry{syntheticCheckout()}catch(error){Sentry.captureException(error)}\nawait Sentry.flush(5000);\n`;
+ const fixtures={entry:{program,fn:'syntheticCheckout'},refund:{program:program.replaceAll('syntheticCheckout','syntheticRefund'),fn:'syntheticRefund'}};
+ // Webpack maps the failing expression to its return statement; the other minifiers retain the property token.
+ const originalColumns={esbuild:41,webpack:18,rollup:41,vite:41};
+ const inputs=root=>Object.fromEntries(Object.keys(fixtures).map(name=>[name,resolve(root,name+'.mjs')]));
+ const prepare=async root=>{await mkdir(root);for(const [name,fixture] of Object.entries(fixtures))await writeFile(resolve(root,name+'.mjs'),fixture.program);};
  const external=new RegExp(sdkPath.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').split('/build/')[0]);
  const builders={
-  async esbuild(root,config){await esbuild({entryPoints:[resolve(root,'entry.mjs')],outfile:resolve(root,'out/entry.mjs'),bundle:true,platform:'node',format:'esm',minify:true,sourcemap:true,external:[sdkPath],logLevel:'silent',plugins:[(await plugin('esbuild')).spoolSourceMaps(config)]});},
-  async webpack(root,config){const compiler=webpack({mode:'production',context:root,entry:'./entry.mjs',target:'node',devtool:'source-map',experiments:{outputModule:true},externals:[({request},callback)=>external.test(request)?callback(null,'module '+request):callback()],output:{path:resolve(root,'out'),filename:'entry.[contenthash].mjs',module:true,chunkFormat:'module'},plugins:[new (await plugin('webpack')).SpoolSourceMapsPlugin(config)]});try{await new Promise((done,fail)=>compiler.run((error,stats)=>error?fail(error):stats.hasErrors()?fail(new Error(stats.toString('errors-only'))):done()));}finally{await new Promise((done,fail)=>compiler.close(error=>error?fail(error):done()));}const emitted=(await readdir(resolve(root,'out'))).find(name=>name.endsWith('.mjs'));assert.ok(emitted);return resolve(root,'out',emitted);},
-  async rollup(root,config){const bundle=await rollup({input:resolve(root,'entry.mjs'),external:[external],plugins:[{name:'synthetic-minify',async renderChunk(code,chunk){const output=await transform(code,{minify:true,sourcemap:true,sourcefile:chunk.fileName,format:'esm',target:'es2022'});return {code:output.code,map:JSON.parse(output.map)};}},(await plugin('vite')).spoolSourceMaps(config)]});try{await bundle.write({dir:resolve(root,'out'),format:'es',sourcemap:true,entryFileNames:'entry.mjs'});}finally{await bundle.close();}},
-  async vite(root,config){await vite({root,configFile:false,logLevel:'silent',plugins:[(await plugin('vite')).spoolSourceMaps(config)],build:{outDir:resolve(root,'out'),sourcemap:true,minify:true,lib:{entry:resolve(root,'entry.mjs'),formats:['es'],fileName:()=> 'entry.mjs'},rollupOptions:{external:[external]}}});},
+  async esbuild(root,config){await esbuild({entryPoints:inputs(root),outdir:resolve(root,'out'),outExtension:{'.js':'.mjs'},bundle:true,platform:'node',format:'esm',minify:true,sourcemap:true,external:[sdkPath],logLevel:'silent',plugins:[(await plugin('esbuild')).spoolSourceMaps(config)]});},
+  async webpack(root,config){const compiler=webpack({mode:'production',context:root,entry:inputs(root),target:'node',devtool:'source-map',experiments:{outputModule:true},externals:[({request},callback)=>external.test(request)?callback(null,'module '+request):callback()],output:{path:resolve(root,'out'),filename:'[name].[contenthash].mjs',module:true,chunkFormat:'module'},plugins:[new (await plugin('webpack')).SpoolSourceMapsPlugin(config)]});try{await new Promise((done,fail)=>compiler.run((error,stats)=>error?fail(error):stats.hasErrors()?fail(new Error(stats.toString('errors-only'))):done()));}finally{await new Promise((done,fail)=>compiler.close(error=>error?fail(error):done()));}},
+  async rollup(root,config){const bundle=await rollup({input:inputs(root),external:[external],plugins:[{name:'synthetic-minify',async renderChunk(code,chunk){const output=await transform(code,{minify:true,sourcemap:true,sourcefile:chunk.fileName,format:'esm',target:'es2022'});return {code:output.code,map:JSON.parse(output.map)};}},(await plugin('vite')).spoolSourceMaps(config)]});try{await bundle.write({dir:resolve(root,'out'),format:'es',sourcemap:true,entryFileNames:'[name].mjs'});}finally{await bundle.close();}},
+  async vite(root,config){await vite({root,configFile:false,logLevel:'silent',plugins:[(await plugin('vite')).spoolSourceMaps(config)],build:{outDir:resolve(root,'out'),sourcemap:true,minify:true,lib:{entry:inputs(root),formats:['es'],fileName:(_format,name)=>name+'.mjs'},rollupOptions:{external:[external]}}});},
+ };
+ // Owner event detail enumerates the complete retained set, beyond the bounded agent packet.
+ const events=async()=>{
+  const rows=[];let cursor;
+  do{const page=await request(base+'/occurrences'+(cursor?'?cursor='+encodeURIComponent(cursor):''));rows.push(...page.rows);cursor=page.next;if(!cursor)assert.equal(rows.length,page.total,'every retained occurrence is enumerated');}while(cursor);
+  assert.equal(new Set(rows.map(row=>row.occurrence)).size,rows.length);
+  return Promise.all(rows.map(row=>request(base+'/issues/'+row.issue+'/events/'+row.id+'?occurrence='+encodeURIComponent(row.occurrence))));
+ };
+ const releases=[];
+ const reconcile=async()=>{
+  const status=await request(base+'/sentry-uploads');
+  const archive=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+  for(const release of releases){
+   const names=release.maps.map(map=>map.name).sort();
+   const declared=archive.data.source_map_builds.find(row=>row.project==='synthetic-spool-17'&&row.release===release.name&&row.build==='b1');
+   assert.deepEqual(JSON.parse(declared.expected),names,release.name+': every emitted map is declared');
+   const files=archive.data.source_map_build_files.filter(row=>row.project==='synthetic-spool-17'&&row.release===release.name&&row.build==='b1');
+   assert.deepEqual(files.map(({name,debug,digest})=>({name,debug,digest})).sort((a,b)=>a.name.localeCompare(b.name)),release.maps.map(({name,debug,digest})=>({name,debug,digest})).sort((a,b)=>a.name.localeCompare(b.name)),release.name+': all declared names retain exact debug IDs and checksums');
+   const artifacts=status.artifacts.filter(row=>row.release===release.name&&row.build==='b1');
+   assert.equal(artifacts.length,release.maps.length,release.name+': no emitted artifact is missing');
+   for(const map of release.maps)assert.equal(artifacts.find(row=>row.debug===map.debug)?.digest,map.digest,release.name+': stored checksum matches the final emitted map');
+   assert.deepEqual(status.builds.find(row=>row.release===release.name),{release:release.name,build:'b1',state:'complete',missing:[]});
+  }
  };
  try{
  const oversized=await fetch(origin+base+'/releases',{method:'POST',headers:{Authorization:'Bearer '+deploy.key,'Content-Type':'application/json'},body:JSON.stringify({name:'synthetic-oversized@1',build:'b1',requiredArtifacts:Array.from({length:400},(_,n)=>`synthetic-spool-${n}-`+'x'.repeat(980)+'.map')})});
  assert.equal(oversized.status,400,'[SRC-001] a declaration too large for portable custody is rejected');await oversized.body?.cancel();
  assert.equal((await request(base+'/releases')).some(row=>row.name==='synthetic-oversized@1'),false,'a rejected declaration registers no partial release');
  for(const [name,build] of Object.entries(builders)){
-  const root=resolve(app,'synthetic-'+name);await mkdir(root);await writeFile(resolve(root,'entry.mjs'),program);
-  const release='synthetic-'+name+'@1',built=await build(root,{...options,release})??resolve(root,'out/entry.mjs');
-  const finalMap=JSON.parse(await readFile(built+'.map','utf8')),{debug_id:snake,debugId:camel,...payload}=finalMap;
-  const stored=(await request(base+'/sentry-uploads')).artifacts.find(row=>row.release===release&&row.debug===(snake??camel));
-  assert.equal(stored.digest,createHash('sha256').update(canonical(payload)).digest('hex'),name+': stored checksum matches the final emitted map, including hashed output names');
-  await runNode(built,{DSN:project.dsn,REL:release});
-  const packets=await Promise.all((await request(base+'/issues')).map(issue=>request(base+'/issues/'+issue.id+'/packet')));
-  const event=packets.flatMap(row=>row.events).find(row=>row.release.name===release);
-  assert.ok(event,name+': real built error arrived');const frame=event.atAdmission.find(row=>row.status==='mapped');assert.ok(frame,name+': original source resolved');assert.equal(frame.original.line,4);assert.equal(frame.original.function,'syntheticCheckout');
-  assert.equal((await request(base+'/sentry-uploads')).builds.find(row=>row.release===release).state,'complete');
-  const refusedRoot=resolve(app,'synthetic-refused-'+name);await mkdir(refusedRoot);await writeFile(resolve(refusedRoot,'entry.mjs'),program);
+  const root=resolve(app,'synthetic-'+name);await prepare(root);
+  for(const version of [1,2,3]){
+   const release={name:'synthetic-'+name+'@'+version,maps:[]};
+   await rm(resolve(root,'out'),{recursive:true,force:true});
+   await build(root,{...options,release:release.name});
+   const names=(await readdir(resolve(root,'out'))).filter(file=>file.endsWith('.map')).sort();
+   assert.equal(names.length,Object.keys(fixtures).length,name+': both independent entry maps are emitted');
+   for(const mapName of names){
+    const built=resolve(root,'out',mapName.slice(0,-4)),code=await readFile(built,'utf8');
+    const {debug_id:snake,debugId:camel,...payload}=JSON.parse(await readFile(built+'.map','utf8')),debug=snake??camel;
+    assert.match(debug,/^[a-f0-9-]{36}$/i);assert.ok(code.includes(debug));assert.ok(!code.includes(deploy.key),'deploy authority never enters emitted JavaScript');
+    const source=Object.keys(fixtures).find(key=>payload.sources.some(path=>path.endsWith('/'+key+'.mjs')||path===key+'.mjs'));
+    assert.ok(source,name+': emitted map retains its original entry source');
+    release.maps.push({name:mapName,debug,digest:createHash('sha256').update(canonical(payload)).digest('hex'),source,fn:fixtures[source].fn,column:originalColumns[name]});
+    await runNode(built,{DSN:project.dsn,REL:release.name});
+   }
+   releases.push(release);
+   await reconcile();
+   const captured=await events();
+   assert.equal(captured.length,releases.reduce((total,row)=>total+row.maps.length,0),'all built failures, including earlier releases, remain visible');
+   for(const prior of releases){
+    const matching=captured.filter(row=>row.release===prior.name);assert.equal(matching.length,prior.maps.length,prior.name+': every map produces one retained failure');
+    for(const map of prior.maps){
+     const matches=matching.filter(row=>row.event.frames.some(frame=>frame.debugId===map.debug));assert.equal(matches.length,1,prior.name+': exact emitted debug ID selects its failure');
+     const event=matches[0];assert.equal(event.event.release,prior.name);assert.equal(event.event.build,'b1');
+     const frame=event.atAdmission.find(row=>row.generated.debugId===map.debug);assert.equal(frame?.status,'mapped',prior.name+': real built error maps');
+     assert.ok(frame.original.file.endsWith(map.source+'.mjs'));assert.equal(frame.original.line,4);assert.equal(frame.original.column,map.column,prior.name+': original column');assert.equal(frame.original.function,map.fn);assert.equal(frame.artifactDigest,map.digest);
+     assert.deepEqual(event.currentLookup,event.atAdmission,prior.name+': current lookup preserves earlier release coordinates');
+    }
+   }
+  }
+  const refusedRoot=resolve(app,'synthetic-refused-'+name);await prepare(refusedRoot);
   await assert.rejects(build(refusedRoot,{...options,release:'incomplete-'+name+'@1',requiredMaps:['withheld.js.map']}),/withheld\.js\.map/);
   const refusedFiles=await readdir(resolve(refusedRoot,'out')).catch(error=>{assert.equal(error.code,'ENOENT');return[]});assert.ok(!refusedFiles.some(file=>/\.[cm]?js$/.test(file)),'a rejected '+name+' build publishes no JavaScript');
  }
@@ -54,7 +103,7 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
  const memory=await esbuild({entryPoints:[resolve(memoryRoot,'entry.mjs')],outfile:resolve(memoryRoot,'out/entry.mjs'),bundle:true,platform:'node',format:'esm',minify:true,sourcemap:true,external:[sdkPath],logLevel:'silent',write:false,plugins:[(await plugin('esbuild')).spoolSourceMaps({...options,release:'synthetic-memory@1'})]});
  for(const file of memory.outputFiles){assert.equal(file.text,new TextDecoder().decode(file.contents),'esbuild text and bytes describe the same stamped file');await mkdir(dirname(file.path),{recursive:true});await writeFile(file.path,file.text);}
  await runNode(resolve(memoryRoot,'out/entry.mjs'),{DSN:project.dsn,REL:'synthetic-memory@1'});
- const memoryEvents=(await Promise.all((await request(base+'/issues')).map(issue=>request(base+'/issues/'+issue.id+'/packet')))).flatMap(row=>row.events).filter(row=>row.release.name==='synthetic-memory@1');
+ const memoryEvents=(await events()).filter(row=>row.release==='synthetic-memory@1');
  assert.equal(memoryEvents.length,1);assert.ok(memoryEvents[0].atAdmission.some(row=>row.status==='mapped'&&row.original.line===4),'in-memory esbuild output maps the original frame');
  const incomplete=(await request(base+'/sentry-uploads')).builds.filter(row=>row.state==='incomplete');assert.equal(incomplete.length,4);assert.ok(incomplete.every(row=>row.missing.includes('withheld.js.map')));
  const context=await browser.newContext(),page=await context.newPage();await browserSignIn(page,origin);
@@ -78,12 +127,13 @@ export async function sourceMapPlugins({origin,request,app,browser,cookie}){
   const read=async path=>(await fetch(target.origin+path,{headers:{Cookie:targetCookie}})).json();
   assert.equal((await read('/api/projects/synthetic-spool-16/artifact-storage')).artifact_storage_cap,archived.data.artifact_storage_settings.find(row=>row.project==='synthetic-spool-16').artifact_storage_cap);
   assert.deepEqual((await read(base+'/sentry-uploads')).builds,completed.builds,'[SRC-001] declared map sets restore complete');
+  assert.deepEqual((await read(base+'/sentry-uploads')).artifacts,completed.artifacts,'[SRC-001] all three releases retain their complete artifact identities on independent restore');
  }finally{await target.stop();}
  for(const id of ['synthetic-spool-16','synthetic-spool-17']){
   const path='/api/projects/'+id+'/erasure',preview=await request(path);await followErasure(request,await request(path,'POST',{confirm:id,planHash:preview.planHash}));
  }
  const erased=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  for(const table of ['artifact_storage_settings','source_map_builds','source_map_build_files','artifacts'])assert.ok(erased.data[table].every(row=>!['synthetic-spool-16','synthetic-spool-17'].includes(row.project)),table+': project erasure removes custody');
- console.log('[SRC-001] Packed Vite/Rollup/webpack/esbuild real builds map errors; withheld map fails all four without output; late artifacts complete unchanged identities; checksum tampering refused by file; 1440/390 overflow and Axe passed.');
+ console.log('[SRC-001] Packed Vite, Rollup, webpack and esbuild: two emitted maps used in each of three consecutive releases at b1; all 24 mapped failures and earlier artifact sets reconciled; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore and erasure; checksum tampering refused by file; 1440/390 overflow and Axe passed.');
  }finally{delete process.env.SYNTHETIC_SPOOL_BUILD;}
 }

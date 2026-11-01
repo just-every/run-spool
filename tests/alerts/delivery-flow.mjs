@@ -1,3 +1,4 @@
+import {mock} from 'node:test';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -10,10 +11,13 @@ export function providerSigner(){
  return {key:publicKey.export({type:'spki',format:'der'}).toString('base64'),sign(events){const body=JSON.stringify(events),timestamp=String(Math.floor(Date.now()/1000));return {body,headers:{'x-twilio-email-event-webhook-timestamp':timestamp,'x-twilio-email-event-webhook-signature':sign('sha256',Buffer.from(timestamp+body),privateKey).toString('base64')}}}};
 }
 async function projection(app){const records=[];for await(const r of readArchive((await app.request('/api/archive')).body))records.push(r);return records.filter(r=>r.kind==='part').flatMap(r=>r.items).filter(i=>i.kind==='row').sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));}
+// Keep settings creation, signed callbacks and the Worker before the fixed DST period.
+export const deliveryClock=Date.parse('2026-10-31T12:00:00Z');
 export async function deliveryFlow(inbox){
+ mock.timers.enable({apis:['Date'],now:deliveryClock});
  const signer=providerSigner(),state=await mkdtemp(join(tmpdir(),'spool-delivery-restart-'));let app;
  try{
-  app=await alertRuntime(inbox,{state,mail:'sendgrid',extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:signer.key,ALERT_EVENT_PROVENANCE:'fixture'}});const auth=await setup(app),base='/api/projects/web/alerting';
+  app=await alertRuntime(inbox,{now:deliveryClock,state,mail:'sendgrid',extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:signer.key,ALERT_EVENT_PROVENANCE:'fixture'}});const auth=await setup(app),base='/api/projects/web/alerting';
   // Fresh untested destinations cannot enable. A passing result needs explicit review.
   const d=await app.json(base+'/destinations','POST',{label:'Destination check',recipient:'fixture@example.com'});
   assert.equal((await app.request(base+'/rules','POST',rule('mail',{destination:d.id}))).status,400);
@@ -60,7 +64,7 @@ export async function deliveryFlow(inbox){
   const invalid=await app.request('/api/ingest/web','POST',{version:1,eventId:'loss-during-snooze'},auth);assert.ok(invalid.status>=400);
   const outcomes=await app.json('/api/projects/web/outcomes');assert.ok(outcomes.rows.some(r=>r.reason!=='accepted'&&r.count>0));
   await Promise.all([app.schedule(expiry+1),app.schedule(expiry+1)]);await app.schedule(expiry+60000);
-  await app.close();app=await alertRuntime(inbox,{state,mail:'sendgrid',extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:signer.key,ALERT_EVENT_PROVENANCE:'fixture'}});await app.schedule(expiry+60001);
+  await app.close();app=await alertRuntime(inbox,{now:deliveryClock,state,mail:'sendgrid',extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:signer.key,ALERT_EVENT_PROVENANCE:'fixture'}});await app.schedule(expiry+60001);
   let controls=await app.json(base+'/controls');assert.equal(controls.digests.filter(m=>m.kind==='resumption'&&m.period===z.id).length,1);assert.equal(controls.snoozes.find(s=>s.id===z.id).suppressed,4);assert.ok(controls.held.every(x=>!x.released_at));
   const attention=await app.json('/api/projects/web/follow-up');assert.ok(attention.rows.some(a=>a.reason==='snooze_expired_backlog'));
   const resumed=await app.json('/api/ingest/web','POST',event('after-snooze-expiry',{frames:[{file:'https://app.example.com/resumed.js',line:1,column:0,function:'resumed'}]}),auth);
@@ -89,10 +93,10 @@ export async function deliveryFlow(inbox){
   for(let n=0;n<30&&erased.phase!=='complete';n++)erased=await app.json('/api/erasures/'+erased.id+'/resume','POST',{});
   assert.equal(erased.phase,'complete');for(const table of ['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail','alert_destination_tests'])assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM '+table+" WHERE project='web'").first()).n,0,table+' erased');
   for(const table of ['rer_mail_event_receipts','rer_mail_event_states'])assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM '+table+" WHERE event_namespace='web'").first()).n,0,table+' erased');
-  await app.close();app=await alertRuntime(inbox,{mail:'sendgrid'});
+  await app.close();app=await alertRuntime(inbox,{now:deliveryClock,mail:'sendgrid'});
   const sends=inbox.mailCount;
   const restored=await app.request('/api/restore','POST',archived,{'X-Confirm-Restore':'yes'});assert.equal(restored.status,200,await restored.text());
   await app.schedule(dst+86400000);assert.equal(inbox.mailCount,sends);controls=await app.json(base+'/controls');assert.equal(controls.settings.daily,0);assert.ok(controls.snoozes.every(z=>z.historical===1));assert.ok(controls.digests.every(d=>d.historical===1));
   console.log('ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss: passing reviewed tests and unchanged archive projection; accepted/delivered/bounced/complained (signed fixtures), unsigned/forged/unknown refused, duplicate once; webhook HTTP/signature receipt; America/New_York daily/weekly at DST boundary once; burst held, expiry one durable resumption and suppressed count; inert restore.');
- }finally{await app?.close();await rm(state,{recursive:true,force:true})}
+ }finally{mock.timers.reset();await app?.close();await rm(state,{recursive:true,force:true})}
 }

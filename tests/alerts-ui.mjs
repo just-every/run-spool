@@ -1,4 +1,5 @@
-import {providerSigner} from './alerts/delivery-flow.mjs';
+import {mock} from 'node:test';
+import {deliveryClock,providerSigner} from './alerts/delivery-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -11,12 +12,13 @@ import {launchBrowser} from './browser-launch.mjs';
 import {workbenchLink} from './navigation.mjs';
 const temp=await mkdtemp(resolve(tmpdir(),'spool-alert-ui-')),inbox=await receiver(resolve(temp,'receiver.sqlite'));let app,browser;
 try {
+ mock.timers.enable({apis:['Date'],now:deliveryClock});
  const provider=providerSigner();
  await mkdir('docs/retained-verification/alert003',{recursive:true});
  browser=await launchBrowser();const errors=[];
  for(const width of [1440,390]) {
-  app=await alertRuntime(inbox,{extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:provider.key,ALERT_EVENT_PROVENANCE:'fixture'}});const auth=await setup(app);await app.json('/api/projects','POST',{id:'empty-alerts',name:'New storefront'});await app.json('/api/projects/web/alerting/rules','POST',rule('webhook'));
-  const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies([{name:app.cookie.split('=')[0],value:app.cookie.split('=')[1],url:app.origin}]);const page=await context.newPage();page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));
+  app=await alertRuntime(inbox,{now:deliveryClock,extraBindings:{SENDGRID_EVENT_PUBLIC_KEY:provider.key,ALERT_EVENT_PROVENANCE:'fixture'}});const auth=await setup(app);await app.json('/api/projects','POST',{id:'empty-alerts',name:'New storefront'});await app.json('/api/projects/web/alerting/rules','POST',rule('webhook'));
+  const context=await browser.newContext({timezoneId:'UTC',viewport:{width,height:900}});await context.clock.setFixedTime(deliveryClock);await context.addCookies([{name:app.cookie.split('=')[0],value:app.cookie.split('=')[1],url:app.origin}]);const page=await context.newPage();page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));
   await page.goto(app.origin);await (await workbenchLink(page,'Alerts')).click();await page.getByRole('button',{name:'Rules',exact:true}).click();
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('empty-alerts');await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByText('No destinations yet. Add your first email destination below.').waitFor();await page.screenshot({path:`docs/retained-verification/alert003/destinations-empty-${width}.png`,fullPage:true});await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.screenshot({path:`docs/retained-verification/alert003/deliveries-empty-${width}.png`,fullPage:true});await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');await page.getByRole('button',{name:'Rules',exact:true}).click();
   await page.screenshot({path:`docs/retained-verification/alert003/destinations-initial-${width}.png`,fullPage:true});
@@ -57,7 +59,7 @@ try {
   await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByRole('heading',{name:'Timezone digests'}).waitFor();await page.screenshot({path:`docs/retained-verification/alert003/controls-empty-${width}.png`,fullPage:true});
   await page.getByLabel('Project timezone (IANA)').fill('America/New_York');await page.getByLabel('Project digest destination',{exact:true}).selectOption({label:`On call ${width}`});await page.getByLabel('daily',{exact:true}).check();await page.getByLabel('weekly',{exact:true}).check();await page.getByRole('button',{name:'Save digest settings',exact:true}).click();await page.getByRole('status').filter({hasText:'Saved.'}).waitFor();
   await page.getByLabel('Snooze scope',{exact:true}).selectOption('rule');await page.getByLabel('Snooze target',{exact:true}).selectOption({label:`Updated mail ${width}`});
-  const expiry=Date.now()+120000,local=new Date(expiry-new Date(expiry).getTimezoneOffset()*60000).toISOString().slice(0,16);await page.getByLabel('Snooze expiry (your local time)').fill(local);await page.getByRole('button',{name:'Snooze until expiry',exact:true}).click();await page.getByText('snoozed',{exact:false}).first().waitFor();
+  const expiry=Date.now()+120000,local=new Date(expiry).toISOString().slice(0,16);await page.getByLabel('Snooze expiry (your local time)').fill(local);await page.getByRole('button',{name:'Snooze until expiry',exact:true}).click();await page.getByText('snoozed',{exact:false}).first().waitFor();
   await app.json('/api/ingest/web','POST',event(`held-ui-${width}`,{message:'Order confirmation failed during maintenance',frames:[{file:`https://app.example.com/held-${width}.js`,line:1,column:0,function:'held'}]}),auth);
   await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByText('snoozed',{exact:true}).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/snoozed-delivery-${width}.png`,fullPage:true});
   await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByRole('heading',{name:/Held alerts \([1-9]/}).waitFor();await page.screenshot({path:`docs/retained-verification/alert003/snoozed-${width}.png`,fullPage:true});
@@ -72,6 +74,7 @@ try {
   const html=await page.content();assert.ok(!html.includes('alert-owner@example.com'));assert.ok(!html.includes(app.bindings.ALERT_DESTINATION_HASH_KEY));
   await mkdir('.artifacts/alerts',{recursive:true});await page.screenshot({path:`.artifacts/alerts/journey-${width}.png`,fullPage:true});await context.close();await app.close();app=null;
  }
+ mock.timers.reset();
  await (await import('./slack-ui.mjs')).slackUI(browser,inbox);
  assert.deepEqual(errors,[]);console.log('ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.');
-}finally{await browser?.close();await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}
+}finally{mock.timers.reset();await browser?.close();await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

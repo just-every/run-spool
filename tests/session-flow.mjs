@@ -12,6 +12,7 @@ import {archiveProjection} from './archive.mjs';
 import {browserSignIn,signIn} from './auth.mjs';
 import {startTestWorker} from './worker.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
+import {sessionBackpressureFlow} from './session-backpressure.mjs';
 export async function sessionFlow({origin,cookie,browser}){
  const app=api(origin,cookie),p=await app.json('/api/projects','POST',{id:'synthetic-spool-health',name:'Checkout release health'}),root='/api/projects/'+p.id,dir=await mkdtemp(join(tmpdir(),'spool-session-health-')),ref=await referenceCollector(),user='synthetic-spool-session-user-'+crypto.randomUUID();
  let server,restored;
@@ -44,5 +45,6 @@ export async function sessionFlow({origin,cookie,browser}){
   restored=await startTestWorker(15554);const restoredCookie=await signIn(restored.origin),r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Cookie:restoredCookie,Origin:restored.origin,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:snapshot.text});assert.ok(r.ok,await r.text());const restoredApp=api(restored.origin,restoredCookie);assert.equal((await restoredApp.json(root+'/release-health')).denominators.sessionsSeen,11);
   const plan=await app.json(root+'/erasure');assert.equal(plan.deleted.health_sessions,6);await followErasure(app.json,await app.json(root+'/erasure','POST',{confirm:p.id,planHash:plan.planHash}));assert.equal((await app.request(root+'/release-health')).status,404);const erased=await archiveProjection(await app.request('/api/archive'));for(const table of ['health_sessions','health_aggregates','project_identity_keys'])assert.ok(!erased.data[table].some(r=>r.project===p.id));
   console.log('[SDK-005] default Node healthy/crashed and browser healthy/unhandled sessions, exact reference reconciliation, aggregate unknown users, missing release/origin/key refusal, read grant, JSON, 1440/390, archive/restore and erasure passed');
+  await sessionBackpressureFlow({app,origin});
  }finally{await restored?.stop();await ref.close();if(server){server.closeAllConnections();await new Promise(r=>server.close(r))}await rm(dir,{recursive:true,force:true})}
 }

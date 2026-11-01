@@ -81,8 +81,10 @@ routes.on('POST',paths,async c=>{
     const receipts=[];
     // Admit errors first so feedback in the same envelope can bind their exact occurrence.
     for(const report of feedback){const response=await admitFeedback(c,scope,report),result=await response.json();if(!response.ok){c.header('X-Sentry-Error',String((result as any).reason??(result as any).outcome));return c.json(result,response.status as any)}receipts.push(result);id??=report.id}
-    const sessionCounts=sessions.length?await admitSessions(c,scope,sessions,envelope.header.sdk):{};
+    const {counts:sessionCounts,retryAfter}=sessions.length?await admitSessions(c,scope,sessions,envelope.header.sdk):{counts:{},retryAfter:0};
     const registrationRequired=sessionCounts.missing_release_register_required||sessionCounts.unregistered_release_or_build;
+    // A successful mixed envelope can refuse sessions without pausing companion errors.
+    if(retryAfter)c.header('X-Sentry-Rate-Limits',`${retryAfter}:session:project:session_rate_limited`);
     const checkInCounts=checkIns.length?await admitCheckIns(c,scope,checkIns):{};
     return c.json({...id?{id}:{},dropped:Object.fromEntries(dropped),...clientReports?{clientReports:{received:clientReports-invalidReports-filteredReports,invalid:invalidReports,...filteredReports?{filtered:filteredReports}:{},discarded:Object.fromEntries(clientDiscarded)}}:{},...receipts.length?{feedback:receipts}:{},...checkIns.length?{checkIns:checkInCounts}:{},...sessions.length?{sessions:sessionCounts}:{},...registrationRequired?{register:`/projects/${encodeURIComponent(scope.project)}/releases`}:{}},200);
   }catch(error){
