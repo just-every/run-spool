@@ -1,8 +1,14 @@
 import { canonicalJson } from './hash.mjs';
-const errorCodes = new WeakMap();
+// Installed helpers and copied runtimes can coexist in one Worker. Share only
+// constructor-issued identities, so arbitrary objects with code/status fields
+// never become PortabilityError instances across that boundary.
+const registry = Symbol.for('runeditrun.portability.errors.v1');
+if (!Object.hasOwn(globalThis,registry)) Object.defineProperty(globalThis,registry,{value:new WeakMap()});
+const errorCodes = globalThis[registry];
 // A verifier's original machine code remains independent of mutable properties.
 export const portabilityErrorCode = error => errorCodes.get(error);
 export class PortabilityError extends Error {
+  static [Symbol.hasInstance](error) { return errorCodes.has(error); }
   constructor(code, status=400) { super(code); this.code=code; this.status=status; errorCodes.set(this,code); }
 }
 export function insist(condition, code, status=400) { if (!condition) throw new PortabilityError(code,status); }
@@ -53,7 +59,14 @@ export function stream(generator) {
   return new ReadableStream({async pull(controller){try{const next=await iterator.next();if(next.done)controller.close();else controller.enqueue(next.value);}catch(e){controller.error(e);}},async cancel(){await iterator.return?.();}});
 }
 export function transferTables(row) { return Object.values(row.metadata.copies??{}).flatMap(name=>[name,name+'_meta']); }
+export function dropCopyStatements(db,row) {
+  // Exact names recorded when this job created its copies, never a prefix sweep.
+  return transferTables(row).map(name=>db.prepare(`DROP TABLE IF EXISTS ${quote(name)}`));
+}
+export function cleanCopyStatements(db,row) {
+  return [...dropCopyStatements(db,row),statement(db,'DELETE FROM rer_portability_parts WHERE job=?',row.id),
+    statement(db,'DELETE FROM rer_portability_segments WHERE job=?',row.id)];
+}
 export async function cleanCopies(db,row) {
-  await db.batch([...transferTables(row).map(name=>db.prepare(`DROP TABLE IF EXISTS ${quote(name)}`)),
-    statement(db,'DELETE FROM rer_portability_parts WHERE job=?',row.id),statement(db,'DELETE FROM rer_portability_segments WHERE job=?',row.id)]);
+  await db.batch(cleanCopyStatements(db,row));
 }
