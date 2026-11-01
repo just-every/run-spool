@@ -9,6 +9,8 @@ import { memberProjects } from './members/resolver';
 import { memberRoutes } from './members/routes';
 import { reportRoutes } from './reports/routes';
 import { reportingRoutes } from './dashboards/routes';
+import {prepareScrubbing} from './scrubbing/model';
+import {projectScrubbingRoutes,installationScrubbingRoutes} from './scrubbing/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
@@ -143,7 +145,8 @@ api.post('/api/ingest/:project',async c=>{
       try{await recordIngest(c,auth.scope,'oversized')}catch(failure){return ingestFailure(c,auth.scope,failure)}
       return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as any));
     }
-    return admitEvent(c,auth.scope,normalize(parsed.value),await hash(canonical(parsed.value)));
+    const privacy=await prepareScrubbing(c.env.DB,auth.scope.project,parsed.value);
+    return admitEvent(c,auth.scope,normalize(privacy.document),await hash(canonical(parsed.value)),false,undefined,privacy);
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 api.route('/api/projects',deployRoutes);
@@ -179,6 +182,8 @@ api.route('/api/projects/:project/review',reviewRoutes);
 api.route('/api/projects/:project/retention-policy',retentionPolicyRoutes);
 api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
 api.route('/api/projects/:project/end-user-erasure',endUserErasurePreviewRoutes);
+api.route('/api/projects/:project/scrubbing',projectScrubbingRoutes);
+api.route('/api/scrubbing',installationScrubbingRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/suspects',suspectRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);
@@ -226,7 +231,7 @@ api.patch('/api/projects/:project/issues/:issue',async c=>{
   const b=await body(c),resolution=resolutionInput(b);if(!['open','acknowledged','resolved','suppressed'].includes(b.state)||!Number.isSafeInteger(b.revision))throw new Error('Invalid triage');
   const issue=await stmt(c.env.DB,'SELECT * FROM issues WHERE project=? AND id=?',c.req.param('project'),c.req.param('issue')).first<any>();if(!issue)return c.json({error:'Issue not found'},404);
   const releasePolicy=await readReleasePolicy(c.env.DB,issue.project),target=await resolutionTarget(c.env.DB,issue.project,resolution),boundary=resolutionBoundarySql(resolution,target),targetFence=resolutionTargetFence(c.env.DB,issue.project,resolution,target);
-  const results=await write(c,[...targetFence?[targetFence]:[],releasePolicyFence(c.env.DB,issue.project,releasePolicy.revision),stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state),stmt(c.env.DB,`INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) SELECT i.project,i.id,?,0,?,${boundary},${currentReleaseSequenceSql('i')} FROM issues i WHERE i.id=? AND i.revision=? AND i.state=? AND changes()=1 ON CONFLICT(project,issue) DO UPDATE SET mode=excluded.mode,seen_without_release=0,updated=excluded.updated,boundary_seq=excluded.boundary_seq,observed_seq=excluded.observed_seq`,b.state==='resolved'?resolution.mode:'current',now(),issue.id,b.revision+1,b.state)]);const result=results[targetFence?2:1].results[0] as any;
+  const results=await write(c,[...targetFence?[targetFence]:[],releasePolicyFence(c.env.DB,issue.project,releasePolicy.revision),stmt(c.env.DB,"INSERT INTO alert_reactivation_markers SELECT project,id,revision+1 FROM issues WHERE id=? AND revision=? AND state='suppressed' AND ?='open' ON CONFLICT(project,issue) DO UPDATE SET revision=excluded.revision",issue.id,b.revision,b.state),stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state),stmt(c.env.DB,`INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) SELECT i.project,i.id,?,0,?,${boundary},${currentReleaseSequenceSql('i')} FROM issues i WHERE i.id=? AND i.revision=? AND i.state=? AND changes()=1 ON CONFLICT(project,issue) DO UPDATE SET mode=excluded.mode,seen_without_release=0,updated=excluded.updated,boundary_seq=excluded.boundary_seq,observed_seq=excluded.observed_seq`,b.state==='resolved'?resolution.mode:'current',now(),issue.id,b.revision+1,b.state)]);const result=results[targetFence?3:2].results[0] as any;
   if(!result)return c.json({error:'Revision conflict'},409);
   return c.json({state:b.state,...result});
 });
