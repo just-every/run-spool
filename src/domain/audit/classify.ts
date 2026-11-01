@@ -29,6 +29,8 @@ const rules: Rule[] = [
  {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)\/keys$/,action:'service.credential',kind:'identity'},
  {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'service.remove',kind:'identity'},
  {pattern:/^\/api\/organization\/usage$/,action:'billing.read',kind:'installation'},
+ {pattern:/^\/api\/(?:projects\/(?<project>[^/]+)\/)?scrubbing\/preview$/,action:'scrubbing.preview',kind:'policy'},
+ {pattern:/^\/api\/(?:projects\/(?<project>[^/]+)\/)?scrubbing$/,methods:['PUT'],action:'scrubbing.policy',kind:'policy'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/suspects\/issues\/(?<subject>[^/]+)$/,methods:['PUT'],action:'issue.suspect',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/check-in-routes\/[^/]+$/,methods:['PUT','DELETE'],action:'checkin.route',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/loader$/,methods:['PUT'],action:'credential.loader',kind:'credential'},
