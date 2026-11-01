@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 47 | 24 | 87 |
+| Core | 16 | 48 | 23 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 47 | 29 | 92 |
+| Full target | 16 | 48 | 28 | 92 |
 
 Judged from the code and tests at commit `aa72e57e1804674a3ecda76777564a4ea0a2a65d` (31 October 2026). AI-002 landing replay retains main's partial Status and recorded Gap. The execution journey adds alternate-release syntax-error and unresolved-import setup failures through source-map upload, queued runner commands and finished-run reads, plus fixed-release successful-return read-back. Application source and acceptance requirements are unchanged; the added assertions do not establish automatic minimization, competing-cause experiments or broader runtime/mobile qualification. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -786,8 +786,8 @@ Core · target · **partial** · Rules D-4
 5. The stream filters and sorts by priority and by affected users.
 6. Over events sent by unmodified Sentry SDKs, `tenant:acme browser.name:Chrome` and `error.type:KeyError` find the matching issues and facet counts, including an issue whose `KeyError` is the inner cause of a wrapper exception.
 
-**Evidence.** `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `src/ui/workbench/IssueList.tsx`; `tests/investigation-flow.mjs`; `tests/bulk-triage-flow.mjs`; `docs/INVESTIGATION.md`; `docs/BULK-TRIAGE.md` ;  `src/domain/review/`; `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `tests/bulk-triage-flow.mjs` [FIND-001]; `docs/REVIEW-INBOX.md`
-**Gap.** Owner-only review:pending count/filter, atomic previewed review of one/selection and regression reopening; 25 validated saved queries per project, authority-safe links, archive/restore/erasure and 1440/390 proof. Team search, shared views and additional priority remain gaps.
+**Evidence.** `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `src/ui/workbench/IssueList.tsx`; `tests/investigation-flow.mjs`; `tests/bulk-triage-flow.mjs`; `docs/INVESTIGATION.md`; `docs/BULK-TRIAGE.md` ;  `src/domain/review/`; `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `tests/bulk-triage-flow.mjs` [FIND-001]; `docs/REVIEW-INBOX.md`; `tests/priority-search-flow.mjs` prioritySearchFlow, invoked by `tests/investigation-flow.mjs` in the Sentry HTTP journey: acceptance 5 priority component, 90 captured issues across four cursor pages, each priority across two pages, regression and new-issue tie breaks, receipt ordering, combined priority predicates, query-bound cursors, exact ordered JSON and CSV exports and Highest priority results at 1440; prioritySearchScreen also inspected at 390
+**Gap.** Owner-only review:pending count/filter, atomic previewed review of one/selection and regression reopening; 25 validated saved queries per project, authority-safe links, archive/restore/erasure and 1440/390 proof. Acceptance 5 priority filtering and ordering are qualified by the cited public journey. Team-wide search and shared-view qualification remain gaps; acceptance 4 identity search and facets, and acceptance 5 affected-user filtering and sorting remain unqualified. Acceptance 1 to 3 and 6 retain their prior evidence and queue scopes. SDK-008 keep-as-sent and auto-address visitors, SDK-026 identity scope and TEAM-003 reopening-rule conflict retain their existing holds; no broader identity or SDK qualification is claimed.
 
 #### FIND-002 — Issue impact, detail and event navigation
 
@@ -1180,7 +1180,7 @@ Core · target · **partial** · Cites BASE-DATA-001, BASE-INPUT-003
 
 #### API-002 — Sentry Web API and Terraform compatibility
 
-Core · target · **missing** · Rules D-1
+Core · target · **partial** · Rules D-1
 
 **Requirement.** Scripts and infrastructure-as-code written against Sentry's Web API keep working when only the base URL and auth token change. Spool serves Sentry's `/api/0/` endpoints for organizations, teams, members, projects, project client keys (DSNs, including per-key rate limits), issues (list with Sentry search syntax, get, update, bulk mutate and delete), events, releases, issue alert rules and metric alert rules, with Sentry's cursor `Link` pagination. Sentry-style organization and personal auth tokens map to TEAM-001 roles and are limited to their scopes and projects. The community Terraform provider for Sentry (`jianyuan/sentry`) manages `sentry_team`, `sentry_project`, `sentry_key`, `sentry_issue_alert` and `sentry_metric_alert` unmodified except for base URL and token, and plan, apply and import are idempotent. An unsupported endpoint or field fails with an explicit error naming it, never a silent success; every write is audited under AUDIT-001.
 
@@ -1190,8 +1190,8 @@ Core · target · **missing** · Rules D-1
 3. An unsupported endpoint returns a named error.
 4. A write with a read-only token is refused and changes nothing.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: sentry Web API and Terraform compatibility.
+**Evidence.** `tests/sentry-cli/field-refusals.mjs` fieldRefusalFlow (unsupported top-level fields on both release-create aliases, update and finalization, and deployment creation; populated-state nonmutation, safe D-1 refusal facts, named endpoint and refs errors, read-only and revoked grants, project scope); `tests/sentry-cli/denials.mjs` authorityFlow and denialFlow (existing deploy-key authority); `tests/sentry-cli-compat.mjs` with releaseFlow, pluginFlow, chunkFlow and durableFlow (unmodified CLI and plugins, valid commands, retries, inert restore and erasure)
+**Gap.** Qualified only the currently implemented SRC-003 deploy-key doors. Acceptance 1 and 2 remain unproved: complete organization, team, member, project, client-key, issue, event, release and alert Web API compatibility, Sentry search and cursor Link pagination, organization and personal token mapping to TEAM-001 roles, and the unmodified Terraform plan, apply, import and unchanged re-plan journey. Unsupported nested fields and field validation outside the selected top-level release-create, release-update and deployment-create JSON bodies remain unproved. Existing SRC-003 capabilities and gaps remain, including SRC-002 connected-provider accounts, SDK-002 native debug-file and device qualification, and SRC-004 capacity with BILL-001 pricing dependencies.
 
 ### Governance and operation
 
