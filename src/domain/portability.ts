@@ -189,8 +189,7 @@ for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables
 laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
-// Later additions extend each compatibility set. Keep the complete reporting
-// collection independent so its carried-collection check stays authoritative.
+// The reporting set gets its own array: later sets add tables to every earlier set, and reportingNames must stay the reporting names.
 laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 // Destination custody is excluded, so earlier archives need no added product rows.
 for(const later of laterTables)later.migrations.push('0084_restored_work.sql');
