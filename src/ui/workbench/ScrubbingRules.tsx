@@ -8,7 +8,7 @@ import {ScrubbingRuleRow, type ScrubbingPolicy, type ScrubbingRule} from './Scru
 import {ScrubbingPreview, type ScrubbingPreviewResult} from './ScrubbingPreview';
 
 type Scope = 'project' | 'installation';
-type Props = {project: string; request: Request; run: Run; busy: boolean};
+type Props = {project: string; request: Request; run: Run; busy: boolean; installation: boolean};
 type Current = {
   revision: number; policy: ScrubbingPolicy;
   installationRevision: number; installationPolicy: ScrubbingPolicy;
@@ -27,16 +27,17 @@ function message(error: unknown) {
   return error instanceof Error ? error.message : 'The scrubbing request failed. Try again.';
 }
 
-export function ScrubbingRules({project, request, run, busy}: Props) {
-  const [scope, setScope] = useDraft<Scope>(`${project}.scrubbing.scope`,'project');
+export function ScrubbingRules({project, request, run, busy, installation}: Props) {
+  const [keptScope, setScope] = useDraft<Scope>(`${project}.scrubbing.scope`,'project');
+  const scope: Scope = installation ? keptScope : 'project';
   const root = scope === 'installation' ? '/api/scrubbing' : `/api/projects/${encodeURIComponent(project)}/scrubbing`;
   return <section className="evidence scrubbing-section" aria-label="Server scrubbing">
     <h2>Server scrubbing rules</h2>
-    <label className="form-field">Rule scope
+    {installation && <label className="form-field">Rule scope
       <select aria-label="Rule scope" value={scope} disabled={busy} onChange={event => setScope(event.target.value as Scope)}>
         <option value="project">Project</option><option value="installation">Installation</option>
       </select>
-    </label>
+    </label>}
     <ScrubbingEditor key={root} {...{root, scope, request, run, busy}} draftKey={scope==='installation'?'scrubbing.installation':`${project}.scrubbing.project`}/>
   </section>;
 }
