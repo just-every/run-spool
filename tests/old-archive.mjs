@@ -35,7 +35,7 @@ try {
  const modulePath = resolve(temporary, 'portability.mjs');
  await build({entryPoints: ['src/domain/portability.ts'], outfile: modulePath, bundle: true, platform: 'node', format: 'esm'});
  const transfer = await import(pathToFileURL(modulePath));
- runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade'}}));
+ runtime = new Miniflare(convertV4MiniflareOptions({modules: true, script: 'export default {}', log: new Log(LogLevel.ERROR), d1Databases: {FRESH: 'fresh', OCCUPIED: 'occupied', MISMATCH: 'mismatch', OBJECT_MISMATCH: 'object-mismatch', ROUNDTRIP: 'roundtrip', UPGRADE: 'upgrade', CURRENT_UPGRADE: 'current-upgrade'}}));
  const ledgerTable = manifest.tables.find(t => t.name === 'rer_migrations');
  async function target(binding, schema = migrations) {
   const db = await runtime.getD1Database(binding);
@@ -137,6 +137,10 @@ try {
  await mismatch.prepare('ALTER TABLE projects ADD COLUMN incompatible TEXT').run();
  await assert.rejects(transfer.restoreStream(await transfer.portability(mismatch), new Response(archive).body), error => error.code === 'schema_mismatch');
  assert.deepEqual(await rows(mismatch, 'SELECT * FROM projects'), []);
+ const objectMismatch=await target('OBJECT_MISMATCH');
+ await objectMismatch.prepare('CREATE INDEX archive_behavior_drift ON credentials(project)').run();
+ await assert.rejects(transfer.restoreStream(await transfer.portability(objectMismatch),new Response(archive).body),error=>error.code==='schema_mismatch','an index on excluded credentials still changes the complete replay identity');
+ assert.deepEqual(await rows(objectMismatch,'SELECT * FROM projects'),[],'behavioral-object drift admits no archived project');
  // Even after adaptation, readArchive must verify the original closing binding.
  const corrupt = records.map(record => record.kind === 'closing' ? {...record, archiveHash: '0'.repeat(64)} : record).map(record => JSON.stringify(record)).join('\n') + '\n';
  const roundtrip = await target('ROUNDTRIP');

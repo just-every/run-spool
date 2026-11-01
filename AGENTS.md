@@ -60,3 +60,5 @@ use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
 and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
 Keep the existing core-flow registration and CI shard count. Contract judgments
 remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.
+
+Native archive compatibility uses the trusted migration-prefix replay in `src/domain/archive-history.json`. After changing core migrations or the archive exclusion policy, regenerate it with `node scripts/archive-history.mjs`, then run `node scripts/archive-history.mjs --check`. This runs before source-lock validation through `pnpm source:check`; regenerate the source lock last. Never replace replay evidence with an unverified schema acknowledgment.

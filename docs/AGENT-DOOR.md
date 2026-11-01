@@ -70,12 +70,12 @@ restoring history does not restore provider authority.
 An absent connection is visibly unavailable.
 
 Archive restore retains schema, inventory and checksum checks and cannot create
-consent, credentials or permission to resume work. Published rer 0.2.89 cannot
-yet restore the genuine pre-attribution legacy archive through Spool's in-process
-portability door: that door lacks the migration replayer required by Base's
-legacy-schema verification. It refuses `schema_mismatch:legacy_schema`. Existing
-archive bytes and validation remain authoritative; no acknowledgment bypass is
-offered by this adoption.
+consent, credentials or permission to resume work. The native door supplies Base's
+required migration verification from checked, independently replayed source-file
+prefixes. The unchanged published archive restores through the existing native
+row-preserving inventory upgrade only after both its archived ledger and the
+complete destination schema are verified. Unknown histories and destination
+behavioral drift still refuse. No unverified acknowledgment is offered.
 
 Recognized earlier native table inventories can restore when the archive carries
 the complete behavioral-object inventory and it exactly matches this installation.
@@ -165,3 +165,5 @@ repair revisions and sandbox-confirmed fixture identities are obtained through
 their native lifecycle, independently of mutable list ordering. The remaining
 dependencies are pending assertions,
 never passing results or completed shared duties. Spend caps remain unenforced.
+
+Legacy project CLI packet reads retain their exact project HTTP path, selector validation and refusal behavior. Shared remote MCP calls continue through `/mcp`. Published native archive compatibility retains the seed’s explicit row-preserving inventory upgrade; older archives must first prove their recorded migration history and the complete destination against the checked migration-prefix replay. The native adapter adds only declared attribution defaults and authenticates old Platform ledger hashes without replacing the destination ledger. Current archives retain their single-pass import. Regenerate the replay with `node scripts/archive-history.mjs` after core migration or archive-policy changes; `pnpm source:check` checks it.

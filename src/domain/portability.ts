@@ -1,3 +1,6 @@
+import {verifiedLegacySchema} from '../modules/portability/bridge.mjs';
+import {archiveHistory} from './archive-history.mjs';
+import {ledgerReader,archivedLedgerTables,archivedHistory} from '../modules/portability/ledgers.mjs';
 import {ensureIssuePriorities} from './issue-priority/model';
 import {ensureRecurrenceBoundaries} from './recurrence/model';
 import {suppressionExportRow} from './suppression/archive';
@@ -60,8 +63,8 @@ export const portabilityPolicy = {
 // formats have none; restoring one uses the payload-free policy, and the
 // restore commit gives its journal rows legacy facts instead.
 export async function portability(db: D1Database, safeAudit = true) {
- const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
- const service = await createPortability({ db, policy });
+ const archivePolicy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
+ const service = await createPortability({ db, policy:archivePolicy, migrations:archiveHistory(db) });
  const exports=orderedReleaseExports(service.exports);
  return { ...service, db, exports, status:async(id:string)=>{
   const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
@@ -69,7 +72,7 @@ export async function portability(db: D1Database, safeAudit = true) {
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
-   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
+   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...archivePolicy, validateStaged: stagedValidation(options.laterJournal.journal) }, migrations:archiveHistory(db) }) : service;
    return checked.imports.finalize(id, options);
   },
  } };
@@ -204,7 +207,7 @@ function beforeAgentAttribution(table:any,manifest:any,currentObjects=false){
  const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
  return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
 }
-async function earlierManifest(db: D1Database, manifest: any) {
+async function earlierManifest(db: D1Database, manifest: any,ledgers?:any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
@@ -213,6 +216,9 @@ async function earlierManifest(db: D1Database, manifest: any) {
  // with Base's typed identity. A missing or changed object inventory gains no
  // attestation here and still needs the shared migration-replay bridge.
  const currentObjects=product.schemaObjects!==undefined&&canonicalJson(product.schemaObjects)===canonicalJson(current.schemaObjects);
+ if(product.schemaObjects!==undefined&&!currentObjects)return null;
+ const verified=product.schemaObjects===undefined&&await verifiedLegacySchema(db,product,current,archiveHistory(db),()=>archivedHistory(manifest,ledgers,{allowOlderShape:true}));
+ if(product.schemaObjects===undefined&&!verified)return null;
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
@@ -226,36 +232,58 @@ async function earlierManifest(db: D1Database, manifest: any) {
   if(later.tables.length&&!missing.length)continue;
   const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest,currentObjects)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
   if(currentObjects&&canonicalJson(product.tables.map((table:any)=>table.name))!==canonicalJson(earlier.map((table:any)=>table.name)))continue;
-  const identity=currentObjects?await schemaIdentityOf(earlier,current.schemaObjects):await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))));
+  const identity=await schemaIdentityOf(earlier,product.schemaObjects??[]);
   if (product.schema !== identity) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
-  const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.
-  const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-  return { ...manifest, ...migrations, schema:currentObjects?await schemaIdentityOf(tables,current.schemaObjects):await sha256(canonicalJson(tables.map(({ name, sql }: any) => ({ name, sql })))), tables };
+  const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)).map((table:any)=>({...table})), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  // A verified native upgrade keeps every product row and gives the internally
+  // translated archive the destination's independently replayed object inventory.
+  // Old Platform ledger rows gain their source-file hash; they remain skipped
+  // bookkeeping and never overwrite the destination ledger.
+  for(const table of tables)if(table.name==='rer_migrations'&&!table.columns.some((column:any)=>column.name==='sha256')){
+   table.sql='CREATE TABLE rer_migrations (name TEXT PRIMARY KEY, sha256 TEXT NOT NULL, applied_at TEXT NOT NULL)';
+   table.columns=[table.columns[0],{name:'sha256',type:'TEXT',notnull:1,pk:0},...table.columns.slice(1)];
+  }
+  return { ...manifest,migrations:(await archiveHistory(db)()).names, schemaObjects:current.schemaObjects,schema:await schemaIdentityOf(tables,current.schemaObjects), tables };
  }
  return null;
 }
-async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
+async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal, readLedgers=false) {
  let id, closing, binding: any, complete = false, rewritten = false;
+ let verifiedRecords:any[]|undefined,archivedLedgers;
+ // Current exports carry their ledger in the manifest and retain a single-pass
+ // stream. Old v2 files carry ledger rows in authenticated archive parts.
+ if(readLedgers){
+  const ledger=ledgerReader();verifiedRecords=[];
+  for await(const record of readArchive(source)){ledger.add(record);verifiedRecords.push(record);}
+  archivedLedgers=ledger.ledgers();
+ }
  const attributionDefaults=new Map<string,Record<string,unknown>>();
  const archivedAttributionColumns=new Map<string,string[]>();
+ let ledgerHashes:any;
  try {
-  for await (const record of readArchive(source)) {
+  for await (const record of verifiedRecords??readArchive(source)) {
    if (record.kind === 'manifest') {
-    const earlier=db ? await earlierManifest(db,record) : null;
+    const earlier=db ? await earlierManifest(db,record,archivedLedgers) : null;
     const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
     if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
      const archived=record.tables.find((entry:any)=>entry.name===table);
-     if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
+     if(archived&&manifest.tables.find((table:any)=>table.name===archived.name)?.columns.some((column:any)=>column.name===field)&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
     }
-    rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
+    let translatedLedgers=archivedLedgers;
+    if(db&&earlier&&archivedLedgers?.rer_migrations&&record.tables.find((table:any)=>table.name==='rer_migrations')?.columns.every((column:any)=>column.name!=='sha256')){
+     const replay=await archiveHistory(db)();ledgerHashes=Object.fromEntries(replay.names.map((name:string)=>[name,replay.sha256(name)]));
+     translatedLedgers={...archivedLedgers,rer_migrations:archivedLedgers.rer_migrations.map((row:any)=>({...row,sha256:ledgerHashes[row.name]}))};
+    }
+    rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest,undefined,{ledgers:translatedLedgers});
    }
    else if (record.kind === 'part') {
     // readArchive verifies the original bytes; bind translated parts to the
     // recognized current inventory using only this migration's exact defaults.
-    const part=attributionDefaults.size?await makePart(record.index,record.items.map((item:any)=>{
+    const part=attributionDefaults.size||ledgerHashes?await makePart(record.index,record.items.map((item:any)=>{
+     if(item.kind==='row'&&item.table==='rer_migrations'&&ledgerHashes)return {...item,row:{...item.row,sha256:ledgerHashes[item.row.name]}};
      if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
      if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
      return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
@@ -269,6 +297,11 @@ async function importRecords(service: any, source: ReadableStream<Uint8Array>, d
   // readArchive has already verified the original archive's closing hashes
   // above, and finalize binds the staged parts to the manifest actually created.
   await service.imports.finalize(id, { archiveHash: binding.digest(), ...(rewritten ? {} : { contentHash: closing.contentHash }), ...(laterJournal ? { laterJournal } : {}) }); complete = true;
+ } catch(error) {
+  // Preserve the native archive door's stable refusal code while Base retains
+  // its more specific internal migration diagnostics and all refusal checks.
+  if(error instanceof PortabilityError&&error.code.startsWith('schema_mismatch:'))throw new PortabilityError('schema_mismatch',error.status);
+  throw error;
  } finally { if (id && !complete) await service.imports.abort(id); }
 }
 async function templateManifest(service:any){
@@ -332,7 +365,7 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
  }
  if (first?.kind === 'manifest') {
   const carried = Array.isArray(first.payloads) && first.payloads.some((payload: any) => payload?.name === SAFE_AUDIT_PAYLOAD);
-  return importRecords(carried ? service : await portability(service.db, false), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
+  return importRecords(carried ? service : await portability(service.db, false), input, service.db, laterJournal,archivedLedgerTables(first).length>0);
  }
  const legacyReader = input.getReader(); let count = 0, text = ''; const decoder = new TextDecoder();
  try {
