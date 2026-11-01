@@ -9445,7 +9445,7 @@
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
-      "sha256": "8b574c8742899ddb666a2b8f182560ee0fcc2ed0a76ea287803e7bdc4363af06",
+      "sha256": "dd19f51a0cbc8abe1356c2d6b416389c48ee94887c2f68815dcd302e7a27b153",
       "executable": false
     },
     "tests/scrubbing-selectors.mjs": {
@@ -9569,7 +9569,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "48103943bd1e467139faef1055adfed80a5a26a197a2abe4c5f9d6b46b51e9fc",
+      "sha256": "5e7f28e85d32783913c30dd3a71533c7e25c356fd7fd60383abd8248ed02d6dc",
       "executable": false
     },
     "tests/triage-app.mjs": {
