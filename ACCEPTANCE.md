@@ -350,7 +350,7 @@ Core · target · **partial** · Rules D-1
 5. From an unmodified Python SDK with default `include_local_variables`, the frame locals `password` and `api_key` are masked by default.
 6. A `$frame.vars.order_note` mask rule masks `order_note`, and the ordinary local survives in issue detail.
 
-**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`
+**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`; `src/domain/scrubbing/`; `src/domain/admission.ts`; `src/domain/sentry/located-log.ts`; `src/ui/workbench/ScrubbingRules.tsx`; `tests/sentry-sdk.mjs`; `tests/scrubbing-selectors.mjs` (scrubbingSelectors: field selectors, methods, scoped hashes, built-ins and OTLP); `tests/scrubbing-flow.mjs` (scrubbingFlow: real Node event and located log, installation protection, safe fields, masked preview, stale saves, unchanged retained evidence, owner/agent/export reads and policy archive, Settings and masked issue at 1440/390); `tests/runtimes/python.mjs` (default Python locals and custom order_note rule, 1440/390); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `tests/project-erasure.mjs`
 **Gap.** Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent.
 
 #### SDK-004 — User feedback attached to failures
@@ -995,8 +995,8 @@ Core · target · **partial**
 5. Of two plain-resolved issues, one receiving an event in the same release and the other an event with no release, each fires one regression alert.
 6. With unmodified Sentry tracing, a transaction's p95 duration and a page's LCP pushed over warning, then critical, then back each fire one alert per transition and a resolve.
 
-**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`; `tests/alerts/plain-resolve.mjs` qualifies two distinct plain-resolved Sentry issues, same-release and release-less recurrence, one correctly identified regression each, reviewed matching-rule fan-out, duplicate capture and repeated scheduling without replay
-**Gap.** New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
+**Evidence.** `src/domain/alerts/filters.ts`; `src/domain/alerts/preview.ts`; `src/domain/alerts/measure.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`; `tests/alerts/conditions-journey.mjs`; `tests/alerts/baseline-journey.mjs` (conditionsJourney: filters, user/session denominators and refusals, plain Resolve, stale preview and restart deduplication; baselineJourney: sample-scaled normal/burst, weekly peaks, low traffic, capture loss and insufficient history); `tests/alerts-ui.mjs`; `tests/alerts/rules-ui.mjs`; `tests/alerts/baseline-ui.mjs` (rulesUI/baselineUI: 1440/390 filtered preview/refusal/enable and fired/withheld reasons); `tests/alerts/preview-rule.mjs`; `tests/alerts-runtime.mjs` (inert configuration archive); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `tests/project-erasure.mjs`; `tests/alerts/plain-resolve.mjs` qualifies two distinct plain-resolved Sentry issues, same-release and release-less recurrence, one correctly identified regression each, reviewed matching-rule fan-out, duplicate capture and repeated scheduling without replay
+**Gap.** Crash-rate and session spike rules beyond percent-affected, severity/tag filters for session conditions, session-only windows without a retained matching issue, team and priority filters (TEAM-001/TEAM-003), metric alerts over transactions/spans and web vitals (inherits CTX-001/SDK-007 intake), and MIG-001 import of Sentry metric alert rules remain unproved.
 
 #### ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty
 
