@@ -14,7 +14,7 @@ const operatorTables=['grouping_proposals','grouping_corrections','event_groupin
 const executionTables=['reproducers','reproducer_runs','fix_workflows','fix_receipts','exposures'];
 const deliveryTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];
 // TEAM-004 short IDs and commit citations (0059) arrive after repairs too; restore numbers the older archive's issues afresh.
-const citationTables=['short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables=['spool_notification_preferences','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 // TEAM-001 membership/notification custody, alert conditions, scrubbing rules and c16's artifact stores also postdate the pre-repair archive.
 const laterCustodyTables=['alert_rule_configs','scrubbing_policies','scrubbing_changes','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','suspect_decisions','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','identity_policies','event_identities','retention_policies','review_stamps','review_views'];
 const loaderTables=['loader_settings','artifact_storage_settings','source_map_builds','source_map_build_files'];
