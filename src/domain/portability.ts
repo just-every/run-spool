@@ -200,10 +200,10 @@ for(const later of laterTables)later.migrations.push('0084_restored_work.sql');
 laterTables.unshift({tables:[],migrations:['0084_restored_work.sql']});
 for(const later of laterTables)later.migrations.push('0085_follow_up_acknowledgment.sql');
 laterTables.unshift({tables:[],migrations:['0085_follow_up_acknowledgment.sql']});
-for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0085_alert_conditions.sql')}
-laterTables.unshift({tables:['alert_rule_configs'],migrations:['0085_alert_conditions.sql']});
-for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0086_scrubbing_rules.sql')}
-laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0086_scrubbing_rules.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0086_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0086_alert_conditions.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0087_scrubbing_rules.sql')}
+laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0087_scrubbing_rules.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
