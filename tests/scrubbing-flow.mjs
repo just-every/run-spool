@@ -161,7 +161,7 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{
    await browserSignIn(page,origin);await page.goto(origin+`/projects/${project.id}/issues/${issue.id}?event=${afterId}&occurrence=${encodeURIComponent(detail.occurrence)}`);
-   await page.locator('.issue').getByText(afterId,{exact:true}).waitFor();await page.locator('.event-diagnostic').waitFor();
+   await page.locator(`.issue .metadata[data-event-id="${afterId}"]`).waitFor();await page.locator('.event-diagnostic').waitFor();
    for(const name of ['Tags','Contexts','Extra'])await page.locator('.event-sections summary').filter({hasText:new RegExp('^'+name+'$')}).click();
    const extra=page.locator('.event-sections details').filter({has:page.locator('summary').filter({hasText:/^Extra$/})});
    await extra.getByText('synthetic-spool-approved-order',{exact:false}).waitFor();absent(await page.content(),protectedValues(after),'masked issue screen');
