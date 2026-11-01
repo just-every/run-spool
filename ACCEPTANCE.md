@@ -290,7 +290,7 @@ Core · target · **done** · Rules D-6
 
 #### TEAM-005 — Per-member notification settings and issue subscriptions
 
-Core · target · **missing** · Rules D-4
+Core · target · **missing** · Rules D-1, D-4, D-6
 
 **Requirement.** Each member chooses, per project and per notification type, what reaches them and on which personal channel (email, Slack direct message, Microsoft Teams chat). The types are workflow (resolution, regression, assignment, comment, mention), issue alert, deploy and weekly report. A member is subscribed to an issue by being assigned directly or through a team, commenting, being mentioned, bookmarking it or pressing subscribe; the issue shows why, and an explicit unsubscribe overrides automatic subscription until the member subscribes again. Workflow notifications go to subscribers other than the actor. Deploy notifications go to members whose commits are in the release. The weekly report is opt-in per member. A member can opt out of a project's personal alert email without disabling the rule for others; only an admin can make a rule's delivery mandatory, and the member's settings show it. Every message carries a settings and one-click unsubscribe link that applies before the next message. ALERT-003's personal digests arrive with member notifications: each member's daily/weekly schedules, timezone, channel selection and unsubscribe controls preserve one digest per calendar period and loss/backlog reporting.
 
