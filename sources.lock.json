@@ -2661,7 +2661,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "062ce9feecf72bca8ec18d67a87a46b31bc4b3ae8a5a1b7e075f3affb744b78b",
+      "sha256": "67aa25c92d4485751f6494d7bfe80cc59de0ab6bef2bf44fb3789ff334908e5b",
       "executable": false
     },
     "DEMO.md": {
@@ -2989,7 +2989,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "sha256": "5f10869194f818428aac7edecc72323b2165b49a7b592a7a7cb9f29ec53712ac",
       "executable": false
     },
     "docs/MEMBERS.md": {
@@ -4761,7 +4761,7 @@
       "executable": false
     },
     "src/domain/agent-access.ts": {
-      "sha256": "a0a7650c1d6246d15f6f0247d11bac7e2f23f8194e0c64d08d263474a2b6c1fa",
+      "sha256": "a8345fd6ed4f7eb23b8858204de09139c35e28764527524826fce9b7fb2dde8c",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -5352,8 +5352,12 @@
       "sha256": "6b89f9d3f177e3f3b5cecd82b84405cdefe9540d523a0d1171dbd49db9ebe4bc",
       "executable": false
     },
+    "src/domain/investigation/record-page.ts": {
+      "sha256": "39bd11ef4a59cfb02753db7e23eb8911b53491f4e3b35d166f53fd1843030355",
+      "executable": false
+    },
     "src/domain/investigation/records.ts": {
-      "sha256": "8b7a54945594a9943596a375d1d985b62c4964d2712c29cf41ba77721ca50098",
+      "sha256": "bd8e82a9169d303fdaba335b20428618f6ca3e076d10d08a9e216af311d5a80e",
       "executable": false
     },
     "src/domain/investigation/search.ts": {
@@ -5944,8 +5948,12 @@
       "sha256": "c15e039573e59fd6b04916c37311703b6d1d66044992d6fa3ec994dae72295bc",
       "executable": false
     },
+    "src/domain/sessions/records.ts": {
+      "sha256": "97647e55ff8e73d27de0c5c8a2cd673ed218684a15edcd33ce216436a3b58d1e",
+      "executable": false
+    },
     "src/domain/sessions/routes.ts": {
-      "sha256": "a6de112d5b70cd30f190cb60678f35f7d97e00c3f13fb25dec98ed922bf67a11",
+      "sha256": "08c4674baa77e773821fcac11ce92987d41ba5bda172082efd50988a48a33701",
       "executable": false
     },
     "src/domain/setup.server.ts": {
@@ -8901,7 +8909,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "2e9b7bcd97edb3ad306c5156340ea5fbb80b11c1123d0cff0bb9f014c3878c0e",
+      "sha256": "0df59ecf53973f0b4cb1e3daa250efba7c500ec985c1f4e4633166b42cba2759",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -9065,7 +9073,7 @@
       "executable": false
     },
     "tests/records-flow.mjs": {
-      "sha256": "b1da0a6d40ff4cd7597d139e6cedfb6869c2440be23438b3beb41b4d933bdf31",
+      "sha256": "cd10dad182c38a89ab648020ed45a72a124a093fd8241044b950879ad42578f8",
       "executable": false
     },
     "tests/release-identity-flow.mjs": {
@@ -9405,7 +9413,7 @@
       "executable": false
     },
     "tests/session-flow.mjs": {
-      "sha256": "a1641bbe94b587e8aee4d11e9f9cb259b679db11467914023927f03f3c611b2e",
+      "sha256": "9135bf94a6c8e4e19a62a8e4c2a2ffc566edb7643347fe97f138dd22eab3d4cf",
       "executable": false
     },
     "tests/setup-flow.mjs": {
