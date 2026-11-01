@@ -1,24 +1,27 @@
+import {validateDecision} from './decision-archive';
+import { ruleConfig } from './filters';
 import { slackHistoryTables, validateSlackHistory } from './slack-archive';
 import {deliveryArchiveTables,deliveryExportRow,validateDeliveryArchive} from './delivery-archive';
 import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
-export const alertArchiveTables=['alert_rules','alert_history',...deliveryArchiveTables,...slackHistoryTables];
-export const alertExcludedTables=['slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
+export const alertArchiveTables=['alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
+export const alertExcludedTables=['alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
  if(table==='alert_rules')return {...row,enabled:0};
  if(table==='alert_history')return {...row,historical:1};
  return deliveryExportRow(table,row);
 }
-const kinds=['new_issue','regression','spike'];
+const kinds=['new_issue','regression','reactivation','spike'];
 function assert(ok:unknown):asserts ok {if(!ok)throw new Error('Invalid alert archive');}
 function shape(row:any,fields:string[]){assert(row&&typeof row==='object'&&!Array.isArray(row)&&Object.keys(row).sort().join()===fields.sort().join());}
 function integer(value:any,min=0){assert(Number.isSafeInteger(value)&&value>=min);}
 function label(value:any){assert(typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,200}$/.test(value));}
 function safe(value:any,max=1000){assert(typeof value==='string'&&value.length<=max&&scrub(value)===value);}
 export function validateAlertArchive(data:any) {
- data.slack_delivery_meta??=[];
+ data.slack_delivery_meta??=[];data.alert_rule_configs??=[];
+ for(const r of data.alert_rule_configs){shape(r,['rule_id','project','revision','config']);assert(data.alert_rules.some((v:any)=>v.id===r.rule_id&&v.project===r.project&&v.revision>=r.revision));ruleConfig(JSON.parse(r.config));}
  validateDeliveryArchive(data);
  validateSlackHistory(data);
  const projects=new Set(data.projects.map((r:any)=>r.id)),issues=new Map<string,any>(data.issues.map((r:any)=>[r.id,r])),rules=new Map<string,any>(),alerts=new Map<string,any>();
@@ -27,7 +30,7 @@ export function validateAlertArchive(data:any) {
   shape(r,['id','project','revision','name','enabled','channel','destination','kinds','window_ms','threshold','created','updated']);
   label(r.id);label(r.destination);safe(r.name,100);assert(projects.has(r.project)&&!rules.has(r.id)&&r.enabled===0&&['mail','webhook'].includes(r.channel));
   integer(r.revision,1);integer(r.created);integer(r.updated);integer(r.window_ms,60000);assert(r.window_ms<=86400000&&r.window_ms%60000===0);integer(r.threshold,2);assert(r.threshold<=10000);
-  const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=3&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
+  const events=JSON.parse(r.kinds);assert(Array.isArray(events)&&events.length>0&&events.length<=4&&new Set(events).size===events.length&&events.every(k=>kinds.includes(k)));rules.set(r.id,r);
  }
  for(const p of projects)assert(data.alert_rules.filter((r:any)=>r.project===p).length<=20);
  for(const a of data.alerts){
@@ -35,7 +38,8 @@ export function validateAlertArchive(data:any) {
   if(a.payload===null){assert(a.kind!=='spike');continue;}
   assert(typeof a.payload==='string'&&a.payload.length<8192);const p=JSON.parse(a.payload);
   // TEAM-004 alerts name the issue's short ID and, after a commit resolution, its commit.
-  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
+  shape(p,['schema','alertId','kind','projectId','issueId','occurredAt','title','release','issueUrl',...['shortId','resolution','trigger'].filter(key=>Object.hasOwn(p,key)),...(a.kind==='spike'?['window','rule']:[])]);
+  if(p.trigger){shape(p.trigger,['event','occurrence']);label(p.trigger.event);label(p.trigger.occurrence);}
   assert(p.shortId===undefined||p.shortId===null||isShortId(p.shortId)&&p.shortId===p.shortId.toUpperCase());
   if(p.resolution!==undefined&&p.resolution!==null){const r=p.resolution;shape(r,['release','commit','pr',...('citation' in r?['citation']:[]),...('author' in r?['author','message']:[])]);assert(a.kind==='regression'&&typeof r.release==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(r.commit)&&r.pr===null);
    if('citation' in r){safe(r.citation,200);assert(/^(?:fixes|resolves|closes):?[ \t]+\S+$/i.test(r.citation))}
@@ -46,9 +50,9 @@ export function validateAlertArchive(data:any) {
    const previous=origin?`${origin}/?project=${encodeURIComponent(a.project)}&issue=${encodeURIComponent(a.issue)}`:null;
    assert(origin&&(p.issueUrl===issueLink(origin,a.project,a.issue)||p.issueUrl===previous));}
   if(a.kind==='spike'){
-   assert(p.release===null);shape(p.window,['start','end','durationMs','count','threshold']);shape(p.rule,['id','revision']);
+   assert(p.release===null);shape(p.window,['start','end','durationMs','count','threshold',...p.window.decision?['decision']:[]]);if(p.window.decision)validateDecision(p.window.decision);shape(p.rule,['id','revision']);
    const r=rules.get(p.rule.id);assert(r?.project===a.project);integer(p.rule.revision,1);assert(p.rule.revision<=r.revision);
-   integer(p.window.durationMs,60000);assert(p.window.durationMs<=86400000&&p.window.durationMs%60000===0);integer(p.window.threshold,2);integer(p.window.count,p.window.threshold);assert(p.window.count<=10000);
+   integer(p.window.durationMs,60000);assert(p.window.durationMs<=86400000&&p.window.durationMs%60000===0);integer(p.window.threshold,2);integer(p.window.count,p.window.decision?0:p.window.threshold);assert(p.window.count<=10000);
    const start=Date.parse(p.window.start),end=Date.parse(p.window.end);integer(start);assert(start%p.window.durationMs===0&&end-start===p.window.durationMs&&end===a.created&&new Date(start).toISOString()===p.window.start&&new Date(end).toISOString()===p.window.end);
   } else {shape(p.release,['name','build','sequence']);assert(p.release.name===''?p.release.sequence===0&&storedBuild(p.release.build)===p.release.build:data.releases.some((r:any)=>r.project===a.project&&r.name===p.release.name&&(r.build===p.release.build||(data.release_builds??[]).some((b:any)=>b.project===a.project&&b.release===r.name&&b.build===p.release.build))&&r.seq===p.release.sequence));}
  }
