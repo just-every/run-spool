@@ -9345,7 +9345,7 @@
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
-      "sha256": "0f7352eea4053aa81dd03ba236b7eb0d5bb3c9ff20c3af9418c8d4cbc7878694",
+      "sha256": "e30a83b4fb74b517e2b715fb57d75c6484ad3036f7d500808a1f5b66524e7866",
       "executable": false
     },
     "tests/sentry-cli/bundlers.mjs": {
