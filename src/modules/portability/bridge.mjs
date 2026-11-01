@@ -70,9 +70,10 @@ async function placement(db,manifest,cat,replay,ledger,history,legacyRecovery,un
   return {applied,earlier,replays,rebuilt};
 }
 // Old v2 writers recorded tables and applied migration names, but no behavioral
-// object inventory. Verify both projections: the recorded files must reproduce
-// the complete live schema, and their tables must reproduce the archive. Never
-// guess an unrecorded prefix or install source SQL to fill missing evidence.
+// object inventory (later writers omitted objects attached to excluded tables).
+// Verify the archive's historical projection and the complete live replay, then
+// return the recorded schema's complete identity for ordinary bridge placement.
+// Never guess an unrecorded prefix or install source SQL to fill missing evidence.
 export async function verifiedLegacySchema(db,manifest,cat,migrations,history) {
   if(!migrations)return false;
   const replay=await migrations(),ledger=await destinationLedger(db)??[];
@@ -84,9 +85,9 @@ export async function verifiedLegacySchema(db,manifest,cat,migrations,history) {
     if(!recorded.length || canonicalJson(applied)!==canonicalJson(replay.names)
       || !recorded.every((name,i)=>applied.indexOf(name)>(i?applied.indexOf(recorded[i-1]):-1)))return false;
     if(archived && manifest.migrations && canonicalJson(matchMigrationLedger(archived,files,replay))!==canonicalJson(recorded))return false;
-    return await replay.schemaAfter(applied)===cat.identity
-      && await replay.schemaAfter(recorded)===cat.identity
-      && await replay.schemaAfter(recorded,{tablesOnly:true})===manifest.schema;
+    if(await replay.schemaAfter(applied)!==cat.identity
+      || await replay.schemaAfter(recorded,manifest.schemaObjects===undefined?{tablesOnly:true}:{legacyExcludedObjects:true})!==manifest.schema)return false;
+    return await replay.schemaAfter(recorded);
   }catch{return false;} // Unknown history or a failed replay is not verification.
 }
 // An archive with the destination's schema identity can still predate later
