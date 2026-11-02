@@ -6,6 +6,7 @@ import {storedBuild} from '../releases/build';
 import { scrub } from '../privacy';
 import { issueLink, publicOrigin } from './payload';
 import { isShortId } from '../short-ids/format';
+import { alertKinds } from './types';
 export const alertArchiveTables=['alert_rules','alert_history','alert_rule_configs',...deliveryArchiveTables,...slackHistoryTables];
 export const alertExcludedTables=['alert_reactivation_markers','alert_rule_previews','alert_decisions','slack_destinations','alert_destination_tests','rer_mail_event_receipts','rer_mail_event_states','alert_destinations','alert_scheduler','alert_expansion_cursors','alert_intents','alert_cursors','alert_mail_jobs','alert_mail_attempts','integration_%'];
 export function alertExportRow(table:string,row:any) {
@@ -13,7 +14,7 @@ export function alertExportRow(table:string,row:any) {
  if(table==='alert_history')return {...row,historical:1};
  return deliveryExportRow(table,row);
 }
-const kinds=['new_issue','regression','reactivation','spike'];
+const kinds:readonly string[]=alertKinds;
 function assert(ok:unknown):asserts ok {if(!ok)throw new Error('Invalid alert archive');}
 function shape(row:any,fields:string[]){assert(row&&typeof row==='object'&&!Array.isArray(row)&&Object.keys(row).sort().join()===fields.sort().join());}
 function integer(value:any,min=0){assert(Number.isSafeInteger(value)&&value>=min);}

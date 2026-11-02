@@ -1,5 +1,7 @@
 import type { TrustedTransport } from '../../modules/integrations/core/types';
-export type AlertKind = 'new_issue' | 'regression' | 'reactivation' | 'spike';
+// The kinds admission and spike evaluation write; archive validation reads the same list.
+export const alertKinds = ['new_issue', 'regression', 'reactivation', 'spike'] as const;
+export type AlertKind = typeof alertKinds[number];
 export type AlertEnvironment = {
  DB: D1Database; ALERT_DESTINATIONS?: string; ALERT_PUBLIC_ORIGIN?: string;
  ALERT_DESTINATION_HASH_KEY?: string; INTEGRATION_EGRESS?: TrustedTransport;
