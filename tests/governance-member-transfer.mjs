@@ -109,6 +109,7 @@ export async function governanceMemberTransferFlow() {
    for(const path of ['/auth/session','/api/projects']) {
     const fenced=await request(path,undefined,cookie);assert.equal(fenced.status,401,'handoff fences predecessor and successor sessions');await fenced.arrayBuffer();
    }
+   await refused('/auth/step-up',{action:'owner:transfer'},cookie,401,'unauthenticated');
   }
   await refused(transfer,{member:successor.id,version:successor.version},ownerCookie,401,'Sign in required');
   const nextCookie=await emailSignIn(app.origin,successorEmail),next=await json('/auth/session',undefined,nextCookie);

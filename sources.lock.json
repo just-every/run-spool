@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "644eb297fb533483a48fe95340080bc7af6b75352e5aa0bee89e522dd2c0e4b6",
+      "sha256": "4dec4e2c122fb42592d8f4e12fe6db433d88b4c4ed7fafe8b34cffdc2fdff27c",
       "executable": false
     },
     "DEMO.md": {
@@ -9954,7 +9954,7 @@
       "executable": false
     },
     "tests/governance-member-transfer.mjs": {
-      "sha256": "92864c66fb5b8599844499139d5d1ab96e4cd6003bd3dcac08c19b4292d5d604",
+      "sha256": "a56551af4359730b9db8849af1a0097e658363ace7ed601849f4f075704b02bc",
       "executable": false
     },
     "tests/grouping-rules-flow.mjs": {
