@@ -13,6 +13,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  spool_native_audit_actors:['actor','approvers'],spool_agent_operations:['actor','approvers'],spool_agent_custody:['principal','actor'],spool_erasure_agents:['principal','actor'],
+ alert_mail_jobs:['message','agent_attribution'],
  repairs: ['recorded_by','note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
@@ -21,7 +22,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  // SRC-003: free text a CI job sent with a release or a deploy.
  sentry_releases: ['url'], sentry_deploys: ['name','url'],
 };
-const jsonColumns = new Set(['outcome','actor','approvers','principal','row','evidence','saved','approvals','result','event','payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
+const jsonColumns = new Set(['agent_attribution','outcome','actor','approvers','principal','row','evidence','saved','approvals','result','event','payload','diagnostic','spec','observation','checks','grant_spec','detail','config']);
 const jsonColumn = (table: string, column: string) => jsonColumns.has(column) || table === 'rer_mail_development_outbox' && column === 'message';
 const quote = (name: string) => '"' + name.replaceAll('"','""') + '"';
 const contains = (value: unknown, needles: string[]) => typeof value === 'string' && needles.some(needle => value.includes(needle));

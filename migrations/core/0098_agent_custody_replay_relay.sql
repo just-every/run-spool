@@ -200,3 +200,6 @@ BEGIN SELECT RAISE(ABORT,'subject_erasure_in_progress'); END;
 CREATE TRIGGER spool_agent_erasure_bs_audit_update BEFORE UPDATE ON bs_audit
 WHEN NOT EXISTS(SELECT 1 FROM rer_erasure_guard) AND EXISTS(SELECT 1 FROM rer_erasure_operations WHERE phase='deleting' AND entity='installation-owner')
 BEGIN SELECT RAISE(ABORT,'subject_erasure_in_progress'); END;
+
+-- Bind first-send agent attribution without changing the native queued payload.
+ALTER TABLE alert_mail_jobs ADD COLUMN agent_attribution TEXT;

@@ -101,7 +101,7 @@ export async function dispatchNotices(env:Environment,time:number,only?:string[]
  ]);
  const rows=(await s(env.DB,"SELECT * FROM follow_up_notices WHERE state='queued' AND next_at<=? AND (? IS NULL OR id IN (SELECT value FROM json_each(?))) ORDER BY next_at,id LIMIT 30",time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const row of rows) {
-  if(await dispatchStanding(env as Bindings&Environment,'followup',row.id))continue;
+  if(await dispatchStanding(env as Bindings&Environment,'followup',row.id,()=>time))continue;
   let prepared;
   try {
    prepared=await prepare(env,row,time);

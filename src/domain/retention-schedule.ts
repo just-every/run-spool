@@ -25,7 +25,7 @@ export async function scheduledRetention(db:D1Database,time:number,env?:Bindings
   if(!await db.prepare('SELECT 1 FROM retention_runs WHERE project=? AND generation=?').bind(project,token).first())continue;
   try{
    const policy=await readRetentionPolicy(db,project);if(policy.held)throw new Error('retention_held');const cutoffs=retentionCutoffs(policy.windows,time);
-   if(await retentionRemaining(db,project,cutoffs)&&!(env&&await dispatchStanding(env,'retention',project))){
+   if(await retentionRemaining(db,project,cutoffs)&&!(env&&await dispatchStanding(env,'retention',project,()=>time))){
     const scope={actor:await serviceActor(db,'scheduled retention'),action:'retention.scheduled' as const,subject:await auditSubject(db,'project',project,project),projectLabel:await projectAuditLabel(db,project)};
     const scoped=new Proxy(db,{get(target,key){if(key==='batch')return async(statements:D1PreparedStatement[])=>{const fence=guard(target,"EXISTS(SELECT 1 FROM projects WHERE id=?) AND EXISTS(SELECT 1 FROM oa_operators WHERE role='owner' AND status='active') AND NOT EXISTS(SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete') AND EXISTS(SELECT 1 FROM retention_runs WHERE project=? AND generation=?)",project,project,token);return (await auditedBatch(target,[fence,...statements],scope)).slice(1)};const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value}});
     await runAuditScope(scope,()=>applyRetention(scoped,project,cutoffs.events,cutoffs,retentionBatchLimit));

@@ -57,12 +57,12 @@ async function job(env:Environment,kind:Kind,id:string) {
 
 /** Return true when the agent door owns the attempt (including a hold or
  * refusal). A native person configuration continues on its existing path. */
-export async function dispatchStanding(env:Environment,kind:Kind,id:string):Promise<boolean> {
+export async function dispatchStanding(env:Environment,kind:Kind,id:string,now:()=>number=Date.now):Promise<boolean> {
  if(active.has(env.DB))return false;
  const row=await job(env,kind,id);if(!row)return false;
  const {spoolAgentDoor}=await import('./index.server');
  const item=row.item??`${id}:${row.attempts+1}`;
- await spoolAgentDoor(env).invoke(`spool.workers.${kind.replaceAll('-','_')}`,{id,item,idempotency_key:row.principal.idempotencyKey},row.principal);
+ await spoolAgentDoor(env,undefined,now).invoke(`spool.workers.${kind.replaceAll('-','_')}`,{id,item,idempotency_key:row.principal.idempotencyKey},row.principal);
  return true;
 }
 
@@ -106,12 +106,12 @@ export function standingTools(env:Environment):ToolDefinition[] {
     const db=workerDatabase(env.DB,actor),workerEnv={...env,DB:db};active.add(db);
     const scope={actor:await auditActor(env.DB,{kind:'agent',authority:ctx.agent.id,owner:ctx.person.id,project:row.project}),action:kind==='retention'?'retention.scheduled' as const:'private.action' as const,subject:await auditSubject(env.DB,'project',row.project,row.project),projectLabel:await projectAuditLabel(env.DB,row.project)};
     try {await runAuditScope(scope,async()=>{
-     if(kind==='alert-mail'){const {dispatchMail}=await import('../alerts/mail');await dispatchMail(workerEnv,Date.now(),[String(args.id)]);}
-     else if(kind==='alert-webhook'){const {webhookService}=await import('../alerts/webhook.server');await webhookService(workerEnv,row.project,Date.now).dispatch(String(args.id));}
-     else if(kind==='followup'){const {dispatchNotices}=await import('../follow-up/notices');await dispatchNotices(workerEnv,Date.now(),[String(args.id)]);}
+     if(kind==='alert-mail'){const {dispatchMail}=await import('../alerts/mail');await dispatchMail(workerEnv,ctx.now(),[String(args.id)],{preparedBy:ctx.actor,approvers:ctx.approvers});}
+     else if(kind==='alert-webhook'){const {webhookService}=await import('../alerts/webhook.server');await webhookService(workerEnv,row.project,ctx.now).dispatch(String(args.id));}
+     else if(kind==='followup'){const {dispatchNotices}=await import('../follow-up/notices');await dispatchNotices(workerEnv,ctx.now(),[String(args.id)]);}
      else {const {readRetentionPolicy,retentionCutoffs}=await import('../retention-policy');const {applyRetention}=await import('../retention');const {retentionBatchLimit}=await import('../retention-schedule');
       const policy=await readRetentionPolicy(db,row.project);if(policy.held||policy.revision!==row.revision)throw new ToolRefusal('revision_conflict');
-      const cutoffs=retentionCutoffs(policy.windows,Date.now());await applyRetention(db,row.project,cutoffs.events,cutoffs,retentionBatchLimit);
+      const cutoffs=retentionCutoffs(policy.windows,ctx.now());await applyRetention(db,row.project,cutoffs.events,cutoffs,retentionBatchLimit);
      }
     });return {result:{id:String(args.id),item:String(args.item),state:'attempted'}};
     }finally{active.delete(db);}

@@ -23,6 +23,7 @@ export async function replayHorizon(){
   let receipt=opened;for(let step=0;step<20&&receipt.phase!=='complete';step++){receipt=await app.json('/api/erasures/'+opened.id+'/resume','POST',{});console.log('Replay erasure step '+step+': '+receipt.phase);}
   assert.equal(receipt.phase,'complete','The native erasure completes in bounded steps');
   await checkAgentArtifacts(app.DB,projectAgentArtifacts);
+  const exported=await app.request('/api/archive');assert.equal(exported.status,200);const postArchive=await exported.text();const manifest=JSON.parse(postArchive.split('\n')[0]);assert.ok(!manifest.tables.some(table=>table.name.startsWith('agent_door_')),'Relay, aliases and agent custody remain installation-private in native exports');
   const redacted=await app.DB.prepare('SELECT key,digest,expires_at FROM agent_door_calls WHERE decision_id=?').bind(original.decision_id).first();
   assert.equal(redacted.expires_at,original.expires_at,'Erasure preserves the original completion horizon exactly');assert.equal(redacted.digest,'');assert.equal(redacted.key,'erased:'+original.decision_id);
   assert.equal(code(await app.call('spool.releases.record',args)),'subject_erased','Replay now returns only its tombstone');

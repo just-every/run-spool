@@ -28,6 +28,8 @@ export async function reviewErasureFlow(app,screens){
  await screens?.capture('native-reviewer-audit',`/projects/${project}/issues/${issue.id}`,'Undid a grouping correction',page=>page.getByRole('button',{name:'Details: Operator audit',exact:true}).click());
  await app.adopt();
  await checkAgentArtifacts(app.DB,projectAgentArtifacts);await checkAgentArtifacts(app.DB,operatorAgentArtifacts);
+ await assert.rejects(()=>checkAgentArtifacts(app.DB,{artifacts:projectAgentArtifacts.artifacts.slice(1)}),/agent_erasure_undeclared_table/,'Adoption refuses an unaccounted installed table');
+ await assert.rejects(()=>checkAgentArtifacts(app.DB,{artifacts:projectAgentArtifacts.artifacts.map((entry,index)=>index?entry:{...entry,columns:entry.columns.slice(1)})}),/agent_erasure_undeclared_column/,'Adoption refuses an unaccounted installed column');
  const peerBefore=await app.DB.prepare('SELECT * FROM agent_door_reviews WHERE id=?').bind(review.id).first();
  const disposable=done(await app.call('spool.projects.create',{name:'Ephemeral privacy probe',idempotency_key:randomUUID()}));
  const approvalPolicy=heldPolicy();approvalPolicy.rules=approvalPolicy.rules.filter(rule=>rule.class!=='standard');await app.adopt(approvalPolicy);

@@ -38,12 +38,12 @@ export async function recoverMail(env:AlertEnvironment,time:number) {
  ]);
 }
 // `only` limits a run to the given jobs; claims keep any concurrent run from sending the same job twice.
-export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[]) {
+export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:{preparedBy:{label:string};approvers:readonly {name:string}[]}) {
  const started=Date.now(),clock=()=>time+Date.now()-started;
  await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
-  if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id))continue;
+  if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id,clock))continue;
   let mail;
   try {
    const destination=await authorizedDestination(env,job);mail=sender(env);
@@ -54,7 +54,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
   }
   const claim=crypto.randomUUID(),claimedAt=clock();
   const results=await env.DB.batch([
-   s(env.DB,`UPDATE alert_mail_jobs SET state='sending',attempts=attempts+1,claim=?,claim_until=? WHERE id=? AND state='queued' AND next_at<=? AND attempts<max_attempts RETURNING id`,claim,claimedAt+60000,job.id,claimedAt),
+   s(env.DB,`UPDATE alert_mail_jobs SET state='sending',agent_attribution=coalesce(agent_attribution,?),attempts=attempts+1,claim=?,claim_until=? WHERE id=? AND state='queued' AND next_at<=? AND attempts<max_attempts RETURNING id`,attribution?JSON.stringify(attribution):null,claim,claimedAt+60000,job.id,claimedAt),
    s(env.DB,`INSERT INTO alert_mail_attempts(id,delivery_id,number,started) SELECT claim,id,attempts,? FROM alert_mail_jobs WHERE id=? AND claim=?`,claimedAt,job.id,claim),
   ]);
   if(!results[0].results.length)continue;
@@ -64,7 +64,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }
   let state='uncertain',code='response_unknown',receipt:string|null=null;
-  try {const result=await mail.send(JSON.parse(job.message));state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
+  try {const saved=await s(env.DB,'SELECT message,agent_attribution FROM alert_mail_jobs WHERE id=? AND claim=?',job.id,claim).first<{message:string;agent_attribution:string|null}>();if(!saved)throw new Error('claim_lost');const message=JSON.parse(saved.message);if(saved.agent_attribution){const source=JSON.parse(saved.agent_attribution);message.text+=`\n\nPrepared by ${source.preparedBy.label}.`+(source.approvers.length?` Approved by ${source.approvers.map((person:any)=>person.name).join(', ')}.`:'');}const result=await mail.send(message);state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
   const finished=clock();
   const next=state==='queued'?finished+JSON.parse(job.retry_delays)[job.attempts]:null;
   await finishMail(env,job.id,claim,state,code,receipt,finished,next);

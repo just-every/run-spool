@@ -16,11 +16,11 @@ export async function nativeWorker(app,{project,ingestKey,destination}){
  const before=(await app.mail()).length;
  await app.schedule(Date.now()+120000);
  assert.equal((await app.mail()).length,before,'Pause stops the real agent-configured worker before mail');
- const jobs=(await app.DB.prepare('SELECT id,state FROM alert_mail_jobs WHERE project=?').bind(project).all()).results;assert.ok(jobs.length,'Native capture created real durable delivery jobs');
+ const jobs=(await app.DB.prepare('SELECT j.id,j.state FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.rule_id=?').bind(created.id).all()).results;assert.ok(jobs.length,'Native capture created real durable delivery jobs');
  await app.adopt();await app.schedule(Date.now()+180000);
- const delivered=(await app.mail()).filter(message=>message.text?.includes('StandingNativeFirst'));
- assert.ok(delivered.length,'A resumed native worker executes through its retained admission');
+ const delivered=(await app.mail()).filter(message=>jobs.some(job=>job.id===message.deliveryId));
+ assert.equal(delivered.length,1,'A resumed native worker executes through its retained admission');
  assert.ok(delivered.every(message=>message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Standing effects retain the originating native actor');
- await capture('StandingNativeStopped');
+ await app.adopt(autonomousPolicy(),{paused:true});await capture('StandingNativeStopped');
  return {async stopped(){const count=(await app.mail()).length;await app.schedule(Date.now()+240000);assert.equal((await app.mail()).length,count,'Detached Business authority cannot execute queued standing mail');assert.ok(!(await app.mail()).some(message=>message.text?.includes('StandingNativeStopped')));console.log('Native standing worker: durable real jobs; Pause no-send; resumed attributed delivery; detached Business no-send.');}};
 }

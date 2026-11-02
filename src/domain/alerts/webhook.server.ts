@@ -67,6 +67,6 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
   }},
  });
  const dispatch=service.dispatch.bind(service);
- service.dispatch=async id=>{if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-webhook',id))return repository.get(id);return dispatch(id);};
+ service.dispatch=async id=>{if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-webhook',id,now))return repository.get(id);return dispatch(id);};
  return service;
 }
