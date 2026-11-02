@@ -9,8 +9,17 @@ Sentry.init({
   beforeSend: event => event.message === 'synthetic-spool-discard' ? null : event,
 });
 function checkout() { throw new TypeError('synthetic-spool-node-handled'); }
+function rootCause() { throw new TypeError('synthetic-spool-node-root'); }
+function wrapCause() {
+  try { rootCause(); } catch (cause) { throw new RangeError('synthetic-spool-node-middle', { cause }); }
+}
+function linkedFailure() {
+  try { wrapCause(); } catch (cause) { throw new Error('synthetic-spool-node-wrapper', { cause }); }
+}
 if (mode === 'identity') {
   try { checkout(); } catch (error) { Sentry.captureException(error); }
+} else if (mode === 'causes') {
+  try { linkedFailure(); } catch (error) { Sentry.captureException(error); }
 } else {
   Sentry.logger.info('synthetic-spool-node-log', { step: 'checkout' });
   Sentry.startSpan({ name: 'synthetic-spool-node-span', op: 'test' }, () => {});
