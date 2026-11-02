@@ -131,6 +131,7 @@ export async function teamTriage(owner,member,project) {
   await memberPage.goto(origin+'/projects/'+project.id+'/issues');await memberPage.getByLabel('Search issues',{exact:true}).fill('release:synthetic-spool-ux');
   const match=memberPage.locator('tbody tr').filter({has:memberPage.locator('a[href="'+path+'"]')});await expect(match).toHaveCount(1);await match.getByRole('link').click();
   await expect(memberPage.locator('.frame-coordinate').first()).toContainText(packet.events[0].currentLookup[0].original.file);
+  await memberPage.getByLabel('Assignment type',{exact:true}).selectOption('label');
   await memberPage.getByLabel('Assigned to',{exact:true}).fill('Cedar responder');
   let releaseAssignment;const gate=new Promise(resolve=>{releaseAssignment=resolve});let assignments=0;
   await memberPage.route('**/assignment',async route=>{if(route.request().method()==='PATCH'){assignments++;await gate;}await route.continue();});
