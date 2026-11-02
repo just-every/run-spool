@@ -212,6 +212,8 @@ laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrub
 // Key quota state is bound to excluded credentials; restored projects need fresh keys.
 for(const later of laterTables)later.migrations.push('0089_key_rate_limits.sql');
 laterTables.unshift({tables:[],migrations:['0089_key_rate_limits.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_filters');later.migrations.push('0090_alert_rule_filters.sql')}
+laterTables.unshift({tables:['alert_rule_filters'],migrations:['0090_alert_rule_filters.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;

@@ -40,6 +40,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
  const draft = { ...initial, ...savedDraft };
  const { editing, name, destination, kinds, enabled, windowMinutes, threshold, metric, environment, level, releaseMode, release, tagKeys, tags } = draft;
  const [busy, setBusy] = useState<'save' | 'preview' | null>(null), [error, setError] = useState('');
+ const [counts, setCounts] = useState<any>(null);
  const [preview, setPreview] = useState<Preview | null>(null), version = useRef(0);
  const selected = destinations.find(d => d.id === destination), spike = kinds.includes('spike');
  const needsTest = (d: any) => d?.test?.state !== 'passing' || !d.test.reviewed_at;
@@ -48,7 +49,7 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   releaseMode !== 'any' && `Release: ${releaseMode === 'none' ? 'No release' : release}`,
   ...Object.entries(config.filters.tags ?? {}).map(([key, value]) => `${key}: ${value}`)].filter(Boolean);
  function change(update: Partial<Draft>) {
-  version.current++; setPreview(null); setError(''); setDraft(previous => ({ ...initial, ...previous, ...update }));
+  version.current++; setPreview(null); setCounts(null); setError(''); setDraft(previous => ({ ...initial, ...previous, ...update }));
  }
  function edit(rule: any) {
   const config = ruleConfig(rule), filters = config.filters ?? {};
@@ -66,11 +67,12 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    ...(editing ? { revision: editing.revision } : {}) };
  }
  async function sample() {
-  setBusy('preview'); setError(''); setPreview(null);
+  setBusy('preview'); setError(''); setPreview(null); setCounts(null);
   const current = version.current;
   try {
    const result = await alertApi(`/api/projects/${project}/alerting/rules/preview`, 'POST', { ...payload(), ...(editing ? { ruleId: editing.id } : {}) });
-   if (current === version.current) setPreview(result);
+   const counts = metric === 'count' && kinds.length === 1 && spike ? await alertApi(`/api/projects/${project}/alerting/rules/preview`, 'POST', {rule:payload()}) : null;
+   if (current === version.current) { setPreview(result); setCounts(counts); }
   } catch (e) { if (current === version.current) setError((e as Error).message); }
   finally { setBusy(null); }
  }
@@ -128,6 +130,15 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    {filterLabels.length > 0 && <p aria-label="Applied rule filters">{filterLabels.map(label => <span className="state-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', margin: '0 8px 8px 0' }} key={String(label)}>{label}</span>)}</p>}
    <label className="alert-check"><input type="checkbox" checked={enabled} disabled={!!busy} onChange={e => change({ enabled: e.target.checked })}/>Enabled</label>
    {selected && needsTest(selected) && <p className="callout">Test this destination and review its passing result before enabling.</p>}
+   {counts && <section className="alert-count-preview" aria-label="Count rule preview" role="status"><h3>Retained occurrence preview</h3>
+    <p>{counts.matchingCount} matching occurrences · {counts.qualifyingIssues} qualifying issues · threshold {counts.threshold} per issue</p>
+    <p>Environment: {counts.environment??'All environments'}</p>
+    <p>{new Date(counts.window.start).toISOString()} to {new Date(counts.window.end).toISOString()} · {counts.window.complete?'Complete window':'Current window is incomplete'}</p>
+    <p>Accountable owner: {counts.owner.role} ({counts.owner.auditAlias})</p>
+    <p>Destination: {counts.destination.label} · {counts.destination.reviewed?'Passing test reviewed':'Review required'}{counts.destination.configured?'':' · unavailable'}</p>
+    <ul>{counts.issues.map((issue:any)=><li key={issue.id}>{issue.id}: {issue.count} retained occurrences</li>)}</ul>
+    {counts.truncated&&<p>Showing the first 50 matching issues; totals include all matches.</p>}<p>{counts.limitations}</p>
+   </section>}
    {preview && <RulePreview preview={preview} project={project} destinations={destinations}/>}
    <div className="button-row" style={{ gridColumn: '1 / -1', flexWrap: 'wrap' }}>
     <button type="submit" value="preview" className="text-button" disabled={!!busy || !canSubmit}>{busy === 'preview' ? 'Previewing…' : 'Preview rule'}</button>

@@ -1,3 +1,4 @@
+import {environmentFilterFlow} from './alerts/environment-filter.mjs';
 import {deliveryFlow} from './alerts/delivery-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
@@ -102,6 +103,6 @@ try {
  const restoredRule=(await app.json(deliveryPath+'/rules')).find(r=>r.id===webhook.id);await app.json(deliveryPath+'/rules/'+webhook.id,'PUT',rule('webhook',{revision:restoredRule.revision}));await app.schedule(Date.now());assert.equal(inbox.requests.length,sends);
  const key=await app.json('/api/projects/web/keys','POST',{kind:'ingest'});await app.json('/api/ingest/web','POST',event('post-restore',{frames:[{file:'https://app.example.com/after.js',line:1,column:0,function:'after'}]}),{Authorization:`Bearer ${key.key}`});await app.schedule(Date.now());assert.equal(inbox.requests.length,sends+1);
  const session=app.cookie;await app.request('/auth/signout','POST',{});assert.ok((await app.request(deliveryPath+'/rules','GET',undefined,{Cookie:session})).status>=400);
- await app.close();app=null;await deliveryFlow(inbox);
+ await app.close();app=null;await environmentFilterFlow(inbox);await deliveryFlow(inbox);
  console.log('ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.');
 } finally {await app?.close();await inbox.close();await rm(temp,{recursive:true,force:true});}

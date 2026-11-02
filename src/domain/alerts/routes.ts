@@ -7,6 +7,7 @@ import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import type { Bindings } from '../../auth/bindings';
 import { previewRule,previewGuard,configSql } from './preview';
+import { countPreview } from './count-preview';
 import { ruleInput } from './rules';
 import { destinationChoices, findDestination } from './destinations.server';
 import { namespace, statement as s } from './types';
@@ -38,9 +39,17 @@ routes.put('/destinations/:destination',async c=>{const result=await saveDestina
 routes.delete('/destinations/:destination',async c=>c.json(await revokeSlack(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination')!)));
 routes.post('/destinations/:destination/test',async c=>c.json(await testDestination(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'))));
 routes.post('/destinations/:destination/review',async c=>c.json(await reviewTest(c.env,c.get('alertSession'),c.req.param('project')!,c.req.param('destination'),(await input(c)).testId)));
-routes.post('/rules/preview',async c=>c.json(await previewRule(c.env,c.get('alertSession'),c.req.param('project')!,await input(c))));
+routes.post('/rules/preview',async c=>{
+ const p=c.req.param('project')!,body=await input(c);
+ if(body&&Object.hasOwn(body,'rule')){
+  if(Object.keys(body).some(k=>!['rule','windowStart'].includes(k)))throw new Error('Invalid preview fields');
+  const result=await countPreview(c.env,p,ruleInput(body.rule,c.env,p,false),Date.now(),body.windowStart);
+  await ownerBatch(c.env.DB,c.get('alertSession'),[]);return c.json(result);
+ }
+ return c.json(await previewRule(c.env,c.get('alertSession'),p,body));
+});
 routes.get('/decisions',async c=>c.json((await s(c.env.DB,`SELECT d.*,i.title issue_title,${primaryShortIdSql('i')} issue_short_id FROM alert_decisions d LEFT JOIN issues i ON i.id=d.issue AND i.project=d.project WHERE d.project=? ORDER BY d.end DESC,d.id LIMIT 100`,c.req.param('project')!).all()).results));
-routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,${configSql} config FROM alert_rules r WHERE project=? ORDER BY created,id`,c.req.param('project')!).all()).results));
+routes.get('/rules',async c=>c.json((await s(c.env.DB,`SELECT r.*,f.environment,${configSql} config FROM alert_rules r LEFT JOIN alert_rule_filters f ON f.rule_id=r.id AND f.project=r.project WHERE r.project=? ORDER BY r.created,r.id`,c.req.param('project')!).all()).results));
 routes.post('/rules',async c=>{
  const p=c.req.param('project')!,b=ruleInput(await input(c),c.env,p,false),id=crypto.randomUUID(),time=Date.now();
  await findDestination(c.env,p,b.destination,b.channel);
@@ -49,6 +58,7 @@ routes.post('/rules',async c=>{
   ...preview,
   s(c.env.DB,'INSERT INTO alert_rules VALUES(?,?,1,?,?,?,?,?,?,?,?,?)',id,p,b.name,Number(b.enabled),b.channel,b.destination,b.kinds,b.windowMs,b.threshold,time,time),
   s(c.env.DB,'INSERT INTO alert_rule_configs VALUES(?,?,1,?)',id,p,b.config),
+  ...(b.environment===null?[]:[s(c.env.DB,'INSERT INTO alert_rule_filters VALUES(?,?,?)',id,p,b.environment)]),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE id=? AND enabled=1 AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike')`,Math.ceil(time/b.windowMs)*b.windowMs,id),
   s(c.env.DB,`INSERT INTO audit VALUES(?,?,'alert_rule_created',?,?)`,crypto.randomUUID(),p,JSON.stringify({rule:id,revision:1}),time),
   ...(testGuard?[testGuard]:[]),
@@ -67,6 +77,8 @@ routes.put('/rules/:rule',async c=>{
  const results=await ownerBatch(c.env.DB,c.get('alertSession'),[
   s(c.env.DB,`UPDATE alert_rules SET revision=revision+1,name=?,enabled=?,channel=?,destination=?,kinds=?,window_ms=?,threshold=?,updated=? WHERE project=? AND id=? AND revision=? RETURNING revision`,b.name,Number(b.enabled),b.channel,b.destination,b.kinds,b.windowMs,b.threshold,time,p,id,b.revision),
   s(c.env.DB,`INSERT INTO audit SELECT ?,?,'alert_rule_revised',?,? WHERE changes()=1`,change,p,JSON.stringify({rule:id,revision:b.revision+1}),time),
+  s(c.env.DB,`DELETE FROM alert_rule_filters WHERE project=? AND rule_id=? AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,change),
+  ...(b.environment===null?[]:[s(c.env.DB,`INSERT INTO alert_rule_filters SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM audit WHERE id=?)`,id!,p,b.environment,change)]),
   s(c.env.DB,`DELETE FROM alert_cursors WHERE project=? AND rule_id=? AND EXISTS(SELECT 1 FROM audit WHERE id=?)`,p,id,change),
   s(c.env.DB,`INSERT INTO alert_cursors SELECT id,project,revision,? FROM alert_rules WHERE project=? AND id=? AND revision=? AND enabled=1 AND EXISTS(SELECT 1 FROM audit WHERE id=?) AND EXISTS(SELECT 1 FROM json_each(kinds) WHERE value='spike') ON CONFLICT(rule_id) DO NOTHING`,Math.ceil(time/b.windowMs)*b.windowMs,p,id,b.revision+1,change),
   ...preview,
