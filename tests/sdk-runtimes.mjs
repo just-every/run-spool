@@ -6,6 +6,7 @@ import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
 import {readScreens} from './runtimes/screens.mjs';
+import {causeChainProof} from './runtimes/chain-proof.mjs';
 
 // [SDK-005] [SDK-001] [SDK-012] [SDK-013] Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
 // reference collector, once against Spool with only the DSN changed. Spool's public API
@@ -59,6 +60,7 @@ try{
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
   const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,referenceSent:reference.sent});
+  if(runtime.cause)await causeChainProof({runtime,app,dir,origin,cookie,identity});
   // The handled occurrence reads the same through the UI, at desktop and phone width.
   const outer=runtime.chain.at(-1);
   await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);

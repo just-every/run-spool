@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a5c9e8b74ae2f06775b8bff594f45bd1ef15a21c198d505a877888b3b4167da",
+      "sha256": "c33086acea810304f9c3816694b75c43f8967d60e51e4122849786d6a22bfea8",
       "executable": false
     },
     "DEMO.md": {
@@ -10146,11 +10146,11 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "4e43bb7aa8d975b2746391ae4f7505f59847cacab9fb8fa0f68023ed60f7ee20",
+      "sha256": "3c8f48fdc4242a69dd46a97a737d525b3b9e0f0920be4581bf19800c6864ee8f",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
-      "sha256": "a38fd55504d7607fa0794d01e337555a7b677ae2a577326868d1e0f15985df88",
+      "sha256": "b7a4afe21246b0a3fdcbaaf94c4f2ba074614e20598656950e769ac495f932db",
       "executable": false
     },
     "tests/runtimes/java/pom.xml": {
@@ -10158,11 +10158,11 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "5068be2ae1e69aa07bea87c5c84d728e5cc842d1af08adebbc5b8641b6de7b2a",
+      "sha256": "b0b3693ea3de68645c8d4ed4cf8bf74289a7a35ec24eff75f936cd111b7b13d0",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
-      "sha256": "2a4cd0024a6113e340faaf0b955bf75b4882ef1faba46782deed63b461e3e54d",
+      "sha256": "d2f804e64e5145d65596bd364b449299758b67df5e5ff8b598747ad30a264b53",
       "executable": false
     },
     "tests/runtimes/node/session-health.mjs": {
@@ -10250,7 +10250,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "2de12a24acc0e06d1a64842e55d50e876fdbb26c13935ba66b871ede4c6553a6",
+      "sha256": "ad4f810baaf5360b7748a3a67affc339e4d916b4e8f27f0b8a949da51a7da306",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
