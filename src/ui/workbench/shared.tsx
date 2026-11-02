@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useId, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 
-export type Request = (path: string, method?: string, value?: any) => Promise<any>;
+export type Request = (path: string, method?: string, value?: any, options?: { keepalive?: boolean; background?: boolean }) => Promise<any>;
 export type Run = (work: () => Promise<unknown>) => Promise<void>;
 export const states = ['open', 'acknowledged', 'resolved', 'suppressed'];
 export const stateLabel = (state: string) => state.charAt(0).toUpperCase() + state.slice(1);
@@ -13,9 +13,9 @@ export function download(value: unknown, name: string) {
   const link = document.createElement('a'); link.href = url; link.download = name; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export function Field({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+export function Field({ label, adornment, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; adornment?: ReactNode }) {
   const errorId = useId(), [error, setError] = useState('');
-  return <label className="form-field"><span>{label}</span><input {...props} aria-invalid={!!error || props['aria-invalid']} aria-describedby={error ? errorId : props['aria-describedby']} onInvalid={event => { setError(event.currentTarget.validationMessage); props.onInvalid?.(event); }} onInput={event => { if (event.currentTarget.validity.valid) setError(''); props.onInput?.(event); }} />{error && <span id={errorId} className="field-error" role="alert">{error}</span>}</label>;
+  return <label className="form-field"><span>{label}{adornment}</span><input {...props} aria-invalid={!!error || props['aria-invalid']} aria-describedby={error ? errorId : props['aria-describedby']} onInvalid={event => { setError(event.currentTarget.validationMessage); props.onInvalid?.(event); }} onInput={event => { if (event.currentTarget.validity.valid) setError(''); props.onInput?.(event); }} />{error && <span id={errorId} className="field-error" role="alert">{error}</span>}</label>;
 }
 const Drafts = createContext<Map<string, unknown> | null>(null);
 export function DraftProvider({ children }: { children: ReactNode }) {

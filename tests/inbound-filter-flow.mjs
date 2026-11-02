@@ -105,18 +105,20 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    await browserSignIn(page,origin);await page.goto(`${origin}/projects/${id}/settings`);
    const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Inbound filters and usage',exact:true})});
    await panel.getByText('Browser extensions',{exact:true}).waitFor();
+   // Filters save as you go: wait for the policy the page sent to land on the server.
+   const landed=async(test)=>{for(let i=0;i<150;i++){if(test((await request(root)).policy))return;await new Promise(r=>setTimeout(r,100))}assert.fail('the autosaved filters did not land')};
    const snap=async(state)=>{if(process.env.SPOOL_SCREEN_DIR){await mkdir(process.env.SPOOL_SCREEN_DIR,{recursive:true});await panel.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-${state}.png`)});}};
    await snap('empty');
    const policy=(await request(root)).policy;
    const values={ip_addresses:'192.0.2.0/24',messages:'*ignore me*',releases:'drop-*',environments:'noise',allowed_domains:'cedar.example\n*.cedar.example'};
    for(const filter of (await request(root)).filters){
-    await panel.getByRole('checkbox',{name:'Enable '+filter.label.toLowerCase(),exact:true}).check();
+    await panel.getByRole('checkbox',{name:filter.toggleLabel,exact:true}).check();
     if(values[filter.id])await panel.getByLabel(filter.label+' · one per line',{exact:true}).fill(values[filter.id]);
    }
    await panel.getByPlaceholder('chrome<=100').fill('chrome<=100');
    await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();
    await panel.getByText(/Preview complete · 0 retained events/).waitFor();await snap('preview');
-   await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
+   await landed(p=>p.filters.allowed_domains.enabled&&p.filters.allowed_domains.values.length===2&&p.filters.legacy_browsers.browsers.length===1);
    await panel.getByText('Filters by accepted category and unavailable fields',{exact:true}).click();await snap('saved');
    let n=0;
    const event=(patch={})=>({release:'web-1',dist:'web',environment:'production',exception:{values:[{type:'CheckoutError',value:'ordinary checkout failure '+(++n),stacktrace:{frames:[{filename:'https://cedar.example/app.js',lineno:8,colno:1,function:'checkout'}]}}]},...patch});
@@ -141,14 +143,13 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    const expectedFiltered=filteredItems+refusedRequests;assert.equal((await request(root)).filters.find(f=>f.id==='allowed_domains').recentMatches,refusedRequests,'SDK-006 exact domain counter reconciles with observed SDK transport, including client reports');
    assert.equal((await request(base+'/issues')).reduce((sum,row)=>sum+row.count,0),before,'SDK-006 filtered real SDK events create no occurrence');assert.equal((await request(base+'/alerts')).length,alerts,'SDK-006 filtered real SDK events create no alert');
    let usage=(await request(base+'/outcomes')).rows;assert.equal(usage.find(r=>r.reason==='accepted').count,1);assert.equal(usage.find(r=>r.reason==='filtered').count,expectedFiltered,'SDK-006 filtered units exactly reconcile with observed SDK requests');
-   await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).click();await panel.getByText('Filter policy and usage refreshed',{exact:true}).waitFor();
-   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).uncheck();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 1 retained events/).waitFor();
-   await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
+   await panel.getByRole('checkbox',{name:'Block matching error messages',exact:true}).uncheck();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 1 retained events/).waitFor();
+   await landed(p=>!p.filters.messages.enabled);
    await send(project.dsn,event(exception('CheckoutError','ignore me','app.js')));assert.equal((await request(base+'/outcomes')).rows.find(r=>r.reason==='accepted').count,2,'SDK-006 disabled rule accepts later SDK error');
-   await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).click();await panel.getByText('Filter policy and usage refreshed',{exact:true}).waitFor();await snap('receipts');
+   await snap('receipts');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'SDK-006 responsive settings');
    await request(base+'/browser-origins','POST',{origin:applicationOrigin});dsns.filter=project.dsn;
-   await panel.getByRole('checkbox',{name:'Enable error message patterns',exact:true}).check();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 2 retained events/).waitFor();await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await panel.getByText('Inbound filters saved. Later intake uses this policy.',{exact:true}).waitFor();
+   await panel.getByRole('checkbox',{name:'Block matching error messages',exact:true}).check();await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete · 2 retained events/).waitFor();await landed(p=>p.filters.messages.enabled);
    const sessionFilteredBeforeBrowser=(await request(base+'/outcomes')).rows.find(r=>r.reason==='session_filtered')?.count??0;
    const application=await context.newPage();await application.goto(applicationOrigin+'/?target=filter');await application.waitForFunction(()=>window.__SDK_READY__);
    // Browser transport is a real local browser; localhost is deliberately enabled.
@@ -156,8 +157,11 @@ export async function sdkInboundFilterFlow({request,origin,browser,temporary,req
    await application.waitForFunction(()=>window.__SPOOL_SENT__.filter(type=>type==='session').length===2);await application.evaluate(()=>window.flushSDK());
    usage=(await request(base+'/outcomes')).rows;assert.equal(usage.find(r=>r.reason==='accepted').count,2,'SDK-006 browser SDK matching event filtered');assert.equal(usage.find(r=>r.reason==='session_filtered').count-sessionFilteredBeforeBrowser,2,'SDK-005 two default browser session items inherit localhost filtering');assert.equal(usage.find(r=>r.reason==='filtered').count,expectedFiltered+3);
    await application.close();
-   await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete/).waitFor();const stale=await request(root);await request(root,'PUT',{revision:stale.revision,policy:stale.policy});await panel.getByRole('button',{name:'Save inbound filters',exact:true}).click();await page.getByRole('alert').filter({hasText:'inbound_policy_revision_conflict'}).waitFor();await snap('conflict');
-   await page.route('**'+root,route=>route.abort());await page.reload();await page.getByRole('alert').filter({hasText:'Filters could not be loaded'}).waitFor();await snap('failure');await page.unroute('**'+root);await page.getByRole('button',{name:'Retry filters',exact:true}).click();await panel.getByRole('button',{name:'Refresh filters and usage',exact:true}).waitFor();
+   await panel.getByRole('button',{name:'Preview retained events',exact:true}).click();await panel.getByText(/Preview complete/).waitFor();const stale=await request(root);await request(root,'PUT',{revision:stale.revision,policy:stale.policy});
+   // A change made from a stale copy is refused with a plain reason, keeps its value, and Retry sends it again on the latest revision.
+   await panel.getByRole('checkbox',{name:'Block matching error messages',exact:true}).uncheck();await page.getByRole('alert').filter({hasText:'Not saved. This changed somewhere else'}).waitFor();assert.equal(await panel.getByRole('checkbox',{name:'Block matching error messages',exact:true}).isChecked(),false,'the refused value stays in its field');await snap('conflict');
+   await panel.getByRole('button',{name:'Retry',exact:true}).click();await landed(p=>!p.filters.messages.enabled);await panel.getByRole('checkbox',{name:'Block matching error messages',exact:true}).check();await landed(p=>p.filters.messages.enabled);
+   await page.route('**'+root,route=>route.abort());await page.reload();await page.getByRole('alert').filter({hasText:'Filters could not be loaded'}).waitFor();await snap('failure');await page.unroute('**'+root);await page.getByRole('button',{name:'Retry filters',exact:true}).click();await panel.getByRole('button',{name:'Preview retained events',exact:true}).waitFor();
    const denied=await browser.newContext({viewport:{width,height:1000}});try{const signedOut=await denied.newPage();await signedOut.goto(`${origin}/projects/${id}/settings`);await signedOut.getByRole('heading',{name:'Sign in to your installation',exact:true}).waitFor();if(process.env.SPOOL_SCREEN_DIR)await signedOut.screenshot({path:resolve(process.env.SPOOL_SCREEN_DIR,`SDK-006-${width}-denied.png`)});}finally{await denied.close()}
 
 

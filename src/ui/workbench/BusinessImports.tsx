@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useLiveRead } from './useLiveRead';
 import { Details } from './Details';
 import type { Request, Run } from './shared';
 
@@ -13,23 +14,34 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
   const [state, setState] = useState<BusinessImportState | null>(null);
   const [pending, setPending] = useState(false);
   const [problem, setProblem] = useState('');
+  const stateLoaded = useRef(false); stateLoaded.current = state !== null;
   const path = '/api/imports/business';
   const disabled = busy || pending;
 
+  // Read quietly while the tab is visible; a read that began before an action never replaces what the action showed.
+  const generation = useRef(0);
   async function load() { setState(await request(path)); }
+  useLiveRead(async signal => {
+    const started = generation.current;
+    try {
+      const next = await request(path);
+      if (signal.aborted || started !== generation.current) return;
+      setState(current => JSON.stringify(current) === JSON.stringify(next) ? current : next);
+    } catch (error) { if (!signal.aborted && !stateLoaded.current) setProblem((error as Error).message); }
+  }, [request]);
   function perform(work: () => Promise<unknown>) {
     return run(async () => {
-      setPending(true); setProblem('');
+      setPending(true); setProblem(''); generation.current++;
       try { await work(); }
       catch (error) { setProblem((error as Error).message); throw error; }
-      finally { setPending(false); }
+      finally { generation.current++; setPending(false); }
     });
   }
 
   return <section className="evidence"><div className="data-row">
     <strong>Business imports</strong>
     <span>{state ? state.enabled ? 'Enabled' : 'Off' : 'Off by default'}</span>
-    <Details title="Business imports" onOpen={() => void perform(load)}>
+    <Details title="Business imports">
       <p>Enable imports from trusted business keys. Imports are off by default.</p>
       {problem && <p role="alert">{problem}</p>}
       {pending && <p role="status">Working…</p>}
@@ -58,7 +70,6 @@ export function BusinessImports({ request, run, busy }: { request: Request; run:
         </div>)}
         {state.history.some(job => job.state === 'undoing') && <p>Undo is in progress. Click Undo again to continue.</p>}
       </>}
-      <button className="text-button" disabled={disabled} onClick={() => void perform(load)}>Refresh business imports</button>
     </Details>
   </div></section>;
 }
