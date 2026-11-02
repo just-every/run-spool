@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cc9518b2f20febe8b1e985109979fd356010ae296dd3a06ea3dd3769ea972356",
+      "sha256": "8abc1dce84e2ac25d7d179d3aca3c67711749206cc44e61ca9099eb09e555bb0",
       "executable": false
     },
     "DEMO.md": {
@@ -6238,11 +6238,11 @@
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
-      "sha256": "fbac0893b946a84980e47ffb788f0f6142d6353a640a163839b02b23b215b87a",
+      "sha256": "a26d9ffb7f466ab0e5b07235d3ae65bcf79e48a7f53644d9201501d3260ca1f9",
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "7824f6bf21d432074ea7d9e1995237ccbde98e458865ef128b304f16a4b98542",
+      "sha256": "f7117e12f946fa02e0e0cef896dbe604bc2f8cb5c90af12b031cd5b1d05baaff",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -9382,7 +9382,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "0372bb027960eadc02ab151f8ece1753209ddfd81e7aecd834f6842adb5e4434",
+      "sha256": "ad694ef4bc41dbd9386e6aae837d22753b07825e0b169ab1961da9b111c59664",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
@@ -10030,15 +10030,15 @@
       "executable": false
     },
     "tests/operator-archive.mjs": {
-      "sha256": "f8252ed242975a08435accb69c88e051fa4a0f50b7a60ed29f99f6471c64eb6a",
+      "sha256": "ddf61ba8cd4dd9143fab653429ffb91da8e68267188c4ad3e2063b3a7106399e",
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "303e8b7f4129d5b76b2b4c2d48b80742678f88d434cb1c08d28ec18774660b45",
+      "sha256": "24f20f2f9a7fd07f540bec17060f6fc6d49c44f05cf849ef883783e36629d32a",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "4f5c0786a0fd37e4b0b604e2a0000b51aed63b2f10a4f3373a45941283d8d9f0",
+      "sha256": "5c087d10148ef2c318220dcb26331a072ead3e731d3a1d2d3fc9464b9cfb3a85",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
