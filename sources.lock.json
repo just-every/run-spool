@@ -9026,11 +9026,11 @@
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
-      "sha256": "c554b79c7470c65ab520d29dfc1e56e13d034f57d3f4b17362696014d45c9ad5",
+      "sha256": "8c33d803de4738ada58fff3ff06b0d4a31746e4a3c11f20620d45eca43567f9a",
       "executable": false
     },
     "src/ui/alerts/alerts.css": {
-      "sha256": "b5a5f6d9ebe517e60e339f85a2ca91de07f6ae8c52e8e39c72b3c40cd72f0758",
+      "sha256": "b85140ee9b6932ae336516f3e97b67a771c8519d576f5e17c9e02920239b1892",
       "executable": false
     },
     "src/ui/alerts/Alerts.tsx": {
@@ -9606,7 +9606,7 @@
       "executable": false
     },
     "tests/alerts/environment-filter-ui.mjs": {
-      "sha256": "4c455f473b73a2951ea5021990618006f9489dfbc1ce9a3264aa58398947cf1e",
+      "sha256": "17471ab0708a66d39e38281092fcfdec8ad748a8a06426ffb2d039cc57601fa3",
       "executable": false
     },
     "tests/alerts/environment-filter.mjs": {
