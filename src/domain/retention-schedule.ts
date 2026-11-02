@@ -1,3 +1,5 @@
+import { dispatchStanding } from './agent-door/standing';
+import type { Bindings } from '../auth/bindings';
 import {guard} from '../modules/portability/storage.mjs';
 import {applyRetention} from './retention';
 import {readRetentionPolicy,retentionCutoffs,type RetentionWindows} from './retention-policy';
@@ -9,7 +11,7 @@ export async function retentionRemaining(db:D1Database,project:string,c:Retentio
 }
 // A minute cron visits at most five due projects. Each visit removes at most
 // fifty rows per type plus linked feedback (project cap 1,000); pending work resumes next cron.
-export async function scheduledRetention(db:D1Database,time:number){
+export async function scheduledRetention(db:D1Database,time:number,env?:Bindings){
  const day=Math.floor(time/86400000);
  const projects=(await db.prepare(`SELECT p.id FROM projects p LEFT JOIN retention_policies policy ON policy.project=p.id LEFT JOIN retention_runs r ON r.project=p.id
  WHERE COALESCE(policy.held,0)=0 AND (r.last_day IS NULL OR r.last_day<>?) AND COALESCE(r.lease_until,0)<=?
@@ -23,7 +25,7 @@ export async function scheduledRetention(db:D1Database,time:number){
   if(!await db.prepare('SELECT 1 FROM retention_runs WHERE project=? AND generation=?').bind(project,token).first())continue;
   try{
    const policy=await readRetentionPolicy(db,project);if(policy.held)throw new Error('retention_held');const cutoffs=retentionCutoffs(policy.windows,time);
-   if(await retentionRemaining(db,project,cutoffs)){
+   if(await retentionRemaining(db,project,cutoffs)&&!(env&&await dispatchStanding(env,'retention',project))){
     const scope={actor:await serviceActor(db,'scheduled retention'),action:'retention.scheduled' as const,subject:await auditSubject(db,'project',project,project),projectLabel:await projectAuditLabel(db,project)};
     const scoped=new Proxy(db,{get(target,key){if(key==='batch')return async(statements:D1PreparedStatement[])=>{const fence=guard(target,"EXISTS(SELECT 1 FROM projects WHERE id=?) AND EXISTS(SELECT 1 FROM oa_operators WHERE role='owner' AND status='active') AND NOT EXISTS(SELECT 1 FROM rer_erasure_operations WHERE phase<>'complete') AND EXISTS(SELECT 1 FROM retention_runs WHERE project=? AND generation=?)",project,project,token);return (await auditedBatch(target,[fence,...statements],scope)).slice(1)};const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value}});
     await runAuditScope(scope,()=>applyRetention(scoped,project,cutoffs.events,cutoffs,retentionBatchLimit));

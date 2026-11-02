@@ -1,3 +1,5 @@
+import { dispatchStanding } from '../agent-door/standing';
+import type { Bindings } from '../../auth/bindings';
 import { sendSlack, slackEndpoint } from './slack.server';
 import type { WireResponse, Outcome } from '../../modules/integrations/core/types';
 import { demoEffect } from '../../modules/demo/index.mjs';
@@ -23,7 +25,7 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
    return keyBytes((await authorizedDestination(env,intent)).key);
   },
  });
- return new DeliveryService({repository,now,hashDestination:url=>destinationHash(env,url),
+ const service=new DeliveryService({repository,now,hashDestination:url=>destinationHash(env,url),
   protocols:[{...protocol,async prepare(envelope,time){
    // Bind this exact request to the attempt that prepared it. This stays local;
    // neither the signed interface nor Base's copied transport is changed.
@@ -64,4 +66,7 @@ export function webhookService(env:AlertEnvironment,project:string,now:()=>numbe
    return response;
   }},
  });
+ const dispatch=service.dispatch.bind(service);
+ service.dispatch=async id=>{if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-webhook',id))return repository.get(id);return dispatch(id);};
+ return service;
 }

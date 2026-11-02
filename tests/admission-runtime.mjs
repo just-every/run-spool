@@ -20,7 +20,7 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false, https = false} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false, https = false, networkEdge} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
@@ -29,14 +29,16 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
  let worker;
  const trustedOrigin=hostedMail?'https://spool.example':origin;
- const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key',RER_OWNER_CLAIM_APP_ORIGIN:trustedOrigin}:{};
+ // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
+ // their complete claim ring through extra; do not manufacture partial trust.
+ const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key'}:{};
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
 export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
-   if(request.url!=='https://api.resend.com/emails')throw new Error('Unexpected test network destination');
+   if(request.url!=='https://api.resend.com/emails'){if(networkEdge)return networkEdge(request);throw new Error('Unexpected test network destination');}
    const message=await request.json(),id=request.headers.get('idempotency-key');
    const db=await worker.getD1Database(database.binding);
    await db.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) VALUES(?,?,?)').bind(id,Date.now(),JSON.stringify({...message,deliveryId:id})).run();

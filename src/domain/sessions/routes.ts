@@ -1,6 +1,6 @@
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
-import { ownerSession } from '../../auth/session.server';
+import { requestAuthority as ownerSession } from '../agent-door/native-authority';
 import { agentProject } from '../agent-access';
 import { releaseHealth } from './health';
 const routes=new Hono<any>();

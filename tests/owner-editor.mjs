@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -36,7 +37,7 @@ try {
  app = await admissionRuntime({RER_MANAGEMENT_ORIGIN: edge.origin, RER_INSTALLATION_ID: 'spool-editor-acceptance'});
  edge.state.allowed = app.origin;
  assert.equal((await app.call('/api/editor/config')).status, 403, 'anonymous config requests are refused');
- const cookie = await signIn(app.origin);
+ const cookie = await signIn(app.origin);await chooseLocalAgentPolicy(app.origin,cookie);
  const config = await app.call('/api/editor/config', undefined, {Cookie: cookie});
  assert.equal(config.status, 200); assert.match(config.headers.get('cache-control'), /no-store/);
  assert.match(config.headers.get('vary'), /Cookie/i);

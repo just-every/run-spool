@@ -1,3 +1,5 @@
+import { dispatchStanding } from '../agent-door/standing';
+import type { Bindings } from '../../auth/bindings';
 import { serviceActor,auditSubject } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
@@ -41,6 +43,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
  await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
  for(const job of jobs) {
+  if(await dispatchStanding(env as Bindings&AlertEnvironment,'alert-mail',job.id))continue;
   let mail;
   try {
    const destination=await authorizedDestination(env,job);mail=sender(env);
