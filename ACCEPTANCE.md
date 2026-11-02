@@ -1207,7 +1207,7 @@ Core · target · **partial** · Cites BASE-ACCESS-001, BASE-SIGNIN-001, BASE-SI
 3. One member signs in with Google and another with GitHub.
 4. With Google sign-in restricted to the verified domain, an outside Google account is refused.
 
-**Evidence.** `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs`
+**Evidence.** `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs`; `tests/governance-step-up.mjs` governanceStepUp, invoked by the owner-claim admission journey (acceptance 1, native owner-successor boundary: bootstrap-session refusal without mutation, same-session native email confirmation without a replacement cookie, one attributed invitation, foreign-session and replay refusal, revocation)
 **Gap.** Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not.
 
 #### GOV-002 — Retention, residency and data custody
