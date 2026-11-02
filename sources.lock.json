@@ -10150,11 +10150,11 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "3c8f48fdc4242a69dd46a97a737d525b3b9e0f0920be4581bf19800c6864ee8f",
+      "sha256": "e3fae87dc6f7e2eeeddb95e19b0296cfd729c3a487607f014e2f004613b3808f",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
-      "sha256": "b7a4afe21246b0a3fdcbaaf94c4f2ba074614e20598656950e769ac495f932db",
+      "sha256": "0cfa39e40354ae0f19b5cef0300bbfaf322ed3240c6720b3bde67e4dcd4d7c1f",
       "executable": false
     },
     "tests/runtimes/java/pom.xml": {
@@ -10162,11 +10162,11 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "b0b3693ea3de68645c8d4ed4cf8bf74289a7a35ec24eff75f936cd111b7b13d0",
+      "sha256": "e7e0ad9db2465eab81102d8e343e64be7e06f83094b61e1d74c0e382e0d7ab20",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
-      "sha256": "d2f804e64e5145d65596bd364b449299758b67df5e5ff8b598747ad30a264b53",
+      "sha256": "8d15cc0342538bdfbe04f6cd1f3742583f309f33d8b78a81d24d13059afb8146",
       "executable": false
     },
     "tests/runtimes/node/session-health.mjs": {

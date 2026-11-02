@@ -8,7 +8,7 @@ export default {
  name:'node',sdk:'sentry.javascript.node',version:'@sentry/node 11.6.0',
  required:['event','session','span','log','attachment','feedback','client_report'],
  chain:['TypeError'],
- cause:{mode:'causes',types:['TypeError','RangeError','Error'],functions:['rootCause','wrapCause','linkedFailure']},
+ cause:{mode:'causes',types:['TypeError','RangeError','SyntaxError','ReferenceError','URIError','Error'],functions:['rootCause','wrapCause','parseCause','resolveCause','routeCause','linkedFailure']},
  async prepare(dir){await cp(here,dir,{recursive:true});await symlink(resolve('node_modules'),resolve(dir,'node_modules'),'dir')},
  command(mode,dir,dsn){return {command:process.execPath,args:[resolve(dir,'app.mjs'),mode],cwd:dir,env:{SPOOL_FIXTURE_DSN:dsn}}},
  async verify({app,dir,origin,cookie}){

@@ -9,7 +9,7 @@ export default {
  name:'java',sdk:'sentry.java',version:'io.sentry:sentry 8.61.0',
  required:['event','session','transaction','log','attachment','check_in','feedback','client_report'],
  chain:['ArithmeticException','IllegalStateException'],
- cause:{mode:'suppressed',types:['ArithmeticException','IOException','IllegalStateException'],mechanisms:['chained','suppressed','chained'],functions:['charge','closeResource','charge']},
+ cause:{mode:'causes',types:['ArithmeticException','IllegalStateException','IOException','UnsupportedOperationException'],mechanisms:['chained','chained','suppressed','chained'],functions:['charge','charge','closeResource','checkout']},
  async prepare(dir){
   await cp(here,dir,{recursive:true});
   await runOk('mvn',['-q','-B','dependency:copy-dependencies','-DoutputDirectory=lib'],{cwd:dir});

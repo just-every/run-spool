@@ -23,6 +23,14 @@ public class App {
     throw new java.io.IOException("synthetic-spool-close-failed");
   }
 
+  static void checkout() {
+    try {
+      charge("synthetic-spool-note");
+    } catch (IllegalStateException cause) {
+      throw new UnsupportedOperationException("synthetic-spool-checkout-failed", cause);
+    }
+  }
+
   public static void main(String[] args) throws Exception {
     Sentry.init(options -> {
       options.setDsn(System.getenv("SPOOL_FIXTURE_DSN"));
@@ -38,10 +46,11 @@ public class App {
     });
     // A command-line program tracks one application session (release health needs a release).
     Sentry.startSession();
-    if (args[0].equals("suppressed")) {
+    if (args[0].equals("suppressed") || args[0].equals("causes")) {
       try {
-        charge("synthetic-spool-note");
-      } catch (IllegalStateException failure) {
+        if (args[0].equals("causes")) checkout();
+        else charge("synthetic-spool-note");
+      } catch (RuntimeException failure) {
         try { closeResource(); } catch (java.io.IOException suppressed) { failure.addSuppressed(suppressed); }
         Sentry.captureException(failure);
       }

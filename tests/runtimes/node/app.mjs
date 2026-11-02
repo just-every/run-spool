@@ -13,8 +13,17 @@ function rootCause() { throw new TypeError('synthetic-spool-node-root'); }
 function wrapCause() {
   try { rootCause(); } catch (cause) { throw new RangeError('synthetic-spool-node-middle', { cause }); }
 }
+function parseCause() {
+  try { wrapCause(); } catch (cause) { throw new SyntaxError('synthetic-spool-node-parse', { cause }); }
+}
+function resolveCause() {
+  try { parseCause(); } catch (cause) { throw new ReferenceError('synthetic-spool-node-resolve', { cause }); }
+}
+function routeCause() {
+  try { resolveCause(); } catch (cause) { throw new URIError('synthetic-spool-node-route', { cause }); }
+}
 function linkedFailure() {
-  try { wrapCause(); } catch (cause) { throw new Error('synthetic-spool-node-wrapper', { cause }); }
+  try { routeCause(); } catch (cause) { throw new Error('synthetic-spool-node-wrapper', { cause }); }
 }
 if (mode === 'identity') {
   try { checkout(); } catch (error) { Sentry.captureException(error); }
