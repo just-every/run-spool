@@ -1,6 +1,6 @@
 import { spoolAgentDoor, localAgent } from './index.server';
 import type { Bindings } from '../../auth/bindings';
-import { agentProject } from '../agent-access';
+import { agentProject, agentReadPath } from '../agent-access';
 
 /** Retained exact-project API aliases enter the canonical MCP decision path. */
 export async function legacyAgentResponse(request:Request,env:Bindings):Promise<Response|null> {
@@ -11,6 +11,9 @@ export async function legacyAgentResponse(request:Request,env:Bindings):Promise<
  // Foreign-project keys retain the native indistinguishable machine refusal.
  // Only this key's exact project can enter its compatibility tool aliases.
  if(await agentProject(request,env.DB)!==project)return null;
+ // Keep the native selector and method boundary before canonical admission.
+ // Invalid encoded issue selectors are forbidden, just as on the native API.
+ if(!agentReadPath(request,project))return Response.json({error:'Agent keys are read-only and limited to their project.'},{status:403});
  const reads:Record<string,string>={issues:'issues.list',outcomes:'outcomes.read','grouping-proposals':'proposals.list',alerts:'notifications.read','issue-search':'issues.search','issue-export':'issues.export',occurrences:'occurrences.list','feedback-reports':'feedback.read','release-health':'health.read'};
  let name=request.method==='GET'&&tail.length===1?reads[tail[0]]:undefined;
  const args:Record<string,unknown>={project};

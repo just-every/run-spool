@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 export async function agentScreens(app){
  const directory=resolve(process.env.SPOOL_AGENT_SCREENSHOTS??'.artifacts/agent-door');await mkdir(directory,{recursive:true});
- const browser=await chromium.launch({headless:true,...process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{},args:['--no-sandbox']});
+ const browser=await chromium.launch({headless:true,...process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{},args:['--use-mock-keychain','--password-store=basic','--no-sandbox']});
  const context=await browser.newContext({viewport:{width:1440,height:1000},extraHTTPHeaders:{Cookie:app.cookie}});
  const page=await context.newPage(),results=[];
  return {async capture(name,path,expected,prepare){

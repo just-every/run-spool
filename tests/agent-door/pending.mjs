@@ -2,7 +2,7 @@
  * Pending markers never count as passing tests or conformance. */
 export const pendingAssertions=[
  {id:'SPOOL-BASE-CATALOGUE-ACK-2026-10-28',source:'Base modules/agent-door/policy-store.ts:78',assertion:'The adoption acknowledgement lists every declared tool in each class; published 0.2.96 still truncates each class at twenty tools.'},
- {id:'SPOOL-BASE-NATIVE-EVENT-2026-10-28',source:'Base modules/agent-door/index.ts:64-65',assertion:'Independent native runner observations need an actual runner actor and existing signed-webhook events need retained source IDs; the pinned public emit accepts only a person and assigns a new ID. Events remain an undeclared optional capability in the 0.2.88 Core adoption.'},
+ {id:'SPOOL-BASE-NATIVE-EVENT-2026-10-28',source:'Base modules/agent-door/index.ts:64-65',assertion:'Independent native runner observations need an actual runner actor and existing signed-webhook events need retained source IDs; the pinned public emit accepts only a person and assigns a new ID. Events remain an undeclared optional capability in the 0.2.96 adoption.'},
  {id:'SPOOL-BASE-STANDING-WORKER-2026-10-28',source:'Base modules/agent-door/ADOPTING.md:349-357; Spool src/domain/agent-door/tools.ts standing worker refusal',assertion:'Agent-configured notification and retention work must retain the original actor and re-enter final policy admission. Native configuration and first-send mail custody, Pause/resume, Business detach and immutable attribution are proved by tests/agent-door/worker.mjs. Follow-up and retention enter the same native admission adapters, but the optional queued-lifecycle conformance family remains undeclared and unqualified.'},
 ];
 

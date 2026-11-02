@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a37c3afe1479e9337e45d06f9a0996fd8485fa5cffa6ab5b9773f0f7c7eb89d9",
+      "sha256": "0ab6f11b2c48e824466bf21af9d63ffa7fc0212aa27302841e0de8f55b77852a",
       "executable": false
     },
     "DEMO.md": {
@@ -5494,7 +5494,7 @@
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
-      "sha256": "f5b27ca2bc2d6164f5b942161c6dd1ab7935ab5b9e87806c72ecab7aebab9f68",
+      "sha256": "b824a33dffcdf06634013af6653a2f5f367b70bc56e44d0f4089f61c819ca9a5",
       "executable": false
     },
     "src/domain/agent-door/native-authority.ts": {
@@ -10330,7 +10330,7 @@
       "executable": false
     },
     "tests/agent-door/pending.mjs": {
-      "sha256": "a8fbba88fb53b74c8c457f3f9ebd700f381cec029a92304e1bd87dc69b983723",
+      "sha256": "92cfb76a87bca9f9565cb8365ce0f543bcb78eb04fc516be34f533016230d500",
       "executable": false
     },
     "tests/agent-door/people.mjs": {
@@ -10362,7 +10362,7 @@
       "executable": false
     },
     "tests/agent-door/screens.mjs": {
-      "sha256": "9cf0a1170108e75665748d5f6e3707e7d2183a796b3127546d106b69cf9476a0",
+      "sha256": "0abd927881c2747bf7f9ad5cda43c02f39d3706dd3340ed4c834153aafaea379",
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
@@ -10402,7 +10402,7 @@
       "executable": false
     },
     "tests/agent-handoff/selector-refusals.mjs": {
-      "sha256": "6e76d82661f4b175f52d976f6ba614aa4c3014383b60171b825027c23cd1de4a",
+      "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
@@ -10582,7 +10582,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "fd4b83de3be1fa3f14c9678274f5c03326bc29b314892179e09775ef49bf1503",
+      "sha256": "442d7163b32105af29640c9069030251f6d47dcf14943fe31c8d868a7051c491",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -10722,7 +10722,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "d5493d1219e0ef539cf35a00c06c6ee6bcf23bee66e51bc4a3475f18bf3780c3",
+      "sha256": "da47a434d5f32bd81261385d44f5bc1f97b718d5ff17b12518dbfad2b9e15696",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -10818,7 +10818,7 @@
       "executable": false
     },
     "tests/project-erasure/fences.mjs": {
-      "sha256": "5a069b3759f2b02a9538616db584406fe2b65e9bc446a1a2e7317d798b62cf38",
+      "sha256": "6006d79aff639aaabf38cced478dbbada34ec06e51aeb4e8b6ebd1218e0805a4",
       "executable": false
     },
     "tests/project-erasure/fixture.mjs": {
