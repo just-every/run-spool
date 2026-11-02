@@ -36,6 +36,13 @@ export async function environmentFilterFlow(inbox){
   const excluded=rule('webhook',{name:'Excluded count control',kinds:['spike'],environment:'absent'});
   const filteredId=await app.json(base+'/rules','POST',filtered),excludedId=await app.json(base+'/rules','POST',excluded);
   const legacy=await app.json(base+'/rules','POST',rule('webhook',{name:'All retained counts',kinds:['spike']}));
+  // Main's configuration door permits longer literal filters than the legacy predicate door.
+  for(const literal of ['p'.repeat(101),'production*','']){
+   const compatible=rule('webhook',{name:'Literal environment compatibility',enabled:false,kinds:['spike'],config:{metric:'count',filters:{environment:literal},tagKeys:[]}});
+   const saved=await app.json(base+'/rules','POST',compatible);
+   assert.equal(JSON.parse((await app.json(base+'/rules')).find(r=>r.id===saved.id).config).filters.environment,literal);
+   const preview=await app.json(base+'/rules/preview','POST',{rule:compatible,windowStart:start});assert.equal(preview.environment,literal);assert.equal(preview.matchingCount,0);
+  }
   const captures=[];
   for(const [id,environment] of [['synthetic-spool-101','production'],['synthetic-spool-102','staging'],['synthetic-spool-103','Production']]){
    const accepted=await app.json('/api/ingest/web','POST',event(id,{environment}),auth);captures.push(accepted);assert.equal(accepted.issue,captures[0].issue);

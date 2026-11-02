@@ -20,7 +20,7 @@ export async function countPreview(env:AlertEnvironment,project:string,rule:{kin
  const owner=await s(env.DB,"SELECT id FROM oa_operators WHERE role='owner' AND status='active'").first<{id:string}>();
  if(!owner)throw new Error('Accountable owner unavailable');
  const actor=await auditActor(env.DB,{kind:'owner',authority:owner.id});
- return {mode:'fixed_window_occurrence_count',environment:rule.environment,window:{start,end,durationMs:rule.windowMs,complete:end<=time},threshold:rule.threshold,
+ return {mode:'fixed_window_occurrence_count',environment:config.filters.environment??null,window:{start,end,durationMs:rule.windowMs,complete:end<=time},threshold:rule.threshold,
   matchingCount:counts.reduce((n,row)=>n+row.count,0),qualifyingIssues:counts.filter(row=>row.count>=rule.threshold).length,issues:counts.slice(0,50),truncated:counts.length>50,
   owner:{role:'Installation owner',auditAlias:actor.label},destination:{id:destination.id,label:destination.label,channel:destination.channel,configured:destination.configured,reviewed:destination.test?.state==='passing'&&!!destination.test.reviewed_at},
   limitations:'Retained accepted occurrences only; suppressed, corrected and imported history is excluded. Expired evidence and missing capture cannot be recovered. Counts do not estimate traffic, sampling, seasonality or loss and are not anomaly detection. Enabling evaluates future complete windows only.'};
