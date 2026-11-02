@@ -1378,7 +1378,7 @@ Core · push-further · **partial** · Rules D-3 · Register R-19
 3. With coverage restored the criteria are reached, and a later recurrence reads recurred.
 4. The recurrence raises one accountable follow-up.
 
-**Evidence.** `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs`
+**Evidence.** `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs`; `tests/alerts-runtime.mjs` repairRecurrence in `tests/alerts/repair-recurrence.mjs`
 **Gap.** Current proof already compares baseline rates with a confidence bound, affected cohorts, rollout and capture gaps; automatic production measurement, an ongoing watch and real-account acceptance remain missing.
 
 #### AI-005 — Explain grouping proposals before applying
