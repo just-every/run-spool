@@ -1,6 +1,7 @@
 import { mintedByCurrentPerson } from '../credential-fence';
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite, operatorAuth } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
+import { operatorAuth } from '../../auth/session.server';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerBatch, authorityGuard } from '../owner-authority';
 import { auditCommit } from '../audit/context';

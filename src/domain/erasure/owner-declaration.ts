@@ -1,6 +1,6 @@
+import { eraseNativeAgentArtifacts, retainedAgentArtifacts } from '../agent-door/artifacts';
 import { defineErasure, ErasureError } from '../../modules/erasure/index.mjs';
 import { capturePlan, captureStatements, ownerIdentifiers, ownerCaptureColumns, sqlQuote } from './owner-capture';
-import { portability } from '../portability';
 import { importCustodyRoots, unsupportedOwnerSurface } from './owner-scope';
 import { erasureCompletionFact } from './audit-fact';
 
@@ -16,7 +16,7 @@ export const ownerExceptions = [
 ];
 const guard = (db: D1Database, sql: string, ...values: any[]) => db.prepare(`INSERT INTO rer_erasure_guard(value,scope) SELECT 1,CASE WHEN (${sql}) THEN 1 ELSE 0 END`).bind(...values);
 
-export async function ownerDeclaration(db: D1Database) {
+export async function ownerDeclaration(db: D1Database,secret:string) {
  const columns=(await db.prepare('PRAGMA table_info(credentials)').all()).results as any[];
  const attributed=columns.some(column=>column.name==='minted_by');
  return defineErasure({entity:'installation-owner',root:{table:'oa_operators'},
@@ -28,6 +28,8 @@ export async function ownerDeclaration(db: D1Database) {
   {table:'follow_up_notice_meta',from:'follow_up_notices',on:{notice:'id'}},
   child('spool_notification_preferences'),child('issue_comments'),child('issue_subscriptions'),
   child('spool_members'),
+  child('spool_native_approvals','person'),child('bs_team'),
+  {table:'bs_overrides',from:'oa_operators',where:'actor=? OR actor=?',params:['id','email']},
   {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},
   {table:'spool_team_snoozes',from:'spool_members',on:{creator:'id'}},
   {table:'spool_team_mail',from:'spool_members',on:{member:'id'}},
@@ -56,12 +58,13 @@ export async function ownerDeclaration(db: D1Database) {
   {table:'rer_mail_development_outbox',from:'oa_step_up_challenges',where:"json_valid(message) AND json_extract(message,'$.deliveryId')=?",params:['id']},
  ],
  redact:[
+  {table:'bs_audit',from:'oa_operators',where:'actor=? OR actor=?',params:['id','email'],set:{actor:''},reason:'Business settings chronology retains only action, field and time after native owner erasure.'},
   {table:'spool_reporting_items',from:'oa_operators',on:{author:'id'},set:{author:null},reason:'Reporting definitions remain with their author displayed as [erased].'},
   {table:'oa_bootstrap',from:'oa_operators',on:{claim_id:'id'},set:{claim_id:'retired-owner-claim'},reason:'Claimed installation marker remains without the former identity.'},
   {table:'oc_owner_claims',from:'oa_operators',on:{operator_id:'id'},set:{email:'',operator_id:'',session_id:'',jti:'retired-owner-claim'},reason:'Managed claim is irreversibly retired; initialization never reopens.'},
  ],
  audit:[{table:'oa_auth_audit',column:'actor_id',of:'oa_operators',clear:{value:''}}],
- retain:[{table:'restored_work',reason:'Destination custody keeps only project and work identifiers, with no person attribution; retaining it prevents historical authority from becoming live after owner erasure.'},{table:'issue_activity',reason:'Project history retains safe actor aliases; personal text is covered by capture redaction.'},{table:'spool_audit_events',reason:'Permanent safe facts remain under random labels; the former owner bindings are deleted.'},{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
+ retain:[...retainedAgentArtifacts,{table:'restored_work',reason:'Destination custody keeps only project and work identifiers, with no person attribution; retaining it prevents historical authority from becoming live after owner erasure.'},{table:'issue_activity',reason:'Project history retains safe actor aliases; personal text is covered by capture redaction.'},{table:'spool_audit_events',reason:'Permanent safe facts remain under random labels; the former owner bindings are deleted.'},{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
   {table:'oc_idp_grants',reason:'Provider claim uniqueness remains with personal claim values retired.'},
   {table:'rer_erasure_operations',reason:'Completed receipts contain only counts and times.'}],
  hold:async ({db,subject}: any) => {
@@ -72,17 +75,16 @@ export async function ownerDeclaration(db: D1Database) {
   const successor = await db.prepare(`SELECT 1 FROM spool_owner_successor x JOIN oa_operators o ON o.id=x.successor_id WHERE x.owner_id=? AND o.role='member' AND o.status='active' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>? AND s.operator_version=o.version)`).bind(subject.id,Date.now()).first();
   return successor ? null : 'verified_successor_required';
  },
- beforeStatements:async ({db,subject}: any) => {
+ beforeStatements:async ({db,subject,operation}: any) => {
   const intent = await db.prepare('SELECT * FROM spool_owner_successor WHERE owner_id=?').bind(subject.id).first();
   if(!intent?.capture_hash)throw new ErasureError('confirmation_required',409);
   const needles=await ownerIdentifiers(db,subject.id), captured=await capturePlan(db,needles);
   if(captured.hold || captured.hash!==intent.capture_hash || await unsupportedOwnerSurface(db,needles))throw new ErasureError('plan_changed',409);
-  const transfer=await portability(db);
   return [
    ...importCustodyRoots.map(table=>guard(db,`NOT EXISTS(SELECT 1 FROM ${sqlQuote(table)})`)),
    guard(db,`(SELECT count(*) FROM oa_operators WHERE role='owner' AND status='active')=1 AND EXISTS(SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id WHERE s.id=? AND o.id=? AND o.role='owner' AND o.status='active' AND o.version=? AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER))`,intent.session_id,subject.id,intent.owner_version),
    guard(db,`EXISTS(SELECT 1 FROM oa_operators o WHERE o.id=? AND o.version=? AND o.status='active' AND o.role='member' AND EXISTS(SELECT 1 FROM oa_sessions s WHERE s.id=? AND s.operator_id=o.id AND s.kind='native' AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) AND s.operator_version=o.version))`,intent.successor_id,intent.successor_version,intent.successor_session),
-   ...captureStatements(db,captured.changes),...await transfer.redactionStatements(),
+   ...await eraseNativeAgentArtifacts(db,secret,'operator',String(subject.id),operation),...captureStatements(db,captured.changes),
    db.prepare("UPDATE credentials SET minted_by=NULL,minted_version=NULL WHERE kind='ingest' AND minted_by=?").bind(subject.id),
    db.prepare("UPDATE oa_operators SET role='owner' WHERE id=?").bind(intent.successor_id),
    db.prepare("UPDATE oa_operators SET role='member',status='inactive' WHERE id=?").bind(subject.id),

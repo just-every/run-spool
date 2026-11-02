@@ -51,8 +51,8 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
       '@runeditrun/rer':
-        specifier: 0.2.95
-        version: 0.2.95
+        specifier: 0.2.96
+        version: 0.2.96
       '@sentry/browser':
         specifier: 11.6.0
         version: 11.6.0
@@ -89,6 +89,9 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+      miniflare:
+        specifier: 5.20260907.0-alpha
+        version: 5.20260907.0-alpha(@types/node@22.20.5)
       rollup:
         specifier: 4.64.12
         version: 4.64.12
@@ -1151,8 +1154,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@runeditrun/rer@0.2.95':
-    resolution: {integrity: sha512-veVl2NUmqp46zdrGjyhnLv4kDMNiw3ZSHxvLGnjIFRVnK8YCbKoRgFATJtkKjzX6A93eHi1MdjUJ3dM2CUCsEg==}
+  '@runeditrun/rer@0.2.96':
+    resolution: {integrity: sha512-ti4il1iYkambLWUA8rR/1xjcwi5D93RYl+vo/Rje748bQY855DK54sLjR7lYvodDG7AnBj+BzFUDN0GHy5axXQ==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -3324,7 +3327,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.64.12':
     optional: true
 
-  '@runeditrun/rer@0.2.95': {}
+  '@runeditrun/rer@0.2.96': {}
 
   '@sentry/browser-utils@11.6.0':
     dependencies:

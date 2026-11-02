@@ -300,7 +300,7 @@ jobs:
           - shard: wizard
             command: pnpm test:wizard
           - shard: agent-handoff
-            command: pnpm test:agent-handoff && pnpm test:privacy
+            command: pnpm test:agent-door && pnpm test:agent-handoff && pnpm test:privacy
           - shard: repair-recovery
             command: pnpm test:repair-recovery
           - shard: execution
@@ -398,11 +398,13 @@ jobs:
           node <<'NODE'
           import {checkHostedOutput} from '@runeditrun/rer/internal/cli/hosted-output.mjs';
           import {checkHydration} from '@runeditrun/rer/internal/cli/hydration/check.mjs';
+          import {checkAgentDoor} from '@runeditrun/rer/internal/cli/agent-door.mjs';
           import {commandAdapter} from './scripts/installer/local.mjs';
           const root = process.cwd();
           const declaration = commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration;
           console.log(await checkHostedOutput(root, {declaration}));
           console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
+          await checkAgentDoor(root, {declaration, owner: commandAdapter.hooks?.owner});
           NODE
 
   commands:
