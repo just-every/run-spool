@@ -15,10 +15,12 @@ export async function readScreens(origin,cookie,pages){
     await openGate(context,origin);
     await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
     const page=await context.newPage();
-    for(const {name,path,check} of pages){
+    for(const {name,path,check,capture} of pages){
      await page.goto(origin+path);await check(page);
      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${name} at ${width}: no horizontal page scroll`);
-     await page.screenshot({path:`.artifacts/runtimes/${name}-${width}.png`,fullPage:true});
+     const screenshot=`.artifacts/runtimes/${name}-${width}.png`;
+     if(capture)await page.locator(capture).screenshot({path:screenshot});
+     else await page.screenshot({path:screenshot,fullPage:true});
     }
    }finally{await context.close()}
   }

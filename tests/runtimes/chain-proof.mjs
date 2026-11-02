@@ -44,7 +44,7 @@ export async function causeChainProof({runtime,app,dir,origin,cookie,identity}){
  const foreign=await app.json('/api/projects','POST',{id:`rt-${runtime.name}-foreign`,name:'Unrelated cause project'});
  assert.equal((await app.request(`/api/projects/${foreign.id}/issues/${issue.id}/events/${detail.id}?occurrence=${detail.occurrence}`)).status,404,'a foreign project cannot select the retained occurrence');
  await readScreens(origin,cookie,[{
-  name:`${runtime.name}-causes`,path:`/projects/${project.id}/issues/${issue.id}`,
+  name:`${runtime.name}-causes`,path:`/projects/${project.id}/issues/${issue.id}`,capture:'.event-diagnostic',
   check:async page=>{
    for(const exception of expected)await page.locator('article.exception > h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
    if(page.viewportSize().width!==1440)return;
@@ -53,7 +53,11 @@ export async function causeChainProof({runtime,app,dir,origin,cookie,identity}){
    const marked=[];
    for(const [index,exception] of expected.entries()){
     const article=page.locator('article.exception > h3').filter({hasText:`${exception.type}: ${exception.value}`}).locator('..');
-    if(await article.locator(':scope > h3 small').count())marked.push(exception.type);
+    const label=article.locator(':scope > h3 small');
+    if(await label.count()){
+     assert.equal(await label.innerText(),'Root cause','the innermost exception has an explicit root-cause label');
+     marked.push(exception.type);
+    }
     if(exception.mechanism?.type)assert.ok((await article.locator(':scope > p').innerText()).includes(exception.mechanism.type),'each relation remains distinguishable');
     const frames=article.locator(':scope > ol.exception-stack > li');
     assert.equal(await frames.count(),exception.stacktrace.frames.length,'each exception displays its own complete stack');
