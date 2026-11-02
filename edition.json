@@ -54,7 +54,9 @@
           "deploy-demo.json",
           "DEMO.md",
           ".github/workflows/run-demo.yml",
-          "verification.json"
+          "verification.json",
+          "agent-surface.json",
+          "scripts/agent-door"
         ]
       }
     },

@@ -109,12 +109,21 @@ async function stepOwnerErasure(db: D1Database, id: string, until: number) {
  * and gives waiting requests their turn after each: a local runtime (one
  * thread, D1 in process) answers no other request while the sweep's D1 calls
  * run, and closes a request it has held past its 15-second header timeout. */
-export async function continueErasures(db: D1Database, until: number) {
+export async function continueErasures(db: D1Database, until: number, invokeAgent?: (id:string,principal:any,key:string)=>Promise<any>) {
  const open = (await db.prepare("SELECT id,entity FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string; entity: string }>()).results;
  for (const { id,entity } of open) {
   while (Date.now() <= until) {
    try {
-    const receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until) : await resumeProjectErasure(db, id);
+    const saved=entity==='project'?await db.prepare('SELECT principal FROM spool_erasure_agents WHERE operation=?').bind(id).first<{principal:string}>():null;
+    let receipt;
+    if(saved){
+     if(!invokeAgent)break;
+     const progress=await db.prepare('SELECT phase,step FROM rer_erasure_operations WHERE id=?').bind(id).first<{phase:string;step:number}>();
+     const answer=await invokeAgent(id,JSON.parse(saved.principal),`erasure:${id}:${progress?.phase}:${progress?.step}`);
+     if(answer.outcome!=='done')break;
+     receipt=answer.result;
+     if(receipt.phase==='complete')await db.prepare('DELETE FROM spool_erasure_agents WHERE operation=?').bind(id).run();
+    }else receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until) : await resumeProjectErasure(db, id);
     if (receipt.phase === 'complete') break;
    } catch (error) {
     // A client or another scheduled invocation owns this step. Its atomic
