@@ -22,11 +22,28 @@ export default {
  async checkIssue({page,app,project,handled}){
   const root=`/api/projects/${project.id}/issues/${handled.issue.id}/events`,listed=await app.json(root+'?q=tenant:acme');
   assert.equal(listed.total,handled.issue.count);const tenant=listed.tags.rows.find(row=>row.key==='tenant'&&row.value==='acme');assert.equal(tenant.count,listed.total);assert.equal(tenant.percent,100*tenant.count/listed.tags.events);
+  assert.deepEqual(listed.rows.map(row=>row.id).sort(),handled.events.map(event=>event.id).sort());
+  assert.notEqual(listed.oldest.id,listed.latest.id,'navigation spans distinct SDK captures');
+  const filtering=page.waitForResponse(response=>{const url=new URL(response.url());return url.pathname===root&&url.searchParams.get('q')==='tenant:acme'});
   await page.getByRole('searchbox',{name:'Search events',exact:true}).fill('tenant:acme');
+  assert.equal((await filtering).status(),200);
+  await page.getByText(`${listed.total} matching events`,{exact:true}).waitFor();
+  await page.locator('.event-page > summary').click();
   const selected=page.locator('.metadata[data-event-id]');
-  const choose=async(name,event)=>{const button=page.getByRole('button',{name,exact:true});await button.click();await page.waitForFunction(id=>document.querySelector('.metadata[data-event-id]')?.getAttribute('data-event-id')===id,event.id);assert.equal(new URL(page.url()).searchParams.get('event'),event.id)};
+  const choose=async(name,event)=>{
+   await page.getByRole('button',{name,exact:true}).click();
+   await page.waitForFunction(id=>document.querySelector('.metadata[data-event-id]')?.getAttribute('data-event-id')===id,event.id);
+   const url=new URL(page.url());assert.equal(url.searchParams.get('event'),event.id);assert.equal(url.searchParams.get('occurrence'),event.occurrence);
+   const detail=handled.events.find(value=>value.id===event.id);assert.ok(detail,'selected event is an actual SDK capture');
+   assert.ok((await selected.innerText()).includes(`${detail.event.type}: ${detail.event.message}`),'displayed detail follows the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"] code').innerText(),event.id,'event list highlights the selected capture');
+   for(const exception of detail.event.sentry.exceptions)await page.locator('article.exception h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
+  };
   await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
-  await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
+  assert.equal(await page.getByRole('button',{name:'Previous event',exact:true}).isEnabled(),false,'oldest matching event has no predecessor');
+  await page.getByRole('button',{name:'Next event',exact:true}).waitFor({state:'visible'});await choose('Next event',listed.latest);
+  assert.equal(await page.getByRole('button',{name:'Next event',exact:true}).isEnabled(),false,'latest matching event has no successor');
+  await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
   assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);

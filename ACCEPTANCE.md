@@ -802,7 +802,7 @@ Core · target · **partial**
 4. Its raw stack trace copies.
 5. Its All Events list, filtered by `tenant:acme`, steps from the oldest to the latest event, and the detail follows each chosen event.
 
-**Evidence.** `src/domain/investigation/events.ts`; `src/ui/workbench/EventExplorer.tsx`; `src/ui/workbench/SentryEvent.tsx`; `src/ui/workbench/RepositorySource.tsx`; `tests/fidelity-flow.mjs`; `tests/repository-source-flow.mjs`
+**Evidence.** `src/domain/investigation/events.ts`; `src/ui/workbench/EventExplorer.tsx`; `src/ui/workbench/SentryEvent.tsx`; `src/ui/workbench/RepositorySource.tsx`; `tests/sdk-runtimes.mjs` Python SDK journey with `tests/runtimes/python.mjs` checkIssue (acceptance 4 and 5: unmodified Python SDK raw-stack clipboard equality and retained exception types; tenant:acme oldest, next, previous and latest selection with event identity, occurrence deep link, highlighted row and displayed detail at 1440 and 390); `tests/fidelity-flow.mjs` fidelityFlow (retained pagination and tags, exact issue and occurrence refusal, privacy and minimized agent scope); `tests/repository-source-flow.mjs` repositorySourceFlow
 **Gap.** Owner detail selects exact retained occurrences with cursor pages, combined event queries, navigation, chain/context/raw evidence and all-issue tag counts. Selected source frames link through explicit recorded mappings to exact repository revisions, distinct from SDK context and map coordinates. User and session analytics and provider qualification remain absent; agent packets retain their minimized scope.
 
 #### FIND-003 — Trends, dashboards and team reports
