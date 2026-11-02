@@ -1,4 +1,4 @@
-import { all, canonicalJson, insist, quote } from './sql.mjs';
+import { all, canonicalJson, insist, quote, chunks } from './sql.mjs';
 import { matching } from './plan.mjs';
 
 /** Every foreign key between two deleted tables, grouped per constraint. Schema
@@ -29,24 +29,37 @@ export async function deletionOrder(db, d, plan) {
   const link = (parent, child) => {
     if (id(parent) !== id(child) && children.has(id(parent)) && entries.has(id(child))) children.get(id(parent)).add(id(child));
   };
-  for (const edge of d.edges) for (const parent of plan.rows.get(edge.from).values()) {
+  for (const edge of d.edges) {
     const keys = plan.keys.get(edge.table).pk;
-    for (const row of await matching(db, edge, [parent.row], keys.map(c => c === 'rowid' ? 'rowid AS rowid' : quote(c)).join(','))) {
-      const child = entries.get(edge.table + '\0' + canonicalJson(Object.fromEntries(keys.map(c => [c, row[c]]))));
-      if (child) link(parent, child);
+    const edgeParents = [...plan.rows.get(edge.from).values()];
+    if (edge.on) {
+      const pairs = Object.entries(edge.on);
+      for (const part of chunks(edgeParents, 200)) {
+        // Drive indexed child lookups from the parent page, retaining which
+        // parent each child belongs to without a query for every parent.
+        const found = await all(db, `SELECT j.key AS parent_index,${keys.map((c, i) => `c.${quote(c)} AS child_${i}`).join(',')} FROM json_each(?) j CROSS JOIN ${quote(edge.table)} c WHERE ${pairs.map(([child], i) => `c.${quote(child)}=json_extract(j.value,'$[${i}]')`).join(' AND ')}`, JSON.stringify(part.map(parent => pairs.map(([, column]) => parent.row[column]))));
+        for (const row of found) {
+          const child = entries.get(edge.table + '\0' + canonicalJson(Object.fromEntries(keys.map((c, i) => [c, row[`child_${i}`]]))));
+          if (child) link(part[Number(row.parent_index)], child);
+        }
+      }
+    } else for (const parent of edgeParents) {
+      for (const row of await matching(db, edge, [parent.row], keys.map(c => c === 'rowid' ? 'rowid AS rowid' : quote(c)).join(','))) {
+        const child = entries.get(edge.table + '\0' + canonicalJson(Object.fromEntries(keys.map(c => [c, row[c]]))));
+        if (child) link(parent, child);
+      }
     }
   }
   plan.foreignKeys = await foreignKeyLinks(db, d);
   for (const { table, parentTable, group } of plan.foreignKeys) {
-    for (const parent of plan.rows.get(parentTable).values()) {
-      const parentKeys = plan.keys.get(parent.table).pk;
+    const parentKeys = plan.keys.get(parentTable).pk, cols = plan.keys.get(table).pk;
+    for (const part of chunks([...plan.rows.get(parentTable).values()], 200)) {
       // Read the actual join: FK columns need not be part of a declared edge's projection.
-      const cols = plan.keys.get(table).pk;
-      const found = await all(db, `SELECT ${cols.map(c => c === 'rowid' ? 'rowid AS rowid' : quote(c)).join(',')} FROM ${quote(table)} WHERE ${group.map(f => `${quote(f.from)}=(SELECT ${quote(f.to || parentKeys[f.seq])} FROM ${quote(parent.table)} WHERE ${parentKeys.map(c => `${quote(c)}=?`).join(' AND ')})`).join(' AND ')}`, ...group.flatMap(() => parentKeys.map(c => parent.key[c])));
+      const found = await all(db, `SELECT j.key AS parent_index,${cols.map((c, i) => `c.${quote(c)} AS child_${i}`).join(',')} FROM json_each(?) j CROSS JOIN ${quote(parentTable)} p CROSS JOIN ${quote(table)} c WHERE ${parentKeys.map((c, i) => `p.${quote(c)}=json_extract(j.value,'$[${i}]')`).join(' AND ')} AND ${group.map(f => `c.${quote(f.from)}=p.${quote(f.to || parentKeys[f.seq])}`).join(' AND ')}`, JSON.stringify(part.map(parent => parentKeys.map(c => parent.key[c]))));
       for (const row of found) {
-        const child = entries.get(table + '\0' + canonicalJson(Object.fromEntries(cols.map(c => [c, row[c]]))));
-        insist(child, `unreached_dependent:${table}:${parent.table}`, 409);
-        link(parent, child);
+        const child = entries.get(table + '\0' + canonicalJson(Object.fromEntries(cols.map((c, i) => [c, row[`child_${i}`]]))));
+        insist(child, `unreached_dependent:${table}:${parentTable}`, 409);
+        link(part[Number(row.parent_index)], child);
       }
     }
   }

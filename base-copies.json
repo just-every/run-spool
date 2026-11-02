@@ -2583,7 +2583,36 @@
         "modules/erasure/tests/rate.test.ts",
         "modules/erasure/tests/regressions.test.ts",
         "modules/erasure/verification.mjs"
-      ]
+      ],
+      "adapted": {
+        "src/modules/erasure/cascade.mjs": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/erasure/index.d.mts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/erasure/index.mjs": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/erasure/order.mjs": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/erasure/verification.mjs": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+      },
+      "acknowledged": {
+        "src/modules/erasure/cascade.mjs": {
+          "sha256": "ba65fd34e099611bdc27d95adaefd4dd078f10741a0507fd4ef677cd8a314492",
+          "mode": "100644"
+        },
+        "src/modules/erasure/index.d.mts": {
+          "sha256": "4783045dffdac01c08f96a99e00b68722e70553da3e76d659299726f39ce6276",
+          "mode": "100644"
+        },
+        "src/modules/erasure/index.mjs": {
+          "sha256": "66d7a9d4b7302b3f26fb8c2de5d1a04373583ef4020d9ef545eb57c943c184fd",
+          "mode": "100644"
+        },
+        "src/modules/erasure/order.mjs": {
+          "sha256": "cd18dd3478b8c82d799a2c8eb620f34cc013b31336051fb523e953bb88a1179b",
+          "mode": "100644"
+        },
+        "src/modules/erasure/verification.mjs": {
+          "sha256": "9dd3ca7a96fd040df3b0b7c9be68442e7102ab6fe14f0640a29a04614f9e171d",
+          "mode": "100644"
+        }
+      }
     },
     {
       "path": "src/modules/import-kit/schema/importer-verification-receipt.schema.json",

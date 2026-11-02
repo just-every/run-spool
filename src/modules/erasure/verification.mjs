@@ -3,6 +3,17 @@ import { matchSql, tableKeys } from './plan.mjs';
 
 const verify = (db, kind, condition, ...values) => statement(db, `INSERT INTO rer_erasure_guard(value,${kind}) SELECT 1,CASE WHEN (${condition}) THEN 1 ELSE 0 END`, ...values);
 
+/** An uncorrelated IN builds SQLite's lookup set once, instead of rescanning
+ * every selected key for every child. Ordinary SQLite composite primary keys
+ * may contain NULL; keep the previous null-safe comparison for that case. */
+function selectedKeys(alias, pk, keys) {
+  const columns = pk.map(c => `${alias}.${quote(c)}`), body = JSON.stringify(keys);
+  const indexed = `COALESCE((${columns.join(',')}) IN (SELECT ${pk.map((_, i) => `json_extract(k.value,'$[${i}]')`).join(',')} FROM json_each(?) k),0)`;
+  if (!keys.some(key => key.some(value => value === null))) return { sql: indexed, values: [body] };
+  const nullable = `EXISTS(SELECT 1 FROM json_each(?) k WHERE ${columns.map((column, i) => `${column} IS json_extract(k.value,'$[${i}]')`).join(' AND ')})`;
+  return { sql: `CASE WHEN ${columns.map(column => `${column} IS NULL`).join(' OR ')} THEN ${nullable} ELSE ${indexed} END`, values: [body, body] };
+}
+
 /** Re-read every declared path and audit inside the same atomic batch as the
  * final root effect and portability fence. A new dependent rolls the batch back
  * and returns to collection; it cannot be silently cascaded away. */
@@ -20,15 +31,16 @@ export async function verificationStatements(db, d, plan, id, label, { final = f
       const parents = [...plan.rows.get(parentTable).values()].map(e => parentPk.map(c => e.key[c]));
       const children = [...plan.rows.get(table).values()].map(e => pk.map(c => e.key[c]));
       if (!parents.length) continue;
+      const selected = selectedKeys('c', pk, children);
       const keyMatch = (alias, columns, json = 'j') => columns.map((c, i) => `${alias}.${quote(c)} IS json_extract(${json}.value,'$[${i}]')`).join(' AND ');
       const joined = group.map(f => `c.${quote(f.from)}=p.${quote(f.to || parentPk[f.seq])}`).join(' AND ');
       // Parents first, then their children through the key: cost follows the parents, not the child table.
-      out.push(verify(db, 'scope', `NOT EXISTS(SELECT 1 FROM json_each(?) j CROSS JOIN ${quote(parentTable)} p CROSS JOIN ${quote(table)} c WHERE ${keyMatch('p', parentPk)} AND ${joined} AND NOT EXISTS(SELECT 1 FROM json_each(?) k WHERE ${keyMatch('c', pk, 'k')}))`, JSON.stringify(parents), JSON.stringify(children)));
+      out.push(verify(db, 'scope', `NOT EXISTS(SELECT 1 FROM json_each(?) j CROSS JOIN ${quote(parentTable)} p CROSS JOIN ${quote(table)} c WHERE ${keyMatch('p', parentPk)} AND ${joined} AND NOT (${selected.sql}))`, JSON.stringify(parents), ...selected.values));
     }
     for (const edge of d.edges) for (const m of matchSql(edge, [...plan.known.get(edge.from).values()])) {
       const pk = plan.keys.get(edge.table).pk, keys = [...plan.rows.get(edge.table).values()].map(e => pk.map(c => e.key[c]));
-      const selected = `EXISTS(SELECT 1 FROM json_each(?) k WHERE ${pk.map((c, i) => `${quote(edge.table)}.${quote(c)} IS json_extract(k.value,'$[${i}]')`).join(' AND ')})`;
-      out.push(verify(db, 'scope', `NOT EXISTS(SELECT 1 FROM ${quote(edge.table)} WHERE ${m.where} AND NOT (${selected}))`, ...m.values, JSON.stringify(keys)));
+      const selected = selectedKeys(quote(edge.table), pk, keys);
+      out.push(verify(db, 'scope', `NOT EXISTS(SELECT 1 FROM ${quote(edge.table)} WHERE ${m.where} AND NOT (${selected.sql}))`, ...m.values, ...selected.values));
     }
   }
   if (final) {
