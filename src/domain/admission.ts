@@ -1,3 +1,4 @@
+import {prepareScrubbing} from './scrubbing/model';
 import {eventIdentityStatements,type PreparedIdentity} from './identities/intake';
 import { auditedBatch } from './audit/context';
 import { prepareRelease } from './releases/admission';
@@ -57,11 +58,12 @@ function sentryTrimming(db:D1Database,project:string,event:Envelope){
  return [...(frames?[outcomeStatement(db,project,'sentry_trimmed_frames',frames)]:[]),...(values?[outcomeStatement(db,project,'sentry_trimmed_values',values)]:[])];
 }
 /** The sole native/Sentry admission transaction. Import history never calls this. */
-export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity):Promise<Response>{
+export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:string,sentryIntake=false,identity?:PreparedIdentity,preScrubbed?:{jobs:D1PreparedStatement[]}):Promise<Response>{
   let event=normalize(input);const {project}=scope,db=c.env.DB;
   const record=(reason:string)=>recordIngest(c,scope,reason);
   const duplicate=async(row:any)=>{await record(row.digest===digest?'duplicate':'conflict');return c.json({outcome:row.digest===digest?'duplicate':'conflict',issue:row.issue},row.digest===digest?200:409)};
   try{
+    const scrubbed=preScrubbed?null:await prepareScrubbing(db,project,event,identity?.scrubbingKey),privacy=preScrubbed??scrubbed!;if(scrubbed)event=normalize(scrubbed.document);
     const matches=matchInbound(event,scope.policy,inboundMetadata(event,{origin:c.req.header('origin'),referer:c.req.header('referer'),userAgent:c.req.header('user-agent'),clientIp:c.req.header('cf-connecting-ip'),domainAllowed:scope.domain.allowed}));
     if(matches.length){await ingestBatch(c,scope,[outcomeStatement(db,project,'filtered'),...matches.map(id=>outcomeStatement(db,project,'filtered:'+id))]);return c.json({outcome:'filtered',reason:'inbound_filter',filters:matches},202)}
     const existing=await stmt(db,'SELECT digest,issue FROM events WHERE project=? AND id=?',project,event.eventId).first<any>();
@@ -79,7 +81,7 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
     const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
     const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
-    const jobs=[...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
+    const jobs=[...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),

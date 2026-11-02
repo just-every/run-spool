@@ -6,6 +6,7 @@ import {discussionExportRow} from './discussion/archive';
 import {lifecycleTables} from './lifecycle/archive';
 import { reportingTables, reportingExportRow } from './dashboards/archive';
 import { memberTables, teamAlertTables, memberExportRow } from './members/archive';
+import {scrubbingTables} from './scrubbing/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
 import {identityTables} from './identities/archive';
@@ -55,7 +56,7 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['agent_door_%','bs_%','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: ['agent_door_%','bs_%','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -204,13 +205,17 @@ laterTables.unshift({tables:[],migrations:['0085_follow_up_acknowledgment.sql']}
 const preferenceNames=Object.keys(notificationPreferenceTables);
 for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0086_notification_preferences.sql')}
 laterTables.unshift({tables:[...preferenceNames],migrations:['0086_notification_preferences.sql']});
-const agentMigrations=['0095_agent_door.sql','0087_business_settings.sql','0094_business_people.sql','0088_native_agent_attribution.sql','0089_agent_runner_custody.sql','0090_native_agent_repository_consent.sql','0091_repository_proof_reference.sql','0092_agent_erasure_custody.sql','0093_native_action_actor_links.sql'];
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0087_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0087_alert_conditions.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0088_scrubbing_rules.sql')}
+laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrubbing_rules.sql']});
+const agentMigrations=['0097_agent_door.sql','0089_business_settings.sql','0096_business_people.sql','0090_native_agent_attribution.sql','0091_agent_runner_custody.sql','0092_native_agent_repository_consent.sql','0093_repository_proof_reference.sql','0094_agent_erasure_custody.sql','0095_native_action_actor_links.sql'];
 for(const later of laterTables)later.migrations.push(...agentMigrations);
 laterTables.unshift({tables:[],migrations:agentMigrations});
 // Match the exact archive inventory from before native attribution was added.
 // Current archives retain and validate their declared attribution columns.
 function beforeAgentAttribution(table:any,manifest:any){
- if(manifest.migrations?.includes('0088_native_agent_attribution.sql'))return table;
+ if(manifest.migrations?.includes('0090_native_agent_attribution.sql'))return table;
  const field=table.name==='repairs'?'recorded_by':table.name==='grouping_proposals'?'prepared_by':null;
  if(!field)return table;
  // Unrecorded native inventories can already carry attribution. Keep the

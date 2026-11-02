@@ -37,7 +37,7 @@ export async function resolveMembership<T extends Pick<Session, 'operator'>>(req
   role=member.role==='read-only'?'read-only':grant.role;
  }
  const tail=match[2]??'', isRead=read(request), document=!path.startsWith('/api/');
- const policy=/^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
+ const policy=/^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
  // Personal settings never change project policy or another person's data.
  if(tail==='notifications/preferences' && (isRead || request.method==='PUT')) return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };
  const operational=/^(?:fixes|reproducers|repairs)(?:\/|$)/.test(tail);
@@ -46,7 +46,7 @@ export async function resolveMembership<T extends Pick<Session, 'operator'>>(req
   if (role==='read-only') return missing();
   const triage=/^(?:issues\/[^/]+(?:\/(?:assignment|priority|suppression|discussion|comments(?:\/[^/]+)?|subscription))?|bulk-triage|review\/views(?:\/[^/]+)?|suspects\/issues\/[^/]+)$/.test(tail);
   const deployment=/^(?:releases|artifacts|artifact-builds\/verify|deployments(?:\/[^/]+\/callbacks)?|keys(?:\/[^/]+)?)$/.test(tail);
-  const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
+  const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
   if (!triage&&!deployment&&!maintain) return missing();
  }
  if (document && !isRead) return missing();
