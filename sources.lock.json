@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3e10600f23c766fa7e5c6d2ec2fc74f739871a3fcc1236fcd058b71cac7c999c",
+      "sha256": "2031bcf511eb0f2010f0cbea65743298529a1b1642fa3c52b882c8a68f586ef4",
       "executable": false
     },
     "DEMO.md": {
@@ -6350,11 +6350,11 @@
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
-      "sha256": "4c4e93862dfbff77ca6e3ecc451bd22fee91ea01669477ba28b5169bf5000dc2",
+      "sha256": "2771e6f7ebeba645b84f36d11f54bdd443f4471877b5bfd6e667da39d8d97011",
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "7824f6bf21d432074ea7d9e1995237ccbde98e458865ef128b304f16a4b98542",
+      "sha256": "f7117e12f946fa02e0e0cef896dbe604bc2f8cb5c90af12b031cd5b1d05baaff",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -10046,7 +10046,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "0372bb027960eadc02ab151f8ece1753209ddfd81e7aecd834f6842adb5e4434",
+      "sha256": "d560a61e43d0c8927df31c5c280e2a8e429a0b993c24cc84fced05a49f51ed72",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
@@ -10774,15 +10774,15 @@
       "executable": false
     },
     "tests/operator-archive.mjs": {
-      "sha256": "f8252ed242975a08435accb69c88e051fa4a0f50b7a60ed29f99f6471c64eb6a",
+      "sha256": "ddf61ba8cd4dd9143fab653429ffb91da8e68267188c4ad3e2063b3a7106399e",
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "a884e3379c5021e98b84f0fcf257e06e39204cf483b7e76928cc7d602caeab46",
+      "sha256": "314e59f738f01261c1b7fe577ee439fbfbf0f9fd841875a4d9c0ec467b1fa802",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "5240739751d8c3b3a9c7863ee368b4592d4f6e59b5f847b4d52e5d7834a16ff9",
+      "sha256": "2f5e9f45c39ad789cceaf6ac225d1514a1fa33a7564ee540e605a9610e6b9e1c",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
@@ -10850,7 +10850,7 @@
       "executable": false
     },
     "tests/product-runtime.mjs": {
-      "sha256": "e6dd888049a03f3fbef521385d3da1d34146eae681abfdf5e06f64e9e8148891",
+      "sha256": "f7fb1c906c87f66a280b7ae930e1430f358876c234ca8fddbe0e06a50c11bb53",
       "executable": false
     },
     "tests/project-erasure-cap.mjs": {
