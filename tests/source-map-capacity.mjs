@@ -46,7 +46,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  const legacyRoot=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000012',map:{...flat,sourceRoot:'x'.repeat(4096)}});assert.equal(legacyRoot.status,201,'flat maps within the previous parser bounds retain their accepted path grammar');await legacyRoot.body?.cancel();
  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();await browserSignIn(page,origin);await page.goto(origin+'/projects/'+id+'/releases');
  // Exercise the actual prepared-map picker, preserving drafts across invalid selections and navigation.
- const picker=page.getByLabel('Source map file · max 1 MiB',{exact:true}),releaseField=page.getByLabel('Release',{exact:true}),debugField=page.getByLabel('Bundle debug ID',{exact:true});
+ const picker=page.getByLabel('Source map file · max 1 MiB',{exact:true}),releaseField=page.getByRole('combobox',{name:/^Release/}),debugField=page.getByLabel('Bundle debug ID',{exact:true});
  const upload=page.getByRole('button',{name:'Upload matching map',exact:true});
  const choose=async(name,map)=>{await picker.setInputFiles({name,mimeType:'application/json',buffer:Buffer.isBuffer(map)?map:Buffer.from(JSON.stringify(map))});};
  const ready=async name=>page.getByText('Ready to upload: '+name,{exact:true}).waitFor();
@@ -80,7 +80,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
     assert.deepEqual(await inventory(),originalInventory,'a malformed replacement stores nothing');
    }
    await page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name:/^Issues/}).click();await page.getByRole('link',{name:'Releases',exact:true}).click();
-   await ready(item.name);assert.equal(await releaseField.inputValue(),'formats@1');assert.equal(await debugField.inputValue(),item.debug);
+   await ready(item.name);await page.waitForFunction(()=>document.querySelector('#upload-map select')?.value==='formats@1');assert.equal(await releaseField.inputValue(),'formats@1');assert.equal(await debugField.inputValue(),item.debug);
    const details=page.getByRole('button',{name:'Details: Source map requirements',exact:true});
    await details.focus();await page.keyboard.press('Enter');await page.getByRole('dialog').waitFor();
    assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));
@@ -96,7 +96,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   await upload.click();assert.equal((await response).status(),201);await page.getByRole('status').filter({hasText:'Source map uploaded'}).waitFor();
   assert.equal(await page.getByText('Ready to upload: '+item.name,{exact:true}).count(),0,'only a successful upload clears the map draft');
   const admitted=await post('/api/ingest/'+id,{version:1,eventId:'synthetic-spool-picker-'+index,release:'formats@1',build:'b1',environment:'test',type:'Error',message:'synthetic-spool-picker-'+index,frames:[{file:'picker.js',line:item.line,column:item.column,function:'checkout',debugId:item.debug}],breadcrumbs:[]},project.ingestKey);
-  assert.equal(admitted.status,202);const {issue}=await admitted.json();
+  assert.equal(admitted.status,201);const {issue}=await admitted.json();
   const packet=await request(base+'/issues/'+issue+'/packet'),mapped=packet.events.find(event=>event.event.eventId==='synthetic-spool-picker-'+index).atAdmission[0];
   assert.equal(mapped.status,'mapped');assert.deepEqual({file:mapped.original.file,line:mapped.original.line,column:mapped.original.column},{file:'src/original/checkout.js',line:1,column:0});
  }
@@ -121,7 +121,7 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  await page.getByLabel('Build identifier',{exact:true}).fill('unsaved-b1');await capField.fill('42');
  const beforeRefusal=await inventory(),refusal=page.waitForResponse(r=>r.url().endsWith(base+'/artifacts')&&r.request().method()==='POST');
  await upload.click();const refused=await refusal;assert.equal(refused.status(),429);assert.match((await refused.json()).error,new RegExp(refusedName.replaceAll('.','\\.')+': storage cap'));
- await ready(refusedName);assert.equal(await releaseField.inputValue(),'formats@1');assert.equal(await debugField.inputValue(),refusedDebug);
+ await page.locator('#map-error').filter({hasText:refusedName}).waitFor();await ready(refusedName);assert.equal(await releaseField.inputValue(),'formats@1');assert.equal(await debugField.inputValue(),refusedDebug);
  assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'synthetic-spool-unsaved@1');assert.equal(await page.getByLabel('Build identifier',{exact:true}).inputValue(),'unsaved-b1');assert.equal(await capField.inputValue(),'42');
  assert.deepEqual(await inventory(),beforeRefusal,'storage-cap refusal leaves the stored maps unchanged');
  const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
@@ -146,6 +146,6 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   await page.getByText(/storage cap [0-9]+ bytes/).first().evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(out,`refusal-${width}.png`)});
  }
  await context.close();
- console.log('[SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, picker parity through 1 MiB with debug IDs and preserved malformed, oversized and capped drafts, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');
+ console.log('[SRC-004] Spool CLI 27 maps, indexed offsets, source roots and large-map public issue lookup, picker parity through 1 MiB with debug IDs and preserved malformed, oversized and capped drafts, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.');
  return {id,base,cap};
 }

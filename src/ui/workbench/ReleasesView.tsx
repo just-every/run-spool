@@ -69,7 +69,9 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
     {pendingTarget && (edited || map) && <div className="callout" role="status"><strong>Your source map draft is still here.</strong><p>Use the requested issue’s release and debug ID only if you want to replace this draft. Replacing it also clears the selected map file.</p><button className="text-button" onClick={() => setHandledTarget(pendingTarget.id)}>Keep current draft</button><button className="text-button" onClick={() => applyTarget(pendingTarget)}>Replace draft with this issue</button></div>}
     <form className="form-grid" onSubmit={e => { e.preventDefault(); void run(async () => {
       if (!release || !map) throw new Error('Choose a registered release and a source map.');
-      await request(`/api/projects/${project}/artifacts`, 'POST', { release: release.name, build: release.build, debugId: debug, file: map.name, map: map.value });
+      setError(''); setResult('');
+      try { await request(`/api/projects/${project}/artifacts`, 'POST', { release: release.name, build: release.build, debugId: debug, file: map.name, map: map.value }); }
+      catch (failure) { setError((failure as Error).message); return; }
       setMap(null); setError(''); setEdited(false); if (fileInput.current) fileInput.current.value = ''; setResult('Source map uploaded. Matching frames can now show their original source.'); refresh();
     }); }}><label className="form-field">Release<select required value={selected} onChange={e => { setSelected(e.target.value); setEdited(true); }}><option value="">Choose a release</option>{releases.map(row => <option key={row.name}>{row.name}</option>)}</select></label><Field label="Bundle debug ID" required aria-describedby="map-debug-help" value={debug} onChange={e => { setDebug(e.target.value); setEdited(true); }} /><label className="form-field">Source map file · max 1 MiB<input ref={fileInput} type="file" accept=".map,.json,application/json" aria-invalid={!!error} aria-describedby={error ? 'map-error' : undefined} onChange={e => {
       const current = ++selection.current, file = e.target.files?.[0];

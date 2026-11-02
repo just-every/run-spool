@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2b95cb30374824b5287d6ebc63eea850b7eaa419c2f75c75312e158a1ec7bcd7",
+      "sha256": "7d893d9dd83149bb5b6f2d7c15bf152e35f8a1abae57c7f07f98266ccf152e25",
       "executable": false
     },
     "DEMO.md": {
@@ -9462,7 +9462,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "3945182602ffab4c7afd374c9d6a4d5553bd6abad2c9059c8e226e16b4ec6fe8",
+      "sha256": "277505ea1890a043f1450710bf00c7926ba43d5c89676d81257c16099da7de88",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -10482,7 +10482,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "eee8f2bdac19f768ad2d7d1bb49f260d9006da9950af0aa588039808460bc597",
+      "sha256": "6b781571188779a3c8e8e7255f57fcc3e3bf8f906a3a31e50b9d45e373074019",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
