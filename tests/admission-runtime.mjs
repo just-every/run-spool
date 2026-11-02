@@ -20,7 +20,7 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false, https = false, networkEdge} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
@@ -70,7 +70,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
  try {
   await start();
   const files = (await readdir('migrations/core')).filter(file => file.endsWith('.sql')).sort();
-  await apply(files.filter(file => !deferClaimMigration || !file.includes('owner_claim')));
+  await apply(files.filter(file => (!deferClaimMigration || !file.includes('owner_claim')) && (!deferAgentUpgrade || file!=='0098_agent_custody_replay_relay.sql')));
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
   const call = (path, value, headers = {}, method = value === undefined ? 'GET' : 'POST') => fetch(origin + path, {
    method, redirect: 'manual', headers: {Origin: origin, ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
@@ -78,6 +78,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
   });
   const runtime = {get origin() {return origin;}, DB: db, call,
    schedule:async time=>{const response=await call('/__fixture/schedule',{time});if(!response.ok)throw new Error('Native scheduled entry failed: '+response.status);await response.body?.cancel();},
+   applyAgentUpgrade:()=>apply(files.filter(file=>file==='0098_agent_custody_replay_relay.sql')),
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),
    setTime: async value => {
     if(!hostedEntry||!Number.isFinite(value))throw new Error('A hosted fixture clock is required');
