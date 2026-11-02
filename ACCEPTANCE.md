@@ -748,7 +748,7 @@ Core · target · **partial** · Rules D-5
 **Acceptance.**
 1. As each owning clause ships storage, every runtime family's rerun qualification run reconciles the persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes.
 
-**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs`; `tests/runtimes/feedback-proof.mjs` feedbackProof (SDK-produced quantity, per-occurrence descriptions, exact retained associations, issue reads and rendered feedback)
+**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs` (java and dotnet qualification); `tests/runtimes/feedback-proof.mjs` feedbackProof (SDK-produced quantity, per-occurrence descriptions, exact retained associations, issue reads and rendered feedback)
 **Gap.** Feedback text and client-report discards persist for browser/Node (and Java and .NET feedback in the SDK-012 runs); bounded sessions persist under SDK-005 (Node/browser health qualified; other runtime health remains a gap), while traces, replay, logs and attachments are counted as unsupported.
 
 ### Investigation and source
