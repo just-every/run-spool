@@ -46,6 +46,7 @@ Spool declares its own fonts (self-hosted Zilla Slab, IBM Plex Sans and IBM Plex
 CONTRACT.md is the only acceptance text and status source; ACCEPTANCE.md and docs/CLAIMS.md are generated from it. After editing it, regenerate, check and relock:
 
 Lander-Regenerate: node src/base/contract-docs.mjs write
+Lander-Regenerate: node scripts/archive-history.mjs
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
 Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
@@ -60,3 +61,7 @@ use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
 and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
 Keep the existing core-flow registration and CI shard count. Contract judgments
 remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.
+
+Native archive compatibility uses the trusted migration-prefix replay in `src/domain/archive-history.json`. After changing core migrations or the archive exclusion policy, regenerate it with `node scripts/archive-history.mjs`, then run `node scripts/archive-history.mjs --check`. This runs before source-lock validation through `pnpm source:check`; regenerate the source lock last. Never replace replay evidence with an unverified schema acknowledgment.
+
+`pnpm source:check` retrieves only missing immutable Git commits recorded by contract prose/claim provenance before validating them. This keeps the established shallow Verify checkout and its source-retention checks intact; it never changes HEAD or a branch.

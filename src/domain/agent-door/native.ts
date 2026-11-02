@@ -18,6 +18,7 @@ export function nativePath(route:string,a:Args) {
  case 'packet':return `${p}/issues/${e(a.issue)}/packet`;
  case 'proposals':return `${p}/grouping-proposals`;
  case 'proposal':return `${p}/grouping-proposals/${e(a.id)}`;
+ case 'corrections':return `${p}/corrections`;
  case 'grouping-preview':return `${p}/corrections/preview`;
  case 'grouping-apply':case 'grouping-undo':return `${p}/corrections/${e(a.id)}/${route.split('-')[1]}`;
  case 'reproducers':case 'repairs':case 'fixes':return `${p}/${route}${a.issue?'?issue='+e(a.issue):''}`;
@@ -78,7 +79,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  if(route==='privacy'&&method==='POST'){body.confirm=a.project;body.planHash=a.planHash;}
  if(route==='retention'&&method==='PUT')body.confirmation='SHORTEN RETENTION';
  const request=new Request(url,{method,headers:{'content-type':'application/json'},...method==='GET'?{}:{body:JSON.stringify(body)}});
- const operation={id:crypto.randomUUID(),tool,project:a.project??null,target:String(a.issue??a.id??a.name??a.project??'installation')};
+ const operation={id:ctx.agent?(ctx as ToolContext).operationId:crypto.randomUUID(),tool,project:a.project??null,target:String(a.issue??a.id??a.name??a.project??'installation')};
  const door=classifyRequest(request);
  const actor=await auditActor(env.DB,{kind:ctx.agent?'agent':ctx.person.role==='owner'?'owner':'member',authority:ctx.agent?.id??ctx.person.id,owner:ctx.person.id,project:a.project});
  const subject=door?{kind:door.kind,label:await auditLabel(env.DB,subjectBinding(door.kind,door.project?JSON.stringify([door.project,door.subject]):door.subject,door.project))}: {kind:'project' as const,label:await auditLabel(env.DB,subjectBinding('project',String(a.project??'installation'),a.project))};
@@ -91,6 +92,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
   value=value.find((row:any)=>row.id===a.issue);if(!value)throw new ToolRefusal('not_found');
  }
  if(route==='issues')value=value.map(issueProjection);
+ if(route==='repairs'&&method==='GET'&&a.id){value=value.repairs.find((row:any)=>row.id===a.id);if(!value)throw new ToolRefusal('not_found');}
  if(['issue-search','issue-export'].includes(route)&&Array.isArray(value.rows))value={...value,rows:value.rows.map(issueProjection)};
  if(route==='affected-users'){const {rows,...counts}=value;value=counts;}
  if(route==='issue'&&method==='GET')value=issueProjection(value);

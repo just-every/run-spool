@@ -1,3 +1,4 @@
+import { offers } from './capabilities.mjs'
 import type { CallResult, DecisionMeta, Principal, Runtime, ToolContext } from './types.ts'
 import { audit, newAudit, recordDecision, outcomeRow, recoverAudit, usage, usageToday, type Evidence } from './audit.ts'
 import { policyRefusal, policyState, setupUrl } from './policy-store.ts'
@@ -27,6 +28,8 @@ export async function callTool(rt: Runtime, name: string, input: unknown, princi
   let result: CallResult = { outcome: 'refused', decision: null }, status: number | undefined, scope: string | undefined
   const refuse = (code: string, fields?: Record<string, unknown>) => { result = { ...result, outcome: 'refused', code, fields }; return { result, status, scope } }
   try {
+    const optional = name === `${rt.options.seed}.events.list` ? 'events' : name === 'resources/read' ? 'resources' : null
+    if (optional && !offers(rt.options.capabilities, optional)) return refuse('capability_not_declared', { capability: optional })
     const tool = resourceTool ?? rt.tools.find(tool => tool.name === name)
     if (!tool) { status = 400; return refuse('tool_not_found') }
     if (tool.authority === 'none') row.authority = 'none'
@@ -123,9 +126,23 @@ export async function callTool(rt: Runtime, name: string, input: unknown, princi
       if (decision.result === 'approval' && (cached.decision?.disposition !== 'approval' || cached.decision.revision !== state.revision)) return refuse('approval_required')
       if (decision.result === 'review' && cached.decision?.disposition !== 'review') return refuse('review_required')
       await recoverAudit(rt, previous.decision_id, JSON.parse(previous.outcome))
-      result = { ...cached, decision: { ...meta, id: row.id } }
       const original = await rt.options.db.prepare('SELECT row FROM agent_door_audit WHERE id=?').bind(previous.decision_id).first<{ row: string }>()
       row.operation_id = original ? JSON.parse(original.row).operation_id ?? previous.decision_id : previous.decision_id
+      if (tool.readOnly && cached.outcome === 'done') {
+        // Aggregate visibility can live inside the native read rather than its
+        // target/classifier. A retained approval cannot authorize old rows.
+        // Start without cached content so a native refusal cannot expose it.
+        const readApprovers = []
+        for (const id of cached.receipt?.approved_by as string[] ?? []) {
+          const person = await rt.options.people.person(id)
+          if (!person?.active) return refuse('sponsor_unavailable')
+          readApprovers.push({ id: person.id, name: person.name })
+        }
+        await releaseDecision(rt, row.id); locked = false
+        const fresh = await runTool(rt, tool, args, { ...principal, operationId: row.operation_id }, { outcome: 'refused', decision: meta }, door, readApprovers, row.id)
+        if (fresh.result.outcome !== 'done') { result = fresh.result; return { result } }
+        result = { ...cached, ...fresh.result }
+      } else result = { ...cached, decision: { ...meta, id: row.id } }
       row.replay_of = previous.decision_id; row.outcome = 'replayed'
       return { result }
     }

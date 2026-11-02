@@ -56,7 +56,9 @@
           ".github/workflows/run-demo.yml",
           "verification.json",
           "agent-surface.json",
-          "scripts/agent-door"
+          "scripts/agent-door",
+          "scripts/archive-history.mjs",
+          "scripts/contract-history.mjs"
         ]
       }
     },

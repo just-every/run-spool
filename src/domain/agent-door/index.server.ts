@@ -25,6 +25,7 @@ export async function localAgent(request:Request,env:Bindings) {
 }
 export function spoolAgentDoor(env:Bindings,name='Spool') {
  return createAgentDoor({seed:'spool',name,specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),
+  capabilities:['tools','policy','pause','audit','idempotency'],
   nativeProof:{handoff:()=>`${env.AUTH_ORIGIN}/projects`,async verify({kind,tool,args,principal,reference}){
    if(kind!=='repository_grant'||tool!=='spool.fixes.advance')return false;
    const row=await env.DB.prepare(`SELECT a.reference FROM spool_native_approvals a JOIN fix_workflows f ON f.id=a.id AND f.project=a.project JOIN spool_agent_custody c ON c.id=f.id AND c.kind='fix'
