@@ -9,6 +9,9 @@ import {continuationFlow} from './agent-door/continuation.mjs';
 import {peopleFlow} from './agent-door/people.mjs';
 import {agentScreens} from './agent-door/screens.mjs';
 import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
+import {ownerCustody} from './agent-door/owner-custody.mjs';
+import {nativeWorker} from './agent-door/worker.mjs';
+import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
@@ -29,6 +32,7 @@ try{
  const discovery=await app.mcp('server/discover');
  assert.deepEqual(discovery._meta['com.runeditrun/capabilities'],{mode:'declared',declared:['tools','policy','pause','audit','idempotency'],refused:['events','resources','prompts','subscriptions'],unscoped:['multiSponsor','mailEdges','resourceRefresh','timedLifecycle','dualHost','queuedLifecycle','ownerNativeApi']});
  const listed=(await app.mcp('tools/list')).tools;for(const tool of listed)ToolSchema.parse(tool);
+ console.log('Catalogue acknowledgement probe: '+JSON.stringify(ack.door.classes.map(row=>({class:row.class,acknowledged:row.tools.length,declared:listed.filter(tool=>tool._meta?.['com.runeditrun/classes']?.includes(row.class)).length}))));
  const names=listed.map(t=>t.name);assert.deepEqual(names,[...names].sort());assert.equal(new Set(names).size,names.length);
  for(const version of ['2025-11-25','2026-07-28'])assert.equal((await app.mcp('initialize',{protocolVersion:version,capabilities:{},clientInfo:{name:'Spool engineer',version:'1'}},{},version)).protocolVersion,version);
  CallToolResultSchema.parse(await app.call('spool.issues.list',{project}));
@@ -58,7 +62,8 @@ try{
  // worker effects must enter the same door under that retained identity.
  const ruleCreated=await app.json(`/api/projects/${project}/alerting/rules`,'POST',{name:'Queued notice',enabled:false,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2});
  const rule=(await app.json(`/api/projects/${project}/alerting/rules`)).find(row=>row.id===ruleCreated.id);assert.ok(rule);
- const enabled=done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()}));
+ const rulePreview=done(await app.call('spool.alerts.preview',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,idempotency_key:randomUUID()}));
+ const enabled=done(await app.call('spool.alerts.update',{project,id:rule.id,name:rule.name,enabled:true,channel:'mail',destination:destination.id,kinds:['new_issue'],windowMs:60000,threshold:2,revision:rule.revision,previewToken:rulePreview.token,idempotency_key:randomUUID()}));
  assert.equal((await app.json(`/api/projects/${project}/alerting/rules`)).find(row=>row.id===rule.id).enabled,1);
  done(await app.call('spool.followups.update',{project,destination:destination.id,channel:'mail',idempotency_key:randomUUID()}));
  assert.equal((await app.json(`/api/projects/${project}/follow-up`)).alternate.destination,destination.id);
@@ -110,6 +115,24 @@ try{
  assert.deepEqual((await app.mcp('prompts/list')).prompts,[]);
  assert.equal((await app.mcp('prompts/get',{name:'triage'})).error?.data?.code,'capability_not_declared');
  assert.equal((await app.mcp('subscriptions/listen',{notifications:{toolsListChanged:true}})).error?.data?.code,'capability_not_declared');
+ const worker=await nativeWorker(app,{project,ingestKey:p.ingestKey,destination:destination.id});
+ // A signed detach ends Business authority, including a held call, while
+ // current native person sessions retain their ordinary authority.
+ await app.adopt(heldPolicy());
+ const currentIssue=(await app.json(`/api/projects/${project}/issues`))[0];
+ const stoppedCall=await app.call('spool.issues.update',{project,issue:currentIssue.id,state:'suppressed',revision:currentIssue.revision,idempotency_key:randomUUID()});
+ const stopPending=stoppedCall._meta?.['com.runeditrun/approval']??stoppedCall._meta?.['com.runeditrun/error']?.approval;assert.ok(stopPending?.id);
+ const stopApproval=(await app.json('/agents/api/approvals/'+stopPending.id)).approval;
+ await app.detach();await worker.stopped();
+ assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}}, {},'2025-11-25',401)).httpStatus,401,'Detached Business tokens have no authority');
+ const stoppedExecution=await app.request('/agents/api/approvals/'+stopPending.id+'/approve','POST',{revision:stopApproval.revision,summary_sha256:stopApproval.summary_sha256});
+ assert.equal(stoppedExecution.status,200);const stoppedResult=await stoppedExecution.json();
+ assert.equal(stoppedResult.approval.state,'refused','A held Business call cannot execute after detach');
+ assert.equal(stoppedResult.approval.code,'sponsor_unavailable');
+ assert.equal((await app.json(`/api/projects/${project}/issues`))[0].state,currentIssue.state,'Detach leaves native state unchanged');
  await screens.capture('approval-missing','/agents/approvals/not-a-request');
  console.log('Spool native door: signed owner/settings, one registry, inert proposal/replay, attributed repair claim, exact approval, Pause and identity checks passed.');
 }finally{await screens?.close();await app.stop();await github.stop();}
+
+await ownerCustody();
+await replayHorizon();

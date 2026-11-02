@@ -209,7 +209,7 @@ for(const later of laterTables){later.tables.push('alert_rule_configs');later.mi
 laterTables.unshift({tables:['alert_rule_configs'],migrations:['0087_alert_conditions.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0088_scrubbing_rules.sql')}
 laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrubbing_rules.sql']});
-const agentMigrations=['0097_agent_door.sql','0089_business_settings.sql','0096_business_people.sql','0090_native_agent_attribution.sql','0091_agent_runner_custody.sql','0092_native_agent_repository_consent.sql','0093_repository_proof_reference.sql','0094_agent_erasure_custody.sql','0095_native_action_actor_links.sql'];
+const agentMigrations=['0098_agent_custody_replay_relay.sql','0097_agent_door.sql','0089_business_settings.sql','0096_business_people.sql','0090_native_agent_attribution.sql','0091_agent_runner_custody.sql','0092_native_agent_repository_consent.sql','0093_repository_proof_reference.sql','0094_agent_erasure_custody.sql','0095_native_action_actor_links.sql'];
 for(const later of laterTables)later.migrations.push(...agentMigrations);
 laterTables.unshift({tables:[],migrations:agentMigrations});
 // Match the exact archive inventory from before native attribution was added.

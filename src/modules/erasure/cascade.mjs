@@ -8,9 +8,7 @@ import { progressStatement, committedStatement } from './receipt.mjs';
 import { queueStatements, readQueue, consumeStatement, clearQueue, slicePlan, rootScopeExists } from './queue.mjs';
 
 const where = (keys, table) => keys.get(table).pk.map(c => `${c === 'rowid' ? 'rowid' : quote(c)}=?`).join(' AND ');
-// Persisted queue keys are canonical JSON, whose property order need not
-// match a composite primary key. Bind by the schema order on every step.
-const values = (plan, e) => plan.keys.get(e.table).pk.map(column => e.key[column]);
+const values = e => Object.values(e.key);
 
 function redactStatements(db, d, plan) {
   const out = [];
@@ -30,15 +28,15 @@ export async function deletionStatements(ctx, d, plan, entries, id, deleted) {
     const match = where(plan.keys, e.table);
     out.push(...childAbsenceStatements(db, plan, e));
     for (const blob of new Map(d.edges.filter(x => x.table === e.table && x.blob).map(x => [x.blob.bucket + '\0' + x.blob.keyColumn, x.blob])).values()) {
-      out.push(statement(db, `INSERT OR IGNORE INTO rer_erasure_blobs(operation,bucket,key) SELECT ?,?,${quote(blob.keyColumn)} FROM ${quote(e.table)} WHERE ${match} AND ${quote(blob.keyColumn)} IS NOT NULL`, id, blob.bucket, ...values(plan, e)));
+      out.push(statement(db, `INSERT OR IGNORE INTO rer_erasure_blobs(operation,bucket,key) SELECT ?,?,${quote(blob.keyColumn)} FROM ${quote(e.table)} WHERE ${match} AND ${quote(blob.keyColumn)} IS NOT NULL`, id, blob.bucket, ...values(e)));
     }
-    out.push(statement(db, `DELETE FROM ${quote(e.table)} WHERE ${match}`, ...values(plan, e)), ...await fence.row(e.table, e.key));
+    out.push(statement(db, `DELETE FROM ${quote(e.table)} WHERE ${match}`, ...values(e)), ...await fence.row(e.table, e.key));
     deleted[e.table] = (deleted[e.table] ?? 0) + 1;
   }
   return out;
 }
-export async function firstStatements(ctx, d, plan, label) {
-  return d.beforeStatements ? await d.beforeStatements({ db: ctx.db, subject: plan.subject, label }) : [];
+export async function firstStatements(ctx, d, plan, label, operation) {
+  return d.beforeStatements ? await d.beforeStatements({ db: ctx.db, subject: plan.subject, label, operation }) : [];
 }
 // `relabel: false` (a slice of the plan) leaves the table-wide relabel of earlier audit rows to the final batch.
 export const cleanupStatements = (ctx, d, plan, label, options) => [...redactStatements(ctx.db, d, plan), ...auditStatements(ctx.db, d, plan, label, options)];
@@ -74,7 +72,7 @@ async function sliceStep(ctx, d, op, entries, { first = null, rest = null } = {}
     guard(db, "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND step=? AND phase='deleting')", id, op.step),
     ...await fence.transfers()];
   batch.push(...await scopeStatements(db, d, first ?? plan, id, first ? [...entries, first.root] : entries, { whole: Boolean(first) }));
-  if (first) batch.push(...await firstStatements(ctx, d, plan, op.label));
+  if (first) batch.push(...await firstStatements(ctx, d, plan, op.label, { id: op.id, at: op.requested_at }));
   batch.push(...await verificationStatements(db, d, plan, id, op.label));
   batch.push(...cleanupStatements(ctx, d, plan, op.label, { relabel: false }));
   batch.push(...await deletionStatements(ctx, d, plan, entries, id, deleted));
@@ -119,7 +117,7 @@ export async function step(ctx, d, id, { rows = 500 } = {}) {
     guard(db, "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND step=? AND phase='deleting')", id, op.step),
     ...await fence.transfers()];
   batch.push(...await scopeStatements(db, d, plan, id, [...take, plan.root]));
-  if (op.step === 0) batch.push(...await firstStatements(ctx, d, plan, op.label));
+  if (op.step === 0) batch.push(...await firstStatements(ctx, d, plan, op.label, { id: op.id, at: op.requested_at }));
   batch.push(...await verificationStatements(db, d, plan, id, op.label));
   batch.push(...cleanupStatements(ctx, d, plan, op.label));
   batch.push(...await deletionStatements(ctx, d, plan, take, id, deleted));

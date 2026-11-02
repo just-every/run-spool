@@ -1,3 +1,4 @@
+import { eraseNativeAgentArtifacts } from '../agent-door/artifacts';
 import { createErasure, defineErasure, ErasureError } from '../../modules/erasure/index.mjs';
 import { eraseD1ImportTarget } from '../../modules/import-kit/src/d1/index.ts';
 import { targetIdentity } from '../../modules/import-kit/src/d1/erasure-index.ts';
@@ -13,9 +14,9 @@ import { businessCustodyEdges } from './business-custody';
 
 const IMPORT_DESTINATION = 'spool-owner';
 
-export async function projectErasureService(db: D1Database) {
+export async function projectErasureService(db: D1Database, secret: string) {
  const transfer = await portability(db);
- const declaration=defineErasure({...projectErasure,edges:[...projectErasure.edges,...await businessCustodyEdges(db)]});
+ const declaration=defineErasure({...projectErasure,edges:[...projectErasure.edges,...await businessCustodyEdges(db)],beforeStatements:({db,subject,operation})=>eraseNativeAgentArtifacts(db,secret,'project',String(subject.id),operation)});
  return createErasure({ db, portability: transfer, declarations: [declaration] });
 }
 
@@ -82,12 +83,12 @@ async function importCustodyHeld(db: D1Database, project: string) {
 // then may the blob phase complete the receipt. Every step is atomic; a failed
 // step leaves the operation where it was, so the next request retries it.
 const STEP_ROWS = 500;
-export async function startProjectErasure(db: D1Database, project: string, planHash: string) {
- return (await projectErasureService(db)).start('project', { id: project }, { planHash });
+export async function startProjectErasure(db: D1Database, project: string, planHash: string, secret: string) {
+ return (await projectErasureService(db,secret)).start('project', { id: project }, { planHash });
 }
 
-export async function resumeProjectErasure(db: D1Database, id: string) {
- const erasure = await projectErasureService(db);
+export async function resumeProjectErasure(db: D1Database, id: string, secret: string) {
+ const erasure = await projectErasureService(db,secret);
  const operation = await db.prepare("SELECT phase FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(id).first<{phase: string}>();
  if (!operation) throw new ErasureError('erasure_not_found', 404);
  if (operation.phase === 'complete') return erasure.receipt(id);
@@ -99,8 +100,8 @@ export async function resumeProjectErasure(db: D1Database, id: string) {
 }
 
 // One bounded owner step, then, once its rows are gone, the blob phase under the sweep's deadline.
-async function stepOwnerErasure(db: D1Database, id: string, until: number) {
- const erasure = await ownerErasureService(db), after = await erasure.run(id, { until: 0, rows: STEP_ROWS });
+async function stepOwnerErasure(db: D1Database, id: string, until: number, secret: string) {
+ const erasure = await ownerErasureService(db,secret), after = await erasure.run(id, { until: 0, rows: STEP_ROWS });
  return after.phase === 'blobs' ? erasure.run(id, { until, rows: STEP_ROWS }) : after;
 }
 
@@ -109,7 +110,7 @@ async function stepOwnerErasure(db: D1Database, id: string, until: number) {
  * and gives waiting requests their turn after each: a local runtime (one
  * thread, D1 in process) answers no other request while the sweep's D1 calls
  * run, and closes a request it has held past its 15-second header timeout. */
-export async function continueErasures(db: D1Database, until: number, invokeAgent?: (id:string,principal:any,key:string)=>Promise<any>) {
+export async function continueErasures(db: D1Database, until: number, secret: string, invokeAgent?: (id:string,principal:any,key:string)=>Promise<any>) {
  const open = (await db.prepare("SELECT id,entity FROM rer_erasure_operations WHERE phase<>'complete' ORDER BY requested_at LIMIT 5").all<{ id: string; entity: string }>()).results;
  for (const { id,entity } of open) {
   while (Date.now() <= until) {
@@ -123,7 +124,7 @@ export async function continueErasures(db: D1Database, until: number, invokeAgen
      if(answer.outcome!=='done')break;
      receipt=answer.result;
      if(receipt.phase==='complete')await db.prepare('DELETE FROM spool_erasure_agents WHERE operation=?').bind(id).run();
-    }else receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until) : await resumeProjectErasure(db, id);
+    }else receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until,secret) : await resumeProjectErasure(db, id,secret);
     if (receipt.phase === 'complete') break;
    } catch (error) {
     // A client or another scheduled invocation owns this step. Its atomic

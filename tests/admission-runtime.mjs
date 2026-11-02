@@ -27,15 +27,16 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  let origin = `${https ? 'https' : 'http'}://127.0.0.1:${port}`;
  const {worker: emitted, database, triggers} = await emittedWorkerOptions(resolve('dist/server/wrangler.json'), miniflare);
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
- let worker;
+ let worker, hostedEntry, hostedSource;
  const trustedOrigin=hostedMail?'https://spool.example':origin;
  // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
  // their complete claim ring through extra; do not manufacture partial trust.
  const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key'}:{};
  if(hostedMail){
-  const entry=resolve(temporary,'hosted-mail.mjs');
+  const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
-export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+  hostedSource=await readFile(entry,'utf8');
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
    if(request.url!=='https://api.resend.com/emails'){if(networkEdge)return networkEdge(request);throw new Error('Unexpected test network destination');}
@@ -76,7 +77,13 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
    ...(value === undefined ? {} : {body: JSON.stringify(value)}),
   });
   const runtime = {get origin() {return origin;}, DB: db, call,
+   schedule:async time=>{const response=await call('/__fixture/schedule',{time});if(!response.ok)throw new Error('Native scheduled entry failed: '+response.status);await response.body?.cancel();},
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),
+   setTime: async value => {
+    if(!hostedEntry||!Number.isFinite(value))throw new Error('A hosted fixture clock is required');
+    const clock=`const NativeDate=Date;globalThis.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[${value}]))}static now(){return ${value}}};\n`;
+    await worker.dispose();await writeFile(hostedEntry,clock+hostedSource);await start();runtime.DB=await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);
+   },
    restart: async () => {await worker.dispose(); await start(); runtime.DB = await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);},
    close: async () => {await worker.dispose(); await rm(temporary, {recursive: true, force: true});},
   };

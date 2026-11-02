@@ -86,13 +86,47 @@ visibility, revision and outbox restrictions still apply. Enabling a notificatio
 rule is not evidence that a notice was delivered. Erasure is irreversible and
 uses the native count-only preview and plan hash. Retention is not project
 erasure. Native configured schedules and provider receipts must be inspected
-separately from the agent's configuration action. Final admission and attribution
-for standing alert, follow-up and retention workers remain unqualified pending
-the shared queued-consent continuation. Agent attempts to enable an alert rule,
-set a follow-up destination or update retention therefore refuse with
-`native_worker_admission_unavailable` before saving settings. Agent disabling
-and native person controls remain available. These required tool/class journeys
-remain declared and cannot pass conformance until final worker admission is wired.
+separately from the agent's configuration action. Standing alert, follow-up and retention configuration retains its original
+native person, agent, consent, operation and configuration revision atomically.
+Later worker effects enter the same door through invoke-only tools. They are
+absent from MCP discovery and cannot be called by a client. Current native
+permissions, Pause, revocation, Business stop and configuration revision still
+fence the final effect. This does not declare the optional queued-lifecycle
+conformance family or qualify every native schedule/provider boundary.
+
+## Native erasure and relay custody
+
+`src/domain/agent-door/artifact-map.mjs` inventories every installed agent table
+and column. Native project and installation-owner erasure use the released
+custody helper in the existing erasure transaction, with the native operation's
+ID and requested time. They redact private calls, approvals, reviews, audit,
+events and usage facts in place. Ordered, value-free decision chronology and
+permitted numeric accounting remain. A peer's unrelated custody stays unchanged.
+Native capture/effects share the existing erasure fence; count-only native
+erasure management remains resumable. Retired approvals and Undo cannot restore
+an erased value or execute their earlier authority.
+
+Replay aliases use the installation's existing `SESSION_SECRET`, outside D1.
+The private alias and relay tables never enter native archives or restore.
+Completed calls retain their original 30-day replay horizon. Migration
+`0098_agent_custody_replay_relay.sql` backfills legacy completed calls from
+`created_at`, leaves running/pending calls unexpired, and preserves any earlier
+expiry. Admission and native scheduled cleanup purge expired calls and aliases
+atomically. In-window replay returns only `subject_erased` and its tombstone;
+after that horizon the old key is a new request under current native authority.
+The ordinary native portability checkpoint refuses older archive resurrection.
+Applied main migrations remain unchanged; recovered, unapplied migrations have
+new identities after main's ledger.
+
+Signed `POST /api/rer/agent-decisions` enters the same pre-auth door. Its relay
+holds only decision and installation Business IDs; projections come from the
+erasure-aware audit. Business-held projections are external custody, retired by
+tombstone pulls and the relay's stop, authority and unreachable rules. The relay
+is dark until an authorized Business pulls; this adoption initiates no provider
+or platform traffic. Durable Business person mappings survive a stop so signed
+policy can still narrow authority, while stopped/detached Business tokens,
+held calls and native effects are refused. Unclaimed installations pass null
+trust and keep the existing native person and project-client boundaries.
 
 ## Compatibility and limits
 
@@ -132,8 +166,8 @@ The registry's capacity limits are request capacities, not a spend guarantee.
 journey. Regenerate it with `pnpm agent-surface:generate`; check it with
 `pnpm agent-surface:check`. `pnpm test:agent-door` exercises the emitted
 production Worker, signed identity/settings, scoped clients, native people,
-reviewer Undo and the specialist path. The seed pins the published rer 0.2.94
-CLI; the door, settings and actor runtime carry matching recorded source.
+reviewer Undo and the specialist path. The seed pins the published rer 0.2.96
+CLI; the door, settings and actor runtime carry matching source recorded at Base `8b925fa5ffaa577df9f2e4ebab6ede8af5155baa`.
 Normal `rer verify` runs the installed shared conformance harness. The seed's
 existing suite selector can limit local application checks to touched flows;
 it does not disable the shared harness or change its failure exit. The existing
@@ -148,18 +182,15 @@ in the real Worker. Provider fixture keys are generated per run and never saved.
 
 The published declaration check accepts the existing owner-account sender binding.
 Native audit target checks now follow the cursor beyond the first 200 rows.
-Remaining dated dependencies in `tests/agent-door/pending.mjs` include the
-catalogue acknowledgement limit, the shared narrowing/injection assertion conflict,
-native runner event identity, held erasure custody, standing-worker admission and
-the shared audit checker’s treatment of private outcomes removed by real project
-erasure. Published 0.2.94 keeps the original admitted arguments and idempotency
-key for mutation injection probes. This fixes fresh-key retries of single-use
-actions without relaxing native revision or replay fences. The closed revoke-only
-input still refuses undeclared confirmation and class fields. Refused approval
-executions, stale sponsor email and policy-renewal refusals retain their existing
-checks. These fixes do not qualify the remaining native erasure or worker boundaries. Standing-worker admission also requires seed integration;
-the Core declaration does not qualify it or excuse its required native journeys. These are pending assertions,
-never passing results or completed shared duties. Spend caps remain unenforced.
+The dated marker ledger in `tests/agent-door/pending.mjs` preserves historical
+requirements and their current proof boundaries. The released narrowing probe
+now accepts closed-schema injection refusal without changing native revoke
+arguments. Native held erasure, tombstones, reviewer Undo and worker custody
+have dedicated tests. The Base adoption acknowledgement still lists at most
+20 tool names per class (`policy-store.ts`); canonical `tools/list` and the
+manifest retain the complete registry. Native runner/source event identity is
+still outside the undeclared events capability. Neither limitation is a passing
+optional conformance result. Spend caps remain unenforced.
 
 The refreshed portability runtime includes the optional Worker migration-evidence
 adapter. Spool has not declared its build plugin or connected that adapter to its

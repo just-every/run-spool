@@ -37,8 +37,11 @@ export function spoolPeople(env: Bindings): PeopleAdapter {
   const membership=p.role==='owner'?null:await env.DB.prepare("SELECT role FROM spool_members WHERE operator_id=? AND state='active'").bind(id).first<{role:string}>();
   return {...p,active:p.active&&(p.role==='owner'||!!membership),role:p.role==='owner'?'owner':membership?.role??'inactive'};
  };
- return {...base,person,async sponsor(claims){
-  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{owner_id:string|null}>();
+ return {...base,person,async businessStopped(){
+  const settings=await env.DB.prepare('SELECT stopped FROM bs_settings WHERE singleton=1').first<{stopped:number}>();
+  return !!settings?.stopped;
+ },async sponsor(claims){
+  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1').first<{owner_id:string|null}>();
   if(owner?.owner_id===claims.sub){
    const claimed=await env.DB.prepare('SELECT claim_id FROM oa_bootstrap WHERE singleton=1').first<{claim_id:string}>();
    return claimed?person(claimed.claim_id):null;
@@ -46,7 +49,7 @@ export function spoolPeople(env: Bindings): PeopleAdapter {
   const row=await env.DB.prepare("SELECT operator_id FROM bs_team WHERE business_id=? AND state='active'").bind(claims.sub).first<{operator_id:string|null}>();
   return row?.operator_id?person(row.operator_id):null;
  },async businessMember(p){
-  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{owner_id:string|null}>();
+  const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1').first<{owner_id:string|null}>();
   const claimed=await env.DB.prepare('SELECT claim_id FROM oa_bootstrap WHERE singleton=1').first<{claim_id:string}>();
   if(owner?.owner_id&&claimed?.claim_id===p.id)return {id:owner.owner_id,role:'owner'};
   const row=await env.DB.prepare("SELECT business_id,business_role FROM bs_team WHERE operator_id=? AND state='active' AND business_id IS NOT NULL").bind(p.id).first<{business_id:string;business_role:string}>();

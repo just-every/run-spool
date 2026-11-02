@@ -60,11 +60,12 @@ export function agentGuard(db: D1Database, actor: AgentAuthority) {
  AND (policy.envelope IS NULL OR (json_extract(policy.envelope,'$.paused')=0 AND json_extract(policy.envelope,'$.exp')*1000>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
  AND NOT EXISTS(SELECT 1 FROM json_each(policy.envelope,'$.revoked.agents') WHERE value=?)
  AND NOT EXISTS(SELECT 1 FROM json_each(policy.envelope,'$.revoked.consents') WHERE value=?))))
+ AND (? IS NULL OR NOT EXISTS(SELECT 1 FROM bs_settings WHERE singleton=1 AND stopped=1))
  AND NOT EXISTS(SELECT 1 FROM agent_door_agents a WHERE a.id=? AND a.revoked=1)
  ) THEN 1 ELSE 0 END`).bind(actor.operator.id,actor.operator.version,actor.operator.role,
  ...m?[m.id,m.version,m.role,m.organization,...m.project?[m.project,...m.role==='admin'?[]:[m.project,m.projectRole]]:[]]:[],
  ...localCredentialId(actor.context.clientId)?[localCredentialId(actor.context.clientId),actor.operation.project]:[],
- actor.policy.envelope,actor.policy.local_revision,actor.context.agent.id,actor.context.consent??'',actor.context.agent.id);
+ actor.policy.envelope,actor.policy.local_revision,actor.context.agent.id,actor.context.consent??'',actor.context.consent??null,actor.context.agent.id);
 }
 
 export function nativeAttribution(db: D1Database, actor: AgentAuthority) {

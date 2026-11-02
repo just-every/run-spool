@@ -1,6 +1,7 @@
 import {scheduleSuppression} from './domain/suppression/schedule';
 import { emitPersonChange } from './domain/agent-door/events';
 import { legacyAgentResponse } from './domain/agent-door/legacy';
+import { expireReplayCalls } from './modules/agent-door/index.ts';
 import { agentDoorResponse,spoolAgentDoor } from './domain/agent-door/index.server';
 import { resolveMembership } from './domain/members/resolver';
 import {scheduledRetention} from './domain/retention-schedule';
@@ -41,6 +42,7 @@ import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door
 import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+ await expireReplayCalls({options:{db:env.DB},now:()=>event.scheduledTime});
  try {
   await deploymentTimeouts(env,event.scheduledTime);
   await runAlerts(env,event.scheduledTime);
@@ -55,7 +57,7 @@ export async function scheduled(event: ScheduledController, bindings: Bindings &
   await dispatchNotices(env,event.scheduledTime);
  }
  // Accepted erasure jobs continue here after the client disconnects.
- await continueErasures(env.DB, Date.now() + 20_000,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
+ await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
 }
 // A refusal raised while reading the session (a foreign Host, for one) answers as
 // itself, the way the API's handlers answer it, instead of escaping the Worker.

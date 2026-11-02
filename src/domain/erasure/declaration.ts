@@ -1,6 +1,6 @@
 import { defineErasure } from '../../modules/erasure/index.mjs';
 import { erasureCompletionFact } from './audit-fact';
-import { eraseAgentAudit } from '../agent-door/erasure';
+import { retainedAgentArtifacts } from '../agent-door/artifacts';
 
 // ERASE-001 (Base BASE-DATA-003) project erasure. The selected project and every row that
 // depends on it are deleted through Base erasure, so each deleted row also gets
@@ -18,11 +18,6 @@ export const projectErasure = defineErasure({
  root: { table: 'projects' },
  edges: [
   ...['spool_notification_preferences','issue_recurrence_boundaries','issue_suppressions','issue_comments','issue_subscriptions','recurrence_policies','issue_priorities','issue_activity'].map(fromProject),
-  // Private door content follows the exact native resource or saved target.
-  {table:'agent_door_events',from:'projects',where:"uri='spool://projects/'||? OR instr(uri,'spool://projects/'||?||'/')=1",params:['id','id']},
-  ...['agent_door_approvals','agent_door_reviews'].map(table=>({table,from:'projects',where:"json_extract(saved,'$.args.project')=?",params:['id']})),
-  {table:'agent_door_calls',from:'projects',where:"EXISTS(SELECT 1 FROM json_each(outcome,'$.resources') r WHERE json_extract(r.value,'$.uri')='spool://projects/'||? OR instr(json_extract(r.value,'$.uri'),'spool://projects/'||?||'/')=1)",params:['id','id']},
-  {table:'agent_door_usage',from:'projects',where:"EXISTS(SELECT 1 FROM json_tree(classes) WHERE key='service' AND value=?)",params:['id']},
   // Multi-project definitions retain their other widgets; a sole-project item
   // and all its grants leave with the last project they describe.
   {table:'spool_reporting_items',from:'projects',where:'EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project=?) AND NOT EXISTS(SELECT 1 FROM spool_reporting_projects r WHERE r.item=spool_reporting_items.id AND r.project<>?)',params:['id','id']},
@@ -61,9 +56,8 @@ export const projectErasure = defineErasure({
   { table: 'alert_scheduler', from: 'projects', where: 'last_project=?', params: ['id'], set: { last_project: '' }, reason: 'The alert scheduler cursor keeps no project identifier.' },
   { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
  ],
- beforeStatements: async ({db,subject}) => eraseAgentAudit(db,String(subject.id)),
  retain: [
-  {table:'agent_door_audit',reason:'Installation decision chronology survives without native targets or project policy payloads; private arguments and results are erased.'},
+  ...retainedAgentArtifacts,
   {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},
   { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },
   { table: 'oa_bootstrap', reason: 'The one-owner claim ledger stays with the installation.' },

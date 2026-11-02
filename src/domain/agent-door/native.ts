@@ -33,6 +33,7 @@ export function nativePath(route:string,a:Args) {
  case 'notifications':return `${p}/alerts`;
  case 'destinations':return `${p}/alerting/destinations`;
  case 'alerts':return `${p}/alerting/rules`;
+ case 'alert-preview':return `${p}/alerting/rules/preview`;
  case 'alert':return `${p}/alerting/rules/${e(a.id)}`;
  case 'alert-test':return `${p}/alerting/destinations/${e(a.id)}/test`;
  case 'followup':return `${p}/follow-up/alternate`;
@@ -72,6 +73,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  const url=new URL(path,env.AUTH_ORIGIN);
  if(method==='GET')for(const key of ['state','limit','q','sort','cursor','order','from','to','environment','format',...['occurrences','feedback-reports'].includes(route)?['issue']:[]])if(a[key]!==undefined)url.searchParams.set(key,String(a[key]));
  const {project:_,id:_id,issue:_issue,...body}=a;
+ if(route==='alert-preview')body.ruleId=a.id;
  if(route==='fix-advance'){const row=await env.DB.prepare('SELECT revision FROM fix_workflows WHERE project=? AND id=?').bind(a.project,a.id).first<{revision:number}>();if(!row)throw new ToolRefusal('not_found');body.revision=row.revision;}
  if(route==='projects'&&method==='POST')body.id=crypto.randomUUID();
  if(route==='deployments'&&method==='POST'){for(const key of Object.keys(body))delete body[key];Object.assign(body,{name:a.release,build:a.build,manifest:a.manifest});}

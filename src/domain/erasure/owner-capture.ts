@@ -12,7 +12,6 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  suspect_decisions: ['note'],
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
- agent_door_calls:['outcome'],agent_door_audit:['row','evidence'],agent_door_approvals:['saved','approvals','result'],agent_door_reviews:['saved'],agent_door_events:['event'],
  spool_native_audit_actors:['actor','approvers'],spool_agent_operations:['actor','approvers'],spool_agent_custody:['principal','actor'],spool_erasure_agents:['principal','actor'],
  repairs: ['recorded_by','note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
  alert_rules: ['name'], rer_mail_development_outbox: ['message'],

@@ -10,6 +10,7 @@ export async function agentRuntime(port=15916,bindings={},network){
  const origin='https://spool.example',issuer='https://spool-agent-fixture.invalid',installationId=randomUUID(),kid=randomUUID(),sub=randomUUID();
  const pair=await webcrypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
  const {kty,crv,x,y}=await webcrypto.subtle.exportKey('jwk',pair.publicKey),keys={[kid]:{kty,crv,x,y,alg:'ES256',use:'sig'}};
+ console.log('Native agent fixture: starting emitted Worker');
  const app=await admissionRuntime({...bindings,RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:origin,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify(keys),RER_BUSINESS_TRUST:JSON.stringify({v:1,issuer,audience:origin,subject:installationId,email:testOwner,keys})},{port,hostedMail:true,networkEdge:network});
  const mail=async()=>(await legacyMailRows(app.origin)).map(row=>JSON.parse(row.message));
  const now=Math.floor(Date.now()/1000);
@@ -18,16 +19,17 @@ export async function agentRuntime(port=15916,bindings={},network){
  const request=(path,method='GET',body,headers={})=>app.call(path,body,{...cookie?{Cookie:cookie}:{},...headers},method);
  const json=async(...args)=>{const r=await request(...args);const value=await r.json();assert.ok(r.ok,`${args[0]}: HTTP ${r.status} ${JSON.stringify(value).slice(0,200)}`);return value;};
  try{
+  console.log('Native agent fixture: Worker and ledger ready');
   const entered=await request('/auth/owner-claim','POST',{token:claim,displayName:'Dana Engineer',returnTo:'/'});
-  assert.equal(entered.status,303,'real signed owner claim');cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');await entered.body?.cancel();assert.ok(cookie);
+  assert.equal(entered.status,303,'real signed owner claim');cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');await entered.body?.cancel();assert.ok(cookie);console.log('Native agent fixture: signed owner ready');
   const settings=await signJws(pair.privateKey,kid,'rer-business-settings+jwt',{v:1,iss:issuer,aud:origin,sub:installationId,business:'spool-fixture',email:testOwner,owner_id:sub,jti:randomUUID(),iat:now,exp:now+300,rev:1,values:{display_name:'Spool'},logo:null,team:[]});
-  await json('/api/rer/business-settings','POST',{settings});
+  await json('/api/rer/business-settings','POST',{settings});console.log('Native agent fixture: durable Business mapping ready');
   const surface={seed:'spool',specialist:'triage engineer',tools:[...catalogue,{scope:'events:read'}]};
   const c={origin,signer:{privateKey:pair.privateKey,kid,issuer,installationId},person:{sub,email:testOwner},surface,agentId:'spool-fixture-agent',consent:'spool-fixture-consent',business:'spool-fixture',seq:0,revision:0};
   let settingsRevision=1;
-  const syncSettings=async team=>{
+  const syncSettings=async(team,detached=false)=>{
    const iat=Math.floor(Date.now()/1000);
-   const settings=await signJws(pair.privateKey,kid,'rer-business-settings+jwt',{v:1,iss:issuer,aud:origin,sub:installationId,business:'spool-fixture',email:testOwner,owner_id:sub,jti:randomUUID(),iat,exp:iat+300,rev:++settingsRevision,values:{display_name:'Spool'},logo:null,team});
+   const settings=await signJws(pair.privateKey,kid,'rer-business-settings+jwt',{v:1,iss:issuer,aud:origin,sub:installationId,business:'spool-fixture',email:testOwner,owner_id:sub,jti:randomUUID(),iat,exp:iat+300,rev:++settingsRevision,values:{display_name:'Spool'},logo:null,team,...detached?{detached:true}:{}});
    return json('/api/rer/business-settings','POST',{settings});
   };
   let rpcId=0;
@@ -40,6 +42,6 @@ export async function agentRuntime(port=15916,bindings={},network){
   const adopt=async(document=autonomousPolicy(),extra={})=>{
    const {policy,payload}=await policyEnvelope(c,document,extra);const result=await json('/api/rer/agent-policy','POST',{policy});c.seq=payload.seq;c.revision=payload.revision;return result;
   };
-  return {...app,origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcp,call,adopt,syncSettings,mail};
+  return {...app,get DB(){return app.DB},origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcp,call,adopt,syncSettings,detach:()=>syncSettings(null,true),mail};
  }catch(error){await app.close();throw error;}
 }

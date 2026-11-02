@@ -1,3 +1,4 @@
+import { nativeErasureFence } from './artifacts';
 import { createAgentDoor, type Trust, type Principal, type AgentDoorOptions } from '../../modules/agent-door/index.ts';
 import type { Bindings } from '../../auth/bindings';
 import { localCredentialId } from './native-authority';
@@ -27,6 +28,7 @@ export async function localAgent(request:Request,env:Bindings) {
 }
 export function spoolAgentDoor(env:Bindings,name='Spool') {
  return createAgentDoor({seed:'spool',name,specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),
+  erasure:{secret:env.SESSION_SECRET,fenced:(name,args)=>nativeErasureFence(env.DB,name,args)},
   capabilities:['tools','policy','pause','audit','idempotency'],
   nativeProof:{handoff:()=>`${env.AUTH_ORIGIN}/projects`,async verify({kind,tool,args,principal,reference}){
    if(kind!=='repository_grant'||tool!=='spool.fixes.advance')return false;
@@ -50,7 +52,7 @@ export async function agentDoorResponse(request:Request,env:Bindings) {
  const path=new URL(request.url).pathname;
  const settingsPaths=['/api/rer/business-settings','/rer-business-logo','/rer-business.css'];
  if(settingsPaths.includes(path))return businessSettings(env).handle(request);
- if(path!=='/mcp'&&path!=='/api/rer/agent-policy'&&path!=='/agents'&&!path.startsWith('/agents/')&&!['/.well-known/oauth-protected-resource','/.well-known/oauth-protected-resource/mcp'].includes(path))return null;
+ if(path!=='/api/rer/agent-decisions'&&path!=='/mcp'&&path!=='/api/rer/agent-policy'&&path!=='/agents'&&!path.startsWith('/agents/')&&!['/.well-known/oauth-protected-resource','/.well-known/oauth-protected-resource/mcp'].includes(path))return null;
  const name=await businessSettings(env).resolve('display_name','Spool');
  return spoolAgentDoor(env,typeof name==='string'?name:'Spool').handle(request);
 }
