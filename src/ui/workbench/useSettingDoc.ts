@@ -134,5 +134,5 @@ export function useSettingDoc<D, V>({ key, read, draftOf, write, onSaved, delay 
   }, [key]);
 
   const reload = useCallback(() => { setLoadError(''); void latest.current.read(new AbortController().signal).then(next => { applyData(next); const value = latest.current.draftOf(next); if (!unsaved()) setDraft(value); }).catch(error => setLoadError(plainReason(error))); }, []);
-  return { data, draft, held, loadError, status, edit, flush, commit, discard, retry, reload, unsaved: held || status.phase === 'saving' || status.phase === 'failed' };
+  return { data, draft, held, loadError, status, edit, flush, commit, discard, retry, reload };
 }

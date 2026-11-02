@@ -3,10 +3,10 @@ import './autosave.css';
 
 type Doc = Pick<ReturnType<typeof useSettingDoc<any, any>>, 'status' | 'retry'>;
 
-/** A quiet "Saved" beside the field it saved. It always holds its space, so nothing moves. */
+/** A quiet "Saved" beside the field it saved. It always holds its space, so nothing moves; the word is drawn by CSS, so it never joins a field's name. */
 export function SavedMark({ doc, field = '' }: { doc: Doc; field?: string }) {
   const shown = doc.status.phase === 'saved' && doc.status.field === field;
-  return <span className="save-mark" aria-hidden="true" data-state={shown ? 'saved' : 'idle'}>Saved</span>;
+  return <span className="save-mark" aria-hidden="true" data-state={shown ? 'saved' : 'idle'} />;
 }
 /** The same word for screen readers, once per section. */
 export function SaveAnnouncer({ doc }: { doc: Doc }) {

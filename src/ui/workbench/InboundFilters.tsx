@@ -5,10 +5,12 @@ import {SaveAnnouncer,SaveFailure,SavedMark} from './SaveMarks';
 import './inbound-filters.css';
 
 const lines=(text:string)=>text.split('\n').filter(Boolean).join('\n');
+const browserRules=(text:string)=>text.split('\n').filter(Boolean).map(line=>{const [name,maxVersion='']=line.split('<=');return{name,maxVersion}});
+const browserText=(rules:{name:string;maxVersion:string}[])=>rules.map(r=>`${r.name}<=${r.maxVersion}`).join('\n');
 // A list keeps its typed text (a new line in progress included); it takes a value from outside only when that value differs from what is typed.
-function PatternInput({value,disabled,placeholder,onChange,onBlur}:{value:string;disabled:boolean;placeholder?:string;onChange:(text:string)=>void;onBlur:()=>void}){
+function PatternInput({value,disabled,placeholder,normalize,onChange,onBlur}:{value:string;disabled:boolean;placeholder?:string;normalize:(text:string)=>string;onChange:(text:string)=>void;onBlur:()=>void}){
  const [text,setText]=useState(value);
- useEffect(()=>{setText(current=>lines(current)===value?current:value)},[value]);
+ useEffect(()=>{setText(current=>normalize(current)===value?current:value)},[value]);
  return <textarea value={text} rows={3} disabled={disabled} placeholder={placeholder} onBlur={onBlur} onChange={e=>{setText(e.target.value);onChange(e.target.value)}}/>;
 }
 
@@ -38,8 +40,8 @@ export function InboundFilters({project,request,run,busy}:{project:string;reques
   {current.filters.map((filter:any)=>{const value=draft.filters[filter.id],list='values' in value;return <fieldset key={filter.id} className="filter-policy"><legend>{filter.label}</legend>
    <label className="checkbox"><input type="checkbox" checked={value.enabled} onChange={e=>change(filter.id,{enabled:e.target.checked},true)}/> {filter.toggleLabel}<SavedMark doc={doc} field={filter.id}/></label><SaveFailure doc={doc} field={filter.id}/>
    <p className="muted">{filter.recentMatches} recent matches{preview?` · Preview: ${preview.counts[filter.id]?.matches??0} matches; ${preview.counts[filter.id]?.unavailable??0} with unavailable evidence`:''}</p>
-   {list&&<label className="form-field"><span>{filter.label} · one per line<SavedMark doc={doc} field={`${filter.id}:list`}/></span><PatternInput value={value.values.join('\n')} disabled={busy} onBlur={doc.flush} onChange={text=>change(filter.id,{values:text.split('\n').filter(Boolean)},false)}/></label>}
-   {filter.id==='legacy_browsers'&&<label className="form-field"><span>Legacy browser rules · name&lt;=version, one per line<SavedMark doc={doc} field={`${filter.id}:list`}/></span><PatternInput disabled={busy} placeholder="chrome<=100" value={value.browsers.map((r:any)=>`${r.name}<=${r.maxVersion}`).join('\n')} onBlur={doc.flush} onChange={text=>change(filter.id,{browsers:text.split('\n').filter(Boolean).map(line=>{const [name,maxVersion='']=line.split('<=');return{name,maxVersion}})},false)}/><span>Names: {current.browsers.join(', ')}. Matches the named version and older versions.</span></label>}
+   {list&&<label className="form-field"><span>{filter.label} · one per line<SavedMark doc={doc} field={`${filter.id}:list`}/></span><PatternInput normalize={lines} value={value.values.join('\n')} disabled={busy} onBlur={doc.flush} onChange={text=>change(filter.id,{values:text.split('\n').filter(Boolean)},false)}/></label>}
+   {filter.id==='legacy_browsers'&&<label className="form-field"><span>Legacy browser rules · name&lt;=version, one per line<SavedMark doc={doc} field={`${filter.id}:list`}/></span><PatternInput normalize={text=>browserText(browserRules(text))} disabled={busy} placeholder="chrome<=100" value={browserText(value.browsers)} onBlur={doc.flush} onChange={text=>change(filter.id,{browsers:browserRules(text)},false)}/><span>Names: {current.browsers.join(', ')}. Matches the named version and older versions.</span></label>}
    <SaveFailure doc={doc} field={`${filter.id}:list`}/>
   </fieldset>})}
   <p className="muted">Preview reports missing transport evidence separately. Client addresses are not retained, so historical IP matches are unavailable. Message patterns use literal text and *; domain patterns use example.com or *.example.com. Existing exact browser origins remain allowed.</p>
