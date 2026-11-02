@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a44ca2594ca7d28b2bf10a7e01ed790920eb64b07486cf8637aab6c32368e79b",
+      "sha256": "f6bd851f211c2d3814089a7b8b11b1e18875e9270dd222378db0367db42a944e",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ffdcfe622fd90d33226435269e102f56452103563addbd70ff86d38f67a7255c",
+      "sha256": "8d21ccdd21e13a72ae2ab03a2f762345a99e7a17b395bd272e4b0cff76195db4",
       "executable": false
     },
     "DEMO.md": {
@@ -9822,7 +9822,7 @@
       "executable": false
     },
     "tests/busy-member-writes.mjs": {
-      "sha256": "ebc71e2852c1592fa7c19fc529f89a13aab620e992405eb4cd431e982009a424",
+      "sha256": "0cdbefbdcd11384f2a3fecec53a3ad79b34bf57ebdbbe0787e1ddba3d0723cc0",
       "executable": false
     },
     "tests/checkin-flow.mjs": {
@@ -9866,7 +9866,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "457f1579d4af21085a85ea21eb9b4ef2174b4db1c900692f485649725463c0c5",
+      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
