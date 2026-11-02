@@ -2288,7 +2288,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "398bdd222401a60ac2d0732454f6a947b3033029",
+          "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
           "path": "modules/portability",
           "paths": [
             "README.md",
@@ -2468,7 +2468,7 @@
         ],
         "origin": {
           "repository": "https://github.com/runeditrun/base.git",
-          "revision": "a81dd10c05b33c6f6372fc360ef29c40ea04332d",
+          "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
           "path": "modules/erasure",
           "paths": [
             "CONTRACT.md",
