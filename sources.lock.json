@@ -3682,7 +3682,7 @@
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
-      "sha256": "da5a6e4c918477136c1d91eb49d488872e9bf74809e3f883507b5103816a4b32",
+      "sha256": "a05296df018fa7533adb346d100aa97b6898e8c87ca6f255191ba5b9ec0b7e33",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
@@ -5562,7 +5562,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "53939eda765a6895f459783cd2fde1cf037459ff1865f6fb3a91ca932132f9f9",
+      "sha256": "a135db0f16f1a9ac716fc2d94a71262844d1042e70f49046e928c030c4397d85",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -6723,6 +6723,10 @@
     },
     "src/domain/source-map-storage.ts": {
       "sha256": "48b3e6d9e8f054ba95fe0e0a71e958de543030148cbdacdf116fb0cd1eeea3f9",
+      "executable": false
+    },
+    "src/domain/source-map-validation.ts": {
+      "sha256": "cb9b18692e43313df77f8664e540e388cd01c02d8cdf62fbc98877a86708330b",
       "executable": false
     },
     "src/domain/stacks-go.ts": {
@@ -9458,7 +9462,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "5730cc9fef12c7bd5a3d49598f9f778813aadaa0cd380daa264948a8227c3d9e",
+      "sha256": "3945182602ffab4c7afd374c9d6a4d5553bd6abad2c9059c8e226e16b4ec6fe8",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -9578,7 +9582,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "d168b3c743a5b6c9995e247584f426ca5f6958e65fe24400da6633fe0f24295b",
+      "sha256": "6be13ef947a4f1d0957347b64e04bf453e5d22e65be8f9086202859ed4cee867",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -10478,7 +10482,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "5130ac5933ff5e3cf3f6025c5418d92e49853617aa8a8c822325004dab8e3aae",
+      "sha256": "eee8f2bdac19f768ad2d7d1bb49f260d9006da9950af0aa588039808460bc597",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
@@ -10506,7 +10510,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "d9a4ac237e0ce93a4f823fb39a8113231c8ee8d90ce2e56161f0ec5249846d80",
+      "sha256": "0eb6bf7c568de50ee5e927ef94ccb4f92de71cf8daaf1ac2d5f9b5c1b913d0ff",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

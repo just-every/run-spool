@@ -57,7 +57,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <h3>If the frame is still unmapped</h3>
     <ul>
       <li>No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.</li>
-      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. CLI uploads accept flat or indexed V3 maps up to 1 MiB each, without a lifetime map count. Check the project byte cap above. The prepared-map picker below retains its smaller flat-map limit.</li>
+      <li>Upload refused: check the deploy key belongs to this project and installation, and is exported as <code>SPOOL_DEPLOY_KEY</code>. The CLI and prepared-map picker accept flat or inline indexed V3 maps up to 1 MiB each, without a lifetime map count. Check the project byte cap above.</li>
       <li>Missing map or debug ID: confirm the served bundle ends in <code>//# debugId=…</code> and its adjacent map’s <code>debug_id</code> matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.</li>
       <li>Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.</li>
     </ul>
