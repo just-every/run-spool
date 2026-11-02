@@ -1,7 +1,7 @@
 import { resolveMembership } from '../members/resolver';
 import {pendingReview} from '../review/model';
 import { Hono } from 'hono';
-import { ownerSession } from '../../auth/session.server';
+import { requestAuthority as ownerSession } from '../agent-door/native-authority';
 import { agentProject } from '../agent-access';
 import { issueAttentionSql, clientDroppedSql, decodeIssueAttention } from '../issue-attention';
 import { issueProjection } from '../agent-projection';

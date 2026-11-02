@@ -1,6 +1,10 @@
 # With your own agent
 
+The canonical company-policy MCP door and its native consent boundaries are described in [Spool’s agent door](AGENT-DOOR.md). The CLI configuration below retains its exact-project evidence and inert-proposal scope.
+
 Mint an **agent** key in a project's workbench and save the once-shown key privately. Set `SPOOL_URL` to that project's exact API root, for example `https://spool.example/api/projects/web`. The key reads only that project's bounded evidence and can submit inert grouping proposals labeled `proposed by agent <alias>`. Only the owner can approve, reject or apply them. Revoke the key in the workbench to stop the next HTTP request, including calls from an already-running MCP process.
+
+After upgrading, an existing agent key works only once an owner chooses a company agent policy at `/agents` on that installation (for example `https://spool.example/agents`). Until then each call is refused with `policy_unset`, and the CLI prints the setup URL from that refusal. An unanswered policy authorizes no agent action.
 
 Use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
 

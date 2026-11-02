@@ -65,8 +65,21 @@ try {
  const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
-  assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
-  if(name!=='spool_audit_events')assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
+  const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
+  if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
+  assert.deepEqual(canonicalRows(name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
+  if(name==='audit_context'){
+   assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
+  }else if(name==='repairs'){
+   assert.equal(currentSql.replace(", recorded_by TEXT NOT NULL DEFAULT 'owner'",''),sql,'native repair attribution preserves all released columns and constraints');
+   const attribution=(await rows(upgrade,"PRAGMA table_info('repairs')")).find(column=>column.name==='recorded_by');
+   assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:1,default:"'owner'"});
+  }else if(name==='alert_mail_jobs'){
+   assert.equal(currentSql.replace(', agent_attribution TEXT',''),sql,'first-send attribution preserves every released mail column and constraint');
+   const attribution=(await rows(upgrade,"PRAGMA table_info('alert_mail_jobs')")).find(column=>column.name==='agent_attribution');
+   assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:0,default:null});
+  }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);
  }
  for(const table of ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_destinations'), [], 'populated upgrade connects no Slack destination');
@@ -81,7 +94,7 @@ try {
  const upgradedIds = await rows(upgrade, 'SELECT * FROM issue_short_ids ORDER BY project,number');
  assert.ok(upgradedIds.length > 0 && upgradedIds.length === (await rows(upgrade, 'SELECT id FROM issues')).length && upgradedIds.every(row => row.issue === row.assigned), 'every upgraded issue has its own short ID');
  assert.deepEqual((await rows(upgrade, 'SELECT project FROM short_id_prefixes ORDER BY project')).map(row => row.project), (await rows(upgrade, 'SELECT id FROM projects ORDER BY id')).map(row => row.id));
- console.log('PASS populated published release upgrades without rewriting any pre-existing row or table: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
+ console.log('PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
 
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');

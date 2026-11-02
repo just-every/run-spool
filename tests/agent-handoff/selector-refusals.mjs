@@ -20,7 +20,8 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   paths.push({method:req.method,path:req.url});
   try{
    const headers={...req.headers};delete headers.host;delete headers.connection;
-   const upstream=await fetch(app.origin+req.url,{method:req.method,headers,redirect:'manual'});
+   const chunks=[];for await(const chunk of req)chunks.push(chunk);
+   const upstream=await fetch(app.origin+req.url,{method:req.method,headers,redirect:'manual',...chunks.length?{body:Buffer.concat(chunks)}:{}});
    res.writeHead(upstream.status,{'content-type':upstream.headers.get('content-type')??'application/json'});
    res.end(Buffer.from(await upstream.arrayBuffer()));
   }catch{res.writeHead(502);res.end('{}');}
@@ -41,7 +42,7 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
    const http=await fetch(origin+packetPath,{headers:{authorization:'Bearer '+grant.key,'x-rer-dev-key':app.devKey}});
    assert.equal(http.status,200);assert.deepEqual(await http.json(),packet);
    const output=await cli(['packet',issue,'--format','json'],clientEnv);
-   assert.equal(output.code,0);assert.deepEqual(JSON.parse(output.stdout),packet);
+   assert.equal(output.code,0,'valid proxied CLI packet: '+output.stderr);assert.deepEqual(JSON.parse(output.stdout),packet);
    const tool=await mcp.call('get_packet',{issue});noSecrets(tool);
    assert.deepEqual(packetValue(tool),packet,'all supported packet readers retain the whole projection');
   };
@@ -73,7 +74,7 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
    proof.push({kind,http:403,cli:output.code,mcp:'refused',clientRequests:0});
   }
   await positive();
-  assert.deepEqual(paths.slice(0,3),Array.from({length:3},()=>({method:'GET',path:packetPath})),
+  assert.deepEqual(paths.slice(0,3),[{method:'GET',path:packetPath},{method:'POST',path:'/mcp'},{method:'POST',path:'/mcp'}],
    'the positive control proves that every client uses the observed transport');
   assert.deepEqual(paths.slice(-3),paths.slice(0,3),'valid reads still work after every refusal');
   // The archive data projection compares every product table. Required safe

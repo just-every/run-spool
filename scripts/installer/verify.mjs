@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process';
 
 const suites = [
- 'runtime', 'product', 'origins', 'accessibility', 'alerts', 'alerts-ui',
+ 'agent-door', 'runtime', 'product', 'origins', 'accessibility', 'alerts', 'alerts-ui',
  'sentry', 'sentry:sdk', 'sdk', 'admission', 'dev-credentials', 'commands',
  'agent-handoff', 'privacy', 'repair-recovery', 'execution', 'project-erasure',
  'project-erasure-cap', 'owner-erasure', 'languages',
@@ -15,6 +15,7 @@ const commands = [
  [process.execPath, ['scripts/edition-authoring/cli.mjs', 'verify-base', '--offline']],
  ['pnpm', ['run', 'build:app']],
  ['pnpm', ['integration:check']],
+ [process.execPath,['scripts/agent-door/surface.mjs','--check']],
  ['pnpm', ['typecheck']],
  ...selected.map(name => ['pnpm', ['run', `test:${name}`]]),
 ];

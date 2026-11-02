@@ -3,7 +3,7 @@ import { currentAuditScope } from '../audit/context';
 import { auditActor } from '../audit/identity';
 import { scrubText } from '../scrub';
 import { s, guard } from '../operators/common';
-import type { OwnerSession } from '../owner-authority';
+import type { NativeAuthority } from '../agent-door/native-authority';
 
 export type DiscussionComment = {id:string;body:string;version:number;created:number;updated:number;author:string;canEdit:boolean;mentions:string[]};
 export type Subscription = {subscribed:boolean;explicit:'subscribed'|'unsubscribed'|null;reasons:string[];version:number};
@@ -23,8 +23,8 @@ export function commentBody(input:unknown) {
  if(!body.trim()||body.length>4000)throw new AuthError('comment_requires_1_to_4000_characters',400);
  return body;
 }
-export const canWrite = (session:OwnerSession) => session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.role==='member'&&session.membership?.projectRole!=='read-only';
-export const canModerate = (session:OwnerSession) => session.operator.role==='owner'||session.membership?.role==='admin';
+export const canWrite = (session:NativeAuthority) => session.operator.role==='owner'||session.membership?.role==='admin'||session.membership?.role==='member'&&session.membership?.projectRole!=='read-only';
+export const canModerate = (session:NativeAuthority) => session.operator.role==='owner'||session.membership?.role==='admin';
 export const issueFence = (db:D1Database,project:string,issue:string) => [
  guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=?)',project,issue),
  s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',project,issue),

@@ -22,14 +22,14 @@ export function ownerHoldMessage(code: string | null) {
  return messages[code] ?? 'Erasure was refused because this data cannot be safely changed under the confirmed plan.';
 }
 
-export async function ownerErasureService(db: D1Database) {
- return recoverableOwnerErasure(db,createErasure({db,portability:await portability(db),declarations:[await ownerDeclaration(db)]}));
+export async function ownerErasureService(db: D1Database,secret:string) {
+ return recoverableOwnerErasure(db,createErasure({db,portability:await portability(db),declarations:[await ownerDeclaration(db,secret)]}));
 }
-export async function ownerPreview(db: D1Database,id: string) {
- const service=await ownerErasureService(db), native=await service.preview('installation-owner',{id});
+export async function ownerPreview(db: D1Database,id: string,secret:string) {
+ const service=await ownerErasureService(db,secret), native=await service.preview('installation-owner',{id});
  const needles=await ownerIdentifiers(db,id), captured=await capturePlan(db,needles);
  const owner=await db.prepare('SELECT display_name FROM oa_operators WHERE id=?').bind(id).first<any>();
- const ambiguous=!!await db.prepare('SELECT 1 FROM oa_operators WHERE id<>? AND display_name=?').bind(id,owner.display_name).first() && captured.changes.some(change=>Object.values(change.before).some(value=>typeof value==='string'&&value.includes(owner.display_name)));
+ const ambiguous=!!await db.prepare('SELECT 1 FROM oa_operators WHERE id<>? AND display_name=?').bind(id,owner.display_name).first() && (captured.changes.some(change=>Object.values(change.before).some(value=>typeof value==='string'&&value.includes(owner.display_name))) || !!await db.prepare("SELECT 1 FROM agent_door_audit WHERE instr(row,?)>0 LIMIT 1").bind(owner.display_name).first());
  const intent=await db.prepare(`SELECT x.successor_id,x.owner_version,o.version AS successor_version,(SELECT s.id FROM oa_sessions s WHERE s.operator_id=o.id AND s.kind='native' AND s.operator_version=o.version AND s.revoked_at IS NULL AND s.expires_at>? ORDER BY s.created_at DESC,s.id LIMIT 1) AS successor_session FROM spool_owner_successor x JOIN oa_operators o ON o.id=x.successor_id WHERE x.owner_id=?`).bind(Date.now(),id).first<any>();
  const credentialColumns=(await db.prepare('PRAGMA table_info(credentials)').all<any>()).results;
  const extraHold=!credentialColumns.some(column=>column.name==='minted_by')?'credential_authority_migration_required':ambiguous?'ambiguous_display_name':captured.hold ?? await unsupportedOwnerSurface(db,needles);
@@ -37,8 +37,8 @@ export async function ownerPreview(db: D1Database,id: string) {
  const hold=extraHold ?? native.hold;
  return {service,native,captured,needles,intent,public:{deleted:native.deleted,redacted:{...native.redacted,...captured.counts},retained:native.retained,exceptions:ownerExceptions,planHash,hold,message:ownerHoldMessage(hold)}};
 }
-export async function eraseOwner(db: D1Database,session: any,input: any,until: number) {
- const preview=await ownerPreview(db,session.operator.id);
+export async function eraseOwner(db: D1Database,session: any,input: any,until: number,secret:string) {
+ const preview=await ownerPreview(db,session.operator.id,secret);
  if(preview.public.planHash!==input.planHash)throw new ErasureError('plan_changed',409);
  if(preview.public.hold)throw new ErasureError('held:'+preview.public.hold,409);
  // Correlated email rate digests are removed; IP aggregates have no identity

@@ -1444,8 +1444,8 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-001, BASE
 4. `list_issues`, `get_packet`, `get_outcomes`, `list_grouping_proposals` and `propose_grouping` reach the same server actions as `spool.issues.read`, `spool.outcomes.read` and `spool.grouping.propose`.
 5. The Base conformance harness passes on Spool's seeded fixtures under both company policies.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: the MCP door, the tool registry with classes and the Base conformance harness are absent; the stdio agent package serves five read and proposal tools without classes.
+**Evidence.** `src/domain/agent-door/`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/review-erasure.mjs`; `tests/agent-door/replay-horizon.mjs`; `tests/agent-door/owner-custody.mjs`; `tests/agent-door/worker.mjs`. The preserved native adoption now uses released rer 0.2.96: one production MCP registry, native authority and durable Business mapping, signed relay, native subject-erasure custody and replay fences. The declared tools/policy/pause/audit/idempotency harness passes locally; native reviewer Undo, erased approvals, retained value-free audit, peer custody, original replay horizons across the prior-door upgrade, ordinary successor session fencing, attributed standing-mail Pause/resume and detached Business refusal have real Worker proof.
+**Gap.** Judgment unchanged. Optional events/resources/prompts/subscriptions and the unscoped lifecycle families are not qualified: undeclared checks execute zero assertions and earn no success. Complete table-wide/client/provider acceptance and the independent door/landing gates remain required. The Base adoption acknowledgement remains bounded to 20 tool names per class; the complete canonical registry is separate. No clause promotion or release claim follows from this local adoption.
 
 #### SURFACE-002 — External and money are computed per call
 
