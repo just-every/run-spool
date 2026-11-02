@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cc9518b2f20febe8b1e985109979fd356010ae296dd3a06ea3dd3769ea972356",
+      "sha256": "572243755b00c9c2c10dff6cfed0c50ec966a3f9c4d45f59f371ee704c6f7196",
       "executable": false
     },
     "DEMO.md": {
@@ -10185,12 +10185,16 @@
       "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34",
       "executable": false
     },
+    "tests/retention-archive.mjs": {
+      "sha256": "818c7515b17ed78a165c5bb2e2a0cc86cddfcd5456ab3d8fbbc89ad5179091e6",
+      "executable": false
+    },
     "tests/retention-flow.mjs": {
       "sha256": "d97119098ae495e16be01b8ed852733589be75e9600ace61febd316ceb745861",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {
-      "sha256": "8eef601421fe9798f1637f908ffea319d219f04b258a351f7b2391e289dfd5b7",
+      "sha256": "6e6a92ad67e8c001e89ecab078adfbd06185b36d28361340ea4860d7d46875ed",
       "executable": false
     },
     "tests/review-inbox-flow.mjs": {
