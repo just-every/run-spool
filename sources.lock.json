@@ -2654,7 +2654,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "dd2c8f067bec99553dcf72c9e2f5e6fc00f772cc758dcdc3449e8df57717c4fa",
+      "sha256": "26981c39a10461477ba5a8c0d154538a5631e7400abeaad39cd85e38a712ada8",
       "executable": false
     },
     "BROWSER-ORIGINS.md": {
@@ -7834,7 +7834,7 @@
       "executable": false
     },
     "src/modules/erasure/cascade.mjs": {
-      "sha256": "97d78d3a802de6975dd4619f16a307bacb35ea155a928d4038e9eed77498fbeb",
+      "sha256": "ba65fd34e099611bdc27d95adaefd4dd078f10741a0507fd4ef677cd8a314492",
       "executable": false
     },
     "src/modules/erasure/completion.mjs": {
@@ -7854,15 +7854,15 @@
       "executable": false
     },
     "src/modules/erasure/index.d.mts": {
-      "sha256": "7a0ef533ffca11e14622495b67f1e5ef05955d563479843d5d09032b5e819124",
+      "sha256": "4783045dffdac01c08f96a99e00b68722e70553da3e76d659299726f39ce6276",
       "executable": false
     },
     "src/modules/erasure/index.mjs": {
-      "sha256": "05ac5ba1004b5b6a73552d88b3373233480eb47bec3ccde4e8c8aeadcca4df32",
+      "sha256": "66d7a9d4b7302b3f26fb8c2de5d1a04373583ef4020d9ef545eb57c943c184fd",
       "executable": false
     },
     "src/modules/erasure/order.mjs": {
-      "sha256": "40d391f40831275b379a73f8e97634a652f4dbbc49862bccd520a75ee24a272b",
+      "sha256": "cd18dd3478b8c82d799a2c8eb620f34cc013b31336051fb523e953bb88a1179b",
       "executable": false
     },
     "src/modules/erasure/plan.mjs": {
@@ -7906,7 +7906,7 @@
       "executable": false
     },
     "src/modules/erasure/verification.mjs": {
-      "sha256": "0a52ed3c1a766b616edc161c5a44ca236bfd75af5de9987f2d199c6cecad4128",
+      "sha256": "9dd3ca7a96fd040df3b0b7c9be68442e7102ab6fe14f0640a29a04614f9e171d",
       "executable": false
     },
     "src/modules/import-kit/schema/importer-verification-receipt.schema.json": {
