@@ -1,0 +1,15 @@
+import {launch,openContext,signedPage,api,sleep} from './lib.mjs';
+const b=await launch();const c=await openContext(b,'demo-after.log');const page=await signedPage(c,'/projects/cedar-market/settings');
+const P='/api/projects/cedar-market/grouping-rules';
+const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Project grouping rules',exact:true})});
+const orig=(await api(c,P)).body;
+await panel.getByLabel('Fingerprint rules',{exact:true}).fill('error.type:KeyError -> checkout-account');
+await panel.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await panel.getByRole('heading',{name:'Retained-event preview'}).waitFor();
+await panel.getByRole('button',{name:'Apply grouping rules',exact:true}).click();await panel.locator('.save-mark[data-state="saved"]').waitFor();
+const active=(await api(c,P)).body;await api(c,P,'PUT',{revision:active.revision,policy:active.policy});
+await panel.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await panel.getByRole('heading',{name:'Retained-event preview'}).waitFor();
+await panel.getByRole('button',{name:'Apply grouping rules',exact:true}).click();
+await panel.getByRole('alert').filter({hasText:'revision conflict'}).waitFor();
+console.log('conflict alert:',await panel.getByRole('alert').first().innerText());
+const cur=(await api(c,P)).body;await api(c,P,'PUT',{revision:cur.revision,policy:orig.policy});
+await b.close();

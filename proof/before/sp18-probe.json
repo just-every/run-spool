@@ -1,0 +1,41 @@
+{
+  "390": {
+    "urlAfterErased": "/projects/erase-probe-390/settings",
+    "receiptVisible": true,
+    "switcherOptions": [
+      "Cedar Market · Storefront",
+      "Erase probe x",
+      "Erase probe 390"
+    ],
+    "switcherValue": "erase-probe-390",
+    "apiProjects": [
+      "cedar-market",
+      "erase-probe-x"
+    ],
+    "heading": "Settings",
+    "afterIssuesLink": {
+      "url": "/projects/erase-probe-390/issues",
+      "h1": "Issues"
+    }
+  },
+  "1440": {
+    "urlAfterErased": "/projects/erase-probe-1440/settings",
+    "receiptVisible": true,
+    "switcherOptions": [
+      "Cedar Market · Storefront",
+      "Erase probe x",
+      "Erase probe 1440"
+    ],
+    "switcherValue": "erase-probe-1440",
+    "apiProjects": [
+      "cedar-market",
+      "erase-probe-x"
+    ],
+    "heading": "Settings",
+    "afterIssuesLink": {
+      "url": "/projects/erase-probe-1440/issues",
+      "h1": "Issues"
+    }
+  },
+  "created": 201
+}

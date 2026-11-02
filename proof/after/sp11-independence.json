@@ -1,0 +1,52 @@
+{
+  "390": {
+    "whileSaving": {
+      "fieldFocused": "Automatic release name pattern",
+      "previewEnabled": true,
+      "switcherEnabled": true,
+      "navEnabled": true,
+      "fieldEditableWhileSaving": true,
+      "previewRanInMs": 144,
+      "serverStillOld": true
+    },
+    "savedPattern": "inflight-*",
+    "afterRefusal": {
+      "previewEnabled": true,
+      "switcherEnabled": true,
+      "fieldFocused": "Automatic release name pattern",
+      "fieldValueKept": "refused-*"
+    },
+    "leftInApp": {
+      "path": "/projects/cedar-market/releases",
+      "server": "left-midwrite-*"
+    },
+    "pageHide": {
+      "server": "hidden-midwrite-*"
+    }
+  },
+  "1440": {
+    "whileSaving": {
+      "fieldFocused": "Automatic release name pattern",
+      "previewEnabled": true,
+      "switcherEnabled": true,
+      "navEnabled": true,
+      "fieldEditableWhileSaving": true,
+      "previewRanInMs": 218,
+      "serverStillOld": true
+    },
+    "savedPattern": "inflight-*",
+    "afterRefusal": {
+      "previewEnabled": true,
+      "switcherEnabled": true,
+      "fieldFocused": "Automatic release name pattern",
+      "fieldValueKept": "refused-*"
+    },
+    "leftInApp": {
+      "path": "/projects/cedar-market/releases",
+      "server": "left-midwrite-*"
+    },
+    "pageHide": {
+      "server": "hidden-midwrite-*"
+    }
+  }
+}

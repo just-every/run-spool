@@ -1,0 +1,1002 @@
+######## text-settings (before → after; '<' main, '>' this branch; dates stripped)
+34c34
+< Capture keys send events. Agent keys read this project’s evidence and submit inert grouping proposals; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.
+---
+> Capture keys send events. Agent keys read this project’s evidence and submit suggested grouping changes; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.
+61d60
+< Erase probe x
+81d79
+< Erase probe x
+140c138
+< Preview JavaScript, Python, Go and Sentry stack and fingerprint rules against retained events, then save for later intake. Recorded grouping and prior corrections stay inspectable. Native events keep their default grouping unless a project rule changes it.
+---
+> Preview JavaScript, Python, Go and Sentry stack and fingerprint rules against retained events, then apply them to later intake. Recorded grouping and prior corrections stay inspectable. Native events keep their default grouping unless a project rule changes it.
+142c140
+< Active revision 0. Ordered stack rules use path, module, package, function or family with +app, -app, +group and -group. The first matching fingerprint rule wins; project fingerprints take precedence over SDK fingerprints. Native stacks use the first contributing frame; Sentry stacks use contributing in-app frames. Only * is a wildcard.
+---
+> Active revision 4. Ordered stack rules use path, module, package, function or family with +app, -app, +group and -group. The first matching fingerprint rule wins; project fingerprints take precedence over SDK fingerprints. Native stacks use the first contributing frame; Sentry stacks use contributing in-app frames. Only * is a wildcard.
+150a149,152
+> Revision 0 · default grouping
+> Revision 1
+> Revision 2
+> Revision 3
+152,153d153
+< Save grouping rules
+< Refresh grouping rules
+158,159d157
+< Refresh grouping proposals
+< 
+235c233
+< Sentry events can arrive without a release or automatically create one. Native v1 still requires a registered release and build. An omitted dist has a separate no-dist identity; an explicit dist is kept distinct.
+---
+> Sentry events can arrive without a release or automatically create one. Native events still require a registered release and build. An omitted dist has a separate no-dist identity; an explicit dist is kept distinct.
+250,251d247
+< Save release policy
+< Refresh release policy
+260d255
+< Save commit sharing
+280c275
+< Filter unwanted errors on the server before issues, alerts and accepted usage. Preview your changes against retained events, then save for later intake. No SDK redeploy is needed.
+---
+> Filter unwanted errors on the server before issues, alerts and accepted usage. Changes save as you make them and apply to later intake; preview them against retained events first if you like. No SDK redeploy is needed.
+290c285
+< Enable browser extensions
+---
+> Block errors from browser extensions
+295c290
+< Enable legacy browsers
+---
+> Block legacy browsers
+302c297
+< Enable localhost and loopback
+---
+> Block localhost and loopback traffic
+307c302
+< Enable known web crawlers
+---
+> Block known web crawlers
+312c307
+< Enable react hydration errors
+---
+> Block React hydration errors
+317c312
+< Enable chunk and dynamic import failures
+---
+> Block chunk and dynamic import failures
+322c317
+< Enable client ip addresses and cidrs
+---
+> Block client IP addresses
+328c323
+< Enable error message patterns
+---
+> Block matching error messages
+334c329
+< Enable releases
+---
+> Block listed releases
+340c335
+< Enable environments
+---
+> Block listed environments
+346c341
+< Enable allowed browser domains
+---
+> Accept only listed browser domains
+355,356d349
+< Save inbound filters
+< Refresh filters and usage
+358c351
+< Off by default
+---
+> Off
+366d358
+< Refresh history
+376c368
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+378c370
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+380c372
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+382,393d373
+< grouping · proposals
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · project
+< audit:99d11b3f450f4acb96653b162e9bda6b
+< Project
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+< 
+400c380
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+402c382
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+404c384
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+412c392
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+414c394
+< audit:62dd4e0240ac4dbe960699394b189384
+---
+> audit:451301f355b5478dbecd6384d7d6e136
+415a396,407
+> grouping · proposals
+> · succeeded · HTTP 200
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · project
+> audit:742d6eeabee44f57a245427638085d8d
+> Project
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+> 
+422c414
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+424c416
+< audit:3494670aa3a3483ea164bb252842ff2c
+---
+> audit:8c87938ae1194ecfbc3eff15dabe459e
+426c418
+< filter · change
+---
+> review · views
+432c424
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+434c426
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+436c428
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+438c430,440
+< filter · change
+---
+> erasure · resume
+> · succeeded · HTTP 200
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · erasure
+> audit:12c91e206cab44a7bf9ea050c4775f89
+> 
+> erasure · complete
+441c443
+<  · transaction
+---
+>  · service
+442a445,454
+> Actor · service
+> audit:c4db8700b0814c249c1c92d25d9a398f
+> Subject · erasure
+> audit:75ccb5f9b9c64879a8ad4395406571aa
+> 
+> erasure · start
+> · accepted · HTTP 202
+> 
+>  · request
+> 
+444c456
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+446c458
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:d43c21ea442a431c93093e2cffbee091
+448c460
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+450c462
+< commit · sharing
+---
+> erasure · preview
+456c468
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+458c470
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:d43c21ea442a431c93093e2cffbee091
+460c472
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+462,463c474,475
+< commit · sharing
+< · succeeded
+---
+> retention · policy
+> · succeeded · HTTP 200
+465c477
+<  · transaction
+---
+>  · request
+468,470c480,482
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · project
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · policy
+> audit:ee1329e2c1144c7496a2a46fd7f9d375
+472c484
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+480c492
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+482c494
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:d43c21ea442a431c93093e2cffbee091
+484c496
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+486,487c498,499
+< release · policy
+< · succeeded
+---
+> audit · read
+> · succeeded · HTTP 200
+489c501
+<  · transaction
+---
+>  · request
+492c504,514
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · audit
+> audit:fe301accd3a948b58911d6b5ccfaad06
+> 
+> grouping · proposals
+> · succeeded · HTTP 200
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+494c516
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:d43c21ea442a431c93093e2cffbee091
+496c518
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+498c520
+< filter · change
+---
+> notification · preferences
+504c526
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+506c528
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:d43c21ea442a431c93093e2cffbee091
+508c530
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+510c532
+< filter · change
+---
+> private · action
+516,520c538,540
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · project
+< audit:99d11b3f450f4acb96653b162e9bda6b
+< Project
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · unknown
+> audit:451301f355b5478dbecd6384d7d6e136
+522c542
+< commit · sharing
+---
+> billing · read
+528,532c548,550
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · project
+< audit:99d11b3f450f4acb96653b162e9bda6b
+< Project
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · installation
+> audit:8c87938ae1194ecfbc3eff15dabe459e
+534c552,562
+< commit · sharing
+---
+> project · create
+> · succeeded · HTTP 201
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · installation
+> audit:8c87938ae1194ecfbc3eff15dabe459e
+> 
+> project · create
+540c568
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+542c570
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+544c572
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7ee7396c41264ceb8b37162f808ae98b
+546c574
+< release · policy
+---
+> review · views
+552c580
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+554c582
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+556c584
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+558c586,596
+< release · policy
+---
+> erasure · resume
+> · succeeded · HTTP 200
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · erasure
+> audit:a925b90371194763be3db657b525d972
+> 
+> erasure · complete
+561c599
+<  · transaction
+---
+>  · service
+562a601,610
+> Actor · service
+> audit:c4db8700b0814c249c1c92d25d9a398f
+> Subject · erasure
+> audit:c3896bf15856484fa077f72d361ad0ea
+> 
+> erasure · start
+> · accepted · HTTP 202
+> 
+>  · request
+> 
+564c612
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+566c614
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:a6befca0effa4161ba39790ce8293859
+568c616
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7decca7870314caa9402c74852a073be
+569a618,629
+> erasure · preview
+> · succeeded · HTTP 200
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · project
+> audit:a6befca0effa4161ba39790ce8293859
+> Project
+> audit:7decca7870314caa9402c74852a073be
+> 
+576c636
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+578c638
+< audit:22c44b8a85884db78d12c985191c8fd2
+---
+> audit:91d7a3afb69b4285b86a214c98bd1f9d
+580c640
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7decca7870314caa9402c74852a073be
+588c648
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+590c650
+< audit:429ea02706534ec38db29f77215a7d7c
+---
+> audit:fe301accd3a948b58911d6b5ccfaad06
+598c658
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+600c660
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:a6befca0effa4161ba39790ce8293859
+602c662
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7decca7870314caa9402c74852a073be
+610c670
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+612c672
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:a6befca0effa4161ba39790ce8293859
+614c674
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7decca7870314caa9402c74852a073be
+622c682
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+624c684
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:a6befca0effa4161ba39790ce8293859
+626c686
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:7decca7870314caa9402c74852a073be
+634c694
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+636c696
+< audit:62dd4e0240ac4dbe960699394b189384
+---
+> audit:451301f355b5478dbecd6384d7d6e136
+644c704
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+646c706
+< audit:3494670aa3a3483ea164bb252842ff2c
+---
+> audit:8c87938ae1194ecfbc3eff15dabe459e
+647a708,729
+> project · create
+> · succeeded · HTTP 201
+> 
+>  · request
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · installation
+> audit:8c87938ae1194ecfbc3eff15dabe459e
+> 
+> project · create
+> · succeeded
+> 
+>  · transaction
+> 
+> Actor · owner
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · project
+> audit:7decca7870314caa9402c74852a073be
+> Project
+> audit:7decca7870314caa9402c74852a073be
+> 
+654c736
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+656c738
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+658c740
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+666c748
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+668c750
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+670c752
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+678c760
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+680c762
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+682c764
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+690c772
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+692c774
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+694c776
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+702c784
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+704c786
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+706c788
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+714c796
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+716c798
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+718c800
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+726c808
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+728c810
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+730c812
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+738c820
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+740c822
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+742c824
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+750c832
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+752c834
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+754c836
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+762c844
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+764c846
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+766c848
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+774c856
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+776c858
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+778c860
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+786c868
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+788c870
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+790c872
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+798c880
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+800c882
+< audit:22c44b8a85884db78d12c985191c8fd2
+---
+> audit:3fc8f2fce2e642fd8c4346f82dd2186f
+802c884
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+804,813d885
+< audit · read
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · audit
+< audit:429ea02706534ec38db29f77215a7d7c
+< 
+820c892
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+822c894
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+824c896
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+826c898
+< grouping · proposals
+---
+> audit · read
+832,836c904,906
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · project
+< audit:99d11b3f450f4acb96653b162e9bda6b
+< Project
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+> Subject · audit
+> audit:fe301accd3a948b58911d6b5ccfaad06
+838c908
+< notification · preferences
+---
+> grouping · proposals
+844c914
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+846c916
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+848c918
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+850,860c920
+< private · action
+< · succeeded
+< 
+<  · transaction
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · unknown
+< audit:62dd4e0240ac4dbe960699394b189384
+< 
+< billing · read
+---
+> notification · preferences
+866,938c926
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · installation
+< audit:3494670aa3a3483ea164bb252842ff2c
+< 
+< private · action
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · unknown
+< audit:62dd4e0240ac4dbe960699394b189384
+< 
+< private · action
+< · succeeded
+< 
+<  · transaction
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · unknown
+< audit:62dd4e0240ac4dbe960699394b189384
+< 
+< private · action
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · unknown
+< audit:62dd4e0240ac4dbe960699394b189384
+< 
+< private · action
+< · succeeded
+< 
+<  · transaction
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · unknown
+< audit:62dd4e0240ac4dbe960699394b189384
+< 
+< retention · policy
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · policy
+< audit:22c44b8a85884db78d12c985191c8fd2
+< Project
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+< 
+< audit · read
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+< Subject · audit
+< audit:429ea02706534ec38db29f77215a7d7c
+< 
+< release · policy
+< · succeeded · HTTP 200
+< 
+<  · request
+< 
+< Actor · owner
+< audit:c109cb50a220415abd48bb3edc046f57
+---
+> audit:50cb8f45229d4f228b3ad45acae81663
+940c928
+< audit:99d11b3f450f4acb96653b162e9bda6b
+---
+> audit:742d6eeabee44f57a245427638085d8d
+942c930
+< audit:28e4f8f055d74ea5a03feb67e9e854ac
+---
+> audit:60d4000f1a3d403c8934d4e8083e2ca2
+985c973
+< 359 rows will be deleted.
+---
+> 360 rows will be deleted.
+1008c996
+< Alert intents
+---
+> Planned alert deliveries
+1014,1016c1002
+< issue_priorities
+< 6
+< artifact_storage_settings
+---
+> Source map storage cap
+1018c1004,1006
+< retention_runs
+---
+> Audit links
+> 4
+> Commit sharing setting
+1020,1022c1008
+< short_id_prefixes
+< 1
+< issue_short_ids
+---
+> Deployment manifests
+1024c1010,1012
+< commit_sharing
+---
+> Follow-up feed records
+> 3
+> Grouping rules
+1026c1014,1018
+< follow_up_feed_custody
+---
+> Inbound filters
+> 1
+> Issue priorities
+> 6
+> Issue resolutions
+1028c1020,1022
+< release_order_keys
+---
+> Issue short ID assignments
+> 6
+> Release ordering
+1030,1032c1024
+< audit_actor_links
+< 4
+< release_policies
+---
+> Release policies
+1034,1036c1026
+< issue_resolutions
+< 3
+< inbound_filter_policies
+---
+> Retention runs
+1038,1039c1028,1029
+< deployment_manifests
+< 6
+---
+> Issue short IDs
+> 1
+1042c1032
+< 15
+---
+> 43
+1051c1041
+< Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.
+---
+> Records of used Business grants stay so no grant can be used twice; they hold an action, key ID, expiry and namespace name, never record content.
+1053c1043
+< Portability tombstones stay as keyed hashes so older archives are refused on restore.
+---
+> A one-way fingerprint of each deleted record stays, so an older archive is refused if someone tries to restore it.
+######## text-releases (before → after; '<' main, '>' this branch; dates stripped)
+63d62
+< Save artifact cap
+######## text-capture (before → after; '<' main, '>' this branch; dates stripped)
+68d67
+< Save artifact cap
+######## text-issues (before → after; '<' main, '>' this branch; dates stripped)
+######## text-alerts (before → after; '<' main, '>' this branch; dates stripped)
+######## text-erasure-preview (before → after; '<' main, '>' this branch; dates stripped)
+7c7
+< 359 rows will be deleted.
+---
+> 360 rows will be deleted.
+30c30
+< Alert intents
+---
+> Planned alert deliveries
+36,38c36
+< issue_priorities
+< 6
+< artifact_storage_settings
+---
+> Source map storage cap
+40c38,40
+< retention_runs
+---
+> Audit links
+> 4
+> Commit sharing setting
+42,44c42
+< short_id_prefixes
+< 1
+< issue_short_ids
+---
+> Deployment manifests
+46c44,46
+< commit_sharing
+---
+> Follow-up feed records
+> 3
+> Grouping rules
+48c48,52
+< follow_up_feed_custody
+---
+> Inbound filters
+> 1
+> Issue priorities
+> 6
+> Issue resolutions
+50c54,56
+< release_order_keys
+---
+> Issue short ID assignments
+> 6
+> Release ordering
+52,54c58
+< audit_actor_links
+< 4
+< release_policies
+---
+> Release policies
+56,58c60
+< issue_resolutions
+< 3
+< inbound_filter_policies
+---
+> Retention runs
+60,61c62,63
+< deployment_manifests
+< 6
+---
+> Issue short IDs
+> 1
+64c66
+< 15
+---
+> 43
+73c75
+< Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.
+---
+> Records of used Business grants stay so no grant can be used twice; they hold an action, key ID, expiry and namespace name, never record content.
+75c77
+< Portability tombstones stay as keyed hashes so older archives are refused on restore.
+---
+> A one-way fingerprint of each deleted record stays, so an older archive is refused if someone tries to restore it.

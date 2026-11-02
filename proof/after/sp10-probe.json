@@ -1,0 +1,500 @@
+{
+  "390": {
+    "start": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "true",
+      "activeLabel": null
+    },
+    "end": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "true",
+      "activeLabel": null
+    },
+    "endAfterChange": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "true",
+      "activeLabel": null
+    },
+    "initialShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "finalShown": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true,
+      "auditEntries": 50
+    },
+    "secondContextWrites": {
+      "release": 200,
+      "commit": 200,
+      "filter": 200
+    },
+    "secondContextSet": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true
+    },
+    "shownWithoutClickAfterSeconds": 12,
+    "watchDuringHold": {
+      "added": 0,
+      "removed": 0,
+      "flashes": 0,
+      "samples": 600,
+      "examples": []
+    },
+    "watchAfterChange": {
+      "added": 6,
+      "removed": 6,
+      "flashes": 0,
+      "samples": 127,
+      "examples": [
+        "-LI.callout:grouping · preview · succeeded · HTTP 20",
+        "-LI.callout:grouping · preview · succeeded · HTTP 20",
+        "-LI.callout:grouping · preview · succeeded · HTTP 20",
+        "-LI.callout:filter · change · succeeded · HTTP 20002",
+        "-LI.callout:filter · change · succeeded02/11/2026, 0",
+        "-LI.callout:filter · change · succeeded · HTTP 20002",
+        "+LI.callout:filter · change · succeeded · HTTP 20002",
+        "+LI.callout:filter · change · succeeded02/11/2026, 0"
+      ]
+    },
+    "requestCountsDuringHold": {
+      "GET /api/editor/config": 3,
+      "GET /api/projects/cedar-market/grouping-rules": 3,
+      "GET /api/projects/cedar-market/grouping-rules/versions": 3,
+      "GET /api/projects/cedar-market/grouping-proposals": 3,
+      "GET /api/projects/cedar-market/corrections": 3,
+      "GET /api/projects/cedar-market/release-policy": 3,
+      "GET /api/projects/cedar-market/commits/sharing": 3,
+      "GET /api/projects/cedar-market/inbound-filters": 3,
+      "GET /api/projects/cedar-market/outcomes": 3,
+      "GET /api/imports/business": 3,
+      "GET /api/audit": 3
+    },
+    "requestLog": [
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/audit"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/audit"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/audit"
+      }
+    ]
+  },
+  "1440": {
+    "start": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "false",
+      "activeLabel": "Fingerprint rules"
+    },
+    "end": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "false",
+      "activeLabel": "Fingerprint rules"
+    },
+    "endAfterChange": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "false",
+      "activeLabel": "Fingerprint rules"
+    },
+    "initialShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "finalShown": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true,
+      "auditEntries": 50
+    },
+    "secondContextWrites": {
+      "release": 200,
+      "commit": 200,
+      "filter": 200
+    },
+    "secondContextSet": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true
+    },
+    "shownWithoutClickAfterSeconds": 12,
+    "watchDuringHold": {
+      "added": 0,
+      "removed": 0,
+      "flashes": 0,
+      "samples": 600,
+      "examples": []
+    },
+    "watchAfterChange": {
+      "added": 6,
+      "removed": 6,
+      "flashes": 0,
+      "samples": 129,
+      "examples": [
+        "-LI.callout:commit · sharing · succeeded02/11/2026, ",
+        "-LI.callout:commit · sharing · succeeded · HTTP 2000",
+        "-LI.callout:commit · sharing · succeeded02/11/2026, ",
+        "-LI.callout:retention · policy · succeeded · HTTP 20",
+        "-LI.callout:audit · read · succeeded · HTTP 20002/11",
+        "-LI.callout:release · policy · succeeded · HTTP 2000",
+        "+LI.callout:filter · change · succeeded · HTTP 20002",
+        "+LI.callout:filter · change · succeeded02/11/2026, 0"
+      ]
+    },
+    "requestCountsDuringHold": {
+      "GET /api/editor/config": 3,
+      "GET /api/projects/cedar-market/grouping-rules": 3,
+      "GET /api/projects/cedar-market/grouping-rules/versions": 3,
+      "GET /api/projects/cedar-market/grouping-proposals": 3,
+      "GET /api/projects/cedar-market/corrections": 3,
+      "GET /api/projects/cedar-market/release-policy": 3,
+      "GET /api/projects/cedar-market/commits/sharing": 3,
+      "GET /api/projects/cedar-market/inbound-filters": 3,
+      "GET /api/projects/cedar-market/outcomes": 3,
+      "GET /api/imports/business": 3,
+      "GET /api/audit": 3
+    },
+    "requestLog": [
+      {
+        "t": 12,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 13,
+        "method": "GET",
+        "path": "/api/audit"
+      },
+      {
+        "t": 32,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 33,
+        "method": "GET",
+        "path": "/api/audit"
+      },
+      {
+        "t": 52,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-rules/versions"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/grouping-proposals"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/corrections"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/release-policy"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/commits/sharing"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/inbound-filters"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/projects/cedar-market/outcomes"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/imports/business"
+      },
+      {
+        "t": 53,
+        "method": "GET",
+        "path": "/api/audit"
+      }
+    ]
+  }
+}

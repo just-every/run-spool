@@ -1,0 +1,85 @@
+Cedar Market · Storefront / Issues
+Issues
+Issues
+Pending review
+3
+Unseen on this page
+3
+Open
+3
+Resolved
+1
+Search issues
+Status
+All statuses
+Open
+Acknowledged
+Resolved
+Suppressed
+Release
+All releases
+storefront@2.8.0 (6)
+storefront@2.8.1 (6)
+storefront@2.9.0 (6)
+Sort
+Highest priority
+Latest received
+Most occurrences
+Show pending review
+Saved views
+Choose a saved query (0/25)
+Save current view
+Delete saved view
+
+6 issues
+
+Details
+Copy search link
+Export JSON
+Export CSV
+
+Environments: production (6) · staging (6)
+
+Select this page
+
+0 selected · Selection is limited to the displayed page.
+
+Bulk action
+Mark reviewed
+Acknowledge
+Resolve
+Reopen
+Archive
+Preview triage
+Clear selection
+Issue	Release	Status	Priority	Occurrences	Last received
+
+Select
+CEDAR-MARKET-3
+NetworkError: Product search request failed
+NewUnseen	storefront@2.9.0	Open	High	52	02/11/2026, 07:04:02 UTC
+
+Select
+CEDAR-MARKET-2
+TimeoutError: Inventory reservation exceeded its deadline
+NewUnseen	storefront@2.9.0	Acknowledged	High	67	02/11/2026, 07:04:02 UTC
+
+Select
+CEDAR-MARKET-1
+TypeError: Cannot read properties of undefined (reading 'price')
+NewUnseen	storefront@2.9.0	Open	High	85	02/11/2026, 07:04:02 UTC
+
+Select
+CEDAR-MARKET-4
+RangeError: Invalid delivery date
+	storefront@2.9.0	Resolved	High	39	02/11/2026, 05:04:02 UTC
+
+Select
+CEDAR-MARKET-5
+TypeError: Saved address is missing a postal code
+	storefront@2.9.0	Open	High	30	02/11/2026, 04:34:02 UTC
+
+Select
+CEDAR-MARKET-6
+Error: Image decoder could not read the thumbnail
+	storefront@2.9.0	Suppressed	High	18	02/11/2026, 04:04:02 UTC

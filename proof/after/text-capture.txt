@@ -1,0 +1,114 @@
+Cedar Market · Storefront / Connect your application
+Connect your application
+Capture is receiving events
+
+Events received in the last 24 hours.
+
+Open latest issue
+Capture receipts
+Events received
+3
+Details
+1. Choose a release
+Registered release
+Choose a release
+storefront@2.8.0
+storefront@2.8.1
+storefront@2.9.0
+Manage releases and maps
+2. Allow your application’s origin
+
+Enter the origin where your application runs, including its port when needed. Each event also needs this project’s capture key.
+
+Exact application origin
+Allow browser origin
+
+Use scheme, host and port only, without a trailing slash or path.
+
+No other browser origins allowed.
+
+Details
+3. Connect your application
+Install the Spool SDK
+npm install @just-every/spool
+Copy
+Initialise it once in your app
+import { init } from '@just-every/spool';
+init({ endpoint: "http://127.0.0.1:4710", project: "cedar-market", ingestKey: "YOUR_INGEST_KEY",
+  release: "storefront@2.8.0", build: "cedar-280" });
+Copy
+
+It captures uncaught errors and unhandled rejections in the browser. On Node import @just-every/spool/node; in Cloudflare Workers call captureException from @just-every/spool/worker with your handler’s ctx. For original-source stacks, use the complete source-map setup with your project’s build key and bundler configuration.
+
+Use the ingest key shown when you created the project, or create one in Settings. No bundler? Download the browser capture file and call its installBrowserCapture with the same options.
+
+Already using Sentry? Point your DSN here
+
+Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as sentry-no-dist. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.
+
+Its DSN is shown once, next to each new ingest key created under Project keys in Settings.
+
+4. Verify capture
+
+Trigger an error in your application; it will appear above. Or send a test from this browser.
+
+Project ingest key
+Capture test exception
+Set up original-source mapping
+
+A source map connects a built JavaScript file’s line and column to the same code in your original source.
+
+Run these steps in your application’s repository before deploying its built files. The tool generates a debug ID, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.
+
+Artifact storage
+
+3 maps use 2655 stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.
+
+Artifact storage cap (bytes, optional)
+Stored maps and upload failures
+1. Match your application’s release
+
+Use exactly the release and build from your SDK’s init. A new release is registered automatically when the upload runs.
+
+Application release
+Application build
+Your bundler
+Vite
+Rollup
+webpack
+esbuild
+Next.js
+2. Create a build-only key
+
+This deploy key can only register releases and upload maps for cedar-market. Keep it in your build terminal or CI secret store, outside browser code and source control. It is shown here until you leave this page or reload; revoke it in Settings when no longer needed.
+
+Create source-map deploy key
+
+Copy the environment line into your build terminal before running the commands below. In CI, save the key as SPOOL_DEPLOY_KEY. Local dev keys work only with this local installation; create a fresh key on hosted Spool.
+
+3. Build, stamp and upload
+npm install @just-every/spool
+Copy
+// vite.config.js: keep your existing plugins and add spoolSourceMaps last.
+import { spoolSourceMaps } from '@just-every/spool/vite';
+export default {
+  build: { sourcemap: true },
+  plugins: [spoolSourceMaps({ endpoint: "http://127.0.0.1:4710",
+    project: "cedar-market", release: "storefront@2.8.0",
+    build: "cedar-280", keyEnv: 'SPOOL_DEPLOY_KEY' })],
+};
+Copy
+npx vite build
+Copy
+
+Merge the configuration into your existing config. For CLI builds, replace src/index.js and dist/*.js with your entry point and every emitted bundle, including nested chunks. Each bundle needs its adjacent .map. Deploy the stamped output after upload; rebuilding afterwards removes its matching ID. Keep maps private when publishing assets.
+
+4. Confirm a mapped frame
+
+The CLI prints the uploaded map count. The published SDK 0.1.0 Vite/Rollup plugin is silent on success; an upload failure fails the build. Trigger a new error in your deployed application, open its issue in Spool, then look for Original source and a frame such as src/checkout.js:7:12. Spool’s own test exception checks capture only, not your app’s maps.
+
+If the frame is still unmapped
+No event: allow the app’s exact scheme, host and port on Capture, and check its ingest key and registered release.
+Upload refused: check the deploy key belongs to this project and installation, and is exported as SPOOL_DEPLOY_KEY. CLI uploads accept flat or indexed V3 maps up to 1 MiB each, without a lifetime map count. Check the project byte cap above. The prepared-map picker below retains its smaller flat-map limit.
+Missing map or debug ID: confirm the served bundle ends in //# debugId=… and its adjacent map’s debug_id matches. Deploy those exact stamped files, clear old cached bundles and trigger a new error.
+Map uploaded but no original location: match the event’s project, release and build exactly; include every chunk’s map and check the map contains mappings for the failing line.

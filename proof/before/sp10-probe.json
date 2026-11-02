@@ -1,0 +1,132 @@
+{
+  "390": {
+    "start": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "true",
+      "activeLabel": null
+    },
+    "end": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "true",
+      "activeLabel": null
+    },
+    "initialShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "finalShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "secondContextWrites": {
+      "release": 200,
+      "commit": 200,
+      "filter": 200
+    },
+    "secondContextSet": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true
+    },
+    "watch": {
+      "added": 0,
+      "removed": 0,
+      "flashes": 0,
+      "samples": 632,
+      "examples": []
+    },
+    "requestCounts": {
+      "GET /api/editor/config": 3
+    },
+    "requestLog": [
+      {
+        "t": 17,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 37,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 57,
+        "method": "GET",
+        "path": "/api/editor/config"
+      }
+    ]
+  },
+  "1440": {
+    "start": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "false",
+      "activeLabel": "Fingerprint rules"
+    },
+    "end": {
+      "scrollY": 900,
+      "fingerprint": "error.type:ProbeError -> probe-edit",
+      "categoryOpen": true,
+      "menuExpanded": "false",
+      "activeLabel": "Fingerprint rules"
+    },
+    "initialShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "finalShown": {
+      "releasePattern": "*",
+      "commitShared": false,
+      "localhostFilter": false,
+      "auditEntries": 50
+    },
+    "secondContextWrites": {
+      "release": 200,
+      "commit": 200,
+      "filter": 200
+    },
+    "secondContextSet": {
+      "releasePattern": "*-second",
+      "commitShared": true,
+      "localhostFilter": true
+    },
+    "watch": {
+      "added": 0,
+      "removed": 0,
+      "flashes": 0,
+      "samples": 634,
+      "examples": []
+    },
+    "requestCounts": {
+      "GET /api/editor/config": 3
+    },
+    "requestLog": [
+      {
+        "t": 17,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 37,
+        "method": "GET",
+        "path": "/api/editor/config"
+      },
+      {
+        "t": 57,
+        "method": "GET",
+        "path": "/api/editor/config"
+      }
+    ]
+  }
+}

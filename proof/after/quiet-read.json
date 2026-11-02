@@ -1,0 +1,14 @@
+{
+  "start": {
+    "audit_read": 7,
+    "grouping_proposals": 8
+  },
+  "afterThreeBackgroundPairs": {
+    "audit_read": 7,
+    "grouping_proposals": 8
+  },
+  "afterThreeForegroundPairs": {
+    "audit_read": 10,
+    "grouping_proposals": 11
+  }
+}

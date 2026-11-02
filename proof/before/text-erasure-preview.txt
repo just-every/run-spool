@@ -1,0 +1,79 @@
+Erase this project
+
+Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs, reproducers, fix workflows, exposure reports and Sentry import records. It cannot be undone.
+
+Preview erasure
+
+359 rows will be deleted.
+
+Will be deleted
+Project
+1
+Occurrences
+291
+Issues
+6
+Releases
+3
+Source maps
+3
+Admission counters
+1
+Sentry DSN aliases
+1
+Alert feed entries
+3
+Alert rules
+1
+Alert history
+3
+Alert intents
+3
+Mail jobs
+3
+Mail attempts
+3
+issue_priorities
+6
+artifact_storage_settings
+1
+retention_runs
+1
+short_id_prefixes
+1
+issue_short_ids
+6
+commit_sharing
+1
+follow_up_feed_custody
+3
+release_order_keys
+3
+audit_actor_links
+4
+release_policies
+1
+issue_resolutions
+3
+inbound_filter_policies
+1
+deployment_manifests
+6
+Kept without their project link
+Audit entries
+15
+Kept on purpose
+Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.
+The installation owner stays: project erasure preserves installation authority.
+The one-owner claim ledger stays with the installation.
+The managed owner-claim ledger stays with the installation.
+Erasure receipts keep counts and times only.
+Installation Business import opt-in stays with the owner.
+Revoked Business signing keys stay revoked.
+Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.
+Other projects stay: they lie outside the selected project.
+Portability tombstones stay as keyed hashes so older archives are refused on restore.
+Already downloaded archives, delivered mail, provider records, D1 Time Travel and backups, raw database imports and destination secrets (ALERT_DESTINATIONS) lie outside this installation and are not deleted.
+A brand-new installation given only an older archive cannot recognise this erasure; give it the newer archive as a later journal.
+Type cedar-market to confirm
+Erase project

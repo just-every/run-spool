@@ -1,0 +1,37 @@
+{
+  "390": {
+    "urlAfterErased": "/projects/cedar-market/issues",
+    "receiptVisible": true,
+    "switcherOptions": [
+      "Cedar Market · Storefront"
+    ],
+    "switcherValue": "cedar-market",
+    "apiProjects": [
+      "cedar-market"
+    ],
+    "heading": "Issues",
+    "afterIssuesLink": {
+      "url": "/projects/cedar-market/issues",
+      "h1": "Issues"
+    }
+  },
+  "1440": {
+    "urlAfterErased": "/projects/cedar-market/issues",
+    "receiptVisible": true,
+    "switcherOptions": [
+      "Cedar Market · Storefront"
+    ],
+    "switcherValue": "cedar-market",
+    "apiProjects": [
+      "cedar-market"
+    ],
+    "heading": "Issues",
+    "afterIssuesLink": {
+      "url": "/projects/cedar-market/issues",
+      "h1": "Issues"
+    }
+  },
+  "id1440": "erase-after-1440-11420",
+  "created": 201,
+  "id390": "erase-after-390-20371"
+}

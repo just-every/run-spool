@@ -1,0 +1,120 @@
+{
+  "390": {
+    "commitSharing": {
+      "saveButtons": 0,
+      "confirmText": "Agent reads, alerts and exports will carry each commit’s author and message.\n\nShare author and message\nKeep private",
+      "afterOnline": true,
+      "echoLineGone": true,
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": false,
+      "serverWhileOffline": null,
+      "serverAfterRefusal": true,
+      "afterRetry": false
+    },
+    "releasePolicy": {
+      "saveButtons": 0,
+      "refreshButtons": 0,
+      "patternSavedWithoutBlur": "cedar-*",
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "offline-*",
+      "serverAfterRefusal": "cedar-*",
+      "afterRetry": "offline-*",
+      "orderConfirm": "Changing the ordering rule can move regression boundaries for resolved issues. Preview the change, then apply it.\n\nPreview release policy\nApply release policy\nKeep current rule",
+      "orderServerBeforeConfirm": "sentry",
+      "orderAfterApply": "semver",
+      "staleRead": {
+        "stalledReads": 1,
+        "fieldAfterStaleReadLanded": "fresh-*",
+        "server": "fresh-*"
+      }
+    },
+    "inboundFilters": {
+      "saveButtons": 0,
+      "unsavedLine": false,
+      "toggleAfter": true,
+      "listAfter": [
+        "probe one*",
+        "probe two*"
+      ],
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": false,
+      "serverAfterRefusal": true,
+      "afterRetry": false
+    },
+    "groupingRules": {
+      "saveButtons": 0,
+      "serverAfterTypingPause": "",
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "error.type:ProbeError -> probe-group",
+      "serverAfterRefusal": "",
+      "afterRetry": "error.type:ProbeError -> probe-group"
+    },
+    "artifactCap": {
+      "saveButtons": 0,
+      "afterPause": 1234567,
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "7654321",
+      "serverAfterRefusal": 1234567,
+      "afterRetry": 7654321
+    }
+  },
+  "1440": {
+    "commitSharing": {
+      "saveButtons": 0,
+      "confirmText": "Agent reads, alerts and exports will carry each commit’s author and message.\n\nShare author and message\nKeep private",
+      "afterOnline": true,
+      "echoLineGone": true,
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": false,
+      "serverWhileOffline": null,
+      "serverAfterRefusal": true,
+      "afterRetry": false
+    },
+    "releasePolicy": {
+      "saveButtons": 0,
+      "refreshButtons": 0,
+      "patternSavedWithoutBlur": "cedar-*",
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "offline-*",
+      "serverAfterRefusal": "cedar-*",
+      "afterRetry": "offline-*",
+      "orderConfirm": "Changing the ordering rule can move regression boundaries for resolved issues. Preview the change, then apply it.\n\nPreview release policy\nApply release policy\nKeep current rule",
+      "orderServerBeforeConfirm": "sentry",
+      "orderAfterApply": "semver",
+      "staleRead": {
+        "stalledReads": 1,
+        "fieldAfterStaleReadLanded": "fresh-*",
+        "server": "fresh-*"
+      }
+    },
+    "inboundFilters": {
+      "saveButtons": 0,
+      "unsavedLine": false,
+      "toggleAfter": true,
+      "listAfter": [
+        "probe one*",
+        "probe two*"
+      ],
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": false,
+      "serverAfterRefusal": true,
+      "afterRetry": false
+    },
+    "groupingRules": {
+      "saveButtons": 0,
+      "serverAfterTypingPause": "",
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "error.type:ProbeError -> probe-group",
+      "serverAfterRefusal": "",
+      "afterRetry": "error.type:ProbeError -> probe-group"
+    },
+    "artifactCap": {
+      "saveButtons": 0,
+      "afterPause": 1234567,
+      "offlineFailure": "Not saved. You are offline. Reconnect and try again. Retry",
+      "valueKeptInField": "7654321",
+      "serverAfterRefusal": 1234567,
+      "afterRetry": 7654321
+    }
+  }
+}

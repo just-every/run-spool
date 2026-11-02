@@ -1,0 +1,81 @@
+Erase this project
+
+Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs, reproducers, fix workflows, exposure reports and Sentry import records. It cannot be undone.
+
+Preview erasure
+
+360 rows will be deleted.
+
+Will be deleted
+Project
+1
+Occurrences
+291
+Issues
+6
+Releases
+3
+Source maps
+3
+Admission counters
+1
+Sentry DSN aliases
+1
+Alert feed entries
+3
+Alert rules
+1
+Alert history
+3
+Planned alert deliveries
+3
+Mail jobs
+3
+Mail attempts
+3
+Source map storage cap
+1
+Audit links
+4
+Commit sharing setting
+1
+Deployment manifests
+6
+Follow-up feed records
+3
+Grouping rules
+1
+Inbound filters
+1
+Issue priorities
+6
+Issue resolutions
+3
+Issue short ID assignments
+6
+Release ordering
+3
+Release policies
+1
+Retention runs
+1
+Issue short IDs
+1
+Kept without their project link
+Audit entries
+43
+Kept on purpose
+Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.
+The installation owner stays: project erasure preserves installation authority.
+The one-owner claim ledger stays with the installation.
+The managed owner-claim ledger stays with the installation.
+Erasure receipts keep counts and times only.
+Installation Business import opt-in stays with the owner.
+Revoked Business signing keys stay revoked.
+Records of used Business grants stay so no grant can be used twice; they hold an action, key ID, expiry and namespace name, never record content.
+Other projects stay: they lie outside the selected project.
+A one-way fingerprint of each deleted record stays, so an older archive is refused if someone tries to restore it.
+Already downloaded archives, delivered mail, provider records, D1 Time Travel and backups, raw database imports and destination secrets (ALERT_DESTINATIONS) lie outside this installation and are not deleted.
+A brand-new installation given only an older archive cannot recognise this erasure; give it the newer archive as a later journal.
+Type cedar-market to confirm
+Erase project

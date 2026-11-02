@@ -1,0 +1,101 @@
+{
+  "390": {
+    "saveAndRefreshButtons": [
+      "Save email preferences",
+      "Save dashboard",
+      "Save grouping rules",
+      "Refresh grouping rules",
+      "Refresh grouping proposals",
+      "Save scrubbing rules",
+      "Save identity policy",
+      "Save recurrence policy",
+      "Refresh recurrence policy",
+      "Save release policy",
+      "Refresh release policy",
+      "Save commit sharing",
+      "Refresh feedback",
+      "Save inbound filters",
+      "Refresh filters and usage",
+      "Refresh history"
+    ],
+    "strings": {
+      "proposals": "Capture keys send events. Agent keys read this project’s evidence and submit inert grouping proposals; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.",
+      "native": "Sentry events can arrive without a release or automatically create one. Native v1 still requires a registered release and build. An omitted dist has a separate no-dist identity; an explicit dist is kept distinct.",
+      "enableLines": [
+        "Enable browser extensions",
+        "Enable legacy browsers",
+        "Enable localhost and loopback",
+        "Enable known web crawlers",
+        "Enable react hydration errors",
+        "Enable chunk and dynamic import failures",
+        "Enable client ip addresses and cidrs",
+        "Enable error message patterns",
+        "Enable releases",
+        "Enable environments",
+        "Enable allowed browser domains"
+      ]
+    },
+    "editsWithoutSave": {
+      "releasePatternAfter2s": "unchanged on server",
+      "commitShareAfter2s": "unchanged on server"
+    },
+    "saveButtonStatesAfterEdit": {
+      "commit": true,
+      "release": false
+    }
+  },
+  "1440": {
+    "saveAndRefreshButtons": [
+      "Save email preferences",
+      "Save dashboard",
+      "Save grouping rules",
+      "Refresh grouping rules",
+      "Refresh grouping proposals",
+      "Save scrubbing rules",
+      "Save identity policy",
+      "Save recurrence policy",
+      "Refresh recurrence policy",
+      "Save release policy",
+      "Refresh release policy",
+      "Save commit sharing",
+      "Refresh feedback",
+      "Save inbound filters",
+      "Refresh filters and usage",
+      "Refresh history"
+    ],
+    "strings": {
+      "proposals": "Capture keys send events. Agent keys read this project’s evidence and submit inert grouping proposals; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.",
+      "native": "Sentry events can arrive without a release or automatically create one. Native v1 still requires a registered release and build. An omitted dist has a separate no-dist identity; an explicit dist is kept distinct.",
+      "enableLines": [
+        "Enable browser extensions",
+        "Enable legacy browsers",
+        "Enable localhost and loopback",
+        "Enable known web crawlers",
+        "Enable react hydration errors",
+        "Enable chunk and dynamic import failures",
+        "Enable client ip addresses and cidrs",
+        "Enable error message patterns",
+        "Enable releases",
+        "Enable environments",
+        "Enable allowed browser domains"
+      ]
+    },
+    "editsWithoutSave": {
+      "releasePatternAfter2s": "unchanged on server",
+      "commitShareAfter2s": "unchanged on server"
+    },
+    "saveButtonStatesAfterEdit": {
+      "commit": true,
+      "release": false
+    }
+  },
+  "artifactCap": {
+    "newTextAfterSave": [],
+    "saved": {
+      "artifact_storage_cap": 987654321,
+      "revision": 1,
+      "count": 3,
+      "bytes": 2655
+    }
+  }
+}

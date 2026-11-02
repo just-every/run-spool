@@ -1,0 +1,1057 @@
+Cedar Market · Storefront / Settings
+Settings
+
+Manage projects, access and stored evidence.
+
+Members
+Organization name
+Organization ID
+Create organization
+Usage
+Personal notifications
+
+Your email choices for this project. Weekly reports start off. These preferences are saved for your account; personal notification delivery is not connected yet.
+
+Email preferences
+Resolutions
+Regressions
+Assignments
+Comments
+Mentions
+Issue alerts
+Deploys
+Weekly reports
+Save email preferences
+Create another project
+Project name
+Project identifier
+
+New projects filter browser extension and known crawler errors by default. You can turn each off in Settings before capture.
+
+Create project
+Project keys
+
+Capture keys send events. Agent keys read this project’s evidence and submit inert grouping proposals; decisions and apply require the owner. Deploy keys only register releases and upload source maps for this project.
+
+Archives exclude project keys. After restoring, create new keys for this installation.
+
+No project keys have been created here.
+
+Create ingest key
+Create agent key
+Create deploy key
+Reports, dashboards and query tables
+
+Configure shared views here. Open Reports to view and export results. Shared views still show only projects the viewer can access.
+
+Saved view
+Create a new view (0/25)
+View type
+Custom dashboard
+Query table
+Saved report
+View name
+
+2/12 widgets · 0/25 views of this type. All windows have explicit UTC endpoints; report buckets use the chosen time zone. Dashboard and table windows display in UTC.
+
+Event volume
+Widget title
+Project
+Cedar Market · Storefront
+Erase probe x
+Metric
+Event count
+Events per minute
+Affected users
+Observed sessions
+Group by
+No grouping
+Environment
+Release
+Level
+Tag
+Event query
+Window start (UTC)
+Window end (UTC)
+Remove widget
+Affected users
+Widget title
+Project
+Cedar Market · Storefront
+Erase probe x
+Metric
+Event count
+Events per minute
+Affected users
+Observed sessions
+Group by
+No grouping
+Environment
+Release
+Level
+Tag
+Event query
+Window start (UTC)
+Window end (UTC)
+Remove widget
+Add widget
+Save dashboard
+Send errors to this project
+Install the Spool SDK
+npm install @just-every/spool
+Copy
+Initialise it once in your app
+import { init } from '@just-every/spool';
+init({ endpoint: "http://127.0.0.1:4710", project: "cedar-market", ingestKey: "YOUR_INGEST_KEY",
+  release: "storefront@2.8.0", build: "cedar-280" });
+Copy
+
+It captures uncaught errors and unhandled rejections in the browser. On Node import @just-every/spool/node; in Cloudflare Workers call captureException from @just-every/spool/worker with your handler’s ctx. For original-source stacks, use the complete source-map setup with your project’s build key and bundler configuration.
+
+Allow your app’s origin
+
+In a browser, Spool accepts events only from origins this project allows, so the init above sends nothing until your app’s exact origin is allowed. Node and Workers send no origin and need only the key.
+
+Your app’s origin
+Allow origin
+
+Scheme, host and port only, such as http://localhost:5173. No app origin is allowed yet. Manage allowed origins
+
+Already using Sentry? Point your DSN here
+
+Keep your Sentry browser or Node SDK and replace only its DSN. By default, events can arrive without a release, and an unseen release is created automatically. Settings shows the release ordering rule; choose registered sequence only there if your project requires registration first. An omitted dist is shown as sentry-no-dist. Spool keeps exceptions and stack traces; sessions, traces and replays remain unsupported.
+
+Its DSN is shown once, next to each new ingest key created under Project keys in Settings.
+
+Cron check-ins
+
+Spool accepts Sentry cron check-ins at your DSN and forwards each to an Uptime heartbeat you connect here: a start, a success or a failure receipt per check-in. Uptime, not Spool, evaluates schedules and missed runs. With no connection a check-in is counted as unrouted and nothing is sent.
+
+No monitor is connected. Forwarding is off.
+
+Monitor slug
+Uptime heartbeat capability URL
+
+Paste the separate capability URL Uptime shows once when it issues a heartbeat key. It is kept by this installation, never shown again and never exported.
+
+Connect monitor
+Project grouping rules
+
+Preview JavaScript, Python, Go and Sentry stack and fingerprint rules against retained events, then save for later intake. Recorded grouping and prior corrections stay inspectable. Native events keep their default grouping unless a project rule changes it.
+
+Active revision 0. Ordered stack rules use path, module, package, function or family with +app, -app, +group and -group. The first matching fingerprint rule wins; project fingerprints take precedence over SDK fingerprints. Native stacks use the first contributing frame; Sentry stacks use contributing in-app frames. Only * is a wildcard.
+
+Stack trace rules
+Fingerprint rules
+
+Fingerprint matchers: error.type and error.value (any cause), message, level, logger, sdk.name, family and tags.KEY. Combine matchers with spaces; quote values containing spaces. Use comma-separated fingerprint values, including {{ default }} to retain default grouping. Native events expose type, message, family, frame path and function; module, package, tags and SDK metadata require Sentry evidence. Unknown syntax is refused.
+
+Previous grouping policy
+Choose a previous revision to restore…
+Preview grouping rules
+Save grouping rules
+Refresh grouping rules
+Agent grouping proposals
+
+Review the agent’s explanation and counterexamples before deciding. Approval opens a preview; applying a correction or saving rules is a separate owner action.
+
+Refresh grouping proposals
+
+No agent grouping proposals yet.
+
+Slack destinations
+Connect Slack
+
+Posts a compact issue summary and link only. No interactive actions. A test posts “Spool TEST — destination check. No issue or alert was created.” to the selected channel. Posted is provider acknowledgment; it never means a person read it.
+
+Slack destination name
+Slack channel identifier
+Slack bot token
+
+The token stays in this installation and is excluded from reads, archives and exports. Restored rules stay disabled until you reconnect. Slack needs the installation’s integration egress service; real Slack qualification is not run.
+
+Connect Slack
+Server scrubbing rules
+Rule scope
+Project
+Installation
+Installation protection
+
+Applies to every project before project rules.
+
+Additional sensitive fields
+Safe fields
+Custom scrubbing rules
+
+No custom rules in this scope.
+
+Add scrubbing rule
+Preview scrubbing
+Save scrubbing rules
+User identity policy
+
+These four Sentry user fields default to drop. Keep retains the selected identity in this installation for permitted identity reads and private archives. Hash retains only a keyed project hash. Other user fields remain dropped. Existing values convert only toward stricter storage; a later keep choice cannot recover dropped values.
+
+User id
+drop
+hash
+keep
+User email
+drop
+hash
+keep
+User username
+drop
+hash
+keep
+User ip_address
+drop
+hash
+keep
+
+{{auto}} is unavailable: this Worker exposes no connecting socket address. No forwarded header or tunnel is trusted. Session DID stays keyed-hash-only under SDK-005; field-specific session policy, user search and field-specific identity grants remain unavailable. End-user erasure currently offers only a retained-event email count preview. Agent packets and read-only grants receive counts only.
+
+Preview identity policy
+Save identity policy
+End-user erasure preview
+
+Preview retained event counts for one exact email under keep or hash policy. This does not erase data or approve an erasure.
+
+Email to match
+Preview matching records
+Release recurrence
+
+After resolving in the current release or an already observed named release, another event in that release increases the count and appears in the issue history. By default the issue stays resolved. A later release reopens it under the project release ordering rule.
+
+ Reopen resolutions on another event in the same release
+
+Applies to future accepted events. Older releases and events without a release keep their existing behavior. Plain Resolve still reopens on the next event. Next-release resolution waits above its boundary; a future named release reopens on its first event, and a later release still reopens it. Capture suppression still prevents reopening.
+
+Preview recurrence policy
+Save recurrence policy
+Refresh recurrence policy
+Sentry release identity
+
+Sentry events can arrive without a release or automatically create one. Native v1 still requires a registered release and build. An omitted dist has a separate no-dist identity; an explicit dist is kept distinct.
+
+Release ordering rule
+First seen (default)
+First seen
+Semantic versions, then other names
+Registered sequence only
+
+First seen orders every release by its original first-seen time, then UTF-8 release name. Semantic order ranks all semantic versions first by precedence (build metadata is ignored), then non-semantic names by first seen. Ties use first seen and UTF-8 release name. Lists, latest and regression share this order. Registered sequence only refuses missing or unregistered releases and builds with a counted reason. Plain Resolve reopens on the next accepted event under either rule. Next-release resolution waits for a release later than the latest at resolution time; named-release resolution waits for the chosen release or a later one. Older and release-less events do not reopen either.
+
+Automatic release name pattern
+
+Only * is a wildcard. Unseen names outside the pattern are accepted as release none, with a processing note. Invalid names also become none. Existing releases stay available.
+
+Preview release policy
+Save release policy
+Refresh release policy
+Commit author and message
+
+Commits a deploy key registers keep their author and message for your issue timeline. Evidence packets, agent reads, alerts and exports carry the short ID and commit SHA only, unless you share the author and message here. Retention and erasure remove them either way.
+
+Share commit author and message outside the owner session
+
+Not shared · changed 02/11/2026, 06:22:58 UTC, recorded in the audit history
+
+Save commit sharing
+Scheduled alert run
+
+Last ran 02/11/2026, 06:23:00 UTC.
+
+New-issue and regression alerts are sent as soon as Spool admits the event. Spike alerts, delivery retries and anything still queued wait for this run, which is scheduled every minute.
+
+Feedback inbox
+Refresh feedback
+
+All text reports received for this project, including reports sent without an event. Contact details and attachments are not retained.
+
+Use your application’s consent form before sending feedback through Sentry’s captureFeedback or feedback widget. Spool currently receives text only; replies and screenshot review are unavailable.
+
+Current limits: 1,000 characters per report, 60 reports per minute and 1,000 retained reports per project. Larger or excess submissions are refused with a reason.
+
+No feedback has arrived for this project yet.
+
+Inbound filters and usage
+
+Filter unwanted errors on the server before issues, alerts and accepted usage. Preview your changes against retained events, then save for later intake. No SDK redeploy is needed.
+
+New-project defaults: Browser extensions, Known web crawlers. Each can be turned off.
+
+Last 24 hours · 3 accepted · 0 filtered. Per-filter matches can overlap; filtered events never enter accepted usage.
+
+Only * is a wildcard. Message patterns ignore case; releases and environments preserve case. Browser maximum versions include the specified version family. Wildcard domains match subdomains, not the apex. Legacy exact origins remain allowed.
+
+Filters by accepted category and unavailable fields
+Browser extensions
+Enable browser extensions
+
+0 recent matches
+
+Legacy browsers
+Enable legacy browsers
+
+0 recent matches
+
+Legacy browser rules · name<=version, one per line
+Names: chrome, firefox, safari, edge, ie, opera, samsung. Matches the named version and older versions.
+Localhost and loopback
+Enable localhost and loopback
+
+0 recent matches
+
+Known web crawlers
+Enable known web crawlers
+
+0 recent matches
+
+React hydration errors
+Enable react hydration errors
+
+0 recent matches
+
+Chunk and dynamic import failures
+Enable chunk and dynamic import failures
+
+0 recent matches
+
+Client IP addresses and CIDRs
+Enable client ip addresses and cidrs
+
+0 recent matches
+
+Client IP addresses and CIDRs · one per line
+Error message patterns
+Enable error message patterns
+
+0 recent matches
+
+Error message patterns · one per line
+Releases
+Enable releases
+
+0 recent matches
+
+Releases · one per line
+Environments
+Enable environments
+
+0 recent matches
+
+Environments · one per line
+Allowed browser domains
+Enable allowed browser domains
+
+0 recent matches
+
+Allowed browser domains · one per line
+
+Preview reports missing transport evidence separately. Client addresses are not retained, so historical IP matches are unavailable. Message patterns use literal text and *; domain patterns use example.com or *.example.com. Existing exact browser origins remain allowed.
+
+Preview retained events
+Save inbound filters
+Refresh filters and usage
+Business imports
+Off by default
+Details
+Organization audit
+
+Permanent action facts use private actor and subject aliases. Erasure removes their identity links; archives carry the facts and a restore appends them after this installation's own.
+
+Request entries record HTTP outcomes, including denied and stale attempts. Transaction entries commit in the same database transaction as the change they describe. Service entries record background work, exports and notification attempts. Legacy entries keep the kind, time and project alias of journal rows written before attribution existed; their actor is unknown.
+
+Refresh history
+Export JSON
+Export CSV
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:23:08 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+grouping · proposals
+· succeeded · HTTP 200
+
+02/11/2026, 06:23:08 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+notification · preferences
+· succeeded · HTTP 200
+
+02/11/2026, 06:23:08 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+private · action
+· succeeded
+
+02/11/2026, 06:23:08 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+billing · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:23:08 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · installation
+audit:3494670aa3a3483ea164bb252842ff2c
+
+filter · change
+· succeeded · HTTP 200
+
+02/11/2026, 06:22:58 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded
+
+02/11/2026, 06:22:58 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded · HTTP 200
+
+02/11/2026, 06:22:58 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded
+
+02/11/2026, 06:22:58 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:22:57 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded
+
+02/11/2026, 06:22:57 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:58 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded
+
+02/11/2026, 06:21:58 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:58 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded
+
+02/11/2026, 06:21:58 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:58 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded
+
+02/11/2026, 06:21:58 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+retention · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · policy
+audit:22c44b8a85884db78d12c985191c8fd2
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+audit · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · audit
+audit:429ea02706534ec38db29f77215a7d7c
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+grouping · proposals
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+notification · preferences
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+private · action
+· succeeded
+
+02/11/2026, 06:21:51 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+billing · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:51 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · installation
+audit:3494670aa3a3483ea164bb252842ff2c
+
+filter · change
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:49 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded
+
+02/11/2026, 06:21:49 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:49 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded
+
+02/11/2026, 06:21:49 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:21:49 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded
+
+02/11/2026, 06:21:49 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:50 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+filter · change
+· succeeded
+
+02/11/2026, 06:20:50 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:50 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+commit · sharing
+· succeeded
+
+02/11/2026, 06:20:50 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:50 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+release · policy
+· succeeded
+
+02/11/2026, 06:20:50 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+retention · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · policy
+audit:22c44b8a85884db78d12c985191c8fd2
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+audit · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · audit
+audit:429ea02706534ec38db29f77215a7d7c
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+grouping · proposals
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+notification · preferences
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+private · action
+· succeeded
+
+02/11/2026, 06:20:42 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+billing · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:42 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · installation
+audit:3494670aa3a3483ea164bb252842ff2c
+
+private · action
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:14 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+private · action
+· succeeded
+
+02/11/2026, 06:20:14 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+private · action
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:12 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+private · action
+· succeeded
+
+02/11/2026, 06:20:12 UTC · transaction
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · unknown
+audit:62dd4e0240ac4dbe960699394b189384
+
+retention · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:06 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · policy
+audit:22c44b8a85884db78d12c985191c8fd2
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+
+audit · read
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:06 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · audit
+audit:429ea02706534ec38db29f77215a7d7c
+
+release · policy
+· succeeded · HTTP 200
+
+02/11/2026, 06:20:06 UTC · request
+
+Actor · owner
+audit:c109cb50a220415abd48bb3edc046f57
+Subject · project
+audit:99d11b3f450f4acb96653b162e9bda6b
+Project
+audit:28e4f8f055d74ea5a03feb67e9e854ac
+Load earlier entries
+Archive and restore
+
+Archives include private source maps. Owner sessions and credential grants are excluded. Restore requires an empty installation. Create new project keys after restoring.
+
+Download private archive
+Archive to restore · max 16 MiB
+Restore into empty installation
+Retention windows
+
+Windows are 30–90 days, default 90. Legal hold pauses expiry only. Project and owner erasure remain available.
+
+Event occurrences (days)
+Unreferenced source maps (days)
+Feedback (days)
+Exposure observations (days)
+Commit author and message (days)
+Individual sessions (days)
+Preview windows
+
+Estimated stored data: 160,845 bytes. Stored text bytes plus estimated structured rows; excludes indexes, database overhead, artifacts referenced by retained events and session aggregates.
+
+Last expiry run: 02/11/2026, 06:16:00 UTC · complete · 0 rows pending
+
+Legal hold: inactive
+Reason for legal hold
+Set legal hold
+
+Residency, plan-specific windows and session-aggregate expiry remain unavailable.
+
+Delete old evidence
+
+Deleting evidence also deletes its retry IDs. Retries before the cutoff may be admitted again, and historical comparisons become incomplete.
+
+Delete occurrences received before (browser local time)
+Preview retention
+Erase this project
+
+Erasure permanently deletes this project and everything recorded for it: occurrences, issues, releases, source maps, keys, origins, alerts and their delivery history, repairs, reproducers, fix workflows, exposure reports and Sentry import records. It cannot be undone.
+
+Preview erasure
+
+359 rows will be deleted.
+
+Will be deleted
+Project
+1
+Occurrences
+291
+Issues
+6
+Releases
+3
+Source maps
+3
+Admission counters
+1
+Sentry DSN aliases
+1
+Alert feed entries
+3
+Alert rules
+1
+Alert history
+3
+Alert intents
+3
+Mail jobs
+3
+Mail attempts
+3
+issue_priorities
+6
+artifact_storage_settings
+1
+retention_runs
+1
+short_id_prefixes
+1
+issue_short_ids
+6
+commit_sharing
+1
+follow_up_feed_custody
+3
+release_order_keys
+3
+audit_actor_links
+4
+release_policies
+1
+issue_resolutions
+3
+inbound_filter_policies
+1
+deployment_manifests
+6
+Kept without their project link
+Audit entries
+15
+Kept on purpose
+Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.
+The installation owner stays: project erasure preserves installation authority.
+The one-owner claim ledger stays with the installation.
+The managed owner-claim ledger stays with the installation.
+Erasure receipts keep counts and times only.
+Installation Business import opt-in stays with the owner.
+Revoked Business signing keys stay revoked.
+Used Business grant nonces stay so no grant can be replayed; they hold an action, key id, expiry and namespace name, never record content.
+Other projects stay: they lie outside the selected project.
+Portability tombstones stay as keyed hashes so older archives are refused on restore.
+Already downloaded archives, delivered mail, provider records, D1 Time Travel and backups, raw database imports and destination secrets (ALERT_DESTINATIONS) lie outside this installation and are not deleted.
+A brand-new installation given only an older archive cannot recognise this erasure; give it the newer archive as a later journal.
+Type cedar-market to confirm
+Erase project
