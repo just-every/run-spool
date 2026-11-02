@@ -268,7 +268,7 @@ Core · target · **partial** · Rules D-1, D-4
 7. A new fatal error opens as high priority and a warning as medium.
 8. A priority set to low by hand stays low after a later escalation, with its actor shown.
 
-**Evidence.** `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/BulkTriage.tsx`; `tests/bulk-triage-flow.mjs`; `tests/investigation-flow.mjs`; `docs/BULK-TRIAGE.md` SDK-009 supplies plain/current/next/named owner and bulk resolution.
+**Evidence.** `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/BulkTriage.tsx`; `tests/bulk-triage-flow.mjs` bulkTriageFlow; `tests/investigation-flow.mjs` investigationFlow; `docs/BULK-TRIAGE.md`. SDK-009 supplies plain, current, next and named owner and bulk resolution. Acceptance 7: `tests/release-identity-flow.mjs` issuePriorityFlow asserts fatal high and warning medium. Acceptance 8: issuePriorityFlow retains owner low priority through escalation and regression with its timeline actor; `tests/owner-claim.mjs` owner-claim and team journey invokes `tests/team-flow.mjs` teamFlow, `tests/discussion-flow.mjs` discussionFlow and `tests/busy-member-writes.mjs` busyMemberWrites: an ordinary project member sets low, a later fatal event reaches that same issue, and the priority read, issue list, shared timeline and rendered issue retain low and the original member actor; read-only refusal and concurrent stale-write nonmutation remain asserted.
 **Gap.** Shared team discussion, member assignment, priority and collaborative recurrence/suppression policies remain absent.
 
 #### TEAM-004 — Issue short IDs and resolution from commits and pull requests
