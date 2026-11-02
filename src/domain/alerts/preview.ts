@@ -1,3 +1,4 @@
+import type { NativeAuthority } from '../agent-door/native-authority';
 import {primaryShortIdSql} from '../short-ids/lookup';
 import {scrubbingSnapshot,scrubbingFence} from '../scrubbing/model';
 import { canonical,hash } from '../privacy';
@@ -10,7 +11,7 @@ import { eventFilter,eligibleEvent,ruleConfig,userKey } from './filters';
 import { decision } from './measure';
 export const configSql="COALESCE((SELECT config FROM alert_rule_configs cfg WHERE cfg.rule_id=r.id),'{\"metric\":\"count\",\"filters\":{},\"tagKeys\":[]}')";
 export async function ruleDigest(b:any,revisions?:unknown){const {previewToken,...value}=b;return hash(canonical({value,...revisions?{scrubbing:revisions}:{}}))}
-export async function previewRule(env:AlertEnvironment,session:OwnerSession,project:string,raw:any){
+export async function previewRule(env:AlertEnvironment,session:NativeAuthority,project:string,raw:any){
  const {ruleId,...value}=raw,b=ruleInput(value,env,project,!!ruleId),config=ruleConfig(JSON.parse(b.config)),policy=await readIdentityPolicy(env.DB,project),time=Date.now(),end=Math.floor(time/b.windowMs)*b.windowMs,from=end-90*86400000;
  const f=eventFilter(config),rows=(await s(env.DB,`SELECT e.issue,CAST(e.received/? AS INTEGER)*? start,COUNT(*) count FROM events e WHERE e.project=? AND e.received>=? AND e.received<? AND ${eligibleEvent()} AND ${f.sql} GROUP BY e.issue,start ORDER BY start DESC,e.issue LIMIT 100`,b.windowMs,b.windowMs,project,from,end,...f.args).all<any>()).results;
  let refusal:string|null=null;

@@ -63,9 +63,11 @@ try{
  const pending=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
- const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
+ const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,proofReference,...row})=>row)});
  const before=await views(app);
+ assert.ok((await app.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.some(row=>row.proofReference),'the source has live native repository proof before restore retires it');
  restored=await executionRuntime(restoredState,15477,{GITHUB_CONNECTION:github.connection});await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
+ assert.ok((await restored.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.every(row=>row.proofReference===null),'Restored history never restores live repository proof');
  const historical={reproducers:before.reproducers.map(row=>({...row,runs:row.runs.map(run=>({...run,historical:true}))})),workflows:before.workflows.map(row=>({...row,historical:true,status:'historical'}))};
  assert.deepEqual(await views(restored),historical,'all reproducer, run, workflow, receipt and exposure facts survive as inert history');
  const restoredData=(await archiveProjection(await restored.request('/api/archive'))).data;
