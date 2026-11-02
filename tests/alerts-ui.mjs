@@ -1,3 +1,4 @@
+import {environmentFilterUI} from './alerts/environment-filter-ui.mjs';
 import {mock} from 'node:test';
 import {deliveryClock,providerSigner} from './alerts/delivery-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
@@ -69,6 +70,7 @@ try {
   await page.getByRole('button',{name:'Alert feed',exact:true}).click();await page.getByRole('button',{name:'Open issue',exact:true}).first().waitFor();
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('other');await page.getByRole('button',{name:'Delivery log',exact:true}).click();assert.equal(await page.getByRole('button',{name:/Details: Delivery/}).count(),0);await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');
   await page.getByRole('button',{name:'Rules',exact:true}).click();await page.getByRole('button',{name:`Edit Updated mail ${width}`,exact:true}).waitFor();
+  await environmentFilterUI(page,app,auth,width,deliveryClock);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
   await page.getByRole('button',{name:'Alert feed',exact:true}).focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Open issue',exact:true}).first().waitFor();
   const html=await page.content();assert.ok(!html.includes('alert-owner@example.com'));assert.ok(!html.includes(app.bindings.ALERT_DESTINATION_HASH_KEY));

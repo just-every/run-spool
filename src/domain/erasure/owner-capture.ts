@@ -13,7 +13,7 @@ export const ownerCaptureColumns: Record<string, string[]> = {
  feedback: ['message'],
  projects: ['name'], issues: ['title'], events: ['payload','diagnostic'], artifacts: ['payload'],
  repairs: ['note','exercise_note','link'], repair_checks: ['name','note'], alerts: ['payload'],
- alert_rules: ['name'], rer_mail_development_outbox: ['message'],
+ alert_rule_filters: ['environment'], alert_rules: ['name'], rer_mail_development_outbox: ['message'],
  reproducers: ['spec'], reproducer_runs: ['observation','checks'], fix_workflows: ['grant_spec'], fix_receipts: ['detail'],
  // TEAM-004: a cited commit's author is matched like any captured value, as whole tokens.
  commits: ['author_name','author_email','message'],
@@ -77,6 +77,7 @@ export async function capturePlan(db: D1Database, needles: string[]) {
     try { value = jsonColumn(table,column) ? JSON.parse(row[column]) : row[column]; } catch { hold = 'unreadable_captured_content'; continue; }
     if (!containsValue(value, needles)) continue;
     try {
+     if(table==='alert_rule_filters')throw new Error('identifier_in_rule_predicate');
      if (table === 'events' && column === 'payload') {
       const {message, breadcrumbs, ...structural} = value;
       if (containsValue(structural, needles)) throw new Error('identifier_in_event_grouping_or_identity');

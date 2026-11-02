@@ -203,6 +203,8 @@ laterTables.unshift({tables:[],migrations:['0085_follow_up_acknowledgment.sql']}
 const preferenceNames=Object.keys(notificationPreferenceTables);
 for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0086_notification_preferences.sql')}
 laterTables.unshift({tables:[...preferenceNames],migrations:['0086_notification_preferences.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_filters');later.migrations.push('0087_alert_rule_filters.sql')}
+laterTables.unshift({tables:['alert_rule_filters'],migrations:['0087_alert_rule_filters.sql']});
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
