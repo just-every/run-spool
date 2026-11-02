@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "83094337a18000dcaf501b6a1536c247bb7233348e276692e20798b5dc5876f5",
+      "sha256": "a44ca2594ca7d28b2bf10a7e01ed790920eb64b07486cf8637aab6c32368e79b",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "644eb297fb533483a48fe95340080bc7af6b75352e5aa0bee89e522dd2c0e4b6",
+      "sha256": "ffdcfe622fd90d33226435269e102f56452103563addbd70ff86d38f67a7255c",
       "executable": false
     },
     "DEMO.md": {
@@ -9822,7 +9822,7 @@
       "executable": false
     },
     "tests/busy-member-writes.mjs": {
-      "sha256": "0cdbefbdcd11384f2a3fecec53a3ad79b34bf57ebdbbe0787e1ddba3d0723cc0",
+      "sha256": "ebc71e2852c1592fa7c19fc529f89a13aab620e992405eb4cd431e982009a424",
       "executable": false
     },
     "tests/checkin-flow.mjs": {
@@ -9866,7 +9866,7 @@
       "executable": false
     },
     "tests/discussion-flow.mjs": {
-      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232",
+      "sha256": "457f1579d4af21085a85ea21eb9b4ef2174b4db1c900692f485649725463c0c5",
       "executable": false
     },
     "tests/editor-management-edge.mjs": {
@@ -10205,12 +10205,16 @@
       "sha256": "b643b92e2aa14019b0a4163a517e7b7c0f5d4a8bb20e23bfb9d6146a6cf2cc34",
       "executable": false
     },
+    "tests/retention-archive.mjs": {
+      "sha256": "818c7515b17ed78a165c5bb2e2a0cc86cddfcd5456ab3d8fbbc89ad5179091e6",
+      "executable": false
+    },
     "tests/retention-flow.mjs": {
       "sha256": "d97119098ae495e16be01b8ed852733589be75e9600ace61febd316ceb745861",
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {
-      "sha256": "8eef601421fe9798f1637f908ffea319d219f04b258a351f7b2391e289dfd5b7",
+      "sha256": "6e6a92ad67e8c001e89ecab078adfbd06185b36d28361340ea4860d7d46875ed",
       "executable": false
     },
     "tests/review-inbox-flow.mjs": {
@@ -10306,7 +10310,7 @@
       "executable": false
     },
     "tests/runtimes/harness.mjs": {
-      "sha256": "7d40e04f0d293df587abcc49a0bbdeb00b97657628c6a777ebdcdd20b3bd6881",
+      "sha256": "6ffca19371d3321974773293260903f1a79c697ff3f3c4fcdf2e0045924a896e",
       "executable": false
     },
     "tests/runtimes/java.mjs": {
@@ -10346,7 +10350,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "12af5902e83c4a0b76ef1f4bffd5f50acef39de26fa7890775a689ca41015055",
+      "sha256": "4667cb62efd739173bbffa605ded53013c48bd53c92c60114802e3c7f8b5de85",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
@@ -10378,11 +10382,11 @@
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
-      "sha256": "615c1747c9712cdfa353d82a201c68779aab4ef1efa53d113a017b44dc25b17f",
+      "sha256": "a18d159615069a751deb5a76a2af5b62dc3437e31427a8a646c89a769e50010d",
       "executable": false
     },
     "tests/runtimes/ruby/app.rb": {
-      "sha256": "f81ee5a2f34137f1c127fa63c8464251c60a666f86bd9d593dbe653632869959",
+      "sha256": "874a24056bccc90c8800736c3fe253eed399aaddf1cf8f5c0f4a10cef519a094",
       "executable": false
     },
     "tests/runtimes/ruby/Gemfile": {
@@ -10422,7 +10426,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "2de12a24acc0e06d1a64842e55d50e876fdbb26c13935ba66b871ede4c6553a6",
+      "sha256": "534ebce739b8c0877ca2e529d4b3a1f023157bec40ccf7f83e0e6a73a6ba5889",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
