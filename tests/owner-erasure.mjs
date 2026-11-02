@@ -121,7 +121,7 @@ try {
  const countChanged=await app.request(teamAlerts+'/rules/'+countRule.id,{...countInput,environment:'production',revision:1},{},'PUT');assert.equal(countChanged.status,200);await countChanged.body?.cancel();
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===2 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -171,6 +171,7 @@ try {
  assert.equal((await app.call('/auth/magic-link',{email:next.email})).status,202);
  app.cookie=await confirmLatest(app,next.email);
  assert.ok(app.cookie);await app.json('/api/projects');
+ const inheritedCount=(await app.json(teamAlerts+'/rules')).find(r=>r.id===countRule.id);assert.equal(JSON.parse(inheritedCount.config).filters.environment,'production','successor retains the nonpersonal count predicate after attribution configuration is erased');
  const erasedReport=await app.call('/api/reporting/items/'+reporting.id,undefined,{Cookie:app.cookie});assert.equal(erasedReport.status,200);assert.equal((await erasedReport.json()).author,'[erased]');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
  const retainedQuota=await (await app.request(quotaPath)).json();assert.equal(retainedQuota.limit,100);assert.ok(retainedQuota.used>=2,'BILL-001 personal erasure keeps project key quota and admissions without predecessor attribution');

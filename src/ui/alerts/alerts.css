@@ -16,3 +16,5 @@
 @media(max-width:600px){.alert-records>li{display:block}.alert-records button{margin-top:8px}}
 
 @media(max-width:600px){.alerts-view .alert-rules summary,.alerts-view .alert-rules .text-button{min-height:44px}.alerts-view .alert-rules summary{display:flex;align-items:center}}
+
+.alert-count-preview{grid-column:1/-1;width:100%;min-width:0;overflow-wrap:anywhere}

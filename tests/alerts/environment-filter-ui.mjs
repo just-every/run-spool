@@ -11,7 +11,7 @@ export async function environmentFilterUI(page,app,auth,width,now){
  // Fixed fixture time places the public captures into the current preview window.
  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id IN ('synthetic-spool-201','synthetic-spool-202')").bind(Math.floor(now/60000)*60000+1).run();
  await page.getByLabel('Rule name',{exact:true}).fill(name);
- await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption('webhook-v1');
+ await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption({label:`On call ${width} · Email`});
  await page.getByLabel('New issue',{exact:true}).uncheck();
  await page.getByLabel('Regression',{exact:true}).uncheck();
  await page.getByLabel('Volume spike',{exact:true}).check();
@@ -27,7 +27,7 @@ export async function environmentFilterUI(page,app,auth,width,now){
   assert.ok((await preview.innerText()).includes('1 matching occurrences'));
   assert.ok((await preview.innerText()).includes('0 qualifying issues'));
   assert.ok((await preview.innerText()).includes('Installation owner'));
-  assert.ok((await preview.innerText()).includes('Verified receiver · Passing test reviewed'));
+  assert.ok((await preview.innerText()).includes(`On call ${width} · Passing test reviewed`));
   const axe=await new AxeBuilder({page}).include('[aria-label="Count rule preview"]').analyze();assert.deepEqual(axe.violations,[]);
   await page.getByLabel('Environment',{exact:true}).fill('staging');
   assert.equal(await preview.count(),0,'changed predicate invalidates the reviewed counts');

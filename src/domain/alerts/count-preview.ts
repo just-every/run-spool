@@ -4,14 +4,9 @@ import { statement as s } from './types';
 import { destinationChoices } from './destinations.server';
 import { auditActor } from '../audit/identity';
 
-// Preview and both scheduler reads use this exact retained-event predicate.
+// Share main's retained-event and routing predicates with scheduled admission.
 const eligible=eligibleEvent();
 export const countableIssue=(alias:string)=>`${alias}.state<>'suppressed'`;
-const matching=`${eligible} AND e.received>=? AND e.received<? AND (? IS NULL OR e.environment=? COLLATE BINARY)`;
-export const windowCountsSql=`SELECT i.id,COUNT(*) count FROM events e JOIN issues i ON i.id=e.issue AND i.project=e.project WHERE e.project=? AND ${matching} AND ${countableIssue('i')} GROUP BY i.id`;
-export const issueWindowCountSql=`(SELECT COUNT(*) FROM events e WHERE e.project=issues.project AND e.issue=issues.id AND ${matching})`;
-export const windowArguments=(start:number,end:number,environment:string|null)=>([start,end,environment,environment] as const);
-
 export async function countPreview(env:AlertEnvironment,project:string,rule:{kinds:string;windowMs:number;threshold:number;environment:string|null;destination:string;channel:string;config:string},time:number,requestedStart?:unknown) {
  if(rule.kinds!=='["spike"]')throw new Error('Preview currently supports fixed-window occurrence counts only');
  const start=requestedStart===undefined?Math.floor(time/rule.windowMs)*rule.windowMs:requestedStart;

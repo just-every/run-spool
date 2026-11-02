@@ -71,7 +71,8 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   const current = version.current;
   try {
    const result = await alertApi(`/api/projects/${project}/alerting/rules/preview`, 'POST', { ...payload(), ...(editing ? { ruleId: editing.id } : {}) });
-   const counts = metric === 'count' && kinds.length === 1 && spike ? await alertApi(`/api/projects/${project}/alerting/rules/preview`, 'POST', {rule:payload()}) : null;
+   const {revision: _revision,...countRule} = payload();
+   const counts = metric === 'count' && kinds.length === 1 && spike ? await alertApi(`/api/projects/${project}/alerting/rules/preview`, 'POST', {rule:countRule}) : null;
    if (current === version.current) { setPreview(result); setCounts(counts); }
   } catch (e) { if (current === version.current) setError((e as Error).message); }
   finally { setBusy(null); }

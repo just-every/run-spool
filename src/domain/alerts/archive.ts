@@ -37,7 +37,7 @@ export function validateAlertArchive(data:any) {
  for(const f of data.alert_rule_filters){
   shape(f,['rule_id','project','environment']);const rule=rules.get(f.rule_id);
   assert(rule?.project===f.project&&!filtered.has(f.rule_id)&&environmentPredicate(f.environment)===f.environment&&f.environment!==null&&rule.kinds==='["spike"]');filtered.add(f.rule_id);
-  const config=data.alert_rule_configs.find((r:any)=>r.rule_id===f.rule_id);assert(config&&JSON.parse(config.config).metric==='count'&&JSON.parse(config.config).filters.environment===f.environment);
+  const config=data.alert_rule_configs.find((r:any)=>r.rule_id===f.rule_id);if(config)assert(JSON.parse(config.config).metric==='count'&&JSON.parse(config.config).filters.environment===f.environment);
  }
  for(const p of projects)assert(data.alert_rules.filter((r:any)=>r.project===p).length<=20);
  for(const a of data.alerts){

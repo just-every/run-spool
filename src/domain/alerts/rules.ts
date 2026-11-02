@@ -15,6 +15,6 @@ export function ruleInput(input:unknown,env:AlertEnvironment,project:string,edit
  if(!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,100}$/.test(b.destination))throw new Error('Invalid destination identity');
  const config=ruleConfig(b.config);
  if(Object.hasOwn(b,'environment')){const environment=environmentPredicate(b.environment);if(environment!==null&&(b.kinds.length!==1||b.kinds[0]!=='spike'||config.metric!=='count'))throw new Error('Environment filters currently require a fixed-window count rule only');if(config.filters.environment!==undefined&&config.filters.environment!==(environment??undefined))throw new Error('Conflicting environment filters');if(environment!==null)config.filters.environment=environment;else delete config.filters.environment;}
- const environment=config.metric==='count'&&b.kinds.length===1&&b.kinds[0]==='spike'?(config.filters.environment??null):null;if(config.metric==='session_percent'&&b.threshold>100)throw new Error('Session percent threshold must be at most 100');
+ const environment=config.metric==='count'&&b.kinds.length===1&&b.kinds[0]==='spike'?(config.filters.environment||null):null;if(config.metric==='session_percent'&&b.threshold>100)throw new Error('Session percent threshold must be at most 100');
  return {...b,environment,config:JSON.stringify(config),kinds:JSON.stringify([...b.kinds].sort())};
 }
