@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import {rule} from './runtime.mjs';
+import {readArchive,makePart} from '../../src/modules/portability/index.mjs';
+import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 const base='/api/projects/web/alerting';
 const config=(metric,filters={})=>({metric,filters,tagKeys:['tenant']});
 export async function conditionsJourney(app,fixture){
@@ -77,4 +79,25 @@ export async function conditionsJourney(app,fixture){
  const stalePolicy=await app.request(base+'/rules','POST',{...userRule,previewToken:policyPreview.token});assert.equal(stalePolicy.status,400,'identity policy revision changes invalidate an otherwise unchanged rule preview');await stalePolicy.body.cancel();
  const stale=await app.json(base+'/rules/preview','POST',userRule);const changed={...userRule,name:'Changed after preview',previewToken:stale.token};assert.equal((await app.request(base+'/rules','POST',changed)).status,400,'rule changes invalidate preview');
  console.log('ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed');
+}
+
+// Every alert kind the product writes survives its own backup door; an unknown kind stays refused.
+const alertRows=async app=>(await app.db.prepare('SELECT id,project,issue,kind,created,payload FROM alerts ORDER BY id').all()).results;
+export async function exportAlertKinds(app){
+ const before=await alertRows(app),kinds=[...new Set(before.map(row=>row.kind))].sort();
+ for(const kind of ['new_issue','reactivation','spike'])assert.ok(kinds.includes(kind),'the journey wrote a '+kind+' alert through its real path');
+ const exported=await app.request('/api/archive');assert.equal(exported.status,200);const archive=await exported.text(),records=[];for await(const record of readArchive(new Response(archive).body))records.push(record);
+ const part=records.find(record=>record.kind==='part'&&record.items.some(item=>item.table==='alerts'));part.items.find(item=>item.table==='alerts').row.kind='synthetic_unknown';Object.assign(part,await makePart(part.index,part.items));
+ const parts=records.filter(record=>record.kind==='part'),content=new ContentVerifier(records[0]),binding=new ArchiveVerifier(records[0]);
+ for(const each of parts){binding.add(each);for(const item of each.items)content.add(item)}
+ const unknown=[...records.slice(0,-1),{...records.at(-1),contentHash:content.digest(),archiveHash:binding.digest()}].map(record=>JSON.stringify(record)).join('\n')+'\n';
+ return {before,kinds,archive:await (await app.request('/api/archive')).text(),unknown};
+}
+// Restore targets an empty runtime, as a customer's restore does.
+export async function restoreAlertKinds(app,{before,kinds,archive,unknown}){
+ const refused=await app.request('/api/restore','POST',unknown,{'X-Confirm-Restore':'yes'}),refusal=await refused.text();
+ assert.equal(refused.status,400,'an unknown alert kind is refused: '+refusal);
+ const restored=await app.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.equal(restored.status,200,await restored.text());
+ assert.deepEqual(await alertRows(app),before,'restore returns every alert row, of every kind, with its fields intact');
+ console.log('ALERT-001 archive round trip restores '+before.length+' alerts of kinds '+kinds.join(', ')+'; unknown kind refused: '+refusal);
 }
