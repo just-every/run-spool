@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { AgentError, positiveInteger, validateIssue } from './options.mjs';
 import { redact } from './format.mjs';
 import { PROPOSAL_BYTES } from './proposal.mjs';
+import { resolveOperation } from './operations.mjs';
 
 export function isLoopback(url) {
   return url.hostname === 'localhost' || url.hostname === '[::1]' || /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname);
@@ -74,6 +75,7 @@ export async function rpc(config, method, params = {}) {
   finally{controller.abort();clearTimeout(timer);}
 }
 export async function request(config, operation, args={}) {
+  operation=resolveOperation(operation,args);
   const names={list_issues:'spool.issues.list',get_packet:'spool.packets.read',get_outcomes:'spool.outcomes.read',list_grouping_proposals:'spool.proposals.list',propose_grouping:'spool.proposals.create'};
   const name=names[operation];if(!name)throw new AgentError('Unknown operation.');
   // Validate the legacy CLI inputs before forwarding to the shared registry.

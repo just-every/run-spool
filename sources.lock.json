@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "3e10600f23c766fa7e5c6d2ec2fc74f739871a3fcc1236fcd058b71cac7c999c",
+      "sha256": "d03f599855e0486c42d38febe1af205d5f094f7cc2381f0199ed58e127c9b3bb",
       "executable": false
     },
     "DEMO.md": {
@@ -3710,7 +3710,7 @@
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
-      "sha256": "605cb14c1489947de48b41e4ba3ff6c103776569081571b471e4be461271c17e",
+      "sha256": "00ba1220eb219e7812b664ffcdc891ac60d9a45222a2d8fc88885310d2c4c6fc",
       "executable": false
     },
     "DUPLICATE-TRANSPORT.md": {
@@ -4142,7 +4142,11 @@
       "executable": false
     },
     "packages/agent/src/mcp.mjs": {
-      "sha256": "9da5e10863857364be7587cd15b538b2fb9febd13f64c0c5c241ca43c745517e",
+      "sha256": "c963a11667e2bd68c0468d2eb61368ae186d4523e44e2bc7c9a77fa432af99ff",
+      "executable": false
+    },
+    "packages/agent/src/operations.mjs": {
+      "sha256": "a31a2afb37e075da3cacfa331b87ac43a05c2ccb19475327e8a717e90c59b6a8",
       "executable": false
     },
     "packages/agent/src/options.mjs": {
@@ -4158,7 +4162,7 @@
       "executable": false
     },
     "packages/agent/src/transport.mjs": {
-      "sha256": "e29499f382a6c8b3c537d9767b1be6b434d236e4086f2567dd25e2338aa5a50a",
+      "sha256": "68cb63c44d8ff637c8c444b44f29778cb0cc276ce1affb9bd44412d23feabd6d",
       "executable": false
     },
     "packages/sdk/build.mjs": {
@@ -10414,7 +10418,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "50b31ba4fb6063f66a0f51f76f6cc37d2c5d3eba08e8be77278bd04be1e7c048",
+      "sha256": "cb46c584992b56c71b93ac6718e0ede48f56fd191b89e9a93e634853ad369354",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -10422,7 +10426,7 @@
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
-      "sha256": "8cc32ee1c6808674328723f57e34f3baf3ba4820400417c93d2006a3e5c13e6b",
+      "sha256": "a91ca204d0604028a58a5e787f1d4c9271cfb65f3b0685f3856c9d79bf428c65",
       "executable": false
     },
     "tests/agent-handoff/dev-output.mjs": {
