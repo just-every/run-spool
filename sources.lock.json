@@ -10190,7 +10190,7 @@
       "executable": false
     },
     "tests/runtimes/chain-proof.mjs": {
-      "sha256": "0d649731bd16b3f262fb9646d4a3c2a7aff22334c08820e5a0e93ef7a29e2286",
+      "sha256": "ad42114084b9ac1808eac6a1c3ef5ce02a82d6c383a4db80adabd87859047a99",
       "executable": false
     },
     "tests/runtimes/dotnet.mjs": {
@@ -10366,7 +10366,7 @@
       "executable": false
     },
     "tests/runtimes/screens.mjs": {
-      "sha256": "9df20f0653b90a2844aaa0e097686d02a5ab9575b4cf30ed3d7d4b2b31efd3db",
+      "sha256": "128518ddfb238eae26571bbfa74c0e29b0cd250e366cd0b09907cf3a755ddb9a",
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
