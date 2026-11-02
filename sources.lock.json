@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "644eb297fb533483a48fe95340080bc7af6b75352e5aa0bee89e522dd2c0e4b6",
+      "sha256": "1f73d993d933c874cccd28c42127b69c957bdeedf7d2f67d93af2c3a6808ead7",
       "executable": false
     },
     "DEMO.md": {
@@ -3686,7 +3686,7 @@
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
-      "sha256": "da5a6e4c918477136c1d91eb49d488872e9bf74809e3f883507b5103816a4b32",
+      "sha256": "a05296df018fa7533adb346d100aa97b6898e8c87ca6f255191ba5b9ec0b7e33",
       "executable": false
     },
     "docs/SUPPORTED-LANGUAGES.md": {
@@ -5570,7 +5570,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "53939eda765a6895f459783cd2fde1cf037459ff1865f6fb3a91ca932132f9f9",
+      "sha256": "a135db0f16f1a9ac716fc2d94a71262844d1042e70f49046e928c030c4397d85",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -6739,6 +6739,10 @@
     },
     "src/domain/source-map-storage.ts": {
       "sha256": "48b3e6d9e8f054ba95fe0e0a71e958de543030148cbdacdf116fb0cd1eeea3f9",
+      "executable": false
+    },
+    "src/domain/source-map-validation.ts": {
+      "sha256": "cb9b18692e43313df77f8664e540e388cd01c02d8cdf62fbc98877a86708330b",
       "executable": false
     },
     "src/domain/stacks-go.ts": {
@@ -9490,7 +9494,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "5730cc9fef12c7bd5a3d49598f9f778813aadaa0cd380daa264948a8227c3d9e",
+      "sha256": "277505ea1890a043f1450710bf00c7926ba43d5c89676d81257c16099da7de88",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -9614,7 +9618,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "35e13ac6aa9fb6f1ec02198711fc6790d67100343970e2de1b49ae6e5fe56f78",
+      "sha256": "ae380d94e820045b9abee69ae611b290656ae45684be22744f608b92ed953fa4",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -10522,7 +10526,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "2229e51b63eb51a4a56ae35d6d828013401a5a0ca45270d892e69e3f463108da",
+      "sha256": "522ed5980c9b006bd4d05b2247021fe4359307a34a42b68ebb914e3a2c6e824b",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
@@ -10550,7 +10554,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "d9a4ac237e0ce93a4f823fb39a8113231c8ee8d90ce2e56161f0ec5249846d80",
+      "sha256": "0eb6bf7c568de50ee5e927ef94ccb4f92de71cf8daaf1ac2d5f9b5c1b913d0ff",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
