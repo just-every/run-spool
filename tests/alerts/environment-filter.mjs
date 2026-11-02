@@ -8,7 +8,7 @@ import {readArchive,makePart,canonicalJson,sha256} from '../../src/modules/porta
 import {ArchiveVerifier,ContentVerifier} from '../../src/modules/portability/format.mjs';
 
 const base='/api/projects/web/alerting';
-const now=Date.UTC(2030,0,1,12),start=now-120000;
+const now=Date.UTC(2026,9,31,12),start=now-120000;
 async function snapshot(app){
  const tables=['events','issues','alert_rules','alert_rule_filters','alert_cursors','alerts','alert_intents','alert_history','alert_mail_jobs'];
  return Promise.all(tables.map(async table=>(await app.db.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()).results));
@@ -95,11 +95,13 @@ export async function environmentFilterFlow(inbox){
   const erasure=await app.json('/api/projects/web/erasure');assert.ok(erasure.deleted.alert_rule_filters===2);
   let erased=await app.json('/api/projects/web/erasure','POST',{confirm:'web',planHash:erasure.planHash});for(let n=0;erased.phase!=='complete'&&n<20;n++)erased=await app.json('/api/erasures/'+erased.id+'/resume','POST',{});assert.equal(erased.phase,'complete');
   assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM alert_rule_filters').first()).n,0);
-  assert.equal((await app.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'})).status,409,'erasure fence refuses resurrection');
+  const refusedRestore=await app.request('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});assert.ok(refusedRestore.status>=400);assert.equal((await refusedRestore.json()).error,'erasure_epoch','erasure fence refuses resurrection');
+  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM alert_rule_filters').first()).n,0);
   await app.close();app=await alertRuntime(inbox,{now});
   const previous=await withoutFilters(archive);
-  assert.equal((await app.request('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'})).status,200,'prior schema restores without predicates');
+  const previousRestore=await app.request('/api/restore','POST',previous,{'X-Confirm-Restore':'yes'});const previousResult=await previousRestore.json();assert.equal(previousRestore.status,200,'prior schema restores without predicates: '+JSON.stringify(previousResult));
   assert.ok((await app.json(base+'/rules')).every(r=>r.environment===null&&r.enabled===0));
+  const ended=app.cookie;await app.request('/auth/signout','POST',{});const fenced=await snapshot(app);assert.equal((await app.request(base+'/rules/preview','POST',{rule:filtered,windowStart:start},{Cookie:ended})).status,401);assert.deepEqual(await snapshot(app),fenced);
   console.log('PROBE ALERT-001 filter and preview: public intake across exact-case environments -> preview 1 then 2 matching retained occurrences, excluded rule 0, legacy count 4; one matching alert, intent and local receiver request across concurrency, repetition and restart; stale and foreign writes refuse; disabled archives and erasure fences pass.');
  }finally{await app?.close();mock.timers.reset();await rm(temp,{recursive:true,force:true});}
 }

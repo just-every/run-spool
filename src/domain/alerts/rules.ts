@@ -1,9 +1,9 @@
 import { scrub, identity } from '../privacy';
+import type { AlertEnvironment } from './types';
 export function environmentPredicate(value:unknown):string|null {
  if(value===undefined||value===null)return null;
  const result=identity(value,'environment');if(scrub(result)!==result)throw new Error('Invalid environment');return result;
 }
-import type { AlertEnvironment } from './types';
 export function ruleInput(input:unknown,env:AlertEnvironment,project:string,editing:boolean) {
  const b=input as any,fields=['name','enabled','channel','destination','kinds','windowMs','threshold',...(editing?['revision']:[]),...(b&&Object.hasOwn(b,'environment')?['environment']:[])];
  if(!b||typeof b!=='object'||Array.isArray(b)||Object.keys(b).length!==fields.length||Object.keys(b).some(k=>!fields.includes(k)))throw new Error('Invalid alert rule fields');

@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a5c9e8b74ae2f06775b8bff594f45bd1ef15a21c198d505a877888b3b4167da",
+      "sha256": "7af688162af4a110163de355b49d624dd45834a0fdf020cb346b437fc54bf7f2",
       "executable": false
     },
     "DEMO.md": {
@@ -4039,6 +4039,10 @@
     },
     "migrations/core/0086_notification_preferences.sql": {
       "sha256": "55b812c1832efdcb071fc6e03e95671a9e479cf09262e27fed441d5adccf3162",
+      "executable": false
+    },
+    "migrations/core/0087_alert_rule_filters.sql": {
+      "sha256": "fd50eb26c2a76bcc202aa4188bad9e9c0b0d9a200dd038e19ea325685cf785fa",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5425,6 +5429,10 @@
       "sha256": "158ae8cc3dbc78f1e2cdb4fc67b60e78a21241467876369eeae5df7c4296fe5f",
       "executable": false
     },
+    "src/domain/alerts/count-preview.ts": {
+      "sha256": "1272c04aaceaf0863e193dc51df12e486fcbe670d887b0d46f628333a02eb79d",
+      "executable": false
+    },
     "src/domain/alerts/delivery-archive.ts": {
       "sha256": "375aaee094765ff5e6d99d5aef51c7417118f10da11467444a458bd874e9392a",
       "executable": false
@@ -5470,7 +5478,7 @@
       "executable": false
     },
     "src/domain/alerts/rules.ts": {
-      "sha256": "b339d67959c4ffc7de05cb74b2b02a8d4656c47020740fe3af8fb192924f925f",
+      "sha256": "7c157b609ef7429a49c321cca693a0ba2c5e23348e3930079dd2a39b4d4647fb",
       "executable": false
     },
     "src/domain/alerts/scheduled-mail.ts": {
@@ -6182,7 +6190,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "6a7df3e7b23f794d6873d4a5ec074b9d696db92bd7cb3cda577bfc87ccd5a22b",
+      "sha256": "c19d8d6eb7bb1801be80a8377f1b206d27464b1b80cccfd6b5f74de440104f75",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -9597,6 +9605,14 @@
       "sha256": "616ae8bba17d542eeb2c271b5db685be8292288e98204997375816162aab726c",
       "executable": false
     },
+    "tests/alerts/environment-filter-ui.mjs": {
+      "sha256": "4c455f473b73a2951ea5021990618006f9489dfbc1ce9a3264aa58398947cf1e",
+      "executable": false
+    },
+    "tests/alerts/environment-filter.mjs": {
+      "sha256": "ffe229e2c9149620793a9a6d327736156bfa78c727fa23c187d71cad8af9ca1a",
+      "executable": false
+    },
     "tests/alerts/follow-up.mjs": {
       "sha256": "f6cf75c48e9ee4116d2ba88195b85963f95271adf186e0d56d81b9b66474e7ad",
       "executable": false
@@ -9618,7 +9634,7 @@
       "executable": false
     },
     "tests/alerts/runtime.mjs": {
-      "sha256": "5062558bff05adeb999a52da823d3feb5bf2c658bb8b51aef77d50a935319ffe",
+      "sha256": "eb9da370dd50d0aa9156cd5d176200a8558fa7c11acaa955d2b077691758ff08",
       "executable": false
     },
     "tests/alerts/suppression-eligibility.mjs": {
@@ -9910,7 +9926,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "66375c2e3084ad60edf674fd1a0f46cb991672994eb999cfa292ce2aeb14733e",
+      "sha256": "2f5a431cee4683a41abc009aa20c853295dfbacf60aa6d0be87e8996a4733c3b",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {

@@ -209,6 +209,8 @@ async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Modern archives before environment predicates use the authenticated migration bridge, including behavioral objects.
+ if(manifest.schemaObjects!==undefined&&!product.tables.some((table:any)=>table.name==='alert_rule_filters'))return null;
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
