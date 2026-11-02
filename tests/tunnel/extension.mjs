@@ -102,7 +102,7 @@ export async function extensionFlow({ temporary, browser, nextOrigin, request })
     assert.equal(blockedIds.length, 1);
     await wait(800);
     assert.ok(refused.some(row => row.error?.includes('ERR_BLOCKED_BY_CLIENT')), 'the installed extension refuses the SDK direct request');
-    const matching = await service.evaluate(({ url, initiator }) => chrome.declarativeNetRequest.testMatchOutcome({ url, initiator, type: 'xmlhttprequest', requestMethod: 'post' }), { url: refused[0].url, initiator: nextOrigin });
+    const matching = await service.evaluate(({ url, initiator }) => chrome.declarativeNetRequest.testMatchOutcome({ url, initiator, type: 'xmlhttprequest' }), { url: refused[0].url, initiator: nextOrigin });
     assert.ok(matching.matchedRules.some(match => match.rulesetId === pin.privacyList.id && rules.find(rule => rule.id === match.ruleId)?.action.type === 'block'), 'the active standard privacy list causes the direct refusal');
     assert.deepEqual(ids(await occurrences()), ids(rows), 'extension-blocked capture creates no occurrence');
     await direct.close();
