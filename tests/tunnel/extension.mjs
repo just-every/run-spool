@@ -108,14 +108,24 @@ export async function extensionFlow({ temporary, browser, nextOrigin, request })
     await direct.close();
 
     const page = await open(context), replies = [];
-    page.on('response', response => { if (response.url() === nextOrigin + '/monitoring') replies.push(response.status()); });
+    page.on('response', response => {
+      if (response.url() !== nextOrigin + '/monitoring') return;
+      const envelope = response.request().postData();
+      assert.ok(envelope, 'every tunnel response belongs to an SDK envelope');
+      const header = JSON.parse(envelope.split('\n')[0]);
+      replies.push({ status: response.status(), eventId: header.event_id ?? null });
+    });
     const messages = Array.from({ length: 6 }, (_, index) => `synthetic-spool-extension-error-${index + 1}`);
     const capturedIds = await captured(page, messages);
     assert.equal(capturedIds.length, messages.length, 'the bounded unmodified SDK program captures every error');
     assert.equal(new Set(capturedIds).size, messages.length, 'each capture has a distinct SDK event ID');
     assert.ok(capturedIds.every(id => /^[a-f0-9]{32}$/.test(id)), 'capture IDs come from the SDK');
-    assert.equal(replies.length, messages.length, 'every browser envelope receives a tunnel response');
-    assert.ok(replies.every(status => status === 200), 'every tunnel response succeeds with the extension active');
+    // The unmodified SDK also sends automatic sessions and client reports. Correlate error
+    // responses by their envelope event IDs, while still requiring every envelope to succeed.
+    const errorReplies = replies.filter(reply => reply.eventId !== null);
+    assert.equal(errorReplies.length, messages.length, 'every browser error envelope receives exactly one tunnel response');
+    assert.deepEqual(errorReplies.map(reply => reply.eventId).sort(), [...capturedIds].sort(), 'tunnel responses reconcile with every captured error ID, without duplicates or extras');
+    assert.ok(replies.every(reply => reply.status === 200), 'every tunnel response succeeds with the extension active');
     const expected = [...ids(rows), ...capturedIds].sort();
     rows = await settled(expected.length);
     assert.deepEqual(ids(rows), expected, 'every captured event ID arrives exactly once through the installed Next.js tunnel');
