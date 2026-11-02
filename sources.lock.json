@@ -10518,7 +10518,7 @@
       "executable": false
     },
     "tests/tunnel/extension.mjs": {
-      "sha256": "ab4cd85c3fa9110f76a7cf36a1eba0f3e866f3835f08b8491b44760b7f6c5ec8",
+      "sha256": "caed055f2ebdc3bb5b87304747cd2fdb4757c79fcb5ee446fa3c837d1846bfee",
       "executable": false
     },
     "tests/tunnel/server.mjs": {
