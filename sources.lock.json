@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2b95cb30374824b5287d6ebc63eea850b7eaa419c2f75c75312e158a1ec7bcd7",
+      "sha256": "95df7eae0abd20bc8d01b59dd3f4c2956015e5207d986cfb150f0fae6925a82a",
       "executable": false
     },
     "DEMO.md": {
@@ -9758,7 +9758,7 @@
       "executable": false
     },
     "tests/auth.mjs": {
-      "sha256": "cb4a9d2beae20d067a6546fe97f38b1a79b4937a9f36714bb6305d9e2efabb2d",
+      "sha256": "32d20705e126f29052d5145e1a0bc8bc725616108d946d910c8d2f6490afa964",
       "executable": false
     },
     "tests/browser-launch.mjs": {
@@ -9918,7 +9918,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "d0404e706e033121f3da57643c1b148c766ca81a5755875bc1eea8fb1d93bbf5",
+      "sha256": "1134edaf3bde7af35a5c457604b72b2e79579ebdd0b1724c3bf8bb713e7e036f",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
@@ -10494,7 +10494,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "4c344327fb32985e4649b5c845a01db107252671da7ae559eb43e5a89aa850d0",
+      "sha256": "711611a1a11bb7d1ef6dcecbed9d3393a278df7d38bea91051dce6621c369bf7",
       "executable": false
     },
     "tests/triage-app.mjs": {
