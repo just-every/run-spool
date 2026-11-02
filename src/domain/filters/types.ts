@@ -40,3 +40,10 @@ export const filterLabels: Record<FilterId, string> = {
  ip_addresses: 'Client IP addresses and CIDRs', messages: 'Error message patterns', releases: 'Releases',
  environments: 'Environments', allowed_domains: 'Allowed browser domains',
 };
+// The checkbox sentence for each filter: what turning it on does to later intake.
+export const filterToggleLabels: Record<FilterId, string> = {
+ browser_extensions: 'Block errors from browser extensions', legacy_browsers: 'Block legacy browsers', localhost: 'Block localhost and loopback traffic',
+ crawlers: 'Block known web crawlers', react_hydration: 'Block React hydration errors', chunk_load: 'Block chunk and dynamic import failures',
+ ip_addresses: 'Block client IP addresses', messages: 'Block matching error messages', releases: 'Block listed releases',
+ environments: 'Block listed environments', allowed_domains: 'Accept only listed browser domains',
+};

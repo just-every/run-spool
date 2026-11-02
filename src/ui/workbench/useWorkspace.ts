@@ -21,5 +21,5 @@ export function useWorkspace() {
       setBusy(false); requestAnimationFrame(() => { if (document.activeElement === document.body && focused instanceof HTMLElement && focused.isConnected) focused.focus(); });
     }
   }
-  return { signedIn, ownerName, access, projects, notice, readFailure, busy, run, addProject: (project: any) => setProjects(rows => [...rows, project]), refresh: () => setRevision(value => value + 1), revision };
+  return { signedIn, ownerName, access, projects, notice, readFailure, busy, run, addProject: (project: any) => setProjects(rows => [...rows, project]), removeProject: (id: string) => setProjects(rows => rows.filter(row => row.id !== id)), refresh: () => setRevision(value => value + 1), revision };
 }

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useLiveRead } from './useLiveRead';
 import { GroupingExplanation } from './GroupingExplanation';
 import { CorrectionHistory, CorrectionReview } from './OperatorPanel';
 import { date, type Request, type Run } from './shared';
@@ -7,6 +8,7 @@ export function GroupingProposals({ project, request, run, busy, refresh, refres
   project: string; request: Request; run: Run; busy: boolean; refresh: () => void; refreshVersion: number; onRulePreview: (preview: any) => void;
 }) {
   const [rows, setRows] = useState<any[] | null>(null);
+  const rowsLoaded = useRef(false); rowsLoaded.current = rows !== null;
   const [selected, setSelected] = useState<any>(null);
   const [preview, setPreview] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -20,16 +22,24 @@ export function GroupingProposals({ project, request, run, busy, refresh, refres
     ]);
     setRows(proposals); setHistory(corrections); if (detail) { setSelected(detail); setPreview(detail.state === 'approved' && detail.preview?.plan ? detail.preview : null); }
   };
-  useEffect(() => {
-    let alive = true;
-    Promise.all([request(endpoint), request(`${root}/corrections`), selected ? request(`${endpoint}/${encodeURIComponent(selected.id)}`) : Promise.resolve(null)])
-      .then(([proposals, corrections, detail]) => { if (alive) { setRows(proposals); setHistory(corrections); if (detail) setSelected(detail); } })
-      .catch(error => { if (alive) setFailure(error.message); });
-    return () => { alive = false; };
+  // Read quietly while the tab is visible and apply in place. A read that began before an action never replaces what the action showed.
+  const generation = useRef(0), chosen = useRef<string | null>(null);
+  chosen.current = selected?.id ?? null;
+  const unchanged = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+  useLiveRead(async (signal, background) => {
+    const started = generation.current;
+    try {
+      const [proposals, corrections, detail] = await Promise.all([request(endpoint, 'GET', undefined, { background }), request(`${root}/corrections`), chosen.current ? request(`${endpoint}/${encodeURIComponent(chosen.current)}`, 'GET', undefined, { background }) : Promise.resolve(null)]);
+      if (signal.aborted || started !== generation.current) return;
+      setRows(current => unchanged(current, proposals) ? current : proposals); setHistory(current => unchanged(current, corrections) ? current : corrections);
+      if (detail) setSelected((current: any) => unchanged(current, detail) ? current : detail);
+      if (!rowsLoaded.current) setFailure('');
+    } catch (error) { if (!signal.aborted && !rowsLoaded.current) setFailure((error as Error).message); }
   }, [endpoint, root, request, refreshVersion]);
   const action = (work: () => Promise<void>) => void run(async () => {
-    setFailure(''); setNotice('');
-    try { await work(); } catch (error) {
+    setFailure(''); setNotice(''); generation.current++;
+    try { await work(); generation.current++; } catch (error) {
+      generation.current++;
       const failure = error as Error & { status?: number };
       setFailure(`${failure.status === 401 || failure.status === 403 ? 'Denied. Owner authorization is required. ' : failure.status === 409 ? 'Stale. Refresh the proposal before making another decision. ' : ''}${failure.message}`);
       if (failure.status === 409) { setPreview(null); await load(selected?.id); }
@@ -48,7 +58,6 @@ export function GroupingProposals({ project, request, run, busy, refresh, refres
     <h2 id="grouping-proposals-heading">Agent grouping proposals</h2>
     <p>Review the agent’s explanation and counterexamples before deciding. Approval opens a preview; applying a correction or saving rules is a separate owner action.</p>
     {failure && <p role="alert">{failure}</p>}
-    <button className="text-button" disabled={busy} onClick={() => action(async () => { await load(selected?.id); setNotice('Grouping proposals refreshed.'); })}>Refresh grouping proposals</button>
     {rows === null ? <p role="status">{failure ? 'Grouping proposals unavailable.' : 'Loading grouping proposals…'}</p> : !rows.length ? <p>No agent grouping proposals yet.</p> : rows.map(row => <div className="data-row" key={row.id}>
       <span>{row.kind} · <strong>{row.state}</strong> · {row.label}</span>
       <button className="text-button" disabled={busy} aria-label={`Review grouping proposal ${row.id}`} onClick={() => action(async () => { await load(row.id); })}>Review proposal</button>

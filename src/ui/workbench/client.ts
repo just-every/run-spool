@@ -12,9 +12,9 @@ export async function ownerFetch(path: string, options?: RequestInit) {
   }
   return response;
 }
-async function read(path: string, method = 'GET', value?: unknown) {
+async function read(path: string, method = 'GET', value?: unknown, keepalive = false, background = false) {
   const started = sessionRevision;
-  const response = await ownerFetch(path, { method, headers: value ? { 'Content-Type': 'application/json' } : {}, ...(value ? { body: JSON.stringify(value) } : {}) });
+  const response = await ownerFetch(path, { method, headers: { ...(value ? { 'Content-Type': 'application/json' } : {}), ...(background ? { 'X-Spool-Background': '1' } : {}) }, ...(value ? { body: JSON.stringify(value) } : {}), ...(keepalive ? { keepalive } : {}) });
   if (started !== sessionRevision && response.ok) throw Object.assign(new Error('Session ended.'), { status: 401 });
   if (response.status >= 500) throw Object.assign(new Error('Spool is unavailable. Try again.'), { status: response.status });
   const result: any = await response.json();
@@ -23,15 +23,15 @@ async function read(path: string, method = 'GET', value?: unknown) {
 }
 
 const pending = new Map<string, Promise<any>>();
-export function api(path: string, method = 'GET', value?: unknown): Promise<any> {
+export function api(path: string, method = 'GET', value?: unknown, options?: { keepalive?: boolean; background?: boolean }): Promise<any> {
   if (method !== 'GET') {
     // Refreshes after a write must never join reads from before that write.
     pending.clear();
-    return read(path, method, value).finally(() => pending.clear());
+    return read(path, method, value, options?.keepalive).finally(() => pending.clear());
   }
   const active = pending.get(path);
   if (active) return active;
-  const request = read(path, method, value).finally(() => { if (pending.get(path) === request) pending.delete(path); });
+  const request = read(path, method, value, false, options?.background).finally(() => { if (pending.get(path) === request) pending.delete(path); });
   pending.set(path, request);
   return request;
 }
