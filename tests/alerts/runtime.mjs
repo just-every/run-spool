@@ -46,8 +46,11 @@ export async function alertRuntime(receiver,{state,mail='development',egress=tru
  runtime=new Miniflare(convertV4MiniflareOptions({...worker,...serviceBindings?{serviceBindings}:{},modules:[{type:'ESModule',path:wrapper},...worker.modules],modulesRoot:'/',bindings,resourcePersistencePath:state??resolve(temporary,'state'),host:'127.0.0.1',port:15541}));
   await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail('http://127.0.0.1:15541',db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){
-   const {unstable_splitSqlQuery}=require('wrangler');const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
+   const {unstable_splitSqlQuery}=require('wrangler');const names=(await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort();const sql=(await Promise.all(names.map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
    await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
+   // Match Wrangler's applied-name ledger so prior-schema archives use real migration replay.
+   await db.prepare('CREATE TABLE d1_migrations(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT UNIQUE,applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)').run();
+   await db.batch(names.map(name=>db.prepare('INSERT INTO d1_migrations(name) VALUES(?)').bind(name)));
   }
   const origin='http://127.0.0.1:15541';let cookie=await signIn(origin,{emailLink:mail!=='development'});
   // A restore can outlast another connection's idle lifetime. Do not let the

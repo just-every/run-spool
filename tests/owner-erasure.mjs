@@ -112,6 +112,13 @@ try {
  const preference=await app.json(preferencePath);
  const savedPreference=await app.request(preferencePath,{revision:preference.revision,email:{...preference.email,weekly_report:true}},{},'PUT');assert.equal(savedPreference.status,200);await savedPreference.arrayBuffer();
  const otherPreference=await app.request(preferencePath,{revision:0,email:{...preference.email,comment:true}},{Cookie:otherCookies[['quinn','spool.test'].join('@')]},'PUT');assert.equal(otherPreference.status,200);await otherPreference.arrayBuffer();
+ // Count predicates are structural configuration: an owner identifier causes an honest erasure hold.
+ const countDestination=await app.json(teamAlerts+'/destinations',{label:'Count destination',recipient:next.email},201);
+ const countInput={name:'Retained counts',enabled:false,channel:'mail',destination:countDestination.id,kinds:['spike'],windowMs:60000,threshold:2,environment:owner.id};
+ const countRule=await app.json(teamAlerts+'/rules',countInput,201);
+ const predicateHold=await app.json('/api/owner/erasure');assert.equal(predicateHold.hold,'identifier_in_rule_predicate');
+ const heldBefore=await snapshot(app);assert.equal((await app.request('/api/owner/erasure',eraseInput(predicateHold))).status,409);assertAuditAppendOnly(await snapshot(app),heldBefore,'predicate identity hold changes no product records');
+ const countChanged=await app.request(teamAlerts+'/rules/'+countRule.id,{...countInput,environment:'production',revision:1},{},'PUT');assert.equal(countChanged.status,200);await countChanged.body?.cancel();
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
  assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
@@ -140,6 +147,7 @@ try {
  for(const table of ['spool_service_accounts','spool_service_scopes','spool_service_credentials'])assert.deepEqual(after[table],before[table].filter(row=>row.id!==service.id&&row.service!==service.id),'other service authority preserved: '+table);
  assert.equal(after.credentials.some(row=>row.hash===serviceHash),false,'sponsored service ingest authority erased');
  assert.deepEqual(after.credentials.find(row=>row.hash===otherServiceHash),before.credentials.find(row=>row.hash===otherServiceHash),'other sponsored credential preserved');
+ assert.deepEqual(after.alert_rule_filters,before.alert_rule_filters,'nonpersonal environment configuration survives owner erasure without restoring attribution');
  assert.equal(after.oa_tokens.some(row=>row.id===teamInvite),false,'former issuer provenance retired without removing team member');
  assert.deepEqual(after.spool_audit_events.filter(row=>row.sequence<=before.spool_audit_events.at(-1)?.sequence),before.spool_audit_events,'AUDIT-001 actor erasure never rewrites prior safe chronology');
  assert.ok(after.audit_actor_links.every(row=>row.owner_id!==owner.id),'AUDIT-001 actor bindings are erased');

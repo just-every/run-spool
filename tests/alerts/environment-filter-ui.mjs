@@ -11,7 +11,7 @@ export async function environmentFilterUI(page,app,auth,width,now){
  // Fixed fixture time places the public captures into the current preview window.
  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id IN ('synthetic-spool-201','synthetic-spool-202')").bind(Math.floor(now/60000)*60000+1).run();
  await page.getByLabel('Rule name',{exact:true}).fill(name);
- await page.getByLabel('Destination',{exact:true}).selectOption('webhook-v1');
+ await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption('webhook-v1');
  await page.getByLabel('New issue',{exact:true}).uncheck();
  await page.getByLabel('Regression',{exact:true}).uncheck();
  await page.getByLabel('Volume spike',{exact:true}).check();

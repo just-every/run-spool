@@ -2666,7 +2666,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cc9518b2f20febe8b1e985109979fd356010ae296dd3a06ea3dd3769ea972356",
+      "sha256": "996cc0c6aad86146efefbe9d957f0b6625e8dc05be91c707baaebdd8160f3cad",
       "executable": false
     },
     "DEMO.md": {
@@ -6238,7 +6238,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "00790a454586d05502605cb2edf6bc6d1ee44f607ee878cca9700e166e1c03f1",
+      "sha256": "59b31cfb014b7f60669611af3c59684c739ee93688d50a9ce34dcd906b4266a8",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -9758,11 +9758,11 @@
       "executable": false
     },
     "tests/alerts/environment-filter-ui.mjs": {
-      "sha256": "4f6525e53cb48c8107aeab06efebf274d7f5344d4aa73a18acd5f5273fd222d9",
+      "sha256": "2c6b2033e173f6f77efa717fb0e515621827e9d833fa5a4360c713f7edea07f4",
       "executable": false
     },
     "tests/alerts/environment-filter.mjs": {
-      "sha256": "3f002177170daa837249d6c30a57ff63632e78af12205108af32f5ddd2aeefb8",
+      "sha256": "27d196a186ee656324ba35102be9a40b4a9b89bb0cd9fc22db47a27a784237e2",
       "executable": false
     },
     "tests/alerts/follow-up.mjs": {
@@ -9794,7 +9794,7 @@
       "executable": false
     },
     "tests/alerts/runtime.mjs": {
-      "sha256": "1394be92c2068d8010e36acc873b1d00d0ee329860799a36324a51709bcb1dc9",
+      "sha256": "5c17009136ee2b5df812a9e2b189be7c2c702e4656c5cd62c3cabc37b1a25fb9",
       "executable": false
     },
     "tests/alerts/suppression-eligibility.mjs": {
@@ -10090,7 +10090,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "0a4922533c28d784f47b00e7de5830fd32576eb3468997943657842b22468201",
+      "sha256": "aece453dd528049bd52623801ae77a75c7cef961b721b141802f239b9c37f030",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
