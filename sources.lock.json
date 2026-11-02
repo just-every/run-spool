@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "96148617142a4a48fe8002f2bb2f37b2f88395872e56637282b408254b308761",
+      "sha256": "537989eaf3e7f18e077307fcb09bba193657e70d9322889f62db127d3a96b3a9",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ac13f1d0107359280d058e76930c3a8188fa83028ef382894916e3c94a39031d",
+      "sha256": "0b5d4914d0d58786404890e4ce703f1ee91987b5c8c143ddb56679abc3276f2a",
       "executable": false
     },
     "DEMO.md": {
@@ -10466,7 +10466,7 @@
       "executable": false
     },
     "tests/alerts-runtime.mjs": {
-      "sha256": "08cbf1cec327573283010b5a0338267f8c9f707e28bde2334b23b27069e919e4",
+      "sha256": "cff447f0b9e1c62f8d6b46855947654d00caf6fe92cf9f2c36f8510d7865fe9f",
       "executable": false
     },
     "tests/alerts-ui.mjs": {
@@ -10511,6 +10511,10 @@
     },
     "tests/alerts/receiver.mjs": {
       "sha256": "ec50bcae5e4c1d6d7b120ae9fdb4b1e48c8f459250fe42f4ba1e7ce0a6f9a0ef",
+      "executable": false
+    },
+    "tests/alerts/repair-recurrence.mjs": {
+      "sha256": "a55cf612f65c349bc8e2ea712744dc28b7495677acefd486e99bf6d9ebdd8376",
       "executable": false
     },
     "tests/alerts/rules-ui.mjs": {
@@ -10977,6 +10981,10 @@
       "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
       "executable": false
     },
+    "tests/runtimes/chain-proof.mjs": {
+      "sha256": "ad42114084b9ac1808eac6a1c3ef5ce02a82d6c383a4db80adabd87859047a99",
+      "executable": false
+    },
     "tests/runtimes/dotnet.mjs": {
       "sha256": "9ea75a4a12899100bf47988f7ebbbd7a114eb2e1867bd9e7b46d0104e3534f40",
       "executable": false
@@ -11054,11 +11062,11 @@
       "executable": false
     },
     "tests/runtimes/java.mjs": {
-      "sha256": "4e43bb7aa8d975b2746391ae4f7505f59847cacab9fb8fa0f68023ed60f7ee20",
+      "sha256": "3c8f48fdc4242a69dd46a97a737d525b3b9e0f0920be4581bf19800c6864ee8f",
       "executable": false
     },
     "tests/runtimes/java/App.java": {
-      "sha256": "a38fd55504d7607fa0794d01e337555a7b677ae2a577326868d1e0f15985df88",
+      "sha256": "b7a4afe21246b0a3fdcbaaf94c4f2ba074614e20598656950e769ac495f932db",
       "executable": false
     },
     "tests/runtimes/java/pom.xml": {
@@ -11066,11 +11074,11 @@
       "executable": false
     },
     "tests/runtimes/node.mjs": {
-      "sha256": "5068be2ae1e69aa07bea87c5c84d728e5cc842d1af08adebbc5b8641b6de7b2a",
+      "sha256": "b0b3693ea3de68645c8d4ed4cf8bf74289a7a35ec24eff75f936cd111b7b13d0",
       "executable": false
     },
     "tests/runtimes/node/app.mjs": {
-      "sha256": "2a4cd0024a6113e340faaf0b955bf75b4882ef1faba46782deed63b461e3e54d",
+      "sha256": "d2f804e64e5145d65596bd364b449299758b67df5e5ff8b598747ad30a264b53",
       "executable": false
     },
     "tests/runtimes/node/session-health.mjs": {
@@ -11150,7 +11158,7 @@
       "executable": false
     },
     "tests/runtimes/screens.mjs": {
-      "sha256": "9df20f0653b90a2844aaa0e097686d02a5ab9575b4cf30ed3d7d4b2b31efd3db",
+      "sha256": "128518ddfb238eae26571bbfa74c0e29b0cd250e366cd0b09907cf3a755ddb9a",
       "executable": false
     },
     "tests/scrubbing-flow.mjs": {
@@ -11166,7 +11174,7 @@
       "executable": false
     },
     "tests/sdk-runtimes.mjs": {
-      "sha256": "534ebce739b8c0877ca2e529d4b3a1f023157bec40ccf7f83e0e6a73a6ba5889",
+      "sha256": "38d12aa4653403a1a4ae880198bc1870fc4d3873b0b287b8c6d9baa8e08abd94",
       "executable": false
     },
     "tests/sentry-cli-compat.mjs": {
@@ -11274,7 +11282,7 @@
       "executable": false
     },
     "tests/suspect-flow.mjs": {
-      "sha256": "7d40e73c9dbf152605c52c40b33ed60579fd1f3790d970a3a5bd66a1474fd12f",
+      "sha256": "268b8f0e8604e5ee257b3019bdbdcb982c073fc2802fc4fdd35325384a7b454f",
       "executable": false
     },
     "tests/team-browser.mjs": {
