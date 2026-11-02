@@ -42,17 +42,29 @@ export async function runOk(command,args,options){
 
 export function counts(items){const map=new Map();for(const type of items)map.set(type,(map.get(type)??0)+1);return map}
 
+export function discardedOutcomes(sent){
+ const discarded=new Map();
+ for(const item of sent.filter(item=>item.type==='client_report')){
+  for(const {category,reason,quantity} of objectJson(item.bytes).discarded_events??[]){
+   const key=`client_discarded:${category}:${reason}`;
+   discarded.set(key,(discarded.get(key)??0)+quantity);
+  }
+ }
+ return discarded;
+}
+
 // What Spool must show in project outcomes for the items one SDK actually sent.
 export function expectedOutcomes(sent){
  const expected=new Map(),add=(reason,n=1)=>expected.set(reason,(expected.get(reason)??0)+n);
  for(const item of sent){
   if(item.type==='event')add('accepted');
-  else if(item.type==='client_report'){for(const row of objectJson(item.bytes).discarded_events??[])add(`client_discarded:${row.category}:${row.reason}`,row.quantity)}
+  else if(item.type==='client_report')continue;
   else if(item.type==='feedback'||item.type==='user_report')add('feedback_accepted');
   else if(item.type==='session'||item.type==='sessions')add('session_stored');
   else if(item.type==='check_in')add('check_in_unrouted');
   else add(unsupportedReason(item.type));
  }
+ for(const [reason,quantity] of discardedOutcomes(sent))add(reason,quantity);
  return expected;
 }
 
