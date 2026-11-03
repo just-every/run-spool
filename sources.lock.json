@@ -2602,7 +2602,7 @@
       "executable": false
     },
     ".github/workflows/rer-managed.yml": {
-      "sha256": "4438b6e2ab1aa8eac1ccb92a7a6063ed222ac3b8575417824951e80a0bf4c40a",
+      "sha256": "505e641e1ef3e8f41cb35657b4d4101cc80279bda55f78537ead0b7f5fa794c1",
       "executable": false
     },
     ".github/workflows/run-demo.yml": {
@@ -4522,7 +4522,7 @@
       "executable": false
     },
     "scripts/delivery/base/packaging.json": {
-      "sha256": "33c364dca538b2d138f94518868baad3bd14b27baae631ab7ba9f0d4c6e52bf4",
+      "sha256": "fec40d34fc899682f8d32de65e30220a3294cd8bb2c591a4ded9839decbebc0c",
       "executable": false
     },
     "scripts/delivery/base/paths.mjs": {
@@ -5626,7 +5626,7 @@
       "executable": false
     },
     "src/domain/alerts/rules.ts": {
-      "sha256": "275725c66924f4cddd9614c2db886b868e162b99802e9c68376cb2b282929d08",
+      "sha256": "96dcb7c7431ce5517ad7a163ebcbf8b303843608b95bf952ead794f80bf9270e",
       "executable": false
     },
     "src/domain/alerts/scheduled-mail.ts": {
@@ -9746,7 +9746,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "9cab1c8a1362a2c04af88d280e86692b6bcd3ecb81f236004ab6d7604bab26a4",
+      "sha256": "af40546ee84fc51658f542848025c784613ee3d56574f4e369042ddd9f9ca6ab",
       "executable": false
     },
     "src/site/pages.tsx": {
@@ -11298,7 +11298,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "9f1bb1dd0894692ec02082fa438bb5774007bea3c674c5e1fa3782ce2645290e",
+      "sha256": "6ffe57b162abca60b8f43ecfb14e28be717cb54e4c6ba128af8837f52c6c831c",
       "executable": false
     },
     "tests/team-flow.mjs": {
