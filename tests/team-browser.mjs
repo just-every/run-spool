@@ -139,8 +139,11 @@ export async function teamTriage(owner,member,project) {
   assert.equal(await save.evaluate(button=>button.disabled),true,'a pending assignment refuses a duplicate activation');await save.evaluate(button=>button.click());releaseAssignment();assert.equal((await saved).status(),200);
   await memberPage.unroute('**/assignment');await expect(save).toBeEnabled();assert.equal(assignments,1);
   assert.equal((await owner.json(root+'/operator-state')).assignments.find(row=>row.issue===issue).label,'Cedar responder');
-  const body='synthetic-spool-1 investigating the mapped delivery failure';await memberPage.getByLabel('Comment',{exact:true}).fill(body);await memberPage.getByRole('button',{name:'Post comment',exact:true}).click();
-  await expect(memberPage.getByRole('region',{name:'Discussion',exact:true})).toContainText(body);assert.ok((await owner.json(root+'/issues/'+issue+'/discussion')).comments.some(row=>row.body===body&&row.author===member.member.name));
+  const body='synthetic-spool-1 investigating the mapped delivery failure';await memberPage.getByLabel('Comment',{exact:true}).fill(body);
+  // The controlled textarea already holds the typed body, so wait for the POST and the posted comment rendered outside it.
+  const posted=memberPage.waitForResponse(response=>new URL(response.url()).pathname===root+'/issues/'+issue+'/comments'&&response.request().method()==='POST');
+  await memberPage.getByRole('button',{name:'Post comment',exact:true}).click();assert.ok((await posted).ok(),'the member comment POST is accepted');
+  await expect(memberPage.getByRole('region',{name:'Discussion',exact:true}).locator('.commit-message').filter({hasText:body})).toBeVisible();assert.ok((await owner.json(root+'/issues/'+issue+'/discussion')).comments.some(row=>row.body===body&&row.author===member.member.name));
   assert.deepEqual((await new AxeBuilder({page:memberPage}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
   await screens(memberPage,'team-investigation');await (await workbenchLink(memberPage,'Alerts')).click();
   const alert=memberPage.locator('.alert-records li').filter({hasText:packet.issue.title}).first();await alert.waitFor();await screens(memberPage,'team-alert');

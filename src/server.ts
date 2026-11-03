@@ -42,22 +42,26 @@ import { importDoorResponse, openDoorAtClaim } from './domain/sentry-import/door
 import { cutoverStatusPath, rerCutoverStatus } from './domain/rer-cutover-status.server';
 export async function scheduled(event: ScheduledController, bindings: Bindings & AlertEnvironment, _execution: ExecutionContext) {
  const env = runtimeBindings(bindings) as Bindings & AlertEnvironment;
+ // Accepted erasure jobs continue here after the client disconnects, even when
+ // an earlier scheduled step fails.
  try {
-  await deploymentTimeouts(env,event.scheduledTime);
-  await runAlerts(env,event.scheduledTime);
-  await expireReplayCalls({options:{db:env.DB},now:()=>event.scheduledTime});
+  try {
+   await deploymentTimeouts(env,event.scheduledTime);
+   await runAlerts(env,event.scheduledTime);
+   await expireReplayCalls({options:{db:env.DB},now:()=>event.scheduledTime});
+  } finally {
+   // A broken dispatcher must not prevent independent operator follow-up.
+   await scheduledRetention(env.DB,event.scheduledTime,env);
+   await scheduleSuppression(env,event.scheduledTime);
+   await scanFollowUp(env,event.scheduledTime);
+   await queueDigests(env,event.scheduledTime);
+   await scheduledMail(env,event.scheduledTime);
+   await queueNotices(env,event.scheduledTime);
+   await dispatchNotices(env,event.scheduledTime);
+  }
  } finally {
-  // A broken dispatcher must not prevent independent operator follow-up.
-  await scheduledRetention(env.DB,event.scheduledTime,env);
-  await scheduleSuppression(env,event.scheduledTime);
-  await scanFollowUp(env,event.scheduledTime);
-  await queueDigests(env,event.scheduledTime);
-  await scheduledMail(env,event.scheduledTime);
-  await queueNotices(env,event.scheduledTime);
-  await dispatchNotices(env,event.scheduledTime);
+  await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
  }
- // Accepted erasure jobs continue here after the client disconnects.
- await continueErasures(env.DB, Date.now() + 20_000,env.SESSION_SECRET,(id,principal,key)=>spoolAgentDoor(env).invoke('spool.privacy.continue',{id,idempotency_key:key},principal));
 }
 // A refusal raised while reading the session (a foreign Host, for one) answers as
 // itself, the way the API's handlers answer it, instead of escaping the Worker.
