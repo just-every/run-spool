@@ -11,7 +11,9 @@ export async function retentionScheduleFlow(){
  let worker=await startTestWorker(15548,{RER_DEV_KEY:admissionKey});
  try{
   let cookie=await signIn(worker.origin);
-  const request=(path,method='GET',body,headers={})=>fetch(worker.origin+path,{method,headers:{Origin:worker.origin,Cookie:cookie,...body?{'Content-Type':typeof body==='string'?'application/x-ndjson':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}}),json=async(...args)=>{const response=await request(...args);assert.ok(response.ok,`[GOV-003] ${args[0]} HTTP ${response.status}`);return response.json()};
+  // Connection: close, as the repo's other local helpers (5e5ede40): the Worker closes idle keep-alive sockets, and this flow
+  // first reuses pooled ones at its concurrent tick+intake step, where a stale one fails the request with a transport TypeError.
+  const request=(path,method='GET',body,headers={})=>fetch(worker.origin+path,{method,headers:{Origin:worker.origin,Cookie:cookie,Connection:'close',...body?{'Content-Type':typeof body==='string'?'application/x-ndjson':'application/json'}:{},...headers},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}}),json=async(...args)=>{const response=await request(...args).catch(error=>{throw new Error(`[GOV-003] ${args[0]} HTTP transport failed: ${error.cause?.code??error.message}`)});assert.ok(response.ok,`[GOV-003] ${args[0]} HTTP ${response.status}`);return response.json()};
   const p='synthetic-spool-18',held='synthetic-spool-19',projects={};
   for(const id of [p,held]){projects[id]=await json('/api/projects','POST',{id,name:id});await json(`/api/projects/${id}/releases`,'POST',{name:'r1',build:'b1'})}
   const event=n=>({version:1,eventId:'synthetic-spool-'+n,type:'Error',message:'synthetic-spool-18',release:'r1',build:'b1',environment:'test',frames:[{file:'https://app.example/app.js',line:1,column:0,function:'syntheticSpool'}],breadcrumbs:[]});

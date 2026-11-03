@@ -10990,7 +10990,7 @@
       "executable": false
     },
     "tests/retention-schedule-flow.mjs": {
-      "sha256": "6e6a92ad67e8c001e89ecab078adfbd06185b36d28361340ea4860d7d46875ed",
+      "sha256": "edaf71a8d75df23571bad850808d05cfd66135c4f9a6a32c4af39417e82506e5",
       "executable": false
     },
     "tests/review-inbox-flow.mjs": {
@@ -11362,7 +11362,7 @@
       "executable": false
     },
     "tests/worker.mjs": {
-      "sha256": "ec086f16881e6f08eb7d3329649d51502a55a1227742e6bb012c73f3311ed895",
+      "sha256": "33c488175802c128eb0e4e3a7b6693f56c6ad853fbefbd6829066b3f8a5cff32",
       "executable": false
     },
     "tsconfig.json": {
