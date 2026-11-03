@@ -14,9 +14,9 @@ export async function suspectCandidates(db: D1Database, project: string, issue: 
   const [commits, deployments, decisions] = await Promise.all([
    db.prepare('SELECT rc.sha,rc.source,rc.created,COUNT(*) OVER () available FROM release_commits rc WHERE rc.project=? AND rc.release=? ORDER BY rc.created,rc.sha LIMIT 501').bind(project,release).all<any>(),
    db.prepare('SELECT id,environment,started_at started,deadline,historical,COUNT(*) OVER () available FROM deployment_runs WHERE project=? AND release=? ORDER BY started_at DESC,id LIMIT 20').bind(project,release).all(),
-   db.prepare('SELECT sha,judgment,note,revision,updated FROM suspect_decisions WHERE project=? AND issue=? AND release=?').bind(project,issue,release).all<any>(),
+   db.prepare('SELECT sha,judgment,note,revision,updated FROM suspect_decisions WHERE project=? AND issue=? AND release=? AND (sha=\'\' OR sha IN (SELECT sha FROM release_commits WHERE project=? AND release=? ORDER BY created,sha LIMIT 501)) LIMIT 502').bind(project,issue,release,project,release).all<any>(),
   ]);
-  const included = commits.results.length ? commits.results : [{sha:'',source:'retained_occurrence',created:first?.received??basis[0].record.received}];
+  const included = commits.results.length ? commits.results : [{sha:'',source:basis[0].kind==='reactivation'?'regression_alert':'retained_occurrence',created:basis[0].record.received}];
   available += commits.results[0]?.available ?? 1;
   for (const commit of included) if (candidates.length < 100) {
    const decision = decisions.results.find(row => row.sha === commit.sha);

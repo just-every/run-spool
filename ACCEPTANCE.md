@@ -1515,8 +1515,8 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE
 4. Under the held policy with external blocked, the feedback reply, public pull request and public merge are refused, and the remaining internal work completes.
 5. Before setup is answered, the first call returns `policy_unset` with the setup link, and setup asks every Spool class with no answer pre-selected.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: the triage engineer journey under two company policies has not run.
+**Evidence.** `tests/agent-door.mjs` agent-door journey invokes `tests/agent-door/setup.mjs` nativeSetup (acceptance 5, currently declared unpaired native setup: exact-project MCP policy_unset and native setup link, every declared class and paid AI initially unanswered, keyboard and Axe, blank and incomplete form and native policy refusals without saved policy or admitted operation, explicit owner answers followed by a populated scoped read, foreign-project and revoked-key refusal; screens at 1440 and 390)
+**Gap.** No implementation proof yet: the triage engineer journey under two company policies has not run. Native unpaired setup assertions qualify acceptance 5 only for currently declared classes; managed Business setup and the complete two-policy journey remain unproved. Main's missing judgment is retained.
 
 ## Later
 
