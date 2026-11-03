@@ -105,6 +105,10 @@ export async function suspectPacketHandoff(app) {
   assert.equal(byteBounded.bounds.omittedEvents,byteBounded.bounds.availableEvents-byteBounded.events.length);
   assert.deepEqual(byteBounded.suspects,crowded.suspects,'byte pressure preserves the complete bounded suspect projection');
   assert.ok(byteBounded.gaps.some(row=>row.code==='events_omitted'&&row.omitted===byteBounded.bounds.omittedEvents));
+  for(const included of byteBounded.events){
+   const recorded=await json(base+'/issues/'+fixture.issue+'/events/'+included.id+'?occurrence='+encodeURIComponent(included.occurrence));
+   for(const field of ['id','occurrence','received','event','atAdmission','currentLookup'])assert.deepEqual(included[field],recorded[field],'byte pressure preserves complete retained evidence: '+field);
+  }
   const byteProof=await compareClients(byteBounded,client);
   console.log(`PROBE REL-002 packet byte cap: six public multibyte captures -> ${byteProof.bytes} UTF-8 bytes of ${byteProof.cap}, ${byteBounded.bounds.includedEvents} events included, ${byteBounded.bounds.omittedEvents} omitted, suspect projection unchanged across all clients`);
   assert.deepEqual((await app.archive()).data,beforeBoundedReads,'byte-bounded packet reads preserve every archived product row');
