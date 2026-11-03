@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2a09601783b8fc33c54578de93a8b7aa96cbd15954017c5c872e3e2f52f7640b",
+      "sha256": "d255b1acb9e181b63a51b38e2e5658840d8bdf7d1ec73983779383d48c547d9a",
       "executable": false
     },
     "DEMO.md": {
@@ -11302,7 +11302,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "390cb75838f9bc753d41a9efa430f15be92254f3611310b5dddd32cf56d5c3e6",
+      "sha256": "22f4c3bb7b3d442f9a093a9d0d4a4b4dbde741683041118f6478885288edf823",
       "executable": false
     },
     "tests/team-flow.mjs": {

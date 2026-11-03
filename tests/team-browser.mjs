@@ -135,6 +135,7 @@ export async function teamTriage(owner,member,project,width) {
   }
 
   await memberPage.goto(origin+'/projects/'+project.id+'/releases');
+  await teamViewportProof(memberPage,'team-release-registration');
   await memberPage.getByLabel('Release name',{exact:true}).fill(release);
   await memberPage.getByLabel('Build identifier',{exact:true}).fill('web');
   const registered=memberPage.waitForResponse(response=>new URL(response.url()).pathname===root+'/releases'&&response.request().method()==='POST');
@@ -155,6 +156,7 @@ export async function teamTriage(owner,member,project,width) {
   probe('capture','Prepare delivery -> accepted second-origin exception and matching retained event');
 
   await memberPage.goto(origin+path);await memberPage.locator('.missing-map').waitFor();
+  await teamViewportProof(memberPage,'team-unmapped-capture');
   await activate(memberPage.getByRole('button',{name:'Upload map',exact:true}));
   await expect(memberPage.getByLabel('Bundle debug ID',{exact:true})).toHaveValue(release);
   await memberPage.getByLabel(/^Source map file/).setInputFiles({name:'dispatch.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(application.map))});
@@ -211,6 +213,9 @@ export async function teamTriage(owner,member,project,width) {
   const alerts=await member.json(root+'/alerts');assert.ok(alerts.some(row=>row.issue===issue&&row.kind==='new_issue'),'capture has a persisted matching alert');
   await screen(memberPage,'team-alert');await alert.getByRole('button',{name:'Open issue',exact:true}).tap();
   await memberPage.locator('.mapped-frame').first().waitFor();assert.equal(new URL(memberPage.url()).pathname,path,'the touched alert opens the same mapped issue');
+  await expect(memberPage.getByLabel('Assigned to',{exact:true})).toHaveValue('Cedar responder','alert navigation reloads the saved operator label');
+  await expect(memberPage.getByRole('region',{name:'Discussion',exact:true}).locator('.commit-message').filter({hasText:body})).toBeVisible();
+  assert.equal((await member.json(root+'/issues/'+issue+'/discussion')).comments.filter(row=>row.body===body&&row.author===member.member.name).length,1,'the reopened discussion has exactly the attributed comment that was posted');
   probe('alert navigation','Open issue by touch -> the same issue deep link and mapped evidence');
 
   await ownerPage.goto(origin+path);
@@ -224,7 +229,14 @@ export async function teamTriage(owner,member,project,width) {
   const approved=ownerPage.waitForResponse(response=>new URL(response.url()).pathname===root+'/repairs/'+proposed.id+'/facts'&&response.request().method()==='POST');
   const approve=record.getByRole('button',{name:'Mark approved',exact:true});await approve.focus();await expect(approve).toBeFocused();
   await activate(approve);assert.equal((await approved).status(),200);await expect(record.getByRole('button',{name:'Mark approved',exact:true})).toHaveCount(0);
-  assert.ok((await owner.json(root+'/repairs?issue='+issue)).repairs.find(row=>row.id===proposed.id).facts.approved,'the approval is recorded, not merely displayed');
+  const approval=(await owner.json(root+'/repairs?issue='+issue)).repairs.find(row=>row.id===proposed.id).facts.approved;
+  assert.ok(approval,'the approval is recorded, not merely displayed');
+  await ownerPage.reload();
+  await expect(record).toBeVisible();
+  const approvedFact=record.locator('.repair-facts > div').filter({has:ownerPage.locator('dt').filter({hasText:/^Approved$/})}).locator('dd');
+  await expect(approvedFact).not.toBeEmpty();
+  await expect(record.getByRole('button',{name:'Mark approved',exact:true})).toHaveCount(0,'reopening the deep link retains the recorded approval');
+  assert.equal((await owner.json(root+'/repairs?issue='+issue)).repairs.find(row=>row.id===proposed.id).facts.approved,approval,'reopening does not record a second approval');
   await teamKeyboardDetails(ownerPage,'Evidence snapshot',()=>screen(ownerPage,'team-repair-details'));
   await screen(ownerPage,'team-repair-approved',ownerPage.locator('.repairs'));
   probe('repair approval','owner Record repair and Mark approved -> proposed record then persisted approval fact');
