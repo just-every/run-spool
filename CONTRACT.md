@@ -1466,8 +1466,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 7 | 5 | 0 | 12 |
-| Target and push further | 9 | 44 | 27 | 80 |
-| All | 16 | 49 | 27 | 92 |
+| Target and push further | 10 | 43 | 27 | 80 |
+| All | 17 | 48 | 27 | 92 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1510,7 +1510,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `SDK-017` | Unmodified React Native SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-018` | Unmodified Flutter SDK | target | missing |  | No implementation proof yet. iOS and Android jobs are engineering work. |
 | `SDK-019` | Unmodified Kotlin Multiplatform SDK | target | missing |  | No implementation proof yet. |
-| `SDK-020` | Guided setup command and published framework setup | target | partial | G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`. | Not asserted in the cited tests: G5, the seven framework guides published (they exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them). Asserted: G1 to G4. |
+| `SDK-020` | Guided setup command and published framework setup | target | done | G1 and G2: `tests/setup-flow.mjs` packed setup journey, fresh Django and Next.js reviewed patch equals applied files; production Next.js error resolves to the original line after map upload. G3 and G4: the same journey, Spool receipt required and malformed DSN, redirect, wrong host, secret DSN and unsafe file paths refuse without configuration writes. G5: `tests/runtime.mjs` framework publication journey, anonymous documentation navigation reaches all seven framework sections with installation and DSN examples, Python no-source-map guidance, JavaScript maps and tunnel replacement; the public site build emits the same article. `docs/FRAMEWORK-SETUP.md`. Fresh framework qualification is limited to Next.js and Django. |  |
 | `SDK-021` | Tunnel handlers and ad-blocker delivery | target | partial | `packages/sdk/src/tunnel.ts`; `packages/sdk/src/next.ts`; `packages/tunnel-python/spool_tunnel.py`; `tests/tunnel-flow.mjs`; `docs/SENTRY-SWITCHING.md` | Node, Next.js and Python tunnels with the DSN check, forwarded origin, rate-limit reply and bounded body; the default route blocked and the tunnel delivered under the EasyPrivacy Sentry rules in the Ghostery engine. Tunnels forward `X-Forwarded-For`, but no tunnel is trusted yet, so `{{auto}}` resolves only from the connecting address and events through a tunnel carry the tunnel server's address. Remaining: trusted ingress configuration with positive spoof-refusal proof (RL-101), a real ad-blocker browser extension and the MIG-001 dual run. |
 | `SDK-022` | First-party ingest subdomain | target | missing |  | No implementation proof yet. The hosted deployment, the DNS zone and managed TLS are engineering work recorded in the clause. |
 | `SDK-023` | JavaScript Loader Script per DSN key | target | done | `tests/sentry-sdk.mjs` ([SDK-023] loaderFlow); `tests/loader-flow.mjs`: lazy call/error capture API/UI, eager and both hooks, force load, key settings/integrations, uniform key refusal, direct-SDK identity/grouping/outcomes and release-less intake; `tests/loader-upgrade.mjs`: populated same-key upgrade; `tests/old-archive.mjs`: released upgrade/restore; public archive/restore/erasure in `tests/loader-flow.mjs`; push verify (sdk) and verify (runtime); screens `docs/retained-verification/sdk023/`. |  |
