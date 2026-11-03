@@ -6,7 +6,7 @@ import { nativeCall,authorizeNative } from './native';
 import { spoolTarget } from './targets';
 import { repairLink,boundedText } from '../repairs/input';
 import { scrub } from '../privacy';
-import { readRetentionPolicy, retentionPreview, retentionWindows } from '../retention-policy';
+import { retentionPreview, retentionWindows } from '../retention-policy';
 import { findDestination, destinationChoices } from '../alerts/destinations.server';
 import { type AlertEnvironment } from '../alerts/types';
 
@@ -91,7 +91,7 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     if(route==='issue'){const prior=await env.DB.prepare('SELECT state FROM issues WHERE project=? AND id=?').bind(a.project,a.issue).first<{state:string}>();if(prior?.state==='suppressed'||a.state==='suppressed')return [{class:'live',facts:{measure:1,service:String(a.project)}}];}
     if(route==='retention'){
      const preview=await retentionPreview(env.DB,String(a.project),retentionWindows(a.windows),a.at as number);
-     return [{class:'live',facts:{measure:1,service:String(a.project)}},...preview.shortening?[{class:'destructive' as const,facts:{measure:1}}]:[]];
+     return preview.shortening?[{class:'destructive',facts:{measure:preview.rows.reduce((total,row)=>total+row.count,0)}}]:standard();
     }
     if(route==='privacy')return [{class:'destructive',facts:{measure:1}}];
     return standard();

@@ -1,6 +1,7 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {GroupingFacts} from './GroupingExplanation';
 import {Details} from './Details';
+import {api} from './client';
 
 const hidden=(frame:any)=>frame.vars?.__traceback_hide__===true||frame.vars?.__traceback_hide__==='true'||frame.vars?.__traceback_hide__==='True';
 function rawStack(data:any) {
@@ -21,17 +22,45 @@ function Frame({frame,index,classification}:{frame:any;index:number;classificati
  </>;
  return <li>{(classification?classification.inApp===false:frame.in_app===false)?<details><summary>Library frame · not in app</summary>{content}</details>:content}</li>;
 }
-function Exception({exception,index,children,classification}:{exception:any;index:number;children?:any;classification?:any}) {
+function MappedFrames({path,index,frames}:{path:string;index:number;frames:any[]}) {
+ const [open,setOpen]=useState(false),[cursors,setCursors]=useState(['']),[revision,setRevision]=useState(0);
+ const [page,setPage]=useState<any>(null),[loading,setLoading]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{
+  if(!open)return;
+  let alive=true;setLoading(true);setError('');
+  api(path+'&'+new URLSearchParams({exception:String(index),...cursors.at(-1)?{cursor:cursors.at(-1)!}:{}})).then(value=>{if(alive){setPage(value);setLoading(false)}}).catch(e=>{if(alive){setError(e.message);setLoading(false)}});
+  return()=>{alive=false};
+ },[path,index,open,cursors,revision]);
+ return <details onToggle={e=>setOpen(e.currentTarget.open)}><summary>Current source-map lookup · exception {index+1}</summary>
+  <section aria-label={`Current source-map lookup for exception ${index+1}`}>
+   <p>Current lookup uses maps available now. Stored admission diagnostics stay unchanged. Lines are one-based; columns are zero-based.</p>
+   <p role="status">{loading?'Loading mapped frames…':page?`Frames ${page.start+1}–${page.start+page.rows.length} of ${page.total} · current lookup${error?' · stale':''}`:'Current lookup not loaded.'}</p>
+   {error&&<p role="alert">Lookup could not be refreshed. {page?'Retained lookup below is stale. ':''}{error}</p>}
+   <nav className="event-navigation" aria-label={`Mapped frame pages for exception ${index+1}`}>
+    <button className="text-button" disabled={loading||cursors.length===1} onClick={()=>setCursors(values=>values.slice(0,-1))}>Previous frames</button>
+    <button className="text-button" disabled={loading||!!error||!page?.next} onClick={()=>setCursors(values=>[...values,page.next])}>Next frames</button>
+    <button className="text-button" disabled={loading} onClick={()=>setRevision(value=>value+1)}>Refresh lookup</button>
+   </nav>
+   {page&&<ol className="exception-stack" start={page.start+1}>{page.rows.map((row:any)=>hidden(frames[row.frameIndex])?<li key={row.frameIndex}>Frame {row.frameIndex+1} hidden by __traceback_hide__; excluded from grouping.</li>:<li key={row.frameIndex}>
+     <p><strong>Frame {row.frameIndex+1}</strong> · {row.status.replaceAll('_',' ')}</p>
+     {row.original&&<p>Original: <code>{row.original.file}:{row.original.line}:{row.original.column} · {row.original.function}</code></p>}
+     <p>Generated: <code>{row.generated.file}:{row.generated.line??'?'}:{row.generated.column??'?'} · {row.generated.function}</code></p>
+    </li>)}</ol>}
+  </section>
+ </details>;
+}
+function Exception({exception,index,children,classification,lookupPath}:{exception:any;index:number;children?:any;classification?:any;lookupPath?:string}) {
  return <article className="exception"><h3>{exception.type??'Error'}: {exception.value??''} {index===0&&!exception.mechanism?.is_exception_group&&<small>Root cause</small>}</h3>
   {exception.mechanism&&<p className="muted">{exception.mechanism.type??'Reported exception'} · {exception.mechanism.handled===false?'Unhandled':exception.mechanism.handled===true?'Handled':'Handling unknown'}{exception.mechanism.is_exception_group?' · Exception group':''}</p>}
+  {lookupPath&&!!exception.stacktrace?.frames?.length&&<MappedFrames path={lookupPath} index={index} frames={exception.stacktrace.frames}/>}
   {exception.stacktrace?.frames?.length?<ol className="exception-stack">{exception.stacktrace.frames.map((frame:any,i:number)=><Frame key={i} frame={frame} index={i} classification={classification?.frames?.[i]}/>)}</ol>:<p>No stack sent for this exception.</p>}
   {children&&<div className="exception-children">{children}</div>}
  </article>;
 }
-export function SentryEvent({data,grouping}:{data:any;grouping:any}) {
+export function SentryEvent({data,grouping,lookupPath}:{data:any;grouping:any;lookupPath?:string}) {
  const [copied,setCopied]=useState(false),[failure,setFailure]=useState('');
  const exceptions=data.exceptions??[],seen=new Set<number>();
- const tree=(index:number):any=>{if(seen.has(index))return null;seen.add(index);const exception=exceptions[index],id=exception.mechanism?.exception_id;const children=id===undefined?[]:exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===id&&i!==index?[i]:[]);return <Exception key={index} exception={exception} index={index} classification={grouping?.exceptions?.[index]}>{children.map(tree)}</Exception>};
+ const tree=(index:number):any=>{if(seen.has(index))return null;seen.add(index);const exception=exceptions[index],id=exception.mechanism?.exception_id;const children=id===undefined?[]:exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===id&&i!==index?[i]:[]);return <Exception key={index} exception={exception} index={index} classification={grouping?.exceptions?.[index]} lookupPath={lookupPath}>{children.map(tree)}</Exception>};
  const roots=exceptions.flatMap((e:any,i:number)=>e.mechanism?.parent_id===undefined||!exceptions.some((p:any)=>p.mechanism?.exception_id===e.mechanism.parent_id)?[i]:[]);
  const trees=roots.map(tree);trees.push(...exceptions.map((_:any,i:number)=>tree(i)));
  const raw=rawStack(data),sections=['tags','contexts','request','extra','threads','breadcrumbs','sdk','modules','debug_meta','_meta'];

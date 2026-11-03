@@ -12,7 +12,7 @@ macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. Al
 
 The line installs `rer`, the Run Edit Run command, clones Spool into a `run-spool` folder, installs everything, prepares the local database and a local owner, and starts Spool. It prints `RER_OPEN`: open it in a browser on the same computer to enter signed in as the owner, and keep it private, because it carries this checkout's dev key. This free copy runs only on your computer: it sends no email, and nobody else can open it.
 
-To start Spool again later, run the same line from the same folder, or `cd run-spool && rer dev`. `rer dev --stop` stops it.
+To start Spool again later, run the same line from the same folder, or `cd run-spool && ~/.local/bin/rer dev`. `~/.local/bin/rer dev --stop` stops it. The installer leaves your shell profile unchanged. For the remaining commands below, run `export PATH="$HOME/.local/bin:$PATH"` in each new terminal, or use `~/.local/bin/rer` wherever the guide says `rer`.
 
 ## Choose your owner
 
@@ -63,4 +63,4 @@ Stop dev before deploying, verifying, resetting or transferring local data.
 
 To move Spool to another computer, use **Download private archive** in **Settings**, then start a fresh copy on the new one. On `/setup`, choose **Restore a private archive**, select the file and choose **Restore into empty installation**. Create new project keys after restore; archives exclude credentials. The browser accepts up to 16 MiB. For a larger archive or CLI restore, follow [the transfer procedure](../OPERATIONS.md#data-movement-and-retention), including `chmod 600` for browser downloads.
 
-To put Spool online, read [Hosting](/docs/hosting).
+To put Spool online, read [Hosting](https://run-spool.com/docs/hosting).

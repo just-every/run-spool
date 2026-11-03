@@ -61,7 +61,7 @@ const definitions=[
  ['credentials.update','DELETE','credential',object({id:str}),false,['access','security'],['ERR-004']],
  ['retention.read','GET','retention',fields({}),true,['standard'],['GOV-002']],
  ['retention.preview','POST','retention-preview',fields({windows:{type:'object'}}),true,['standard'],['GOV-002']],
- ['retention.update','PUT','retention',fields({revision:num,windows:{type:'object'},at:num,token:str},['project','revision','windows','at','token']),false,['live','destructive'],['GOV-002']],
+ ['retention.update','PUT','retention',fields({revision:num,windows:{type:'object'},at:num,token:str},['project','revision','windows','at','token']),false,['standard','destructive'],['GOV-002','SURFACE-003']],
  ['privacy.preview','GET','privacy',fields({}),true,['standard'],['BASE-DATA-003']],
  ['privacy.erase','POST','privacy',fields({planHash:str}),false,['destructive'],['BASE-DATA-003']],
  ['privacy.continue','POST','erasure-resume',object({id:str}),false,['destructive'],['BASE-DATA-003']],
