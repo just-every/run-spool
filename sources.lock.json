@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e63728cc35e2dcdae7ed4ed1cd535403b4efa9242bd9fe7a2ca52fbc10b32da5",
+      "sha256": "85f9da087513088c256735e93b937d85894b36d8745ea1ba8eab07ee5a104f71",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4e5ee7f475bad225e40a5bd38cde7b79054951cec83d07be4e5c0f609c9494f4",
+      "sha256": "2042396e714384b661198bbf6f29d880d3cf763d4bc60f2bf3eb4e60a2c82722",
       "executable": false
     },
     "DEMO.md": {
@@ -10338,7 +10338,7 @@
       "executable": false
     },
     "tests/admission-runtime.mjs": {
-      "sha256": "e2b970967a7958230c4c513626e183f9ed1cee1f74e82374ad7110b37e3bf5b6",
+      "sha256": "9c50455e05b0b0fb44f7faca4a11f6a8bbadc606eb8e4ffee6254452e0a950e4",
       "executable": false
     },
     "tests/agent-door.mjs": {
@@ -10358,7 +10358,7 @@
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {
-      "sha256": "1cdcb26f971ca53f69ee93b00816cbed22c2a88780c057a97ad4590156178391",
+      "sha256": "8c5b156fe1732c45faec6838990f2d7be1e623b96f614c693a7ed9943eeb3c6b",
       "executable": false
     },
     "tests/agent-door/native-journey.mjs": {
@@ -10390,7 +10390,7 @@
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
-      "sha256": "7023a8836bad7c2705bb5e34d05123e0ed0350fc28632d897c15f03cf79ad589",
+      "sha256": "559ba8a56c5f498eaa59b3ffa4e3d413033beb113a0b86c684f0208f41888c8b",
       "executable": false
     },
     "tests/agent-door/retention-classes.mjs": {
@@ -10554,7 +10554,7 @@
       "executable": false
     },
     "tests/auth.mjs": {
-      "sha256": "cb4a9d2beae20d067a6546fe97f38b1a79b4937a9f36714bb6305d9e2efabb2d",
+      "sha256": "155b26863103222d70fde897929b9cfa0311e2c71a70366a062f7452bc2c3bce",
       "executable": false
     },
     "tests/browser-launch.mjs": {
@@ -10634,7 +10634,7 @@
       "executable": false
     },
     "tests/end-user-erasure-preview.mjs": {
-      "sha256": "7998512ff549dc0377e19f4d9ef6102b5ed78b7a987c5ed3269f8d38f349f683",
+      "sha256": "adcf3ffb347f79cf6510f21407ac693522f15b0b952d2dbbd5881a4af1720380",
       "executable": false
     },
     "tests/execution-journey.mjs": {
@@ -10842,7 +10842,7 @@
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
-      "sha256": "594bd71377fbfdd65c3b9cd5c04a139fc950e5f41329a5f05d31538cba009e23",
+      "sha256": "2f2c0b43c7b8a33bb7d7fc8c3f6826f77769a101da6465e40d7f0f292fc8a684",
       "executable": false
     },
     "tests/preview-session.mjs": {
@@ -11310,7 +11310,7 @@
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "ebc57bee01e1410faf08031d1a3bb6756ae3e34ec963eabdcfe6af349c23c51c",
+      "sha256": "3f5ad46f0ffe4b1144b9c4491f714cd89310e4109667f67b6164b46249056d91",
       "executable": false
     },
     "tests/triage-app.mjs": {
