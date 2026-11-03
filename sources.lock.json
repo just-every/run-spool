@@ -2646,7 +2646,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "3f060ce711b6b5e5bbd2d847b455cf08f443b2ff688af5414dc836744884a711",
+      "sha256": "fb06018174443a0706abf12380af10cd951ef0890f9f22cb8b7ca1474ab40369",
       "executable": false
     },
     "AGENTS.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d4c8c4efd4d64b9fb0f7e8e3264bcb4d9c5d63e5d568bbc03a3f6e6feb659708",
+      "sha256": "0a662fb8526df34549ca85b9db28beefa12a0292c73b365ace61f73c7d1b975a",
       "executable": false
     },
     "DEMO.md": {
@@ -4454,7 +4454,7 @@
       "executable": false
     },
     "scripts/agent-door/surface.mjs": {
-      "sha256": "1323544d841e8e5f3a7143fd1a736c56ffd1ccdc2746c85a56202c22bbd656bc",
+      "sha256": "c9a26702312269618c23bb9924508b5cbec62f051606af59d94c6a74d5c842ad",
       "executable": false
     },
     "scripts/build-capture.mjs": {
@@ -5490,7 +5490,7 @@
       "executable": false
     },
     "src/domain/agent-door/catalogue.mjs": {
-      "sha256": "8d3e2b4322fbf9fa1c8178e1512cff92807d203cd37a19c437e454e962f48c34",
+      "sha256": "cf95d95ad257f99d751b267d460bea374bf2ef9b2de663100b9c73a1ffdc4371",
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
@@ -5534,7 +5534,7 @@
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "8e26bcdea52037ba4165dcde96663a9a38ea18104120dc94718739c76cdb82ec",
+      "sha256": "bd218a13576e3e8648b8260eb0407503c4d51ff58029795926c5cc4566852aec",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -10342,7 +10342,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "d857128aa4f995e82c9441dd2aaaf2eddc90ab519566db25aae7bd87af1aef34",
+      "sha256": "f679a2297de1260a8ae372f81ab081c1ac3b2a5d5f838eaf8ab6cf82ad5bcd05",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10391,6 +10391,10 @@
     },
     "tests/agent-door/replay-horizon.mjs": {
       "sha256": "7023a8836bad7c2705bb5e34d05123e0ed0350fc28632d897c15f03cf79ad589",
+      "executable": false
+    },
+    "tests/agent-door/retention-classes.mjs": {
+      "sha256": "47bb75bfe4290a01a72dad563ca8339f362e353884398ecb037990c97cf998c0",
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {
