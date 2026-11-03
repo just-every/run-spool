@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 49 | 22 | 87 |
+| Core | 19 | 46 | 22 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 49 | 27 | 92 |
+| Full target | 19 | 46 | 27 | 92 |
 
-Judged from the code and tests at commit `23014dd984dc61ffff645521eecdc306ce436fc1` (2 November 2026). GOV-001 landing replay retains main's partial Status, Evidence and Gap judgment. Candidate `7090af61a621103226de0a02786b3a8fae83c515` adds `tests/governance-member-transfer.mjs`, invoked by `tests/owner-claim.mjs`: populated-state missing-proof refusal, session-bound native email confirmation without a replacement cookie, replay refusal, unverified and stale successor refusal, exactly one handoff and predecessor/successor session fencing, including step-up refusal after transfer. These assertions qualify the native organization handoff only; they do not establish enterprise identity, other privileged-operation step-up, owner recovery or provider acceptance. All existing clause judgments and external holds remain; exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `02f7a040daaf9e2b6ba30520511a72572e02a30b` (3 November 2026). SDK-020 moves from partial to done: the `tests/setup-flow.mjs` packed setup journey (G1 to G4) and the `tests/runtime.mjs` framework publication journey (G5) passed on that commit, and ct judge ct-judge-spool-sdk020-20261103-1010 accepted the move on landing. Fresh framework qualification is limited to Next.js and Django; the other five frameworks have manual guides. All other clause judgments and external holds are retained; exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -668,7 +668,7 @@ Core · target · **missing** · Rules D-5
 
 #### SDK-020 — Guided setup command and published framework setup
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A guided setup command, comparable to the Sentry setup wizard, detects the framework, installs the SDK, writes the DSN, release and source-map configuration as a reviewable diff, sends a test event, and writes nothing when it refuses. Spool publishes framework setup for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core. Setup names Sentry's `tunnelRoute` limitation and its replacement (SDK-021). Source-map configuration is a JavaScript-framework step: Python frameworks have no source maps to configure, and Django setup says so.
 
@@ -679,8 +679,8 @@ Core · target · **partial**
 4. G4: a bad DSN or an unsafe path writes nothing.
 5. G5: the seven framework guides are published.
 
-**Evidence.** G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`.
-**Gap.** Not asserted in the cited tests: G5, the seven framework guides published (they exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them). Asserted: G1 to G4.
+**Evidence.** G1 and G2: `tests/setup-flow.mjs` packed setup journey, fresh Django and Next.js reviewed patch equals applied files; production Next.js error resolves to the original line after map upload. G3 and G4: the same journey, Spool receipt required and malformed DSN, redirect, wrong host, secret DSN and unsafe file paths refuse without configuration writes. G5: `tests/runtime.mjs` framework publication journey, anonymous documentation navigation reaches all seven framework sections with installation and DSN examples, Python no-source-map guidance, JavaScript maps and tunnel replacement; the public site build emits the same article. `docs/FRAMEWORK-SETUP.md`. Fresh framework qualification is limited to Next.js and Django.
+**Gap.** None.
 
 #### SDK-021 — Tunnel handlers and ad-blocker delivery
 
@@ -755,7 +755,7 @@ Core · target · **partial** · Rules D-5
 
 #### GROUP-001 — Explainable grouping and durable corrections
 
-Core · target · **partial** · Rules D-4
+Core · target · **done** · Rules D-4
 
 **Requirement.** Group occurrences stably across builds and runtimes, explain the fingerprint/rule version, support SDK fingerprints and project grouping rules, and preview future rule effects against retained events. Bulk split/merge corrections preserve original grouping, alert/repair coverage and undo provenance. New intake follows the chosen versioned rule; historical regrouping is explicit and cannot erase previous failure evidence. Stack trace rules honor the per-frame `in_app` flag and the in-app include/exclude options that unmodified Sentry SDKs send, and let a maintainer mark frames in-app or not in-app (`+app`/`-app`) and include or exclude them from grouping (`+group`/`-group`) by path, module, package, function and platform family (Sentry's `stack.abs_path`, `stack.module`, `stack.package`, `stack.function` and `family` matchers), previewed against retained events and applied to later intake. The issue view collapses frames that are not in-app, and grouping uses in-app frames when any exist; MIG-001 imports Sentry stack trace and fingerprint rules. The default rule groups over the whole exception chain SDK-010 keeps, processing each exception in turn as Sentry's default does, so the same wrapper exception with different root causes makes different issues. An exception group is grouped by its top-level exception and its children. Frames hidden by `__traceback_hide__` are left out of grouping. A message event with no stack groups by its message template. Fingerprint rules can match any exception in the chain (`error.type`, `error.value`), the message, the level, the logger, tags and SDK name, as Sentry's fingerprint matchers do. Each event has a grouping information view showing the rule version, the variant used (exception chain, stack, message or custom fingerprint) and, per exception, which frames and values contributed to the hash and which did not, with the reason (not in-app, hidden by a `-group` rule, or `__traceback_hide__`). Native JavaScript, Python and Go accept opt-in versioned path/function/family stack rules and type/message/family fingerprint rules; absent native module/package/tag/SDK fields are named unavailable, and without a matching rule their native v1 identities remain unchanged. Historical regrouping means an explicit selected-occurrence correction with preview, version, audit, immutable original membership and guarded undo; rule activation applies forward only, and explicit split/merge corrections never automatically become future rules. Policy changes retain repair coverage gaps and never replay alerts or alter loss counters. MIG-001 imports and previews grouping rules before migration completion.
 
@@ -769,8 +769,8 @@ Core · target · **partial** · Rules D-4
 7. Later events follow a fingerprint rule on `error.type` of the inner exception.
 8. A Python frame with `__traceback_hide__` set is hidden and excluded from the hash.
 
-**Evidence.** `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/grouping-rules-flow.mjs`; `tests/operator-flow.mjs`; `tests/fidelity-flow.mjs`; `docs/GROUPING-RULES.md`
-**Gap.** Not asserted in the cited tests: a `__traceback_hide__` frame's exclusion from a frame-based hash (the cited event is grouped by a custom fingerprint rule). Asserted: every other point.
+**Evidence.** `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/operator-flow.mjs` operatorFlow and agentProposalFlow (acceptance 1 and 3: stable relations, reviewed split and merge, immutable originals, unchanged alert quantities and inspectable repair gaps after undo); `tests/grouping-rules-flow.mjs` groupingRulesFlow (acceptance 2, 4, 5 and 8: policy preview, later routing, selected historical corrections, collapsed library frames, default Python hidden-frame basis, admission fingerprint and issue identity with an unhidden control, hidden and unhidden issue views at 1440 and 390); `tests/fidelity-flow.mjs` fidelityFlow (acceptance 5 to 7: SDK in_app exclusion, whole-chain variants, distinct root causes and inner-cause fingerprint rules); `docs/GROUPING-RULES.md`
+**Gap.** None.
 
 #### FIND-001 — Search, facets and saved investigation views
 
@@ -893,7 +893,7 @@ Core · target · **partial** · Cites BASE-INPUT-003
 
 #### REL-001 — Release and deployment history
 
-Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
+Core · target · **done** · Cites BASE-OPS-003 · Rules D-4
 
 **Requirement.** Register builds, commits and per-environment deployment start/success/failure/rollback with actor, timing and included commit range. CI retries are idempotent; abandoned starts become visibly timed out and notify their owner. Releases auto-created from Sentry SDK events (SDK-009) appear in release history labeled auto-created, with first-seen time, first environment and creating SDK; a later registration of the same name through the release API, `sentry-cli` or a build plugin enriches that release with commits, artifacts and deploys and removes the label, never creating a second release. The project's SDK-028 ordering rule governs regression, while deployment history records multiple environments, progressive exposure and rollback without rewriting past event identity. Starts carry the caller's explicit deadline and selected existing email destination; overdue evaluation appends one truthful timeout and one notice attempt (local mail is labeled suppressed), never an inferred deployment failure. Included ranges and exposure remain caller recorded. Restored history is inert. SRC-003 carries the unmodified CLI/plugin registration journey, SRC-002 connected included-commit read-back, and TEAM-001 member deployment authority.
 
@@ -905,8 +905,8 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 5. Delayed old events keep regression ordering.
 6. A release auto-created by a Sentry SDK event and then enriched under the same name through the native release/deployment API stays one release, with its original first-seen time.
 
-**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` (REL-001); `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed, and the CI run's progress and success steps read back by state (only their count is asserted). Asserted: the started run with its four steps, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
+**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` REL-001 deployment history journey: acceptance 1, deploy-key started, ordered progress and success states with 0, 10, 50 and 100 percent exposure, and a separate failed run with included commits and permanent deploy-key actors; acceptance 2, concurrent idempotent callbacks and unchanged history after conflicting terminal callbacks; acceptance 3, one truthful timeout and one locally suppressed owner notice over repeated scheduled ticks; acceptance 4, complete production rollback state and exposure history; acceptance 6, native enrichment of one auto-created release with unchanged first-seen time and sequence. `tests/release-order-flow.mjs` releaseOrderFlow, invoked by `tests/deployment-history.mjs`: acceptance 5, delayed older events stay resolved under the project ordering rule and a genuinely newer release regresses once. The deployment journey also covers owner forms, multiple environments, project and revoked-key refusals, inert archive restore, erasure and screens at 1440 and 390.
+**Gap.** None.
 
 #### REL-002 — Suspect change and release comparisons
 
