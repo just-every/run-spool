@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
 import {authBindings,signIn} from '../auth.mjs';
 import {emittedWorkerOptions} from '../worker-options.mjs';
 const require=createRequire(import.meta.url);
@@ -21,8 +22,13 @@ export async function executionRuntime(state,port,extra={}){
   await runtime.ready;const db=await runtime.getD1Database(database.binding);registerLegacyMail(origin,db);
   if(!(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='projects'").first())){
    const {unstable_splitSqlQuery}=require('wrangler');
-   const sql=(await Promise.all((await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort().map(f=>readFile('migrations/core/'+f,'utf8')))).join('\n');
-   await db.batch(unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)));
+   const files=(await readdir('migrations/core')).filter(f=>f.endsWith('.sql')).sort();
+   const migrations=await Promise.all(files.map(async name=>({name,sql:await readFile('migrations/core/'+name,'utf8')})));
+   const sql=migrations.map(m=>m.sql).join('\n');
+   // Model the runner's authenticated migration ledger as well as its schema:
+   // native archive upgrades must verify applied file names and source hashes.
+   const ledger=db.prepare('CREATE TABLE d1_migrations(id INTEGER PRIMARY KEY,name TEXT NOT NULL,applied_at TEXT NOT NULL,sha256 TEXT NOT NULL,state TEXT NOT NULL)');
+   await db.batch([...unstable_splitSqlQuery(sql).filter(q=>!/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(q.trim())).map(q=>db.prepare(q)),ledger,...migrations.map(({name,sql},index)=>db.prepare("INSERT INTO d1_migrations VALUES(?,?,?,?,?)").bind(index+1,name,'2026-11-03T00:00:00.000Z',createHash('sha256').update(sql).digest('hex'),'applied'))]);
   }
   const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
   const request=(path,method='GET',body,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...(body!==undefined?{'content-type':typeof body==='string'?'application/x-ndjson':'application/json'}:{}),...headers},...(body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
