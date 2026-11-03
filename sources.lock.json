@@ -3686,7 +3686,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "f3d33d20877bda976b002b8cba5e92d007fe526cf9d9da04044d6765245856df",
+      "sha256": "66b68efc57cc88500e04c943045169d906487e1e3fdf16da3edfa8be297f5f26",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -11266,7 +11266,7 @@
       "executable": false
     },
     "tests/sentry-invalid-event-flow.mjs": {
-      "sha256": "11b33ddba8287a56a1899027ab19e6e8cf593305edcdd576900ada56b1571ec0",
+      "sha256": "b2911edf3f40ab1f0efffb74ffc4932f0fc34f9b57ad590255ebfd9b6b10249c",
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
