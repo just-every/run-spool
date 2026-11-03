@@ -78,6 +78,26 @@ export async function suspectPacketHandoff(app) {
   assert.ok(crowded.gaps.some(row=>row.code==='suspects_omitted'&&row.omitted===crowded.suspects.bounds.available-crowded.suspects.bounds.included));
   assert.ok(crowded.gaps.some(row=>row.code==='suspect_reactivations_omitted'));
   await compareClients(crowded,client);
+  // Public captures keep the same first frame and issue, but grow the complete
+  // multibyte event evidence beyond the packet cap. Suspect provenance must
+  // survive event omission and stay identical through every packet client.
+  for(let index=0;index<6;index++){
+   const captured=await json('/api/ingest/'+fixture.project,'POST',{version:1,eventId:'synthetic-spool-packet-bytes-'+index,release:current,build:'web-2',environment:'production',type:'TypeError',message:'Checkout confirmation receipt missing',
+    frames:Array.from({length:30},(_,frame)=>frame===0?{file:'checkout.js',line:12,column:0,function:'confirm'}:{file:'https://example.test/'+('界'.repeat(70))+frame+'.js',line:frame+1,column:0,function:'界'.repeat(100)}),
+    breadcrumbs:Array.from({length:20},()=> '界'.repeat(150))},{agent:fixture.ingestKey});
+   assert.equal(captured.issue,fixture.issue,'large public captures retain the original issue identity');
+  }
+  const byteBounded=await json(path,'GET',undefined,agent),beforeBoundedReads=(await app.archive()).data;
+  assert.ok(byteBounded.events.length>0,'the newest multibyte event still fits');
+  assert.ok(byteBounded.events.length<byteBounded.bounds.eventLimit,'the byte cap omits events before the count limit');
+  assert.equal(byteBounded.events[0].id,'synthetic-spool-packet-bytes-5');
+  assert.equal(byteBounded.bounds.includedEvents,byteBounded.events.length);
+  assert.equal(byteBounded.bounds.omittedEvents,byteBounded.bounds.availableEvents-byteBounded.events.length);
+  assert.deepEqual(byteBounded.suspects,crowded.suspects,'byte pressure preserves the complete bounded suspect projection');
+  assert.ok(byteBounded.gaps.some(row=>row.code==='events_omitted'&&row.omitted===byteBounded.bounds.omittedEvents));
+  const byteProof=await compareClients(byteBounded,client);
+  console.log(`PROBE REL-002 packet byte cap: six public multibyte captures -> ${byteProof.bytes} UTF-8 bytes of ${byteProof.cap}, ${byteBounded.bounds.includedEvents} events included, ${byteBounded.bounds.omittedEvents} omitted, suspect projection unchanged across all clients`);
+  assert.deepEqual((await app.archive()).data,beforeBoundedReads,'byte-bounded packet reads preserve every archived product row');
   const snapshot=await app.archive();
   let restored;
   try{
@@ -109,6 +129,6 @@ export async function suspectPacketHandoff(app) {
   for(const name of ['get_packet','spool.issues.read']){const refused=await client.call(name,{issue:fixture.issue});assert.equal(refused.isError,true);assert.ok(!JSON.stringify(refused).includes(privateNote));}
   assert.deepEqual((await app.archive()).data,afterRevocation,'revoked packet reads change no archived product rows');
  }finally{await client.close();}
- console.log('PROBE REL-002 agent-packet provenance: native reactivation and judgments -> complete HTTP, CLI JSON, Markdown JSON and official MCP equality; private values excluded; bounded omissions; inert restore, erased replay, retention and next-call revocation passed');
+ console.log('PROBE REL-002 agent-packet provenance: native reactivation and judgments -> complete HTTP, CLI JSON, Markdown JSON and official MCP equality; private values excluded; multibyte byte-cap event omission preserves suspect provenance; inert restore, erased replay, retention and next-call revocation passed');
  return {candidates:3,judgments:['rejected revision 2','confirmed revision 1'],wholeClientEquality:true,privateNotesExcluded:true,boundedOmissions:true,retention:true,inertRestore:true,erasedReplayRefused:true,nextCallRevocation:true};
 }
