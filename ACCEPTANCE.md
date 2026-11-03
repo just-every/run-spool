@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 18 | 47 | 22 | 87 |
+| Core | 19 | 46 | 22 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 18 | 47 | 27 | 92 |
+| Full target | 19 | 46 | 27 | 92 |
 
-Judged from the code and tests at commit `22caf4278e62297537c2df31c0a280c8bda48baf` (3 November 2026). GROUP-001 acceptance 8 is qualified by the isolated default-policy public Sentry intake in `tests/grouping-rules-flow.mjs` groupingRulesFlow: changing only a hidden Python frame's path, function and line preserves the actual basis, stored admission fingerprint and issue; removing its hidden flag changes all three. No custom fingerprint or matching exclusion rule replaces that hash. Event detail explains hidden=true, contributes=false and the __traceback_hide__ reason, and the hidden and unhidden issue views pass at 1440 and 390. The enclosing Sentry HTTP journey and the native operator journey retain the other seven acceptance outcomes, authority, immutable corrections, alert and repair coverage, archive and erasure assertions. Grouping source and journey bytes are unchanged from this proof basis. The stale acceptance-8 Gap is cleared; no acceptance text or other clause judgment changes. MIG-001's real Sentry organization export, API and genuine dual-run obligations remain with MIG-001. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `22caf4278e62297537c2df31c0a280c8bda48baf` (3 November 2026). ERR-006 fresh acceptance review confirms all six outcomes through the existing public journeys. This judgment changes no implementation, journey or acceptance bytes; other judgments and held scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -101,7 +101,7 @@ Core · published · **partial** · Cites BASE-INPUT-003
 
 #### ERR-006 — Audited triage and regression
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** Revision-checked open, acknowledged, resolved and suppressed changes are audited. An issue resolved in its current release reopens as a regression on a recurrence in a later release; delayed older-release events cannot invent one. For native version-1 events the order is the registered sequence, never guessed semver; Sentry events follow the project's stated rule in SDK-028, including releases later enriched by registration. SDK-009 carries resolve in the next or a named release and plain Resolve, and plain Resolve regresses on the next accepted event in any release; TEAM-004 inherits resolution from a commit's release, and TEAM-003 carries same-release recurrence policies, bulk actions and collaborative triage. Recognized JavaScript bundle hash suffixes do not split grouping; native anchors and reported frames stay immutable. Corrections retain exact occurrence provenance and reversible fenced apply/undo.
 
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
-**Gap.** Main's partial judgment is retained during this landing replay. The candidate adds the cited regression, inert-preview and issue-view correction assertions; a fresh acceptance review of that evidence remains separate from conflict resolution.
+**Evidence.** `tests/product-runtime.mjs` — emitted Worker and D1 acceptance (1: newer-release reopening and one regression alert; 2: strictly older capture retains the newer resolution; 5: stale triage refusal); `tests/alerts-native.mjs` — native scheduled event delivers a later-release regression with silent local mail once (1); `tests/operator-flow.mjs` — operatorFlow (3: inert HTTP split and merge previews; 4: fenced HTTP apply and undo; 5: stale correction refusal; 6: immutable originals); `tests/triage-journey.mjs` — journey calling `tests/operator-ui.mjs` — operatorUi at 1440 and 390 (3: inert split and merge previews; 4: exact reviewed split and merge apply and undo; 6: inspectable original membership); `tests/operator-archive.mjs` — operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** None.
 
 #### ERR-007 — Sanitized evidence packet
 
