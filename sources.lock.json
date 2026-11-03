@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a77678b233c398c71d8dd667d4506f9a3573ef82642ff727dbf8b9702b5c9590",
+      "sha256": "93616dd6375d1c5fd224d782380c6e9c500c0f2f2b7d4e06acdb87434a593439",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "860674f176f3f427ea5657adb2e9b1856dea00e88fdfab4b9b8fdcdb864e8cc0",
+      "sha256": "91b9551ed35fc8c69aee3b793f4c3f3cf7a74513480f32b3b1b4a22a7a2f216a",
       "executable": false
     },
     "DEMO.md": {
@@ -10410,7 +10410,7 @@
       "executable": false
     },
     "tests/agent-door/setup.mjs": {
-      "sha256": "738710031fa1f58e2fe7212cd71c7df17b90d74969ce286b339bebc746fbc431",
+      "sha256": "230fc70754fcf16f0a5eda77700885a1e493dc81f58df18f9bc59c6ec61633d2",
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {

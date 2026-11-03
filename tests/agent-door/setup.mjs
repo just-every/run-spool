@@ -86,7 +86,17 @@ export async function nativeSetup(){
    await save.click();
    assert.ok(await choices.last().evaluate(select=>select===document.activeElement),'Incomplete submission focuses the unanswered class');
    await unchanged();
-   await choices.last().selectOption('blocked');await save.click();
+   await choices.last().selectOption('blocked');
+   for(let i=0;i<declared.length;i++){
+    const unanswered=choices.nth(i);
+    await unanswered.selectOption('');await save.click();
+    assert.ok(await unanswered.evaluate(select=>select===document.activeElement),'Each omitted class prevents saving and receives keyboard focus');
+    assert.equal(await unanswered.getAttribute('aria-invalid'),'true','The omitted class is identified as invalid');
+    const errorId=await unanswered.getAttribute('aria-errormessage');
+    assert.ok(await page.locator('#'+errorId).isVisible(),'The omitted class has a visible explanation');
+    await unchanged();await unanswered.selectOption('blocked');
+   }
+   await save.click();
    assert.ok(await form.locator('input[name="paidAI"]').first().evaluate(input=>input===document.activeElement),'An unanswered paid-AI choice also prevents saving');
    await unchanged();
    const paidYes=form.locator('input[name="paidAI"][value="yes"]');
