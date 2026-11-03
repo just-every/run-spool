@@ -73,10 +73,10 @@ export async function suspectFlow({req,json,origin,browser}) {
 }
 
 const displayTime=time=>new Date(time).toLocaleString('en-GB',{timeZone:'UTC',hour12:false})+' UTC';
-export async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time}) {
+export async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time,commitDetails={}}) {
  const p=await json('/api/projects','POST',{id:'synthetic-spool-reactivation',name:'Checkout reactivation correlation'}),base=`/api/projects/${p.id}`;
- await json(base+'/releases','POST',{name:old,build:'web-1',commits:[{sha:priorSha,message:'Older checkout confirmation'}]});
- await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:falseSha,message:'Adjust checkout layout'},{sha:trueSha,message:'Change payment confirmation'}]});
+ await json(base+'/releases','POST',{name:old,build:'web-1',commits:[{sha:priorSha,message:'Older checkout confirmation',...commitDetails}]});
+ await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:falseSha,message:'Adjust checkout layout',...commitDetails},{sha:trueSha,message:'Change payment confirmation',...commitDetails}]});
  const destination=await json(base+'/alerting/destinations','POST',{label:'Synthetic reactivation owner',recipient:['synthetic-spool-reactivation','example.test'].join('@')});
  const deployment={id:'synthetic-spool-reactivation-rollout',release:current,build:'web-2',environment:'production',repository:'https://example.test/synthetic-spool/checkout',commitSha:trueSha,previousCommit:priorSha,includedCommits:[falseSha,trueSha],startedAt:new Date(time-60000).toISOString(),deadline:new Date(time+3600000).toISOString(),destination:destination.id};
  await json(base+'/deployments','POST',deployment);

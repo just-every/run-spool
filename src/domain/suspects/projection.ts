@@ -13,7 +13,7 @@ export async function packetSuspects(db: D1Database, project: string, issue: str
     record: basis.kind === 'first_retained_occurrence'
      ? { id: text(basis.record.id), occurrence: text(basis.record.occurrence), release: text(basis.record.release), environment: text(basis.record.environment), received: number(basis.record.received) }
      : { alertId: text(basis.record.alertId), received: number(basis.record.received), release: text(basis.record.release) } })),
-   inclusion: { source: ['release', 'deployment', 'sha_release', 'retained_occurrence'].includes(row.inclusion.source) ? row.inclusion.source : 'unavailable', created: number(row.inclusion.created) },
+   inclusion: { source: ['release', 'deployment', 'sha_release', 'retained_occurrence', 'regression_alert'].includes(row.inclusion.source) ? row.inclusion.source : 'unavailable', created: number(row.inclusion.created), ...(row.sha === null ? { reason: 'No recorded commit receipt is available for this release; no SHA is inferred.' } : {}) },
    deployments: row.deployments.slice(0, DEPLOYMENT_LIMIT).map((deployment: any) => ({ id: text(deployment.id), environment: text(deployment.environment), started: number(deployment.started), deadline: number(deployment.deadline), historical: deployment.historical === 1 })),
    judgment: suspectJudgmentProjection(row.decision),
    bounds: { reasonsAvailable: row.reason.length, reasonsIncluded: Math.min(row.reason.length, REASON_LIMIT), reasonLimit: REASON_LIMIT,
