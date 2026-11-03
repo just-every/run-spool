@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4140e18dfc6a978d8fea6a9772aedb6e0fb794baf520c31bd41663fe1011705f",
+      "sha256": "336baae083b1a444f6fc94e95ae1ed7f1a695152b7fc1d8796eeea9b0059f0f1",
       "executable": false
     },
     "DEMO.md": {
@@ -3686,7 +3686,7 @@
       "executable": false
     },
     "docs/SENTRY-SWITCHING.md": {
-      "sha256": "07067fe2217e9ec1af47f955dfb2804ea8294d52de7213eb48f18558340a9e9f",
+      "sha256": "f3d33d20877bda976b002b8cba5e92d007fe526cf9d9da04044d6765245856df",
       "executable": false
     },
     "docs/SHORT-IDS.md": {
@@ -6746,7 +6746,7 @@
       "executable": false
     },
     "src/domain/sentry/convert.ts": {
-      "sha256": "046fcf4ba697e5af10ba4aabd4d4b14c53bbf9508123ba1d4364030562e4bc1e",
+      "sha256": "59fb1399c34395bff08019236fb8b75118b4ded398918a48f53de53d8aab7afd",
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
@@ -6790,7 +6790,7 @@
       "executable": false
     },
     "src/domain/sentry/routes.ts": {
-      "sha256": "3e86374658c3c62e3432e6490dfdaa2de98edd4b82e1ab9756dd17de9506e8d9",
+      "sha256": "ad472fc7229481b1d9c71178493b4d580ce00ac52b0fe5b1bd9fe7a31dc60c3f",
       "executable": false
     },
     "src/domain/sentry/wire.ts": {
@@ -11254,7 +11254,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "54a65c10d50ddfbfa9e29d0e037e722bf6fddcb0473f305ef4e394c02ca37d24",
+      "sha256": "276fa55700e589407f5b8e70aea0dacc72a3803e780b1ca210264726ec266073",
       "executable": false
     },
     "tests/sentry-import.mjs": {
@@ -11263,6 +11263,10 @@
     },
     "tests/sentry-import/reads.mjs": {
       "sha256": "bc691f9582fee9b7c08a2ceecf289c549d264b25b8a7454e7b8d940b1d117339",
+      "executable": false
+    },
+    "tests/sentry-invalid-event-flow.mjs": {
+      "sha256": "11b33ddba8287a56a1899027ab19e6e8cf593305edcdd576900ada56b1571ec0",
       "executable": false
     },
     "tests/sentry-sdk.mjs": {
