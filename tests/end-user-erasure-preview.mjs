@@ -14,7 +14,7 @@ export async function endUserErasurePreviewFlow() {
  try {
   const cookie = app.cookie, origin = app.origin;
   const client = (session=cookie) => {
-   const req = (path,method='GET',body,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:session,...body!==undefined?{'Content-Type':'application/json'}:{},...headers},...body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
+   const req = (path,method='GET',body,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:session,Connection:'close',...body!==undefined?{'Content-Type':'application/json'}:{},...headers},...body!==undefined?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
    return {req,json:async(...args)=>{const response=await req(...args);const value=await response.json();assert.ok(response.ok,`${args[0]} HTTP ${response.status}: ${JSON.stringify(value)}`);return value}};
   };
   const owner=client(), email='synthetic-spool-27'+String.fromCharCode(64)+'example.test', other='synthetic-spool-28'+String.fromCharCode(64)+'example.test';
