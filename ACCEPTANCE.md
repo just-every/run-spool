@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 49 | 22 | 87 |
+| Core | 17 | 48 | 22 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 49 | 27 | 92 |
+| Full target | 17 | 48 | 27 | 92 |
 
-Judged from the code and tests at commit `23014dd984dc61ffff645521eecdc306ce436fc1` (2 November 2026). GOV-001 landing replay retains main's partial Status, Evidence and Gap judgment. Candidate `7090af61a621103226de0a02786b3a8fae83c515` adds `tests/governance-member-transfer.mjs`, invoked by `tests/owner-claim.mjs`: populated-state missing-proof refusal, session-bound native email confirmation without a replacement cookie, replay refusal, unverified and stale successor refusal, exactly one handoff and predecessor/successor session fencing, including step-up refusal after transfer. These assertions qualify the native organization handoff only; they do not establish enterprise identity, other privileged-operation step-up, owner recovery or provider acceptance. All existing clause judgments and external holds remain; exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `22caf4278e62297537c2df31c0a280c8bda48baf` (3 November 2026). ERR-006 fresh acceptance review confirms all six outcomes through the existing public journeys. This judgment changes no implementation, journey or acceptance bytes; other judgments and held scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -101,7 +101,7 @@ Core · published · **partial** · Cites BASE-INPUT-003
 
 #### ERR-006 — Audited triage and regression
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** Revision-checked open, acknowledged, resolved and suppressed changes are audited. An issue resolved in its current release reopens as a regression on a recurrence in a later release; delayed older-release events cannot invent one. For native version-1 events the order is the registered sequence, never guessed semver; Sentry events follow the project's stated rule in SDK-028, including releases later enriched by registration. SDK-009 carries resolve in the next or a named release and plain Resolve, and plain Resolve regresses on the next accepted event in any release; TEAM-004 inherits resolution from a commit's release, and TEAM-003 carries same-release recurrence policies, bulk actions and collaborative triage. Recognized JavaScript bundle hash suffixes do not split grouping; native anchors and reported frames stay immutable. Corrections retain exact occurrence provenance and reversible fenced apply/undo.
 
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
-**Gap.** Main's partial judgment is retained during this landing replay. The candidate adds the cited regression, inert-preview and issue-view correction assertions; a fresh acceptance review of that evidence remains separate from conflict resolution.
+**Evidence.** `tests/product-runtime.mjs` — emitted Worker and D1 acceptance (1: newer-release reopening and one regression alert; 2: strictly older capture retains the newer resolution; 5: stale triage refusal); `tests/alerts-native.mjs` — native scheduled event delivers a later-release regression with silent local mail once (1); `tests/operator-flow.mjs` — operatorFlow (3: inert HTTP split and merge previews; 4: fenced HTTP apply and undo; 5: stale correction refusal; 6: immutable originals); `tests/triage-journey.mjs` — journey calling `tests/operator-ui.mjs` — operatorUi at 1440 and 390 (3: inert split and merge previews; 4: exact reviewed split and merge apply and undo; 6: inspectable original membership); `tests/operator-archive.mjs` — operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** None.
 
 #### ERR-007 — Sanitized evidence packet
 
