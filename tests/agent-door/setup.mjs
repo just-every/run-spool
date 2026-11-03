@@ -53,6 +53,12 @@ export async function nativeSetup(){
    const audit=await json('/agents/api/audit');assert.ok(audit.rows.length>0);
    assert.ok(audit.rows.every(row=>row.outcome==='refused'),'No agent operation completed while setup was unanswered');
   };
+  const completeDocument={schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:declared.map(cls=>({id:cls,class:cls,do:'autonomous'})),reviewers:['role:owner'],spend:{none:true}};
+  for(const [headers,status,code] of [[{},401,'unauthenticated'],[{Authorization:'Bearer '+grant.key,'x-rer-dev-key':testDevKey},403,'person_session_required']]){
+   const refused=await app.call('/agents/api/policy',{document:completeDocument},headers,'PUT');
+   assert.equal(refused.status,status);assert.equal((await refused.json()).code,code);await unchanged();
+  }
+  console.log('PROBE SURFACE-005 native-authority: anonymous and exact-project agent policy writes -> refused with policy unset and captured records unchanged');
   screens=await agentScreens({origin:app.origin,cookie});
   await screens.capture('native-setup-unanswered',setup.pathname,null,async page=>{
    const questions=await page.locator('[data-policy-class]').evaluateAll(selects=>selects.map(select=>({
@@ -82,15 +88,22 @@ export async function nativeSetup(){
    await unchanged();
    await choices.last().selectOption('blocked');await save.click();
    assert.ok(await form.locator('input[name="paidAI"]').first().evaluate(input=>input===document.activeElement),'An unanswered paid-AI choice also prevents saving');
-   await unchanged();assert.equal(saves,0,'Blank and incomplete quick-form submissions send no policy write');
+   await unchanged();
+   const paidYes=form.locator('input[name="paidAI"][value="yes"]');
+   await paidYes.check();await save.click();
+   assert.ok(await paidYes.evaluate(input=>input===document.activeElement),'An unsupported paid-AI answer keeps focus on that choice');
+   assert.equal(await form.locator('[data-paid-ai]').getAttribute('aria-invalid'),'true');
+   assert.ok(await page.locator('#error-paid-ai').isVisible(),'The unsupported paid-AI answer has a visible explanation');
+   assert.ok(await page.locator('[data-policy-editor]').evaluate(editor=>editor.open),'The paid-AI answer exposes the policy document for review');
+   await unchanged();assert.equal(saves,0,'Blank, incomplete and unsupported paid-AI quick-form submissions send no policy write');
    // The server also refuses an incomplete document when a client bypasses form validation.
    const draft=JSON.parse(await page.locator('#policy-document').inputValue());
-   for(const rules of [[],declared.slice(1).map(cls=>({id:cls,class:cls,do:'blocked'}))]){
+   for(const rules of [[],...declared.map(omitted=>declared.filter(cls=>cls!==omitted).map(cls=>({id:cls,class:cls,do:'blocked'})))]){
     const rejected=await app.call('/agents/api/policy',{document:{...draft,rules}},{Cookie:cookie},'PUT');
     assert.equal(rejected.status,409);assert.equal((await rejected.json()).code,'policy_incomplete');await unchanged();
    }
   });
-  console.log('PROBE SURFACE-005 incomplete-refusal: blank form, omitted class, unanswered paid AI and incomplete native PUT -> no policy saved and no MCP operation admitted');
+  console.log('PROBE SURFACE-005 incomplete-refusal: blank form, each omitted class, unanswered or unsupported paid AI and incomplete native PUT -> no policy saved and no MCP operation admitted');
 
   await screens.capture('native-setup-answered',setup.pathname,null,async page=>{
    const form=page.locator('[data-create-policy]');
