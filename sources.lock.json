@@ -9990,7 +9990,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "c32f0fe9d3ef815df59a36d1d5835741440e1c062920edb0826bf360c61eb51d",
+      "sha256": "3a152db4802b78bc3ba5d008797dd747466ea38e1f2c0245bda0111ff17394c8",
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
@@ -11298,7 +11298,7 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "0ed026c992bfb35f7348345c3527ec8ba3536feca65d91c67343af97a6bc76ed",
+      "sha256": "390cb75838f9bc753d41a9efa430f15be92254f3611310b5dddd32cf56d5c3e6",
       "executable": false
     },
     "tests/team-flow.mjs": {
@@ -11306,7 +11306,7 @@
       "executable": false
     },
     "tests/team-viewport.mjs": {
-      "sha256": "7d0e06e9cdc35cac046e9368f9dfc8e798cff5442a23ebbce411f258a9d7b12f",
+      "sha256": "2a1df5b7e9279ded2f3429d530a5e00d1cfef44a2e9b4813a65fc1ea5ed13692",
       "executable": false
     },
     "tests/triage-app.mjs": {
