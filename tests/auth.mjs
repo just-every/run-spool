@@ -18,7 +18,7 @@ export const authBindings = origin => ({ AUTH_ORIGIN: origin, AUTH_LOCAL: 'true'
  MAIL_PROVIDER: 'development', MAIL_FROM: 'auth@localhost.test' });
 export async function signIn(origin, { bootstrap = true, returnTo = '/', form = false, emailLink = false, sessionSecret = authBindings(origin).SESSION_SECRET } = {}) {
  try {
- const post = (path, body) => fetch(origin + path, { method:'POST', redirect:'manual', headers:{Origin:origin,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+ const post = (path, body) => fetch(origin + path, { method:'POST', redirect:'manual', headers:{Origin:origin,Connection:'close','Content-Type':'application/json'}, body:JSON.stringify(body) });
  if(bootstrap){const response=await post('/auth/bootstrap',{token:testSetupToken,displayName:'Test owner'});assert.ok([303,409].includes(response.status),'real first owner bootstrap or preservation');await response.body?.cancel();}
  if(emailLink){
   assert.equal((await post('/auth/magic-link',{email:testOwner,returnTo})).status,202);
@@ -27,7 +27,7 @@ export async function signIn(origin, { bootstrap = true, returnTo = '/', form = 
   const confirmed=await post('/auth/confirm',{token});assert.equal(confirmed.status,303);
   return confirmed.headers.get('set-cookie').split(';')[0];
  }
- const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,'content-type':'application/json','x-rer-local-cli':createHmac('sha256',sessionSecret).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
+ const response=await fetch(origin+'/auth/local/cli-session',{method:'POST',redirect:'manual',headers:{Origin:origin,Connection:'close','content-type':'application/json','x-rer-local-cli':createHmac('sha256',sessionSecret).update('local-cli\0sign-in').digest('hex')},body:JSON.stringify({returnTo})});
  assert.equal(response.status,303,'real local owner admission');
  const cookies=response.headers.getSetCookie();const cookie=cookies.map(value=>value.split(';')[0]).join('; ');assert.ok(cookie);await response.body?.cancel();
  return cookie;
@@ -58,16 +58,16 @@ export async function confirmEmailLink(origin, email, {previousIds = []} = {}) {
   assert.ok(row, 'the native sender delivers a fresh confirmation to this person');
   const token = JSON.parse(row.message).text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];
   assert.ok(token, 'the message has a native confirmation');
-  const preview = await fetch(origin + '/auth/confirm?token=' + token, {redirect:'manual'});
+  const preview = await fetch(origin + '/auth/confirm?token=' + token, {redirect:'manual',headers:{Connection:'close'}});
   assert.equal(preview.status, 200, 'native link preview is non-consuming');
   assert.equal(preview.headers.get('set-cookie'), null);
   await preview.body?.cancel();
-  const response = await fetch(origin + '/auth/confirm', {method:'POST',redirect:'manual',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({token})});
+  const response = await fetch(origin + '/auth/confirm', {method:'POST',redirect:'manual',headers:{Origin:origin,Connection:'close','Content-Type':'application/json'},body:JSON.stringify({token})});
   assert.equal(response.status, 303, 'native confirmation accepts the email proof');
   const cookie = response.headers.get('set-cookie')?.split(';')[0];
   assert.ok(cookie, 'native confirmation issues the person session');
   await response.body?.cancel();
-  const session = await fetch(origin + '/auth/session', {headers:{Cookie:cookie}});
+  const session = await fetch(origin + '/auth/session', {headers:{Cookie:cookie,Connection:'close'}});
   assert.equal(session.status, 200);
   const current = await session.json();
   assert.equal(current.operator.email, email);
@@ -79,7 +79,7 @@ export async function confirmEmailLink(origin, email, {previousIds = []} = {}) {
 
 export async function emailSignIn(origin, email, {returnTo = '/'} = {}) {
  const previousIds = (await legacyMailRows(origin)).map(row => row.id);
- const response = await fetch(origin + '/auth/magic-link', {method:'POST',redirect:'manual',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({email,returnTo})});
+ const response = await fetch(origin + '/auth/magic-link', {method:'POST',redirect:'manual',headers:{Origin:origin,Connection:'close','Content-Type':'application/json'},body:JSON.stringify({email,returnTo})});
  assert.equal(response.status, 202, 'the native magic-link door accepts the sign-in request');
  await response.body?.cancel();
  return confirmEmailLink(origin, email, {previousIds});
