@@ -1771,3 +1771,5 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-013` | Manifest, docs and the conformance journey | target | missing | | Not yet judged through this seed's own doors. |
+
+UX-001 landing replay (3 November 2026): main’s partial Status, Evidence and Gap judgments remain unchanged. Supplementary proof in `tests/team-flow.mjs`, `tests/team-browser.mjs` and `tests/team-viewport.mjs` starts independent native teams, projects, members and capture at 1440 and 390, reconciles triage through public reads, and checks Details keyboard containment, Escape, focus return, Axe and reflow. Assignment remains an operator label; actual member/team assignment remains TEAM-002. This replay does not promote UX-001 or qualify target-wide state coverage, complete release and feedback paths, native-device use, human screen-reader operation or VPAT proof.

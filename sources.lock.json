@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f554a13119ee2a55195a3616e500ea31280dcd76eccd7ecb9bc06cfff2980545",
+      "sha256": "25e1761fc9c0b3d8f8bcb991e5692b298c365f8a8b4dbaaf4aadf718f7e17221",
       "executable": false
     },
     "DEMO.md": {
@@ -4314,7 +4314,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "8d4c63a78be859a693bf558dbe45f0fd466bf4e3ac6e779e1a93ca7984e1b860",
+      "sha256": "b744e84e50a98bf85354a41fa3b50e44028d24e921c8685fe6e39bed56590c28",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -9994,7 +9994,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "a997470df88c5f562f0a0302dbfbe58d4ecf7053c0b8c8c5e2045001c3b1a1bb",
+      "sha256": "c32f0fe9d3ef815df59a36d1d5835741440e1c062920edb0826bf360c61eb51d",
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
@@ -11310,11 +11310,15 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "6ffe57b162abca60b8f43ecfb14e28be717cb54e4c6ba128af8837f52c6c831c",
+      "sha256": "0ed026c992bfb35f7348345c3527ec8ba3536feca65d91c67343af97a6bc76ed",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "3f5ad46f0ffe4b1144b9c4491f714cd89310e4109667f67b6164b46249056d91",
+      "sha256": "aee8d9030ea6bb8123c6982a459c6738731af2a2ca9501d2f8f701a9b540644c",
+      "executable": false
+    },
+    "tests/team-viewport.mjs": {
+      "sha256": "7d0e06e9cdc35cac046e9368f9dfc8e798cff5442a23ebbce411f258a9d7b12f",
       "executable": false
     },
     "tests/triage-app.mjs": {
