@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "47c20733243ce06b07e69003e16c3102b6cbaa6a00df2c846753cfb4780b2bdb",
+      "sha256": "b9a3c79bc96d841e2388e3161c4e8eebd7806ec24a656f03415cff48e849a655",
       "executable": false
     },
     "DEMO.md": {
@@ -9998,7 +9998,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "a997470df88c5f562f0a0302dbfbe58d4ecf7053c0b8c8c5e2045001c3b1a1bb",
+      "sha256": "3a152db4802b78bc3ba5d008797dd747466ea38e1f2c0245bda0111ff17394c8",
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
@@ -11318,11 +11318,15 @@
       "executable": false
     },
     "tests/team-browser.mjs": {
-      "sha256": "6ffe57b162abca60b8f43ecfb14e28be717cb54e4c6ba128af8837f52c6c831c",
+      "sha256": "469ff4b4d17348140f4c2713104f72fa2d4de1bd76ea26b580c5e657900d59d6",
       "executable": false
     },
     "tests/team-flow.mjs": {
-      "sha256": "3f5ad46f0ffe4b1144b9c4491f714cd89310e4109667f67b6164b46249056d91",
+      "sha256": "aee8d9030ea6bb8123c6982a459c6738731af2a2ca9501d2f8f701a9b540644c",
+      "executable": false
+    },
+    "tests/team-viewport.mjs": {
+      "sha256": "2a1df5b7e9279ded2f3429d530a5e00d1cfef44a2e9b4813a65fc1ea5ed13692",
       "executable": false
     },
     "tests/triage-app.mjs": {
