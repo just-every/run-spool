@@ -6893,6 +6893,10 @@
       "sha256": "9463310a62abc1e187161a6fb48c823b658899e133bb9c4b135449799dbfc1f7",
       "executable": false
     },
+    "src/domain/suspects/projection.ts": {
+      "sha256": "ad8605f21f0f8dee91da62c679e83ae6b84c886724126a6dd15a89c4a3e062fa",
+      "executable": false
+    },
     "src/domain/suspects/read.ts": {
       "sha256": "4ff2328ae538b60a7b86fc18ad684c2262eaa4ff9903137dbd98dceb667dde01",
       "executable": false
@@ -10455,6 +10459,10 @@
     },
     "tests/agent-handoff/selector-refusals.mjs": {
       "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
+      "executable": false
+    },
+    "tests/agent-handoff/suspects.mjs": {
+      "sha256": "0de4a62ff877153a2ad6be1d34dc043093cd0606e3ca4de818e309c5c2b207b2",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
