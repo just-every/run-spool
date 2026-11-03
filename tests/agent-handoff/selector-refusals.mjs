@@ -20,6 +20,9 @@ export async function selectorRefusals(app,env,grant,issue,otherIssue){
   paths.push({method:req.method,path:req.url});
   try{
    const headers={...req.headers};delete headers.host;delete headers.connection;
+   // The buffered body gets fresh framing from fetch, rather than forwarding
+   // transport framing supplied by the client. Authorization stays unchanged.
+   delete headers['content-length'];delete headers['transfer-encoding'];
    const chunks=[];for await(const chunk of req)chunks.push(chunk);
    const upstream=await fetch(app.origin+req.url,{method:req.method,headers,redirect:'manual',...chunks.length?{body:Buffer.concat(chunks)}:{}});
    res.writeHead(upstream.status,{'content-type':upstream.headers.get('content-type')??'application/json'});
