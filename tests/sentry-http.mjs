@@ -1,3 +1,4 @@
+import { sentryInvalidEventFlow } from './sentry-invalid-event-flow.mjs';
 import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { keyRateLimitFlow, keyRateLimitScreens } from './key-rate-limit-flow.mjs';
 import { releaseIdentityFlow, team004Flow } from './release-identity-flow.mjs';
@@ -114,6 +115,7 @@ try{
   await json('/api/projects/wire/keys/'+deploy.hash,'DELETE');assert.equal((await req('/api/projects/wire/releases','POST',release,deployHeaders)).status,401);
   const ingest=(await json('/api/projects/wire/keys')).find(row=>row.kind==='ingest');await json('/api/projects/wire/keys/'+ingest.hash,'DELETE');assert.equal((await req(path,'POST',envelope(event))).status,401);
   const beforeRevoked=(await json('/api/projects/wire/outcomes')).rows;assert.equal((await req(path,'POST',wire,{Cookie:''})).status,401);assert.deepEqual((await json('/api/projects/wire/outcomes')).rows,beforeRevoked,'revoked ingest cannot attribute item counters');
+  await sentryInvalidEventFlow({req,json,worker});
   await otlpFlow({req,json,origin});
   await investigationFlow({req,json,origin,db:await worker.db()});
   await fidelityFlow({req,json,origin,cookie});
