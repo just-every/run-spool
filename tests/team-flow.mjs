@@ -366,7 +366,15 @@ export async function teamFlow() {
   await memberDeployment(owner,second,projects[1]);
   const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);
   await browserMembers(owner,projects);
-  await teamTriage(owner,first,projects[0]);
+  // Each viewport starts with a disjoint native team, project, member and capture.
+  for(const width of [1440,390]) {
+   const id='synthetic-spool-ux-'+width,project=await owner.json('/api/projects','POST',{id,name:'Cedar Dispatch '+width});
+   await owner.json(organization+'/projects/'+id,'PUT',{team:id});
+   const actor=await invite(owner,origin,{email:[id,'example.test'].join('@'),name:id,role:'member',grants:[{project:id,role:'maintainer'}]});
+   assert.deepEqual((await actor.json('/api/projects')).map(row=>row.id),[id],'each native triage member sees only its own project');
+   assert.equal((await owner.json(organization)).teams.find(row=>row.project===id).team,id,'the fixture has its own native team');
+   await teamTriage(owner,actor,project,width);
+  }
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);
