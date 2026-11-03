@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "562e7c775be3b1879fa642815571b6a7063e09b569f26b05ef86fc1575f5c8b6",
+      "sha256": "9e945d684a5534b5f4cb01f702bf21c049ca079fbd048c5a276d9dd25c09a253",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e1dfeefb11d0ebc253cbabdd25c629cf5ac9ddd9821490d1b0bfeb0df9ac2aa5",
+      "sha256": "e52a175d2bb18a4c7a38611b1afd72e29ce1b268713377c6340b5c108aa35882",
       "executable": false
     },
     "DEMO.md": {
@@ -2942,7 +2942,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "4f309414f2d4e56ddf9a3c4c793005c1bf70e0e2fc8804ec9dc95a1457e5d54d",
+      "sha256": "ba3b25d0dafda3c4dd266dab0e7ba456f83b81ace2100bf0b4eb43a22958ca14",
       "executable": false
     },
     "docs/CLIENT-REPORTS.md": {
