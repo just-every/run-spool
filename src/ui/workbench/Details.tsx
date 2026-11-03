@@ -12,6 +12,14 @@ export function Details({ title, children, onOpen, triggerLabel = 'Details' }: {
       dialog.current?.showModal(); trigger.current?.setAttribute('aria-expanded', 'true'); heading.current?.focus(); onOpen?.();
     }}>{triggerLabel}</button>
     <dialog ref={dialog} id={id} className="details-dialog" aria-labelledby={`${id}-title`} onKeyDown={event => {
+      if (event.key === 'Tab' && !event.defaultPrevented) {
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button,input,select,textarea,summary,[tabindex]'))
+          .filter(element => element.tabIndex >= 0 && !element.matches(':disabled') && element.getClientRects().length > 0);
+        const current = controls.indexOf(document.activeElement as HTMLElement);
+        const next = current < 0 ? event.shiftKey ? controls.length - 1 : 0 : (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length;
+        event.preventDefault();
+        (controls[next] ?? heading.current)?.focus();
+      }
       // Finish keyboard dismissal in this event, before the native cancel task.
       if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); }
     }} onCancel={event => { event.preventDefault(); close(); }} onClose={() => { trigger.current?.setAttribute('aria-expanded', 'false'); trigger.current?.focus(); }}>
