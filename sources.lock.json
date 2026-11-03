@@ -5538,7 +5538,7 @@
       "executable": false
     },
     "src/domain/agent-projection.ts": {
-      "sha256": "25b384477c0c90cf8b2c2a026d08879e7de6b8e80594059f5cca87e658d1e2c6",
+      "sha256": "801ac0521cf565bad6134c08e8e141544816120938e34bb03b989e2bd9ebf2fa",
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
@@ -6334,7 +6334,7 @@
       "executable": false
     },
     "src/domain/packet.ts": {
-      "sha256": "49a9bb2643470c18d580619be4b0aa8339f14cbb1ee94d30abf0fad6c1ac0246",
+      "sha256": "46cedc93eb26f43eff8ea992915880aebf52d09fd7a51f4593020d73f8222595",
       "executable": false
     },
     "src/domain/path-mappings.ts": {
@@ -6898,7 +6898,7 @@
       "executable": false
     },
     "src/domain/suspects/read.ts": {
-      "sha256": "4ff2328ae538b60a7b86fc18ad684c2262eaa4ff9903137dbd98dceb667dde01",
+      "sha256": "26dd5d48938663ae2bb8bf40942b7f6a16e8038d54766652e1108ea6194a56a2",
       "executable": false
     },
     "src/domain/suspects/routes.ts": {
@@ -10430,7 +10430,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "cb46c584992b56c71b93ac6718e0ede48f56fd191b89e9a93e634853ad369354",
+      "sha256": "8ee25eb39b36a0142682067d6fb6409b2eed411a9cb7799f12171977c61d791f",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -11310,7 +11310,7 @@
       "executable": false
     },
     "tests/suspect-flow.mjs": {
-      "sha256": "268b8f0e8604e5ee257b3019bdbdcb982c073fc2802fc4fdd35325384a7b454f",
+      "sha256": "5ff531edc1a18c13a440bf24b1cbaeba07872c62dd6e6c4d020f204595343a4d",
       "executable": false
     },
     "tests/team-browser.mjs": {

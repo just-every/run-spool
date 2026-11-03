@@ -1,3 +1,4 @@
+import {suspectPacketHandoff} from './agent-handoff/suspects.mjs';
 import {retentionScheduleFlow} from './retention-schedule-flow.mjs';
 import {retentionFlow} from './retention-flow.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
@@ -131,6 +132,7 @@ try{
  assert.deepEqual(after.event.frames,generated,'matching capture retains every generated coordinate');assert.equal(after.atAdmission[0].status,'mapped');assert.deepEqual(after.atAdmission,late.currentLookup,'a fresh matching capture has original coordinates at admission');assert.deepEqual(after.currentLookup,late.currentLookup);assert.deepEqual(after.atAdmission,afterUpload.diagnostic);compatible(afterPacket);assert.deepEqual(afterPacket.events.find(row=>row.id===captured.id).atAdmission,realSnapshot,'later matching captures preserve the first admission snapshot');
  evidence.sourceMaps={beforeUpload:captured.id,generated:browserFailure,lateUpload:'immutable admission with separately labelled current lookup',mismatches:['release','build'],afterUpload:after.id,confidentialSource:'excluded'};
  await throwPage.close();await secondOrigin.stop();secondOrigin=null;
+ stage='suspect-provenance';evidence.suspects=await suspectPacketHandoff(app);
  stage='scope';evidence.scope=await scopeProof(app,grant,admitted.issue,otherAdmitted.issue,project);
  stage='clients';const env=await credentialInputs(app,grant.key,app.checkout.root);
  // Capture settled telemetry with the same grant and issue selector used by every client.
