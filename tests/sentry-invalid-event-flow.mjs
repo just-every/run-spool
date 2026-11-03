@@ -88,6 +88,11 @@ export async function sentryInvalidEventFlow({ req, json, worker }) {
   assert.equal(result.id, companions.at(-1).event_id, name + ' retains both companions ' + position);
   await accounting();
  }
+ const surrounded = makeEvent();
+ const combined = await refused(await send([cases[1][1](), surrounded, cases[2][1]()]), 2);
+ invalid += 2; accepted++; validIds.push(surrounded.event_id);
+ assert.equal(combined.id, surrounded.event_id, 'independent conversion failures surround one accepted error');
+ await accounting();
  const issues = await json(root + '/issues');
  assert.equal(issues.length, 1); assert.equal(issues[0].count, accepted);
  const rows = (await db.prepare('SELECT id,occurrence,payload FROM events WHERE project=?').bind(project.id).all()).results;
