@@ -12,11 +12,11 @@ import {bounded} from './packet.mjs';
 export async function suspectPacketHandoff(app) {
  const req=(path,method,body,headers)=>app.request(path,method,body,{headers}),json=app.json;
  const old='synthetic-spool-checkout@1',current='synthetic-spool-checkout@2',falseSha='a'.repeat(40),trueSha='b'.repeat(40),priorSha='c'.repeat(40),time=Date.now();
- const fixture=await reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time});
+ const privateNote='synthetic-spool-private-judgment',privateAuthor='synthetic-spool-private-engineer',privateMessage='synthetic-spool-private-commit',privateAddress=[privateAuthor,'example.test'].join('@');
+ const fixture=await reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time,commitDetails:{message:privateMessage,author:{name:privateAuthor,email:privateAddress}}});
  const base='/api/projects/'+fixture.project,path=base+'/issues/'+fixture.issue+'/packet',suspectPath=base+'/suspects/issues/'+fixture.issue;
  const grant=await json(base+'/keys','POST',{kind:'agent'}),agent={agent:grant.key},env={...clientEnvironment(app,grant.key),SPOOL_URL:app.origin+base};
- const privateNote='synthetic-spool-private-judgment',privateAuthor='synthetic-spool-private-engineer',privateMessage='synthetic-spool-private-commit',privateAddress=[privateAuthor,'example.test'].join('@');
- await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:falseSha,message:privateMessage,author:{name:privateAuthor,email:privateAddress}}]});
+
  for(const [sha,judgment,revision] of [[falseSha,'confirmed',0],[falseSha,'rejected',1],[trueSha,'confirmed',0]]){
   const before=(await app.archive()).data;
   await json(suspectPath,'PUT',{release:current,sha,judgment,note:privateNote,revision});
@@ -40,10 +40,14 @@ export async function suspectPacketHandoff(app) {
  const privateRows=(await app.archive()).data.commits;
  assert.ok(privateRows.some(row=>row.author_email===privateAddress&&row.message===privateMessage),'privacy checks start with populated confidential records');
  const safe=value=>{const serialized=JSON.stringify(value);for(const canary of [privateNote,privateAuthor,privateMessage,privateAddress,grant.key,fixture.ingestKey,fixture.deployment.repository])assert.ok(!serialized.includes(canary),'private suspect value excluded');for(const candidate of value.suspects.candidates){assert.ok(!Object.hasOwn(candidate,'decision'));assert.deepEqual(Object.keys(candidate.judgment).sort(),['revision','state','updated']);}};
- const compareClients=async(expected,client)=>{
-  const output=await cli(['packet',fixture.issue,'--format','json'],env);assert.equal(output.code,0);assert.deepEqual(JSON.parse(output.stdout),expected,'complete CLI JSON equals settled HTTP packet');
-  const markdown=await cli(['packet',fixture.issue,'--format','markdown'],env);assert.equal(markdown.code,0);const embedded=/\n(`+)json\n([\s\S]*)\n\1\n$/.exec(markdown.stdout);assert.ok(embedded);assert.deepEqual(JSON.parse(embedded[2]),expected,'complete embedded Markdown JSON equals HTTP');
-  for(const name of ['get_packet','spool.issues.read'])assert.deepEqual(mcpValue(await client.call(name,{issue:fixture.issue})),expected,'complete official MCP packet equals HTTP');
+ const compareClients=async(expected,client,issue=fixture.issue)=>{
+  const output=await cli(['packet',issue,'--format','json'],env);assert.equal(output.code,0);assert.deepEqual(JSON.parse(output.stdout),expected,'complete CLI JSON equals settled HTTP packet');
+  const markdown=await cli(['packet',issue,'--format','markdown'],env);assert.equal(markdown.code,0);const embedded=/\n(`+)json\n([\s\S]*)\n\1\n$/.exec(markdown.stdout);assert.ok(embedded);assert.deepEqual(JSON.parse(embedded[2]),expected,'complete embedded Markdown JSON equals HTTP');
+  for(const name of ['get_packet','spool.issues.read']){
+   const result=await client.call(name,{issue});assert.deepEqual(mcpValue(result),expected,'complete official MCP packet equals HTTP');
+   for(const canary of [privateNote,privateAuthor,privateMessage,privateAddress,grant.key,fixture.ingestKey,fixture.deployment.repository])assert.ok(!JSON.stringify(result).includes(canary),'private suspect value excluded from complete MCP response');
+  }
+  for(const rendered of [output.stdout,output.stderr,markdown.stdout,markdown.stderr])for(const canary of [privateNote,privateAuthor,privateMessage,privateAddress,grant.key,fixture.ingestKey,fixture.deployment.repository])assert.ok(!rendered.includes(canary),'private suspect value excluded from complete CLI response');
   safe(expected);return bounded(expected);
  };
  const client=await mcpClient(app,grant.key,fixture.project);
@@ -56,6 +60,18 @@ export async function suspectPacketHandoff(app) {
   const foreignEnv={...env,SPOOL_URL:app.origin+'/api/projects/a'};assert.equal((await cli(['packet',fixture.issue,'--format','json'],foreignEnv)).code,3);
   const foreign=await mcpClient(app,grant.key,'a');try{assert.equal((await foreign.call('get_packet',{issue:fixture.issue})).isError,true);}finally{await foreign.close();}
   assert.deepEqual((await app.archive()).data,beforeReads,'foreign reads neither expose nor mutate evidence');
+  await json(base+'/releases','POST',{name:'synthetic-spool-unlinked',build:'web-3'});
+  const unlinked=await json('/api/ingest/'+fixture.project,'POST',{version:1,eventId:'synthetic-spool-unlinked',release:'synthetic-spool-unlinked',build:'web-3',environment:'production',type:'TypeError',message:'Synthetic unlinked release failure',frames:[{file:'checkout.js',line:99,column:0,function:'unlinked'}],breadcrumbs:[]},{agent:fixture.ingestKey});
+  const unlinkedPath=base+'/issues/'+unlinked.issue+'/packet',unlinkedPacket=await json(unlinkedPath,'GET',undefined,agent),unlinkedCandidate=unlinkedPacket.suspects.candidates[0];
+  assert.equal(unlinkedCandidate.sha,null,'no commit is invented for an observed release');assert.equal(unlinkedCandidate.inclusion.source,'retained_occurrence');assert.match(unlinkedCandidate.inclusion.reason,/No recorded commit receipt/);assert.equal(unlinkedCandidate.inclusion.created,unlinkedCandidate.reason[0].record.received);assert.deepEqual(unlinkedCandidate.deployments,[]);assert.equal(unlinkedCandidate.judgment.state,'unreviewed');
+  const beforeUnlinkedReads=(await app.archive()).data;await compareClients(unlinkedPacket,client,unlinked.issue);
+  assert.deepEqual((await app.archive()).data,beforeUnlinkedReads,'release-only packet clients change no archived rows');
+
+  const unlinkedOwner=(await json(base+'/issues')).find(row=>row.id===unlinked.issue);
+  await json(base+'/issues/'+unlinked.issue,'PATCH',{revision:unlinkedOwner.revision,state:'resolved',resolution:'plain'});
+  const unlinkedEvent=(id,fn)=>({version:1,eventId:id,release:'synthetic-spool-unlinked',build:'web-3',environment:'production',type:'TypeError',message:'Synthetic unlinked release failure',frames:[{file:'checkout.js',line:99,column:0,function:fn}],breadcrumbs:[]});
+  await json('/api/ingest/'+fixture.project,'POST',unlinkedEvent('synthetic-spool-unlinked-again','unlinked'),{agent:fixture.ingestKey});
+  const noHistory=await json('/api/ingest/'+fixture.project,'POST',unlinkedEvent('synthetic-spool-no-history','noHistory'),{agent:fixture.ingestKey});
   // Grow real native history past all nested projection limits. Public calls
   // preserve the existing grouping, registered ordering and minute budget.
   for(let index=0;index<23;index++){
@@ -67,9 +83,9 @@ export async function suspectPacketHandoff(app) {
   await json(base+'/releases','POST',{name:current,build:'web-2',commits:Array.from({length:30},(_,index)=>({sha:(index+256).toString(16).padStart(40,'0'),message:privateMessage}))});
   const crowdedOwner=await json(suspectPath),crowded=await json(path,'GET',undefined,agent);
   assert.ok(crowded.suspects.bounds.available>crowded.suspects.candidates.length);assert.equal(crowded.suspects.bounds.available,crowdedOwner.bounds.available);
-  assert.equal(crowded.suspects.bounds.included,crowded.suspects.candidates.length);assert.equal(crowded.suspects.bounds.reactivationsAvailable,24);assert.equal(crowded.suspects.bounds.reactivationsIncluded,20);
+  assert.equal(crowded.suspects.bounds.included,crowded.suspects.candidates.length);assert.equal(crowded.suspects.bounds.reactivationsAvailable,24);assert.equal(crowded.suspects.bounds.reactivationsIncluded,crowded.suspects.bounds.reactivationLimit);assert.ok(crowded.suspects.bounds.reactivationsAvailable>crowded.suspects.bounds.reactivationsIncluded);assert.ok(crowded.suspects.candidates.length<=crowded.suspects.bounds.candidateLimit);
   for(const candidate of crowded.suspects.candidates.filter(row=>row.release===current)){
-   assert.equal(candidate.bounds.reasonsAvailable,20);assert.equal(candidate.reason.length,candidate.bounds.reasonLimit);assert.ok(candidate.bounds.reasonsAvailable>candidate.reason.length);
+   assert.equal(candidate.bounds.reasonsAvailable,crowded.suspects.bounds.reactivationsIncluded);assert.equal(candidate.reason.length,candidate.bounds.reasonLimit);assert.ok(candidate.bounds.reasonsAvailable>candidate.reason.length);
    assert.equal(candidate.bounds.deploymentsAvailable,7);assert.equal(candidate.deployments.length,candidate.bounds.deploymentLimit);assert.ok(candidate.bounds.deploymentsAvailable>candidate.deployments.length);
    const ownerCandidate=crowdedOwner.candidates.find(row=>row.sha===candidate.sha&&row.release===candidate.release);
    assert.deepEqual(candidate.reason,ownerCandidate.reason.slice(0,candidate.bounds.reasonLimit));
@@ -95,6 +111,10 @@ export async function suspectPacketHandoff(app) {
   assert.equal(byteBounded.bounds.omittedEvents,byteBounded.bounds.availableEvents-byteBounded.events.length);
   assert.deepEqual(byteBounded.suspects,crowded.suspects,'byte pressure preserves the complete bounded suspect projection');
   assert.ok(byteBounded.gaps.some(row=>row.code==='events_omitted'&&row.omitted===byteBounded.bounds.omittedEvents));
+  for(const included of byteBounded.events){
+   const recorded=await json(base+'/issues/'+fixture.issue+'/events/'+included.id+'?occurrence='+encodeURIComponent(included.occurrence));
+   for(const field of ['id','occurrence','received','event','atAdmission','currentLookup'])assert.deepEqual(included[field],recorded[field],'byte pressure preserves complete retained evidence: '+field);
+  }
   const byteProof=await compareClients(byteBounded,client);
   console.log(`PROBE REL-002 packet byte cap: six public multibyte captures -> ${byteProof.bytes} UTF-8 bytes of ${byteProof.cap}, ${byteBounded.bounds.includedEvents} events included, ${byteBounded.bounds.omittedEvents} omitted, suspect projection unchanged across all clients`);
   assert.deepEqual((await app.archive()).data,beforeBoundedReads,'byte-bounded packet reads preserve every archived product row');
@@ -122,13 +142,24 @@ export async function suspectPacketHandoff(app) {
   assert.ok(!retained.suspects.candidates.some(row=>row.release===old));assert.ok(!JSON.stringify(retained.suspects).includes(original.occurrence));
   const first=retained.suspects.candidates[0].reason.find(row=>row.kind==='first_retained_occurrence');assert.ok(first);assert.deepEqual(first.record,retainedOwner.candidates[0].reason.find(row=>row.kind==='first_retained_occurrence').record);assert.notEqual(first.record.occurrence,original.occurrence);
   assert.ok(retained.gaps.some(row=>row.code==='retention_gap'));safe(retained);bounded(retained);
+  const beforeRetainedReads=(await app.archive()).data;await compareClients(retained,client);
+  assert.deepEqual((await app.archive()).data,beforeRetainedReads,'every packet client reads surviving evidence without changing it');
+  await json(base+'/retention','POST',{cutoff:Date.now()+1,apply:true});
+  const expired=await json(base+'/issues/'+noHistory.issue+'/packet','GET',undefined,agent);assert.deepEqual(expired.events,[]);assert.deepEqual(expired.suspects.candidates,[]);assert.match(expired.suspects.unavailable,/No retained released occurrence/);
+  const beforeExpiredReads=(await app.archive()).data;await compareClients(expired,client,noHistory.issue);
+  assert.deepEqual((await app.archive()).data,beforeExpiredReads,'every packet client preserves the empty retained evidence and its unavailable reason');
+  const alertWithoutCommit=(await json(unlinkedPath,'GET',undefined,agent)).suspects.candidates[0];assert.equal(alertWithoutCommit.sha,null);assert.equal(alertWithoutCommit.inclusion.source,'regression_alert');assert.equal(alertWithoutCommit.inclusion.created,alertWithoutCommit.reason[0].record.received);assert.equal(alertWithoutCommit.reason[0].kind,'reactivation');
+  const alertOnly=await json(path,'GET',undefined,agent);assert.ok(alertOnly.suspects.candidates.length>0);assert.ok(alertOnly.suspects.candidates.every(row=>row.reason.every(reason=>reason.kind==='reactivation')),'retention cannot invent a removed first occurrence');
+  safe(alertOnly);bounded(alertOnly);
+  const beforeAlertReads=(await app.archive()).data;await compareClients(alertOnly,client);
+  assert.deepEqual((await app.archive()).data,beforeAlertReads,'every packet client preserves alert-only provenance without resurrecting retained occurrences');
   // A live official client has already read this exact issue. Revocation must
   // take effect on its next call, without reinitialization or cached packets.
   await json(base+'/keys/'+grant.hash,'DELETE');const afterRevocation=(await app.archive()).data;
-  assert.ok([401,403].includes((await app.request(path,'GET',undefined,agent)).status));assert.equal((await cli(['packet',fixture.issue,'--format','json'],env)).code,3);
-  for(const name of ['get_packet','spool.issues.read']){const refused=await client.call(name,{issue:fixture.issue});assert.equal(refused.isError,true);assert.ok(!JSON.stringify(refused).includes(privateNote));}
+  assert.ok([401,403].includes((await app.request(path,'GET',undefined,agent)).status));assert.equal((await cli(['packet',fixture.issue,'--format','json'],env)).code,2);
+  for(const name of ['get_packet','spool.issues.read']){const refused=await client.call(name,{issue:fixture.issue});assert.equal(refused.isError,true);assert.match(refused.content[0].text,/"exitCode": 2/);assert.ok(!JSON.stringify(refused).includes(privateNote));}
   assert.deepEqual((await app.archive()).data,afterRevocation,'revoked packet reads change no archived product rows');
  }finally{await client.close();}
- console.log('PROBE REL-002 agent-packet provenance: native reactivation and judgments -> complete HTTP, CLI JSON, Markdown JSON and official MCP equality; private values excluded; multibyte byte-cap event omission preserves suspect provenance; inert restore, erased replay, retention and next-call revocation passed');
- return {candidates:3,judgments:['rejected revision 2','confirmed revision 1'],wholeClientEquality:true,privateNotesExcluded:true,boundedOmissions:true,retention:true,inertRestore:true,erasedReplayRefused:true,nextCallRevocation:true};
+ console.log('PROBE REL-002 agent-packet provenance: native reactivation and judgments -> complete HTTP, CLI JSON, Markdown JSON and official MCP equality; private values excluded; multibyte byte-cap event omission preserves suspect provenance; inert restore, erased replay, complete release-only and post-retention packet equality without writes, and next-call revocation passed');
+ return {candidates:3,judgments:['rejected revision 2','confirmed revision 1'],wholeClientEquality:true,lifecycleClientEquality:true,privateNotesExcluded:true,boundedOmissions:true,retention:true,inertRestore:true,erasedReplayRefused:true,nextCallRevocation:true};
 }
