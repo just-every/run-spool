@@ -13,7 +13,7 @@ import {browserMembers,memberBrowser,teamTriage} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
- const req = (path,method='GET',value,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
+ const req = (path,method='GET',value,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,Connection:'close',...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
  const json = async (...args) => {const response=await req(...args);assert.ok(response.ok,`${args[0]} HTTP ${response.status}`);return response.json()};
  return {req,json};
 };
