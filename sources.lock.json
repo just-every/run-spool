@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "827a471ecbac58d8500c8951e60b55fb45e09ff02d63e3ba458f6792d3fb58ca",
+      "sha256": "6e7c91e23c06100975c7f9c8e49b6a31957803b76955edc68ece1ed8ab98c431",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "caec210891687bfc79f8fea7ac629642bc64af939fe4e081ad99e13c339da3ee",
+      "sha256": "c6db28b8c8c7f86d7efe6f21fc658745ca5149a340d43e072b9959d0aceb7426",
       "executable": false
     },
     "DEMO.md": {
@@ -2979,6 +2979,10 @@
     },
     "docs/FEEDBACK.md": {
       "sha256": "f631e109fa5d6a0357b737c0203d783006f890abe630e698e9ac8b5db85a3b6d",
+      "executable": false
+    },
+    "docs/FRAMEWORK-SETUP.md": {
+      "sha256": "872a6cfa4fc9493b55de934335eb8d781fa7ced0db0d0a07d07126f88df6da67",
       "executable": false
     },
     "docs/getting-started.md": {
@@ -3690,7 +3694,7 @@
       "executable": false
     },
     "docs/site.json": {
-      "sha256": "3df574623fbd63130ea4a821353e63b38f67b9d554b667711243753e031606d3",
+      "sha256": "20cfad4b0bbc5bf5778cc09fcca20b181fa48fc22da093b5d51d5c83f65c1e38",
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
@@ -10990,7 +10994,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "98ef3370665107dd8ddde156f47219b1b5862a9931afff98c0d20804199a1ede",
+      "sha256": "949672581e937bd987a21fada308fb1a7bf7ff34773c3af47e41b2b297cb5a8e",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
