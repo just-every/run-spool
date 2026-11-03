@@ -16,9 +16,10 @@ export function Details({ title, children, onOpen, triggerLabel = 'Details' }: {
         const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button,input,select,textarea,summary,[tabindex]'))
           .filter(element => element.tabIndex >= 0 && !element.matches(':disabled') && element.getClientRects().length > 0);
         const current = controls.indexOf(document.activeElement as HTMLElement);
-        const next = current < 0 ? event.shiftKey ? controls.length - 1 : 0 : (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length;
-        event.preventDefault();
-        (controls[next] ?? heading.current)?.focus();
+        if (current < 0 || (event.shiftKey ? current === 0 : current === controls.length - 1)) {
+          event.preventDefault();
+          (controls[event.shiftKey ? controls.length - 1 : 0] ?? heading.current)?.focus();
+        }
       }
       // Finish keyboard dismissal in this event, before the native cancel task.
       if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); }
