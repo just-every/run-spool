@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 20 | 45 | 22 | 87 |
+| Core | 22 | 44 | 21 | 87 |
 | Agent surface | 0 | 2 | 16 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 20 | 47 | 38 | 105 |
+| Full target | 22 | 46 | 37 | 105 |
 
-Judged from the code and tests at commit `22caf4278e62297537c2df31c0a280c8bda48baf` (3 November 2026). ERR-006 fresh acceptance review confirms all six outcomes through the existing public journeys. This judgment changes no implementation, journey or acceptance bytes; other judgments and held scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `7e26763306a37b3d11b46cdf22f84de3efc81806` (3 November 2026). Fresh ERR-009 qualification passed the triage, repair-recovery, execution, product and old-archive public journeys. The browser download and public rer export restore whole retained records and private maps; restored authority and dispatch remain inert until fresh proof; manual cutoff preserves repair facts, checks and ordered snapshot gaps. Source, journey and acceptance bytes are unchanged from this proof basis. ERR-009 moves from partial to done and its three stale recorded gaps are cleared. Other judgments and GOV-003 volume, SRC-004 capacity and GOV-002 scheduled custody obligations are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -155,7 +155,7 @@ Core · published · **done** · Rules D-4
 
 #### ERR-009 — Archive, restore and retention
 
-Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
+Core · published · **done** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
 
 **Requirement.** Versioned private archives carry stored source bytes, checksums, migration identity, triage, maps, repairs/checks, operator corrections and inert agent grouping proposals (including server-computed review snapshots), reproduction/fix/exposure history, sanitized Sentry evidence, feedback, capture/grouping/release policies and erasure journal. HTTP/CLI and legacy v1/v2 decoding share semantic validation. Source and maps are portable; run tokens, step leases, owner sessions, project grants, alert destination records/credentials and dispatch queues never travel; retained alert rules restore disabled and delivery history is historical. Restored schedules and quiet hours are disabled, restored snoozes and scheduled mail are historical and never send, and raw recipient receipts and passing-test authority do not travel. Older archives restore newly introduced collections empty under versioned rules. An archive holds at most 10,000 events per project and refuses more with `Archive event budget`; GOV-003 carries streaming archives of any retained volume, SRC-004 the artifact capacity and GOV-002 scheduled policies. Manual cutoff retention removes private derived content, keeps repair snapshots with coverage gaps and exposes the deduplication horizon. Imported history creates no active grant, dispatch or current repair proof.
 
@@ -168,8 +168,8 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rule
 6. An import into a nonempty target is refused before any mutation.
 7. After a manual retention cutoff, repair snapshots keep their coverage gaps.
 
-**Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs` Supplementary replayed candidate evidence (status and recorded Gap retain current main's judgment): Acceptance 1: `tests/triage-journey.mjs` journey (Download private archive, verified downloaded rows and private maps at 1440 and 390); `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import equality, credential exclusion and fresh owner setup), invoked by `tests/repair-recovery.mjs`. Supplementary public rer export and import equality assertions remain in `tests/commands.mjs`; qualification here relies on the completed clause journeys. Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` independent empty restore and unchanged-row refusals; `tests/old-archive.mjs` published and current independent restores, mismatched schema, corruption and occupied-target refusals. Acceptance 3: `tests/repair-recovery/archive.mjs` archiveProof (source session and grant refusals, historical repair verification); `tests/execution-journey.mjs` archive (unchanged historical facts, excluded tokens and leases, zero dispatch, refused historical approval and passing-run authority, fresh-run recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical states, Axe and reflow at 1440 and 390). Acceptance 7: `tests/repair-recovery/archive.mjs` archiveProof (all repair and check rows and ordered snapshot identifiers preserved, exact removed_by_retention markers and retained recurrence). D-6: `src/domain/restored-work.ts`, `migrations/core/0084_restored_work.sql`, `src/domain/portability.ts`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
-**Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work holding no active grant (only the archive's lack of credentials, sessions and ingest key is asserted), starting no dispatch and holding no current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, an archive without credentials, sessions or ingest key, and refusal of tampered, conflicting and nonempty-target imports before mutation.
+**Evidence.** `src/domain/portability.ts`; `src/domain/restored-work.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; Acceptance 1 and 2: `tests/triage-journey.mjs` journey (actual browser download, verified populated rows and private source maps, credential exclusions and independent empty restore at 1440 and 390); `tests/repair-recovery.mjs` repair recovery public journey invoking `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import, whole-row equality and fresh owner setup). Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` emitted Worker and D1 acceptance (independent restore, semantic tampering, configuration conflict and nonempty-target refusals); `tests/old-archive.mjs` old native archive journey (published and current independent restores, unchanged populated upgrades, schema mismatch, checksum and occupied-target refusals). Acceptance 3: archiveProof (source sessions and agent, ingest and deploy grants refused without product-row changes, disabled restored rules and historical repair verification); `tests/execution-journey.mjs` execution journey, archive stage (unchanged historical facts, source-token refusal, zero dispatch before and after scheduling, refused historical approval and passing-run authority, fresh-run-only recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical presentation, Axe and reflow at 1440 and 390). Acceptance 7: archiveProof (unchanged repair and check rows, ordered snapshot identifiers, exact removed_by_retention markers and retained recurrence). D-6: `migrations/core/0084_restored_work.sql`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
+**Gap.** None.
 
 #### ERR-010 — Release gates
 
@@ -807,7 +807,7 @@ Core · target · **partial**
 
 #### FIND-003 — Trends, dashboards and team reports
 
-Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
+Core · target · **done** · From FIND-002 · Rules D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
@@ -817,8 +817,8 @@ Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
 3. A custom widget and a saved event query match the same totals.
 4. A read-only export omits inaccessible projects.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: custom dashboards, team reports and permissioned report exports remain absent.
+**Evidence.** `tests/reports-flow.mjs` reportsFlow (acceptance 1: four retained events including one without a release, one known affected user, one unattributed event, two sessions, backlog, acknowledgement and resolution quantiles, ownership and named-release exclusions; acceptance 2: identical UTC and New York totals with a 23-hour daylight-saving day); reportWorkbench (acceptance 3: persisted count widget and reopened saved query table use the same project, predicates and window, with exact event identities and totals equal to the report); `tests/investigation-flow.mjs` dashboardFlow (count, rate, users, sessions, approved groups, same-occurrence predicates, persisted definitions, query tables, sharing, revisions, safe bounded exports and refusal nonmutation), invoked by `tests/sentry-http.mjs`; `tests/team-flow.mjs` reportingTeamFlow (acceptance 4: populated read-only JSON and CSV exports omit inaccessible projects and private identity values; native role and concealed-id refusals preserve definitions, shares and revisions); teamFlow and inertTeamArchive (D-1 and D-4: current member removal fences report reads and exports, safe audit facts and independent restore with inert shares and erased authors), invoked by `tests/owner-claim.mjs`; `tests/project-erasure.mjs` project erasure public journey (D-6: reporting cascade, preserved unrelated widget and removed project-only shares, fresh archive and restore fences); `tests/owner-erasure.mjs` native owner erasure (D-6: erased report attribution, preserved safe chronology, successor read and old-archive refusal)
+**Gap.** None.
 
 #### SRC-001 — Build artifacts and CI pipelines
 
