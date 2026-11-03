@@ -73,7 +73,7 @@ export async function suspectFlow({req,json,origin,browser}) {
 }
 
 const displayTime=time=>new Date(time).toLocaleString('en-GB',{timeZone:'UTC',hour12:false})+' UTC';
-async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time}) {
+export async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time}) {
  const p=await json('/api/projects','POST',{id:'synthetic-spool-reactivation',name:'Checkout reactivation correlation'}),base=`/api/projects/${p.id}`;
  await json(base+'/releases','POST',{name:old,build:'web-1',commits:[{sha:priorSha,message:'Older checkout confirmation'}]});
  await json(base+'/releases','POST',{name:current,build:'web-2',commits:[{sha:falseSha,message:'Adjust checkout layout'},{sha:trueSha,message:'Change payment confirmation'}]});
@@ -112,5 +112,5 @@ async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorS
  assert.deepEqual(view.candidates.find(c=>c.release===old).reason.map(r=>[r.kind,r.record.id]),[['first_retained_occurrence','synthetic-spool-resolved-old']]);
  assert.deepEqual(view.comparison.rows.map(r=>[r.release,r.occurrences,r.issues]).sort(),[[old,1,1],[current,1,1]].sort());
  assert.deepEqual(view.comparison.health.rows,[],'no session denominator is invented for recurrence');
- return {project:p.id,issue:issue.id,alert,deployment};
+ return {project:p.id,issue:issue.id,alert,deployment,ingestKey:p.ingestKey};
 }

@@ -1,3 +1,4 @@
+import {packetSuspects} from './suspects/projection';
 import {prioritySql} from './issue-priority/model';
 import {readRetentionPolicy} from './retention-policy';
 import {affectedUsers} from './identities/read';
@@ -91,7 +92,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
    repositorySources: await repositoryLinks(event,currentLookup,row.historical === 1),
    release: release(row), build: text(row.build), environment: text(row.environment) };
  })));
- const [events, totals, first, last, losses, windows, auditRows, auditTotal, repairs, deployments, commitLinks, sharing] = await Promise.all([
+ const [events, totals, first, last, losses, windows, auditRows, auditTotal, repairs, deployments, commitLinks, sharing, suspects] = await Promise.all([
   eventsRead,
   query(db, 'SELECT COUNT(*) available,COALESCE(SUM(CASE WHEN historical=0 THEN 1 ELSE 0 END),0) live FROM events WHERE project=? AND issue=?', project, id).first<any>(),
   firstRead,
@@ -104,6 +105,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   deploymentsRead,
   query(db, commitLinkSql('?', '?'), project, id).all<any>(),
   commitSharing(db, project),
+  packetSuspects(db, project, id),
  ]);
  const retentionPolicy=await readRetentionPolicy(db,project);
  const retention = auditRows.results.map(row => {
@@ -134,6 +136,7 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   grouping: issue.algorithm === 'sentry-chain-v1' ? {algorithm:issue.algorithm,basis:'SDK exception chain and group topology with contributing in-app stacks; stackless messages use the message template; SDK fingerprints override or combine the default',limitations:'Project rules are snapshotted at admission; native v1 grouping remains unchanged. Frame source context and locals require previewed agent field selection'} : issue.algorithm === 'sentry-import-v1'
    ? { algorithm: issue.algorithm, basis: 'exported organization, project and issue identity', limitations: 'Preserves exported groups; imported history does not join live capture or trigger alerts' }
    : { algorithm: issue.algorithm, basis: 'language (JavaScript legacy basis preserved) + exception type + first file/function/line; message and release excluded', bundleRouting: 'JavaScript content-hash suffixes use a persisted stable file key; reported frames and original issue anchors are preserved', limitations: 'other path, function or line changes can split groups; no semantic merge claim' },
+  suspects,
   deployments: {first:deployments[0],last:deployments[1]},
   retentionPolicy: {windows:retentionPolicy.windows,held:retentionPolicy.held,note:retentionPolicy.held?'Legal hold pauses expiry only; erasure remains available.':'Project windows govern expiry; historical comparisons across cutoffs are incomplete.'},
   releaseHistory: { basis: 'retained events ordered by received time, then event id; not the original history before retention or import', first: release(first), last: release(last) },
@@ -145,12 +148,16 @@ export async function issuePacket(db: D1Database, project: string, id: string, r
   const included = packet.events.length, omitted = totals.available - included;
   packet.bounds.includedEvents = included;
   packet.bounds.omittedEvents = omitted;
-  packet.gaps = [...baseGaps, ...eventGaps(packet.events), ...(omitted ? [{ code: 'events_omitted', reason: `Only ${included} of ${totals.available} retained events are included; oldest events are omitted to honor the event limit and serialized UTF-8 byte cap.`, included, available: totals.available, omitted }] : [])];
+  packet.suspects.bounds.included = packet.suspects.candidates.length;
+  const suspectOmissions = packet.suspects.bounds.available - packet.suspects.bounds.included;
+  packet.gaps = [...(suspectOmissions ? [{code:'suspects_omitted',reason:'Suspect candidates omitted to honor the candidate limit and serialized UTF-8 byte cap; no cause is inferred from the included subset.',available:packet.suspects.bounds.available,included:packet.suspects.bounds.included,omitted:suspectOmissions}] : []),
+   ...(packet.suspects.bounds.reactivationsAvailable > packet.suspects.bounds.reactivationsIncluded ? [{code:'suspect_reactivations_omitted',reason:'Only the newest recorded regression alerts contribute reactivation candidates.',available:packet.suspects.bounds.reactivationsAvailable,included:packet.suspects.bounds.reactivationsIncluded}] : []), ...baseGaps, ...eventGaps(packet.events), ...(omitted ? [{ code: 'events_omitted', reason: `Only ${included} of ${totals.available} retained events are included; oldest events are omitted to honor the event limit and serialized UTF-8 byte cap.`, included, available: totals.available, omitted }] : [])];
   const serialized = JSON.stringify(packet);
   if (new TextEncoder().encode(serialized).byteLength <= PACKET_BYTE_CAP) return serialized;
   // Non-event metadata has bounded row counts and allowlisted bounded leaves.
   // Fail closed if future metadata expansion violates that invariant.
-  if (!packet.events.length) throw new Error('Packet metadata exceeds byte cap');
-  packet.events.pop();
+  if (packet.events.length) packet.events.pop();
+  else if (packet.suspects.candidates.length) packet.suspects.candidates.pop();
+  else throw new Error('Packet metadata exceeds byte cap');
  }
 }
