@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 20 | 45 | 22 | 87 |
-| Agent surface | 0 | 0 | 5 | 5 |
+| Agent surface | 0 | 2 | 3 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 20 | 45 | 27 | 92 |
+| Full target | 20 | 47 | 25 | 92 |
 
 Judged from the code and tests at commit `22caf4278e62297537c2df31c0a280c8bda48baf` (3 November 2026). ERR-006 fresh acceptance review confirms all six outcomes through the existing public journeys. This judgment changes no implementation, journey or acceptance bytes; other judgments and held scopes are retained. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1468,7 +1468,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 
 #### SURFACE-003 — Live, security, access and destructive are computed per call
 
-Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
+Agent surface · target · **partial** · From new · Cites BASE-AGENT-006
 
 **Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it irreversibly converts or removes.
 
@@ -1482,8 +1482,8 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals, and security for the commit author and message sharing choice; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
 8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: no tool computes live, security, access or destructive.
+**Evidence.** `src/domain/agent-door/tools.ts`; `src/domain/retention-policy.ts`; `tests/agent-door/retention-classes.mjs` retentionClasses, invoked by `tests/agent-door.mjs`: acceptance 4's existing 30–90-day retention windows, standard unchanged or longer windows, destructive shorter windows with native preview counts, company approval and refusal, stale inventory and revision fences, foreign authority, injected facts, execute-once replay, native audit and standing custody. `scripts/agent-door/surface.mjs` and `agent-surface.json` retain matching declarations.
+**Gap.** Acceptance 1–3 and 5–8 remain unqualified: filter, source-fetch and tracker security settings; identity conversion and visibility authority; member, credential and successor authority; destination removal and erasure counts; replay consent, masking, sampling and retention; release ordering and commit sharing; intake budgets and caps; candidate promotion and fix-merge resend classification. Acceptance 4's legal holds, direct cutoffs and replay-reference removal remain unqualified. SURFACE-001's continued hold and every GOV-002 and GOV-003 prerequisite, existing account and device hold, queue scope, release prerequisite, generated-view, publication, exact-candidate Verify, guarded landing and Run site gate remain unchanged.
 
 #### SURFACE-004 — Commitment, accounts and gated are computed per call
 
@@ -1504,7 +1504,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 
 #### SURFACE-005 — The triage engineer journey under two company policies
 
-Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE-AGENT-013
+Agent surface · target · **partial** · From new · Cites BASE-AGENT-007, BASE-AGENT-013
 
 **Requirement.** A stranger agent given only the seed URL runs a seeded week of Spool work through MCP under two company policies, one of them autonomous for every class.
 
@@ -1516,7 +1516,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE
 5. Before setup is answered, the first call returns `policy_unset` with the setup link, and setup asks every Spool class with no answer pre-selected.
 
 **Evidence.** `tests/agent-door.mjs` agent-door journey invokes `tests/agent-door/setup.mjs` nativeSetup (acceptance 5, currently declared unpaired native setup: exact-project MCP policy_unset and native setup link, every declared class and paid AI initially unanswered, keyboard and Axe, blank and incomplete form and native policy refusals without saved policy or admitted operation, explicit owner answers followed by a populated scoped read, foreign-project and revoked-key refusal; screens at 1440 and 390)
-**Gap.** No implementation proof yet: the triage engineer journey under two company policies has not run. Native unpaired setup assertions qualify acceptance 5 only for currently declared classes; managed Business setup and the complete two-policy journey remain unproved. Main's missing judgment is retained.
+**Gap.** Acceptance 1: the complete seeded triage, grouping, release, deployment, feedback, reproduction, public-source fix, merge and released-repair verification week remains unproved. Acceptance 2: autonomous completion with no approval or policy refusal and an empty review feed remains unproved. Acceptance 3: every non-standard call held without effect, once-only approved execution and the standard review feed remain unproved. Acceptance 4: external feedback, public pull request and merge refusals with remaining internal completion remain unproved. Acceptance 5: managed Business setup and coverage beyond the currently implemented class declarations remain unqualified. SURFACE-001's registry and full conformance gaps remain unchanged.
 
 ## Later
 
