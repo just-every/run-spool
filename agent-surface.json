@@ -642,11 +642,12 @@
       "scope": "spool:retention",
       "readOnly": false,
       "classes": [
-        "live",
+        "standard",
         "destructive"
       ],
       "clauses": [
-        "GOV-002"
+        "GOV-002",
+        "SURFACE-003"
       ]
     },
     {
@@ -2802,7 +2803,7 @@
       },
       "expect": [
         {
-          "class": "live",
+          "class": "standard",
           "facts": {
             "measure": 1
           }
@@ -2892,15 +2893,9 @@
       },
       "expect": [
         {
-          "class": "live",
-          "facts": {
-            "measure": 1
-          }
-        },
-        {
           "class": "destructive",
           "facts": {
-            "measure": 1
+            "measure": 0
           }
         }
       ],
