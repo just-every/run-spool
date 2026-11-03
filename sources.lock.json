@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8e40bef939ff10186007a43759783597d826ef9ee4a673595b58eb173b9c368a",
+      "sha256": "bef692ea0ecff4732d8a477ae672bb17a171997df21d07e385ea3d8d0f41e91d",
       "executable": false
     },
     "DEMO.md": {
@@ -5686,7 +5686,7 @@
       "executable": false
     },
     "src/domain/artifacts.ts": {
-      "sha256": "53939eda765a6895f459783cd2fde1cf037459ff1865f6fb3a91ca932132f9f9",
+      "sha256": "f4fadeda4d80c31cc8fbe38af3c4c56d078c17ae7f72da3764095385e81a7121",
       "executable": false
     },
     "src/domain/audit/archive.ts": {
@@ -6138,7 +6138,7 @@
       "executable": false
     },
     "src/domain/investigation/events.ts": {
-      "sha256": "eb29237d2a7f18f45d1cb47d5da24903efa087aa20a8d0e6750a487e3ae0ff36",
+      "sha256": "c233a57a8f1e7468e2bcb0909f54ac7cf42973fe792ccdc1e3d63aa639e640d0",
       "executable": false
     },
     "src/domain/investigation/query.ts": {
@@ -6779,6 +6779,10 @@
     },
     "src/domain/sentry/map-metadata.ts": {
       "sha256": "dcde5effc639566fcaecd3b9b6f47a795cd04d1b6191c168516b850abe9e4806",
+      "executable": false
+    },
+    "src/domain/sentry/mapped-frames.ts": {
+      "sha256": "3ac663245e72007b83e0886330edab51221c0835bd81cfa0ca2c8f139808b1bc",
       "executable": false
     },
     "src/domain/sentry/query.ts": {
@@ -10086,7 +10090,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "18a4a9056f5950fa3b82b3207798994f48ad46e04c4655739b8d3606450d560e",
+      "sha256": "16e2c3e225bba60629fa767fba201e8bc6e012e095eceae2660f8ad8094f464d",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10262,7 +10266,7 @@
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
-      "sha256": "d854520f8b96cf8e87115fd521aef77a2dcdc30acdc08caaaa304e1b30866bf8",
+      "sha256": "443116e533b66b5672ff8be22d79f8571a119493b03cced7e78feb6e01b6cd00",
       "executable": false
     },
     "src/ui/workbench/SessionRates.tsx": {
@@ -10674,7 +10678,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "3c091011b60f214d2d925431c1a1aec68ef57c1089f94a7dd54f92f4dddbd51f",
+      "sha256": "365f7fec403979b48ffb42dadd41893aef19649638df0a367447d3403bfbd046",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -10759,6 +10763,10 @@
     },
     "tests/managed-sign-in.mjs": {
       "sha256": "79731d401eb3d6575181eb926366c543710504c616e6372b80f3e3f31d7265bd",
+      "executable": false
+    },
+    "tests/mapped-frames-flow.mjs": {
+      "sha256": "ceb023b6c9b875c325b8775391b786aa4ecd7b4e83b454dd4158e6607805a262",
       "executable": false
     },
     "tests/migration-evidence.mjs": {
@@ -11246,7 +11254,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "54a65c10d50ddfbfa9e29d0e037e722bf6fddcb0473f305ef4e394c02ca37d24",
+      "sha256": "e90074ca7ae95366eaf53b7dfc9e3543ee4feee139afae3482e7a29711684cb6",
       "executable": false
     },
     "tests/sentry-import.mjs": {
