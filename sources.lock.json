@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "766894349bbe0fb12a73a31d852644c4bdac9cdf1c20e4d5657e5aa10a34e51a",
+      "sha256": "537f31a60cad412157a352bc677182006e8992f42fbec5feab2dbe8cf9f2d817",
       "executable": false
     },
     "DEMO.md": {
@@ -3702,7 +3702,7 @@
       "executable": false
     },
     "docs/SUSPECT-CHANGES.md": {
-      "sha256": "ec1965f48a29ad9aa63de613c6cb08c2d87b3726f6787cf9c202b47844a6a1ca",
+      "sha256": "95c8992411cbe7e8e4f335d523308c403aa8655355697221a9ea6eedfc9a4781",
       "executable": false
     },
     "docs/triage.md": {
@@ -10458,7 +10458,7 @@
       "executable": false
     },
     "tests/agent-handoff/suspects.mjs": {
-      "sha256": "41ff81468566f7590b7c5e7084d94ec2e351d83957354e1e15029aeaac12ea9d",
+      "sha256": "ce3758c1a08673f66515b299f18e5def92004402a4132eb9791801f6167a294c",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
