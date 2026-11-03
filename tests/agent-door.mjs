@@ -12,6 +12,7 @@ import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
 import {replayHorizon} from './agent-door/replay-horizon.mjs';
+import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
@@ -105,6 +106,7 @@ try{
  const key=await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'});
  const metadata=await app.json('/.well-known/oauth-protected-resource/mcp');assert.equal(metadata.resource,app.canonicalOrigin+'/mcp');
  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{sub:randomUUID()},'2025-11-25',401)).httpStatus,401);
+ await retentionClasses(app);
  await continuationFlow(app,{project,issue,proposal,created});
  await peopleFlow(app);
  await specialistFlow(app,github,screens);
