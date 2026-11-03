@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 49 | 22 | 87 |
+| Core | 17 | 48 | 22 | 87 |
 | Agent surface | 0 | 0 | 5 | 5 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 49 | 27 | 92 |
+| Full target | 17 | 48 | 27 | 92 |
 
-Judged from the code and tests at commit `23014dd984dc61ffff645521eecdc306ce436fc1` (2 November 2026). GOV-001 landing replay retains main's partial Status, Evidence and Gap judgment. Candidate `7090af61a621103226de0a02786b3a8fae83c515` adds `tests/governance-member-transfer.mjs`, invoked by `tests/owner-claim.mjs`: populated-state missing-proof refusal, session-bound native email confirmation without a replacement cookie, replay refusal, unverified and stale successor refusal, exactly one handoff and predecessor/successor session fencing, including step-up refusal after transfer. These assertions qualify the native organization handoff only; they do not establish enterprise identity, other privileged-operation step-up, owner recovery or provider acceptance. All existing clause judgments and external holds remain; exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `e4803d31319277c08d19f3e47831edfb3367fb7a` (3 November 2026). REL-001 proof reconciliation uses unchanged application and journey bytes. The deployment history journey passes all six native acceptance outcomes, including the previously uncited CI state and failure assertions. Only the Status evidence and judgment change; acceptance text and the other clause judgments remain intact. SRC-002 still owns connected repository ancestry and read-back, with owner GitHub App, GitLab and Bitbucket accounts unqualified; SRC-003 retains the unmodified CLI and plugin journey, and TEAM-001 retains member deployment authority. Exact-candidate Verify, publication scanning and guarded landing remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -893,7 +893,7 @@ Core · target · **partial** · Cites BASE-INPUT-003
 
 #### REL-001 — Release and deployment history
 
-Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
+Core · target · **done** · Cites BASE-OPS-003 · Rules D-4
 
 **Requirement.** Register builds, commits and per-environment deployment start/success/failure/rollback with actor, timing and included commit range. CI retries are idempotent; abandoned starts become visibly timed out and notify their owner. Releases auto-created from Sentry SDK events (SDK-009) appear in release history labeled auto-created, with first-seen time, first environment and creating SDK; a later registration of the same name through the release API, `sentry-cli` or a build plugin enriches that release with commits, artifacts and deploys and removes the label, never creating a second release. The project's SDK-028 ordering rule governs regression, while deployment history records multiple environments, progressive exposure and rollback without rewriting past event identity. Starts carry the caller's explicit deadline and selected existing email destination; overdue evaluation appends one truthful timeout and one notice attempt (local mail is labeled suppressed), never an inferred deployment failure. Included ranges and exposure remain caller recorded. Restored history is inert. SRC-003 carries the unmodified CLI/plugin registration journey, SRC-002 connected included-commit read-back, and TEAM-001 member deployment authority.
 
@@ -905,8 +905,8 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 5. Delayed old events keep regression ordering.
 6. A release auto-created by a Sentry SDK event and then enriched under the same name through the native release/deployment API stays one release, with its original first-seen time.
 
-**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` (REL-001); `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed, and the CI run's progress and success steps read back by state (only their count is asserted). Asserted: the started run with its four steps, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
+**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` REL-001 deployment history journey: acceptance 1, deploy-key started, ordered progress and success states with 0, 10, 50 and 100 percent exposure, and a separate failed run with included commits and permanent deploy-key actors; acceptance 2, concurrent idempotent callbacks and unchanged history after conflicting terminal callbacks; acceptance 3, one truthful timeout and one locally suppressed owner notice over repeated scheduled ticks; acceptance 4, complete production rollback state and exposure history; acceptance 6, native enrichment of one auto-created release with unchanged first-seen time and sequence. `tests/release-order-flow.mjs` releaseOrderFlow, invoked by `tests/deployment-history.mjs`: acceptance 5, delayed older events stay resolved under the project ordering rule and a genuinely newer release regresses once. The deployment journey also covers owner forms, multiple environments, project and revoked-key refusals, inert archive restore, erasure and screens at 1440 and 390.
+**Gap.** None.
 
 #### REL-002 — Suspect change and release comparisons
 
