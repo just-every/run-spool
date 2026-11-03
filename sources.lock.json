@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d4c8c4efd4d64b9fb0f7e8e3264bcb4d9c5d63e5d568bbc03a3f6e6feb659708",
+      "sha256": "39521fc916313ea4b2108b72ca4b615e7fffccd847939b221c16747ed31a70cb",
       "executable": false
     },
     "DEMO.md": {
@@ -10342,7 +10342,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "00108f28df7dbaa909d488e5958547c67469121ca0cfebfbd2d8d2cd216cc1a5",
+      "sha256": "f679a2297de1260a8ae372f81ab081c1ac3b2a5d5f838eaf8ab6cf82ad5bcd05",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10391,6 +10391,10 @@
     },
     "tests/agent-door/replay-horizon.mjs": {
       "sha256": "7023a8836bad7c2705bb5e34d05123e0ed0350fc28632d897c15f03cf79ad589",
+      "executable": false
+    },
+    "tests/agent-door/retention-classes.mjs": {
+      "sha256": "47bb75bfe4290a01a72dad563ca8339f362e353884398ecb037990c97cf998c0",
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {

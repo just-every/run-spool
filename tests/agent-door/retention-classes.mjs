@@ -4,7 +4,7 @@ import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conforma
 
 // One native MCP journey: the reviewed retention inventory governs policy,
 // approval, execution and replay. Only the mail network edge is substituted.
-export async function retentionClasses(app){
+export async function retentionClasses(app,screens){
  const tool='spool.retention.update',types=['events','artifacts','feedback','exposures','commits','sessions'];
  const windows=days=>Object.fromEntries(types.map(type=>[type,days]));
  const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
@@ -51,10 +51,13 @@ export async function retentionClasses(app){
  const project='synthetic-spool-170-retained',created=await app.json('/api/projects','POST',{id:project,name:project});
  await app.json(`/api/projects/${project}/releases`,'POST',{name:'synthetic-spool-170',build:'synthetic-spool-170'});
  const dsn=new URL(created.dsn),baseTime=Date.now();
+ const envelope=async session=>{
+  const response=await fetch(`${app.origin}/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'content-type':'application/x-sentry-envelope'},body:'{}\n{"type":"session"}\n'+JSON.stringify(session)});
+  const result=await response.json();assert.equal(response.status,200,'Native session intake accepts the controlled inventory');assert.equal(result.sessions.session_stored,1);
+ };
  const capture=async(days,sid=randomUUID().replaceAll('-',''))=>{
   const time=new Date(baseTime-days*86400000).toISOString();
-  const result=await app.json(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify({sid,started:time,timestamp:time,status:'exited',errors:0,attrs:{release:'synthetic-spool-170',environment:'test'}}));
-  assert.equal(result.sessions.session_stored,1);return sid;
+  await envelope({sid,started:time,timestamp:time,status:'exited',errors:0,attrs:{release:'synthetic-spool-170',environment:'test'}});return sid;
  };
  const first=await capture(70);await capture(65);await capture(1);
  const shorter={...windows(90),sessions:30};let p=await preview(project,shorter);
@@ -81,8 +84,7 @@ export async function retentionClasses(app){
  const sameCount=await pending(args(project,p));
  // Advance an existing old session without changing the eligible quantity.
  const originalTime=new Date(baseTime-70*86400000).toISOString(),updatedTime=new Date(baseTime-69*86400000).toISOString();
- const updated=await app.json(`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,'POST','{}\n{"type":"session"}\n'+JSON.stringify({sid:first,started:originalTime,timestamp:updatedTime,status:'exited',errors:0,attrs:{release:'synthetic-spool-170',environment:'test'}}));
- assert.equal(updated.sessions.session_stored,1);
+ await envelope({sid:first,started:originalTime,timestamp:updatedTime,status:'exited',errors:0,attrs:{release:'synthetic-spool-170',environment:'test'}});
  assert.equal((await preview(project,shorter)).rows.find(row=>row.type==='sessions').count,3);
  const fenced=await approve(sameCount.approval);assert.equal(fenced.state,'refused');assert.equal(fenced.code,'revision_conflict');
  assert.deepEqual(await state(project),initial,'The native reviewed-preview token also fences same-count inventory changes');
@@ -96,8 +98,9 @@ export async function retentionClasses(app){
 
  p=await preview(project,shorter);const input=args(project,p),current=await pending(input);
  assert.deepEqual(classes(current.answer),destructive(3));
+ await screens?.capture('retention-shortening-approval','/agents/approvals/'+current.approval.id,'3 items',page=>page.locator('summary').filter({hasText:'Details'}).click());
  const approved=await approve(current.approval);assert.equal(approved.state,'executed');
- const saved=await state(project);assert.equal(saved.revision,p.revision+1);assert.deepEqual(saved.windows,shorter);
+ let saved=await state(project);assert.equal(saved.revision,p.revision+1);assert.deepEqual(saved.windows,shorter);
  assert.equal((await approve(current.approval)).state,'executed');
  const replay=await app.call(tool,input);done(replay);assert.deepEqual(classes(replay),destructive(3),'Replay retains the original destructive evidence after policy execution');
  assert.deepEqual(await state(project),saved,'Repeated approval and MCP replay execute the policy change once');
@@ -109,6 +112,11 @@ export async function retentionClasses(app){
  const nativeAudit=(await app.json('/api/audit/export')).rows;
  assert.ok(nativeAudit.some(row=>row.action==='retention.policy'&&row.actor_kind==='agent'&&row.outcome==='succeeded'),'Native policy audit records the agent action');
  console.log('PROBE SURFACE-003 approval: MCP shortening of 3 eligible sessions -> pending, approved current policy saved once; replay and audit preserve destructive count 3 and native standing custody');
+ const longer=await preview(project,{...shorter,sessions:60});
+ assert.equal(longer.rows.find(row=>row.type==='sessions').count,3,'Retained records can remain eligible even when a window grows');
+ const extended=await app.call(tool,args(project,longer));done(extended);assert.deepEqual(classes(extended),standard,'Lengthening is standard even with a nonempty native expiry preview');
+ saved=await state(project);assert.equal(saved.windows.sessions,60);
+ console.log('PROBE SURFACE-003 lengthening: MCP 30 -> 60 days with 3 eligible retained records -> standard, no destructive or live addition');
 
  await app.adopt();
  // A native maintainer in a disjoint project has no authority here even when
@@ -125,6 +133,7 @@ export async function retentionClasses(app){
  assert.deepEqual(await state(project),saved,'Foreign native authority cannot change the project retention policy');
  const roster=await app.json('/api/organization'),member=roster.members.find(row=>row.id===invited.id);
  await app.json('/api/organization/members/'+member.id,'DELETE',{version:member.version});
- assert.equal(code(await app.call('spool.workers.retention',{id:project,item:'injected',idempotency_key:randomUUID()})),'tool_not_found','Configuration classification does not expose standing worker admission through MCP');
+ const worker=await app.mcp('tools/call',{name:'spool.workers.retention',arguments:{id:project,item:'injected',idempotency_key:randomUUID()}},{},'2025-11-25',400);
+ assert.equal(worker.error?.data?.code,'tool_not_found','Configuration classification does not expose standing worker admission through MCP');
  console.log('PROBE SURFACE-003 authority: foreign-project maintainer MCP update -> not_found and unchanged policy; direct standing-worker MCP call remains unavailable');
 }
