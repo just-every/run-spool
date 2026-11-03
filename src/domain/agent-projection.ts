@@ -78,3 +78,11 @@ export function diagnosticProjection(rows: any) {
   ...(typeof row?.source === 'string' ? { source: text(row.source) } : {}),
  })) : [];
 }
+
+// A judgment is a recorded state, never an instruction or evidence of cause.
+// Private evidence notes and the judging person's identity stay owner-only.
+export function suspectJudgmentProjection(value: any) {
+ const row = object(value);
+ return { state: row && ['confirmed', 'rejected'].includes(row.judgment) ? row.judgment : 'unreviewed',
+  revision: row ? number(row.revision) : 0, updated: row ? number(row.updated) : null };
+}
