@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f611974e5efc2ffc2e38a330d0ef16a22372b42d8c5e7e20d64a85b2e9faf8c7",
+      "sha256": "aeb848a87a20c773f74c49c73da57f617709517ab9e2772e60df4485f1369a90",
       "executable": false
     },
     "DEMO.md": {
@@ -10766,7 +10766,7 @@
       "executable": false
     },
     "tests/mapped-frames-flow.mjs": {
-      "sha256": "ceb023b6c9b875c325b8775391b786aa4ecd7b4e83b454dd4158e6607805a262",
+      "sha256": "15a425d8d4870428fad7248b118709e90854a91d30e853f86435309056bc4f66",
       "executable": false
     },
     "tests/migration-evidence.mjs": {
