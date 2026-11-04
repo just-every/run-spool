@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {agentRuntime} from './runtime.mjs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-/** Qualify only policy-refused native email tests, with independent policy fixtures. */
+/** Native email classification under refusal, with policy admission controls. */
 export async function externalInjectionContract(){
  for(const [baseline,policy] of [['autonomous',autonomousPolicy],['held',heldPolicy]]){
   const app=await agentRuntime(0);
@@ -75,6 +75,40 @@ export async function externalInjectionContract(){
    assert.deepEqual(renamed,{...initial,alert_destinations:relabel(initial.alert_destinations),destinations:{...initial.destinations,rows:relabel(initial.destinations.rows)}},'Only the saved label changes; recipient and target identity stay fixed');
    assert.deepEqual(await refused('saved-label claim'),clean,'Stored text alone leaves clean classification unchanged');
    console.log(`PROBE SURFACE-002 acceptance-7 ${baseline}: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=${rule} revision=${revision}; no native test, delivery job or provider send`);
+
+   // The same populated native target must become usable when the explicit
+   // block is removed. This makes a permanently inert test door fail too.
+   await app.adopt(policy());
+   const controlRevision=app.context.revision,key=randomUUID(),beforeControl=await state();
+   const answer=await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:key});
+   const decision=answer._meta?.['com.runeditrun/decision'];
+   assert.equal(decision.revision,controlRevision);
+   assert.deepEqual(decision.classes,[{class:'external',rule:'all',do:baseline==='held'?'approval':'autonomous',facts}],'Removing the block changes disposition, never the computed external facts');
+   let result=answer.structuredContent;
+   if(baseline==='held'){
+    const approval=answer._meta?.['com.runeditrun/approval']??answer._meta?.['com.runeditrun/error']?.approval;
+    assert.ok(approval?.id,'The held baseline requires a real approval');
+    assert.deepEqual({...await state(),approvals:beforeControl.approvals},beforeControl,'Waiting for approval creates no native destination test, delivery or send');
+    const pending=(await app.json('/agents/api/approvals/'+approval.id)).approval;
+    assert.deepEqual(pending.summary.recipients,[recipient],'The person reviews the actual recipient, never the saved label claim');
+    await app.json('/agents/api/approvals/'+approval.id+'/approve','POST',{revision:pending.revision,summary_sha256:pending.summary_sha256});
+    assert.equal((await app.json('/agents/api/approvals/'+approval.id)).approval.state,'executed');
+    const replay=await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:key});
+    assert.ok(!replay.isError,'Approved execution is readable with the same call key');
+    result=replay.structuredContent;
+   }else assert.ok(!answer.isError,'The autonomous baseline admits the same native target');
+   const completed=await state();
+   assert.equal(completed.alert_destination_tests.length,1,'The control reaches one actual native test');
+   assert.equal(completed.alert_destination_tests[0].id,result.id);
+   assert.equal(completed.alert_destination_tests[0].state,'passing');
+   const sends=completed.mail.filter(message=>message.deliveryId===result.id);
+   assert.equal(sends.length,1,'The network-edge fake observes one admitted TEST send');
+   assert.deepEqual(sends[0].to,[recipient],'The saved label cannot redirect the admitted control');
+   assert.equal(completed.destinations.rows.find(row=>row.id===destination.id).test.id,result.id,'The native destination read exposes the same test result');
+   const replay=await app.call('spool.alerts.test',{project,id:destination.id,idempotency_key:key});
+   assert.ok(!replay.isError);assert.deepEqual(replay.structuredContent,result);
+   assert.deepEqual(await state(),completed,'Replaying an admitted control creates no second native test or send');
+   console.log(`PROBE SURFACE-002 acceptance-7-control ${baseline}: remove external block on the same saved target -> ${baseline==='held'?'inert approval then ':''}one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=${controlRevision}`);
   }finally{await app.stop();}
  }
 }
