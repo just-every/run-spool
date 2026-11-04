@@ -46,6 +46,9 @@ export async function limitsContract(){
    await app.adopt(document);
    const destinations=[];
    for(let index=1;index<=4;index++)destinations.push(await app.json(`/api/projects/${project}/alerting/destinations`,'POST',{label:'Synthetic recipient '+index,recipient:testOwner.replace('owner','synthetic-spool-'+index)}));
+   const other='synthetic-spool-other';
+   await app.json('/api/projects','POST',{id:other,name:'Shared seed allowance'});
+   const otherDestination=await app.json(`/api/projects/${other}/alerting/destinations`,'POST',{label:'Other project recipient',recipient:testOwner.replace('owner','synthetic-spool-5')});
    const destinationState=async()=>{
     const state=await app.json(`/api/projects/${project}/alerting/destinations`);
     assert.equal(state.configuration,'available');return state.rows;
@@ -80,6 +83,9 @@ export async function limitsContract(){
    assert.equal(code(refused),'policy_blocked','The fourth outside recipient takes the fallback rule');
    assert.equal(decision(refused).classes.find(row=>row.class==='external').rule,'recipient-floor');
    assert.equal(code(await app.call('spool.alerts.test',{...fourth,idempotency_key:randomUUID()}, {act:{sub:'synthetic-spool-peer',name:'Other agent',specialist:'triage engineer'},consent:'synthetic-spool-peer-consent'})),'policy_blocked','A different agent cannot reset the shared seed recipient allowance');
+   const otherBefore=await app.json(`/api/projects/${other}/alerting/destinations`);
+   assert.equal(code(await app.call('spool.alerts.test',{project:other,id:otherDestination.id,idempotency_key:randomUUID()})),'policy_blocked','Changing projects cannot reset the shared seed recipient allowance');
+   assert.deepEqual(await app.json(`/api/projects/${other}/alerting/destinations`),otherBefore,'The cross-project refusal starts no destination test');
    assert.deepEqual(await destinationState(),retained,'Daily policy refusal starts no destination test');
    assert.deepEqual(await app.mail(),mail,'Daily policy refusal makes no outbound effect');
    assert.equal(code(await app.call('spool.alerts.test',sent[0].args)),'policy_blocked','A retained outcome cannot bypass the current daily policy');

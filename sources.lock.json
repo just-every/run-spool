@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cf3d364c2498feb3ccbac25ef8b237eeae28c0601cda7ddcdee3254cb5f83e91",
+      "sha256": "1a9cc18282c59181c4b1dce3be2a342a0d5d02ff31dcfa05e8616b06a7fcddf3",
       "executable": false
     },
     "DEMO.md": {
@@ -10366,7 +10366,7 @@
       "executable": false
     },
     "tests/agent-door/limits-contract.mjs": {
-      "sha256": "1f5ddeb76aa0636996ce10e051a1eb31d5020bc888ee7a1b101a08d29d96395a",
+      "sha256": "814f256fc5476732519c58fb2a5a46b1295e7923cda403282f2a48417755a042",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {
