@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1774,7 +1774,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-008` | Truthful attribution | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | partial | `tests/agent-door.mjs` invokes `tests/agent-door/pause-contract.mjs` pauseContract: acceptance 6's native owner Pause and signed Business Pause admission, each stopping the next valid Business token and native project agent through MCP and the native HTTP alias within 60 seconds; both combined-pause resume orders, restored populated reads under autonomous and held policies, usable native person authority and retained-write replay refusal without duplicate effects. Acceptance 7: both valid agent credentials receive 403 at the native resume door with unchanged pause and policy state. Separate emitted Worker fixtures cover both policies; the native paused screen has 1440 and 390 proof. `tests/agent-door/continuation.mjs` continuationFlow retains the existing signed-pause and current-policy replay refusals. | Acceptance 1–5 remain unqualified: rate-overrun Retry-After, per-day recipient thresholds, enforced provider spend caps without partial effects, no-cap spending and zero-spend behavior, and usage by agent with calls, class decisions, money moved and provider spend. The pinned Base door does not enforce provider spend caps; no spending or usage claim follows from the pause qualification. Acceptance 6's actual Business control and native-device qualification, plus pause coverage beyond the tested admission modes, remain unqualified. SURFACE-001's existing hold, every account, device and ct hold, queue scope and release prerequisite remain unchanged. |
 | `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-013` | Manifest, docs and the conformance journey | target | missing | | Not yet judged through this seed's own doors. |
 
