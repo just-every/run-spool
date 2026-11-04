@@ -6166,7 +6166,7 @@
       "executable": false
     },
     "src/domain/investigation/search.ts": {
-      "sha256": "79fb10f15afc1e5cd16bdbdde634f748587bc04d1d4adbadfef16b21716c7d94",
+      "sha256": "6fe042c9f1c0225e65b121c0ed411bcee1a39852f123de0f7887e5613c8d5de7",
       "executable": false
     },
     "src/domain/issue-attention.ts": {
@@ -10774,7 +10774,7 @@
       "executable": false
     },
     "tests/investigation-flow.mjs": {
-      "sha256": "b8c96a3fdf74530fbfaf63f9ba53ee292becd376dbdae9929a3df25d6bfb55f5",
+      "sha256": "ff6a84ae62eb7dc08c840ac8a0d809fc912f649caf4d9ecfc5a56661234f334b",
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {

@@ -23,7 +23,8 @@ export async function investigationFlow({req,json,origin,db}){
  const all=await json(base+'/issue-search?q=environment:production');assert.equal(all.total,54);
  assert.equal((await req(base+'/issue-search?'+query+'&cursor='+encodeURIComponent(first.next))).status,400);
  const exported=await json(base+'/issue-export?'+query);assert.equal(exported.total,1);assert.equal(exported.bounds.complete,true);assert.equal(exported.rows[0].id,found.rows[0].id);
- const csv=await req(base+'/issue-export?'+query+'&format=csv');assert.equal(csv.status,200);assert.ok((await csv.text()).includes('Historic checkout failure'));
+ const csv=await req(base+'/issue-export?'+query+'&format=csv');assert.equal(csv.status,200);const csvText=await csv.text();assert.ok(csvText.includes('Historic checkout failure'));
+ for(const key of ['first_seen','last_seen'])assert.ok(csvText.includes(new Date(exported.rows[0][key]).toISOString()),'CSV dates reconcile with the JSON issue timestamps');
  assert.equal((await req(base+'/issue-search?q=user.email:someone')).status,400,'unavailable fields must be named, never silently ignored');
  assert.equal((await req(base+'/issue-search','GET',undefined,{Cookie:''})).status,401);
  const grant=await json(base+'/keys','POST',{kind:'agent'}),auth={Cookie:'',Authorization:`Bearer ${grant.key}`};
