@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1772,7 +1772,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-006` | Every action declares its risk class | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-008` | Truthful attribution | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | partial | `tests/agent-door.mjs` emitted Worker journey invokes `tests/agent-door/audit-retirement-contract.mjs` auditRetirementContract: acceptance 6 at the native signed-in agent revoke route under autonomous and held policies. Each distinct retiring agent has 206 prior audit rows, collected through every native audit page; retirement preserves complete prior rows including IDs, sequence, time, agent name, sponsor label, decision and outcome. Fresh read and tool-list tokens are refused, current person access remains, and another agent retains its history and access. | Acceptance 1 to 5 and 7 remain unqualified: complete audit fields across every tool and decision, fixture-week counts by class and decision, review-feed membership with person review marks and reversible Undo, agent and class filtering with complete exports, and responsive Agents-page accessibility. Acceptance 6 qualification covers this installation's native retirement only; Business-wide removal behavior remains unqualified. No full shared-conformance or broader audit adoption is claimed. |
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | missing | | Not yet judged through this seed's own doors. |
