@@ -25,6 +25,7 @@ export function nativePath(route:string,a:Args) {
  case 'reproducers':case 'repairs':case 'fixes':return `${p}/${route}${a.issue?'?issue='+e(a.issue):''}`;
  case 'reproducer-claim':return `${p}/reproducers/${e(a.id)}/claim`;
  case 'reproducer-run':return `${p}/reproducers/${e(a.id)}/runs`;
+ case 'reproducer-status':return `${p}/reproducers/runs/${e(a.id)}`;
  case 'repair-check':return `${p}/repairs/${e(a.id)}/checks`;
  case 'repair-fact':return `${p}/repairs/${e(a.id)}/facts`;
  case 'fix-advance':return `${p}/fixes/${e(a.id)}/advance`;
@@ -44,6 +45,7 @@ export function nativePath(route:string,a:Args) {
  case 'retention-preview':return `${p}/retention-policy/preview`;
  case 'retention':return `${p}/retention-policy`;
  case 'erasure-resume':return `/api/erasures/${e(a.id)}/resume`;
+ case 'erasure-status':return `/api/erasures/${e(a.id)}`;
  case 'privacy':return `${p}/erasure`;
  default:throw new ToolRefusal('tool_not_found');
  }
@@ -56,7 +58,7 @@ export async function authorizeNative(env: Bindings, route:string,method:string,
   const row=await env.DB.prepare('SELECT project FROM credentials WHERE hash=?').bind(a.id).first<{project:string}>();
   if(!row)throw new ToolRefusal('not_found');a.project=row.project;
  }
- if(['privacy','erasure-resume'].includes(route)&&ctx.person.role!=='owner')throw new ToolRefusal('not_found');
+ if(['privacy','erasure-resume','erasure-status'].includes(route)&&ctx.person.role!=='owner')throw new ToolRefusal('not_found');
  const request=new Request(new URL(nativePath(route,a),env.AUTH_ORIGIN),{method});
  try{
   const permitted=await withAgentAuthority(request,env,ctx,{id:ctx.operationId,tool:'admission',project:a.project??null,target:''},()=>requestAuthority(request,env));
@@ -116,6 +118,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  }
  if(route==='deployments'&&method==='POST')value={id:`${a.release}:${a.manifest.environment}`,release:a.release,manifest:value.manifest,kind:'observed_deployment',authority:'Records an observed fact; does not deploy.'};
  // Run tokens and source modules remain in the native connector door.
- if(route==='reproducer-run')value={...value,state:'queued',execution:'Use only this native single-use isolated runner handoff. Queued is not reproduced.'};
+ if(route==='reproducer-run')value={...value,state:'queued',job:{id:value.run,tool:'spool.reproducers.status',arguments:{project:a.project,id:value.run}},execution:'Use only this native single-use isolated runner handoff. Queued is not reproduced.'};
+ if((route==='privacy'&&method==='POST')||route==='erasure-resume')value={...value,job:{id:value.id,tool:'spool.privacy.status',arguments:{id:value.id}}};
  return value;
 }

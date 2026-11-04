@@ -65,6 +65,12 @@ erasureReceiptRoutes.get('/', async c => {
  return c.json(await Promise.all(rows.map(async ({ id }) => receiptView(await erasure.receipt(id)))));
 });
 erasureReceiptRoutes.get('/:id', async c => {
+ const actor=agentAuthority(c.req.raw);
+ if(actor){
+  const saved=await c.env.DB.prepare('SELECT principal FROM spool_erasure_agents WHERE operation=?').bind(c.req.param('id')).first<{principal:string}>();
+  const principal=saved?JSON.parse(saved.principal):null;
+  if(!principal||principal.person.id!==actor.context.person.id||principal.agent.id!==actor.context.agent.id||principal.consent!==actor.context.consent)return c.json({error:'Erasure not found'},404);
+ }
  try { return c.json(receiptView(await (await projectErasureService(c.env.DB,c.env.SESSION_SECRET)).receipt(c.req.param('id')))); } catch (error) { return failure(c, error); }
 });
 

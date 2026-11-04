@@ -19,8 +19,9 @@ export async function spoolTarget(env: Bindings, route: string, args: Record<str
   await nativeCall(env,'issues','GET',{project:row.project},ctx,'target');
   return {kind:'credential',id:row.hash};
  }
- if(route==='erasure-resume'){
+ if(['erasure-resume','erasure-status'].includes(route)){
   if(ctx.person.role!=='owner')throw new ToolRefusal('not_found');
+  if(route==='erasure-status')await nativeCall(env,route,'GET',args,ctx,'target');
   const row=await env.DB.prepare("SELECT id FROM rer_erasure_operations WHERE id=? AND entity='project'").bind(args.id).first<{id:string}>();
   if(!row)throw new ToolRefusal('not_found');
   return {kind:'project_erasure',id:row.id};

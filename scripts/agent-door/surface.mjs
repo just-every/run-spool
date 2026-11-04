@@ -28,6 +28,7 @@ add('suppress','issues.update',{project,issue,state:'suppressed',revision:from('
 add('reproducers','reproducers.read',{project,issue});
 add('reproducer','reproducers.create',{project,event:'cart-1',input:[{}]});
 add('queue','reproducers.run',{project,id:from('reproducer','/id')});
+add('queue-status','reproducers.status',{project,id:from('queue','/run')});
 add('claim','reproducers.claim',{project,id:from('queue','/run')});
 add('repairs','repairs.read',{project,issue});
 add('repair','repairs.record',{project,issue,link:'https://github.com/just-every/run-spool/pull/1',note:'Agent claim; observation is independent.'});
@@ -72,6 +73,7 @@ journey.find(step=>step.id==='retention-shorten').expect[0].facts.measure=0;
 add('erasable','projects.create',{name:'Disposable privacy probe'});
 add('erasure-preview','privacy.preview',{project:from('erasable','/id')});
 add('erase','privacy.erase',{project:from('erasable','/id'),planHash:from('erasure-preview','/planHash')},['destructive']);
+add('erasure-status','privacy.status',{id:from('erase','/id')});
 add('continue-erasure','privacy.continue',{id:from('erase','/id')},['destructive']);
 add('witness','witness.read',{project});
 // Leave active settings unchanged at the next policy phase's start.
