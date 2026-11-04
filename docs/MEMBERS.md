@@ -5,6 +5,22 @@ people, set project grants and teams, manage service accounts, or transfer
 ownership. Invitations use the native one-use email confirmation. Development
 mail stays silent; hosted invitations need a configured mail sender.
 
+In local development, **Send invitation** creates the invitation without sending
+email. Open **Invitations** and copy the invitee's sign-in command, for example:
+
+```sh
+rer dev --as 'priya.raman@copperline-bikes.example'
+```
+
+Run it from this Spool checkout and open the private `RER_OPEN` link it prints
+on this computer. It accepts the pending invitation and signs in that member
+with their assigned access. The same command signs them in again later; expired
+or cancelled invitations cannot be accepted. A browser that has already opened
+the private link can also choose the invited account on `/sign-in`. After
+signing out, choose your own account there to sign back in. Use
+`rer dev --as owner` to return to the owner. Keep all printed private links
+private; the ordinary app address alone does not authorize local sign-in.
+
 The owner retains installation custody, imports and erasure. Organization admins
 manage members and all organization projects. Billing accounts see usage and the
 availability of budgets and invoices, with no project evidence. A project

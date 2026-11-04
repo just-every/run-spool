@@ -7,7 +7,7 @@ export async function verifyReturnDestinations(origin,protectedPath,cookie) {
  const anonymous=await fetch(origin+protectedPath,{redirect:'manual'});assert.equal(anonymous.status,303);
  const signIn=new URL(anonymous.headers.get('location'),origin);assert.equal(signIn.origin,origin);assert.equal(signIn.pathname,'/sign-in');assert.equal(signIn.searchParams.get('returnTo'),protectedPath);
  for(const [index,hostile] of ['https://attacker.invalid/path','//attacker.invalid','/%2f%2fattacker.invalid','/\\attacker.invalid'].entries()) {
-  const page=await fetch(origin+'/sign-in?returnTo='+encodeURIComponent(hostile)),html=await page.text();assert.match(html,/returnTo=%2Fsetup/);
+  const page=await fetch(origin+'/sign-in?returnTo='+encodeURIComponent(hostile)),html=await page.text();assert.equal(page.status,200);assert.ok(!html.includes('attacker.invalid'),'signed-out guidance never publishes an external return destination');
   if(index>1)continue;
   const entered=await fetch(origin+'/auth/dev/enter?as=owner&returnTo='+encodeURIComponent(hostile),{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);assert.equal(new URL(entered.headers.get('location'),origin).origin,origin);
 

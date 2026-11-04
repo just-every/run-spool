@@ -3018,7 +3018,7 @@
       "executable": false
     },
     "docs/MEMBERS.md": {
-      "sha256": "9c58f9c99812462e09622d84b6ece77ecaa9c8234c2a0ac9e231ff411b4a86e8",
+      "sha256": "c8a011ec2aa34a270a25c7b14ddd1a0831e66d89a681c9fa21a7f7b13642cca2",
       "executable": false
     },
     "docs/NOTIFICATIONS.md": {
@@ -4418,7 +4418,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "7ae86588ac7a4a0d0b6133de8befe2839b20b562e185ecaf5732315c46ce7de8",
+      "sha256": "fca39c7f08573ac81f83d55e84c8c006297c5c2359c24c2e7e4224b955244d8c",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -5318,7 +5318,7 @@
       "executable": false
     },
     "src/auth/sign-in.server.ts": {
-      "sha256": "2e5601c686e839b593eebd2e2c0cb4e54ebc00b3ecfcd30bcc2ff1ad55de4b6d",
+      "sha256": "5060c71dfc1391827e5458248a378c5bf61c86c8d7ba38c9e5b927225d85a580",
       "executable": false
     },
     "src/base/contract-anchor.mjs": {
@@ -6242,7 +6242,7 @@
       "executable": false
     },
     "src/domain/members/routes.ts": {
-      "sha256": "165fe0f13e8f9637909051364ffed3cc8f75af92e94a25033881d21299a80c0e",
+      "sha256": "9354b0451398ef063c8acbb543103f19ce8f3be0653bd905d48ac611a3b1be42",
       "executable": false
     },
     "src/domain/members/services.ts": {
@@ -10114,7 +10114,7 @@
       "executable": false
     },
     "src/ui/workbench/Members.tsx": {
-      "sha256": "aa1a26b9b290af32f300e62eeb76eb816afce12f7241c73eda28451cb90a3c3a",
+      "sha256": "d5a0b6dfd2da166bfa4f1b7ac72495674347eefa224fa014b6bcd60dd2ff7fc4",
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
@@ -11006,7 +11006,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "949672581e937bd987a21fada308fb1a7bf7ff34773c3af47e41b2b297cb5a8e",
+      "sha256": "250302801073ebc6851cbd20f0af7b2c859c69a120c3c948a501f7eabafcc4f9",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
@@ -11298,7 +11298,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "84db212ee1f38a2957aab9a686b87aa0d220bae6b8209350171d0cc897b5e7df",
+      "sha256": "6db6088912a998c170311e7848110738a123593f6080100da5ceefab3d454a04",
       "executable": false
     },
     "tests/slack-flow.mjs": {
@@ -11342,11 +11342,11 @@
       "executable": false
     },
     "tests/triage-auth.mjs": {
-      "sha256": "23c6005732be5c8e0187519362040765c93db868e97f0655d2eb31379fcccdb0",
+      "sha256": "67b9ffdf8716a0b0a2ab7818414c68ec50e3ceca1fea48debc882756f69674f2",
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "5333fb414dc71deb2716a6e56345a8db38473615ba5e4c0cc1e2366ea2add9ff",
+      "sha256": "7a7a27d930178ee891e87727b786cb9b03a947eeec9e1a78cff5e9f4440039c0",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
