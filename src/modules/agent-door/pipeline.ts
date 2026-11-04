@@ -1,4 +1,5 @@
 import { captureFence, erasedReplay, erasedResult, expireReplayCalls } from './erasure.ts'
+import { consentRevoked } from './credentials.ts'
 import { offers } from './capabilities.mjs'
 import type { CallResult, DecisionMeta, Principal, Runtime, ToolContext } from './types.ts'
 import { audit, newAudit, recordDecision, outcomeRow, recoverAudit, usage, usageToday, type Evidence, type AuditRow } from './audit.ts'
@@ -78,6 +79,7 @@ export async function callTool(rt: Runtime, name: string, input: unknown, princi
     row.scopes = [...principal.scopes]
     if (tool.scope && !principal.scopes.includes(tool.scope)) { status = 403; scope = tool.scope; return refuse('insufficient_scope') }
     let state = await policyState(rt)
+    if (await consentRevoked(rt.options.db, principal.consent)) { status = 401; return refuse('unauthenticated') }
     row.revision = state.revision
     if (principal.consent && state.revoked.consents.includes(principal.consent)) { if (door === 'mcp') { status = 401; return refuse('unauthenticated') }; return refuse('consent_revoked') }
     const agent = await rt.options.db.prepare('SELECT revoked,sponsor FROM agent_door_agents WHERE id=?').bind(principal.agent.id).first<{ revoked: number; sponsor: string }>()

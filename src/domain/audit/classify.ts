@@ -125,6 +125,7 @@ const auth: Record<string,AuditAction> = {
 };
 export function classifyRequest(request: Request): Door | null {
  const path=new URL(request.url).pathname;
+ if(/^\/agents\/api\/consents\/[^/]+\/revoke$/.test(path))return {action:'credential.revoke',kind:'credential',subject:'agent-consent'};
  if(path==='/api/reports')return {action:new URL(request.url).searchParams.has('format')||new URL(request.url).searchParams.get('download')==='1'?'report.export':'report.read',kind:'policy',subject:'impact-report'};
  // Unauthenticated provider forgeries must leave no storage write. Verified
  // delivery events record their service fact inside the projection transaction.

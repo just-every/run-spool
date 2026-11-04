@@ -23,6 +23,17 @@ Team invitations and project grants use Spool's native team lifecycle. Roster
 sync does not grant project access or turn an existing native member into an
 organization administrator. An inactive, removed or unmapped person cannot act.
 
+MCP refuses `access_token` query parameters even when an Authorization header
+is also present. The application neither records nor reflects the query value.
+The owner can retire a consent with a same-origin POST to
+`/agents/api/consents/{id}/revoke`. Retirement is permanent in this installation,
+checks the next call and held execution, and survives restart and policy renewal.
+Business can also deliver consent revocations in its signed policy envelope;
+this proves the receiving boundary, not Business's upstream delivery schedule.
+After a signed detach, Business tokens end, metadata withdraws that issuer and
+native email sign-in remains available. Native OAuth token issuance is not yet
+implemented.
+
 The company chooses autonomous, review, approval or blocked for each class.
 An unanswered, expired or paused policy authorizes no action. There is no product
 preset that turns a caller's confirmation or imported text into approval. Native

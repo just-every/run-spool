@@ -1,4 +1,5 @@
 import type { Operator } from '../../modules/operator-auth/index.mjs';
+import { consentDigest } from '../../modules/agent-door/credentials.ts';
 import type { ToolContext } from '../../modules/agent-door/index.ts';
 import { ownerSession, ownerWrite } from '../../auth/session.server';
 import type { Bindings } from '../../auth/bindings';
@@ -10,7 +11,7 @@ import { mintedByCurrentPerson } from '../credential-fence';
 /** A native actor, deliberately without a browser session id or cookie. Only
  * the server's registry bridge can attach it to an exact Request object. */
 export interface AgentAuthority {
- kind: 'agent'; operator: Operator; membership?: Membership; context: ToolContext;
+ consentDigest: string; kind: 'agent'; operator: Operator; membership?: Membership; context: ToolContext;
  policy: {envelope:string|null;local_revision:number};
  operation: { id: string; tool: string; project: string | null; target: string };
 }
@@ -27,7 +28,7 @@ export async function withAgentAuthority<T>(request: Request, env: Bindings, ctx
  const policy=await env.DB.prepare('SELECT envelope,local_revision FROM agent_door_state WHERE id=1').first<{envelope:string|null;local_revision:number}>();
  // Read-only classification also runs before the first policy is adopted.
  // The write guard still requires an actual current policy row.
- actors.set(request, {kind:'agent',operator,context:ctx,operation,policy:policy??{envelope:null,local_revision:0}});
+ actors.set(request, {consentDigest:ctx.consent?await consentDigest(ctx.consent):'',kind:'agent',operator,context:ctx,operation,policy:policy??{envelope:null,local_revision:0}});
  try { return await run(); } finally { actors.delete(request); }
 }
 
@@ -61,11 +62,12 @@ export function agentGuard(db: D1Database, actor: AgentAuthority) {
  AND NOT EXISTS(SELECT 1 FROM json_each(policy.envelope,'$.revoked.agents') WHERE value=?)
  AND NOT EXISTS(SELECT 1 FROM json_each(policy.envelope,'$.revoked.consents') WHERE value=?))))
  AND (? IS NULL OR NOT EXISTS(SELECT 1 FROM bs_settings WHERE singleton=1 AND stopped=1))
+ AND NOT EXISTS(SELECT 1 FROM agent_door_revoked_consents WHERE digest=?)
  AND NOT EXISTS(SELECT 1 FROM agent_door_agents a WHERE a.id=? AND a.revoked=1)
  ) THEN 1 ELSE 0 END`).bind(actor.operator.id,actor.operator.version,actor.operator.role,
  ...m?[m.id,m.version,m.role,m.organization,...m.project?[m.project,...m.role==='admin'?[]:[m.project,m.projectRole]]:[]]:[],
  ...localCredentialId(actor.context.clientId)?[localCredentialId(actor.context.clientId),actor.operation.project]:[],
- actor.policy.envelope,actor.policy.local_revision,actor.context.agent.id,actor.context.consent??'',actor.context.consent??null,actor.context.agent.id);
+ actor.policy.envelope,actor.policy.local_revision,actor.context.agent.id,actor.context.consent??'',actor.context.consent??null,actor.consentDigest,actor.context.agent.id);
 }
 
 export function nativeAttribution(db: D1Database, actor: AgentAuthority) {

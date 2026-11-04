@@ -16,6 +16,8 @@ import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {identityContract} from './agent-door/identity-contract.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
+import {emailSignIn,testOwner} from './auth.mjs';
+import {accessToken} from '../src/modules/agent-door/conformance/crypto.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await nativeSetup();
@@ -129,7 +131,14 @@ try{
  const stoppedCall=await app.call('spool.issues.update',{project,issue:currentIssue.id,state:'suppressed',revision:currentIssue.revision,idempotency_key:randomUUID()});
  const stopPending=stoppedCall._meta?.['com.runeditrun/approval']??stoppedCall._meta?.['com.runeditrun/error']?.approval;assert.ok(stopPending?.id);
  const stopApproval=(await app.json('/agents/api/approvals/'+stopPending.id)).approval;
+ const pairedToken=await accessToken(app.context);
  await app.detach();await worker.stopped();
+ const detached=await app.request('/mcp','POST',{jsonrpc:'2.0',id:1,method:'tools/list',params:{}},{Authorization:'Bearer '+pairedToken,'MCP-Protocol-Version':'2025-11-25'});assert.equal(detached.status,401,'A token issued before detach is refused');await detached.body?.cancel();
+ assert.deepEqual((await app.json('/.well-known/oauth-protected-resource/mcp')).authorization_servers,[],'Detached metadata no longer offers the Business issuer');
+ const nativeCookie=await emailSignIn(app.origin,testOwner);
+ const nativeState=await app.json('/agents/api/state','GET',undefined,{Cookie:nativeCookie});assert.equal(nativeState.paired,false);
+ const nativeIssues=await app.json(`/api/projects/${project}/issues`,'GET',undefined,{Cookie:nativeCookie});assert.equal(nativeIssues[0].id,currentIssue.id,'Fresh native email sign-in still reads the captured issue after detach');
+ console.log('PROBE BASE-AGENT-004 7: signed detach -> old and fresh Business tokens refused, metadata withdraws Business, fresh native email sign-in reads the same issue; held action stays inert');
  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}}, {},'2025-11-25',401)).httpStatus,401,'Detached Business tokens have no authority');
  const stoppedExecution=await app.request('/agents/api/approvals/'+stopPending.id+'/approve','POST',{revision:stopApproval.revision,summary_sha256:stopApproval.summary_sha256});
  assert.equal(stoppedExecution.status,200);const stoppedResult=await stoppedExecution.json();

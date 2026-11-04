@@ -12,6 +12,8 @@ export async function ownerCustody(){
   const answer=await app.call('spool.releases.record',{project:project.id,name:'Owner recorded release',build:'owner-build',idempotency_key:'owner-private-key-'+randomUUID()});assert.ok(!answer.isError);
   const owner=await app.DB.prepare("SELECT id,email,display_name FROM oa_operators WHERE role='owner' AND status='active'").first();
   const ownerCookie=await signIn(owner.email);
+  await app.json('/agents/api/consents/'+encodeURIComponent(owner.id)+'/revoke','POST',{}, {Cookie:ownerCookie});
+  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project:project.id}},{consent:owner.id},'2025-11-25',401)).httpStatus,401,'Native retirement also refuses a consent containing a person identifier');
   await app.json('/api/owner/erasure/successor','POST',{email:'native-successor@spool.test',displayName:'Independent native successor'},{Cookie:ownerCookie});
   const successorCookie=await confirm('native-successor@spool.test');
   const successor=await app.DB.prepare("SELECT * FROM oa_operators WHERE email='native-successor@spool.test'").first();
@@ -22,6 +24,7 @@ export async function ownerCustody(){
   const freshSuccessorCookie=await signIn(successor.email);
   assert.equal((await app.json('/api/projects','GET',undefined,{Cookie:freshSuccessorCookie}))[0].id,project.id,'The independent successor retains real native owner authority');
   for(const artifact of operatorAgentArtifacts.artifacts){const rows=(await app.DB.prepare('SELECT * FROM '+artifact.table).all()).results;const text=JSON.stringify(rows);for(const value of [owner.id,owner.email,owner.display_name,app.context.person.sub])assert.ok(!text.includes(value),artifact.table+' retains no erased native or Business person identity');}
+  assert.equal((await app.DB.prepare('SELECT count(*) n FROM agent_door_revoked_consents').first()).n,1,'Owner erasure retains the one-way refusal marker without its source identity');
   const settings=await app.DB.prepare('SELECT stopped,document,owner_id FROM bs_settings WHERE singleton=1').first();assert.deepEqual(settings,{stopped:1,document:null,owner_id:null},'Native owner retirement detaches and redacts its Business pairing atomically');
   console.log('Native owner custody: paired Business identity, call/approval/audit map scan, ordinary verified successor, retained project and irreversible detach passed.');
  }finally{await app.stop();}

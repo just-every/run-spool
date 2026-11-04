@@ -39,6 +39,7 @@ const audits=mentions('agent_door_audit',['row','evidence']);
 const decisions=`SELECT decision_id FROM agent_door_calls WHERE ${calls} UNION SELECT json_extract(saved,'$.decision_id') FROM agent_door_approvals WHERE ${approvals} UNION SELECT json_extract(saved,'$.decision_id') FROM agent_door_reviews WHERE ${reviews} UNION SELECT id FROM agent_door_audit WHERE ${audits}`;
 const match=(sql)=>({sql,params:['values']});
 export function nativeAgentArtifacts(operator=false) {return {artifacts:[
+ {table:'agent_door_revoked_consents',columns:['digest','revoked_at'],unrelated:'One-way retired consent markers and retirement times preserve refusal after erasure; no person, project, token or payload is stored.'},
  {table:'agent_door_state',columns:['id','envelope','local_document','local_revision','local_paused','decision_lock','decision_until'],unrelated:'Installation policy without selected-subject references is retained. The native hook retires matching references in the same transaction; revision, Pause and admission-lease metadata remain.'},
  {table:'agent_door_agents',columns:['id','name','specialist','sponsor','sponsor_name','revoked','window','requests','tombstone'],...operator?{match:match(mentions('agent_door_agents',['sponsor','sponsor_name']))}:{unrelated:'Non-person agent identities and native sponsors belong to installation authority, not the erased project.'}},
  {table:'agent_door_calls',columns:['agent','key','digest','decision_id','created_at','state','outcome','expires_at'],match:match(`decision_id IN (${decisions})`)},

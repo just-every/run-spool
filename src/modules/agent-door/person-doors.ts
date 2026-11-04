@@ -1,4 +1,5 @@
 import type { Runtime } from './types.ts'
+import { consentDigest } from './credentials.ts'
 import { error, json } from './errors.ts'
 import { businessRole } from './people.ts'
 import { localPolicy, policyState, publicState } from './policy-store.ts'
@@ -30,6 +31,16 @@ export async function personDoor(rt: Runtime, request: Request): Promise<Respons
     if (request.method !== 'GET') return error('method_not_allowed', 405)
     const rows = (await rt.options.db.prepare('SELECT id,name,specialist,sponsor,sponsor_name,revoked FROM agent_door_agents ORDER BY id').all<{ id: string; name: string; specialist: string | null; sponsor: string; sponsor_name: string; revoked: number }>()).results
     return json({ agents: rows.map(row => ({ id: row.id, name: row.name, specialist: row.specialist, sponsor: { id: row.sponsor, name: row.sponsor_name }, revoked: !!row.revoked })) })
+  }
+  const consent = /^\/agents\/api\/consents\/([^/]+)\/revoke$/.exec(path)
+  if (consent) {
+    if (role !== 'owner') return error('forbidden', 403)
+    if (request.method !== 'POST') return error('method_not_allowed', 405)
+    let id: string
+    try { id = decodeURIComponent(consent[1]!) } catch { return error('invalid_arguments') }
+    if (!id.trim() || id.length > 1024) return error('invalid_arguments')
+    await rt.options.db.prepare('INSERT INTO agent_door_revoked_consents(digest,revoked_at) VALUES(?,?) ON CONFLICT(digest) DO NOTHING').bind(await consentDigest(id), rt.now()).run()
+    return json({ revoked: true })
   }
   const revoke = /^\/agents\/api\/agents\/([^/]+)\/revoke$/.exec(path)
   if (revoke) {

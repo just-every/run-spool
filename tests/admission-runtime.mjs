@@ -20,7 +20,7 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge, captureLogs = false} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
@@ -28,6 +28,8 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  const {worker: emitted, database, triggers} = await emittedWorkerOptions(resolve('dist/server/wrangler.json'), miniflare);
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
  let worker, hostedEntry, hostedSource;
+ const logs=[];
+ const log=captureLogs?new class extends Log{log(message){logs.push(message);}}(LogLevel.DEBUG):new Log(LogLevel.ERROR);
  const trustedOrigin=hostedMail?'https://spool.example':origin;
  // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
  // their complete claim ring through extra; do not manufacture partial trust.
@@ -35,7 +37,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
-export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/log-probe'){console.info('synthetic-spool-log-probe');return Response.json({});}if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   hostedSource=await readFile(entry,'utf8');
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
@@ -50,7 +52,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
  const start = async () => {
   // Use the same emitted graph and Worker-first asset ownership as deployment.
   const options = convertV4MiniflareOptions({
-   ...emitted, log: new Log(LogLevel.ERROR),
+   ...emitted, log, ...captureLogs?{logRequests:false,handleStructuredLogs:entry=>logs.push(entry.message)}:{},
    bindings: {...emitted.bindings, ...authBindings(origin), ...extra, ...mailBindings},
    resourcePersistencePath: resolve(temporary, 'state'), host: '127.0.0.1', port, https,
    unsafeTriggerHandlers: triggers.length > 0,
@@ -76,7 +78,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
    method, redirect: 'manual', headers: {Origin: origin, Connection: 'close', ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
    ...(value === undefined ? {} : {body: JSON.stringify(value)}),
   });
-  const runtime = {get origin() {return origin;}, DB: db, call,
+  const runtime = {logs,get origin() {return origin;}, DB: db, call,
    schedule:async time=>{const response=await call('/__fixture/schedule',{time});if(!response.ok)throw new Error('Native scheduled entry failed: '+response.status);await response.body?.cancel();},
    applyAgentUpgrade:()=>apply(files.filter(file=>file==='0099_agent_custody_replay_relay.sql')),
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),

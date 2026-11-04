@@ -2107,11 +2107,46 @@
         "modules/agent-door/wire.ts"
       ],
       "adapted": {
-        "src/modules/agent-door/audit.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+        "src/modules/agent-door/audit.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/credentials.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/execution.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/index.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/person-doors.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/pipeline.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/schema/agent-door.sql": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/transport.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
       },
       "acknowledged": {
         "src/modules/agent-door/audit.ts": {
           "sha256": "3eb5f9f7a0d5e38a89e8dc63ce0624d0586cbe8393e82b6a006b3d214f57a075",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/credentials.ts": {
+          "sha256": "b87c9b3cc6a8e48a6db0e92e6ff68c8311430c9e865ef6da0892ec300bbbd403",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/execution.ts": {
+          "sha256": "f32b4fd8aa54c063598be06b0edbd3250dce60b63e48f44dc6b883abff6368de",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/index.ts": {
+          "sha256": "d52ed86153cf1d23ae37168ced949e2f387f39999a7ed30f775e3f4e531b2e0d",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/person-doors.ts": {
+          "sha256": "b51b8aa1d9afbb186db315fe3e0729bd166955fffcd67bdd68cc132b81b9ae11",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/pipeline.ts": {
+          "sha256": "e6376caf22f1149e7cb265df6dfa1ff458ba3f7dbceb2642a4d4d22fcdddb0bf",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/schema/agent-door.sql": {
+          "sha256": "793a9cccf085f088291a72b477b5f59c2b175e7cfdb7079f618faabceaed00f5",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/transport.ts": {
+          "sha256": "185e5138f3d78bcaaffc679dc9b71c1175b42c0efa890d0b15ef8e95cc04a587",
           "mode": "100644"
         }
       }

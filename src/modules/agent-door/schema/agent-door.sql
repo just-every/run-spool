@@ -77,3 +77,8 @@ BEGIN
   DELETE FROM agent_door_relay WHERE decision_id=json_extract(NEW.saved,'$.decision_id')
     AND sequence<(SELECT MAX(sequence) FROM agent_door_relay WHERE decision_id=json_extract(NEW.saved,'$.decision_id'));
 END;
+
+CREATE TABLE IF NOT EXISTS agent_door_revoked_consents (
+  digest TEXT PRIMARY KEY,
+  revoked_at INTEGER NOT NULL
+);

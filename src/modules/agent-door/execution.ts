@@ -1,4 +1,5 @@
 import { REPLAY_WINDOW_MS, captureFence } from './erasure.ts'
+import { consentRevoked } from './credentials.ts'
 import type { ClassAndFacts, CallResult, NativeTarget, Principal, Runtime, ToolContext, ToolDefinition, UndoContext, ApprovalDisplaySummary } from './types.ts'
 import { validateSchema } from './json-schema.ts'
 import { ToolRefusal } from './errors.ts'
@@ -35,7 +36,7 @@ export const sameFacts = (a: ClassAndFacts[], b: ClassAndFacts[]) => canonical([
 /** A Business-admitted principal ends with the Business that admitted it, wherever its call was held. */
 export const businessEnded = async (rt: Runtime, principal: Pick<Principal, 'source'>) => principal.source === 'business' && !!await rt.options.people.businessStopped?.()
 export async function livePrincipal(rt: Runtime, saved: Principal): Promise<Principal | null> {
-  if (await businessEnded(rt, saved)) return null
+  if (await businessEnded(rt, saved) || await consentRevoked(rt.options.db, saved.consent)) return null
   const person = await rt.options.people.person(saved.person.id)
   const agent = await rt.options.db.prepare('SELECT revoked FROM agent_door_agents WHERE id=?').bind(saved.agent.id).first<{ revoked: number }>()
   const state = await policyState(rt)
@@ -46,6 +47,7 @@ export async function runTool(rt: Runtime, tool: ToolDefinition, args: Record<st
   const effects: Effect[] = []
   try {
     if (await businessEnded(rt, principal)) throw new ToolRefusal('sponsor_unavailable')
+    if (await consentRevoked(rt.options.db, principal.consent)) throw new ToolRefusal('consent_revoked')
     const current = await narrowPrincipal(rt, principal)
     // Preserve the admission snapshot exactly; a removed grant requires fresh work.
     if (principal.scopes.some(scope => !current.scopes.includes(scope))) throw new ToolRefusal('insufficient_scope')

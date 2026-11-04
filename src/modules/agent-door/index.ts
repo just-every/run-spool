@@ -35,10 +35,12 @@ export function createAgentDoor(options: AgentDoorOptions): AgentDoor {
   if (Object.values(limits).some(value => !Number.isSafeInteger(value) || value < 1)) throw new TypeError('Invalid capacity limits')
   const rt: Runtime = { options: { ...options, limits }, tools: registry(options), now: options.now ?? Date.now }
   rt.tools = [...rt.tools, ...(offers(options.capabilities, 'events') ? [eventsTool(rt)] : [])].sort((a, b) => a.name.localeCompare(b.name))
+  const runtime = rt
   return {
     async handle(request) {
+      const rt = options.trust && await options.people.businessStopped?.() ? { ...runtime, options: { ...runtime.options, trust: null } } : runtime
       const path = new URL(request.url).pathname
-      if (['/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp'].includes(path)) return json({ resource: `${options.origin}/mcp`, authorization_servers: options.trust ? [options.trust.issuer] : [], scopes_supported: [...new Set([...rt.tools.filter(tool => tool.exposure !== 'invoke').map(tool => tool.scope), ...(offers(options.capabilities, 'resources') ? options.resources?.flatMap(resource => resource.scope ? [resource.scope] : []) ?? [] : [])])].sort(), bearer_methods_supported: ['header'] })
+      if (['/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp'].includes(path)) return json({ resource: `${options.origin}/mcp`, authorization_servers: rt.options.trust ? [rt.options.trust.issuer] : [], scopes_supported: [...new Set([...rt.tools.filter(tool => tool.exposure !== 'invoke').map(tool => tool.scope), ...(offers(options.capabilities, 'resources') ? options.resources?.flatMap(resource => resource.scope ? [resource.scope] : []) ?? [] : [])])].sort(), bearer_methods_supported: ['header'] })
       if (path === '/api/rer/agent-decisions') return relayDecisions(rt, request)
       if (path === '/api/rer/agent-policy') {
         const response = await adoptPolicy(rt, request)

@@ -21,6 +21,8 @@ function readGuard(rt: Runtime, rpc: Rpc, state: Awaited<ReturnType<typeof polic
   return ['blocked', 'approval', 'unset'].includes(decision.result) ? rpcError(rpc.id, -32000, 'Read refused by policy', 200, { code: decision.result === 'blocked' ? 'policy_blocked' : decision.result === 'unset' ? 'policy_unset' : 'approval_required', revision: state.revision }) : null
 }
 export async function mcp(rt: Runtime, request: Request): Promise<Response> {
+  // Query credentials never enter authentication, negotiation or the call audit.
+  if (new URL(request.url).searchParams.has('access_token')) return rpcError(null, -32001, 'Unauthorized', 401, undefined, challenge(rt))
   if (request.method !== 'POST') return rpcError(null, -32600, 'Method not allowed', 405)
   const state = await policyState(rt), authenticated = await authenticate(rt.options, request, state.business)
   const principal = authenticated && await narrowPrincipal(rt, authenticated)

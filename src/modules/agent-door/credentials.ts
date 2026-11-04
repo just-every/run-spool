@@ -1,4 +1,11 @@
 import type { AgentDoorOptions, Principal } from './types.ts'
+/** Retirement stores only a one-way consent marker, never token bytes. */
+export async function consentDigest(consent: string): Promise<string> {
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('rer-agent-consent\0' + consent))), byte => byte.toString(16).padStart(2, '0')).join('')
+}
+export async function consentRevoked(db: D1Database, consent?: string): Promise<boolean> {
+  return !!consent && !!await db.prepare('SELECT 1 FROM agent_door_revoked_consents WHERE digest=?').bind(await consentDigest(consent)).first()
+}
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder('utf-8', { fatal: true })
@@ -87,7 +94,7 @@ export async function authenticate(
         !Number.isFinite(now) || typeof claims.iat !== 'number' || !Number.isFinite(claims.iat) ||
         typeof claims.exp !== 'number' || !Number.isFinite(claims.exp) || claims.iat > now + 30 ||
         claims.exp <= now || claims.exp <= claims.iat || claims.exp - claims.iat > 900) return null
-      if (!nonempty(claims.consent)) return null
+      if (!nonempty(claims.consent) || await consentRevoked(options.db, claims.consent as string)) return null
       const person = await options.people.sponsor({ sub: claims.sub })
       // A token outlives no change of address: its email must still be the subject's current native email.
       if (!person?.active || person.email.trim().toLowerCase() !== claims.email) return null

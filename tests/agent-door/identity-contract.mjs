@@ -7,9 +7,9 @@ import {accessToken,autonomousPolicy,heldPolicy} from '../../src/modules/agent-d
 export async function identityContract(app){
  let id=0;
  const challenge=`Bearer resource_metadata="${app.canonicalOrigin}/.well-known/oauth-protected-resource/mcp"`;
- const raw=async(method,params,token,{version='2026-07-28',mismatch=false}={})=>{
-  const response=await fetch(app.origin+'/mcp',{method:'POST',headers:{
-   Origin:app.origin,'Content-Type':'application/json',Accept:'application/json, text/event-stream',
+ const raw=async(method,params,token,{version='2026-07-28',mismatch=false,query=''}={})=>{
+  const response=await fetch(app.origin+'/mcp'+query,{method:'POST',headers:{
+   Origin:app.origin,Connection:'close','Content-Type':'application/json',Accept:'application/json, text/event-stream',
    ...(token?{Authorization:'Bearer '+token}:{}),
    ...(version?{'MCP-Protocol-Version':version}:{}),
    'Mcp-Method':mismatch?'synthetic-spool-mismatch':method,
@@ -89,6 +89,26 @@ export async function identityContract(app){
    assert.equal(answer.body.result,undefined);
    assert.deepEqual(await snapshot(),before,`${kind} token changes no product record or approval`);
   }
+  for(const aud of ['https://synthetic-spool-sibling.invalid/mcp',app.canonicalOrigin+'/other']){
+   const answer=await raw('tools/call',{name:write.name,arguments:args},await accessToken(app.context,{aud}));
+   assert.equal(answer.status,401,'A signed token for a different canonical audience is refused');
+   assert.equal(answer.headers.get('www-authenticate'),challenge);
+   assert.deepEqual(await snapshot(),before,'Foreign audience changes no native record or approval');
+  }
+  console.log(`PROBE BASE-AGENT-004 2 ${phase}: signed foreign-audience tokens attempt native write -> 401 and unchanged product; current-audience read -> captured issue. Real sibling-seed delivery remains unqualified`);
+  const queryToken=await accessToken(app.context);
+  await app.json('/__fixture/log-probe');
+  assert.ok(app.logs.some(line=>line.includes('synthetic-spool-log-probe')),'The observer receives actual Worker console output');
+  for(const token of [null,readToken]){
+   const answer=await raw('tools/call',{name:write.name,arguments:args},token,{query:'?access_token='+encodeURIComponent(queryToken)});
+   assert.equal(answer.status,401,'A query token refuses even with a valid header');
+   assert.equal(answer.headers.get('www-authenticate'),challenge);
+   assert.equal(JSON.stringify(answer.body).includes(queryToken),false,'The challenge never reflects the query token');
+   assert.deepEqual(await snapshot(),before,'Query credentials change no native record or approval');
+  }
+  const logged=JSON.stringify({worker:app.logs,door:await app.json('/agents/api/audit'),native:await app.json('/api/audit')});
+  assert.equal(logged.includes(queryToken),false,'Worker console and native audit retain no query token');
+  console.log(`PROBE BASE-AGENT-004 5 ${phase}: query credentials alone and alongside a valid header -> 401, unchanged records and approvals, token absent from captured Worker console, native audit and response`);
   const bounded=await accessToken(app.context,{iat,exp:iat+900,scope:'spool:evidence'});
   assert.deepEqual(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},bounded)).items,read.items,'A still-valid token with a 900-second lifetime works');
   console.log(`PROBE BASE-AGENT-004 3 ${phase}: signed expired and 901-second tokens attempt native issue update -> 401 and unchanged records and approvals; valid 900-second scoped token -> captured issue`);
@@ -118,6 +138,59 @@ export async function identityContract(app){
   assert.equal(after[0].revision,before.issues[0].revision+1,'The valid control updates exactly once');
   assert.deepEqual(issueState(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},readToken)).items),issueState(after),'A read-only token can read the resulting native state');
   console.log(`PROBE BASE-AGENT-004 4 ${phase}: read-only token calls native issue update -> 403 insufficient_scope naming ${required}, unchanged product and approval state; exact-scope retry -> ${phase==='held'?'pending, native approval, ':''}suppressed exactly once`);
+  for(const boundary of ['seed','business']){
+   const consent='synthetic-spool-consent-'+phase+'-'+boundary;
+   const identity={consent,act:{sub:'synthetic-spool-agent-'+phase+'-'+boundary,name:'Synthetic Spool agent',specialist:app.context.surface.specialist}};
+   const token=await accessToken(app.context,identity);
+   assert.equal(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},token)).items[0].id,issue,'Consent is live before retirement');
+   const current=(await app.json(`/api/projects/${project}/issues`))[0];
+   const attempted={project,issue,state:'open',revision:current.revision,idempotency_key:randomUUID()};
+   const accepted=await raw('tools/call',{name:write.name,arguments:attempted},token);
+   let pending;
+   if(phase==='held'){
+    assert.equal(accepted.body.result.resultType,'input_required');
+    const ref=accepted.body.result._meta['com.runeditrun/approval'];
+    pending=(await app.json('/agents/api/approvals/'+ref.id)).approval;
+   }else assert.equal(done(accepted).state,'open');
+   const retiredState=await snapshot();
+   const started=Date.now();
+   if(boundary==='seed'){
+    const path='/agents/api/consents/'+encodeURIComponent(consent)+'/revoke';
+    for(const [headers,status] of [[{Cookie:''},401],[{Authorization:'Bearer '+token},403],[{Origin:'https://foreign.invalid'},403]]){
+     const refused=await app.request(path,'POST',{},headers);assert.equal(refused.status,status);await refused.body?.cancel();
+    }
+    assert.equal(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},token)).items[0].id,issue,'Unauthorized retirement does not revoke consent');
+    assert.deepEqual(await app.json(path,'POST',{}),{revoked:true});
+    assert.deepEqual(await app.json(path,'POST',{}),{revoked:true},'Retirement is idempotent');
+   }else await app.adopt(policy(),{revoked:{agents:[],consents:[consent]}});
+   for(const method of ['initialize','server/discover','tools/list','tools/call']){
+    const answer=await raw(method,method==='tools/call'?{name:write.name,arguments:attempted}:{},token);
+    assert.equal(answer.status,401,'Retired consent refuses the next MCP method');
+    assert.equal(answer.headers.get('www-authenticate'),challenge);
+   }
+   assert.ok(Date.now()-started<60000,'The receiving boundary refuses within sixty seconds');
+   assert.deepEqual((await snapshot()).issues,retiredState.issues,'Retired consent and replay change no native issue');
+   assert.deepEqual((await snapshot()).occurrences,retiredState.occurrences);
+   if(pending){
+    const response=await app.request('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:pending.revision,summary_sha256:pending.summary_sha256});
+    const result=await response.json();
+    if(boundary==='business'){
+     assert.equal(response.status,409);assert.equal(result.code,'approval_expired','Signed Business retirement expires its pending approval');
+    }else{
+     assert.equal(response.status,200);assert.equal(result.approval.state,'refused');assert.equal(result.approval.code,'sponsor_unavailable','Native retirement refuses held execution');
+    }
+    assert.deepEqual(await app.json(`/api/projects/${project}/issues`),retiredState.issues);
+   }
+   const other=await accessToken(app.context,{...identity,consent:'synthetic-spool-independent-'+phase+'-'+boundary});
+   assert.equal(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},other)).items[0].id,issue,'Independent consent for the same agent remains readable');
+   await app.restart();
+   assert.equal((await raw('tools/list',{},await accessToken(app.context,identity))).status,401,'Fresh tokens with retired consent remain refused after restart');
+   if(boundary==='seed'){
+    await app.adopt(policy());
+    assert.equal((await raw('tools/list',{},await accessToken(app.context,identity))).status,401,'A policy renewal cannot revive a locally retired consent');
+   }
+   console.log(`PROBE BASE-AGENT-004 6 ${phase} ${boundary}: ${boundary==='seed'?'owner-only native retirement':'signed Business revocation delivery'} -> next MCP methods and replay refused, held execution has no effect, independent consent works, retirement survives restart`);
+  }
  }
  await app.adopt(autonomousPolicy());
 }
