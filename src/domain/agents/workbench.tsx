@@ -17,7 +17,7 @@ export async function agentsWorkbench(request: Request, env: Bindings, response:
   const manage = session.operator.role === 'owner' || session.membership?.role === 'admin' || projects[0]?.role === 'maintainer';
   const sidebar = renderToStaticMarkup(<aside className="sidebar" aria-label="Project navigation">
     <div className="sidebar-brand"><div className="brand"><Wordmark /><p className="brand-tagline">JavaScript errors, in context</p></div></div>
-    <details className="agents-navigation"><summary>Menu</summary><nav className="navigation" aria-label="Workbench">{navigationDestinations(billing, manage).map(([view,label]) => <a key={view} href={hrefFor(project,view)} className={view === 'settings' ? 'mark-bar' : undefined} aria-current={view === 'settings' ? 'page' : undefined}>{label}</a>)}</nav></details>
+    <details className="agents-navigation" open><summary>Menu</summary><nav className="navigation" aria-label="Workbench">{navigationDestinations(billing, manage).map(([view,label]) => <a key={view} href={hrefFor(project,view)} className={view === 'settings' ? 'mark-bar' : undefined} aria-current={view === 'settings' ? 'page' : undefined}>{label}</a>)}</nav></details>
     <div className="team"><p>{session.operator.displayName}</p></div>
   </aside>);
   const summary = renderToStaticMarkup(<dl className="fields" data-paid-ai-summary><div><dt>Can agents use paid AI?</dt><dd>{spend === 'none' ? 'No' : spend === 'not_enforced' ? 'Yes — spend caps are not enforced by this app' : 'Not answered'}</dd></div></dl>);

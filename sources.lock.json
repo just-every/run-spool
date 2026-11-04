@@ -5550,7 +5550,7 @@
       "executable": false
     },
     "src/domain/agents/workbench.tsx": {
-      "sha256": "4001effd99f82d19cc0bf3cfb64c332f93927e283d9e8c92d8a0350ccaccfa39",
+      "sha256": "8f5aeaf6cc43479ea1e946a62ccd1dcf9c50b927fe247a6a2e41d44d3b38f833",
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
