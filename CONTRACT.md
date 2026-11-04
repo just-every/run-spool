@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1770,7 +1770,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-004` | Business identity and short-lived, audience-bound tokens | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-005` | An agent acts as a person in a role, never more | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-006` | Every action declares its risk class | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | partial | `tests/agent-door/policy-integrity-contract.mjs` policyIntegrityContract, invoked by `tests/agent-door.mjs`: acceptance 8's bad-signature component only. Separate autonomous and held emitted-Worker fixtures adopt a valid policy, reject an otherwise valid envelope signed by an untrusted generated key with typed policy_invalid, retain the complete stored sequence, revision, document and pending approvals, preserve native records and existing audit chronology with only the required refusal fact, and execute or hold the next scoped MCP call under the original revision; the identical replacement envelope succeeds with its trusted signature. | Acceptance 1–7 remain unqualified: complete per-tool and per-class dispositions, setup and upgrade completeness, monetary thresholds and daily caps, stricter multi-class decisions, approval facts and exact-revision completion with retry, rejection and expiry, cross-door parity, and policy-change timing with revision audit. Acceptance 8 still needs fully signed foreign-Business identity-binding refusal; the existing envelope and revision-signature mismatch probe supplies no broader identity claim. Existing Base, account, device and ct holds, queue scopes and release prerequisites remain unchanged. |
 | `BASE-AGENT-008` | Truthful attribution | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
