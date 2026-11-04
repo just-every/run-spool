@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 const method=(...parts)=>parts.join('/');
 
@@ -23,6 +24,9 @@ export function documentedToolContracts(html){
 /** Native emitted-Worker MCP and anonymous HTTP agree under independently adopted policies. */
 export async function docsContract(app){
  execFileSync(process.execPath,['scripts/agent-door/docs.mjs','--check'],{stdio:'pipe'});
+ execFileSync(process.execPath,['node_modules/@runeditrun/rer/bin/rer.mjs','build','--site'],{stdio:'pipe',timeout:120_000});
+ const staticHtml=readFileSync('dist/site/docs/agents.html','utf8');
+ const staticInventory=documentedInventory(staticHtml),staticContracts=documentedToolContracts(staticHtml);
  for(const [name,policy] of [['autonomous',autonomousPolicy()],['held',heldPolicy()]]){
   await app.adopt(policy);
   const response=await fetch(app.origin+'/docs/agents');assert.equal(response.status,200);
@@ -32,10 +36,14 @@ export async function docsContract(app){
   const tools=offered.map(tool=>tool.name).sort();
   const resources=(await app.mcp(method('resources','templates','list'))).resourceTemplates.map(resource=>resource.uriTemplate).sort();
   assert.deepEqual(documented.tools,tools,`${name}: complete documented and authenticated offered tool names agree`);
+  assert.deepEqual(staticInventory.tools,tools,`${name}: complete generated static and authenticated offered tool names agree`);
   const contracts=documentedToolContracts(html);
+  assert.deepEqual(staticContracts,contracts,`${name}: static publication retains every documented tool contract and proof link`);
   assert.deepEqual(contracts.map(({proofs,...contract})=>contract),offered.map(tool=>({name:tool.name,scope:tool._meta['com.runeditrun/scope'],classes:[...tool._meta['com.runeditrun/classes']].sort()})),`${name}: every documented scope and possible class agrees with the authenticated tool`);
   for(const tool of contracts.filter(tool=>tool.classes.length>1))assert.ok(tool.proofs.length>0&&tool.proofs.every(proof=>proof.journey&&new URL(proof.href,app.origin).pathname.endsWith('.mjs')),`${tool.name}: conditional classes link to a named proof journey`);
   assert.deepEqual(documented.resourceTemplates,resources,`${name}: complete documented and authenticated resource templates agree`);
+  assert.deepEqual(staticInventory.resourceTemplates,resources,`${name}: complete generated static and authenticated resource templates agree`);
+  assert.equal(staticInventory.resourceText,documented.resourceText,`${name}: static publication retains the unavailable resource explanation`);
   const discovery=await app.mcp(method('server','discover'));
   const declaration=discovery._meta['com.runeditrun/capabilities'];
   const instructions=discovery.instructions;
@@ -50,7 +58,7 @@ export async function docsContract(app){
   assert.deepEqual(resources,[]);assert.match(documented.resourceText,/Unavailable/);assert.match(documented.resourceText,/<code>\[\]<\/code>/);
   assert.ok(!documented.tools.some(tool=>tool.startsWith('spool.workers.')||tool==='spool.events.list'),'Internal workers and undeclared event tools are absent');
   assert.deepEqual((await app.mcp(method('prompts','list'))).prompts,[],'Dormant specialist adapters gain no offered prompt');
-  console.log(`PROBE BASE-AGENT-013 documentation parity (${name}): anonymous /docs/agents -> ${tools.length} exact authenticated tool names; unavailable resource templates []`);
+  console.log(`PROBE BASE-AGENT-013 documentation parity (${name}): anonymous /docs/agents and generated static guide -> ${tools.length} exact authenticated tool names; unavailable resource templates []`);
  }
  await app.adopt(autonomousPolicy());
 }
