@@ -11366,7 +11366,7 @@
       "executable": false
     },
     "tests/sign-in/local-member.mjs": {
-      "sha256": "e4d5f355ab577553651dbfbac072f7cae67d42f4c1919ba3e0d2b95be430b1d9",
+      "sha256": "e3083b48c4cdc2a6c0cc6e6a0f64d0dfb0c2e4b6844d78537fc4cecf87a9dc5a",
       "executable": false
     },
     "tests/slack-flow.mjs": {
