@@ -9,7 +9,7 @@ const done=answer=>{assert.ok(answer&&!answer.isError,code(answer)??'Missing res
 const fixture=()=> 'synthetic-spool-'+randomUUID();
 
 /** Populated native audit, review, filters and downloads through the emitted Worker. */
-export async function auditContract(app,screens){
+export async function auditContract(app,screens,{agents=[]}={}){
  const fixed=Date.parse('2026-11-04T12:00:00Z'),weekStart=Date.parse('2026-11-02T00:00:00Z');
  const project=fixture(),created=await app.json('/api/projects','POST',{id:project,name:'Audit fixture week'});
  await app.json('/api/projects/'+project+'/releases','POST',{name:'1.0.0',build:'web-1'});
@@ -17,10 +17,13 @@ export async function auditContract(app,screens){
  const email=fixture()+String.fromCharCode(64)+'spool.test',sub=fixture();
  const invited=await app.json('/api/organization/invites','POST',{email,name:'Audit member',role:'member',grants:[{project,role:'member'}]});
  const invitation=(await app.mail()).findLast(row=>row.to?.includes(email)),token=invitation?.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);
- const accepted=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(accepted.status,303);await accepted.body?.cancel();
+ const accepted=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(accepted.status,303);const memberCookie=accepted.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');assert.ok(memberCookie);await accepted.body?.cancel();
  await app.syncSettings([{id:sub,email,name:'Audit member',role:'member',invite:1}]);
  const member=(await app.json('/api/organization')).members.find(row=>row.id===invited.id);assert.ok(member);
  const priorNow=app.context.now;
+ // Native SQL transaction fences use the database clock. Keep signed fixture
+ // authority live there while the Worker clock fixes audit-week expectations.
+ const adopt=document=>app.adopt(document,{exp:Math.floor(Math.max(Date.now(),fixed)/1000)+3600});
  const clock=async at=>{app.context.now=()=>at;await app.setTime(at);};
  const browser=await chromium.launch({headless:true,...process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{},args:['--no-sandbox','--use-mock-keychain','--password-store=basic']});
  const context=await browser.newContext({viewport:{width:1440,height:1000},extraHTTPHeaders:{Cookie:app.cookie}}),page=await context.newPage();
@@ -30,14 +33,16 @@ export async function auditContract(app,screens){
    const claims={act:{sub:fixture(),name:'Audit engineer '+policy,specialist:'triage engineer'},consent:fixture()};subjects.push(claims.act.sub);
    const select='agent='+encodeURIComponent(claims.act.sub),read=()=>app.call('spool.issues.list',{project},claims);
    // A prior-week real call must not inflate this week's dashboard.
-   await clock(weekStart-3600000);await app.adopt(document);done(await read());
-   await clock(fixed);await app.adopt(document);
-   const initial=(await app.json('/api/projects/'+project+'/issues'))[0],trace=fixture(),key=fixture();
+   await clock(weekStart-3600000);await adopt(document);done(await read());
+   await clock(fixed);await adopt(document);
+   let initial=(await app.json('/api/projects/'+project+'/issues')).find(row=>row.count>0);assert.ok(initial);
+   if(initial.state!=='open'){await app.json('/api/projects/'+project+'/issues/'+initial.id,'PATCH',{state:'open',revision:initial.revision});initial=(await app.json('/api/projects/'+project+'/issues')).find(row=>row.id===initial.id);}
+   const trace=fixture(),key=fixture();
    const source=done(await app.call('spool.packets.read',{project,issue:initial.id},claims));
    const written=await app.mcp('tools/call',{name:'spool.proposals.create',arguments:{project,kind:'split',source:initial.id,revision:initial.revision,events:[source.events[0].id],variants:[{stack:JSON.stringify(source.events[0].event.frames),release:'1.0.0',route:''}],window:{start:source.events[0].received,end:source.events[0].received+1},rationale:'Audit-only inert suggestion',idempotency_key:key},_meta:{traceparent:trace}},claims);
    const proposal=done(written);assert.equal(proposal.state,'proposed');
    const complete=(await auditHistory(app,select)).rows.find(row=>row.idempotency_key===key);assert.ok(complete);
-   assert.deepEqual(complete.agent,claims.act);assert.equal(complete.client_id,'rer-agent-conformance');assert.equal(complete.consent,claims.consent);
+   assert.deepEqual(complete.agent,{id:claims.act.sub,name:claims.act.name,specialist:claims.act.specialist});assert.equal(complete.client_id,'rer-agent-conformance');assert.equal(complete.consent,claims.consent);
    assert.equal(complete.sponsor.name,'Dana Engineer');assert.ok(complete.sponsor.id);assert.equal(complete.label,claims.act.name+' for Dana Engineer');
    assert.equal(complete.tool,'spool.proposals.create');assert.deepEqual(complete.resource,{kind:'issue',id:initial.id});
    assert.ok(complete.id&&complete.operation_id);assert.ok(complete.scopes.includes('spool:propose'));
@@ -48,10 +53,10 @@ export async function auditContract(app,screens){
    assert.equal(complete.approval,null);assert.equal(complete.review?.id??null,written._meta?.['com.runeditrun/review']?.id??null);
    console.log('PROBE BASE-AGENT-009 acceptance-1 '+policy+': authenticated proposal write -> complete identity, sponsor, consent, scope, target, class facts, policy rule, decision, outcome, review, key and trace row');
    const before=await app.json('/api/projects/'+project+'/issues');
-   const blocked=autonomousPolicy();blocked.rules[0].do='blocked';await app.adopt(blocked);
+   const blocked=autonomousPolicy();blocked.rules[0].do='blocked';await adopt(blocked);
    assert.equal(code(await read()),'policy_blocked');
-   await app.adopt(null);assert.equal(code(await read()),'policy_unset');
-   await app.adopt(document);
+   await adopt(null);assert.equal(code(await read()),'policy_unset');
+   await adopt(document);
    const held=await app.call('spool.issues.update',{project,issue:initial.id,revision:initial.revision,state:'suppressed',idempotency_key:fixture()},claims);
    if(policy==='held'){
     assert.equal(code(held),'approval_required');assert.deepEqual(await app.json('/api/projects/'+project+'/issues'),before);
@@ -60,7 +65,7 @@ export async function auditContract(app,screens){
     const approved=(await auditHistory(app,select)).rows.filter(row=>row.approval?.id===pending.id);
     assert.deepEqual(approved.map(row=>row.outcome),['pending','done']);for(const row of approved)assert.deepEqual(row.approval.by,[complete.sponsor.id]);
    }else assert.equal(done(held).state,'suppressed');
-   assert.equal((await app.json('/api/projects/'+project+'/issues'))[0].state,'suppressed');
+   assert.equal((await app.json('/api/projects/'+project+'/issues')).find(row=>row.id===initial.id).state,'suppressed');
    const scoped={sub,email,act:{sub:fixture(),name:'Audit member agent '+policy,specialist:'triage engineer'},consent:fixture()};subjects.push(scoped.act.sub);
    const escalated=await app.call('spool.access.update',{id:member.operator_id,version:member.version,role:'admin',grants:[],idempotency_key:fixture()},scoped);
    assert.equal(code(escalated),'self_escalation');
@@ -69,9 +74,9 @@ export async function auditContract(app,screens){
    const rows=(await auditHistory(app,select)).rows;
    for(const [decision,outcome] of [['blocked','refused'],['unset','refused'],...(policy==='held'?[['approval','pending']]:[])])assert.ok(rows.some(row=>row.decision===decision&&row.outcome===outcome));
    console.log('PROBE BASE-AGENT-009 acceptance-2 '+policy+': blocked, unset, held write and member escalation -> retained truthful refusals and pending audit; unsafe calls preserve native state');
-   await app.adopt(document);
+   await adopt(document);
    // Reversible native grouping is a review call under the held policy.
-   const issue=(await app.json('/api/projects/'+project+'/issues'))[0],packet=done(await app.call('spool.packets.read',{project,issue:issue.id},claims));
+   const issue=(await app.json('/api/projects/'+project+'/issues')).find(row=>row.count>0),packet=done(await app.call('spool.packets.read',{project,issue:issue.id},claims));
    const preview=done(await app.call('spool.grouping.preview',{project,kind:'split',source:issue.id,revision:issue.revision,events:[packet.events[0].id],idempotency_key:fixture()},claims));
    const membershipBefore=await app.json('/api/projects/'+project+'/issues');
    const applied=await app.call('spool.grouping.apply',{project,id:preview.id,idempotency_key:fixture()},claims);done(applied);
@@ -89,10 +94,13 @@ export async function auditContract(app,screens){
     await flagged.getByRole('button',{name:'Flag',exact:true}).click();await page.waitForLoadState('networkidle');
     assert.equal((await app.json('/agents/api/reviews')).reviews.find(row=>row.id===applied._meta['com.runeditrun/review'].id).state,'flagged');
     await page.locator('[data-review-id="'+applied._meta['com.runeditrun/review'].id+'"]').getByRole('button',{name:'Undo',exact:true}).click();await page.waitForLoadState('networkidle');
-    assert.deepEqual(await app.json('/api/projects/'+project+'/issues'),membershipBefore,'Person Undo restores native issue aggregates and membership');
+    const restored=await app.json('/api/projects/'+project+'/issues');
+    for(const prior of membershipBefore){const current=restored.find(row=>row.id===prior.id);assert.ok(current);assert.equal(current.count,prior.count);assert.equal(current.state,prior.state);}
+    const restoredPacket=await app.json('/api/projects/'+project+'/issues/'+issue.id+'/packet');
+    assert.deepEqual(restoredPacket.events.map(row=>row.id).sort(),packet.events.map(row=>row.id).sort(),'Person Undo restores exact event membership');
     assert.equal((await app.json('/agents/api/reviews')).reviews.find(row=>row.id===applied._meta['com.runeditrun/review'].id).marked_by,complete.sponsor.id);
     assert.equal((await auditHistory(app,select)).rows.find(row=>row.id===complete.id).review.by,complete.sponsor.id);
-   }else assert.ok(!(await app.json('/agents/api/reviews')).reviews.some(row=>row.decision_id===complete.id),'Autonomous writes create no review');
+   }else{assert.ok(!(await app.json('/agents/api/reviews')).reviews.some(row=>row.decision_id===complete.id),'Autonomous writes create no review');await app.json('/api/projects/'+project+'/corrections/'+preview.id+'/undo','POST',{confirm:true});}
    console.log('PROBE BASE-AGENT-009 acceptance-4 '+policy+': native review feed and person controls -> exact review membership; held Mark reviewed, Flag and reversible Undo preserve real person attribution');
    await page.goto(app.origin+'/agents?'+select);
    const audit=(await auditHistory(app,select)).rows,counts=new Map();
@@ -101,14 +109,16 @@ export async function auditContract(app,screens){
    const displayed=await page.locator('[data-agents-count]').evaluateAll(nodes=>nodes.map(node=>[node.dataset.class+':'+node.dataset.decision,Number(node.textContent)]));
    assert.deepEqual(displayed.sort(),[...counts].sort(),'Fixture-week counts reconcile with public audit, including refusals and approvals');
    console.log('PROBE BASE-AGENT-009 acceptance-3 '+policy+': Agents fixture-week counts -> exact class and decision totals; earlier week excluded');
-   assert.ok(audit.length);await page.getByLabel('Class',{exact:true}).selectOption('standard');await page.getByRole('button',{name:'Filter activity'}).click();await page.waitForLoadState('networkidle');
+   assert.ok(audit.length);await page.getByLabel('Class',{exact:true}).focus();await page.keyboard.press('Home');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');assert.equal(await page.getByLabel('Class',{exact:true}).inputValue(),'standard');await page.getByRole('button',{name:'Filter activity'}).click();await page.waitForLoadState('networkidle');
    const filtered=audit.filter(row=>row.classes.some(item=>item.class==='standard'));
+   const filteredReviews=(await app.json('/agents/api/reviews?'+select+'&class=standard')).reviews;
+   assert.deepEqual(await page.locator('[data-review-id]').evaluateAll(nodes=>nodes.map(node=>node.dataset.reviewId)),filteredReviews.filter(row=>['open','flagged'].includes(row.state)).map(row=>row.id),'Agent and Class filters also constrain the visible review feed');
    assert.deepEqual(await page.locator('[data-audit-id]').evaluateAll(nodes=>nodes.map(n=>n.dataset.auditId)),filtered.slice(-20).reverse().map(row=>row.id));
    assert.ok((await page.locator('[data-audit-agent]').evaluateAll(nodes=>nodes.map(n=>n.dataset.auditAgent))).every(id=>id===claims.act.sub));
    const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('link',{name:'Export JSON'}).click()]);
    const stream=await download.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
    assert.deepEqual(JSON.parse(Buffer.concat(chunks).toString()),filtered,'The actual downloaded export retains every visible audit field');
-   await screens.capture('agents-audit-'+policy,'/agents?'+select,'Audit engineer '+policy);
+   await screens.capture('agents-audit-'+policy,'/agents?'+select,undefined,page=>page.locator('[data-audit-id]').first().waitFor());
    console.log('PROBE BASE-AGENT-009 acceptance-5 '+policy+': native Agent and Class filters and browser download -> matching rows only; every visible field preserved');
    console.log('PROBE BASE-AGENT-009 acceptance-7 '+policy+': populated Agents screen -> 1440 Axe and keyboard form; 1440 and 390 browser proof');
   }
@@ -123,8 +133,20 @@ export async function auditContract(app,screens){
   assert.deepEqual((await auditHistory(app,'agent='+subjects[0])).rows,all.filter(row=>row.agent.id===subjects[0]));
   assert.deepEqual(await app.json('/agents/api/audit/export?agent='+fixture()),[],'An unmatched export is an empty JSON array');
   const anonymous=await app.request('/agents/api/audit/export','GET',undefined,{Cookie:''});assert.equal(anonymous.status,401);await anonymous.body?.cancel();
+  const memberExport=await app.request('/agents/api/audit/export','GET',undefined,{Cookie:memberCookie});assert.equal(memberExport.status,403);await memberExport.body?.cancel();
+  assert.ok(!JSON.stringify(all).includes(created.ingestKey),'Audit exports never include the raw project credential');
   const bearer=await app.request('/agents/api/audit/export','GET',undefined,{Cookie:'',Authorization:'Bearer '+created.ingestKey});assert.equal(bearer.status,403);await bearer.body?.cancel();
   assert.deepEqual(await app.json('/agents/api/audit/export'),all,'Refused export callers cannot modify audit history');
+  const reviewPages=[],reviewIds=[];let after='';
+  do{const result=await app.json('/agents/api/reviews?after='+encodeURIComponent(after));reviewPages.push(result);reviewIds.push(...result.reviews.map(row=>row.id));after=result.cursor;}while(after);
+  assert.ok(reviewPages.length>1,'Populated review history crosses the native page limit');
+  const ownedAgents=new Set([...agents,...subjects]);
+  const completedReviews=all.filter(row=>ownedAgents.has(row.agent.id)&&row.decision==='review'&&row.outcome==='done'&&row.review);
+  assert.ok(completedReviews.length>200,'The authorized fixture has more than one page of real review decisions');
+  for(const row of completedReviews)assert.ok(reviewIds.includes(row.review.id),'Every completed review call remains reachable in the paginated feed');
+  assert.equal(new Set(reviewIds).size,reviewIds.length);
+  await page.goto(app.origin+'/agents');await page.getByRole('link',{name:'Earlier reviews'}).click();
+  assert.deepEqual(await page.locator('[data-review-id]').evaluateAll(nodes=>nodes.map(node=>node.dataset.reviewId)),reviewPages[1].reviews.filter(row=>['open','flagged'].includes(row.state)).map(row=>row.id),'The browser reaches earlier review decisions without truncation');
  }finally{
   await browser.close();app.context.now=priorNow;await app.setTime(Date.now());await app.adopt();
  }

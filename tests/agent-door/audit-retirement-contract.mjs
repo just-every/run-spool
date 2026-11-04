@@ -25,6 +25,7 @@ export async function auditHistory(app,selectors=''){
 
 /** Retiring native agent authority preserves populated history under both policies. */
 export async function auditRetirementContract(app){
+ const agents=[];
  const done=answer=>{assert.ok(answer&&!answer.isError,answer?._meta?.['com.runeditrun/error']?.code??'Missing result');return answer.structuredContent;};
  for(const [policy,document] of [['autonomous',autonomousPolicy()],['held',heldPolicy()]]){
   await app.adopt(document);
@@ -34,6 +35,7 @@ export async function auditRetirementContract(app){
   const capture=await app.json('/api/ingest/'+project,'POST',{version:1,eventId:'synthetic-spool-'+randomUUID(),release:'1.0.0',build:'web-1',environment:'production',type:'TypeError',message:'Retained retirement evidence',frames:[{file:'https://checkout.example/app.js',line:1,column:0,function:'total'}],breadcrumbs:[]},{Cookie:'',Authorization:'Bearer '+created.ingestKey});
   const retired={act:{sub:'synthetic-spool-'+randomUUID(),name:'Retired triage '+policy,specialist:'triage engineer'},consent:'synthetic-spool-'+randomUUID()};
   const peer={act:{sub:'synthetic-spool-'+randomUUID(),name:'Continuing triage '+policy,specialist:'triage engineer'},consent:'synthetic-spool-'+randomUUID()};
+  agents.push(retired.act.sub,peer.act.sub);
   const read=claims=>app.call('spool.issues.list',{project},claims);
   // Cross the native audit page boundary with real authenticated private reads.
   for(let i=0;i<205;i++)assert.deepEqual(done(await read(retired)).items.map(row=>row.id),[capture.issue]);
@@ -79,4 +81,5 @@ export async function auditRetirementContract(app){
   console.log('PROBE BASE-AGENT-009 acceptance-6 '+policy+': native paginated audit and signed-in revoke -> '+retiredRows.length+' prior agent rows unchanged across '+before.pages+' pages; fresh call and list tokens refused; current person and peer access retained');
  }
  await app.adopt();
+ return {agents};
 }

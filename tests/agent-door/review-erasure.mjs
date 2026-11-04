@@ -20,6 +20,9 @@ export async function reviewErasureFlow(app,screens){
  const applied=await app.call('spool.grouping.apply',{project,id:preview.id,idempotency_key:randomUUID()});done(applied);
  const review=applied._meta['com.runeditrun/review'];assert.ok(review?.id);
  await app.adopt(autonomousPolicy(),{paused:true});
+ const unauthorizedUndo=await app.request('/agents/api/reviews/'+review.id+'/undo','POST',{});
+ assert.equal(unauthorizedUndo.status,403,'An owner outside the named reviewers cannot Undo their review');await unauthorizedUndo.body?.cancel();
+ assert.equal((await app.json(`/api/projects/${project}/corrections`)).find(row=>row.id===preview.id).state,'applied','Refused reviewer authority leaves the native correction intact');
  const undone=await app.json('/agents/api/reviews/'+review.id+'/undo','POST',{}, {Cookie:cookie});assert.equal(undone.review.state,'undone','The current person can perform native Undo while agents are paused');
  assert.equal((await app.json(`/api/projects/${project}/corrections`)).find(r=>r.id===preview.id).state,'undone');
  const activity=(await app.json(`/api/projects/${project}/operator-state`)).audit;
