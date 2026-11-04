@@ -15,6 +15,7 @@ import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
+import {annotationContract} from './agent-door/annotation-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await nativeSetup();
@@ -35,6 +36,7 @@ try{
  const discovery=await app.mcp('server/discover');
  assert.deepEqual(discovery._meta['com.runeditrun/capabilities'],{mode:'declared',declared:['tools','policy','pause','audit','idempotency'],refused:['events','resources','prompts','subscriptions'],unscoped:['multiSponsor','mailEdges','resourceRefresh','timedLifecycle','dualHost','queuedLifecycle','ownerNativeApi']});
  const listed=(await app.mcp('tools/list')).tools;for(const tool of listed)ToolSchema.parse(tool);
+ await annotationContract(app);
  console.log('Catalogue acknowledgement probe: '+JSON.stringify(ack.door.classes.map(row=>({class:row.class,acknowledged:row.tools.length,declared:listed.filter(tool=>tool._meta?.['com.runeditrun/classes']?.includes(row.class)).length}))));
  const names=listed.map(t=>t.name);assert.deepEqual(names,[...names].sort());assert.equal(new Set(names).size,names.length);
  for(const version of ['2025-11-25','2026-07-28'])assert.equal((await app.mcp('initialize',{protocolVersion:version,capabilities:{},clientInfo:{name:'Spool engineer',version:'1'}},{},version)).protocolVersion,version);
