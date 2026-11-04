@@ -22,7 +22,7 @@ export function SettingsSections({ children }: { children: Record<Section, React
       const next = event.key === 'ArrowRight' ? (index + 1) % sections.length : event.key === 'ArrowLeft' ? (index + sections.length - 1) % sections.length : event.key === 'Home' ? 0 : event.key === 'End' ? sections.length - 1 : null;
       if (next !== null) { event.preventDefault(); choose(sections[next][0]); document.getElementById(`settings-tab-${sections[next][0]}`)?.focus(); }
     }}>{label}</button>)}</div>
-    <label className="form-field settings-section-picker">Settings section<select value={selected} onChange={event => choose(event.target.value as Section)}>{sections.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
+    <label className="form-field settings-section-picker">Settings section<select aria-label="Settings section" value={selected} onChange={event => choose(event.target.value as Section)}>{sections.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
     {sections.map(([id, label]) => <div key={id} className="settings-section" role="tabpanel" id={`settings-panel-${id}`} aria-label={label} hidden={selected !== id}>{children[id]}</div>)}
   </div>;
 }

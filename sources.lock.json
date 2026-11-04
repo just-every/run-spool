@@ -10326,7 +10326,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsSections.tsx": {
-      "sha256": "190b5307578bf89eb28cdd9a974a88ec15f71cc6bcf8ff6e6ad07e89fbdabbbf",
+      "sha256": "cf2ef9d1bb15597e412ed735aa7f235cf2b9112a8252d37332ef224b4518f233",
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
@@ -10490,7 +10490,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "31ac55d00be7167f47b235828c05aa81b864e7aecc9012c287a072c4d565d6cd",
+      "sha256": "cdacfd13c80c26216348443911935f7f6bbaf60b36b24255219b5b9280e001ec",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
