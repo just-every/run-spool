@@ -16,13 +16,15 @@ export async function nativeWorker(app,{project,ingestKey,destination}){
  const preview=done(await app.call('spool.alerts.preview',{...args,idempotency_key:randomUUID()}));
  done(await app.call('spool.alerts.update',{...args,previewToken:preview.token,idempotency_key:randomUUID()}));
  const capture=async name=>app.json('/api/ingest/'+project,'POST',{version:1,eventId:randomUUID(),release:'1.0.0',build:'web-1',environment:'production',type:name,message:name,frames:[{file:'https://checkout.example/worker.js',line:1,column:0,function:name}],breadcrumbs:[]},{Authorization:'Bearer '+ingestKey});
- await capture('StandingNativeFirst');
  await app.adopt(autonomousPolicy(),{paused:true});
  const before=(await app.mail()).length;
  const auditBefore=new Set((await workerAudit()).map(row=>row.id));
+ await capture('StandingNativeFirst');
+ assert.equal((await app.mail()).length,before,'Pause refuses the immediate native worker before any delivery');
  await app.schedule(Date.now()+120000);
  assert.equal((await app.mail()).length,before,'Pause stops the real agent-configured worker before mail');
  const jobs=(await app.DB.prepare('SELECT j.id,j.state FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.rule_id=?').bind(created.id).all()).results;assert.ok(jobs.length,'Native capture created real durable delivery jobs');
+ assert.ok(jobs.every(job=>job.state==='queued'),'Paused delivery jobs remain queued for the resumed native worker');
  await app.adopt();await app.schedule(Date.now()+180000);
  const delivered=(await app.mail()).filter(message=>jobs.some(job=>job.id===message.deliveryId));
  assert.equal(delivered.length,1,'A resumed native worker executes through its retained admission');
@@ -30,7 +32,7 @@ export async function nativeWorker(app,{project,ingestKey,destination}){
  const audit=(await workerAudit()).filter(row=>!auditBefore.has(row.id));
  for(const [outcome,code] of [['refused','agents_paused'],['done',null]]){
   const row=audit.find(row=>row.outcome===outcome&&row.code===code&&jobs.some(job=>job.id===row.resource?.id));
-  assert.ok(row,'The real standing worker records '+outcome+' through its registry tool');
+  assert.ok(row,'The real standing worker records '+outcome+' through its registry tool: '+JSON.stringify(audit.map(({door,outcome,code,resource,classes})=>({door,outcome,code,resource,classes}))));
   assert.equal(row.door,'embedded');assert.equal(row.agent.id,app.context.agentId);
   assert.equal(row.consent,app.context.consent);assert.ok(row.sponsor.id);
   assert.deepEqual(row.classes.map(item=>item.class).sort(),['external','live']);

@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8f18d442b4aa28b7abddce6b8c7549246dcbbc62a5cf8a64a4a9cda73fa607b3",
+      "sha256": "67a9cf0729c6fafcd2140937039747c49b1e231231bddf668e8de54d3c1ca07c",
       "executable": false
     },
     "DEMO.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "fcb3b96b69d89cb7a344c1de458e5d8d429729faad0a5623b26790adf462066d",
       "executable": false
     },
     "docs/agents.md": {
@@ -6250,7 +6250,7 @@
       "executable": false
     },
     "src/domain/native-refusal.ts": {
-      "sha256": "93d490648ab89a185412bf75576bfefbf56f335eb811725504669829bf8fbcae",
+      "sha256": "35aab60dd4158f0c1f399784a60f42d9e102c234457b573e67400d0dda91ddc4",
       "executable": false
     },
     "src/domain/native-wire.ts": {
@@ -10354,7 +10354,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "44e944521027793481d697f80662e0c5f68f40b27e40079085e23d64f2980d81",
+      "sha256": "2e260fed849de479ccc8d1226df9bfec36c156d2f82c305bd414b164ba0c3b24",
       "executable": false
     },
     "tests/agent-door/action-contract.mjs": {
@@ -10442,7 +10442,7 @@
       "executable": false
     },
     "tests/agent-door/worker.mjs": {
-      "sha256": "647a0a734784e3e1faa879a82753e5eb19a04124c409456d72fe8884a72ffee7",
+      "sha256": "807e8eb2422100c7e635b046ebbe11ea84f4de1764bcb9cba9e33e5a2e5716d7",
       "executable": false
     },
     "tests/agent-handoff.mjs": {

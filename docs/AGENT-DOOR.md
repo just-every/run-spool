@@ -156,6 +156,14 @@ Private reads are policy decisions. Native person and agent changes retain
 internal resource events; their public event and subscription doors are not yet
 offered by this Core declaration.
 
+Native business refusals that previously had only prose expose a stable `code`
+in the JSON response used by the person action and in the tool's error metadata.
+Existing machine-readable `error` bodies stay unchanged. Stale revisions use
+`revision_conflict`; missing or inaccessible records use `not_found`. The
+person's human-readable `error` remains available. Native transaction history
+keeps the same action, subject and project alias for person and tool writes,
+with the actual actor recorded separately.
+
 Spool exposes no money-moving, payment, merge, deployment or general shell tool.
 Provider cost is not money moved. Base provider spend caps are not enforced:
 local cap saves are refused and adopted Business caps are marked `not_enforced`.

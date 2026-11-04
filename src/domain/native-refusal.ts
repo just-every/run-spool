@@ -19,6 +19,8 @@ export async function nativeRefusalResponse(response: Response): Promise<Respons
  let value;
  try { value=await response.clone().json() as Record<string,unknown>; } catch { return response; }
  if (!value || typeof value.error!=='string' || value.code!==undefined) return response;
+ // Existing machine-readable error bodies are already public contracts.
+ if (/^[a-z][a-z0-9_]{0,99}$/.test(value.error)) return response;
  const headers=new Headers(response.headers);headers.delete('content-length');
  return Response.json({...value,code:nativeRefusalCode(response.status,value)}, {status:response.status,headers});
 }
