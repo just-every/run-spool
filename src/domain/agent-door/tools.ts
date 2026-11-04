@@ -156,7 +156,8 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
   if(name==='spool.credentials.update'){tool.widens=false;tool.narrowing={effect:'revoke',target:'id'};}
   const revisions:Record<string,[string,string,string]>={issue:['issues','id','revision'],'access-member':['spool_members','id','version'],'fix-advance':['fix_workflows','id','revision'],'repair-check':['repairs','id','revision'],'repair-fact':['repairs','id','revision'],alert:['alert_rules','id','revision'],followup:['follow_up_settings','project','revision'],retention:['retention_policies','project','revision']};
   if(!readOnly&&revisions[route])tool.revision=async a=>{
-   const [table,key,column]=revisions[route];return (await env.DB.prepare(`SELECT ${column} AS revision FROM ${table} WHERE ${key}=?${['spool_members'].includes(table)?'':' AND project=?'}`).bind(key==='project'?a.project:a.id??a.issue,...table==='spool_members'?[]:[a.project]).first<{revision:number}>())?.revision??null;
+   if(route==='access-member')return (await member(env,String(a.id)))?.version??null;
+   const [table,key,column]=revisions[route];return (await env.DB.prepare(`SELECT ${column} AS revision FROM ${table} WHERE ${key}=? AND project=?`).bind(key==='project'?a.project:a.id??a.issue,a.project).first<{revision:number}>())?.revision??(['followup','retention'].includes(route)?0:null);
   };
   return tool;
  });

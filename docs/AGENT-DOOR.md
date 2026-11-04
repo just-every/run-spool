@@ -49,6 +49,16 @@ Pause, revocation or native narrowing can stop it before execution. A different
 agent or consent cannot take over its queued run or erasure continuation; a
 current person retains native completion authority.
 
+Queued reproduction and project-erasure results include a `job` handle with
+the status tool and its exact arguments. Use `spool.reproducers.status` for
+queued, claimed, expired or finished runs, and `spool.privacy.status` for the
+count-only erasure receipt. These reads recheck current project or owner
+authority, the originating native person, agent and consent, and company policy.
+Another person's token sees `not_found`, including when that person can read
+the project. Status contains no runner token or source modules. A saved retry
+returns the original accepted handle; status reads the current native result.
+These ordinary tools do not require the Tasks extension.
+
 An existing GitHub App connection and a person's exact native repository grant
 are required for the fix workflow. `spool.fixes.advance` requests native
 `repository_grant` proof. The person approves the saved grant on the issue's
@@ -143,6 +153,14 @@ and are refused by the deployed entry. A failed Business JWT never falls back
 to a project key.
 
 Retry a supported mutation with its original arguments and idempotency key.
+A repeated accepted call retains its first result for the original 30-day
+completion horizon, including after a lost response. Changing a declared argument
+with the same key returns `idempotency_conflict` without another effect.
+Revision-bearing targets accept `expected_revision`; a stale value returns
+`revision_conflict` with `current_revision`, including revision zero for
+an unconfigured follow-up or retention policy. Current Pause, policy, scopes,
+native authority, consent revocation and erasure still take precedence over
+returning private saved content.
 A fresh key asks for a new operation; it does not reset a single-use runner
 claim, reapply an already applied correction or bypass a destination's send
 window. The revoke-only credential tool has a closed target-only schema:

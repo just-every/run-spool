@@ -37,7 +37,7 @@ export async function eraseNativeAgentArtifacts(db:D1Database,secret:string,kind
 export async function nativeErasureFence(db:D1Database,_name:string,args:Record<string,unknown>) {
  // Native erasure management returns count-only receipts and must remain
  // resumable. Other doors cannot capture a subject during its native operation.
- if(['privacy','erasure-resume'].includes(String(catalogue.find(tool=>tool.name===_name)?.route??'')))return false;
+ if(['privacy','erasure-resume','erasure-status'].includes(String(catalogue.find(tool=>tool.name===_name)?.route??'')))return false;
  return !!await db.prepare(`SELECT 1 FROM rer_erasure_operations WHERE phase='deleting' AND
  (entity='installation-owner' OR (entity='project' AND (? IS NULL OR json_extract(subject,'$.id')=? OR EXISTS(SELECT 1 FROM rer_erasure_scope s WHERE s.operation=rer_erasure_operations.id AND json_extract(s.key_json,'$.id')=?)))) LIMIT 1`).bind(typeof args.project==='string'?args.project:null,typeof args.project==='string'?args.project:null,typeof args.id==='string'?args.id:null).first();
 }

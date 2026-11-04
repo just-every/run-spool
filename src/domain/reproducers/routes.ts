@@ -3,7 +3,7 @@ import { hash, identity, token } from '../privacy';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { classify } from './classify';
 import { mapModules, recorded, RUN_TOKEN_MS } from './sandbox';
-import { issueReproducers, reproducerView } from './view';
+import { issueReproducers, reproducerView, runView } from './view';
 
 // Owner routes: record a reproducer for a captured event and issue single-use
 // run tokens. Nothing here executes code; runs happen in the runner sandbox.
@@ -17,6 +17,22 @@ routes.get('/', async c => {
  const issue = c.req.query('issue'), project = c.req.param('project')!;
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
  return c.json({ reproducers: await issueReproducers(c.env.DB, project, issue) });
+});
+
+// A job handle is private to its current originating person, agent and consent.
+// Native people keep their ordinary project access; no runner token is exposed.
+routes.get('/runs/:run', async c => {
+ const project=c.req.param('project')!,id=c.req.param('run');
+ const row=await s(c.env.DB,'SELECT * FROM reproducer_runs WHERE project=? AND id=?',project,id).first<any>();
+ if(!row)return c.json({error:'Run not found'},404);
+ const actor=agentAuthority(c.req.raw);
+ if(actor){
+  const saved=await s(c.env.DB,"SELECT principal FROM spool_agent_custody WHERE kind='reproducer' AND id=? AND project=?",id,project).first<{principal:string}>();
+  const principal=saved?JSON.parse(saved.principal):null;
+  if(!principal||principal.person.id!==actor.context.person.id||principal.agent.id!==actor.context.agent.id||principal.consent!==actor.context.consent)return c.json({error:'Run not found'},404);
+ }
+ const {state,outcome,reason,created,expires,claimed,finished}=runView(row);
+ return c.json({id,state,outcome,reason,created,expires,claimed,finished});
 });
 
 routes.post('/', async c => {
