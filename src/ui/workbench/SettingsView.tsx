@@ -1,3 +1,4 @@
+import { RuleMergeSuggestions } from './RuleMergeSuggestions';
 import { ProjectKeys } from './ProjectKeys';
 import { SettingsSections } from './SettingsSections';
 import {PersonalNotifications} from './PersonalNotifications';
@@ -51,6 +52,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
     grouping: <>
     {!!project&&configure&&<GroupingRules key={`grouping:${project}`} {...{project,request,run,busy}} approvedPreview={rulePreview?.project===project?rulePreview.preview:null} onSaved={()=>{setProposalVersion(value=>value+1);refresh();}}/>}
     {!!project&&configure&&<GroupingProposals key={`proposals:${project}`} {...{project,request,run,busy,refresh}} refreshVersion={proposalVersion} onRulePreview={preview=>setRulePreview({project,preview})}/>}
+    {!!project&&configure&&<RuleMergeSuggestions {...{project,request,run,busy,refresh}} version={proposalVersion}/>}
     {!!project&&configure&&<RecurrencePolicy key={`recurrence:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<ReleasePolicy key={`release-policy:${project}`} {...{project,request,run,busy}}/>}
     {!!project&&configure&&<CommitSharing key={`commit-sharing:${project}`} {...{project,request,run,busy}}/>}

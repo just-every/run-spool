@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { RuleMergeSuggestions } from './RuleMergeSuggestions';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
 import { date, Field, type Request, type Run } from './shared';
@@ -158,6 +159,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         <Field label="Merge into issue ID" disabled={busy || !ready} value={target} onChange={event => setTarget(event.target.value)} />
         <button className="text-button" disabled={busy || !ready || !target} onClick={() => void createPreview('merge')}>Preview issue merge</button>
         {preview && <CorrectionReview preview={preview} busy={busy} onApply={applyPreview} onCancel={() => setPreview(null)} />}
+        <RuleMergeSuggestions {...{project,request,run,busy,refresh}} source={issue.id} version={issue.revision} />
         <CorrectionHistory entries={history} issueId={issue.id} busy={busy} onUndo={undoCorrection} />
       </Details>
 

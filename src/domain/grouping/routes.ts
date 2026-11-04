@@ -1,3 +1,4 @@
+import { ruleMergeSuggestions } from './merge-suggestions';
 import { ruleProposalStatements } from '../proposals/lifecycle';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerProjectRouter,ownerWrites,jsonBody } from '../owner-router';
@@ -9,6 +10,7 @@ import { validateGroupingPolicy } from './rules';
 export const groupingRoutes=ownerProjectRouter();
 groupingRoutes.onError((error,c)=>{if(error instanceof AuthError)return c.json({error:error.code},error.status as any);throw error});
 groupingRoutes.get('/',async c=>c.json(await readGroupingPolicy(c.env.DB,c.req.param('project')!)));
+groupingRoutes.get('/merge-suggestions',async c=>c.json(await ruleMergeSuggestions(c.env.DB,c.req.param('project')!,c.req.query('issue'))));
 groupingRoutes.get('/versions',async c=>{
  const rows=await c.env.DB.prepare("SELECT detail,created FROM audit WHERE project=? AND kind='grouping_rules_changed' ORDER BY json_extract(detail,'$.revision')").bind(c.req.param('project')!).all<any>();
  const versions=rows.results.map(row=>({...JSON.parse(row.detail),activated:row.created}));

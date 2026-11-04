@@ -138,6 +138,24 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const rule=await propose('rule');await review(rule);await proposalReview.getByRole('button',{name:'Approve proposal and open preview',exact:true}).click();
  await page.getByText('Approved agent rule proposal opened for review. Apply grouping rules explicitly to change later intake.',{exact:true}).waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'approved');await capture('grouping-rule-approved');
  await page.getByRole('button',{name:'Apply grouping rules',exact:true}).click();await page.locator('.save-mark[data-state="saved"]').waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'applied');await capture('grouping-rule-applied');
+ // A later matching error creates a future group; the applied rule offers an explicit merge.
+ const liveEvent=(await api(`${root}/issues/${issue}/packet`)).events[0].event;
+ const captured=await api(root+'/keys','POST',{kind:'ingest'});
+ const admission=await fetch(origin+'/api/ingest/'+project,{method:'POST',headers:{Authorization:'Bearer '+captured.key,'Content-Type':'application/json'},body:JSON.stringify({...liveEvent,eventId:'synthetic-spool-rule-next-'+crypto.randomUUID()})});
+ assert.equal(admission.status,201);const newGroup=await admission.json();assert.notEqual(newGroup.issue,issue);
+ await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+ const suggestions=await api(root+'/grouping-rules/merge-suggestions');
+ const offered=suggestions.find(row=>row.source.id===issue&&row.target?.id===newGroup.issue);assert.ok(offered,'The applied rule links the old group to the next capture group');
+ await page.getByRole('button',{name:'Review merge into '+offered.target.short_id,exact:true}).first().click();
+ const mergeDialog=page.getByRole('dialog',{name:'Merge '+offered.source.short_id+' into '+offered.target.short_id,exact:true});
+ await mergeDialog.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();await capture('grouping-rule-merge-offer');
+ await mergeDialog.getByRole('button',{name:'Apply reviewed correction',exact:true}).click();
+ await page.waitForFunction(()=>!document.querySelector('.rule-merge-suggestions'));
+ assert.equal((await api(root+'/issues/'+newGroup.issue+'/packet')).issue.count,offered.source.count+offered.target.count);
+ assert.equal((await api(root+'/issues')).some(row=>row.id===issue),false,'Only the surviving group remains in the issue list');
+ // Preserve the existing rollback proof by undoing the reviewed correction first.
+ const appliedMerge=(await api(root+'/corrections')).find(row=>row.kind==='merge'&&row.state==='applied'&&row.plan.target===newGroup.issue);
+ await api(root+'/corrections/'+appliedMerge.id+'/undo','POST',{confirm:true});await page.reload();
  await page.getByLabel('Previous grouping policy',{exact:true}).selectOption('0');await page.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await page.getByText('Grouping preview complete. No occurrences moved.',{exact:true}).waitFor();await page.getByRole('button',{name:'Apply grouping rules',exact:true}).click();await page.locator('.save-mark[data-state="saved"]').waitFor();
  assert.equal((await api(endpoint+'/'+rule.id)).state,'undone');await capture('grouping-rule-undone');
  const stale=await propose();await review(stale);const current=await api(`${root}/issues/${issue}/packet`);await api(`${root}/issues/${issue}/assignment`,'PATCH',{revision:current.issue.revision,label:'Newer operator decision'});

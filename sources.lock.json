@@ -5549,6 +5549,10 @@
       "sha256": "25b384477c0c90cf8b2c2a026d08879e7de6b8e80594059f5cca87e658d1e2c6",
       "executable": false
     },
+    "src/domain/agents/workbench.tsx": {
+      "sha256": "4001effd99f82d19cc0bf3cfb64c332f93927e283d9e8c92d8a0350ccaccfa39",
+      "executable": false
+    },
     "src/domain/alerts/admission.ts": {
       "sha256": "bdd41b550ffcd988215d6f7ff5f094c2cabdd2082810b2c85ac20c81c9c84103",
       "executable": false
@@ -6110,7 +6114,7 @@
       "executable": false
     },
     "src/domain/grouping/routes.ts": {
-      "sha256": "f85e2cb44728a364f90c864f7592859149a3adbb3ae86bd9b84d5047441ae66d",
+      "sha256": "186b97dc493887a6d670124e7cf41ed63429ff7b1d33ff51029949a4fdda0b8a",
       "executable": false
     },
     "src/domain/grouping/rules.ts": {
@@ -9785,6 +9789,10 @@
       "sha256": "195a9449b999fff084f85bc059eeac81fe616530d606ac3557b5bbb3bc0c5a27",
       "executable": false
     },
+    "src/types/css-inline.d.ts": {
+      "sha256": "26a8fcf4c34a12308fc5f3b5641f651607f38cd31ae0cc4737dc6073f82bcba5",
+      "executable": false
+    },
     "src/ui/alerts/AlertControls.tsx": {
       "sha256": "86442ffabe1b2887edc98465631ad45381285d33ce150f1bba5f949abe9ab88c",
       "executable": false
@@ -10141,12 +10149,16 @@
       "sha256": "492aebd187c035ca2edac4e785baa97f2c8a800bb7400a90a39e4cceb51692ac",
       "executable": false
     },
+    "src/ui/workbench/navigationLinks.ts": {
+      "sha256": "cb4bcb464a50553d0bb702763b6c00c9a7e6def2baee2f1d5f64aa6953ea0169",
+      "executable": false
+    },
     "src/ui/workbench/NotFound.tsx": {
       "sha256": "04dc616b405dc612ac12f8264c7da22cb9c234f67da1e60726eeb4275a197c62",
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "ff619ff162c78d38a7a61d39bb10506a7bf421fae8bde6cd923d33ceb91e23e9",
+      "sha256": "dce2aae6ef74c4d1140413be302bb2a95173cf411e06c26a325332efab230bfe",
       "executable": false
     },
     "src/ui/workbench/PersonalNotifications.tsx": {
@@ -10310,7 +10322,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "fc8b45954edf34cc8be86c211f7a6e20bdc241c81c0a356483f86d3add39eb71",
+      "sha256": "d8021b18d6d3592e0ab151e892b4f1aac07c528e0b0069e980bdb847e1a70958",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -10850,7 +10862,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "d432af22d32765a9ec120a86e3a3374dff74fd8c7263328b218a7469e756f831",
+      "sha256": "02f60072a422526bfec366d376413b71c987b6db2ef56f49f7b53b20948addb0",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
