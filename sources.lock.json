@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "cb4d2fc508052efa92bf0c96ac86de3145a843130528f9481fbcce7f8984fffb",
+      "sha256": "6b16eb82a6f162f18638dc718d8f3cb23b935f6932cda8c1284a4e91dc9250d3",
       "executable": false
     },
     "DEMO.md": {
@@ -10350,7 +10350,11 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "94719e516ac5c21cbca2d1918559b7aabbe9a370c4afa159e3fd2dcccbc8184d",
+      "sha256": "913ff73674a63a90a877f6b2cde5d49fe86acbecb38412fe5d7c923c3d0bf04d",
+      "executable": false
+    },
+    "tests/agent-door/classification-audit-contract.mjs": {
+      "sha256": "d1ea7b018b711860d3c9f6a5514fc2663f3ed35174adba0cf75eed5de3e53780",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
