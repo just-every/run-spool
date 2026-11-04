@@ -82,7 +82,7 @@ try {
  for(const path of ['/app','/setup','/projects','/projects/synthetic-project','/projects/synthetic-project/releases/web@1.2.0','/projects/synthetic-project/releases/setup/source-maps']){const response=await fetch(origin+path,{redirect:'manual'});assert.equal(response.status,303);const destination=new URL(response.headers.get('location'),origin);assert.equal(destination.pathname,'/sign-in');assert.equal(destination.searchParams.get('returnTo'),path);}
  for(const path of ['/missing','/health/extra'])assert.equal((await fetch(origin+path,{redirect:'manual'})).status,404);
  for(const path of ['/api','/api/missing','/api/projects','/api/archive'])assert.equal((await fetch(origin+path)).status,401);
- const form=await (await fetch(origin+'/sign-in')).text();assert.ok(form.includes('/auth/dev/enter?as=owner'));
+ const form=await fetch(origin+'/sign-in');assert.equal(form.status,200);const signInHelp=await form.text();assert.ok(signInHelp.includes('rer dev --as owner'));assert.ok(!signInHelp.includes('href="/auth/dev/enter'));
  assert.equal((await fetch(origin+'/__dev/outbox')).status,404,'the outbox needs the key gate');
  assert.equal((await fetch(origin+'/__dev/personas',{redirect:'manual'})).status,404,'dev personas stay hidden before document authorization');
  let cookie=await signIn(origin);
