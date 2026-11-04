@@ -8,7 +8,7 @@ import {projectAgentArtifacts} from '../../src/domain/agent-door/artifact-map.mj
 // module, native sessions and signing/authorization rules. No application route,
 // tool response or persisted effect is replaced.
 export async function replayHorizon(){
- const app=await agentRuntime(15917,{},undefined,{deferAgentUpgrade:true});
+ const app=await agentRuntime({},undefined,{deferAgentUpgrade:true});
  const done=answer=>{assert.ok(!answer.isError,answer?._meta?.['com.runeditrun/error']?.code);return answer.structuredContent;};
  const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
  try{
