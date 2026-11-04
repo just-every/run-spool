@@ -160,7 +160,7 @@ export async function keyRateLimitScreens({req,json,origin,cookie,width=1440}) {
   const context=await browser.newContext({viewport:{width,height:900}});
   await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
   const page=await context.newPage();await page.goto(origin+'/projects/'+id+'/settings');
-  const row=page.locator('.key-row').filter({hasText:key.slice(0,12)});await row.getByRole('button',{name:'Details: Project key',exact:true}).click();
+  const row=page.locator(`.key-row[data-key-hash="${key}"]`);await row.getByRole('button',{name:'Details: Project key',exact:true}).click();
   const form=page.getByRole('region',{name:'Capture key event rate'});await form.getByLabel('Limit this capture key').check();
   await form.getByLabel('Accepted events per period').fill('1');await form.getByLabel('Rate period').selectOption('hour');
   await form.getByRole('button',{name:'Save key rate limit',exact:true}).click();await form.getByRole('status').filter({hasText:'Key rate limit saved'}).waitFor();
