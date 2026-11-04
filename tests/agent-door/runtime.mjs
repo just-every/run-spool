@@ -35,15 +35,20 @@ export async function agentRuntime(bindings={},network,{deferAgentUpgrade=false}
    return json('/api/rer/business-settings','POST',{settings});
   };
   let rpcId=0;
-  const mcp=async(method,params={},overrides={},version='2025-11-25',expectedStatus=200)=>{
+  const mcpResponse=async(method,params={},overrides={},version='2025-11-25')=>{
    const token=await accessToken(c,overrides);
-   const r=await request('/mcp','POST',{jsonrpc:'2.0',id:++rpcId,method,params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}},{Authorization:`Bearer ${token}`,Accept:'application/json, text/event-stream','MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{}});
+   const id=++rpcId;
+   const response=await request('/mcp','POST',{jsonrpc:'2.0',id,method,params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}},{Authorization:`Bearer ${token}`,Accept:'application/json, text/event-stream','MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{}});
+   return {id,response};
+  };
+  const mcp=async(method,params={},overrides={},version='2025-11-25',expectedStatus=200)=>{
+   const {response:r}=await mcpResponse(method,params,overrides,version);
    const body=await r.json();assert.equal(r.status,expectedStatus,`${method} HTTP ${r.status}: ${JSON.stringify(body).slice(0,250)}`);return body.result??{httpStatus:r.status,error:body.error};
   };
   const call=(name,args={},overrides,proofReference)=>mcp('tools/call',{name,arguments:args,...proofReference?{_meta:{'com.runeditrun/native-proof':proofReference}}:{}},overrides);
   const adopt=async(document=autonomousPolicy(),extra={})=>{
    const {policy,payload}=await policyEnvelope(c,document,extra);const result=await json('/api/rer/agent-policy','POST',{policy});c.seq=payload.seq;c.revision=payload.revision;return result;
   };
-  return {...app,get DB(){return app.DB},origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcp,call,adopt,syncSettings,detach:()=>syncSettings(null,true),mail};
+  return {...app,get DB(){return app.DB},origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcpResponse,mcp,call,adopt,syncSettings,detach:()=>syncSettings(null,true),mail};
  }catch(error){await app.close();throw error;}
 }
