@@ -44,22 +44,25 @@ export async function annotationContract(app){
  try{
   for(const [policy,document] of [['autonomous',autonomousPolicy()],['held',heldPolicy()]]){
    await app.adopt(document);
-   const listed=(await app.mcp('tools/list')).tools;
-   assert.deepEqual(listed.map(tool=>tool.name),names,policy+' offers every native client tool exactly once');
-   for(const tool of listed){
-    for(const [hint,value] of Object.entries(expected.get(tool.name))){
-     assert.ok(Object.hasOwn(tool.annotations??{},hint),policy+' '+tool.name+' explicitly declares '+hint);
-     assert.equal(typeof tool.annotations[hint],'boolean',policy+' '+tool.name+' '+hint+' is boolean');
-     assert.equal(tool.annotations[hint],value,policy+' '+tool.name+' '+hint+' matches native behavior');
+   for(const version of ['2025-11-25','2026-07-28']){
+    const label=policy+' '+version;
+    const listed=(await app.mcp('tools/list',{},{},version)).tools;
+    assert.deepEqual(listed.map(tool=>tool.name),names,label+' offers every native client tool exactly once');
+    for(const tool of listed){
+     for(const [hint,value] of Object.entries(expected.get(tool.name))){
+      assert.ok(Object.hasOwn(tool.annotations??{},hint),label+' '+tool.name+' explicitly declares '+hint);
+      assert.equal(typeof tool.annotations[hint],'boolean',label+' '+tool.name+' '+hint+' is boolean');
+      assert.equal(tool.annotations[hint],value,label+' '+tool.name+' '+hint+' matches native behavior');
+     }
     }
+    assert.ok(!listed.some(tool=>tool.name.startsWith('spool.workers.')),'Native workers stay invoke-only under '+label);
+    assert.ok(!listed.some(tool=>tool.name==='spool.events.list'),'Undeclared events stay absent under '+label);
+    for(const name of invokeOnly){
+     const refusal=await app.mcp('tools/call',{name,arguments:{}},{},version,400);
+     assert.equal(refusal.error?.data?.code,'tool_not_found',label+' client cannot invoke '+name);
+    }
+    console.log(`PROBE BASE-AGENT-002 3: authenticated /mcp discovery, ${label} -> ${listed.length} native tools with explicit truthful boolean annotations; four worker tools refused`);
    }
-   assert.ok(!listed.some(tool=>tool.name.startsWith('spool.workers.')),'Native workers stay invoke-only under '+policy);
-   assert.ok(!listed.some(tool=>tool.name==='spool.events.list'),'Undeclared events stay absent under '+policy);
-   for(const name of invokeOnly){
-    const refusal=await app.mcp('tools/call',{name,arguments:{}},{},'2025-11-25',400);
-    assert.equal(refusal.error?.data?.code,'tool_not_found',policy+' client cannot invoke '+name);
-   }
-   console.log(`PROBE BASE-AGENT-002 3 ${policy}: authenticated /mcp tools/list -> ${listed.length} native tools with explicit truthful boolean annotations; four worker tools refused`);
   }
  }finally{await app.adopt(autonomousPolicy());}
 }
