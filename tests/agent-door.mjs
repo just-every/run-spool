@@ -12,6 +12,7 @@ import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
 import {replayHorizon} from './agent-door/replay-horizon.mjs';
+import {replayContract} from './agent-door/replay-contract.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
@@ -140,3 +141,4 @@ try{
 
 await ownerCustody();
 await replayHorizon();
+await replayContract();

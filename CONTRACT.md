@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1775,7 +1775,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | partial | `tests/agent-door/replay-contract.mjs` replayContract, invoked by `tests/agent-door.mjs` (acceptance 1 to 4: native proposal equality and single effect, abandoned-response recovery under a new JSON-RPC id, changed-argument refusal and current revision in stale expected-revision refusal; separate autonomous and held installations; live replay after 24 hours with current Pause and scope fences); `tests/agent-door/continuation.mjs` continuationFlow (current policy); `tests/agent-door/people.mjs` peopleFlow (current native role); `tests/agent-door/replay-horizon.mjs` replayHorizon (erasure tombstones, original expiry and archive resurrection refusal) | Qualification remains limited to native proposal creation and revision-checked issue updates. Acceptance 5's cross-person job-status refusal, complete mutating-tool replay qualification and the broader long-work lifecycle remain unproved. Existing native erasure, replay horizons, provider, device and policy holds remain unchanged. |
 | `BASE-AGENT-013` | Manifest, docs and the conformance journey | target | missing | | Not yet judged through this seed's own doors. |
 
 UX-001 landing replay (3 November 2026): main’s partial Status, Evidence and Gap judgments remain unchanged. Supplementary proof in `tests/team-flow.mjs`, `tests/team-browser.mjs` and `tests/team-viewport.mjs` starts independent native teams, projects, members and capture at 1440 and 390, reconciles triage through public reads, and checks Details keyboard containment, Escape, focus return, Axe and reflow. Assignment remains an operator label; actual member/team assignment remains TEAM-002. This replay does not promote UX-001 or qualify target-wide state coverage, complete release and feedback paths, native-device use, human screen-reader operation or VPAT proof.
