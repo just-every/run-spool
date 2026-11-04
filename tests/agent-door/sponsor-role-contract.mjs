@@ -90,6 +90,43 @@ async function scopeAndInjection(app,{project,issue,claims,token,privateText,mod
  await app.adopt();
 }
 
+/** Exercise native browser-session authority and MCP against populated data. */
+async function nativeRoleParity(app){
+ await app.adopt();
+ const project='synthetic-spool-role-parity',p=await app.json('/api/projects','POST',{id:project,name:'Current triage roles'});
+ await app.json('/api/projects/'+project+'/releases','POST',{name:'1.0.0',build:'web-1'});
+ const issue=(await app.json('/api/ingest/'+project,'POST',{version:1,eventId:'synthetic-spool-role-parity',release:'1.0.0',build:'web-1',environment:'production',type:'TypeError',message:'Role fixture has a retained failure',frames:[{file:'https://checkout.example/app.js',line:3,column:0,function:'roles'}],breadcrumbs:[]},{Authorization:'Bearer '+p.ingestKey})).issue;
+ const path='/api/projects/'+project+'/issues',selected=async()=> (await app.json(path)).find(row=>row.id===issue);
+ for(const role of ['owner','admin','billing','maintainer','member','read-only']){
+  let cookie=app.cookie,claims={};
+  if(role!=='owner'){
+   const native=await nativeSponsor(app,{project,email:['synthetic-spool-role-'+role,'spool.test'].join('@'),name:'Native '+role});
+   cookie=native.cookie;claims=native.claims;
+   await app.json('/api/organization/members/'+native.member.id,'PUT',{version:native.member.version,role:role==='maintainer'?'member':role,grants:['admin','billing'].includes(role)?[]:[{project,role}]});
+  }
+  const current=await selected();
+  if(current.state!=='open')await app.json(path+'/'+issue,'PATCH',{state:'open',revision:current.revision});
+  const before=await selected(),canRead=role!=='billing',canWrite=['owner','admin','maintainer','member'].includes(role);
+  const nativeRead=await app.request(path,'GET',undefined,{Cookie:cookie});
+  assert.equal(nativeRead.status,canRead?200:404,role+' native read permission');
+  if(canRead)assert.ok((await nativeRead.json()).some(row=>row.id===issue),'The native read reaches retained evidence');else await nativeRead.body?.cancel();
+  const agentRead=await app.call('spool.issues.read',{project,issue},claims);
+  if(canRead){assert.equal(done(agentRead).id,issue);assert.equal(done(agentRead).revision,before.revision);}else assert.equal(code(agentRead),'not_found');
+  const personWrite=await app.request(path+'/'+issue,'PATCH',{state:'acknowledged',revision:before.revision},{Cookie:cookie});
+  assert.equal(personWrite.status,canWrite?200:404,role+' native mutation permission');await personWrite.body?.cancel();
+  const personResult=await selected();
+  assert.equal(personResult.state,canWrite?'acknowledged':'open',role+' native mutation persists only with current authority');
+  if(canWrite)await app.json(path+'/'+issue,'PATCH',{state:'open',revision:personResult.revision});
+  const reset=await selected();
+  const agentWrite=await app.call('spool.issues.update',{project,issue,state:'acknowledged',revision:reset.revision,idempotency_key:randomUUID()},claims);
+  if(canWrite)done(agentWrite);else assert.equal(code(agentWrite),'not_found',role+' MCP refuses the same unsupported native mutation');
+  const agentResult=await selected();
+  if(canWrite){assert.equal(agentResult.state,'acknowledged');assert.equal(agentResult.revision,reset.revision+1,'Exactly one native effect');}
+  else assert.deepEqual(agentResult,reset,'Refused role leaves the whole populated issue unchanged');
+  console.log('PROBE BASE-AGENT-005 role-'+role+': populated native issue read and triage mutation -> browser-session and MCP read='+canRead+', write='+canWrite);
+ }
+}
+
 /** Same unexpired Business bearer across native role and inactive changes. */
 export async function sponsorRoleContract(app){
  for(const mode of ['autonomous','held']){
@@ -150,5 +187,6 @@ export async function sponsorRoleContract(app){
   await unchanged(app,inactive,{agent:claims.act.sub,calls:0,token,privateText,refusals:0});
   console.log('PROBE BASE-AGENT-005 inactive-'+mode+': same unexpired Business bearer after native member DELETE -> next MCP read HTTP 401 and unchanged native ledger');
  }
+ await nativeRoleParity(app);
  await app.adopt();
 }
