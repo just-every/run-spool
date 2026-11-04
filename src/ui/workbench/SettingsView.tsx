@@ -37,6 +37,7 @@ export function SettingsView({ project, projects, keys, releases, request, run, 
   const configure = organizationManager || projectRole === 'maintainer';
   return <SettingsSections>{{
     access: <>
+    <section className="evidence"><h2>Agents</h2><p>Choose what agents can do and review their activity.</p><a className="text-button" href="/agents">Agent policy and activity</a></section>
     <Members {...{ access, revision, refresh, request, run, busy }} />
     {!!project && <PersonalNotifications key={`notifications:${project}`} {...{project,request,run,busy}} />}
     {organizationManager && <section className="evidence"><h2>{projects.length ? 'Create another project' : 'Create your first project'}</h2><ProjectForm {...{ request, run, busy, onCreated }} /></section>}

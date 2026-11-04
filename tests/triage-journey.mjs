@@ -111,6 +111,7 @@ try {
 
  // Open the actual browser download, including its verified closing hashes.
  await (await workbenchLink(page,'Settings')).click();
+ assert.equal(await page.getByRole('link',{name:'Agent policy and activity',exact:true}).getAttribute('href'),'/agents');
  if(width===390)await page.getByLabel('Settings section',{exact:true}).selectOption('data');
  else await page.getByRole('tab',{name:'Data & history',exact:true}).click();
  assert.equal(await page.getByRole('heading',{name:'Project keys',exact:true}).isVisible(),false,'Other settings sections are folded away');

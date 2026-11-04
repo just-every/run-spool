@@ -1,3 +1,4 @@
+import { agentsWorkbench } from '../agents/workbench';
 import { nativeErasureFence } from './artifacts';
 import { createAgentDoor, type Trust, type Principal, type AgentDoorOptions } from '../../modules/agent-door/index.ts';
 import type { Bindings } from '../../auth/bindings';
@@ -54,5 +55,10 @@ export async function agentDoorResponse(request:Request,env:Bindings) {
  if(settingsPaths.includes(path))return businessSettings(env).handle(request);
  if(path!=='/api/rer/agent-decisions'&&path!=='/mcp'&&path!=='/api/rer/agent-policy'&&path!=='/agents'&&!path.startsWith('/agents/')&&!['/.well-known/oauth-protected-resource','/.well-known/oauth-protected-resource/mcp'].includes(path))return null;
  const name=await businessSettings(env).resolve('display_name','Spool');
- return spoolAgentDoor(env,typeof name==='string'?name:'Spool').handle(request);
+ const door=spoolAgentDoor(env,typeof name==='string'?name:'Spool');
+ const response=await door.handle(request);
+ if(!response || !response.headers.get('content-type')?.includes('text/html') || response.status!==200)return response;
+ const state=await door.handle(new Request(new URL('/agents/api/state',request.url),request));
+ const policy=state?.ok ? await state.json() as any : null;
+ return agentsWorkbench(request,env,response,policy?.policy?.spend_caps??null);
 }

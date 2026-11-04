@@ -55,6 +55,8 @@ export async function nativeSetup(){
   };
   screens=await agentScreens({origin:app.origin,cookie});
   await screens.capture('native-setup-unanswered',setup.pathname,null,async page=>{
+   assert.equal(await page.locator('.sidebar .wordmark img').getAttribute('src'),'/theme/spool-mark.svg');
+   await page.getByRole('navigation',{name:'Workbench',exact:true}).waitFor({state:'attached'});
    const questions=await page.locator('[data-policy-class]').evaluateAll(selects=>selects.map(select=>({
     id:select.dataset.policyClass,value:select.value,label:select.labels?.[0]?.textContent.trim(),
     help:document.getElementById(select.getAttribute('aria-describedby'))?.textContent.trim(),
@@ -100,6 +102,7 @@ export async function nativeSetup(){
    await form.getByRole('button',{name:'Save policy',exact:true}).click();assert.equal((await saved).status(),200);
    await page.locator('[data-create-policy]').waitFor({state:'detached'});
    await page.locator('[data-policy-editor]').waitFor();
+   assert.equal(await page.locator('[data-paid-ai-summary] dd').innerText(),'No','The saved policy summary includes the paid AI answer');
   });
   const saved=await json('/agents/api/policy');assert.equal(saved.complete,true);assert.equal(saved.revision,1);
   assert.deepEqual(saved.document.rules.map(rule=>({class:rule.class,do:rule.do})).sort((a,b)=>a.class.localeCompare(b.class)),declared.map(cls=>({class:cls,do:cls==='standard'?'autonomous':'blocked'})));

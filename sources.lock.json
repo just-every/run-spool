@@ -5510,7 +5510,7 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "546622021ab04f352e11eeb39bfacadb6e395172f8f89a027d09a48b4673bf1b",
+      "sha256": "c6c709cd7c1b48052bed24cf7b9d0396b611ec2eada6dd78b251ea97006cd37b",
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
@@ -10138,7 +10138,7 @@
       "executable": false
     },
     "src/ui/workbench/Navigation.tsx": {
-      "sha256": "5d2172e44f0405107299c651b8aa087c0e37e95b34d7e40454567c66eabde4b4",
+      "sha256": "492aebd187c035ca2edac4e785baa97f2c8a800bb7400a90a39e4cceb51692ac",
       "executable": false
     },
     "src/ui/workbench/NotFound.tsx": {
@@ -10310,7 +10310,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "e62225c2f801df966d33d1d9db12e89650c68119cb530837c8a1d1b689b4dd72",
+      "sha256": "fc8b45954edf34cc8be86c211f7a6e20bdc241c81c0a356483f86d3add39eb71",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -10458,7 +10458,7 @@
       "executable": false
     },
     "tests/agent-door/setup.mjs": {
-      "sha256": "6b6060bab7119ab454a97b771fe7330d1846eae51c4d1dfb691b5e43b1183e58",
+      "sha256": "2086672a7d6635361b153c9310a776cb5f36335428e2bf4e91150c05d78bbb7a",
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
@@ -11378,7 +11378,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "135db101c31cee377d3f9cdc96cf417f599a28e2ac5b838bab0d21c74f03fdaa",
+      "sha256": "545ffbe66c7ea85a6cebc6e1c380c464bb296c2770a2736942fcddbeb5a74463",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
