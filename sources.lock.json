@@ -3054,7 +3054,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "c7bc2607696e3fe876394a8d309bd51148bc67db27570732edfdefe6c094fa05",
+      "sha256": "5d8a31b9e8be29a9321485b7a56febf98c2a3f78712c2073a3272fd69f7cd083",
       "executable": false
     },
     "docs/retained-verification/ai005/agent-handoff-1440.png": {
@@ -5234,7 +5234,7 @@
       "executable": false
     },
     "scripts/reproduce/runner.mjs": {
-      "sha256": "9779467649efd7976a2f111c1434e40af7aaff2f1d75987657568cfa62e18d0e",
+      "sha256": "126395885c7cc2ac816b34ace96b1a9a140056573660bd6833723c55ef869077",
       "executable": false
     },
     "scripts/reproduce/sandbox.mjs": {
@@ -6522,7 +6522,7 @@
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
-      "sha256": "55dc758493ebdd14d693d0ca5c48a9d585aaf1549b4e20c75cb12a2a3ab1ccc8",
+      "sha256": "b852c11b49236469631ff88038ff2417ff59d3bfba4a7522d891188efeae622b",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
@@ -10042,7 +10042,7 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
-      "sha256": "e1a6e4b2d65b435af99149e3a325b620df48f0dba8eedc3d1552ea99b548b392",
+      "sha256": "738f9e775bfc93597a9114dd3018a8944a072a3ecdfbaeb5160ee8cf76f5c000",
       "executable": false
     },
     "src/ui/workbench/feedback.css": {
@@ -10678,7 +10678,7 @@
       "executable": false
     },
     "tests/execution/reproduce.mjs": {
-      "sha256": "e85a53e42a3cc7f6ea8261e2d76d88fd8a7096cd45cc60a6115d73078d2ab8ef",
+      "sha256": "4d59f90692d3b9da6d8b023996070b6e7b8895c2612eab9bd505d17e47425fac",
       "executable": false
     },
     "tests/execution/runtime.mjs": {

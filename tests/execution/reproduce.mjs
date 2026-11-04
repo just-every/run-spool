@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
+import {dirname,resolve} from 'node:path';
 // Runs the public runner command exactly as the UI prints it.
 export function runner(command){
- const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) pnpm reproduce (\S+)$/.exec(command)??[];
+ const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) rer run reproduce (\S+)$/.exec(command)??[];
  assert.ok(token&&url,'the queued run prints one runner command');
- return new Promise((accept,reject)=>{const child=spawn(process.execPath,['scripts/reproduce/runner.mjs',url],{env:{PATH:process.env.PATH,SPOOL_RUN_TOKEN:token},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);child.once('error',reject);child.once('close',code=>accept({code,output,token,url}));});
+ return new Promise((accept,reject)=>{const child=spawn('/bin/sh',['-c',command],{env:{HOME:process.env.HOME,PATH:[resolve('node_modules/.bin'),dirname(process.execPath),'/usr/bin','/bin'].join(':'),SPOOL_RUN_TOKEN:token},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);child.once('error',reject);child.once('close',code=>accept({code,output,token,url}));});
 }
 const client=n=>'client-'+String(n).padStart(4,'0')+'-abcdefgh';
 export const event=(fixture,id,release,extra={})=>({version:1,eventId:id,release:release.name,build:release.build,environment:'production',type:fixture.type,message:fixture.message,frames:fixture.frames,breadcrumbs:[],...extra});

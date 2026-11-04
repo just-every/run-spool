@@ -18,10 +18,17 @@ export function ExecutionPanel({ project, issue, event, busy, request, run, init
     try {
       const query = `?issue=${encodeURIComponent(issue.id)}`;
       const [list, workflows, registered] = await (prepared ?? Promise.all([request(`${root(project)}/reproducers${query}`), request(`${root(project)}/fixes${query}`), request(`${root(project)}/releases`)]));
+      setTicket((current: any) => current && list.reproducers.some((row: any) => row.runs.some((run: any) => run.id === current.run && run.state !== 'queued')) ? null : current);
       setReproducers(list.reproducers); setFixes(workflows); setReleases(registered); setFailed(false);
     } catch { setFailed(true); }
   }
   useEffect(() => { if (live) void load(initial); }, [project, issue, live, initial]);
+  useEffect(() => {
+    if (!ticket) return;
+    const update = () => { if (Date.now() >= ticket.expires) setTicket(null); };
+    const timer = setTimeout(update, Math.max(0, ticket.expires - Date.now()));
+    return () => clearTimeout(timer);
+  }, [ticket]);
   // Only this section reloads, so a once-shown run command survives the write.
   const write = (work: () => Promise<unknown>) => run(async () => { setProblem(''); try { await work(); } catch (error) { setProblem(String((error as Error).message)); } finally { await load(); } });
   function record(form: FormEvent) {
