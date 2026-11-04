@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "b42f8c7607102d10b714863b8bbedb37ebec8027db6ce8e37afca76e8c0694d0",
+      "sha256": "5d0c916c00a632a3e4d6456930c097809ef34abaa50787a0dbceadcdce9f9a7e",
       "executable": false
     },
     "DEMO.md": {
@@ -10430,7 +10430,7 @@
       "executable": false
     },
     "tests/agent-door/sponsor-role-contract.mjs": {
-      "sha256": "51a49b7beff1852c53f8a0e9ba4e8cbb7b1e92cbb537a24e77ee966d5b8dd897",
+      "sha256": "776b27d958de61787516b1eadb263b2171ac5f011c8fea1db329d1776401c9a8",
       "executable": false
     },
     "tests/agent-door/worker.mjs": {
