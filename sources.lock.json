@@ -10322,7 +10322,7 @@
       "executable": false
     },
     "src/ui/workbench/SuspectChanges.tsx": {
-      "sha256": "a7242df584e631bc4404b865e2d5a558f5ce2c3741b359bab6aa49ead7773f0d",
+      "sha256": "c99b6e8eabac6c576370374b3be4c4818de37daac17205861603bc7833a38550",
       "executable": false
     },
     "src/ui/workbench/useIssueSearch.ts": {
