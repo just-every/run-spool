@@ -10078,7 +10078,7 @@
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
-      "sha256": "4a523fb3fca27df65f4996f5203a4aebfc6500da98944a835c4c3932c1cded90",
+      "sha256": "3dbac4f5d952b320b8f5684c921ec901019d188fb5122e07c76e43d64acff1c3",
       "executable": false
     },
     "src/ui/workbench/inbound-filters.css": {
@@ -10166,7 +10166,7 @@
       "executable": false
     },
     "src/ui/workbench/readable.ts": {
-      "sha256": "18808d9fe7e241ea93c3e93cd0f2b5735cfaa3c0917739deb4a1ff287263d17e",
+      "sha256": "530edccf1e29efb66592c3c6f48360364b50dca79d26335e7bc6999cae45d348",
       "executable": false
     },
     "src/ui/workbench/README.md": {
