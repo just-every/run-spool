@@ -4,7 +4,7 @@ import type { Bindings } from './bindings';
 import { fontHead } from '../base/font-head.ts';
 import { oidcNotice } from './oidc-presentation.server.ts';
 import { devGate } from '../modules/operator-auth/dev-gate.mjs';
-import { localSignInContent, type LocalSignInPerson } from './local-sign-in.server';
+import { localSignInContent, type LocalSignInPerson } from './local-sign-in.server.ts';
 const escape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 type SignInProvider = { label: string; startPath: string; authorizationOrigins?: string[] };
 // A linked Auth install, once the owner turned its sign-in on, is offered above the email form.
