@@ -65,6 +65,13 @@ export async function auditRetirementContract(app){
   const retiredAgent=inventory.find(row=>row.id===retired.act.sub),peerAgent=inventory.find(row=>row.id===peer.act.sub);
   assert.equal(retiredAgent.revoked,true);assert.equal(retiredAgent.name,retired.act.name);assert.equal(retiredAgent.sponsor.name,'Dana Engineer');
   assert.equal(peerAgent.revoked,false);
+  // Reopen durable state before checking retained identity and fresh authority.
+  await app.restart();
+  assert.deepEqual((await app.json('/agents/api/agents')).agents,inventory,'Retirement and both identities survive a Worker restart');
+  const retained=await auditHistory(app,'agent='+encodeURIComponent(retired.act.sub));
+  assert.ok(retained.pages>1,'The retired agent alone still spans multiple native pages');
+  assert.deepEqual(retained.rows,retiredRows,'Restarted filtered history preserves every prior retired-agent field');
+  assert.deepEqual(await app.json('/agents/api/audit/export?agent='+encodeURIComponent(retired.act.sub)),retiredRows,'The retired agent export preserves complete populated history after restart');
   // Each helper invocation signs a fresh token. A renamed claim cannot revive it.
   for(const [method,params] of [['tools/call',{name:'spool.issues.list',arguments:{project}}],['tools/list',{}]]){
    const refused=await app.mcp(method,params,{...retired,act:{...retired.act,name:'Replacement name'}},'2025-11-25',401);
@@ -78,7 +85,7 @@ export async function auditRetirementContract(app){
   for(const row of peerRows)assert.deepEqual(byId.get(row.id),row,'Peer history remains intact');
   assert.ok(after.rows.length>=before.rows.length,'Refusal facts may append without replacing prior history');
   assert.equal((await app.json('/agents/api/agents')).agents.find(row=>row.id===retired.act.sub).name,retired.act.name,'A refused replacement claim cannot rename the retired agent');
-  console.log('PROBE BASE-AGENT-009 acceptance-6 '+policy+': native paginated audit and signed-in revoke -> '+retiredRows.length+' prior agent rows unchanged across '+before.pages+' pages; fresh call and list tokens refused; current person and peer access retained');
+  console.log('PROBE BASE-AGENT-009 acceptance-6 '+policy+': native paginated audit, signed-in revoke and Worker restart -> '+retiredRows.length+' prior agent rows and complete filtered export unchanged across '+retained.pages+' agent pages; fresh call and list tokens refused; current person and peer access retained');
  }
  await app.adopt();
  return {agents};
