@@ -50,6 +50,25 @@ Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
 Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
 
+## Candidate handoff
+
+After the last edit and merge, run the contract generator's `write` and `check`
+commands above. Restore `ACCEPTANCE.md` and `docs/CLAIMS.md` from `origin/main`;
+the lander generates those views from the merged contract. Commit neither view.
+Regenerate `sources.lock.json` last and run
+`node scripts/edition-authoring/cli.mjs check` against the resulting tree.
+
+For migration changes, run the fleet's migration-history check against
+`origin/main` and the candidate: applied SQL stays byte-for-byte unchanged and
+new numeric prefixes must be unique and above main's highest prefix. Also run
+`pnpm build:app` followed by `pnpm integration:check` to verify the complete
+deployment migration recipe.
+
+The final report includes this single line:
+`MECHANICAL lock=<command> exit=<n>; views=<write and check commands> exit=<n>; ledger=<command or none> exit=<n>`
+and one `PROBE <item id> <point>: <public door and input> -> <observed output>`
+line for every item in the brief, followed by the full-head `READY` line.
+
 ## Shared agent door
 
 Application-agent work enters `src/domain/agent-door/index.server.ts`. Native
