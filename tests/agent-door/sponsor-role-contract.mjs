@@ -159,27 +159,45 @@ export async function sponsorRoleContract(app){
   }
   await unchanged(app,escalationBaseline,{agent:claims.act.sub,calls:6,token,privateText,refusals:6,codes:['self_escalation']});
   console.log('PROBE BASE-AGENT-005 self-widening-'+mode+': three native sponsor aliases with role and project-grant widening -> self_escalation, no native effect');
+  await app.adopt(mode==='held'?heldPolicy():autonomousPolicy());
   const write={project,issue:initial.id,revision:initial.revision,state:'acknowledged',idempotency_key:randomUUID()};
-  done(await call('spool.issues.update',write));
+  const completed=await call('spool.issues.update',write);done(completed);
+  assert.equal(completed._meta['com.runeditrun/decision'].disposition,mode==='held'?'review':'autonomous','The positive control runs under its own company policy');
   const authorized=done(await read());assert.equal(authorized.state,'acknowledged');assert.equal(authorized.revision,initial.revision+1,'The positive control persists one native triage write');
   assert.equal((await app.DB.prepare('SELECT revoked FROM credentials WHERE hash=?').bind(grant.hash).first()).revoked,null);
+  let pendingWrite;
   if(mode==='held'){
    await app.adopt(heldPolicy());
-   const held=await call('spool.issues.update',{...write,revision:authorized.revision,state:'suppressed',idempotency_key:randomUUID()});
+   pendingWrite={...write,revision:authorized.revision,state:'suppressed',idempotency_key:randomUUID()};
+   const held=await call('spool.issues.update',pendingWrite);
    assert.equal(held.resultType,'input_required');
    const pending=held._meta['com.runeditrun/error']?.approval??held._meta['com.runeditrun/approval'];assert.ok(pending?.id,'The held fixture actually reaches company approval with an authorized member');
    assert.equal(done(await read()).state,'acknowledged','Holding the mutation leaves the completed triage state intact');
   }
-  await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});
-  const downgraded=await snapshot(app);
-  assert.ok(downgraded.credentials.find(row=>row.hash===grant.hash).revoked,'The authorized downgrade retires the member key before refusal probes');
-  const fresh={...write,revision:authorized.revision,state:mode==='held'?'suppressed':'open',idempotency_key:randomUUID()};
-  assert.equal(code(await call('spool.issues.update',fresh)),'not_found','Next fresh mutation uses the current native read-only role');
-  assert.equal(code(await call('spool.issues.update',write)),'not_found','Cached mutation replay rechecks the current native role');
-  await unchanged(app,downgraded,{agent:claims.act.sub,calls:2,token,privateText,refusals:2});
-  const permitted=done(await read());assert.equal(permitted.id,captured.issue);assert.equal(permitted.state,'acknowledged');assert.equal(permitted.revision,authorized.revision,'Read-only access remains available with the same bearer');
-  console.log('PROBE BASE-AGENT-005 downgrade-'+mode+': same Business bearer, native member PUT to read-only -> fresh mutation and cached replay not_found, native ledger unchanged, populated read succeeds');
-  await app.json('/api/organization/members/'+member.id,'DELETE',{version:member.version+1});
+  // Isolate the two native authority inputs before exercising their combined
+  // downgrade. Either current role must independently fence a cached effect.
+  const downgrades=[
+   {boundary:'project',role:'member',projectRole:'read-only'},
+   {boundary:'organization',role:'read-only',projectRole:'member'},
+   {boundary:'combined',role:'read-only',projectRole:'read-only'},
+  ];
+  for(const [index,{boundary,role,projectRole}] of downgrades.entries()){
+   await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version+index,role,grants:[{project,role:projectRole}]});
+   const downgraded=await snapshot(app);
+   assert.equal(downgraded.spool_members.find(row=>row.id===member.id).role,role,'The native organization role is the intended independent input');
+   assert.equal(downgraded.spool_project_grants.find(row=>row.member===member.id&&row.project===project).role,projectRole,'The native project role is the intended independent input');
+   assert.ok(downgraded.credentials.find(row=>row.hash===grant.hash).revoked,'The authorized downgrade retires the member key before refusal probes');
+   assert.ok(Date.now()/1000<expires,'Role refusal is not explained by an expired bearer');
+   const fresh={...write,revision:authorized.revision,state:mode==='held'?'suppressed':'open',idempotency_key:randomUUID()};
+   assert.equal(code(await call('spool.issues.update',fresh)),'not_found','Next fresh mutation uses the current native read-only role');
+   assert.equal(code(await call('spool.issues.update',write)),'not_found','Cached mutation replay rechecks the current native role');
+   if(pendingWrite)assert.equal(code(await call('spool.issues.update',pendingWrite)),'not_found','Pending approval replay also rechecks the current native role');
+   const refusals=pendingWrite?3:2;
+   await unchanged(app,downgraded,{agent:claims.act.sub,calls:refusals,token,privateText,refusals});
+   const permitted=done(await read());assert.equal(permitted.id,captured.issue);assert.equal(permitted.state,'acknowledged');assert.equal(permitted.revision,authorized.revision,'Read-only access remains available with the same bearer');
+   console.log('PROBE BASE-AGENT-005 downgrade-'+mode+'-'+boundary+': same unexpired Business bearer after native member PUT -> fresh mutation and completed replay not_found'+(pendingWrite?', pending replay not_found':'')+', native ledger unchanged, populated read succeeds');
+  }
+  await app.json('/api/organization/members/'+member.id,'DELETE',{version:member.version+downgrades.length});
   const inactive=await snapshot(app);
   assert.equal(inactive.oa_operators.find(row=>row.id===member.operator_id).status,'inactive');
   assert.ok(Date.now()/1000<expires,'The original bearer is still unexpired after native deactivation');
