@@ -31,10 +31,12 @@ export async function specialistFlow(app,github,screens){
  const foreignConsent=await app.call('spool.fixes.advance',advance,{consent:'another-consent'},grant.proofReference);assert.equal(foreignConsent._meta['com.runeditrun/error'].code,'native_proof_required','Native repository consent remains bound to the saved agent consent');
  await app.adopt({schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'all',class:'*',do:'autonomous'},{id:'external',class:'external',do:'blocked'}],spend:{none:true}});
  const blocked=await app.call('spool.fixes.advance',advance,{},grant.proofReference);assert.equal(blocked._meta['com.runeditrun/error'].code,'policy_blocked');assert.equal(github.requests.length,0);
+ assert.deepEqual(blocked._meta['com.runeditrun/decision'].classes.map(({class:kind,facts})=>({class:kind,facts})),[{class:'external',facts:{measure:1,counterparty:'known',provider:'github',step:'draft data pull request'}}],'The saved native workflow determines its documented external facts');
  await screens?.capture('agents-provider-blocked','/agents','the policy blocks it');
  await app.adopt(heldPolicy());
  const held=await app.call('spool.fixes.advance',{...advance,idempotency_key:randomUUID()},{},grant.proofReference);const pending=held._meta['com.runeditrun/error'].approval;
  assert.ok(pending?.id);assert.equal(github.requests.length,0);
+ assert.deepEqual(held._meta['com.runeditrun/decision'].classes.map(({class:kind,facts})=>({class:kind,facts})),blocked._meta['com.runeditrun/decision'].classes.map(({class:kind,facts})=>({class:kind,facts})),'Held policy retains the same native external classification');
  await screens?.capture('github-approval-pending','/agents/approvals/'+pending.id,'Agent door conformance');
  const {approval}=await app.json('/agents/api/approvals/'+pending.id);assert.ok(approval.summary.items.some(item=>item.includes('.spool/reproducers/')));
  await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});

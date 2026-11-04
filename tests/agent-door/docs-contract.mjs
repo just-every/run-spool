@@ -16,6 +16,10 @@ export function documentedInventory(html){
  return {tools,resourceTemplates:names(resources),resourceText:resources};
 }
 
+export function documentedToolContracts(html){
+ return [...html.matchAll(/<li><code>(spool\.[^<]+)<\/code> — scope <code>([^<]+)<\/code>; classes ([\s\S]*?)\.<\/li>/g)].map(([,name,scope,body])=>({name,scope,classes:[...body.split('.\n')[0].matchAll(/<code>([^<]+)<\/code>/g)].map(match=>match[1]).sort()})).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
 /** Native emitted-Worker MCP and anonymous HTTP agree under independently adopted policies. */
 export async function docsContract(app){
  execFileSync(process.execPath,['scripts/agent-door/docs.mjs','--check'],{stdio:'pipe'});
@@ -24,11 +28,22 @@ export async function docsContract(app){
   const response=await fetch(app.origin+'/docs/agents');assert.equal(response.status,200);
   const html=await response.text();assert.ok(!html.includes('<script'),'The anonymous guide needs no session or script');
   const documented=documentedInventory(html);
-  const tools=(await app.mcp(method('tools','list'))).tools.map(tool=>tool.name).sort();
+  const offered=(await app.mcp(method('tools','list'))).tools;
+  const tools=offered.map(tool=>tool.name).sort();
   const resources=(await app.mcp(method('resources','templates','list'))).resourceTemplates.map(resource=>resource.uriTemplate).sort();
   assert.deepEqual(documented.tools,tools,`${name}: complete documented and authenticated offered tool names agree`);
+  assert.deepEqual(documentedToolContracts(html),offered.map(tool=>({name:tool.name,scope:tool._meta['com.runeditrun/scope'],classes:[...tool._meta['com.runeditrun/classes']].sort()})),`${name}: every documented scope and possible class agrees with the authenticated tool`);
   assert.deepEqual(documented.resourceTemplates,resources,`${name}: complete documented and authenticated resource templates agree`);
-  const declaration=(await app.mcp(method('server','discover')))._meta['com.runeditrun/capabilities'];
+  const discovery=await app.mcp(method('server','discover'));
+  const declaration=discovery._meta['com.runeditrun/capabilities'];
+  const instructions=discovery.instructions;
+  assert.deepEqual([...instructions.matchAll(/\bspool\.[a-z_]+\.[a-z_]+\b/g)].map(match=>match[0]).sort(),tools,`${name}: discovery instructions include exactly the offered registry tools`);
+  assert.equal((await app.mcp('initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'Synthetic documentation reader',version:'1'}})).instructions,instructions,'Initialization and discovery give the same specialist guidance');
+  assert.ok(instructions.includes('/docs/agents')&&instructions.includes('triage engineer')&&instructions.includes('empty []'));
+  const limits=discovery._meta['com.runeditrun/limits'];
+  assert.equal(Number(/Requests per minute per agent: <code>(\d+)<\/code>/.exec(html)?.[1]),limits.requestsPerMinute,'Public request rate agrees with the native capacity');
+  assert.equal(Number(/Maximum request body bytes: <code>(\d+)<\/code>/.exec(html)?.[1]),limits.maxBodyBytes,'Public body capacity agrees with the native door');
+  for(const value of Object.values(limits))assert.ok(instructions.includes(String(value)),'Discovery includes each native capacity');
   assert.ok(declaration.refused.includes('resources'));
   assert.deepEqual(resources,[]);assert.match(documented.resourceText,/Unavailable/);assert.match(documented.resourceText,/<code>\[\]<\/code>/);
   assert.ok(!documented.tools.some(tool=>tool.startsWith('spool.workers.')||tool==='spool.events.list'),'Internal workers and undeclared event tools are absent');

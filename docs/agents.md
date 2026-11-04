@@ -39,135 +39,157 @@ Everything else is refused. The key cannot resolve issues, change settings, uplo
 
 This inventory is generated from the native catalogue and capability declaration. It describes the native MCP door after company setup with an authorized sponsor token. A project agent key retains its limited evidence and inert-proposal scopes. Each call still checks the current person, project authority and company policy.
 
+Specialist: **triage engineer**. Read issue packets and capture-loss context, propose inert grouping advice, inspect isolated reproductions and record repair claims separately from observed outcomes. Native repository consent and company policy govern draft data pull requests; they never merge or deploy.
+
+Classes below are the complete possible native classes, not policy dispositions. Standard fixed classifications use measure one. Conditional classifications and their public-door proof journeys are named beside the affected tool. Caller-supplied class, approval and count flags do not grant authority.
+
 ### Access
 
-- `spool.access.read` — scope `spool:evidence`.
-- `spool.access.update` — scope `spool:access`.
+- `spool.access.read` — scope `spool:evidence`; classes `standard`.
+- `spool.access.update` — scope `spool:access`; classes `access`.
+  Access measure is one. Direction is widens when the native role rank increases or a project grant is added or raised; otherwise it is narrows. Self-escalation is refused independently of company policy. Proof: [classificationContract](../tests/agent-door/classification.mjs).
 
 ### Affected
 
-- `spool.affected.read` — scope `spool:evidence`.
+- `spool.affected.read` — scope `spool:evidence`; classes `standard`.
 
 ### Alerts
 
-- `spool.alerts.destinations` — scope `spool:evidence`.
-- `spool.alerts.preview` — scope `spool:alerts`.
-- `spool.alerts.read` — scope `spool:evidence`.
-- `spool.alerts.test` — scope `spool:alerts`.
-- `spool.alerts.update` — scope `spool:alerts`.
+- `spool.alerts.destinations` — scope `spool:evidence`; classes `standard`.
+- `spool.alerts.preview` — scope `spool:alerts`; classes `standard`.
+- `spool.alerts.read` — scope `spool:evidence`; classes `standard`.
+- `spool.alerts.test` — scope `spool:alerts`; classes `external`.
+  External measure is one with a known counterparty. The provider is derived from the saved destination: email, slack or signed webhook. The step is destination test. Proof: [classificationContract](../tests/agent-door/classification.mjs).
+- `spool.alerts.update` — scope `spool:alerts`; classes `standard`, `live`.
+  A disabled rule remaining disabled is standard. Enabling a rule, or changing a previously enabled rule, is live. The service fact is the current project. Proof: [classificationContract](../tests/agent-door/classification.mjs).
 
 ### Credentials
 
-- `spool.credentials.list` — scope `spool:evidence`.
-- `spool.credentials.read` — scope `spool:evidence`.
-- `spool.credentials.update` — scope `spool:credentials`.
+- `spool.credentials.list` — scope `spool:evidence`; classes `standard`.
+- `spool.credentials.read` — scope `spool:evidence`; classes `standard`.
+- `spool.credentials.update` — scope `spool:credentials`; classes `access`, `security`.
+  Revocation computes access with direction narrows and security with setting project credential revocation. Each measure is one. Later widening cannot revive the retired key. Proof: [classificationContract](../tests/agent-door/classification.mjs).
 
 ### Deployments
 
-- `spool.deployments.read` — scope `spool:evidence`.
-- `spool.deployments.record` — scope `spool:deployments`.
+- `spool.deployments.read` — scope `spool:evidence`; classes `standard`.
+- `spool.deployments.record` — scope `spool:deployments`; classes `standard`.
 
 ### Feedback
 
-- `spool.feedback.read` — scope `spool:evidence`.
+- `spool.feedback.read` — scope `spool:evidence`; classes `standard`.
 
 ### Fixes
 
-- `spool.fixes.advance` — scope `spool:fixes`.
-- `spool.fixes.create` — scope `spool:fixes`.
-- `spool.fixes.read` — scope `spool:evidence`.
+- `spool.fixes.advance` — scope `spool:fixes`; classes `external`.
+  External measure is one with a known GitHub counterparty and step draft data pull request. Current native repository consent is required separately from company policy. Proof: [specialistFlow](../tests/agent-door/specialist.mjs).
+- `spool.fixes.create` — scope `spool:fixes`; classes `standard`.
+- `spool.fixes.read` — scope `spool:evidence`; classes `standard`.
 
 ### Followups
 
-- `spool.followups.read` — scope `spool:evidence`.
-- `spool.followups.update` — scope `spool:followups`.
+- `spool.followups.read` — scope `spool:evidence`; classes `standard`.
+- `spool.followups.update` — scope `spool:followups`; classes `standard`, `live`.
+  An absent destination remaining absent is standard. Setting or removing an existing destination is live. The service fact is the current project. Proof: [classificationContract](../tests/agent-door/classification.mjs).
 
 ### Grouping
 
-- `spool.grouping.apply` — scope `spool:grouping`.
-- `spool.grouping.preview` — scope `spool:grouping`.
-- `spool.grouping.read` — scope `spool:evidence`.
-- `spool.grouping.undo` — scope `spool:grouping`.
+- `spool.grouping.apply` — scope `spool:grouping`; classes `standard`.
+- `spool.grouping.preview` — scope `spool:grouping`; classes `standard`.
+- `spool.grouping.read` — scope `spool:evidence`; classes `standard`.
+- `spool.grouping.undo` — scope `spool:grouping`; classes `standard`.
 
 ### Health
 
-- `spool.health.read` — scope `spool:evidence`.
+- `spool.health.read` — scope `spool:evidence`; classes `standard`.
 
 ### Issues
 
-- `spool.issues.export` — scope `spool:evidence`.
-- `spool.issues.list` — scope `spool:evidence`.
-- `spool.issues.read` — scope `spool:evidence`.
-- `spool.issues.search` — scope `spool:evidence`.
-- `spool.issues.update` — scope `spool:issues`.
+- `spool.issues.export` — scope `spool:evidence`; classes `standard`.
+- `spool.issues.list` — scope `spool:evidence`; classes `standard`.
+- `spool.issues.read` — scope `spool:evidence`; classes `standard`.
+- `spool.issues.search` — scope `spool:evidence`; classes `standard`.
+- `spool.issues.update` — scope `spool:issues`; classes `standard`, `live`.
+  Acknowledgement and resolution are standard. Entering or leaving suppression is live. The service fact is the current project. Proof: [classificationContract](../tests/agent-door/classification.mjs).
 
 ### Notifications
 
-- `spool.notifications.read` — scope `spool:evidence`.
+- `spool.notifications.read` — scope `spool:evidence`; classes `standard`.
 
 ### Occurrences
 
-- `spool.occurrences.list` — scope `spool:evidence`.
+- `spool.occurrences.list` — scope `spool:evidence`; classes `standard`.
 
 ### Outcomes
 
-- `spool.outcomes.read` — scope `spool:evidence`.
+- `spool.outcomes.read` — scope `spool:evidence`; classes `standard`.
 
 ### Packets
 
-- `spool.packets.read` — scope `spool:evidence`.
+- `spool.packets.read` — scope `spool:evidence`; classes `standard`.
 
 ### Privacy
 
-- `spool.privacy.continue` — scope `spool:privacy`.
-- `spool.privacy.erase` — scope `spool:privacy`.
-- `spool.privacy.preview` — scope `spool:evidence`.
+- `spool.privacy.continue` — scope `spool:privacy`; classes `destructive`.
+- `spool.privacy.erase` — scope `spool:privacy`; classes `destructive`.
+- `spool.privacy.preview` — scope `spool:evidence`; classes `standard`.
 
 ### Projects
 
-- `spool.projects.create` — scope `spool:projects`.
-- `spool.projects.list` — scope `spool:evidence`.
+- `spool.projects.create` — scope `spool:projects`; classes `standard`.
+- `spool.projects.list` — scope `spool:evidence`; classes `standard`.
 
 ### Proposals
 
-- `spool.proposals.create` — scope `spool:propose`.
-- `spool.proposals.list` — scope `spool:evidence`.
-- `spool.proposals.read` — scope `spool:evidence`.
+- `spool.proposals.create` — scope `spool:propose`; classes `standard`.
+- `spool.proposals.list` — scope `spool:evidence`; classes `standard`.
+- `spool.proposals.read` — scope `spool:evidence`; classes `standard`.
 
 ### Releases
 
-- `spool.releases.read` — scope `spool:evidence`.
-- `spool.releases.record` — scope `spool:releases`.
+- `spool.releases.read` — scope `spool:evidence`; classes `standard`.
+- `spool.releases.record` — scope `spool:releases`; classes `standard`.
 
 ### Repairs
 
-- `spool.repairs.check` — scope `spool:repairs`.
-- `spool.repairs.read` — scope `spool:evidence`.
-- `spool.repairs.record` — scope `spool:repairs`.
-- `spool.repairs.record_fact` — scope `spool:repairs`.
+- `spool.repairs.check` — scope `spool:repairs`; classes `standard`.
+- `spool.repairs.read` — scope `spool:evidence`; classes `standard`.
+- `spool.repairs.record` — scope `spool:repairs`; classes `standard`.
+- `spool.repairs.record_fact` — scope `spool:repairs`; classes `standard`.
 
 ### Reproducers
 
-- `spool.reproducers.claim` — scope `spool:reproducers`.
-- `spool.reproducers.create` — scope `spool:reproducers`.
-- `spool.reproducers.read` — scope `spool:evidence`.
-- `spool.reproducers.run` — scope `spool:reproducers`.
+- `spool.reproducers.claim` — scope `spool:reproducers`; classes `standard`.
+- `spool.reproducers.create` — scope `spool:reproducers`; classes `standard`.
+- `spool.reproducers.read` — scope `spool:evidence`; classes `standard`.
+- `spool.reproducers.run` — scope `spool:reproducers`; classes `standard`.
 
 ### Retention
 
-- `spool.retention.preview` — scope `spool:evidence`.
-- `spool.retention.read` — scope `spool:evidence`.
-- `spool.retention.update` — scope `spool:retention`.
+- `spool.retention.preview` — scope `spool:evidence`; classes `standard`.
+- `spool.retention.read` — scope `spool:evidence`; classes `standard`.
+- `spool.retention.update` — scope `spool:retention`; classes `standard`, `destructive`.
+  Unchanged or longer windows are standard. Any shortened window is destructive, even for an empty inventory. Its measure is the native preview count, never a caller-supplied count. Proof: [retentionClasses](../tests/agent-door/retention-classes.mjs).
 
 ### Witness
 
-- `spool.witness.read` — scope `spool:evidence`.
+- `spool.witness.read` — scope `spool:evidence`; classes `standard`.
 
 ## Resource templates
 
 Unavailable. The resource-template inventory is empty (`[]`): the native door does not declare the resources capability.
 
 Currently unavailable capabilities: events, prompts, subscriptions.
+
+## Capacity and errors
+
+Requests per minute per agent: `600`. Maximum request body bytes: `1048576`. A rate refusal returns HTTP 429 with Retry-After; an oversized body returns HTTP 413. These limits protect transport capacity. Provider-spend caps are not enforced.
+
+Transport refusals include HTTP 401 with an OAuth resource-metadata challenge for missing or invalid authority, HTTP 403 for insufficient scope or a foreign origin, and HeaderMismatch or UnsupportedProtocolVersion for incompatible transport metadata.
+
+Tool failures expose a stable code in result error metadata. Common codes are `policy_unset`, `policy_unavailable`, `policy_blocked`, `agents_paused`, `approval_required`, `approval_rejected`, `approval_expired`, `approval_evidence_changed`, `native_proof_required`, `self_escalation`, `idempotency_key_required`, `idempotency_conflict`, `revision_conflict`, `invalid_arguments`, `not_found`, `insufficient_scope`, `subject_erased`, `call_in_progress`, `decision_busy` and `output_invalid`. Native services can return additional refusal codes. A missing resource, prompt, event or subscription capability returns `capability_not_declared`.
+
+Follow the returned native person URL for setup, consent, approvals or review. An approval flag cannot complete a person step. Retry a mutation with the same idempotency key and arguments; changed arguments conflict. Never treat a recorded repair claim as an independently observed fix.
 
 <!-- spool:agent-inventory:end -->
 

@@ -1,5 +1,7 @@
 // One catalogue for production registration, discovery, docs and conformance.
 export const agentCapabilities=['tools','policy','pause','audit','idempotency'];
+// Explicit native limits retain the shared door's defaults and feed its guide.
+export const agentLimits={requestsPerMinute:600,maxBodyBytes:1048576};
 const str={type:'string',minLength:1,maxLength:200};
 const text={type:'string',maxLength:4000};
 // Native cursors encode the query signature, ordering keys and record ID.
