@@ -86,6 +86,26 @@ try {
  // Check drafts across destinations without relying on browser refresh persistence.
  await (await workbenchLink(page,'Releases')).click();await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
 
+ // Revocation requires a named confirmation; cancel leaves capture authorized.
+ const revokeGrant=await api('/api/projects/cedar/keys','POST',{kind:'ingest'});
+ await page.goto(origin+'/projects/cedar/settings?section=capture');
+ const keyRow=page.locator('.key-row').filter({hasText:revokeGrant.hash.slice(0,12)});
+ await keyRow.getByRole('button',{name:'Details: Project key',exact:true}).click();
+ const keyDialog=page.getByRole('dialog',{name:'Project key',exact:true});
+ await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+ const confirmation=keyDialog.getByRole('group',{name:'Confirm key revocation',exact:true});
+ assert.ok((await confirmation.innerText()).includes(revokeGrant.hash.slice(0,12)));
+ await capture('key-revoke-confirm',width);
+ await confirmation.getByRole('button',{name:'Cancel revoke',exact:true}).click();
+ assert.equal((await api('/api/projects/cedar/keys')).find(key=>key.hash===revokeGrant.hash).revoked,null);
+ await keyDialog.getByRole('button',{name:'Revoke key',exact:true}).click();
+ await confirmation.getByRole('button',{name:'Confirm revocation',exact:true}).click();
+ await keyDialog.getByText('Revoked · Created',{exact:false}).waitFor();
+ assert.ok((await api('/api/projects/cedar/keys')).find(key=>key.hash===revokeGrant.hash).revoked);
+ const denied=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Authorization:'Bearer '+revokeGrant.key,'Content-Type':'application/json'},body:JSON.stringify(packet.events[0].event)});
+ assert.equal(denied.status,401,'confirmed revocation stops capture');await denied.body?.cancel();
+ await page.keyboard.press('Escape');
+
  // Open the actual browser download, including its verified closing hashes.
  await (await workbenchLink(page,'Settings')).click();
  if(width===390)await page.getByLabel('Settings section',{exact:true}).selectOption('data');

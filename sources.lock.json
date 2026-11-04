@@ -10306,7 +10306,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "d76d5b22d915de126b4906819baccdf98b2abf4a08d9a8d27dc49ee3793af13b",
+      "sha256": "e62225c2f801df966d33d1d9db12e89650c68119cb530837c8a1d1b689b4dd72",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -11374,7 +11374,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "dbd262d043cdb482b4dadebe84347b0b96f529b25a6a3c959bb075d343a8a954",
+      "sha256": "aed0e8c0127b841948af57714c88bcbecf2d1bfdbb06d15768e106c65358f8b6",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
