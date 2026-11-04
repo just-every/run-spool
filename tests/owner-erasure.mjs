@@ -3,7 +3,7 @@ import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
 import { mkdir,writeFile } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
+import { randomUUID,generateKeyPairSync } from 'node:crypto';
 import { runtime,successor,confirmLatest,snapshot,archive,eraseInput,restore } from './owner-erasure/helpers.mjs';
 import { testOwner,testSetupToken } from './auth.mjs';
 import { sentryExport } from './project-erasure/fixture.mjs';
@@ -46,6 +46,8 @@ try {
  const independentTokens=await app.DB.prepare("SELECT * FROM oa_tokens WHERE kind='magic' AND operator_id<>?").bind(owner.id).all();
  const project=await app.json('/api/projects',{id:'personal-capture',name:`Test owner and ${other}`},201);
  await app.json('/api/projects/personal-capture/releases',{name:'r1',build:'b1'},201);
+ const privateKey=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs8',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}}).privateKey;
+ const githubSetup=await app.request('/api/projects/personal-capture/github-connection',{appId:'42',installationId:'7',privateKey},{},'PUT');assert.equal(githubSetup.status,200);await githubSetup.body.cancel();
  await app.json('/api/projects/personal-capture/artifacts',{release:'r1',build:'b1',debugId:'map',map:{version:3,sources:['src/app.js'],sourcesContent:[`Test owner / ${testOwner} / ${owner.id} / ${other}`],names:[],mappings:'AAAA'}},201);
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
@@ -126,7 +128,7 @@ try {
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
  const latest=await app.json('/api/owner/erasure');assert.equal(latest.deleted.spool_notification_preferences,1,'owner erasure previews personal preference custody');
- const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
+ const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM spool_github_connection').first()).count,0,'owner erasure removes the saved GitHub private key');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
  for(const table of ['follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts'])assert.equal(after[table].length,0,'owner erasure removes operational Slack custody: '+table);

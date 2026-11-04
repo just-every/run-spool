@@ -5910,7 +5910,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-declaration.ts": {
-      "sha256": "6495d17901cce1e0f8a6e1cffa21cca8e4f6fd78bf5c94234ac5e38a5a80b072",
+      "sha256": "cab33ddcb67eea73a7d0c925cc7113ba4b0220c0852fc0bece59191cff2b3b22",
       "executable": false
     },
     "src/domain/erasure/owner-operation.ts": {
@@ -5922,7 +5922,7 @@
       "executable": false
     },
     "src/domain/erasure/owner-scope.ts": {
-      "sha256": "b427f67cb6d7a7c442de664cbbcf8a23a87083f738f9e54f1459052eb7927570",
+      "sha256": "1f5723d039f92f4c94e1c004c31d84e97d2ee87a17a063e989aea6e1d220a849",
       "executable": false
     },
     "src/domain/erasure/owner-service.ts": {
@@ -10906,7 +10906,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "061ed6c076dcf8667bc165ae15c4e0478158389d74bbfdfe72d16cc7e850a939",
+      "sha256": "7e370e877304779e05353a42d71c7a89a8b78c0753799f9cc09161efd232628f",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
