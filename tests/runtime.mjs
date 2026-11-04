@@ -3,7 +3,10 @@ const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)pr
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
 import {startTestWorker} from './worker.mjs';
 import {execFileSync} from 'node:child_process';
-import {readFile} from 'node:fs/promises';
+import {mkdir,readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import AxeBuilder from '@axe-core/playwright';
+import {documentedInventory} from './agent-door/docs-contract.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {signIn,authBindings,testSetupToken,testDevKey} from './auth.mjs';
 const worker=await startTestWorker(15468),origin=worker.origin;
@@ -76,6 +79,41 @@ try {
     assert.equal(await page.locator('article').innerHTML(),liveArticle,'generated static HTML publishes the complete same guide');
     assert.equal(await page.getByRole('navigation',{name:'Docs',exact:true}).getByRole('link',{name:'Framework setup',exact:true}).getAttribute('aria-current'),'page');
     console.log('PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.');
+    const agentContext=await browser.newContext({viewport:{width:1440,height:900}});
+    try{
+     const page=await agentContext.newPage();
+    // Agent documentation is public and usable without script, owner cookie or a local gate.
+    await page.goto(origin+'/docs');
+    const agentLink=page.getByRole('navigation',{name:'Docs',exact:true}).getByRole('link',{name:'Your coding agent',exact:true});
+    await agentLink.focus();await page.keyboard.press('Enter');await page.waitForURL(origin+'/docs/agents');
+    assert.equal(await page.getByRole('navigation',{name:'Docs',exact:true}).getByRole('link',{name:'Your coding agent',exact:true}).getAttribute('aria-current'),'page');
+    const agentResponse=await fetch(origin+'/docs/agents');assert.equal(agentResponse.status,200);
+    const agentHtml=await agentResponse.text();assert.ok(!agentHtml.includes('<script'));
+    const agentArticle=page.locator('article');
+    assert.deepEqual(documentedInventory(agentHtml).tools,await agentArticle.locator('li > code:first-child').evaluateAll(nodes=>nodes.map(node=>node.textContent).filter(name=>name.startsWith('spool.')).sort()),'The complete offered inventory is visible through docs navigation');
+    const local=await agentArticle.locator('#local-agent-access').evaluate(heading=>{
+     const nodes=[];for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)nodes.push(node);
+     return nodes.map(node=>node.textContent).join('\n');
+    });
+    assert.match(local,/read -r -s/);assert.match(local,/SPOOL_DEV_KEY/);assert.match(local,/x-rer-dev-key/);assert.match(local,/loopback/);assert.match(local,/Never give the gate to a browser/);
+    const privateGuide=agentArticle.getByRole('link',{name:'CLI and MCP guide',exact:true});
+    await privateGuide.focus();assert.ok(await privateGuide.evaluate(link=>link===document.activeElement),'Private local-access guidance is keyboard reachable');
+    const guideTarget=new URL(await privateGuide.getAttribute('href'),origin);
+    assert.ok(guideTarget.pathname.endsWith('/docs/WITH-YOUR-AGENT.md'),'The private-access link reaches the repository guide');
+    assert.equal(guideTarget.hash,'#local-agent-access','The private-access link retains the locally validated anchor');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Agent documentation reflows at 1440');
+    const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(row=>['serious','critical'].includes(row.impact)).map(row=>row.id),[],'Agent documentation has no serious or critical Axe findings');
+    const screens=resolve(process.env.SPOOL_DOC_SCREENSHOTS??'.artifacts/agent-docs');await mkdir(screens,{recursive:true});
+    await page.screenshot({path:resolve(screens,'agents-1440.png'),fullPage:true});
+    const liveAgents=await agentArticle.innerHTML(),staticAgents=await readFile('dist/site/docs/agents.html','utf8');
+    await page.setContent(staticAgents);
+    assert.equal(await page.locator('article').innerHTML(),liveAgents,'The generated static site publishes the complete same agent guide');
+    assert.deepEqual(documentedInventory(staticAgents),documentedInventory(agentHtml),'Application and static inventories agree exactly');
+    await page.setViewportSize({width:390,height:844});await page.goto(origin+'/docs/agents');
+    await page.screenshot({path:resolve(screens,'agents-390.png'),fullPage:true});
+    console.log('PROBE BASE-AGENT-013 publication: anonymous /docs/agents and generated static article agree; keyboard navigation, private local guidance, Axe and desktop reflow passed; 1440 and 390 screens captured.');
+    }finally{await agentContext.close();}
+
    }finally{await context.close();}
   }finally{await browser.close();}
  }

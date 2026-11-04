@@ -3,6 +3,7 @@ import { dirname, join, normalize } from 'node:path';
 import { anchorsOf, renderMarkdown } from './markdown';
 import { PATHS, startLine } from '../../src/base/run-site';
 import { run } from '../../src/site/run';
+import { agentDocs, agentDocumentationFiles } from '../../scripts/agent-door/docs.mjs';
 import type { Heading } from './markdown';
 
 // docs/site.json lists the repository Markdown the site publishes, in display order. Every page is rendered here, at
@@ -62,6 +63,7 @@ export function buildSite(root: string): DocsSite {
       const recipe = ['```sh', startLine(run), '```', '', `${PATHS.self.requirements} Already have Node 22 or later? \`${run.clone}\` does the same.`].join('\n');
       markdown = markdown.replace(/<!-- rer:start -->[\s\S]*?<!-- rer:end -->/, recipe);
     }
+    if (entry.slug === 'agents') markdown = agentDocs(markdown, {publish:true});
     const rendered = renderMarkdown(markdown, resolve);
     if (!rendered.title) problems.push(`${entry.source} has no level-one heading`);
     // The page shows its own title once; the Markdown's H1 is not repeated in the article.
@@ -70,5 +72,5 @@ export function buildSite(root: string): DocsSite {
   });
   if (problems.length) throw new Error(`Docs: broken links in the repository Markdown:\n- ${problems.join('\n- ')}`);
   const sections = [...new Set(entries.map(entry => entry.section))].map(title => ({ title, pages: entries.filter(entry => entry.section === title && !entry.unlisted).map(({ slug, label, href }) => ({ slug, label, href })) }));
-  return { repository, sections, pages, files: [manifestPath, ...entries.map(entry => entry.source)].map(path => join(root, path)) };
+  return { repository, sections, pages, files: [manifestPath, ...agentDocumentationFiles, ...entries.map(entry => entry.source)].map(path => join(root, path)) };
 }

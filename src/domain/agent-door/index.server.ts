@@ -7,7 +7,7 @@ import { spoolTools } from './tools';
 import { standingTools } from './standing';
 import type { AlertEnvironment } from '../alerts/types';
 import { spoolResources } from './resources';
-import { localScopes, notTools } from './catalogue.mjs';
+import { agentCapabilities, localScopes, notTools } from './catalogue.mjs';
 import { agentProject } from '../agent-access';
 import { hash } from '../privacy';
 import { mintedByCurrentPerson } from '../credential-fence';
@@ -29,7 +29,7 @@ export async function localAgent(request:Request,env:Bindings) {
 export function spoolAgentDoor(env:Bindings,name='Spool',now?:()=>number) {
  return createAgentDoor({seed:'spool',name,...now?{now}:{},specialist:'triage engineer',db:env.DB,origin:env.AUTH_ORIGIN,trust:trust(env),people:spoolPeople(env),
   erasure:{secret:env.SESSION_SECRET,fenced:(name,args)=>nativeErasureFence(env.DB,name,args)},
-  capabilities:['tools','policy','pause','audit','idempotency'],
+  capabilities:agentCapabilities as AgentDoorOptions['capabilities'],
   nativeProof:{handoff:()=>`${env.AUTH_ORIGIN}/projects`,async verify({kind,tool,args,principal,reference}){
    if(kind!=='repository_grant'||tool!=='spool.fixes.advance')return false;
    const row=await env.DB.prepare(`SELECT a.reference FROM spool_native_approvals a JOIN fix_workflows f ON f.id=a.id AND f.project=a.project JOIN spool_agent_custody c ON c.id=f.id AND c.kind='fix'

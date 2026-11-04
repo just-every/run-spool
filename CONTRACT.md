@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1776,6 +1776,6 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-012` | Writes are idempotent and conflict-safe | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-013` | Manifest, docs and the conformance journey | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-013` | Manifest, docs and the conformance journey | target | partial | `tests/agent-door.mjs` invoking `tests/agent-door/docs-contract.mjs` docsContract: acceptance 1 native offered-name parity under independently adopted autonomous and held policies, including the empty resource-template inventory; `tests/runtime.mjs`: anonymous documentation navigation, private local-access guidance, complete application and generated static article equality, keyboard access, Axe and desktop reflow with 1440 and 390 browser proof; `scripts/agent-door/docs.mjs`; `vite/docs/site.ts`; `docs/agents.md` | Qualification is limited to acceptance 1 for the currently offered native MCP surface. Generated discovery instructions, documented classes and computed-class tests, complete negative-harness qualification, every acceptance point under both policies, specialist prompts and the stranger-agent journey remain unproved. Resources, events, prompts and subscriptions remain undeclared; dormant adapters establish no acceptance. Existing account, device and policy holds remain unchanged. |
 
 UX-001 landing replay (3 November 2026): main’s partial Status, Evidence and Gap judgments remain unchanged. Supplementary proof in `tests/team-flow.mjs`, `tests/team-browser.mjs` and `tests/team-viewport.mjs` starts independent native teams, projects, members and capture at 1440 and 390, reconciles triage through public reads, and checks Details keyboard containment, Escape, focus return, Axe and reflow. Assignment remains an operator label; actual member/team assignment remains TEAM-002. This replay does not promote UX-001 or qualify target-wide state coverage, complete release and feedback paths, native-device use, human screen-reader operation or VPAT proof.

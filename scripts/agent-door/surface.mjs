@@ -1,5 +1,5 @@
 import {readFile,writeFile} from 'node:fs/promises';
-import {catalogue,notTools,resourceTemplates} from '../../src/domain/agent-door/catalogue.mjs';
+import {catalogue,agentCapabilities,notTools,resourceTemplates} from '../../src/domain/agent-door/catalogue.mjs';
 const from=(step,pointer)=>({$from:step,pointer});
 const fixture=name=>({$fixture:name,pointer:''});
 const project=fixture('project'),issue=from('issues','/items/0/id');
@@ -90,7 +90,7 @@ for(const step of journey){
 const tools=catalogue.map(({name,scope,readOnly,classes,clauses,inputSchema,proof,proofKind})=>({name,scope,readOnly,classes,clauses,...proof?{proof,proofKind}:{},...name==='spool.access.update'?{sponsorEscalation:false}:{},...name==='spool.credentials.update'?{widens:false,narrowing:{effect:'revoke',target:'id'},inputSchema}:{}}));
 tools.push({name:'spool.events.list',scope:'events:read',readOnly:true,classes:['standard'],clauses:['BASE-AGENT-010']});
 const resources=resourceTemplates;
-const surface={schema:'rer-agent-surface/1',seed:'spool',specialist:'triage engineer',capabilities:['tools','policy','pause','audit','idempotency'],tools:tools.sort((a,b)=>a.name.localeCompare(b.name)),resources,notTools,journey,
+const surface={schema:'rer-agent-surface/1',seed:'spool',specialist:'triage engineer',capabilities:agentCapabilities,tools:tools.sort((a,b)=>a.name.localeCompare(b.name)),resources,notTools,journey,
  witness:{tool:'spool.witness.read',args:{project}},
  // Admitted administrators already have full native member authority. The
  // actual member ID/email widening refusals remain in peopleFlow.
