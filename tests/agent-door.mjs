@@ -15,8 +15,10 @@ import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
+import {externalInjectionContract} from './agent-door/external-injection-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
+await externalInjectionContract();
 await nativeSetup();
 const github=await githubDouble();
 const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github.com'};
