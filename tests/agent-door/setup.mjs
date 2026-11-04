@@ -55,7 +55,7 @@ export async function nativeSetup(){
   };
   screens=await agentScreens({origin:app.origin,cookie});
   await screens.capture('native-setup-unanswered',setup.pathname,null,async page=>{
-   assert.equal(await page.locator('.sidebar .wordmark img').getAttribute('src'),'/theme/spool-mark.svg');
+   assert.ok(await page.locator('.sidebar .wordmark img').evaluate(image=>image.complete&&image.naturalWidth>0),'The workbench mark loads on the agent page');
    await page.getByRole('navigation',{name:'Workbench',exact:true}).waitFor({state:'attached'});
    const questions=await page.locator('[data-policy-class]').evaluateAll(selects=>selects.map(select=>({
     id:select.dataset.policyClass,value:select.value,label:select.labels?.[0]?.textContent.trim(),

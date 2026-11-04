@@ -10478,7 +10478,7 @@
       "executable": false
     },
     "tests/agent-door/setup.mjs": {
-      "sha256": "2086672a7d6635361b153c9310a776cb5f36335428e2bf4e91150c05d78bbb7a",
+      "sha256": "7f8e8e4115a31cb4092ed7e13a1b4f3da9ec2782bdff0126d67b1100876e535d",
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
