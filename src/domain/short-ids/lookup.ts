@@ -9,6 +9,10 @@ export const primaryShortIdSql = (issue: string) => `COALESCE(
 export const shortIdColumnsSql = (issue = 'i') => `${primaryShortIdSql(issue)} short_id,
  (SELECT json_group_array(short_id) FROM (SELECT short_id FROM issue_short_ids WHERE project=${issue}.project AND issue=${issue}.id AND short_id IS NOT ${primaryShortIdSql(issue)} ORDER BY number)) short_id_aliases,
  (SELECT ${primaryShortIdSql('target')} FROM issue_short_ids moved JOIN issues target ON target.id=moved.issue AND target.project=moved.project WHERE moved.short_id=${primaryShortIdSql(issue)} AND moved.issue<>${issue}.id) short_id_resolves_to`;
+/** Empty groups whose public IDs now resolve elsewhere remain available for history and undo,
+ * but do not compete with their survivor in current issue lists and exports. */
+export const listedIssueSql = (issue = 'i') => `NOT (${issue}.count=0 AND EXISTS(
+ SELECT 1 FROM issue_short_ids moved WHERE moved.project=${issue}.project AND moved.assigned=${issue}.id AND moved.issue<>${issue}.id))`;
 export function decodeShortIds<T extends Record<string, any>>(row: T) {
  let aliases: unknown = [];
  try { aliases = JSON.parse(row.short_id_aliases ?? '[]'); } catch { /* none */ }

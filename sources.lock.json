@@ -5686,7 +5686,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "ad5406cf42be4d3dfa51d5987111e2a271873103138555b73d6ad944a32ba0da",
+      "sha256": "becb1818de4ba77a8d8b850b7983774fc5323cf12cfd426e139961d395cb4d87",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -6174,7 +6174,7 @@
       "executable": false
     },
     "src/domain/investigation/search.ts": {
-      "sha256": "6fe042c9f1c0225e65b121c0ed411bcee1a39852f123de0f7887e5613c8d5de7",
+      "sha256": "d48e145009ffe61208b999b1a933743957da58243a6b85c0367df0593b7ba9fa",
       "executable": false
     },
     "src/domain/issue-attention.ts": {
@@ -6866,7 +6866,7 @@
       "executable": false
     },
     "src/domain/short-ids/lookup.ts": {
-      "sha256": "f1444ed41b47a047f3a309f70f9bae81965d4e90586b31c3fa2739223a916c36",
+      "sha256": "a896668f9d1aa3404b9a2973904e2b372270a8eb54b535fedc9241b591df1b0b",
       "executable": false
     },
     "src/domain/source-map-builds.ts": {
@@ -10870,7 +10870,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "7fd3095db922b3baed79d5847b5c86d9d38b97606045f4637ad552f04d19a661",
+      "sha256": "907be2f55ab3f48baf22111e0f536492d2e02ca5d6b03a1a0cfafa7b3530538a",
       "executable": false
     },
     "tests/otlp-flow.mjs": {

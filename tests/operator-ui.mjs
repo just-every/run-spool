@@ -154,6 +154,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await mergeDialog.waitFor({state:'hidden'});
  assert.equal((await api(root+'/issues/'+newGroup.issue+'/packet')).issue.count,offered.source.count+offered.target.count);
  assert.equal((await api(root+'/issues')).some(row=>row.id===issue),false,'Only the surviving group remains in the issue list');
+ assert.equal((await api(root+'/issue-search')).rows.some(row=>row.id===issue),false,'The rendered issue search also hides the absorbed group');
  // Preserve the existing rollback proof by undoing the reviewed correction first.
  const appliedMerge=(await api(root+'/corrections')).find(row=>row.kind==='merge'&&row.state==='applied'&&row.plan.target===newGroup.issue);
  await api(root+'/corrections/'+appliedMerge.id+'/undo','POST',{confirm:true});await page.reload();
