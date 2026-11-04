@@ -53,7 +53,7 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  await writeFile(file,JSON.stringify({...rule,events:input.events}),{mode:0o600});
  const invalidRule=await cli(['propose','--file',file,'--format','json'],env);
  assert.equal(invalidRule.code,4);assert.equal(JSON.parse(invalidRule.stderr).exitCode,4);assert.match(JSON.parse(invalidRule.stderr).error,/events.*rule/);
- const refusedRule=await app.request(path,'POST',{...rule,events:input.events},agent);
+ const refusedRule=await app.request(path,'POST',{...rule,events:input.events},{...agent,headers:{'Idempotency-Key':crypto.randomUUID()}});
  assert.equal(refusedRule.status,400);assert.match((await refusedRule.json()).reason,/events.*rule/);
  await writeFile(file,JSON.stringify(rule),{mode:0o600});
  const validRule=await cli(['propose','--file',file,'--format','json'],env);assert.equal(validRule.code,0);assert.equal(JSON.parse(validRule.stdout).kind,'rule');

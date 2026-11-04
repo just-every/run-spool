@@ -10490,7 +10490,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "cdacfd13c80c26216348443911935f7f6bbaf60b36b24255219b5b9280e001ec",
+      "sha256": "ee80fe95757aca0bbdb5200d06b0031da3ec9fcaf4225d84f51d16810b6ea694",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -10870,7 +10870,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "907be2f55ab3f48baf22111e0f536492d2e02ca5d6b03a1a0cfafa7b3530538a",
+      "sha256": "43cd4da8c6b32b616875f31ffce513b734e823aa6279175d52d659326a29da18",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
