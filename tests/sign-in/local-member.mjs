@@ -26,7 +26,7 @@ export async function localMemberSignInJourney(browser, origin, ownerContext) {
   await form.getByLabel('Email',{exact:true}).fill(email);
   await form.getByLabel('Name',{exact:true}).fill('synthetic-spool-2');
   await form.getByLabel(/^Organization role/).selectOption('member');
-  await form.getByLabel('Journey',{exact:true}).selectOption('member');
+  await form.getByLabel(/^Journey/).selectOption('member');
   const sent = ownerPage.waitForResponse(r=>new URL(r.url()).pathname==='/api/organization/invites'&&r.request().method()==='POST');
   await form.getByRole('button',{name:'Send invitation',exact:true}).click();
   assert.equal((await sent).status(),202);
