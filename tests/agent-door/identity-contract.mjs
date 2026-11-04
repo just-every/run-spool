@@ -185,6 +185,8 @@ export async function identityContract(app){
    assert.equal(done(await raw('tools/call',{name:'spool.issues.list',arguments:{project}},other)).items[0].id,issue,'Independent consent for the same agent remains readable');
    await app.restart();
    assert.equal((await raw('tools/list',{},await accessToken(app.context,identity))).status,401,'Fresh tokens with retired consent remain refused after restart');
+   const replacement={...identity,act:{...identity.act,sub:randomUUID()}};
+   assert.equal((await raw('tools/list',{},await accessToken(app.context,replacement))).status,401,'Changing the agent cannot revive the retired consent');
    if(boundary==='seed'){
     await app.adopt(policy());
     assert.equal((await raw('tools/list',{},await accessToken(app.context,identity))).status,401,'A policy renewal cannot revive a locally retired consent');
