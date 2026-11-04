@@ -5550,7 +5550,7 @@
       "executable": false
     },
     "src/domain/agents/workbench.tsx": {
-      "sha256": "8f5aeaf6cc43479ea1e946a62ccd1dcf9c50b927fe247a6a2e41d44d3b38f833",
+      "sha256": "ed85d8613920218fb99add52e24170c858b0659cb326bb50c293fc0cd1dc4ca2",
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
@@ -10278,7 +10278,7 @@
       "executable": false
     },
     "src/ui/workbench/RuleMergeSuggestions.tsx": {
-      "sha256": "8a7b482d419aad579edae1a77e396dfc8a11d304d5828d1a07553312deb716cb",
+      "sha256": "8e6be62c508d560158c359171da4bc51cec0020aadd094909458e87b434931d0",
       "executable": false
     },
     "src/ui/workbench/SaveMarks.tsx": {
@@ -10870,7 +10870,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "67d105a08fd5d289f6e1792c31c09502597958fa8956515fa1c81fde58662332",
+      "sha256": "f2d54f2ca7f2cfbaf01abd9a8cbee2d91c653af30c6653313e83154acddc942f",
       "executable": false
     },
     "tests/otlp-flow.mjs": {

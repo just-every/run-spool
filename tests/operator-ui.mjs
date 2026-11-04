@@ -143,7 +143,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const captured=await api(root+'/keys','POST',{kind:'ingest'});
  const admission=await fetch(origin+'/api/ingest/'+project,{method:'POST',headers:{Authorization:'Bearer '+captured.key,'Content-Type':'application/json'},body:JSON.stringify({...liveEvent,eventId:'synthetic-spool-rule-next-'+crypto.randomUUID()})});
  assert.equal(admission.status,201);const newGroup=await admission.json();assert.notEqual(newGroup.issue,issue);
- await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+ await page.getByRole('button',{name:'Refresh merge offers',exact:true}).click();
  const suggestions=await api(root+'/grouping-rules/merge-suggestions');
  const offered=suggestions.find(row=>row.source.id===issue&&row.target?.id===newGroup.issue);assert.ok(offered,'The applied rule links the old group to the next capture group');
  await page.getByRole('button',{name:'Review merge into '+offered.target.short_id,exact:true}).first().click();
