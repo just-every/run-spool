@@ -5,8 +5,10 @@ import { markdown } from '../src/format.mjs';
 import { packetMarkdown } from '../src/packet-markdown.mjs';
 import { readProposal } from '../src/proposal.mjs';
 
+let format;
 try {
   const options = parseArgs(process.argv.slice(2));
+  format = options.format;
   if (options.help) process.stdout.write(HELP);
   else {
     const config = await configuration(options);
@@ -23,6 +25,7 @@ try {
   }
 } catch (error) {
   const safe = error instanceof AgentError ? error : new AgentError('Spool agent is unavailable; check the local installation.');
-  process.stderr.write(markdown({ error: safe.message, exitCode: safe.exitCode }));
+  const failure = { error: safe.message, exitCode: safe.exitCode };
+  process.stderr.write(format === 'json' ? JSON.stringify(failure) + '\n' : markdown(failure));
   process.exitCode = safe.exitCode;
 }

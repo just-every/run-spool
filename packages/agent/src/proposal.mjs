@@ -16,6 +16,14 @@ export async function readProposal(options) {
     }
     const value = JSON.parse(Buffer.concat(chunks).toString('utf8'));
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new AgentError('Proposal must be a JSON object.');
+    const common = ['kind','source','revision','variants','rationale','window'];
+    const changes = {split:['events'],merge:['target','targetRevision'],rule:['policy','policyRevision']};
+    if (!Object.hasOwn(changes,value.kind)) throw new AgentError('kind must be split, merge or rule.');
+    const allowed = [...common,...changes[value.kind]];
+    const unexpected = Object.keys(value).find(field => !allowed.includes(field));
+    if (unexpected) throw new AgentError(`Unexpected proposal field: ${unexpected.slice(0,80)} is not allowed for ${value.kind} proposals.`);
+    const missing = allowed.find(field => !Object.hasOwn(value,field));
+    if (missing) throw new AgentError(`Missing proposal field: ${missing} is required for ${value.kind} proposals.`);
     return value;
   } catch (error) {
     if (error instanceof AgentError) throw error;

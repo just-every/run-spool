@@ -48,6 +48,15 @@ async function groupingProposalHandoff(app,env,agent,mcp,issue,otherIssue){
  assert.deepEqual(canonicalList,await app.json(path,'GET',undefined,agent));
  for(const id of [mcpProposal.id,canonicalProposal.id])assert.ok(canonicalList.some(row=>row.id===id));
  for(const row of canonicalList){assert.equal(row.label,proposal.label);assert.ok(!Object.hasOwn(row,'explanation'));}noSecrets(canonicalList);
+ const {events:unusedEvents,...ruleBase}=input;
+ const rule={...ruleBase,kind:'rule',policyRevision:0,policy:{version:1,stack:'',fingerprint:'message:* -> handoff-rule'}};
+ await writeFile(file,JSON.stringify({...rule,events:input.events}),{mode:0o600});
+ const invalidRule=await cli(['propose','--file',file,'--format','json'],env);
+ assert.equal(invalidRule.code,4);assert.equal(JSON.parse(invalidRule.stderr).exitCode,4);assert.match(JSON.parse(invalidRule.stderr).error,/events.*rule/);
+ const refusedRule=await app.request(path,'POST',{...rule,events:input.events},agent);
+ assert.equal(refusedRule.status,400);assert.match((await refusedRule.json()).error,/events.*rule/);
+ await writeFile(file,JSON.stringify(rule),{mode:0o600});
+ const validRule=await cli(['propose','--file',file,'--format','json'],env);assert.equal(validRule.code,0);assert.equal(JSON.parse(validRule.stdout).kind,'rule');
  const beforeRefusals=(await app.archive()).data;
  for(const [name,args] of [
   ...tools.map(row=>[row.name,{unexpected:'synthetic-spool-82'}]),

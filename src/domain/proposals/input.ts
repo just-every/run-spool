@@ -7,7 +7,9 @@ const text=(value:any,limit:number)=>{if(typeof value!=='string'||value.length>l
 export function normalizeProposal(b:any){
  if(!b||!['split','merge','rule'].includes(b.kind))throw new Error('Expected split, merge or rule proposal');
  const fields=['kind','source','revision','variants','rationale','window',...(b.kind==='split'?['events']:b.kind==='merge'?['target','targetRevision']:['policy','policyRevision'])];
- if(Object.keys(b).sort().join()!==fields.sort().join())throw new Error('Unexpected proposal fields');
+ const unexpected=Object.keys(b).find(field=>!fields.includes(field)),missing=fields.find(field=>!Object.hasOwn(b,field));
+ if(unexpected)throw new Error(`Unexpected proposal field: ${unexpected.slice(0,80)} is not allowed for ${b.kind} proposals`);
+ if(missing)throw new Error(`Missing proposal field: ${missing} is required for ${b.kind} proposals`);
  if(!Array.isArray(b.variants)||!b.variants.length||b.variants.length>20)throw new Error('Cite 1 to 20 variants');
  const variants=b.variants.map((v:any)=>{if(!v||Object.keys(v).sort().join()!=='release,route,stack')throw new Error('Each variant cites stack, release and route');return {stack:(()=>{if(typeof v.stack!=='string'||v.stack.length>4000)throw new Error('Stack citation exceeds bounds');return scrubStack(v.stack)})(),release:text(v.release,200),route:text(v.route,500)}});
  const w=b.window;

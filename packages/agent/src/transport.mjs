@@ -50,10 +50,12 @@ export function endpoint(config, operation, args = {}) {
 
 // A policy refusal names where an owner answers it. An existing project key
 // stops at an unanswered company agent policy until the owner chooses one.
+const refusalExit = error => error?.code === 'not_found' ? 3 : ['unauthorized','unauthenticated','invalid_token'].includes(error?.code) ? 2 : 4;
 function refusal(error, config) {
   const code = typeof error?.code === 'string' ? error.code : 'native_refused';
   const setup = typeof error?.setup_url === 'string' ? redact(error.setup_url, [config.key, config.devKey]) : null;
-  return `Spool refused the request: ${code}.${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
+  const reason = typeof error?.reason === 'string' ? redact(error.reason.slice(0,500), [config.key, config.devKey]) : null;
+  return `Spool refused the request: ${code}.${reason ? ` ${reason}` : ''}${setup ? ` An owner chooses the company agent policy at ${setup}; this key works once it is chosen.` : ''}`;
 }
 export async function rpc(config, method, params = {}) {
   const url = new URL('/mcp', config.root);
@@ -69,7 +71,7 @@ export async function rpc(config, method, params = {}) {
     let bytes=0;const chunks=[];
     for await(const chunk of response.body){bytes+=chunk.byteLength;if(bytes>2*1024*1024)throw new AgentError('Spool response exceeds the read limit.');chunks.push(chunk);}
     const message=JSON.parse(Buffer.concat(chunks).toString('utf8'));
-    if(message.error)throw new AgentError(message.error.data?.code?refusal(message.error.data,config):'Spool refused the request.');
+    if(message.error)throw new AgentError(message.error.data?.code?refusal(message.error.data,config):'Spool refused the request.',refusalExit(message.error.data));
     return redact(message.result,[config.key,config.devKey]);
   }catch(error){if(error instanceof AgentError)throw error;throw new AgentError('Spool is unavailable or the request timed out.');}
   finally{controller.abort();clearTimeout(timer);}
@@ -83,6 +85,6 @@ export async function request(config, operation, args={}) {
   const project=decodeURIComponent(config.root.pathname.split('/').at(-1));
   if(args.project!==undefined&&args.project!==project)throw new AgentError('Not found or out of scope.',3);
   const answer=await rpc(config,'tools/call',{name,arguments:{...args,project,...operation==='propose_grouping'?{idempotency_key:args.idempotency_key??crypto.randomUUID()}:{} }});
-  if(answer?.isError){const error=answer._meta?.['com.runeditrun/error'];throw new AgentError(refusal(error,config),error?.code==='not_found'?3:1);}
+  if(answer?.isError){const error=answer._meta?.['com.runeditrun/error'];throw new AgentError(refusal(error,config),refusalExit(error));}
   const value=answer.structuredContent;return Array.isArray(value?.items)?value.items:value;
 }
