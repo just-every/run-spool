@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1768,7 +1768,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-002` | The seed's jobs are tools, through the UI's own actions | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-003` | Records are resources | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-004` | Business identity and short-lived, audience-bound tokens | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-005` | An agent acts as a person in a role, never more | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-005` | An agent acts as a person in a role, never more | target | partial | `tests/agent-door/sponsor-role-contract.mjs` sponsorRoleContract, invoked by `tests/agent-door.mjs`: acceptance 3's native role downgrade and inactive sponsor boundary, in independent autonomous and held policy fixtures. A real invited and mapped member completes ordinary triage; the same unexpired Business bearer then refuses the next fresh mutation and completed mutation replay after a native read-only downgrade, still reads the populated issue, and returns 401 on the next call after native deactivation. Whole-ledger snapshots preserve native product, membership, credential, approval and notification state, permitting only safe admission counts and audit facts. `tests/agent-door/people.mjs` peopleFlow retains scoped native authority, self-escalation and permanent credential retirement controls. | Acceptance 1–2 and 4–5 remain unqualified: every-tool UI and role parity; complete grant, resource and budget narrowing; wider self-escalation and successful self-narrowing; and injection qualification. Acceptance 3's suspension modes beyond the tested native inactive lifecycle remain unqualified. SURFACE-001's continued hold, existing account, device and ct holds, live scopes, queue notes, release prerequisites, generated-view landing, publication scanning, exact-candidate Verify, guarded landing and Run site remain unchanged. |
 | `BASE-AGENT-006` | Every action declares its risk class | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-008` | Truthful attribution | target | missing | | Not yet judged through this seed's own doors. |
