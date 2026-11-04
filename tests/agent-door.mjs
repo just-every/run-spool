@@ -17,6 +17,7 @@ import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
 import {docsContract} from './agent-door/docs-contract.mjs';
 import {classificationContract} from './agent-door/classification.mjs';
+import {roleParityContract} from './agent-door/role-parity.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await nativeSetup();
@@ -36,6 +37,7 @@ try{
  const ack=await app.adopt();assert.deepEqual(Object.keys(ack).sort(),['adopted','door']);
  await docsContract(app);
  await classificationContract(app);
+ await roleParityContract(app);
  const discovery=await app.mcp('server/discover');
  assert.deepEqual(discovery._meta['com.runeditrun/capabilities'],{mode:'declared',declared:['tools','policy','pause','audit','idempotency'],refused:['events','resources','prompts','subscriptions'],unscoped:['multiSponsor','mailEdges','resourceRefresh','timedLifecycle','dualHost','queuedLifecycle','ownerNativeApi']});
  const listed=(await app.mcp('tools/list')).tools;for(const tool of listed)ToolSchema.parse(tool);
