@@ -10429,6 +10429,10 @@
       "sha256": "4d057ae9bad5971e881758bf7d9e52c8ee2a017c5fc1462dfa1cd2ebb3da300e",
       "executable": false
     },
+    "tests/agent-door/sponsor-role-contract.mjs": {
+      "sha256": "3ac6f0de2c0edecf5d2ad5dbf9970d47d4484ad6355cb65b8365212f748f5e7f",
+      "executable": false
+    },
     "tests/agent-door/worker.mjs": {
       "sha256": "aa24a06369b59ef94be1f0198a105c9d6334ff75e8177744c78563d6cab48475",
       "executable": false
