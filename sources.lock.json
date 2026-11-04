@@ -10397,6 +10397,10 @@
       "sha256": "edba0ce32d7893f9bfbf5e2be0558557807ef83fb211030c771d0e7ff2e184d7",
       "executable": false
     },
+    "tests/agent-door/replay-contract.mjs": {
+      "sha256": "cac31f4261fc966c343375c2050b444764f0892468e1b35263daa928f9b1955b",
+      "executable": false
+    },
     "tests/agent-door/replay-horizon.mjs": {
       "sha256": "559ba8a56c5f498eaa59b3ffa4e3d413033beb113a0b86c684f0208f41888c8b",
       "executable": false
