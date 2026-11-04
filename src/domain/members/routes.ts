@@ -12,6 +12,7 @@ import { fields, name, version, check } from './input';
 import { invite, updateMember } from './mutations';
 import { serviceRoutes } from './services';
 import { s } from './model';
+import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
 
 export const memberRoutes=new Hono<any>();
 memberRoutes.use('*',async(c,next)=>{
@@ -41,7 +42,7 @@ memberRoutes.get('/',async c=>{
   organization(db),s(db,"SELECT m.*,COALESCE(o.status,'inert') operatorStatus,CASE WHEN o.role='owner' THEN 'owner' ELSE m.role END role FROM spool_members m LEFT JOIN oa_operators o ON o.id=m.operator_id ORDER BY m.created,m.id").all(),
   s(db,'SELECT * FROM spool_project_grants').all(),s(db,'SELECT * FROM spool_project_teams').all(),s(db,'SELECT * FROM spool_service_accounts').all(),s(db,'SELECT * FROM spool_service_scopes').all(),s(db,'SELECT * FROM spool_member_invites').all(),
  ]);
- return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:invites.results});
+ return c.json({organization:org,members:members.results,grants:grants.results,teams:teams.results,services:services.results,scopes:scopes.results,invites:invites.results,localSignIn:localDevelopmentEnabled(c.env)});
 });
 memberRoutes.post('/',async c=>{
  const session=c.get('teamSession');if(session.operator.role!=='owner')return c.json({error:'Project not found'},404);

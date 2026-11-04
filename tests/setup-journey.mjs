@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { assertSignInForm, openGate, testOwner } from './auth.mjs';
 import AxeBuilder from '@axe-core/playwright';
+import { localMemberSignInJourney } from './sign-in/local-member.mjs';
 
 // One real, empty installation per call. Enter the dev owner without
 // JavaScript, then continue in a hydrated browser for the public project form.
@@ -79,6 +80,7 @@ export async function firstProjectJourney(browser, origin, width) {
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await page.screenshot({path:`${out}/${width}-complete.png`,fullPage:true});
   const complete=await request.get(origin+'/setup',{maxRedirects:0});assert.equal(complete.status(),303);assert.equal(complete.headers().location,'/');
   assert.equal((await request.get(origin+'/missing')).status(),404);
+  await localMemberSignInJourney(browser, origin, context);
   const cookies=await context.cookies();return cookies.map(cookie=>cookie.name+'='+cookie.value).join('; ');
  } finally {await context?.close();await plain.close();}
 }

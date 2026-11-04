@@ -40,7 +40,7 @@ try {
   assert.equal(await lobby.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Lobby overflow');
   assert.deepEqual((await new AxeBuilder({page:lobby}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
   const setup=lobby.getByRole('link',{name:'Finish setup',exact:true});assert.equal(await setup.getAttribute('href'),'/setup');
-  await setup.click();await assertSignInForm(lobby,'/setup');
+  await setup.click();await lobby.getByText('rer dev --as owner',{exact:true}).waitFor();assert.equal(await lobby.locator('a[href^="/auth/dev/enter"]').count(),0,'a fresh browser receives usable local admission instructions');
   await visitor.close();checked('Visitor unclaimed Lobby fits, passes axe and Finish setup leads to owner sign-in preserving /setup');
  }
  const project=await api('/api/projects','POST',{id:'cedar',name:'Cedar Dispatch'});

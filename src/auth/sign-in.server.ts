@@ -3,15 +3,22 @@ import { localDevelopmentEnabled } from './local.server.mjs';
 import type { Bindings } from './bindings';
 import { fontHead } from '../base/font-head.ts';
 import { oidcNotice } from './oidc-presentation.server.ts';
+import { devGate } from '../modules/operator-auth/dev-gate.mjs';
+import { localSignInContent, type LocalSignInPerson } from './local-sign-in.server';
 const escape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 type SignInProvider = { label: string; startPath: string; authorizationOrigins?: string[] };
 // A linked Auth install, once the owner turned its sign-in on, is offered above the email form.
 export async function signInPage(request: Request, env: Bindings, result?: number): Promise<Response> {
  const { operatorAuth } = await import('./session.server.ts');
- const providers = (await operatorAuth(env).providers?.list() ?? []).filter(p => p.visible);
- return signInDocument(request, env, result, providers);
+ const auth = operatorAuth(env, true);
+ const providers = (await auth.providers?.list() ?? []).filter(p => p.visible);
+ const gate = devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: localDevelopmentEnabled(env) });
+ // Only an admitted browser may learn or choose local identities. Reuse native
+ // invitation eligibility so expired or revoked invitations stay unavailable.
+ const people = env.RER_DEV_IDENTITY !== 'off' && await gate?.admits(request) ? await auth.oneClick?.people(request) : null;
+ return signInDocument(request, env, result, providers, people ?? []);
 }
-export function signInDocument(request: Request, env: Bindings, result?: number, providers: SignInProvider[] = []): Response {
+export function signInDocument(request: Request, env: Bindings, result?: number, providers: SignInProvider[] = [], people: LocalSignInPerson[] = []): Response {
  // Use Base's email policy, as its shared login_hint sign-in page does.
  let email = '';
  try { email = normalizeEmail(new URL(request.url).searchParams.get('login_hint')); } catch {}
@@ -24,7 +31,7 @@ export function signInDocument(request: Request, env: Bindings, result?: number,
  const formTargets = [...new Set(providers.flatMap(p => p.authorizationOrigins ?? []))].map(origin => ' ' + origin).join('');
  const feedback = sent ? `<p role="status">If this is the owner email, a sign-in message has been requested. Check your inbox and spam folder.</p>` : result ? `<p role="alert">${result === 429 ? 'Too many sign-in requests. Wait before trying again.' : result === 503 ? 'We could not send the sign-in email. Ask the person managing this installation to check its mail settings, then try again.' : 'The sign-in request could not be completed. Check the email and try again.'}</p>` : notice ? `<p role="alert">${escape(notice)}</p>` : '';
  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Spool</title><link rel="icon" href="/theme/spool-mark.svg" type="image/svg+xml">${fontHead}<link rel="stylesheet" href="/theme/spool.css"><link rel="stylesheet" href="/theme/sign-in.css"></head><body>
-<main class="signin"><header class="signin-header"><a class="wordmark" href="/"><img src="/theme/spool-mark.svg" alt="" width="45" height="45"><span data-rer-name>Spool</span></a></header><section class="signin-panel card"><h1><span class="mark-underline">Sign in to your installation</span></h1><p class="signin-intro">Open your issues and continue investigating. ${local ? 'Continue as the owner of this local installation.' : 'Enter your owner email, then open the sign-in message and confirm.'}</p>${local ? `<a class="primary-button" href="/auth/dev/enter?as=owner&returnTo=${escape(encodeURIComponent(returnTo))}">Continue as owner</a>` : feedback}${!local && continueWith ? `<div class="signin-providers">${continueWith}<p class="signin-or">or</p></div>` : ''}${local ? '' : `<form method="post" action="/auth/magic-link?returnTo=${escape(encodeURIComponent(returnTo))}"><label class="form-field">Owner email<input type="email" name="email" autocomplete="email" value="${escape(email)}" maxlength="254" required></label><input type="hidden" name="returnTo" value="${escape(returnTo)}"><button class="primary-button" type="submit">${sent ? 'Send another sign-in link' : 'Send sign-in link'}</button></form><div class="help"><p>Check your ordinary mailbox and spam folder. If a link has expired, enter your email above to request another.</p><p>If you still cannot sign in, ask the person managing this installation to check its owner email and mail delivery settings.</p></div>`}</section></main></body></html>`, {
+<main class="signin"><header class="signin-header"><a class="wordmark" href="/"><img src="/theme/spool-mark.svg" alt="" width="45" height="45"><span data-rer-name>Spool</span></a></header><section class="signin-panel card"><h1><span class="mark-underline">Sign in to your installation</span></h1><p class="signin-intro">Open your issues and continue investigating. ${local ? 'Choose your account to continue on this computer.' : 'Enter your owner email, then open the sign-in message and confirm.'}</p>${local ? localSignInContent(people, returnTo) : feedback}${!local && continueWith ? `<div class="signin-providers">${continueWith}<p class="signin-or">or</p></div>` : ''}${local ? '' : `<form method="post" action="/auth/magic-link?returnTo=${escape(encodeURIComponent(returnTo))}"><label class="form-field">Owner email<input type="email" name="email" autocomplete="email" value="${escape(email)}" maxlength="254" required></label><input type="hidden" name="returnTo" value="${escape(returnTo)}"><button class="primary-button" type="submit">${sent ? 'Send another sign-in link' : 'Send sign-in link'}</button></form><div class="help"><p>Check your ordinary mailbox and spam folder. If a link has expired, enter your email above to request another.</p><p>If you still cannot sign in, ask the person managing this installation to check its owner email and mail delivery settings.</p></div>`}</section></main></body></html>`, {
   status: result && result !== 202 ? result : 200,
   headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin',
    'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; form-action 'self'${formTargets}; frame-ancestors 'none'; base-uri 'none'` },
