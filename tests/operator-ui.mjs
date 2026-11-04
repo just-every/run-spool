@@ -120,7 +120,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const review=async proposal=>{await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('button',{name:`Review grouping proposal ${proposal.id}`,exact:true}).click();await page.getByRole('article',{name:'Grouping proposal review',exact:true}).getByText(proposal.id,{exact:true}).waitFor();};
  const proposalPanel=page.locator('.grouping-proposals');
  const proposalReview=page.getByRole('article',{name:'Grouping proposal review',exact:true});
- await page.goto(`${origin}/projects/${project}/settings`);
+ await page.goto(`${origin}/projects/${project}/settings?section=grouping`);
  await page.getByRole('heading',{name:'Agent grouping proposals',exact:true}).waitFor();await page.getByText('No agent grouping proposals yet.',{exact:true}).waitFor();await capture('grouping-proposal-empty');
  const rejected=await propose();await review(rejected);
  await proposalReview.getByRole('heading',{name:'Counterexamples inside the group',exact:true}).waitFor();assert.match(await proposalReview.innerText(),/proposed by agent /);

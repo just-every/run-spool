@@ -88,6 +88,9 @@ try {
 
  // Open the actual browser download, including its verified closing hashes.
  await (await workbenchLink(page,'Settings')).click();
+ if(width===390)await page.getByLabel('Settings section',{exact:true}).selectOption('data');
+ else await page.getByRole('tab',{name:'Data & history',exact:true}).click();
+ assert.equal(await page.getByRole('heading',{name:'Project keys',exact:true}).isVisible(),false,'Other settings sections are folded away');
  await page.getByRole('heading',{name:'Archive and restore',exact:true}).waitFor();
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);

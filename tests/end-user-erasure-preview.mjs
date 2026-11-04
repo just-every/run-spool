@@ -109,7 +109,7 @@ export async function endUserErasurePreviewFlow() {
    const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
    try {
     const split=maintainer.cookie.indexOf('=');await context.addCookies([{name:maintainer.cookie.slice(0,split),value:maintainer.cookie.slice(split+1),url:origin.replace('http:','https:'),secure:true}]);
-    await page.goto(origin+'/projects/'+project.id+'/settings');const region=page.getByRole('region',{name:'End-user erasure preview',exact:true});
+    await page.goto(origin+'/projects/'+project.id+'/settings?section=privacy');const region=page.getByRole('region',{name:'End-user erasure preview',exact:true});
     const input=region.getByLabel('Email to match');await input.fill(email);await input.press('Tab');
     await region.getByRole('button',{name:'Preview matching records'}).press('Enter');
     await region.getByRole('status').getByText('3 matching events',{exact:false}).waitFor();
@@ -117,7 +117,7 @@ export async function endUserErasurePreviewFlow() {
     await region.screenshot({path:`.artifacts/erasure-preview/matching-${width}.png`});
     // Error state is a refused real request; one width asserts behavior.
     if(width===1440){await page.route('**/end-user-erasure/preview',route=>route.continue({postData:JSON.stringify({email:'invalid'})}));await input.fill(email);await region.getByRole('button',{name:'Preview matching records'}).click();await region.getByRole('alert').waitFor();assert.equal(await region.getByRole('status').count(),0);await assertScreen(page,region);await page.unroute('**/end-user-erasure/preview');}
-    await page.goto(origin+'/projects/'+dropped.id+'/settings');const unavailableRegion=page.getByRole('region',{name:'End-user erasure preview',exact:true});
+    await page.goto(origin+'/projects/'+dropped.id+'/settings?section=privacy');const unavailableRegion=page.getByRole('region',{name:'End-user erasure preview',exact:true});
     await unavailableRegion.getByLabel('Email to match').fill(email);await unavailableRegion.getByRole('button',{name:'Preview matching records'}).click();
     await unavailableRegion.getByRole('status').getByText('Event matching unavailable',{exact:false}).waitFor();
     if(width===1440)await assertScreen(page,unavailableRegion);

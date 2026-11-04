@@ -127,7 +127,7 @@ await Sentry.flush(10000);await Sentry.close(10000);
      assert.deepEqual(await owner.locator('button').evaluateAll(buttons => buttons.filter(b => b.getClientRects().length && !b.textContent.trim()).map(b => b.getAttribute('aria-label'))), [], 'no icon-only control on the touched screen');
      await shot.screenshot({ path: `.artifacts/sdk024/${name}-${width}.png` });
     };
-    await owner.goto(`${origin}/projects/${id}/settings`);
+    await owner.goto(`${origin}/projects/${id}/settings?section=capture`);
     const panel = owner.getByRole('region', { name: 'Cron check-ins', exact: true });
     await panel.locator('code', { hasText: connected }).first().waitFor();
     await panel.getByLabel('Monitor slug', { exact: true }).fill(ui);

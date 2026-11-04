@@ -1,0 +1,6 @@
+.settings-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+.settings-tabs button{min-height:40px;padding:8px 12px;border:1px solid transparent;border-radius:var(--radius-control,3px);background:transparent;font:500 15px/1.4 var(--font-text);color:var(--ink);cursor:pointer}
+.settings-tabs button[aria-selected=true]{background:var(--highlight);border-color:var(--hairline)}
+.settings-tabs button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.settings-section[hidden],.settings-section-picker{display:none}
+@media(max-width:760px){.settings-tabs{display:none}.settings-section-picker{display:grid;margin:24px 0}}

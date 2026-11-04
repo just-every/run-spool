@@ -67,7 +67,7 @@ export async function scrubbingFlow({browser,origin,cookie,request,temporary,req
  for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:1000}}),page=await context.newPage();
   try{
-   await browserSignIn(page,origin);await page.goto(origin+`/projects/${project.id}/settings`);
+   await browserSignIn(page,origin);await page.goto(origin+`/projects/${project.id}/settings?section=privacy`);
    const panel=page.getByRole('region',{name:'Server scrubbing',exact:true});await panel.getByLabel('Additional sensitive fields',{exact:true}).waitFor();
    await panel.getByLabel('Rule scope',{exact:true}).selectOption('project');
    if(width===1440){

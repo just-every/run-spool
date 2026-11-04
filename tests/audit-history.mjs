@@ -110,7 +110,7 @@ try {
  browser=await launchBrowser();await mkdir('.artifacts/AUDIT-001',{recursive:true});
  for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));
-  const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/settings');
+  const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/settings?section=data');
   const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Organization audit',exact:true})});
   const shot=async name=>{await panel.evaluate(element=>element.scrollIntoView({block:'start'}));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:`.artifacts/AUDIT-001/${name}-${width}.png`})};
   // The history re-reads quietly while visible and once on return to the tab; a window focus is that return.
