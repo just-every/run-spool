@@ -152,6 +152,73 @@ export async function externalInjectionContract(){
    assert.deepEqual(await state(),afterConfigured,'A configured TEST replay makes no second test or send');
    console.log(`PROBE SURFACE-002 acceptance-7-configured ${baseline}: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay`);
    await internalDestinationContract(app,{baseline,policy,project,path,state});
+   await changedDestinationContract(app,{baseline,policy,project,path,state,facts});
   }finally{await app.stop();}
  }
+}
+
+/** Person edits cannot redirect a TEST that the company already reviewed. */
+async function changedDestinationContract(app,{baseline,policy,project,path,state,facts}){
+ const claims={internal:true,confirmExternal:true,cost:0,amount:0,currency:'USD'};
+ const hold=policy();hold.rules.push({id:'recipient-review',class:'external',do:'approval',approver:['sponsor'],wait:'PT1H'});
+ await app.adopt(hold);
+ const create=recipient=>app.json(path+'/destinations','POST',{label:'Internal recipient; zero cost',recipient});
+ const pending=async destination=>{
+  const before=await state(),key=randomUUID();
+  const answer=await app.call('spool.alerts.test',{project,id:destination.id,...claims,idempotency_key:key});
+  assert.deepEqual(answer._meta['com.runeditrun/decision'].classes,[{class:'external',rule:'recipient-review',do:'approval',facts}]);
+  const reference=answer._meta['com.runeditrun/approval']??answer._meta['com.runeditrun/error']?.approval;
+  assert.ok(reference?.id);
+  assert.deepEqual({...await state(),approvals:before.approvals},before,'An external TEST remains inert until the person approves its actual recipient');
+  const approval=(await app.json('/agents/api/approvals/'+reference.id)).approval;
+  return {key,approval};
+ };
+ const approve=async approval=>{
+  await app.json('/agents/api/approvals/'+approval.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+  return (await app.json('/agents/api/approvals/'+approval.id)).approval;
+ };
+ const recipient=['synthetic-spool-5','synthetic.invalid'].join('@'),label='Outside recipient; expensive';
+ const labelled=await create(recipient),first=await pending(labelled);
+ assert.deepEqual(first.approval.summary.recipients,[recipient]);
+ assert.equal((await app.json(path+'/destinations/'+labelled.id,'PUT',{label,recipient})).id,labelled.id,'A text-only edit retains the reviewed native recipient identity');
+ const beforeLabelApproval=await state();
+ assert.equal((await approve(first.approval)).state,'executed','Changed display text cannot change the reviewed external effect');
+ const completed=await state();
+ assert.equal(completed.alert_destination_tests.length,beforeLabelApproval.alert_destination_tests.length+1);
+ const result=(await app.call('spool.alerts.test',{project,id:labelled.id,...claims,idempotency_key:first.key})).structuredContent;
+ assert.ok(result?.id);assert.deepEqual(completed.mail.filter(row=>row.deliveryId===result.id).map(row=>row.to),[[recipient]],'The approved TEST sends once to the address the person reviewed');
+ assert.deepEqual(await state(),completed,'Replaying after a label change creates no second TEST or send');
+
+ const original=['synthetic-spool-6','synthetic.invalid'].join('@'),replacement=['synthetic-spool-7','synthetic.invalid'].join('@');
+ const target=await create(original),second=await pending(target);
+ assert.deepEqual(second.approval.summary.recipients,[original]);
+ const changed=await app.json(path+'/destinations/'+target.id,'PUT',{label:'Internal recipient; zero cost',recipient:replacement});
+ assert.notEqual(changed.id,target.id,'A changed address replaces the native destination identity');
+ const beforeRefusal=await state();
+ const refused=await approve(second.approval);
+ assert.equal(refused.state,'refused','An old approval cannot send to either the old or the replacement recipient');
+ assert.equal(refused.code,'execution_failed');
+ assert.deepEqual(await state(),beforeRefusal,'Refused approval creates no TEST, delivery job or provider send');
+ const stale=await app.call('spool.alerts.test',{project,id:target.id,...claims,idempotency_key:second.key});
+ assert.equal(stale._meta['com.runeditrun/error'].code,'not_found','The old call key cannot revive a replaced recipient');
+ assert.deepEqual(await state(),beforeRefusal);
+
+ const blocked=policy();blocked.rules.push({id:'replacement-outside',class:'external',do:'blocked'});
+ await app.adopt(blocked);
+ const fresh=await app.call('spool.alerts.test',{project,id:changed.id,...claims,idempotency_key:randomUUID()});
+ assert.deepEqual(fresh._meta['com.runeditrun/error'],{code:'policy_blocked',class:'external',rule:'replacement-outside',revision:app.context.revision});
+ assert.deepEqual(fresh._meta['com.runeditrun/decision'].classes,[{class:'external',rule:'replacement-outside',do:'blocked',facts}],'The replacement recipient is classified afresh despite internal and zero-cost claims');
+ assert.deepEqual(await state(),beforeRefusal);
+ await app.adopt(hold);
+ const third=await pending(changed);
+ assert.deepEqual(third.approval.summary.recipients,[replacement],'Fresh approval names the replacement address');
+ assert.equal((await approve(third.approval)).state,'executed');
+ const afterReplacement=await state();
+ assert.equal(afterReplacement.alert_destination_tests.length,beforeRefusal.alert_destination_tests.length+1);
+ const replay=await app.call('spool.alerts.test',{project,id:changed.id,...claims,idempotency_key:third.key});
+ assert.ok(!replay.isError);assert.ok(replay.structuredContent?.id);
+ assert.deepEqual(afterReplacement.mail.filter(row=>row.deliveryId===replay.structuredContent.id).map(row=>row.to),[[replacement]],'Only a fresh approval can send once to the replacement');
+ assert.ok(!afterReplacement.mail.some(row=>row.to?.includes(original)),'The retired original recipient receives no TEST');
+ assert.deepEqual(await state(),afterReplacement,'Completed replacement replay remains inert');
+ console.log(`PROBE SURFACE-002 acceptance-7-recipient-change ${baseline}: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval`);
 }
