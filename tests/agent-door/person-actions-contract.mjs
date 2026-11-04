@@ -108,6 +108,29 @@ export async function personActionsContract(app,screens){
    for(let index=0;index<recent.length;index++)assert.ok(rendered[index].includes(recent[index].agent.name+' for '+recent[index].sponsor.name),'Every recent act shows its agent and person');
   });
   console.log('PROBE BASE-AGENT-008 acceptance-5-and-6 '+policyName+': signed person approval -> durable named approver and separate agent preparer; populated activity at 1440 with 390 capture');
+  if(policyName==='autonomous')await app.adopt(autonomousPolicy());
+  const destination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Agent sender '+policyName,recipient:app.context.person.email});
+  const mailArgs={project,id:destination.id,idempotency_key:randomUUID()};
+  const mailCall=await app.call('spool.alerts.test',mailArgs);
+  if(policyName==='held'){
+   const mailPending=mailCall._meta['com.runeditrun/error'].approval;
+   const mailApproval=(await app.json('/agents/api/approvals/'+mailPending.id)).approval;
+   assert.ok(!(await app.mail()).some(message=>message.text?.includes('project '+project+'.')),'The held external send produces no mail before approval');
+   const result=await app.json('/agents/api/approvals/'+mailPending.id+'/approve','POST',{revision:mailApproval.revision,summary_sha256:mailApproval.summary_sha256});assert.equal(result.approval.state,'executed');
+  }else done(mailCall);
+  const sent=done(await app.call('spool.alerts.test',mailArgs));
+  const messages=(await app.mail()).filter(message=>message.deliveryId===sent.id);
+  assert.equal(messages.length,1,'A replay sends no duplicate mail');
+  assert.match(messages[0].from,/^Agent door conformance for Dana Engineer <[^<>]+>$/);
+  assert.ok(messages[0].text.includes('Prepared by Agent door conformance for Dana Engineer.'));
+  if(policyName==='held')assert.ok(messages[0].text.includes('Approved by Dana Engineer.'));
+  const personDestination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Person sender '+policyName,recipient:app.context.person.email});
+  const personTest=await app.json('/api/projects/'+project+'/alerting/destinations/'+personDestination.id+'/test','POST',{});
+  const personMessage=(await app.mail()).find(message=>message.deliveryId===personTest.id);assert.ok(personMessage);
+  assert.ok(!personMessage.from.includes('Agent door conformance'),'A real person send keeps its installation sender');
+  const mailbox=value=>value.match(/<([^<>]+)>$/)?.[1]??value;
+  assert.equal(mailbox(messages[0].from),mailbox(personMessage.from),'Only the sender display name changes; the approved mailbox stays the same');
+  console.log('PROBE BASE-AGENT-008 acceptance-7 '+policyName+': native agent TEST -> one provider payload with agent and sponsor sender; matching real-person TEST retains installation sender and the same sending mailbox');
  }
  await app.adopt();
 }
