@@ -165,7 +165,10 @@ try {
  assert.ok(app.cookie);await app.json('/api/projects');
  const erasedReport=await app.call('/api/reporting/items/'+reporting.id,undefined,{Cookie:app.cookie});assert.equal(erasedReport.status,200);assert.equal((await erasedReport.json()).author,'[erased]');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
- const retainedQuota=await (await app.request(quotaPath)).json();assert.equal(retainedQuota.limit,100);assert.ok(retainedQuota.used>=2,'BILL-001 personal erasure keeps project key quota and admissions without predecessor attribution');
+ const retainedQuota=await (await app.request(quotaPath)).json();assert.equal(retainedQuota.limit,100);
+ // The current UTC hour can expire during handoff; erasure must preserve the stored admissions exactly.
+ assert.ok(before.key_rate_usage.some(row=>row.key_hash===quotaHash&&row.hour_count>0),'capture populated the project key admission bucket');
+ assert.deepEqual(after.key_rate_usage,before.key_rate_usage,'BILL-001 personal erasure keeps every project key admission bucket without predecessor attribution');
  // SDK-008: the successor chooses a new policy above the erased policy's safe revision floor.
  const nextIdentityPolicy={id:'hash',email:'hash',username:'hash',ip_address:'hash'},nextIdentityPreview=await app.json('/api/projects/personal-capture/identity-policy/preview',{policy:nextIdentityPolicy});
  const nextIdentityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:nextIdentityPolicy,revision:nextIdentityPreview.revision,token:nextIdentityPreview.token},{},'PUT');assert.equal(nextIdentityWrite.status,200);const nextIdentity=await nextIdentityWrite.json();assert.ok(nextIdentity.revision>identityPreview.revision+1,'successor does not reuse an erased policy revision');
