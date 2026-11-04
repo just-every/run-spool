@@ -7,6 +7,7 @@ import {githubDouble} from './execution/github-double.mjs';
 import {specialistFlow} from './agent-door/specialist.mjs';
 import {continuationFlow} from './agent-door/continuation.mjs';
 import {peopleFlow} from './agent-door/people.mjs';
+import {sponsorRoleContract} from './agent-door/sponsor-role-contract.mjs';
 import {agentScreens} from './agent-door/screens.mjs';
 import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {personActionsContract} from './agent-door/person-actions-contract.mjs';
@@ -120,6 +121,7 @@ try{
  await retentionClasses(app,screens);
  await continuationFlow(app,{project,issue,proposal,created});
  await peopleFlow(app);
+ await sponsorRoleContract(app);
  await specialistFlow(app,github,screens);
  await reviewErasureFlow(app,screens);
  const audit=await app.json('/agents/api/audit');assert.equal(audit.differs_from_policy,0);
