@@ -4421,6 +4421,10 @@
       "sha256": "b387867cb5a5abbe716e11f20f379c828faaea7a999fe41acb935454ac2df7e8",
       "executable": false
     },
+    "public/theme/workbench-shell.css": {
+      "sha256": "0878f393ef9106e5ffd5282daa7092ecc4171fc4d7d5533924267cf373ee2973",
+      "executable": false
+    },
     "README.md": {
       "sha256": "7ae86588ac7a4a0d0b6133de8befe2839b20b562e185ecaf5732315c46ce7de8",
       "executable": false
@@ -5550,7 +5554,7 @@
       "executable": false
     },
     "src/domain/agents/workbench.tsx": {
-      "sha256": "da2de6226661d870b05ae3ae8fd8250ffb92aa7d1404e2330303ebbde11861fe",
+      "sha256": "52ca7009491ce84bfe51720703c2b059e6963884899c5e51d0534da1a32baecd",
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
@@ -9754,7 +9758,7 @@
       "executable": false
     },
     "src/routes/__root.tsx": {
-      "sha256": "1a1ffa90941d8e54ab19b2f80c6b8b0ea457afcbddebddaa09121f73d7d9ce61",
+      "sha256": "abb544e05e18c9a5a919814415b8bef2e4a327e79663f17a80df15dd8885113d",
       "executable": false
     },
     "src/routes/$.tsx": {
@@ -9791,10 +9795,6 @@
     },
     "src/site/site.css": {
       "sha256": "195a9449b999fff084f85bc059eeac81fe616530d606ac3557b5bbb3bc0c5a27",
-      "executable": false
-    },
-    "src/types/css-inline.d.ts": {
-      "sha256": "26a8fcf4c34a12308fc5f3b5641f651607f38cd31ae0cc4737dc6073f82bcba5",
       "executable": false
     },
     "src/ui/alerts/AlertControls.tsx": {
@@ -10337,10 +10337,6 @@
       "sha256": "ee24eddc4080250f5494ee4134827390cb5956bbec64e0c8d1aad7a81bfe54c2",
       "executable": false
     },
-    "src/ui/workbench/shell.css": {
-      "sha256": "0878f393ef9106e5ffd5282daa7092ecc4171fc4d7d5533924267cf373ee2973",
-      "executable": false
-    },
     "src/ui/workbench/SourceMapSetup.tsx": {
       "sha256": "35e13ac6aa9fb6f1ec02198711fc6790d67100343970e2de1b49ae6e5fe56f78",
       "executable": false
@@ -10558,7 +10554,7 @@
       "executable": false
     },
     "tests/alerts/conditions-journey.mjs": {
-      "sha256": "5f93720579022961a227a9ecca1cebffecaab0d47ed12392c8e66619d5344cda",
+      "sha256": "3baadce52a36d36cb977007d7e40b5276e505a3581ff695214282349dc8b4db1",
       "executable": false
     },
     "tests/alerts/delivery-flow.mjs": {

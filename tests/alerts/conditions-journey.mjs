@@ -31,7 +31,9 @@ export async function conditionsJourney(app,fixture){
  let id=100,issue;
  for(let i=0;i<3;i++)issue=await error(id++,{user:'synthetic-spool-'+i});
  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND environment='rules'").bind(start-width+100).run();
+ const currentBatch=id;
  for(let i=0;i<4;i++)await error(id++,{user:'synthetic-spool-'+i});await error(id++);
+ for(let current=currentBatch;current<id;current++)await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(start+100,current.toString(16).padStart(32,'0')).run();
  const users=await app.json(base+'/rules','POST',userRule);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-width,users.id).run();
  await schedule(end);let decisions=(await app.json(base+'/decisions')).filter(d=>d.rule_id===users.id).map(d=>JSON.parse(d.reason));
@@ -39,7 +41,9 @@ export async function conditionsJourney(app,fixture){
  const before=(await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length;
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,users.id).run();await app.restart();await schedule(end);assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length,before,'durable window key deduplicates re-evaluation and restart');
  for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date().toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
- const sessions=await app.json(base+'/rules','POST',sessionRule);await error(id++,{environment:'sessions'});await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await schedule(end);
+ const sessions=await app.json(base+'/rules','POST',sessionRule),sessionEventId=id.toString(16).padStart(32,'0');await error(id++,{environment:'sessions'});
+ await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(start+100,sessionEventId).run();
+ await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await schedule(end);
  const percent=JSON.parse((await app.json(base+'/decisions')).find(d=>d.rule_id===sessions.id).reason);assert.deepEqual([percent.affected,percent.denominator,percent.value,percent.fired],[3,10,30,true],'three affected of ten observed sessions');
  const filtered=await app.json(base+'/rules','POST',rule('mail',{kinds:['new_issue','regression','reactivation'],config:config('count',{environment:'filtered',level:'error',release:'',tags:{tenant:'approved'}})}));
  for(const extra of [{environment:'elsewhere'},{level:'info'},{release:'r1'},{tenant:'outside'}])await error(id++,{environment:'filtered',release:'',group:'excluded-'+id,...extra});
