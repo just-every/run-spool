@@ -2107,11 +2107,26 @@
         "modules/agent-door/wire.ts"
       ],
       "adapted": {
-        "src/modules/agent-door/audit.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+        "src/modules/agent-door/audit.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/pages.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/person-doors.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+        "src/modules/agent-door/reviews.ts": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
       },
       "acknowledged": {
         "src/modules/agent-door/audit.ts": {
-          "sha256": "3eb5f9f7a0d5e38a89e8dc63ce0624d0586cbe8393e82b6a006b3d214f57a075",
+          "sha256": "71650b6e48703693cdd63219265c50baebde615e8f9963eca13c3e489fb05acc",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/pages.ts": {
+          "sha256": "7220924e781dd00e101690ac5caf257660aca253a0fa374dd5c6a4e46941d25e",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/person-doors.ts": {
+          "sha256": "ef2aaed599efcd9eeb477de41446da227da03f2580579c73ec25d94d08122b97",
+          "mode": "100644"
+        },
+        "src/modules/agent-door/reviews.ts": {
+          "sha256": "22bf3359168244100eccb940b88f21f5808bf614e27d50e424426eadd40eaa50",
           "mode": "100644"
         }
       }
