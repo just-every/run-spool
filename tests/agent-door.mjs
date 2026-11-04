@@ -16,6 +16,7 @@ import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
 import {annotationContract} from './agent-door/annotation-contract.mjs';
+import {actionContract} from './agent-door/action-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await nativeSetup();
@@ -114,6 +115,7 @@ try{
  await continuationFlow(app,{project,issue,proposal,created});
  await peopleFlow(app);
  await specialistFlow(app,github,screens);
+ await actionContract(app);
  await reviewErasureFlow(app,screens);
  const audit=await app.json('/agents/api/audit');assert.equal(audit.differs_from_policy,0);
  assert.equal(code(await app.call('spool.events.list',{limit:200})),'capability_not_declared');

@@ -3,6 +3,11 @@ import {randomUUID} from 'node:crypto';
 import {autonomousPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 export async function nativeWorker(app,{project,ingestKey,destination}){
  const done=answer=>{assert.ok(!answer.isError,answer?._meta?.['com.runeditrun/error']?.code);return answer.structuredContent;};
+ const workerAudit=async()=>{
+  const rows=[];let after='0';
+  for(;;){const page=await app.json('/agents/api/audit?after='+encodeURIComponent(after));rows.push(...page.rows);if(!page.rows.length)break;after=page.cursor;}
+  return rows.filter(row=>row.tool==='spool.workers.alert_mail');
+ };
  await app.adopt();
  const config={name:'Native standing admission',enabled:false,channel:'mail',destination,kinds:['new_issue'],windowMs:60000,threshold:2};
  const created=await app.json(`/api/projects/${project}/alerting/rules`,'POST',config);
@@ -14,6 +19,7 @@ export async function nativeWorker(app,{project,ingestKey,destination}){
  await capture('StandingNativeFirst');
  await app.adopt(autonomousPolicy(),{paused:true});
  const before=(await app.mail()).length;
+ const auditBefore=new Set((await workerAudit()).map(row=>row.id));
  await app.schedule(Date.now()+120000);
  assert.equal((await app.mail()).length,before,'Pause stops the real agent-configured worker before mail');
  const jobs=(await app.DB.prepare('SELECT j.id,j.state FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.rule_id=?').bind(created.id).all()).results;assert.ok(jobs.length,'Native capture created real durable delivery jobs');
@@ -21,6 +27,16 @@ export async function nativeWorker(app,{project,ingestKey,destination}){
  const delivered=(await app.mail()).filter(message=>jobs.some(job=>job.id===message.deliveryId));
  assert.equal(delivered.length,1,'A resumed native worker executes through its retained admission');
  assert.ok(delivered.every(message=>message.text.includes('Prepared by Agent door conformance for Dana Engineer.')),'Standing effects retain the originating native actor');
+ const audit=(await workerAudit()).filter(row=>!auditBefore.has(row.id));
+ for(const [outcome,code] of [['refused','agents_paused'],['done',null]]){
+  const row=audit.find(row=>row.outcome===outcome&&row.code===code&&jobs.some(job=>job.id===row.resource?.id));
+  assert.ok(row,'The real standing worker records '+outcome+' through its registry tool');
+  assert.equal(row.door,'embedded');assert.equal(row.agent.id,app.context.agentId);
+  assert.equal(row.consent,app.context.consent);assert.ok(row.sponsor.id);
+  assert.deepEqual(row.classes.map(item=>item.class).sort(),['external','live']);
+  assert.ok(row.idempotency_key);assert.ok(Number.isFinite(Date.parse(row.at)));
+ }
+ console.log('PROBE BASE-AGENT-002 6: real scheduled alert worker -> embedded spool.workers.alert_mail audit for paused refusal and resumed delivery, retaining original agent, sponsor, consent and classes');
  await app.adopt(autonomousPolicy(),{paused:true});await capture('StandingNativeStopped');
  return {async stopped(){const count=(await app.mail()).length;await app.schedule(Date.now()+240000);assert.equal((await app.mail()).length,count,'Detached Business authority cannot execute queued standing mail');assert.ok(!(await app.mail()).some(message=>message.text?.includes('StandingNativeStopped')));console.log('Native standing worker: durable real jobs; Pause no-send; resumed attributed delivery; detached Business no-send.');}};
 }

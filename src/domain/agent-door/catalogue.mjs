@@ -70,11 +70,11 @@ const definitions=[
 export const catalogue=definitions.map(([verb,method,route,inputSchema,readOnly,classes,clauses])=>({...verb==='fixes.advance'?{proof:'native',proofKind:'repository_grant'}:{},name:`spool.${verb}`,scope:readOnly?'spool:evidence':verb==='proposals.create'?'spool:propose':`spool:${verb.split('.')[0]}`,method,route,inputSchema,readOnly,classes,clauses}));
 export const localScopes=['spool:evidence','spool:propose'];
 export const notTools=[
- {clauses:['ERR-001','SDK-001'],reason:'connector'},
- {clauses:['MIG-001','ERR-009'],reason:'import-door'},
- {clauses:['OPS-001'],reason:'installation'},
- {clauses:['AI-002'],reason:'connector'},
- {clauses:['AI-003'],reason:'screen'},
+ {clauses:['SDK-001','SDK-002','SDK-005','SDK-012','SDK-013','SDK-014','SDK-015','SDK-016','SDK-017','SDK-018','SDK-019','SDK-025'],reason:'device'},
+ {clauses:['ERR-001','SDK-020','SDK-021','SRC-003','API-002'],reason:'connector'},
+ {clauses:['MIG-001','MIG-002','MIG-003','MIG-004','MIG-005','ERR-009'],reason:'import-door'},
+ {clauses:['SDK-022','ERR-010','OPS-001'],reason:'installation'},
+ {clauses:['UX-001'],reason:'screen'},
 ];
 
 const resourceRoot='spool://projects/{project}';
