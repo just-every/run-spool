@@ -10026,7 +10026,7 @@
       "executable": false
     },
     "src/ui/workbench/Details.tsx": {
-      "sha256": "3a152db4802b78bc3ba5d008797dd747466ea38e1f2c0245bda0111ff17394c8",
+      "sha256": "d2469388fc59a6704dff8c3e44f0d633142b799c3477783240c4065d20356e0c",
       "executable": false
     },
     "src/ui/workbench/Discussion.tsx": {
@@ -10278,7 +10278,7 @@
       "executable": false
     },
     "src/ui/workbench/RuleMergeSuggestions.tsx": {
-      "sha256": "8e6be62c508d560158c359171da4bc51cec0020aadd094909458e87b434931d0",
+      "sha256": "603b43413597fe2c0025f8a07e496a376082765481d95c96ef8b22c4a2becff1",
       "executable": false
     },
     "src/ui/workbench/SaveMarks.tsx": {

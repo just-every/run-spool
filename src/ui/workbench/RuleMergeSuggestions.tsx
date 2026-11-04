@@ -18,7 +18,7 @@ export function RuleMergeSuggestions({project,source,request,run,busy,refresh,ve
     {rows.map(row=><div className="callout" key={row.source.id+':'+(row.target?.id??'waiting')}>
       <p>Rule revision {row.ruleRevision} changes future grouping for <a href={`/projects/${project}/issues/${row.source.short_id}`}>{row.source.short_id}</a>: {row.source.title}.</p>
       {row.target?<><p>The new group is <a href={`/projects/${project}/issues/${row.target.short_id}`}>{row.target.short_id}</a>. Review merging {row.source.count} earlier occurrences so one issue remains.</p>
-        <Details title={`Merge ${row.source.short_id} into ${row.target.short_id}`} triggerLabel={`Review merge into ${row.target.short_id}`} onOpen={()=>{setPreview(null);act(async()=>setPreview(await request(root+'/corrections/preview','POST',{kind:'merge',source:row.source.short_id,revision:row.source.revision,target:row.target.short_id,targetRevision:row.target.revision})));}}>
+        <Details title={`Merge ${row.source.short_id} into ${row.target.short_id}`} triggerLabel={`Review merge into ${row.target.short_id}`} triggerName={`Review merge into ${row.target.short_id}`} onOpen={()=>{setPreview(null);act(async()=>setPreview(await request(root+'/corrections/preview','POST',{kind:'merge',source:row.source.short_id,revision:row.source.revision,target:row.target.short_id,targetRevision:row.target.revision})));}}>
           {failure&&<p role="alert">{failure}</p>}
           {preview&&<CorrectionReview {...{preview,busy}} onCancel={()=>setPreview(null)} onApply={()=>act(async()=>{await request(root+'/corrections/'+preview.id+'/apply','POST',{confirm:true});setPreview(null);await load();refresh();})}/>}
         </Details>
