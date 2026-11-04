@@ -2646,7 +2646,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "fb06018174443a0706abf12380af10cd951ef0890f9f22cb8b7ca1474ab40369",
+      "sha256": "95ed4582cc1f80ecdc727c4dfaf084ad74eb0e4230a3a3186cb30d147746f394",
       "executable": false
     },
     "AGENTS.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "91b699eabf5769165855c6de4b3f5666aaf55d8d95389d1d5651e3edc94d7a7b",
+      "sha256": "76b87aa47f57e33aeeacaf78b486de5437fbadcdf235ddabd6118a05c8bb0dc0",
       "executable": false
     },
     "DEMO.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "d67e018439b3e552a6eac9a78264764e7d422da9563aa72f197ff3e074bd3d31",
       "executable": false
     },
     "docs/agents.md": {
@@ -5494,7 +5494,7 @@
       "executable": false
     },
     "src/domain/agent-door/catalogue.mjs": {
-      "sha256": "cf95d95ad257f99d751b267d460bea374bf2ef9b2de663100b9c73a1ffdc4371",
+      "sha256": "3e18e1c2dee7ef257125999644fe6be0d309357fc4245d6f3596b68f150f85b7",
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
@@ -5522,7 +5522,7 @@
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
-      "sha256": "321f338198f7260ea794466c60679d228458037fa37627a86afe5da502a0a152",
+      "sha256": "417826d06a6ec8527bdbbab512f3b710d8c379580217c6798533c6a2353a43fb",
       "executable": false
     },
     "src/domain/agent-door/resources.ts": {
@@ -5538,7 +5538,7 @@
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "bd218a13576e3e8648b8260eb0407503c4d51ff58029795926c5cc4566852aec",
+      "sha256": "9bb5345b5f05fce0add7554e14612171e3ab430b8f85e10fca069e72601d5739",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -10358,7 +10358,7 @@
       "executable": false
     },
     "tests/agent-door/external-injection-contract.mjs": {
-      "sha256": "b6635160d882b6241d60c59ab2ea7c896ff541ef7b56344fdbefa0804fda74d1",
+      "sha256": "f2e64f2bf923b76e311524a343bf8029128e27e6650dbac805a5f884d8fde10b",
       "executable": false
     },
     "tests/agent-door/github-binding.mjs": {
@@ -10367,6 +10367,10 @@
     },
     "tests/agent-door/initialize.mjs": {
       "sha256": "b39f6d7b01550e4f9610acd04955b3b637ef7f8e87f387bab5cca2605645a128",
+      "executable": false
+    },
+    "tests/agent-door/internal-destination-contract.mjs": {
+      "sha256": "c222409e50ac2e2971269979c0ff4a8ace39aa55f6b92f82413b931f8d3a8323",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {

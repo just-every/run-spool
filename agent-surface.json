@@ -82,10 +82,12 @@
       "scope": "spool:alerts",
       "readOnly": false,
       "classes": [
+        "standard",
         "external"
       ],
       "clauses": [
-        "ALERT-001"
+        "ALERT-001",
+        "SURFACE-002"
       ]
     },
     {

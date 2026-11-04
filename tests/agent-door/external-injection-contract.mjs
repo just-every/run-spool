@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {agentRuntime} from './runtime.mjs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
+import {internalDestinationContract} from './internal-destination-contract.mjs';
 
 /** Native email classification under refusal, with policy admission controls. */
 export async function externalInjectionContract(){
@@ -120,6 +121,7 @@ export async function externalInjectionContract(){
    assert.equal(replayAudit.revision,replayRevision);assert.equal(replayAudit.code,'policy_blocked');
    assert.deepEqual(replayAudit.classes,classes);assert.deepEqual(replayAudit.rules,[{class:'external',rule,do:'blocked'}]);
    console.log(`PROBE SURFACE-002 acceptance-7-replay ${baseline}: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=${rule} revision=${replayRevision}; computed external facts and completed native state unchanged`);
+   await internalDestinationContract(app,{baseline,policy,project,path,state});
   }finally{await app.stop();}
  }
 }

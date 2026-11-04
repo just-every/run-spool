@@ -9,6 +9,7 @@ import { scrub } from '../privacy';
 import { retentionPreview, retentionWindows } from '../retention-policy';
 import { findDestination, destinationChoices } from '../alerts/destinations.server';
 import { type AlertEnvironment } from '../alerts/types';
+import { internalRecipient } from './people';
 
 type Args=Record<string,any>;
 export const standard=():ClassAndFacts[]=>[{class:'standard',facts:{measure:1}}];
@@ -80,6 +81,10 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     if(route==='alert-test'){
      const choices=await destinationChoices(env as Bindings&AlertEnvironment,String(a.project));
      const destination=choices.find((d:any)=>d.id===a.id);if(!destination)throw new ToolRefusal('not_found');
+     if(destination.channel==='mail'){
+      const saved=await findDestination(env as Bindings&AlertEnvironment,String(a.project),String(a.id),'mail');
+      if(saved.recipient&&await internalRecipient(env,saved.recipient))return standard();
+     }
      return [{class:'external',facts:{measure:1,counterparty:'known',provider:destination.channel==='mail'?'email':('kind' in destination && destination.kind==='slack')?'slack':'signed webhook',step:'destination test'}}];
     }
     if(route==='alert'){
@@ -128,7 +133,7 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     const grant=JSON.parse(row.grant_spec);summary.target={id:String(a.id),name:grant.repository};summary.items=[grant.branch,grant.file.path,grant.file.sha256,grant.pullRequest.body,'GitHub draft data PR only; no merge or deploy'];
    }else if(route==='alert-test'){
     const choices=await destinationChoices(env as Bindings&AlertEnvironment,String(a.project));const d=choices.find((d:any)=>d.id===a.id);if(!d)throw new ToolRefusal('not_found');
-    summary.recipients=[String(('recipient' in d?d.recipient:undefined)??d.label)];
+    summary.recipients=[String(d.channel==='mail'?(await findDestination(env as Bindings&AlertEnvironment,String(a.project),String(a.id),'mail')).recipient:d.label)];
    }else if(route==='access-member'){summary.role=String(a.role);summary.items=(a.grants as any[]).map(g=>`${g.project}:${g.role}`);}
    else if(route==='issue'){
     const row=await env.DB.prepare('SELECT title FROM issues WHERE project=? AND id=?').bind(a.project,a.issue).first<{title:string}>();if(!row)throw new ToolRefusal('not_found');
