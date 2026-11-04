@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1771,7 +1771,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `BASE-AGENT-005` | An agent acts as a person in a role, never more | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-006` | Every action declares its risk class | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | missing | | Not yet judged through this seed's own doors. |
-| `BASE-AGENT-008` | Truthful attribution | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-008` | Truthful attribution | target | partial | `tests/agent-door.mjs` emitted-Worker agent-door journey invokes `tests/agent-door/person-actions-contract.mjs` personActionsContract (acceptance 2, agent-token approval and review-mark components): genuine native pending actions and review records, admitted Business and exact-project credentials under held and autonomous policies, HTTP 403 with and without a person session, unchanged approval marks, review state, policy and every native table; signed-in person review marks and matching-policy approval execution retain real person attribution. | Acceptance 1 and 3 to 7 remain unqualified, including confirmation handling, complete record, activity, export and certificate attribution, person approver and agent preparer coverage across all acts, desktop and phone activity and exports, and external-mail sender attribution. Acceptance 2 still needs device-token and policy-question qualification. Provider-gated person handoffs remain unqualified; no native-device or provider acceptance is claimed. Existing account, device and ct holds, queue scopes and release prerequisites remain unchanged. |
 | `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-010` | Agents can follow changes | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-011` | Limits are policy, and Pause stops everything | target | missing | | Not yet judged through this seed's own doors. |
