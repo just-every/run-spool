@@ -81,16 +81,17 @@ export async function admitEvent(c:any,scope:IngestScope,input:Envelope,digest:s
     if(count.total>=10000){await record('budget');c.header('Retry-After','60');return c.json({outcome:'dropped',reason:'retained_event_budget',retryAfter:60},429)}
     const groupingPolicy=await readGroupingPolicy(db,project);
     event=normalize(event.sentry?{...event,grouping:undefined,sentry:{...event.sentry,grouping:groupingPolicy.revision?groupingPolicy:undefined}}:{...event,grouping:groupingPolicy.revision?groupingPolicy:undefined});
-    const {algorithm,basis,fingerprint,route}=await captureGrouping(db,project,event),issue=await hash(project+':'+fingerprint);
-    const diagnosis=JSON.stringify(await diagnose(db,project,event)),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
+    const diagnostic=await diagnose(db,project,event);
+    const {algorithm,basis,fingerprint,routes}=await captureGrouping(db,project,event,diagnostic),issue=await hash(project+':'+fingerprint);
+    const diagnosis=JSON.stringify(diagnostic),time=Date.now(),originGuard=scope.foreign?crypto.randomUUID():null,alertId=crypto.randomUUID(),occurrence=crypto.randomUUID();
     const jobs=[spendKeyEvent(db,project,scope.keyHash),...privacy.jobs,...prepared.jobs!,groupingPolicyFence(db,project,groupingPolicy.revision),
       ...(originGuard?[stmt(db,'INSERT INTO browser_origin_guards VALUES(?,?,?)',originGuard,project,scope.foreign)]:[]),
       stmt(db,"INSERT INTO issues(id,project,fingerprint,algorithm,title,state,revision,count,first_seen,last_seen) VALUES(?,?,?,?,?,'open',0,0,?,?) ON CONFLICT(id) DO NOTHING",issue,project,fingerprint,algorithm,scrub(event.type+': '+event.message),time,time),
       ...assignShortId(db,project,issue,time),
-      ...(route?[
-       stmt(db,'INSERT INTO grouping_routes VALUES(?,?,?,?) ON CONFLICT(project,fingerprint) DO NOTHING',project,route.fingerprint,issue,basis),
-       stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM grouping_routes WHERE project=? AND fingerprint=? AND issue=? AND basis=?) THEN 1 ELSE 0 END',project,route.fingerprint,issue,basis),
-      ]:[]),
+      ...routes.flatMap(route=>[
+       stmt(db,'INSERT INTO grouping_routes VALUES(?,?,?,?) ON CONFLICT(project,fingerprint) DO UPDATE SET basis=excluded.basis WHERE grouping_routes.issue=excluded.issue AND grouping_routes.basis=?',project,route.fingerprint,issue,route.basis,route.previousBasis??route.basis),
+       stmt(db,'INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(SELECT 1 FROM grouping_routes WHERE project=? AND fingerprint=? AND issue=? AND basis=?) THEN 1 ELSE 0 END',project,route.fingerprint,issue,route.basis),
+      ]),
       startCaptureHistory(db,project,issue,time),
       stmt(db,`INSERT INTO events(id,project,issue,release,release_seq,build,environment,payload,digest,diagnostic,received,occurrence,historical) VALUES(?,?,?,?,${releaseSequence},?,?,?,?,?,${receivedAtSql},?,0)`,event.eventId,project,issue,event.release,...releaseArgs,event.build,event.environment,JSON.stringify(event),digest,diagnosis,occurrence),
       ...identity?eventIdentityStatements(db,identity,event.eventId,occurrence):[],

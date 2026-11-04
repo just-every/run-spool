@@ -215,7 +215,7 @@ migrationFile=resolve(temporary,'all-migrations.sql');await writeFile(migrationF
  await json('/api/ingest/web','POST',{...event,eventId:'combined-type-scrub',type:'token',message:'synthetic-value',frames:[{...event.frames[0],function:'combinedScrub'}]},auth);
  await operatorFlow({req,json});
  const inbound=await json('/api/projects/web/inbound-filters');inbound.policy.filters.messages={enabled:true,values:['*noise from old checkout*']};await json('/api/projects/web/inbound-filters','PUT',{revision:inbound.revision,policy:inbound.policy});
- const bundleRetention=await bundleGroupingFlow({json});
+ const bundleRetention=await bundleGroupingFlow({json,origin,cookie,browser:!withoutBrowser});
  const archive=await json('/api/archive');assert.ok(!JSON.stringify(archive).includes('a@b.test'));assert.ok(!JSON.stringify(archive).includes('token=x'));await stop();await start(resolve(temporary,'state-a'),false);await login({bootstrap:false});await setupLocation(true);assert.ok(isDeepStrictEqual((await json('/api/archive')).data,archive.data),'private domain rows match exactly');assert.ok(!JSON.stringify(archive).includes(project.ingestKey));assert.ok(!('credentials' in archive.data));assert.ok(!('sessions' in archive.data));
  assert.equal((await req('/api/restore','POST',archive.text)).status,409);
 

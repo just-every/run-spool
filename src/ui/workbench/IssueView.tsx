@@ -1,3 +1,4 @@
+import {isNodeRuntimeFrame} from '../../domain/grouping/runtime-frame';
 import {Suppression} from './Suppression';
 import {Discussion} from './Discussion';
 import {Priority} from './Priority';
@@ -54,7 +55,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   if (!packet) return <section className="evidence">{status === 'loading' ? <p role="status">Loading issue evidence…</p> : <><h2>Issue evidence unavailable</h2><p>The issue may have been removed, or its evidence could not be loaded.</p><button className="text-button" onClick={refresh}>Retry evidence</button></>}</section>;
   const group = packet.issue, event = selectedEvent ?? packet.events?.[0], hidden = hiddenSourceRows(event?.event);
   const frames: any[] = (event?.currentLookup ?? []).map((frame: any, sourceIndex: number) => ({...frame, sourceIndex})).filter((frame: any) => !hidden.has(frame.sourceIndex));
-  const missing = frames.filter(frame => !['mapped','go_path_mapped','python_source'].includes(frame.status));
+  const missing = frames.filter(frame => !isNodeRuntimeFrame(frame.generated.file) && !['mapped','go_path_mapped','python_source'].includes(frame.status));
   const language = event?.event.language;
   const imported = event?.historical === true;
   const sample = event?.event.environment === 'spool-test';

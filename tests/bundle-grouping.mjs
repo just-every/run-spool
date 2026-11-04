@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import {rebuiltBundlesFlow} from './grouping/rebuilt-bundles.mjs';
+import {nodeRuntimeFramesFlow} from './grouping/node-runtime-frames.mjs';
 
 // A hashed rebuild and its correction, suppression and retention custody.
-export async function bundleGroupingFlow({json}) {
+export async function bundleGroupingFlow({json,origin,cookie,browser=true}) {
+ await rebuiltBundlesFlow({json,origin});
+ await nodeRuntimeFramesFlow({json,origin,cookie,browser});
  const project=await json('/api/projects','POST',{id:'bundles',name:'Shipping dashboard'}),p='/api/projects/bundles';
  const first={version:1,eventId:'bundle-first',release:'shipping-1',build:'build-1',environment:'production',type:'TypeError',message:"Cannot read properties of undefined (reading 'city')",frames:[{file:'https://shipping.example/assets/index-DoQws3li.js',function:'fe',line:8,column:2571}],breadcrumbs:[]};
- const next={...first,eventId:'bundle-next',release:'shipping-2',build:'build-2',frames:[{...first.frames[0],file:'https://shipping.example/assets/index-B-Fmq6y6.js'}]};
+ const next={...first,eventId:'bundle-next',release:'shipping-2',build:'build-2',frames:[{...first.frames[0],file:'https://shipping.example/assets/index-B-Fmq6y6.js',function:'be',line:10}]};
  const capture=event=>json('/api/ingest/bundles','POST',event,{Cookie:'',Authorization:`Bearer ${project.ingestKey}`});
  const packet=id=>json(`${p}/issues/${id}/packet`);
  for(const event of [first,next])await json(`${p}/releases`,'POST',{name:event.release,build:event.build});
