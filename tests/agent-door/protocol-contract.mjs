@@ -156,6 +156,15 @@ export async function protocolContract(app){
    assert.equal(changed.state,'suppressed','The unpadded control completes the native state transition');
    await app.json(`/api/projects/${project}/issues/${issue.id}`,'PATCH',{state:'open',revision:changed.revision});
    console.log(`PROBE BASE-AGENT-001 6 ${policy}: oversized valid MCP issue update with length and streamed body -> 413, every table unchanged; unpadded control -> ${policy==='held'?'native approval then ':''}suppressed`);
+   const retained=await app.json(`/api/projects/${project}/issues`);
+   await app.adopt(document,{paused:true});
+   for(const [method,params] of [['resources/read',{uri}],['prompts/get',{name:prompts[0].name}]]){
+    const paused=await c.mcp(method,params);
+    assert.equal(paused.body.error.data.code,'agents_paused','Pause closes the enabled read doors');
+    assert.equal(paused.result,undefined,'Paused reads disclose no content');
+   }
+   assert.deepEqual(await app.json(`/api/projects/${project}/issues`),retained,'Refused reads preserve the populated native records');
+   await app.adopt(document);
   }
  }finally{await app.adopt();}
 }
