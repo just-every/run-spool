@@ -9806,7 +9806,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
-      "sha256": "f9ffca3b6b28770bf69802bb46c27543832c9ad86be863f615f18c6be6986ca0",
+      "sha256": "0a339d68d86ff2eb49403d3ff9186f60d47eaa251d413fb6e5eccddeecc28f01",
       "executable": false
     },
     "src/ui/alerts/AlertRules.tsx": {
@@ -9998,7 +9998,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureView.tsx": {
-      "sha256": "7d368e3ab8b13301d0e8004161b3d2232394288215e0edae19f9f5f72d172f9a",
+      "sha256": "58038cb94d5e725205ec6a4908a415ce8400cf3e74ec58353159bd7c83828107",
       "executable": false
     },
     "src/ui/workbench/CheckInLink.tsx": {
@@ -10238,7 +10238,7 @@
       "executable": false
     },
     "src/ui/workbench/ReportsView.tsx": {
-      "sha256": "f16c7c84e53b3d3ef99f9c4dea1c84fd799c3b8b461087064131ac47c5a6bce3",
+      "sha256": "45f8e2268e043e668d0fa69895147b4a479bd316228fe908447df277af577ede",
       "executable": false
     },
     "src/ui/workbench/ReportsWidgetEditor.tsx": {
