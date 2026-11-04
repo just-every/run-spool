@@ -9,7 +9,7 @@ export async function ruleMergeSuggestions(db: D1Database, project: string, sour
   const proposals = await db.prepare("SELECT explanation FROM grouping_proposals WHERE project=? AND kind='rule' AND state='applied' AND rule_revision=?").bind(project,active.revision).all<{explanation:string}>();
   const candidates = new Map<string,{source:string; target:string; events:Set<string>}>();
   for (const row of proposals.results) for (const move of JSON.parse(row.explanation).affected ?? []) {
-    if (move.from === move.to || source && move.from !== source) continue;
+    if (move.from === move.to || source && move.from !== source && move.to !== source) continue;
     const key = JSON.stringify([move.from,move.to]);
     const candidate = candidates.get(key) ?? {source:move.from,target:move.to,events:new Set<string>()};
     candidate.events.add(move.event); candidates.set(key,candidate);

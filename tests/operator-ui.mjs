@@ -146,6 +146,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.getByRole('button',{name:'Refresh merge offers',exact:true}).click();
  const suggestions=await api(root+'/grouping-rules/merge-suggestions');
  const offered=suggestions.find(row=>row.source.id===issue&&row.target?.id===newGroup.issue);assert.ok(offered,'The applied rule links the old group to the next capture group');
+ assert.ok((await api(root+'/grouping-rules/merge-suggestions?issue='+newGroup.issue)).some(row=>row.source.id===issue),'The new issue also points back to the existing group');
  await page.getByRole('button',{name:'Review merge into '+offered.target.short_id,exact:true}).first().click();
  const mergeDialog=page.getByRole('dialog',{name:'Merge '+offered.source.short_id+' into '+offered.target.short_id,exact:true});
  await mergeDialog.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();await capture('grouping-rule-merge-offer');

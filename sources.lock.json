@@ -6106,7 +6106,7 @@
       "executable": false
     },
     "src/domain/grouping/merge-suggestions.ts": {
-      "sha256": "fd885cf6c3db0867661c0857d4cb31392641e2c4ccebc2ff19b3c4348f82c5a3",
+      "sha256": "699f73dbf0dfd9c0ba5471050528a216ebdfa6bee5e148654ab5e31452607da6",
       "executable": false
     },
     "src/domain/grouping/native.ts": {
@@ -10870,7 +10870,7 @@
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "f2d54f2ca7f2cfbaf01abd9a8cbee2d91c653af30c6653313e83154acddc942f",
+      "sha256": "7fd3095db922b3baed79d5847b5c86d9d38b97606045f4637ad552f04d19a661",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
