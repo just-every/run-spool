@@ -7,7 +7,7 @@ import {expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import {startTestWorker} from './worker.mjs';
-import {assertSignInForm,signIn,testOwner,openGate} from './auth.mjs';
+import {signIn,testOwner,openGate} from './auth.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {startDispatchApp} from './triage-app.mjs';
 import {verifyReturnDestinations} from './triage-auth.mjs';

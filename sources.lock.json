@@ -5298,7 +5298,7 @@
       "executable": false
     },
     "src/auth/local-sign-in.server.ts": {
-      "sha256": "13bc851f41e40b6a2435dbd5ede360d6858d2c12aa474a5888a08a7c08751927",
+      "sha256": "91206822f29dd5a55a667f432843b2410a8fe1edbe6e23544d8ee1d476e5d2f0",
       "executable": false
     },
     "src/auth/local.server.mjs": {
@@ -5322,7 +5322,7 @@
       "executable": false
     },
     "src/auth/sign-in.server.ts": {
-      "sha256": "5060c71dfc1391827e5458248a378c5bf61c86c8d7ba38c9e5b927225d85a580",
+      "sha256": "432b56b20ba89c018e57bc09ec7c1c8f8dbd34313f27a26dcb8fce5cce070d7f",
       "executable": false
     },
     "src/base/contract-anchor.mjs": {
@@ -11366,7 +11366,7 @@
       "executable": false
     },
     "tests/sign-in/local-member.mjs": {
-      "sha256": "e3083b48c4cdc2a6c0cc6e6a0f64d0dfb0c2e4b6844d78537fc4cecf87a9dc5a",
+      "sha256": "271fcca44d2bf5ea807b6fd8e5c4d42d83690c866869d74a92c3ca8b1c78097b",
       "executable": false
     },
     "tests/slack-flow.mjs": {
@@ -11414,7 +11414,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "7a7a27d930178ee891e87727b786cb9b03a947eeec9e1a78cff5e9f4440039c0",
+      "sha256": "4caef95d3d7d059b56db83906186209d0b69ee1bd673a32816f506b213d01452",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
