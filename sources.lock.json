@@ -11310,7 +11310,7 @@
       "executable": false
     },
     "tests/sign-in/local-member.mjs": {
-      "sha256": "295dc3d040db189002068364ab03987d5555cfd9c2d00d2d9c8115da672977c3",
+      "sha256": "5b67f5151ac56637677f394f4e63bdd4717dde7c7a36973dcf512d281f26c166",
       "executable": false
     },
     "tests/slack-flow.mjs": {
