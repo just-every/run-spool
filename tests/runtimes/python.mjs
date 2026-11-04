@@ -36,8 +36,8 @@ export default {
    const url=new URL(page.url());assert.equal(url.searchParams.get('event'),event.id);assert.equal(url.searchParams.get('occurrence'),event.occurrence);
    const detail=handled.events.find(value=>value.id===event.id);assert.ok(detail,'selected event is an actual SDK capture');
    assert.ok((await selected.innerText()).includes(`${detail.event.type}: ${detail.event.message}`),'displayed detail follows the selected capture');
-   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-event-id'),event.id,'event list highlights the selected capture');
-   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-occurrence-id'),event.occurrence,'event list highlights the exact occurrence');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-event-id'),event.id,'event list highlights the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-occurrence-id'),event.occurrence,'event list highlights the exact occurrence');
    for(const exception of detail.event.sentry.exceptions)await page.locator('article.exception h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
   };
   await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
