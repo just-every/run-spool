@@ -16,7 +16,7 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
     void write(() => request(`${path}/fixes`, 'POST', { reproducer: reproducer.id, run: proposal.run || reproduced[0]?.id, repository: proposal.repository, base: proposal.base, flow: proposal.flow, durationMinutes: Number(proposal.durationMinutes) }));
   }
   return <article className="reproducer" aria-labelledby={label}>
-    <h3 id={label}>Reproducer for event <code>{reproducer.event}</code>: {reproducer.support === 'supported' ? 'supported' : 'unsupported'}</h3>
+    <h3 id={label}>{reproducer.support === 'supported' ? 'Ready to reproduce' : 'Reproduction unavailable'}</h3>
     <p className="execution-meta">Recorded {date(reproducer.created)}. {reproducer.trust}</p>
     {reproducer.support === 'unsupported' ? <p className="callout">{reproducer.reasonText}</p> : <>
       <dl className="execution-facts">

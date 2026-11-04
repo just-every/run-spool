@@ -1,3 +1,4 @@
+import { plural } from './readable';
 import { useId, useRef, useState } from 'react';
 import type { Request, Run } from './shared';
 
@@ -23,7 +24,7 @@ export function EndUserErasurePreview({project,request,run,busy}:{project:string
   {error&&<p role="alert">{error}</p>}
   {preview&&<div className="callout" role="status">
    <h3>Matching retained records</h3>
-   <p>{preview.events.status==='available'?`${preview.events.count} matching events`:'Event matching unavailable'} · {preview.events.retained} retained events · {preview.events.withoutRetainedEmail} without a retained email.</p>
+   <p>{preview.events.status==='available'?`${preview.events.count} matching ${plural(preview.events.count!, 'event')}`:'Event matching unavailable'} · {preview.events.retained} retained {plural(preview.events.retained, 'event')} · {preview.events.withoutRetainedEmail} without a retained email.</p>
    <p>{preview.events.explanation}</p>
    <ul>{preview.unavailable.map(row=><li key={row.store}>{row.store}: unavailable. {row.reason}</li>)}</ul>
    <p>Identity removal, event deletion, completed receipts and restore protection for an individual remain unavailable.</p>
