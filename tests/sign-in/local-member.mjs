@@ -16,7 +16,7 @@ export async function localMemberSignInJourney(browser, origin, ownerContext) {
  const ownerPage = await ownerContext.newPage();
  const memberContext = await browser.newContext({viewport:{width:1440,height:900}});
  try {
-  const organization = await ownerContext.request.post(origin+'/api/organization',{data:{id:'synthetic-spool-1',name:'synthetic-spool-1'}});
+  const organization = await ownerContext.request.post(origin+'/api/organization',{headers:{Origin:origin},data:{id:'synthetic-spool-1',name:'synthetic-spool-1'}});
   assert.equal(organization.status(),201);
   await ownerPage.goto(origin+'/projects/journey/settings');
   const members = ownerPage.getByRole('region',{name:'Members',exact:true});
@@ -53,7 +53,7 @@ export async function localMemberSignInJourney(browser, origin, ownerContext) {
   let session = await (await memberContext.request.get(origin+'/auth/session')).json();
   assert.equal(session.operator.email,email);assert.equal(session.operator.role,'member');
   assert.equal((await memberContext.request.get(origin+'/api/organization')).status(),404,'member entry does not acquire owner authority');
-  const signedOut = await memberContext.request.post(origin+'/auth/signout',{maxRedirects:0});
+  const signedOut = await memberContext.request.post(origin+'/auth/signout',{maxRedirects:0,headers:{Origin:origin}});
   assert.equal(signedOut.status(),204);
   await memberPage.goto(origin+'/sign-in');
   await entry.click();
