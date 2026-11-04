@@ -23,9 +23,9 @@ export async function replayContract(){
    const {idempotency_key:unused,...withoutKey}=args;
    assert.equal(error(await app.call('spool.proposals.create',withoutKey))?.code,'idempotency_key_required');
    assert.deepEqual(await proposals(),[],'A missing key saves no proposal');
-   const first=done(await app.call('spool.proposals.create',args));
+   const firstAnswer=await app.call('spool.proposals.create',args),first=done(firstAnswer);
    assert.equal(first.state,'proposed');
-   assert.equal((await app.call('spool.proposals.create',args))._meta['com.runeditrun/decision'].disposition,phase==='held'?'review':'autonomous');
+   assert.equal(firstAnswer._meta['com.runeditrun/decision'].disposition,phase==='held'?'review':'autonomous');
    assert.deepEqual(done(await app.call('spool.proposals.create',args)),first,'Identical arguments return the complete first result');
    const one=await proposals();assert.equal(one.length,1);assert.equal(one[0].id,first.id);
    assert.deepEqual(await issues(),initial,'An inert proposal does not alter captured issues');
@@ -52,6 +52,9 @@ export async function replayContract(){
    console.log(`PROBE BASE-AGENT-012 3 ${phase}: native MCP changed arguments with saved key -> idempotency_conflict and unchanged native records`);
 
    const update={project,issue:admitted.issue,state:'acknowledged',revision,expected_revision:revision,idempotency_key:randomUUID()};
+   const {idempotency_key:updateKey,...updateWithoutKey}=update;
+   assert.equal(error(await app.call('spool.issues.update',updateWithoutKey))?.code,'idempotency_key_required');
+   assert.deepEqual(await issues(),initial,'A missing update key changes no issue');
    const updated=done(await app.call('spool.issues.update',update));
    assert.equal(updated.state,'acknowledged');assert.equal(updated.revision,revision+1);
    const afterUpdate=await issues(),afterUpdateProposals=await proposals();
@@ -60,6 +63,8 @@ export async function replayContract(){
    assert.equal(error(stale)?.current_revision,updated.revision,'The shared expected-revision conflict names the current native revision');
    assert.deepEqual(await issues(),afterUpdate,'Stale expected revision changes no issue');
    assert.deepEqual(done(await app.call('spool.issues.update',update)),updated,'An admitted update replays even after its original revision is stale');
+   assert.equal(error(await app.call('spool.issues.update',{...update,state:'open'}))?.code,'idempotency_conflict');
+   assert.deepEqual(await issues(),afterUpdate,'Conflicting update reuse changes no issue');
    console.log(`PROBE BASE-AGENT-012 4 ${phase}: native MCP stale expected_revision with current native revision -> revision_conflict naming ${updated.revision}, no change`);
 
    const original=await app.DB.prepare('SELECT created_at,expires_at FROM agent_door_calls WHERE agent=? AND key=?').bind(app.context.agentId,args.idempotency_key).first();
