@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 2 | 16 | 18 |
+| Agent surface | 0 | 3 | 15 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 46 | 37 | 105 |
+| Full target | 22 | 47 | 36 | 105 |
 
 Judged from the code and tests at commit `7e26763306a37b3d11b46cdf22f84de3efc81806` (3 November 2026). Fresh ERR-009 qualification passed the triage, repair-recovery, execution, product and old-archive public journeys. The browser download and public rer export restore whole retained records and private maps; restored authority and dispatch remain inert until fresh proof; manual cutoff preserves repair facts, checks and ordered snapshot gaps. Source, journey and acceptance bytes are unchanged from this proof basis. ERR-009 moves from partial to done and its three stale recorded gaps are cleared. Other judgments and GOV-003 volume, SRC-004 capacity and GOV-002 scheduled custody obligations are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1607,7 +1607,7 @@ Agent surface · target · **missing**
 
 #### BASE-AGENT-011 — Limits are policy, and Pause stops everything
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Business limits are rules in the company's policy: per-call and per-day thresholds on any class's measure, such as money moved, outside recipients or items destroyed; spend caps on provider cost (models, SMS, email) per seed, specialist or agent, which setup asks with the classes; "no cap" is an answer. Tools with provider cost declare an estimate before they run, and an exhausted cap returns `budget_exhausted` before any partial effect. The seed's capacity limits (request rate, body and byte sizes) protect the installation: they bound rate and size, never daily business volume, are documented and are not policy. A grant carries budgets only when the person granting it sets them. A **Pause agents** control in the seed, and Pause all agents in Business when paired, refuses every agent token within 60 seconds until a person resumes; browser sessions and devices keep working.
 
@@ -1620,8 +1620,8 @@ Agent surface · target · **missing**
 6. Pause and Pause all agents each stop the next call within 60 seconds, and resume restores access.
 7. An agent token cannot resume.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door.mjs` invokes `tests/agent-door/pause-contract.mjs` pauseContract: acceptance 6's native owner Pause and signed Business Pause admission, each stopping the next valid Business token and native project agent through MCP and the native HTTP alias within 60 seconds; both combined-pause resume orders, restored populated reads under autonomous and held policies, usable native person authority and retained-write replay refusal without duplicate effects. Acceptance 7: both valid agent credentials receive 403 at the native resume door with unchanged pause and policy state. Separate emitted Worker fixtures cover both policies; the native paused screen has 1440 and 390 proof. `tests/agent-door/continuation.mjs` continuationFlow retains the existing signed-pause and current-policy replay refusals.
+**Gap.** Acceptance 1–5 remain unqualified: rate-overrun Retry-After, per-day recipient thresholds, enforced provider spend caps without partial effects, no-cap spending and zero-spend behavior, and usage by agent with calls, class decisions, money moved and provider spend. The pinned Base door does not enforce provider spend caps; no spending or usage claim follows from the pause qualification. Acceptance 6's actual Business control and native-device qualification, plus pause coverage beyond the tested admission modes, remain unqualified. SURFACE-001's existing hold, every account, device and ct hold, queue scope and release prerequisite remain unchanged.
 
 #### BASE-AGENT-012 — Writes are idempotent and conflict-safe
 
