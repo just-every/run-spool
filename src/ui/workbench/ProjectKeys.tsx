@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Details } from './Details';
 import { LoaderSettings } from './LoaderSettings';
 import { KeyRateLimit } from './KeyRateLimit';
@@ -18,14 +18,16 @@ export function ProjectKeys({ keys, projectName, configure, organizationManager,
 }
 function ProjectKey({ credential: key, projectName, configure, organizationManager, revoke, project, request, run, busy, refresh }: Controls & {credential: any; projectName: string; configure: boolean; organizationManager: boolean; revoke: boolean}) {
   const [confirming, setConfirming] = useState(false), [failure, setFailure] = useState('');
+  const confirmation = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (confirming) confirmation.current?.focus(); }, [confirming]);
   const name = `${kindName(key.kind)} key ${key.hash.slice(0,12)}…`;
   const effect = key.kind === 'ingest' ? 'Applications using this key will stop capturing errors and sending events.' : key.kind === 'agent' ? 'Agents using this key will lose evidence access and cannot submit grouping proposals.' : 'Deployments using this key will no longer register releases or upload source maps.';
   return <div className="data-row key-row"><span>{kindName(key.kind)} · {key.revoked ? 'Revoked' : key.stopped ? 'Stopped' : 'Active'}</span><code>{key.hash.slice(0,12)}…</code><span>Created {date(key.created)}</span>
     <Details title="Project key" onOpen={() => {setConfirming(false);setFailure('');}}>
       <p><strong>{name}</strong> · {projectName}</p><p>{key.revoked ? 'Revoked' : key.stopped ? 'Stopped' : 'Active'} · Created {date(key.created)}</p>
-      {configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager && <KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</>}
+      {configure && key.kind === 'ingest' && !key.revoked && !key.stopped && <div hidden={confirming}><LoaderSettings project={project} keyHash={key.hash} {...{request,run,busy}} />{organizationManager && <KeyRateLimit project={project} keyHash={key.hash} {...{request,run,busy}} />}</div>}
       {failure && <p role="alert">{failure}</p>}
-      {!key.revoked && revoke && (confirming ? <div className="callout" role="group" aria-label="Confirm key revocation">
+      {!key.revoked && revoke && (confirming ? <div ref={confirmation} tabIndex={-1} className="callout" role="group" aria-label="Confirm key revocation">
         <h3>Revoke {name} for {projectName}?</h3><p>{effect} This key cannot be reactivated.</p>
         <button className="danger-button" disabled={busy} onClick={() => void run(async () => { try { await request(`/api/projects/${project}/keys/${key.hash}`, 'DELETE'); setConfirming(false); refresh(); } catch (error) {setFailure((error as Error).message);} })}>Confirm revocation</button>
         <button className="text-button" disabled={busy} onClick={() => setConfirming(false)}>Cancel revoke</button>
