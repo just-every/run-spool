@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 44 | 21 | 87 |
+| Core | 23 | 43 | 21 | 87 |
 | Agent surface | 0 | 2 | 16 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 46 | 37 | 105 |
+| Full target | 23 | 45 | 37 | 105 |
 
-Judged from the code and tests at commit `7e26763306a37b3d11b46cdf22f84de3efc81806` (3 November 2026). Fresh ERR-009 qualification passed the triage, repair-recovery, execution, product and old-archive public journeys. The browser download and public rer export restore whole retained records and private maps; restored authority and dispatch remain inert until fresh proof; manual cutoff preserves repair facts, checks and ordered snapshot gaps. Source, journey and acceptance bytes are unchanged from this proof basis. ERR-009 moves from partial to done and its three stale recorded gaps are cleared. Other judgments and GOV-003 volume, SRC-004 capacity and GOV-002 scheduled custody obligations are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `b3feb7908aa2b4516b7424e1051f124ce2adf27d` (4 November 2026). AUDIT-001 native qualification uses the enclosing owner-claim journey, teamFlow and inertTeamArchive, the audit-history public journey and the owner erasure public flow. Organization creation, invitations, role changes, removal, ownership transfer, team configuration and scoped services record truthful action and denial facts, with notification and export outcomes. Permanent aliases exclude private identities and credentials; independent restore preserves fact identities, times, aliases and outcomes, and owner erasure deletes attribution links without rewriting chronology. Application source, journey bytes and acceptance text are unchanged from this proof basis. AUDIT-001 moves from partial to done and its stale D-1 member-action evidence gap is cleared. Later features retain D-1; provider actions gain no qualification beyond the existing native journeys. Other clause judgments, account and device holds, queue scopes and release prerequisites remain intact. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -1292,7 +1292,7 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 �
 
 #### AUDIT-001 — Permanent privacy-safe action audit
 
-Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-003, BASE-AGENT-009
+Core · target · **done** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-003, BASE-AGENT-009
 
 **Requirement.** Spool's action history covers triage, grouping, permissions, exports, retention/erasure, integration writes, notification attempts and agent approvals/steps. Keep append-only history portable through Spool archives, with no secrets, raw payloads or personal values in permanent subject/actor labels. Erasure retains count-only receipts and leaves no erased identifier in this history. Organization audit and admin investigation cover new team/provider paths, and each later clause's new actions inherit this record (D-1). docs/AUDIT.md describes how writers commit their facts.
 
@@ -1300,8 +1300,8 @@ Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-0
 1. It survives export and restore.
 2. No secret or erased identifier remains in the history.
 
-**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`
-**Gap.** Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history.
+**Evidence.** `src/domain/audit/classify.ts`; `src/domain/audit/archive.ts`; `src/domain/audit/types.ts`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; D-1 and acceptance 1: `tests/owner-claim.mjs` enclosing native owner-claim journey invokes `tests/team-flow.mjs` teamFlow and inertTeamArchive (organization, invitation, role, removal, transfer, team and service actions; member and service denials; notification and export facts; independent restore preserves original fact identities, times, aliases and outcomes). Acceptance 1 and 2: `tests/audit-history.mjs` AUDIT-001 public journey (transaction and request outcomes, permissioned fixed-snapshot history and JSON and CSV exports, private-value exclusion, restart, append-preserving independent restore, legacy facts and project erasure); `tests/old-archive.mjs` old native archive journey. Acceptance 2: teamFlow (permanent aliases exclude private identities, names and service keys); `tests/owner-erasure.mjs` owner erasure public flow (count-only preview and receipt, erased attribution links, unchanged prior audit chronology, private-value exclusion and old-archive replay fences).
+**Gap.** None.
 
 ### Deployment integrations
 
