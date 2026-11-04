@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "06db796ab4fe5605496616c9f52c3d8976255d7d9597812ba77112a43a38ebc4",
+      "sha256": "23fde9e3db6a909fd8e378161c773f67c12a68b3601e5f178007eb816cc5aaf2",
       "executable": false
     },
     "DEMO.md": {
@@ -10390,7 +10390,7 @@
       "executable": false
     },
     "tests/agent-door/person-actions-contract.mjs": {
-      "sha256": "0c8e016ef0332a4a6a07c44a378f2de0242dff2ce0e6c9e6b91eb2c387e7d82f",
+      "sha256": "838182e0f2e4de0cf6d4f8f52dc73194d9770f6d698f992c5ffd325c215c9bbf",
       "executable": false
     },
     "tests/agent-door/phase-fixtures.mjs": {
