@@ -5550,7 +5550,7 @@
       "executable": false
     },
     "src/domain/agents/workbench.tsx": {
-      "sha256": "ed85d8613920218fb99add52e24170c858b0659cb326bb50c293fc0cd1dc4ca2",
+      "sha256": "da2de6226661d870b05ae3ae8fd8250ffb92aa7d1404e2330303ebbde11861fe",
       "executable": false
     },
     "src/domain/alerts/admission.ts": {
@@ -10786,7 +10786,7 @@
       "executable": false
     },
     "tests/identity-flow.mjs": {
-      "sha256": "d0404e706e033121f3da57643c1b148c766ca81a5755875bc1eea8fb1d93bbf5",
+      "sha256": "9783fc6e86ac7a2e6de4a16026fa9e428859551bbcecdd937f07a2e1ee9b7640",
       "executable": false
     },
     "tests/inbound-filter-flow.mjs": {
