@@ -6301,6 +6301,10 @@
       "sha256": "9d50e7e740a403dcdf77d6d960ce671cc5fb2d3ef0595ddc95efe4ce90198fc4",
       "executable": false
     },
+    "src/domain/operators/presentation.ts": {
+      "sha256": "84ee827bc9b237cbf88fd87d157ee8918e9dd46c84fa6493b000c4d1df21f45d",
+      "executable": false
+    },
     "src/domain/operators/provenance.ts": {
       "sha256": "088bc6d0434e21f1259abc47dbf91e09f190dcc88728a1f8300bcb79cedeb5da",
       "executable": false
@@ -9774,7 +9778,7 @@
       "executable": false
     },
     "src/ui/alerts/AlertDeliveries.tsx": {
-      "sha256": "b1ab744b8f8fafb0033b381a1e45cf7a74da916b5de91d1e7ebee75282ed7979",
+      "sha256": "0f8838a89f703d22eafa68688dfdf9a33f015e48bd8d19b065202eeee6036928",
       "executable": false
     },
     "src/ui/alerts/AlertDestinations.tsx": {
