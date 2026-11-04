@@ -4,14 +4,16 @@ import { bundleFile } from '../grouping-path';
 export type GroupingRoute = {project:string; fingerprint:string; issue:string; basis:string; previousBasis?:string};
 export type RouteBasis = {version:2; key:string; identities:string[]; admission:string};
 
-/** Original positions identify mapped failures. Without maps, content-hashed
- * bundles use their entry path and exception value, not minifier names/lines. */
+/** Hashed bundles use original positions when mapped, and their entry path
+ * and exception value without maps. Other native frames keep v1 grouping. */
 export function javascriptIdentity(event:Envelope,diagnostic:any[]=[]):{bundle?:string;source?:string} {
  const frame=event.frames[0];
  if(event.language||event.sentry||!frame)return {};
- const normalized=bundleFile(frame.file),mapped=diagnostic[0];
+ const normalized=bundleFile(frame.file);
+ if(normalized===frame.file&&!normalized.includes('-[hash].'))return {};
+ const mapped=diagnostic[0];
  return {
-  ...(normalized!==frame.file||normalized.includes('-[hash].')?{bundle:JSON.stringify(['js-bundle-v2',event.type,normalized,event.message])}:{}),
+  bundle:JSON.stringify(['js-bundle-v2',event.type,normalized,event.message]),
   ...(mapped?.status==='mapped'?{source:JSON.stringify(['js-source-v2',event.type,mapped.original.file,mapped.original.line,mapped.original.column])}:{}),
  };
 }

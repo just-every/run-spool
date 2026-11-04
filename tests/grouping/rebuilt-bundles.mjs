@@ -53,6 +53,13 @@ export async function rebuiltBundlesFlow({json,origin}) {
    assert.equal(alerts.filter(row=>row.issue===identities[name]&&row.kind==='new_issue').length,1);
    assert.equal(alerts.filter(row=>row.issue===identities[name]&&row.kind==='regression').length,1);
   }
+  // Ordinary mapped files retain native location grouping; a debug ID alone
+  // does not establish that the reported file is a rebuilt hashed bundle.
+  await json(p+'/artifacts','POST',{release:'storefront@2.5.2',build:'web',debugId:'synthetic-spool-native-map',map:{version:3,sources:['native-source.js'],names:[],mappings:'AAAA'}});
+  const native=[];
+  for(const name of ['firstLocation','secondLocation'])native.push(await json('/api/ingest/'+project.id,'POST',{version:1,eventId:'native-'+name,release:'storefront@2.5.2',build:'web',environment:'production',type:'NativeLocationError',message:'Mapped native location',frames:[{file:'https://storefront.example/capture.mjs',function:name,line:1,column:0,debugId:'synthetic-spool-native-map'}],breadcrumbs:[]},{Cookie:'',Authorization:'Bearer '+project.ingestKey}));
+  assert.ok(native.every(row=>row.diagnostic[0].status==='mapped'));
+  assert.notEqual(native[0].issue,native[1].issue,'ordinary mapped files preserve native function grouping');
   return {project:project.id,identities};
  }finally{delete process.env[keyEnv];delete globalThis.spoolRebuildFixture;delete globalThis.accountSummary;delete globalThis.storefrontBuild;await rm(temporary,{recursive:true,force:true});}
 }

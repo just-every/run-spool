@@ -6090,7 +6090,7 @@
       "executable": false
     },
     "src/domain/grouping/javascript.ts": {
-      "sha256": "2d499659951bdc516eee0502efe2f472c8f763f5ec1c942ddffc338e1cf4d11b",
+      "sha256": "d47d7f312efabc2996c2c37b419bd15ff48cf5349a7751b42b8c93e4679f1ddc",
       "executable": false
     },
     "src/domain/grouping/native.ts": {
@@ -10746,7 +10746,7 @@
       "executable": false
     },
     "tests/grouping/rebuilt-bundles.mjs": {
-      "sha256": "8c74a71399ff8e8a3ff3aade1d25d623b6ef161554ae5b1a4065b9365469158f",
+      "sha256": "00ae00150cfc88d7e0a8f132dffc168755518bdc59b4aae5db19c5c8ccbb9a43",
       "executable": false
     },
     "tests/identity-flow.mjs": {
