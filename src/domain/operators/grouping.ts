@@ -5,6 +5,8 @@ import { admissionBasis, type GroupingRoute } from '../bundle-grouping';
 import { authorize, body, s, guard, audit, write, conflict } from './common';
 import { correctionHeadlines } from './headlines';
 import { shortIdCorrection } from '../short-ids/corrections';
+import { resolveIssue } from '../short-ids/lookup';
+import { correctionDisplay } from './presentation';
 const routes=new Hono<any>();
 type Move={event:string;occurrence:string;from:string;to:string};
 type Snapshot={id:string;revision:number;count:number;after:number};
@@ -14,11 +16,14 @@ routes.get('/:project/corrections',async c=>{const auth=await authorize(c);if('r
 export async function previewCorrection(db:D1Database,project:string,b:any,id:string=crypto.randomUUID()){
 
  if(!['split','merge'].includes(b.kind)||typeof b.source!=='string'||!Number.isSafeInteger(b.revision))throw new Error('Invalid correction');
- const source=await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,b.source).first<any>();
+ const sourceId=await resolveIssue(db,project,b.source.trim());
+ const source=sourceId?await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,sourceId.issue).first<any>():null;
  if(!source)throw new Error('Issue not found');
  if(source.revision!==b.revision)throw new Error('Revision conflict');
  if(!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(source.algorithm))throw new Error('Imported history cannot be regrouped with live capture');
- const fingerprint=b.kind==='split'?await hash('operator-split:'+id):null,target=b.kind==='split'?await hash(project+':'+fingerprint):b.target;
+ const fingerprint=b.kind==='split'?await hash('operator-split:'+id):null;
+ const resolvedTarget=b.kind==='merge'&&typeof b.target==='string'?await resolveIssue(db,project,b.target.trim()):null;
+ const target=b.kind==='split'?await hash(project+':'+fingerprint):resolvedTarget?.issue;
  if(typeof target!=='string'||target===source.id)throw new Error('Choose a different target');
  const destination=b.kind==='merge'?await s(db,'SELECT * FROM issues WHERE project=? AND id=?',project,target).first<any>():null;
  if(b.kind==='merge'&&(!destination||!['js-frame-v1','python-frame-v1','go-frame-v1','sentry-chain-v1'].includes(destination.algorithm)))throw new Error('Target must be a live capture issue in this project');
@@ -32,7 +37,7 @@ export async function previewCorrection(db:D1Database,project:string,b:any,id:st
  const moves=rows.map((e:any)=>({event:e.id,occurrence:e.occurrence,from:source.id,to:target}));
  const issues=[{id:source.id,revision:source.revision,count:source.count,after:source.count-moves.length},...(destination?[{id:destination.id,revision:destination.revision,count:destination.count,after:destination.count+moves.length}]:[])];
  const plan:Plan={version:1,project,kind:b.kind,moves,issues,target,fingerprint};
- return {id,state:'preview',plan,newIssue:destination?null:{id:target,before:0,after:moves.length},behavior:'Stored occurrences only; future capture uses the original algorithm. Apply explicitly.'};
+ return {id,state:'preview',plan,display:await correctionDisplay(db,project,issues.map(i=>i.id),moves.map(m=>m.event)),newIssue:destination?null:{id:target,before:0,after:moves.length},behavior:'Stored occurrences only; future capture uses the original algorithm. Apply explicitly.'};
 }
 routes.post('/:project/corrections/preview',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;

@@ -9,25 +9,28 @@ export type CorrectionPreview = {
     issues: Array<{ id: string; revision: number; count: number; after: number }>;
     moves: Array<{ event: string; occurrence: string; from: string; to: string }>;
   };
+  display?: { issues: Array<{ id: string; short_id: string; title: string }>; events: Array<{ id: string; received: number; type: string; message: string }> };
   newIssue: { id: string; before: number; after: number } | null;
 };
 
 export function CorrectionReview({ preview, busy, onApply, onCancel }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void }) {
   const moves = preview.plan.moves;
+  const issueLabel = (id: string) => preview.display?.issues.find(issue => issue.id === id)?.short_id ?? (id === preview.newIssue?.id ? 'New issue' : id === preview.plan.issues[0].id ? 'Source issue' : 'Target issue');
   return <div className="callout correction-review">
     <h3>Review exact moves</h3>
     <p>Nothing has moved yet. Apply this preview explicitly.</p>
     <strong>Issue counts before and after</strong>
     <ul>
-      {preview.plan.issues.map((issue: any) => <li key={issue.id}><code>{issue.id}</code>: {issue.count} → {issue.after} events</li>)}
-      {preview.newIssue && <li><code>{preview.newIssue.id}</code> (new issue): {preview.newIssue.before} → {preview.newIssue.after} events</li>}
+      {preview.plan.issues.map((issue: any) => <li key={issue.id}><strong>{issueLabel(issue.id)}</strong>: {issue.count} → {issue.after} events</li>)}
+      {preview.newIssue && <li><strong>New issue</strong>: {preview.newIssue.before} → {preview.newIssue.after} events</li>}
     </ul>
     <strong>Exact event moves ({moves.length})</strong>
     <ol>
       {moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}>
-        <code>{move.event}</code> (occurrence <code>{move.occurrence}</code>): <code>{move.from}</code> → <code>{move.to}</code>
+        {(() => { const event = preview.display?.events.find(event => event.id === move.event); return event ? <>{event.type}: {event.message} · {date(event.received)}</> : <>Occurrence {moves.indexOf(move) + 1}</>; })()}: <strong>{issueLabel(move.from)}</strong> → <strong>{issueLabel(move.to)}</strong>
       </li>)}
     </ol>
+    <details><summary>Exact identifiers</summary><pre>{JSON.stringify(preview.plan, null, 2)}</pre></details>
     <button className="primary-button" disabled={busy} onClick={onApply}>Apply reviewed correction</button>
     <button className="text-button" onClick={onCancel}>Cancel review</button>
   </div>;
@@ -54,6 +57,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
   const [failure, setFailure] = useState('');
+  const [correctionFailure, setCorrectionFailure] = useState('');
   const [field, setField] = useState('fingerprint');
   const [mode, setMode] = useState('exact');
   const [value, setValue] = useState('');
@@ -78,7 +82,11 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     } catch (error) { if (!signal.aborted) setFailure((error as Error).message); }
   }, [root, issue.id, issue.revision, assignmentRevision, request, initial], { live: !initial });
 
-  const createPreview = (kind: string) => run(async () => {
+  const correct = (work: () => Promise<void>) => run(async () => {
+    setCorrectionFailure('');
+    try { await work(); } catch (error) { setCorrectionFailure((error as Error).message); }
+  });
+  const createPreview = (kind: string) => correct(async () => {
     let destination: any;
     if (kind === 'merge') {
       const response = await request(`${root}/issues/${encodeURIComponent(target)}/packet`);
@@ -95,7 +103,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const applyPreview = () => {
     const previewId = preview?.id;
     if (!previewId) return;
-    return run(async () => {
+    return correct(async () => {
       await request(`${root}/corrections/${previewId}/apply`, 'POST', { confirm: true });
       setPreview(null);
       setSelected([]);
@@ -104,7 +112,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   };
 
   const undoCorrection = (id: string) => {
-    void run(async () => {
+    void correct(async () => {
       await request(`${root}/corrections/${id}/undo`, 'POST', { confirm: true });
       refresh();
     });
@@ -138,11 +146,12 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     <div className="operator-controls" role="group" aria-label="Operator controls">
       <Details title="Correct grouping" triggerLabel="Correct grouping">
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
+        {correctionFailure && <p role="alert">{correctionFailure}</p>}
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>
           {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
             <input type="checkbox" disabled={busy || !ready} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
-            <code>{event.id}</code>
+            <span>{event.event.type}: {event.event.message} · {date(event.received)}</span>
           </label>)}
         </fieldset>
         <button className="text-button" disabled={busy || !ready || !selected.length} onClick={() => void createPreview('split')}>Preview selected-event split</button>

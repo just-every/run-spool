@@ -42,7 +42,7 @@ export async function operatorFlow({req,json}){
  assert.equal((await packet(splitIds[source])).issue.short_id,splitIds[source],'the original ID never moves');assert.equal((await packet(splitIds[preview.plan.target])).issue.id,source,'undo: the split-out ID resolves where its occurrences returned');
  const from=falseSplit.results[1].issue,to=falseSplit.results[0].issue,a=await packet(from),b=await packet(to);
  const beforeMergePreview=await groupingSnapshot();
- const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:to,targetRevision:b.issue.revision});
+ const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:b.issue.short_id.toLowerCase(),targetRevision:b.issue.revision});
  assert.deepEqual(await groupingSnapshot(),beforeMergePreview,'HTTP merge preview preserves every occurrence, aggregate and revision');
  assert.deepEqual(merge.plan.issues.map(i=>[i.count,i.after]),[[a.issue.count,0],[b.issue.count,b.issue.count+a.issue.count]]);
  await json(`${p}/corrections/${merge.id}/apply`,'POST',{confirm:true});assert.equal((await packet(to)).issue.count,b.issue.count+a.issue.count);
