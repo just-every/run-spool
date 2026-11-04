@@ -2646,7 +2646,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "95ed4582cc1f80ecdc727c4dfaf084ad74eb0e4230a3a3186cb30d147746f394",
+      "sha256": "01566b9f82a5ee05afb881e7b5a24cae309a0406080976e8d101cf084d46e2d3",
       "executable": false
     },
     "AGENTS.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "76b87aa47f57e33aeeacaf78b486de5437fbadcdf235ddabd6118a05c8bb0dc0",
+      "sha256": "6cecd206d46197be65c89067f612a2f9eae543cf01df8af93ee21c3eca890a54",
       "executable": false
     },
     "DEMO.md": {
@@ -4458,7 +4458,7 @@
       "executable": false
     },
     "scripts/agent-door/surface.mjs": {
-      "sha256": "c9a26702312269618c23bb9924508b5cbec62f051606af59d94c6a74d5c842ad",
+      "sha256": "1ee581707123a36b21e224bbf92edde0ee31e8550287c3f0814e5c189a52475f",
       "executable": false
     },
     "scripts/build-capture.mjs": {
@@ -10358,7 +10358,7 @@
       "executable": false
     },
     "tests/agent-door/external-injection-contract.mjs": {
-      "sha256": "f2e64f2bf923b76e311524a343bf8029128e27e6650dbac805a5f884d8fde10b",
+      "sha256": "84bedad432735dd40a61f6f3c79ac8d9aab880d6149b5bccf925bdbecf532bcc",
       "executable": false
     },
     "tests/agent-door/github-binding.mjs": {
@@ -10398,7 +10398,7 @@
       "executable": false
     },
     "tests/agent-door/phase-fixtures.mjs": {
-      "sha256": "c96988f72c8b95c93cc8fa58a62843b4e025825b776748b2fff117bea16a7d03",
+      "sha256": "9d25b8c4417131d5c9398688ca07aa9033da32fb108ecae75dfca5e4259af31f",
       "executable": false
     },
     "tests/agent-door/proof.mjs": {

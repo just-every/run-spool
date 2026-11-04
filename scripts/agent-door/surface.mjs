@@ -50,6 +50,7 @@ add('alerts-current','alerts.read',{project});
 add('alert-preview','alerts.preview',{...alert,revision:from('alerts-current','/items/0/revision'),enabled:true});
 add('alert-on','alerts.update',{...alert,revision:from('alerts-current','/items/0/revision'),enabled:true,previewToken:from('alert-preview','/token')},['live']);
 add('test','alerts.test',{project,id:from('destinations','/rows/1/id')},['external']);
+add('test-internal','alerts.test',{project,id:fixture('internalDestination')});
 add('followup-read','followups.read',{project});
 add('followup-off','followups.update',{project,destination:null});
 add('followup-on','followups.update',{project,destination:from('alerts','/items/0/destination'),channel:'mail'},['live']);

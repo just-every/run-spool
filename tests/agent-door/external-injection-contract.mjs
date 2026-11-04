@@ -3,11 +3,13 @@ import {randomUUID} from 'node:crypto';
 import {agentRuntime} from './runtime.mjs';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 import {internalDestinationContract} from './internal-destination-contract.mjs';
+import {agentScreens} from './screens.mjs';
 
 /** Native email classification under refusal, with policy admission controls. */
 export async function externalInjectionContract(){
  for(const [baseline,policy] of [['autonomous',autonomousPolicy],['held',heldPolicy]]){
-  const app=await agentRuntime(0);
+  const configured={id:'synthetic-spool-mail-edge',project:'synthetic-spool-1',label:'Internal recipient; zero cost',channel:'mail',recipient:['synthetic-spool-4','synthetic.invalid'].join('@')};
+  const app=await agentRuntime(0,{ALERT_DESTINATIONS:JSON.stringify([configured])});
   try{
    const project='synthetic-spool-1',path=`/api/projects/${project}/alerting`;
    await app.json('/api/organization','POST',{id:'synthetic-spool-1',name:'External classification fixture'});
@@ -39,10 +41,10 @@ export async function externalInjectionContract(){
    assert.equal(saved.recipient,recipient);
    assert.equal(saved.test,null);
    const decisions=new Set(),keys=new Set();
-   const refused=async(name,extra={})=>{
+   const refused=async(name,extra={},targetId=destination.id)=>{
     const before=await state(),key=randomUUID();
     assert.ok(!keys.has(key));keys.add(key);
-    const answer=await app.call('spool.alerts.test',{project,id:destination.id,...extra,idempotency_key:key});
+    const answer=await app.call('spool.alerts.test',{project,id:targetId,...extra,idempotency_key:key});
     const error=answer._meta?.['com.runeditrun/error'],decision=answer._meta?.['com.runeditrun/decision'];
     assert.equal(answer.isError,true,name+' must be refused');
     assert.deepEqual(error,{code:'policy_blocked',class:'external',rule,revision},name+' names the applicable rule and revision');
@@ -56,7 +58,7 @@ export async function externalInjectionContract(){
     assert.deepEqual(row.rules,[{class:'external',rule,do:'blocked'}]);
     assert.equal(row.revision,revision);assert.equal(row.decision,'blocked');
     assert.equal(row.code,'policy_blocked');assert.equal(row.outcome,'refused');
-    assert.deepEqual(row.resource,{kind:'alert_destination',id:destination.id});
+    assert.deepEqual(row.resource,{kind:'alert_destination',id:targetId});
     assert.deepEqual(row.ignored_arguments,Object.keys(extra).sort());
     assert.equal(row.idempotency_key,key);assert.equal(row.replay_of,null);
     assert.deepEqual(await state(),before,name+' creates no destination test, delivery job, approval or provider send');
@@ -75,6 +77,8 @@ export async function externalInjectionContract(){
    const relabel=rows=>rows.map(row=>row.id===destination.id?{...row,label}:row);
    assert.deepEqual(renamed,{...initial,alert_destinations:relabel(initial.alert_destinations),destinations:{...initial.destinations,rows:relabel(initial.destinations.rows)}},'Only the saved label changes; recipient and target identity stay fixed');
    assert.deepEqual(await refused('saved-label claim'),clean,'Stored text alone leaves clean classification unchanged');
+   assert.deepEqual(await refused('configured-label claim',{},configured.id),clean,'Installation-configured labels cannot establish internal membership');
+   assert.deepEqual(await refused('configured-label and arguments',{internal:true,confirmExternal:true,cost:0},configured.id),clean,'Configured recipients retain the same native facts under argument injection');
    console.log(`PROBE SURFACE-002 acceptance-7 ${baseline}: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=${rule} revision=${revision}; no native test, delivery job or provider send`);
 
    // The same populated native target must become usable when the explicit
@@ -121,6 +125,32 @@ export async function externalInjectionContract(){
    assert.equal(replayAudit.revision,replayRevision);assert.equal(replayAudit.code,'policy_blocked');
    assert.deepEqual(replayAudit.classes,classes);assert.deepEqual(replayAudit.rules,[{class:'external',rule,do:'blocked'}]);
    console.log(`PROBE SURFACE-002 acceptance-7-replay ${baseline}: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=${rule} revision=${replayRevision}; computed external facts and completed native state unchanged`);
+
+   // Configured email destinations hide their recipient in the list response;
+   // exact company approval must still show the saved address, never its label.
+   const configuredPolicy=policy();configuredPolicy.rules.push({id:'configured-review',class:'external',do:'approval',approver:['sponsor'],wait:'PT1H'});
+   await app.adopt(configuredPolicy);
+   const beforeConfigured=await state(),configuredKey=randomUUID();
+   const configuredCall=await app.call('spool.alerts.test',{project,id:configured.id,idempotency_key:configuredKey});
+   const configuredApproval=configuredCall._meta?.['com.runeditrun/approval']??configuredCall._meta?.['com.runeditrun/error']?.approval;
+   assert.ok(configuredApproval?.id);
+   assert.deepEqual(configuredCall._meta['com.runeditrun/decision'].classes,[{class:'external',rule:'configured-review',do:'approval',facts}]);
+   assert.deepEqual({...await state(),approvals:beforeConfigured.approvals},beforeConfigured,'A configured recipient stays inert while waiting for company approval');
+   const pendingConfigured=(await app.json('/agents/api/approvals/'+configuredApproval.id)).approval;
+   assert.deepEqual(pendingConfigured.summary.recipients,[configured.recipient],'The person reviews the actual configured recipient instead of an internal label claim');
+   if(baseline==='held'){
+    const screens=await agentScreens(app);
+    try{await screens.capture('configured-email-approval','/agents/approvals/'+configuredApproval.id,configured.recipient);}
+    finally{await screens.close();}
+   }
+   await app.json('/agents/api/approvals/'+configuredApproval.id+'/approve','POST',{revision:pendingConfigured.revision,summary_sha256:pendingConfigured.summary_sha256});
+   assert.equal((await app.json('/agents/api/approvals/'+configuredApproval.id)).approval.state,'executed');
+   const configuredSends=(await app.mail()).filter(row=>row.to?.includes(configured.recipient));
+   assert.equal(configuredSends.length,1,'The approved configured target gets exactly one fake TEST');
+   const afterConfigured=await state();
+   assert.ok(!(await app.call('spool.alerts.test',{project,id:configured.id,idempotency_key:configuredKey})).isError);
+   assert.deepEqual(await state(),afterConfigured,'A configured TEST replay makes no second test or send');
+   console.log(`PROBE SURFACE-002 acceptance-7-configured ${baseline}: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay`);
    await internalDestinationContract(app,{baseline,policy,project,path,state});
   }finally{await app.stop();}
  }

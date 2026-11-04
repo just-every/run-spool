@@ -32,6 +32,8 @@ export default async function({request,origin,cookie,phase}){
  if(tested.state!=='passing')throw Error('Native phase mail edge unavailable');
  await json(path+'/alerting/destinations/'+live.id+'/review','POST',{testId:tested.id});
  await json(path+'/alerting/destinations','POST',{label:'Separate phase test',recipient:'test@synthetic.invalid'});
+ const owner=await json('/auth/session');
+ const internal=await json(path+'/alerting/destinations','POST',{label:'Current native Business owner',recipient:owner.operator.email});
  await json(path+'/alerting/rules','POST',{name:'Checkout failures',enabled:false,channel:'mail',destination:live.id,kinds:['new_issue'],windowMs:60000,threshold:2});
- return {values:{project,member:member.id,memberVersion:member.version,reproducer:recipe.id,run:queued.run},clients};
+ return {values:{project,member:member.id,memberVersion:member.version,reproducer:recipe.id,run:queued.run,internalDestination:internal.id},clients};
 }
