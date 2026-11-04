@@ -15,6 +15,16 @@ in place without exposing these optional public doors. Multi-sponsor, mail-edge,
 resource-refresh, timed, dual-host, queued and native-owner lifecycle families
 remain unscoped; this declaration makes no completion claim for them.
 
+The public [coding-agent guide](agents.md) lists the offered native tools by job,
+their scopes and possible classes, and links conditional class computations to
+their proof journeys. Discovery and initialization generate the same specialist
+guidance from that catalogue. The guide also publishes the native request-rate
+and body limits, common refusal codes and the explicitly empty resource-template
+inventory. These transport capacities do not enforce provider-spend caps.
+To refresh the checked-in inventory, run `node scripts/agent-door/docs.mjs`;
+use `--check` to refuse stale documentation. The application and static site
+generate their guide from the same source at build time.
+
 A Business access token names a durable Business person, an agent, consent and
 scopes. Signed Business settings at `/api/rer/business-settings` bind the owner
 and existing native teammates by ID. A token's email never chooses its sponsor. It must match that person's current

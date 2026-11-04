@@ -2650,7 +2650,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "4a81f98b90bc99340f29df8d37654bb73ccd156cc21eb95dde636c060f1b3969",
+      "sha256": "99895b9da589e3d24c4bdb0a7d863ef91ebd448946abb6c0b7079d24736424e0",
       "executable": false
     },
     "base-copies.json": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "98d78ce057ffd7648af0a141ec43a1395f4d2306c9c369dda6331c8fa8e04b23",
       "executable": false
     },
     "docs/agents.md": {
@@ -5499,6 +5499,10 @@
     },
     "src/domain/agent-door/catalogue.mjs": {
       "sha256": "3cff192c25bdb07da9872d346251a451cbf215297a2b10ca96905b17a2da7409",
+      "executable": false
+    },
+    "src/domain/agent-door/documentation.mjs": {
+      "sha256": "07411878501abd99d2e904658e7c21d2c2ccfdc46477e030885fd32fb98a6474",
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
@@ -10357,12 +10361,16 @@
       "sha256": "516482a0ebb5a4093f6dc27255776d4a3260e98182aedc4306e93dc45dae1a10",
       "executable": false
     },
+    "tests/agent-door/classification.mjs": {
+      "sha256": "3da3be4df895761598cae7b3353cf39e96e8b0aeba971960ddfe28b184c2fb51",
+      "executable": false
+    },
     "tests/agent-door/continuation.mjs": {
       "sha256": "90a0b2f437a9f31749db14f9871797c794322507cde396e08a84a790df2d47cb",
       "executable": false
     },
     "tests/agent-door/docs-contract.mjs": {
-      "sha256": "b1e9fbb3135c090a0537d59f816aa1fe8329bfe233ee95ae9408c1e6bb813657",
+      "sha256": "09bbd50aafef237fabce90b63aef057414431132872549de3eb2d934a7a0f6fa",
       "executable": false
     },
     "tests/agent-door/github-binding.mjs": {
@@ -11010,7 +11018,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "af9f250b5cd939975e980f07e39f544a2165a7b87ca85ac4462daf028de61871",
+      "sha256": "08f51fcf60109c45d515470dd43335e0e747e131e98598f40bfe9b3e4098328c",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {

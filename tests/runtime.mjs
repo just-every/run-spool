@@ -101,6 +101,8 @@ try {
     const guideTarget=new URL(await privateGuide.getAttribute('href'),origin);
     assert.ok(guideTarget.pathname.endsWith('/docs/WITH-YOUR-AGENT.md'),'The private-access link reaches the repository guide');
     assert.equal(guideTarget.hash,'#local-agent-access','The private-access link retains the locally validated anchor');
+    const classProof=agentArticle.locator('li a[href$=".mjs"]').first();
+    await classProof.focus();assert.ok(await classProof.evaluate(link=>link===document.activeElement),'A computed-class proof journey is keyboard reachable');
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Agent documentation reflows at 1440');
     const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(row=>['serious','critical'].includes(row.impact)).map(row=>row.id),[],'Agent documentation has no serious or critical Axe findings');
     const screens=resolve(process.env.SPOOL_DOC_SCREENSHOTS??'.artifacts/agent-docs');await mkdir(screens,{recursive:true});

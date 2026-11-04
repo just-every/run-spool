@@ -17,7 +17,7 @@ export function documentedInventory(html){
 }
 
 export function documentedToolContracts(html){
- return [...html.matchAll(/<li><code>(spool\.[^<]+)<\/code> — scope <code>([^<]+)<\/code>; classes ([\s\S]*?)\.<\/li>/g)].map(([,name,scope,body])=>({name,scope,classes:[...body.split('.\n')[0].matchAll(/<code>([^<]+)<\/code>/g)].map(match=>match[1]).sort()})).sort((a,b)=>a.name.localeCompare(b.name));
+ return [...html.matchAll(/<li><code>(spool\.[^<]+)<\/code> — scope <code>([^<]+)<\/code>; classes ([\s\S]*?)\.<\/li>/g)].map(([,name,scope,body])=>({name,scope,classes:[...body.split('.\n')[0].matchAll(/<code>([^<]+)<\/code>/g)].map(match=>match[1]).sort(),proofs:[...body.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(([,href,journey])=>({href,journey}))})).sort((a,b)=>a.name.localeCompare(b.name));
 }
 
 /** Native emitted-Worker MCP and anonymous HTTP agree under independently adopted policies. */
@@ -32,7 +32,9 @@ export async function docsContract(app){
   const tools=offered.map(tool=>tool.name).sort();
   const resources=(await app.mcp(method('resources','templates','list'))).resourceTemplates.map(resource=>resource.uriTemplate).sort();
   assert.deepEqual(documented.tools,tools,`${name}: complete documented and authenticated offered tool names agree`);
-  assert.deepEqual(documentedToolContracts(html),offered.map(tool=>({name:tool.name,scope:tool._meta['com.runeditrun/scope'],classes:[...tool._meta['com.runeditrun/classes']].sort()})),`${name}: every documented scope and possible class agrees with the authenticated tool`);
+  const contracts=documentedToolContracts(html);
+  assert.deepEqual(contracts.map(({proofs,...contract})=>contract),offered.map(tool=>({name:tool.name,scope:tool._meta['com.runeditrun/scope'],classes:[...tool._meta['com.runeditrun/classes']].sort()})),`${name}: every documented scope and possible class agrees with the authenticated tool`);
+  for(const tool of contracts.filter(tool=>tool.classes.length>1))assert.ok(tool.proofs.length>0&&tool.proofs.every(proof=>proof.journey&&new URL(proof.href,app.origin).pathname.endsWith('.mjs')),`${tool.name}: conditional classes link to a named proof journey`);
   assert.deepEqual(documented.resourceTemplates,resources,`${name}: complete documented and authenticated resource templates agree`);
   const discovery=await app.mcp(method('server','discover'));
   const declaration=discovery._meta['com.runeditrun/capabilities'];

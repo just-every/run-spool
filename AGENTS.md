@@ -58,5 +58,9 @@ a person's session. `agent-surface.json` and the runtime catalogue must match;
 use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
 [docs/AGENT-DOOR.md](docs/AGENT-DOOR.md) for scopes, native consent, runner custody
 and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
+Native tool documentation and discovery share the catalogue and
+`src/domain/agent-door/documentation.mjs`. After changing them, run
+`node scripts/agent-door/docs.mjs`, then the same command with `--check`;
+`pnpm test:runtime` checks the anonymous guide and generated static publication.
 Keep the existing core-flow registration and CI shard count. Contract judgments
 remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.
