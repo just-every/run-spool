@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2ccc429496ccc833c0bec4636ad2885ddf58883befa65c384b438a366fb6e78a",
+      "sha256": "fba3af583c53b168ffa1ccf390f2b26317c3c86e0046e6204c9702fcb1981b57",
       "executable": false
     },
     "DEMO.md": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "ea7e426cd3206fcd80c018b93ee877f256acdd78146d5fd86b81e929dd68d8a2",
+      "sha256": "7df1f133db4669f2e2c4f45cef9877facf78be775383c482a9eea3d344fe513a",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10391,6 +10391,10 @@
     },
     "tests/agent-door/people.mjs": {
       "sha256": "4ae25ac26239b4428475ace57c02ebbfc8f135a75caed96cd227c3c0e6116bad",
+      "executable": false
+    },
+    "tests/agent-door/person-actions-contract.mjs": {
+      "sha256": "89d4415f20991ce3d6d775c83761db45ab02315388453ea5d48f25d79a5c2210",
       "executable": false
     },
     "tests/agent-door/phase-fixtures.mjs": {
