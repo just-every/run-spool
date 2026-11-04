@@ -154,10 +154,17 @@ export async function replayAllTools(){
     const value=erased?{tombstone:error(answer).tombstone}:done(answer);
     outputs.set(step.id,value);
     if(step.id==='queue-status'||step.id==='erasure-status'){
-     const denied=await app.call(step.tool,args,peer);
-     assert.equal(error(denied)?.code,'not_found',step.tool+' hides an existing job from another current person');
-     assert.equal(denied.structuredContent,undefined);
+     for(const claims of [peer,{act:{sub:randomUUID(),name:'Another agent',specialist:'triage engineer'}},{consent:randomUUID()}]){
+      const denied=await app.call(step.tool,args,claims);
+      assert.equal(error(denied)?.code,'not_found',step.tool+' hides a job from another current person, agent or consent');
+      assert.equal(denied.structuredContent,undefined);
+     }
      assert.equal(error(await app.call(step.tool,{...args,id:'synthetic-spool-absent'},peer))?.code,'not_found','Absent and restricted job handles have the same refusal');
+     if(step.id==='erasure-status'&&phase==='autonomous'){
+      await app.schedule(Date.now());
+      assert.equal(done(await app.call(step.tool,args)).phase,'complete','The scheduled native continuation completes after the caller leaves and retains a readable private receipt');
+      assert.equal(error(await app.call(step.tool,args,peer))?.code,'not_found','Scheduled completion cannot transfer job ownership');
+     }
     }
     if(declared.readOnly)continue;
     const beforeReplay=await snapshot(),repeated=await app.call(step.tool,args,{},proof);
@@ -176,7 +183,13 @@ export async function replayAllTools(){
    assert.deepEqual([...covered].sort(),listed.filter(tool=>!tool.annotations.readOnlyHint).map(tool=>tool.name).sort(),'Every currently offered mutation runs through the native replay journey');
    const finished=done(await app.call('spool.privacy.status',{id:outputs.get('erase').id}));
    assert.equal(finished.phase,'complete','Erasure status remains readable after the project is gone');
-   await app.adopt(policy(),{revoked:{consents:[app.context.consent]}});
+   const expiring=done(await app.call('spool.reproducers.run',{...lifecycle.args,idempotency_key:randomUUID()}));
+   const expiredAt=expiring.expires+1;await app.setTime(expiredAt);app.context.now=()=>expiredAt;await app.adopt(policy());
+   const expired=done(await app.call(expiring.job.tool,expiring.job.arguments));
+   assert.equal(expired.state,'expired');assert.equal(expired.outcome,'failed');
+   const refusedRun=await app.request(new URL(expiring.url).pathname,'GET',undefined,{Authorization:'Bearer '+expiring.token});
+   assert.equal(refusedRun.status,401);await refusedRun.body?.cancel();
+   await app.adopt(policy(),{revoked:{agents:[],consents:[app.context.consent]}});
    for(const [name,args] of [[lifecycle.queued.job.tool,lifecycle.queued.job.arguments],['spool.reproducers.run',lifecycle.args]]){
     const revoked=await app.mcp('tools/call',{name,arguments:args},{},'2025-11-25',401);
     assert.equal(revoked.httpStatus,401,'Revoked consent exposes neither job status nor a saved runner handoff');
@@ -201,6 +214,10 @@ async function jobLifecycle(app,fixture,peer,phase,policy){
  const args={project:fixture.project,id:fixture.reproducer,idempotency_key:randomUUID()};
  const queued=done(await app.call('spool.reproducers.run',args));
  assert.equal(queued.job.id,queued.run);assert.equal(queued.job.tool,'spool.reproducers.status');
+ const nativePath='/api/projects/'+fixture.project+'/reproducers/runs/'+queued.run;
+ const anonymous=await app.request(nativePath,'GET',undefined,{Cookie:''});
+ assert.equal(anonymous.status,401,'The direct job-status route checks its own native session');await anonymous.body?.cancel();
+ assert.equal((await app.json(nativePath)).state,'queued','The current native person retains ordinary project authority');
  const status=()=>app.call(queued.job.tool,queued.job.arguments);
  assert.equal(done(await status()).state,'queued');
  assert.equal(error(await app.call(queued.job.tool,queued.job.arguments,peer))?.code,'not_found','Another person with project access cannot use the job handle');
