@@ -22,9 +22,11 @@ export function reviewView(rt: Runtime, row: ReviewRecord) {
 export async function reviewDoor(rt: Runtime, request: Request, person: Person, id?: string, action?: string) {
   if (!id) {
     if (request.method !== 'GET') return error('method_not_allowed', 405)
-    const rows = (await rt.options.db.prepare('SELECT * FROM agent_door_reviews ORDER BY rowid DESC LIMIT 200').all<ReviewRecord>()).results
+    const url = new URL(request.url), after = Number(url.searchParams.get('after')) || Number.MAX_SAFE_INTEGER
+    const agent = url.searchParams.get('agent') ?? '', cls = url.searchParams.get('class') ?? ''
+    const rows = (await rt.options.db.prepare("SELECT rowid AS sequence,* FROM agent_door_reviews WHERE rowid<? AND (?='' OR json_extract(saved,'$.principal.agent.id')=?) AND (?='' OR EXISTS(SELECT 1 FROM json_each(saved,'$.classes') c WHERE json_extract(c.value,'$.class')=?)) ORDER BY rowid DESC LIMIT 200").bind(after, agent, agent, cls, cls).all<ReviewRecord & { sequence: number }>()).results
     const visible = await Promise.all(rows.map(async row => { const saved: SavedReview = JSON.parse(row.saved); return ((saved as any).tombstone ? !!businessRole(rt.options.people, person) : (await matchingRefs(rt, person, saved.principal.person.id, saved.reviewers)).length) ? reviewView(rt, row) : null }))
-    return json({ reviews: visible.filter(row => row !== null) })
+    return json({ reviews: visible.filter(row => row !== null), cursor: rows.length === 200 ? String(rows.at(-1)!.sequence) : null })
   }
   const row = await rt.options.db.prepare('SELECT * FROM agent_door_reviews WHERE id=?').bind(id).first<ReviewRecord>()
   if (!row) return error('not_found', 404)

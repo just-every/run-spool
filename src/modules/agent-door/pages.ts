@@ -132,9 +132,10 @@ function countTable(counts: Count[], since: number): string {
 async function dashboard(rt: Runtime, request: Request, person: Person): Promise<Response> {
   const role = businessRole(rt.options.people, person), canAudit = role === 'owner' || role === 'editor'
   const today = Math.floor(rt.now() / 86400000), weekStart = (today - (new Date(rt.now()).getUTCDay() + 6) % 7) * 86400000
-  const url = new URL(request.url), filter = auditFilter(url)
+  const url = new URL(request.url), filter = auditFilter(url), reviewQuery = new URLSearchParams(url.searchParams)
+  reviewQuery.set('after', url.searchParams.get('reviews_after') ?? '')
   const [state, approvalResponse, reviewResponse, counts, recent, agents] = await Promise.all([
-    policyState(rt), approvalDoor(rt, request, person), reviewDoor(rt, request, person),
+    policyState(rt), approvalDoor(rt, request, person), reviewDoor(rt, new Request(new URL('/agents/api/reviews?' + reviewQuery, url), { headers: request.headers }), person),
     canAudit ? rt.options.db.prepare("SELECT c.value AS class,json_extract(a.row,'$.decision') AS decision,count(*) AS count FROM agent_door_audit a,json_each(a.classes) c WHERE a.at>=? AND a.at<=? AND " + filter.sql + " GROUP BY c.value,json_extract(a.row,'$.decision') ORDER BY c.value,decision")
       .bind(new Date(weekStart).toISOString(), new Date(rt.now()).toISOString(), ...filter.values).all<Count>() : null,
     canAudit ? rt.options.db.prepare('SELECT row FROM agent_door_audit a WHERE ' + filter.sql + ' ORDER BY sequence DESC LIMIT 20').bind(...filter.values).all<{ row: string }>() : null,
@@ -142,12 +143,16 @@ async function dashboard(rt: Runtime, request: Request, person: Person): Promise
   ])
   if (!approvalResponse.ok || !reviewResponse.ok) return shell(rt, 'Agents', '<h1>Agents</h1><p>Agent work could not load. Reload to try again.</p>', 503, true)
   const approvals = await approvalResponse.json() as { approvals: Approval[] }
-  const reviews = await reviewResponse.json() as { reviews: Review[] }
+  const reviews = await reviewResponse.json() as { reviews: Review[]; cursor: string | null }
   const paused = state.paused || state.localPaused, complete = publicState(rt, state).policy.complete
   const policy = canAudit ? setup(rt, state, role === 'owner') : ''
   let content = `<div class="heading"><div><h1>Agents</h1><p data-agents-state>${paused ? 'Agents are paused.' : 'Agents are on.'}</p>${state.paused ? '<p>Paused in Business.</p>' : ''}</div>${role === 'owner' ? `<div class="actions">${action('/agents/api/pause', state.localPaused ? 'Resume agents' : 'Pause agents', 'data-agents-pause', `<input type="hidden" name="paused" value="${!state.localPaused}">`)}</div>` : ''}</div>`
   if (!complete) content += policy
   content += approvalFeed(rt, approvals.approvals) + reviewFeed(rt, reviews.reviews) || '<section aria-label="Waiting for you"><p>Nothing is waiting for you.</p></section>'
+  if (reviews.cursor) {
+    const next = new URLSearchParams(url.searchParams); next.set('reviews_after', reviews.cursor)
+    content += `<p><a href="/agents?${escape(next.toString())}">Earlier reviews</a></p>`
+  }
   if (recent) content += activity(rt, recent.results.map(record => JSON.parse(record.row) as AuditRow), url, agents?.results ?? [])
   if (counts) content += countTable(counts.results, weekStart)
   if (complete) content += policy
