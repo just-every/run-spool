@@ -10030,7 +10030,7 @@
       "executable": false
     },
     "src/ui/workbench/EventExplorer.tsx": {
-      "sha256": "1346637bbc0062bf9287b4603ddafd9048a23d05d1da26b35c94de854c5306ba",
+      "sha256": "d3237c47c7ea1a5f8974fa000dcf64ef1dbae62c7ed486e4ff6c8e3fe5dc44ae",
       "executable": false
     },
     "src/ui/workbench/EvidenceRail.tsx": {
@@ -10298,7 +10298,7 @@
       "executable": false
     },
     "src/ui/workbench/SettingsView.tsx": {
-      "sha256": "1b53aa39b823db48731f825048400f94c2c47e64bccec6ad122912809e2dbb83",
+      "sha256": "5181c1d05b41b055c5a442167cab7e9d015a11bd72a707735160f3dfdeb10ed3",
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
@@ -10322,7 +10322,7 @@
       "executable": false
     },
     "src/ui/workbench/SuspectChanges.tsx": {
-      "sha256": "c99b6e8eabac6c576370374b3be4c4818de37daac17205861603bc7833a38550",
+      "sha256": "962f81dead588790f6ac2519c43e963aa6e8a106f7372999f02b8c75a0202ac0",
       "executable": false
     },
     "src/ui/workbench/useIssueSearch.ts": {
@@ -10766,7 +10766,7 @@
       "executable": false
     },
     "tests/key-rate-limit-flow.mjs": {
-      "sha256": "54ad3c861fa78ccfd6d0c7265807efae6d0590531d20f8ff580af714c8464846",
+      "sha256": "aab1a066d3a7ce1612942771eae49dcbb08bc165cf6ff893ab87e7d55e7a0398",
       "executable": false
     },
     "tests/legacy-mail.mjs": {
@@ -11154,7 +11154,7 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "4667cb62efd739173bbffa605ded53013c48bd53c92c60114802e3c7f8b5de85",
+      "sha256": "f7b7fc3f6b87565cb4cc1f9fc26161a1cfcf76c0e3c4c4eb9a6e4370b007f162",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
@@ -11342,7 +11342,7 @@
       "executable": false
     },
     "tests/suspect-flow.mjs": {
-      "sha256": "268b8f0e8604e5ee257b3019bdbdcb982c073fc2802fc4fdd35325384a7b454f",
+      "sha256": "dfa938837d7d48e8e39c0c8037e08c87dbf254d2fd2106eca1169f0f8ece46f7",
       "executable": false
     },
     "tests/team-browser.mjs": {

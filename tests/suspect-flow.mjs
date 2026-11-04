@@ -39,16 +39,18 @@ export async function suspectFlow({req,json,origin,browser}) {
    await page.goto(`${origin}/projects/${reactivation.project}/issues/${reactivation.issue}`);
    const regressed=page.getByRole('region',{name:'Suspect changes',exact:true});
    await regressed.getByRole('heading',{name:'Release comparison',exact:true}).waitFor();
-   await regressed.getByText(`Reactivation · ${displayTime(reactivation.alert.created)} · record ${reactivation.alert.id}`,{exact:true}).first().waitFor();
+   await regressed.locator(`[data-evidence-id="${reactivation.alert.id}"]`).getByText(`Reactivation · ${displayTime(reactivation.alert.created)}`,{exact:true}).first().waitFor();
    if(width===1440){
     assert.equal(await regressed.locator('article').count(),3,'older first occurrence and both newer commits remain visible');
     for(const sha of [falseSha,trueSha]){
      const card=regressed.locator('article').filter({has:page.getByRole('heading',{name:`${current} · ${sha.slice(0,12)}`,exact:true})});
      assert.deepEqual(await card.locator('h3').allTextContents(),[`${current} · ${sha.slice(0,12)}`]);
      assert.deepEqual(await card.locator('li').allTextContents(),[
-      `Reactivation · ${displayTime(reactivation.alert.created)} · record ${reactivation.alert.id}`,
-      `Recorded deployment ${reactivation.deployment.id} · production · ${displayTime(time-60000)} to ${displayTime(time+3600000)} (owner deadline)`
-     ],'each commit displays the exact regression record and recorded deployment window');
+      `Reactivation · ${displayTime(reactivation.alert.created)}`,
+      `Recorded deployment · production · ${displayTime(time-60000)} to ${displayTime(time+3600000)} (owner deadline)`
+     ],'each commit displays the regression time and recorded deployment window');
+     assert.equal(await card.locator('[data-evidence-id]').getAttribute('data-evidence-id'),reactivation.alert.id,'each commit cites the exact regression record');
+     assert.equal(await card.locator('[data-deployment-id]').getAttribute('data-deployment-id'),reactivation.deployment.id,'each commit cites the exact deployment');
      assert.equal(await card.getByText('Correlation, not a demonstrated cause.',{exact:true}).count(),1);
     }
     assert.equal(await regressed.getByText('No observed sessions in this window; rates are unavailable.',{exact:true}).count(),1);
