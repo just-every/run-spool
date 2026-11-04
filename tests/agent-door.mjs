@@ -13,6 +13,7 @@ import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
 import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
+import {auditContract} from './agent-door/audit-contract.mjs';
 import {auditRetirementContract} from './agent-door/audit-retirement-contract.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
@@ -122,6 +123,7 @@ try{
  assert.equal((await app.mcp('subscriptions/listen',{notifications:{toolsListChanged:true}})).error?.data?.code,'capability_not_declared');
  const worker=await nativeWorker(app,{project,ingestKey:p.ingestKey,destination:destination.id});
  await auditRetirementContract(app);
+ await auditContract(app,screens);
  // A signed detach ends Business authority, including a held call, while
  // current native person sessions retain their ordinary authority.
  await app.adopt(heldPolicy());

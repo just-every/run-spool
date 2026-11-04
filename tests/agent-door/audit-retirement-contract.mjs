@@ -3,11 +3,11 @@ import {randomUUID} from 'node:crypto';
 import {autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
 // Read the native person door to exhaustion, including its terminal page.
-async function auditHistory(app){
+export async function auditHistory(app,selectors=''){
  const rows=[],cursors=new Set();let after='0',pages=0;
  for(;;){
   assert.ok(!cursors.has(after),'Audit pagination must advance');cursors.add(after);
-  const page=await app.json('/agents/api/audit?after='+encodeURIComponent(after));
+  const page=await app.json('/agents/api/audit?'+(selectors?selectors+'&':'')+'after='+encodeURIComponent(after));
   assert.equal(page.differs_from_policy,0,'Retained decisions still match their original policy');
   assert.ok(Array.isArray(page.rows));
   if(!page.rows.length){assert.equal(page.cursor,after);break;}
