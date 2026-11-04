@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f0713f469603c0628422a14bd56461110731743a2ad520a16e204de792e182c2",
+      "sha256": "cf3d364c2498feb3ccbac25ef8b237eeae28c0601cda7ddcdee3254cb5f83e91",
       "executable": false
     },
     "DEMO.md": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "055993418e410d19a0436dd96f389d161b0eafa75c380b007eb24554e8125002",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10363,6 +10363,10 @@
     },
     "tests/agent-door/initialize.mjs": {
       "sha256": "b39f6d7b01550e4f9610acd04955b3b637ef7f8e87f387bab5cca2605645a128",
+      "executable": false
+    },
+    "tests/agent-door/limits-contract.mjs": {
+      "sha256": "1f5ddeb76aa0636996ce10e051a1eb31d5020bc888ee7a1b101a08d29d96395a",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {
@@ -10382,7 +10386,7 @@
       "executable": false
     },
     "tests/agent-door/pause-contract.mjs": {
-      "sha256": "0ddb51bf83a3be5feb83d99906c3de2751c56b7fa49bcee4fc66aac526d9b7db",
+      "sha256": "dc094a81521e46fe1b250b2773af613094bec2e8d31c102aa0d86de1315e5a4a",
       "executable": false
     },
     "tests/agent-door/pending.mjs": {

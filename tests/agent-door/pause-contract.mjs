@@ -72,13 +72,23 @@ export async function pauseContract(){
     console.log(`PROBE BASE-AGENT-011 6 ${phase} ${label}: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes`);
    };
    let started=performance.now();
-   await app.json('/agents/api/pause','POST',{paused:true});
+   screens=await agentScreens(app);
+   const toggle=async(page,name,expected)=>{
+    const response=page.waitForResponse(reply=>new URL(reply.url()).pathname==='/agents/api/pause'&&reply.request().method()==='POST');
+    const button=page.getByRole('button',{name,exact:true});await button.focus();
+    started=performance.now();await page.keyboard.press('Enter');
+    const saved=await response;assert.equal(saved.status(),200);
+    await page.getByRole('button',{name:name==='Pause agents'?'Resume agents':'Pause agents',exact:true}).waitFor();
+    assert.deepEqual((await app.json('/agents/api/state')).paused,expected,'The native browser control changes only its own pause source');
+   };
+   await screens.capture('pause-native-'+phase,'/agents','Agents are paused.',page=>toggle(page,'Pause agents',{business:false,local:true}));
    await pausedState({business:false,local:true});await stopped('native Pause',started);
    // A native person keeps real read and write authority while agents stop.
    const issue=(await issues())[0];
    await app.json(`/api/projects/${project}/issues/${issue.id}`,'PATCH',{state:'suppressed',revision:issue.revision});
    assert.equal((await issues())[0].state,'suppressed','Pause preserves native person write authority');
-   await app.json('/agents/api/pause','POST',{paused:false});await allowed();
+   await screens.capture('resume-native-'+phase,'/agents','Agents are on.',page=>toggle(page,'Resume agents',{business:false,local:false}));
+   await allowed();
    console.log(`PROBE BASE-AGENT-011 6 ${phase} native resume: owner resumes -> both agent credentials read the retained issue under the original disposition; native person mutation remains usable`);
 
    started=performance.now();await app.adopt(policy(),{paused:true});
@@ -89,10 +99,9 @@ export async function pauseContract(){
    await app.json('/agents/api/pause','POST',{paused:true});await app.adopt(policy(),{paused:true});
    await pausedState({business:true,local:true});
    if(phase==='autonomous'){
-    screens=await agentScreens(app);
     await screens.capture('pause-combined','/agents','Agents are paused.');
    }
-   started=performance.now();await app.json('/agents/api/pause','POST',{paused:false});
+   await screens.capture('resume-local-business-paused-'+phase,'/agents','Agents are paused.',page=>toggle(page,'Resume agents',{business:true,local:false}));
    await pausedState({business:true,local:false});await stopped('Business pause after local resume',started);
    await app.adopt(policy());await pausedState({business:false,local:false});await allowed();
 
