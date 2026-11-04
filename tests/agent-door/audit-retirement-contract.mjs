@@ -24,7 +24,7 @@ export async function auditHistory(app,selectors=''){
 }
 
 /** Retiring native agent authority preserves populated history under both policies. */
-export async function auditRetirementContract(app){
+export async function auditRetirementContract(app,screens){
  const agents=[];
  const done=answer=>{assert.ok(answer&&!answer.isError,answer?._meta?.['com.runeditrun/error']?.code??'Missing result');return answer.structuredContent;};
  for(const [policy,document] of [['autonomous',autonomousPolicy()],['held',heldPolicy()]]){
@@ -72,6 +72,12 @@ export async function auditRetirementContract(app){
   assert.ok(retained.pages>1,'The retired agent alone still spans multiple native pages');
   assert.deepEqual(retained.rows,retiredRows,'Restarted filtered history preserves every prior retired-agent field');
   assert.deepEqual(await app.json('/agents/api/audit/export?agent='+encodeURIComponent(retired.act.sub)),retiredRows,'The retired agent export preserves complete populated history after restart');
+  await screens.capture('agents-retired-'+policy,'/agents?agent='+encodeURIComponent(retired.act.sub),undefined,async page=>{
+   const activity=page.locator('[data-audit-id]');await activity.first().waitFor();
+   assert.deepEqual(await activity.evaluateAll(nodes=>nodes.map(node=>node.dataset.auditId)),retiredRows.slice(-20).reverse().map(row=>row.id),'The signed-in Agents page still shows the retired agent history');
+   assert.ok((await activity.allTextContents()).every(text=>text.includes(retired.act.name+' for Dana Engineer')),'Visible retired activity keeps the original agent and sponsor names');
+   assert.equal(await page.getByLabel('Agent',{exact:true}).inputValue(),retired.act.sub);
+  });
   // Each helper invocation signs a fresh token. A renamed claim cannot revive it.
   for(const [method,params] of [['tools/call',{name:'spool.issues.list',arguments:{project}}],['tools/list',{}]]){
    const refused=await app.mcp(method,params,{...retired,act:{...retired.act,name:'Replacement name'}},'2025-11-25',401);

@@ -122,7 +122,7 @@ try{
  assert.equal((await app.mcp('prompts/get',{name:'triage'})).error?.data?.code,'capability_not_declared');
  assert.equal((await app.mcp('subscriptions/listen',{notifications:{toolsListChanged:true}})).error?.data?.code,'capability_not_declared');
  const worker=await nativeWorker(app,{project,ingestKey:p.ingestKey,destination:destination.id});
- const retiredAudit=await auditRetirementContract(app);
+ const retiredAudit=await auditRetirementContract(app,screens);
  await auditContract(app,screens,retiredAudit);
  // A signed detach ends Business authority, including a held call, while
  // current native person sessions retain their ordinary authority.

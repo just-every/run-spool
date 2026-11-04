@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a6c92b813cf8b61991cd2b1fca3bed7c925ff89ab055fd3300394b7d70989424",
+      "sha256": "5d0a784c20499601f18f2bdb9e25f6351f7ba2b4e374c0b5d0a61eaf2e355e99",
       "executable": false
     },
     "DEMO.md": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "62fe3f4dd74c67e01ccdb219d4fec041779fd5fb31853d628ef4509d38e12bd0",
+      "sha256": "897ae06bd5dcc90968ab9e908008777c4e8570796fe56ca6c94ecefb17b2202b",
       "executable": false
     },
     "tests/agent-door/audit-contract.mjs": {
@@ -10358,7 +10358,7 @@
       "executable": false
     },
     "tests/agent-door/audit-retirement-contract.mjs": {
-      "sha256": "29c6421106350df4a02c2a9e5f5e335ea1501bfb74f72e80034b440dfbf876a5",
+      "sha256": "0e48fd5f3bbc855edfeb8691699e6f64ebe8b9d55a0cd6f18f31fcdedd82f667",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
