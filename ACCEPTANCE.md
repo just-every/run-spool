@@ -933,7 +933,7 @@ Core · target · **partial** · Rules D-2 · Register R-13
 3. Authorized Datadog and Splunk context opens, and revoked export credentials stop forwarding.
 4. Grouping proposals compare trace variants alongside stack, release and route.
 
-**Evidence.** `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs`
+**Evidence.** `src/domain/otlp/routes.ts`; `src/domain/otlp/convert.ts`; `tests/otlp-flow.mjs`; `tests/operator-flow.mjs` retainedTraceProposalFlow: constructed Sentry store captures compare affected and outside trace identities beside fixed stack, release and route, with missing and malformed reasons, inert decisions, immutable snapshots, exact-project refusals and revocation; `tests/operator-ui.mjs` operatorUi: owner Settings review displays trace comparisons and counterexamples; `tests/operator-archive.mjs` operatorArchiveTamper and operatorRetentionAndErasure: historical explanation compatibility, validated inert restore and erased comparison custody; `tests/checkin-flow.mjs` checkInFlow: existing retained Sentry error trace context
 **Gap.** Only bounded OTLP/HTTP JSON logs are accepted; trace/span identity is not persisted and traces/metrics are refused. Forwarders are absent. OTLP intake shares the 120-a-minute and 10,000-event caps that GOV-003 removes. CTX-001 inherits AI-005 trace-variant comparison; current grouping proposals name trace identity unavailable.
 
 #### CTX-002 — Privacy-controlled session replay
