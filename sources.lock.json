@@ -10878,7 +10878,7 @@
       "executable": false
     },
     "tests/owner-erasure.mjs": {
-      "sha256": "061ed6c076dcf8667bc165ae15c4e0478158389d74bbfdfe72d16cc7e850a939",
+      "sha256": "a08760457092dc64fa6c4bf0f83eb2701c93894d31e32245fb639cb61f9f699b",
       "executable": false
     },
     "tests/owner-erasure/helpers.mjs": {
