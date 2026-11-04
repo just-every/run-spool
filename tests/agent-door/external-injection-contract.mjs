@@ -109,6 +109,17 @@ export async function externalInjectionContract(){
    assert.ok(!replay.isError);assert.deepEqual(replay.structuredContent,result);
    assert.deepEqual(await state(),completed,'Replaying an admitted control creates no second native test or send');
    console.log(`PROBE SURFACE-002 acceptance-7-control ${baseline}: remove external block on the same saved target -> ${baseline==='held'?'inert approval then ':''}one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=${controlRevision}`);
+
+   await app.adopt(document);
+   const blockedReplay=await app.call('spool.alerts.test',{project,id:destination.id,internal:true,confirmExternal:true,cost:0,idempotency_key:key});
+   const replayRevision=app.context.revision;
+   assert.deepEqual(blockedReplay._meta?.['com.runeditrun/error'],{code:'policy_blocked',class:'external',rule,revision:replayRevision},'An earlier admitted TEST cannot authorize a replay under a newly blocked policy');
+   assert.deepEqual(blockedReplay._meta?.['com.runeditrun/decision'].classes,[{class:'external',rule,do:'blocked',facts}],'Replay preserves the native external facts despite new argument claims');
+   assert.deepEqual(await state(),completed,'A newly blocked replay creates no native test, approval or second fake send');
+   const replayAudit=(await app.json('/agents/api/audit?agent='+app.context.agentId)).rows.find(row=>row.id===blockedReplay._meta['com.runeditrun/decision'].id);
+   assert.equal(replayAudit.revision,replayRevision);assert.equal(replayAudit.code,'policy_blocked');
+   assert.deepEqual(replayAudit.classes,classes);assert.deepEqual(replayAudit.rules,[{class:'external',rule,do:'blocked'}]);
+   console.log(`PROBE SURFACE-002 acceptance-7-replay ${baseline}: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=${rule} revision=${replayRevision}; computed external facts and completed native state unchanged`);
   }finally{await app.stop();}
  }
 }
