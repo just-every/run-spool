@@ -54,7 +54,7 @@ export async function localMemberSignInJourney(browser, origin, ownerContext) {
   assert.equal(session.operator.email,email);assert.equal(session.operator.role,'member');
   assert.equal((await memberContext.request.get(origin+'/api/organization')).status(),404,'member entry does not acquire owner authority');
   const signedOut = await memberContext.request.post(origin+'/auth/signout',{maxRedirects:0});
-  assert.equal(signedOut.status(),303);
+  assert.equal(signedOut.status(),204);
   await memberPage.goto(origin+'/sign-in');
   await entry.click();
   await memberPage.waitForURL(url=>url.pathname==='/projects/journey/issues');

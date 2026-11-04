@@ -4314,7 +4314,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "8d4c63a78be859a693bf558dbe45f0fd466bf4e3ac6e779e1a93ca7984e1b860",
+      "sha256": "b744e84e50a98bf85354a41fa3b50e44028d24e921c8685fe6e39bed56590c28",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -5295,6 +5295,10 @@
     },
     "src/auth/document-path.ts": {
       "sha256": "54df5adeee779c805ed62a3f625a5e72fc7b5d5a6fbab57fc1deb608e2c2df61",
+      "executable": false
+    },
+    "src/auth/local-sign-in.server.ts": {
+      "sha256": "13bc851f41e40b6a2435dbd5ede360d6858d2c12aa474a5888a08a7c08751927",
       "executable": false
     },
     "src/auth/local.server.mjs": {
@@ -10109,6 +10113,10 @@
       "sha256": "b82bd213e9be3592e4eb78c743fb6e8ec6a06abf658d0dae36852e9aa9a30e8e",
       "executable": false
     },
+    "src/ui/workbench/LocalInvitationSignIn.tsx": {
+      "sha256": "d251acbd73e92d27435f12aef031b43621f4a7d90b65f33f2ac285bc7654a195",
+      "executable": false
+    },
     "src/ui/workbench/location.ts": {
       "sha256": "66d0bc1550a55d2cd170a82faa47cfa7a8471dcabe50d8aee498be843e72b365",
       "executable": false
@@ -11299,6 +11307,10 @@
     },
     "tests/setup-journey.mjs": {
       "sha256": "84db212ee1f38a2957aab9a686b87aa0d220bae6b8209350171d0cc897b5e7df",
+      "executable": false
+    },
+    "tests/sign-in/local-member.mjs": {
+      "sha256": "e3083b48c4cdc2a6c0cc6e6a0f64d0dfb0c2e4b6844d78537fc4cecf87a9dc5a",
       "executable": false
     },
     "tests/slack-flow.mjs": {
