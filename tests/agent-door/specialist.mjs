@@ -22,8 +22,9 @@ export async function specialistFlow(app,github,screens){
  const observed=await runner(queued.command.replace(app.canonicalOrigin,app.origin));assert.equal(observed.code,0,'The native isolated runner completed');assert.match(observed.output,/^reproduced:/m);
  const replay=await app.request(new URL(queued.url).pathname,'GET',undefined,{Authorization:`Bearer ${queued.token}`});assert.equal(replay.status,401);await replay.body?.cancel();
  const recipes=done(await app.call('spool.reproducers.read',{project,issue})).reproducers;const run=recipes.find(r=>r.id===recipe.id).runs[0];assert.equal(run.outcome,'reproduced');assert.equal(run.preparedBy.for.id,app.context.sponsorId??run.preparedBy.for.id);
- const fix=done(await app.call('spool.fixes.create',{project,reproducer:recipe.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',idempotency_key:randomUUID()}));
- const preparedResource=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/fixes/'+fix.id});assert.equal(preparedResource.error?.data?.code,'capability_not_declared');
+ const proposedFix=await app.call('spool.fixes.create',{project,reproducer:recipe.id,run:run.id,repository:'just-every/run-spool',flow:'checkout',idempotency_key:randomUUID()});
+ const fix=done(proposedFix),fixLink=proposedFix.content.find(item=>item.type==='resource_link');assert.ok(fixLink,'A created fix supplies its readable native record link');
+ const preparedResource=await app.mcp('resources/read',{uri:fixLink.uri});assert.equal(JSON.parse(preparedResource.contents[0].text).id,fix.id);
  assert.equal(done(await app.call('spool.fixes.read',{project,issue})).workflows.find(row=>row.id===fix.id).id,fix.id,'An unapproved native workflow is readable through its tool before repository consent');
  const grant=await app.json(path+'/fixes/'+fix.id+'/approve','POST',{revision:fix.revision});assert.equal(grant.approvedBy[0].name,'Dana Engineer');assert.equal(github.requests.length,0,'Native consent for an agent-prepared workflow does not dispatch it');
  await screens?.capture('native-repository-consent',`/projects/${project}/issues/${issue}`,'Repository consent reference',async page=>assert.equal(await page.getByLabel('Repository consent reference').inputValue(),grant.proofReference,'The current native consent reference is available to its person in the workflow card'));
@@ -41,8 +42,8 @@ export async function specialistFlow(app,github,screens){
  const workflows=await app.json(path+'/fixes?issue='+issue),opened=workflows.workflows.find(w=>w.id===fix.id);
  assert.equal(opened.status,'pull_request_open');assert.equal(opened.preparedBy.label,'Agent door conformance for Dana Engineer');
  const number=opened.states.pullRequest.number;assert.equal(github.state.pulls[number-1].draft,true);
- const resource=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/fixes/'+fix.id});
- assert.equal(resource.error?.data?.code,'capability_not_declared');
+ const resource=await app.mcp('resources/read',{uri:fixLink.uri});
+ assert.equal(JSON.parse(resource.contents[0].text).status,'pull_request_open','The resource reflects the native provider outcome after consent and approval');
  assert.equal(done(await app.call('spool.fixes.read',{project,issue})).workflows.find(row=>row.id===fix.id).status,'pull_request_open','The native fix tool reads the provider outcome back');
  const file=JSON.parse(github.file(opened.grant.branch,opened.grant.file.path));assert.equal(file.kind,'spool-reproducer');assert.equal(file.run.outcome,'reproduced');
  assert.match(github.state.pulls[number-1].body,/Prepared by Agent door conformance for Dana Engineer/);assert.match(github.state.pulls[number-1].body,/Native repository grant authorized by Dana Engineer/);

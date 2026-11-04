@@ -2,7 +2,7 @@ import api from '../api';
 import { standingDatabase } from './standing';
 import type { Bindings } from '../../auth/bindings';
 import { ToolRefusal, type ToolContext,type UndoContext } from '../../modules/agent-door/index.ts';
-import { withAgentAuthority,withReviewerAuthority,requestAuthority } from './native-authority';
+import { withAgentAuthority,withReviewerAuthority,requestAuthority,localCredentialId } from './native-authority';
 import { runAuditScope } from '../audit/context';
 import { auditActor, auditLabel, subjectBinding, projectAuditLabel } from '../audit/identity';
 import { classifyRequest } from '../audit/classify';
@@ -10,6 +10,13 @@ import { issueProjection } from '../agent-projection';
 
 type Args=Record<string,any>;
 const e=(value:unknown)=>encodeURIComponent(String(value));
+export async function credentialRecord(env:Bindings,id:string,ctx:ToolContext,tool:string){
+ if(localCredentialId(ctx.clientId))throw new ToolRefusal('insufficient_scope');
+ const row=await env.DB.prepare('SELECT kind,project,revoked FROM credentials WHERE hash=?').bind(id).first<{kind:string;project:string;revoked:number|null}>();
+ if(!row)throw new ToolRefusal('not_found');
+ await nativeCall(env,'issues','GET',{project:row.project},ctx,tool);
+ return {id,project:row.project,grants:row.revoked===null?[`project:${row.project}:${row.kind}`]:[]};
+}
 export function nativePath(route:string,a:Args) {
  const p=`/api/projects/${e(a.project)}`;
  switch(route){

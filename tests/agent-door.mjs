@@ -35,7 +35,7 @@ try{
  const ack=await app.adopt();assert.deepEqual(Object.keys(ack).sort(),['adopted','door']);
  await protocolContract(app);
  const discovery=await app.mcp('server/discover');
- assert.deepEqual(discovery._meta['com.runeditrun/capabilities'],{mode:'declared',declared:['tools','policy','pause','audit','idempotency'],refused:['events','resources','prompts','subscriptions'],unscoped:['multiSponsor','mailEdges','resourceRefresh','timedLifecycle','dualHost','queuedLifecycle','ownerNativeApi']});
+ assert.deepEqual(discovery._meta['com.runeditrun/capabilities'],{mode:'declared',declared:['tools','policy','pause','audit','idempotency','resources','prompts'],refused:['events','subscriptions'],unscoped:['multiSponsor','mailEdges','resourceRefresh','timedLifecycle','dualHost','queuedLifecycle','ownerNativeApi']});
  const listed=(await app.mcp('tools/list')).tools;for(const tool of listed)ToolSchema.parse(tool);
  console.log('Catalogue acknowledgement probe: '+JSON.stringify(ack.door.classes.map(row=>({class:row.class,acknowledged:row.tools.length,declared:listed.filter(tool=>tool._meta?.['com.runeditrun/classes']?.includes(row.class)).length}))));
  const names=listed.map(t=>t.name);assert.deepEqual(names,[...names].sort());assert.equal(new Set(names).size,names.length);
@@ -85,9 +85,9 @@ try{
  done(await app.call('spool.followups.update',{project,destination:null,idempotency_key:randomUUID()}));
  const deployment=done(await app.call('spool.deployments.record',{project,release:'1.0.0',build:'web-1',manifest:{commitSha:'b'.repeat(40),repository:'https://github.com/just-every/run-spool',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'},idempotency_key:randomUUID()}));
  const deploymentResource=await app.mcp('resources/read',{uri:`spool://projects/${project}/deployments/${encodeURIComponent(deployment.id)}`});
- assert.equal(deploymentResource.error?.data?.code,'capability_not_declared');
- assert.equal(deploymentResource.error?.data?.capability,'resources');
- assert.equal(done(await app.call('spool.deployments.read',{project})).rows.find(row=>row.id===deployment.id).manifest.commitSha,'b'.repeat(40),'An observed deployment reads back as a recorded fact through its native tool');
+ const readDeployment=done(await app.call('spool.deployments.read',{project})).rows.find(row=>row.id===deployment.id);
+ assert.deepEqual(JSON.parse(deploymentResource.contents[0].text),readDeployment,'The resource returns the same complete observed deployment as the native read tool');
+ assert.equal(readDeployment.manifest.commitSha,'b'.repeat(40),'An observed deployment reads back as a recorded fact through its native tool');
  await app.adopt(heldPolicy());
  const held=await app.call('spool.issues.update',{project,issue,state:'suppressed',revision:packet.issue.revision,idempotency_key:randomUUID()});
  const pending=held._meta?.['com.runeditrun/approval']??held._meta?.['com.runeditrun/error']?.approval;assert.ok(pending?.id,JSON.stringify(held));
@@ -117,9 +117,9 @@ try{
  await reviewErasureFlow(app,screens);
  const audit=await app.json('/agents/api/audit');assert.equal(audit.differs_from_policy,0);
  assert.equal(code(await app.call('spool.events.list',{limit:200})),'capability_not_declared');
- assert.deepEqual((await app.mcp('resources/templates/list')).resourceTemplates,[]);
- assert.deepEqual((await app.mcp('prompts/list')).prompts,[]);
- assert.equal((await app.mcp('prompts/get',{name:'triage'})).error?.data?.code,'capability_not_declared');
+ assert.ok((await app.mcp('resources/templates/list')).resourceTemplates.length>0);
+ assert.ok((await app.mcp('prompts/list')).prompts.some(prompt=>prompt.name==='triage'));
+ assert.ok((await app.mcp('prompts/get',{name:'triage'})).messages.length>0);
  assert.equal((await app.mcp('subscriptions/listen',{notifications:{toolsListChanged:true}})).error?.data?.code,'capability_not_declared');
  const worker=await nativeWorker(app,{project,ingestKey:p.ingestKey,destination:destination.id});
  // A signed detach ends Business authority, including a held call, while

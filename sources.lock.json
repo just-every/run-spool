@@ -2646,7 +2646,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "fb06018174443a0706abf12380af10cd951ef0890f9f22cb8b7ca1474ab40369",
+      "sha256": "e4f6dce595b0c320307d7bedbcb4444dd3e22b8d75412f1e1b0aa5cda72ef91f",
       "executable": false
     },
     "AGENTS.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "d9213bcef85fc596d796cd01b1eb0e7a25f876469db02e5c7656e704a4ad176e",
       "executable": false
     },
     "docs/agents.md": {
@@ -4458,7 +4458,7 @@
       "executable": false
     },
     "scripts/agent-door/surface.mjs": {
-      "sha256": "c9a26702312269618c23bb9924508b5cbec62f051606af59d94c6a74d5c842ad",
+      "sha256": "eeab56c70d6ae41eedf48fd476ed8b4370dfcec56b8815ce28b0d3a760090e66",
       "executable": false
     },
     "scripts/build-capture.mjs": {
@@ -5506,7 +5506,7 @@
       "executable": false
     },
     "src/domain/agent-door/index.server.ts": {
-      "sha256": "546622021ab04f352e11eeb39bfacadb6e395172f8f89a027d09a48b4673bf1b",
+      "sha256": "ff504be7ccad3724d46b94411cb0c2e5b55a5e6090a921c33312c7b0bce1d77d",
       "executable": false
     },
     "src/domain/agent-door/legacy.ts": {
@@ -5518,7 +5518,7 @@
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "f60a16a7ec035b2ddba76a3fec3118e4b58e51dfa23eaa5bde9135a270248078",
+      "sha256": "c9431e870ce882fd7d33f0f34d2b6684fe5da4edf416c746c94c17a14c176528",
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
@@ -5526,7 +5526,7 @@
       "executable": false
     },
     "src/domain/agent-door/resources.ts": {
-      "sha256": "17a92d539dfb0b51d1186af8c904ad6dfcd80350c52c16ef705d287571eb49f9",
+      "sha256": "8af21e543dcd0d01fff2c027cdbfeb774b241eff86b1066cf37f8407eabfeda1",
       "executable": false
     },
     "src/domain/agent-door/standing.ts": {
@@ -5538,7 +5538,7 @@
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
-      "sha256": "bd218a13576e3e8648b8260eb0407503c4d51ff58029795926c5cc4566852aec",
+      "sha256": "03ede7eb43d0a233063538871a0909754f80837b78b97612dac5b1a87695dfeb",
       "executable": false
     },
     "src/domain/agent-projection.ts": {
@@ -10350,11 +10350,11 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "4b12559d25fb767aafa063859cadd81ae34da1a71fad97a0a29d38363c0c7923",
+      "sha256": "1365cf87fa891929f4c9083707db4a45aff3a6b1cc069ee7a6b0c1a0fada632f",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
-      "sha256": "90a0b2f437a9f31749db14f9871797c794322507cde396e08a84a790df2d47cb",
+      "sha256": "cdb8dc9c28d18818d9ad49aa0e59f3bb8b49580008fa6533447e61244f7353e3",
       "executable": false
     },
     "tests/agent-door/github-binding.mjs": {
@@ -10386,7 +10386,7 @@
       "executable": false
     },
     "tests/agent-door/people.mjs": {
-      "sha256": "4ae25ac26239b4428475ace57c02ebbfc8f135a75caed96cd227c3c0e6116bad",
+      "sha256": "ccee845b663bcc97c538aebf340785167ecefdf6af04e3a796626e88cdfdbdd6",
       "executable": false
     },
     "tests/agent-door/phase-fixtures.mjs": {
@@ -10398,7 +10398,7 @@
       "executable": false
     },
     "tests/agent-door/protocol-contract.mjs": {
-      "sha256": "9294dc950bd68f28089924c0c58edacd60d053bd1c70ee29f0db36ab3e327f71",
+      "sha256": "f5359059c49eb5d2fbd1cf80b95f2e584a4376f77820ddaf42980cbd6952ff83",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
@@ -10410,7 +10410,7 @@
       "executable": false
     },
     "tests/agent-door/review-erasure.mjs": {
-      "sha256": "34471dc3832cb0781754c661b5e745c540d47b79aff532a98981a10fb1a82040",
+      "sha256": "a1a20208c743aa75973a85dcf9be0b4f7af84a1a1c2bcc3d2b73596aba05a922",
       "executable": false
     },
     "tests/agent-door/reviewer.mjs": {
@@ -10430,7 +10430,7 @@
       "executable": false
     },
     "tests/agent-door/specialist.mjs": {
-      "sha256": "4d057ae9bad5971e881758bf7d9e52c8ee2a017c5fc1462dfa1cd2ebb3da300e",
+      "sha256": "ec9f62f38e90705311b5d362b0281bb4d118174161d3c105a8746e10a39a28a1",
       "executable": false
     },
     "tests/agent-door/worker.mjs": {

@@ -2,7 +2,7 @@ import { ToolRefusal, type ToolDefinition, type ToolContext, type ClassAndFacts 
 import type { Bindings } from '../../auth/bindings';
 import { localCredentialId } from './native-authority';
 import { catalogue } from './catalogue.mjs';
-import { nativeCall,authorizeNative } from './native';
+import { nativeCall,authorizeNative,credentialRecord } from './native';
 import { spoolTarget } from './targets';
 import { repairLink,boundedText } from '../repairs/input';
 import { scrub } from '../privacy';
@@ -100,15 +100,12 @@ export function spoolTools(env:Bindings):ToolDefinition[] {
     let result:any;
     if(route==='witness')result=await nativeWitness(env,a,c);
     else if(route==='credential'&&readOnly){
-     const row=await env.DB.prepare('SELECT kind,project,revoked FROM credentials WHERE hash=?').bind(a.id).first<any>();
-     if(!row)throw new ToolRefusal('not_found');
-     await nativeCall(env,'issues','GET',{project:row.project},c,name);
-     result={id:a.id,project:row.project,grants:row.revoked===null?[`project:${row.project}:${row.kind}`]:[]};
+     result=await credentialRecord(env,String(a.id),c,name);
     }else{
      const args={...a};if(route==='access-member'){const target=await member(env,String(a.id));if(!target)throw new ToolRefusal('not_found');args.id=target.id;}
      result=await nativeCall(env,route,method,args,c,name);
     }
-    const id=String(result?.reproducer??result?.id??a.issue??a.id??a.name??'');
+    const id=String((['reproducer-run','reproducer-claim'].includes(route)?result?.reproducer:undefined)??result?.id??a.issue??a.id??a.name??'');
     const area=route==='proposals'?'grouping-proposals':['reproducer-run','reproducer-claim'].includes(route)?'reproducers':route==='repair-check'||route==='repair-fact'?'repairs':route==='fix-advance'?'fixes':route==='issue'?'issues':route;
     const resource=route==='projects'&&!readOnly?`spool://projects/${encodeURIComponent(id)}`:a.project&&id&&(!readOnly||['issue','packet','proposal'].includes(route))&&['issues','repairs','reproducers','fixes','grouping-proposals','releases','deployments'].includes(area)?`spool://projects/${encodeURIComponent(String(a.project))}/${area}/${encodeURIComponent(id)}`:null;
     if(!readOnly&&route==='alert')c.emit('alerts.changed',`spool://projects/${encodeURIComponent(String(a.project))}/alerts/${encodeURIComponent(String(a.id))}`);

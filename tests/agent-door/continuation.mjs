@@ -23,8 +23,7 @@ export async function continuationFlow(app,{project,issue,proposal,created}){
  assert.deepEqual((await app.call('spool.proposals.create',proposal)).structuredContent,created);
  assert.deepEqual(await app.json('/api/projects/'+project+'/grouping-proposals'),before,'No replay admission variant repeats the effect');
  const missing=await app.mcp('resources/read',{uri:'spool://projects/'+project+'/issues/no-such-issue'});
- assert.equal(missing.error?.data?.code,'capability_not_declared','Undeclared resources have a machine code in JSON-RPC error.data');
- assert.equal(missing.error?.data?.capability,'resources');
+ assert.equal(missing.error?.data?.code,'resource_unavailable','Missing resources have a machine code in JSON-RPC error.data');
  // Exercise the installed target check after more than one native audit page.
  for(let i=0;i<201;i++)assert.ok(!(await app.call('spool.issues.list',{project})).isError);
  const latest=await app.call('spool.proposals.read',{project,id:created.id});assert.ok(!latest.isError);

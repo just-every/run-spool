@@ -62,6 +62,8 @@ export async function reviewErasureFlow(app,screens){
  assert.deepEqual(await app.DB.prepare('SELECT * FROM agent_door_reviews WHERE id=?').bind(review.id).first(),peerBefore,'Peer review custody stays byte for byte unchanged');
  assert.equal((await app.DB.prepare('SELECT 1 FROM releases WHERE project=?').bind(disposable.id).all()).results.length,0,'Private native content is deleted');
  await app.adopt();
+ const erasedResource=await app.mcp('resources/read',{uri:`spool://projects/${disposable.id}/releases/${encodeURIComponent(heldArgs.name)}`});
+ assert.equal(erasedResource.error?.data?.code,'resource_unavailable','A resource cannot return erased release content');
  const replay=await app.call('spool.releases.record',heldArgs);assert.equal(replay._meta['com.runeditrun/error'].code,'subject_erased','An in-window native replay cannot execute or return the erased value');
  const undoErased=await app.request('/agents/api/approvals/'+pending.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});assert.equal(undoErased.status,409,'An old approval cannot resurrect native data');await undoErased.body?.cancel();
  console.log('Spool review/erasure: independent native reviewer Undo with no agent identity, durable erasure custody, paused continuation and current person completion passed.');

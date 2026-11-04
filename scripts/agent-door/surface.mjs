@@ -40,6 +40,7 @@ add('fix','fixes.create',{project,reproducer:fixture('reproducer'),run:fixture('
 add('advance','fixes.advance',{project,id:from('fix','/id')},['external']);
 add('releases','releases.read',{project});
 add('release','releases.record',{project,name:'agent-recorded-release',build:'recorded-build'});
+journey.find(step=>step.id==='release').resource={uriTemplate:'spool://projects/{project}/releases/{id}',state:{name:'agent-recorded-release',build:'recorded-build'}};
 add('deployments','deployments.read',{project});
 add('deployment','deployments.record',{project,release:'agent-recorded-release',build:'recorded-build',manifest:{commitSha:'a'.repeat(40),repository:'https://github.com/just-every/run-spool',environment:'staging',deployedAt:'2026-10-28T00:00:00.000Z'}});
 add('alerts','alerts.read',{project});
@@ -90,7 +91,7 @@ for(const step of journey){
 const tools=catalogue.map(({name,scope,readOnly,classes,clauses,inputSchema,proof,proofKind})=>({name,scope,readOnly,classes,clauses,...proof?{proof,proofKind}:{},...name==='spool.access.update'?{sponsorEscalation:false}:{},...name==='spool.credentials.update'?{widens:false,narrowing:{effect:'revoke',target:'id'},inputSchema}:{}}));
 tools.push({name:'spool.events.list',scope:'events:read',readOnly:true,classes:['standard'],clauses:['BASE-AGENT-010']});
 const resources=resourceTemplates;
-const surface={schema:'rer-agent-surface/1',seed:'spool',specialist:'triage engineer',capabilities:['tools','policy','pause','audit','idempotency'],tools:tools.sort((a,b)=>a.name.localeCompare(b.name)),resources,notTools,journey,
+const surface={schema:'rer-agent-surface/1',seed:'spool',specialist:'triage engineer',capabilities:['tools','policy','pause','audit','idempotency','resources','prompts'],tools:tools.sort((a,b)=>a.name.localeCompare(b.name)),resources,notTools,journey,
  witness:{tool:'spool.witness.read',args:{project}},
  // Admitted administrators already have full native member authority. The
  // actual member ID/email widening refusals remain in peopleFlow.

@@ -38,8 +38,7 @@ export async function peopleFlow(app){
  const current=list.structuredContent.items[0];
  const hidden=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/'+foreignIssue},claims);
  const missing=await app.mcp('resources/read',{uri:'spool://projects/foreign-project/issues/not-present'},claims);
- assert.equal(hidden.error?.data?.code,'capability_not_declared');
- assert.equal(hidden.error?.data?.capability,'resources');
+ assert.equal(hidden.error?.data?.code,'resource_unavailable');
  assert.deepEqual(hidden.error,missing.error,'Missing and restricted resources have equivalent JSON-RPC refusals');
  assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:foreignIssue},claims))._meta['com.runeditrun/error'].code,'not_found');
  assert.equal((await app.call('spool.issues.read',{project:'foreign-project',issue:'not-present'},claims))._meta['com.runeditrun/error'].code,'not_found','Native tools preserve equivalent missing and restricted refusals');

@@ -6,12 +6,14 @@ The supported protocol versions are `2026-07-28` and `2025-11-25`. March 2025
 batching is refused. `/agents` shows company policy, agent activity and decisions;
 `/agents/approvals/{id}` shows an exact pending or completed action.
 
-This adoption declares the mandatory tools, policy, pause, audit and idempotency
-capabilities. Events, resources, prompts and subscriptions remain partial and are
-not offered through MCP: discovery identifies them as refused, their lists are
-empty, and calls return `capability_not_declared`. Native read tools still return
-the supported records. Resource adapters and internal event collection remain
-in place without exposing these optional public doors. Multi-sponsor, mail-edge,
+This adoption declares tools, policy, pause, audit, idempotency, resources and
+prompts. Resource templates expose bounded native record projections under the
+same current project authority and company policy as their read tools. The triage
+prompt supplies first-party investigation guidance. Lists carry private cache
+fields and deterministic ordering under both supported protocol revisions.
+Events and subscriptions remain partial: discovery identifies them as refused,
+and calls return `capability_not_declared`. Internal event collection stays
+private. Multi-sponsor, mail-edge,
 resource-refresh, timed, dual-host, queued and native-owner lifecycle families
 remain unscoped; this declaration makes no completion claim for them.
 

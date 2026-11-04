@@ -46,6 +46,7 @@ export async function protocolContract(app){
    assert.ok(Number.isFinite(info.ttlMs)&&info.ttlMs>=0);
    assert.ok(info.supportedVersions.includes('2026-07-28')&&info.supportedVersions.includes('2025-11-25'));
    assert.ok(info.capabilities.tools);
+   assert.ok(info.capabilities.resources&&info.capabilities.prompts,'The native door serves records and specialist guidance');
    assert.ok(!['roots','sampling','logging'].some(capability=>capability in info.capabilities));
    const server=info._meta['io.modelcontextprotocol/serverInfo'];
    assert.ok(server.name&&server.version&&info.instructions.includes(surface.specialist));
@@ -68,6 +69,59 @@ export async function protocolContract(app){
    assert.deepEqual(legacy.result,modern.result,'Initialized legacy and handshake-free modern lists agree, including private cache fields');
    await discoverDoor(c);
    await listedDoor(c);
+   const cached=async(method,key)=>{
+    const first=await c.mcp(method),second=await c.mcp(method);
+    assert.equal(first.status,200);assert.equal(second.status,200);
+    assert.deepEqual(second.result,first.result,`${method} is deterministic`);
+    assert.equal(first.result.cacheScope,'private');
+    assert.ok(Number.isFinite(first.result.ttlMs)&&first.result.ttlMs>=0);
+    const identifiers=first.result[key].map(item=>item.uriTemplate??item.name);
+    assert.ok(identifiers.length>0,'Lists contain real native offerings');
+    assert.deepEqual(identifiers,[...new Set(identifiers)].sort());
+    assert.deepEqual((await c.mcp(method,{}, {version:'2025-11-25'})).result,first.result,'Legacy clients receive the same cached list');
+    return first.result[key];
+   };
+   const templates=await cached('resources/templates/list','resourceTemplates');
+   assert.deepEqual(templates.map(item=>item.uriTemplate),[...surface.resources].sort());
+   const prompts=await cached('prompts/list','prompts');
+   for(const prompt of prompts){
+    const modernPrompt=await c.mcp('prompts/get',{name:prompt.name});
+    assert.equal(modernPrompt.status,200);
+    assert.ok(modernPrompt.result.messages.some(message=>message.role==='user'&&message.content.type==='text'&&message.content.text.length>0));
+    assert.deepEqual((await c.mcp('prompts/get',{name:prompt.name},{version:'2025-11-25'})).result,modernPrompt.result);
+   }
+   for(const [suffix,tool] of [[`issues/${admitted.issue}`,'spool.issues.read'],[`issues/${admitted.issue}/packet`,'spool.packets.read']]){
+    const uri=`spool://projects/${project}/${suffix}`,read=await c.mcp('resources/read',{uri});
+    assert.equal(read.status,200);assert.ok(!read.body.error,JSON.stringify(read.body));
+    const native=await c.mcp('tools/call',{name:tool,arguments:{project,issue:admitted.issue}});
+    assert.deepEqual(JSON.parse(read.result.contents[0].text),native.result.structuredContent,'Resources return the same populated native projection as tools');
+    assert.equal(read.result.contents[0]._meta['com.runeditrun/untrusted'],true);
+    assert.equal(read.result._meta['com.runeditrun/decision'].disposition,policy==='held'?'review':'autonomous');
+   }
+   const grant=await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'});
+   const credentialUri='spool://credentials/'+grant.hash;
+   const managedCredential=await c.mcp('resources/read',{uri:credentialUri});
+   const credentialTool=await c.mcp('tools/call',{name:'spool.credentials.read',arguments:{id:grant.hash}});
+   assert.deepEqual(JSON.parse(managedCredential.result.contents[0].text),credentialTool.result.structuredContent,'Credential resources share the native permissioned, value-free projection');
+   const local=uri=>c.mcp('resources/read',{uri},{headers:{Authorization:`Bearer ${grant.key}`}});
+   const uri=`spool://projects/${project}/issues/${admitted.issue}`;
+   assert.equal(JSON.parse((await local(uri)).result.contents[0].text).id,admitted.issue,'A local project grant reads its own captured issue');
+   const foreign=await local('spool://projects/door-triage/issues/'+(await app.json('/api/projects/door-triage/issues'))[0].id);
+   const absent=await local('spool://projects/door-triage/issues/not-present');
+   assert.equal(foreign.body.error.data.code,'resource_unavailable');
+   assert.deepEqual(foreign.body.error,absent.body.error,'A project grant learns nothing about inaccessible records');
+   const localCredential=await local(credentialUri);
+   assert.equal(localCredential.body.error.data.code,'resource_unavailable','A local evidence grant cannot inspect credential management');
+   assert.equal(localCredential.result,undefined);
+   await app.json(`/api/projects/${project}/keys/${grant.hash}`,'DELETE');
+   assert.equal((await local(uri)).status,401,'Revocation immediately closes the resource door');
+   for(const [family,verb] of [['roots','list'],['sampling','createMessage'],['logging','setLevel']]){
+    const method=[family,verb].join('/');
+    const refused=await c.mcp(method);
+    assert.equal(refused.status,404);assert.equal(refused.body.error.code,-32601);
+    assert.equal(refused.result,undefined,'Unsupported MCP services return no content');
+   }
+   console.log(`PROBE BASE-AGENT-001 requirement ${policy}: native MCP resources and prompts -> deterministic private lists, populated scoped readback, revoked and foreign grant refusal, unsupported services absent`);
    console.log(`PROBE BASE-AGENT-001 1 ${policy}: native MCP discovery -> supported versions, declared capabilities, named serverInfo and specialist instructions`);
    console.log(`PROBE BASE-AGENT-001 2 ${policy}: modern discovery before initialize and legacy initialization -> identical ${names.length}-tool catalogue`);
    console.log(`PROBE BASE-AGENT-001 3 ${policy}: unsupported MCP version -> HTTP 400 UnsupportedProtocolVersion with supported versions`);

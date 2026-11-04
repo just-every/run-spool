@@ -1,6 +1,6 @@
 import type { Bindings } from '../../auth/bindings';
 import type { ResourceDefinition, ResourceContext, ToolContext } from '../../modules/agent-door/index.ts';
-import { nativeCall } from './native';
+import { nativeCall,credentialRecord } from './native';
 import { standard } from './tools';
 
 import {resourceTemplates} from './catalogue.mjs';
@@ -19,8 +19,8 @@ export function spoolResources(env:Bindings):ResourceDefinition[] {
      const list=await nativeCall(env,'access','GET',{},readContext(env,c),'resources/read');const row=list.members.find((m:any)=>m.id===decodeURIComponent(url.pathname.slice(1)));return row?{json:row,untrusted:true}:null;
     }
     if(url.hostname==='credentials'){
-     const id=decodeURIComponent(url.pathname.slice(1)),row=await env.DB.prepare('SELECT project,kind,revoked FROM credentials WHERE hash=?').bind(id).first<any>();if(!row)return null;
-     await nativeCall(env,'credentials','GET',{project:row.project},readContext(env,c),'resources/read');return {json:{id,...row},untrusted:true};
+     const id=decodeURIComponent(url.pathname.slice(1));
+     return {json:await credentialRecord(env,id,readContext(env,c),'resources/read'),untrusted:true};
     }
     if(url.hostname!=='projects')return null;
     const [project,area,id,tail]=url.pathname.slice(1).split('/').map(decodeURIComponent);
