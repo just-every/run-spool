@@ -64,6 +64,32 @@ export async function classificationAuditContract(app,{project,issue}){
   assert.deepEqual(afterAudit.filter(item=>item.id!==decision.id),priorAudit,'Only the required refusal audit is added');
   assert.deepEqual(await snapshot(),before,'Refusal preserves occurrence membership, full issues and revisions, deliveries, native work and usage');
   console.log(`PROBE BASE-AGENT-006 acceptance-6-${baseline}: MCP suppression at current native revision with explicit live block -> policy_blocked; exact decision audit has live, measure 1, native project, rule ${rule}, revision ${revision} and refused outcome; captured state, delivery jobs and usage unchanged`);
+
+  // The same native target must be executable when the explicit block is
+  // removed. This prevents a permanently broken write from proving refusal.
+  await app.adopt(makePolicy());
+  const allowed=await app.call(tool,{...args,idempotency_key:randomUUID()});
+  assert.deepEqual(allowed._meta['com.runeditrun/decision'].classes,[{
+   ...expectedClasses[0],rule:'all',do:baseline==='held'?'approval':'autonomous',
+  }],'Removing the block changes the disposition without changing native classification');
+  if(baseline==='held'){
+   assert.equal(allowed.isError,true);
+   assert.equal(allowed._meta['com.runeditrun/error'].code,'approval_required');
+   const pending=allowed._meta['com.runeditrun/approval']??allowed._meta['com.runeditrun/error'].approval;
+   assert.ok(pending?.id,'Held suppression requires an actual native approval');
+   assert.deepEqual(await app.json(`/api/projects/${project}/issues`),before.issueList,'Waiting for the sponsor leaves the issue unchanged');
+   const {approval}=await app.json('/agents/api/approvals/'+pending.id);
+   await app.json('/agents/api/approvals/'+pending.id+'/approve','POST',{
+    revision:approval.revision,summary_sha256:approval.summary_sha256,
+   });
+   assert.equal((await app.json('/agents/api/approvals/'+pending.id)).approval.state,'executed');
+  }else assert.equal(allowed.isError,false,'Autonomous suppression completes through MCP');
+  const suppressed=(await app.json(`/api/projects/${project}/issues`)).find(row=>row.id===issue);
+  assert.equal(suppressed.state,'suppressed','The baseline control reaches the native suppression effect');
+  assert.equal(suppressed.revision,current.revision+1,'The permitted write advances the native revision exactly once');
+  assert.deepEqual((await auditRows()).find(item=>item.id===decision.id),row,'Later policy and execution do not rewrite the original refusal facts');
+  await app.json(`/api/projects/${project}/issues/${issue}`,'PATCH',{state:'open',revision:suppressed.revision});
+  console.log(`PROBE BASE-AGENT-006 acceptance-6-${baseline}-control: remove explicit live block -> ${baseline==='held'?'sponsor approval then ':''}suppressed at next revision; original refusal audit unchanged`);
  }
  await app.adopt();
 }

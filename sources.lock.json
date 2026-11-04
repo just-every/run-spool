@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6b16eb82a6f162f18638dc718d8f3cb23b935f6932cda8c1284a4e91dc9250d3",
+      "sha256": "a4dd0d9e9dbbb844cf4196e61780d74763123e5669884ecc8c68f4f756e2ab83",
       "executable": false
     },
     "DEMO.md": {
@@ -10354,7 +10354,7 @@
       "executable": false
     },
     "tests/agent-door/classification-audit-contract.mjs": {
-      "sha256": "d1ea7b018b711860d3c9f6a5514fc2663f3ed35174adba0cf75eed5de3e53780",
+      "sha256": "20ffbccd0bb14f2916e884a71b363625daa861a3ef82e10a31cec3d375bb2d37",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
