@@ -25,11 +25,12 @@ export async function protocolContract(app){
  try{
   for(const [policy,document] of [['autonomous',autonomousPolicy()],['held',heldPolicy()]]){
    await app.adopt(document);
+   const credential=await accessToken(app.context,{client_id:`synthetic-spool-protocol-${policy}`});
    const c={...app.context,surface,origin:app.canonicalOrigin,request,
     add(point,ok,detail){assert.ok(ok,`${policy} ${point}: ${detail}`);},
     async mcp(method,params={},options={}){
      const version=options.version??'2026-07-28';
-     const response=await request('/mcp',{method:'POST',headers:{Origin:app.canonicalOrigin,Authorization:`Bearer ${await accessToken(app.context,{client_id:`synthetic-spool-protocol-${policy}`})}`,Accept:'application/json, text/event-stream','Content-Type':'application/json','MCP-Protocol-Version':version,'Mcp-Method':method,...(['tools/call','resources/read','prompts/get'].includes(method)?{'Mcp-Name':method==='resources/read'?params.uri:params.name}:{}),...options.headers},body:JSON.stringify({jsonrpc:'2.0',id:++id,method,params:version==='2026-07-28'?{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}:params})});
+     const response=await request('/mcp',{method:'POST',headers:{Origin:app.canonicalOrigin,Authorization:`Bearer ${credential}`,Accept:'application/json, text/event-stream','Content-Type':'application/json','MCP-Protocol-Version':version,'Mcp-Method':method,...(['tools/call','resources/read','prompts/get'].includes(method)?{'Mcp-Name':method==='resources/read'?params.uri:params.name}:{}),...options.headers},body:JSON.stringify({jsonrpc:'2.0',id:++id,method,params:version==='2026-07-28'?{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}:params})});
      const body=await response.json();
      if(body.error?.code===-32020)assert.equal(body.error.message,'HeaderMismatch');
      if(body.error?.code===-32022)assert.equal(body.error.message,'UnsupportedProtocolVersion');
@@ -41,6 +42,8 @@ export async function protocolContract(app){
    const discovery=await c.mcp('server/discover');
    assert.equal(discovery.status,200);
    const info=discovery.result;
+   assert.equal(info.cacheScope,'private');
+   assert.ok(Number.isFinite(info.ttlMs)&&info.ttlMs>=0);
    assert.ok(info.supportedVersions.includes('2026-07-28')&&info.supportedVersions.includes('2025-11-25'));
    assert.ok(info.capabilities.tools);
    assert.ok(!['roots','sampling','logging'].some(capability=>capability in info.capabilities));
@@ -80,7 +83,7 @@ export async function protocolContract(app){
    const body=JSON.stringify({jsonrpc:'2.0',id:++id,method:'tools/call',params:{...params,_meta:{...params._meta,padding:'x'.repeat(max+1)}}});
    for(const streamed of [false,true]){
     const before=await snapshot();
-    const response=await request('/mcp',{method:'POST',duplex:'half',headers:{Origin:app.canonicalOrigin,Authorization:`Bearer ${await accessToken(app.context)}`,Accept:'application/json, text/event-stream','Content-Type':'application/json','MCP-Protocol-Version':'2026-07-28','Mcp-Method':'tools/call','Mcp-Name':params.name},body:streamed?new ReadableStream({start(controller){const bytes=new TextEncoder().encode(body);for(let offset=0;offset<bytes.length;offset+=16384)controller.enqueue(bytes.slice(offset,offset+16384));controller.close();}}):body});
+    const response=await request('/mcp',{method:'POST',duplex:'half',headers:{Origin:app.canonicalOrigin,Authorization:`Bearer ${credential}`,Accept:'application/json, text/event-stream','Content-Type':'application/json','MCP-Protocol-Version':'2026-07-28','Mcp-Method':'tools/call','Mcp-Name':params.name},body:streamed?new ReadableStream({start(controller){const bytes=new TextEncoder().encode(body);for(let offset=0;offset<bytes.length;offset+=16384)controller.enqueue(bytes.slice(offset,offset+16384));controller.close();}}):body});
     assert.equal(response.status,413,`${policy} oversized ${streamed?'streamed':'length-bearing'} mutation`);
     await response.body?.cancel();
     assert.deepEqual(await snapshot(),before,'Oversized valid mutation changes no native records, approvals, audit, replay or usage rows');

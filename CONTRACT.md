@@ -1667,8 +1667,8 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 9 | 3 | 0 | 12 |
-| Target and push further | 13 | 43 | 37 | 93 |
-| All | 22 | 46 | 37 | 105 |
+| Target and push further | 13 | 44 | 36 | 93 |
+| All | 22 | 47 | 36 | 105 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -1764,7 +1764,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
 | `AI-005` | Explain grouping proposals before applying | push-further | done | `src/domain/proposals/`; `migrations/core/0057_grouping_proposals.sql`; `src/ui/workbench/GroupingProposals.tsx`; `packages/agent/`; `tests/operator-flow.mjs`; `tests/operator-ui.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs` |  |
 | `AI-006` | Prevent related failures from recurring | push-further | missing |  | No implementation proof yet: prevent related failures from recurring. |
 | `AI-007` | Agent-runtime failure diagnosis and evaluated improvements | push-further | missing |  | No implementation proof yet: agent-runtime failure diagnosis and evaluated improvements. |
-| `BASE-AGENT-001` | One MCP door per seed | target | missing | | Not yet judged through this seed's own doors. |
+| `BASE-AGENT-001` | One MCP door per seed | target | partial | `tests/agent-door.mjs` native emitted-Worker journey invoking `tests/agent-door/protocol-contract.mjs` protocolContract under autonomous and held company policies. Acceptance 1: discovery returns supported versions, declared capabilities, serverInfo and specialist instructions before initialization. Acceptance 2: handshake-free modern discovery and a populated tool list agree with initialized legacy tools. Acceptance 3: shared discoverDoor refuses unsupported versions with UnsupportedProtocolVersion and supported-version guidance. Acceptance 4: shared listedDoor checks repeated deterministic lists with ttlMs and private cache scope. Acceptance 5: shared discoverDoor checks foreign-Origin 403 and HeaderMismatch. Acceptance 6: length-bearing and streamed oversized valid issue updates return 413 with every native and door table unchanged; unpadded controls complete directly or after native approval. Shared assertions: `src/modules/agent-door/conformance/discovery.mjs` discoverDoor and listedDoor. | Transport acceptance 1 to 6 is locally qualified. The full requirement remains partial: resource and prompt serving are explicitly undeclared; complete registry and conformance qualification and hosted qualification beyond this native transport slice remain unproved. SURFACE-001's recorded hold and every existing account, device, ct, queue and release boundary remain unchanged. Generated views, exact-candidate Verify, publication scanning, guarded landing and Run site remain fleet gates. |
 | `BASE-AGENT-002` | The seed's jobs are tools, through the UI's own actions | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-003` | Records are resources | target | missing | | Not yet judged through this seed's own doors. |
 | `BASE-AGENT-004` | Business identity and short-lived, audience-bound tokens | target | missing | | Not yet judged through this seed's own doors. |
