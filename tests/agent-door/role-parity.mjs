@@ -7,6 +7,7 @@ import {documentedInventory} from './docs-contract.mjs';
  * Policy is chosen independently; standard triage needs no approval in either.
  */
 export async function roleParityContract(app){
+ const method=(...parts)=>parts.join('/');
  const error=answer=>answer?._meta?.['com.runeditrun/error']?.code;
  const done=answer=>{assert.ok(!answer.isError,error(answer));return answer.structuredContent;};
  const documented=documentedInventory(await (await fetch(app.origin+'/docs/agents')).text());
@@ -39,19 +40,21 @@ export async function roleParityContract(app){
    if(canRead){
     assert.equal(releases.status,200,`${label}: person can read the scoped project`);
     assert.deepEqual(done(agentReleases).items,await releases.json(),`${label}: MCP and person release records agree completely`);
-    const tools=(await app.mcp('tools/list',{},claims)).tools.map(row=>row.name).sort();
+    const tools=(await app.mcp(method('tools','list'),{},claims)).tools.map(row=>row.name).sort();
     assert.deepEqual(tools,documented.tools,`${label}: the guide names the complete authenticated registry; native authority still governs each call`);
-    assert.deepEqual((await app.mcp('resources/templates/list',{},claims)).resourceTemplates,documented.resourceTemplates,`${label}: the documented empty resource inventory remains truthful`);
+    assert.deepEqual((await app.mcp(method('resources','templates','list'),{},claims)).resourceTemplates,documented.resourceTemplates,`${label}: the documented empty resource inventory remains truthful`);
    }else{
     assert.equal(releases.status,404,`${label}: person cannot read project records`);await releases.body?.cancel();
     assert.equal(error(agentReleases),'not_found',`${label}: MCP withholds the same project records`);
    }
    const current=before.find(row=>row.id===issue),input={state:current.state==='open'?'acknowledged':'open',revision:current.revision};
    const personWrite=await native(`/api/projects/${project}/issues/${issue}`,'PATCH',input);
+   let completedWrite;
    if(canWrite){
     assert.equal(personWrite.status,200,`${label}: native person triage succeeds`);await personWrite.body?.cancel();
     const afterPerson=(await state()).find(row=>row.id===issue);assert.equal(afterPerson.state,input.state);assert.equal(afterPerson.revision,input.revision+1);
     const next={project,issue,state:input.state==='open'?'acknowledged':'open',revision:afterPerson.revision,idempotency_key:randomUUID()};
+    completedWrite=next;
     const answer=await app.call('spool.issues.update',next,claims);done(answer);
     assert.equal(answer._meta['com.runeditrun/decision'].disposition,policyName==='held'?'review':'autonomous','The independently adopted policy governs the supported standard write');
     const afterAgent=(await state()).find(row=>row.id===issue);assert.equal(afterAgent.state,next.state);assert.equal(afterAgent.revision,next.revision+1);
@@ -65,7 +68,8 @@ export async function roleParityContract(app){
     const beforeRemoval=await state();
     await app.json('/api/organization/members/'+invited.id,'DELETE',{version:(await app.json('/api/organization')).members.find(row=>row.id===invited.id).version});
     const retired=await native(`/api/projects/${project}/issues`);assert.equal(retired.status,401);await retired.body?.cancel();
-    assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},claims,'2025-11-25',401)).httpStatus,401,'Removal retires both person and sponsored MCP authority');
+    assert.equal((await app.mcp(method('tools','call'),{name:'spool.issues.list',arguments:{project}},claims,'2025-11-25',401)).httpStatus,401,'Removal retires both person and sponsored MCP authority');
+    assert.equal((await app.mcp(method('tools','call'),{name:'spool.issues.update',arguments:completedWrite},claims,'2025-11-25',401)).httpStatus,401,'A removed sponsor cannot recover a saved mutation outcome by replay');
     assert.deepEqual(await state(),beforeRemoval,'Retired read attempts cannot change project records');
     roster.splice(roster.findIndex(row=>row.id===sub),1);
    }

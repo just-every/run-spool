@@ -10429,6 +10429,10 @@
       "sha256": "851a579ebfc527932ba2e6a2d166efa15afe3c1845840d2eb094b37b5b0c4e20",
       "executable": false
     },
+    "tests/agent-door/role-parity.mjs": {
+      "sha256": "75c77aed5a54f383687316b0990b8c91cbe474f1a088a9d85f14b74858fdd0fb",
+      "executable": false
+    },
     "tests/agent-door/runtime.mjs": {
       "sha256": "d4ed66c00d725b9d901aa3c587a38e71483a93e5139b3d5fb4dcea9f88e79791",
       "executable": false
