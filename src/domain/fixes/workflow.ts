@@ -3,7 +3,8 @@ import { agentGuard, type AgentAuthority } from '../agent-door/native-authority'
 import { hash, scrub } from '../privacy';
 import { exposureProof, type Deployment } from '../exposure/proof';
 import { reproducerView } from '../reproducers/view';
-import { connection, publicConnection } from './connection';
+import { publicConnection } from './connection';
+import { savedConnection } from './saved-connection';
 import { reproducerFile } from './grant';
 import { GrantRefused, ProviderSession } from './provider';
 import { protectFixSession } from '../follow-up/fix-boundary';
@@ -34,7 +35,7 @@ async function deployment(db: D1Database, row: any, grant: any, rows: any[]): Pr
 export async function workflowView(db: D1Database, env: any, row: any, now = Date.now()) {
  const prepared=await s(db,"SELECT actor FROM spool_agent_custody WHERE kind='fix' AND id=?",row.id).first<any>();
  const activeApprovals=(await s(db,"SELECT person AS id,name,revision,created,reference FROM spool_native_approvals WHERE kind='fix' AND id=? ORDER BY revision DESC LIMIT 1",row.id).all()).results;
- const grant = JSON.parse(row.grant_spec), rows = await receipts(db, row.id), link = connection(env);
+ const grant = JSON.parse(row.grant_spec), rows = await receipts(db, row.id), link = await savedConnection(env);
  const historical = await restoredWork(db,row.project,'fix',row.id);
  const approvedBy=activeApprovals.length?activeApprovals.map(({reference,...person}:any)=>person):rows.filter(r=>r.step==='native_repository_consent'&&r.outcome==='succeeded').sort((a,b)=>a.detail.revision-b.detail.revision).slice(-1).map(r=>r.detail);
  const deployed = await deployment(db, row, grant, rows), checks = succeeded(rows, 'read_checks').at(-1);
@@ -66,7 +67,7 @@ export async function workflowView(db: D1Database, env: any, row: any, now = Dat
 // The token is minted for this call only and revoked before returning.
 export async function advance(db: D1Database, env: any, row: any, actor?:AgentAuthority) {
  if(await restoredWork(db,row.project,'fix',row.id))throw new GrantRefused(RESTORED_WORK_REASON);
- const link = connection(env);
+ const link = await savedConnection(env);
  if (link.state !== 'configured') throw new GrantRefused('Approved, awaiting connection: configure GITHUB_CONNECTION to let Spool act on this grant.');
  const grant = JSON.parse(row.grant_spec), repo = `/repos/${grant.repository}`, session = new ProviderSession(db, row, grant, link);
  await protectFixSession(db,row,session,actor?async()=>{await db.batch([agentGuard(db,actor),db.prepare('DELETE FROM spool_authority_guards')]);}:undefined);

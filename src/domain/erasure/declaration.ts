@@ -57,6 +57,7 @@ export const projectErasure = defineErasure({
   { table: 'alert_scheduler', from: 'alert_rules', where: 'last_spike_rule=?', params: ['id'], set: { last_spike_rule: '' }, reason: 'The spike scheduler cursor keeps no rule identifier.' },
  ],
  retain: [
+  { table: 'spool_github_connection', reason: 'Installation GitHub credentials stay with the owner and are excluded from archives.' },
   ...retainedAgentArtifacts,
   {table:'spool_audit_events',reason:'Safe chronology retains random actor and subject labels, action, time and outcome only; private attribution links are erased.'},
   { table: 'oa_operators', reason: 'The installation owner stays: project erasure preserves installation authority.' },

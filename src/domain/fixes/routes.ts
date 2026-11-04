@@ -3,7 +3,8 @@ import { agentAuthority } from '../agent-door/native-authority';
 import { runtimeBindings } from '../../auth/bindings';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { reproducerView } from '../reproducers/view';
-import { connection, publicConnection } from './connection';
+import { publicConnection } from './connection';
+import { savedConnection } from './saved-connection';
 import { grantSpec, proposalInput } from './grant';
 import { GrantRefused, RECEIPT_LIMIT, STEP_RECEIPTS } from './provider';
 import { advance, workflowView } from './workflow';
@@ -45,7 +46,7 @@ routes.get('/', async c => {
  const project = c.req.param('project')!, issue = c.req.query('issue');
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
  const rows = (await s(c.env.DB, 'SELECT * FROM fix_workflows WHERE project=? AND issue=? ORDER BY proposed DESC,id DESC', project, issue).all<any>()).results;
- return c.json({ connection: publicConnection(connection(runtimeBindings(c.env))), workflows: await Promise.all(rows.map(row => view(c, row))) });
+ return c.json({ connection: { ...publicConnection(await savedConnection(runtimeBindings(c.env))), canManage: !['agent','reviewer'].includes(c.get('ownerSession').kind) && c.get('ownerSession').operator.role === 'owner' }, workflows: await Promise.all(rows.map(row => view(c, row))) });
 });
 
 routes.post('/', async c => {
@@ -86,7 +87,7 @@ routes.post('/:fix/approve', async c => {
  if (!updated.meta.changes) return c.json({ error: 'Revision conflict' }, 409);
  const approved = await current(c);
  const agentPrepared=await s(c.env.DB,"SELECT 1 FROM spool_agent_custody WHERE kind='fix' AND id=?",row.id).first();
- if (!agentPrepared && connection(runtimeBindings(c.env)).state === 'configured' && !approved.pull_number) {
+ if (!agentPrepared && (await savedConnection(runtimeBindings(c.env))).state === 'configured' && !approved.pull_number) {
   const time = Date.now(), [, leased] = await ownerWrites(c, [expiredLease(c, approved, time), takeLease(c, approved, time, false)]);
   if (!leased.meta.changes) return refusedLease(c, approved);
   const failed = await leasedStep(c, approved); if (failed) return failed;

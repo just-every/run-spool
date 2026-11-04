@@ -91,6 +91,8 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/reproducers\/(?<subject>[^/]+)\/runs$/,action:'reproducer.queue',kind:'reproducer'},
  {pattern:/^\/api\/sandbox\/runs\/(?<subject>[^/]+)$/,action:'reproducer.read',kind:'run'},
  {pattern:/^\/api\/sandbox\/runs\/(?<subject>[^/]+)\/observation$/,action:'reproducer.finish',kind:'run'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/github-connection$/,methods:['PUT'],action:'fix.connection',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/github-connection\/test$/,methods:['POST'],action:'fix.connection_test',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/fixes$/,methods:['POST'],action:'fix.propose',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/fixes\/(?<subject>[^/]+)\/approve$/,action:'fix.approve',kind:'workflow'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/fixes\/(?<subject>[^/]+)\/advance$/,action:'fix.advance',kind:'workflow'},

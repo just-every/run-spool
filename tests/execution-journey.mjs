@@ -37,7 +37,17 @@ try{
  results.setupCaptures=await disconnectedGitHubSetup(app,browser,directory,reproduced.issue);
  assert.equal(github.requests.length,requestsBeforeSetup,'viewing disconnected setup never contacts GitHub');
  await browser.close();browser=null;
- // The owner configures the GitHub App connection and restarts.
+ // The owner saves and tests the connection through public APIs; no repository writes.
+ const setupPath=p+'/github-connection';
+ for(const headers of [{Cookie:''},{Origin:'https://foreign.example.test'}])assert.ok([401,403].includes((await app.request(setupPath,'PUT',JSON.parse(github.connection),headers)).status));
+ const connected=await app.json(setupPath,'PUT',JSON.parse(github.connection));
+ assert.equal(connected.state,'configured');assert.equal(Object.hasOwn(connected,'privateKey'),false);
+ const tested=await app.json(setupPath+'/test','POST',{repository:'just-every/run-spool',branch:'main'});
+ assert.equal(tested.tested,true);assert.equal(github.live(),0);assert.equal(github.state.pulls.length,0);assert.equal(github.state.refs.size,1,'connection test never creates a branch');
+ const privateArchive=await archiveProjection(await app.request('/api/archive'));
+ assert.equal(Object.hasOwn(privateArchive.data,'spool_github_connection'),false);assert.equal(privateArchive.text.includes(JSON.parse(github.connection).privateKey),false);
+ // A restart retains the saved connection.
+
  await app.stop();app=await executionRuntime(state,15476,{GITHUB_CONNECTION:github.connection});
  stage='expiry-start';const finishExpiry=await expiredGrant(app,github,reproduced);
  stage='connected';results.connected=await connectedWorkflow(app,github,reproduced,awaiting.id);

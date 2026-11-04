@@ -3054,7 +3054,7 @@
       "executable": false
     },
     "docs/REPRODUCE-AND-FIX.md": {
-      "sha256": "5d8a31b9e8be29a9321485b7a56febf98c2a3f78712c2073a3272fd69f7cd083",
+      "sha256": "b976aa0f1daa2934e308ad850d4bb4e392bf419f31e9b903dd3696e82a98380c",
       "executable": false
     },
     "docs/retained-verification/ai005/agent-handoff-1440.png": {
@@ -4314,7 +4314,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "8d4c63a78be859a693bf558dbe45f0fd466bf4e3ac6e779e1a93ca7984e1b860",
+      "sha256": "b744e84e50a98bf85354a41fa3b50e44028d24e921c8685fe6e39bed56590c28",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -5678,7 +5678,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "22d58e1156565941bc6560abcdb4092d29b0cc0a76655c73bf52df319b026c9c",
+      "sha256": "ad5406cf42be4d3dfa51d5987111e2a271873103138555b73d6ad944a32ba0da",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -5698,7 +5698,7 @@
       "executable": false
     },
     "src/domain/audit/classify.ts": {
-      "sha256": "a20d0c34cc70c88e6f23e7775b229c7df3c559b372d75d6ac0c3d6751be88e5d",
+      "sha256": "806f4ca49511c86a02dbeee9afb0693fc168b713eb7deb22f6da9cd6a492ac21",
       "executable": false
     },
     "src/domain/audit/context.ts": {
@@ -5734,7 +5734,7 @@
       "executable": false
     },
     "src/domain/audit/types.ts": {
-      "sha256": "a7ebb6b39ac6024675584349802e09021ff4e429e6a9f7196678c4a17cdd2554",
+      "sha256": "7b2dfabe92c040e90feac8b586f17b350bce88a5d5b96e1894a2f594005f3ae8",
       "executable": false
     },
     "src/domain/bundle-grouping.ts": {
@@ -5890,7 +5890,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "54cd3589fa49fadcb85f0749473f41afe7089b7b7bc24022c2df13d736ba1c9b",
+      "sha256": "162b1c60d572072b4c0d7a3d32e95e900aba5da11ccdeecb53afe502bcf0e5eb",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -6046,11 +6046,11 @@
       "executable": false
     },
     "src/domain/fixes/routes.ts": {
-      "sha256": "d275b3063882d9e78c88a9520bd65312f6b3710e08144da1223f77f8135de69a",
+      "sha256": "6e574cc8cd036a54339df3b71ab32d53a0329320a852204dee38c92558cdfe78",
       "executable": false
     },
     "src/domain/fixes/workflow.ts": {
-      "sha256": "f120fadb0f89bbc676296c26bd390d24c46419018729aa707a7745ec7af4ac85",
+      "sha256": "d5e88e861f09abc8f9d0797a0ff25e4c7861f91fc9d245d6ee886ca5d6275ce4",
       "executable": false
     },
     "src/domain/follow-up/actions.ts": {
@@ -10042,7 +10042,7 @@
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.tsx": {
-      "sha256": "738f9e775bfc93597a9114dd3018a8944a072a3ecdfbaeb5160ee8cf76f5c000",
+      "sha256": "828395cdce00c198c579f85d2fb358b270a4f247074465b67ad3ba1cdb84810c",
       "executable": false
     },
     "src/ui/workbench/feedback.css": {
@@ -10058,7 +10058,7 @@
       "executable": false
     },
     "src/ui/workbench/GitHubConnectionSetup.tsx": {
-      "sha256": "8d737e09761c25e59524f6221e19126d08891265a7fcf2a92feee94719a6222f",
+      "sha256": "ba0d9a4e2efe8e9120aab0d72c2909dda0676d9c39e3d239ea682b4b2196b0ed",
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
@@ -10654,7 +10654,7 @@
       "executable": false
     },
     "tests/execution-journey.mjs": {
-      "sha256": "442d7163b32105af29640c9069030251f6d47dcf14943fe31c8d868a7051c491",
+      "sha256": "892aac32ae62366c1b16017c4d8db1315a35c202480cd4ba8bbf5aae864e96ee",
       "executable": false
     },
     "tests/execution/exposure.mjs": {
@@ -10686,7 +10686,7 @@
       "executable": false
     },
     "tests/execution/ui.mjs": {
-      "sha256": "0a958dde418fd22853c4bc24cea8da5a2009e8c97bf84ae4aba0b67cd6488df0",
+      "sha256": "a72029994420a95b7b724c226ceaa95e8c675aaf27f89c08204f0384cea4fe2b",
       "executable": false
     },
     "tests/feedback-flow.mjs": {

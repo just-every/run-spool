@@ -15,13 +15,13 @@ export async function disconnectedGitHubSetup(app,browser,directory,issue){
    const page=await context.newPage();await page.goto(`${app.origin}/projects/shop/issues/${issue}`);
    const connection=page.getByRole('group',{name:'GitHub connection',exact:true});
    await connection.getByRole('status').filter({hasText:/not configured/i}).waitFor();
-   await connection.locator('.callout').filter({hasText:/setup.*unavailable/i}).waitFor();
-   await connection.getByText(/hosted.*cannot connect.*deployment.*optional.*secret/i).waitFor();
-   await connection.getByText(/local.*operator.*checkout.*private settings.*restart/i).waitFor();
+   await connection.getByRole('link',{name:/GitHub setup guide/i}).waitFor();
+   await connection.getByText(/Contents: Read and write/).waitFor();
+   await connection.getByRole('button',{name:'Test GitHub connection',exact:true}).waitFor();
    const path=`${directory}/github-disconnected-${width}.png`;await connection.screenshot({path});captures.push(path);
    await connection.getByRole('button',{name:/connection limits/i}).click();
    const dialog=page.getByRole('dialog',{name:/GitHub connection limits/i});
-   await dialog.getByRole('link',{name:/operator procedure/i}).waitFor();
+   await dialog.getByText(/GITHUB_CONNECTION/).waitFor();
    await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`disconnected GitHub setup fits at ${width}`);
   }finally{await context.close();}
