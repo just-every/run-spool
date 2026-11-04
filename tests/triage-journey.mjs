@@ -69,6 +69,9 @@ try {
  await capture('map-upload',width);
  await page.getByRole('button',{name:'Return to issue',exact:true}).click();await page.locator('.mapped-frame').first().waitFor();
  const packet=await api('/api/projects/cedar/issues/'+admitted.issue+'/packet');assert.equal(packet.events[0].currentLookup[0].original.line,application.originalLine);const coordinate=packet.events[0].currentLookup[0].original;
+ const [packetDownload]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download evidence',exact:true}).click()]);
+ assert.equal(packetDownload.suggestedFilename(),packet.issue.short_id+'-packet.json');
+ const downloadedPacket=JSON.parse(await readFile(await packetDownload.path(),'utf8'));assert.equal(downloadedPacket.issue.id,packet.issue.id);assert.equal(downloadedPacket.issue.short_id,packet.issue.short_id);
  assert.equal(await page.locator('.frame-coordinate').first().innerText(),`${coordinate.file}:${coordinate.line}:${coordinate.column}`);
  assert.equal(await page.locator('.missing-map').count(),0);checked('Contextual map upload yields actual original path, line and column as first stack fact');
  {await capture('mapped-issue',width);const audit=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(audit.violations.map(item=>item.id),[]);}

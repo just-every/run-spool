@@ -10046,7 +10046,7 @@
       "executable": false
     },
     "src/ui/workbench/EvidenceRail.tsx": {
-      "sha256": "e8e8c68ebea69175770a99662a23767db178a4eb8d73fe5b7a13a1b3aaa0d440",
+      "sha256": "1d704294ac0064a0f219794e76a497bf9387737ec9dc97c5cbaeebd7ae2957c6",
       "executable": false
     },
     "src/ui/workbench/ExecutionPanel.css": {
@@ -10114,7 +10114,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "16e2c3e225bba60629fa767fba201e8bc6e012e095eceae2660f8ad8094f464d",
+      "sha256": "81304c3af1b3151155bfa0adc87b9864bb6c698db4882552345503f6ffdf7226",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10167,6 +10167,10 @@
     },
     "src/ui/workbench/projectIdentifier.ts": {
       "sha256": "0851be6cc51d522d471df203269fe675673d53719d14befec2fcd8cdb4e7c8f2",
+      "executable": false
+    },
+    "src/ui/workbench/ProjectKeys.tsx": {
+      "sha256": "7b8e7194be6cde65c7a4139648308634ba5e74dda1c90a6242468504d9b22cd3",
       "executable": false
     },
     "src/ui/workbench/README.md": {
@@ -11374,7 +11378,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "aed0e8c0127b841948af57714c88bcbecf2d1bfdbb06d15768e106c65358f8b6",
+      "sha256": "135db101c31cee377d3f9cdc96cf417f599a28e2ac5b838bab0d21c74f03fdaa",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {
