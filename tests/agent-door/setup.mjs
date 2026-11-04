@@ -37,6 +37,15 @@ export async function nativeSetup(){
   const initial=await json('/agents/api/policy');
   assert.deepEqual(initial,{document:null,revision:null,complete:false});
   const state=await json('/agents/api/state');assert.equal(state.paired,false);
+  // A valid native agent credential cannot answer the standalone person's questions.
+  const complete={schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'all',class:'*',do:'autonomous'}],spend:{none:true}};
+  for(const suppliedCookie of ['',cookie]){
+   const refused=await app.call('/agents/api/policy',{document:complete},{Cookie:suppliedCookie,Authorization:'Bearer '+grant.key},'PUT');
+   assert.equal(refused.status,403);assert.equal((await refused.json()).code,'person_session_required');
+   assert.deepEqual(await json('/agents/api/policy'),initial);assert.deepEqual(await json('/api/projects/'+project+'/issues'),before);
+  }
+  console.log('PROBE BASE-AGENT-008 acceptance-2-policy: native policy PUT with real project agent key, with and without owner cookie -> 403 and unchanged policy and native records; subsequent owner UI save succeeds');
+
   const first=await call();assert.equal(first.result.isError,true);assert.equal(error(first)?.code,'policy_unset');
   const setup=new URL(error(first).setup_url);
   assert.equal(setup.href,app.origin+'/agents','The first scoped call links to this installation native setup');

@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {accessToken,autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
 /** Real agent credentials never stand in for a signed-in person's decision. */
-export async function personActionsContract(app){
+export async function personActionsContract(app,screens){
  const done=answer=>{assert.ok(answer&&!answer.isError,answer?._meta?.['com.runeditrun/error']?.code??'Missing result');return answer.structuredContent;};
  const project='synthetic-spool-person-actions';
  const created=await app.json('/api/projects','POST',{id:project,name:'Person action qualification'});
@@ -29,7 +29,8 @@ export async function personActionsContract(app){
   const proposed=await app.call('spool.proposals.create',{project,kind:'split',source:issue.id,revision:issue.revision,events:[packet.events[0].id],variants:[{stack:JSON.stringify(packet.events[0].event.frames),release:'1.0.0',route:''}],rationale:'Keep the person decision separate from agent preparation.',window:{start:packet.events[0].received,end:packet.events[0].received+1},idempotency_key:randomUUID()});
   const proposal=done(proposed),review=proposed._meta?.['com.runeditrun/review'];assert.ok(review?.id);
   const nextState=issue.state==='suppressed'?'open':'suppressed';
-  const prepared=await app.call('spool.issues.update',{project,issue:issue.id,state:nextState,revision:issue.revision,idempotency_key:randomUUID()});
+  const action={project,issue:issue.id,state:nextState,revision:issue.revision,idempotency_key:randomUUID()};
+  const prepared=await app.call('spool.issues.update',action);
   const pending=prepared._meta?.['com.runeditrun/approval']??prepared._meta?.['com.runeditrun/error']?.approval;assert.ok(pending?.id);
   const approval=(await app.json('/agents/api/approvals/'+pending.id)).approval;
   assert.equal(approval.state,'pending');assert.deepEqual(approval.approvals,[]);
@@ -51,15 +52,32 @@ export async function personActionsContract(app){
     for(const [path,body] of [
      ['/agents/api/approvals/'+pending.id+'/approve',{revision:approval.revision,summary_sha256:approval.summary_sha256}],
      ['/agents/api/reviews/'+review.id+'/reviewed',{}],
+     ['/agents/api/policy',{document:autonomousPolicy()}],
     ]){
-     const response=await app.request(path,'POST',body,{Cookie:cookie,Authorization:'Bearer '+token});
+     const response=await app.request(path,path==='/agents/api/policy'?'PUT':'POST',body,{Cookie:cookie,Authorization:'Bearer '+token});
      assert.equal(response.status,403,policyName+' '+kind+' '+session+' person action is forbidden');
      assert.equal((await response.json()).code,'person_session_required');
      assert.deepEqual(await snapshot(),before,'Refusal preserves approval marks, reviews, policy and every native record');
     }
    }
   }
-  console.log('PROBE BASE-AGENT-008 acceptance-2 '+policyName+': valid Business and exact-project tokens POST real approval and review IDs, with and without person session -> 403 person_session_required; all persisted state unchanged');
+  console.log('PROBE BASE-AGENT-008 acceptance-2 '+policyName+': valid Business and exact-project tokens POST real approval and review IDs and policy answers, with and without person session -> 403 person_session_required; all persisted state unchanged');
+  const clean=await app.call('spool.issues.list',{project});
+  const flags={confirmed:true,person_confirmed:true,approved:true,confirmation:'accept'};
+  const flagged=await app.call('spool.issues.list',{project,...flags});
+  assert.deepEqual(done(flagged),done(clean),'Person confirmation arguments change no native read');
+  assert.deepEqual(flagged._meta['com.runeditrun/decision'].classes,clean._meta['com.runeditrun/decision'].classes,'Confirmation flags change neither classes nor policy decisions');
+  const unconfirmed=await app.call('spool.issues.update',action);
+  const nativeBefore=await app.json('/api/projects/'+project+'/issues');
+  const accepted=await app.mcp('tools/call',{name:'spool.issues.update',arguments:{...action,...flags},requestState:prepared.requestState,inputResponses:{approval:{action:'accept',content:{confirmed:true}}},_meta:{'io.modelcontextprotocol/clientCapabilities':{elicitation:{form:{},url:{}}}}},{},'2026-07-28');
+  assert.equal(accepted.resultType,'input_required','Form acceptance does not complete a saved action under either current policy');
+  assert.equal(accepted._meta['com.runeditrun/approval'].id,pending.id);
+  assert.equal(accepted.inputRequests.approval.params.mode,'url','Only the real person URL is offered');
+  assert.deepEqual(accepted._meta['com.runeditrun/decision'].classes,unconfirmed._meta['com.runeditrun/decision'].classes);
+  const stillPending=(await app.json('/agents/api/approvals/'+pending.id)).approval;
+  assert.equal(stillPending.state,'pending');assert.deepEqual(stillPending.approvals,[]);
+  assert.deepEqual(await app.json('/api/projects/'+project+'/issues'),nativeBefore,'A form accept and injected confirmation flags execute no native write');
+  console.log('PROBE BASE-AGENT-008 acceptance-1-and-3 '+policyName+': MCP confirmation flags and form accept with the real pending request state -> identical classes and input_required, no approval mark or native effect');
   // Review marks are a person's own act under either current policy.
   const marked=await app.json('/agents/api/reviews/'+review.id+'/reviewed','POST',{});
   assert.equal(marked.review.state,'reviewed');assert.ok(marked.review.marked_by);assert.ok(marked.review.marked_at);
@@ -78,6 +96,18 @@ export async function personActionsContract(app){
   const changed=(await app.json('/api/projects/'+project+'/issues')).find(row=>row.id===issue.id);
   assert.equal(changed.state,nextState);assert.equal(changed.revision,issue.revision+1);
   console.log('PROBE BASE-AGENT-008 person-controls '+policyName+': signed-in person marks reviewed under current policy and approves under matching saved policy -> person attribution persists and native issue changes exactly once');
+  const auditRows=[];let after='0';
+  for(;;){const page=await app.json('/agents/api/audit?after='+after);auditRows.push(...page.rows);if(!page.rows.length)break;after=page.cursor;}
+  const approvalRows=auditRows.filter(row=>row.approval?.id===pending.id);
+  assert.ok(approvalRows.some(row=>row.outcome==='done'&&row.decision==='approval'),'The public activity contains the actual approved execution');
+  for(const row of approvalRows){assert.equal(row.label,'Agent door conformance for Dana Engineer');assert.equal(row.agent.id,app.context.agentId);assert.equal(row.sponsor.id,owner);assert.deepEqual(row.approval.by,[owner]);}
+  assert.equal(readBack.prepared_by.label,'Agent door conformance for Dana Engineer');
+  await screens?.capture('person-attribution-'+policyName,'/agents','Agent door conformance for Dana Engineer',async page=>{
+   const rendered=await page.locator('section[aria-labelledby="activity-title"] li .meta').allTextContents();
+   const recent=auditRows.slice(-20).reverse();assert.equal(rendered.length,recent.length,'Activity renders every returned recent act');
+   for(let index=0;index<recent.length;index++)assert.ok(rendered[index].includes(recent[index].agent.name+' for '+recent[index].sponsor.name),'Every recent act shows its agent and person');
+  });
+  console.log('PROBE BASE-AGENT-008 acceptance-5-and-6 '+policyName+': signed person approval -> durable named approver and separate agent preparer; populated activity at 1440 with 390 capture');
  }
  await app.adopt();
 }
