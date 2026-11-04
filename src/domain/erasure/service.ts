@@ -123,7 +123,9 @@ export async function continueErasures(db: D1Database, until: number, secret: st
      const answer=await invokeAgent(id,JSON.parse(saved.principal),`erasure:${id}:${progress?.phase}:${progress?.step}`);
      if(answer.outcome!=='done')break;
      receipt=answer.result;
-     if(receipt.phase==='complete')await db.prepare('DELETE FROM spool_erasure_agents WHERE operation=?').bind(id).run();
+     // Keep the count-only job receipt bound to its originating principal after
+     // completion, just as with explicit native continuation. Completed rows
+     // are absent from this sweep; owner erasure still removes their custody.
     }else receipt = entity === 'installation-owner' ? await stepOwnerErasure(db, id, until,secret) : await resumeProjectErasure(db, id,secret);
     if (receipt.phase === 'complete') break;
    } catch (error) {

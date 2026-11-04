@@ -5930,7 +5930,7 @@
       "executable": false
     },
     "src/domain/erasure/service.ts": {
-      "sha256": "b8cb2313da42036f94085f3e437a4be72895db6e8ca50d6ac1a93fe845859dbb",
+      "sha256": "4f6ff969a2cbeeed217249f007b890c7eb5fc7e37cdfad97f73a758577466735",
       "executable": false
     },
     "src/domain/execution-archive.ts": {
@@ -10398,7 +10398,7 @@
       "executable": false
     },
     "tests/agent-door/replay-contract.mjs": {
-      "sha256": "b82b5f80c81ced99d7659f7c3299ffae66c1b7f9bdcea8b60dc90606b435639b",
+      "sha256": "e522c225f749e0b077d8783989e645afeea445e0ab8a89247445a5e6a5795817",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
