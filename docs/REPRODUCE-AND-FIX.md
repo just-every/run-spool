@@ -11,7 +11,7 @@ A supported reproducer records exactly what will run: the event's type, message 
 **Queue sandbox run** returns a single-use token, valid for 15 minutes and for that run only, and prints the command to run in your Spool checkout:
 
 ```sh
-SPOOL_RUN_TOKEN=… rer run reproduce https://your-spool/api/sandbox/runs/<run>
+SPOOL_RUN_TOKEN=… ~/.local/bin/rer run reproduce https://your-spool/api/sandbox/runs/<run>
 ```
 
 The runner fetches the job once and starts one `workerd` process with an empty process environment and two services. The job service runs the map's modules with no bindings, no disk service and an outbound network service with an empty allow list. A separate harness service, which loads no job code, calls the export once through a service binding with the input parsed from JSON (never spliced into code), builds the observation in its own isolate from what comes back (the value, or the thrown error with the stack the engine attached), and alone writes it through a disk service the job cannot reach. Nothing the job prints or imports can author or suppress the observation, and the job-side entry calls the export with primordials captured before any job module loads, so patching iteration, `then` or `Reflect` does not turn a normal return into a throw. A job that hangs or crashes never answers, which is a failure, never a reproduction. The process is killed after 10 seconds. The runner reports only what the harness observed, plus the `workerd`, Node and runner versions, and refuses a job that asks for any other sandbox.

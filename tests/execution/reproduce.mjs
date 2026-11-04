@@ -1,11 +1,25 @@
 import assert from 'node:assert/strict';
-import {spawn} from 'node:child_process';
+import {spawn,execFileSync} from 'node:child_process';
+import {mkdtemp,mkdir,symlink,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {dirname,resolve} from 'node:path';
-// Runs the public runner command exactly as the UI prints it.
-export function runner(command){
- const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) rer run reproduce (\S+)$/.exec(command)??[];
+let runnerHome;
+async function installedRunner(){
+ if(!runnerHome){
+  runnerHome=await mkdtemp(resolve(tmpdir(),'spool-runner-'));
+  execFileSync(process.execPath,['node_modules/@runeditrun/rer/global/rer.mjs','cli','install'],{env:{...process.env,HOME:runnerHome,XDG_DATA_HOME:resolve(runnerHome,'.local/share')},stdio:'pipe'});
+  await mkdir(resolve(runnerHome,'.local/share/rer/node/bin'),{recursive:true});
+  await symlink(process.execPath,resolve(runnerHome,'.local/share/rer/node/bin/node'));
+ }
+ return runnerHome;
+}
+export async function closeRunner(){if(runnerHome)await rm(runnerHome,{recursive:true,force:true});runnerHome=undefined;}
+// Runs the public runner command with no Node, pnpm or rer on PATH.
+export async function runner(command){
+ const home=await installedRunner();
+ const [, token, url]=/^SPOOL_RUN_TOKEN=([a-f0-9]{64}) ~\/\.local\/bin\/rer run reproduce (\S+)$/.exec(command)??[];
  assert.ok(token&&url,'the queued run prints one runner command');
- return new Promise((accept,reject)=>{const child=spawn('/bin/sh',['-c',command],{env:{HOME:process.env.HOME,PATH:[resolve('node_modules/.bin'),dirname(process.execPath),'/usr/bin','/bin'].join(':'),SPOOL_RUN_TOKEN:token},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);child.once('error',reject);child.once('close',code=>accept({code,output,token,url}));});
+ return new Promise((accept,reject)=>{const child=spawn('/bin/sh',['-c',command],{env:{HOME:home,XDG_DATA_HOME:resolve(home,'.local/share'),PATH:'/usr/bin:/bin',SPOOL_RUN_TOKEN:token},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',d=>output+=d);child.stderr.on('data',d=>output+=d);child.once('error',reject);child.once('close',code=>accept({code,output,token,url}));});
 }
 const client=n=>'client-'+String(n).padStart(4,'0')+'-abcdefgh';
 export const event=(fixture,id,release,extra={})=>({version:1,eventId:id,release:release.name,build:release.build,environment:'production',type:fixture.type,message:fixture.message,frames:fixture.frames,breadcrumbs:[],...extra});

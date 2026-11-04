@@ -10,7 +10,7 @@ import {launchBrowser} from './browser-launch.mjs';
 import {executionRuntime} from './execution/runtime.mjs';
 import {githubDouble} from './execution/github-double.mjs';
 import {shopFixture} from './execution/fixture.mjs';
-import {reproduceProof,runner} from './execution/reproduce.mjs';
+import {reproduceProof,runner,closeRunner} from './execution/reproduce.mjs';
 import {awaitingConnection,connectedWorkflow,deployedWorkflow,expiredGrant} from './execution/fix.mjs';
 import {baseline,exposureVerdicts} from './execution/exposure.mjs';
 import {disconnectedGitHubSetup,executionPanel,restoredExecutionPanel} from './execution/ui.mjs';
@@ -116,7 +116,7 @@ try{
  console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; module loading ${Object.entries(results.loadFailures).map(([name,run])=>`${name} ${run.state} ${run.outcome} ${run.phase}`).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
 }catch(error){console.error(JSON.stringify({journey:'execution',stage,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}
 finally{
- const outcomes=await Promise.allSettled([browser?.close(),app?.stop(),restored?.stop(),github?.stop()]);
+ const outcomes=await Promise.allSettled([closeRunner(),browser?.close(),app?.stop(),restored?.stop(),github?.stop()]);
  await rm(state,{recursive:true,force:true});await rm(restoredState,{recursive:true,force:true});
  if(outcomes.some(result=>result.status==='rejected')){console.error('Execution journey cleanup failed');process.exitCode=1;}
 }

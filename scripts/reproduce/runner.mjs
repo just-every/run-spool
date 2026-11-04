@@ -1,11 +1,11 @@
-// rer run reproduce <run url>: fetch one queued reproducer run with its single-use
+// ~/.local/bin/rer run reproduce <run url>: fetch one queued reproducer run with its single-use
 // token (SPOOL_RUN_TOKEN), execute it in the isolated sandbox and report what
 // the sandbox observed. Spool, not this runner, decides whether it reproduced.
 import { runSandbox, sandboxVersion } from './sandbox.mjs';
 
 const [url] = process.argv.slice(2), secret = process.env.SPOOL_RUN_TOKEN;
 if (!url || !/^https?:\/\/[^/]+\/api\/sandbox\/runs\/[0-9a-f-]{36}$/.test(url) || !secret) {
- console.error('Usage: SPOOL_RUN_TOKEN=<token> rer run reproduce <run url>');
+ console.error('Usage: SPOOL_RUN_TOKEN=<token> ~/.local/bin/rer run reproduce <run url>');
  process.exit(2);
 }
 const headers = { Authorization: `Bearer ${secret}` };

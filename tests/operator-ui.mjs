@@ -150,7 +150,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  const mergeDialog=page.getByRole('dialog',{name:'Merge '+offered.source.short_id+' into '+offered.target.short_id,exact:true});
  await mergeDialog.getByRole('heading',{name:'Review exact moves',exact:true}).waitFor();await capture('grouping-rule-merge-offer');
  await mergeDialog.getByRole('button',{name:'Apply reviewed correction',exact:true}).click();
- await page.waitForFunction(()=>!document.querySelector('.rule-merge-suggestions'));
+ await mergeDialog.waitFor({state:'hidden'});
  assert.equal((await api(root+'/issues/'+newGroup.issue+'/packet')).issue.count,offered.source.count+offered.target.count);
  assert.equal((await api(root+'/issues')).some(row=>row.id===issue),false,'Only the surviving group remains in the issue list');
  // Preserve the existing rollback proof by undoing the reviewed correction first.
