@@ -2650,7 +2650,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "4a81f98b90bc99340f29df8d37654bb73ccd156cc21eb95dde636c060f1b3969",
+      "sha256": "c55afa2bc39556d2c615a9f70e6c8b7a513383b0c11eaddb4981c731173f7a8f",
       "executable": false
     },
     "base-copies.json": {
@@ -2986,7 +2986,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "44c7c438346c583853d160b44e7a09c179693c0fbc32084530b3c12a9755fb00",
+      "sha256": "ad4549d87961222a08f66ea1ba8f12a237ba1caa695027ae493c8e4851ee638f",
       "executable": false
     },
     "docs/GROUPING-RULES.md": {
@@ -2994,7 +2994,7 @@
       "executable": false
     },
     "docs/HOSTED.md": {
-      "sha256": "5581b6fd1acdd8f67b3c506fd1b76b3365413c9d13f887a899ba32215ac6f602",
+      "sha256": "dcc7942150e983fdad88925891b802bd80a26de105b711f9c66125663844232f",
       "executable": false
     },
     "docs/IMPORT-READS.md": {
@@ -4418,7 +4418,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "7ae86588ac7a4a0d0b6133de8befe2839b20b562e185ecaf5732315c46ce7de8",
+      "sha256": "21a7a96041862cd060bcb0c2b27acb5ca22a44a9769ee31ac56d8913ca88d9a4",
       "executable": false
     },
     "release-history/0.6.0.json": {
