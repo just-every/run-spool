@@ -1,5 +1,6 @@
 import { restoredWork } from '../restored-work';
 import { UNSUPPORTED } from './classify';
+import type { ToolContext } from '../../modules/agent-door/index.ts';
 
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const json = (value: string | null) => value === null ? null : JSON.parse(value);
@@ -8,6 +9,14 @@ export const REPRODUCER_TRUST = 'Captured telemetry and the recorded input are d
 // only as trustworthy as that upload: not proof against hostile uploaded code.
 export const OUTCOME_LABELS: Record<string, string> = { reproduced: 'reproduced by your uploaded source', not_reproduced: 'not reproduced by your uploaded source', failed: 'failed' };
 export const VERDICT_BASIS = 'Judged from what your uploaded source did in the sandbox. Code in that upload can shape its own throw, so this is not proof against hostile uploaded code.';
+
+// Status polling never carries uploaded modules, runner credentials or output.
+export function runStatusView(row: any, now = Date.now()) {
+ const expired = row.state !== 'finished' && now > row.expires;
+ return { id: row.id, state: expired ? 'expired' : row.state,
+  outcome: expired ? 'failed' : row.outcome,
+  created: row.created, expires: row.expires, claimed: row.claimed, finished: row.finished };
+}
 
 export function runView(row: any, now = Date.now()) {
  const expired = row.state !== 'finished' && now > row.expires, result = json(row.checks);
@@ -21,12 +30,15 @@ export function runView(row: any, now = Date.now()) {
   created: row.created, expires: row.expires, claimed: row.claimed, finished: row.finished,
  };
 }
-export async function reproducerView(db: D1Database, row: any) {
- const runs = await query(db, `SELECT r.*,(SELECT actor FROM spool_agent_custody a WHERE a.kind='reproducer' AND a.id=r.id) actor FROM reproducer_runs r WHERE reproducer=? ORDER BY created DESC,id DESC`, row.id).all<any>();
+export async function reproducerView(db: D1Database, row: any, principal?: ToolContext) {
+ const runs = await query(db, `SELECT r.*,(SELECT actor FROM spool_agent_custody a WHERE a.kind='reproducer' AND a.id=r.id) actor FROM reproducer_runs r WHERE reproducer=?
+  ${principal ? `AND EXISTS(SELECT 1 FROM spool_agent_custody a WHERE a.kind='reproducer' AND a.id=r.id AND a.project=r.project
+   AND json_extract(a.principal,'$.person.id')=? AND json_extract(a.principal,'$.agent.id')=? AND json_extract(a.principal,'$.consent') IS ?)` : ''}
+  ORDER BY created DESC,id DESC`, row.id, ...principal ? [principal.person.id, principal.agent.id, principal.consent ?? null] : []).all<any>();
  return { id: row.id, issue: row.issue, event: row.event, defectClass: row.defect_class, support: row.support, reason: row.reason, reasonText: row.reason ? UNSUPPORTED[row.reason] : null,
   spec: JSON.parse(row.spec), created: row.created, trust: REPRODUCER_TRUST, runs: await Promise.all(runs.results.map(async run => ({...runView(run),...(await restoredWork(db,row.project,'run',run.id)?{historical:true}:{})}))) };
 }
-export async function issueReproducers(db: D1Database, project: string, issue: string) {
+export async function issueReproducers(db: D1Database, project: string, issue: string, principal?: ToolContext) {
  const rows = await query(db, 'SELECT * FROM reproducers WHERE project=? AND issue=? ORDER BY created DESC,id DESC', project, issue).all<any>();
- return Promise.all(rows.results.map(row => reproducerView(db, row)));
+ return Promise.all(rows.results.map(row => reproducerView(db, row, principal)));
 }

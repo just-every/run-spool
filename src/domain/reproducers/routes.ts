@@ -1,9 +1,10 @@
 import { agentAuthority } from '../agent-door/native-authority';
+import type { ToolContext } from '../../modules/agent-door/index.ts';
 import { hash, identity, token } from '../privacy';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { classify } from './classify';
 import { mapModules, recorded, RUN_TOKEN_MS } from './sandbox';
-import { issueReproducers, reproducerView } from './view';
+import { issueReproducers, reproducerView, runStatusView } from './view';
 
 // Owner routes: record a reproducer for a captured event and issue single-use
 // run tokens. Nothing here executes code; runs happen in the runner sandbox.
@@ -12,11 +13,26 @@ const s = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(
 const audit = (db: D1Database, project: string, kind: string, detail: object, time: number) =>
  s(db, 'INSERT INTO audit SELECT ?,?,?,?,? WHERE changes()=1', crypto.randomUUID(), project, kind, JSON.stringify(detail), time);
 const budget = (error: unknown, c: any) => /reproducer(_run)?_budget/.test(String((error as Error).message)) ? c.json({ error: String((error as Error).message).includes('run') ? 'A reproducer holds at most 20 runs' : 'An issue holds at most 20 reproducers' }, 409) : null;
+const ownsRun = (principal: string | undefined, current: ToolContext) => {
+ const saved = principal ? JSON.parse(principal) : null;
+ return !!saved && saved.person?.id === current.person.id && saved.agent?.id === current.agent.id && saved.consent === current.consent;
+};
 
 routes.get('/', async c => {
  const issue = c.req.query('issue'), project = c.req.param('project')!;
+ const run = c.req.query('run');
+ if (run !== undefined) {
+  const row = await s(c.env.DB, `SELECT r.id,r.state,r.outcome,r.created,r.expires,r.claimed,r.finished,a.principal
+   FROM reproducer_runs r JOIN reproducers p ON p.id=r.reproducer AND p.project=r.project
+   LEFT JOIN spool_agent_custody a ON a.kind='reproducer' AND a.id=r.id AND a.project=r.project
+   WHERE r.project=? AND p.issue=? AND r.id=?`, project, issue ?? '', run).first<any>();
+  const actor = agentAuthority(c.req.raw);
+  if (!row) return c.json({ error: 'Run not found' }, 404);
+  if (actor && !ownsRun(row.principal, actor.context)) return c.json({ error: 'Run not found' }, 404);
+  return c.json({ run: runStatusView(row) });
+ }
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
- return c.json({ reproducers: await issueReproducers(c.env.DB, project, issue) });
+ return c.json({ reproducers: await issueReproducers(c.env.DB, project, issue, agentAuthority(c.req.raw)?.context) });
 });
 
 routes.post('/', async c => {
@@ -67,7 +83,7 @@ routes.post('/:reproducer/claim', async c=>{
  const row=await s(c.env.DB,'SELECT reproducer,state,expires FROM reproducer_runs WHERE project=? AND id=?',project,id).first<any>();
  if(!row)return c.json({error:'Run not found'},404);
  const actor=agentAuthority(c.req.raw),saved=await s(c.env.DB,"SELECT principal FROM spool_agent_custody WHERE kind='reproducer' AND id=?",id).first<any>();
- if(actor&&saved){const principal=JSON.parse(saved.principal);if(principal.person.id!==actor.context.person.id||principal.agent.id!==actor.context.agent.id||principal.consent!==actor.context.consent)return c.json({error:'Run not found'},404);}
+ if(actor&&!ownsRun(saved?.principal,actor.context))return c.json({error:'Run not found'},404);
  if(row.state!=='queued'||row.expires<=Date.now())return c.json({error:'Run already claimed or expired'},409);
  const [result]=await ownerWrites(c,[s(c.env.DB,"UPDATE reproducer_runs SET state='claimed',claimed=? WHERE project=? AND id=? AND state='queued' AND expires>?",Date.now(),project,id,Date.now()),audit(c.env.DB,project,'reproducer_run_queued',{reproducer:row.reproducer,run:id},Date.now())]);
  if(!result.meta.changes)return c.json({error:'Run already claimed'},409);
