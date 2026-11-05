@@ -10353,6 +10353,10 @@
       "sha256": "c2a9f887b81a4f345c7256b536643de313a7f9f20b252e3d05904af838bd8a88",
       "executable": false
     },
+    "tests/agent-door/classification-audit-contract.mjs": {
+      "sha256": "3b64239e21091c90ae70daccfe30d0c9f6130b01af1fb226716aabaf18289289",
+      "executable": false
+    },
     "tests/agent-door/continuation.mjs": {
       "sha256": "90a0b2f437a9f31749db14f9871797c794322507cde396e08a84a790df2d47cb",
       "executable": false

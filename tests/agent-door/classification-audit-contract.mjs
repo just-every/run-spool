@@ -17,7 +17,7 @@ export async function classificationAuditContract(app,{project,issue}){
   }
  };
  const snapshot=async()=>{
-  const result={issueList:await app.json(`/api/projects/${project}/issues`)};
+  const result={issueList:await app.json(`/api/projects/${project}/issues`),policy:await app.json('/agents/api/state')};
   for(const table of ['events','event_grouping','issues','issue_resolutions','alerts','alert_intents','alert_mail_jobs','alert_history','outcomes','spool_agent_operations','spool_agent_custody']){
    result[table]=(await app.DB.prepare(`SELECT * FROM ${table} WHERE project=? ORDER BY rowid`).bind(project).all()).results;
   }
@@ -35,6 +35,8 @@ export async function classificationAuditContract(app,{project,issue}){
   policy.rules.push({id:rule,class:'live',do:'blocked'});
   const revision=app.context.revision+1;
   await app.adopt(policy,{revision});
+  const nativePolicy=(await app.json('/agents/api/state')).policy;
+  assert.deepEqual({source:nativePolicy.source,revision:nativePolicy.revision,complete:nativePolicy.complete},{source:'business',revision,complete:true},'The native state door independently confirms the current Business policy revision');
   const current=(await app.json(`/api/projects/${project}/issues`)).find(row=>row.id===issue);
   assert.ok(current&&current.count>0,'Suppression refusal targets a populated native issue');
   assert.equal(current.state,'open','The fixture has not already suppressed the issue');
