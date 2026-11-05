@@ -67,6 +67,9 @@ export async function queryTokenContract(){
     }
     console.log(`PROBE BASE-AGENT-004 acceptance-5-${phase}-${authorized?'query-and-header':'query-only'}: emitted Worker MCP read and write with a valid query token -> resource-metadata 401; retained state unchanged, no pending action or credential echo`);
    }
+   await app.restart();
+   const restarted=await snapshot();noCredential(restarted,'Restarted native custody and audit');
+   assert.ok(isDeepStrictEqual(restarted,before),'Refused query presentations leave no durable changes after Worker restart');
    await read();
    assert.ok(isDeepStrictEqual(await app.json(`/api/projects/${project}/issues`),issues),'The positive control and refused writes preserve native issue state');
    noCredential(await snapshot(),'Final native custody and audit');

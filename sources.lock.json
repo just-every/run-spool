@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "aa7b5287d62ef5f85e8c046a8546d42cb2f4381146015d183fa299482500bf4b",
+      "sha256": "45247c616532c776ffabd688e4619b2f42d24bcfa6c5adc044610562581fbba1",
       "executable": false
     },
     "DEMO.md": {
@@ -10402,7 +10402,7 @@
       "executable": false
     },
     "tests/agent-door/query-token-contract.mjs": {
-      "sha256": "6631925141aa686678f6b986ec86726e4866a0e1e3e72a1b406d728644e4d18b",
+      "sha256": "f8be1ea57512e4154bbd305db0a32ff82af83b062372987f7f76418c9c25a45d",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
