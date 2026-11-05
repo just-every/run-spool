@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "3219099c6f7ee3609b5a28ec0af133863f9aeeedda33aa7a23d18ee225440f9b",
       "executable": false
     },
     "tests/agent-door/audit-retirement-contract.mjs": {
