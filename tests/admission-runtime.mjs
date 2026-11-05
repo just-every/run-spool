@@ -20,7 +20,7 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge, captureDiagnostics} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
@@ -35,6 +35,7 @@ export async function admissionRuntime(extra = {}, {port, deferClaimMigration = 
  if(hostedMail){
   const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
+${captureDiagnostics ? "console.info('Synthetic Worker diagnostic capture ready');" : ''}
 export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
   hostedSource=await readFile(entry,'utf8');
   emitted.modules.unshift({type:'ESModule',path:entry});
@@ -51,6 +52,9 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
   // Use the same emitted graph and Worker-first asset ownership as deployment.
   const options = convertV4MiniflareOptions({
    ...emitted, log: new Log(LogLevel.ERROR),
+   // Workerd console output stays in memory when a journey inspects it. This
+   // does not observe a hosting provider's independent ingress access logs.
+   ...(captureDiagnostics ? {handleStructuredLogs: captureDiagnostics} : {}),
    bindings: {...emitted.bindings, ...authBindings(origin), ...extra, ...mailBindings},
    resourcePersistencePath: resolve(temporary, 'state'), host: '127.0.0.1', port, https,
    unsafeTriggerHandlers: triggers.length > 0,

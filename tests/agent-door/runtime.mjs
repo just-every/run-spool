@@ -6,12 +6,12 @@ import {testOwner} from '../auth.mjs';
 import {catalogue} from '../../src/domain/agent-door/catalogue.mjs';
 import {signJws,accessToken,policyEnvelope,autonomousPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-export async function agentRuntime(port=15916,bindings={},network,{deferAgentUpgrade=false}={}){
+export async function agentRuntime(port=15916,bindings={},network,{deferAgentUpgrade=false,captureDiagnostics}={}){
  const origin='https://spool.example',issuer='https://spool-agent-fixture.invalid',installationId=randomUUID(),kid=randomUUID(),sub=randomUUID();
  const pair=await webcrypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
  const {kty,crv,x,y}=await webcrypto.subtle.exportKey('jwk',pair.publicKey),keys={[kid]:{kty,crv,x,y,alg:'ES256',use:'sig'}};
  console.log('Native agent fixture: starting emitted Worker');
- const app=await admissionRuntime({...bindings,RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:origin,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify(keys),RER_BUSINESS_TRUST:JSON.stringify({v:1,issuer,audience:origin,subject:installationId,email:testOwner,keys})},{port,hostedMail:true,networkEdge:network,deferAgentUpgrade});
+ const app=await admissionRuntime({...bindings,RER_OWNER_CLAIM_ISSUER:issuer,RER_OWNER_CLAIM_INSTALLATION_ID:installationId,RER_OWNER_CLAIM_APP_ORIGIN:origin,RER_OWNER_CLAIM_PUBLIC_KEYS:JSON.stringify(keys),RER_BUSINESS_TRUST:JSON.stringify({v:1,issuer,audience:origin,subject:installationId,email:testOwner,keys})},{port,hostedMail:true,networkEdge:network,deferAgentUpgrade,captureDiagnostics});
  const mail=async()=>(await legacyMailRows(app.origin)).map(row=>JSON.parse(row.message));
  const now=Math.floor(Date.now()/1000);
  const claim=await signJws(pair.privateKey,kid,'rer-owner-claim+jwt',{v:1,iss:issuer,aud:origin,installationId,email:testOwner,jti:randomUUID(),iat:now,exp:now+300});
