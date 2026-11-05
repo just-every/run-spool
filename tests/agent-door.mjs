@@ -7,6 +7,7 @@ import {githubDouble} from './execution/github-double.mjs';
 import {specialistFlow} from './agent-door/specialist.mjs';
 import {continuationFlow} from './agent-door/continuation.mjs';
 import {peopleFlow} from './agent-door/people.mjs';
+import {sponsorRoleContract} from './agent-door/sponsor-role-contract.mjs';
 import {agentScreens} from './agent-door/screens.mjs';
 import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {ownerCustody} from './agent-door/owner-custody.mjs';
@@ -20,6 +21,7 @@ import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance
 
 await nativeSetup();
 await pauseContract();
+await sponsorRoleContract();
 const github=await githubDouble();
 const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github.com'};
 const app=await agentRuntime(15916,{GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));

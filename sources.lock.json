@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "fd7ccd975131dc29639823924f0e627f274d87fc3e81ac6f3d2e87a02b1e0b07",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10431,6 +10431,10 @@
     },
     "tests/agent-door/specialist.mjs": {
       "sha256": "4d057ae9bad5971e881758bf7d9e52c8ee2a017c5fc1462dfa1cd2ebb3da300e",
+      "executable": false
+    },
+    "tests/agent-door/sponsor-role-contract.mjs": {
+      "sha256": "ed3bd86d8feb57f844aa0065d605517d8dfde605a070e4627bf98968931c8f59",
       "executable": false
     },
     "tests/agent-door/worker.mjs": {
