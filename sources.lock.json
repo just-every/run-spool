@@ -10398,7 +10398,7 @@
       "executable": false
     },
     "tests/agent-door/policy-integrity-contract.mjs": {
-      "sha256": "56d731c8584479fc8ebac3e14390ee529ab07367622f518d5d4f7abf73a1bdfc",
+      "sha256": "dc71baf732634965ab29d62ae43535886e9e9e0f91c7fcd93b1c84712e83c760",
       "executable": false
     },
     "tests/agent-door/proof.mjs": {

@@ -95,3 +95,6 @@ export async function policyIntegrityContract(){
   }finally{await app.stop();}
  }
 }
+
+// Keep this emitted-Worker proof runnable on its own as well as in the shared journey.
+if(process.argv[1]===import.meta.filename)await policyIntegrityContract();
