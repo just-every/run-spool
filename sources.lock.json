@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "041dd0b5ed36865e15c0973c8a2a19b557a0bbc4c71c5d691d27b2383d6eaf37",
+      "sha256": "571b2be85c367d8d361b3ac6c1340fcc34826b7669c3848e56b4cb9cb448d6de",
       "executable": false
     },
     "DEMO.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "a3f269661be12a0c6f42ef17200ae78c504029bc58803cf2d654656dcd6bfc1e",
       "executable": false
     },
     "docs/agents.md": {
@@ -6518,7 +6518,7 @@
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
-      "sha256": "48ef3abae8db3743029e800b321be7680f72264610ba1b345535053f84e90035",
+      "sha256": "1c88cf9a7d5cf22f24cf16633219dc7905a692008218799a07502ae9061ee163",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
@@ -10366,7 +10366,7 @@
       "executable": false
     },
     "tests/agent-door/job-status-contract.mjs": {
-      "sha256": "b7f965e0fe148772ed8aacbe994a5bdff34c1a009a8854aa2e9937a0b336d6ab",
+      "sha256": "c429fa59a5209f61ee9d30c11948cad0062ac155f972f2300b40508615740768",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {

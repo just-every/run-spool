@@ -88,6 +88,10 @@ export async function jobStatusContract(){
    await status(runs[0].run,sponsors[0],'claimed');await status(runs[1].run,sponsors[1],'queued');
    const personRun=await app.json(path+'/reproducers/'+recipe.id+'/runs','POST',{}, {Cookie:sponsors[0].cookie});
    refusal(await read(personRun.run,sponsors[0]));
+   const personBefore=await snapshot();
+   const personClaim=await app.call('spool.reproducers.claim',{project,id:personRun.run,idempotency_key:randomUUID()},claims(sponsors[0]));
+   assert.equal(personClaim._meta['com.runeditrun/error'].code,'not_found','An agent cannot acquire a native person’s run without saved agent custody');
+   assert.deepEqual(await snapshot(),personBefore,'Absent agent custody refuses claim without changing the run or its single-use token');
    const personHistory=await app.json(path+'/reproducers?issue='+issue,'GET',undefined,{Cookie:sponsors[1].cookie});
    assert.deepEqual(personHistory,await nativeHistory(),'Current native people retain complete shared issue history');
    assert.equal(personHistory.reproducers[0].runs.length,3);assert.ok(personHistory.reproducers[0].runs.every(row=>row.modules.length>0));
