@@ -10402,7 +10402,7 @@
       "executable": false
     },
     "tests/agent-door/protocol-contract.mjs": {
-      "sha256": "abd4bca4257da61019c56d12632f5b446919efa8964459dfbb72dcbc798f833f",
+      "sha256": "5459d89c28cd4d984e22208901fd71ce3ed89ad93bce4fe096246e6061897e7e",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {

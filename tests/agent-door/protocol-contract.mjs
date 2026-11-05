@@ -17,12 +17,14 @@ export async function protocolContract(){
    let id=0;
    const modern='2026-07-28',legacy='2025-11-25';
    const rpc=async(method,{version=modern,params={},headers={},stream=false}={})=>{
-    const body=JSON.stringify({jsonrpc:'2.0',id:++id,method,params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}});
+    // Legacy initialize negotiates in its body; later calls need no modern metadata.
+    const legacyClient=version===legacy;
+    const body=JSON.stringify({jsonrpc:'2.0',id:++id,method,params:legacyClient?params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}});
     const bytes=new TextEncoder().encode(body);let offset=0;
     const response=await fetch(app.origin+'/mcp',{method:'POST',headers:{
      Authorization:'Bearer '+await accessToken(app.context),Origin:app.canonicalOrigin,
      Accept:'application/json, text/event-stream','Content-Type':'application/json',
-     'MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{},...headers,
+     ...legacyClient?method==='initialize'?{}:{'MCP-Protocol-Version':version}:{'MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{}},...headers,
     },body:stream?new ReadableStream({pull(controller){
      if(offset===bytes.length){controller.close();return;}
      const end=Math.min(offset+16384,bytes.length);controller.enqueue(bytes.subarray(offset,end));offset=end;
@@ -59,7 +61,7 @@ export async function protocolContract(){
    cached(oldFirst);assert.deepEqual(oldFirst.tools.map(tool=>tool.name),names,'The initialized legacy client sees every tool offered to the handshake-free modern client');
    assert.deepEqual(oldSecond,oldFirst);assert.deepEqual(oldFirst,first);
    assert.deepEqual(ok(await rpc('server/discover',{version:legacy})),discovery,'Discovery describes the same native server to both clients');
-   console.log(`PROBE BASE-AGENT-001 2 ${phase}: handshake-free modern list and initialized legacy list -> identical complete ${names.length}-tool catalogue and server description`);
+   console.log(`PROBE BASE-AGENT-001 2 ${phase}: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete ${names.length}-tool catalogue and server description`);
    console.log(`PROBE BASE-AGENT-001 4 ${phase}: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope`);
 
    const completeMutation=async(params)=>{
@@ -78,13 +80,22 @@ export async function protocolContract(){
    const seeded=(await app.json(`/api/projects/${project}/issues`))[0];
    assert.equal(seeded.state,'suppressed');assert.equal(seeded.revision,original.revision+1);
    await app.json(`/api/projects/${project}/issues/${admitted.issue}`,'PATCH',{state:'open',revision:seeded.revision});
+   const packet=ok(await rpc('tools/call',{params:{name:'spool.packets.read',arguments:{project,issue:admitted.issue}}})).structuredContent;
+   const proposal=ok(await rpc('tools/call',{params:{name:'spool.proposals.create',arguments:{
+    project,kind:'split',source:admitted.issue,revision:packet.issue.revision,events:[packet.events[0].id],
+    variants:[{stack:JSON.stringify(packet.events[0].event.frames),release:'1.0.0',route:''}],
+    rationale:'Synthetic protocol refusal baseline',window:{start:packet.events[0].received,end:packet.events[0].received+1},idempotency_key:randomUUID(),
+   }}}));
+   assert.equal(proposal.isError,false);assert.equal(proposal.structuredContent.state,'proposed');
    const state=async()=>({
     issues:await app.json(`/api/projects/${project}/issues`),releases:await app.json(`/api/projects/${project}/releases`),
+    proposals:await app.json(`/api/projects/${project}/grouping-proposals`),
     retained:await Promise.all(['issues','events','releases','alerts','grouping_proposals','spool_agent_operations','agent_door_calls','agent_door_approvals'].map(async table=>({table,rows:(await app.DB.prepare('SELECT * FROM '+table).all()).results.map(row=>JSON.stringify(row)).sort()}))),
    });
    const before=await state();
    assert.equal(before.issues.length,1);assert.equal(before.issues[0].id,admitted.issue);assert.equal(before.issues[0].state,'open');
-   for(const table of ['issues','events','releases','alerts','spool_agent_operations','agent_door_calls',...phase==='held'?['agent_door_approvals']:[]])assert.ok(before.retained.find(row=>row.table===table).rows.length>0,'The refusal baseline contains native '+table);
+   assert.equal(before.proposals.length,1);assert.equal(before.proposals[0].id,proposal.structuredContent.id);assert.equal(before.proposals[0].state,'proposed');
+   for(const table of ['issues','events','releases','alerts','grouping_proposals','spool_agent_operations','agent_door_calls',...phase==='held'?['agent_door_approvals']:[]])assert.ok(before.retained.find(row=>row.table===table).rows.length>0,'The refusal baseline contains native '+table);
    const unsupported=await rpc('server/discover',{version:'2099-01-01'});
    assert.equal(unsupported.status,400);assert.equal(unsupported.error.code,-32022);assert.equal(unsupported.error.message,'UnsupportedProtocolVersion');
    assert.equal(unsupported.error.data.requested,'2099-01-01');assert.deepEqual(unsupported.error.data.supported,discovery.supportedVersions);
