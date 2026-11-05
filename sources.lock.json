@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "e5015f67b416b7ca2d397bb52e642b4992e0df1d8071841128ec92c22dd58879",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10378,7 +10378,7 @@
       "executable": false
     },
     "tests/agent-door/owner-custody.mjs": {
-      "sha256": "69c7b5b4b7d9c40f51681f31a50fbe2511fa2d64be8a7197e5fab3e2702de08f",
+      "sha256": "f3a93fcd24ac33bb81d4a61cd475d3cf473ac23fef01171c23a2b9c4e979b62e",
       "executable": false
     },
     "tests/agent-door/pause-contract.mjs": {
@@ -10402,7 +10402,7 @@
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
-      "sha256": "559ba8a56c5f498eaa59b3ffa4e3d413033beb113a0b86c684f0208f41888c8b",
+      "sha256": "41310949741ebeafe1b99ec30a8c3865b280956de5d03c2cdf651fbede5f28ce",
       "executable": false
     },
     "tests/agent-door/retention-classes.mjs": {
@@ -10418,7 +10418,7 @@
       "executable": false
     },
     "tests/agent-door/runtime.mjs": {
-      "sha256": "d4ed66c00d725b9d901aa3c587a38e71483a93e5139b3d5fb4dcea9f88e79791",
+      "sha256": "bec6151caa4b3929f41a1916fc07fab46771e05014815c23b695a19e788370cf",
       "executable": false
     },
     "tests/agent-door/screens.mjs": {
