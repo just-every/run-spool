@@ -1,0 +1,12 @@
+{
+  "candidate": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "runBasis": "904529593333cdb8e65006b7554ece0aaf8c1d9b",
+  "exit": 0,
+  "points": 9095,
+  "failed": 0,
+  "changedRelevantPaths": [
+    "tests/agent-door/protocol-contract.mjs"
+  ],
+  "relationship": "Only the new focused protocolContract saga changed. The installed checker does not import it; its runtime, driver, fixtures and declarations are byte-identical.",
+  "installedConformanceCommand": "checkAgentDoor(process.cwd(), {declaration: commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration, owner: commandAdapter.hooks?.owner})"
+}

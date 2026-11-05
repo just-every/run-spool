@@ -1,0 +1,13 @@
+{
+  "tag": "sd-spool-c-f330",
+  "repository": "just-every/run-spool",
+  "base": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "predecessor": "45912f0f0f004edb79ad03f576d3d67ca4c38bb1",
+  "status": "missing",
+  "counts": {
+    "done": 22,
+    "partial": 47,
+    "missing": 36,
+    "total": 105
+  }
+}

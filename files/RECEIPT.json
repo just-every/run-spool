@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-c-f330",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f330",
+  "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "at": "2026-11-05T22:45:02.327946+00:00",
+  "pr": null,
+  "productPush": "success",
+  "remoteHead": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "base": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "clause": {
+    "id": "BASE-AGENT-001",
+    "before": "missing",
+    "after": "partial",
+    "closed": "Acceptance 1 to 6 at the implemented native MCP transport boundary under autonomous and held policies.",
+    "doneClaim": false
+  },
+  "countsBefore": {
+    "done": 22,
+    "partial": 47,
+    "missing": 36,
+    "total": 105
+  },
+  "countsAfter": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35,
+    "total": 105
+  },
+  "verify": {
+    "id": 42123679408,
+    "event": "push",
+    "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/just-every/run-spool/actions/runs/42123679408",
+    "originatingFailedJob": 127582316331,
+    "failedCommand": "node src/base/contract-docs.mjs check",
+    "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "disposition": "Permitted generated-view exception; no application test assertion failed. Lander regeneration and exact-SHA green remain required before landing."
+  },
+  "githubInvocations": 4,
+  "localChecks": [
+    {
+      "name": "candidate-agent-door",
+      "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+      "started": "2026-11-05T22:40:00.841489+00:00",
+      "seconds": 105.179,
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "node",
+        "tests/agent-door.mjs"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "candidate-typecheck",
+      "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+      "started": "2026-11-05T22:40:00.778768+00:00",
+      "seconds": 17.599,
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "candidate-first-party",
+      "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+      "started": "2026-11-05T22:40:18.417498+00:00",
+      "seconds": 2.576,
+      "command": [
+        "pnpm",
+        "run",
+        "check",
+        "--",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "candidate-build",
+      "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+      "started": "2026-11-05T22:42:11.862615+00:00",
+      "seconds": 15.238,
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit": 0
+    }
+  ],
+  "installedConformance": {
+    "candidate": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+    "runBasis": "904529593333cdb8e65006b7554ece0aaf8c1d9b",
+    "exit": 0,
+    "points": 9095,
+    "failed": 0,
+    "changedRelevantPaths": [
+      "tests/agent-door/protocol-contract.mjs"
+    ],
+    "relationship": "Only the new focused protocolContract saga changed. The installed checker does not import it; its runtime, driver, fixtures and declarations are byte-identical.",
+    "installedConformanceCommand": "checkAgentDoor(process.cwd(), {declaration: commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration, owner: commandAdapter.hooks?.owner})"
+  },
+  "mechanical": {
+    "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+    "at": "2026-11-05T22:40:44.692682+00:00",
+    "checks": [
+      {
+        "name": "views-write",
+        "command": [
+          "node",
+          "src/base/contract-docs.mjs",
+          "write"
+        ],
+        "exit": 0,
+        "output": "Wrote 1 contract documents.\n"
+      },
+      {
+        "name": "views-check",
+        "command": [
+          "node",
+          "src/base/contract-docs.mjs",
+          "check"
+        ],
+        "exit": 0,
+        "output": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n"
+      },
+      {
+        "name": "restore-generated-views",
+        "command": [
+          "git",
+          "checkout",
+          "origin/main",
+          "--",
+          "ACCEPTANCE.md",
+          "docs/CLAIMS.md"
+        ],
+        "exit": 0
+      },
+      {
+        "name": "source-lock",
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "lock"
+        ],
+        "exit": 0
+      },
+      {
+        "name": "source-lock-check",
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "check"
+        ],
+        "exit": 0
+      },
+      {
+        "name": "committed-tree-unchanged",
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "HEAD",
+          "--"
+        ],
+        "exit": 0
+      },
+      {
+        "name": "diff-whitespace",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0
+      }
+    ],
+    "ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration changes."
+    },
+    "restoredViewsCheck": {
+      "exit": 1,
+      "output": "Contract prose: 0 errors, 0 warnings.\nACCEPTANCE.md: generated content differs; run contract-docs write.\n"
+    },
+    "sourceLockSha256": "e220f7db0977d569921a2aeca8cd697edc8401b780a065fdbd8c7d7812df5ebd"
+  },
+  "publicationScan": "Not run in cloud; lander-owned.",
+  "landing": "not attempted",
+  "runSite": "not attempted for candidate",
+  "blockers": [],
+  "remaining": "Resources and prompts remain undeclared and unserved. Full registry, table-wide conformance, hosted qualification and broader obligations remain unproved. Existing holds remain unchanged."
+}

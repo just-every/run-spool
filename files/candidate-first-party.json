@@ -1,0 +1,15 @@
+{
+  "name": "candidate-first-party",
+  "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "started": "2026-11-05T22:40:18.417498+00:00",
+  "seconds": 2.576,
+  "command": [
+    "pnpm",
+    "run",
+    "check",
+    "--",
+    "--profile",
+    "first-party"
+  ],
+  "exit": 0
+}

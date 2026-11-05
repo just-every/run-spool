@@ -1,0 +1,10 @@
+{"conclusion":"success","id":127582240363,"name":"plan","status":"completed","steps":[]}
+{"conclusion":"failure","id":127582316331,"name":"build","status":"completed","steps":[{"conclusion":"failure","name":"Check source and portable contract"}]}
+{"conclusion":"skipped","id":127582318331,"name":"light","status":"completed","steps":[]}
+{"conclusion":"skipped","id":127582318396,"name":"commands","status":"completed","steps":[]}
+{"conclusion":"failure","id":127582579575,"name":"shards (spool)","status":"completed","steps":[{"conclusion":"failure","name":"Require every job in this coverage partition"}]}
+{"conclusion":"skipped","id":127582580688,"name":"verify (${{ matrix.shard }})","status":"completed","steps":[]}
+{"conclusion":"skipped","id":127582581453,"name":"runtime (${{ matrix.runtime }})","status":"completed","steps":[]}
+{"conclusion":"failure","id":127582614318,"name":"verify","status":"completed","steps":[{"conclusion":"failure","name":"Require the selected coverage and its proof"}]}
+{"conclusion":"skipped","id":127582615717,"name":"full-push-proof","status":"completed","steps":[]}
+{"conclusion":"skipped","id":127582615899,"name":"nightly-proof","status":"completed","steps":[]}

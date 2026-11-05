@@ -1,0 +1,11 @@
+{
+  "name": "candidate-typecheck",
+  "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "started": "2026-11-05T22:40:00.778768+00:00",
+  "seconds": 17.599,
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "exit": 0
+}

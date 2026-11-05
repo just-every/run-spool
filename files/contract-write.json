@@ -1,0 +1,12 @@
+{
+  "name": "contract-write",
+  "head": "904529593333cdb8e65006b7554ece0aaf8c1d9b",
+  "started": "2026-11-05T22:39:24.050149+00:00",
+  "seconds": 0.208,
+  "command": [
+    "node",
+    "src/base/contract-docs.mjs",
+    "write"
+  ],
+  "exit": 0
+}

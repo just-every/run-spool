@@ -1,0 +1,11 @@
+{
+  "name": "typecheck",
+  "head": "904529593333cdb8e65006b7554ece0aaf8c1d9b",
+  "started": "2026-11-05T22:38:02.992398+00:00",
+  "seconds": 16.715,
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "exit": 0
+}

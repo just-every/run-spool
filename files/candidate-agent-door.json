@@ -1,0 +1,15 @@
+{
+  "name": "candidate-agent-door",
+  "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "started": "2026-11-05T22:40:00.841489+00:00",
+  "seconds": 105.179,
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1200; exec @ARGV",
+    "--",
+    "node",
+    "tests/agent-door.mjs"
+  ],
+  "exit": 0
+}

@@ -1,0 +1,15 @@
+{
+  "name": "installed-conformance",
+  "head": "904529593333cdb8e65006b7554ece0aaf8c1d9b",
+  "started": "2026-11-05T22:37:26.301400+00:00",
+  "seconds": 166.738,
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1800; exec @ARGV",
+    "--",
+    "node",
+    "/tmp/sd-spool-installed-conformance.mjs"
+  ],
+  "exit": 0
+}

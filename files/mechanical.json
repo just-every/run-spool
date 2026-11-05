@@ -1,0 +1,86 @@
+{
+  "head": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "at": "2026-11-05T22:40:44.692682+00:00",
+  "checks": [
+    {
+      "name": "views-write",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "write"
+      ],
+      "exit": 0,
+      "output": "Wrote 1 contract documents.\n"
+    },
+    {
+      "name": "views-check",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "output": "Contract prose: 0 errors, 0 warnings.\nContract documents are current.\n"
+    },
+    {
+      "name": "restore-generated-views",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "source-lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "source-lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "committed-tree-unchanged",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "HEAD",
+        "--"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "diff-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changes."
+  },
+  "restoredViewsCheck": {
+    "exit": 1,
+    "output": "Contract prose: 0 errors, 0 warnings.\nACCEPTANCE.md: generated content differs; run contract-docs write.\n"
+  },
+  "sourceLockSha256": "e220f7db0977d569921a2aeca8cd697edc8401b780a065fdbd8c7d7812df5ebd"
+}
