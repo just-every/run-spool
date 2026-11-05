@@ -1,0 +1,18 @@
+{
+  "name": "first-party",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "check",
+    "--profile",
+    "first-party"
+  ],
+  "started": "2026-11-05T21:16:21.929788+00:00",
+  "finished": "2026-11-05T21:16:24.876597+00:00",
+  "elapsed_seconds": 2.95,
+  "exit": 0,
+  "log": "first-party.log",
+  "log_sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+}

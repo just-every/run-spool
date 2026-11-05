@@ -1,0 +1,30 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "command": "gh api 'repos/just-every/run-spool/actions/runs?head_sha=ae15d7004a5ccdc44be7a455454f51a86c026eea&per_page=100'",
+  "gh_call": 1,
+  "runs": [
+    {
+      "id": 42107126279,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42101550974,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42107126150,
+      "name": "Run site",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "role": "Observed main proof basis; not a substitute for candidate CI"
+}

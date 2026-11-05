@@ -1,0 +1,29 @@
+{
+  "head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "branch": "cloud/sd-spool-c-f328",
+  "origin": "https://github.com/just-every/run-spool.git",
+  "guard_command": "python3 /home/agent/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-c-f328",
+  "observations": [
+    {
+      "attempt": 1,
+      "exit": 128,
+      "HTTP": 503,
+      "diagnostic": "upstream connect error or disconnect/reset before headers; reset reason: remote refused stream reset"
+    },
+    {
+      "attempt": 2,
+      "guard_exit": 130,
+      "HTTP": "unknown",
+      "observation": "Guard interrupted to add mandatory per-retry setup and identity checks; subsequent ls-remote established that the exact product head had been published."
+    },
+    {
+      "attempt": 3,
+      "exit": 0,
+      "observation": "Guard reported up to date and PUSH_OK; remote branch equals the candidate."
+    }
+  ],
+  "refreshed_bundle": true,
+  "identity_and_trailers": "fleet author and committer; no trailers",
+  "remote_head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "checked_at": "2026-11-05T21:26:05.268962+00:00"
+}

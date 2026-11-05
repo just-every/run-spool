@@ -1,0 +1,11 @@
+{
+  "head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "command": [
+    "node",
+    "src/base/contract-docs.mjs",
+    "check"
+  ],
+  "exit": 1,
+  "output": "Contract prose: 0 errors, 0 warnings.\nACCEPTANCE.md: generated content differs; run contract-docs write.\n",
+  "interpretation": "Expected committed candidate view difference after restoring main views; no repair made."
+}

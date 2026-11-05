@@ -1,0 +1,19 @@
+{
+  "run": 42112408189,
+  "job": "127543530492",
+  "command": [
+    "gh",
+    "run",
+    "view",
+    "42112408189",
+    "--repo",
+    "just-every/run-spool",
+    "--job",
+    "127543530492",
+    "--log-failed"
+  ],
+  "exit": 0,
+  "log": "ci-job-127543530492.log",
+  "workflow_environment_listing_omitted": true,
+  "log_sha256": "ec10cf5ae5e3f4e37ea1a9ffef478e35dbc0bc7ce8d28f907ce9922e8eb3a9e7"
+}

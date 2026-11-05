@@ -1,0 +1,37 @@
+{
+  "repository": "just-every/run-spool",
+  "tag": "sd-spool-c-f328",
+  "branch": "cloud/sd-spool-c-f328",
+  "head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "clause": "AUDIT-001",
+  "before": "partial",
+  "after": "done",
+  "before_counts": {
+    "done": 22,
+    "partial": 47,
+    "missing": 36
+  },
+  "after_counts": {
+    "done": 23,
+    "partial": 46,
+    "missing": 36
+  },
+  "status_rows": 105,
+  "verify": {
+    "id": 42112408189,
+    "event": "push",
+    "conclusion": "failure",
+    "head_sha": "2854a428096870d6082ee3c29c952b6627f88b01",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42112408189",
+    "status": "completed"
+  },
+  "disposition": "generated-view-only",
+  "publication_scan": {
+    "status": "not_run",
+    "reason": "Fleet lander owns the full-history scan"
+  },
+  "main_equality": "not_landed",
+  "run_site": "pending_lander",
+  "product_blockers": [],
+  "finished_at": "2026-11-05T21:32:31.268132+00:00"
+}

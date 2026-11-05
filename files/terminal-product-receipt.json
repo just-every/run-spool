@@ -1,0 +1,12 @@
+{
+  "head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "tree": "84d649233609dff61e9352de719faf3bceb7d0b3",
+  "clean_product_checkout": true,
+  "candidate_files": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "status": "",
+  "not_landed": true,
+  "checked_at": "2026-11-05T21:28:24.992418+00:00"
+}

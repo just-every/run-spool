@@ -1,0 +1,14 @@
+{
+  "name": "owner-claim",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "command": [
+    "node",
+    "tests/owner-claim.mjs"
+  ],
+  "started": "2026-11-05T21:15:55.118420+00:00",
+  "finished": "2026-11-05T21:17:31.197970+00:00",
+  "elapsed_seconds": 96.08,
+  "exit": 1,
+  "log": "owner-claim.log",
+  "log_sha256": "1cfed424530f84b2e62f4536d77e1bc6451eb47cf5bb021327db54e582d16229"
+}

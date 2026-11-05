@@ -1,0 +1,13 @@
+{
+  "parent_status_rows": 105,
+  "candidate_status_rows": 105,
+  "missing_parent_ids": [],
+  "other_rows_unchanged": true,
+  "acceptance_bytes_unchanged": true,
+  "files": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "new_email_shaped_prose": false,
+  "ambiguous_slash_tokens": []
+}

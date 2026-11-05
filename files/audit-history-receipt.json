@@ -1,0 +1,14 @@
+{
+  "name": "audit-history",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "command": [
+    "node",
+    "tests/audit-history.mjs"
+  ],
+  "started": "2026-11-05T21:16:34.035678+00:00",
+  "finished": "2026-11-05T21:17:10.093603+00:00",
+  "elapsed_seconds": 36.06,
+  "exit": 0,
+  "log": "audit-history.log",
+  "log_sha256": "9200aed298841d4b9ee812f57c0cbcb6c0112e2c118f264199344116591082ce"
+}

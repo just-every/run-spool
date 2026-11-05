@@ -1,0 +1,18 @@
+{
+  "head": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "proof_basis": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "relevant_source_and_test_diff": "empty",
+  "existing_assertions_preserved": true,
+  "status_rows": 105,
+  "counts": {
+    "done": 23,
+    "partial": 46,
+    "missing": 36
+  },
+  "branch": "cloud/sd-spool-c-f328",
+  "pr": null
+}

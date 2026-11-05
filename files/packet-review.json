@@ -1,0 +1,246 @@
+{
+  "reviewed_at": "2026-11-05T21:33:17.646694+00:00",
+  "selected_nonsecret_files": [
+    {
+      "file": "REPORT.md",
+      "bytes": 13300,
+      "sha256": "74e83a2f2ec0f1e29ab82cda1a1974edc593ce3d99aff9a3673b1e82db03b545",
+      "regular": true
+    },
+    {
+      "file": "PLAN.md",
+      "bytes": 3868,
+      "sha256": "f6ce38a2b52623db572d20362ff3e04bb5b276540115709f144d5999132ba0f6",
+      "regular": true
+    },
+    {
+      "file": "QUALIFICATION.md",
+      "bytes": 3633,
+      "sha256": "6b12def1fe4a43018123a3572781c9c3a9bd159b8cc8f22db9f5eb2f75122a8e",
+      "regular": true
+    },
+    {
+      "file": "before.json",
+      "bytes": 151,
+      "sha256": "1be314c26ca06b60d9b72bdf8436913f7b82e78b0e842b9944b2d4e845cf99f2",
+      "regular": true
+    },
+    {
+      "file": "candidate-receipt.json",
+      "bytes": 417,
+      "sha256": "17b6adb79c8f1fe77f209ea6985e5de631c2a29661b225cb91ce2c9714eb9904",
+      "regular": true
+    },
+    {
+      "file": "terminal-product-receipt.json",
+      "bytes": 306,
+      "sha256": "abd45f8f0d80039034e913e011672ca090baf4480e87332db2db1f3e9a051729",
+      "regular": true
+    },
+    {
+      "file": "handoff-receipt.json",
+      "bytes": 964,
+      "sha256": "68ebf300e08c73d6012d10cd86991a007308556aeaa011e56821eb5f7c515bd6",
+      "regular": true
+    },
+    {
+      "file": "setup-build-receipt.json",
+      "bytes": 703,
+      "sha256": "c06ead0235e51244b68ca0e132f8725fdb4907c9f5d84b6498fa824b804d4ed4",
+      "regular": true
+    },
+    {
+      "file": "owner-claim.log",
+      "bytes": 5802,
+      "sha256": "3219a1b4283b16873ce3be8d6be4ef9470048225f26dfa635a138af797132835",
+      "regular": true
+    },
+    {
+      "file": "owner-claim-receipt.json",
+      "bytes": 395,
+      "sha256": "4d4fde2841d8ddc789611a7a471f675339141c1570c4ab83c3684aa6ef74c00a",
+      "regular": true
+    },
+    {
+      "file": "initial-owner-claim.log",
+      "bytes": 5829,
+      "sha256": "1cfed424530f84b2e62f4536d77e1bc6451eb47cf5bb021327db54e582d16229",
+      "regular": true
+    },
+    {
+      "file": "initial-owner-claim-receipt.json",
+      "bytes": 394,
+      "sha256": "8f1dc5d9d7485483a55d1f5a499ce719e040bca06853ff4e059baa502a3dda24",
+      "regular": true
+    },
+    {
+      "file": "audit-history.log",
+      "bytes": 428,
+      "sha256": "9200aed298841d4b9ee812f57c0cbcb6c0112e2c118f264199344116591082ce",
+      "regular": true
+    },
+    {
+      "file": "audit-history-receipt.json",
+      "bytes": 400,
+      "sha256": "89181f884c7fd46fa70d1c3be5f355c4630135f40f62c3f06fa6f1c72663d7eb",
+      "regular": true
+    },
+    {
+      "file": "owner-erasure.log",
+      "bytes": 3497,
+      "sha256": "63a3fa49b0c0b0dd1763cc647e72223613741dcd4cd27a02c7309c618e92e9d3",
+      "regular": true
+    },
+    {
+      "file": "owner-erasure-receipt.json",
+      "bytes": 401,
+      "sha256": "95ac2a525b167e97144e3742f3ce9084e9ddefbabec0fb9543885318e1c3b53a",
+      "regular": true
+    },
+    {
+      "file": "owner-erasure-results.json",
+      "bytes": 7298,
+      "sha256": "adb3a80b4c0fc42ef631b03bbef6717dc80e11643a9a0db388ff610806054fcf",
+      "regular": true
+    },
+    {
+      "file": "typecheck.log",
+      "bytes": 193,
+      "sha256": "d656d095ba5c8c32fea3e304734b2b1c00cfd6ae699231a3b9f5880b0de2f9e0",
+      "regular": true
+    },
+    {
+      "file": "typecheck-receipt.json",
+      "bytes": 378,
+      "sha256": "b1b1e554658e9ede13da10d2468c967eeb7a503f63422dc6d2ee411f2db5e7f3",
+      "regular": true
+    },
+    {
+      "file": "first-party.log",
+      "bytes": 136,
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a",
+      "regular": true
+    },
+    {
+      "file": "first-party-receipt.json",
+      "bytes": 445,
+      "sha256": "0aa2dd9ce50028b7bb8c17a2fcf60cd027efdddc40ce093ab89bf34affcbdf78",
+      "regular": true
+    },
+    {
+      "file": "audit-history-1440.png",
+      "bytes": 141575,
+      "sha256": "d40475372d348d2999bacc18e813186e79e20d94c620db6459bad3e7d178da79",
+      "regular": true
+    },
+    {
+      "file": "audit-history-390.png",
+      "bytes": 80263,
+      "sha256": "d2312dfbba74c70dc839ead7254f98c84997a5c32c908a2e15e681ec7c6af532",
+      "regular": true
+    },
+    {
+      "file": "browser-receipt.json",
+      "bytes": 862,
+      "sha256": "d8b46adf5ead346540c6972bb41274ad61b1e57f60acf760cb6fe4669305d3df",
+      "regular": true
+    },
+    {
+      "file": "mechanical.json",
+      "bytes": 980854,
+      "sha256": "fe3ba3361bc9d48e612c3357bb373366d040248ef679a048daf08ab3896ff1ab",
+      "regular": true
+    },
+    {
+      "file": "staged-check.json",
+      "bytes": 290,
+      "sha256": "be119705be19444bed30d4a8a5bc29db571cf2c9afe565102f2bf4278580622c",
+      "regular": true
+    },
+    {
+      "file": "identity-and-trailers.log",
+      "bytes": 85,
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55",
+      "regular": true
+    },
+    {
+      "file": "push-receipt.json",
+      "bytes": 1099,
+      "sha256": "da3dca0d20b04ee2b9e730621ea6fe85b1731df1b6417a64086c6d5b9fb59d80",
+      "regular": true
+    },
+    {
+      "file": "ci-main.json",
+      "bytes": 765,
+      "sha256": "39d4f71f8c59f60969679df05c2b9d7acd72eacfc3735f873e945bc8d4a5e502",
+      "regular": true
+    },
+    {
+      "file": "ci-candidate-discovery.json",
+      "bytes": 225,
+      "sha256": "55e513790df5ba7be5ddbf9151b01653d85cf0d7ab6691581df3320c85bd9f96",
+      "regular": true
+    },
+    {
+      "file": "ci-watch.json",
+      "bytes": 215,
+      "sha256": "648c4f8738e318213237d90a45adc7a7d5ffdf699a501ba0bd86537f91e2fb88",
+      "regular": true
+    },
+    {
+      "file": "ci-candidate-status.json",
+      "bytes": 178,
+      "sha256": "876c1dc117effa1ed348f7390133cd0672d1a24138cf56a9996bbc0cf76f9bda",
+      "regular": true
+    },
+    {
+      "file": "ci-candidate-jobs.json",
+      "bytes": 3303,
+      "sha256": "ccb0e5f4af819fd049ada470c4cad720afe00a9c1323f33cc0a4b34dc990e3d4",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543239141.log",
+      "bytes": 1256457,
+      "sha256": "eaef18771cae24d4a3dd14ec7f7fb8d06104b9367c237adf50ee3972285ceb33",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543239141-receipt.json",
+      "bytes": 397,
+      "sha256": "a0c6f5fbd15bccf759adaf73200432b6896ab548ebec7edf761badae460e695a",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543530492.log",
+      "bytes": 1327,
+      "sha256": "ec10cf5ae5e3f4e37ea1a9ffef478e35dbc0bc7ce8d28f907ce9922e8eb3a9e7",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543530492-receipt.json",
+      "bytes": 397,
+      "sha256": "81e2da7022f62c22f893062fe4d1a39c73cb771a8c75bf718f58317f424ac204",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543578674.log",
+      "bytes": 1966,
+      "sha256": "dce6322de50c3ff9ba06f88486fafd79c71de353ed0609f2b7fd0266b4f393ca",
+      "regular": true
+    },
+    {
+      "file": "ci-job-127543578674-receipt.json",
+      "bytes": 397,
+      "sha256": "46fc747ec25a46702a805e4bb4185b2dc31923d34efe6f4076383794c2df171b",
+      "regular": true
+    },
+    {
+      "file": "expected-view-check.json",
+      "bytes": 383,
+      "sha256": "7e0859aa3a64e9d9851bf3eff34a842e499bea8f3efe8109e6907559b60f67e1",
+      "regular": true
+    }
+  ],
+  "scope": "Actual public task reports, local receipts, public CI assertions and synthetic screenshots. No credential bundle, private settings, environment dump, secrets or held-out material."
+}

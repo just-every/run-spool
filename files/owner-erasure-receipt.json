@@ -1,0 +1,14 @@
+{
+  "name": "owner-erasure",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "command": [
+    "node",
+    "tests/owner-erasure.mjs"
+  ],
+  "started": "2026-11-05T21:16:43.910294+00:00",
+  "finished": "2026-11-05T21:23:25.993292+00:00",
+  "elapsed_seconds": 402.08,
+  "exit": 0,
+  "log": "owner-erasure.log",
+  "log_sha256": "63a3fa49b0c0b0dd1763cc647e72223613741dcd4cd27a02c7309c618e92e9d3"
+}

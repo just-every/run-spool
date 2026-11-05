@@ -1,0 +1,19 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "browser_environment": {
+    "executable": "/usr/bin/chromium",
+    "headless": true,
+    "sandbox": "Playwright default --no-sandbox",
+    "direct_default_launch_probe_exit": 0
+  },
+  "initial_owner_journey_failure": "Default Playwright cached executable absent; configured the cache location to the supplied system Chromium, no source or assertion edits; rerun passed."
+}

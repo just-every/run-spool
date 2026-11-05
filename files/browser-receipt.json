@@ -1,0 +1,21 @@
+{
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "journey": "node tests/audit-history.mjs",
+  "screens": [
+    {
+      "width": 1440,
+      "file": "audit-history-1440.png",
+      "sha256": "d40475372d348d2999bacc18e813186e79e20d94c620db6459bad3e7d178da79",
+      "inspected": true,
+      "observed": "Populated organization audit under Settings; readable action, outcome, time and permanent aliases; export controls; no horizontal overflow in the journey."
+    },
+    {
+      "width": 390,
+      "file": "audit-history-390.png",
+      "sha256": "d2312dfbba74c70dc839ead7254f98c84997a5c32c908a2e15e681ec7c6af532",
+      "inspected": true,
+      "observed": "Populated organization audit under Settings; readable action, outcome, time and permanent aliases; export controls; no horizontal overflow in the journey."
+    }
+  ],
+  "source_change": "none"
+}
