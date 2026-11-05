@@ -1,0 +1,25 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 autonomous: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 autonomous: handshake-free modern list and initialized legacy list -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 autonomous: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 autonomous: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 autonomous: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 autonomous: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control autonomous: identical bounded mutation -> suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 held: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 held: handshake-free modern list and initialized legacy list -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 held: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 held: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 held: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 held: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control held: identical bounded mutation -> waits for native sponsor approval, then suppressed exactly once

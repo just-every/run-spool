@@ -1,0 +1,77 @@
+[
+  {
+    "time": "2026-11-05T21:15:07.128896+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=ae15d7004a5ccdc44be7a455454f51a86c026eea&per_page=100",
+      "--jq",
+      ".workflow_runs[] | {id,name,event,status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:23:27.401259+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=45912f0f0f004edb79ad03f576d3d67ca4c38bb1&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | {id,name,event,status,conclusion,head_sha,html_url}]"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:28:28.747868+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/42112189614",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:28:40.379194+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/42112189614/jobs?per_page=100",
+      "--jq",
+      "[.jobs[] | {id,name,status,conclusion,failed_steps:[.steps[] | select(.conclusion==\"failure\") | {name,number}]}]"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:28:50.603417+00:00",
+    "args": [
+      "run",
+      "view",
+      "42112189614",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "127542426960",
+      "--log-failed"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:28:57.369233+00:00",
+    "args": [
+      "run",
+      "view",
+      "42112189614",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "127542739411",
+      "--log-failed"
+    ]
+  },
+  {
+    "time": "2026-11-05T21:29:00.029223+00:00",
+    "args": [
+      "run",
+      "view",
+      "42112189614",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "127542789649",
+      "--log-failed"
+    ]
+  }
+]

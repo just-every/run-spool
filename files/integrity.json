@@ -1,0 +1,32 @@
+{
+  "head": "45912f0f0f004edb79ad03f576d3d67ca4c38bb1",
+  "candidate_parent_row_checks": [
+    {
+      "commit": "78b8f7b9e96d86b86716285ce3f602752246e769",
+      "parent": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+      "parent_rows": 105,
+      "candidate_rows": 105,
+      "lost_ids": []
+    },
+    {
+      "commit": "45912f0f0f004edb79ad03f576d3d67ca4c38bb1",
+      "parent": "78b8f7b9e96d86b86716285ce3f602752246e769",
+      "parent_rows": 105,
+      "candidate_rows": 105,
+      "lost_ids": []
+    }
+  ],
+  "status_changes": {
+    "BASE-AGENT-001": {
+      "before": "missing",
+      "after": "partial"
+    }
+  },
+  "acceptance_text_unchanged": true,
+  "other_status_rows_unchanged": true,
+  "product_implementation_unchanged": true,
+  "journey_bytes_unchanged_since_full_local_proof": true,
+  "generated_views_equal_main": true,
+  "source_lock_sha256": "ebb86e5252f6c695dd5ef7d2a28e45a729dce9f2942eadfbb78aea42bd81b35f",
+  "working_tree_clean": true
+}

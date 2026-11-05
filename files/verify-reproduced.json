@@ -1,0 +1,11 @@
+{
+  "head": "45912f0f0f004edb79ad03f576d3d67ca4c38bb1",
+  "run": 42112189614,
+  "job": 127542426960,
+  "command": "pnpm run check -- --profile first-party\npnpm source:check\nnode src/base/contract-docs.mjs check",
+  "test": "Check source and portable contract",
+  "exit": 1,
+  "failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+  "classification": "expected generated-view check; no repair performed",
+  "runtime": "local cloud Node 24.19.0; GitHub runner Node 22.20.0"
+}

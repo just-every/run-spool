@@ -1,0 +1,17 @@
+shards (spool)	Require every job in this coverage partition	﻿2026-11-05T21:24:12.4374047Z ##[group]Run set -euo pipefail
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4374639Z [36;1mset -euo pipefail[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4375038Z [36;1mcase "$SHARD" in[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4375675Z [36;1m  spool) test "$BUILD" = success && test "$RUNTIMES" = success && test "$TESTS" = success ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4376381Z [36;1m  commands) test "$COMMANDS" = success ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4376830Z [36;1m  *) exit 1 ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4377211Z [36;1mesac[0m
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4592721Z shell: /usr/bin/bash -e {0}
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4593633Z env:
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4594113Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4594727Z   SHARD: spool
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4595200Z   BUILD: failure
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4595664Z   RUNTIMES: skipped
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4596272Z   TESTS: skipped
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4596789Z   COMMANDS: skipped
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4597314Z ##[endgroup]
+shards (spool)	Require every job in this coverage partition	2026-11-05T21:24:12.4779790Z ##[error]Process completed with exit code 1.
