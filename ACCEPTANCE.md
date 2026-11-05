@@ -9,11 +9,11 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 3 | 15 | 18 |
+| Agent surface | 0 | 4 | 14 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 47 | 36 | 105 |
+| Full target | 22 | 48 | 35 | 105 |
 
-Judged from the code and tests at commit `7e26763306a37b3d11b46cdf22f84de3efc81806` (3 November 2026). Fresh ERR-009 qualification passed the triage, repair-recovery, execution, product and old-archive public journeys. The browser download and public rer export restore whole retained records and private maps; restored authority and dispatch remain inert until fresh proof; manual cutoff preserves repair facts, checks and ordered snapshot gaps. Source, journey and acceptance bytes are unchanged from this proof basis. ERR-009 moves from partial to done and its three stale recorded gaps are cleared. Other judgments and GOV-003 volume, SRC-004 capacity and GOV-002 scheduled custody obligations are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -1433,7 +1433,7 @@ Core · push-further · **missing**
 
 #### BASE-AGENT-001 — One MCP door per seed
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Every seed, hosted or self-hosted, serves one remote MCP endpoint at `/mcp` over Streamable HTTP. It speaks the current revision (2026-07-28) and accepts 2025-11-25 clients through the twelve-month deprecation window. It implements `server / discover`, tools, resources and prompts. Lists are deterministic and carry `ttlMs` and `cacheScope: "private"`. Roots, Sampling and Logging are not served.
 
@@ -1445,8 +1445,8 @@ Agent surface · target · **missing**
 5. A foreign Origin returns 403, and a header and body method mismatch returns `HeaderMismatch`.
 6. An oversized body returns 413 with no effect.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door/protocol-contract.mjs` protocolContract (acceptance 1 to 6 at the implemented native MCP transport boundary, independent autonomous and held policies); `tests/agent-door.mjs` (enclosing emitted-Worker journey); `src/modules/agent-door/conformance/discovery.mjs` discoverDoor and listedDoor (installed shared transport checks)
+**Gap.** Resources and prompts remain undeclared and unserved. Complete registry and table-wide conformance, hosted qualification and obligations beyond this native transport slice remain unproved; optional capabilities and unscoped lifecycle families are unchanged. Existing account, device and ct holds and BASE-AGENT-012 scope remain unchanged.
 
 #### BASE-AGENT-002 — The seed's jobs are tools, through the UI's own actions
 
