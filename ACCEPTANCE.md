@@ -1300,7 +1300,7 @@ Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-0
 1. It survives export and restore.
 2. No secret or erased identifier remains in the history.
 
-**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`
+**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; Supplementary historical source and journey references (qualification remains governed by the recorded Status and Gap): `src/domain/audit/classify.ts`; `src/domain/audit/archive.ts`; `src/domain/audit/types.ts`; `tests/owner-claim.mjs` (enclosing native owner-claim journey); `tests/team-flow.mjs` (teamFlow and inertTeamArchive)
 **Gap.** Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history.
 
 ### Deployment integrations
