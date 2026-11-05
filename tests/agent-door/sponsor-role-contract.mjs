@@ -84,7 +84,7 @@ export async function sponsorRoleContract(){
    // request directly without changing the shared runtime or people journey.
    const call=async(name,args,status=200)=>{
     const version='2026-07-28';
-    const response=await app.request('/mcp','POST',{jsonrpc:'2.0',id:randomUUID(),method:'tools/call',params:{name,arguments:args,_meta:{'io.modelcontextprotocol/protocolVersion':version}}},{Authorization:'Bearer '+token,Accept:'application/json, text/event-stream','MCP-Protocol-Version':version,'Mcp-Method':'tools/call','Mcp-Name':name});
+    const response=await app.request('/mcp','POST',{jsonrpc:'2.0',id:randomUUID(),method:'tools/call',params:{name,arguments:args,_meta:{'io.modelcontextprotocol/protocolVersion':version}}},{Authorization:'Bearer '+token,Cookie:'',Accept:'application/json, text/event-stream','MCP-Protocol-Version':version,'Mcp-Method':'tools/call','Mcp-Name':name});
     const body=await response.json();assert.equal(response.status,status,'Retained-bearer MCP status');
     return body.result??{httpStatus:response.status,error:body.error};
    };
@@ -101,6 +101,7 @@ export async function sponsorRoleContract(){
     const pending=held._meta['com.runeditrun/error']?.approval??held._meta['com.runeditrun/approval'];assert.ok(pending?.id,'The held fixture actually reaches company approval with an authorized member');
     assert.equal(done(await read()).state,'acknowledged','Holding the mutation leaves the completed triage state intact');
    }
+   assert.ok(Date.now()/1000<expires,'The retained bearer is unexpired before the native downgrade');
    await app.json('/api/organization/members/'+member.id,'PUT',{version:member.version,role:'read-only',grants:[{project,role:'read-only'}]});
    const downgraded=await snapshot(app);
    assert.ok(downgraded.credentials.find(row=>row.hash===grant.hash).revoked,'The authorized downgrade retires the member key before refusal probes');
