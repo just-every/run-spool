@@ -1,0 +1,125 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {agentRuntime} from './runtime.mjs';
+import {accessToken,autonomousPolicy,heldPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
+
+/** The native transport slice, with independent populated installations per policy. */
+export async function protocolContract(){
+ for(const [phase,policy] of [['autonomous',autonomousPolicy],['held',heldPolicy]]){
+  const app=await agentRuntime();
+  try{
+   const project='synthetic-spool-protocol';
+   await app.json('/api/organization','POST',{id:'synthetic-spool-company',name:'Protocol qualification'});
+   const created=await app.json('/api/projects','POST',{id:project,name:'Protocol qualification'});
+   await app.json(`/api/projects/${project}/releases`,'POST',{name:'1.0.0',build:'web-1'});
+   const admitted=await app.json(`/api/ingest/${project}`,'POST',{version:1,eventId:'synthetic-spool-1',release:'1.0.0',build:'web-1',environment:'production',type:'TypeError',message:'Protocol qualification',frames:[{file:'https://checkout.example/app.js',line:1,column:0,function:'total'}],breadcrumbs:[]},{Authorization:'Bearer '+created.ingestKey,Cookie:''});
+   await app.adopt(policy());
+   let id=0;
+   const modern='2026-07-28',legacy='2025-11-25';
+   const rpc=async(method,{version=modern,params={},headers={},stream=false}={})=>{
+    const body=JSON.stringify({jsonrpc:'2.0',id:++id,method,params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}});
+    const bytes=new TextEncoder().encode(body);let offset=0;
+    const response=await fetch(app.origin+'/mcp',{method:'POST',headers:{
+     Authorization:'Bearer '+await accessToken(app.context),Origin:app.canonicalOrigin,
+     Accept:'application/json, text/event-stream','Content-Type':'application/json',
+     'MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{},...headers,
+    },body:stream?new ReadableStream({pull(controller){
+     if(offset===bytes.length){controller.close();return;}
+     const end=Math.min(offset+16384,bytes.length);controller.enqueue(bytes.subarray(offset,end));offset=end;
+    }}):body,...stream?{duplex:'half'}:{}});
+    const message=await response.json();
+    assert.equal(message.jsonrpc,'2.0');
+    return {status:response.status,headers:response.headers,...message};
+   };
+   const ok=answer=>{assert.equal(answer.status,200,JSON.stringify(answer.error));assert.ok(answer.result);return answer.result;};
+   const cached=result=>{assert.ok(Number.isSafeInteger(result.ttlMs)&&result.ttlMs>=0);assert.equal(result.cacheScope,'private');};
+   // These are this installation's first MCP requests: no initialize or session exists.
+   const discoverReply=await rpc('server/discover'),discovery=ok(discoverReply);
+   assert.equal(discoverReply.headers.has('mcp-session-id'),false);
+   cached(discovery);
+   assert.ok(discovery.supportedVersions.includes(modern));assert.ok(discovery.supportedVersions.includes(legacy));
+   assert.equal(new Set(discovery.supportedVersions).size,discovery.supportedVersions.length);
+   assert.ok(discovery.capabilities.tools);
+   const serverInfo=discovery._meta['io.modelcontextprotocol/serverInfo'];
+   assert.ok(serverInfo.name&&serverInfo.version);assert.equal(typeof discovery.instructions,'string');
+   assert.ok(discovery.instructions.includes(app.context.surface.specialist));
+   const first=ok(await rpc('tools/list')),second=ok(await rpc('tools/list'));
+   cached(first);assert.deepEqual(second,first,'Repeated modern lists preserve the complete descriptions and order');
+   const names=first.tools.map(tool=>tool.name);
+   assert.ok(names.length>0,'The compatibility comparison uses an offered, nonempty native catalogue');
+   assert.deepEqual(names,[...names].sort());assert.equal(new Set(names).size,names.length);
+   console.log(`PROBE BASE-AGENT-001 1 ${phase}: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions`);
+
+   const initialized=await rpc('initialize',{version:legacy,params:{protocolVersion:legacy,capabilities:{},clientInfo:{name:'Native protocol qualification',version:'1'}}});
+   const negotiated=ok(initialized);assert.equal(negotiated.protocolVersion,legacy);
+   assert.equal(initialized.headers.has('mcp-session-id'),false);
+   assert.deepEqual(negotiated.capabilities,discovery.capabilities);
+   assert.deepEqual(negotiated.serverInfo,serverInfo);assert.equal(negotiated.instructions,discovery.instructions);
+   const oldFirst=ok(await rpc('tools/list',{version:legacy})),oldSecond=ok(await rpc('tools/list',{version:legacy}));
+   cached(oldFirst);assert.deepEqual(oldFirst.tools.map(tool=>tool.name),names,'The initialized legacy client sees every tool offered to the handshake-free modern client');
+   assert.deepEqual(oldSecond,oldFirst);assert.deepEqual(oldFirst,first);
+   assert.deepEqual(ok(await rpc('server/discover',{version:legacy})),discovery,'Discovery describes the same native server to both clients');
+   console.log(`PROBE BASE-AGENT-001 2 ${phase}: handshake-free modern list and initialized legacy list -> identical complete ${names.length}-tool catalogue and server description`);
+   console.log(`PROBE BASE-AGENT-001 4 ${phase}: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope`);
+
+   const completeMutation=async(params)=>{
+    const result=ok(await rpc('tools/call',{params}));
+    if(phase==='held'){
+     assert.equal(result.resultType,'input_required');
+     const reference=result._meta['com.runeditrun/approval'];assert.ok(reference?.id);
+     const approval=(await app.json('/agents/api/approvals/'+reference.id)).approval;
+     const approved=await app.json('/agents/api/approvals/'+reference.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+     assert.equal(approved.approval.state,'executed');
+    }else assert.equal(result.isError,false);
+   };
+   // Preserve existing native attribution and replay custody, not just an empty ledger.
+   const original=(await app.json(`/api/projects/${project}/issues`))[0];
+   await completeMutation({name:'spool.issues.update',arguments:{project,issue:admitted.issue,state:'suppressed',revision:original.revision,idempotency_key:randomUUID()}});
+   const seeded=(await app.json(`/api/projects/${project}/issues`))[0];
+   assert.equal(seeded.state,'suppressed');assert.equal(seeded.revision,original.revision+1);
+   await app.json(`/api/projects/${project}/issues/${admitted.issue}`,'PATCH',{state:'open',revision:seeded.revision});
+   const state=async()=>({
+    issues:await app.json(`/api/projects/${project}/issues`),releases:await app.json(`/api/projects/${project}/releases`),
+    retained:await Promise.all(['issues','events','releases','alerts','grouping_proposals','spool_agent_operations','agent_door_calls','agent_door_approvals'].map(async table=>({table,rows:(await app.DB.prepare('SELECT * FROM '+table).all()).results.map(row=>JSON.stringify(row)).sort()}))),
+   });
+   const before=await state();
+   assert.equal(before.issues.length,1);assert.equal(before.issues[0].id,admitted.issue);assert.equal(before.issues[0].state,'open');
+   for(const table of ['issues','events','releases','alerts','spool_agent_operations','agent_door_calls',...phase==='held'?['agent_door_approvals']:[]])assert.ok(before.retained.find(row=>row.table===table).rows.length>0,'The refusal baseline contains native '+table);
+   const unsupported=await rpc('server/discover',{version:'2099-01-01'});
+   assert.equal(unsupported.status,400);assert.equal(unsupported.error.code,-32022);assert.equal(unsupported.error.message,'UnsupportedProtocolVersion');
+   assert.equal(unsupported.error.data.requested,'2099-01-01');assert.deepEqual(unsupported.error.data.supported,discovery.supportedVersions);
+   assert.deepEqual(await state(),before,'Unsupported versions leave populated native records unchanged');
+   console.log(`PROBE BASE-AGENT-001 3 ${phase}: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state`);
+   const mismatch=await rpc('server/discover',{headers:{'Mcp-Method':'tools/list'}});
+   assert.equal(mismatch.status,400);assert.equal(mismatch.error.code,-32020);assert.equal(mismatch.error.message,'HeaderMismatch');
+   const foreign=await rpc('server/discover',{headers:{Origin:'https://foreign.invalid'}});
+   assert.equal(foreign.status,403);
+   assert.deepEqual(await state(),before,'Method mismatch and foreign Origin leave populated native records unchanged');
+   console.log(`PROBE BASE-AGENT-001 5 ${phase}: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state`);
+
+   const max=discovery._meta['com.runeditrun/limits'].maxBodyBytes;assert.ok(Number.isSafeInteger(max)&&max>0);
+   const args={project,issue:admitted.issue,state:'suppressed',revision:before.issues[0].revision,idempotency_key:randomUUID()};
+   const params={name:'spool.issues.update',arguments:args};
+   for(const stream of [false,true]){
+    // Padding is transport metadata, leaving the actual native mutation valid.
+    const oversized=await rpc('tools/call',{params:{...params,_meta:{padding:'x'.repeat(max+1)}},stream});
+    assert.equal(oversized.status,413);assert.equal(oversized.error.message,'Body too large');
+    assert.deepEqual(await state(),before,'Oversized mutation changes no populated records, native attribution, replay custody or approvals');
+   }
+   console.log(`PROBE BASE-AGENT-001 6 ${phase}: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody`);
+   // The same mutation without padding must be usable under the selected policy.
+   const control=ok(await rpc('tools/call',{params}));
+   if(phase==='held'){
+    assert.equal(control.resultType,'input_required');
+    const reference=control._meta['com.runeditrun/approval'];assert.ok(reference?.id);
+    assert.deepEqual(await app.json(`/api/projects/${project}/issues`),before.issues,'A bounded held mutation waits without changing the issue');
+    const approval=(await app.json('/agents/api/approvals/'+reference.id)).approval;
+    const approved=await app.json('/agents/api/approvals/'+reference.id+'/approve','POST',{revision:approval.revision,summary_sha256:approval.summary_sha256});
+    assert.equal(approved.approval.state,'executed');
+   }else assert.equal(control.isError,false);
+   const after=await app.json(`/api/projects/${project}/issues`);
+   assert.equal(after[0].state,'suppressed');assert.equal(after[0].revision,before.issues[0].revision+1);
+   console.log(`PROBE BASE-AGENT-001 control ${phase}: identical bounded mutation -> ${phase==='held'?'waits for native sponsor approval, then ':''}suppressed exactly once`);
+  }finally{await app.stop();}
+ }
+}

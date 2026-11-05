@@ -16,8 +16,10 @@ import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
 import {pauseContract} from './agent-door/pause-contract.mjs';
+import {protocolContract} from './agent-door/protocol-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
+await protocolContract();
 await nativeSetup();
 await pauseContract();
 const github=await githubDouble();
