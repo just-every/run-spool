@@ -100,6 +100,12 @@ export async function protocolContract(){
    const max=discovery._meta['com.runeditrun/limits'].maxBodyBytes;assert.ok(Number.isSafeInteger(max)&&max>0);
    const args={project,issue:admitted.issue,state:'suppressed',revision:before.issues[0].revision,idempotency_key:randomUUID()};
    const params={name:'spool.issues.update',arguments:args};
+   for(const headers of [{'Mcp-Method':'tools/list'},{Origin:'https://foreign.invalid'}]){
+    const refused=await rpc('tools/call',{params,headers});
+    assert.equal(refused.status,headers.Origin?403:400);
+    assert.equal(refused.error.message,headers.Origin?'Origin refused':'HeaderMismatch');
+    assert.deepEqual(await state(),before,'A transport refusal cannot execute the valid native mutation or change retained custody');
+   }
    for(const stream of [false,true]){
     // Padding is transport metadata, leaving the actual native mutation valid.
     const oversized=await rpc('tools/call',{params:{...params,_meta:{padding:'x'.repeat(max+1)}},stream});
