@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ceb6870ce794e1d1b488527f82d64d37ce9e24fdff3d6bbab96fe615e64253ad",
+      "sha256": "041dd0b5ed36865e15c0973c8a2a19b557a0bbc4c71c5d691d27b2383d6eaf37",
       "executable": false
     },
     "DEMO.md": {
@@ -5494,7 +5494,7 @@
       "executable": false
     },
     "src/domain/agent-door/catalogue.mjs": {
-      "sha256": "cf95d95ad257f99d751b267d460bea374bf2ef9b2de663100b9c73a1ffdc4371",
+      "sha256": "37caf75d244279859d21232f850011f399d1d99f7d6374ce7c3188f819f4b34b",
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
@@ -5518,7 +5518,7 @@
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "f60a16a7ec035b2ddba76a3fec3118e4b58e51dfa23eaa5bde9135a270248078",
+      "sha256": "3f5a7a6b69b2e09cfad0f0cf23211718399bed56b47f41229c8fe1f4b5bc1903",
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
@@ -6518,7 +6518,7 @@
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
-      "sha256": "55dc758493ebdd14d693d0ca5c48a9d585aaf1549b4e20c75cb12a2a3ab1ccc8",
+      "sha256": "48ef3abae8db3743029e800b321be7680f72264610ba1b345535053f84e90035",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
@@ -6530,7 +6530,7 @@
       "executable": false
     },
     "src/domain/reproducers/view.ts": {
-      "sha256": "9ac06dbe3d89fb9e50b1fa1797ca76da6b070d56a9265113759c51a639a352d1",
+      "sha256": "82dae07643abbd0999186cabb4f8b123b592d4c6d5c8b44066ab87289d38c087",
       "executable": false
     },
     "src/domain/rer-cutover-status.server.ts": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "3c1991960df4992fed670953350b3548cc2e33cee7483e331dd0d9661a16f153",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
@@ -10363,6 +10363,10 @@
     },
     "tests/agent-door/initialize.mjs": {
       "sha256": "b39f6d7b01550e4f9610acd04955b3b637ef7f8e87f387bab5cca2605645a128",
+      "executable": false
+    },
+    "tests/agent-door/job-status-contract.mjs": {
+      "sha256": "b7f965e0fe148772ed8aacbe994a5bdff34c1a009a8854aa2e9937a0b336d6ab",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {

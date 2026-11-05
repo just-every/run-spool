@@ -15,11 +15,13 @@ import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
+import {jobStatusContract} from './agent-door/job-status-contract.mjs';
 import {pauseContract} from './agent-door/pause-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await nativeSetup();
 await pauseContract();
+await jobStatusContract();
 const github=await githubDouble();
 const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github.com'};
 const app=await agentRuntime(15916,{GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));

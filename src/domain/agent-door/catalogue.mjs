@@ -32,7 +32,7 @@ const definitions=[
  ['grouping.preview','POST','grouping-preview',fields(proposal,['project','kind','source','revision']),false,['standard'],['ERR-006','AI-005']],
  ['grouping.apply','POST','grouping-apply',fields({id:str}),false,['standard'],['ERR-006','AI-005']],
  ['grouping.undo','POST','grouping-undo',fields({id:str}),false,['standard'],['ERR-006']],
- ['reproducers.read','GET','reproducers',fields({issue:str}),true,['standard'],['AI-002']],
+ ['reproducers.read','GET','reproducers',fields({issue:str,run:str},['project','issue']),true,['standard'],['AI-002']],
  ['reproducers.create','POST','reproducers',fields({event:str,export:str,input:{type:'array',maxItems:100}},['project','event','input']),false,['standard'],['AI-002']],
  ['reproducers.run','POST','reproducer-run',fields({id:str,release:str},['project','id']),false,['standard'],['AI-002']],
  ['reproducers.claim','POST','reproducer-claim',fields({id:str}),false,['standard'],['AI-002']],

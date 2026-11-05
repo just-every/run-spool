@@ -3,7 +3,7 @@ import { hash, identity, token } from '../privacy';
 import { jsonBody, ownerProjectRouter, ownerWrites } from '../owner-router';
 import { classify } from './classify';
 import { mapModules, recorded, RUN_TOKEN_MS } from './sandbox';
-import { issueReproducers, reproducerView } from './view';
+import { issueReproducers, reproducerView, runStatusView } from './view';
 
 // Owner routes: record a reproducer for a captured event and issue single-use
 // run tokens. Nothing here executes code; runs happen in the runner sandbox.
@@ -15,8 +15,23 @@ const budget = (error: unknown, c: any) => /reproducer(_run)?_budget/.test(Strin
 
 routes.get('/', async c => {
  const issue = c.req.query('issue'), project = c.req.param('project')!;
+ const run = c.req.query('run');
+ if (run !== undefined) {
+  const row = await s(c.env.DB, `SELECT r.id,r.state,r.outcome,r.created,r.expires,r.claimed,r.finished,a.principal
+   FROM reproducer_runs r JOIN reproducers p ON p.id=r.reproducer AND p.project=r.project
+   LEFT JOIN spool_agent_custody a ON a.kind='reproducer' AND a.id=r.id AND a.project=r.project
+   WHERE r.project=? AND p.issue=? AND r.id=?`, project, issue ?? '', run).first<any>();
+  const actor = agentAuthority(c.req.raw);
+  if (!row) return c.json({ error: 'Run not found' }, 404);
+  if (actor) {
+   const saved = row.principal ? JSON.parse(row.principal) : null, current = actor.context;
+   if (!saved || saved.person?.id !== current.person.id || saved.agent?.id !== current.agent.id || saved.consent !== current.consent)
+    return c.json({ error: 'Run not found' }, 404);
+  }
+  return c.json({ run: runStatusView(row) });
+ }
  if (!issue || !await s(c.env.DB, 'SELECT 1 FROM issues WHERE project=? AND id=?', project, issue).first()) return c.json({ error: 'Issue not found' }, 404);
- return c.json({ reproducers: await issueReproducers(c.env.DB, project, issue) });
+ return c.json({ reproducers: await issueReproducers(c.env.DB, project, issue, agentAuthority(c.req.raw)?.context) });
 });
 
 routes.post('/', async c => {

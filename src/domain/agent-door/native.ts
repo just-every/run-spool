@@ -71,7 +71,7 @@ export async function nativeCall(env: Bindings, route:string,method:string,args:
  }
  const path=route==='issue'&&method==='GET'?nativePath('issues',a):route==='deployments'&&method==='POST'?nativePath('releases',a):route==='followup'&&method==='GET'?`/api/projects/${e(a.project)}/follow-up`:nativePath(route,a);
  const url=new URL(path,env.AUTH_ORIGIN);
- if(method==='GET')for(const key of ['state','limit','q','sort','cursor','order','from','to','environment','format',...['occurrences','feedback-reports'].includes(route)?['issue']:[]])if(a[key]!==undefined)url.searchParams.set(key,String(a[key]));
+ if(method==='GET')for(const key of ['state','limit','q','sort','cursor','order','from','to','environment','format',...['occurrences','feedback-reports'].includes(route)?['issue']:[],...route==='reproducers'?['run']:[]])if(a[key]!==undefined)url.searchParams.set(key,String(a[key]));
  const {project:_,id:_id,issue:_issue,...body}=a;
  if(route==='alert-preview')body.ruleId=a.id;
  if(route==='fix-advance'){const row=await env.DB.prepare('SELECT revision FROM fix_workflows WHERE project=? AND id=?').bind(a.project,a.id).first<{revision:number}>();if(!row)throw new ToolRefusal('not_found');body.revision=row.revision;}
