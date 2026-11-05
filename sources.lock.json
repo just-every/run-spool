@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "48122d56ad5145455607215c3c60d91d8cd3b8dc3a186d7ac573a744da6143bc",
+      "sha256": "c2a9f887b81a4f345c7256b536643de313a7f9f20b252e3d05904af838bd8a88",
       "executable": false
     },
     "tests/agent-door/continuation.mjs": {
