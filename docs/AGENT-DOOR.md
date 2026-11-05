@@ -49,6 +49,16 @@ Pause, revocation or native narrowing can stop it before execution. A different
 agent or consent cannot take over its queued run or erasure continuation; a
 current person retains native completion authority.
 
+Poll a reproducer job with `spool.reproducers.read` using `project`, `issue` and
+the optional `run` handle returned by `spool.reproducers.run`. A selected read
+returns a `run` object containing its ID, state, outcome and lifecycle times;
+it excludes uploaded modules, runner tokens and runner output. Saved sponsor,
+agent and consent must all match. Another principal's handle and a nonexistent
+handle return the same `not_found` refusal. Omitting `run` lists only that
+agent principal's runs; native people retain the complete issue history.
+Runs created by native people carry no agent custody and cannot be claimed by
+an agent. Current native roles, company policy, Pause and revocation still apply.
+
 An existing GitHub App connection and a person's exact native repository grant
 are required for the fix workflow. `spool.fixes.advance` requests native
 `repository_grant` proof. The person approves the saved grant on the issue's
