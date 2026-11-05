@@ -1,0 +1,168 @@
+## AGENTS.md
+45: ## Contract documents
+46: 
+47: CONTRACT.md is the only acceptance text and status source; ACCEPTANCE.md and docs/CLAIMS.md are generated from it. After editing it, regenerate, check and relock:
+48: 
+49: Lander-Regenerate: node src/base/contract-docs.mjs write
+50: Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
+51: 
+52: Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
+53: 
+
+## src/base/contract-docs.mjs
+165:       counts[state]++
+166:       table.push(`| ${[value('#') || String(index + 1), ...location, value('Claim'), linked.map(clause => `\`${clause.id}\` ${clause.status}`).join('; '), ...backing, ...(hasNonProduct ? ['Product'] : []), ...(provenance ? [source?.status || 'Not recorded'] : []), state].map(tableCell).join(' | ')} |`)
+167:     }
+168:     claims.push(table.join('\n'), `Claims: ${rows.length}; ${counts.done} done, ${counts.partial} partial, ${counts.missing} missing.${hasNonProduct ? ` Non-product: ${counts.unassessed} unassessed.` : ''}`)
+169:     if (provenance) claims.push(`Historical claim source: \`${provenance.old}\`. Exact source files, lines, text and historical statuses are retained in CONTRACT.md's contract-claim-source record.`)
+170:   }
+171:   return { 'CONTRACT.md': rewritten, 'ACCEPTANCE.md': acceptance.join('\n\n') + '\n', 'docs/CLAIMS.md': claims.join('\n\n') + '\n' }
+172: }
+173: function generate(check = false) {
+174:   const text = read('CONTRACT.md')
+175:   if (text === undefined) throw Error('CONTRACT.md does not exist.')
+176:   const coverage = read(covMapPath)
+177:   if (coverage !== undefined) {
+178:     let original
+179:     try { original = anchoredSnapshot(JSON.parse(coverage).old?.commit) }
+180:     catch (error) { throw Error(`${covMapPath}: original SHA is unavailable: ${error.message}`) }
+181:     validateOriginalClaims(original)
+182:   }
+183:   const files = generatedFiles(text), changed = Object.entries(files).filter(([name, contents]) => read(name) !== contents)
+184:   const provenance = readClaimSource(text)
+185:   if (provenance) for (const { name, original } of [{ name: 'docs/contract/ID-MAP.json', original: map => map.old }, { name: 'docs/contract/COVERAGE.json', original: map => map.old?.commit }]) {
+186:     const source = read(name)
+187:     if (source === undefined || original(JSON.parse(source)) !== provenance.old) throw Error(`${name}: original SHA must equal contract-claim-source old ${provenance.old}.`)
+188:   }
+189:   if (check && changed.length) throw Error(changed.map(([name]) => `${name}: generated content differs; run contract-docs write.`).join('\n'))
+190:   if (!check) for (const [name, contents] of changed) put(name, contents)
+943: const usage = 'Usage: contract-docs.mjs write|check|check-prose|anchor --old <ref>|id-map --old <ref>|coverage init|check --old <ref>|coverage rebase --from <ref> --onto <ref>|convert --old <ref> [--old-acceptance <ref>] [--claim-map <file>]';
+944: function main(args) {
+945:   const [command, ...rest] = args
+946:   const option = (name, description = 'Git reference') => {
+947:     const index = rest.indexOf(name)
+948:     if (index < 0 || !rest[index + 1] || rest[index + 1].startsWith('--')) throw Error(`Provide ${name} and its ${description}.`)
+949:     if (rest.lastIndexOf(name) !== index) throw Error(`Provide ${name} only once.`)
+950:     return rest[index + 1]
+951:   }
+952:   if (command === 'write' && !rest.length) generate()
+953:   else if (command === 'check' && !rest.length) { checkProse(); generate(true) }
+954:   else if (command === 'check-prose' && !rest.length) checkProse()
+955:   else if (command === '--help' && !rest.length) console.log(usage)
+956:   else if (command === 'anchor') {
+957:     const old = snapshot(option('--old'))
+958:     const expected = read(covMapPath) === undefined ? undefined : covReadMap().old?.commit
+959:     if (expected !== undefined && old.commit !== expected) throw Error(`${anchorPath}: contract_anchor_invalid: --old must match COVERAGE.json old.commit ${expected}.`)
+960:     const provenance = readClaimSource(read('CONTRACT.md') ?? '')
+961:     if (provenance && old.commit !== provenance.old) throw Error(`${anchorPath}: contract_anchor_invalid: --old must match contract-claim-source old ${provenance.old}.`)
+962:     put(anchorPath, json(createAnchor(old.commit)))
+963:     console.log(`Recorded ${anchorPath} for ${old.commit}.`)
+964:   }
+965:   else if (command === 'id-map') idMap(snapshot(option('--old')))
+966:   else if (command === 'coverage' && rest[0] === 'init') coverageInit(snapshot(option('--old')))
+967:   else if (command === 'coverage' && rest[0] === 'check') coverageCheck(snapshot(option('--old')))
+968:   else if (command === 'coverage' && rest[0] === 'rebase') coverageRebase(snapshot(option('--from')), snapshot(option('--onto')))
+969:   else if (command === 'convert') convert(snapshot(option('--old')), rest.includes('--old-acceptance') ? snapshot(option('--old-acceptance')) : undefined, rest.includes('--claim-map') ? option('--claim-map', 'JSON file path') : undefined)
+970:   else throw Error(usage)
+971: }
+972: try { main(process.argv.slice(2)) } catch (error) { console.error(error.message); process.exitCode = 1 }
+
+## scripts/edition-authoring/cli.mjs
+15: const resolve = (retain = false, diagnostics = false) => resolveSources(root, retain, diagnostics);
+16: function check() {
+17:   const expected = JSON.parse(fs.readFileSync(path.join(root, 'sources.lock.json'), 'utf8'));
+18:   const actual = resolve();
+19:   if (json(expected) !== json(actual)) throw Error('Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock');
+20:   return actual;
+21: }
+22: function materialize(destination) {
+55: try {
+56:   const args = process.argv.slice(2);
+57:   // Package scripts may forward their argument separator after the command.
+58:   if (args[1] === '--') args.splice(1, 1);
+59:   const [command, argument, candidate, current] = args;
+60:   let result;
+61:   if (command === 'adopt') result = adoptEdition(root);
+62:   else if (command === 'inspect') result = manifest(root);
+63:   else if (command === 'lock') {
+64:     result = resolve(true);
+65:     fs.writeFileSync(path.join(root, 'sources.lock.json'), json(result));
+66:   } else if (command === 'check') result = {ok: true, ...check()};
+67:   else if (command === 'materialize' && argument) result = materialize(argument);
+
+## scripts/edition-authoring/lock.mjs
+1: import fs from 'node:fs';
+2: import path from 'node:path';
+3: import {fileURLToPath} from 'node:url';
+4: import {manifest, VERSION} from './manifest.mjs';
+5: import {snapshot, merge} from './sources.mjs';
+6: import {hash, json, tracked, toolFiles} from './files.mjs';
+7: 
+8: function toolsIdentity() {
+9:   const dir = path.dirname(fileURLToPath(import.meta.url));
+10:   const names = toolFiles(dir);
+11:   const bytes = names.map(p => p + '\0' + fs.readFileSync(path.join(dir, p), 'utf8')).join('\0');
+12:   return {id: 'runeditrun/edition-authoring', version: VERSION, sha256: hash(bytes)};
+13: }
+14: function includes(files, selected) {
+15:   return Object.keys(files).some(p => p === selected || p.startsWith(selected + '/'));
+16: }
+17: export function resolveSources(root, retain = false, diagnostics = false, additionalFiles = {}) {
+18:   const recipe = manifest(root);
+19:   const files = Object.assign(tracked(root, diagnostics), additionalFiles);
+20:   // The recipe is input even before initial adoption has staged it.
+21:   files['edition.json'] ??= {data: fs.readFileSync(path.join(root, 'edition.json')).toString('base64'), executable: false};
+22:   const components = [];
+23:   for (const component of recipe.components) {
+24:     const selected = component.source;
+25:     if (selected.workspace) throw Error('Retain workspace edits by promotion or commit and exact revision selection before locking/release');
+26:     const reference = selected.kind === 'git' ? selected : selected.origin;
+27:     const baseline = reference ? snapshot(root, reference, retain) : null;
+28:     if (selected.kind === 'git') merge(files, selected.destination, baseline.files);
+29:     else for (const name of selected.paths) {
+30:       if (!diagnostics && !includes(files, name)) throw Error(`Local source missing or untracked: ${name}`);
+31:     }
+32:     for (const mapping of selected.mappings || []) {
+33:       if ((!diagnostics && !includes(files, mapping.path)) || !baseline || !includes(baseline.files, mapping.originPath)) {
+34:         throw Error('Mapping names missing local or retained origin source');
+35:       }
+36:     }
+37:     components.push({id: component.id, source: selected, baseline: baseline ? {key: baseline.key, digest: baseline.digest, sha256: hash(json(baseline))} : null});
+38:   }
+39:   const parent = recipe.parent ? snapshot(root, {...recipe.parent, excludeSnapshots: true}, retain) : null;
+40:   const identities = Object.entries(files).sort(([a], [b]) => a.localeCompare(b)).map(([name, value]) => [name, {
+41:     sha256: hash(Buffer.from(value.data, 'base64')), executable: value.executable,
+42:   }]);
+43:   return {
+44:     schemaVersion: 1, parent: parent ? {key: parent.key, digest: parent.digest, sha256: hash(json(parent))} : null,
+45:     edition: recipe.id, manifest: hash(json(recipe)), toolchain: toolsIdentity(),
+46:     components, files: Object.fromEntries(identities),
+47:   };
+48: }
+
+## scripts/edition-authoring/files.mjs
+115:     const stat = fs.statSync(path.join(root, name));
+116:     if (!stat.isFile()) throw Error(`Unsupported tracked source: ${name}`);
+117:     result[name] = {data: fs.readFileSync(path.join(root, name)).toString('base64'), executable: !!(stat.mode & 0o111)};
+118:   }
+119:   return result;
+120: }
+121: export const digest = files => hash(json(files));
+122: // The complete tool in `dir`, as sorted relative paths: its non-test modules and
+123: // every vendored parser file with its licence. Copies and the lock identity use it.
+124: export const toolFile = name => name.startsWith('vendor/') || !name.includes('/') && name.endsWith('.mjs') && !name.endsWith('.test.mjs');
+125: export function toolFiles(dir) {
+126:   const modules = fs.readdirSync(dir).filter(toolFile);
+127:   const vendored = fs.readdirSync(path.join(dir, 'vendor'), {recursive: true, withFileTypes: true}).filter(entry => {
+128:     if (!entry.isFile() && !entry.isDirectory()) throw Error(`Unsupported vendored tool entry: ${entry.name}`);
+129:     return entry.isFile();
+130:   }).map(entry => path.relative(dir, path.join(entry.parentPath, entry.name)).split(path.sep).join('/'));
+131:   return [...modules, ...vendored].sort();
+132: }
+133: // Base's test, fixture and browser-check sources, which portable copies leave out.
+134: // Composition pins its tooling alone, so composition/git-source.mjs keeps its own copy.
+135: export function testSource(path) {
+136:   return path.split('/').some(part => ['test', 'tests', 'fixtures'].includes(part)) ||
+137:     /(?:\.test\.[^/]+|(?:^|\/)test-manifest-support\.mjs$|(?:^|\/)(?:test-fixture|[^/]+-fixture)\.(?:mjs|cjs)$|(?:^|\/)(?:tests|test_[^/]+|[^/]*_tests)\.py|(?:^|\/)browser-(?:check|output)\.mjs)$/.test(path);
+138: }
+

@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-regeneration-fix-1",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-regeneration-fix-1",
+  "head": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "origin_main": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "candidate_commits": [],
+  "candidate_identity_trailers": "",
+  "working_tree_status": "",
+  "changed_files": [],
+  "counts_before": {
+    "CONTRACT.md": [
+      "| Published | 9 | 3 | 0 | 12 |",
+      "| Target and push further | 13 | 44 | 36 | 93 |",
+      "| All | 22 | 47 | 36 | 105 |"
+    ],
+    "ACCEPTANCE.md": [
+      "| Core | 22 | 44 | 21 | 87 |",
+      "| Agent surface | 0 | 3 | 15 | 18 |",
+      "| Later | 0 | 0 | 0 | 0 |",
+      "| Full target | 22 | 47 | 36 | 105 |"
+    ]
+  },
+  "counts_after": {
+    "CONTRACT.md": [
+      "| Published | 9 | 3 | 0 | 12 |",
+      "| Target and push further | 13 | 44 | 36 | 93 |",
+      "| All | 22 | 47 | 36 | 105 |"
+    ],
+    "ACCEPTANCE.md": [
+      "| Core | 22 | 44 | 21 | 87 |",
+      "| Agent surface | 0 | 3 | 15 | 18 |",
+      "| Later | 0 | 0 | 0 | 0 |",
+      "| Full target | 22 | 47 | 36 | 105 |"
+    ]
+  },
+  "clause_status_changes": [],
+  "test_registration_delta": 0,
+  "mechanical": {
+    "generated_views_unchanged": true,
+    "source_lock_unchanged": true,
+    "contract_unchanged": true,
+    "changelog_unchanged": true,
+    "archive_script_present": false,
+    "history_and_ledger_files_unchanged": true,
+    "retained_history_files": [
+      {
+        "path": "CHANGELOG.md",
+        "sha256": "77383c649aaac23caf781083fece1fa91044154ad69f8dc1f89b8a2e8f15a4e6"
+      },
+      {
+        "path": "RULINGS.md",
+        "sha256": "caf18cf13e009ad95bbb897e4f1c1cc550c474c6235de67ef944aff3c293c896"
+      },
+      {
+        "path": "docs/contract/COVERAGE.json",
+        "sha256": "5e8d69238b8142bea84791d709ba61bacc1839ebae5057491d295f6fd10526f9"
+      },
+      {
+        "path": "docs/contract/ID-MAP.json",
+        "sha256": "b24f5b794f2bde6896b4632caae7334d4bb8dad7dcb1433b57feff53f37adf79"
+      },
+      {
+        "path": "packages/sdk/CHANGELOG.md",
+        "sha256": "eb6c68fada307b35d39c0bea2301170bca58f06b619077a7a2e2494a6c1de4b8"
+      },
+      {
+        "path": "src/demo/history.ts",
+        "sha256": "186f7a7a28727277f7185578327cee6deef491eb7f17b893a40f072ddd7ca728"
+      },
+      {
+        "path": "src/domain/reports/history.ts",
+        "sha256": "34e9e9695198785715bc770efea159010b146e30df4bd398a2a844c4d8f05b86"
+      },
+      {
+        "path": "src/modules/import-kit/src/d1/history.ts",
+        "sha256": "6d4e90a5fa63146a8ad1ee968d4f2e5f5584af7740ec05fb45d1c2c701aebcf4"
+      },
+      {
+        "path": "src/modules/operator-auth/scheduled/history.mjs",
+        "sha256": "b1428a3aef4a357211a465f6a662482d1bd9897c6f1f171b59709cb1aac2b856"
+      },
+      {
+        "path": "src/modules/portability/ledgers.mjs",
+        "sha256": "7a0a2ed823edc17305696ba624e85c38b9b405341d4886d7a43e30252abe3a04"
+      }
+    ]
+  },
+  "ci": {
+    "task_run_ids": [],
+    "historical_run_from_brief": "41833857598",
+    "historical_run_verified_in_this_task": false
+  },
+  "product_push": false,
+  "pr_url": null,
+  "processes_started": [],
+  "cleanup": "Delete clean disposable clone after report-only evidence publication; no application processes or node_modules were created."
+}

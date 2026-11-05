@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "main_sha": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "commands": [
+    {
+      "name": "04-recorded-refusal-command",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node src/base/contract-docs.mjs write; node scripts/archive-history.mjs",
+      "exit": 1,
+      "stdout_file": "04-recorded-refusal-command.stdout.txt",
+      "stderr_file": "04-recorded-refusal-command.stderr.txt"
+    },
+    {
+      "name": "05-current-contract-generation",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0,
+      "stdout_file": "05-current-contract-generation.stdout.txt",
+      "stderr_file": "05-current-contract-generation.stderr.txt"
+    },
+    {
+      "name": "06-current-generated-check",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "stdout_file": "06-current-generated-check.stdout.txt",
+      "stderr_file": "06-current-generated-check.stderr.txt"
+    },
+    {
+      "name": "07-restore-main-generated-views",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "stdout_file": "07-restore-main-generated-views.stdout.txt",
+      "stderr_file": "07-restore-main-generated-views.stderr.txt"
+    },
+    {
+      "name": "08-source-lock-last",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "stdout_file": "08-source-lock-last.stdout.txt",
+      "stderr_file": "08-source-lock-last.stderr.txt"
+    },
+    {
+      "name": "09-final-source-check",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "stdout_file": "09-final-source-check.stdout.txt",
+      "stderr_file": "09-final-source-check.stderr.txt"
+    },
+    {
+      "command": "git status --porcelain",
+      "stdout": "",
+      "exit": 0
+    }
+  ]
+}

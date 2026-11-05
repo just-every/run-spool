@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "main_sha": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "cwd": "/workspace/sd-spool-regeneration-fix-1",
+  "node": "v24.19.0",
+  "pnpm": "10.12.4",
+  "declaration_lines": [
+    "Lander-Regenerate: node src/base/contract-docs.mjs write",
+    "Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock"
+  ],
+  "archive_script_exists": false,
+  "before": {
+    "AGENTS.md": "c55afa2bc39556d2c615a9f70e6c8b7a513383b0c11eaddb4981c731173f7a8f",
+    "CONTRACT.md": "90484e13115143ccfbdd8a7a7b4f1a082369b246d4c26efb6e9fb36f8551ef4f",
+    "ACCEPTANCE.md": "3e03153d0373fb1629851145212ef72cd585ba0963a767bcfc980d1c0df99de4",
+    "docs/CLAIMS.md": "ba3b25d0dafda3c4dd266dab0e7ba456f83b81ace2100bf0b4eb43a22958ca14",
+    "CHANGELOG.md": "77383c649aaac23caf781083fece1fa91044154ad69f8dc1f89b8a2e8f15a4e6",
+    "sources.lock.json": "389429bb5e0dfc4e54007d09d4ea9b265e3f6fa64ac4b28b4ea3c0bde6336b90",
+    "docs/contract/COVERAGE.json": "5e8d69238b8142bea84791d709ba61bacc1839ebae5057491d295f6fd10526f9",
+    "docs/contract/ID-MAP.json": "b24f5b794f2bde6896b4632caae7334d4bb8dad7dcb1433b57feff53f37adf79",
+    "docs/contract/ANCHOR.json": null
+  },
+  "after": {
+    "AGENTS.md": "c55afa2bc39556d2c615a9f70e6c8b7a513383b0c11eaddb4981c731173f7a8f",
+    "CONTRACT.md": "90484e13115143ccfbdd8a7a7b4f1a082369b246d4c26efb6e9fb36f8551ef4f",
+    "ACCEPTANCE.md": "3e03153d0373fb1629851145212ef72cd585ba0963a767bcfc980d1c0df99de4",
+    "docs/CLAIMS.md": "ba3b25d0dafda3c4dd266dab0e7ba456f83b81ace2100bf0b4eb43a22958ca14",
+    "CHANGELOG.md": "77383c649aaac23caf781083fece1fa91044154ad69f8dc1f89b8a2e8f15a4e6",
+    "sources.lock.json": "389429bb5e0dfc4e54007d09d4ea9b265e3f6fa64ac4b28b4ea3c0bde6336b90",
+    "docs/contract/COVERAGE.json": "5e8d69238b8142bea84791d709ba61bacc1839ebae5057491d295f6fd10526f9",
+    "docs/contract/ID-MAP.json": "b24f5b794f2bde6896b4632caae7334d4bb8dad7dcb1433b57feff53f37adf79",
+    "docs/contract/ANCHOR.json": null
+  },
+  "commands": [
+    {
+      "name": "01-declared-regeneration",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node src/base/contract-docs.mjs write; node scripts/edition-authoring/cli.mjs lock",
+      "started_at": "2026-11-05T21:45:14.575858+00:00",
+      "exit": 0,
+      "stdout_file": "01-declared-regeneration.stdout.txt",
+      "stderr_file": "01-declared-regeneration.stderr.txt"
+    },
+    {
+      "name": "02-generated-contract-check",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "node src/base/contract-docs.mjs check",
+      "started_at": "2026-11-05T21:45:17.543024+00:00",
+      "exit": 0,
+      "stdout_file": "02-generated-contract-check.stdout.txt",
+      "stderr_file": "02-generated-contract-check.stderr.txt"
+    },
+    {
+      "name": "03-source-check",
+      "cwd": "/workspace/sd-spool-regeneration-fix-1",
+      "command": "pnpm source:check",
+      "started_at": "2026-11-05T21:45:17.993287+00:00",
+      "exit": 0,
+      "stdout_file": "03-source-check.stdout.txt",
+      "stderr_file": "03-source-check.stderr.txt"
+    }
+  ],
+  "status": "",
+  "diff_stat": ""
+}
