@@ -1,0 +1,7 @@
+{
+  "head": "0a235b7846397d7a2580cfb8b9ab1299e5424594",
+  "command": "timeout 1200 pnpm test:agent-door",
+  "exit": 0,
+  "browserExecutable": "/usr/bin/chromium",
+  "testSha256": "dcb2e84fb24d3bf1fb31410a92510b07b38015c1086ce0a248865283d4305ab5"
+}

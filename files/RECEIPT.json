@@ -1,0 +1,76 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f331",
+  "head": "0a235b7846397d7a2580cfb8b9ab1299e5424594",
+  "mainAtLastFetch": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "firstSave": "1482d11f33c62a9d22a8e4af710b44b7ec96b77c",
+  "statusBefore": "partial",
+  "statusAfter": "partial",
+  "countsBefore": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "countsAfter": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "statusRowsBefore": 105,
+  "statusRowsAfter": 105,
+  "productFiles": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/agent-door/protocol-contract.mjs"
+  ],
+  "productPushExit": 0,
+  "candidateJourneyExit": 0,
+  "installedConformance": {
+    "passed": 9095,
+    "total": 9095,
+    "exit": 0
+  },
+  "typecheckExit": 0,
+  "firstPartyExit": 0,
+  "sourceLockExit": 0,
+  "generatedViewsWriteAndCheckExit": 0,
+  "restoredViewsCheckExit": 1,
+  "generatedViewsCommitted": false,
+  "newTestRegistrations": 0,
+  "existingAssertionsRemoved": false,
+  "pr": null,
+  "ciDiscoveryCalls": 2,
+  "candidateVerify": {
+    "id": 42134421385,
+    "event": "push",
+    "status": "completed",
+    "head": "0a235b7846397d7a2580cfb8b9ab1299e5424594",
+    "conclusion": "failure",
+    "permittedGeneratedViewException": true,
+    "underlyingFailure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "buildJob": 127618883147,
+    "dependentFailedJobs": [
+      127619122716,
+      127619166810
+    ],
+    "localProseErrors": 0,
+    "localProseWarnings": 0
+  },
+  "publicationScan": {
+    "status": "delegated to guarded Mac lander",
+    "claimedComplete": false
+  },
+  "landingClaimed": false,
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0,
+    "logSha256": "7174b0f81d3e3e1a6297cbfccd3cf987a410e84849ff11784ec87f15101b594c"
+  },
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup with required fleet owner and non-interactive options",
+    "exit": 0,
+    "privateSettingsExcludedFromPacket": true
+  },
+  "githubCallsUsed": 7,
+  "readyBasis": "All local touched checks passed; exact candidate Verify has only the explicitly permitted generated-view freshness failure and dependent aggregate failures."
+}

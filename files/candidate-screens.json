@@ -1,0 +1,122 @@
+[
+  {
+    "name": "approval-pending",
+    "path": "/agents/approvals/f19c142a-8c23-420c-8104-10259a2ad6f6",
+    "axeSeriousCritical": 0,
+    "buttonCount": 2,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "agents-pending",
+    "path": "/agents",
+    "axeSeriousCritical": 0,
+    "buttonCount": 1,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "native-repair",
+    "path": "/projects/door-triage/issues/24ec6665b10d6ec09eca5fe53edc5607a9b98c21da6b8f4041ca763a35df34a5",
+    "axeSeriousCritical": 0,
+    "buttonCount": 29,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "approval-executed",
+    "path": "/agents/approvals/f19c142a-8c23-420c-8104-10259a2ad6f6",
+    "axeSeriousCritical": 0,
+    "buttonCount": 0,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "agents-paused",
+    "path": "/agents",
+    "axeSeriousCritical": 0,
+    "buttonCount": 1,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "retention-shortening-approval",
+    "path": "/agents/approvals/fdb922b2-1319-4385-a136-e78d4860cd12",
+    "axeSeriousCritical": 0,
+    "buttonCount": 2,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "native-repository-consent",
+    "path": "/projects/door-shop/issues/d80b6af02a5e03bf648292b8aae06a47284085d93be1f22d72c34657589a11f9",
+    "axeSeriousCritical": 0,
+    "buttonCount": 31,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "agents-provider-blocked",
+    "path": "/agents",
+    "axeSeriousCritical": 0,
+    "buttonCount": 29,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "github-approval-pending",
+    "path": "/agents/approvals/5102e784-3048-4a57-9214-c74226b4bc88",
+    "axeSeriousCritical": 0,
+    "buttonCount": 2,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "native-reproducer-fix",
+    "path": "/projects/door-shop/issues/d80b6af02a5e03bf648292b8aae06a47284085d93be1f22d72c34657589a11f9",
+    "axeSeriousCritical": 0,
+    "buttonCount": 31,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "native-reviewer-audit",
+    "path": "/projects/door-shop/issues/d80b6af02a5e03bf648292b8aae06a47284085d93be1f22d72c34657589a11f9",
+    "axeSeriousCritical": 0,
+    "buttonCount": 32,
+    "screens": [
+      1440,
+      390
+    ]
+  },
+  {
+    "name": "approval-missing",
+    "path": "/agents/approvals/not-a-request",
+    "axeSeriousCritical": 0,
+    "buttonCount": 0,
+    "screens": [
+      1440,
+      390
+    ]
+  }
+]

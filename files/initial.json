@@ -1,0 +1,11 @@
+{
+  "main": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "predecessor": "9c20965daa8bae8063f95b10390c4f3b1b5675ad",
+  "predecessorAlreadyLanded": true,
+  "counts": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "statusRows": 105
+}

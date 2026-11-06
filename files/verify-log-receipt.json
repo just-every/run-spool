@@ -1,0 +1,5 @@
+{
+  "command": "gh run view 42134421385 --repo just-every/run-spool --job 127619166810 --log-failed",
+  "exit": 0,
+  "job": 127619166810
+}
