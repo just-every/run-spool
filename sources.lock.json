@@ -10406,7 +10406,7 @@
       "executable": false
     },
     "tests/agent-door/protocol-contract.mjs": {
-      "sha256": "dcb2e84fb24d3bf1fb31410a92510b07b38015c1086ce0a248865283d4305ab5",
+      "sha256": "40de38af2da2ff1879229f527a94aea31c85f2b46736c3d24b031165d07eb7bd",
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {

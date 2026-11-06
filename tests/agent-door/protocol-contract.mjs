@@ -21,7 +21,7 @@ export async function protocolContract(){
     const body=JSON.stringify({jsonrpc:'2.0',id:++id,method,params:legacyClient?params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}});
     const bytes=new TextEncoder().encode(body);let offset=0;
     const response=await fetch(app.origin+'/mcp',{method:'POST',headers:{
-     Authorization:'Bearer '+await accessToken(app.context),Origin:app.canonicalOrigin,
+     Authorization:'Bearer '+await accessToken(app.context),Origin:app.canonicalOrigin,Connection:'close',
      Accept:'application/json, text/event-stream','Content-Type':'application/json',
      ...legacyClient?method==='initialize'?{}:{'MCP-Protocol-Version':version}:{'MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{}},...headers,
     },body:stream?new ReadableStream({pull(controller){
