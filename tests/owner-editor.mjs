@@ -55,15 +55,40 @@ try {
  assert.equal(grant.config.installationId, 'spool-editor-acceptance');
  assert.ok(grant.expiresAt > requestedAt && grant.expiresAt <= Date.now() + 30_000, 'native owner receives a current short-lived editor configuration');
  assert.equal((await app.call('/api/projects', {id: 'editor-scope', name: 'Editor scope'}, {Cookie: cookie})).status, 201);
- const agentGrant = await (await app.call('/api/projects/editor-scope/keys', {kind: 'agent'}, {Cookie: cookie})).json();
- assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200);
+ const projectResponse = await app.call('/api/projects', {id: 'synthetic-spool-1', name: 'Synthetic editor evidence'}, {Cookie: cookie});
+ assert.equal(projectResponse.status, 201);
+ const project = await projectResponse.json();
+ assert.equal((await app.call('/api/projects/synthetic-spool-1/releases', {name: 'editor-release', build: 'editor-build'}, {Cookie: cookie})).status, 201);
+ const captured = await app.call('/api/ingest/synthetic-spool-1', {
+  version: 1, eventId: 'synthetic-spool-1', release: 'editor-release', build: 'editor-build', environment: 'production',
+  type: 'TypeError', message: 'Synthetic editor authority evidence',
+  frames: [{file: 'https://example.test/editor.js', line: 1, column: 0, function: 'editorAuthority'}],
+ }, {Authorization: `Bearer ${project.ingestKey}`});
+ assert.equal(captured.status, 201);
+ const accepted = await captured.json();
+ assert.equal(accepted.outcome, 'accepted');
+ const agentGrant = await (await app.call('/api/projects/synthetic-spool-1/keys', {kind: 'agent'}, {Cookie: cookie})).json();
+ const readIssues = async headers => {
+  const response = await app.call('/api/projects/synthetic-spool-1/issues', undefined, headers);
+  assert.equal(response.status, 200, 'the current authority reads the captured issue');
+  const issues = await response.json();
+  assert.equal(issues.length, 1);
+  assert.equal(issues[0].id, accepted.issue);
+  assert.equal(issues[0].title, 'TypeError: Synthetic editor authority evidence');
+  assert.equal(issues[0].count, 1);
+  return issues;
+ };
+ const ownerIssues = await readIssues({Cookie: cookie});
+ const projectIssues = await readIssues({Authorization: `Bearer ${agentGrant.key}`});
+ assert.equal(projectIssues[0].id, ownerIssues[0].id, 'the live project read grant receives the captured owner issue');
  const projectConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`});
  assert.equal(projectConfig.status, 403, 'project read grants receive no editor authority');
  await refusedConfig(projectConfig);
  const mixedConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`, Cookie: cookie});
  assert.equal(mixedConfig.status, 403, 'a coincident owner cookie cannot expand project-grant editor authority');
  await refusedConfig(mixedConfig);
- assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200, 'the refused editor request leaves the project read grant usable');
+ assert.equal((await app.call('/api/projects/synthetic-spool-1/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200, 'the refused editor request leaves the project read grant usable');
+ assert.deepEqual(await readIssues({Authorization: `Bearer ${agentGrant.key}`}), projectIssues, 'editor refusals preserve the captured issue and project read authority');
  const ownerConfig = await app.call('/api/editor/config', undefined, {Cookie: cookie});
  assert.equal(ownerConfig.status, 200, 'native owner access still works after editor refusals');
  assert.deepEqual((await ownerConfig.json()).config, grant.config);
@@ -112,6 +137,7 @@ try {
    const revokedConfig = await app.call('/api/editor/config', undefined, {Cookie: signedIn});
    assert.equal(revokedConfig.status, 403, 'revoked native session loses config authority');
    await refusedConfig(revokedConfig);
+   assert.equal((await app.call('/api/editor/config', undefined, {Cookie: cookie})).status, 200, 'revoking the current browser session preserves a different native owner session');
   } finally {await context.close();}
  }
  // The browser also enforces the management service's frame-ancestors refusal.
@@ -126,5 +152,5 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-rer-editor]')?.getAttribute('data-connection') === 'timeout', undefined, {timeout: 20_000});
   assert.ok(violations.length, 'browser blocked management framing');
  } finally {await context.close();}
- console.log('OWNER EDITOR passed: unconfigured owner has no editor or console errors; partial config fails; anonymous/project-grant refusal, native owner config and CSP, 1440/390 revealed interactive iframe, live preview/undo after same-leaf and missing-route history navigation, focus preservation, logout revocation, management CSP refusal.');
+ console.log('OWNER EDITOR passed: unconfigured owner has no editor or console errors; partial config fails; anonymous and live project-grant refusal with preserved captured evidence, native owner config and CSP, 1440 and 390 revealed interactive iframe, live preview and undo after same-leaf and missing-route history navigation, focus preservation, logout revocation, management CSP refusal.');
 } finally {await browser?.close(); await app?.close(); await edge.close();}

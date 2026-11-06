@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "355f07286634c2944dc63e4fcd8a591efd58da65bcde61e6750bc4948f5475f2",
+      "sha256": "663ae6a382e5aa413d3a6e2eac5dfcd2e9ab6840892f064ce9e45d18416e9197",
       "executable": false
     },
     "DEMO.md": {
@@ -10834,7 +10834,7 @@
       "executable": false
     },
     "tests/owner-editor.mjs": {
-      "sha256": "071084fc1303f082bec6898815b7a12cc825a39d0405bb0fcdd7d5cd3a6eae4b",
+      "sha256": "f01e8efc23f475968579cc2b92d82377aaea730e4c1d09392866ab928f177b82",
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {
