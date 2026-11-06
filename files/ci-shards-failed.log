@@ -1,0 +1,10 @@
+shards (spool)	Require every job in this coverage partition	﻿2026-11-06T01:22:13.0749469Z ##[group]Run set -euo pipefail
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0750519Z [36;1mset -euo pipefail[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0751237Z [36;1mcase "$SHARD" in[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0752558Z [36;1m  spool) test "$BUILD" = success && test "$RUNTIMES" = success && test "$TESTS" = success ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0753928Z [36;1m  commands) test "$COMMANDS" = success ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0755114Z [36;1m  *) exit 1 ;;[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.0755655Z [36;1mesac[0m
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.4304965Z shell: /usr/bin/bash -e {0}
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.4309570Z ##[endgroup]
+shards (spool)	Require every job in this coverage partition	2026-11-06T01:22:13.4532828Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,6 @@
+rer toolchain: node v24.19.0 pnpm 10.12.4 (pins 22.20.0 / 10.12.4)
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.3 typecheck /home/agent/rer-consolidation/work/sd-spool-c-f334/run-spool
+> tsc --noEmit
+

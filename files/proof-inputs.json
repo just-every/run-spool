@@ -1,0 +1,6 @@
+{
+  "CONTRACT.md": "663ae6a382e5aa413d3a6e2eac5dfcd2e9ab6840892f064ce9e45d18416e9197",
+  "tests/owner-editor.mjs": "f01e8efc23f475968579cc2b92d82377aaea730e4c1d09392866ab928f177b82",
+  "src/editor/config.server.ts": "6dee08e183109965edc961377871528564158e730c35388d86fcfd1ed32d4ab3",
+  "tests/commands.mjs": "2acd5331595c660bf032aca7ed6dcb87459ff52e230c4310341fc859f684034a"
+}

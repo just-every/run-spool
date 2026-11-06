@@ -1,0 +1,20 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The "string" argument must be of type string. Received type object (null)
+    at refusedConfig (file:///home/agent/rer-consolidation/work/sd-spool-c-f334/run-spool/tests/owner-editor.mjs:42:10)
+    at file:///home/agent/rer-consolidation/work/sd-spool-c-f334/run-spool/tests/owner-editor.mjs:89:8
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: /no-store/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

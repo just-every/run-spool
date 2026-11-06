@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "1d5ac4e7241bbfdc70c2e9048a668012598f668e",
+      "bytes": 13883,
+      "path": "REPORT.md",
+      "sha256": "55e084890805d23379398f4498cf58aab931a8cb17830709b380c9e813cdfb99"
+    },
+    {
+      "blob": "7131b01ba0a1d80b395385717d9c720921004bcd",
+      "bytes": 1614,
+      "path": "checks.json",
+      "sha256": "1e87d278076b531859a8b37eee44f96968a87237cb1bdca5e9af4a38fa1f1f07"
+    },
+    {
+      "blob": "ad5f78c4705dc5f83e49ab3ce2395b0fb289a985",
+      "bytes": 1256841,
+      "path": "ci-build-failed.log",
+      "sha256": "e5cf3a3b791f77e9b4ef13641d981694887c86142d865b12aa04ca9d001e2641"
+    },
+    {
+      "blob": "b284c348dd245144a4f55c9674586abab153b8b4",
+      "bytes": 259,
+      "path": "ci-discovery.json",
+      "sha256": "a4e49d2fc950850e5ad19e0fa081a5de9220f31b9e88de14f989421e6a09f4ce"
+    },
+    {
+      "blob": "4d5173d7766ba6852d9f30a3b460d8554bcbb90a",
+      "bytes": 178,
+      "path": "ci-final.json",
+      "sha256": "3542cf025335345a610d2a8778a43bed265b4fa8a652b8c1cac018cbcde540ea"
+    },
+    {
+      "blob": "28c1d700c4dbdcdf2081415554e0f16351304131",
+      "bytes": 1230,
+      "path": "ci-jobs.json",
+      "sha256": "60be6b54e13ef8c9939bb19d6a5ae0e2d6a11c7af1a5d4f7d57d0ab11c7cfbe9"
+    },
+    {
+      "blob": "d7298715c784d18e4accfb74279e0ab46a779be8",
+      "bytes": 1266,
+      "path": "ci-shards-failed.log",
+      "sha256": "caacc3f166c98c90768dcd0ebb3917b43bfaefcc13c29bb667b115231bcc04d0"
+    },
+    {
+      "blob": "48662b4eba549d402f8c0e948b7b437f8b22fc9d",
+      "bytes": 1905,
+      "path": "ci-verify-failed.log",
+      "sha256": "37c23606a697476f1b5892ff13001447cb8decd080d7d0bd884d59c15d6d7c7e"
+    },
+    {
+      "blob": "1bc8c0c44aadaa49b3f7a81fb49f26b45515b95e",
+      "bytes": 203,
+      "path": "first-party-exact.log",
+      "sha256": "7596ca6702cddf5aaf165d3e33b4e2e98388c9c2d28f90c4fc73bd7610ae10a5"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "first-party.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "7627f48c48a93cba75fcb4d0b2cacfe5a25d2eeb",
+      "bytes": 240,
+      "path": "identity-check.json",
+      "sha256": "b219b37310f17279eb3a077fb23ec4d275447f3bd7ea04a763081bbb441beccc"
+    },
+    {
+      "blob": "cddb1f88a4e33ef613adef3abda7e45f5204adac",
+      "bytes": 911654,
+      "path": "lock.log",
+      "sha256": "9ce3d3a843fb2092498e63dee3ff85e5a434f13a298aff12b46831d74573d727"
+    },
+    {
+      "blob": "5485120187432b73be312b6c2fefa5c8efdaa189",
+      "bytes": 911819,
+      "path": "mechanical.log",
+      "sha256": "f4e284fe011acfcbd7bd576b4b8d5a8c3e46325c8241fccca79494e168712167"
+    },
+    {
+      "blob": "94b957bf6324ec381665ba6e2631b6b58381e061",
+      "bytes": 583,
+      "path": "owner-editor-exact.log",
+      "sha256": "517f73ff729d175669944f5f26eaa1fb255a805b8f30d9e591c9e2aa2b53d453"
+    },
+    {
+      "blob": "8aba693f604d3954d77f0bc85e5d6eb1f6df781b",
+      "bytes": 627,
+      "path": "owner-editor-fixture-created-status.log",
+      "sha256": "344f613516a27db745d587a67ad92bc08666f0ee167b708446e16fbf0d5a022d"
+    },
+    {
+      "blob": "44f14de8c55c6502550395475bfad2ca7aa42a12",
+      "bytes": 627,
+      "path": "owner-editor-fixture-registration.log",
+      "sha256": "1bfb3158c03366b62f4d7a230096f2bf47c69d1802eec002f87c85fb13933c6d"
+    },
+    {
+      "blob": "267d8bcf5f8e80c57ae93ab670bbebfbfda0a82b",
+      "bytes": 771,
+      "path": "owner-editor-refusal-cache-assumption.log",
+      "sha256": "5a29181d5b52b5c61ec93daf5c45619bd699297b4066fa21cce7ca34644691e7"
+    },
+    {
+      "blob": "523cd1d8f3f225132ef192720cdac3a0c946d014",
+      "bytes": 516,
+      "path": "owner-editor.log",
+      "sha256": "30008531df6b153c94386e1e6a6724bd7721c7f7d8fad8a34c0a437bb9052379"
+    },
+    {
+      "blob": "e06e41384c45fe3b2f34fdae5d78c2caffc2a4ec",
+      "bytes": 898,
+      "path": "product-push.log",
+      "sha256": "6b85bf7f0c99c095affc7db87d703bcded1234a736cb31b2b315b1f5e8c0bf11"
+    },
+    {
+      "blob": "b02cb59dd8f00e9375d967f9c5d9f4182e3fdcaa",
+      "bytes": 377,
+      "path": "proof-inputs.json",
+      "sha256": "d242d6b18253dbdf705bb93493d254a38cb2a715ca97d9f9dbd775c365a8ada0"
+    },
+    {
+      "blob": "3604ac0a283154864956fb73b76c333b85025f10",
+      "bytes": 3053,
+      "path": "receipt.json",
+      "sha256": "74a7fb0822571be88051057aaaa6365ae29c3b0380435828baf1b67f572d54a1"
+    },
+    {
+      "blob": "0f453ebc2e0f0cb1161b0457fe9b964ef0d0379a",
+      "bytes": 89989,
+      "path": "screens/editor-1440.png",
+      "sha256": "ffad7ffe58aa6dbb70edd1e736ceb0b0f57263cb7b2a38b09d584ebfad12cf82"
+    },
+    {
+      "blob": "4a1897c2f7dc5fe613e2a20fd833a53e2c2b8bff",
+      "bytes": 42376,
+      "path": "screens/editor-390.png",
+      "sha256": "d9c143c17b5b099243f9ee8b4edbe5e6924a130b560919059d43eee3a24d80da"
+    },
+    {
+      "blob": "a2de9c02661984e93b02b8411fbf83737b85ff5b",
+      "bytes": 294,
+      "path": "typecheck-exact.log",
+      "sha256": "919349f4c2cd0551f04656256b495e255c8a2a5d059fd8d9e5b5a0570baea6a4"
+    },
+    {
+      "blob": "92c68d33ca936afb8bf74adc3fb447cf1408f70b",
+      "bytes": 227,
+      "path": "typecheck.log",
+      "sha256": "bd30bd49cee21639bb29c92d7e8b0399299b67d4e9f099e5562d27e76fc2e9ab"
+    },
+    {
+      "blob": "f8fb7de399b357a41cd1de544d1d265113cf1483",
+      "bytes": 105,
+      "path": "views-restored-check.log",
+      "sha256": "9cf3c390ca9f5f8c7bb13f4dd1f4058d66f2e74d194584038d85eaf0d4767d1e"
+    },
+    {
+      "blob": "1fcadea3cb6556bff041bada99ae235cca6c7997",
+      "bytes": 98,
+      "path": "views.log",
+      "sha256": "c13b82a5e8c5eb726365d51a834d1ede37697c26e0828a2aa5d52274278a4f7a"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-c-f334",
+  "product_head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+  "ref": "refs/heads/evidence/sd-spool-c-f334",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-c-f334"
+}

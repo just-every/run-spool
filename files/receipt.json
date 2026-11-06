@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f334",
+  "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+  "base": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "main_at_sync": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "counts_before": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "counts_after": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "status_rows_before": 105,
+  "status_rows_after": 105,
+  "target": "OPS-001",
+  "status_before": "partial",
+  "status_after": "partial",
+  "product_behavior_changed": false,
+  "acceptance_changed": false,
+  "pr": null,
+  "verify_run": 42143289065,
+  "publication_scan": {
+    "status": "not_run_in_cloud",
+    "owner": "guarded lander"
+  },
+  "run_site": {
+    "status": "pending_landing"
+  },
+  "probes": [
+    {
+      "id": "acceptance-8-anonymous",
+      "status": 403,
+      "configuration_disclosed": false
+    },
+    {
+      "id": "acceptance-8-project-grant",
+      "read_status": 200,
+      "captured_issues": 1,
+      "capture_count": 1,
+      "editor_status": 403,
+      "with_owner_cookie_status": 403,
+      "read_projection_unchanged": true
+    },
+    {
+      "id": "acceptance-8-owner",
+      "status": 200,
+      "private_no_store": true,
+      "short_expiry": true
+    },
+    {
+      "id": "acceptance-8-current-session-revocation",
+      "signout_status": 204,
+      "editor_status": 403,
+      "widget_removed": true,
+      "other_owner_status": 200,
+      "widths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "mechanical": {
+    "lock": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "lock_exit": 0,
+    "views": "node src/base/contract-docs.mjs write; node src/base/contract-docs.mjs check",
+    "views_exit": 0,
+    "views_restored_from_main": true,
+    "views_restored_check_exit": 1,
+    "ledger": "none; no migration change",
+    "ledger_exit": 0
+  },
+  "screens": [
+    {
+      "path": "screens/editor-1440.png",
+      "sha256": "ffad7ffe58aa6dbb70edd1e736ceb0b0f57263cb7b2a38b09d584ebfad12cf82",
+      "bytes": 89989
+    },
+    {
+      "path": "screens/editor-390.png",
+      "sha256": "d9c143c17b5b099243f9ee8b4edbe5e6924a130b560919059d43eee3a24d80da",
+      "bytes": 42376
+    }
+  ],
+  "verify": {
+    "run": 42143289065,
+    "head_sha": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+    "status": "completed",
+    "conclusion": "failure",
+    "classification": "permitted_generated_view_only_exception",
+    "root_job": 127648656461,
+    "root_step": "Check source and portable contract",
+    "error": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "dependent_failed_jobs": [
+      127648847451,
+      127648886921
+    ],
+    "test_jobs": "skipped after build freshness failure",
+    "new_dispatches": 0,
+    "reruns": 0,
+    "repair_rounds": 0
+  },
+  "github_calls": 6,
+  "status_poll_spacing_seconds": 306,
+  "ci_log_sanitization": "runner environment-header sections omitted; actual commands and failures retained"
+}

@@ -1,0 +1,37 @@
+{
+  "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+  "checks": [
+    {
+      "name": "mechanical",
+      "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+      "command": ". /tmp/rer-cloud-toolchain.sh && node src/base/contract-docs.mjs write && node src/base/contract-docs.mjs check && git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md && node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "started_utc": "2026-11-06T01:21:52.073977+00:00",
+      "seconds": 4.725
+    },
+    {
+      "name": "owner-editor-exact",
+      "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+      "command": ". /tmp/rer-cloud-toolchain.sh && cloud_run env RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium SPOOL_EDITOR_EVIDENCE=\"$HOME/rer-consolidation/work/sd-spool-c-f334/packet/screens\" perl -e 'alarm 1200; exec @ARGV' -- node tests/owner-editor.mjs",
+      "exit": 0,
+      "started_utc": "2026-11-06T01:21:56.799286+00:00",
+      "seconds": 45.536
+    },
+    {
+      "name": "typecheck-exact",
+      "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+      "command": ". /tmp/rer-cloud-toolchain.sh && pnpm typecheck",
+      "exit": 0,
+      "started_utc": "2026-11-06T01:22:42.336857+00:00",
+      "seconds": 31.217
+    },
+    {
+      "name": "first-party-exact",
+      "head": "2dd59a3535a1369ce78f1c13703a52d9a0c14346",
+      "command": ". /tmp/rer-cloud-toolchain.sh && cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "started_utc": "2026-11-06T01:23:13.555359+00:00",
+      "seconds": 5.559
+    }
+  ]
+}
