@@ -1,0 +1,27 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "full_command_exit": 124,
+  "deadline_seconds": 720,
+  "actual_duration_seconds": 721,
+  "full_command_pass": false,
+  "final_results_json_present": false,
+  "last_recorded_cli_observation": {
+    "utc": "2026-11-06T02:27:32.457073+00:00",
+    "pid": 7607,
+    "verb": "setup",
+    "context": "owned disposable project-erasure command checkout"
+  },
+  "observed_completed_browser_states": [
+    "preview",
+    "confirmation",
+    "progress",
+    "receipt"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "proof_boundary": "Refusals and protected-state comparison precede UI in tests/project-erasure.mjs; both UI erasures reached completed receipts. Reaching the later CLI setup in fenceProof requires earlier native scans and same-installation fence checks to have returned without assertion failure. Remaining fresh-destination CLI tail and full enclosing command completion are unestablished; no full PASS is claimed. Original owner-erasure command independently completed all its old-capture and fresh-destination fences with exit 0.",
+  "assertion_failure_logged": false,
+  "cleanup": "No live node, workerd, Chromium or timeout process remained after the subreaper returned; owned interrupted temporary checkout will be removed explicitly."
+}

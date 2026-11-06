@@ -1,0 +1,69 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "journey": "tests/audit-history.mjs",
+  "browser": "/usr/bin/chromium",
+  "widths": [
+    1440,
+    390
+  ],
+  "states": [
+    "history",
+    "export",
+    "error",
+    "denied",
+    "empty"
+  ],
+  "screenshots": [
+    {
+      "file": "browser/history-1440.png",
+      "bytes": 139794,
+      "sha256": "2578cb125fca1993af8de287286803ba2e668da332168881e5ec4b95e19413cf"
+    },
+    {
+      "file": "browser/history-390.png",
+      "bytes": 79829,
+      "sha256": "391c7aa512353130ad513873b65e7a103f4dbdf496fdd98184062bc9f2041b29"
+    },
+    {
+      "file": "browser/export-1440.png",
+      "bytes": 139795,
+      "sha256": "6b93a4136cc847450d0a369235f047e8132a4d2c7e14e841317075c2909bc246"
+    },
+    {
+      "file": "browser/export-390.png",
+      "bytes": 79833,
+      "sha256": "449c9b5caa84a44dd96fdd35a67c99bf71599d0f37ce14687ccc78d1a08a3a9a"
+    },
+    {
+      "file": "browser/error-1440.png",
+      "bytes": 144325,
+      "sha256": "b94b64b7df3cdf5415f3525a81a7fb2f68c62581ad582ac6879a059a099b12df"
+    },
+    {
+      "file": "browser/error-390.png",
+      "bytes": 80287,
+      "sha256": "22534ac3f9aa6f2616ed66e3a0c0fc468b36f24979a18ef7452ce10e37fa894d"
+    },
+    {
+      "file": "browser/denied-1440.png",
+      "bytes": 22102,
+      "sha256": "04d5f271455a6f1ac0dfd664f5fafc4d3ffae2fa1d37083f7f4fb1e996d16d4b"
+    },
+    {
+      "file": "browser/denied-390.png",
+      "bytes": 19946,
+      "sha256": "98e18c577ed999f005497665fd3823e093c5845166e3d0bad546a087312ef042"
+    },
+    {
+      "file": "browser/empty-1440.png",
+      "bytes": 136716,
+      "sha256": "5284c0429cb3b9953d861f9a5b15dacde08127dde86490f37475f90361044561"
+    },
+    {
+      "file": "browser/empty-390.png",
+      "bytes": 73313,
+      "sha256": "03fbd51405cc0216e84908dfe4c851651aa7a66e05112595c8aae4747823d03b"
+    }
+  ],
+  "inspection": "Functional state and publication-safety inspection; no UI/design quality judgment assigned. No credentials or actual account identifiers appear."
+}

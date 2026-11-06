@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-11-06T02:34:40.861374+00:00",
+  "owned_runtime_pids_remaining": [],
+  "removed_paths": [
+    {
+      "path": "/tmp/spool-commands-opfODS",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/tmp/ct-spool-audit001-playwright",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/node_modules",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/.rer",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/.wrangler",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/.artifacts",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/dist",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/.dev.vars",
+      "existed": true,
+      "removed": true
+    },
+    {
+      "path": "/home/agent/rer-consolidation/work/ct-judge-spool-audit001-20261105-2201-sol1/run-spool/.seed",
+      "existed": true,
+      "removed": true
+    }
+  ],
+  "tracked_product_status": "",
+  "clone": "Retained without dependencies/private runtime state only until evidence publication; final terminal cleanup removes it after transfer verification."
+}

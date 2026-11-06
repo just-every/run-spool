@@ -1,0 +1,277 @@
+{
+  "checks": [
+    "native self/other mixed canaries; real successor sign-in and sole-owner handoff; count-only plan and receipt; transport denials and stale plan nonmutation; full stored-cell scan; claim and predecessor credential fences; successor management; same/fresh archive fences",
+    "shared import originals and principal custody explicitly held without mutation",
+    "structural, ambiguous attribution and unrelated invitation holds leave all rows identical; independent other-person sessions and tokens survive; commit-time predecessor and successor authority races prevent destructive mutation; multi-batch interruption and restart complete through native scheduler; late predecessor mint rejected after completion; child-only archive and explicit later journal fences"
+  ],
+  "holds": [
+    {
+      "hold": "identifier_in_structural_key",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "identifier_inside_longer_token",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "identifier_inside_longer_token",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "ambiguous_display_name",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "ambiguous_identity_attribution",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "identifier_in_unsupported_surface",
+      "status": 409,
+      "unchanged": true
+    },
+    {
+      "hold": "shared_invitation_provenance",
+      "status": 409,
+      "unchanged": true
+    }
+  ],
+  "native": {
+    "planned": {
+      "oa_operators": 1,
+      "follow_up_attention": 1,
+      "follow_up_notices": 1,
+      "follow_up_attempts": 1,
+      "follow_up_notice_meta": 1,
+      "spool_notification_preferences": 1,
+      "spool_members": 1,
+      "spool_team_digest_settings": 1,
+      "spool_team_snoozes": 1,
+      "spool_follow_up_alternates": 1,
+      "spool_service_accounts": 1,
+      "spool_service_scopes": 1,
+      "credentials": 2,
+      "spool_service_credentials": 1,
+      "suspect_decisions": 1,
+      "scrubbing_policies": 2,
+      "scrubbing_previews": 1,
+      "scrubbing_changes": 2,
+      "alert_rule_configs": 1,
+      "alert_rule_previews": 1,
+      "identity_policies": 1,
+      "event_identities": 1,
+      "project_identity_keys": 1,
+      "health_sessions": 1,
+      "slack_destinations": 1,
+      "grouping_proposals": 1,
+      "audit_actor_links": 4,
+      "deployment_actors": 1,
+      "oa_tokens": 3,
+      "oa_sessions": 3,
+      "oa_external_identities": 1,
+      "spool_owner_successor": 1,
+      "oa_limits": 1,
+      "rer_mail_development_outbox": 3
+    },
+    "redacted": {
+      "bs_audit": 0,
+      "spool_reporting_items": 1,
+      "oa_bootstrap": 1,
+      "oc_owner_claims": 1,
+      "spool_reporting_widgets": 1,
+      "feedback": 1,
+      "projects": 1,
+      "issues": 1,
+      "events": 1,
+      "artifacts": 1,
+      "spool_native_audit_actors": 8,
+      "spool_agent_operations": 1,
+      "repairs": 1,
+      "alerts": 1,
+      "rer_mail_development_outbox": 2,
+      "commits": 1
+    },
+    "deleted": {
+      "alert_rule_configs": 1,
+      "alert_rule_previews": 1,
+      "audit_actor_links": 4,
+      "credentials": 2,
+      "deployment_actors": 1,
+      "event_identities": 1,
+      "follow_up_attempts": 1,
+      "follow_up_attention": 1,
+      "follow_up_notice_meta": 1,
+      "follow_up_notices": 1,
+      "grouping_proposals": 1,
+      "health_sessions": 1,
+      "identity_policies": 1,
+      "oa_external_identities": 1,
+      "oa_limits": 1,
+      "oa_operators": 1,
+      "oa_sessions": 3,
+      "oa_tokens": 3,
+      "project_identity_keys": 1,
+      "rer_mail_development_outbox": 3,
+      "scrubbing_changes": 2,
+      "scrubbing_policies": 2,
+      "scrubbing_previews": 1,
+      "slack_destinations": 1,
+      "spool_follow_up_alternates": 1,
+      "spool_members": 1,
+      "spool_notification_preferences": 1,
+      "spool_owner_successor": 1,
+      "spool_service_accounts": 1,
+      "spool_service_credentials": 1,
+      "spool_service_scopes": 1,
+      "spool_team_digest_settings": 1,
+      "spool_team_snoozes": 1,
+      "suspect_decisions": 1
+    },
+    "phase": "complete",
+    "independentSessionsPreserved": 2,
+    "independentTokensPreserved": 2,
+    "otherCanaries": {
+      "projects": {
+        "before": 1,
+        "after": 1
+      },
+      "issues": {
+        "before": 1,
+        "after": 1
+      },
+      "events": {
+        "before": 2,
+        "after": 2
+      },
+      "artifacts": {
+        "before": 1,
+        "after": 1
+      },
+      "repairs": {
+        "before": 1,
+        "after": 1
+      },
+      "feedback": {
+        "before": 1,
+        "after": 1
+      },
+      "rer_mail_development_outbox": {
+        "before": 1,
+        "after": 1
+      }
+    }
+  },
+  "archives": {
+    "sameChild": {
+      "status": 400,
+      "body": {
+        "error": "erasure_epoch"
+      }
+    },
+    "freshPost": {
+      "status": 200,
+      "body": {
+        "restored": true,
+        "credentials": "excluded; create new project grants"
+      }
+    },
+    "freshChild": {
+      "status": 400,
+      "body": {
+        "error": "erasure_epoch"
+      }
+    },
+    "preWithExplicitJournal": {
+      "exit": 4,
+      "error": "erasure_epoch"
+    },
+    "childrenWithExplicitJournal": {
+      "exit": 4,
+      "error": "erasure_epoch"
+    },
+    "oldArchiveAlone": {
+      "exit": 0
+    }
+  },
+  "authorityRaces": [
+    {
+      "party": "predecessor",
+      "status": 409,
+      "error": "erasure_scope_unstable",
+      "refusedOperations": 0,
+      "survivingSession": "accepted",
+      "freshSignIn": "accepted",
+      "ownerWrite": "accepted",
+      "reconfirmed": "complete"
+    },
+    {
+      "party": "successor",
+      "status": 409,
+      "error": "erasure_scope_unstable",
+      "refusedOperations": 0,
+      "survivingSession": "accepted",
+      "freshSignIn": "accepted",
+      "ownerWrite": "accepted",
+      "reconfirmed": "complete"
+    },
+    {
+      "party": "capture",
+      "status": 409,
+      "error": "plan_changed",
+      "refusedOperations": 0,
+      "survivingSession": "accepted",
+      "freshSignIn": "accepted",
+      "ownerWrite": "accepted",
+      "reconfirmed": "complete"
+    }
+  ],
+  "resumption": {
+    "seededSessions": 600,
+    "interruptedStep": 1,
+    "interruptedDeleted": {
+      "audit_actor_links": 1,
+      "oa_sessions": 499
+    },
+    "completedStep": 4,
+    "completedDeleted": {
+      "audit_actor_links": 1,
+      "oa_limits": 1,
+      "oa_operators": 1,
+      "oa_sessions": 603,
+      "oa_tokens": 2,
+      "rer_mail_development_outbox": 2,
+      "spool_owner_successor": 1
+    },
+    "phase": "complete",
+    "lateCredentialInsert": "rejected",
+    "successorMint": "accepted",
+    "ingestKeyAfterErasure": "accepted",
+    "revokeAfterFence": "accepted"
+  },
+  "finalization": {
+    "interruptedPhase": "blobs",
+    "delayedCapture": "refused",
+    "completedPhase": "complete",
+    "successorWrite": "accepted"
+  },
+  "delayedRepairs": {
+    "phase": "complete",
+    "refused": 3,
+    "storedRows": "unchanged"
+  },
+  "delayedOwnerWrites": {
+    "phase": "complete",
+    "refused": 15,
+    "storedRows": "unchanged"
+  },
+  "delayedRestore": {
+    "phase": "complete",
+    "refused": 1,
+    "storedRows": "unchanged"
+  }
+}

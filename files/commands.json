@@ -1,0 +1,68 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "commands": [
+    {
+      "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+      "command": "cloud_run timeout --kill-after=15s 600 node tests/owner-claim.mjs",
+      "exit": 0,
+      "started": "2026-11-06T02:00:09Z",
+      "duration_seconds": 249,
+      "ended": "2026-11-06T02:04:18.037971+00:00",
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "browser": "/usr/bin/chromium",
+      "widths": [
+        1440,
+        390
+      ],
+      "raw_log_published": false
+    },
+    {
+      "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+      "command": "cloud_run timeout --kill-after=15s 720 node tests/audit-history.mjs",
+      "exit": 0,
+      "started": "2026-11-06T02:05:07Z",
+      "duration_seconds": 58,
+      "ended": "2026-11-06T02:06:05.693573+00:00",
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "browser": "/usr/bin/chromium",
+      "raw_log_published": false
+    },
+    {
+      "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+      "command": "cloud_run timeout --kill-after=15s 720 node tests/owner-erasure.mjs",
+      "exit": 0,
+      "started": "2026-11-06T02:06:05Z",
+      "duration_seconds": 683,
+      "ended": "2026-11-06T02:17:28.257653+00:00",
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "browser": "/usr/bin/chromium",
+      "raw_log_published": false
+    },
+    {
+      "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+      "command": "cloud_run timeout --kill-after=15s 720 node tests/project-erasure.mjs",
+      "exit": 124,
+      "started": "2026-11-06T02:17:28Z",
+      "duration_seconds": 721,
+      "ended": "2026-11-06T02:29:29.659416+00:00",
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "browser": "/usr/bin/chromium",
+      "raw_log_published": false
+    }
+  ],
+  "original_requested_commands_passed": true,
+  "supplemental_project_command_completed": false,
+  "supplemental_exit": 124,
+  "ci_queries": 0,
+  "ci_dispatches": 0,
+  "reported_ci_run": {
+    "id": 42112408189,
+    "event": "push",
+    "conclusion": "failure: generated ACCEPTANCE view only; runtime skipped",
+    "source": "inline commission; not independently queried"
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "reviewed_paths": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 11971,
+      "sha256": "c55afa2bc39556d2c615a9f70e6c8b7a513383b0c11eaddb4981c731173f7a8f",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "CONTRACT.md",
+      "bytes": 306798,
+      "sha256": "1b2997ab9fa14b7c92ac1db5d686f171f56f65bfb049ec64ff350632974ccbc4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 258360,
+      "sha256": "3e03153d0373fb1629851145212ef72cd585ba0963a767bcfc980d1c0df99de4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 4224,
+      "sha256": "caf18cf13e009ad95bbb897e4f1c1cc550c474c6235de67ef944aff3c293c896",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "docs/AUDIT.md",
+      "bytes": 1946,
+      "sha256": "98f33fe2202b87e8bbdb8b1cbe6c8c9a44880486b7aa91086ec2dd8586523732",
+      "matches_exact_pin": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 21453,
+      "sha256": "ce43c3e4b495f7756f7d86fa9c460619c0cf53ebf2847b834a0b0899efe17030",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "scripts/installer/verify.mjs",
+      "bytes": 1389,
+      "sha256": "8764c2d753c61dffaf8f134f07c59ffc37134fef69bb33ce6c926b4227f973fb",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "verification.json",
+      "bytes": 333,
+      "sha256": "5d4a9ed8d30e73800326092a964425ee30f57e555c0d41e544feead0bb3a3d99",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "package.json",
+      "bytes": 4608,
+      "sha256": "d72242b4804a9cf72a86cc1f29898f375c0ada587b754d6080168f281a2ae566",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-claim.mjs",
+      "bytes": 11136,
+      "sha256": "64ddf1eeda36b694613befcd9e6b925f27292e93408ab58cc56ef1f5d9b70d80",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/team-flow.mjs",
+      "bytes": 47764,
+      "sha256": "aee8d9030ea6bb8123c6982a459c6738731af2a2ca9501d2f8f701a9b540644c",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/team-browser.mjs",
+      "bytes": 20055,
+      "sha256": "469ff4b4d17348140f4c2713104f72fa2d4de1bd76ea26b580c5e657900d59d6",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/team-viewport.mjs",
+      "bytes": 1301,
+      "sha256": "2a1df5b7e9279ded2f3429d530a5e00d1cfef44a2e9b4813a65fc1ea5ed13692",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/notification-preferences.mjs",
+      "bytes": 9559,
+      "sha256": "68e2083fb004126e09642af0b0b2ae175f4c25f90baaacfb829ce2fc396d3a53",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/discussion-flow.mjs",
+      "bytes": 8751,
+      "sha256": "48e111c5a089fedad0c68f2eba3d1ea2dc2c3dd001e8fb2331160f3238346232",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/busy-member-writes.mjs",
+      "bytes": 5841,
+      "sha256": "0cdbefbdcd11384f2a3fecec53a3ad79b34bf57ebdbbe0787e1ddba3d0723cc0",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/governance-step-up.mjs",
+      "bytes": 11249,
+      "sha256": "2d0528692658fe3270a43bf543927312be3c6d69960d44de0872d68db5ec89fe",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/governance-member-transfer.mjs",
+      "bytes": 11350,
+      "sha256": "a56551af4359730b9db8849af1a0097e658363ace7ed601849f4f075704b02bc",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/end-user-erasure-preview.mjs",
+      "bytes": 12680,
+      "sha256": "adcf3ffb347f79cf6510f21407ac693522f15b0b952d2dbbd5881a4af1720380",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/audit-history.mjs",
+      "bytes": 16167,
+      "sha256": "1edee2df9285c6481ba0beb8ffa810d999da1311645aa42f5ce30565674bcac6",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure.mjs",
+      "bytes": 27140,
+      "sha256": "061ed6c076dcf8667bc165ae15c4e0478158389d74bbfdfe72d16cc7e850a939",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure/helpers.mjs",
+      "bytes": 5221,
+      "sha256": "2f2c0b43c7b8a33bb7d7fc8c3f6826f77769a101da6465e40d7f0f292fc8a684",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure-archives.mjs",
+      "bytes": 3791,
+      "sha256": "ea5773b58fe4ad8493a5d80668a1d80b0953c638b0b2eff7b32c5913c71c856b",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure-authority.mjs",
+      "bytes": 9633,
+      "sha256": "dfc85ab58560145fe533bf2b4d75aa9c395cd7b9195ee642e5dcd6169107b5fe",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure-resume.mjs",
+      "bytes": 6864,
+      "sha256": "e2689fa6b9d3af2d596748028f4617f26a02825a22cbff81db69fcc0b7716410",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure-finalization.mjs",
+      "bytes": 2598,
+      "sha256": "18dc832d59eea5659d55274f1819cb3597687a5bb5bac9bbb3f59fbbc7b5c606",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/owner-erasure-inflight.mjs",
+      "bytes": 12673,
+      "sha256": "d35f5afed3bd12541ca18ad95b4c32f291a52dc363fb55ad648e5d17638d521b",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/audit-state.mjs",
+      "bytes": 879,
+      "sha256": "040da837c14bb037e02f03f918978e45adca429d5bc7767d8008ece86432f72d",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/auth.mjs",
+      "bytes": 6208,
+      "sha256": "155b26863103222d70fde897929b9cfa0311e2c71a70366a062f7452bc2c3bce",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/archive.mjs",
+      "bytes": 8569,
+      "sha256": "f4e917747fdaea200b98b60e2dbc53645d2a2b90ce2cedd11079b43d1d8a2e2e",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/worker.mjs",
+      "bytes": 6310,
+      "sha256": "33c488175802c128eb0e4e3a7b6693f56c6ad853fbefbd6829066b3f8a5cff32",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/worker-options.mjs",
+      "bytes": 5368,
+      "sha256": "fea99a961b6bac2e70e41433aa009992b1d697a5677b1b65aca8373c531b176d",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/local-runtime.mjs",
+      "bytes": 1447,
+      "sha256": "39381a1541f88731c0d587d16bd6dcfc1ec9aade097dbd955b9bf9ca601e1653",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/legacy-mail.mjs",
+      "bytes": 1740,
+      "sha256": "df2bcc3b7b7fc3cd1fc6a249f4c7397d9bc17633d4f5cec590bfd95f995d6217",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/product-assets.mjs",
+      "bytes": 514,
+      "sha256": "52cadb72c33c0dd7428ee8b1ac9cdca572a3cc1e75dcc9bfb08c04962b94779d",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/product-diagnostics.mjs",
+      "bytes": 6811,
+      "sha256": "a6e96adc71c7bccadb8d50835e4964ca502170710d6529c70198c01fc48e49d3",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/admission-runtime.mjs",
+      "bytes": 6774,
+      "sha256": "9c50455e05b0b0fb44f7faca4a11f6a8bbadc606eb8e4ffee6254452e0a950e4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/browser-launch.mjs",
+      "bytes": 360,
+      "sha256": "5c7ec8280a1f0bb058075659c0d59f029ae13538ce4d5696b0c3b7746e49739b",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure.mjs",
+      "bytes": 9594,
+      "sha256": "35f75c70d419cb51ded63f6239e45c460c3da58fa52837632c40406dd2b86fb8",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/fixture.mjs",
+      "bytes": 3845,
+      "sha256": "ef2099d8119475f98aa795a7d4482258a33d975b783dde82f8a5caf501f42bd1",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/plant.mjs",
+      "bytes": 6798,
+      "sha256": "e9582c7a5c32d674990f4293e717413f2b9cd6271cb87e36d65ccb6e64943598",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/doors.mjs",
+      "bytes": 3264,
+      "sha256": "1a1adc58beeea64a0adb5be8eae586f348f94f2cfc5509241e9c39b1c816715e",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/scan.mjs",
+      "bytes": 3851,
+      "sha256": "b0a267928a7ceffd84f5db25dc6f6483a823e24874976d5b47c446d7d6bd79e7",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/ui.mjs",
+      "bytes": 4453,
+      "sha256": "17f515f63c6c7304e773554165438cf893d178ded86ec9ff26295e497c5d46ca",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/fences.mjs",
+      "bytes": 5464,
+      "sha256": "6006d79aff639aaabf38cced478dbbada34ec06e51aeb4e8b6ebd1218e0805a4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/project-erasure/follow.mjs",
+      "bytes": 618,
+      "sha256": "8204b296ac934f8707d68b7dadd117945ea244a1907e952b9e7611d447c00873",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/command-runner.mjs",
+      "bytes": 8218,
+      "sha256": "6d5d4517ba7ca7c4913621cb6523d787eecef0a813353bbaee9150f5698e3252",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/command-resources.mjs",
+      "bytes": 1846,
+      "sha256": "b1039792118144e4827576ea778568b2839dd2c58e638454c6e94e6f7e2774c4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/agent-handoff/runtime.mjs",
+      "bytes": 6736,
+      "sha256": "9e6c790eaca55cc5e36883c99f5864cd302e7b5b1b0eb23722fe7c1ebeb5405a",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/agent-handoff/clients.mjs",
+      "bytes": 5166,
+      "sha256": "a91ca204d0604028a58a5e787f1d4c9271cfb65f3b0685f3856c9d79bf428c65",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/agent-handoff/dev-output.mjs",
+      "bytes": 1078,
+      "sha256": "5266498d0a9acf2f640423318934f18d26e1418770e56f02b7abedec885f36e4",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/agent-door/local-policy.mjs",
+      "bytes": 677,
+      "sha256": "8c5b156fe1732c45faec6838990f2d7be1e623b96f614c693a7ed9943eeb3c6b",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/alerts/preview-rule.mjs",
+      "bytes": 618,
+      "sha256": "d3e4cfc9105c18b9abb7177707080b6d4a6ec934bf0b3a35485d25e6b939357d",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/triage-app.mjs",
+      "bytes": 2750,
+      "sha256": "f3bedb3a4389a0027dc728edb0021e78b8dfdcf52c9c5dbe8b5280c5e28e9626",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "tests/navigation.mjs",
+      "bytes": 464,
+      "sha256": "044b9f3f1f6b019f8b0c22d42be63937842a78c7f05b920c7c5f2e8ac9bfeb97",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/types.ts",
+      "bytes": 4165,
+      "sha256": "a7ebb6b39ac6024675584349802e09021ff4e429e6a9f7196678c4a17cdd2554",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/classify.ts",
+      "bytes": 16584,
+      "sha256": "a20d0c34cc70c88e6f23e7775b229c7df3c559b372d75d6ac0c3d6751be88e5d",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/archive.ts",
+      "bytes": 4207,
+      "sha256": "55eb3c6e956b7a61b36079478c3f142f05a16455483cfe0bbefea933985d746f",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/request.ts",
+      "bytes": 5648,
+      "sha256": "2b71b7db9a689a5db5a0d2395f6aa1d10f7ee6bc1819b19736f9f13be9a62ec8",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/record.ts",
+      "bytes": 2484,
+      "sha256": "a9f75a82212a43386c157abab84706ab34567546ef53e57879f954028770e0e1",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/identity.ts",
+      "bytes": 4438,
+      "sha256": "2260455d96b60a56b8e1b596cf73bd39ffde886e7bf1e87c95207924b057f89c",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/context.ts",
+      "bytes": 3735,
+      "sha256": "f9761c30f19a72bbeaa0a303fe65af8d8828573ddc1cd262239ab588f2a253cd",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/read.ts",
+      "bytes": 2528,
+      "sha256": "aadf984eb91c1064af764b35a85c9b7f8de54e80d9caafd5f521c090372dd60e",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/audit/routes.ts",
+      "bytes": 5608,
+      "sha256": "44d6410370a3b95f5e98cf55b2bc87a6bc6311375f6eb3829398b00190fa8e73",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/domain/erasure/audit-fact.ts",
+      "bytes": 652,
+      "sha256": "1a930b8b75f3128ceda1266ea1a9edda65956130e419560e09a60d5453934331",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "src/ui/workbench/AuditHistory.tsx",
+      "bytes": 3838,
+      "sha256": "37e43aa193d9ad94a634f5eaa971d9b56954bebf70f1b16cc394358b71dc2cea",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "migrations/core/0051_safe_audit.sql",
+      "bytes": 1814,
+      "sha256": "0d282c004611313e423af0c491097609682b35a84d59a0bd88f108c49e1d00b1",
+      "matches_exact_pin": true
+    },
+    {
+      "path": "migrations/core/0053_audit_transactions.sql",
+      "bytes": 8519,
+      "sha256": "583ec06ee4d73c7c071650604b0141153efb483af0207d332295568e335389da",
+      "matches_exact_pin": true
+    }
+  ],
+  "inline_readings": [
+    "briefs/ct/judge-common.md",
+    "lanes/ct/DONE-RIDERS.md",
+    "2026-11-06T01:26Z model-routing authority and original frozen R1-R4 rubric"
+  ],
+  "normative_review": "Both full documents parsed; all 105 Requirement and Acceptance bodies compared. Focused clause and relied-on native journey/helper/application paths inspected. No held-out material or other repository cloned."
+}

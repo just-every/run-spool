@@ -1,0 +1,58 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "journey": "tests/project-erasure.mjs",
+  "browser": "/usr/bin/chromium",
+  "widths": [
+    1440,
+    390
+  ],
+  "states": [
+    "preview",
+    "confirmation",
+    "progress",
+    "receipt"
+  ],
+  "screenshots": [
+    {
+      "file": "project-browser/erasure-preview-1440.png",
+      "bytes": 448222,
+      "sha256": "5b9b845d34ce10f5f79a470556dc5fe707c2798dd1e113b864cdfe9a4da2bf55"
+    },
+    {
+      "file": "project-browser/erasure-preview-390.png",
+      "bytes": 305518,
+      "sha256": "ea2026b9d46b6e84a019bcf1034e576cef95d3afb3286c1c2c3d11964d24424a"
+    },
+    {
+      "file": "project-browser/erasure-confirmation-1440.png",
+      "bytes": 453223,
+      "sha256": "1aa02a5067d3fb7e98312079e964b7ffafb7a1928c547702d8224a1c07847621"
+    },
+    {
+      "file": "project-browser/erasure-confirmation-390.png",
+      "bytes": 307844,
+      "sha256": "3434aacda7e6f9f7b8b21e8fe3b0854d709ea6519a5fe1ef2850eb4dde34c6d4"
+    },
+    {
+      "file": "project-browser/erasure-progress-1440.png",
+      "bytes": 275507,
+      "sha256": "3ac6787ec90489f8323df9626a6205f4911afd0aee80f643284c576b12d42d9f"
+    },
+    {
+      "file": "project-browser/erasure-progress-390.png",
+      "bytes": 240411,
+      "sha256": "c2a88a0e9b47d17ab65ca6a86f5bdeb2ba8bae2c6878d54e94cc0ffbabd16ea8"
+    },
+    {
+      "file": "project-browser/erasure-receipt-1440.png",
+      "bytes": 429700,
+      "sha256": "c2cde50cb9139132f3692e79afdf490148b3084e26fffcacb94a6306504bc9f1"
+    },
+    {
+      "file": "project-browser/erasure-receipt-390.png",
+      "bytes": 291822,
+      "sha256": "93b5906e1424db4e510e2a8f29daec0315e212a47dd1864a062792f4c132399f"
+    }
+  ],
+  "inspection": "Completed receipt and representative preview/confirmation panels inspected. All panels are controlled synthetic native erasure facts; no credential or live account is selected. Existing journey checks counts, canary exclusion, Axe and reflow."
+}

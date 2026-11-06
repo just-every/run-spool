@@ -1,0 +1,80 @@
+[
+  {
+    "journey": "owner-claim",
+    "raw_output_bytes": 5970,
+    "raw_output_sha256": "f02fb2f7c83537cea343c97647a41a3d75e47e14d77bbe4748413bf85f9f9785",
+    "selected_nonsecret_output": [
+      "OWNER CLAIM passed: invalid signature/audience/issuer/email/installation/expiry/origin, native first claim, durable second refusal, additive existing-owner migration, Business door opened by the first claim only with RER_IMPORT_DOOR=on and kept under the owner's switch.",
+      "PROBE GOV-001 native refusal: bootstrap cookie and successor POST -> step_up_required, no successor or product mutation, owner denial audit",
+      "PROBE GOV-001 session binding: another native session confirms the challenge -> invalid_or_expired; requesting session remains unstepped",
+      "PROBE GOV-001 confirmation and replay: requesting session confirms -> settings redirect with no replacement cookie; replay -> invalid_or_expired",
+      "PROBE GOV-001 allowed invitation: original stepped-up cookie and successor POST -> one invited successor and one owner-attributed accepted fact",
+      "PROBE GOV-001 revocation: native session revoke then session, pending challenge and successor doors -> 401, invalid_or_expired and 401, no replacement invitation",
+      "GOV-001 native owner-successor step-up journey passed; enterprise providers and broader privileged operations remain unqualified.",
+      "PROBE GOV-001 missing proof: native bootstrap session POST organization transfer -> 403 step_up_required; protected rows unchanged",
+      "PROBE GOV-001 session binding: another native owner session POST confirmation -> 400 invalid_or_expired; requesting session still cannot transfer",
+      "PROBE GOV-001 successor controls: confirmed session rejects replay, unverified successor and stale membership version; protected rows unchanged",
+      "PROBE GOV-001 allowed transfer: same confirmed native session POST current verified successor -> exactly one transfer; no replacement cookie; both old identities fenced; fresh successor sign-in is owner",
+      "PROBE TEAM-005 preferences: two native members, two projects, HTTP and Settings saves and reopen -> independent persisted email choices, weekly opt-in; no mail",
+      "PROBE TEAM-005 authority: targeted, foreign-project, removed-member, project-grant, stale and cross-origin requests -> refused without preference mutation; safe audit facts",
+      "[FIND-003] read-only omissions and exports, current roles, concealed ids and denied-write nonmutation passed",
+      "PROBE UX-001 capture 1440: Prepare delivery -> accepted second-origin exception and matching retained event",
+      "PROBE UX-001 mapping 1440: prepared matching map picker -> original coordinates and unchanged admission snapshot",
+      "PROBE UX-001 search 1440: release query -> the isolated captured issue and its mapped frame",
+      "PROBE UX-001 operator-label assignment 1440: busy Save assignment plus duplicate activation -> one request and retained responsibility label",
+      "PROBE UX-001 comment 1440: member Post comment -> visible discussion and stored member attribution",
+      "PROBE UX-001 alert navigation 1440: Open issue by touch -> the same issue deep link and mapped evidence",
+      "PROBE UX-001 repair approval 1440: owner Record repair and Mark approved -> proposed record then persisted approval fact",
+      "[UX-001] 1440 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed",
+      "PROBE UX-001 capture 390: Prepare delivery -> accepted second-origin exception and matching retained event",
+      "PROBE UX-001 mapping 390: prepared matching map picker -> original coordinates and unchanged admission snapshot",
+      "PROBE UX-001 search 390: release query -> the isolated captured issue and its mapped frame",
+      "PROBE UX-001 operator-label assignment 390: busy Save assignment plus duplicate activation -> one request and retained responsibility label",
+      "PROBE UX-001 comment 390: member Post comment -> visible discussion and stored member attribution",
+      "PROBE UX-001 alert navigation 390: Open issue by touch -> the same issue deep link and mapped evidence",
+      "PROBE UX-001 repair approval 390: owner Record repair and Mark approved -> proposed record then persisted approval fact",
+      "[UX-001] 390 native team independently registered, captured, mapped, searched, operator-label assigned without duplicate writes, commented, followed alert by touch and recorded repair approval; keyboard, Axe and reflow passed",
+      "[TEAM-001] team timezone digests, scoped recipients, expiring snooze and durable resumption, loss/backlog, member deployment deadline, accountable broken alternate and nonrecursive deduplication passed",
+      "[TEAM-003] member priority, scoped scrubbed discussion, mention subscriptions, explicit unsubscribe, author/admin moderation and stale-write refusal passed",
+      "PROBE TEAM-005 custody: private archive and independent restore -> preserved choices, null account bindings, inert history and no revived email opt-in",
+      "[TEAM-001] native invitations and magic sign-in, simultaneous scoped triage, stale revision refusal, maintainer policy, read-only identity projection, billing/admin limits, member deployments, member/service revocation, safe audit and owner transfer passed",
+      "PROBE SDK-027 email-preview: public Sentry captures -> 2 matching of 4 keep events; conversion plus hash capture -> 3 of 5; foreign key and captures -> unchanged 3.",
+      "PROBE SDK-027 unavailable: dropped email -> unavailable, 1 unattributable; sessions, feedback, attachments, replays and search explicitly unavailable.",
+      "PROBE SDK-027 authority-and-privacy: repeated owner, admin and maintainer POSTs -> counts only, unchanged product rows; anonymous, member, read-only, valid or revoked grant, foreign, removed and cross-origin requests refuse; safe audits omit values and keys.",
+      "PROBE SDK-027 settings: keyboard preview, refusal, Axe, text size and reflow passed; matching screens recorded at 1440 and 390."
+    ],
+    "broken_pipe_diagnostics": 0,
+    "raw_output_published": false
+  },
+  {
+    "journey": "audit-history",
+    "raw_output_bytes": 596,
+    "raw_output_sha256": "4256388a7b7d0dcda8c55451f556bcda0debb83bcef485597f3afb47275093f6",
+    "selected_nonsecret_output": [
+      "AUDIT-001 passed: atomic owner/deploy/ingest transaction facts, denied/stale request outcomes, agent and notification facts, fixed snapshot cursor/JSON/CSV, restart, archive payload append restore, previous-format legacy facts, project erasure and 1440/390 history/export/error/denied/empty."
+    ],
+    "broken_pipe_diagnostics": 0,
+    "raw_output_published": false
+  },
+  {
+    "journey": "owner-erasure",
+    "raw_output_bytes": 6781,
+    "raw_output_sha256": "ea7faf32963338d86c3ddca5f9e21feb7fa1adc679da5269f90acba0bb73bdc1",
+    "selected_nonsecret_output": [
+      "Owner erasure native: {\"planned\":{\"oa_operators\":1,\"follow_up_attention\":1,\"follow_up_notices\":1,\"follow_up_attempts\":1,\"follow_up_notice_meta\":1,\"spool_notification_preferences\":1,\"spool_members\":1,\"spool_team_digest_settings\":1,\"spool_team_snoozes\":1,\"spool_follow_up_alternates\":1,\"spool_service_accounts\":1,\"spool_service_scopes\":1,\"credentials\":2,\"spool_service_credentials\":1,\"suspect_decisions\":1,\"scrubbing_policies\":2,\"scrubbing_previews\":1,\"scrubbing_changes\":2,\"alert_rule_configs\":1,\"alert_rule_previews\":1,\"identity_policies\":1,\"event_identities\":1,\"project_identity_keys\":1,\"health_sessions\":1,\"slack_destinations\":1,\"grouping_proposals\":1,\"audit_actor_links\":4,\"deployment_actors\":1,\"oa_tokens\":3,\"oa_sessions\":3,\"oa_external_identities\":1,\"spool_owner_successor\":1,\"oa_limits\":1,\"rer_mail_development_outbox\":3},\"redacted\":{\"bs_audit\":0,\"spool_reporting_items\":1,\"oa_bootstrap\":1,\"oc_owner_claims\":1,\"spool_reporting_widgets\":1,\"feedback\":1,\"projects\":1,\"issues\":1,\"events\":1,\"artifacts\":1,\"spool_native_audit_actors\":8,\"spool_agent_operations\":1,\"repairs\":1,\"alerts\":1,\"rer_mail_development_outbox\":2,\"commits\":1},\"deleted\":{\"alert_rule_configs\":1,\"alert_rule_previews\":1,\"audit_actor_links\":4,\"credentials\":2,\"deployment_actors\":1,\"event_identities\":1,\"follow_up_attempts\":1,\"follow_up_attention\":1,\"follow_up_notice_meta\":1,\"follow_up_notices\":1,\"grouping_proposals\":1,\"health_sessions\":1,\"identity_policies\":1,\"oa_external_identities\":1,\"oa_limits\":1,\"oa_operators\":1,\"oa_sessions\":3,\"oa_tokens\":3,\"project_identity_keys\":1,\"rer_mail_development_outbox\":3,\"scrubbing_changes\":2,\"scrubbing_policies\":2,\"scrubbing_previews\":1,\"slack_destinations\":1,\"spool_follow_up_alternates\":1,\"spool_members\":1,\"spool_notification_preferences\":1,\"spool_owner_successor\":1,\"spool_service_accounts\":1,\"spool_service_credentials\":1,\"spool_service_scopes\":1,\"spool_team_digest_settings\":1,\"spool_team_snoozes\":1,\"suspect_decisions\":1},\"phase\":\"complete\",\"independentSessionsPreserved\":2,\"independentTokensPreserved\":2,\"otherCanaries\":{\"projects\":{\"before\":1,\"after\":1},\"issues\":{\"before\":1,\"after\":1},\"events\":{\"before\":2,\"after\":2},\"artifacts\":{\"before\":1,\"after\":1},\"repairs\":{\"before\":1,\"after\":1},\"feedback\":{\"before\":1,\"after\":1},\"rer_mail_development_outbox\":{\"before\":1,\"after\":1}}}",
+      "Owner erasure archive fences: {\"sameChild\":{\"status\":400,\"body\":{\"error\":\"erasure_epoch\"}},\"freshPost\":{\"status\":200,\"body\":{\"restored\":true,\"credentials\":\"excluded; create new project grants\"}},\"freshChild\":{\"status\":400,\"body\":{\"error\":\"erasure_epoch\"}},\"preWithExplicitJournal\":{\"exit\":4,\"error\":\"erasure_epoch\"},\"childrenWithExplicitJournal\":{\"exit\":4,\"error\":\"erasure_epoch\"},\"oldArchiveAlone\":{\"exit\":0}}",
+      "Owner erasure resumption: {\"seededSessions\":600,\"interruptedStep\":1,\"interruptedDeleted\":{\"audit_actor_links\":1,\"oa_sessions\":499},\"completedStep\":4,\"completedDeleted\":{\"audit_actor_links\":1,\"oa_limits\":1,\"oa_operators\":1,\"oa_sessions\":603,\"oa_tokens\":2,\"rer_mail_development_outbox\":2,\"spool_owner_successor\":1},\"phase\":\"complete\",\"lateCredentialInsert\":\"rejected\",\"successorMint\":\"accepted\",\"ingestKeyAfterErasure\":\"accepted\",\"revokeAfterFence\":\"accepted\"}",
+      "Owner erasure public flow passed: 3 groups."
+    ],
+    "broken_pipe_diagnostics": 2,
+    "raw_output_published": false
+  },
+  {
+    "journey": "project-erasure",
+    "raw_output_bytes": 397,
+    "raw_output_sha256": "42e77f3ff361c001e2752d7d74925cd6df1fc13722537cd0beaefec1f37b27c2",
+    "selected_nonsecret_output": [],
+    "broken_pipe_diagnostics": 0,
+    "raw_output_published": false
+  }
+]

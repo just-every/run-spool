@@ -1,0 +1,9 @@
+{
+  "full_contract_bytes": 306798,
+  "full_acceptance_bytes": 258360,
+  "contract_clauses": 105,
+  "acceptance_clauses": 105,
+  "normative_differences": [],
+  "source_lock_check_after_asset_restore": 0,
+  "method": "Full files parsed; every clause Requirement and Acceptance compared byte-for-byte after generated metadata removal."
+}

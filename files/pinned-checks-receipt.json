@@ -1,0 +1,18 @@
+[
+  {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "node": "v22.20.0",
+    "exit": 0,
+    "output_bytes": 455669,
+    "output_sha256": "a19c54e8f716f98c5cde48f8fe9954209c24c94cdd2ee637720e3cc955b4373e",
+    "ok": true
+  },
+  {
+    "command": "node src/base/contract-docs.mjs check",
+    "node": "v22.20.0",
+    "exit": 1,
+    "output_bytes": 105,
+    "output_sha256": "9cf3c390ca9f5f8c7bb13f4dd1f4058d66f2e74d194584038d85eaf0d4767d1e",
+    "diagnostic": "Contract prose: 0 errors, 0 warnings.\nACCEPTANCE.md: generated content differs; run contract-docs write.\n"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "command": "cloud_run timeout 240 npx -y @runeditrun/rer build",
+  "exit": 0,
+  "raw_log": "/tmp/spool-judge-build.log",
+  "raw_log_published": false
+}

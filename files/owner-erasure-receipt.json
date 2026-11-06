@@ -1,0 +1,12 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "command": "cloud_run timeout --kill-after=15s 720 node tests/owner-erasure.mjs",
+  "exit": 0,
+  "started": "2026-11-06T02:06:05Z",
+  "duration_seconds": 683,
+  "ended": "2026-11-06T02:17:28.257653+00:00",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "/usr/bin/chromium",
+  "raw_log_published": false
+}

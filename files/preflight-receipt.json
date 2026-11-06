@@ -1,0 +1,24 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "build_generated_tracked_asset": "public/errors-capture.js",
+  "asset_restored_to_exact_source_after_build": true,
+  "tracked_worktree_clean": true,
+  "generator_check": {
+    "exit": 1,
+    "diagnostic": "Contract prose: 0 errors, 0 warnings. ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "write_not_run": "read-only judgment"
+  },
+  "basis": "ae15d7004a5ccdc44be7a455454f51a86c026eea",
+  "source_diff_from_basis": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "source_lock_initial_check": {
+    "exit": 1,
+    "cause": "rer build regenerated public/errors-capture.js; restored exact pinned asset before relied-on capture"
+  },
+  "source_lock_final_check": {
+    "exit": 0,
+    "command": "node scripts/edition-authoring/cli.mjs check"
+  }
+}

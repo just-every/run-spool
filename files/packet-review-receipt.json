@@ -1,0 +1,227 @@
+{
+  "regular_files_only": true,
+  "explicit_selection": true,
+  "credential_shaped_text_matches": 0,
+  "excluded": [
+    "credentials",
+    "private held-out gate material",
+    "environment dumps",
+    "raw private logs",
+    "database state",
+    "raw archives",
+    "symlinks"
+  ],
+  "files": [
+    {
+      "file": "REPORT.md",
+      "bytes": 9846,
+      "sha256": "f345e51aa85049a36b722572e9f97d1e5c60d9132eaf0a1c781a8a100241a915"
+    },
+    {
+      "file": "VERDICT.md",
+      "bytes": 18592,
+      "sha256": "2f0c700a6d0850d0aa55a3b84970c73e655d1b4b0d6bc964db19a2ef8bd32dad"
+    },
+    {
+      "file": "setup-receipt.json",
+      "bytes": 209,
+      "sha256": "d4886af2e890257ff0374dcf5ac6c877ff974dfe3272feba62707f03bd077352"
+    },
+    {
+      "file": "build-receipt.json",
+      "bytes": 156,
+      "sha256": "41c454780cf6c623770698c847083a3f7a9f693e42f9b55290468355497b6eb4"
+    },
+    {
+      "file": "preflight-receipt.json",
+      "bytes": 836,
+      "sha256": "3df3434dd38083057a2e52449ba45492f5ad4448a7b296435c91ae741b221858"
+    },
+    {
+      "file": "document-review-receipt.json",
+      "bytes": 335,
+      "sha256": "4c8b55da4b4c8350d2a5da6fd70da967d8d5d3404ff39c2cfe88f7add339622e"
+    },
+    {
+      "file": "source-review.json",
+      "bytes": 209097,
+      "sha256": "e873b44a678932c91155159e9123e5321c74dcd51851c7ec9e6e30e654ea274b"
+    },
+    {
+      "file": "reading-receipt.json",
+      "bytes": 13686,
+      "sha256": "f8685effb579ca0b94d0153de93064c02b4d620a5dbd6a7d9ba81852b159f467"
+    },
+    {
+      "file": "owner-claim-receipt.json",
+      "bytes": 408,
+      "sha256": "bab5f8fc74c4ae0556ffeb885b959193a0115e82b47d7dffe0d256938beec0d7"
+    },
+    {
+      "file": "audit-history-receipt.json",
+      "bytes": 372,
+      "sha256": "626771fa714d5b12adf98158b0a3f32fe553d001a54aaf7ad6f84ecb84f95fc0"
+    },
+    {
+      "file": "owner-erasure-receipt.json",
+      "bytes": 373,
+      "sha256": "833a9efb90e0c394c410f1da1130a7426c23e7586438d772ce1d16b5f848f453"
+    },
+    {
+      "file": "project-erasure-receipt.json",
+      "bytes": 377,
+      "sha256": "b1f13c179f5eff7abcbe49d43798b2f5f3610628cbdbb366059edadb6d7ae6ef"
+    },
+    {
+      "file": "browser-receipt.json",
+      "bytes": 2031,
+      "sha256": "315acef4f0258ed7ace115ff8a6246abcdf2921c2f9ac242dccf5f2886a15c8f"
+    },
+    {
+      "file": "project-browser-receipt.json",
+      "bytes": 1965,
+      "sha256": "afc0396b0763c756cff41a461d58f51309a1145aef2fc7a2cbc48815df04d91e"
+    },
+    {
+      "file": "owner-erasure-results.json",
+      "bytes": 7298,
+      "sha256": "adb3a80b4c0fc42ef631b03bbef6717dc80e11643a9a0db388ff610806054fcf"
+    },
+    {
+      "file": "project-progress-receipt.json",
+      "bytes": 1304,
+      "sha256": "562f65c4587dad43595be7321c46875dc9a535e6662bf2a1a5ae4218c6b45018"
+    },
+    {
+      "file": "pinned-checks-receipt.json",
+      "bytes": 592,
+      "sha256": "2c01b3daf867849e77b323c0a923c6ba9eb665bf1439ea2e8d0d45aad8edd9cd"
+    },
+    {
+      "file": "commands.json",
+      "bytes": 2198,
+      "sha256": "b47b42ea497a54957915d0f33912c583bbb13b007efa7a8d5c2b3c222e43cef2"
+    },
+    {
+      "file": "command-output-receipt.json",
+      "bytes": 10965,
+      "sha256": "35d16afc250043bd6cfde5803fb3de2578e081ec55396760f518b239688437af"
+    },
+    {
+      "file": "terminal-provenance.json",
+      "bytes": 639,
+      "sha256": "4f8cfbad35e12ea89f2a241f35f98bd61252126055cb12123b5d8269b3f9fe17"
+    },
+    {
+      "file": "fresh-main-contract.diff",
+      "bytes": 13051,
+      "sha256": "9efda02dc2604848a6f80f18ac4ef91618a3a4885e56a974ad3b9a0f164766e1"
+    },
+    {
+      "file": "fresh-main-assertions.diff",
+      "bytes": 13706,
+      "sha256": "c91054ed433135cf5aeb34eef4e7bc46f0b817915d3ca0606c555d0ee7c1009d"
+    },
+    {
+      "file": "fresh-main-status.txt",
+      "bytes": 96426,
+      "sha256": "0d496da41e49c2169bc5fa17a51f179df643813fbb6e11c28bd896a2f628859e"
+    },
+    {
+      "file": "cleanup-receipt.json",
+      "bytes": 1725,
+      "sha256": "e8be08a1bbf14a02596aeda3db986128a3cc812a9360dda34f8227ae0bff8676"
+    },
+    {
+      "file": "browser/history-1440.png",
+      "bytes": 139794,
+      "sha256": "2578cb125fca1993af8de287286803ba2e668da332168881e5ec4b95e19413cf"
+    },
+    {
+      "file": "browser/history-390.png",
+      "bytes": 79829,
+      "sha256": "391c7aa512353130ad513873b65e7a103f4dbdf496fdd98184062bc9f2041b29"
+    },
+    {
+      "file": "browser/export-1440.png",
+      "bytes": 139795,
+      "sha256": "6b93a4136cc847450d0a369235f047e8132a4d2c7e14e841317075c2909bc246"
+    },
+    {
+      "file": "browser/export-390.png",
+      "bytes": 79833,
+      "sha256": "449c9b5caa84a44dd96fdd35a67c99bf71599d0f37ce14687ccc78d1a08a3a9a"
+    },
+    {
+      "file": "browser/error-1440.png",
+      "bytes": 144325,
+      "sha256": "b94b64b7df3cdf5415f3525a81a7fb2f68c62581ad582ac6879a059a099b12df"
+    },
+    {
+      "file": "browser/error-390.png",
+      "bytes": 80287,
+      "sha256": "22534ac3f9aa6f2616ed66e3a0c0fc468b36f24979a18ef7452ce10e37fa894d"
+    },
+    {
+      "file": "browser/denied-1440.png",
+      "bytes": 22102,
+      "sha256": "04d5f271455a6f1ac0dfd664f5fafc4d3ffae2fa1d37083f7f4fb1e996d16d4b"
+    },
+    {
+      "file": "browser/denied-390.png",
+      "bytes": 19946,
+      "sha256": "98e18c577ed999f005497665fd3823e093c5845166e3d0bad546a087312ef042"
+    },
+    {
+      "file": "browser/empty-1440.png",
+      "bytes": 136716,
+      "sha256": "5284c0429cb3b9953d861f9a5b15dacde08127dde86490f37475f90361044561"
+    },
+    {
+      "file": "browser/empty-390.png",
+      "bytes": 73313,
+      "sha256": "03fbd51405cc0216e84908dfe4c851651aa7a66e05112595c8aae4747823d03b"
+    },
+    {
+      "file": "project-browser/erasure-preview-1440.png",
+      "bytes": 448222,
+      "sha256": "5b9b845d34ce10f5f79a470556dc5fe707c2798dd1e113b864cdfe9a4da2bf55"
+    },
+    {
+      "file": "project-browser/erasure-preview-390.png",
+      "bytes": 305518,
+      "sha256": "ea2026b9d46b6e84a019bcf1034e576cef95d3afb3286c1c2c3d11964d24424a"
+    },
+    {
+      "file": "project-browser/erasure-confirmation-1440.png",
+      "bytes": 453223,
+      "sha256": "1aa02a5067d3fb7e98312079e964b7ffafb7a1928c547702d8224a1c07847621"
+    },
+    {
+      "file": "project-browser/erasure-confirmation-390.png",
+      "bytes": 307844,
+      "sha256": "3434aacda7e6f9f7b8b21e8fe3b0854d709ea6519a5fe1ef2850eb4dde34c6d4"
+    },
+    {
+      "file": "project-browser/erasure-progress-1440.png",
+      "bytes": 275507,
+      "sha256": "3ac6787ec90489f8323df9626a6205f4911afd0aee80f643284c576b12d42d9f"
+    },
+    {
+      "file": "project-browser/erasure-progress-390.png",
+      "bytes": 240411,
+      "sha256": "c2a88a0e9b47d17ab65ca6a86f5bdeb2ba8bae2c6878d54e94cc0ffbabd16ea8"
+    },
+    {
+      "file": "project-browser/erasure-receipt-1440.png",
+      "bytes": 429700,
+      "sha256": "c2cde50cb9139132f3692e79afdf490148b3084e26fffcacb94a6306504bc9f1"
+    },
+    {
+      "file": "project-browser/erasure-receipt-390.png",
+      "bytes": 291822,
+      "sha256": "93b5906e1424db4e510e2a8f29daec0315e212a47dd1864a062792f4c132399f"
+    }
+  ],
+  "self_hash": "Transport manifest hashes this receipt after creation."
+}

@@ -1,0 +1,6 @@
+{
+  "command": "cloud_run timeout 360 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+  "exit": 0,
+  "raw_log": "/tmp/spool-judge-setup.log",
+  "raw_log_published": false
+}

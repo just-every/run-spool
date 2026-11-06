@@ -1,0 +1,21 @@
+{
+  "source": "2854a428096870d6082ee3c29c952b6627f88b01",
+  "source_branch": "cloud/sd-spool-c-f328",
+  "fresh_main": "17a4865fbe21bbeb4adc8c8139ec643c1bd31676",
+  "tracked_status": "",
+  "product_commits_created": 0,
+  "product_pushes": 0,
+  "prs_created": 0,
+  "clause_mutations": 0,
+  "actual_count_delta": 0,
+  "ci_api_calls": 0,
+  "verdict": "AUDIT-001 ACCEPT ON LANDING",
+  "scores": {
+    "R1": "MET",
+    "R2": "MET",
+    "R3": "MET (original native outcomes; supplemental full command NOT PASS)",
+    "R4": "MET (native inheritance boundary)"
+  },
+  "supplemental_exit": 124,
+  "recorded_at": "2026-11-06T02:33:33.477088+00:00"
+}
