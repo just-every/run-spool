@@ -16,9 +16,8 @@ export async function protocolContract(){
    await app.adopt(policy());
    let id=0;
    const modern='2026-07-28',legacy='2025-11-25';
-   const rpc=async(method,{version=modern,params={},headers={},stream=false}={})=>{
+   const rpc=async(method,{version=modern,params={},headers={},stream=false,legacyClient=false}={})=>{
     // Legacy initialize negotiates in its body; later calls need no modern metadata.
-    const legacyClient=version===legacy;
     const body=JSON.stringify({jsonrpc:'2.0',id:++id,method,params:legacyClient?params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}});
     const bytes=new TextEncoder().encode(body);let offset=0;
     const response=await fetch(app.origin+'/mcp',{method:'POST',headers:{
@@ -52,15 +51,17 @@ export async function protocolContract(){
    assert.deepEqual(names,[...names].sort());assert.equal(new Set(names).size,names.length);
    console.log(`PROBE BASE-AGENT-001 1 ${phase}: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions`);
 
-   const initialized=await rpc('initialize',{version:legacy,params:{protocolVersion:legacy,capabilities:{},clientInfo:{name:'Native protocol qualification',version:'1'}}});
-   const negotiated=ok(initialized);assert.equal(negotiated.protocolVersion,legacy);
-   assert.equal(initialized.headers.has('mcp-session-id'),false);
-   assert.deepEqual(negotiated.capabilities,discovery.capabilities);
-   assert.deepEqual(negotiated.serverInfo,serverInfo);assert.equal(negotiated.instructions,discovery.instructions);
-   const oldFirst=ok(await rpc('tools/list',{version:legacy})),oldSecond=ok(await rpc('tools/list',{version:legacy}));
-   cached(oldFirst);assert.deepEqual(oldFirst.tools.map(tool=>tool.name),names,'The initialized legacy client sees every tool offered to the handshake-free modern client');
-   assert.deepEqual(oldSecond,oldFirst);assert.deepEqual(oldFirst,first);
-   assert.deepEqual(ok(await rpc('server/discover',{version:legacy})),discovery,'Discovery describes the same native server to both clients');
+   for(const legacyClient of [false,true]){
+    const initialized=await rpc('initialize',{version:legacy,legacyClient,params:{protocolVersion:legacy,capabilities:{},clientInfo:{name:'Native protocol qualification',version:'1'}}});
+    const negotiated=ok(initialized);assert.equal(negotiated.protocolVersion,legacy);
+    assert.equal(initialized.headers.has('mcp-session-id'),false);
+    assert.deepEqual(negotiated.capabilities,discovery.capabilities);
+    assert.deepEqual(negotiated.serverInfo,serverInfo);assert.equal(negotiated.instructions,discovery.instructions);
+    const oldFirst=ok(await rpc('tools/list',{version:legacy,legacyClient})),oldSecond=ok(await rpc('tools/list',{version:legacy,legacyClient}));
+    cached(oldFirst);assert.deepEqual(oldFirst.tools.map(tool=>tool.name),names,'The initialized legacy client sees every tool offered to the handshake-free modern client');
+    assert.deepEqual(oldSecond,oldFirst);assert.deepEqual(oldFirst,first);
+    assert.deepEqual(ok(await rpc('server/discover',{version:legacy,legacyClient})),discovery,'Discovery describes the same native server to both clients');
+   }
    console.log(`PROBE BASE-AGENT-001 2 ${phase}: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete ${names.length}-tool catalogue and server description`);
    console.log(`PROBE BASE-AGENT-001 4 ${phase}: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope`);
 
