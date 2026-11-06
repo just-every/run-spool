@@ -27,6 +27,9 @@ export async function requestActor(request: Request, bindings: Bindings): Promis
  return auditActor(env.DB,{kind:service?'service':grant.kind,authority:service?.service??digest,owner:grant.minted_by,project:grant.project});
 }
 
+/** A page that keeps itself current re-reads quietly: its first, foreground read is the recorded one. Signed-in people only; a credential's reads are always recorded. */
+export const quietRead = (request: Request, actor: AuditActor) => request.method==='GET'&&request.headers.get('x-spool-background')==='1'&&(actor.kind==='owner'||actor.kind==='member');
+
 /** A door whose authority is established by its own handler: an admitted
  * sign-in names the owner it signed in, an admitted Business grant its service. */
 async function admittedActor(request: Request, env: Bindings, door: AuditScope, response: Response): Promise<AuditActor> {
@@ -74,6 +77,6 @@ export async function wrapRequest(request: Request, env: Bindings, next: () => P
  if(bound===undefined&&response.status<400)await auditLabel(env.DB,binding,subject.label);
  // Ordinary successful reads do not swamp the action chronology. Named evidence/export
  // reads and every denied read remain observable.
- if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400))await observe(response.status);
+ if(!(door.action==='private.action'&&['GET','HEAD'].includes(request.method)&&response.status<400)&&!(door.action==='grouping.proposals'&&response.status<400&&quietRead(request,scope.actor)))await observe(response.status);
  return response;
 }

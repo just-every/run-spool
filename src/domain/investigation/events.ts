@@ -1,7 +1,7 @@
 import { resolveMembership } from '../members/resolver';
 import { linkedCheckIns } from '../checkins/intake';
 import { Hono } from 'hono';
-import { ownerSession } from '../../auth/session.server';
+import { requestAuthority as ownerSession } from '../agent-door/native-authority';
 import { normalize, hash, grouping } from '../privacy';
 import { diagnose } from '../artifacts';
 import { diagnosticProjection } from '../agent-projection';
@@ -10,6 +10,7 @@ import { sentryGroupingInfo } from '../sentry/grouping';
 import { eventQuery } from './query';
 import { ensureReleaseOrderKeys } from '../releases/order';
 import { createRepositoryLinker } from '../repository-links';
+import { mappedFramePage } from '../sentry/mapped-frames';
 
 const routes = new Hono<any>();
 // Rich source context and variables are an owner read, never an implicit
@@ -48,6 +49,14 @@ routes.get('/:project/issues/:issue/events',async c=>{
  return c.json({version:1,rows:rows.map(metadata),total:total.total,next:page.results.length>25?btoa(JSON.stringify({signature,received:last.received,id:last.id})):null,
   oldest:metadata(oldest),latest:metadata(latest),recommended:metadata(recommended),recommendation:'Most frames and tag/context fields among the latest 100 matching events.',
   tags:{events:available.total,rows:tagRows.map((row:any)=>({...row,percent:available.total?100*row.count/available.total:0})),complete:tags.results.length<=1000,limit:1000}});
+});
+routes.get('/:project/issues/:issue/events/:event/mapped-frames',async c=>{
+ const {where,args}=scope(c),occurrence=c.req.query('occurrence');
+ if(!occurrence)throw new Error('Exact occurrence required');
+ const row=await c.env.DB.prepare(`SELECT e.payload,e.historical FROM events e WHERE ${where} AND e.id=? AND e.occurrence=?`).bind(...args,c.req.param('event'),occurrence).first();
+ if(!row)return c.json({error:'Event not found in this issue and query'},404);
+ if(row.historical===1)throw new Error('Current mapped pages require a native capture');
+ return c.json(await mappedFramePage(c.env.DB,c.req.param('project'),c.req.param('issue'),normalize(JSON.parse(row.payload)),occurrence,c.req.query('exception'),c.req.query('cursor')));
 });
 routes.get('/:project/issues/:issue/events/:event',async c=>{
  const {query,where,args}=scope(c),db=c.env.DB,occurrence=c.req.query('occurrence');

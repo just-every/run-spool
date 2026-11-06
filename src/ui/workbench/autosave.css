@@ -1,0 +1,9 @@
+.save-mark{display:inline-block;min-width:3.6em;margin-inline-start:8px;font:500 13px/1.4 var(--font-text);color:var(--ink-soft);opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s .5s;pointer-events:none}
+.save-mark::before{content:"Saved"}
+.save-mark[data-state=saved]{opacity:1;visibility:visible;transition:opacity .15s ease}
+.save-failure{margin:6px 0;font:500 14px/1.4 var(--font-text)}
+.save-failure .text-button{margin-inline-start:6px}
+.save-confirm{margin:8px 0;padding:12px 16px;border:var(--inner-border);border-radius:var(--radius-input);background:var(--paper-sunk)}
+.save-confirm p{margin:0 0 8px}
+@media(prefers-reduced-motion:reduce){.save-mark,.save-mark::before{content:"Saved"}
+.save-mark[data-state=saved]{transition:none}}

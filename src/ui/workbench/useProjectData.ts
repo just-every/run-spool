@@ -10,6 +10,7 @@ export function useProjectData(project: string, view: View, selected: string | u
   const issues = useProjectIssues(project, refreshCount, request, live);
   const [data, setData] = useState<any>(null), [failed, setFailed] = useState(''), [loading, setLoading] = useState(false);
   const [panels, setPanels] = useState<IssuePanels | null>(null);
+  const [packetFailure, setPacketFailure] = useState('');
   const [packet, setPacket] = useState<any>(null), [packetStatus, setPacketStatus] = useState('idle');
   const scoped = data?.project === project ? data : null;
   useLiveRead(async (signal, background) => {
@@ -27,7 +28,7 @@ export function useProjectData(project: string, view: View, selected: string | u
   }, [project, view, !!selected, refreshCount, request], { enabled: !!project, live });
   useLiveRead(async (signal, background) => {
     const current = packet?.project === project && (packet.issue?.id === selected || packet.shortIdRequest?.requested === selected);
-    if (!current) { setPacket(null); setPanels(null); setPacketStatus('loading'); }
+    if (!current) { setPacketFailure(''); setPacket(null); setPanels(null); setPacketStatus('loading'); }
     const stored = /^[a-f0-9]{64}$/.test(selected!);
     if (!background && stored && !current) setPanels(loadIssuePanels(project, selected!, request));
     try {
@@ -36,10 +37,10 @@ export function useProjectData(project: string, view: View, selected: string | u
       if (result.project !== project || (result.issue?.id !== selected && result.shortIdRequest?.requested !== selected) || result.issue?.project !== project) throw new Error('Issue evidence belongs to another destination.');
       if (background || !stored || current) setPanels(loadIssuePanels(project, result.issue.id, request));
       setPacket((previous: any) => JSON.stringify(previous) === JSON.stringify(result) ? previous : result);
-      setPacketStatus('ready');
-    } catch { if (!signal.aborted && !current) setPacketStatus('error'); }
+      setPacketStatus('ready'); setPacketFailure('');
+    } catch (error) { if (!signal.aborted) { setPacketFailure((error as Error).message); setPacketStatus(current ? 'stale' : 'error'); } }
   }, [project, selected, refreshCount, request], { enabled: !!project && !!selected, live: view === 'issues' });
   return { issues: issues.rows, releases: scoped?.releases ?? [], keys: scoped?.keys ?? [], outcomes: scoped?.outcomes ?? null,
-    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: issues.failed || failed, panels,
+    loading: issues.loading || loading || (!!project && !scoped && !failed), failed: (selected ? packetFailure : '') || issues.failed || failed, stale: (!!selected && packetStatus === 'stale') || (!!scoped && !!(issues.failed || failed)), panels,
     packet: packet?.project === project && (packet?.issue?.id === selected || packet?.shortIdRequest?.requested === selected) ? packet : null, packetStatus };
 }

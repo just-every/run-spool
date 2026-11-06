@@ -39,6 +39,7 @@ export function transferProgress(report, { interval = 3000, now = () => performa
     }
   };
   return event => {
+    if(event.phase==='schema-unverified') { report('Schema unverified: '+JSON.stringify(event.receipt)); return; }
     if (event.phase === 'skipped') { report(skippedTablesLine(event.tables)); return; }
     if (event.phase === 'start') {
       const noun = event.direction === 'export' ? `Exporting about ${formatBytes(event.bytes)} of local data` : `Restoring a ${formatBytes(event.bytes)} archive`;

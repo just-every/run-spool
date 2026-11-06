@@ -55,7 +55,7 @@ routes.get('/organizations/:org/releases/:version/', guarded({}, async (c, who) 
  const view = await releaseView(c.env.DB, who.project, releaseName(c.req.param('version')));
  return view ? c.json(view) : cliError(c, 404, 'Release not found. Ensure that you configured the correct release, project, and organization.');
 }));
-routes.put('/organizations/:org/releases/:version/', guarded({ body: 1048576 }, (c, who, body) => upsertRelease(c, who, { ...body, version: c.req.param('version') }, false)));
+routes.put('/organizations/:org/releases/:version/', guarded({ body: 1048576 }, (c, who, body) => upsertRelease(c, who, body, false, c.req.param('version'))));
 routes.get('/organizations/:org/releases/:version/deploys/', guarded({}, (c, who) => listDeploys(c, who, c.req.param('version')!)));
 routes.post('/organizations/:org/releases/:version/deploys/', guarded({ body: 65536 }, (c, who, body) => createDeploy(c, who, c.req.param('version')!, body)));
 // No repository is connected (SRC-002), so the list is empty and sentry-cli reads commits from its own git

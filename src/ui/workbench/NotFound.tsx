@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { useEditorDestinationReady } from '../../editor/useEditorDestinationReady';
 import { Wordmark } from '../Wordmark';
 export function MissingContent({ project = false }: { project?: boolean }) {
-  return <section className="empty-state missing-state"><p className="crumb">Page not found</p><h1>{project ? 'This project is unavailable' : 'This page is unavailable'}</h1><p>The link may be incomplete, or the item may have been removed.</p><Link to="/" className="primary-button">Back to issues</Link></section>;
+  return <section className="empty-state missing-state"><p className="crumb">Page not found</p><h1>{project ? 'This project is unavailable' : 'This page is unavailable'}</h1><p>{project ? 'This project may have been removed or your access may have changed. Ask an administrator or return to your issues.' : 'The link may be incomplete, or the item may have been removed.'}</p><Link to="/" className="primary-button">Back to issues</Link></section>;
 }
 export function NotFound() {
   useEditorDestinationReady();
