@@ -1445,7 +1445,7 @@ Agent surface · target · **partial**
 5. A foreign Origin returns 403, and a header and body method mismatch returns `HeaderMismatch`.
 6. An oversized body returns 413 with no effect.
 
-**Evidence.** `tests/agent-door/protocol-contract.mjs` protocolContract (acceptance 1 to 6 at the implemented native MCP transport boundary, independent autonomous and held policies); `tests/agent-door.mjs` (enclosing emitted-Worker journey); `src/modules/agent-door/conformance/discovery.mjs` discoverDoor and listedDoor (installed shared transport checks)
+**Evidence.** `tests/agent-door/protocol-contract.mjs` protocolContract (acceptance 1 to 6 at the implemented native MCP transport boundary, independent autonomous and held policies, body-only legacy compatibility and populated proposal refusal nonmutation); `tests/agent-door.mjs` (enclosing emitted-Worker journey); `src/modules/agent-door/conformance/discovery.mjs` discoverDoor and listedDoor (installed shared transport checks)
 **Gap.** Resources and prompts remain undeclared and unserved. Complete registry and table-wide conformance, hosted qualification and obligations beyond this native transport slice remain unproved; optional capabilities and unscoped lifecycle families are unchanged. Existing account, device and ct holds and BASE-AGENT-012 scope remain unchanged.
 
 #### BASE-AGENT-002 — The seed's jobs are tools, through the UI's own actions
