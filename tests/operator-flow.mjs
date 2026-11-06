@@ -166,7 +166,7 @@ export async function traceProposalFixture({req,json},id='synthetic-spool-traces
   const p=await json(root+'/issues/'+sourceId+'/packet'),event=p.events[0].event,now=Date.now();
   const change=kind==='split'?{events}:kind==='merge'?{target,targetRevision:(await json(root+'/issues/'+target+'/packet')).issue.revision}:{policy:(await json(root+'/grouping-rules')).policy,policyRevision:(await json(root+'/grouping-rules')).revision};
   const input={kind,source:sourceId,revision:p.issue.revision,...change,variants:[variant??{stack:JSON.stringify(event.frames),release:event.release,route:sourceId===source?'/checkout':''}],rationale:'Compare retained trace identity without changing captures.',window:{start:now-60000,end:now}};
-  const response=await req(endpoint,'POST',input,agent);assert.equal(response.status,201);const proposal=await response.json();assert.ok(!Object.hasOwn(proposal,'explanation'));return {proposal,input};
+  const response=await req(endpoint,'POST',input,{...agent,'Idempotency-Key':crypto.randomUUID()});assert.equal(response.status,201);const proposal=await response.json();assert.ok(!Object.hasOwn(proposal,'explanation'));return {proposal,input};
  };
  return {project,root,endpoint,grant,agent,ids,source,native,traceA,traceB,privateContext,packet,submit,capture,target,targetIds};
 }
@@ -190,7 +190,7 @@ export async function retainedTraceProposalFlow({req,json}){
  assert.ok(!JSON.stringify(review).includes('synthetic-spool-malformed'),'Malformed identity is represented only by an unavailable reason');
  assert.equal((await req(endpoint+'/'+proposal.id,'GET',undefined,agent)).status,403,'Agent cannot read owner trace explanations');
  const summaries=await json(endpoint,'GET',undefined,agent);assert.ok(summaries.every(row=>!Object.hasOwn(row,'explanation')));assert.ok(!JSON.stringify(summaries).includes(traceA));
- assert.equal((await req(endpoint,'POST',{...input,variants:input.variants.map(v=>({...v,trace:traceA}))},agent)).status,400,'Legacy citation shape stays unchanged; agents cannot inject trace identity');
+ assert.equal((await req(endpoint,'POST',{...input,variants:input.variants.map(v=>({...v,trace:traceA}))},{...agent,'Idempotency-Key':crypto.randomUUID()})).status,400,'Legacy citation shape stays unchanged; agents cannot inject trace identity');
  const outsider=await json('/api/projects','POST',{id:'synthetic-spool-trace-other',name:'Trace isolation'}),foreign=await json('/api/projects/'+outsider.id+'/keys','POST',{kind:'agent'});
  const foreignHeaders={Cookie:'',Authorization:'Bearer '+foreign.key};
  for(const [method,path,body] of [['GET',endpoint+'/'+proposal.id,undefined],['POST',endpoint,input]])assert.equal((await req(path,method,body,foreignHeaders)).status,403,'A foreign grant cannot inspect or create trace proposals');
