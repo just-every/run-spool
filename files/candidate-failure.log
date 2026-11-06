@@ -1,0 +1,10 @@
+build	Check source and portable contract	﻿2026-11-06T00:39:10.5983313Z ##[group]Run pnpm run check -- --profile first-party
+build	Check source and portable contract	2026-11-06T00:39:10.5983781Z [36;1mpnpm run check -- --profile first-party[0m
+build	Check source and portable contract	2026-11-06T00:39:10.5984116Z [36;1mpnpm source:check[0m
+build	Check source and portable contract	2026-11-06T00:39:10.5984401Z [36;1mnode src/base/contract-docs.mjs check[0m
+build	Check source and portable contract	2026-11-06T00:39:10.5984808Z [36;1mnode scripts/edition-authoring/cli.mjs verify-base --offline[0m
+build	Check source and portable contract	2026-11-06T00:39:13.5046392Z     "src/base/contract-docs.mjs": {
+build	Check source and portable contract	2026-11-06T00:39:13.5369470Z     "src/foundation/runtime/contract-docs.mjs": {
+build	Check source and portable contract	2026-11-06T00:39:13.6404189Z Contract prose: 0 errors, 0 warnings.
+build	Check source and portable contract	2026-11-06T00:39:13.6749823Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+build	Check source and portable contract	2026-11-06T00:39:13.6865461Z ##[error]Process completed with exit code 1.

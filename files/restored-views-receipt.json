@@ -1,0 +1,8 @@
+{
+  "command": "node src/base/contract-docs.mjs check",
+  "head": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "exit": 1,
+  "stdout": "Contract prose: 0 errors, 0 warnings.\n",
+  "stderr": "ACCEPTANCE.md: generated content differs; run contract-docs write.\n",
+  "interpretation": "Expected on candidate: generated views were restored to origin/main as required; write followed by check passed before restore. The lander regenerates the views."
+}

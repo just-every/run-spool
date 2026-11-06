@@ -1,0 +1,21 @@
+{
+  "head": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "run": 42138302169,
+  "job": 127632008604,
+  "command": "gh run view 42138302169 --repo just-every/run-spool --job 127632008604 --log-failed",
+  "exit": 0,
+  "generated_view_only": true,
+  "failure_lines": [
+    "build\tCheck source and portable contract\t\ufeff2026-11-06T00:39:10.5983313Z ##[group]Run pnpm run check -- --profile first-party",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:10.5983781Z \u001b[36;1mpnpm run check -- --profile first-party\u001b[0m",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:10.5984116Z \u001b[36;1mpnpm source:check\u001b[0m",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:10.5984401Z \u001b[36;1mnode src/base/contract-docs.mjs check\u001b[0m",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:10.5984808Z \u001b[36;1mnode scripts/edition-authoring/cli.mjs verify-base --offline\u001b[0m",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:13.5046392Z     \"src/base/contract-docs.mjs\": {",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:13.5369470Z     \"src/foundation/runtime/contract-docs.mjs\": {",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:13.6404189Z Contract prose: 0 errors, 0 warnings.",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:13.6749823Z ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "build\tCheck source and portable contract\t2026-11-06T00:39:13.6865461Z ##[error]Process completed with exit code 1."
+  ],
+  "scope": "The build fails at contract-docs freshness for ACCEPTANCE.md; dependent suites and aggregate gates fail or skip. No application test ran or failed in this candidate CI."
+}

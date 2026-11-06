@@ -1,0 +1,20 @@
+{
+  "head": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "command": "node tests/owner-editor.mjs",
+  "wrapper": "cloud_run timeout --kill-after=10s 1200",
+  "exit": 0,
+  "observed_at": "2026-11-06T00:39:30.018934+00:00",
+  "browser": "/usr/bin/chromium",
+  "widths": [
+    1440,
+    390
+  ],
+  "files": {
+    "tests/owner-editor.mjs": "071084fc1303f082bec6898815b7a12cc825a39d0405bb0fcdd7d5cd3a6eae4b",
+    "src/editor/config.server.ts": "6dee08e183109965edc961377871528564158e730c35388d86fcfd1ed32d4ab3",
+    "src/server.ts": "af40546ee84fc51658f542848025c784613ee3d56574f4e369042ddd9f9ca6ab",
+    "src/auth/session.server.ts": "6534709dc2d3c24fc9107cf422ad99c8f73299a957c853a6175e8dfd0a0758dc",
+    "tests/editor-navigation.mjs": "ab56a2506577540f4ebc1a35e3a388510ddbf1f44d3e3eca6f815b5e572b96ef",
+    "tests/editor-management-edge.mjs": "15a8be7f04c386ca00c65840c8ae6aa013cc8a1709d522d0277127d5b052ddb1"
+  }
+}

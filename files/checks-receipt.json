@@ -1,0 +1,98 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f333",
+  "head": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "parent": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "observed_at": "2026-11-06T00:39:54.143631+00:00",
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/owner-editor.mjs"
+  ],
+  "status_rows": 105,
+  "counts": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "target": {
+    "id": "OPS-001",
+    "before": "partial",
+    "after": "partial",
+    "qualified": "acceptance 8",
+    "remaining": "acceptance 6 unsafe answer-path proof and the held setup-resume command journey remain outside this round"
+  },
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "scope": "repository dependency and local runtime setup; no command qualification claimed"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0,
+      "stdout": "Wrote 1 contract documents."
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "stdout": "Contract prose: 0 errors, 0 warnings.\nContract documents are current."
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "scope": "generated views restored; none committed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git rebase origin/main",
+      "exit": 0,
+      "stdout": "Current branch cloud/sd-spool-c-f333 is up to date."
+    },
+    {
+      "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-c-f333",
+      "exit": 0,
+      "attempt": 1,
+      "remote_result": "new branch; PUSH_OK"
+    }
+  ],
+  "migration_ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "No migration edited."
+  },
+  "product_source_unchanged": true,
+  "new_test_registrations": 0,
+  "existing_assertions_removed_or_weakened": false,
+  "identity_and_trailers": "All candidate authors and committers are fleet; no trailers",
+  "publication_scan": {
+    "status": "not run in cloud",
+    "owner": "guarded fleet lander",
+    "history": "full, no depth limit"
+  },
+  "generated_views_committed": false,
+  "node": "24.19.0 for direct commands; rer uses declared 22.20.0"
+}

@@ -1,0 +1,24 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "green_branch_verify": 42127604034,
+  "green_run_site": 42130609627,
+  "failed_duplicate_main_verify": 42130609799,
+  "failed_jobs": [
+    {
+      "id": 127606490207,
+      "name": "runtime (ruby)",
+      "failure": "AssertionError: ruby: Spool outcomes reconcile with SDK-sent items",
+      "log_command": "gh run view 42130609799 --repo just-every/run-spool --job 127606490207 --log-failed",
+      "log_exit": 0
+    },
+    {
+      "id": 127606490375,
+      "name": "verify (owner-ui)",
+      "failure": "expect(locator).toBeFocused() failed; Expected focused, Received inactive",
+      "log_command": "gh run view 42130609799 --repo just-every/run-spool --job 127606490375 --log-failed",
+      "log_exit": 0
+    }
+  ],
+  "repair": "No change made to these existing main failures; the same exact main SHA already has successful branch Verify and Run site."
+}

@@ -1,0 +1,12 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "1045eb74227c9cba54a7e5d6acb120b3daab6d99",
+  "status_rows": 105,
+  "counts": {
+    "done": 22,
+    "partial": 48,
+    "missing": 35
+  },
+  "target": "OPS-001",
+  "status": "partial"
+}

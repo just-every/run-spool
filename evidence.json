@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "ba01b643b1d738d03ee96e182da42c66fc69b255",
+      "bytes": 13421,
+      "path": "REPORT.md",
+      "sha256": "bc201ebcc71177fe5d9ac3d33728ba418fc9c2345f6bc8f65ec1fad2103c2464"
+    },
+    {
+      "blob": "35d5956b83dd1f75dcec1df0aec1fce27c471bbd",
+      "bytes": 237,
+      "path": "baseline.json",
+      "sha256": "d5916f9fff18445534ac0c59d8ea317d81d2a8d7146fbe158ca215624ac06acc"
+    },
+    {
+      "blob": "a703873ec674cd42f10660ec5d80f50dd7ce2a9e",
+      "bytes": 226,
+      "path": "candidate-ci-final.json",
+      "sha256": "68bf8cbaa9d4cccb0e3f3dd0d1426cbcd0ef4dff2930ad55471aa1026ced39e7"
+    },
+    {
+      "blob": "302034a4005dfe34f383ad654f75ef172b651da3",
+      "bytes": 234,
+      "path": "candidate-ci.json",
+      "sha256": "0e86bab12684d2b0de4d5127849457acd2669b8efbae00ca63273add649c3d87"
+    },
+    {
+      "blob": "1bc21195fcb67b765a23d99c69646bc5741964f4",
+      "bytes": 1784,
+      "path": "candidate-failure-receipt.json",
+      "sha256": "35ae3ace72fb3d3c933aca88ba621c0c2115c64f332a239cc0e4537e1beaab89"
+    },
+    {
+      "blob": "451ea803bf7f38c705c5a6e0e8a69028ef12bc3d",
+      "bytes": 1193,
+      "path": "candidate-failure.log",
+      "sha256": "416f46d9d103e1ebd39b6ac692560df8dd8259460d43df83d54aaa358f4ed2c0"
+    },
+    {
+      "blob": "d64e4cd20f215aa22acfd960fc211fb17a70c1df",
+      "bytes": 1091,
+      "path": "candidate-jobs.json",
+      "sha256": "6a888624f41aa8b71254dc62979947549286ae5e39856497a7494146550d8c25"
+    },
+    {
+      "blob": "1e49bf25f4388bb34bf874cbfb87ac5c39446d8f",
+      "bytes": 10502,
+      "path": "candidate.diff",
+      "sha256": "ad95060c37341d68c9e81018afbe29fe5a0a9dd3481d77b06b06edca84274870"
+    },
+    {
+      "blob": "c4505ce888c24abf40fd658683c7befff3e2fdf8",
+      "bytes": 2809,
+      "path": "checks-receipt.json",
+      "sha256": "7ee092caac222f332cf761c68488d6271b5c5d2a37c0fb86235de9dcbb8a82e7"
+    },
+    {
+      "blob": "0f453ebc2e0f0cb1161b0457fe9b964ef0d0379a",
+      "bytes": 89989,
+      "path": "editor-1440.png",
+      "sha256": "ffad7ffe58aa6dbb70edd1e736ceb0b0f57263cb7b2a38b09d584ebfad12cf82"
+    },
+    {
+      "blob": "0504121e0831210f5a75cdceb9cbb81cf84e408e",
+      "bytes": 52323,
+      "path": "editor-390.png",
+      "sha256": "9bc82b8e4b657cc429e0d260d5e28eb65e3c8d143cfb9bd09201790f11b15b4a"
+    },
+    {
+      "blob": "0d55f6bcbe6babf9f9989abfcf90dd04b326418e",
+      "bytes": 914,
+      "path": "editor-journey-receipt.json",
+      "sha256": "7e1cf7e71112b209087070175072addecd8a328e268b0c63be50d8840e36df00"
+    },
+    {
+      "blob": "4b7623024225883e5e35338e23117b720e8c7147",
+      "bytes": 330,
+      "path": "editor-journey.log",
+      "sha256": "be0287199c00d168b9907d1abc5913697e27a46d2fea95af67d923b78087a2cc"
+    },
+    {
+      "blob": "acda3f10b4bc93244ed9fcbae0dca81304d835e9",
+      "bytes": 912,
+      "path": "github-call-receipt.json",
+      "sha256": "dab4a776d29dbe25af5520a7d74ae146f8fc372656a4b2f0bbf5c16e5ff3087b"
+    },
+    {
+      "blob": "542d51fbe960b1b0cd5746c45a47e7d483c55419",
+      "bytes": 1154,
+      "path": "main-ci.json",
+      "sha256": "522230faee5f9cb5d85f7a46ee475f4518a97eb8790875bd253fb352f5f111ed"
+    },
+    {
+      "blob": "b0ed087251403bbf4988974c84e9fb8313f6aaa7",
+      "bytes": 226,
+      "path": "main-duplicate-attempt.json",
+      "sha256": "f50a05bb8ca369be02737ab7bf208e6a5844da399b12f3e9dd7a7d7a3d9e88aa"
+    },
+    {
+      "blob": "55d70de7da63a6f942d9ebc0853dac96da5d5143",
+      "bytes": 591,
+      "path": "main-duplicate-failure.json",
+      "sha256": "8080bb0cb4629188cf1cb82b245d82211826eca90980eabf9b08860121296955"
+    },
+    {
+      "blob": "7559cff4be4d309c2a00f5281bdbad56d997f8aa",
+      "bytes": 958,
+      "path": "main-failure-summary.json",
+      "sha256": "fe8ea16dbe108aac7e06a281d397e108b0b047354c1727ae9ea800de5a11ae96"
+    },
+    {
+      "blob": "9a3b109cdb32a9a4ee0775be9cb4b4b2a0ab435b",
+      "bytes": 448,
+      "path": "restored-views-receipt.json",
+      "sha256": "3d7dad3f97013ddacc63299aea7058938378d83312ccd30f38d37ccfe593b24b"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-c-f333",
+  "product_head": "dcbabcff5dc12df33cd4c0601ff0332a7bdd9588",
+  "ref": "refs/heads/evidence/sd-spool-c-f333",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-c-f333"
+}

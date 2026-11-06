@@ -1,0 +1,90 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 8097762..a947324 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -1686,7 +1686,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
+ | `ERR-008` | Loss counters and repair observation | published | done | `src/domain/repairs/observation.ts`; `src/domain/exposure/proof.ts`; `src/domain/sentry/client-reports.ts`; `tests/client-report-flow.mjs`; `tests/repair-recovery.mjs` |  |
+ | `ERR-009` | Archive, restore and retention | published | done | `src/domain/portability.ts`; `src/domain/restored-work.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; Acceptance 1 and 2: `tests/triage-journey.mjs` journey (actual browser download, verified populated rows and private source maps, credential exclusions and independent empty restore at 1440 and 390); `tests/repair-recovery.mjs` repair recovery public journey invoking `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import, whole-row equality and fresh owner setup). Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` emitted Worker and D1 acceptance (independent restore, semantic tampering, configuration conflict and nonempty-target refusals); `tests/old-archive.mjs` old native archive journey (published and current independent restores, unchanged populated upgrades, schema mismatch, checksum and occupied-target refusals). Acceptance 3: archiveProof (source sessions and agent, ingest and deploy grants refused without product-row changes, disabled restored rules and historical repair verification); `tests/execution-journey.mjs` execution journey, archive stage (unchanged historical facts, source-token refusal, zero dispatch before and after scheduling, refused historical approval and passing-run authority, fresh-run-only recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical presentation, Axe and reflow at 1440 and 390). Acceptance 7: archiveProof (unchanged repair and check rows, ordered snapshot identifiers, exact removed_by_retention markers and retained recurrence). D-6: `migrations/core/0084_restored_work.sql`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention. |  |
+ | `ERR-010` | Release gates | published | partial | `tests/triage-journey.mjs`; `tests/agent-handoff.mjs`; `tests/repair-recovery.mjs`; `tests/execution-journey.mjs` | Local journeys exist; full target, hosted/provider and native-device acceptance remain open. |
+-| `OPS-001` | Base commands and native admission | published | partial | `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs` | Not asserted in the cited tests: refusal of an unsafe answer path, and denial of anonymous and project-grant editor access (asserted in tests/owner-editor.mjs, which this clause does not cite). Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal. |
++| `OPS-001` | Base commands and native admission | published | partial | `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs`; `tests/owner-editor.mjs` OWNER EDITOR: anonymous and live project-read editor refusal, native-owner configuration, current-session revocation, private cache, CSP and browser proof at 1440 and 390 | Not asserted in the cited tests: refusal of an unsafe answer path. Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal. |
+ | `ERASE-001` | Project and installation-owner erasure | published | done | `src/domain/erasure/declaration.ts`; `src/domain/erasure/owner-declaration.ts`; `src/modules/erasure`; `tests/project-erasure.mjs`; `tests/project-erasure-cap.mjs`; `tests/owner-erasure.mjs` |  |
+ | `TEAM-001` | Organizations, members and project permissions | target | done | `tests/team-flow.mjs` teamFlow (organization, native invitations, simultaneous roles and transfer); policyAuthority (maintainer-only filters/grouping); concurrentTriage (disjoint projects and revision conflict); revokedAuthority (held-write removal and UI/HTTP/SDK/CLI/MCP/export fences); serviceAuthority (explicit scopes and sponsor removal); memberDeployment (member deployment); teamRiders (timezone digests, expiring snooze, loss/backlog, alternate responsibility and nonrecursive follow-up); inertTeamArchive (inert member/grant/invite/service restore and unchanged safe facts); `tests/team-browser.mjs` browserMembers (invitation, scoped role saves and refusal, services at 1440 and 390), memberBrowser (live member removed to sign-in); `tests/owner-erasure.mjs` native owner custody; `tests/project-erasure.mjs` declared team stores; `tests/old-archive.mjs` populated upgrade; `docs/MEMBERS.md` | |
+ | `TEAM-002` | Accountable assignment and ownership rules | target | partial | `src/domain/operators/policies.ts`; `tests/operator-flow.mjs` | Current assignment is an operator label; authenticated teammates, CODEOWNERS and assignment notifications are absent. |
+diff --git a/sources.lock.json b/sources.lock.json
+index d70209e..6cdf1ba 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2670,7 +2670,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "e734a79613e0a826138206481997a137c5e39da556ffb86c49731ca9ddf509c9",
++      "sha256": "355f07286634c2944dc63e4fcd8a591efd58da65bcde61e6750bc4948f5475f2",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -10834,7 +10834,7 @@
+       "executable": false
+     },
+     "tests/owner-editor.mjs": {
+-      "sha256": "ca641e24b06ffb1b54b35f28b27f41c8a66c4ff4355b43dc3f8ee30e42483cce",
++      "sha256": "071084fc1303f082bec6898815b7a12cc825a39d0405bb0fcdd7d5cd3a6eae4b",
+       "executable": false
+     },
+     "tests/owner-erasure-archives.mjs": {
+diff --git a/tests/owner-editor.mjs b/tests/owner-editor.mjs
+index 78049db..2c2e1be 100644
+--- a/tests/owner-editor.mjs
++++ b/tests/owner-editor.mjs
+@@ -36,16 +36,37 @@ try {
+  await app.close();
+  app = await admissionRuntime({RER_MANAGEMENT_ORIGIN: edge.origin, RER_INSTALLATION_ID: 'spool-editor-acceptance'});
+  edge.state.allowed = app.origin;
+- assert.equal((await app.call('/api/editor/config')).status, 403, 'anonymous config requests are refused');
++ const anonymous = await app.call('/api/editor/config');
++ assert.equal(anonymous.status, 403, 'anonymous config requests are refused');
++ const refusedConfig = async response => {
++  const refusal = await response.json();
++  assert.equal(typeof refusal.error, 'string');
++  assert.equal('config' in refusal, false, 'refusal discloses no editor configuration');
++  assert.equal('expiresAt' in refusal, false, 'refusal discloses no editor expiry');
++ };
++ await refusedConfig(anonymous);
+  const cookie = await signIn(app.origin);await chooseLocalAgentPolicy(app.origin,cookie);
++ const requestedAt = Date.now();
+  const config = await app.call('/api/editor/config', undefined, {Cookie: cookie});
+  assert.equal(config.status, 200); assert.match(config.headers.get('cache-control'), /no-store/);
++ assert.match(config.headers.get('cache-control'), /private/);
+  assert.match(config.headers.get('vary'), /Cookie/i);
+  const grant = await config.json(); assert.equal(grant.config.managementOrigin, edge.origin);
++ assert.equal(grant.config.installationId, 'spool-editor-acceptance');
++ assert.ok(grant.expiresAt > requestedAt && grant.expiresAt <= Date.now() + 30_000, 'native owner receives a current short-lived editor configuration');
+  assert.equal((await app.call('/api/projects', {id: 'editor-scope', name: 'Editor scope'}, {Cookie: cookie})).status, 201);
+  const agentGrant = await (await app.call('/api/projects/editor-scope/keys', {kind: 'agent'}, {Cookie: cookie})).json();
+  assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200);
+- assert.equal((await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 403, 'project read grants receive no editor authority');
++ const projectConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`});
++ assert.equal(projectConfig.status, 403, 'project read grants receive no editor authority');
++ await refusedConfig(projectConfig);
++ const mixedConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`, Cookie: cookie});
++ assert.equal(mixedConfig.status, 403, 'a coincident owner cookie cannot expand project-grant editor authority');
++ await refusedConfig(mixedConfig);
++ assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200, 'the refused editor request leaves the project read grant usable');
++ const ownerConfig = await app.call('/api/editor/config', undefined, {Cookie: cookie});
++ assert.equal(ownerConfig.status, 200, 'native owner access still works after editor refusals');
++ assert.deepEqual((await ownerConfig.json()).config, grant.config);
+  assert.equal((await app.call('/api/editor/config', {}, {Cookie: cookie})).status, 405);
+  const document = await app.call('/', undefined, {Cookie: cookie});
+  assert.ok(document.headers.get('content-security-policy').includes(`frame-ancestors 'self' ${edge.origin}`));
+@@ -88,7 +109,9 @@ try {
+    await page.waitForFunction(() => !document.querySelector('[data-rer-editor]'));
+    assert.equal(new URL(page.url()).pathname, '/projects/editor-scope/capture', 'native API auth loss removes the editor without a document reload');
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+-   assert.equal((await app.call('/api/editor/config', undefined, {Cookie: signedIn})).status, 403, 'revoked native session loses config authority');
++   const revokedConfig = await app.call('/api/editor/config', undefined, {Cookie: signedIn});
++   assert.equal(revokedConfig.status, 403, 'revoked native session loses config authority');
++   await refusedConfig(revokedConfig);
+   } finally {await context.close();}
+  }
+  // The browser also enforces the management service's frame-ancestors refusal.

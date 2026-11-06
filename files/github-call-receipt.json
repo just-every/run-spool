@@ -1,0 +1,18 @@
+{
+  "calls": 9,
+  "commands": [
+    "gh api repos/just-every/run-spool/actions/runs?head_sha=1045eb74227c9cba54a7e5d6acb120b3daab6d99&per_page=100",
+    "gh api repos/just-every/run-spool/actions/runs/42130609799/jobs",
+    "gh run view 42130609799 --repo just-every/run-spool --job 127606490207 --log-failed",
+    "gh run view 42130609799 --repo just-every/run-spool --job 127606490375 --log-failed",
+    "gh api repos/just-every/run-spool/actions/runs?head_sha=dcbabcff5dc12df33cd4c0601ff0332a7bdd9588&per_page=100",
+    "gh api repos/just-every/run-spool/actions/runs/42130609799",
+    "gh api repos/just-every/run-spool/actions/runs/42138302169",
+    "gh api repos/just-every/run-spool/actions/runs/42138302169/jobs",
+    "gh run view 42138302169 --repo just-every/run-spool --job 127632008604 --log-failed"
+  ],
+  "all_exits": 0,
+  "candidate_poll_interval_seconds": 318,
+  "dispatches": 0,
+  "reruns": 0
+}
