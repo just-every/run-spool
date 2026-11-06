@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 4 | 14 | 18 |
+| Agent surface | 0 | 5 | 13 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 48 | 35 | 105 |
+| Full target | 22 | 49 | 34 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1572,7 +1572,7 @@ Agent surface · target · **missing**
 
 #### BASE-AGENT-009 — Every agent action is audited with its class and decision
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Extending BASE-OPS-005, each call that reads private data or changes anything records the agent client, name and specialist, and the run or task id (`traceparent` when sent); the sponsoring person, the grant, the tool and the targets; the classes and their facts, and the policy revision and rule; the decision (autonomous, review, approval, blocked, unset or self_escalation) and the outcome (done, refused, pending or failed); the approval or review id and person, and the idempotency key. For a period, the seed's Agents page shows actions by class and decision with the notable ones, the review feed (Mark reviewed, Flag, and Undo where reversible), pending approvals, steps waiting for a person and setup questions. Business shows the same across seeds.
 
@@ -1585,8 +1585,8 @@ Agent surface · target · **missing**
 6. Removing the agent keeps its rows and its name.
 7. The Agents page works at 1440 and 390 with no serious or critical axe findings.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door.mjs` emitted Worker journey invokes `tests/agent-door/audit-retirement-contract.mjs` auditRetirementContract: acceptance 6 at the native signed-in agent revoke route under autonomous and held policies. Each distinct retiring agent has 206 prior audit rows, collected through every native audit page; retirement preserves complete prior rows including IDs, sequence, time, agent name, sponsor label, decision and outcome. Fresh read and tool-list tokens are refused, current person access remains, and another agent retains its history and access.
+**Gap.** Acceptance 1 to 5 and 7 remain unqualified: complete audit fields across every tool and decision, fixture-week counts by class and decision, review-feed membership with person review marks and reversible Undo, agent and class filtering with complete exports, and responsive Agents-page accessibility. Acceptance 6 qualification covers this installation's native retirement only; Business-wide removal behavior remains unqualified. No full shared-conformance or broader audit adoption is claimed.
 
 #### BASE-AGENT-010 — Agents can follow changes
 
