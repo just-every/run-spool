@@ -3,6 +3,7 @@ import { eventId, sourceId, timestamp } from './identity.ts';
 /** Rollbar frames run oldest to newest; the native diagnostic view is newest first. */
 export function occurrenceEvent(project: string, occurrence: any) {
  const data=occurrence.data,body=data?.body;
+ if(typeof data?.environment!=='string'||!data.environment)throw new Error('Rollbar occurrence environment required');
  const chain=body?.trace_chain ?? (body?.trace ? [body.trace] : []);
  if (!Array.isArray(chain) || !chain.length) throw new Error('Rollbar trace or trace_chain required; message and crash-report conversion unavailable');
  const exceptions=chain.map((trace:any)=>{
@@ -16,5 +17,5 @@ export function occurrenceEvent(project: string, occurrence: any) {
   release:data.code_version,environment:data.environment,
   platform:data.language==='python'?'python':data.language==='go'?'go':undefined,
   exception:{values:exceptions},breadcrumbs});
- return {event,received:timestamp(occurrence.timestamp??data.timestamp)};
+ return {event,received:timestamp(occurrence.timestamp)};
 }

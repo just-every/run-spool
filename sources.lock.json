@@ -6590,7 +6590,7 @@
       "executable": false
     },
     "src/domain/rollbar-import/event.ts": {
-      "sha256": "5e827d802b58172d1a2ba1e39d5794d5289828a22a7575e0b78de061a45ceb43",
+      "sha256": "5987eea4ae71fddd26dcd74457d5ac4449f58f732385e7602efe113463399fa2",
       "executable": false
     },
     "src/domain/rollbar-import/identity.ts": {
@@ -6734,7 +6734,7 @@
       "executable": false
     },
     "src/domain/sentry-import/door.server.ts": {
-      "sha256": "340ad50d284088068d7a82df16ef214dd13ba7a0f2a6c1a93ba9b1a88a508230",
+      "sha256": "22441a3c5fa3a858168887f45db89e88ca204bd73e886af722525bdc07985cf7",
       "executable": false
     },
     "src/domain/sentry-import/event.ts": {
@@ -11058,11 +11058,15 @@
       "executable": false
     },
     "tests/rollbar-import.mjs": {
-      "sha256": "95ebcb887dc8c07317cf00f27b000cec98148e88ebe634a375024f24d06b924d",
+      "sha256": "f77559234666e67ae41e13445d66d46d6650dfd081be5d619c9bd7fb61414f7f",
       "executable": false
     },
     "tests/rollbar-import/fixture.mjs": {
       "sha256": "62d22bc727660a42017a4533204d69af49e2ed762b1501584396e751fac636aa",
+      "executable": false
+    },
+    "tests/rollbar-import/screens.mjs": {
+      "sha256": "9bc15f22c281401337f972f2fbd87b4149dfb96de7ff9b495e6b35dcabda493b",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {

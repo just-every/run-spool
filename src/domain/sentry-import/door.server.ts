@@ -14,7 +14,7 @@ import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
 import { ensureShortIds } from '../short-ids/assign';
 import type { OwnerSession } from '../owner-authority';
-import { ownerReadResponse } from './owner-reads.server';
+import { ownerReadResponse, readOwnerPlan } from './owner-reads.server';
 import { rollbarSource } from '../rollbar-import/door.ts';
 import { sourceId as rollbarId } from '../rollbar-import/identity.ts';
 
@@ -125,6 +125,16 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
  if (!await env.DB.prepare('SELECT 1 FROM ik_door_settings WHERE installation_id=?').bind(key).first()) await writeImportDoorSettings(env.DB, key, { enabled: false }, predicate);
  const action = new URL(request.url).pathname.slice(operatorPrefix.length);
  const read = await ownerReadRequest(env,session!,key,name,source);
+ // A Rollbar reversal is reviewed against the complete native set before its
+ // first bounded reverse step, so a known edit cannot leave a half-undone graph.
+ if (name.startsWith('rollbar-project:') && action==='undo') {
+  const input=await request.clone().json().catch(()=>null) as any;
+  if(typeof input?.planId==='string'){
+   const facts=await readOwnerPlan(read,input.planId);
+   const blocker=facts.undo.blockers[0];
+   if(blocker)return Response.json({error:blocker.reasonCode},{status:409,headers:{'Cache-Control':'no-store'}});
+  }
+ }
  const response = await createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,
   ownerEmail: owner.email, ownerPrincipalId: owner.id, namespace: name, destination: doorDestination, format: 'json', limits, ...source,
   authorize: async () => predicate })(request);

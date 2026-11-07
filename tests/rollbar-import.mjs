@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import { pathToFileURL } from 'node:url';
+import { startTestWorker } from './worker.mjs';
+import { rollbarScreens } from './rollbar-import/screens.mjs';
 import { admissionRuntime } from './admission-runtime.mjs';
 import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
@@ -89,14 +91,27 @@ try {
   assert.equal(fresh.events[0].event.frames[0].function,'chargeCard');assert.equal(fresh.events[0].event.breadcrumbs[0],'checkout: payment submitted');
  } finally {capture.close();}
  assert.equal((await cli('reconcile','--project','71','--plan',plan.planId)).ok,true,'live capture does not rewrite historical groups');
+ await rollbarScreens(origin,cookie,imported,historicalIssue.id);
  // Native edits fence undo rather than being overwritten by the source.
  const edited=issues.find(row=>row.state==='open');await json(path+`/issues/${edited.id}`,'PATCH',{state:'acknowledged',revision:edited.revision});
  const editedSnapshot=await snapshot();
  await assert.rejects(cli('undo','--project','71','--plan',plan.planId),error=>error.status===409);
  assert.equal((await json(path+'/issues')).find(row=>row.id===edited.id).state,'acknowledged');
- assert.equal((await snapshot()).events.length,editedSnapshot.events.length);
+ const refusedUndo=await snapshot();
+ assert.deepEqual(refusedUndo.events,editedSnapshot.events,'guarded refusal removes no event');
+ assert.deepEqual(refusedUndo.issues,editedSnapshot.issues,'guarded refusal preserves all native edits');
  // Erasure withdraws source custody and prevents re-import and archive replay.
  const archive=await (await request('/api/archive')).text();
+ const restored=await startTestWorker(15530);
+ try {
+  const restoredCookie=await signIn(restored.origin);
+  const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive});
+  assert.equal(response.status,200,'portable Rollbar history restores through the ordinary restore door');
+  const restoredData=(await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}))).data;
+  assert.deepEqual(restoredData.events.filter(row=>row.historical===1),editedSnapshot.events.filter(row=>row.historical===1));
+  const history=await (await fetch(restored.origin+'/api/imports/business',{headers:{Cookie:restoredCookie}})).json();
+  assert.deepEqual(history.history,[],'restore transfers no executable import custody');
+ } finally {await restored.stop();}
  const preview=await json(path+'/erasure');assert.equal(preview.hold,null);
  const accepted=await json(path+'/erasure','POST',{confirm:imported,planHash:preview.planHash});
  const erased=await followErasure((p,m)=>json(p,m),accepted);assert.equal(erased.phase,'complete');
@@ -106,6 +121,19 @@ try {
  await assert.rejects(client().call('plan',{uploadId:replayUpload.uploadId}),error=>error.code==='source_erased');
  const replay=await fetch(origin+'/api/restore',{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive});
  assert.equal(replay.status,400);assert.equal((await replay.json()).error,'erasure_epoch');
+ // The supported undo case restores populated pre-import native rows.
+ const safeBundle=rollbarFixture();safeBundle.project.result.id=72;
+ for(const collection of safeBundle.collections)for(const page of collection.pages){
+  const result=page.response.result;
+  for(const row of result.items??result.deploys??[])row.project_id=72;
+ }
+ const safeClient=rollbarDoorClient({endpoint:origin,cookie,project:'72'}),safeBefore=await snapshot();
+ const safePlan=await safeClient.plan(Buffer.from(JSON.stringify(safeBundle)));
+ assert.equal(safePlan.counts.rejected,0);await safeClient.apply(safePlan.planId,safePlan.fingerprint);
+ assert.equal((await safeClient.reconcile(safePlan.planId)).ok,true);
+ assert.equal((await safeClient.undo(safePlan.planId)).job.state,'undone');
+ const safeAfter=await snapshot();
+ for(const table of ['projects','issues','events','releases'])assert.deepEqual(safeAfter[table],safeBefore[table],`supported undo restores ${table}`);
  await request('/auth/signout','POST',{});
  await assert.rejects(client().status(plan.planId),error=>error.status===401,'revoked session cannot read custody');
  console.log('Rollbar migration journey passed: source comparisons, durable interrupted resume, inert history, real SDK replacement, authority and guarded undo, erasure and replay refusal.');
