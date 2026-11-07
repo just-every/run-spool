@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "56f9bebc0bcca327159fb29dbd8eda5a611fba61ec4271325eb288c1867217ea",
+      "sha256": "43aa50432f4fdbe8da7b501834c027e851d713598957a4461bfe128e70530db5",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8d7b77fe67341bd2a6f900ed39a72fbf0058d620533896983273e224535af172",
+      "sha256": "41bb9ff332e84ea77ce5f786872f38f7cfa523c504ec47bc741ccfedcba93ff5",
       "executable": false
     },
     "DEMO.md": {
@@ -5534,7 +5534,7 @@
       "executable": false
     },
     "src/domain/agent-door/targets.ts": {
-      "sha256": "4ec26c75a2239a4aece3a93d1f3c30c7c47393f94b7f33393de57e7b336dc9a4",
+      "sha256": "26a6949cd4e1dc61830bb722f45627b82b1fcb3413ab4b2f93e71933ffee71ec",
       "executable": false
     },
     "src/domain/agent-door/tools.ts": {
@@ -10450,7 +10450,7 @@
       "executable": false
     },
     "tests/agent-door/sponsor-role-contract.mjs": {
-      "sha256": "3ac6f0de2c0edecf5d2ad5dbf9970d47d4484ad6355cb65b8365212f748f5e7f",
+      "sha256": "5ce30bd14eb23df2e227430dfb101893427e8bf8b3f2ad37a2e55bc83605af0b",
       "executable": false
     },
     "tests/agent-door/worker.mjs": {
