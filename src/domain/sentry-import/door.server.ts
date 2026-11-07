@@ -130,9 +130,14 @@ async function operatorResponse(request: Request, env: ManagedBindings) {
  if (name.startsWith('rollbar-project:') && action==='undo') {
   const input=await request.clone().json().catch(()=>null) as any;
   if(typeof input?.planId==='string'){
-   const facts=await readOwnerPlan(read,input.planId);
-   const blocker=facts.undo.blockers[0];
-   if(blocker)return Response.json({error:blocker.reasonCode},{status:409,headers:{'Cache-Control':'no-store'}});
+   try {
+    const facts=await readOwnerPlan(read,input.planId);
+    const blocker=facts.undo.blockers[0];
+    if(blocker)return Response.json({error:blocker.reasonCode},{status:409,headers:{'Cache-Control':'no-store'}});
+   } catch(error) {
+    if(error instanceof DoorError)return Response.json({error:error.code},{status:error.status,headers:{'Cache-Control':'no-store'}});
+    throw error;
+   }
   }
  }
  const response = await createImportOperatorHandler({ database: env.DB, targets: sentryTargets, installationId: key, appOrigin: env.AUTH_ORIGIN,

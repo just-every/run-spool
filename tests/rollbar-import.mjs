@@ -153,5 +153,6 @@ try {
  await request('/auth/signout','POST',{});
  await assert.rejects(client().status(plan.planId),error=>error.status===401,'revoked session cannot read custody');
  await assert.rejects(client().originals(plan.planId),error=>error.status===401,'revoked session cannot read originals');
+ assert.deepEqual(outbound,[],'no migration or restored history attempts provider work');
  console.log('Rollbar migration journey passed: source comparisons, durable interrupted resume, inert history, real SDK replacement, authority and guarded undo, erasure and replay refusal.');
 } finally {await worker.close();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_ROLLBAR_SESSION;}

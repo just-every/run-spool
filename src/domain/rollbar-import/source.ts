@@ -18,7 +18,7 @@ export function parseRollbar(value: Json): ParsedRecord[] {
   {kind:'projects',sourceId:id,payload:{vendor:'rollbar',project:id,data:project},pointer:'/project/result'}];
  const seen = new Set<string>();
  for (const [ci,collection] of bundle.collections.entries()) {
-  if (!collection || Object.keys(collection).some(key=>!['kind','item','channel','pages','complete'].includes(key)) || collection.complete !== true || !Array.isArray(collection.pages) || !collection.pages.length || collection.pages.length > 100) throw new Error('Complete bounded Rollbar collection required');
+  if (!collection || Object.keys(collection).some(key=>!['kind','item','channel','pages','complete'].includes(key)) || collection.complete !== true || !Array.isArray(collection.pages) || (!collection.pages.length && collection.kind!=='occurrences') || collection.pages.length > 100) throw new Error('Complete bounded Rollbar collection required');
   const kind = collection.kind;
   if (!['items','occurrences','deploys','item_events','notification_rules','artifacts'].includes(kind)) throw new Error('Unsupported Rollbar collection; name unavailable data');
   const item = kind==='item_events' ? sourceId(collection.item) : null;
