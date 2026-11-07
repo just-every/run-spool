@@ -108,7 +108,7 @@ export function standingTools(env:Environment):ToolDefinition[] {
     try {await runAuditScope(scope,async()=>{
      if(kind==='alert-mail'){const {dispatchMail}=await import('../alerts/mail');await dispatchMail(workerEnv,ctx.now(),[String(args.id)],{preparedBy:ctx.actor,approvers:ctx.approvers});}
      else if(kind==='alert-webhook'){const {webhookService}=await import('../alerts/webhook.server');await webhookService(workerEnv,row.project,ctx.now).dispatch(String(args.id));}
-     else if(kind==='followup'){const {dispatchNotices}=await import('../follow-up/notices');await dispatchNotices(workerEnv,ctx.now(),[String(args.id)]);}
+     else if(kind==='followup'){const {dispatchNotices}=await import('../follow-up/notices');await dispatchNotices(workerEnv,ctx.now(),[String(args.id)],{preparedBy:ctx.actor,approvers:ctx.approvers});}
      else {const {readRetentionPolicy,retentionCutoffs}=await import('../retention-policy');const {applyRetention}=await import('../retention');const {retentionBatchLimit}=await import('../retention-schedule');
       const policy=await readRetentionPolicy(db,row.project);if(policy.held||policy.revision!==row.revision)throw new ToolRefusal('revision_conflict');
       const cutoffs=retentionCutoffs(policy.windows,ctx.now());await applyRetention(db,row.project,cutoffs.events,cutoffs,retentionBatchLimit);

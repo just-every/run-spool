@@ -1,22 +1,27 @@
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 
-export async function peopleFlow(app){
- const foreignProject=await app.json('/api/projects','POST',{id:'foreign-project',name:'Private billing service'});
- await app.json('/api/projects/foreign-project/releases','POST',{name:'1.0.0',build:'private-1'});
- const foreignIssue=(await app.json('/api/ingest/foreign-project','POST',{version:1,eventId:'foreign-private',release:'1.0.0',build:'private-1',environment:'production',type:'TypeError',message:'Private foreign failure',frames:[{file:'https://private.example/service.js',line:1,column:0,function:'privateService'}],breadcrumbs:[]},{Authorization:'Bearer '+foreignProject.ingestKey})).issue;
- const project='door-triage',email='riley@spool.test',sub=randomUUID(),agentId=randomUUID();
- const invited=await app.json('/api/organization/invites','POST',{email,name:'Riley Engineer',role:'member',grants:[{project,role:'member'}]});
+export async function nativeSponsor(app,{project,email,name,sub=randomUUID(),agentId=randomUUID()}){
+ const invited=await app.json('/api/organization/invites','POST',{email,name,role:'member',grants:[{project,role:'member'}]});
  const message=(await app.mail()).find(row=>row.to?.includes(email));assert.ok(message,'Native invitation reaches the controlled mail edge');
  const token=message.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token,'Native invitation contains a confirmation');
  const accepted=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(accepted.status,303,'The invited native person confirms their own email');
  const cookie=accepted.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');await accepted.body?.cancel();
- await app.syncSettings([{id:sub,email,name:'Riley Engineer',role:'member',invite:1}]);
+ await app.syncSettings([{id:sub,email,name,role:'member',invite:1}]);
+ const member=(await app.json('/api/organization')).members.find(m=>m.id===invited.id);
  const claims={sub,email,act:{sub:agentId,name:'Scoped triage',specialist:'triage engineer'}};
+ return {invited,member,claims,cookie};
+}
+
+export async function peopleFlow(app){
+ const foreignProject=await app.json('/api/projects','POST',{id:'foreign-project',name:'Private billing service'});
+ await app.json('/api/projects/foreign-project/releases','POST',{name:'1.0.0',build:'private-1'});
+ const foreignIssue=(await app.json('/api/ingest/foreign-project','POST',{version:1,eventId:'foreign-private',release:'1.0.0',build:'private-1',environment:'production',type:'TypeError',message:'Private foreign failure',frames:[{file:'https://private.example/service.js',line:1,column:0,function:'privateService'}],breadcrumbs:[]},{Authorization:'Bearer '+foreignProject.ingestKey})).issue;
+ const project='door-triage',email=['riley','spool.test'].join('@'),sub=randomUUID(),agentId=randomUUID();
+ const {invited,member,claims,cookie}=await nativeSponsor(app,{project,email,name:'Riley Engineer',sub,agentId});
  const stale=await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{...claims,email:'owner@spool.test'},'2025-11-25',401);
  assert.equal(stale.error.code,-32001,'A different email cannot authenticate the mapped Business subject or select the owner');
  const list=await app.call('spool.issues.list',{project},claims);assert.ok(!list.isError,'The durable Business subject and current email admit only the mapped native teammate');
- const roster=await app.json('/api/organization'),member=roster.members.find(m=>m.id===invited.id);
  const self=await app.call('spool.access.update',{id:member.operator_id,version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);
  assert.equal(self._meta['com.runeditrun/error'].code,'self_escalation');
  const emailSelf=await app.call('spool.access.update',{id:email.toUpperCase(),version:member.version,role:'admin',grants:[],idempotency_key:randomUUID()},claims);

@@ -4,7 +4,7 @@ import { sendSlack } from './slack.server';
 import {auditCommit} from '../audit/context';
 import { ownerBatch, type OwnerSession } from '../owner-authority';
 import { findDestination, destinationHash, destinationFingerprint, keyBytes } from './destinations.server';
-import { sender } from './mail';
+import { agentMailFrom, sender } from './mail';
 import { createWebhookProtocol } from '../../modules/integrations/core/webhook';
 import { statement as s, type AlertEnvironment } from './types';
 export async function testFingerprint(env:AlertEnvironment,project:string,id:string,channel:string){
@@ -31,7 +31,7 @@ export async function testDestination(env:AlertEnvironment,session:NativeAuthori
  try {
   if(channel==='mail'){
    await ownerBatch(env.DB,session,[]);
-   const result=await sender(env).send({deliveryId:testId,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${label}`});
+   const result=await sender(env).send({deliveryId:testId,from:agentMailFrom(env.MAIL_FROM!,attribution),to:[destination.recipient!],subject:'Spool TEST — destination check',text:`This is a TEST of your Spool destination for project ${project}. No issue, alert, assignment or usage counter was changed.${label}`});
    state=['accepted','development'].includes(result.status)?'passing':'failing';
    detail=result.status==='development'?'Local development suppresses mail; this passing local test sent no email.':result.status==='accepted'?'Provider accepted this TEST. Check the mailbox; acceptance does not confirm recipient receipt.':`TEST result: ${result.status}. Recipient receipt is unconfirmed.`;
   }else if(destination.kind==='slack'){

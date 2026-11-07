@@ -36,16 +36,37 @@ try {
  await app.close();
  app = await admissionRuntime({RER_MANAGEMENT_ORIGIN: edge.origin, RER_INSTALLATION_ID: 'spool-editor-acceptance'});
  edge.state.allowed = app.origin;
- assert.equal((await app.call('/api/editor/config')).status, 403, 'anonymous config requests are refused');
+ const anonymous = await app.call('/api/editor/config');
+ assert.equal(anonymous.status, 403, 'anonymous config requests are refused');
+ const refusedConfig = async response => {
+  const refusal = await response.json();
+  assert.equal(typeof refusal.error, 'string');
+  assert.equal('config' in refusal, false, 'refusal discloses no editor configuration');
+  assert.equal('expiresAt' in refusal, false, 'refusal discloses no editor expiry');
+ };
+ await refusedConfig(anonymous);
  const cookie = await signIn(app.origin);await chooseLocalAgentPolicy(app.origin,cookie);
+ const requestedAt = Date.now();
  const config = await app.call('/api/editor/config', undefined, {Cookie: cookie});
  assert.equal(config.status, 200); assert.match(config.headers.get('cache-control'), /no-store/);
+ assert.match(config.headers.get('cache-control'), /private/);
  assert.match(config.headers.get('vary'), /Cookie/i);
  const grant = await config.json(); assert.equal(grant.config.managementOrigin, edge.origin);
+ assert.equal(grant.config.installationId, 'spool-editor-acceptance');
+ assert.ok(grant.expiresAt > requestedAt && grant.expiresAt <= Date.now() + 30_000, 'native owner receives a current short-lived editor configuration');
  assert.equal((await app.call('/api/projects', {id: 'editor-scope', name: 'Editor scope'}, {Cookie: cookie})).status, 201);
  const agentGrant = await (await app.call('/api/projects/editor-scope/keys', {kind: 'agent'}, {Cookie: cookie})).json();
  assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200);
- assert.equal((await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 403, 'project read grants receive no editor authority');
+ const projectConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`});
+ assert.equal(projectConfig.status, 403, 'project read grants receive no editor authority');
+ await refusedConfig(projectConfig);
+ const mixedConfig = await app.call('/api/editor/config', undefined, {Authorization: `Bearer ${agentGrant.key}`, Cookie: cookie});
+ assert.equal(mixedConfig.status, 403, 'a coincident owner cookie cannot expand project-grant editor authority');
+ await refusedConfig(mixedConfig);
+ assert.equal((await app.call('/api/projects/editor-scope/issues', undefined, {Authorization: `Bearer ${agentGrant.key}`})).status, 200, 'the refused editor request leaves the project read grant usable');
+ const ownerConfig = await app.call('/api/editor/config', undefined, {Cookie: cookie});
+ assert.equal(ownerConfig.status, 200, 'native owner access still works after editor refusals');
+ assert.deepEqual((await ownerConfig.json()).config, grant.config);
  assert.equal((await app.call('/api/editor/config', {}, {Cookie: cookie})).status, 405);
  const document = await app.call('/', undefined, {Cookie: cookie});
  assert.ok(document.headers.get('content-security-policy').includes(`frame-ancestors 'self' ${edge.origin}`));
@@ -88,7 +109,9 @@ try {
    await page.waitForFunction(() => !document.querySelector('[data-rer-editor]'));
    assert.equal(new URL(page.url()).pathname, '/projects/editor-scope/capture', 'native API auth loss removes the editor without a document reload');
    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
-   assert.equal((await app.call('/api/editor/config', undefined, {Cookie: signedIn})).status, 403, 'revoked native session loses config authority');
+   const revokedConfig = await app.call('/api/editor/config', undefined, {Cookie: signedIn});
+   assert.equal(revokedConfig.status, 403, 'revoked native session loses config authority');
+   await refusedConfig(revokedConfig);
   } finally {await context.close();}
  }
  // The browser also enforces the management service's frame-ancestors refusal.
