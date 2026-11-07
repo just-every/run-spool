@@ -8,7 +8,7 @@ import { archiveProjection } from './archive.mjs';
 import { startTestWorker } from './worker.mjs';
 import { rollbarImportCli, rollbarDoorClient } from '../scripts/rollbar-import.mjs';
 // MIG-003: a Rollbar project with resolved and reactivated items, through the owner import door.
-const worker = await admissionRuntime({}, { port: 15525, hostedMail: true }), { origin } = worker;
+const worker = await admissionRuntime({}, { port: 15595, hostedMail: true }), { origin } = worker;
 const scratch = await mkdtemp(join(tmpdir(), 'spool-rollbar-import-'));
 try {
   let cookie = await signIn(origin, { emailLink: true });
@@ -107,7 +107,7 @@ try {
   assert.deepEqual(list.map(release => release.name).sort(), ['web@1.0.0', 'web@1.1.0', 'web@1.2.0'], 'live release ordering continues after the imported releases');
   // The native archive carries the scrubbed history and its Rollbar identities, and restores without the private journal or any grant.
   const nativeArchive = await (await req('/api/archive')).arrayBuffer();
-  const restored = await startTestWorker(15526);
+  const restored = await startTestWorker(15596);
   try {
     const restoredCookie = await signIn(restored.origin);
     const response = await fetch(restored.origin + '/api/restore', { method: 'POST', headers: { Origin: restored.origin, Cookie: restoredCookie, 'X-Confirm-Restore': 'yes', 'Content-Type': 'application/x-ndjson' }, body: nativeArchive });
