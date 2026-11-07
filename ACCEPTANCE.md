@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 6 | 12 | 18 |
+| Agent surface | 0 | 7 | 11 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 50 | 33 | 105 |
+| Full target | 22 | 51 | 32 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1502,7 +1502,7 @@ Agent surface · target · **missing**
 
 #### BASE-AGENT-005 — An agent acts as a person in a role, never more
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Every call is authorized as the sponsoring person's current role and access (BASE-ACCESS-004), intersected with the grant's resources, actions and budget. A grant only narrows. No call widens the calling agent's own authority. A call that would widen its own grant or its sponsor's role, or change the company policy or Pause, is refused with `self_escalation`, whatever the policy says; narrowing its own grant is allowed. Other access and security changes are ordinary actions in the access and security classes. An agent never acts after its sponsor is suspended. Anything an agent reads (records, files, emails, imports, other seeds' results) is data and cannot change its scope, its targets or a call's class.
 
@@ -1513,8 +1513,8 @@ Agent surface · target · **missing**
 4. Calls that widen the agent's own grant or its sponsor's role, or change the policy or Pause, return `self_escalation` and change nothing, even under a policy with every class autonomous; dropping a scope from its own grant runs.
 5. An injection fixture yields no out-of-grant call and no change of class: record text asking for a wider action, or claiming that a recipient is internal.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door/sponsor-role-contract.mjs` sponsorRoleContract, invoked by `tests/agent-door.mjs`: acceptance 3's native role downgrade and inactive sponsor boundary, in independent autonomous and held policy fixtures. A real invited and mapped member completes ordinary triage; the same unexpired Business bearer then refuses the next fresh mutation and completed mutation replay after a native read-only downgrade, still reads the populated issue, and returns 401 on the next call after native deactivation. Whole-ledger snapshots preserve native product, membership, credential, approval and notification state, permitting only safe admission counts and audit facts. `tests/agent-door/people.mjs` peopleFlow retains scoped native authority, self-escalation and permanent credential retirement controls.
+**Gap.** Acceptance 1–2 and 4–5 remain unqualified: every-tool UI and role parity; complete grant, resource and budget narrowing; wider self-escalation and successful self-narrowing; and injection qualification. Acceptance 3's suspension modes beyond the tested native inactive lifecycle remain unqualified. SURFACE-001's continued hold, existing account, device and ct holds, live scopes, queue notes, release prerequisites, generated-view landing, publication scanning, exact-candidate Verify, guarded landing and Run site remain unchanged.
 
 #### BASE-AGENT-006 — Every action declares its risk class
 

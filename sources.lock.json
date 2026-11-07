@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8affe9a1215210eb08d2beb13988d06f4f63c261a69768cefb220677b525095b",
+      "sha256": "d63e3c2f38b7a05316f237809cbd13f21f644bdb8411e990a2e9777684bb7b83",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f2aacb4e6edfc26354a1e422c9d8c7c52ff3aa0a51a21b3bf2458436d1f69e85",
+      "sha256": "a395ec69b07bfa79c3eedba86fdc6ed1b972baa685059f431c99016fe17af923",
       "executable": false
     },
     "DEMO.md": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "44507b7ccb53bdbb5bc78d77d7686e94f05909fe6ffc3424da29f24b1af7a7dd",
+      "sha256": "93349429efb2f41aa3a25695fccad2469bd913a0590238b8da7f3c3dd5b874ca",
       "executable": false
     },
     "tests/agent-door/audit-retirement-contract.mjs": {
@@ -10394,7 +10394,7 @@
       "executable": false
     },
     "tests/agent-door/people.mjs": {
-      "sha256": "4ae25ac26239b4428475ace57c02ebbfc8f135a75caed96cd227c3c0e6116bad",
+      "sha256": "d6f912ada0ccb6bcce06f85d82bfb17db49033cb23e49f231cabfb0ac8beed6e",
       "executable": false
     },
     "tests/agent-door/person-actions-contract.mjs": {
@@ -10430,7 +10430,7 @@
       "executable": false
     },
     "tests/agent-door/runtime.mjs": {
-      "sha256": "bec6151caa4b3929f41a1916fc07fab46771e05014815c23b695a19e788370cf",
+      "sha256": "098fa7341e30ae7259d7286561534e7a08d73b1dcfca57a87605e3187fe4e846",
       "executable": false
     },
     "tests/agent-door/screens.mjs": {
