@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 import type { Edge } from '../../modules/erasure/index.mjs';
 import { nativeProject } from '../sentry-import/mapping';
 import { parseSentryOrganization, sourceText } from '../sentry-import/source';
+import { parseRollbarProject, importFormat as rollbarFormat } from '../rollbar-import/source';
 import { sha256 } from '../../modules/import-kit/src/provenance/identity';
 
 /** The door retains a second private copy of the raw bundle and plan. Withdraw
@@ -28,7 +29,14 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
    });
    const bytes=Buffer.concat(parts);
    if(bytes.length!==held.total_bytes||sha256(bytes)!==held.bundle_sha256)throw new Error('Unverified bundle');
-   const records=parseSentryOrganization(JSON.parse(bytes.toString('utf8')));
+   const bundle=JSON.parse(bytes.toString('utf8'));
+   // A Rollbar bundle is one project; its native project id uses the account-scoped organization name.
+   if(bundle?.format===rollbarFormat){
+    const rollbar=parseRollbarProject(bundle),payload=rollbar[1].payload as any;
+    remember(nativeProject(payload.organization,payload.project));
+    return;
+   }
+   const records=parseSentryOrganization(bundle);
    const organization=(records[0].payload as any).organization.slug,projects=new Set<string>();
    let uncertain=false;
    for(const record of records) {
