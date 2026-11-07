@@ -1,43 +1,38 @@
+import { plural } from './readable';
 import { useState } from 'react';
 import './live-copy.css';
 import { date } from './shared';
+import { ProposalVariant, proposalText, type ProposalEvidence, type ProposalLabels } from './proposalEvidence';
+import { ProposalAlertEffects, ProposalRepairEffects } from './ProposalEffects';
 
-function RecordedEvidence({ rows, empty }: { rows: any[]; empty: string }) {
-  return rows.length ? <ul>{rows.map((row, index) => <li key={index}><pre>{JSON.stringify(row, null, 2)}</pre></li>)}</ul> : <p>{empty}</p>;
-}
-
-function Variants({ rows, inside }: { rows: any[]; inside?: boolean }) {
+function Variants({ rows, inside, evidence, labels }: { rows: any[]; inside?: boolean; evidence?: ProposalEvidence | null; labels: ProposalLabels }) {
   if (!rows.length) return <p>No {inside ? 'differing variants inside the selected group' : 'look-alike events outside the selected group'} in the retained evidence.</p>;
   return <ul>{rows.map((row, index) => <li key={row.event ?? index}>
-    <p>Event <code>{row.event}</code>{row.issue && <> · issue <code>{row.issue}</code></>}{row.occurrence && <> · occurrence <code>{row.occurrence}</code></>}</p>
-    <pre>{JSON.stringify(row.variant, null, 2)}</pre>
+    <p>{labels.event(row.event, row.occurrence)} · {labels.issue(row.issue)}</p>
+    <ProposalVariant variant={row.variant} evidence={evidence} event={row.event} occurrence={row.occurrence} />
     {inside && <p>Differs in: {row.differing.join(', ') || 'no recorded differences'}.</p>}
   </li>)}</ul>;
 }
 
-export function GroupingExplanation({ explanation }: { explanation: any }) {
+export function GroupingExplanation({ explanation, evidence, labels, future = false }: { explanation: any; evidence?: ProposalEvidence | null; labels: ProposalLabels; future?: boolean }) {
   return <div className="grouping-explanation">
     <p>Spool computed these effects from retained evidence. Decided proposals keep the review snapshot; subsequent repair observations remain in the issue packet.</p>
-    <h4>Exact affected events ({explanation.affected.length})</h4>
+    <h4>{future ? 'Future grouping comparison' : 'Exact affected events'} ({explanation.affected.length})</h4>
     {explanation.affected.length ? <ol>{explanation.affected.map((row: any) => <li key={`${row.event}:${row.occurrence}`}>
-      <p>Event <code>{row.event}</code> · occurrence <code>{row.occurrence}</code></p>
-      <p><code>{row.from}</code> → <code>{row.to}</code></p>
-      <pre>{JSON.stringify(row.variant, null, 2)}</pre>
+      <p>{labels.event(row.event, row.occurrence)} · {labels.issue(row.from)} → {labels.issue(row.to)}{future ? ' · future intake only' : ''}</p>
+      <ProposalVariant variant={row.variant} evidence={evidence} event={row.event} occurrence={row.occurrence} />
     </li>)}</ol> : <p>No events move. Rule changes apply to future events.</p>}
-    <h4>Counterexamples inside the group</h4><Variants rows={explanation.counterexamples.inside} inside />
-    <h4>Look-alike events outside the group</h4><Variants rows={explanation.counterexamples.outside} />
-    <p>{explanation.trace}</p>
+    <h4>Counterexamples inside the group</h4><Variants rows={explanation.counterexamples.inside} inside evidence={evidence} labels={labels} />
+    <h4>Look-alike events outside the group</h4><Variants rows={explanation.counterexamples.outside} evidence={evidence} labels={labels} />
+    <p>{proposalText(explanation.trace)}</p>
     <h4>Projected counts and rates</h4>
     <p>Retained window: {date(explanation.window.start)} → {date(explanation.window.end)}.</p>
-    <ul>{explanation.rates.map((row: any) => <li key={row.issue}><code>{row.issue}</code>: {row.before} → {row.after} events (change {row.delta}); {row.perMinuteBefore} → {row.perMinuteAfter} per minute.</li>)}</ul>
+    <ul>{explanation.rates.map((row: any) => <li key={row.issue}>{labels.issue(row.issue)}: {row.before} → {row.after} {plural(row.after, 'event')} (change {row.delta}); {Number(row.perMinuteBefore.toFixed(3))} → {Number(row.perMinuteAfter.toFixed(3))} per minute.</li>)}</ul>
     <h4>Recorded ownership</h4>
-    <ul>{explanation.ownership.map((row: any) => <li key={row.issue}><code>{row.issue}</code>: {row.label ?? 'Unassigned'}</li>)}</ul>
-    <h4>Alert effects</h4><p>{explanation.alerts.behavior}</p>
-    <strong>Configured rules</strong><RecordedEvidence rows={explanation.alerts.rules} empty="No alert rules recorded." />
-    <strong>Open alerts</strong><RecordedEvidence rows={explanation.alerts.open} empty="No open alerts recorded." />
-    <h4>Repair verification effects</h4><p>{explanation.repair.behavior}</p>
-    <RecordedEvidence rows={explanation.repair.observations} empty="No repair observations recorded." />
-    <p>{explanation.behavior}</p>
+    <ul>{explanation.ownership.map((row: any) => <li key={row.issue}>{labels.issue(row.issue)}: {proposalText(row.label) || 'Unassigned'}</li>)}</ul>
+    <ProposalAlertEffects alerts={explanation.alerts} labels={labels} />
+    <ProposalRepairEffects repair={explanation.repair} labels={labels} />
+    <p>{proposalText(explanation.behavior)}</p>
   </div>;
 }
 
