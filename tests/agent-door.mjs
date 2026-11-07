@@ -15,6 +15,7 @@ import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
 import {replayHorizon} from './agent-door/replay-horizon.mjs';
 import {retentionClasses} from './agent-door/retention-classes.mjs';
+import {classificationAuditContract} from './agent-door/classification-audit-contract.mjs';
 import {auditContract} from './agent-door/audit-contract.mjs';
 import {auditRetirementContract} from './agent-door/audit-retirement-contract.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
@@ -22,10 +23,12 @@ import {nativeSetup} from './agent-door/setup.mjs';
 import {externalInjectionContract} from './agent-door/external-injection-contract.mjs';
 import {pauseContract} from './agent-door/pause-contract.mjs';
 import {protocolContract} from './agent-door/protocol-contract.mjs';
+import {policyIntegrityContract} from './agent-door/policy-integrity-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await externalInjectionContract();
 await protocolContract();
+await policyIntegrityContract();
 await nativeSetup();
 await pauseContract();
 const github=await githubDouble();
@@ -134,6 +137,7 @@ try{
  assert.equal((await app.mcp('prompts/get',{name:'triage'})).error?.data?.code,'capability_not_declared');
  assert.equal((await app.mcp('subscriptions/listen',{notifications:{toolsListChanged:true}})).error?.data?.code,'capability_not_declared');
  const worker=await nativeWorker(app,{project,ingestKey:p.ingestKey,destination:destination.id});
+ await classificationAuditContract(app,{project,issue});
  const retiredAudit=await auditRetirementContract(app);
  await auditContract(app,screens,retiredAudit);
  // A signed detach ends Business authority, including a held call, while

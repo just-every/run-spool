@@ -112,7 +112,7 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   assert.equal(response.status,201,'Agent can propose without moving retained events');return response.json();
  };
  // The section reads quietly and again on return to the tab; a window focus is that return.
- const review=async proposal=>{await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('button',{name:`Review grouping proposal ${proposal.id}`,exact:true}).click();await page.getByRole('article',{name:'Grouping proposal review',exact:true}).getByText(proposal.id,{exact:true}).waitFor();};
+ const review=async proposal=>{await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.locator(`[data-proposal-id="${proposal.id}"]`).getByRole('button',{name:/^Review (split|merge|rule) proposal/}).click();await page.locator(`article[data-proposal-id="${proposal.id}"]`).waitFor();};
  const proposalPanel=page.locator('.grouping-proposals');
  const proposalReview=page.getByRole('article',{name:'Grouping proposal review',exact:true});
  await page.goto(`${origin}/projects/${project}/settings`);
