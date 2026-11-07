@@ -66,7 +66,7 @@ try {
   assert.equal(row('stacks').status, 'match'); assert.equal(row('deploys').source, 3); assert.equal(row('deploys').imported, 2); assert.equal(row('deploys').status, 'explained');
   assert.equal(row('rules').source, 2); assert.equal(row('rules').imported, 0); assert.equal(row('rules').status, 'explained');
   // The comparison fails when an imported stack differs from its source.
-  const tampered = JSON.parse(bytes); tampered.collections.find(c => c.kind === 'instances').pages[0].response.result.instances[0].data.body.trace_chain[0].frames[0].lineno = 99;
+  const tampered = JSON.parse(bytes); tampered.collections.find(c => c.kind === 'instances').pages[0].response.result.instances[2].data.body.trace.frames[0].lineno = 99;
   const tamperedFile = join(scratch, 'tampered.json'); await writeFile(tamperedFile, JSON.stringify(tampered));
   const mismatch = await cli('compare', '--project', 'web-app', '--plan', planned.planId, '--file', tamperedFile);
   assert.equal(mismatch.ok, false); assert.equal(mismatch.rows.find(r => r.aspect === 'stacks').differences.length, 1);
