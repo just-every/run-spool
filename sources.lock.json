@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "9dd30b6d219f882925fae6d43a7cd4e86738c292664823673bd502ab15b9e9f7",
+      "sha256": "97c9d6be62d2a3ece0b5206c16ba5b488fe31c98652377e088f8a306b8e56d29",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "45968ec567e43c879e8934aed1ea34028b5e3ef2d9302cad7e397b29f54eb992",
+      "sha256": "5500fcd0c8584bc0f411d16e0369c0a3292b3c5867798d1cab80bffd52b3b633",
       "executable": false
     },
     "DEMO.md": {
@@ -3706,7 +3706,7 @@
       "executable": false
     },
     "docs/SUSPECT-CHANGES.md": {
-      "sha256": "ec1965f48a29ad9aa63de613c6cb08c2d87b3726f6787cf9c202b47844a6a1ca",
+      "sha256": "95c8992411cbe7e8e4f335d523308c403aa8655355697221a9ea6eedfc9a4781",
       "executable": false
     },
     "docs/triage.md": {
@@ -6902,11 +6902,11 @@
       "executable": false
     },
     "src/domain/suspects/projection.ts": {
-      "sha256": "ad8605f21f0f8dee91da62c679e83ae6b84c886724126a6dd15a89c4a3e062fa",
+      "sha256": "2099586407d8389c54a5196bd3f569a943b96b20f4a4c32de506928184860775",
       "executable": false
     },
     "src/domain/suspects/read.ts": {
-      "sha256": "26dd5d48938663ae2bb8bf40942b7f6a16e8038d54766652e1108ea6194a56a2",
+      "sha256": "6ea0d747871727e324cfe2dfa8a7b7b208f4c5b0202e4481524869a428fb6077",
       "executable": false
     },
     "src/domain/suspects/routes.ts": {
@@ -10474,11 +10474,11 @@
       "executable": false
     },
     "tests/agent-handoff/selector-refusals.mjs": {
-      "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
+      "sha256": "e494bc56be5aad557a2f931d27739bceaa255a88da4901822ab577a85dede02e",
       "executable": false
     },
     "tests/agent-handoff/suspects.mjs": {
-      "sha256": "0de4a62ff877153a2ad6be1d34dc043093cd0606e3ca4de818e309c5c2b207b2",
+      "sha256": "e9a7e3f921c88af665478ac52ac6e0d6e898300cf713c7c228937cb33bf5dc9d",
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
@@ -11334,7 +11334,7 @@
       "executable": false
     },
     "tests/suspect-flow.mjs": {
-      "sha256": "5ff531edc1a18c13a440bf24b1cbaeba07872c62dd6e6c4d020f204595343a4d",
+      "sha256": "c78eb44e4348bfd251cc35632b37173c42421974066573025b42949d56e07fa7",
       "executable": false
     },
     "tests/team-browser.mjs": {
