@@ -60,6 +60,6 @@ export async function archive(app) {
 }
 export const eraseInput=preview=>({confirm:'ERASE MY PERSONAL DATA',planHash:preview.planHash});
 export async function restore(app,text) {
- const response=await fetch(app.origin+'/api/restore',{method:'POST',headers:{Origin:app.origin,Cookie:app.cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:text});
+ const response=await fetch(app.origin+'/api/restore',{method:'POST',headers:{Origin:app.origin,Cookie:app.cookie,Connection:'close','Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:text});
  return {status:response.status,body:await response.json()};
 }

@@ -8,7 +8,7 @@ import {projectAgentArtifacts} from '../../src/domain/agent-door/artifact-map.mj
 // module, native sessions and signing/authorization rules. No application route,
 // tool response or persisted effect is replaced.
 export async function replayHorizon(){
- const app=await agentRuntime(15917,{},undefined,{deferAgentUpgrade:true});
+ const app=await agentRuntime({},undefined,{deferAgentUpgrade:true});
  const done=answer=>{assert.ok(!answer.isError,answer?._meta?.['com.runeditrun/error']?.code);return answer.structuredContent;};
  const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
  try{
@@ -42,7 +42,7 @@ export async function replayHorizon(){
   assert.equal(code(await app.call('spool.releases.record',legacyArgs)),'subject_erased','The upgraded legacy key replays in-window only as a tombstone');
   assert.equal((await app.DB.prepare('SELECT expires_at FROM agent_door_calls WHERE decision_id=?').bind(legacyId).first()).expires_at,legacyExpiry,'Native erasure cannot extend the upgraded legacy horizon');
   // Use the actual archived bytes through the public restore door.
-  const old=await fetch(app.origin+'/api/restore',{method:'POST',headers:{Origin:app.origin,Cookie:app.cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:bytes});
+  const old=await fetch(app.origin+'/api/restore',{method:'POST',headers:{Origin:app.origin,Cookie:app.cookie,Connection:'close','Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:bytes});
   assert.equal(old.status,400);assert.equal((await old.json()).error,'erasure_epoch','The native checkpoint refuses resurrection from the earlier archive');
   for(const time of [original.created_at+86400000+1,legacyExpiry+1,original.expires_at+1]){
    console.log('Replay clock boundary '+(time===legacyExpiry+1?'legacy horizon+1ms':time<original.expires_at?'24h+1ms':'completion horizon+1ms'));await app.setTime(time);console.log('Replay clock restarted');app.context.now=()=>time;await app.adopt();console.log('Replay clock policy adopted');

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import {randomUUID,webcrypto} from 'node:crypto';
-import {admissionRuntime} from '../admission-runtime.mjs';
+import {admissionRuntime,freePort} from '../admission-runtime.mjs';
 import {legacyMailRows} from '../legacy-mail.mjs';
 import {testOwner} from '../auth.mjs';
 import {catalogue} from '../../src/domain/agent-door/catalogue.mjs';
 import {signJws,accessToken,policyEnvelope,autonomousPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-export async function agentRuntime(port=15916,bindings={},network,{deferAgentUpgrade=false}={}){
+// The OS picks the fixture port, so concurrent runs on one host never collide.
+export async function agentRuntime(bindings={},network,{deferAgentUpgrade=false}={}){
+ const port=await freePort();
  const origin='https://spool.example',issuer='https://spool-agent-fixture.invalid',installationId=randomUUID(),kid=randomUUID(),sub=randomUUID();
  const pair=await webcrypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
  const {kty,crv,x,y}=await webcrypto.subtle.exportKey('jwk',pair.publicKey),keys={[kid]:{kty,crv,x,y,alg:'ES256',use:'sig'}};

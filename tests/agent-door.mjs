@@ -12,14 +12,19 @@ import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
 import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
 import {replayHorizon} from './agent-door/replay-horizon.mjs';
+import {retentionClasses} from './agent-door/retention-classes.mjs';
 import {agentRuntime} from './agent-door/runtime.mjs';
 import {nativeSetup} from './agent-door/setup.mjs';
+import {pauseContract} from './agent-door/pause-contract.mjs';
+import {protocolContract} from './agent-door/protocol-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
+await protocolContract();
 await nativeSetup();
+await pauseContract();
 const github=await githubDouble();
 const connection={...JSON.parse(github.connection),apiOrigin:'https://api.github.com'};
-const app=await agentRuntime(15916,{GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));
+const app=await agentRuntime({GITHUB_CONNECTION:JSON.stringify(connection)},request=>fetch(github.origin+new URL(request.url).pathname+new URL(request.url).search,{method:request.method,headers:request.headers,body:['GET','HEAD'].includes(request.method)?undefined:request.body,duplex:'half'}));
 let screens;
 const code=answer=>answer?._meta?.['com.runeditrun/error']?.code;
 const done=answer=>{assert.ok(answer&&!answer.isError,code(answer)??'Missing tool result');return answer.structuredContent;};
@@ -107,6 +112,7 @@ try{
  const key=await app.json(`/api/projects/${project}/keys`,'POST',{kind:'agent'});
  const metadata=await app.json('/.well-known/oauth-protected-resource/mcp');assert.equal(metadata.resource,app.canonicalOrigin+'/mcp');
  assert.equal((await app.mcp('tools/call',{name:'spool.issues.list',arguments:{project}},{sub:randomUUID()},'2025-11-25',401)).httpStatus,401);
+ await retentionClasses(app,screens);
  await continuationFlow(app,{project,issue,proposal,created});
  await peopleFlow(app);
  await specialistFlow(app,github,screens);
