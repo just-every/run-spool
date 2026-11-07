@@ -122,7 +122,10 @@ try {
   assert.equal(heldBefore.bundleSha256, createHash('sha256').update(await readFile(second)).digest('hex'), 'the exact private export bytes are held before erasure');
   const preview = await json(`/api/projects/${reimported.id}/erasure`);
   const erased = await req(`/api/projects/${reimported.id}/erasure`, 'POST', { confirm: reimported.id, planHash: preview.planHash });
-  assert.ok(erased.ok, `erasure: HTTP ${erased.status}`);
+  assert.equal(erased.status, 202, `erasure: HTTP ${erased.status}`);
+  let receipt = await erased.json();
+  for (let step = 0; step < 20 && receipt.phase !== 'complete'; step++) receipt = await json(`/api/erasures/${receipt.id}/resume`, 'POST');
+  assert.equal(receipt.phase, 'complete', 'erasure completes through its resumable steps');
   assert.ok(!(await json('/api/projects')).some(project => project.id === reimported.id), 'the erased project is gone');
   await assert.rejects(rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }), error => [404, 410].includes(error.status), 'the private export bytes went with the project');
   assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200, 'an unrelated project is untouched');
