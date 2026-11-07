@@ -22,7 +22,7 @@ try {
   const planned = await cli('dry-run', '--file', fixture.pathname);
   assert.equal(planned.namespace, 'rollbar-project:web-app');
   assert.equal(planned.counts.rejected, 0);
-  assert.deepEqual(planned.counts.byKind, { project: 1, release: 2, issue: 3, event: 6 });
+  assert.deepEqual(planned.counts.byKind, { manifest: 1, projects: 1, releases: 2, items: 3, instances: 6, deploys: 3, rules: 2, comments: 1 }, 'every collection is counted');
   assert.equal(planned.counts.effects, 12, 'more effects than one batch, so apply must resume');
   assert.ok(planned.counts.unmapped >= 7, 'three deploys, two rules and a comment are named, not silently dropped');
   assert.ok(!JSON.stringify(planned).includes('IMPORT_SECRET') && !JSON.stringify(planned).includes('PRIVATE_'));
