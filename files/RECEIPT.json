@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "tag": "strategy-trial-9-sol-fix1",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/strategy-trial-9-sol-fix1",
+  "head": "2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab",
+  "parents": [
+    "e3dc1f5c91dbc24fc4922a1999b3b50e829deb32",
+    "05afa963cc320bba8cf0eafbc35f5fb12b32027f"
+  ],
+  "product_push": "success, guard attempt 1 of 5",
+  "pr": null,
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/rollbar-import.mjs",
+      "stage": "new assertions with original adapter",
+      "exit": 1,
+      "failure": "ordinary Python tracebacks retain their located frames, newest first; actual []"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/rollbar-import.mjs",
+      "stage": "merged candidate and again exact committed SHA",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "tree_matches_commit": true
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "tree_matches_commit": true
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "stage": "exact committed SHA",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "stage": "after required restoration to main generated views",
+      "exit": 1,
+      "expected": "Both ACCEPTANCE.md and docs/CLAIMS.md report generated content differs after required restoration to main."
+    }
+  ],
+  "file_sha256": {
+    "src/domain/rollbar-import/event.ts": "632f1133899296e7d20822f39c5806956ff6a3288ada7e3cefc1638b90a1be9a",
+    "tests/rollbar-import.mjs": "17fb27bd4bbec733a33ba7894b2be06ea482d219d035b51fd74433adf5d86670",
+    "tests/rollbar-import/fixture.mjs": "7c313bbd45a397ed21d460622ff70946c5bcdf1c014cf00cd27effff68f82671",
+    "CONTRACT.md": "5ec474e5728b919d7096c8d10af67bb47c139a07ef23961923189ff12170e2fa",
+    "sources.lock.json": "68f2cfb3739a5391c4d5e6e74c0dba732f90c45203583c06d085cfa176229231"
+  },
+  "test_registrations": {
+    "touched_journey_before": 1,
+    "touched_journey_after": 1,
+    "fixture_items_before": 24,
+    "fixture_items_after": 24,
+    "new_registrations": 0
+  },
+  "clause_status": {
+    "builder_before": "done",
+    "candidate_after": "done",
+    "new_status_edits": 0,
+    "acceptance_point_fixed": 1
+  },
+  "clause_counts": {
+    "builder_before": {
+      "done": 23,
+      "partial": 51,
+      "missing": 31,
+      "total": 105
+    },
+    "candidate_after": {
+      "done": 23,
+      "partial": 51,
+      "missing": 31,
+      "total": 105
+    },
+    "main_before": {
+      "done": 22,
+      "partial": 51,
+      "missing": 32,
+      "total": 105
+    }
+  },
+  "publication_scan": {
+    "status": "deferred to fleet Mac as explicitly required by cloud adaptation",
+    "complete": false
+  },
+  "working_tree_clean": true,
+  "created_at": "2026-11-07T22:40:35Z",
+  "screenshots": [
+    {
+      "file": "issue-1440.png",
+      "bytes": 566701,
+      "sha256": "79d42e9944986c4dca3bf5a2d3c5a383a822dde7adaedfb5df3b069f449294b3"
+    },
+    {
+      "file": "issue-390.png",
+      "bytes": 475471,
+      "sha256": "f35bcf1e66ed425264a0e67f5c2a46665b0e2042e5ed5fb12e2a779f77324df1"
+    },
+    {
+      "file": "python-1440.png",
+      "bytes": 561014,
+      "sha256": "b4086bfbbe153437c9f42869bdacf3cce822496f461e6333129ccee670e7260f"
+    },
+    {
+      "file": "python-390.png",
+      "bytes": 468206,
+      "sha256": "1aacc5a4172500a69dc75d75b6338a409283b3c1b0b770c56cd940d76b0bf712"
+    },
+    {
+      "file": "node-zero-1440.png",
+      "bytes": 544778,
+      "sha256": "ffa0ff5c0f1fb2d422bdb9d70ecf5c8806a4d90c65fba1b9f1482d019c6e666b"
+    },
+    {
+      "file": "node-zero-390.png",
+      "bytes": 451779,
+      "sha256": "2124ef78aff357cca031aa447bbb8e2ace2e9d42cfcfb27bb836587c2b7d2e45"
+    },
+    {
+      "file": "history-1440.png",
+      "bytes": 147669,
+      "sha256": "eba5ca31e0a8a735ae0ec349e3d38d2573e467c6f1f04a7ceec0a0b0e17802d9"
+    },
+    {
+      "file": "history-390.png",
+      "bytes": 92824,
+      "sha256": "41e8078672791e4e489f3d17ed3c9377ec30da612e19701e5e4252709d49c64c"
+    }
+  ],
+  "probe": {
+    "file": "PROBE.json",
+    "runner": "PROBE.mjs",
+    "exit": 0,
+    "head": "2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab"
+  },
+  "ci": {
+    "run_id": 42421548709,
+    "event": "push",
+    "head_sha": "2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab",
+    "status": "completed",
+    "conclusion": "failure",
+    "only_root_cause": "required generated main views differ from inherited builder contract",
+    "expected_exception_applies": true,
+    "failed_jobs": [
+      {
+        "id": 128550893581,
+        "name": "build",
+        "cause": "contract-docs check on ACCEPTANCE.md and docs/CLAIMS.md"
+      },
+      {
+        "id": 128551016482,
+        "name": "shards (spool)",
+        "cause": "build failed, runtime and test jobs skipped"
+      },
+      {
+        "id": 128551035891,
+        "name": "verify",
+        "cause": "shards failed"
+      }
+    ],
+    "github_calls": 6
+  },
+  "screenshots_note": "The unchanged journey once captured a blank mobile history image. The separate public probe recaptured rendered history at both widths after font and animation-frame readiness, and added the changed Python and Node-zero issue screens on the exact same head. No product code changed."
+}

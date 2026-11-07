@@ -1,0 +1,90 @@
+[
+  {
+    "call": 1,
+    "started": 1794091123.056502,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab&per_page=100"
+    ],
+    "exit": 0,
+    "finished": 1794091123.4969137
+  },
+  {
+    "call": 2,
+    "started": 1794091423.5274866,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/42421548709",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "finished": 1794091423.949066
+  },
+  {
+    "call": 3,
+    "started": 1794091436.6501315,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/42421548709/jobs?per_page=100",
+      "--jq",
+      "{jobs:[.jobs[] | {id,name,status,conclusion,steps:[.steps[] | {name,status,conclusion}]}]}"
+    ],
+    "exit": 0,
+    "finished": 1794091437.2728963
+  },
+  {
+    "call": 4,
+    "started": 1794091452.9405653,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42421548709",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128550893581",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "finished": 1794091455.00784
+  },
+  {
+    "call": 5,
+    "started": 1794091455.0995393,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42421548709",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128551016482",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "finished": 1794091456.099059
+  },
+  {
+    "call": 6,
+    "started": 1794091456.1446335,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42421548709",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128551035891",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "finished": 1794091457.0336714
+  }
+]

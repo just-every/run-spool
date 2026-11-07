@@ -1,0 +1,16 @@
+{
+  "head": "2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab",
+  "all_candidate_commits_including_side_parents": [
+    "2b557b5cbb860c0cdb4d1ceb617560f2ae35b9ab",
+    "e3dc1f5c91dbc24fc4922a1999b3b50e829deb32",
+    "9c8d715ec88740c7ee0199dfa7d5b7090184e335",
+    "53d9e42db472084123d85c3e24caf5e0f872cb6a",
+    "68d338bf7af9c08e507522ac11e493dbfea21d44",
+    "8c8645cf8d9cb9aa794566244d4709da4b9e2992",
+    "de8711e846fbac9e05c7e6f33cb51304a229415f",
+    "66e0a682f22b8b3b2c599d099cfaf05b0cf3b8ea",
+    "72c737577432230976d90c7b78644e8608c395cb"
+  ],
+  "identity_and_trailers": "pass",
+  "codex_coauthor_cleanup": "pass"
+}

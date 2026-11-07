@@ -1,0 +1,72 @@
+{
+  "stage": "merged main before first commit",
+  "builder_head": "e3dc1f5c91dbc24fc4922a1999b3b50e829deb32",
+  "main_head": "05afa963cc320bba8cf0eafbc35f5fb12b32027f",
+  "checks": [
+    {
+      "name": "views-write",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "write"
+      ],
+      "exit": 0,
+      "seconds": 0.13,
+      "output_sha256": "605a42cff56f91ea1a10c6c378a40c3f685de5540663a7f148f2d61ad0e69c06"
+    },
+    {
+      "name": "views-check",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.19,
+      "output_sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "name": "restore-main-views",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "seconds": 0.01,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "seconds": 0.42,
+      "output_sha256": "2451b13c62c7b5eb052d8668cf2b4801395519fc546d2b47d842f82ec7854269"
+    },
+    {
+      "name": "lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.38,
+      "output_sha256": "f8fbc4606471c73e00fc8a1802ec8dcb55131c648773eecc5b53f07b5e3de776"
+    }
+  ],
+  "ledger": "none; no migration added or changed",
+  "generated_views_equal_main": true,
+  "status_counts": {
+    "done": 23,
+    "partial": 51,
+    "missing": 31
+  }
+}
