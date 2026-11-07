@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 5 | 13 | 18 |
+| Agent surface | 0 | 6 | 12 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 49 | 34 | 105 |
+| Full target | 22 | 50 | 33 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1554,7 +1554,7 @@ Agent surface · target · **missing**
 
 #### BASE-AGENT-008 — Truthful attribution
 
-Agent surface · target · **missing**
+Agent surface · target · **partial**
 
 **Requirement.** Every agent act is recorded and shown as `"<agent> for <person>"`, and mail and messages an agent sends outside name it that way as their sender. An approval, a review mark, a confirmation (a warning dialog, a typed-field confirmation, a delivery confirmation), a decision or a signature attributed to a person comes only from that person's signed-in session. When an agent does the equivalent act, the record names the agent, and the act carries its own class; a binding decision or a signature is commitment. Agent doors ignore arguments that stand for a person's confirmation. No tool solves a bot check, or enters a person's own password or 2FA code at an outside service. A provider step that demands a person goes to a person, whatever the policy says; the gated class marks such steps before they run.
 
@@ -1567,8 +1567,8 @@ Agent surface · target · **missing**
 6. Activity and exports at 1440 and 390 show `"<agent> for <person>"` for every agent act.
 7. Mail an agent sends to an outside address names `"<agent> for <person>"` as its sender.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door.mjs` emitted-Worker agent-door journey invokes `tests/agent-door/person-actions-contract.mjs` personActionsContract: acceptance 1, confirmation flags preserve native results, classes and decisions; acceptance 2 agent components, admitted Business and exact-project tokens cannot approve, mark reviewed or answer policy questions, with or without a person session, under held and autonomous policies, with every persisted table unchanged; acceptance 3, form accept with a genuine pending request state leaves the approval and native issue untouched; acceptance 5, matching-policy person approval persists the real approver and separate agent preparer in the record and public audit. The same journey asserts every populated recent activity label at 1440 and captures 390, and exercises held and autonomous external TEST mail, person sender controls and replay without duplicate mail. `tests/agent-door/setup.mjs` nativeSetup qualifies standalone policy-answer refusal and the subsequent real owner save. `tests/agent-door/worker.mjs` nativeWorker qualifies retained sender attribution for resumed queued alert mail and real capture-loss follow-up notices, with Pause and detach no-send controls. These native provider payloads name the agent and sponsor as sender while retaining the configured sending mailbox.
+**Gap.** Acceptance 2 device-token qualification remains missing: the pinned Base adoption supplies no native device-credential lifecycle. Acceptance 4 still needs complete record, activity, export and certificate qualification for every supported equivalent agent act; acceptance 5 broader prepared-action coverage and acceptance 6 complete activity and export qualification remain open. The pinned shared Agents page has no activity export door. Provider-gated person handoffs and buyer-provider delivery remain unqualified; controlled mail-edge payloads prove neither native-device nor live-provider acceptance. Existing account, device and ct holds, queue scopes and release prerequisites remain unchanged.
 
 #### BASE-AGENT-009 — Every agent action is audited with its class and decision
 
