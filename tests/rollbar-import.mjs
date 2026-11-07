@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -118,7 +119,7 @@ try {
   } finally { await restored.stop(); }
   // Project erasure withdraws the project's private export bytes with it, and leaves unrelated projects alone.
   const heldBefore = await rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId });
-  assert.equal(heldBefore.complete, true, 'the private export bytes are held before erasure');
+  assert.equal(heldBefore.bundleSha256, createHash('sha256').update(await readFile(second)).digest('hex'), 'the exact private export bytes are held before erasure');
   const preview = await json(`/api/projects/${reimported.id}/erasure`);
   const erased = await req(`/api/projects/${reimported.id}/erasure`, 'POST', { confirm: reimported.id, planHash: preview.planHash });
   assert.ok(erased.ok, `erasure: HTTP ${erased.status}`);
