@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {archiveProjection,nativeArchive} from './archive.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
@@ -14,6 +15,7 @@ const strip=({sequence,...row})=>row;
 const app=await startTestWorker(15555),origin=app.origin;let browser,target;
 try {
  const cookie=await signIn(origin),{req,json}=client(origin,cookie);
+ await chooseLocalAgentPolicy(origin,cookie);
  const facts=async()=>(await json('/api/audit/export?format=json')).rows;
  // The window excludes the history reads themselves (audit.read/audit.export).
  const since=async work=>{const mark=(await facts()).length;await work();return (await facts()).slice(mark).filter(row=>!row.action.startsWith('audit.'));};
@@ -111,7 +113,8 @@ try {
   const page=await context.newPage();await page.goto(origin+'/projects/'+project.id+'/settings');
   const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Organization audit',exact:true})});
   const shot=async name=>{await panel.evaluate(element=>element.scrollIntoView({block:'start'}));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:`.artifacts/AUDIT-001/${name}-${width}.png`})};
-  const refresh=()=>panel.getByRole('button',{name:'Refresh history',exact:true}).click();
+  // The history re-reads quietly while visible and once on return to the tab; a window focus is that return.
+  const refresh=()=>page.evaluate(()=>window.dispatchEvent(new Event('focus')));
   await panel.getByRole('list',{name:'Audit entries'}).waitFor();await shot('history');
   const download=page.waitForEvent('download');await panel.getByRole('link',{name:'Export CSV',exact:true}).click();assert.ok((await download).suggestedFilename().endsWith('.csv'));
   await panel.getByRole('button',{name:'Export JSON',exact:true}).click();await panel.getByRole('status').filter({hasText:'JSON audit export prepared.'}).waitFor();await shot('export');
@@ -120,7 +123,7 @@ try {
   await page.route('**/api/audit',route=>route.fulfill({status:401,json:{error:'Owner session required'}}));await refresh();await panel.waitFor({state:'detached'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:`.artifacts/AUDIT-001/denied-${width}.png`});await page.unroute('**/api/audit');
   await page.reload();await panel.getByRole('list',{name:'Audit entries'}).waitFor();
   await page.route('**/api/audit',route=>route.fulfill({json:{version:1,scope:'organization',rows:[],highWater:0,next:null,coverage:first.coverage}}));await refresh();await panel.getByText('No audit entries have been recorded.',{exact:true}).waitFor();await shot('empty');await page.unroute('**/api/audit');
-  await refresh();await panel.getByRole('status').filter({hasText:'Showing the latest organization history.'}).waitFor();await context.close();
+  await refresh();await panel.getByRole('list',{name:'Audit entries'}).waitFor();await context.close();
  }
 
  // Project erasure removes private attribution links; the chronology before it is unchanged and the completion is recorded.

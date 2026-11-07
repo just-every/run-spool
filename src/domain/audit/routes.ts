@@ -6,7 +6,7 @@ import { AuthError } from '../../modules/operator-auth/index.mjs';
 import type { OwnerSession } from '../owner-authority';
 import { auditActor, auditSubject } from './identity';
 import { recordAudit, responseOutcome } from './record';
-import { requestActor } from './request';
+import { quietRead, requestActor } from './request';
 import { auditExportPage, auditHighWater, auditPage } from './read';
 import { auditColumns } from './archive';
 import type { AuditActor, AuditFact } from './types';
@@ -41,7 +41,7 @@ auditRoutes.get('/',async c=>{
  const raw=url.searchParams.get('limit');
  if(raw!==null&&!/^[1-9]\d{0,2}$/.test(raw))throw new Error('invalid_audit_limit');
  const page=await auditPage(c.env.DB,url.searchParams.get('cursor')??undefined,raw===null?50:Number(raw));
- await recordAudit(c.env.DB,{...await fact(c,'audit.read'),outcome:'succeeded',status:200});
+ if(!quietRead(c.req.raw,c.get('auditActor')))await recordAudit(c.env.DB,{...await fact(c,'audit.read'),outcome:'succeeded',status:200});
  return c.json(page);
 });
 auditRoutes.get('/export',async c=>{

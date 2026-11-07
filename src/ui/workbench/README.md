@@ -47,3 +47,14 @@ stack trace: beside it on wide screens, under it on narrow ones. `views.css` hol
 the work views. At
 phone width the navigation folds behind a Menu button and table rows become cards,
 with 25 groups per page.
+
+Settings sections that hold one revisioned setting (grouping rules, release policy, commit
+sharing, inbound filters, the artifact cap) use `useSettingDoc`: it reads the setting quietly
+while the tab is visible, keeps what was typed, and saves as you go (selects, toggles and
+radios on change; text and number fields on blur or after about 600 ms). A save never uses the
+page-wide busy flag, shows one quiet "Saved" beside its field, and on refusal keeps the value
+with a one-line reason and Retry. An edit with an outside effect is held for one confirm under
+its field. A re-read that began before a save started or landed is discarded, and leaving the
+page sends the pending edit. Project erasure hands its receipt to `WorkspaceView`, which
+removes the project from the switcher and moves to the remaining project's Issues (or the
+start of a new project).

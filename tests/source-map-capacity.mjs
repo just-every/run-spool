@@ -49,13 +49,13 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  const capField=page.getByLabel('Artifact storage cap (bytes, optional)');
  await capField.fill('42');
  await page.getByRole('navigation',{name:'Workbench'}).getByRole('link',{name:/^Issues/}).click();await page.getByRole('link',{name:'Releases',exact:true}).click();
- await capField.waitFor();assert.equal(await capField.inputValue(),'42','[SRC-004] an unsaved cap draft survives in-app navigation');
+ await capField.waitFor();assert.equal(await capField.inputValue(),'42','[SRC-004] a cap edit survives in-app navigation (it is saved on leaving)');
  await page.getByLabel('Release name',{exact:true}).fill('synthetic-spool-draft@1');await page.getByLabel('Build identifier',{exact:true}).fill('b2');
  const storageRefresh=page.waitForResponse(r=>r.url().endsWith('/artifact-storage')&&r.request().method()==='GET');
  await page.getByRole('button',{name:'Register release',exact:true}).click();await(await storageRefresh).finished();
  await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
- assert.equal(await capField.inputValue(),'42','[SRC-004] refreshing releases preserves an unsaved cap draft');
- await capField.fill(String(storage.bytes));await page.getByRole('button',{name:'Save artifact cap',exact:true}).click();
+ assert.equal(await capField.inputValue(),'42','[SRC-004] refreshing releases preserves the cap edit');
+ await capField.fill(String(storage.bytes));await page.locator('.save-mark[data-state="saved"]').waitFor();
  await page.waitForFunction(async ({base,bytes})=>(await(await fetch(base+'/artifact-storage')).json()).artifact_storage_cap===bytes,{base,bytes:storage.bytes});
  result=await cli('capacity@2');assert.notEqual(result.code,0);assert.match(result.output,/storage cap [0-9]+ bytes/);
  for(const file of files)assert.ok(result.output.includes(file),'each refused file is named');

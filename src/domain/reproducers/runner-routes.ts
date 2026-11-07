@@ -23,7 +23,14 @@ const denied = (c: any) => c.json({ error: 'Valid run token required' }, 401);
 
 routes.get('/runs/:run', async c => {
  const run = await authorized(c); if (!run) return denied(c);
- const [claimed] = await auditedBatch(c.env.DB, [s(c.env.DB, "UPDATE reproducer_runs SET state='claimed',claimed=? WHERE id=? AND state='queued'", Date.now(), run.id), auditCommit(c.env.DB, 'changes()=1')]);
+ const saved=await s(c.env.DB,"SELECT principal FROM spool_agent_custody WHERE kind='reproducer' AND id=?",run.id).first<any>();
+ if(saved){
+  if(run.state!=='queued')return c.json({error:'Run already claimed'},409);
+  const {spoolAgentDoor}=await import('../agent-door/index.server');
+  const answer=await spoolAgentDoor(c.env).invoke('spool.reproducers.claim',{project:run.project,id:run.id,idempotency_key:'runner-claim:'+run.id},JSON.parse(saved.principal));
+  if(answer.outcome!=='done')return c.json({code:answer.code??'agent_policy_pending'},403);
+ }
+ const [claimed] = saved?[{meta:{changes:1}}]:await auditedBatch(c.env.DB, [s(c.env.DB, "UPDATE reproducer_runs SET state='claimed',claimed=? WHERE id=? AND state='queued'", Date.now(), run.id), auditCommit(c.env.DB, 'changes()=1')]);
  if (!claimed.meta.changes) return c.json({ error: 'Run already claimed' }, 409);
  const reproducer = await s(c.env.DB, 'SELECT spec FROM reproducers WHERE id=?', run.reproducer).first<any>(), spec = JSON.parse(reproducer.spec);
  const artifacts = (await s(c.env.DB, 'SELECT payload FROM artifacts WHERE project=? AND release=? AND build=?', run.project, run.release, run.build).all<any>()).results;
