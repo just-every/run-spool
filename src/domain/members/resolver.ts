@@ -7,11 +7,11 @@ const missing = (): never => { throw new AuthError('Project not found',404); };
 
 /** Resolves product authority after native session authentication. The same
  * resolver runs at each independently mounted private door. */
-export async function resolveMembership(request: Request, env: Bindings, session: Session): Promise<TeamSession | null> {
+export async function resolveMembership<T extends Pick<Session, 'operator'>>(request: Request, env: Bindings, session: T): Promise<(T & {membership?: Membership}) | null> {
  const member = await s(env.DB,"SELECT id,version,role,organization FROM spool_members WHERE operator_id=? AND state='active'",session.operator.id).first<Membership>();
  if (!member) return null;
  const path = new URL(request.url).pathname.replace(/\/$/,'') || '/';
- const result: TeamSession = { ...session, membership: member };
+ const result: T & {membership?: Membership} = { ...session, membership: member };
  // Reporting is a neutral session door. Its handlers intersect every item,
  // query and export with memberProjects and independently fence all writes.
  if (path==='/api/reports'||path==='/api/reporting'||path.startsWith('/api/reporting/')) return member.role==='billing' ? missing() : result;
@@ -37,14 +37,17 @@ export async function resolveMembership(request: Request, env: Bindings, session
   role=member.role==='read-only'?'read-only':grant.role;
  }
  const tail=match[2]??'', isRead=read(request), document=!path.startsWith('/api/');
- const policy=/^(?:inbound-filters|grouping-rules|identity-policy|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
+ if(/^keys\/[^/]+\/rate-limit$/.test(tail)&&member.role!=='admin')return missing();
+ const policy=/^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|keys\/[^/]+\/loader)(?:\/|$)/.test(tail);
+ // Personal settings never change project policy or another person's data.
+ if(tail==='notifications/preferences' && (isRead || request.method==='PUT')) return { ...result, membership: { ...member, project, projectRole: role==='admin'?undefined:role } };
  const operational=/^(?:fixes|reproducers|repairs)(?:\/|$)/.test(tail);
  if (member.role!=='admin' && (operational || policy && role!=='maintainer')) return missing();
  if (!isRead && role!=='admin') {
   if (role==='read-only') return missing();
   const triage=/^(?:issues\/[^/]+(?:\/(?:assignment|priority|suppression|discussion|comments(?:\/[^/]+)?|subscription))?|bulk-triage|review\/views(?:\/[^/]+)?|suspects\/issues\/[^/]+)$/.test(tail);
   const deployment=/^(?:releases|artifacts|artifact-builds\/verify|deployments(?:\/[^/]+\/callbacks)?|keys(?:\/[^/]+)?)$/.test(tail);
-  const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
+  const maintain=role==='maintainer' && /^(?:inbound-filters|grouping-rules|identity-policy|end-user-erasure|scrubbing|recurrence-policy|release-policy|browser-origins|check-in-routes|retention-policy|retention|commits\/sharing|grouping-proposals|corrections|suppression-policies|alerting|follow-up|keys)(?:\/|$)/.test(tail);
   if (!triage&&!deployment&&!maintain) return missing();
  }
  if (document && !isRead) return missing();
@@ -52,7 +55,7 @@ export async function resolveMembership(request: Request, env: Bindings, session
 }
 
 /** Current project list is a permissioned read, not a client-side filter. */
-export async function memberProjects(db: D1Database, session: TeamSession) {
+export async function memberProjects(db: D1Database, session: Pick<TeamSession,'operator'|'membership'>) {
  if (session.operator.role==='owner') return (await s(db,'SELECT *,\'owner\' role FROM projects ORDER BY created').all()).results;
  const member=session.membership!;
  if (member.role==='billing') return [];

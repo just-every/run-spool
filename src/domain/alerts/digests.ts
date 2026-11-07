@@ -1,10 +1,11 @@
 import { scrub } from '../privacy';
+import { scrubDigest } from './digest-text';
+export { scrubDigest } from './digest-text';
 import { primaryShortIdSql } from '../short-ids/lookup';
 import { digestPeriod } from './calendar';
 import { alertServiceBatch } from './scheduled-mail';
 import { queueTeamDigests } from './team-digests';
 import { statement as s,type AlertEnvironment } from './types';
-export const scrubDigest=(value:string)=>value.split('\n').map(line=>scrub(line)).join('\n');
 export async function queueDigests(env:AlertEnvironment,time:number){
  await queueTeamDigests(env,time);
  const settings=(await s(env.DB,'SELECT * FROM alert_digest_settings WHERE daily=1 OR weekly=1 OR personal_daily=1 OR personal_weekly=1').all<any>()).results;

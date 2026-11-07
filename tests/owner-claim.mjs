@@ -6,6 +6,8 @@ import {admissionRuntime, freePort} from './admission-runtime.mjs';
 import {testOwner, testSetupToken, signIn} from './auth.mjs';
 import {teamFlow} from './team-flow.mjs';
 import {governanceStepUp} from './governance-step-up.mjs';
+import {endUserErasurePreviewFlow} from './end-user-erasure-preview.mjs';
+import {governanceMemberTransferFlow} from './governance-member-transfer.mjs';
 
 // Only the issuer is a test network edge. Admission uses the real emitted Worker and D1.
 const issuer = 'https://claim-issuer.example.test', installationId = randomUUID();
@@ -140,4 +142,7 @@ try {
 } finally {await app?.close();}
 
 await governanceStepUp();
+await governanceMemberTransferFlow();
 await teamFlow();
+
+await endUserErasurePreviewFlow();

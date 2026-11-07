@@ -1,3 +1,4 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';
@@ -7,6 +8,7 @@ import {createServer} from 'node:http';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {authBindings,signIn,testDevKey,testOwner} from './auth.mjs';
+import {migrationEvidence} from './migration-evidence.mjs';
 
 // Local ingest/deploy grants work with their scoped key alone; dev agent reads need the owner gate. This runs the real
 // local entry (src/server.dev.ts) and the real deployed entry (src/server.ts) over one real migrated D1; only the
@@ -22,7 +24,7 @@ const documentStub={name:'document-stub',setup(build){
  build.onLoad({filter:/^docs$/,namespace:'stub'},()=>({loader:'js',contents:"export const repository='';export default {repository:'',sections:[],pages:[]}"}));
  build.onLoad({filter:/^document$/,namespace:'stub'},()=>({loader:'js',contents:"export default {fetch:async()=>new Response('<!doctype html><title>Spool</title><body>document</body>',{headers:{'content-type':'text/html'}})}"}));
 }};
-const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
+const bundle=async entry=>(await esbuild.build({entryPoints:[entry],bundle:true,write:false,format:'esm',platform:'neutral',target:'es2022',conditions:['workerd','worker','browser'],mainFields:['module','main'],external:['cloudflare:*','node:*'],plugins:[documentStub,migrationEvidence],loader:{'.sql':'text'},logLevel:'error'})).outputFiles[0].text;
 
 // The linked Auth install's published key, the only network edge: a loopback JWKS.
 const {publicKey,privateKey}=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
@@ -51,7 +53,7 @@ try{
  const event=id=>({version:1,eventId:id,release:'r1',build:'b1',environment:'production',type:'TypeError',message:'failed',frames:[{file:'https://app.test/bundle.js',line:1,column:0,function:'run',debugId:'d1'}],breadcrumbs:[]});
 
  // An ordinary session: the first owner and every credential it mints work with no key at all.
- const ordinary=await signIn(origin);
+ const ordinary=await signIn(origin);await chooseLocalAgentPolicy(origin,ordinary);
  assert.equal(await status(await local('/api/projects',{method:'POST',cookie:ordinary,body:{id:'web',name:'Web'}})),201);
  assert.equal(await status(await local('/api/projects/web/releases',{method:'POST',cookie:ordinary,body:{name:'r1',build:'b1'}})),201);
  const minted=async(cookie,kind,key,project='web')=>(await (await local(`/api/projects/${project}/keys`,{method:'POST',cookie,body:{kind},key})).json()).key;

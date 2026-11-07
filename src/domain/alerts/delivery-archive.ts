@@ -1,4 +1,4 @@
-import {scrubDigest} from './digests';
+import {scrubDigest} from './digest-text';
 import { scrub } from '../privacy';
 import { timezone } from './calendar';
 export const deliveryArchiveTables=['alert_provider_events','alert_digest_settings','alert_snoozes','alert_suppressed','alert_scheduled_mail'];

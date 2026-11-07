@@ -1,2 +1,5 @@
 /* The shared Run page consumes this token; the installer theme schema does not yet admit it. */
 :root { --rer-font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+
+/* Declaration help can contain long JSON examples without spaces. */
+.site-hosting .walk { overflow-wrap: anywhere; }

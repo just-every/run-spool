@@ -1,14 +1,15 @@
 # Run it locally
 
-Use Node 22 or later and git. Start with one line, which clones Spool, installs
-locked dependencies, prepares its local owner and starts development:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm.
+Start with one line, which clones Spool, installs locked dependencies, prepares
+its local owner and starts development:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-spool
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
 
-Set up only: `npx -y @runeditrun/rer setup just-every/run-spool`. Without Node:
-`curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool`.
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool`
+does the same. Set up only: `npx -y @runeditrun/rer setup just-every/run-spool`.
 rer supplies Node 22.20.0 and pnpm 10.12.4 for this checkout. From a runnable
 edition's root, `rer dev` alone starts it again.
 
@@ -67,7 +68,7 @@ ignored `.rer/local/setup-answers.json` and run
 `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the
 Spool checkout. The answers path must be relative and contained inside that
 checkout; absolute paths, traversal, symlinks and shared hard links are refused.
-See [the private-file procedure](docs/install.md#install-and-start). Secret
+See [the private-file procedure](docs/getting-started.md#choose-your-owner). Secret
 values stay in private inputs and never go in command arguments. A setup rerun
 with the saved owner and origin preserves existing owner/data and exact private settings.
 Conflicting saved identity or origin reports an actionable recovery path.

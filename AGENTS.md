@@ -4,16 +4,17 @@
 
 Follow the public first-run instructions:
 
-Use Node 22 or later and git, on macOS, Linux or Windows with WSL2. Install Node from https://nodejs.org/en/download if needed; it must already be on PATH to start rer. Install public rer once per computer with `curl -fsSL https://runeditrun.com/install.sh | sh` or `npm install -g @runeditrun/rer`. rer then supplies the declared Node 22.20.0 and pnpm 10.12.4 pins. The public first-run path matches `/run`:
+macOS, Linux or Windows with WSL2. git is required; rer brings the declared Node 22.20.0 and pnpm 10.12.4 runtimes. Node does not need to be on PATH. The public first-run path matches the [README](README.md#run-it-on-your-computer) and [Run page](https://run-spool.com/run):
 
 ```sh
-git clone https://github.com/just-every/run-spool.git spool
-cd spool && rer dev
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
+
+The installer clones into `run-spool` and leaves shell profiles unchanged. For later commands, run `export PATH="$HOME/.local/bin:$PATH"` in each terminal, or use `~/.local/bin/rer` wherever these instructions say `rer`. Restart with `cd run-spool && ~/.local/bin/rer dev`. Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` is the alternative.
 
 In an existing checkout, run `rer dev`. It installs dependencies and prepares the owner when needed. `rer install` and `rer setup` remain available separately. Use `rer describe` for supported maintenance commands; export before destructive reset and import only into an empty destination.
 
-Fresh `rer dev` chooses `owner@spool.test` for the documented `spool` folder (`owner@<sanitized-folder-name>.test` elsewhere) without prompting, including with non-TTY input, and preserves an existing owner. Explicit `rer setup` prompts for missing required answers only with interactive stdin and without `--json` or `--non-interactive`. Otherwise use a private JSON file such as `{"OWNER_EMAIL":"you@example.com"}` at the ignored `.rer/local/setup-answers.json`, mode `0600`, and run `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the Spool checkout. The path must be relative and contained inside that checkout; absolute paths, traversal, symlinks and shared hard links are refused. Saved answers are reused. Do not put addresses or secrets in shell arguments. Setup applies local migrations, claims or preserves the one owner, opens the owner without email and stops its temporary app.
+Fresh `rer dev` chooses `owner@run-spool.test` for the documented `run-spool` folder (`owner@<sanitized-folder-name>.test` elsewhere) without prompting, including with non-TTY input, and preserves an existing owner. Explicit `rer setup` prompts for missing required answers only with interactive stdin and without `--json` or `--non-interactive`. Otherwise use a private JSON file such as `{"OWNER_EMAIL":"you@example.com"}` at the ignored `.rer/local/setup-answers.json`, mode `0600`, and run `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the Spool checkout. The path must be relative and contained inside that checkout; absolute paths, traversal, symlinks and shared hard links are refused. Saved answers are reused. Do not put addresses or secrets in shell arguments. Setup applies local migrations, claims or preserves the one owner, opens the owner without email and stops its temporary app.
 
 Dev stays in the foreground with TTY output; non-TTY output returns once ready and leaves it running in the background. `--foreground` and `--detach` override this choice. Stop it with `rer dev --stop` (or Ctrl+C in the foreground). It prints its health-ready URL, `RER_SIGNED_IN` and a private `RER_OPEN` link for this computer. Local development reads **Spool Dev**; `rer demo` reads **Spool Demo** and uses disposable `.rer/demo` state with sample data. Mail is silently suppressed; there is no injected bar or mailbox viewer. Never share `RER_OPEN`: its `rer-dev` fragment value gates owner sessions and dev agent reads, including requests through proxies or tunnels. Reset retires the gate. `--as member` and `--as signed-out` select another local persona.
 
@@ -49,3 +50,14 @@ Lander-Regenerate: node src/base/contract-docs.mjs write
 Lander-Regenerate: node scripts/edition-authoring/cli.mjs lock
 
 Then run `node src/base/contract-docs.mjs check` and `pnpm source:check`.
+
+## Shared agent door
+
+Application-agent work enters `src/domain/agent-door/index.server.ts`. Native
+services accept the explicit server-owned agent authority; never mint or borrow
+a person's session. `agent-surface.json` and the runtime catalogue must match;
+use `pnpm agent-surface:generate` and `pnpm agent-surface:check`. Read
+[docs/AGENT-DOOR.md](docs/AGENT-DOOR.md) for scopes, native consent, runner custody
+and supported limits. Run `pnpm test:agent-door` and typecheck for touched work.
+Keep the existing core-flow registration and CI shard count. Contract judgments
+remain in CONTRACT.md; a pending Base or ct assertion is not a passing adoption.

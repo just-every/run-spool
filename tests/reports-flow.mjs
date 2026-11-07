@@ -88,7 +88,10 @@ export async function reportsFlow(context){
   jobs.push(q("UPDATE alerts SET created=? WHERE project=? AND issue=? AND kind='regression'",regression,p.id,a.id),q('UPDATE issues SET last_seen=? WHERE id=?',regression,a.id));
   const changes=(await q("SELECT id FROM audit WHERE project=? AND kind='triage' AND json_extract(detail,'$.issue')=? ORDER BY created,rowid",p.id,a.id).all()).results;
   assert.equal(changes.length,4);[first+hour,first+5*hour,regression+2*hour,regression+6*hour].forEach((at,n)=>jobs.push(q('UPDATE audit SET created=? WHERE id=?',at,changes[n].id)));
-  jobs.push(q('UPDATE review_stamps SET reviewed=? WHERE project=?',from+3*hour,p.id),q('UPDATE health_sessions SET started=? WHERE project=?',regression,p.id),q('UPDATE outcomes SET window=? WHERE project IN (?,?)',from,p.id,other.id));
+  // Public writes count outcomes per real minute, so one project's reason spans two windows whenever
+  // these writes cross a minute boundary. Relocate by merging each reason's counts into the one window.
+  jobs.push(q('UPDATE review_stamps SET reviewed=? WHERE project=?',from+3*hour,p.id),q('UPDATE health_sessions SET started=? WHERE project=?',regression,p.id),
+   q('INSERT INTO outcomes SELECT project,?,reason,SUM(count) FROM outcomes WHERE project IN (?,?) GROUP BY project,reason',from,p.id,other.id),q('DELETE FROM outcomes WHERE project IN (?,?) AND window<>?',p.id,other.id,from));
   await db.batch(jobs);
   const url=(zone='America/New_York',projects=p.id)=>'/api/reports?'+new URLSearchParams({projects,from:String(from),to:String(to),timeZone:zone});
   let report=await json(url()),utc=await json(url('UTC'));

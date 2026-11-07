@@ -16,12 +16,18 @@
         {
           "slug": "install",
           "source": "docs/install.md",
-          "label": "Run it on your computer"
+          "label": "Run it on your computer",
+          "unlisted": true
         },
         {
           "slug": "capture",
           "source": "docs/capture.md",
           "label": "Connect your app"
+        },
+        {
+          "slug": "framework-setup",
+          "source": "docs/FRAMEWORK-SETUP.md",
+          "label": "Framework setup"
         },
         {
           "slug": "supported-languages",

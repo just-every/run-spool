@@ -5,6 +5,8 @@ type Rule = { pattern: RegExp; action: AuditAction; kind: SubjectKind; methods?:
 // Patterns are server-owned. Only captured identifiers reach the private alias
 // lookup; neither the path nor a query or body is copied into a permanent fact.
 const rules: Rule[] = [
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/notifications\/preferences$/,action:'notification.preferences',kind:'project'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/rate-limit$/,methods:['PUT'],action:'credential.rate_limit',kind:'credential'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/suppression$/,action:'suppression.change',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/(?:comments(?:\/[^/]+)?|subscription|discussion)$/,action:'issue.triage',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/recurrence-policy$/,action:'release.policy',kind:'project'},
@@ -29,6 +31,8 @@ const rules: Rule[] = [
  {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)\/keys$/,action:'service.credential',kind:'identity'},
  {pattern:/^\/api\/organization\/services\/(?<subject>[^/]+)$/,methods:['DELETE'],action:'service.remove',kind:'identity'},
  {pattern:/^\/api\/organization\/usage$/,action:'billing.read',kind:'installation'},
+ {pattern:/^\/api\/(?:projects\/(?<project>[^/]+)\/)?scrubbing\/preview$/,action:'scrubbing.preview',kind:'policy'},
+ {pattern:/^\/api\/(?:projects\/(?<project>[^/]+)\/)?scrubbing$/,methods:['PUT'],action:'scrubbing.policy',kind:'policy'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/suspects\/issues\/(?<subject>[^/]+)$/,methods:['PUT'],action:'issue.suspect',kind:'issue'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/check-in-routes\/[^/]+$/,methods:['PUT','DELETE'],action:'checkin.route',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/keys\/(?<subject>[^/]+)\/loader$/,methods:['PUT'],action:'credential.loader',kind:'credential'},
@@ -59,6 +63,7 @@ const rules: Rule[] = [
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/commits\/sharing$/,methods:['PUT'],action:'commit.sharing',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/artifacts$/,methods:['POST'],action:'artifact.upload',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issues\/(?<subject>[^/]+)\/packet$/,action:'evidence.packet',kind:'issue'},
+ {pattern:/^\/api\/projects\/(?<project>[^/]+)\/end-user-erasure\/preview$/,action:'identity.erasure_preview',kind:'project'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/identity-policy\/preview$/,action:'identity.preview',kind:'policy'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/identity-policy$/,methods:['PUT'],action:'identity.policy',kind:'policy'},
  {pattern:/^\/api\/projects\/(?<project>[^/]+)\/issue-export$/,action:'evidence.export',kind:'project'},
