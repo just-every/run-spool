@@ -22,8 +22,8 @@ try {
   const planned = await cli('dry-run', '--file', fixture.pathname);
   assert.equal(planned.namespace, 'rollbar-project:web-app');
   assert.equal(planned.counts.rejected, 0);
-  assert.deepEqual(planned.counts.byKind, { manifest: 1, projects: 1, releases: 2, items: 3, instances: 6, deploys: 3, rules: 2, comments: 1 }, 'every collection is counted');
-  assert.equal(planned.counts.effects, 12, 'more effects than one batch, so apply must resume');
+  assert.deepEqual(planned.counts.byKind, { manifest: 1, projects: 1, releases: 2, items: 3, instances: 16, deploys: 3, rules: 2, comments: 1 }, 'every collection is counted');
+  assert.equal(planned.counts.effects, 22, 'more effects than one door batch, so apply must resume');
   assert.ok(planned.counts.unmapped >= 7, 'three deploys, two rules and a comment are named, not silently dropped');
   assert.ok(!JSON.stringify(planned).includes('IMPORT_SECRET') && !JSON.stringify(planned).includes('PRIVATE_'));
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data, archiveBefore.data, 'planning writes nothing native');
@@ -46,7 +46,7 @@ try {
   assert.equal(resumed.job.state, 'completed'); assert.equal(resumed.job.id, first.job.id, 'resume continues the interrupted job');
   assert.equal((await cli('apply', ...applyArgs)).job.id, first.job.id, 'repeating a completed apply answers the same job');
   const report = await cli('reconcile', '--project', 'web-app', '--plan', planned.planId);
-  assert.equal(report.ok, true); assert.deepEqual(report.counts.byKind, { project: 1, release: 2, issue: 3, event: 6 });
+  assert.equal(report.ok, true); assert.deepEqual(report.counts.byKind, { project: 1, release: 2, issue: 3, event: 16 });
   const imported = (await json('/api/projects')).find(project => !beforeProjects.some(before => before.id === project.id));
   assert.deepEqual(report.projectIds, [imported.id]);
   assert.equal(imported.name, 'Imported web app');
@@ -55,13 +55,13 @@ try {
   const issues = await json(`/api/projects/${imported.id}/issues`), byTitle = title => issues.find(issue => issue.title.startsWith(title));
   assert.equal(issues.length, 3);
   assert.equal(byTitle('TypeError').state, 'resolved'); assert.equal(byTitle('RangeError').state, 'open', 'a reactivated item is open'); assert.equal(byTitle('KeyError').state, 'suppressed');
-  assert.deepEqual(issues.map(issue => issue.count).sort(), [2, 2, 2]);
+  assert.deepEqual(issues.map(issue => issue.count).sort((a, b) => a - b), [2, 2, 12]);
   assert.ok(!JSON.stringify(issues).includes('IMPORT_SECRET'));
   const compared = await cli('compare', '--project', 'web-app', '--plan', planned.planId, '--file', fixture.pathname);
   assert.equal(compared.ok, true, JSON.stringify(compared.rows.filter(row => row.status === 'differs')));
   const row = aspect => compared.rows.find(r => r.aspect === aspect);
   assert.deepEqual([row('items').source, row('items').imported, row('items').status], [3, 3, 'match']);
-  assert.deepEqual([row('occurrences').source, row('occurrences').imported, row('occurrences').status], [6, 6, 'match']);
+  assert.deepEqual([row('occurrences').source, row('occurrences').imported, row('occurrences').status], [16, 16, 'match']);
   assert.equal(row('occurrences').exportedOfClaimed.claimedByRollbar, 45, 'occurrences Rollbar counts but did not export are named');
   assert.equal(row('stacks').status, 'match'); assert.equal(row('deploys').source, 3); assert.equal(row('deploys').imported, 2); assert.equal(row('deploys').status, 'explained');
   assert.equal(row('rules').source, 2); assert.equal(row('rules').imported, 0); assert.equal(row('rules').status, 'explained');
@@ -93,15 +93,15 @@ try {
   assert.equal((await json(`/api/projects/${reimported.id}/issues`)).find(issue => issue.id === current.id).state, 'acknowledged', 'the native edit survives');
 
   // Replacement capture: the owner mints a key for the imported project and an unmodified Sentry SDK envelope lands as new live evidence beside the history.
-  const key = await json(`/api/projects/${reimported.id}/keys`, 'POST', { kind: 'ingest' }), dsn = new URL((await json('/api/projects')).find(project => project.id === reimported.id).dsn ?? `http://${key.key}@x/0`);
-  const alias = dsn.pathname.slice(1);
+  const key = await json(`/api/projects/${reimported.id}/keys`, 'POST', { kind: 'ingest' });
+  const dsn = new URL(key.dsn), alias = dsn.pathname.slice(1);
   const liveEvent = { event_id: 'd'.repeat(32), release: 'web@1.2.0', environment: 'production', exception: { values: [{ type: 'TypeError', value: 'failed after cutover', stacktrace: { frames: [{ filename: 'https://app.example.test/app.js', lineno: 10, colno: 5, function: 'start' }] } }] } };
   const envelope = JSON.stringify({ event_id: liveEvent.event_id }) + '\n' + JSON.stringify({ type: 'event' }) + '\n' + JSON.stringify(liveEvent);
   const sent = await req(`/api/${alias}/envelope/?sentry_key=${key.key}&sentry_version=7`, 'POST', envelope, { Cookie: '' });
   assert.equal(sent.status, 200, 'the replacement DSN accepts a live event');
   const after = await json(`/api/projects/${reimported.id}/issues`);
   assert.equal(after.length, 4, 'the live failure is its own issue; imported history never merges with it');
-  assert.equal(after.filter(issue => issue.count === 2).length, 3, 'imported counts are unchanged');
+  assert.deepEqual(after.map(issue => issue.count).sort((a, b) => a - b), [1, 2, 2, 12], 'imported counts are unchanged');
   const releases = await json(`/api/projects/${reimported.id}/releases`), list = Array.isArray(releases) ? releases : releases.releases;
   assert.deepEqual(list.map(release => release.name).sort(), ['web@1.0.0', 'web@1.1.0', 'web@1.2.0'], 'live release ordering continues after the imported releases');
   assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200);
