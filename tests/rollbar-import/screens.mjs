@@ -14,6 +14,8 @@ export async function rollbarScreens(origin,cookie,project,issue) {
    await page.getByRole('heading',{name:'Checkout failure 1',exact:true}).waitFor();
    await page.locator('.frame-coordinate').first().waitFor();
    await page.locator('.event-explorer').getByRole('status').filter({hasText:/^1 matching events$/}).waitFor();
+   await page.getByText(/Imported historical evidence/).waitFor();
+   assert.equal(await page.locator('.missing-map').count(),0,'history never becomes a fresh source lookup after event selection');
    await page.screenshot({path:`.artifacts/rollbar-import/issue-${width}.png`,fullPage:true});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'imported issue fits the viewport');
    await page.goto(`${origin}/projects/${project}/settings`);

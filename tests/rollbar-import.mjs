@@ -85,6 +85,10 @@ try {
  const packet=await json(path+`/issues/${historicalIssue.id}/packet`);
  assert.equal(packet.events[0].historical,true);assert.equal(packet.events[0].currentLookup[0].source,'rollbar-api-export');
  assert.ok(packet.gaps.some(row=>row.code==='imported_history_no_live_events'));
+ const selected=await json(path+`/issues/${historicalIssue.id}/events/${packet.events[0].id}?occurrence=${packet.events[0].occurrence}`);
+ assert.equal(selected.historical,true,'event selection preserves imported history');
+ assert.deepEqual(selected.currentLookup,packet.events[0].atAdmission,'selection retains exported diagnostics instead of inventing a new lookup');
+ assert.equal(selected.grouping.algorithm,'rollbar-import-v1');assert.equal(selected.grouping.fingerprint,packet.issue.fingerprint);
  // Project grants and a foreign Origin cannot read or apply private custody.
  const grant=await json('/api/projects/native-rollbar-control/keys','POST',{kind:'agent'});
  for(const action of ['status','apply','undo']) {
