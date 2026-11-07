@@ -57,6 +57,9 @@ try {
  const report=await cli('reconcile','--project','71','--plan',plan.planId);
  assert.equal(report.ok,true);assert.equal(report.counts.byKind.event,24);assert.equal(report.counts.byKind.issue,24);assert.equal(report.counts.byKind.release,1);
  assert.equal(report.comparison.nativeCounts.event,24);assert.equal(report.comparison.items[0].nativeState,'resolved');assert.equal(report.comparison.items[1].nativeState,'open');
+ assert.deepEqual(report.comparison.items[1].assignment,{user:'99',team:null,disposition:'retained_only'});
+ assert.equal(report.comparison.items[1].fingerprint,'synthetic-spool-2');
+ assert.equal(report.comparison.ruleCount,4);assert.equal(report.comparison.historyEventCount,2);
  assert.equal(report.comparison.items[1].nativeOccurrences,1);assert.equal(report.comparison.items[1].sourceOccurrencesSinceResolution,37);
  assert.equal(report.comparison.stacks[0].nativeFrames[0].file,'src/checkout.js');assert.equal(report.comparison.stacks[0].nativeFrames[0].line,27);assert.equal(report.comparison.stacks[0].nativeFrames[0].column,11);
  assert.equal(report.comparison.stacks[0].nativeEnvironment,'production');assert.equal(report.comparison.stacks[0].nativeRelease,'checkout@1.0.0');
@@ -93,7 +96,9 @@ try {
  assert.equal((await request('/api/operator/import/status','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':'rollbar-project:71'})).status,401);
  assert.deepEqual((await snapshot()).events,all.events,'refused authority changes no imported events');
  // Replacement Node setup uses the actual SDK against the public intake route.
- await json(path+'/releases','POST',{name:'checkout@2.0.0',build:'b2'});
+ await json(path+'/releases','POST',{name:'checkout@2.0.0',build:'b2',commits:[{sha:'c'.repeat(40),message:`Fixes ${historicalIssue.short_id}`}]});
+ assert.equal((await json(path+'/issues')).find(row=>row.id===historicalIssue.id).state,'resolved','cutover commits cannot resolve imported history again');
+ assert.equal((await json(path+'/commits/link-log')).rows[0].reason,'inaccessible');
  const ingest=await json(path+'/keys','POST',{kind:'ingest'});
  const sdkFile=join(scratch,'sdk.mjs');
  await build({entryPoints:['packages/sdk/src/node.ts'],outfile:sdkFile,bundle:true,platform:'node',format:'esm',logLevel:'silent'});

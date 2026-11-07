@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4841206a19a225b8833f94975a356d513312ec7778b87df6fa3a7c9f2973ea45",
+      "sha256": "59399054fff093233663f78e1b435fb4fd308548079dae1e3cc1e0e6ccf2f236",
       "executable": false
     },
     "DEMO.md": {
@@ -11062,7 +11062,7 @@
       "executable": false
     },
     "tests/rollbar-import.mjs": {
-      "sha256": "82ec92e50be7a510f0649fa7ce6a49ab551a406b02425b092cade40208795e2d",
+      "sha256": "983fa5a4c3aa547ca46e7ab9ad37c5d3d1de1c3fabb47f41fb976b2502181435",
       "executable": false
     },
     "tests/rollbar-import/fixture.mjs": {
@@ -11070,7 +11070,7 @@
       "executable": false
     },
     "tests/rollbar-import/screens.mjs": {
-      "sha256": "b0a0819dca89ac1a9a82001f9e8474c0532fff69e879b4eb5842911bb3ac2d48",
+      "sha256": "8894ff72d6ebb7b54301e9d7720241dc1be63e9e99a15104d34540273050d2f1",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {
