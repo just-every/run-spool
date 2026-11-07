@@ -73,7 +73,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
   await apply(files.filter(file => (!deferClaimMigration || !file.includes('owner_claim')) && (!deferAgentUpgrade || file!=='0099_agent_custody_replay_relay.sql')));
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
   const call = (path, value, headers = {}, method = value === undefined ? 'GET' : 'POST') => fetch(origin + path, {
-   method, redirect: 'manual', headers: {Origin: origin, ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
+   method, redirect: 'manual', headers: {Origin: origin, Connection: 'close', ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
    ...(value === undefined ? {} : {body: JSON.stringify(value)}),
   });
   const runtime = {get origin() {return origin;}, DB: db, call,

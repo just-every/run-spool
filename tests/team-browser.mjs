@@ -180,7 +180,7 @@ export async function teamTriage(owner,member,project,width) {
   assert.deepEqual(searched.rows.map(row=>row.id),[issue],'search reads only this width’s captured issue');
   await teamViewportProof(memberPage,'team-search');await activate(match.getByRole('link'));
   await expect(memberPage.locator('.frame-coordinate').first()).toContainText(coordinate.file);
-  await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-source-details'));
+  await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-evidence-dialog'));
   probe('search','release query -> the isolated captured issue and its mapped frame');
 
   const label=memberPage.getByLabel('Assigned to',{exact:true}),save=memberPage.getByRole('button',{name:'Save assignment',exact:true});
@@ -237,7 +237,7 @@ export async function teamTriage(owner,member,project,width) {
   await expect(approvedFact).not.toBeEmpty();
   await expect(record.getByRole('button',{name:'Mark approved',exact:true})).toHaveCount(0,'reopening the deep link retains the recorded approval');
   assert.equal((await owner.json(root+'/repairs?issue='+issue)).repairs.find(row=>row.id===proposed.id).facts.approved,approval,'reopening does not record a second approval');
-  await teamKeyboardDetails(ownerPage,'Evidence snapshot',()=>screen(ownerPage,'team-repair-details'));
+  await teamKeyboardDetails(ownerPage,'Evidence snapshot',()=>screen(ownerPage,'team-repair-dialog'));
   await screen(ownerPage,'team-repair-approved',ownerPage.locator('.repairs'));
   probe('repair approval','owner Record repair and Mark approved -> proposed record then persisted approval fact');
 

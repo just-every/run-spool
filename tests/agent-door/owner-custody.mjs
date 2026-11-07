@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {agentRuntime} from './runtime.mjs';
 import {operatorAgentArtifacts} from '../../src/domain/agent-door/artifact-map.mjs';
 export async function ownerCustody(){
- const app=await agentRuntime(15918);
+ const app=await agentRuntime();
  const cookie=response=>response.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');
  const signIn=async email=>{await app.json('/auth/magic-link','POST',{email});return confirm(email);};
  const confirm=async email=>{const mail=(await app.mail()).findLast(message=>message.to?.includes(email));const token=mail?.text.match(/\/auth\/confirm\?token=([A-Za-z0-9_-]+)/)?.[1];assert.ok(token);const response=await app.request('/auth/confirm','POST',{token},{Cookie:''});assert.equal(response.status,303);const entered=cookie(response);await response.body?.cancel();return entered;};
