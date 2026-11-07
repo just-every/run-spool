@@ -22,10 +22,12 @@ import {nativeSetup} from './agent-door/setup.mjs';
 import {externalInjectionContract} from './agent-door/external-injection-contract.mjs';
 import {pauseContract} from './agent-door/pause-contract.mjs';
 import {protocolContract} from './agent-door/protocol-contract.mjs';
+import {policyIntegrityContract} from './agent-door/policy-integrity-contract.mjs';
 import {heldPolicy,autonomousPolicy} from '../src/modules/agent-door/conformance/crypto.mjs';
 
 await externalInjectionContract();
 await protocolContract();
+await policyIntegrityContract();
 await nativeSetup();
 await pauseContract();
 const github=await githubDouble();

@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "d227486cfa8769fae7d89bba8748aa88cacfdf8b112835815fe3614412a2df69",
+      "sha256": "e43f12da25b0c23d643f76cdf0f5e13de745c9d40851aebfcdafaf5e7d158411",
       "executable": false
     },
     "tests/agent-door/audit-contract.mjs": {
@@ -10415,6 +10415,10 @@
     },
     "tests/agent-door/phase-fixtures.mjs": {
       "sha256": "9d25b8c4417131d5c9398688ca07aa9033da32fb108ecae75dfca5e4259af31f",
+      "executable": false
+    },
+    "tests/agent-door/policy-integrity-contract.mjs": {
+      "sha256": "56d731c8584479fc8ebac3e14390ee529ab07367622f518d5d4f7abf73a1bdfc",
       "executable": false
     },
     "tests/agent-door/proof.mjs": {
