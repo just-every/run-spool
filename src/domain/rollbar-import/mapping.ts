@@ -26,6 +26,7 @@ export function rollbarMapping(records: ParsedRecord[], operationKey: string): I
   try {
    const item=sourceId(data.item_id);
    if(!items.has(item) || errors.has('item:'+item)) throw new Error('Occurrence item missing or rejected');
+   if(events.has(row.sourceId))continue;
    const decoded=occurrenceEvent(project,data); events.set(row.sourceId,decoded);
    const release=decoded.event.release,old=releases.get(release);
    if(release)releases.set(release,{created:Math.min(old?.created??decoded.received,decoded.received),seq:0});
