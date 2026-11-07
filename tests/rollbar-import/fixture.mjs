@@ -26,7 +26,9 @@ export function rollbarFixture() {
     {id:402,type:'item_comment',item_id:1002,timestamp:epoch+90,text:'Reactivated by the next occurrence'}]},{item:1002}),
    ...['email','slack','pagerduty','webhook'].map((channel,index)=>collection('notification_rules',[
     {id:501+index,status:'enabled',action:`send_${channel}`,trigger:'reactivated_item',filters:[{type:'environment',operation:'eq',value:'production'}],config:{}}],{channel})),
-  ],unavailable:[{kind:'artifacts',reason:'Original build artifacts must be recovered from the authorized build pipeline; no download bytes supplied.'},
+  ],unavailable:[...items.filter(item=>item.id!==1002).map(item=>({kind:'item_events',item:item.id,reason:'History not included in this authorized capture.'})),
+   {kind:'occurrences',reason:'The since-resolution counters include older occurrences outside the available retained export.'},
+   {kind:'artifacts',reason:'Original build artifacts must be recovered from the authorized build pipeline; no download bytes supplied.'},
    {kind:'grouping_rules',reason:'Custom fingerprint rule export unavailable; per-item hash and per-occurrence fingerprint retained.'},
    {kind:'tracker_links',reason:'Integration data retained as opaque source; provider links cannot be activated.'}]};
 }

@@ -42,6 +42,8 @@ export function parseRollbar(value: Json): ParsedRecord[] {
     if (result.project_id!==undefined && sourceId(result.project_id)!==id) throw new Error('Rollbar occurrence belongs to another project');
     records.push({kind,sourceId:occurrence,payload:{vendor:'rollbar',project:id,data:result},pointer});
    } else {
+    if(kind==='notification_rules' && !Array.isArray(result))throw new Error('Rollbar notification rule array required');
+    if(kind==='item_events' && (!Array.isArray(result.events) || result.page!==undefined && result.page!==page.page || result.events.some((event:any)=>event.item_id!==undefined && sourceId(event.item_id)!==item)))throw new Error('Rollbar item event list required');
     // API event and channel rule envelopes remain whole: their provider schema
     // is not an authority to execute or to create local people or destinations.
     records.push({kind,sourceId:JSON.stringify([item??channel??'artifacts',page.page]),payload:{vendor:'rollbar',project:id,item,channel,data:result},pointer});
@@ -49,7 +51,13 @@ export function parseRollbar(value: Json): ParsedRecord[] {
   }
  }
  for (const kind of ['items','occurrences','deploys']) if (!seen.has(JSON.stringify([kind,null,null]))) throw new Error(`Rollbar ${kind} collection required`);
- for (const kind of ['item_events','notification_rules','artifacts','grouping_rules','tracker_links']) {
+ for(const record of records.filter(row=>row.kind==='items')) {
+  if(!bundle.collections.some((c:any)=>c.kind==='item_events'&&String(c.item)===record.sourceId) && !bundle.unavailable.some((entry:any)=>entry.kind==='item_events'&&String(entry.item)===record.sourceId))throw new Error('Name unavailable history for every Rollbar item');
+ }
+ for(const channel of ['email','slack','pagerduty','webhook']) {
+  if(!bundle.collections.some((c:any)=>c.kind==='notification_rules'&&c.channel===channel) && !bundle.unavailable.some((entry:any)=>entry.kind==='notification_rules'&&entry.channel===channel))throw new Error('Name unavailable Rollbar notification channel');
+ }
+ for (const kind of ['artifacts','grouping_rules','tracker_links']) {
   if (!bundle.collections.some((c:any)=>c.kind===kind) && !bundle.unavailable.some((entry:any)=>entry.kind===kind)) throw new Error(`Name unavailable Rollbar ${kind}`);
  }
  const rank:Record<string,number>={manifest:0,projects:1,deploys:2,items:3,occurrences:4};

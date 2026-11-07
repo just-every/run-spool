@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const CHUNK = 65_536, MAX_BYTES = 2 * 1024 * 1024;
@@ -92,16 +92,22 @@ export function rollbarDoorClient({ endpoint, cookie, project, transport }) {
     status: planId => call('status', { planId }),
     reconcile: planId => call('reconcile', { planId }),
     undo: planId => until('undo', { planId }, 'undone'),
+    async originals(planId) {
+      const origin=endpointOrigin(endpoint);
+      const response=await fetch(`${origin}/api/imports/rollbar/${encodeURIComponent(project)}/${encodeURIComponent(planId)}/originals`,{redirect:'error',headers:{Cookie:cookie}});
+      if(!response.ok)throw Object.assign(new Error(`Spool originals refused (HTTP ${response.status})`),{status:response.status});
+      return response.json();
+    },
     get project() { return project; },
   };
 }
 
 export async function rollbarImportCli(args) {
   const [action, ...rest] = args, options = {};
-  const verbs = ['dry-run', 'apply', 'resume', 'status', 'reconcile', 'undo'];
+  const verbs = ['dry-run', 'apply', 'resume', 'status', 'reconcile', 'undo', 'originals'];
   if (!verbs.includes(action)) throw new Error(`Expected ${verbs.join(', ')}`);
   const allowed = new Set(['endpoint', 'session-env', 'project', ...(action === 'dry-run' ? ['file'] : ['plan']),
-    ...(['apply', 'resume'].includes(action) ? ['fingerprint'] : []), ...(action === 'apply' ? ['once'] : [])]);
+    ...(['apply', 'resume'].includes(action) ? ['fingerprint'] : []), ...(action === 'apply' ? ['once'] : []), ...(action === 'originals' ? ['output'] : [])]);
   for (let index = 0; index < rest.length; index++) {
     const name = rest[index].startsWith('--') ? rest[index].slice(2) : '';
     if (!allowed.has(name) || Object.hasOwn(options, name)) throw new Error('Invalid or duplicate option');
@@ -121,6 +127,12 @@ export async function rollbarImportCli(args) {
   const project = projectId(options.project);
   if (!options.plan) throw new Error('plan is required');
   const client = rollbarDoorClient({ endpoint, cookie, project });
+  if(action==='originals'){
+    if(!options.output)throw new Error('Originals require --output FILE');
+    const original=await client.originals(options.plan);
+    await writeFile(options.output,JSON.stringify(original),{mode:0o600,flag:'wx'});
+    return {saved:true};
+  }
   if (action === 'apply') return client.apply(options.plan, options.fingerprint, { once: options.once });
   if (action === 'resume') return client.resume(options.plan, options.fingerprint);
   return client[action](options.plan);

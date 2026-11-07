@@ -44,6 +44,6 @@ export function rollbarComparison(snapshot: DoorSnapshot, inventory: PersistedIm
  });
  const sourceCounts=Object.fromEntries([...new Set(records.map(row=>row.kind))].map(kind=>[kind,records.filter(row=>row.kind===kind).length]));
  return {vendor:'rollbar',project,sourceCounts,nativeCounts:Object.fromEntries(['project','issue','event','release'].map(kind=>[kind,rows.filter(row=>row.targetKind===kind).length])),
-  items,stacks,deploys,rules,history,unavailable:manifest.unavailable.map((entry:any)=>({kind:text(entry.kind),reason:text(entry.reason)})),
+  items,stacks,deploys,rules,history,ruleCount:rules.reduce((n,row)=>n+(row.rules?.length??0),0),historyEventCount:history.reduce((n,row)=>n+(row.events?.length??0),0),unavailable:manifest.unavailable.map((entry:any)=>({kind:text(entry.kind),reason:text(entry.reason),...(entry.item!==undefined?{item:scalar(entry.item)}:{}),...(entry.channel!==undefined?{channel:text(entry.channel)}:{})})),
   policy:'Source rules, assignments and history are inert; recreate native rules and destinations explicitly. Retained source never grants credentials or executes work.'};
 }

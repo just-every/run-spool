@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -58,6 +58,10 @@ try {
  assert.equal(report.comparison.deploys[0].nativeRelease.name,'checkout@1.0.0');assert.equal(report.comparison.deploys[1].nativeRelease.name,'checkout@1.0.0');
  assert.ok(report.sourceIds.some(row=>row.kind==='notification_rules'&&row.status==='explained'));
  assert.equal(report.comparison.history[0].events[1].text,'Reactivated by the next occurrence');
+ const originalsPath=join(scratch,'originals.json');
+ assert.deepEqual(await cli('originals','--project','71','--plan',plan.planId,'--output',originalsPath),{saved:true});
+ const originals=JSON.parse(await readFile(originalsPath,'utf8')).originals;
+ assert.deepEqual(Buffer.from(originals.find(row=>row.kind==='artifact').original.base64,'base64'),bytes,'private source bytes are exactly recoverable');
  const imported=report.projectIds[0],path=`/api/projects/${imported}`;
  const all=await snapshot(),historical=all.events.filter(row=>row.project===imported);
  assert.equal(historical.length,24);assert.ok(historical.every(row=>row.historical===1));
@@ -75,6 +79,8 @@ try {
   const response=await request('/api/operator/import/'+action,'POST',{planId:plan.planId,reviewedFingerprint:plan.fingerprint},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':'rollbar-project:71'});
   assert.ok([401,403].includes(response.status));
  }
+ assert.equal((await request(`/api/imports/rollbar/71/${plan.planId}/originals`,'GET',undefined,{Cookie:'',Authorization:`Bearer ${grant.key}`})).status,401);
+ assert.equal((await request(`/api/imports/rollbar/72/${plan.planId}/originals`)).status,404,'another source cannot borrow plan custody');
  assert.equal((await request('/api/operator/import/status','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':'rollbar-project:71'})).status,401);
  assert.deepEqual((await snapshot()).events,all.events,'refused authority changes no imported events');
  // Replacement Node setup uses the actual SDK against the public intake route.
@@ -117,6 +123,7 @@ try {
  const erased=await followErasure((p,m)=>json(p,m),accepted);assert.equal(erased.phase,'complete');
  assert.ok(!(await json('/api/projects')).some(row=>row.id===imported));
  await assert.rejects(client().status(plan.planId),error=>error.status===404);
+ await assert.rejects(client().originals(plan.planId),error=>error.status===404,'erased originals stay withdrawn');
  const replayUpload=await client().upload(bytes);
  await assert.rejects(client().call('plan',{uploadId:replayUpload.uploadId}),error=>error.code==='source_erased');
  const replay=await fetch(origin+'/api/restore',{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive});
@@ -136,5 +143,6 @@ try {
  for(const table of ['projects','issues','events','releases'])assert.deepEqual(safeAfter[table],safeBefore[table],`supported undo restores ${table}`);
  await request('/auth/signout','POST',{});
  await assert.rejects(client().status(plan.planId),error=>error.status===401,'revoked session cannot read custody');
+ await assert.rejects(client().originals(plan.planId),error=>error.status===401,'revoked session cannot read originals');
  console.log('Rollbar migration journey passed: source comparisons, durable interrupted resume, inert history, real SDK replacement, authority and guarded undo, erasure and replay refusal.');
 } finally {await worker.close();await rm(scratch,{recursive:true,force:true});delete process.env.SPOOL_ROLLBAR_SESSION;}

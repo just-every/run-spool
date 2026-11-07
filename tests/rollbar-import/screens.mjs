@@ -12,6 +12,7 @@ export async function rollbarScreens(origin,cookie,project,issue) {
    await page.setViewportSize({width,height:1000});
    await page.goto(`${origin}/projects/${project}/issues/${issue}`);
    await page.getByRole('heading',{name:'Checkout failure 1',exact:true}).waitFor();
+   await page.locator('.frame-coordinate').first().waitFor();
    await page.screenshot({path:`.artifacts/rollbar-import/issue-${width}.png`,fullPage:true});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'imported issue fits the viewport');
    await page.goto(`${origin}/projects/${project}/settings`);

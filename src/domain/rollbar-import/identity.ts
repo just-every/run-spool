@@ -5,7 +5,7 @@ export function sourceId(value: unknown): string {
  if (typeof value === 'string' && /^[1-9][0-9]{0,19}$/.test(value)) return value;
  throw new Error('Rollbar system ID required');
 }
-export const projectId = (id: string) => `rollbar-${sha256(id).slice(0,32)}`;
+export const projectId = (id: string) => `rollbar-${sourceId(id)}`;
 export const issueId = (project: string, id: string) => sha256(JSON.stringify(['rollbar',project,id]));
 export const eventId = (project: string, id: string) => sha256(JSON.stringify(['rollbar-occurrence',project,id])).slice(0,32);
 export const fingerprint = (project: string, id: string) => sha256(JSON.stringify(['rollbar-import',project,id]));
