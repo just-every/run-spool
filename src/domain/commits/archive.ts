@@ -31,7 +31,7 @@ export function validateCommitArchive(data: any) {
   once('release_commits', [row.project, row.release, row.sha]); included.add(JSON.stringify([row.project, row.release, row.sha]));
  }
  for (const row of data.commit_links) {
-  assert(commits.has(row.project + '\n' + row.sha) && issues.get(row.issue)?.project === row.project && issues.get(row.issue).algorithm !== 'sentry-import-v1' && isShortId(row.short_id) && row.short_id === row.short_id.toUpperCase() && data.issue_short_ids.some((s: any) => s.short_id === row.short_id && s.project === row.project));
+  assert(commits.has(row.project + '\n' + row.sha) && issues.get(row.issue)?.project === row.project && !['sentry-import-v1','rollbar-import-v1'].includes(issues.get(row.issue).algorithm) && isShortId(row.short_id) && row.short_id === row.short_id.toUpperCase() && data.issue_short_ids.some((s: any) => s.short_id === row.short_id && s.project === row.project));
   assert(typeof row.citation === 'string' && row.citation.length <= 200 && citation.test(row.citation) && integer(row.linked) && row.pr === null && row.token === null);
   assert(row.release === null ? row.resolved === null : included.has(JSON.stringify([row.project, row.release, row.sha])) && integer(row.resolved));
   once('commit_links', [row.project, row.sha, row.issue]);

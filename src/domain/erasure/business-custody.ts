@@ -1,3 +1,5 @@
+import { projectId as rollbarProject } from '../rollbar-import/identity.ts';
+import { parseRollbar } from '../rollbar-import/source.ts';
 import { Buffer } from 'node:buffer';
 import type { Edge } from '../../modules/erasure/index.mjs';
 import { nativeProject } from '../sentry-import/mapping';
@@ -28,7 +30,13 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
    });
    const bytes=Buffer.concat(parts);
    if(bytes.length!==held.total_bytes||sha256(bytes)!==held.bundle_sha256)throw new Error('Unverified bundle');
-   const records=parseSentryOrganization(JSON.parse(bytes.toString('utf8')));
+   const bundle=JSON.parse(bytes.toString('utf8'));
+   if(bundle?.format==='spool-rollbar-export'){
+    const records=parseRollbar(bundle);
+    remember(rollbarProject((records[0].payload as any).project));
+    return;
+   }
+   const records=parseSentryOrganization(bundle);
    const organization=(records[0].payload as any).organization.slug,projects=new Set<string>();
    let uncertain=false;
    for(const record of records) {

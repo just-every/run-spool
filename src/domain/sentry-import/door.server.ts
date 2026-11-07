@@ -15,6 +15,8 @@ import { ownerImportPredicate } from './context';
 import { ensureShortIds } from '../short-ids/assign';
 import type { OwnerSession } from '../owner-authority';
 import { ownerReadResponse } from './owner-reads.server';
+import { rollbarSource } from '../rollbar-import/door.ts';
+import { sourceId as rollbarId } from '../rollbar-import/identity.ts';
 
 /** Spool's one import pipeline: the owner's Sentry importer (owner session,
  * `/api/operator/import/*`) and Business (signed grants, `/api/rer/import/*`)
@@ -57,6 +59,9 @@ function sentryImport(organization?: string): ImportDoorSource {
  * their status, reconcile, undo and catch-up. Anything else is refused. */
 export async function importSource(db: D1Database, key: string, name: string): Promise<ImportDoorSource | null> {
  // RER's Business export names the vendor: one `sentry` namespace per installation.
+ if (name.startsWith('rollbar-project:')) {
+  try { return rollbarSource(rollbarId(name.slice('rollbar-project:'.length))); } catch { return null; }
+ }
  if (name === 'sentry') return sentryImport();
  if (name.startsWith(namespacePrefix)) {
   try { return sentryImport(sourceText(name.slice(namespacePrefix.length), 'organization')); } catch { return null; }
