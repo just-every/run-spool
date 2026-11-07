@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import {randomUUID,webcrypto} from 'node:crypto';
-import {admissionRuntime} from '../admission-runtime.mjs';
+import {admissionRuntime,freePort} from '../admission-runtime.mjs';
 import {legacyMailRows} from '../legacy-mail.mjs';
 import {testOwner} from '../auth.mjs';
 import {catalogue} from '../../src/domain/agent-door/catalogue.mjs';
 import {signJws,accessToken,policyEnvelope,autonomousPolicy} from '../../src/modules/agent-door/conformance/crypto.mjs';
 
-export async function agentRuntime(port=15916,bindings={},network,{deferAgentUpgrade=false}={}){
+// The OS picks the fixture port, so concurrent runs on one host never collide.
+export async function agentRuntime(bindings={},network,{deferAgentUpgrade=false}={}){
+ const port=await freePort();
  const origin='https://spool.example',issuer='https://spool-agent-fixture.invalid',installationId=randomUUID(),kid=randomUUID(),sub=randomUUID();
  const pair=await webcrypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
  const {kty,crv,x,y}=await webcrypto.subtle.exportKey('jwk',pair.publicKey),keys={[kid]:{kty,crv,x,y,alg:'ES256',use:'sig'}};
@@ -33,15 +35,16 @@ export async function agentRuntime(port=15916,bindings={},network,{deferAgentUpg
    return json('/api/rer/business-settings','POST',{settings});
   };
   let rpcId=0;
-  const mcp=async(method,params={},overrides={},version='2025-11-25',expectedStatus=200)=>{
-   const token=await accessToken(c,overrides);
+  const mcpWithToken=async(token,method,params={},version='2025-11-25',expectedStatus=200)=>{
    const r=await request('/mcp','POST',{jsonrpc:'2.0',id:++rpcId,method,params:{...params,_meta:{...params._meta,'io.modelcontextprotocol/protocolVersion':version}}},{Authorization:`Bearer ${token}`,Accept:'application/json, text/event-stream','MCP-Protocol-Version':version,'Mcp-Method':method,...params.name?{'Mcp-Name':params.name}:{}});
    const body=await r.json();assert.equal(r.status,expectedStatus,`${method} HTTP ${r.status}: ${JSON.stringify(body).slice(0,250)}`);return body.result??{httpStatus:r.status,error:body.error};
   };
+  const mcp=async(method,params={},overrides={},version='2025-11-25',expectedStatus=200)=>mcpWithToken(await accessToken(c,overrides),method,params,version,expectedStatus);
+  const token=overrides=>accessToken(c,overrides);
   const call=(name,args={},overrides,proofReference)=>mcp('tools/call',{name,arguments:args,...proofReference?{_meta:{'com.runeditrun/native-proof':proofReference}}:{}},overrides);
   const adopt=async(document=autonomousPolicy(),extra={})=>{
    const {policy,payload}=await policyEnvelope(c,document,extra);const result=await json('/api/rer/agent-policy','POST',{policy});c.seq=payload.seq;c.revision=payload.revision;return result;
   };
-  return {...app,get DB(){return app.DB},origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcp,call,adopt,syncSettings,detach:()=>syncSettings(null,true),mail};
+  return {...app,get DB(){return app.DB},origin:app.origin,canonicalOrigin:origin,stop:app.close,get cookie(){return cookie},context:c,request,json,mcp,mcpWithToken,token,call,adopt,syncSettings,detach:()=>syncSettings(null,true),mail};
  }catch(error){await app.close();throw error;}
 }

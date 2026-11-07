@@ -9,7 +9,7 @@ import {agentScreens} from './screens.mjs';
 export async function externalInjectionContract(){
  for(const [baseline,policy] of [['autonomous',autonomousPolicy],['held',heldPolicy]]){
   const configured={id:'synthetic-spool-mail-edge',project:'synthetic-spool-1',label:'Internal recipient; zero cost',channel:'mail',recipient:['synthetic-spool-4','synthetic.invalid'].join('@')};
-  const app=await agentRuntime(0,{ALERT_DESTINATIONS:JSON.stringify([configured])});
+  const app=await agentRuntime({ALERT_DESTINATIONS:JSON.stringify([configured])});
   try{
    const project='synthetic-spool-1',path=`/api/projects/${project}/alerting`;
    await app.json('/api/organization','POST',{id:'synthetic-spool-1',name:'External classification fixture'});
