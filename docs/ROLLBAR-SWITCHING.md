@@ -19,26 +19,26 @@ Use a read-scoped project access token that you hold, in an environment variable
 }
 ```
 
-Collections are `items` (required), `instances` (occurrences, each carrying its `item_id`), `deploys`, `rules` (notification rules) and `comments`; each appears once. Pages are numbered from 1 and chained by `nextPage`, and every page must report `err` 0. Timestamps stay Unix seconds as Rollbar sends them. A source containing a credential value is refused whole, so export without access tokens.
+Collections are `items` (required), `instances` (occurrences, each carrying its `item_id`), `deploys`, `rules` (notification rules) and `comments`; each appears once. Every response keeps Rollbar's own shape: `items`, `instances`, `deploys` and `comments` nest their rows under a key of the same name, while the notification rules response's `result` is a bare array of rules. Pages are numbered from 1 and chained by `nextPage`, and every page must report `err` 0. Timestamps stay Unix seconds as Rollbar sends them. A source containing a credential value is refused whole, so export without access tokens.
 
 ## Review, apply, compare and undo
 
-The Rollbar importer shares the Sentry importer's door, history and undo. It needs the owner session in a local environment variable, the exact app origin and the namespace `rollbar-project:<project slug>`; the bundle must name that project.
+The Rollbar importer shares the Sentry importer's door, history and undo. It needs the owner session in a local environment variable, the exact app origin, and the Rollbar account and project slugs the bundle names (`--account` and `--project`). The door keeps each project's lineage under its own namespace for that account and project pair, so two accounts that share a project slug import and erase independently.
 
 ```sh
 node scripts/rollbar-import.mjs dry-run --endpoint https://spool.example \
   --session-env SPOOL_OWNER_SESSION --file ./project.json
 
 node scripts/rollbar-import.mjs apply --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --project web-app \
+  --session-env SPOOL_OWNER_SESSION --account example --project web-app \
   --plan PLAN_ID --fingerprint REVIEWED_FINGERPRINT
 
 node scripts/rollbar-import.mjs compare --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --project web-app \
+  --session-env SPOOL_OWNER_SESSION --account example --project web-app \
   --plan PLAN_ID --file ./project.json
 
 node scripts/rollbar-import.mjs undo --endpoint https://spool.example \
-  --session-env SPOOL_OWNER_SESSION --project web-app --plan PLAN_ID
+  --session-env SPOOL_OWNER_SESSION --account example --project web-app --plan PLAN_ID
 ```
 
 The dry run writes nothing native. It returns the plan's fingerprint, per-collection counts, every rejected record with its reason, and every record kept without a native row with the reason it was kept. Apply needs the reviewed fingerprint and runs in bounded batches: if it stops, repeat the same command (also from a new owner session) and it resumes the same job. `reconcile` and `status` are the door's own; `undo` removes only imported rows and refuses, preserving the edit, when a native row has changed.
@@ -51,9 +51,9 @@ The dry run writes nothing native. It returns the plan's fingerprint, per-collec
 | occurrences | exported occurrences against the imported issues' counts, and Rollbar's own per-item totals against what the export carries | a count differs; a shortfall in the export itself is named, not hidden |
 | stacks | each sampled occurrence's frames, order and coordinates | an imported stack differs from its source |
 | deploys | deploys against the releases they became | a deploy revision has no release |
-| rules | notification rules against live alert rules | an alert rule exists that the import must never create |
+| rules | notification rules in the export against the rules the import retained, with the project's own native alert rules listed beside them | the import retained fewer rules than the export carries |
 
-Deploys and rules report `explained` when they behave as designed; any `differs` row makes `ok` false.
+Deploys and rules report `explained` when they behave as designed (a native rule is one you configured, never one the import made); any `differs` row makes `ok` false.
 
 ## What converts and what does not
 

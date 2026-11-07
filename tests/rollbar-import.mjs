@@ -22,7 +22,7 @@ try {
 
   // Dry run: counts by kind and every deploy, rule and comment named, with no native write.
   const planned = await cli('dry-run', '--file', fixture.pathname);
-  assert.equal(planned.namespace, 'rollbar-project:web-app');
+  assert.equal(planned.namespace, 'rollbar-project:fixture-account:web-app');
   assert.equal(planned.counts.rejected, 0);
   assert.deepEqual(planned.counts.byKind, { manifest: 1, projects: 1, releases: 2, items: 3, instances: 16, deploys: 3, rules: 2, comments: 1 }, 'every collection is counted');
   assert.equal(planned.counts.effects, 22, 'more effects than one door batch, so apply must resume');
@@ -30,14 +30,14 @@ try {
   assert.ok(!JSON.stringify(planned).includes('IMPORT_SECRET') && !JSON.stringify(planned).includes('PRIVATE_'));
   assert.deepEqual((await archiveProjection(await req('/api/archive'))).data, archiveBefore.data, 'planning writes nothing native');
   assert.deepEqual(await json('/api/projects'), beforeProjects);
-  const applyArgs = ['--project', 'web-app', '--plan', planned.planId, '--fingerprint', planned.fingerprint];
+  const applyArgs = ['--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId, '--fingerprint', planned.fingerprint];
   const wrong = (planned.fingerprint[0] === '0' ? '1' : '0') + planned.fingerprint.slice(1);
-  await assert.rejects(cli('apply', '--project', 'web-app', '--plan', planned.planId, '--fingerprint', wrong), error => /HTTP 403/.test(error.message), 'an unreviewed fingerprint is refused');
+  await assert.rejects(cli('apply', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId, '--fingerprint', wrong), error => /HTTP 403/.test(error.message), 'an unreviewed fingerprint is refused');
   assert.deepEqual(await json('/api/projects'), beforeProjects);
   // A bundle for another project cannot ride this project's namespace.
   const other = JSON.parse(bytes); other.project.slug = 'other-app';
   const otherFile = join(scratch, 'other.json'); await writeFile(otherFile, JSON.stringify(other), { mode: 0o600 });
-  const door = rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' });
+  const door = rollbarDoorClient({ endpoint: origin, cookie, account: 'fixture-account', project: 'web-app' });
   await assert.rejects(door.plan(await readFile(otherFile)), error => /HTTP 4\d\d/.test(error.message), 'a bundle under the wrong namespace is refused');
 
   // Interruption: one bounded batch applies, then the owner returns in a new session and resumes the same job.
@@ -47,7 +47,7 @@ try {
   const resumed = await cli('apply', ...applyArgs);
   assert.equal(resumed.job.state, 'completed'); assert.equal(resumed.job.id, first.job.id, 'resume continues the interrupted job');
   assert.equal((await cli('apply', ...applyArgs)).job.id, first.job.id, 'repeating a completed apply answers the same job');
-  const report = await cli('reconcile', '--project', 'web-app', '--plan', planned.planId);
+  const report = await cli('reconcile', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId);
   assert.equal(report.ok, true); assert.deepEqual(report.counts.byKind, { project: 1, release: 2, issue: 3, event: 16 });
   const imported = (await json('/api/projects')).find(project => !beforeProjects.some(before => before.id === project.id));
   assert.deepEqual(report.projectIds, [imported.id]);
@@ -59,39 +59,50 @@ try {
   assert.equal(byTitle('TypeError').state, 'resolved'); assert.equal(byTitle('RangeError').state, 'open', 'a reactivated item is open'); assert.equal(byTitle('KeyError').state, 'suppressed');
   assert.deepEqual(issues.map(issue => issue.count).sort((a, b) => a - b), [2, 2, 12]);
   assert.ok(!JSON.stringify(issues).includes('IMPORT_SECRET'));
-  const compared = await cli('compare', '--project', 'web-app', '--plan', planned.planId, '--file', fixture.pathname);
+  const compared = await cli('compare', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId, '--file', fixture.pathname);
   assert.equal(compared.ok, true, JSON.stringify(compared.rows.filter(row => row.status === 'differs')));
   const row = aspect => compared.rows.find(r => r.aspect === aspect);
   assert.deepEqual([row('items').source, row('items').imported, row('items').status], [3, 3, 'match']);
   assert.deepEqual([row('occurrences').source, row('occurrences').imported, row('occurrences').status], [16, 16, 'match']);
   assert.equal(row('occurrences').exportedOfClaimed.claimedByRollbar, 45, 'occurrences Rollbar counts but did not export are named');
   assert.equal(row('stacks').status, 'match'); assert.equal(row('deploys').source, 3); assert.equal(row('deploys').imported, 2); assert.equal(row('deploys').status, 'explained');
-  assert.equal(row('rules').source, 2); assert.equal(row('rules').imported, 0); assert.equal(row('rules').status, 'explained');
+  assert.deepEqual([row('rules').source, row('rules').retained, row('rules').native, row('rules').status], [2, 2, 0, 'explained'], 'both documented array-shaped rules are retained and none is live');
   // The comparison fails when an imported stack differs from its source.
   const tampered = JSON.parse(bytes); tampered.collections.find(c => c.kind === 'instances').pages[0].response.result.instances[2].data.body.trace.frames[0].lineno = 99;
   const tamperedFile = join(scratch, 'tampered.json'); await writeFile(tamperedFile, JSON.stringify(tampered));
-  const mismatch = await cli('compare', '--project', 'web-app', '--plan', planned.planId, '--file', tamperedFile);
+  const mismatch = await cli('compare', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId, '--file', tamperedFile);
   assert.equal(mismatch.ok, false); assert.equal(mismatch.rows.find(r => r.aspect === 'stacks').differences.length, 1);
   // Source identity and conversion losses are visible in the owner's evidence.
   const regressed = byTitle('RangeError'), packet = await json(`/api/projects/${imported.id}/issues/${regressed.id}/packet`);
   assert.equal(packet.events.length, 2); assert.ok(packet.events.every(entry => entry.historical === true));
   assert.deepEqual(packet.events.map(entry => entry.event.eventId).sort(), ['bbbbbbbbbbbb4bbb8bbbbbbbbbbbbbb1', 'bbbbbbbbbbbb4bbb8bbbbbbbbbbbbbb2'], 'Rollbar occurrence uuids are the event identities');
   assert.ok(!JSON.stringify(packet).includes('PRIVATE_') && !JSON.stringify(packet).includes('IMPORT_SECRET'), 'person, request, custom data and code context stay out');
-  const status = await cli('status', '--project', 'web-app', '--plan', planned.planId);
+  const status = await cli('status', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId);
   assert.equal(status.undo.available, true);
   // Imported history causes no outbound work: no keys, alerts or alert rules.
   assert.equal((await json(`/api/projects/${imported.id}/keys`)).length, 0, 'imported projects have no credentials');
   assert.equal((await json(`/api/projects/${imported.id}/alerts`)).length, 0, 'historical occurrences and notification rules raise no alert');
 
   // Guarded undo: clean undo removes only the import; a native edit blocks a later one.
-  assert.equal((await cli('undo', '--project', 'web-app', '--plan', planned.planId)).job.state, 'undone');
+  assert.equal((await cli('undo', '--account', 'fixture-account', '--project', 'web-app', '--plan', planned.planId)).job.state, 'undone');
   assert.deepEqual(await json('/api/projects'), beforeProjects, 'undo removes only the imported graph');
   const second = join(scratch, 'project.json'); await writeFile(second, Buffer.concat([bytes, Buffer.from('\n')]), { mode: 0o600 });
   const secondPlan = await cli('dry-run', '--file', second);
-  await cli('apply', '--project', 'web-app', '--plan', secondPlan.planId, '--fingerprint', secondPlan.fingerprint);
+  await cli('apply', '--account', 'fixture-account', '--project', 'web-app', '--plan', secondPlan.planId, '--fingerprint', secondPlan.fingerprint);
   const reimported = (await json('/api/projects')).find(project => !beforeProjects.some(before => before.id === project.id)), current = (await json(`/api/projects/${reimported.id}/issues`))[0];
+  // An owner-configured native rule is read from the project's alert rules and reported as native, never mistaken for an imported one.
+  const recipient = ['rollbar-owner', 'synthetic.invalid'].join('@');
+  const destination = await json(`/api/projects/${reimported.id}/alerting/destinations`, 'POST', { label: 'Rollbar cutover recipient', recipient });
+  await json(`/api/projects/${reimported.id}/alerting/rules`, 'POST', { name: 'Cutover notice', enabled: false, channel: 'mail', destination: destination.id, kinds: ['new_issue'], windowMs: 60000, threshold: 2 });
+  const withNative = (await cli('compare', '--account', 'fixture-account', '--project', 'web-app', '--plan', secondPlan.planId, '--file', second)).rows.find(r => r.aspect === 'rules');
+  assert.deepEqual([withNative.source, withNative.retained, withNative.native, withNative.status], [2, 2, 1, 'explained'], 'one configured rule is counted as a native rule');
+  // A rule missing from what the import retained is a difference.
+  const extra = JSON.parse(bytes); extra.collections.find(c => c.kind === 'rules').pages[0].response.result.push({ id: 303, channel: 'email', trigger: 'new_item', filters: [], config: {}, status: 'enabled' });
+  const extraFile = join(scratch, 'extra-rule.json'); await writeFile(extraFile, JSON.stringify(extra));
+  const lost = (await cli('compare', '--account', 'fixture-account', '--project', 'web-app', '--plan', secondPlan.planId, '--file', extraFile)).rows.find(r => r.aspect === 'rules');
+  assert.deepEqual([lost.source, lost.retained, lost.status], [3, 2, 'differs']);
   await json(`/api/projects/${reimported.id}/issues/${current.id}`, 'PATCH', { state: 'acknowledged', revision: current.revision });
-  await assert.rejects(cli('undo', '--project', 'web-app', '--plan', secondPlan.planId), error => /HTTP 409/.test(error.message), 'guarded undo refuses to overwrite a native edit');
+  await assert.rejects(cli('undo', '--account', 'fixture-account', '--project', 'web-app', '--plan', secondPlan.planId), error => /HTTP 409/.test(error.message), 'guarded undo refuses to overwrite a native edit');
   assert.equal((await json(`/api/projects/${reimported.id}/issues`)).find(issue => issue.id === current.id).state, 'acknowledged', 'the native edit survives');
 
   // Replacement capture: the owner mints a key for the imported project and an unmodified Sentry SDK envelope lands as new live evidence beside the history.
@@ -117,8 +128,17 @@ try {
     assert.deepEqual(restoredData.issues, archived.issues); assert.deepEqual(restoredData.events, archived.events); assert.deepEqual(restoredData.sentry_import_targets, archived.sentry_import_targets);
     assert.ok(archived.events.filter(event => event.historical === 1).length === 16);
   } finally { await restored.stop(); }
+  // A second Rollbar account that shares the project slug imports beside it, in its own namespace.
+  const twin = JSON.parse(bytes); twin.account.slug = 'second-account';
+  const twinFile = join(scratch, 'twin.json'); await writeFile(twinFile, JSON.stringify(twin), { mode: 0o600 });
+  const twinPlan = await cli('dry-run', '--file', twinFile);
+  assert.equal(twinPlan.namespace, 'rollbar-project:second-account:web-app');
+  const twinArgs = ['--account', 'second-account', '--project', 'web-app', '--plan', twinPlan.planId];
+  await cli('apply', ...twinArgs, '--fingerprint', twinPlan.fingerprint);
+  const twinProject = (await json('/api/projects')).find(project => !beforeProjects.some(before => before.id === project.id) && project.id !== reimported.id);
+  assert.ok(twinProject, 'the second account imports as its own project');
   // Project erasure withdraws the project's private export bytes with it, and leaves unrelated projects alone.
-  const heldBefore = await rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId });
+  const heldBefore = await rollbarDoorClient({ endpoint: origin, cookie, account: 'fixture-account', project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId });
   assert.equal(heldBefore.bundleSha256, createHash('sha256').update(await readFile(second)).digest('hex'), 'the exact private export bytes are held before erasure');
   const preview = await json(`/api/projects/${reimported.id}/erasure`);
   const erased = await req(`/api/projects/${reimported.id}/erasure`, 'POST', { confirm: reimported.id, planHash: preview.planHash });
@@ -127,8 +147,13 @@ try {
   for (let step = 0; step < 20 && receipt.phase !== 'complete'; step++) receipt = await json(`/api/erasures/${receipt.id}/resume`, 'POST');
   assert.equal(receipt.phase, 'complete', 'erasure completes through its resumable steps');
   assert.ok(!(await json('/api/projects')).some(project => project.id === reimported.id), 'the erased project is gone');
-  const heldAfter = await rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }).catch(error => ({ refused: error.status }));
+  const heldAfter = await rollbarDoorClient({ endpoint: origin, cookie, account: 'fixture-account', project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }).catch(error => ({ refused: error.status }));
   assert.ok(heldAfter.refused || (heldAfter.complete === false && heldAfter.received.length === 0), 'the private export bytes went with the project: ' + JSON.stringify(heldAfter));
   assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200, 'an unrelated project is untouched');
+  // The other account's project keeps its retained upload and import plan.
+  const twinDoor = rollbarDoorClient({ endpoint: origin, cookie, account: 'second-account', project: 'web-app' });
+  assert.equal((await twinDoor.call('uploads', { uploadId: twinPlan.uploadId })).bundleSha256, createHash('sha256').update(await readFile(twinFile)).digest('hex'), 'the surviving account keeps its private export bytes');
+  assert.equal((await cli('status', ...twinArgs)).job.state, 'completed', 'the surviving account keeps its import plan');
+  assert.ok((await json('/api/projects')).some(project => project.id === twinProject.id), 'the surviving project stays');
   console.log('Rollbar import passed through the import door: no-write plan with named conversion losses, reviewed apply, interrupted apply resumed by a new owner session, count, stack, deploy and rule comparison, inert history, guarded undo and live replacement capture. Synthetic export only.');
 } finally { await worker.close(); await rm(scratch, { recursive: true, force: true }); delete process.env.SPOOL_TEST_SESSION; }

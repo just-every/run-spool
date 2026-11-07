@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 /** Compares one Rollbar project bundle with what the owner's Spool shows after the import.
- * `native` holds owner-API reads: { issues, packets: { [issueId]: packet }, releases, alertRules }.
+ * `native` holds owner-API reads: { issues, packets: { [issueId]: packet }, releases, alertRules (the project's alert rules, not its alert feed), retained (the import's retained record counts by kind) }.
  * Nothing here writes; every row says whether the two sides match or the difference is explained. */
 const sha256 = text => createHash('sha256').update(text).digest('hex');
-const rowsOf = (bundle, kind) => (bundle.collections.find(c => c.kind === kind)?.pages ?? []).flatMap(page => page.response.result[kind]);
+const rowsOf = (bundle, kind) => (bundle.collections.find(c => c.kind === kind)?.pages ?? []).flatMap(page => kind === 'rules' ? page.response.result : page.response.result[kind]);
 const plainUuid = row => row.data?.uuid?.replaceAll('-', '').toLowerCase();
 function expectedFrames(instance) {
   const trace = instance.data.body.trace_chain?.[0] ?? instance.data.body.trace, language = instance.data.language;
@@ -44,7 +44,10 @@ export function compareRollbarExport(bytes, native) {
   const missingReleases = [...revisions].filter(revision => !released.has(revision));
   rows.push({ aspect: 'deploys', source: deploys.length, imported: revisions.size - missingReleases.length, status: missingReleases.length ? 'differs' : 'explained', missing: missingReleases,
     explained: `${deploys.length} deploys become ${revisions.size} releases; environments, users and finish times stay in the private journal` });
-  rows.push({ aspect: 'rules', source: rules.length, imported: native.alertRules.length, status: native.alertRules.length ? 'differs' : 'explained',
-    explained: 'Notification rules are retained for review and never become live alert rules; destinations need explicit reauthorization' });
+  // Notification rules never become live alert rules from an import; the import keeps them in its private journal. The comparison counts what the journal retained
+  // against the export, and lists the owner's own native alert rules (read from the alert rules door, not the alert feed) so a live rule is never mistaken for an imported one.
+  const retained = native.retained?.rules ?? 0;
+  rows.push({ aspect: 'rules', source: rules.length, retained, native: native.alertRules.length, status: retained === rules.length ? 'explained' : 'differs',
+    explained: 'Notification rules are retained in the private journal for review and never become live alert rules; the native count is the owner\'s own configured rules, and destinations need explicit reauthorization' });
   return { ok: rows.every(row => row.status !== 'differs'), rows };
 }

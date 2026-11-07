@@ -10,7 +10,7 @@ import { ownerClaimConfig } from '../../editor/owner-claim-config.server';
 import type { ManagedBindings } from '../../editor/bindings';
 import { parseSentryOrganization, mappingVersion, sourceText } from './source';
 import { organizationMapping } from './mapping';
-import { parseRollbarProject, mappingVersion as rollbarMappingVersion, namespacePrefix as rollbarPrefix } from '../rollbar-import/source';
+import { parseRollbarProject, parseRollbarNamespace, mappingVersion as rollbarMappingVersion, namespacePrefix as rollbarPrefix } from '../rollbar-import/source';
 import { projectMapping } from '../rollbar-import/mapping';
 import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
@@ -55,13 +55,14 @@ function sentryImport(organization?: string): ImportDoorSource {
 }
 
 /** One Rollbar project bundle per request, parsed and mapped the same way. */
-function rollbarImport(project?: string): ImportDoorSource {
+function rollbarImport(project: { account: string; project: string }): ImportDoorSource {
  let mapping: ImportMapping | undefined;
  return {
   parse(value, index) {
    if (index !== 0) throw new Error('One Rollbar project bundle required');
    const records = parseRollbarProject(value);
-   if (project !== undefined && (records[1].payload as any).project !== project) throw new Error('Bundle project differs from its import namespace');
+   const named = records[1].payload as any;
+   if (named.organization !== `rollbar:${project.account}` || named.project !== project.project) throw new Error('Bundle account or project differs from its import namespace');
    mapping = projectMapping({ records } as SourceBundle, 'business:' + sha256(canonicalJson(value)));
    return records;
   },
@@ -73,7 +74,7 @@ function rollbarImport(project?: string): ImportDoorSource {
 }
 
 /** The server-owned allow-list: `sentry-org:<organization slug>` and
- * `rollbar-project:<project slug>`, plus every
+ * `rollbar-project:<account slug>:<project slug>` (each escaped), plus every
  * namespace this installation's door already holds, so earlier imports keep
  * their status, reconcile, undo and catch-up. Anything else is refused. */
 export async function importSource(db: D1Database, key: string, name: string): Promise<ImportDoorSource | null> {
@@ -83,7 +84,8 @@ export async function importSource(db: D1Database, key: string, name: string): P
   try { return sentryImport(sourceText(name.slice(namespacePrefix.length), 'organization')); } catch { return null; }
  }
  if (name.startsWith(rollbarPrefix)) {
-  try { return rollbarImport(sourceText(name.slice(rollbarPrefix.length), 'project')); } catch { return null; }
+  const named = parseRollbarNamespace(name);
+  return named ? rollbarImport(named) : null;
  }
  const held = await db.prepare('SELECT 1 FROM ik_door_namespaces WHERE installation_id=? AND namespace=?').bind(key, name).first();
  return held ? sentryImport() : null;

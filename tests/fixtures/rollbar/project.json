@@ -1046,36 +1046,34 @@
           "nextPage": null,
           "response": {
             "err": 0,
-            "result": {
-              "rules": [
-                {
-                  "id": 301,
-                  "channel": "slack",
-                  "trigger": "new_item",
-                  "filters": [
-                    {
-                      "type": "environment",
-                      "operation": "eq",
-                      "value": "production"
-                    }
-                  ],
-                  "config": {
-                    "room": "#alerts"
-                  },
-                  "status": "enabled"
+            "result": [
+              {
+                "id": 301,
+                "channel": "slack",
+                "trigger": "new_item",
+                "filters": [
+                  {
+                    "type": "environment",
+                    "operation": "eq",
+                    "value": "production"
+                  }
+                ],
+                "config": {
+                  "room": "#alerts"
                 },
-                {
-                  "id": 302,
-                  "channel": "webhook",
-                  "trigger": "reactivated_item",
-                  "filters": [],
-                  "config": {
-                    "url": "https://hooks.example.test/PRIVATE_HOOK"
-                  },
-                  "status": "enabled"
-                }
-              ]
-            }
+                "status": "enabled"
+              },
+              {
+                "id": 302,
+                "channel": "webhook",
+                "trigger": "reactivated_item",
+                "filters": [],
+                "config": {
+                  "url": "https://hooks.example.test/PRIVATE_HOOK"
+                },
+                "status": "enabled"
+              }
+            ]
           }
         }
       ]

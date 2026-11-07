@@ -4,6 +4,14 @@ import { sourceText } from '../sentry-import/source.ts';
 export const importFormat = 'spool-rollbar-project-export';
 export const mappingVersion = 'spool-rollbar-project-v1';
 export const namespacePrefix = 'rollbar-project:';
+/** The door namespace of one Rollbar project: both parts escaped, so two accounts sharing a project slug never share a namespace. */
+export const rollbarNamespace = (account: string, project: string) => `${namespacePrefix}${encodeURIComponent(account)}:${encodeURIComponent(project)}`;
+/** Splits a namespace back into its account and project, or returns null when it is not one. */
+export function parseRollbarNamespace(name: string): { account: string; project: string } | null {
+  const parts = name.slice(namespacePrefix.length).split(':');
+  if (!name.startsWith(namespacePrefix) || parts.length !== 2) return null;
+  try { return { account: sourceText(decodeURIComponent(parts[0]), 'account'), project: sourceText(decodeURIComponent(parts[1]), 'project') }; } catch { return null; }
+}
 const rowKeys: Record<string, string> = { items: 'items', instances: 'instances', deploys: 'deploys', rules: 'rules', comments: 'comments' };
 function fields(value: any, allowed: string[]) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !allowed.includes(key))) throw new Error('Unsupported bundle shape');
@@ -49,11 +57,12 @@ export function parseRollbarProject(value: Json): ParsedRecord[] {
       if (page.page !== pageIndex + 1 || (last ? page.nextPage !== null : page.nextPage !== pageIndex + 2)) throw new Error('Broken page chain');
       fields(page.response, ['err', 'result']);
       if (page.response.err !== 0) throw new Error('Source page reports an API error');
-      const list = page.response.result?.[rowKeys[kind]];
+      // Rollbar documents notification rules as a bare array result; every other collection nests its rows under a named key.
+      const list = kind === 'rules' ? page.response.result : page.response.result?.[rowKeys[kind]];
       if (!Array.isArray(list)) throw new Error('Invalid API page');
       for (const [rowIndex, row] of list.entries()) {
         if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error('Invalid API record');
-        const pointer = `/collections/${collectionIndex}/pages/${pageIndex}/response/result/${rowKeys[kind]}/${rowIndex}`;
+        const pointer = `/collections/${collectionIndex}/pages/${pageIndex}/response/result/${kind === 'rules' ? '' : `${rowKeys[kind]}/`}${rowIndex}`;
         const id = kind === 'instances' ? occurrenceUuid(row) ?? `instance-${rollbarId(row.id, 'occurrence id')}` : rollbarId(row.id, 'source id');
         rows[kind].push(row);
         records.push({ kind, sourceId: JSON.stringify([organization, slug, id]), payload: { organization, project: slug, data: row }, pointer });
