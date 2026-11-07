@@ -416,6 +416,576 @@
                       "cart": "PRIVATE_CUSTOM"
                     }
                   }
+                },
+                {
+                  "id": 7100,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943660,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd000",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7101,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943720,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd001",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7102,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943780,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd002",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7103,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943840,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd003",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7104,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943900,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd004",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7105,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943960,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd005",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7106,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769944020,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd006",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7107,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769944080,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd007",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7108,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769944140,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd008",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7109,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769944200,
+                  "version": 2,
+                  "data": {
+                    "uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddd009",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
                 }
               ]
             }
