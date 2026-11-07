@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "35d4bd9c5192943b962fa0c48871a00c7051236318a1a6c72d0d878715e5ad1f",
+      "sha256": "9bb5441b3232bdc3c9aafbd43ca12b7ed9526d16f10bf35d992dd354d3920ea2",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "46ca1458cfc3b9a633df070ddf223b110d02bd3d6c685333472f899f13abdecd",
+      "sha256": "567740df120a93ddc07d235af07aeca8a2e7729b45d0eed87f040c54a7ce1c0e",
       "executable": false
     },
     "DEMO.md": {
@@ -6358,11 +6358,11 @@
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
-      "sha256": "4c4e93862dfbff77ca6e3ecc451bd22fee91ea01669477ba28b5169bf5000dc2",
+      "sha256": "2771e6f7ebeba645b84f36d11f54bdd443f4471877b5bfd6e667da39d8d97011",
       "executable": false
     },
     "src/domain/proposals/explanation.ts": {
-      "sha256": "7824f6bf21d432074ea7d9e1995237ccbde98e458865ef128b304f16a4b98542",
+      "sha256": "f7117e12f946fa02e0e0cef896dbe604bc2f8cb5c90af12b031cd5b1d05baaff",
       "executable": false
     },
     "src/domain/proposals/input.ts": {
@@ -10058,7 +10058,7 @@
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
-      "sha256": "0372bb027960eadc02ab151f8ece1753209ddfd81e7aecd834f6842adb5e4434",
+      "sha256": "d560a61e43d0c8927df31c5c280e2a8e429a0b993c24cc84fced05a49f51ed72",
       "executable": false
     },
     "src/ui/workbench/GroupingProposals.tsx": {
@@ -10834,15 +10834,15 @@
       "executable": false
     },
     "tests/operator-archive.mjs": {
-      "sha256": "f8252ed242975a08435accb69c88e051fa4a0f50b7a60ed29f99f6471c64eb6a",
+      "sha256": "ddf61ba8cd4dd9143fab653429ffb91da8e68267188c4ad3e2063b3a7106399e",
       "executable": false
     },
     "tests/operator-flow.mjs": {
-      "sha256": "a884e3379c5021e98b84f0fcf257e06e39204cf483b7e76928cc7d602caeab46",
+      "sha256": "534d1cb73fc70624328cf3fffb6994bdebf579765c8dfec01a74d85a56e4f9ca",
       "executable": false
     },
     "tests/operator-ui.mjs": {
-      "sha256": "5240739751d8c3b3a9c7863ee368b4592d4f6e59b5f847b4d52e5d7834a16ff9",
+      "sha256": "3a788173b0475e913882356c7dcfad613256b8b37d0133d652f18abe3a99031b",
       "executable": false
     },
     "tests/otlp-flow.mjs": {
