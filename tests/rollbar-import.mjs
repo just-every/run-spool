@@ -7,6 +7,7 @@ import { build } from 'esbuild';
 import { pathToFileURL } from 'node:url';
 import { startTestWorker } from './worker.mjs';
 import { rollbarScreens } from './rollbar-import/screens.mjs';
+import { legacyMailRows } from './legacy-mail.mjs';
 import { admissionRuntime } from './admission-runtime.mjs';
 import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
@@ -15,7 +16,8 @@ import { rollbarFixture } from './rollbar-import/fixture.mjs';
 import { followErasure } from './project-erasure/follow.mjs';
 
 const scratch=await mkdtemp(join(tmpdir(),'spool-rollbar-'));
-const worker=await admissionRuntime({}, {port:15529,hostedMail:true});
+const outbound=[];
+const worker=await admissionRuntime({}, {port:15529,hostedMail:true,networkEdge:async request=>{outbound.push(new URL(request.url).origin);return new Response('',{status:503});}});
 const {origin}=worker;
 let cookie=await signIn(origin,{emailLink:true});
 const request=(path,method='GET',value,headers={})=>fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...value?{'Content-Type':'application/json'}:{},...headers},...value?{body:JSON.stringify(value)}:{}});
@@ -25,6 +27,7 @@ const cli=(action,...args)=>{process.env.SPOOL_ROLLBAR_SESSION=cookie;return rol
 try {
  await json('/api/projects','POST',{id:'native-rollbar-control',name:'Native checkout'});
  await json('/api/projects/native-rollbar-control/releases','POST',{name:'native@1.0.0',build:'b1'});
+ const beforeMail=await legacyMailRows(origin);
  const before=await snapshot(),bundle=rollbarFixture(),file=join(scratch,'rollbar.json'),bytes=Buffer.from(JSON.stringify(bundle));
  await writeFile(file,bytes,{mode:0o600});
  const plan=await cli('dry-run','--file',file);
@@ -42,11 +45,13 @@ try {
  assert.deepEqual(await snapshot(),before,'wrong fingerprint cannot mutate populated native data');
  const first=await cli('apply',...args,'--once');
  assert.equal(first.job.state,'applying');assert.ok(first.job.checkpoint>0&&first.job.checkpoint<first.job.total,'a public bounded request stops midway');
+ assert.deepEqual(await legacyMailRows(origin),beforeMail,'partial import sends no mail');
  const interrupted=await snapshot();assert.ok(interrupted.projects.length>before.projects.length);
  await worker.restart();
  cookie=await signIn(origin,{bootstrap:false,emailLink:true});
  const status=await cli('status','--project','71','--plan',plan.planId);
  assert.equal(status.job.id,first.job.id);assert.equal(status.job.checkpoint,first.job.checkpoint,'restart preserves the durable cursor');
+ const resumeMail=await legacyMailRows(origin);
  const applied=await cli('resume',...args);assert.equal(applied.job.state,'completed');assert.equal(applied.job.id,first.job.id);
  assert.equal((await cli('resume',...args)).job.id,first.job.id,'replay is idempotent');
  const report=await cli('reconcile','--project','71','--plan',plan.planId);
@@ -66,7 +71,11 @@ try {
  const all=await snapshot(),historical=all.events.filter(row=>row.project===imported);
  assert.equal(historical.length,24);assert.ok(historical.every(row=>row.historical===1));
  assert.ok(historical.every(row=>!row.payload.includes('synthetic-spool-91')&&!row.payload.includes('private source remains')));
- for(const table of ['alerts','alert_rules','alert_destinations','alert_delivery_jobs','spool_team_mail','reproducer_runs','fix_workflows']) if(table in all)assert.deepEqual(all[table],before[table],`history creates no ${table}`);
+ for(const table of ['alerts','alert_rules','alert_rule_configs','alert_history','alert_scheduled_mail','spool_team_mail','reproducer_runs','fix_workflows'])assert.deepEqual(all[table],before[table],`history creates no ${table}`);
+ assert.deepEqual(await legacyMailRows(origin),resumeMail,'resumed history sends no mail');
+ assert.deepEqual(outbound,[],'import attempts no provider requests');
+ assert.deepEqual(await json(path+'/alerting/rules'),[],'source rules never become executable native rules');
+ assert.deepEqual(await json(path+'/alerting/deliveries'),[],'no delivery is pending or sent');
  assert.deepEqual(await json(path+'/keys'),[],'source never grants credentials');
  assert.deepEqual(await json(path+'/alerts'),[],'source never replays alerts');
  const issues=await json(path+'/issues'),historicalIssue=issues.find(row=>row.state==='resolved');
@@ -79,7 +88,7 @@ try {
   const response=await request('/api/operator/import/'+action,'POST',{planId:plan.planId,reviewedFingerprint:plan.fingerprint},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':'rollbar-project:71'});
   assert.ok([401,403].includes(response.status));
  }
- assert.equal((await request(`/api/imports/rollbar/71/${plan.planId}/originals`,'GET',undefined,{Cookie:'',Authorization:`Bearer ${grant.key}`})).status,401);
+ assert.equal((await request(`/api/imports/rollbar/71/${plan.planId}/originals`,'GET',undefined,{Cookie:'',Authorization:`Bearer ${grant.key}`})).status,403);
  assert.equal((await request(`/api/imports/rollbar/72/${plan.planId}/originals`)).status,404,'another source cannot borrow plan custody');
  assert.equal((await request('/api/operator/import/status','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':'rollbar-project:71'})).status,401);
  assert.deepEqual((await snapshot()).events,all.events,'refused authority changes no imported events');

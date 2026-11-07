@@ -11062,7 +11062,7 @@
       "executable": false
     },
     "tests/rollbar-import.mjs": {
-      "sha256": "fc9560c7a1c021f86ab9a52e8e5b20baa55026e18270bd523b6667bda0958b85",
+      "sha256": "6a2b1cacf12b9cef71487a92c8b15cfafb50e7ef4917ac68d96fa049ccd6a07b",
       "executable": false
     },
     "tests/rollbar-import/fixture.mjs": {
