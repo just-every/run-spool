@@ -7,6 +7,7 @@ const rowsOf = (bundle, kind) => (bundle.collections.find(c => c.kind === kind)?
 const plainUuid = row => row.data?.uuid?.replaceAll('-', '').toLowerCase();
 function expectedFrames(instance) {
   const trace = instance.data.body.trace_chain?.[0] ?? instance.data.body.trace, language = instance.data.language;
+  if (!trace) return [];
   const needsColumn = !['python', 'go'].includes(language);
   return [...trace.frames].reverse().filter(f => typeof f.filename === 'string' && Number.isSafeInteger(f.lineno) && f.lineno >= 1 && (!needsColumn || Number.isSafeInteger(f.colno) && f.colno >= 1))
     .map(f => ({ file: f.filename, line: f.lineno, column: f.colno == null ? null : f.colno - 1, function: f.method ?? '<anonymous>' }));
