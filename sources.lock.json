@@ -3666,7 +3666,7 @@
       "executable": false
     },
     "docs/ROLLBAR-SWITCHING.md": {
-      "sha256": "b60c016452ec9d4b40d7b9791a66e58b2d27411a3eadb438648d582f9b50a832",
+      "sha256": "ee07f0d99141c4b806eaa5971118f7da1407f70d9c020bc7874247459954601e",
       "executable": false
     },
     "docs/SENTRY-CLI.md": {
@@ -5246,11 +5246,11 @@
       "executable": false
     },
     "scripts/rollbar-compare.mjs": {
-      "sha256": "6b9ea8de0c22bd0f11da7ab72d806b3209037a78a020c77f4746d90d18c11e80",
+      "sha256": "d78356989bd92e47aefadc986145d06589d9bcf42f94130d9f8b9a6a6acc4144",
       "executable": false
     },
     "scripts/rollbar-import.mjs": {
-      "sha256": "bafa0e5a27c2ed620d748e517f92db70cad80e97ceb531ce10c59dffc9662ec7",
+      "sha256": "9ea3627b71453e0f1880708ea2f1d4c4cece3093e990ca0840b82d0c42054e93",
       "executable": false
     },
     "scripts/sentry-import.mjs": {
@@ -6590,7 +6590,7 @@
       "executable": false
     },
     "src/domain/rollbar-import/source.ts": {
-      "sha256": "7761d5a5fcef20319e1828d304cec8c46c123b9910858724de64f609b25e90a3",
+      "sha256": "b7c6c624bbb816139afd785c07b3b6d6a1b8af09fc0e9857f7a1c31d66b38cde",
       "executable": false
     },
     "src/domain/scrub-keyed.ts": {
@@ -6722,7 +6722,7 @@
       "executable": false
     },
     "src/domain/sentry-import/door.server.ts": {
-      "sha256": "d2b9a9aa082bedb744bc2abbee79d75859f67d57f9bf82115c01d6521ceb43d7",
+      "sha256": "4d3f3ad090f609632691a588d8dc27dcf3f17e9566d49425d69b64de24b3284d",
       "executable": false
     },
     "src/domain/sentry-import/event.ts": {
@@ -10766,7 +10766,7 @@
       "executable": false
     },
     "tests/fixtures/rollbar/project.json": {
-      "sha256": "ba64bb2ccbc1eb9628c6b9cb2cc2b6fc824ea6d1424a4d9ed061ca4a41f08099",
+      "sha256": "c3dfb06a3d91246fb52fadc9bca35366c88f0219aee59a9b51f19abdb2843784",
       "executable": false
     },
     "tests/fixtures/sentry/organization.json": {
@@ -11054,7 +11054,7 @@
       "executable": false
     },
     "tests/rollbar-import.mjs": {
-      "sha256": "33d5fa7b8cc07c17c05f556de4ca80f3d2832ef2dea5d911136dfd7ce9703ff2",
+      "sha256": "24df68015630c95b7ffb8d494c5042a1b351847d0609b2cd9c2aced280ac37b5",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {
