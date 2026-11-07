@@ -10782,7 +10782,7 @@
       "executable": false
     },
     "tests/mapped-frames-flow.mjs": {
-      "sha256": "ceb023b6c9b875c325b8775391b786aa4ecd7b4e83b454dd4158e6607805a262",
+      "sha256": "15a425d8d4870428fad7248b118709e90854a91d30e853f86435309056bc4f66",
       "executable": false
     },
     "tests/migration-evidence.mjs": {
