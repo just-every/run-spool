@@ -43,6 +43,7 @@
     "sourcemaps": "node packages/sdk/src/sourcemaps/bin.mjs",
     "sdk:pack": "node packages/sdk/build.mjs --pack",
     "sentry:import": "node scripts/sentry-import.mjs",
+    "rollbar:import": "node scripts/rollbar-import.mjs",
     "test:sentry": "node tests/sentry-http.mjs && node tests/sentry-import.mjs && node tests/business-import.mjs && node tests/rollbar-import.mjs",
     "test:sentry:sdk": "node tests/sentry-sdk.mjs",
     "test:sentry:cli": "node tests/sentry-cli-compat.mjs",

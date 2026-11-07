@@ -3665,6 +3665,10 @@
       "sha256": "e8e61b3f32c90f9da21a198f7c145d5e4a173e53ea252ff161ecfdc0d48ef568",
       "executable": false
     },
+    "docs/ROLLBAR-SWITCHING.md": {
+      "sha256": "b60c016452ec9d4b40d7b9791a66e58b2d27411a3eadb438648d582f9b50a832",
+      "executable": false
+    },
     "docs/SENTRY-CLI.md": {
       "sha256": "6063558dbc27c430288b47c739214116cfeb7a2701da8c2d909a9ef05f9b3af4",
       "executable": false
@@ -4130,7 +4134,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "d72242b4804a9cf72a86cc1f29898f375c0ada587b754d6080168f281a2ae566",
+      "sha256": "e202319c5b2fe8fddde58ad26d3f150fc7bf5dc181236bcb9334e67a188239dc",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -5241,8 +5245,16 @@
       "sha256": "a394643d9c772becc85709da01b00b6313d48851aeeb4b6986849e4fe7e87074",
       "executable": false
     },
+    "scripts/rollbar-compare.mjs": {
+      "sha256": "6b9ea8de0c22bd0f11da7ab72d806b3209037a78a020c77f4746d90d18c11e80",
+      "executable": false
+    },
+    "scripts/rollbar-import.mjs": {
+      "sha256": "bafa0e5a27c2ed620d748e517f92db70cad80e97ceb531ce10c59dffc9662ec7",
+      "executable": false
+    },
     "scripts/sentry-import.mjs": {
-      "sha256": "12b98c43e04563fe8b6e369f799516c70dbff0552f89d10a15b8f64452e5419c",
+      "sha256": "78d46123244c9da5fb80ada3fe7427a558cf4d98eaa85f53ff5aca1c2f12e9ee",
       "executable": false
     },
     "scripts/sync-integration.mjs": {
@@ -5886,7 +5898,7 @@
       "executable": false
     },
     "src/domain/erasure/business-custody.ts": {
-      "sha256": "64efa9bf543b05f710c677b766674eee71fd9ae65b9b0120dc8e52d921eead8a",
+      "sha256": "ff151377581bfa4c55687c6c124b14a093bf9eef82570b499a516622486d032e",
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
@@ -6569,6 +6581,18 @@
       "sha256": "ac7b333566dc08d1f528ee24152896c7150ae94bae4b59b5b896d8f2367dfc69",
       "executable": false
     },
+    "src/domain/rollbar-import/mapping.ts": {
+      "sha256": "ed876bbcad2a4e74e0501183763c911c22da4ec433bf6b021d194dd38aab3cad",
+      "executable": false
+    },
+    "src/domain/rollbar-import/occurrence.ts": {
+      "sha256": "b184be9256ce62bba1d3592818e9c43c28f9d54df2a3e8542486e2fa52976941",
+      "executable": false
+    },
+    "src/domain/rollbar-import/source.ts": {
+      "sha256": "7761d5a5fcef20319e1828d304cec8c46c123b9910858724de64f609b25e90a3",
+      "executable": false
+    },
     "src/domain/scrub-keyed.ts": {
       "sha256": "a3fcf528b956b7f7bb49b5cd449bfbbdc32902393ed366be5432a91a599d307a",
       "executable": false
@@ -6686,7 +6710,7 @@
       "executable": false
     },
     "src/domain/sentry-import/archive.ts": {
-      "sha256": "2aa7e44372fe62500ff10a377ace719be39470a1a65df8adf8c8199721d36afe",
+      "sha256": "8d10d45b41a72b41e19b6e6cc5583b236bcca519784b952db2df92cb59b8828f",
       "executable": false
     },
     "src/domain/sentry-import/business-routes.ts": {
@@ -6698,7 +6722,7 @@
       "executable": false
     },
     "src/domain/sentry-import/door.server.ts": {
-      "sha256": "d9808193fde649dc6e3ba1f092228391a9209f1db1e1a65657356eb494fb7e4a",
+      "sha256": "d2b9a9aa082bedb744bc2abbee79d75859f67d57f9bf82115c01d6521ceb43d7",
       "executable": false
     },
     "src/domain/sentry-import/event.ts": {
@@ -6706,7 +6730,7 @@
       "executable": false
     },
     "src/domain/sentry-import/mapping.ts": {
-      "sha256": "6177f4f73431fca930c35cd96a032b1743d06f30b4292a43545c6ee1a57e6ca6",
+      "sha256": "83860287c46d706b1cd83b723c671e6a47fa93f1e2fca81a11e892f25982894f",
       "executable": false
     },
     "src/domain/sentry-import/owner-reads.server.ts": {
@@ -10729,6 +10753,10 @@
       "sha256": "d02431f374627909debade3766543c06b5c547bd8290d9d859210506225ce84a",
       "executable": false
     },
+    "tests/fixtures/rollbar/project.json": {
+      "sha256": "ba64bb2ccbc1eb9628c6b9cb2cc2b6fc824ea6d1424a4d9ed061ca4a41f08099",
+      "executable": false
+    },
     "tests/fixtures/sentry/organization.json": {
       "sha256": "ea096ab1647753b5bbd89c85754c46bfcc2bd213fc56ed01358cd51a74e189ba",
       "executable": false
@@ -11011,6 +11039,10 @@
     },
     "tests/review-inbox-flow.mjs": {
       "sha256": "224137163eb791680506fb736304521118e54ac497844a902b5a322e5f1c030d",
+      "executable": false
+    },
+    "tests/rollbar-import.mjs": {
+      "sha256": "33d5fa7b8cc07c17c05f556de4ca80f3d2832ef2dea5d911136dfd7ce9703ff2",
       "executable": false
     },
     "tests/runtime-diagnostic.mjs": {
