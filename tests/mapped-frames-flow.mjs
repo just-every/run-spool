@@ -86,7 +86,7 @@ export async function mappedFramesFlow({req,json,origin,cookie}) {
  await refused(pagePath(path),401,{Cookie:'',Authorization:'Bearer '+project.ingestKey});
  const deploy=await json(base+'/keys','POST',{kind:'deploy'});await refused(pagePath(path),401,{Cookie:'',Authorization:'Bearer '+deploy.key});
  await json(base+'/keys/'+agent.hash,'DELETE');await refused(pagePath(path),401,agentHeaders);
- await mappedScreens({origin,cookie,project:project.id,issue,event:first,occurrence:before.occurrence});
+ await mappedScreens({origin,cookie,project:project.id,issue,event:first,occurrence:before.occurrence,nextEvent:second});
  assert.deepEqual((await archiveProjection(await req('/api/archive'))).data.events.filter(row=>row.project===project.id),snapshot.filter(row=>row.project===project.id),'refused selectors mutate no retained evidence');
  await mappedMemberProof();
  console.log('PROBE ERR-005 retained pages: public Sentry envelope and current mapped-frame route -> 1,000 unique stored indices, originals through frame 1,000, explicit missing and mismatch reasons');
@@ -129,7 +129,7 @@ async function mappedMemberProof() {
  }finally{await app.close()}
 }
 
-async function mappedScreens({origin,cookie,project,issue,event,occurrence}) {
+async function mappedScreens({origin,cookie,project,issue,event,occurrence,nextEvent}) {
  const browser=await launchBrowser();
  try{
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -151,12 +151,37 @@ async function mappedScreens({origin,cookie,project,issue,event,occurrence}) {
   await region.getByRole('button',{name:'Refresh lookup',exact:true}).click();await expect(region.getByRole('alert')).toContainText('Retained lookup below is stale.');
   await page.unroute('**/mapped-frames?**');await region.getByRole('button',{name:'Refresh lookup',exact:true}).click();await expect(region.getByRole('alert')).toHaveCount(0);
   await expect(region.getByRole('status')).toHaveText('Frames 1–30 of 1000 · current lookup');
+  // Both exception selectors must resolve their own stored frame indices.
+  // Paging one stack must not advance or replace the other stack's lookup.
+  const wrapperSummary=page.locator('summary').filter({hasText:'Current source-map lookup · exception 2'});
+  await wrapperSummary.focus();await wrapperSummary.press('Enter');
+  const wrapper=page.getByRole('region',{name:'Current source-map lookup for exception 2',exact:true});
+  await expect(wrapper.getByRole('status')).toHaveText('Frames 1–30 of 35 · current lookup');
+  await expect(wrapper.locator('li').first()).toContainText('Frame 1');await expect(wrapper.locator('li').first()).toContainText('Original: checkout.ts:31:5');
+  const wrapperNext=wrapper.getByRole('button',{name:'Next frames',exact:true});await wrapperNext.focus();await wrapperNext.press('Enter');
+  await expect(wrapper.getByRole('status')).toHaveText('Frames 31–35 of 35 · current lookup');
+  await expect(wrapper.locator('li').last()).toContainText('Frame 35');await expect(wrapper.locator('li').last()).toContainText('Original: checkout.ts:65:5');
+  await expect(wrapperNext).toBeDisabled();await expect(region.getByRole('status')).toHaveText('Frames 1–30 of 1000 · current lookup');
+  await next.focus();await next.press('Enter');await expect(region.getByRole('status')).toHaveText('Frames 31–60 of 1000 · current lookup');
+  await expect(wrapper.getByRole('status')).toHaveText('Frames 31–35 of 35 · current lookup');
+  // Selecting another occurrence retires both old lookup pages and cursors.
+  await page.getByRole('button',{name:'Next event',exact:true}).click();
+  await expect(page.locator('[data-event-id]')).toHaveAttribute('data-event-id',nextEvent);
+  await expect(region).not.toBeVisible();await expect(wrapper).not.toBeVisible();
+  await summary.focus();await summary.press('Enter');
+  await expect(region.getByRole('status')).toHaveText('Frames 1–30 of 1000 · current lookup');
+  await expect(region.locator('li').first()).toContainText('Original: checkout.ts:1:5');
+  await expect(region.getByRole('button',{name:'Previous frames',exact:true})).toBeDisabled();
+  await page.getByRole('button',{name:'Previous event',exact:true}).click();
+  await expect(page.locator('[data-event-id]')).toHaveAttribute('data-event-id',event);
+  await expect(region).not.toBeVisible();await summary.focus();await summary.press('Enter');
+  await expect(region.getByRole('status')).toHaveText('Frames 1–30 of 1000 · current lookup');
   assert.deepEqual((await new AxeBuilder({page}).include('[aria-label="Current source-map lookup for exception 1"]').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(row=>row.id),[]);
   assert.equal(await region.locator('p,button').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).every(n=>parseFloat(getComputedStyle(n).fontSize)>=13)),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'mapped frames reflow at the journey width');
   const folder=process.env.SPOOL_MAPPED_EVIDENCE||'.artifacts/mapped-frames';await mkdir(folder,{recursive:true});
   for(const width of [1440,390]){await page.setViewportSize({width,height:1000});await region.evaluate(node=>node.scrollIntoView({block:'start'}));await page.screenshot({path:resolve(folder,'mapped-frames-'+width+'.png')});}
   assert.deepEqual(errors,[]);await context.close();
-  console.log('PROBE ERR-005 issue view: keyboard paging, stale-read recovery and Axe passed at 1440; mapped screens captured at 1440 and 390');
+  console.log('PROBE ERR-005 issue view: independent exception paging, occurrence selection reset, keyboard recovery and Axe passed at 1440; mapped screens captured at 1440 and 390');
  }finally{await browser.close()}
 }

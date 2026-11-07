@@ -4,11 +4,19 @@ import { serviceActor,auditSubject } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { operatorMail, productionMailConfig } from '../../auth/mail.server.mjs';
 import { localDevelopmentEnabled } from '../../auth/local.server.mjs';
-import { validateConfig, validateMessage } from '../../modules/mail/src/core/validation.mjs';
+import { parseAddress, validateConfig, validateMessage } from '../../modules/mail/src/core/validation.mjs';
 import { authorizedDestination, destinationHash } from './destinations.server';
 import { mailMessage } from './payload';
 import { statement as s } from './types';
 import type { AlertEnvironment, Intent } from './types';
+export type MailAttribution={preparedBy:{label:string};approvers:readonly {name:string}[]};
+/** Retain the configured sending mailbox while naming the real agent actor. */
+export function agentMailFrom(from:string,attribution?:MailAttribution|null) {
+ if(!attribution)return from;
+ const label=attribution.preparedBy.label.replace(/[\x00-\x1f\x7f<>"\\\u2028\u2029]/g,' ').trim().slice(0,500);
+ if(!label)throw new Error('mail_actor_required');
+ return `${label} <${parseAddress(from).email}>`;
+}
 export function sender(env:AlertEnvironment) {
  if(!env.MAIL_PROVIDER||!env.MAIL_FROM)throw new Error('mail_unconfigured');
  if(env.MAIL_PROVIDER==='development') {
@@ -38,7 +46,7 @@ export async function recoverMail(env:AlertEnvironment,time:number) {
  ]);
 }
 // `only` limits a run to the given jobs; claims keep any concurrent run from sending the same job twice.
-export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:{preparedBy:{label:string};approvers:readonly {name:string}[]}) {
+export async function dispatchMail(env:AlertEnvironment,time:number,only?:string[],attribution?:MailAttribution) {
  const started=Date.now(),clock=()=>time+Date.now()-started;
  await recoverMail(env,time);
  const jobs=(await s(env.DB,`SELECT j.*,i.rule_id,i.rule_revision,i.destination,i.channel FROM alert_mail_jobs j JOIN alert_intents i ON i.id=j.id WHERE i.state<>'snoozed' AND j.state='queued' AND j.next_at<=? AND (? IS NULL OR j.id IN (SELECT value FROM json_each(?))) ORDER BY j.next_at,j.id LIMIT 30`,time,only?JSON.stringify(only):null,only?JSON.stringify(only):null).all<any>()).results;
@@ -64,7 +72,7 @@ export async function dispatchMail(env:AlertEnvironment,time:number,only?:string
    await finishMail(env,job.id,claim,'blocked','rule_revoked',null,clock(),null);continue;
   }
   let state='uncertain',code='response_unknown',receipt:string|null=null;
-  try {const saved=await s(env.DB,'SELECT message,agent_attribution FROM alert_mail_jobs WHERE id=? AND claim=?',job.id,claim).first<{message:string;agent_attribution:string|null}>();if(!saved)throw new Error('claim_lost');const message=JSON.parse(saved.message);if(saved.agent_attribution){const source=JSON.parse(saved.agent_attribution);message.text+=`\n\nPrepared by ${source.preparedBy.label}.`+(source.approvers.length?` Approved by ${source.approvers.map((person:any)=>person.name).join(', ')}.`:'');}const result=await mail.send(message);state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
+  try {const saved=await s(env.DB,'SELECT message,agent_attribution FROM alert_mail_jobs WHERE id=? AND claim=?',job.id,claim).first<{message:string;agent_attribution:string|null}>();if(!saved)throw new Error('claim_lost');const message=JSON.parse(saved.message);if(saved.agent_attribution){const source=JSON.parse(saved.agent_attribution);message.from=agentMailFrom(message.from,source);message.text+=`\n\nPrepared by ${source.preparedBy.label}.`+(source.approvers.length?` Approved by ${source.approvers.map((person:any)=>person.name).join(', ')}.`:'');}const result=await mail.send(message);state=result.status==='development'?'accepted':result.status==='rate_limited'?(job.attempts+1<job.max_attempts?'queued':'rejected'):result.status;code=result.code??`mail_${result.status}`;receipt=result.providerMessageId??null;} catch { /* A send started: the response cannot establish failure. */ }
   const finished=clock();
   const next=state==='queued'?finished+JSON.parse(job.retry_delays)[job.attempts]:null;
   await finishMail(env,job.id,claim,state,code,receipt,finished,next);
