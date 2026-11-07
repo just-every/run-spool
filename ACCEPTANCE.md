@@ -9,9 +9,9 @@ The primary journey: a US development team points its existing error capture at 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 22 | 44 | 21 | 87 |
-| Agent surface | 0 | 4 | 14 | 18 |
+| Agent surface | 1 | 4 | 13 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 48 | 35 | 105 |
+| Full target | 23 | 48 | 34 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1625,7 +1625,7 @@ Agent surface · target · **partial**
 
 #### BASE-AGENT-012 — Writes are idempotent and conflict-safe
 
-Agent surface · target · **missing**
+Agent surface · target · **done**
 
 **Requirement.** Every mutating tool requires an idempotency key and takes an optional expected revision. The same key with the same arguments returns the first outcome for at least 24 hours; the same key with different arguments returns `idempotency_conflict`; a stale revision returns `revision_conflict` with the current revision. Long work returns a job handle and a status tool, with no dependence on the Tasks extension.
 
@@ -1636,8 +1636,8 @@ Agent surface · target · **missing**
 4. A stale revision returns a conflict naming the current revision.
 5. A job handle used by another person's token reads as not found.
 
-**Evidence.** None.
-**Gap.** Not yet judged through this seed's own doors.
+**Evidence.** `tests/agent-door/replay-contract.mjs` replayContract (acceptance 1 to 4: complete original results, dropped-response recovery with a new JSON-RPC id, changed-argument nonmutation, stale expected revision naming the current revision, and live results after 24 hours); replayAllTools and jobLifecycle in the same file (all 25 public mutating tools under autonomous and held policies, required keys, held approval identity, one effect and equal results, conflict nonmutation, every advertised revision fence, and acceptance 5: current project-authorized peer, different agent and different consent receive not_found for private job handles; native queued, restarted, completed, expired and scheduled erasure status, revoked-consent refusal and erased-handoff nonresurrection); `tests/agent-door.mjs` invokes both journeys; `tests/agent-door/continuation.mjs` continuationFlow and `tests/agent-door/people.mjs` peopleFlow (current policy and native role); `tests/agent-door/replay-horizon.mjs` replayHorizon (original completion expiry, erasure tombstones and archive resurrection refusal)
+**Gap.** None.
 
 #### BASE-AGENT-013 — Manifest, docs and the conformance journey
 
