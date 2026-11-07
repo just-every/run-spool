@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { admissionRuntime } from './admission-runtime.mjs';
 import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
+import { startTestWorker } from './worker.mjs';
 import { rollbarImportCli, rollbarDoorClient } from '../scripts/rollbar-import.mjs';
 // MIG-003: a Rollbar project with resolved and reactivated items, through the owner import door.
 const worker = await admissionRuntime({}, { port: 15525, hostedMail: true }), { origin } = worker;
@@ -105,5 +106,16 @@ try {
   const releases = await json(`/api/projects/${reimported.id}/releases`), list = Array.isArray(releases) ? releases : releases.releases;
   assert.deepEqual(list.map(release => release.name).sort(), ['web@1.0.0', 'web@1.1.0', 'web@1.2.0'], 'live release ordering continues after the imported releases');
   assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200);
+  // The native archive carries the scrubbed history and its Rollbar identities, and restores without the private journal or any grant.
+  const nativeArchive = await (await req('/api/archive')).arrayBuffer();
+  const restored = await startTestWorker(15526);
+  try {
+    const restoredCookie = await signIn(restored.origin);
+    const response = await fetch(restored.origin + '/api/restore', { method: 'POST', headers: { Origin: restored.origin, Cookie: restoredCookie, 'X-Confirm-Restore': 'yes', 'Content-Type': 'application/x-ndjson' }, body: nativeArchive });
+    assert.equal(response.status, 200, 'a native archive restores imported Rollbar history');
+    const restoredData = (await archiveProjection(await fetch(restored.origin + '/api/archive', { headers: { Cookie: restoredCookie } }))).data, archived = (await archiveProjection(new Response(nativeArchive))).data;
+    assert.deepEqual(restoredData.issues, archived.issues); assert.deepEqual(restoredData.events, archived.events); assert.deepEqual(restoredData.sentry_import_targets, archived.sentry_import_targets);
+    assert.ok(archived.events.filter(event => event.historical === 1).length === 16);
+  } finally { await restored.stop(); }
   console.log('Rollbar import passed through the import door: no-write plan with named conversion losses, reviewed apply, interrupted apply resumed by a new owner session, count, stack, deploy and rule comparison, inert history, guarded undo and live replacement capture. Synthetic export only.');
 } finally { await worker.close(); await rm(scratch, { recursive: true, force: true }); delete process.env.SPOOL_TEST_SESSION; }
