@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "5c7891343e4a2092720c465bf796b53583bc7531b01e248c52011f4d57950f56",
+      "sha256": "4b835463e5d047168ca5d447200c6c234fa3cf5e934281df5aad63db9b05bab4",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e371073c663475406a15b005e8ce354be2d7d3916145675226c59e789f1839ac",
+      "sha256": "4fa98f8d7c24561859434c31d223b88efa9f84edb813d56fa5de0a658091e2fb",
       "executable": false
     },
     "DEMO.md": {
@@ -10850,7 +10850,7 @@
       "executable": false
     },
     "tests/owner-editor.mjs": {
-      "sha256": "071084fc1303f082bec6898815b7a12cc825a39d0405bb0fcdd7d5cd3a6eae4b",
+      "sha256": "f01e8efc23f475968579cc2b92d82377aaea730e4c1d09392866ab928f177b82",
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {
