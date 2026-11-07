@@ -61,7 +61,26 @@ try {
  assert.equal(report.comparison.items[1].fingerprint,'synthetic-spool-2');
  assert.equal(report.comparison.ruleCount,4);assert.equal(report.comparison.historyEventCount,2);
  assert.equal(report.comparison.items[1].nativeOccurrences,1);assert.equal(report.comparison.items[1].sourceOccurrencesSinceResolution,37);
- assert.equal(report.comparison.stacks[0].nativeFrames[0].file,'src/checkout.js');assert.equal(report.comparison.stacks[0].nativeFrames[0].line,27);assert.equal(report.comparison.stacks[0].nativeFrames[0].column,11);
+ for(const index of [1,2]) {
+  const stack=report.comparison.stacks[index];
+  assert.deepEqual(stack.sourceFrames,[
+   {file:'service/orders.py',line:10,column:null,function:'handle_order'},
+   {file:'service/checkout.py',line:27,column:null,function:'charge_card'},
+  ],'comparison preserves Python source coordinates without inventing columns');
+  assert.deepEqual(stack.nativeFrames,[
+   {file:'service/checkout.py',line:27,column:null,function:'charge_card'},
+   {file:'service/orders.py',line:10,column:null,function:'handle_order'},
+  ],'ordinary Python tracebacks retain their located frames, newest first');
+ }
+ for(const [index,column] of [[3,0],[4,4]]) {
+  const stack=report.comparison.stacks[index];
+  assert.equal(stack.sourceFrames[1].column,column);
+  assert.deepEqual(stack.nativeFrames,[
+   {file:'src/checkout.js',line:27,column,function:'chargeCard'},
+   {file:'src/orders.js',line:10,column:4,function:'handleOrder'},
+  ],'Node columns are already zero based, including the first column');
+ }
+ assert.equal(report.comparison.stacks[0].nativeFrames[0].file,'src/checkout.js');assert.equal(report.comparison.stacks[0].nativeFrames[0].line,27);assert.equal(report.comparison.stacks[0].nativeFrames[0].column,12);
  assert.equal(report.comparison.stacks[0].nativeEnvironment,'production');assert.equal(report.comparison.stacks[0].nativeRelease,'checkout@1.0.0');
  assert.equal(report.comparison.deploys[0].nativeRelease.name,'checkout@1.0.0');assert.equal(report.comparison.deploys[1].nativeRelease.name,'checkout@1.0.0');
  assert.ok(report.sourceIds.some(row=>row.kind==='notification_rules'&&row.status==='explained'));
@@ -82,6 +101,26 @@ try {
  assert.deepEqual(await json(path+'/keys'),[],'source never grants credentials');
  assert.deepEqual(await json(path+'/alerts'),[],'source never replays alerts');
  const issues=await json(path+'/issues'),historicalIssue=issues.find(row=>row.state==='resolved');
+ for(const [title,language,frames] of [
+  ['Checkout failure 2','python',[
+   {file:'service/checkout.py',line:27,column:null,function:'charge_card'},
+   {file:'service/orders.py',line:10,column:null,function:'handle_order'},
+  ]],
+  ['Checkout failure 4',undefined,[
+   {file:'src/checkout.js',line:27,column:0,function:'chargeCard'},
+   {file:'src/orders.js',line:10,column:4,function:'handleOrder'},
+  ]],
+  ['Checkout failure 5',undefined,[
+   {file:'src/checkout.js',line:27,column:4,function:'chargeCard'},
+   {file:'src/orders.js',line:10,column:4,function:'handleOrder'},
+  ]],
+ ]) {
+  const issue=issues.find(row=>row.title===title);
+  const evidence=await json(path+`/issues/${issue.id}/packet`);
+  assert.equal(evidence.events[0].event.language,language);
+  assert.deepEqual(evidence.events[0].event.frames,frames,'ordinary issue evidence retains migrated diagnostic coordinates');
+  assert.deepEqual(evidence.events[0].atAdmission.map(row=>row.generated),frames,'admission diagnostics use the same located stack');
+ }
  const packet=await json(path+`/issues/${historicalIssue.id}/packet`);
  assert.equal(packet.events[0].historical,true);assert.equal(packet.events[0].currentLookup[0].source,'rollbar-api-export');
  assert.ok(packet.gaps.some(row=>row.code==='imported_history_no_live_events'));

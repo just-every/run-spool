@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d1e9d9d23235118925204c68ccc156a9f081929e726901acdb084b7957c2aed9",
+      "sha256": "4b835463e5d047168ca5d447200c6c234fa3cf5e934281df5aad63db9b05bab4",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "59399054fff093233663f78e1b435fb4fd308548079dae1e3cc1e0e6ccf2f236",
+      "sha256": "5ec474e5728b919d7096c8d10af67bb47c139a07ef23961923189ff12170e2fa",
       "executable": false
     },
     "DEMO.md": {
@@ -6590,7 +6590,7 @@
       "executable": false
     },
     "src/domain/rollbar-import/event.ts": {
-      "sha256": "5987eea4ae71fddd26dcd74457d5ac4449f58f732385e7602efe113463399fa2",
+      "sha256": "632f1133899296e7d20822f39c5806956ff6a3288ada7e3cefc1638b90a1be9a",
       "executable": false
     },
     "src/domain/rollbar-import/identity.ts": {
@@ -10390,7 +10390,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "6523e4fee7b1f18668798d89b0aa16fd5c1b3d987ce2cf570626cd26f1cafb2c",
+      "sha256": "8ddbe3cfa412aa2dfff3b0b2855de1c8158e52f25d6f9a2bc013b71d599d93c3",
       "executable": false
     },
     "tests/agent-door/audit-contract.mjs": {
@@ -10447,6 +10447,10 @@
     },
     "tests/agent-door/phase-fixtures.mjs": {
       "sha256": "c96988f72c8b95c93cc8fa58a62843b4e025825b776748b2fff117bea16a7d03",
+      "executable": false
+    },
+    "tests/agent-door/policy-integrity-contract.mjs": {
+      "sha256": "56d731c8584479fc8ebac3e14390ee529ab07367622f518d5d4f7abf73a1bdfc",
       "executable": false
     },
     "tests/agent-door/proof.mjs": {
@@ -10890,7 +10894,7 @@
       "executable": false
     },
     "tests/owner-editor.mjs": {
-      "sha256": "ca641e24b06ffb1b54b35f28b27f41c8a66c4ff4355b43dc3f8ee30e42483cce",
+      "sha256": "f01e8efc23f475968579cc2b92d82377aaea730e4c1d09392866ab928f177b82",
       "executable": false
     },
     "tests/owner-erasure-archives.mjs": {
@@ -11062,11 +11066,11 @@
       "executable": false
     },
     "tests/rollbar-import.mjs": {
-      "sha256": "cb9b3dd07cf68e2b60655fcf2e267f3e7b18b931680cc8fd5f2cb5a436a157f1",
+      "sha256": "17fb27bd4bbec733a33ba7894b2be06ea482d219d035b51fd74433adf5d86670",
       "executable": false
     },
     "tests/rollbar-import/fixture.mjs": {
-      "sha256": "e243cf5711b670fbdafe9df3c15326e0b0c1d303a086f19dfb78b1204e1f2eb2",
+      "sha256": "7c313bbd45a397ed21d460622ff70946c5bcdf1c014cf00cd27effff68f82671",
       "executable": false
     },
     "tests/rollbar-import/screens.mjs": {

@@ -14,6 +14,17 @@ export function rollbarFixture() {
     {filename:'src/orders.js',lineno:10,colno:4,method:'handleOrder'},
     {filename:'src/checkout.js',lineno:27,colno:12,method:'chargeCard',code:'private source remains in custody'},
    ]}},telemetry:[{type:'log',body:{message:'checkout: started'}}],custom:{sourceOnly:'synthetic-spool-91'}}}));
+ // pyrollbar emits a versioned language and traceback frames without columns.
+ for(const index of [1,2]) {
+  occurrences[index].data.language=index===1?'python 3.12.8':'python';
+  occurrences[index].data.body.trace.frames=[
+   {filename:'service/orders.py',lineno:10,method:'handle_order'},
+   {filename:'service/checkout.py',lineno:27,method:'charge_card'},
+  ];
+ }
+ // The Node parser already subtracts one from V8's column before export.
+ occurrences[3].data.body.trace.frames[1].colno=0;
+ occurrences[4].data.body.trace.frames[1].colno=4;
  // A second deployment of one revision must not create a duplicate release.
  const deploys=[{id:301,project_id:71,environment:'production',revision:'checkout@1.0.0',status:'succeeded',start_time:epoch-60,finish_time:epoch-30},
   {id:302,project_id:71,environment:'staging',revision:'checkout@1.0.0',status:'succeeded',start_time:epoch-30,finish_time:epoch}];

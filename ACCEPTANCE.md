@@ -201,8 +201,8 @@ Core · published · **partial** · Cites BASE-ACCESS-001, BASE-INSTALL-001, BAS
 7. A reused managed claim is rejected.
 8. Anonymous and project-grant editor access is denied.
 
-**Evidence.** `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs`
-**Gap.** Not asserted in the cited tests: refusal of an unsafe answer path, and denial of anonymous and project-grant editor access (asserted in tests/owner-editor.mjs, which this clause does not cite). Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal.
+**Evidence.** `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs`; `tests/owner-editor.mjs` OWNER EDITOR, acceptance 8: anonymous HTTP 403; a live project read grant reads a captured issue before and after editor HTTP 403, including with a coincident owner cookie; native-owner configuration succeeds; current-session signout refuses config and removes the browser editor while another owner session remains valid; private cache, short expiry, CSP and browser proof at 1440 and 390
+**Gap.** Not asserted in the cited tests: refusal of an unsafe answer path. Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal.
 
 #### ERASE-001 — Project and installation-owner erasure
 
