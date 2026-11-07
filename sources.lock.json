@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d1e9d9d23235118925204c68ccc156a9f081929e726901acdb084b7957c2aed9",
+      "sha256": "654459fae89025d7ba1f8e032adb7a993bf75442b569ab52972c515c39c00b71",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4841206a19a225b8833f94975a356d513312ec7778b87df6fa3a7c9f2973ea45",
+      "sha256": "de0858a97e20963a1693956a5396a29f70d3b81512810119e1f2845c7732f238",
       "executable": false
     },
     "DEMO.md": {
@@ -2902,7 +2902,7 @@
       "executable": false
     },
     "docs/AGENT-DOOR.md": {
-      "sha256": "e8573a84fca7fa910092ad7fa04b3419a42f1ccd99ee10f8459480732d5a7fac",
+      "sha256": "a3f269661be12a0c6f42ef17200ae78c504029bc58803cf2d654656dcd6bfc1e",
       "executable": false
     },
     "docs/agents.md": {
@@ -5494,7 +5494,7 @@
       "executable": false
     },
     "src/domain/agent-door/catalogue.mjs": {
-      "sha256": "cf95d95ad257f99d751b267d460bea374bf2ef9b2de663100b9c73a1ffdc4371",
+      "sha256": "37caf75d244279859d21232f850011f399d1d99f7d6374ce7c3188f819f4b34b",
       "executable": false
     },
     "src/domain/agent-door/erasure.ts": {
@@ -5518,7 +5518,7 @@
       "executable": false
     },
     "src/domain/agent-door/native.ts": {
-      "sha256": "f60a16a7ec035b2ddba76a3fec3118e4b58e51dfa23eaa5bde9135a270248078",
+      "sha256": "3f5a7a6b69b2e09cfad0f0cf23211718399bed56b47f41229c8fe1f4b5bc1903",
       "executable": false
     },
     "src/domain/agent-door/people.ts": {
@@ -6518,7 +6518,7 @@
       "executable": false
     },
     "src/domain/reproducers/routes.ts": {
-      "sha256": "55dc758493ebdd14d693d0ca5c48a9d585aaf1549b4e20c75cb12a2a3ab1ccc8",
+      "sha256": "1c88cf9a7d5cf22f24cf16633219dc7905a692008218799a07502ae9061ee163",
       "executable": false
     },
     "src/domain/reproducers/runner-routes.ts": {
@@ -6530,7 +6530,7 @@
       "executable": false
     },
     "src/domain/reproducers/view.ts": {
-      "sha256": "9ac06dbe3d89fb9e50b1fa1797ca76da6b070d56a9265113759c51a639a352d1",
+      "sha256": "82dae07643abbd0999186cabb4f8b123b592d4c6d5c8b44066ab87289d38c087",
       "executable": false
     },
     "src/domain/rer-cutover-status.server.ts": {
@@ -10350,7 +10350,7 @@
       "executable": false
     },
     "tests/agent-door.mjs": {
-      "sha256": "6523e4fee7b1f18668798d89b0aa16fd5c1b3d987ce2cf570626cd26f1cafb2c",
+      "sha256": "fc21c407171cb6bfe2a1a51c2d8a61c9442bb97b69ef04c2d0e86fe729fc89c6",
       "executable": false
     },
     "tests/agent-door/audit-contract.mjs": {
@@ -10371,6 +10371,10 @@
     },
     "tests/agent-door/initialize.mjs": {
       "sha256": "b39f6d7b01550e4f9610acd04955b3b637ef7f8e87f387bab5cca2605645a128",
+      "executable": false
+    },
+    "tests/agent-door/job-status-contract.mjs": {
+      "sha256": "c429fa59a5209f61ee9d30c11948cad0062ac155f972f2300b40508615740768",
       "executable": false
     },
     "tests/agent-door/local-policy.mjs": {
