@@ -77,8 +77,14 @@ export async function usage(rt: Runtime, document: PolicyDocument, principal: Pr
   return sums
 }
 export const usageToday = (sums: Record<string, number>) => (rule: Rule, cls: ClassId) => sums[`${rule.id}:${cls}`] ?? 0
-export async function auditPage(rt: Runtime, url: URL) {
-  const rows = (await rt.options.db.prepare('SELECT sequence,row,evidence FROM agent_door_audit WHERE sequence>? ORDER BY sequence LIMIT 200').bind(Number(url.searchParams.get('after')) || 0).all<{ sequence: number; row: string; evidence: string | null }>()).results
+/** Apply selectors before the page bound so sparse matches cannot truncate history. */
+export function auditFilter(url: URL, alias = 'a') {
+  const agent = url.searchParams.get('agent') ?? '', cls = url.searchParams.get('class') ?? ''
+  return { sql: `(?='' OR ${alias}.agent=?) AND (?='' OR EXISTS(SELECT 1 FROM json_each(${alias}.classes) c WHERE c.value=?))`, values: [agent, agent, cls, cls] }
+}
+export async function auditPage(rt: Runtime, url: URL, highWater = Number.MAX_SAFE_INTEGER) {
+  const filter = auditFilter(url)
+  const rows = (await rt.options.db.prepare(`SELECT sequence,row,evidence FROM agent_door_audit a WHERE sequence>? AND sequence<=? AND ${filter.sql} ORDER BY sequence LIMIT 200`).bind(Number(url.searchParams.get('after')) || 0, highWater, ...filter.values).all<{ sequence: number; row: string; evidence: string | null }>()).results
   let differs = 0
   const visible = []
   for (const record of rows) {
@@ -100,4 +106,25 @@ export async function auditPage(rt: Runtime, url: URL) {
     visible.push(row)
   }
   return { rows: visible, cursor: rows.length ? String(rows.at(-1)!.sequence) : url.searchParams.get('after') ?? null, differs_from_policy: differs }
+}
+
+/** A bounded-memory export of every visible field, fixed to the initial chronology. */
+export async function auditExport(rt: Runtime, url: URL): Promise<Response> {
+  const highWater = (await rt.options.db.prepare('SELECT coalesce(max(sequence),0) n FROM agent_door_audit').first<{ n: number }>())!.n
+  const cursor = new URL(url)
+  cursor.searchParams.delete('after')
+  const encoder = new TextEncoder()
+  let first = true
+  const body = new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const page = await auditPage(rt, cursor, highWater)
+        if (!page.rows.length) { controller.enqueue(encoder.encode(first ? '[]\n' : ']\n')); controller.close(); return }
+        controller.enqueue(encoder.encode((first ? '[' : ',') + page.rows.map(row => JSON.stringify(row)).join(',')))
+        first = false
+        cursor.searchParams.set('after', page.cursor!)
+      } catch (cause) { controller.error(cause) }
+    },
+  })
+  return new Response(body, { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': 'attachment; filename="spool-agent-audit.json"', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } })
 }

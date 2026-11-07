@@ -7,8 +7,10 @@ import { localCredentialId } from './native-authority';
  * alone never proves a record exists or grants access to it. */
 export async function spoolTarget(env: Bindings, route: string, args: Record<string, any>, ctx: ToolContext): Promise<NativeTarget | null> {
  if(route==='access-member'){
-  if(args.id!==ctx.person.id&&String(args.id).toLowerCase()!==ctx.person.email.toLowerCase())await nativeCall(env,'access','GET',{},ctx,'target');
-  const row=await env.DB.prepare('SELECT id FROM spool_members WHERE id=? OR operator_id=? OR operator_id IN (SELECT id FROM oa_operators WHERE lower(email)=lower(?))').bind(args.id,args.id,args.id).first<{id:string}>();
+  const row=await env.DB.prepare('SELECT id,operator_id FROM spool_members WHERE id=? OR operator_id=? OR operator_id IN (SELECT id FROM oa_operators WHERE lower(email)=lower(?))').bind(args.id,args.id,args.id).first<{id:string;operator_id:string}>();
+  // Resolve every native alias before the self-widening check. Other people's
+  // existence remains behind the ordinary native organization read authority.
+  if(row?.operator_id!==ctx.person.id)await nativeCall(env,'access','GET',{},ctx,'target');
   if(!row)throw new ToolRefusal('not_found');
   return {kind:'member',id:row.id};
  }

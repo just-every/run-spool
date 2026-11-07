@@ -6,7 +6,7 @@ import { validateMessage } from '../../modules/mail/src/core/validation.mjs';
 import { findDestination, destinationHash, destinationFingerprint, keyBytes } from '../alerts/destinations.server';
 import { requireReviewedTest } from '../alerts/destination-tests.server';
 import { sendSlack } from '../alerts/slack.server';
-import { sender } from '../alerts/mail';
+import { agentMailFrom, sender, type MailAttribution } from '../alerts/mail';
 import { auditSubject, serviceActor } from '../audit/identity';
 import { recordAudit } from '../audit/record';
 import { s, type Environment } from './types';
@@ -32,13 +32,13 @@ export async function queueNotices(env:Environment,time:number) {
   ON CONFLICT(attention,destination,channel) DO NOTHING`,time).run();
 }
 
-async function prepare(env:Environment,row:any,time:number):Promise<PreparedNotice> {
+async function prepare(env:Environment,row:any,time:number,attribution?:MailAttribution):Promise<PreparedNotice> {
  const memberId=row.destination.startsWith('member:')?row.destination.slice(7):null;
  const destination:any=memberId?{recipient:(await activeProjectRecipient(env.DB,row.project,memberId))?.email}:await findDestination(env,row.project,row.destination,row.channel);
  if(memberId&&!destination.recipient)throw new Error('member_unavailable');
  if(row.channel==='mail') {
   const mail=sender(env),body=JSON.parse(row.body);
-  const message={deliveryId:'follow-up-'+row.id,from:env.MAIL_FROM!,to:[destination.recipient!],subject:'Spool needs attention',
+  const message={deliveryId:'follow-up-'+row.id,from:agentMailFrom(env.MAIL_FROM!,attribution),to:[destination.recipient!],subject:'Spool needs attention',
    text:`Spool automation needs the accountable alternate's attention. Item: ${body.attentionId}. Source: ${body.source}. Reason: ${body.reason}. Due: ${new Date(body.due).toISOString()}. Inspect Needs attention in Spool. An uncertain effect must be reconciled before retrying.`};
   validateMessage(message,env.MAIL_PROVIDER);
   return {digest:await destinationHash(env,JSON.stringify([destination.recipient,env.MAIL_FROM,env.MAIL_PROVIDER])),send:async()=>{
@@ -94,7 +94,7 @@ async function prepare(env:Environment,row:any,time:number):Promise<PreparedNoti
  }};
 }
 
-export async function dispatchNotices(env:Environment,time:number,only?:string[]) {
+export async function dispatchNotices(env:Environment,time:number,only?:string[],attribution?:MailAttribution) {
  await env.DB.batch([
   s(env.DB,"UPDATE follow_up_attempts SET state='uncertain',code='claim_expired',finished=? WHERE finished IS NULL AND id IN(SELECT claim FROM follow_up_notices WHERE state='running' AND claim_until<=?)",time,time),
   s(env.DB,"UPDATE follow_up_notices SET state='uncertain',code='claim_expired',claim=NULL,claim_until=NULL WHERE state='running' AND claim_until<=?",time),
@@ -104,7 +104,7 @@ export async function dispatchNotices(env:Environment,time:number,only?:string[]
   if(await dispatchStanding(env as Bindings&Environment,'followup',row.id,()=>time))continue;
   let prepared;
   try {
-   prepared=await prepare(env,row,time);
+   prepared=await prepare(env,row,time,attribution);
    if(row.destination_hash!==null&&row.destination_hash!==prepared.digest)throw new Error('destination_changed');
   }catch{
    await s(env.DB,"UPDATE follow_up_notices SET state='blocked',code='preflight_failed' WHERE id=? AND state='queued'",row.id).run();continue;

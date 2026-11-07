@@ -4,7 +4,7 @@ import { businessRole } from './people.ts'
 import { localPolicy, policyState, publicState } from './policy-store.ts'
 import { approvalDoor } from './approvals.ts'
 import { reviewDoor } from './reviews.ts'
-import { auditPage } from './audit.ts'
+import { auditPage, auditExport } from './audit.ts'
 
 export async function personDoor(rt: Runtime, request: Request): Promise<Response> {
   if (request.headers.has('authorization')) return error('person_session_required', 403)
@@ -24,6 +24,7 @@ export async function personDoor(rt: Runtime, request: Request): Promise<Respons
     const state = await policyState(rt)
     return json({ paused: { business: state.paused, local: state.localPaused } })
   }
+  if (path === '/agents/api/audit/export') return role && request.method === 'GET' ? auditExport(rt, new URL(request.url)) : error('forbidden', 403)
   if (path === '/agents/api/audit') return role && request.method === 'GET' ? json(await auditPage(rt, new URL(request.url))) : error('forbidden', 403)
   if (path === '/agents/api/agents') {
     if (!role) return error('forbidden', 403)
