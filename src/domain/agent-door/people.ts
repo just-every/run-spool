@@ -3,6 +3,18 @@ import { createBusinessSettings, type TeamAdapter, type ManagedMember } from '..
 import { operatorAuth } from '../../auth/session.server';
 import type { Bindings } from '../../auth/bindings';
 
+/** Only current native identities bound by signed Business settings establish
+ * an internal recipient. An address domain or display text proves nothing. */
+export async function internalRecipient(env: Bindings, email: string): Promise<boolean> {
+ const row=await env.DB.prepare(`SELECT 1 FROM oa_operators o JOIN bs_settings b ON b.singleton=1
+ WHERE b.stopped=0 AND o.status='active' AND lower(o.email)=lower(?) AND (
+  (o.role='owner' AND b.owner_id IS NOT NULL AND EXISTS(SELECT 1 FROM oa_bootstrap a WHERE a.singleton=1 AND a.claim_id=o.id))
+  OR EXISTS(SELECT 1 FROM bs_team t JOIN spool_members m ON m.operator_id=o.id
+   WHERE t.operator_id=o.id AND t.business_id IS NOT NULL AND t.state='active' AND m.state='active' AND lower(t.email)=lower(o.email))
+ )`).bind(email).first();
+ return !!row;
+}
+
 /** Roster email is used only for first reconciliation. Every subsequent
  * document follows the stored native id, including after email reassignment.
  * Native invitations and project grants remain the team's existing lifecycle. */

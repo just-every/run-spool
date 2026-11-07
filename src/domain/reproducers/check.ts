@@ -1,4 +1,5 @@
 import { file, scrub } from '../privacy';
+import { reductionPlan, REDUCTION } from './reduction.mjs';
 
 // The runner reports only what the sandbox observed. Spool decides the outcome
 // here by comparing that behaviour with the captured event; a report cannot
@@ -17,7 +18,7 @@ const bounded = (value: unknown, max: number) => { if (typeof value !== 'string'
 function shape(value: any, keys: string[]) { if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).sort().join() !== [...keys].sort().join()) throw new Error('Invalid observation'); }
 
 export function reportInput(body: any) {
- shape(body, ['protocol', 'tools', 'observation']);
+ shape(body, ['protocol', 'tools', 'observation', ...(body?.trials === undefined ? [] : ['trials'])]);
  if (body.protocol !== 1) throw new Error('Unsupported runner protocol');
  shape(body.tools, ['workerd', 'node', 'runner']);
  const tools = { workerd: bounded(body.tools.workerd, 100), node: bounded(body.tools.node, 40), runner: bounded(body.tools.runner, 40) };
@@ -30,7 +31,34 @@ export function reportInput(body: any) {
  if (o.phase === 'entry_missing') observation.type = bounded(o.type, 40);
  if (o.phase === 'load_failed' || o.phase === 'sandbox_failed') observation.detail = bounded(o.detail, 2000);
  if (o.phase === 'timed_out') { if (!Number.isSafeInteger(o.afterMs) || o.afterMs < 0) throw new Error('Invalid observation'); observation.afterMs = o.afterMs; }
- return { tools, observation };
+ let trials;
+ if (body.trials !== undefined) {
+  if (!Array.isArray(body.trials) || body.trials.length > REDUCTION.maxTrials) throw new Error('Invalid trial budget');
+  trials = body.trials.map((trial: any) => {
+   // Trials carry observations only, never nested experiments or outcomes.
+   return reportInput({ protocol: 1, tools, observation: trial }).observation;
+  });
+ }
+ return { tools, observation, trials };
+}
+
+export function analysisCheck(spec: any, modules: { name: string; original: string }[], baseline: string, trials: any[] | undefined) {
+ if (!spec.analysis) { if (trials !== undefined) throw new Error('No analysis was authorized'); return null; }
+ if (!trials) throw new Error('Analysis observations required');
+ if (baseline !== 'reproduced') {
+  if (trials.length) throw new Error('Analysis needs a reproduced baseline');
+  return { minimal: false, stop: 'baseline_not_reproduced', input: null, trials: [] };
+ }
+ const plan = reductionPlan(spec.call.input, spec.analysis.experiments), receipts = [];
+ for (const observation of trials) {
+  const trial = plan.next();
+  if (!trial) throw new Error('Trial exceeds the authorized plan');
+  const result = behaviourCheck(spec, modules, observation);
+  receipts.push({ ...trial, observation, ...result });
+  plan.observe(result.outcome);
+ }
+ plan.next(); // Establish exhaustion; an unobserved candidate is not minimal.
+ return { ...plan.result(), trials: receipts };
 }
 
 // V8 frame lines: "at fn (module:line:column)" or "at module:line:column".

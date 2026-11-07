@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {run,runOk,exceptionTypes,issueDetails} from './harness.mjs';
+import {run,runOk,exceptionTypes,issueDetails,referenceCollector} from './harness.mjs';
+import {objectJson} from '../../src/domain/sentry/wire.ts';
 import {readScreens} from './screens.mjs';
+import {chooseLocalAgentPolicy} from '../agent-door/local-policy.mjs';
 
 const here=resolve(import.meta.dirname,'python');
 // Every environment variable sentry-sdk reads to infer a release; cleared to prove "no release".
@@ -24,6 +26,9 @@ export default {
   assert.equal(listed.total,handled.issue.count);const tenant=listed.tags.rows.find(row=>row.key==='tenant'&&row.value==='acme');assert.equal(tenant.count,listed.total);assert.equal(tenant.percent,100*tenant.count/listed.tags.events);
   assert.deepEqual(listed.rows.map(row=>row.id).sort(),handled.events.map(event=>event.id).sort());
   assert.notEqual(listed.oldest.id,listed.latest.id,'navigation spans distinct SDK captures');
+  const impact=page.getByRole('region',{name:'Issue impact',exact:true});await impact.getByText('Retained events',{exact:true}).waitFor();
+  const facts=Object.fromEntries(await impact.locator('dl > div').evaluateAll(rows=>rows.map(row=>[row.querySelector('dt').textContent,row.querySelector('dd').textContent])));
+  assert.equal(facts['Retained events'],String(handled.issue.count));assert.equal(facts['Affected sessions'],'Unavailable');assert.equal(facts['Without a session link'],String(handled.issue.count),'SDK sessions do not imply an issue association');
   const filtering=page.waitForResponse(response=>{const url=new URL(response.url());return url.pathname===root&&url.searchParams.get('q')==='tenant:acme'});
   await page.getByRole('searchbox',{name:'Search events',exact:true}).fill('tenant:acme');
   assert.equal((await filtering).status(),200);
@@ -36,7 +41,8 @@ export default {
    const url=new URL(page.url());assert.equal(url.searchParams.get('event'),event.id);assert.equal(url.searchParams.get('occurrence'),event.occurrence);
    const detail=handled.events.find(value=>value.id===event.id);assert.ok(detail,'selected event is an actual SDK capture');
    assert.ok((await selected.innerText()).includes(`${detail.event.type}: ${detail.event.message}`),'displayed detail follows the selected capture');
-   assert.equal(await page.locator('.event-table tr[aria-selected="true"] code').innerText(),event.id,'event list highlights the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-event-id'),event.id,'event list highlights the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-occurrence-id'),event.occurrence,'event list highlights the exact occurrence');
    for(const exception of detail.event.sentry.exceptions)await page.locator('article.exception h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
   };
   await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
@@ -46,23 +52,61 @@ export default {
   await choose('Previous event',listed.oldest);await choose('Latest',listed.latest);
   assert.equal(await selected.getAttribute('data-event-id'),listed.latest.id);
   const sdk=handled.events.find(e=>e.id===listed.latest.id).event.sentry;
-  assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
+  const tagSummary=page.locator('.event-tags-summary');await tagSummary.locator('summary').click();
+  const tenantSummary=tagSummary.locator(':scope > div').filter({has:page.getByRole('heading',{name:'tenant',exact:true})});
+  assert.equal(await tenantSummary.locator('li').innerText(),`acme — ${handled.issue.count} (100.0%)`,'the visible tag summary counts the entire SDK issue');
   const sdkFrame=sdk.exceptions.flatMap(e=>e.stacktrace.frames).find(frame=>frame.function==='charge'&&frame.vars);
   assert.ok((await page.locator('.sdk-context').first().innerText()).includes('sent by SDK'));
   const localSummary=page.locator('article.exception summary').filter({hasText:'Local variables · sent by SDK'}).first();await localSummary.click();const locals=localSummary.locator('..');
   assert.ok((await locals.innerText()).includes('quantity'));assert.ok(JSON.stringify(sdkFrame.vars).includes('[redacted]'));
+  await localSummary.click();await inspectEvidence(page,sdk);
   await page.context().grantPermissions(['clipboard-read','clipboard-write']);
   await page.getByRole('button',{name:'Details: Raw stack trace',exact:true}).click();const raw=page.getByRole('dialog',{name:'Raw stack trace',exact:true});
-  const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);for(const exception of sdk.exceptions)assert.ok(expected.includes(exception.type));
+  const expected=await raw.locator('pre').innerText();await raw.getByRole('button',{name:'Copy raw stack trace',exact:true}).click();await page.getByRole('button',{name:'Stack trace copied',exact:true}).waitFor();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),expected);
+  for(const exception of sdk.exceptions){
+   assert.ok(expected.includes(`${exception.type}: ${exception.value}`),'the copied trace retains each SDK exception');
+   for(const frame of exception.stacktrace.frames)assert.ok(expected.includes(`File "${frame.filename}", line ${frame.lineno}, in ${frame.function}`),'the copied trace retains each SDK frame');
+  }
+  await raw.screenshot({path:`.artifacts/runtimes/python-raw-stack-${page.viewportSize().width}.png`});
   await page.keyboard.press('Escape');
  },
- async verify({app,details,dir,origin,cookie}){
+ async verify({app,details,dir,origin,cookie,referenceSent:reference}){
   const events=details.flatMap(d=>d.events.map(e=>e.event.sentry));
   // SDK-010: local variables, SDK context and default integrations, as the unmodified SDK sent them.
   const failing=events.find(sentry=>sentry.exceptions.some(x=>x.stacktrace?.frames.some(f=>f.vars?.order_note)));
   const frame=failing.exceptions.flatMap(x=>x.stacktrace.frames).find(f=>f.function==='charge'&&f.vars);
   assert.equal(frame.vars.quantity,'0','an ordinary local survives');assert.equal(frame.vars.password,'[redacted]');assert.equal(frame.vars.api_key,'[redacted]');
+  const sent=reference.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  const sentChain=sent.find(event=>event.exception?.values.some(e=>e.type==='ZeroDivisionError')&&event.exception.values.every(e=>e.mechanism?.handled!==false));
+  assertSentChain(failing,sentChain);
+  assert.deepEqual(failing.contexts.checkout,{stage:'payment',items:3});assert.equal(failing.extra.cart_items,3);assert.ok(failing.breadcrumbs.some(crumb=>crumb.category==='checkout'&&crumb.message==='cart reviewed'));
   assert.equal(failing.contexts.runtime.name,'CPython');for(const integration of ['excepthook','logging','stdlib','threading'])assert.ok(failing.sdk.integrations.includes(integration),`default ${integration} integration`);
+  // The SDK sends sessions separately, without event session references. Never
+  // substitute the project's health denominator for an issue's affected sessions.
+  const referenceSessions=reference.filter(item=>item.type==='session').map(item=>objectJson(item.bytes));
+  assert.ok(referenceSessions.length>0,'the unmodified SDK emitted real session observations');
+  assert.ok(sent.every(event=>event.contexts?.session?.sid===undefined),'these SDK events have no explicit session association');
+  for(const detail of details){
+   const impact=await app.json(`/api/projects/rt-python/issues/${detail.issue.id}/impact`);
+   assert.equal(impact.events,detail.events.length);assert.equal(impact.affectedSessions,null,'unlinked SDK events leave affected sessions unavailable');
+   assert.deepEqual(impact.sessions,{events:detail.events.length,linkedEvents:0,unlinkedEvents:detail.events.length,knownAffected:0});
+   assert.equal(impact.projectHealth.denominators.individualSessions,referenceSessions.length,'the project cohort remains separately labelled');
+  }
+  const nativeRoot='/api/projects/rt-python',selected=details[0],event=selected.events[0],issueRoot=nativeRoot+'/issues/'+selected.issue.id;
+  await chooseLocalAgentPolicy(origin,cookie);
+  const agent=await app.json(nativeRoot+'/keys','POST',{kind:'agent'}),agentHeaders={Cookie:'',Authorization:'Bearer '+agent.key};
+  const packet=await app.json(issueRoot+'/packet',undefined,undefined,agentHeaders);
+  assert.ok(!JSON.stringify(packet).includes('synthetic-spool-note'),'agent packets exclude the actual SDK local variable');
+  for(const path of [issueRoot+'/events',issueRoot+`/events/${event.id}?occurrence=${event.occurrence}`,issueRoot+'/impact']){
+   const anonymous=await app.request(path,'GET',undefined,{Cookie:''});assert.equal(anonymous.status,401);await anonymous.body?.cancel();
+   const refused=await app.request(path,'GET',undefined,agentHeaders);assert.equal(refused.status,403,'a project agent cannot acquire human SDK detail authority');await refused.body?.cancel();
+  }
+  const foreign=await app.json('/api/projects','POST',{id:'synthetic-spool-python-foreign',name:'Synthetic foreign project'});
+  const foreignRead=await app.request(`/api/projects/${foreign.id}/issues/${selected.issue.id}/events`);assert.equal(foreignRead.status,404);await foreignRead.body?.cancel();
+  const wrongOccurrence=await app.request(issueRoot+`/events/${event.id}?occurrence=synthetic-spool-missing`);assert.equal(wrongOccurrence.status,404);await wrongOccurrence.body?.cancel();
+  await app.json(nativeRoot+'/keys/'+agent.hash,'DELETE');
+  const revoked=await app.request(issueRoot+'/packet','GET',undefined,agentHeaders);assert.equal(revoked.status,401);await revoked.body?.cancel();
+  assert.deepEqual(await issueDetails(app,'rt-python'),details,'private read refusals and grant revocation leave SDK captures unchanged');
   const create=id=>app.json('/api/projects','POST',{id,name:id});
   const send=async(created,script,{cwd=dir,mode}={})=>{
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
@@ -95,8 +139,8 @@ export default {
   assert.deepEqual([alertRelease.name,alertRelease.sequence],['',0],'release-less alert names no release');
   // SDK-009: the SDK infers a release from the git checkout it runs in, and is created automatically.
   const checkout=resolve(dir,'inferred');await mkdir(checkout,{recursive:true});
-  const git=(...args)=>runOk('git',['-c','user.email=synthetic-spool@example.test','-c','user.name=synthetic-spool',...args],{cwd:checkout});
-  await git('init','-q');await git('commit','-q','--allow-empty','-m','synthetic-spool-1');
+  const git=(...args)=>runOk('git',['-c','user.email=fleet@example.test','-c','user.name=Run Edit Run fleet',...args],{cwd:checkout});
+  await git('init','-q');await runOk('env',['GIT_AUTHOR_NAME=Run Edit Run fleet','GIT_AUTHOR_EMAIL=fleet@example.test','GIT_COMMITTER_NAME=Run Edit Run fleet','GIT_COMMITTER_EMAIL=fleet@example.test','git','commit','-q','--allow-empty','-m','synthetic-spool-1'],{cwd:checkout});
   const sha=(await runOk('git',['rev-parse','HEAD'],{cwd:checkout})).stdout.trim();
   const [issue]=await send(releasesProject,'app.py',{cwd:checkout,mode:'handled'});
   assert.deepEqual(issue.events.map(e=>e.release).sort(),['',sha].sort(),'SDK-inferred git SHA is the release');
@@ -112,11 +156,40 @@ export default {
   // SDK-010: exception groups with every member, and Django request data from a real WSGI request.
   const [grouped]=await send(await create('rt-python-group'),'group.py');assert.deepEqual(exceptionTypes(grouped.events[0]),['TypeError','ValueError','ExceptionGroup']);
   assert.equal(grouped.events[0].event.sentry.exceptions.at(-1).mechanism.is_exception_group,true);
+  const collector=await referenceCollector();
+  let djangoSent;try{await runOk(python(dir),[resolve(here,'django_app.py')],{cwd:dir,env:{SPOOL_FIXTURE_DSN:collector.dsn},unset:releaseSources});djangoSent=collector.sent.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));}finally{await collector.close()}
   const [django]=await send(await create('rt-python-django'),'django_app.py');
+  assert.equal(djangoSent.length,1);assertSentChain(django.events[0].event.sentry,djangoSent[0]);
   const request=django.events[0].event.sentry.request;
   assert.ok(request.url.endsWith('/checkout'));assert.equal(request.method,'GET');assert.ok(request.query_string.includes('page=2'));assert.ok(!JSON.stringify(request).includes('synthetic-spool-3'),'secret query value masked');assert.ok(!JSON.stringify(request).includes('synthetic-spool-cookie'),'cookie value removed');
   const headers=Object.fromEntries(Object.entries(request.headers??{}).map(([name,value])=>[name.toLowerCase(),value]));
   assert.equal(headers['user-agent'],'spool-runtime-qualification','Django request headers are kept');
   assert.ok(django.events[0].event.sentry.sdk.integrations.includes('django'),'Django integration is a default');
+  await readScreens(origin,cookie,[...[['python-related-exceptions','rt-python-group',grouped],['python-request-chain','rt-python-django',django]].map(([name,project,detail])=>({name,path:`/projects/${project}/issues/${detail.issue.id}`,check:async page=>{await page.locator('.metadata[data-event-id]').waitFor();await inspectEvidence(page,detail.events[0].event.sentry);if(project==='rt-python-group'){const group=page.locator('article.exception').filter({has:page.locator(':scope > h3').filter({hasText:'ExceptionGroup:'})});assert.equal(await group.locator('.exception-children article.exception').count(),2,'Related Exceptions nests the actual SDK group children')}}}))]);
  },
 };
+
+function assertSentChain(stored,sent){
+ assert.deepEqual(stored.exceptions.map(e=>[e.type,e.value]),sent.exception.values.map(e=>[e.type,e.value]),'the unmodified SDK exception chain survives');
+ for(let i=0;i<stored.exceptions.length;i++){
+  const actual=stored.exceptions[i].stacktrace.frames.filter(f=>f.in_app),expected=sent.exception.values[i].stacktrace.frames.filter(f=>f.in_app);
+  assert.deepEqual(actual.map(f=>[f.function,f.lineno,f.pre_context,f.context_line,f.post_context]),expected.map(f=>[f.function,f.lineno,f.pre_context,f.context_line,f.post_context]),'SDK source context and frame identity survive separately from source lookup');
+  for(let j=0;j<actual.length;j++)for(const key of ['quantity','order_note'])if(expected[j].vars?.[key]!==undefined)assert.deepEqual(actual[j].vars[key],expected[j].vars[key],'ordinary SDK local '+key+' survives');
+ }
+ assert.equal(stored.tags.tenant,sent.tags.tenant);assert.deepEqual(stored.contexts.checkout,sent.contexts.checkout);
+}
+
+async function inspectEvidence(page,sdk){
+ assert.equal(await page.locator('article.exception').count(),sdk.exceptions.length);
+ for(const exception of sdk.exceptions){
+  const heading=page.locator('article.exception > h3').filter({hasText:`${exception.type}: ${exception.value}`});await heading.waitFor();
+  const article=heading.locator('..'),frames=exception.stacktrace?.frames??[];
+  for(let i=0;i<frames.length;i++){
+   const frame=frames[i];if(frame.in_app===false||!frame.context_line)continue;
+   const item=article.locator(':scope > ol.exception-stack > li').nth(i);
+   assert.equal(await item.locator('.sdk-context pre').innerText(),[...(frame.pre_context??[]),frame.context_line,...(frame.post_context??[])].join('\n'));
+   if(frame.vars){const locals=item.getByText('Local variables · sent by SDK',{exact:true});await locals.click();for(const key of ['quantity','order_note','password','api_key'])if(key in frame.vars){const variable=item.locator('details details').filter({has:item.page().locator('summary > code').filter({hasText:new RegExp('^'+key+'$')})});await variable.locator('summary').click();assert.deepEqual(JSON.parse(await variable.locator('pre').innerText()),frame.vars[key])}}
+  }
+ }
+ for(const key of ['tags','contexts','request','extra','threads','breadcrumbs'])if(sdk[key]!==undefined){const section=page.locator('.event-sections > details').filter({has:page.locator('summary').filter({hasText:new RegExp('^'+key[0].toUpperCase()+key.slice(1)+'$')})});await section.locator('summary').click();assert.deepEqual(JSON.parse(await section.locator('pre').innerText()),sdk[key],'rendered '+key+' equals the retained SDK evidence')}
+}

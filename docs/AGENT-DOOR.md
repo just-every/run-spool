@@ -94,6 +94,16 @@ permissions, Pause, revocation, Business stop and configuration revision still
 fence the final effect. This does not declare the optional queued-lifecycle
 conformance family or qualify every native schedule/provider boundary.
 
+For the native email destination TEST, only the active installation owner or a
+confirmed active native teammate bound by signed Business settings counts as an
+internal recipient. A matching email domain, unconfirmed invitation, destination
+label or caller confirmation establishes no Business membership. Removing the
+native member or signed binding makes a fresh TEST external again; a previously
+held internal TEST is refused if its recipient's binding changes before approval.
+Outside saved email recipients retain a known counterparty and recipient count
+of one. This bounded classification does not qualify domain or workspace rules,
+other notification tools, real provider delivery or paid usage.
+
 ## Native erasure and relay custody
 
 `src/domain/agent-door/artifact-map.mjs` inventories every installed agent table

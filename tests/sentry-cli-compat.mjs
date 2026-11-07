@@ -36,6 +36,7 @@ try {
  await mapFlow(context);
  await pluginFlow(context);
  await chunkFlow(context);
+ await fieldRefusalFlow(context);
  await debugFlow(context);
  await fieldRefusalFlow(context);
  await durableFlow(context);

@@ -1,3 +1,4 @@
+import {issueImpact} from './impact';
 import { resolveMembership } from '../members/resolver';
 import { linkedCheckIns } from '../checkins/intake';
 import { Hono } from 'hono';
@@ -15,11 +16,13 @@ import { mappedFramePage } from '../sentry/mapped-frames';
 const routes = new Hono<any>();
 // Rich source context and variables are an owner read, never an implicit
 // expansion of the sanitized agent packet grant.
-routes.use('/:project/issues/:issue/events*', async (c, next) => {
+const authorize = async (c:any, next:any) => {
  if (!await ownerSession(c.req.raw,c.env,resolveMembership)) return c.json({error:'Owner sign-in required'},401);
  if (!await c.env.DB.prepare('SELECT 1 FROM issues WHERE project=? AND id=?').bind(c.req.param('project'),c.req.param('issue')).first()) return c.json({error:'Issue not found'},404);
  await next();
-});
+};
+routes.use('/:project/issues/:issue/events*',authorize);
+routes.use('/:project/issues/:issue/impact',authorize);
 const metadata = (row:any) => row ? {id:row.id,occurrence:row.occurrence,received:row.received,release:row.release,environment:row.environment,type:row.type,message:row.message} : null;
 const columns = "e.id,e.occurrence,e.received,e.release,e.environment,json_extract(e.payload,'$.type') type,json_extract(e.payload,'$.message') message";
 function scope(c:any) {
@@ -58,6 +61,7 @@ routes.get('/:project/issues/:issue/events/:event/mapped-frames',async c=>{
  if(row.historical===1)throw new Error('Current mapped pages require a native capture');
  return c.json(await mappedFramePage(c.env.DB,c.req.param('project'),c.req.param('issue'),normalize(JSON.parse(row.payload)),occurrence,c.req.query('exception'),c.req.query('cursor')));
 });
+routes.get('/:project/issues/:issue/impact',async c=>c.json(await issueImpact(c.env.DB,c.req.param('project'),c.req.param('issue'))));
 routes.get('/:project/issues/:issue/events/:event',async c=>{
  const {query,where,args}=scope(c),db=c.env.DB,occurrence=c.req.query('occurrence');
  if(query.usesLatest)await ensureReleaseOrderKeys(db,c.req.param('project'));

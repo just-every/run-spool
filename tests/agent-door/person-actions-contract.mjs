@@ -109,7 +109,7 @@ export async function personActionsContract(app,screens){
   });
   console.log('PROBE BASE-AGENT-008 acceptance-5-and-6 '+policyName+': signed person approval -> durable named approver and separate agent preparer; populated activity at 1440 with 390 capture');
   if(policyName==='autonomous')await app.adopt(autonomousPolicy());
-  const destination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Agent sender '+policyName,recipient:app.context.person.email});
+  const destination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Agent sender '+policyName,recipient:'sender-control@synthetic.invalid'});
   const mailArgs={project,id:destination.id,idempotency_key:randomUUID()};
   const mailCall=await app.call('spool.alerts.test',mailArgs);
   if(policyName==='held'){
@@ -124,7 +124,7 @@ export async function personActionsContract(app,screens){
   assert.match(messages[0].from,/^Agent door conformance for Dana Engineer <[^<>]+>$/);
   assert.ok(messages[0].text.includes('Prepared by Agent door conformance for Dana Engineer.'));
   if(policyName==='held')assert.ok(messages[0].text.includes('Approved by Dana Engineer.'));
-  const personDestination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Person sender '+policyName,recipient:app.context.person.email});
+  const personDestination=await app.json('/api/projects/'+project+'/alerting/destinations','POST',{label:'Person sender '+policyName,recipient:'sender-control@synthetic.invalid'});
   const personTest=await app.json('/api/projects/'+project+'/alerting/destinations/'+personDestination.id+'/test','POST',{});
   const personMessage=(await app.mail()).find(message=>message.deliveryId===personTest.id);assert.ok(personMessage);
   assert.ok(!personMessage.from.includes('Agent door conformance'),'A real person send keeps its installation sender');

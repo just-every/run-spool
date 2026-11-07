@@ -51,7 +51,7 @@ const definitions=[
  ['alerts.destinations','GET','destinations',fields({}),true,['standard'],['ALERT-001']],
  ['alerts.preview','POST','alert-preview',fields({id:str,...rule},['project','id',...Object.keys(rule)]),false,['standard'],['ALERT-001']],
  ['alerts.update','PUT','alert',fields({id:str,...rule,previewToken:str},['project','id',...Object.keys(rule)]),false,['standard','live'],['ALERT-001']],
- ['alerts.test','POST','alert-test',fields({id:str}),false,['external'],['ALERT-001']],
+ ['alerts.test','POST','alert-test',fields({id:str}),false,['standard','external'],['ALERT-001','SURFACE-002']],
  ['followups.read','GET','followup',fields({}),true,['standard'],['ALERT-004']],
  ['followups.update','PUT','followup',fields({destination:{type:['string','null']},channel:{enum:['mail','webhook']},revision:num},['project','destination']),false,['standard','live'],['ALERT-004']],
  ['access.read','GET','access',object({id:str},[]),true,['standard'],['TEAM-001']],
