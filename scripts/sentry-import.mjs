@@ -19,15 +19,15 @@ function organizationOf(bytes) {
  * door at /api/operator/import/* with the owner's cookie and exact Origin.
  * `transport(action, body, namespace)` replaces that HTTP call for a caller
  * that already holds its own authenticated request (a test runtime). */
-export function sentryDoorClient({ endpoint, cookie, organization, transport }) {
+export function sentryDoorClient({ endpoint, cookie, organization, transport, namespace }) {
   transport ??= (action, body, namespace) => {
     const origin = new URL(endpoint).origin;
     return fetch(`${origin}/api/operator/import/${action}`, { method: 'POST', redirect: 'error',
       headers: { Origin: origin, Cookie: cookie, 'Content-Type': 'application/json', 'X-Import-Source': namespace }, body: JSON.stringify(body) });
   };
-  async function call(action, body, namespace = sentryNamespace(organization)) {
+  async function call(action, body, ns = namespace ?? sentryNamespace(organization)) {
     let response;
-    try { response = await transport(action, body, namespace); } catch { throw new Error('Spool import transport failed'); }
+    try { response = await transport(action, body, ns); } catch { throw new Error('Spool import transport failed'); }
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw Object.assign(new Error(`Spool import refused (HTTP ${response.status}${result.error ? `: ${result.error}` : ''})`), { status: response.status, code: result.error });
     return result;
@@ -44,7 +44,7 @@ export function sentryDoorClient({ endpoint, cookie, organization, transport }) 
     call,
     /** Uploads the exact bytes in checked chunks and returns the server's inventory. */
     async upload(bytes, name = 'sentry-organization.json') {
-      organization ??= organizationOf(bytes);
+      if (!namespace) organization ??= organizationOf(bytes);
       const bundleSha256 = sha256(bytes), totalChunks = Math.ceil(bytes.length / CHUNK);
       let uploadId;
       for (let index = 0; index < totalChunks; index++) {
@@ -59,7 +59,7 @@ export function sentryDoorClient({ endpoint, cookie, organization, transport }) 
     /** Upload and plan: counts, rejections and differences, and the fingerprint to review. Writes no native records. */
     async plan(bytes, { catchup } = {}) {
       const { uploadId } = await this.upload(bytes);
-      return { organization, namespace: sentryNamespace(organization), uploadId, ...await call('plan', { uploadId, ...catchup ? { catchup: true } : {} }) };
+      return { organization, namespace: namespace ?? sentryNamespace(organization), uploadId, ...await call('plan', { uploadId, ...catchup ? { catchup: true } : {} }) };
     },
     apply: (planId, reviewedFingerprint) => until('apply', { planId, reviewedFingerprint }, 'completed'),
     status: planId => call('status', { planId }),

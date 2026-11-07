@@ -1,0 +1,537 @@
+{
+  "format": "spool-rollbar-project-export",
+  "version": 1,
+  "account": {
+    "slug": "fixture-account"
+  },
+  "project": {
+    "id": 9001,
+    "slug": "web-app",
+    "name": "Imported web app",
+    "date_created": 1767225600
+  },
+  "window": {
+    "start": "2026-01-30T00:00:00Z",
+    "end": "2026-02-03T00:00:00Z"
+  },
+  "omissions": [
+    "Rollbar occurrence payload attachments and raw request bodies are not available through the API."
+  ],
+  "collections": [
+    {
+      "kind": "items",
+      "pages": [
+        {
+          "page": 1,
+          "nextPage": 2,
+          "response": {
+            "err": 0,
+            "result": {
+              "items": [
+                {
+                  "id": 1001,
+                  "counter": 1,
+                  "project_id": 9001,
+                  "environment": "production",
+                  "title": "TypeError: failed token=IMPORT_SECRET",
+                  "status": "resolved",
+                  "level": "error",
+                  "hash": "fp-alpha",
+                  "first_occurrence_timestamp": 1769940000,
+                  "last_occurrence_timestamp": 1769943600,
+                  "last_resolved_timestamp": 1769968800,
+                  "resolved_in_version": "web@1.1.0",
+                  "total_occurrences": 40
+                },
+                {
+                  "id": 1002,
+                  "counter": 2,
+                  "project_id": 9001,
+                  "environment": "production",
+                  "title": "RangeError: cart too large",
+                  "status": "active",
+                  "level": "error",
+                  "hash": "fp-beta",
+                  "first_occurrence_timestamp": 1769947200,
+                  "last_occurrence_timestamp": 1770022800,
+                  "last_resolved_timestamp": 1769976000,
+                  "last_activated_timestamp": 1770022800,
+                  "assigned_user_id": 77,
+                  "integrations_data": [
+                    {
+                      "type": "github",
+                      "link": "https://tracker.example.test/issues/12"
+                    }
+                  ],
+                  "total_occurrences": 3
+                }
+              ]
+            }
+          }
+        },
+        {
+          "page": 2,
+          "nextPage": null,
+          "response": {
+            "err": 0,
+            "result": {
+              "items": [
+                {
+                  "id": 1003,
+                  "counter": 3,
+                  "project_id": 9001,
+                  "environment": "staging",
+                  "title": "KeyError: missing flag",
+                  "status": "muted",
+                  "level": "warning",
+                  "hash": "fp-gamma",
+                  "first_occurrence_timestamp": 1770026400,
+                  "last_occurrence_timestamp": 1770028200,
+                  "total_occurrences": 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "instances",
+      "pages": [
+        {
+          "page": 1,
+          "nextPage": 2,
+          "response": {
+            "err": 0,
+            "result": {
+              "instances": [
+                {
+                  "id": 7001,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769940000,
+                  "version": 2,
+                  "data": {
+                    "uuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace_chain": [
+                        {
+                          "frames": [
+                            {
+                              "filename": "https://app.example.test/app.js",
+                              "lineno": 10,
+                              "method": "start",
+                              "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                              "colno": 4
+                            },
+                            {
+                              "filename": "https://app.example.test/app.js",
+                              "lineno": 20,
+                              "method": "pay",
+                              "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                              "colno": 8
+                            }
+                          ],
+                          "exception": {
+                            "class": "TypeError",
+                            "message": "failed token=IMPORT_SECRET"
+                          }
+                        },
+                        {
+                          "frames": [
+                            {
+                              "filename": "https://app.example.test/lib.js",
+                              "lineno": 5,
+                              "method": "inner",
+                              "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                              "colno": 2
+                            }
+                          ],
+                          "exception": {
+                            "class": "NetworkError",
+                            "message": "socket closed"
+                          }
+                        }
+                      ]
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7002,
+                  "item_id": 1001,
+                  "project_id": 9001,
+                  "timestamp": 1769943600,
+                  "version": 2,
+                  "data": {
+                    "uuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 10,
+                            "method": "start",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 4
+                          },
+                          {
+                            "filename": "https://app.example.test/vendor.js",
+                            "lineno": 3,
+                            "method": "native",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "https://app.example.test/app.js",
+                            "lineno": 20,
+                            "method": "pay",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 8
+                          }
+                        ],
+                        "exception": {
+                          "class": "TypeError",
+                          "message": "failed token=IMPORT_SECRET"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7003,
+                  "item_id": 1002,
+                  "project_id": 9001,
+                  "timestamp": 1769947200,
+                  "version": 2,
+                  "data": {
+                    "uuid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/cart.js",
+                            "lineno": 40,
+                            "method": "render",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 6
+                          }
+                        ],
+                        "exception": {
+                          "class": "RangeError",
+                          "message": "cart too large"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.0.0"
+                  }
+                },
+                {
+                  "id": 7004,
+                  "item_id": 1002,
+                  "project_id": 9001,
+                  "timestamp": 1770022800,
+                  "version": 2,
+                  "data": {
+                    "uuid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2",
+                    "environment": "production",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "https://app.example.test/cart.js",
+                            "lineno": 41,
+                            "method": "render",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")",
+                            "colno": 6
+                          }
+                        ],
+                        "exception": {
+                          "class": "RangeError",
+                          "message": "cart too large"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    },
+                    "code_version": "web@1.1.0"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "page": 2,
+          "nextPage": null,
+          "response": {
+            "err": 0,
+            "result": {
+              "instances": [
+                {
+                  "id": 7005,
+                  "item_id": 1003,
+                  "project_id": 9001,
+                  "timestamp": 1770026400,
+                  "version": 2,
+                  "data": {
+                    "uuid": "cccccccc-cccc-4ccc-8ccc-ccccccccccc1",
+                    "environment": "staging",
+                    "level": "error",
+                    "language": "python",
+                    "body": {
+                      "trace": {
+                        "frames": [
+                          {
+                            "filename": "worker/jobs.py",
+                            "lineno": 12,
+                            "method": "run",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          },
+                          {
+                            "filename": "worker/flags.py",
+                            "lineno": 88,
+                            "method": "lookup",
+                            "code": "throw new Error(\"PRIVATE_CODE_CONTEXT\")"
+                          }
+                        ],
+                        "exception": {
+                          "class": "KeyError",
+                          "message": "missing flag"
+                        }
+                      }
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    }
+                  }
+                },
+                {
+                  "id": 7006,
+                  "item_id": 1003,
+                  "project_id": 9001,
+                  "timestamp": 1770028200,
+                  "version": 2,
+                  "data": {
+                    "uuid": "cccccccc-cccc-4ccc-8ccc-ccccccccccc2",
+                    "environment": "staging",
+                    "level": "error",
+                    "language": "javascript",
+                    "body": {
+                      "message": {
+                        "body": "flag service unreachable"
+                      },
+                      "telemetry": [
+                        {
+                          "type": "log",
+                          "level": "info",
+                          "body": {
+                            "message": "retrying flag fetch"
+                          }
+                        }
+                      ]
+                    },
+                    "person": {
+                      "id": "user-17",
+                      "username": "PRIVATE_PERSON"
+                    },
+                    "request": {
+                      "url": "https://app.example.test/checkout?token=PRIVATE_URL",
+                      "headers": {
+                        "authorization": "PRIVATE_HEADER"
+                      }
+                    },
+                    "custom": {
+                      "cart": "PRIVATE_CUSTOM"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "deploys",
+      "pages": [
+        {
+          "page": 1,
+          "nextPage": null,
+          "response": {
+            "err": 0,
+            "result": {
+              "deploys": [
+                {
+                  "id": 501,
+                  "project_id": 9001,
+                  "environment": "staging",
+                  "revision": "web@1.0.0",
+                  "status": "succeeded",
+                  "comment": "canary",
+                  "local_username": "PRIVATE_DEPLOYER",
+                  "start_time": 1769850000,
+                  "finish_time": 1769850300
+                },
+                {
+                  "id": 502,
+                  "project_id": 9001,
+                  "environment": "production",
+                  "revision": "web@1.0.0",
+                  "status": "succeeded",
+                  "start_time": 1769936400,
+                  "finish_time": 1769936700
+                },
+                {
+                  "id": 503,
+                  "project_id": 9001,
+                  "environment": "production",
+                  "revision": "web@1.1.0",
+                  "status": "succeeded",
+                  "start_time": 1770019200,
+                  "finish_time": 1770019500
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "rules",
+      "pages": [
+        {
+          "page": 1,
+          "nextPage": null,
+          "response": {
+            "err": 0,
+            "result": {
+              "rules": [
+                {
+                  "id": 301,
+                  "channel": "slack",
+                  "trigger": "new_item",
+                  "filters": [
+                    {
+                      "type": "environment",
+                      "operation": "eq",
+                      "value": "production"
+                    }
+                  ],
+                  "config": {
+                    "room": "#alerts"
+                  },
+                  "status": "enabled"
+                },
+                {
+                  "id": 302,
+                  "channel": "webhook",
+                  "trigger": "reactivated_item",
+                  "filters": [],
+                  "config": {
+                    "url": "https://hooks.example.test/PRIVATE_HOOK"
+                  },
+                  "status": "enabled"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "comments",
+      "pages": [
+        {
+          "page": 1,
+          "nextPage": null,
+          "response": {
+            "err": 0,
+            "result": {
+              "comments": [
+                {
+                  "id": 901,
+                  "item_id": 1002,
+                  "body": "Regression after the 1.1.0 deploy",
+                  "user_id": 77,
+                  "created": 1770024600
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
