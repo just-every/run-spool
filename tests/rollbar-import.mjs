@@ -105,7 +105,6 @@ try {
   assert.deepEqual(after.map(issue => issue.count).sort((a, b) => a - b), [1, 2, 2, 12], 'imported counts are unchanged');
   const releases = await json(`/api/projects/${reimported.id}/releases`), list = Array.isArray(releases) ? releases : releases.releases;
   assert.deepEqual(list.map(release => release.name).sort(), ['web@1.0.0', 'web@1.1.0', 'web@1.2.0'], 'live release ordering continues after the imported releases');
-  assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200);
   // The native archive carries the scrubbed history and its Rollbar identities, and restores without the private journal or any grant.
   const nativeArchive = await (await req('/api/archive')).arrayBuffer();
   const restored = await startTestWorker(15526);
@@ -117,5 +116,14 @@ try {
     assert.deepEqual(restoredData.issues, archived.issues); assert.deepEqual(restoredData.events, archived.events); assert.deepEqual(restoredData.sentry_import_targets, archived.sentry_import_targets);
     assert.ok(archived.events.filter(event => event.historical === 1).length === 16);
   } finally { await restored.stop(); }
+  // Project erasure withdraws the project's private export bytes with it, and leaves unrelated projects alone.
+  const heldBefore = await rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId });
+  assert.equal(heldBefore.complete, true, 'the private export bytes are held before erasure');
+  const preview = await json(`/api/projects/${reimported.id}/erasure`);
+  const erased = await req(`/api/projects/${reimported.id}/erasure`, 'POST', { confirm: reimported.id, planHash: preview.planHash });
+  assert.ok(erased.ok, `erasure: HTTP ${erased.status}`);
+  assert.ok(!(await json('/api/projects')).some(project => project.id === reimported.id), 'the erased project is gone');
+  await assert.rejects(rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }), error => [404, 410].includes(error.status), 'the private export bytes went with the project');
+  assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200, 'an unrelated project is untouched');
   console.log('Rollbar import passed through the import door: no-write plan with named conversion losses, reviewed apply, interrupted apply resumed by a new owner session, count, stack, deploy and rule comparison, inert history, guarded undo and live replacement capture. Synthetic export only.');
 } finally { await worker.close(); await rm(scratch, { recursive: true, force: true }); delete process.env.SPOOL_TEST_SESSION; }
