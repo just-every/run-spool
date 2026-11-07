@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "320dcd9aa77fe8e7c8fdc7560abb5fd76dbe767c900b88a90cae3260c41b5361",
+      "sha256": "9dd30b6d219f882925fae6d43a7cd4e86738c292664823673bd502ab15b9e9f7",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2ccc429496ccc833c0bec4636ad2885ddf58883befa65c384b438a366fb6e78a",
+      "sha256": "45968ec567e43c879e8934aed1ea34028b5e3ef2d9302cad7e397b29f54eb992",
       "executable": false
     },
     "DEMO.md": {
@@ -3010,7 +3010,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "b4fed33afd72ed716e63c3aed2eaac69bff8b6cd5c5115ebdd946c82978dd0bc",
+      "sha256": "84fa4c3faef0765a02f2ce63100e94bbddbb47699a2d5f523b3d08713d88f027",
       "executable": false
     },
     "docs/KEY-RATE-LIMITS.md": {
@@ -10870,7 +10870,7 @@
       "executable": false
     },
     "tests/priority-search-flow.mjs": {
-      "sha256": "779e280ff3067c196a55596ffa6964d7689c0cfd2710b709fda42506111aa1b2",
+      "sha256": "93b95078cdb766d9d53a596410d6ce13ca4b09830397cfab771c5217eb8b1a74",
       "executable": false
     },
     "tests/privacy-table.mjs": {
