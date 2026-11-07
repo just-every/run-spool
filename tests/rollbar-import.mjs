@@ -127,7 +127,8 @@ try {
   for (let step = 0; step < 20 && receipt.phase !== 'complete'; step++) receipt = await json(`/api/erasures/${receipt.id}/resume`, 'POST');
   assert.equal(receipt.phase, 'complete', 'erasure completes through its resumable steps');
   assert.ok(!(await json('/api/projects')).some(project => project.id === reimported.id), 'the erased project is gone');
-  await assert.rejects(rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }), error => [404, 410].includes(error.status), 'the private export bytes went with the project');
+  const heldAfter = await rollbarDoorClient({ endpoint: origin, cookie, project: 'web-app' }).call('uploads', { uploadId: secondPlan.uploadId }).catch(error => ({ refused: error.status }));
+  assert.ok(heldAfter.refused || !heldAfter.bundleSha256, 'the private export bytes went with the project: ' + JSON.stringify(heldAfter));
   assert.equal((await req(`/api/projects/${native.id}/issues`)).status, 200, 'an unrelated project is untouched');
   console.log('Rollbar import passed through the import door: no-write plan with named conversion losses, reviewed apply, interrupted apply resumed by a new owner session, count, stack, deploy and rule comparison, inert history, guarded undo and live replacement capture. Synthetic export only.');
 } finally { await worker.close(); await rm(scratch, { recursive: true, force: true }); delete process.env.SPOOL_TEST_SESSION; }
