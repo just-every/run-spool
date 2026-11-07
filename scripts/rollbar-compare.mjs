@@ -22,19 +22,24 @@ export function compareRollbarExport(bytes, native) {
   const rows = [];
   const missingItems = items.filter(item => !issues.has(issueId(item)));
   rows.push({ aspect: 'items', source: items.length, imported: items.length - missingItems.length, status: missingItems.length ? 'differs' : 'match', missing: missingItems.map(item => String(item.id)) });
-  const countDiffs = items.filter(item => issues.has(issueId(item)) && issues.get(issueId(item)).count !== instances.filter(i => String(i.item_id) === String(item.id)).length);
-  const missingInstances = instances.filter(i => !nativeEvents.has(plainUuid(i)));
+  // An issue's own count is the full imported total; its packet carries a bounded sample of occurrences, so stacks compare on that sample.
+  const perItem = item => instances.filter(i => String(i.item_id) === String(item.id)).length;
+  const countDiffs = items.filter(item => issues.has(issueId(item)) && issues.get(issueId(item)).count !== perItem(item));
+  const importedOccurrences = items.reduce((n, item) => n + (issues.get(issueId(item))?.count ?? 0), 0);
   const claimed = items.reduce((n, item) => n + (item.total_occurrences ?? 0), 0);
-  rows.push({ aspect: 'occurrences', source: instances.length, imported: instances.length - missingInstances.length, status: missingInstances.length || countDiffs.length ? 'differs' : 'match',
+  rows.push({ aspect: 'occurrences', source: instances.length, imported: importedOccurrences, status: importedOccurrences !== instances.length || countDiffs.length ? 'differs' : 'match',
+    byItem: countDiffs.map(item => ({ item: String(item.id), source: perItem(item), imported: issues.get(issueId(item)).count })),
     // Rollbar's own per-item totals can exceed what an export carries; the shortfall is named, not hidden.
     exportedOfClaimed: { exported: instances.length, claimedByRollbar: claimed }, explained: claimed > instances.length ? `${claimed - instances.length} occurrences are counted by Rollbar but absent from the export` : null });
   const stackDiffs = [];
+  let sampled = 0;
   for (const instance of instances) {
     const event = nativeEvents.get(plainUuid(instance)); if (!event) continue;
+    sampled++;
     const want = expectedFrames(instance), got = event.frames.map(f => ({ file: f.file, line: f.line, column: f.column, function: f.function }));
     if (JSON.stringify(want) !== JSON.stringify(got)) stackDiffs.push({ occurrence: plainUuid(instance), source: want, imported: got });
   }
-  rows.push({ aspect: 'stacks', source: instances.length, imported: instances.length - missingInstances.length, status: stackDiffs.length ? 'differs' : 'match', differences: stackDiffs });
+  rows.push({ aspect: 'stacks', source: instances.length, sampled, status: stackDiffs.length || !sampled ? 'differs' : 'match', differences: stackDiffs });
   const revisions = new Set(deploys.map(d => d.revision).filter(Boolean)), released = new Set(native.releases.map(r => r.name));
   const missingReleases = [...revisions].filter(revision => !released.has(revision));
   rows.push({ aspect: 'deploys', source: deploys.length, imported: revisions.size - missingReleases.length, status: missingReleases.length ? 'differs' : 'explained', missing: missingReleases,
