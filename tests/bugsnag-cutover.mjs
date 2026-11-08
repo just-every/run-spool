@@ -16,7 +16,7 @@ export async function bugsnagCutover({json,req,web,android}){
    assert.equal((await req(uploadPath,'POST',{...upload,mapping:mapping.replace('42:44','52:54')},headers)).status,409,'matching native build is immutable');
    assert.equal((await req(uploadPath,'POST',{...upload,build:'43'},headers)).status,409,'symbols need exact registered build');
    const foreign=await json(`/api/projects/${web.id}/keys`,'POST',{kind:'deploy'});
-   assert.equal((await req(uploadPath,'POST',upload,{Cookie:'',Authorization:`Bearer ${foreign.key}`})).status,401,'foreign project cannot upload symbols');
+   assert.equal((await req(uploadPath,'POST',upload,{Cookie:'',Authorization:`Bearer ${foreign.key}`})).status,403,'foreign project cannot upload symbols');
   }
   const ingest=await json(`/api/projects/${project.id}/keys`,'POST',{kind:'ingest'}),dsn=new URL(ingest.dsn);
   const event={event_id:(mobile?'b':'a').repeat(32),platform:mobile?'java':'javascript',release:name,dist:build,environment:'production',
