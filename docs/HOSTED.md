@@ -12,37 +12,37 @@ This checkout uses the rer version pinned in [package.json](../package.json). Fr
 
 For the Free or Assisted account procedure below, you need:
 
-- this checkout, set up as in the [README](../README.md#run-it-on-your-computer) (Node 22 or later from [nodejs.org](https://nodejs.org/en/download), git and public rer; Node must already be on PATH, then rer supplies the pinned runtimes);
+- this checkout, set up as in the [README](../README.md#run-it-on-your-computer) (git is required; the installer brings rer, Node and pnpm);
 - a Cloudflare account with a workers.dev subdomain, its account ID, and an API token that can edit Workers scripts and D1;
 - a SendGrid API key that can send mail, and a sender address verified in SendGrid. Sign-in links are sent by email.
 
-The [Run page](https://run-spool.com/run) uses one line, `npx -y @runeditrun/rer dev just-every/run-spool`, for the first local start; it handles installation and setup. The `setup` form below prepares this checkout without leaving a dev runtime running. You do not need pnpm on PATH.
+The [Run page](https://run-spool.com/run) uses `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool` for the first local start. The `setup` form below installs rer and prepares Spool without leaving a dev runtime running. Node and pnpm do not need to be on PATH.
 
 ## First install
 
 1. Install and set up Spool on this computer:
 
    ```sh
-   npx -y @runeditrun/rer setup just-every/run-spool
+   curl -fsSL https://runeditrun.com/install.sh | sh -s -- setup just-every/run-spool
+   export PATH="$HOME/.local/bin:$PATH"
    cd run-spool
    SPOOL_ENV=production # choose your environment name here
    ```
 
+   If you already followed the README, work from that `run-spool` checkout and skip the install line and `cd`. Run the PATH line in each new terminal, or use `~/.local/bin/rer` wherever this guide says `rer`; the installer does not edit your shell profile.
+
    Explicit setup prompts for missing required answers in an interactive terminal. With non-TTY input, use `rer setup --answers <private-json-file> --non-interactive`; piping an email alone is not an answer file. Setup stops its temporary app when complete; `rer dev` starts a local server if you need one. These local answers do not replace the hosted settings below.
 
-2. Create the private settings file for this environment. The command generates the session secret, the one-time setup token and the alert destination hash key. It also starts with no alert destinations (`[]`):
+2. Create the private settings file for this environment. It starts with no alert destinations (`[]`). Leave generated secrets out: `rer deploy` generates the session secret, one-time setup token and alert destination hash key itself.
 
    ```sh
-   umask 077 && mkdir -p .rer/deploy && cat > .rer/deploy/"$SPOOL_ENV".env <<EOF
+   umask 077 && mkdir -p .rer/deploy && cat > .rer/deploy/"$SPOOL_ENV".env <<'EOF'
    CLOUDFLARE_ACCOUNT_ID=
    CLOUDFLARE_API_TOKEN=
    OWNER_EMAIL=
    MAIL_FROM=
    MAIL_API_KEY=
-   SESSION_SECRET=$(node -p "require('node:crypto').randomBytes(32).toString('hex')")
-   SETUP_TOKEN=$(node -p "require('node:crypto').randomBytes(32).toString('hex')")
    ALERT_DESTINATIONS=[]
-   ALERT_DESTINATION_HASH_KEY=$(node -p "require('node:crypto').randomBytes(32).toString('base64')")
    EOF
    ```
 
@@ -52,15 +52,14 @@ The [Run page](https://run-spool.com/run) uses one line, `npx -y @runeditrun/rer
 
    ```sh
    rer dev --stop
-   set -a && . .rer/deploy/"$SPOOL_ENV".env && set +a
-   rer deploy --environment "$SPOOL_ENV"
+   rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
    ```
 
-   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. No separate claim command is needed. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. After a successful claim, remove the `SETUP_TOKEN` line from that file; an existing owner needs no setup token for sign-in, updates or archives. rer issues and retires a fresh bootstrap token if an update needs to finish owner finalization.
+   `rer deploy` builds this commit, creates the Worker and its database, applies the migrations, uploads the settings as secrets and checks `/health`. It also sends the one-time setup token to claim `OWNER_EMAIL` as the hosted owner, then removes `SETUP_TOKEN` from the deployed Worker secrets. No separate claim command is needed. An already claimed installation keeps its owner, and later deploys to this environment keep the setup token retired. Keep the original deploying checkout, the private environment file, `.rer/deploy/<environment>.secrets.env` generated secrets and `.rer/deploy/<environment>.json` deployment ownership record/receipt for as long as this deployment exists. Git ignores these private files; a fresh clone does not recover them. The record is needed for removal as well as future updates. rer keeps the generated session and alert hash secrets in the private `.rer/deploy/<environment>.secrets.env` file and reuses them on updates. It retires the one-time setup token automatically and issues a fresh one if an update needs to finish owner finalization. Do not replace the saved secrets during an update.
 
 4. Add `/sign-in` to the hosted origin printed by deploy, open that address, enter your `OWNER_EMAIL` and follow the link in the email. A fresh installation then opens `/setup`: create your first project or choose **Restore a private archive** before creating one. Select an archive up to 16 MiB and choose **Restore into empty installation**, then create new project keys. Archives contain private source maps but exclude owner sessions and credential grants.
 
-Alert destinations start empty. Add, edit and test email destinations from **Alerts → Rules** ([steps](ALERT-WEBHOOKS.md#manage-email-destinations)); no secret update or redeploy is needed. Webhooks remain operator-managed as described in that guide. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys keep the deployed values.
+Alert destinations start empty. Add, edit and test email destinations from **Alerts → Rules** ([steps](ALERT-WEBHOOKS.md#manage-email-destinations)); no secret update or redeploy is needed. Webhooks remain operator-managed as described in that guide. Keep `ALERT_DESTINATION_HASH_KEY` unchanged while deliveries are active. Secrets are uploaded on the first deploy, and later deploys reuse the retained generated values.
 
 ## Sign in without email
 
@@ -70,7 +69,7 @@ If you cannot receive the sign-in email, run this from the original deploying ch
 rer signin --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
 ```
 
-`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. You can also supply the account credentials through the environment, as in the deploy command above. Keep this link private.
+`rer signin` prints a private owner sign-in link once, without sending email. Open it now: it works once, expires within 15 minutes and is never saved by rer. Its use is recorded in the owner's audit log. The command uses the Cloudflare credentials to issue the link for the already claimed owner; it does not create a second owner. Set `SPOOL_ENV` to the environment you deployed before running these commands in a new terminal; the rer default is `production`. You can also supply the account credentials through the environment. Keep this link private.
 
 ## Update to a newer Spool
 
@@ -82,12 +81,11 @@ rer signin --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
    rer dev --stop
    git pull --ff-only
    rer install
-   set -a && . .rer/deploy/"$SPOOL_ENV".env && set +a
-   rer deploy --environment "$SPOOL_ENV"
-   node scripts/hosted.mjs check --environment "$SPOOL_ENV"
+   rer deploy --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
+   rer run hosted check --environment "$SPOOL_ENV"
    ```
 
-   `git pull --ff-only` stops when the histories diverge or local changes conflict with the incoming changes; nonconflicting local edits may be preserved. Deploying to the same environment updates the same Worker and database: new migrations are applied and existing evidence, keys, settings and your owner stay. `node scripts/hosted.mjs check` confirms that the hosted installation is healthy and running this checkout's commit.
+   `git pull --ff-only` stops when the histories diverge or local changes conflict with the incoming changes; nonconflicting local edits may be preserved. Deploying to the same environment updates the same Worker and database: new migrations are applied and existing evidence, keys, settings and your owner stay. `rer run hosted check` uses the pinned Node supplied by rer and confirms that the hosted installation is healthy and running this checkout's commit.
 
 3. Sign in as before; your projects and evidence are there. If the deploy fails, it names the failed step; fix the cause and run the same deploy again. The archive restores only into an empty installation ([restore procedure](../OPERATIONS.md#data-movement-and-retention)).
 
@@ -99,8 +97,7 @@ Set `SPOOL_ENV` to the environment being removed. Run removal from the **origina
 
 ```sh
 rer dev --stop
-set -a && . .rer/deploy/"$SPOOL_ENV".env && set +a
-rer deploy --remove --yes --environment "$SPOOL_ENV"
+rer deploy --remove --yes --env-file .rer/deploy/"$SPOOL_ENV".env --environment "$SPOOL_ENV"
 ```
 
 The general command is `rer deploy --remove --yes`, with `--environment <name>` when selecting an environment; the default is `production`. Use the exact environment used to deploy. rer checks resource ownership and removes the Worker and each D1, R2, KV and queue it created for that environment, with their data. It reads back removal before completing; it does not delete unrelated account resources. This Spool declaration uses one Worker and D1 database.

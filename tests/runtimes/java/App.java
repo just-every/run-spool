@@ -19,6 +19,10 @@ public class App {
     }
   }
 
+  static void closeResource() throws java.io.IOException {
+    throw new java.io.IOException("synthetic-spool-close-failed");
+  }
+
   public static void main(String[] args) throws Exception {
     Sentry.init(options -> {
       options.setDsn(System.getenv("SPOOL_FIXTURE_DSN"));
@@ -35,9 +39,12 @@ public class App {
     // A command-line program tracks one application session (release health needs a release).
     Sentry.startSession();
     if (args[0].equals("suppressed")) {
-      IllegalStateException failure = new IllegalStateException("checkout quantity rejected", new ArithmeticException("division by zero"));
-      failure.addSuppressed(new java.io.IOException("synthetic-spool-close-failed"));
-      Sentry.captureException(failure);
+      try {
+        charge("synthetic-spool-note");
+      } catch (IllegalStateException failure) {
+        try { closeResource(); } catch (java.io.IOException suppressed) { failure.addSuppressed(suppressed); }
+        Sentry.captureException(failure);
+      }
       Sentry.close();
       return;
     }

@@ -60,7 +60,7 @@ export async function exportArchive(service, path, transient, progress) {
   if (id) await service.exports.abort(id);
  }
 }
-export async function importArchive(service, path, transient, journal, progress) {
+export async function importArchive(service, path, transient, journal, progress, options={}) {
  let id, manifest, closing, complete = false, staged = 0;
  try {
   // Validate both complete archives before creating any restore state. An old
@@ -76,7 +76,7 @@ export async function importArchive(service, path, transient, journal, progress)
   const ledgers = ledger.ledgers();
   for await (const record of fileRecords(path)) {
    if (record.kind === 'manifest') {
-    manifest = record; id = await service.imports.create(manifest, undefined, ledgers ? { ledgers } : {});
+    manifest = record; id = await service.imports.create(manifest, undefined, {...options,...(ledgers?{ledgers}:{})});
     const { skippedTables } = await service.imports.status(id);
     if (skippedTables?.length) progress?.({ phase: 'skipped', tables: skippedTables });
    }
@@ -89,6 +89,7 @@ export async function importArchive(service, path, transient, journal, progress)
   }
   progress?.({ phase: 'finishing', total: manifest.partCount });
   const status = await service.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash, ...(later ? { laterJournal: later } : {}) }); complete = true;
-  return { ...receipt(manifest, closing, transient), ...(status.bridged ? { bridged: status.bridged } : {}), ...(status.skippedTables ? { skippedTables: status.skippedTables } : {}), ...(status.safetyChanges ? { safetyChanges: status.safetyChanges } : {}) };
+  if(status.schemaUnverified)progress?.({phase:'schema-unverified',receipt:status.schemaUnverified});
+  return { ...receipt(manifest, closing, transient), ...(status.schemaUnverified?{schemaUnverified:status.schemaUnverified}:{}), ...(status.bridged ? { bridged: status.bridged } : {}), ...(status.skippedTables ? { skippedTables: status.skippedTables } : {}), ...(status.safetyChanges ? { safetyChanges: status.safetyChanges } : {}) };
  } finally { if (id && !complete) await service.imports.abort(id); }
 }

@@ -37,6 +37,10 @@ export async function erasePanel(app,browser,directory,{project,width,needles}){
   assert.equal(await page.evaluate(()=>document.activeElement?.id),'erasure-receipt','focus moves to the receipt');
   await check(page,directory,width,'receipt',captures,needles);
   const projects=await (await context.request.get(app.origin+'/api/projects')).json();assert.ok(!projects.some(row=>row.id===project),'the project is gone');
+  // No reload: the app has already left the erased project. It lands on the remaining project's Issues, or on the start of a new project, and the switcher no longer offers the erased one.
+  if(projects.length){await page.waitForURL(`**/projects/${projects[0].id}/issues`);assert.ok(!(await page.locator('.project-picker select option').evaluateAll(options=>options.map(option=>option.value))).includes(project),'the project switcher no longer offers the erased project');}
+  else{await page.getByRole('heading',{name:'Create your first project',exact:true}).waitFor();}
+  assert.equal(await page.getByRole('heading',{name:'This project is unavailable'}).count(),0,'the app never says the erased project is unavailable');
   return {captures,ms:Date.now()-started};
  }finally{await context.close();}
 }

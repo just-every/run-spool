@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { personLabel, resolutionLabel, words } from './readable';
 import { date, type Request } from './shared';
 import type { ActivityRow, DiscussionData } from '../../domain/discussion/model';
 
@@ -43,10 +44,10 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
    {data.activity.length?<ol className="timeline">{data.activity.map(row=>{
     const comment=row.kind==='comment_added'?data.comments.find(comment=>comment.id===row.detail.comment):null;
     const release=row.detail.release??row.detail.resolvedRelease??row.detail.resolution_release;
-    const label:Record<string,string>={resolved_release_recurrence:'Recurred in resolved release',older_release_recurrence:'Repeated in older release',suppression_started:'Archived',suppression_expired:'Archive condition met',priority:'Priority changed',resolution:'Resolved',comment_added:'Comment',comment_edited:'Comment edited',comment_deleted:'Comment deleted'};
+    const label:Record<string,string>={resolved_release_recurrence:'Recurred in resolved release',older_release_recurrence:'Repeated in older release',suppression_started:'Archived',suppression_expired:'Archive condition met',state:'Status changed',subscribed:'Subscribed',unsubscribed:'Unsubscribed',priority:'Priority changed',resolution:'Resolved',comment_added:'Comment',comment_edited:'Comment edited',comment_deleted:'Comment deleted'};
     const recurrence=row.detail.recurrenceCount??row.detail.recurrence_count??row.detail.count;
     return <li key={row.id} style={{overflowWrap:'anywhere'}}>
-     <p><strong>{label[row.kind]??row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:row.actor_name??<>{row.actor_kind} <code style={{overflowWrap:'anywhere',wordBreak:'break-word'}}>{row.actor_label}</code></>}</p>
+     <p><strong>{label[row.kind]??row.kind.replaceAll('_',' ')}</strong> · {date(row.created)} · {comment?comment.author:personLabel(row.actor_kind,row.actor_name)}</p>
      {row.kind==='comment_added'&&(comment?<>
       {comment.updated!==comment.created&&<p className="muted">Edited {date(comment.updated)}</p>}
       {editing?.id===comment.id?<form onSubmit={event=>{event.preventDefault();void mutate('/comments/'+encodeURIComponent(comment.id),'PATCH',{body:editBody,version:editing!.version})}}>
@@ -60,10 +61,10 @@ export function Discussion({project,issue,refresh,request,onChanged}:{project:st
      {typeof row.detail.deadline==='number'&&<p>Follow-up due {date(row.detail.deadline)}.</p>}
      {typeof row.detail.occurrenceTarget==='number'&&<p>Reopen at {row.detail.occurrenceTarget} occurrences.</p>}
      {typeof row.detail.userTarget==='number'&&<p>Reopen at {row.detail.userTarget} affected users.</p>}
-     {typeof row.detail.priority==='string'&&<p>Priority: {row.detail.priority}</p>}
-     {typeof row.detail.state==='string'&&<p>Status: {row.detail.state}</p>}
+     {typeof row.detail.priority==='string'&&<p>Priority: {words(row.detail.priority)}</p>}
+     {typeof row.detail.state==='string'&&<p>Status: {words(row.detail.state)}</p>}
      {typeof release==='string'&&<p>Release: {release||'No release'}</p>}
-     {typeof row.detail.mode==='string'&&<p>{row.kind.startsWith('suppression_')?'Archive condition':'Resolution'}: {row.detail.mode.replaceAll('_',' ')}</p>}
+     {typeof row.detail.mode==='string'&&<p>{row.kind.startsWith('suppression_')?'Archive condition':'Resolution'}: {row.kind.startsWith('suppression_')?words(row.detail.mode):resolutionLabel(row.detail.mode,typeof release==='string'?release:null)}</p>}
      {typeof recurrence==='number'&&<p>Occurrences: {recurrence}</p>}
     </li>;
    })}</ol>:<p>No activity recorded yet.</p>}

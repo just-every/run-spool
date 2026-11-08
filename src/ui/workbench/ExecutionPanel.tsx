@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { type Request, type Run } from './shared';
+import { date, type Request, type Run } from './shared';
 import { ReproducerCard } from './ReproducerCard';
 import { FixWorkflowCard } from './FixWorkflowCard';
 import { GitHubConnectionSetup } from './GitHubConnectionSetup';
@@ -41,7 +41,7 @@ export function ExecutionPanel({ project, issue, event, busy, request, run, init
       <Field label="Export to call (blank: the mapped function)" value={exported} maxLength={100} onChange={value => setExported(value)} />
       <label className="form-field">Input (JSON array of arguments)<textarea required value={input} maxLength={8192} rows={3} onChange={change => setInput(change.target.value)} /></label>
       <button className="primary-button" disabled={busy}>Record reproducer</button>
-      <p className="execution-meta">Replays occurrence <code>{event.id}</code>.</p>
+      <p className="execution-meta">Replays the occurrence received {date(event.received)}{event.event?.release ? ` in ${event.event.release}` : ''}.</p>
     </form>}
     {ticket && <div className="callout run-ticket" role="status"><strong>Run queued. Run this once in your Spool checkout within 15 minutes; the token is shown only now.</strong><code>{ticket.command}</code><button className="text-button" onClick={() => void navigator.clipboard.writeText(ticket.command)}>Copy command</button></div>}
     {reproducers?.map(reproducer => <ReproducerCard key={reproducer.id} {...{ project, reproducer, releases, busy, write, request }} onTicket={setTicket} />)}

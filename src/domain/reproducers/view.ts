@@ -12,17 +12,18 @@ export const VERDICT_BASIS = 'Judged from what your uploaded source did in the s
 export function runView(row: any, now = Date.now()) {
  const expired = row.state !== 'finished' && now > row.expires, result = json(row.checks);
  return {
-  id: row.id, release: row.release, build: row.build, modules: json(row.modules),
+  id: row.id, preparedBy: row.actor?JSON.parse(row.actor):null, release: row.release, build: row.build, modules: json(row.modules),
   state: expired ? 'expired' : row.state,
   outcome: expired ? 'failed' : row.outcome,
   label: OUTCOME_LABELS[expired ? 'failed' : row.outcome] ?? null, basis: VERDICT_BASIS,
   reason: expired ? 'The run token expired before the runner reported an observation.' : result?.reason ?? null,
   checks: result?.checks ?? [], observation: json(row.observation), tools: json(row.tools),
+  ...(result?.analysis ? { analysis: result.analysis } : {}),
   created: row.created, expires: row.expires, claimed: row.claimed, finished: row.finished,
  };
 }
 export async function reproducerView(db: D1Database, row: any) {
- const runs = await query(db, 'SELECT * FROM reproducer_runs WHERE reproducer=? ORDER BY created DESC,id DESC', row.id).all<any>();
+ const runs = await query(db, `SELECT r.*,(SELECT actor FROM spool_agent_custody a WHERE a.kind='reproducer' AND a.id=r.id) actor FROM reproducer_runs r WHERE reproducer=? ORDER BY created DESC,id DESC`, row.id).all<any>();
  return { id: row.id, issue: row.issue, event: row.event, defectClass: row.defect_class, support: row.support, reason: row.reason, reasonText: row.reason ? UNSUPPORTED[row.reason] : null,
   spec: JSON.parse(row.spec), created: row.created, trust: REPRODUCER_TRUST, runs: await Promise.all(runs.results.map(async run => ({...runView(run),...(await restoredWork(db,row.project,'run',run.id)?{historical:true}:{})}))) };
 }
