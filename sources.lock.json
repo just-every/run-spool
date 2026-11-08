@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a48202227e26ead104fa0082188fa4799c97082dafd5ccff1892222cbedd0c3a",
+      "sha256": "065876a20c05a9e3c47b496342e9ba39c21563d0e07030879fc40d2b391d31bb",
       "executable": false
     },
     "DEMO.md": {
@@ -11298,7 +11298,7 @@
       "executable": false
     },
     "tests/sentry-cli/field-refusals.mjs": {
-      "sha256": "b9a2808f04a07eaab12fddc3b11c3e9ab220b61235b74b1c3a26368f4fea3d51",
+      "sha256": "b4b8fe20f3dca1981f630df5aaff6c51cac0d792c4f7f49d38b2b09b20de9564",
       "executable": false
     },
     "tests/sentry-cli/fixtures.mjs": {
