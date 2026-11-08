@@ -1,3 +1,4 @@
+import { RESTORED_WORK_REASON } from '../restored-work';
 import { number, text } from '../agent-projection';
 import { issueRepairs, REPAIR_TRUST } from './view';
 
@@ -9,6 +10,7 @@ const event = (row: any) => ({ id: text(row.id), release: text(row.release), seq
 function repair(row: any) {
  const o = row.observation, e = o.evidence;
  return {
+  ...(row.historical?{historical:true}:{}),
   id: text(row.id), recordedBy: 'owner', trust: REPAIR_TRUST, revision: number(row.revision), link: text(row.link, 2048), note: text(row.note, 1000), created: number(row.created),
   snapshot: { issueRevision: number(row.snapshot.issueRevision), releaseSequence: number(row.snapshot.releaseSequence), events: row.snapshot.events.map((item: any) => ({ id: text(item.id), state: text(item.state) })) },
   facts: { proposed: number(row.facts.proposed), approved: number(row.facts.approved), merged: number(row.facts.merged),
@@ -29,6 +31,6 @@ export async function packetRepairs(db: D1Database, project: string, issue: stri
  const latest = repairs[0];
  return {
   repairs: repairs.map(repair), available,
-  verification: latest ? { state: latest.observation.verdict, reason: latest.observation.reasons.map(item => item.reason).join(' '), repair: text(latest.id), limits: latest.observation.limits } : NO_REPAIR,
+  verification: latest?.historical ? { state: 'inconclusive', reason: RESTORED_WORK_REASON, repair: text(latest.id) } : latest ? { state: latest.observation.verdict, reason: latest.observation.reasons.map(item => item.reason).join(' '), repair: text(latest.id), limits: latest.observation.limits } : NO_REPAIR,
  };
 }

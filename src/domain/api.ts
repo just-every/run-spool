@@ -1,17 +1,22 @@
+import { keyRateRoutes } from './key-rate-limits/routes';
 import suppressionRoutes from './suppression/routes';
 import {discussionRoutes} from './discussion/routes';
 import recurrenceRoutes from './recurrence/routes';
 import priorityRoutes from './issue-priority/routes';
 import {prioritySql} from './issue-priority/model';
+import type { NativeAuthority } from './agent-door/native-authority';
 import { mintedByCurrentPerson } from './credential-fence';
 import { resolveMembership } from './members/resolver';
 import { memberProjects } from './members/resolver';
 import { memberRoutes } from './members/routes';
 import { reportRoutes } from './reports/routes';
 import { reportingRoutes } from './dashboards/routes';
+import {prepareScrubbing} from './scrubbing/model';
+import {projectScrubbingRoutes,installationScrubbingRoutes} from './scrubbing/routes';
 import {reviewRoutes} from './review/routes';
 import {retentionPolicyRoutes} from './retention-routes';
 import {identityPolicyRoutes,identityReadRoutes} from './identities/routes';
+import { endUserErasurePreviewRoutes } from './identities/erasure-preview';
 import sessionRoutes from './sessions/routes';
 import { suspectRoutes } from './suspects/routes';
 import { loaderRoutes } from './loader/routes';
@@ -28,10 +33,11 @@ import { releaseOrderSql,currentReleaseSequenceSql,issueReleasesSql } from './re
 import { resolutionInput,resolutionTarget,resolutionBoundarySql,resolutionTargetFence } from './releases/resolution';
 import { groupingRoutes as projectGroupingRoutes } from './grouping/routes';
 import {inboundFilterRoutes,defaultOnFilters,defaultInboundPolicy} from './filters';
+import { notificationPreferenceRoutes } from './notifications/routes';
 import { Hono } from 'hono';
 import { rejectedResponse } from '../base/rejected-response';
 import { AuthError } from '../modules/operator-auth/index.mjs';
-import { ownerSession, ownerWrite } from '../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from './agent-door/native-authority';
 import type { Bindings as OwnerBindings } from '../auth/bindings';
 import type { AlertEnvironment } from './alerts/types';
 import alertRoutes from './alerts/routes';
@@ -56,7 +62,8 @@ import { decodeShortIds, resolveIssue, shortIdColumnsSql } from './short-ids/loo
 type Bindings = OwnerBindings & AlertEnvironment;
 import { normalize, identity, hash, token, scrub, canonical } from './privacy';
 import { ownerAlert, ownerIssue } from './stored-text';
-import { portability, archiveStream, restoreStream } from './portability';
+import { archiveStream, restoreStream } from './portability';
+import { portability } from './portability-worker';
 import { PortabilityError } from '../modules/portability/index.mjs';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
 import { nativeBody } from './native-wire';
@@ -78,7 +85,7 @@ import { alertProjection, issueProjection, outcomeProjection } from './agent-pro
 import { issuePacket } from './packet';
 import { ownerBatch, ownerDatabase, type OwnerSession } from './owner-authority';
 
-const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:OwnerSession}}>();
+const api = new Hono<{Bindings:Bindings;Variables:{owner:boolean;dev:boolean;project:string|null;minter:{id:string;version:number}|null;session:NativeAuthority}}>();
 api.route('/api/organization',memberRoutes);
 api.route('/api/audit',auditRoutes);
 api.route('/api/reports',reportRoutes);
@@ -141,7 +148,8 @@ api.post('/api/ingest/:project',async c=>{
       try{await recordIngest(c,auth.scope,'oversized')}catch(failure){return ingestFailure(c,auth.scope,failure)}
       return ingestRejection(c,c.json({outcome:'rejected',reason:parsed.rejected===408?'body_timeout':parsed.rejected===413?'body_limit':'Body exceeds limit'},parsed.rejected as any));
     }
-    return admitEvent(c,auth.scope,normalize(parsed.value),await hash(canonical(parsed.value)));
+    const privacy=await prepareScrubbing(c.env.DB,auth.scope.project,parsed.value);
+    return admitEvent(c,auth.scope,normalize(privacy.document),await hash(canonical(parsed.value)),false,undefined,privacy);
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 api.route('/api/projects',deployRoutes);
@@ -167,14 +175,19 @@ api.use('/api/*',async(c,next)=>{
 });
 api.route('/api/projects',priorityRoutes);
 api.route('/api/projects',suppressionRoutes);
+api.route('/api/projects',notificationPreferenceRoutes);
 api.route('/api/projects',discussionRoutes);
 api.route('/api/projects',recurrenceRoutes);
 api.route('/api/projects',investigationRoutes);
 api.route('/api/projects',eventRoutes);
 api.route('/api/projects/:project/keys/:hash/loader',loaderRoutes);
+api.route('/api/projects/:project/keys/:hash/rate-limit',keyRateRoutes);
 api.route('/api/projects/:project/review',reviewRoutes);
 api.route('/api/projects/:project/retention-policy',retentionPolicyRoutes);
 api.route('/api/projects/:project/identity-policy',identityPolicyRoutes);
+api.route('/api/projects/:project/end-user-erasure',endUserErasurePreviewRoutes);
+api.route('/api/projects/:project/scrubbing',projectScrubbingRoutes);
+api.route('/api/scrubbing',installationScrubbingRoutes);
 api.route('/api/projects/:project/check-in-routes',checkInRoutes);
 api.route('/api/projects/:project/suspects',suspectRoutes);
 api.route('/api/projects/:project/feedback',feedbackRoutes);
@@ -222,7 +235,7 @@ api.patch('/api/projects/:project/issues/:issue',async c=>{
   const b=await body(c),resolution=resolutionInput(b);if(!['open','acknowledged','resolved','suppressed'].includes(b.state)||!Number.isSafeInteger(b.revision))throw new Error('Invalid triage');
   const issue=await stmt(c.env.DB,'SELECT * FROM issues WHERE project=? AND id=?',c.req.param('project'),c.req.param('issue')).first<any>();if(!issue)return c.json({error:'Issue not found'},404);
   const releasePolicy=await readReleasePolicy(c.env.DB,issue.project),target=await resolutionTarget(c.env.DB,issue.project,resolution),boundary=resolutionBoundarySql(resolution,target),targetFence=resolutionTargetFence(c.env.DB,issue.project,resolution,target);
-  const results=await write(c,[...targetFence?[targetFence]:[],releasePolicyFence(c.env.DB,issue.project,releasePolicy.revision),stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state),stmt(c.env.DB,`INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) SELECT i.project,i.id,?,0,?,${boundary},${currentReleaseSequenceSql('i')} FROM issues i WHERE i.id=? AND i.revision=? AND i.state=? AND changes()=1 ON CONFLICT(project,issue) DO UPDATE SET mode=excluded.mode,seen_without_release=0,updated=excluded.updated,boundary_seq=excluded.boundary_seq,observed_seq=excluded.observed_seq`,b.state==='resolved'?resolution.mode:'current',now(),issue.id,b.revision+1,b.state)]);const result=results[targetFence?2:1].results[0] as any;
+  const results=await write(c,[...targetFence?[targetFence]:[],releasePolicyFence(c.env.DB,issue.project,releasePolicy.revision),stmt(c.env.DB,"INSERT INTO alert_reactivation_markers SELECT project,id,revision+1 FROM issues WHERE id=? AND revision=? AND state='suppressed' AND ?='open' ON CONFLICT(project,issue) DO UPDATE SET revision=excluded.revision",issue.id,b.revision,b.state),stmt(c.env.DB,`UPDATE issues SET state=?,resolved_seq=CASE WHEN ?='resolved' THEN COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0) ELSE NULL END,latest_release_seq=COALESCE(latest_release_seq,(SELECT MAX(seq) FROM releases WHERE project=issues.project),0),revision=revision+1 WHERE id=? AND revision=? RETURNING revision`,b.state,b.state,issue.id,b.revision),stmt(c.env.DB,"INSERT INTO audit SELECT ?,?,'triage',?,? WHERE changes()=1 AND EXISTS(SELECT 1 FROM issues WHERE id=? AND revision=? AND state=?)",crypto.randomUUID(),issue.project,JSON.stringify({issue:issue.id,state:b.state,revision:b.revision+1}),now(),issue.id,b.revision+1,b.state),stmt(c.env.DB,`INSERT INTO issue_resolutions(project,issue,mode,seen_without_release,updated,boundary_seq,observed_seq) SELECT i.project,i.id,?,0,?,${boundary},${currentReleaseSequenceSql('i')} FROM issues i WHERE i.id=? AND i.revision=? AND i.state=? AND changes()=1 ON CONFLICT(project,issue) DO UPDATE SET mode=excluded.mode,seen_without_release=0,updated=excluded.updated,boundary_seq=excluded.boundary_seq,observed_seq=excluded.observed_seq`,b.state==='resolved'?resolution.mode:'current',now(),issue.id,b.revision+1,b.state)]);const result=results[targetFence?3:2].results[0] as any;
   if(!result)return c.json({error:'Revision conflict'},409);
   return c.json({state:b.state,...result});
 });

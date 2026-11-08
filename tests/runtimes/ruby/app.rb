@@ -21,6 +21,13 @@ def charge(_note)
   end
 end
 
+def flush_telemetry
+  yield
+rescue Sentry::ExternalError => failure
+  # Delivery failure must not turn a handled application error into a process failure.
+  warn "Sentry delivery failed: #{failure.message}"
+end
+
 transaction = Sentry.start_transaction(name: 'checkout', op: 'task')
 Sentry.get_current_scope.set_span(transaction)
 span = transaction.start_child(op: 'db', description: 'load cart')
@@ -37,7 +44,12 @@ if ARGV[0] == 'handled'
   Sentry.capture_message('synthetic-spool-discard')
   Sentry.capture_check_in('nightly-sync', :ok, duration: 1)
   transaction.finish
-  Sentry.close
+  # Flush buffered logs while the worker still accepts work, then let the asynchronous
+  # before_send finish before close emits the SDK's pending client report.
+  flush_telemetry { Sentry.get_current_client.flush }
+  Sentry.background_worker.shutdown_timeout = 10
+  Sentry.background_worker.shutdown
+  flush_telemetry { Sentry.close }
 else
   # Ruby has no global crash hook; web apps report unhandled errors through the Rack middleware,
   # which also tracks the request's session (request-mode release health).

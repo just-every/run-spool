@@ -9,14 +9,14 @@ type Props = { project: string; reproducer: any; releases: any[]; busy: boolean;
 export function ReproducerCard({ project, reproducer, releases, busy, write, request, onTicket }: Props) {
   const [release, setRelease] = useState(''), [proposal, setProposal] = useState({ run: '', repository: '', base: 'main', flow: '', durationMinutes: '60' });
   const spec = reproducer.spec, path = `/api/projects/${encodeURIComponent(project)}`, label = `reproducer-${reproducer.id}`;
-  const reproduced = reproducer.runs.filter((run: any) => run.outcome === 'reproduced');
+  const reproduced = reproducer.runs.filter((run: any) => run.outcome === 'reproduced' && !run.historical);
   function queue(form: FormEvent) { form.preventDefault(); void write(async () => onTicket(await request(`${path}/reproducers/${encodeURIComponent(reproducer.id)}/runs`, 'POST', release ? { release } : {}))); }
   function propose(form: FormEvent) {
     form.preventDefault();
     void write(() => request(`${path}/fixes`, 'POST', { reproducer: reproducer.id, run: proposal.run || reproduced[0]?.id, repository: proposal.repository, base: proposal.base, flow: proposal.flow, durationMinutes: Number(proposal.durationMinutes) }));
   }
   return <article className="reproducer" aria-labelledby={label}>
-    <h3 id={label}>Reproducer for event <code>{reproducer.event}</code>: {reproducer.support === 'supported' ? 'supported' : 'unsupported'}</h3>
+    <h3 id={label}>{reproducer.support === 'supported' ? 'Ready to reproduce' : 'Reproduction unavailable'}</h3>
     <p className="execution-meta">Recorded {date(reproducer.created)}. {reproducer.trust}</p>
     {reproducer.support === 'unsupported' ? <p className="callout">{reproducer.reasonText}</p> : <>
       <dl className="execution-facts">
@@ -32,7 +32,8 @@ export function ReproducerCard({ project, reproducer, releases, busy, write, req
       </form>
     </>}
     {reproducer.runs.map((run: any) => <div key={run.id} className={`callout run ${run.outcome ?? run.state}`}>
-      <strong>{run.outcome ? outcomeLabel[run.outcome] : stateLabel[run.state]}</strong> · release {run.release} · queued {date(run.created)}
+      <strong>{run.historical ? 'Historical result: ' : ''}{run.outcome ? outcomeLabel[run.outcome] : stateLabel[run.state]}</strong> · release {run.release} · queued {date(run.created)}
+      {run.preparedBy && <p className="execution-meta">Prepared by {run.preparedBy.label}</p>}
       {run.reason && <p>{run.reason}</p>}
       {run.outcome && run.outcome !== 'failed' && <p className="execution-meta">{run.basis}</p>}
       {!!run.checks.length && <ul className="run-checks">{run.checks.map((check: any) => <li key={check.check}>{check.passed ? '✓' : '✗'} {check.check.replace('_', ' ')}: expected {String(check.expected)}, observed {String(check.observed)}{check.required ? '' : ' (shown, not required)'}</li>)}</ul>}

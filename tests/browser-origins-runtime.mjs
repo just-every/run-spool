@@ -13,6 +13,7 @@ import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {createServer} from 'node:http';
 import {build} from 'esbuild';
+import {migrationEvidence} from './migration-evidence.mjs';
 import {canonical} from '../src/domain/privacy.ts';
 import {requestedHeaders} from '../src/domain/origins.ts';
 import {captureException} from '../src/domain/capture.ts';
@@ -57,7 +58,7 @@ const application={async fetch(request,env,ctx){
 }};
 export default withDevIdentity(application,{config:authConfig});
 `);
-await build({entryPoints:[harness],outfile:resolve(temporary,'worker.js'),bundle:true,format:'esm',platform:'browser',external:['node:*','cloudflare:*']});
+await build({entryPoints:[harness],outfile:resolve(temporary,'worker.js'),bundle:true,format:'esm',platform:'browser',external:['node:*','cloudflare:*'],plugins:[migrationEvidence]});
 const source=JSON.parse(await readFile('wrangler.jsonc','utf8'));
 const config={name:'errors-origin-acceptance',main:resolve(temporary,'worker.js'),compatibility_date:source.compatibility_date,compatibility_flags:source.compatibility_flags,d1_databases:source.d1_databases,vars:{...authBindings(origin)}};
 const cfg=resolve(temporary,'wrangler.json');await writeFile(cfg,JSON.stringify(config));

@@ -1,5 +1,6 @@
 import { all, statement, guard, quote, insist } from './storage.mjs';
 import { canonicalJson } from './hash.mjs';
+import { excludedTable } from './catalogue.mjs';
 import { migrationSeeded, seededCondition } from './restore-safety.mjs';
 
 // Recovery requires a new installation, including excluded identity tables and
@@ -22,13 +23,21 @@ function shadowTables(tables) {
 /** What the destination must still hold when the restore commits: `emptyTables` stay empty and
  * each of `seededTables` keeps exactly the rows its migrations put there. A table with other rows
  * is listed as to-be-empty, so the preflight refuses it. */
-export async function legacyTargetState(db,migrations) {
+export async function legacyTargetState(db,migrations,include=()=>true) {
  const tables=await all(db,"SELECT name,sql FROM sqlite_master WHERE type='table' AND sql IS NOT NULL ORDER BY name"),shadows=shadowTables(tables);
- const names=tables.map(t=>t.name).filter(name=>!bookkeeping(name) && !shadows.has(name.toLowerCase()));
+ const names=tables.map(t=>t.name).filter(name=>!bookkeeping(name) && !shadows.has(name.toLowerCase()) && include(name));
  const filled=[];
  for(const name of names)if(await statement(db,`SELECT 1 FROM ${quote(name)} LIMIT 1`).first())filled.push(name);
  const seeded=await migrationSeeded(db,filled,migrations);
  return {emptyTables:names.filter(name=>!seeded.some(s=>s.name===name)),seededTables:seeded};
+}
+// Before a runner applies pending migrations, use the normal product emptiness
+// rule against the existing tables. Identity exclusions and replaceable rows
+// retain their normal meaning; only the already-applied history can vouch for seeds.
+export async function requireProductEmpty({db,policy,migrations}) {
+ const {emptyTables}=await legacyTargetState(db,migrations,name=>!excludedTable(name,policy)
+  && !(policy.derivedTables??[]).includes(name) && !(policy.replaceableTables??[]).includes(name));
+ for(const name of emptyTables)insist(!(await statement(db,`SELECT 1 FROM ${quote(name)} LIMIT 1`).first()),'target_not_empty:'+name,409);
 }
 export async function requireLegacyEmpty({db,buckets},{emptyTables,seededTables=[]}) {
  for(const table of emptyTables)insist(!(await statement(db,`SELECT 1 FROM ${quote(table)} LIMIT 1`).first()),'legacy_target_not_empty:'+table,409);
