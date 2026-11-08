@@ -1,0 +1,8 @@
+{
+  "repository": "just-every/run-spool",
+  "ref": "refs/heads/cloud/sd-spool-c-f119-fix1",
+  "head": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+  "verified_via": "git ls-remote --heads origin cloud/sd-spool-c-f119-fix1",
+  "product_pushed": true,
+  "evidence_publication_is_separate": true
+}

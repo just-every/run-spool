@@ -1,0 +1,21 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f119-fix1",
+  "head": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+  "parent": "0f03986b7347b4c125218baa203c777cd6e03e7f",
+  "main": "0ac17384fa3edb3d4f782e9f4f8ece1963ffe8ef",
+  "required_replay_is_ancestor": true,
+  "worktree_clean": true,
+  "net_changed_paths_against_main": [
+    "sources.lock.json",
+    "tests/sentry-cli-compat.mjs",
+    "tests/sentry-cli/field-refusals.mjs"
+  ],
+  "commit_identity": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "pr_url": null,
+  "pushed": true,
+  "push_attempts": 1,
+  "push_guard": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sd-spool-c-f119-fix1",
+  "post_push_fresh_main": "0ac17384fa3edb3d4f782e9f4f8ece1963ffe8ef",
+  "post_push_merge": "Already up to date"
+}

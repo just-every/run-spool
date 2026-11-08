@@ -1,0 +1,9 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "0ac17384fa3edb3d4f782e9f4f8ece1963ffe8ef",
+  "command": "cloud_run timeout 600 node tests/sentry-cli-compat.mjs",
+  "exit": 0,
+  "denials_staging_before": 1,
+  "denials_staging_after_permitted_assembly": 0,
+  "whole_journey": "passed"
+}

@@ -1,0 +1,16 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "0f03986b7347b4c125218baa203c777cd6e03e7f",
+  "command": "cloud_run timeout 600 node tests/sentry-cli-compat.mjs",
+  "exit": 1,
+  "assertion": "the denied requests have live staging to protect",
+  "actual": 2,
+  "expected": 1,
+  "at": "tests/sentry-cli/denials.mjs:79",
+  "diagnosis": {
+    "extra_staging_origin": "The replay adds fieldRefusalFlow(context) before debugFlow(context). That test issues a successful deploy-authorized chunk-upload control and never consumes it. populatedDenialFlow then adds its own deliberately live staged map chunk; denied requests have not yet run at the failing assertion.",
+    "control_sha1": "04e4fdc12191fafaab43b58d38739177361f8a52",
+    "control_input": "synthetic-spool-staged-field-refusal",
+    "product_authentication_failure": false
+  }
+}

@@ -1,0 +1,8 @@
+CI_DISCOVERED run=42483680243 head=d1dbf1d6aed5ab7c8cec48df036e0571e07a5156 status=queued
+CI_STATUS run=42483680243 status=in_progress conclusion=None
+CI_STATUS run=42483680243 status=in_progress conclusion=None
+CI_STATUS run=42483680243 status=in_progress conclusion=None
+CI_STATUS run=42483680243 status=in_progress conclusion=None
+CI_STATUS run=42483680243 status=in_progress conclusion=None
+CI_STATUS run=42483680243 status=completed conclusion=success
+CI_RESULT {"status": "success", "run_id": 42483680243, "head_sha": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156", "conclusion": "success", "html_url": "https://github.com/just-every/run-spool/actions/runs/42483680243"}

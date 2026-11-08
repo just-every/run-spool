@@ -1,0 +1,60 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+  "calls": [
+    {
+      "number": 1,
+      "at_utc": "2026-11-08T13:10:40Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs?head_sha=d1dbf1d6aed5ab7c8cec48df036e0571e07a5156&per_page=100",
+      "exit": 0,
+      "response_file": "ci-call-01.json"
+    },
+    {
+      "number": 2,
+      "at_utc": "2026-11-08T13:15:40Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-02.json"
+    },
+    {
+      "number": 3,
+      "at_utc": "2026-11-08T13:20:41Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-03.json"
+    },
+    {
+      "number": 4,
+      "at_utc": "2026-11-08T13:25:41Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-04.json"
+    },
+    {
+      "number": 5,
+      "at_utc": "2026-11-08T13:30:42Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-05.json"
+    },
+    {
+      "number": 6,
+      "at_utc": "2026-11-08T13:35:42Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-06.json"
+    },
+    {
+      "number": 7,
+      "at_utc": "2026-11-08T13:40:42Z",
+      "endpoint": "repos/just-every/run-spool/actions/runs/42483680243",
+      "exit": 0,
+      "response_file": "ci-call-07.json"
+    }
+  ],
+  "status": "success",
+  "budget": 10,
+  "run_id": 42483680243,
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/42483680243",
+  "conclusion": "success"
+}

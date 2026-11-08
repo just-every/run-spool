@@ -1,0 +1,272 @@
+{
+  "selected_scope": "manually created task reports, receipts, synthetic-test logs, source patch and browser adapter only",
+  "excluded": "credentials, private setup output, environment files/dumps, held-out gate material, symlinks, unrelated binary artifacts",
+  "files_reviewed": [
+    {
+      "file": "DIAGNOSIS.md",
+      "bytes": 2020,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "MECHANICAL.md",
+      "bytes": 785,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "PLAN.md",
+      "bytes": 1426,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "REPORT.md",
+      "bytes": 7323,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "assertion-preservation.receipt.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "browser-launch-adapter.mjs",
+      "bytes": 350,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "candidate-build.log",
+      "bytes": 11917,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "candidate.patch",
+      "bytes": 5487,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-01.json",
+      "bytes": 289,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-02.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-03.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-04.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-05.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-06.json",
+      "bytes": 192,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-call-07.json",
+      "bytes": 195,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-watch.log",
+      "bytes": 673,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "ci-watch.receipt.json",
+      "bytes": 1763,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "clause-status.receipt.json",
+      "bytes": 3085,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "final-lock-output.json",
+      "bytes": 458320,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "final-source-check.log",
+      "bytes": 458556,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "first-party-check.exit",
+      "bytes": 2,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "first-party-check.log",
+      "bytes": 341,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "fix-build.log",
+      "bytes": 11983,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "identity-audit.log",
+      "bytes": 425,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "identity-audit.receipt.json",
+      "bytes": 1289,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "main-build.log",
+      "bytes": 11983,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "mechanical.receipt.json",
+      "bytes": 986588,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "preserved-main.receipt.json",
+      "bytes": 795,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-sentry-cli.exit",
+      "bytes": 2,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-sentry-cli.log",
+      "bytes": 6054,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-sentry-http-first-attempt.log",
+      "bytes": 2916,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-sentry-http.exit",
+      "bytes": 2,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-sentry-http.log",
+      "bytes": 7118,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-typecheck.exit",
+      "bytes": 2,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "probe-typecheck.log",
+      "bytes": 187,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "product-push.log",
+      "bytes": 1042,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "product.receipt.json",
+      "bytes": 845,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "provenance-start.json",
+      "bytes": 435,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "remote-product-custody.receipt.json",
+      "bytes": 294,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "repro-head.log",
+      "bytes": 5083,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "repro-head.receipt.json",
+      "bytes": 839,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "repro-main.log",
+      "bytes": 5000,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "repro-main.receipt.json",
+      "bytes": 290,
+      "regular_file": true,
+      "known_credential_pattern": false
+    },
+    {
+      "file": "results.receipt.json",
+      "bytes": 2199,
+      "regular_file": true,
+      "known_credential_pattern": false
+    }
+  ],
+  "pattern_check": "passed",
+  "note": "This task-side review is not the fleet publication scan or acceptance gate."
+}

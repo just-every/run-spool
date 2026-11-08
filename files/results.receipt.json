@@ -1,0 +1,75 @@
+{
+  "status": "ready",
+  "checks": [
+    {
+      "probe": "sentry-cli",
+      "command": "cloud_run timeout 600 node tests/sentry-cli-compat.mjs",
+      "exit": 0,
+      "output": "probe-sentry-cli.log"
+    },
+    {
+      "probe": "sentry-http",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout 600 node --import /tmp/rer-chromium.mjs tests/sentry-http.mjs",
+      "exit": 0,
+      "output": "probe-sentry-http.log"
+    },
+    {
+      "probe": "typecheck",
+      "command": "cloud_run timeout 300 pnpm typecheck",
+      "exit": 0,
+      "output": "probe-typecheck.log"
+    },
+    {
+      "probe": "first-party check",
+      "command": "cloud_run timeout 300 pnpm run check -- --profile first-party",
+      "exit": 0,
+      "output": "first-party-check.log"
+    },
+    {
+      "probe": "final source lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "output": "final-lock-output.json"
+    },
+    {
+      "probe": "final source check",
+      "command": "pnpm source:check",
+      "exit": 0,
+      "output": "final-source-check.log"
+    }
+  ],
+  "sentry_http_first_attempt": {
+    "exit": 1,
+    "error": "Playwright default Chromium headless-shell binary absent",
+    "resolution": "external preload forces system /usr/bin/chromium and --no-sandbox; complete rerun passed",
+    "output": "probe-sentry-http-first-attempt.log"
+  },
+  "test_generated_tracked_screenshots": "restored from HEAD after complete test, before final source lock",
+  "blockers": [],
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f119-fix1",
+  "head": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+  "verify": {
+    "run_id": 42483680243,
+    "head_sha": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42483680243",
+    "api_calls": 7,
+    "exemptions": []
+  },
+  "clause_status_changes": [],
+  "counts_before": {
+    "done": 22,
+    "partial": 52,
+    "missing": 31,
+    "total": 105
+  },
+  "counts_after": {
+    "done": 22,
+    "partial": 52,
+    "missing": 31,
+    "total": 105
+  },
+  "pr_url": null
+}

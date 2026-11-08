@@ -1,0 +1,10 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f119-fix1",
+  "required_replay": "0f03986b7347b4c125218baa203c777cd6e03e7f",
+  "observed_replay": "0f03986b7347b4c125218baa203c777cd6e03e7f",
+  "fresh_main": "0ac17384fa3edb3d4f782e9f4f8ece1963ffe8ef",
+  "shallow": "false",
+  "clone_command": "git clone --filter=blob:none https://github.com/just-every/run-spool.git /workspace/run-spool",
+  "node": "v24.19.0"
+}

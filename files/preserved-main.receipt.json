@@ -1,0 +1,22 @@
+{
+  "CONTRACT.md": {
+    "main_blob": "7fc59867de19f41d268972c2fefde2dbcbb2a04b",
+    "candidate_blob": "7fc59867de19f41d268972c2fefde2dbcbb2a04b"
+  },
+  "ACCEPTANCE.md": {
+    "main_blob": "2af5d2059bd999b51d43c9e74cc40a865d560af9",
+    "candidate_blob": "2af5d2059bd999b51d43c9e74cc40a865d560af9"
+  },
+  "docs/CLAIMS.md": {
+    "main_blob": "2c046c9c3fbac3b1ac4ac0e06059f069bc67c81d",
+    "candidate_blob": "2c046c9c3fbac3b1ac4ac0e06059f069bc67c81d"
+  },
+  "tests/sentry-cli/denials.mjs": {
+    "main_blob": "fe5ed58137556adabdaa82c3639b4bb01f1f6f11",
+    "candidate_blob": "fe5ed58137556adabdaa82c3639b4bb01f1f6f11"
+  },
+  "tests/sentry-cli/debug-flow.mjs": {
+    "main_blob": "37613d8691e64fc7189ee1d6475b738109e7de27",
+    "candidate_blob": "37613d8691e64fc7189ee1d6475b738109e7de27"
+  }
+}

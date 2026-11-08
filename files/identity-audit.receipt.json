@@ -1,0 +1,41 @@
+{
+  "command": [
+    "git",
+    "log",
+    "origin/main..HEAD",
+    "--format=%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)"
+  ],
+  "all_candidate_commits_including_side_parents": [
+    {
+      "sha": "d1dbf1d6aed5ab7c8cec48df036e0571e07a5156",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": ""
+    },
+    {
+      "sha": "0f03986b7347b4c125218baa203c777cd6e03e7f",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": ""
+    },
+    {
+      "sha": "2de909020de1e1c82064351d469c7aea333d417c",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": ""
+    },
+    {
+      "sha": "de9012e63204b3d66be735c670239f209fe51372",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": ""
+    },
+    {
+      "sha": "3e7391b1fa53aafdc4cb2237e7527696eae7a101",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "trailers": ""
+    }
+  ],
+  "result": "passed"
+}

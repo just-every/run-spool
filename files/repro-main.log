@@ -1,0 +1,50 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Sentry authority: bearer only; ingest; 15 doors=401
+Sentry authority: bearer only; agent; 15 doors=403
+Sentry authority: bearer only; revoked; 15 doors=401
+Sentry authority: bearer only; unknown; 15 doors=401
+Sentry authority: bearer only; absent; 15 doors=401
+Sentry authority: bearer only; malformed; 15 doors=401
+Sentry authority: bearer only; cross-project; 5 project-bearing doors=403
+Sentry authority: owner cookie and Origin; ingest; 15 doors=401
+Sentry authority: owner cookie and Origin; agent; 15 doors=403
+Sentry authority: owner cookie and Origin; revoked; 15 doors=401
+Sentry authority: owner cookie and Origin; unknown; 15 doors=401
+Sentry authority: owner cookie and Origin; absent; 15 doors=401
+Sentry authority: owner cookie and Origin; malformed; 15 doors=401
+Sentry authority: owner cookie and Origin; cross-project; 5 project-bearing doors=403
+ZIP refusal: symlink; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: drive absolute; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: traversal directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: drive relative; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: UNC; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: mixed traversal directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: backslash; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: FIFO; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: symlink directory; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: parent traversal; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: absolute; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: duplicate; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: control name; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: deflate underdeclared; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: deflate overdeclared; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: stored mismatch; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+ZIP refusal: false declaration over 4 MiB; upload=200 assemble=200/error; artifacts=0 releases=0 staged-chunks=0
+[sentry-vite-plugin] Info: Successfully uploaded source maps to Sentry
+[sentry-esbuild-plugin] Info: Successfully uploaded source maps to Sentry
+[sentry-rollup-plugin] Info: Successfully uploaded source maps to Sentry
+[sentry-webpack-plugin] Info: Successfully uploaded source maps to Sentry
+Sentry integrity: wrong chunk checksum=400; wrong bundle checksum=200/error; missing chunk=200/not_found; oversize chunk=400; no added artifacts/releases/staging
+PROBE API-002 acceptance-3: GET /api/0/organizations/acme/projects/ with deploy authority -> 501 naming the method and path; product and upload state unchanged
+PROBE API-002 acceptance-3: POST /api/0/organizations/acme/unsupported/ with deploy authority -> 501 naming the method and path; product and upload state unchanged
+PROBE SRC-003 acceptance-4: sentry-cli releases new synthetic-spool-74 --synthetic-spool-unsupported-flag -> exit=2; literal flag and command usage named; product and artifacts unchanged; valid command exit=0 and release stored
+PROBE API-002 acceptance-4: bearer only; seven served mutation doors=403; populated release, deploy, artifact, assembly and staged-chunk state unchanged
+PROBE API-002 acceptance-4: owner cookie and Origin; seven served mutation doors=403; populated release, deploy, artifact, assembly and staged-chunk state unchanged
+PROBE API-002 POST /api/0/organizations/acme/releases/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+PROBE API-002 POST /api/0/projects/acme/web/releases/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+PROBE API-002 PUT /api/0/organizations/acme/releases/checkout@1.0.0/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+PROBE API-002 POST /api/0/organizations/acme/releases/checkout@1.0.0/deploys/: extra fields -> 400, bounded named error, safe audit, unchanged populated state; auth first
+PROBE API-002 refs and endpoint: named 501; read-only, revoked and foreign grants: auth refusal; no product changes
+[SRC-004] SRC-003 sentry-cli journey passed: denials, release/commit/deploy enrichment, debug-ID and release/dist maps, the Vite, esbuild, Rollup and webpack plugins, chunk interruption and resume, refusals by name, archive, restore and erasure.
