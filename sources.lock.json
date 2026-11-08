@@ -10414,7 +10414,7 @@
       "executable": false
     },
     "src/ui/workbench/views.css": {
-      "sha256": "6303ce67a24a30fccb2e5731b1da73c14cf3f437673c561325e793c78fbef2c0",
+      "sha256": "a3f5efd7a8405c27224f83aa0af6623317ebc734f93df7eac57dbdd701d98b24",
       "executable": false
     },
     "src/ui/workbench/WorkspaceView.tsx": {

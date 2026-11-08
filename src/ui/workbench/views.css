@@ -160,7 +160,7 @@ span.frame-function{font-family:var(--font-text)}
 
 /* TEAM-004 short IDs and the commit timeline. */
 .short-id{display:inline-block;margin:0 8px 6px 0;padding:1px 8px;border:var(--inner-border);border-radius:var(--radius-input);font:600 13px/1.5 var(--font-code);letter-spacing:.02em;white-space:nowrap}
-.issue-status .short-id{margin-bottom:0}
+.issue-status .short-id{margin-bottom:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .timeline{margin:12px 0;padding:0;list-style:none;border:var(--inner-border);border-radius:var(--radius-input)}
 .timeline>li{padding:12px 14px;overflow-wrap:anywhere}
 .timeline>li+li{border-top:var(--hairline-border)}
