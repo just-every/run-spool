@@ -1,6 +1,9 @@
+import {chooseLocalAgentPolicy} from './agent-door/local-policy.mjs';
 import { operatorUi } from './operator-ui.mjs';
 import assert from 'node:assert/strict';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {archiveProjection} from './archive.mjs';
+import {expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import {startTestWorker} from './worker.mjs';
@@ -15,8 +18,8 @@ async function journey(width) {
  const worker=await startTestWorker(15482),origin=worker.origin;let browser,application;
  const checked=name=>evidence.checks.push({width,name});
 try {
- const cookie=await signIn(origin);
- async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return response.json();}
+ const cookie=await signIn(origin);await chooseLocalAgentPolicy(origin,cookie);
+ async function api(path,method='GET',value){const response=await fetch(origin+path,{method,headers:{Cookie:cookie,Origin:origin,...value?{'Content-Type':'application/json'}:{}},...value?{body:JSON.stringify(value)}:{}});assert.ok(response.ok,`${method} ${path}: ${response.status}`);return path==='/api/archive'?archiveProjection(response):response.json();}
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
@@ -24,7 +27,7 @@ try {
   await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
-  const shot=async name=>{const path=`${name}-${width}.jpg`;await page.screenshot({path:output+'/'+path,type:'jpeg',quality:85,fullPage:!grouping,mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
+  const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
   await shot(scenario);
   if(scenario==='grouping-proposal-proposed'||scenario==='grouping-proposal-approved'){const headings=page.locator('article[aria-label="Grouping proposal review"] .grouping-explanation h4');for(let index=0;index<await headings.count();index++){await headings.nth(index).evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-effect-${index+1}`);}
    const action=scenario==='grouping-proposal-approved'?page.getByRole('heading',{name:'Review exact moves',exact:true}):page.getByRole('button',{name:'Approve proposal and open preview',exact:true});await action.evaluate(element=>element.scrollIntoView({block:'start'}));await shot(`${scenario}-decision`);}
@@ -83,11 +86,108 @@ try {
  // Check drafts across destinations without relying on browser refresh persistence.
  await (await workbenchLink(page,'Releases')).click();await page.getByLabel('Release name',{exact:true}).fill('spring-deliveries');await (await workbenchLink(page,'Capture')).click();await (await workbenchLink(page,'Releases')).click();assert.equal(await page.getByLabel('Release name',{exact:true}).inputValue(),'spring-deliveries');
 
+ // Open the actual browser download, including its verified closing hashes.
+ await (await workbenchLink(page,'Settings')).click();
+ await page.getByRole('heading',{name:'Archive and restore',exact:true}).waitFor();
+ const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
+ const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
+ assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
+ const downloaded=await archiveProjection(new Response(await readFile(await download.path())));
+ assert.deepEqual(downloaded.data,beforeDownload.data,'browser file carries every retained product row');
+ assert.ok(downloaded.data.events.some(event=>event.id===admitted.eventId),'actual captured event travels');
+ assert.ok(downloaded.data.issues.some(issue=>issue.id===admitted.issue),'actual triaged issue travels');
+ const privateMap=downloaded.data.artifacts.find(map=>map.release==='autumn-deliveries'&&map.debug==='dispatch-map');
+ assert.ok(privateMap,'uploaded private map travels');assert.deepEqual(JSON.parse(privateMap.payload),application.map,'private source bytes survive the download');
+ for(const credential of [project.ingestKey,cookie.slice(cookie.indexOf('=')+1)])assert.equal(downloaded.text.includes(credential),false,'active credential bytes never travel');
+ for(const table of ['credentials','sessions','oa_sessions','oa_operators'])assert.equal(Object.hasOwn(downloaded.data,table),false,'private authority is excluded');
+ const destination=await startTestWorker(15483);
+ try{
+  const destinationCookie=await signIn(destination.origin),headers={Cookie:destinationCookie,Origin:destination.origin};
+  const restored=await fetch(destination.origin+'/api/restore',{method:'POST',headers:{...headers,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:downloaded.text});
+  assert.equal(restored.status,200,'the actual browser file restores into an independent empty installation');await restored.body?.cancel();
+  assert.deepEqual((await archiveProjection(await fetch(destination.origin+'/api/archive',{headers}))).data,downloaded.data,'every downloaded product row and private map restores unchanged');
+ }finally{await destination.stop();}
+ await page.getByRole('button',{name:'Download private archive',exact:true}).scrollIntoViewIfNeeded();await capture('private-archive',width);
+ checked('Populated browser download verifies integrity, whole product equality, private source maps and credential exclusions');
+
+ if(width===1440) {
+  const destination=issuePath+'?context=synthetic-spool-1';
+  const recoveryScreens=async name=>{for(const screen of [1440,390]){await page.evaluate(()=>scrollTo(0,0));await capture(name,screen);}await page.setViewportSize({width,height:900});};
+  // The document loads online; its first workspace read meets an actual offline browser.
+  let openRead;const opening=new Promise(resolve=>{openRead=resolve});
+  await page.route(origin+'/api/projects',async route=>{await opening;await context.setOffline(true);await route.continue();});
+  await page.goto(origin+destination);
+  await expect(page.getByRole('heading',{name:'Opening your workspace',exact:true})).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('Checking your session');openRead();
+  await expect(page.getByRole('heading',{name:'Your workspace is unavailable',exact:true})).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText(/offline/i);
+  assert.equal(await page.locator('.issue').count(),0,'an unread issue is never presented as retained evidence');
+  assert.equal(new URL(page.url()).pathname+new URL(page.url()).search,destination);
+  await recoveryScreens('offline-workspace');
+  await context.setOffline(false);await page.unroute(origin+'/api/projects');
+  await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('.mapped-frame').first().waitFor();
+  assert.equal(new URL(page.url()).pathname,issuePath,'recovery preserves the requested issue');
+  assert.equal(new URL(page.url()).searchParams.get('context'),'synthetic-spool-1');
+  await page.route(origin+'/api/projects',route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
+  await page.reload();await expect(page.getByRole('alert')).toContainText(/unavailable/i);
+  await recoveryScreens('unavailable-workspace');
+  await page.unroute(origin+'/api/projects');await page.getByRole('button',{name:'Try again',exact:true}).click();
+  await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  const packetUrl=origin+'/api/projects/cedar/issues/'+admitted.issue+'/packet';
+  await page.route(packetUrl,route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
+  await page.reload();await expect(page.getByRole('heading',{name:'Issue evidence unavailable',exact:true})).toBeVisible();
+  await expect(page.getByRole('alert').filter({hasText:'Evidence unavailable.'})).toContainText(/unavailable/i);
+  assert.equal(await page.locator('.issue').count(),0);await recoveryScreens('unavailable-issue');
+  await page.unroute(packetUrl);await page.getByRole('button',{name:'Retry evidence',exact:true}).click();
+  await page.locator('.mapped-frame').first().waitFor();await page.getByLabel('Comment',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
+  const retainedDestination=page.url(),retainedIssues=await api('/api/projects/cedar/issues');
+  const draft='synthetic-spool-1 unsent investigation';
+  const comment=page.getByLabel('Comment',{exact:true});await comment.fill(draft);await comment.focus();
+  const writes=[];const watch=request=>{if(request.method()!=='GET')writes.push(request.method()+' '+new URL(request.url()).pathname)};
+  context.on('request',watch);
+  await context.setOffline(true);await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+  const stale=page.getByRole('alert').filter({hasText:'Retained information is stale.'});
+  await expect(stale).toContainText(/offline/i);
+  await expect(page.locator('.mapped-frame').first()).toBeVisible();await expect(comment).toHaveValue(draft);await expect(comment).toBeFocused();
+  assert.equal(page.url(),retainedDestination,'the selected event and occurrence stay in the destination');
+  assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
+  await recoveryScreens('stale-offline-issue');
+  await context.setOffline(false);await stale.getByRole('button',{name:'Try again',exact:true}).click();
+  await expect(stale).toHaveCount(0);await expect(comment).toHaveValue(draft);
+  // A server outage of only the packet also marks the retained issue stale.
+  await page.route(packetUrl,route=>route.fulfill({status:503,contentType:'text/plain',body:'Unavailable'}));
+  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(stale).toContainText(/unavailable/i);
+  await expect(page.locator('.mapped-frame').first()).toBeVisible();await expect(comment).toHaveValue(draft);
+  await page.unroute(packetUrl);await stale.getByRole('button',{name:'Try again',exact:true}).click();
+  await expect(stale).toHaveCount(0);await expect(comment).toHaveValue(draft);
+  await recoveryScreens('reconnected-issue');context.off('request',watch);
+  assert.deepEqual(writes,[],'offline reads and recovery never queue or replay a write');
+  assert.deepEqual(await api('/api/projects/cedar/issues'),retainedIssues,'offline reads and recovery leave all captured issue state unchanged');
+  assert.equal((await api('/api/projects/cedar/issues/'+admitted.issue+'/discussion')).comments.some(row=>row.body===draft),false,'the draft stays unsent');
+  checked('Offline and unavailable initial reads recover; retained issue evidence is stale, keeps destination, drafts and focus, and clears after a successful refresh without writes');
+ }
+
  await verifyReturnDestinations(origin,issuePath,cookie);
  const expiredCookie=await signIn(origin,{bootstrap:false});const expired=await browser.newContext({viewport:{width,height:900}}),expiredPage=await expired.newPage();await expired.addCookies([{name:expiredCookie.split('=')[0],value:expiredCookie.slice(expiredCookie.indexOf('=')+1),url:origin}]);await expiredPage.goto(origin+issuePath);await expiredPage.locator('.issue').waitFor();await expiredPage.waitForLoadState('networkidle');await expiredPage.evaluate(()=>fetch('/auth/signout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await expiredPage.waitForResponse(response=>response.url().endsWith('/packet'),{timeout:30000});await expiredPage.getByRole('link',{name:'Sign in again'}).waitFor();assert.ok((await expiredPage.getByRole('link',{name:'Sign in again'}).getAttribute('href')).includes(encodeURIComponent(issuePath)));await expired.close();checked('Hostile return destinations rejected and expired API session keeps requested issue');
  {const missingResponse=await page.goto(origin+'/unknown/page');assert.equal(missingResponse.status(),404);await page.getByRole('heading',{name:'This page is unavailable',exact:true}).waitFor();await capture('not-found',width);await page.getByRole('link',{name:'Back to issues',exact:true}).click();}
  assert.equal(pageErrors.length===0,true,'Owner-page errors occurred (details redacted)');checked('Styled direct-navigation 404, both widths, no owner-page errors or horizontal overflow');
+ const diagnostics=await api('/api/projects','POST',{id:'synthetic-spool-1',name:'Synthetic item diagnostics'}),dsn=new URL(diagnostics.dsn);
+ const diagnosticItems=[['statsd','synthetic-spool-1:1|c'],['statsd','synthetic-spool-2:1|c'],['synthetic-spool-3','{}'],['synthetic-spool-4','{}'],['synthetic-spool-5','{}'],['event',JSON.stringify({event_id:'7'.repeat(32),release:'synthetic-spool-1',message:'Synthetic diagnostic companion error'})]];
+ const diagnosticWire='{}\n'+diagnosticItems.map(([type,body])=>JSON.stringify({type,length:Buffer.byteLength(body)})+'\n'+body).join('\n');
+ const diagnosed=await fetch(origin+'/api'+dsn.pathname+'/envelope/?sentry_key='+dsn.username+'&sentry_version=7',{method:'POST',body:diagnosticWire});assert.equal(diagnosed.status,200);
+ await page.goto(origin+'/projects/synthetic-spool-1/capture');await page.getByText('Unsupported statsd items',{exact:true}).waitFor();
+ const receipts=page.locator('.capture-accounting');
+ if(width===1440){
+  for(const [name,quantity] of [['Unsupported statsd items','2'],['Unsupported unknown items','3'],['Events received','1']]){
+   const row=receipts.locator('dl > div').filter({has:page.getByText(name,{exact:true})});assert.equal(await row.locator('dd').innerText(),quantity,`${name} shows its independent item count`);
+  }
+  assert.equal(await receipts.locator('dt,dd').evaluateAll(elements=>elements.every(element=>parseFloat(getComputedStyle(element).fontSize)>=13)),true);
+  assert.deepEqual((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.map(item=>item.id),[]);
+ }
+ await capture('capture-item-diagnostics',width);checked('Capture receipts name statsd and unknown item counts separately from the accepted companion error');
+
  await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
+
 }finally{await browser?.close();await application?.stop();await worker.stop();}
 }
 for(const width of [1440,390])await journey(width);

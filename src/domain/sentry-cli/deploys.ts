@@ -5,6 +5,7 @@ import { deployBatch } from '../sentry/deploy';
 import type { CliAuthority } from './auth';
 import { cliError, CliRefusal, refuse } from './errors';
 import { deployView, httpUrl, instant, releaseName } from './release';
+import { supportedFields } from './fields';
 
 const s = (db: D1Database, sql: string, ...args: unknown[]) => db.prepare(sql).bind(...args);
 const deployLimit = 1000;
@@ -19,6 +20,7 @@ function optionalText(value: unknown, name: string, limit: number): string | nul
 export async function createDeploy(c: Context, who: CliAuthority, version: string, body: any): Promise<Response> {
  const db = c.env.DB as D1Database, { project, auth } = who;
  try {
+  supportedFields(c, body, ['environment', 'name', 'url', 'dateStarted', 'dateFinished']);
   const release = releaseName(version);
   if (typeof body?.environment !== 'string' || !/^[^\s/\\\u0000-\u001f\u007f][^/\\\u0000-\u001f\u007f]{0,63}$/.test(body.environment)) return cliError(c, 400, 'environment is required: at most 64 characters, no slash or control characters');
   const name = optionalText(body.name, 'name', 64), url = body.url === undefined || body.url === null || body.url === '' ? null : httpUrl(body.url), started = instant(body.dateStarted, 'dateStarted'), finished = instant(body.dateFinished, 'dateFinished');

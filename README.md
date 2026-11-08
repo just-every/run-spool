@@ -39,17 +39,27 @@ Run Spool on your computer without a Cloudflare account or mail provider, or dep
 
 ## Run it on your computer
 
-Start with **Node 22 or later** and **git**, on macOS, Linux or Windows with WSL2. If Node is missing or older, install it from [nodejs.org](https://nodejs.org/en/download), reopen your terminal and check `node --version` before continuing, or skip that and run `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool`, which brings its own Node. On WSL2, install Node and git inside WSL2. Node 22 or later must already be on PATH to start rer through npx; rer then supplies this project's pinned Node 22.20.0 and pnpm 10.12.4. You do not need pnpm on PATH. One line, as on the [Run page](https://run-spool.com/run), installs rer, clones Spool and starts it:
+macOS, Linux or Windows with WSL2. git is required; rer brings Node and pnpm. One line, as on the [Run page](https://run-spool.com/run), installs rer, clones Spool and starts it:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-spool
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-spool
 ```
 
-To start it again later, run `cd run-spool && rer dev`. To run the tagged release instead, use `git clone --branch v0.7.3 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
+The installer puts rer in `~/.local/bin` and leaves your shell profile unchanged. For the `rer` commands below, add it to this terminal's PATH:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Repeat that line in each new terminal, or use `~/.local/bin/rer` wherever this guide says `rer`. `~/.local/bin/rer cli path` shows optional shell-profile setup for future terminals. The installer’s printed restart and stop commands also work after this PATH step.
+
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same.
+
+To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. To run the tagged release instead, use `git clone --branch v0.7.3 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
 
 `rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@run-spool.test` for the `run-spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
 
-To choose your own email before first start, run `npx -y @runeditrun/rer setup just-every/run-spool` instead, then `cd run-spool && rer dev`. Explicit setup asks for missing required answers in an interactive terminal. With non-TTY input, put JSON such as `{"OWNER_EMAIL":"you@example.com"}` in `.rer/local/setup-answers.json`, an ignored private file with mode `0600`, then run `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the Spool checkout. The answers path must be relative and contained inside that checkout; absolute paths, traversal and symlinks are refused. Piping an email alone is not a setup answer. Saved answers are reused. To replace the temporary dev owner's address later, stop dev first and supply `OWNER_EMAIL` through that file. Keep addresses and secrets out of shell arguments. See [installation](docs/install.md) for the file procedure.
+To choose your own email before first start, run the install line with `setup` in place of `dev` instead, then `cd run-spool && ~/.local/bin/rer dev`. Explicit setup asks for missing required answers in an interactive terminal. With non-TTY input, put JSON such as `{"OWNER_EMAIL":"you@example.com"}` in `.rer/local/setup-answers.json`, an ignored private file with mode `0600`, then run `rer setup --answers .rer/local/setup-answers.json --non-interactive` from the Spool checkout. The answers path must be relative and contained inside that checkout; absolute paths, traversal and symlinks are refused. Piping an email alone is not a setup answer. Saved answers are reused. To replace the temporary dev owner's address later, stop dev first and supply `OWNER_EMAIL` through that file. Keep addresses and secrets out of shell arguments. See [installation](docs/getting-started.md) for the file procedure.
 
 Setup prepares private settings and the database, claims or preserves the owner, opens the local owner without email and stops its temporary app; run `rer dev` afterwards. It creates no sample project and sends no real email. For older state, follow [OPERATIONS.md](OPERATIONS.md#existing-installation-recovery).
 
@@ -59,13 +69,17 @@ With rer dev v2 (using the rer version pinned in [package.json](package.json)), 
 
 A fresh installation opens `/setup`. Create the first project, copy its once-shown ingest key, add the SDK with the shown install line and init, use **Send test error** to check ingestion from Spool itself, then choose **Continue to workbench**. Replace a lost key in Settings. To restore existing evidence instead, choose **Restore a private archive** before creating a project. Register the app's release/build before sending its errors; the setup test registers the release/build shown on that screen.
 
-Stop dev with `rer dev --stop` (or Ctrl+C in the foreground) before deploy, verify, reset or transfer. Your owner, projects and evidence stay on this computer for the next start. [RUN-LOCALLY.md](RUN-LOCALLY.md) describes preview, idle timeout and server capacity. `rer describe` lists supported maintenance commands and flags.
+Stop dev with `~/.local/bin/rer dev --stop` (or Ctrl+C in the foreground) before deploy, verify, reset or transfer. Your owner, projects and evidence stay on this computer for the next start. [RUN-LOCALLY.md](RUN-LOCALLY.md) describes preview, idle timeout and server capacity. `rer describe` lists supported maintenance commands and flags.
 
 Export before reset and import only into an empty destination. Export includes private maps and browser-origin policy but excludes sign-in sessions, project keys, outbox and temporary state. Run setup if the destination has no owner and create new keys after restoring. Browser restore is available from `/setup` before the first project and Settings thereafter. For CLI import of a browser download, first run `chmod 600 /path/to/spool-private-archive.jsonl`; see [the transfer procedure](OPERATIONS.md#data-movement-and-retention). Reset removes only its displayed local inventory and preserves source, exports and deployment records.
 
-## Upgrade from 0.5.0
+## Upgrade an existing installation
 
-Back up first: export a private archive (Settings → **Download private archive**, or stop dev and run `rer export --output exports/spool.rer`). In a checkout of `main`, run `git pull` and then `rer dev`; in a checkout of an earlier tag, run `git fetch --tags && git checkout v0.6.0` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings and deployment receipt. This release adds three migrations, `0054` through `0056` (56 in total), which those commands apply; existing projects, evidence, triage states, grouping rules, inbound filters, alert rules and project keys are preserved. Keep the existing database; no reset or restore is needed. From 0.5.0 the same steps also apply `0049` through `0053`, from 0.4.0 the same, from 0.3.1 also `0044` through `0048`, from 0.3.0 also `0042` and `0043`, from 0.2.0 `0037` through `0041`, and from 0.1.0 `0020` through `0036`. An archive written by 0.5.1 or earlier also restores into a fresh 0.6.0 installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
+Back up first: export a private archive (Settings → **Download private archive**, or stop dev and run `rer export --output exports/spool.rer`). Keep the original checkout, database and private settings.
+
+For the latest tagged release, run `git fetch --tags && git checkout v0.7.3`, then `rer dev`. To keep following `main`, run `git pull --ff-only` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings, generated secrets and deployment receipt; follow [the hosting update procedure](docs/HOSTED.md#update-to-a-newer-spool).
+
+Those commands apply any migrations missing from the installed version. This `main` checkout includes migrations through `0099`; a tag applies the migrations shipped with that tag. Existing projects, evidence, triage states, grouping rules, inbound filters, alert rules and project keys are preserved. No reset or restore is needed for an upgrade. Older native private archives can also restore into a fresh, empty current installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
 
 ## Managed hosting
 
@@ -75,7 +89,7 @@ Spool uses the rer version pinned in [package.json](package.json) and supports R
 
 Follow [the hosting guide](docs/HOSTED.md) to configure your account and email sender. Stop local dev with `rer dev --stop`, then run `rer deploy`. Open `/sign-in` on the printed hosted address and request an email link. If you cannot receive mail, `rer signin --env-file .rer/deploy/production.env --environment production` prints a private, one-use owner link using the hosting guide's private settings file, the same Cloudflare credentials and original deploying checkout; it expires within 15 minutes.
 
-To remove it, export anything you need and run `rer deploy --remove --yes` from the original deploying checkout, retaining its private deployment record and using the same account credentials. The default environment is `production`; add `--environment <name>` for another environment. Removal deletes the Worker and its database. The hosting guide also covers updates and restoring archives. `rer deploy --dry-run` builds and validates the package without deploying; with the Cloudflare credentials it also reads the target's secret bindings, and without them it stops with exit 3 after naming every input a real deploy still needs.
+To remove it, export anything you need and run `rer deploy --remove --yes` from the original deploying checkout, retaining its private deployment record and using the same account credentials. The default environment is `production`; add `--environment <name>` for another environment. Removal deletes the Worker and its database. The hosting guide also covers updates and restoring archives. `rer deploy --dry-run` builds and validates the package locally without deploying or contacting Cloudflare. It prints the plan and names the inputs a real deploy still needs. A successful dry run exits 0 even when those inputs are missing; it does not establish that a real deploy is ready.
 
 ## Capture protocol
 

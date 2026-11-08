@@ -1,4 +1,5 @@
 import { reportsFlow } from './reports-flow.mjs';
+import { prioritySearchFlow } from './priority-search-flow.mjs';
 // [API-001] Retained records through versioned, exact-project read doors.
 import { recordReadFlow } from './records-flow.mjs';
 import { repositorySourceFlow } from './repository-source-flow.mjs';
@@ -7,6 +8,7 @@ import assert from 'node:assert/strict';
 import {launchBrowser} from './browser-launch.mjs';
 import {signIn} from './auth.mjs';
 export async function investigationFlow({req,json,origin,db}){
+ await prioritySearchFlow({req,json,origin});
  const p=await json('/api/projects','POST',{id:'investigation',name:'Cedar checkout'}),base='/api/projects/investigation';
  await json(base+'/releases','POST',{name:'checkout-2026',build:'web'});
  for(let i=0;i<108;i++){
@@ -56,6 +58,7 @@ export async function investigationFlow({req,json,origin,db}){
  for(const q of [local,'stack:'+local,'function:'+local,line,'stack:'+line]){
   assert.equal((await json(base+'/issue-search?q='+encodeURIComponent(q))).total,1,'owner search reaches frame locals and source lines');
   for(const door of ['issue-search','issue-export'])assert.equal((await json(`${base}/${door}?q=${encodeURIComponent(q)}`,'GET',undefined,auth)).total,0,'agent search and export match only what the agent packet shows');
+  const scopedCsv=await req(`${base}/issue-export?format=csv&q=${encodeURIComponent(q)}`,'GET',undefined,auth);assert.equal(scopedCsv.status,200);assert.equal((await scopedCsv.text()).split('\r\n').length,1,'Agent CSV queries cannot match frame locals or source lines absent from packets');
  }
  assert.equal((await json(base+'/issue-search?q='+encodeURIComponent('stack:closeLedger'),'GET',undefined,auth)).total,1,'agent search still matches packet frames');
  // Captured text stays inert in a spreadsheet: no exported cell opens as a formula, and each title keeps its text.
@@ -133,5 +136,5 @@ export async function dashboardFlow({req,json}){
  const attached=await json(root+'/items/'+preOrganization.id+'/shares','PUT',{revision:preOrganization.revision,shares:[{kind:'role',target:'read-only'}]});assert.ok(attached.shares[0].active);await json(root+'/items/'+attached.id,'DELETE',{revision:attached.revision});
  await json(base+'/review/views/'+view.id,'DELETE');assert.equal((await json(root+'/items/'+table.id)).widgets.length,0,'Deleting the referenced saved query removes its table widget');
  for(const id of [savedId,table.id,reportItem.id]){const current=await json(root+'/items/'+id);await json(root+'/items/'+id,'DELETE',{revision:current.revision});assert.equal((await req(root+'/items/'+id)).status,404)}
- console.log('[FIND-002 R2/R3] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed');
+ console.log('[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed');
 }

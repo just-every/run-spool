@@ -1,3 +1,4 @@
+import { plural } from './readable';
 import { useEffect, useRef, useState } from 'react';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
@@ -12,20 +13,21 @@ export type CorrectionPreview = {
   newIssue: { id: string; before: number; after: number } | null;
 };
 
-export function CorrectionReview({ preview, busy, onApply, onCancel }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void }) {
+export type CorrectionLabels = { issue: (id: string) => string; event: (id: string, occurrence?: string) => string };
+export function CorrectionReview({ preview, busy, onApply, onCancel, labels }: { preview: CorrectionPreview; busy: boolean; onApply: () => void; onCancel: () => void; labels?: CorrectionLabels }) {
   const moves = preview.plan.moves;
   return <div className="callout correction-review">
     <h3>Review exact moves</h3>
     <p>Nothing has moved yet. Apply this preview explicitly.</p>
     <strong>Issue counts before and after</strong>
     <ul>
-      {preview.plan.issues.map((issue: any) => <li key={issue.id}><code>{issue.id}</code>: {issue.count} → {issue.after} events</li>)}
-      {preview.newIssue && <li><code>{preview.newIssue.id}</code> (new issue): {preview.newIssue.before} → {preview.newIssue.after} events</li>}
+      {preview.plan.issues.map((issue: any) => <li key={issue.id}><code>{labels ? labels.issue(issue.id) : issue.id}</code>: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}
+      {preview.newIssue && <li><code>{labels ? labels.issue(preview.newIssue.id) : preview.newIssue.id}</code> (new issue): {preview.newIssue.before} → {preview.newIssue.after} {plural(preview.newIssue.after, 'event')}</li>}
     </ul>
     <strong>Exact event moves ({moves.length})</strong>
     <ol>
       {moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}>
-        <code>{move.event}</code> (occurrence <code>{move.occurrence}</code>): <code>{move.from}</code> → <code>{move.to}</code>
+        {labels ? <>{labels.event(move.event, move.occurrence)}: {labels.issue(move.from)} → {labels.issue(move.to)}</> : <><code>{move.event}</code> (occurrence <code>{move.occurrence}</code>): <code>{move.from}</code> → <code>{move.to}</code></>}
       </li>)}
     </ol>
     <button className="primary-button" disabled={busy} onClick={onApply}>Apply reviewed correction</button>
@@ -33,12 +35,16 @@ export function CorrectionReview({ preview, busy, onApply, onCancel }: { preview
   </div>;
 }
 
-export function CorrectionHistory({ entries, issueId, busy, onUndo }: { entries: any[]; issueId?: string; busy: boolean; onUndo: (id: string) => void }) {
+export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { entries: any[]; issueId?: string; busy: boolean; onUndo: (id: string) => void; labels?: CorrectionLabels }) {
   const relevant = entries.filter(entry => !issueId || entry.plan.issues.some((item: any) => item.id === issueId) || entry.plan.target === issueId);
   return <>
     <h3>Correction history</h3>
     {relevant.map(entry => <Details key={entry.id} title={`${entry.kind} · ${entry.state}`} triggerLabel={`${entry.kind} · ${entry.state}`}>
-      <pre>{JSON.stringify(entry, null, 2)}</pre>
+      {labels ? <>
+        <p>Created {date(entry.created)} · updated {date(entry.updated)}</p>
+        <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}>{labels.issue(issue.id)}: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
+        <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}>{labels.event(move.event, move.occurrence)}: {labels.issue(move.from)} → {labels.issue(move.to)}</li>)}</ol>
+      </> : <pre>{JSON.stringify(entry, null, 2)}</pre>}
       {entry.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => onUndo(entry.id)}>Undo this correction</button>}
     </Details>)}
     <p>Undo refuses after newer issue work, capture or retention; it never restores deleted occurrences. History is bounded to 50 records per project.</p>
@@ -201,6 +207,6 @@ function OperatorAudit({ rows, issue }: { rows: any[]; issue: any }) {
       : row.kind === 'grouping_applied' ? 'Applied a grouping correction'
       : row.kind === 'grouping_undone' ? 'Undid a grouping correction'
       : `Recorded deployment of ${detail.release} in ${detail.environment}`;
-    return <li key={row.id}>{label} · {date(row.created)}</li>;
+    return <li key={row.id}>{label} · {date(row.created)}{row.preparedBy ? ` · ${row.preparedBy.label}` : row.personActor ? ` · ${row.personActor.label}` : ''}{row.approvers?.length ? ` · Approved by ${row.approvers.map((p: any) => p.name).join(', ')}` : ''}</li>;
   })}</ul>;
 }

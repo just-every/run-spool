@@ -1,6 +1,6 @@
 import { sourceDiagnostics } from './path-mappings';
 import { AnyMap, originalPositionFor, decodedMappings, traceSegment } from '@jridgewell/trace-mapping';
-import { scrub, type Envelope } from './privacy';
+import { scrub, type Envelope, type Frame } from './privacy';
 import { sourceMapFile } from './source-map-path';
 import { functionScopes, type FunctionScopes } from './source-map-functions';
 import { artifactNameKey, frameArtifactNames } from './sentry-cli/names';
@@ -72,10 +72,10 @@ export function createDiagnoser(db:D1Database, project:string) {
     })());
     return names.get(key)!;
   };
-  return async (event:Envelope): Promise<any[]> => {
+  return async (event:Envelope, frames:Frame[]=event.frames): Promise<any[]> => {
     if (event.language) return sourceDiagnostics(db,project,event);
     const results=[];
-    for(const frame of event.frames){results.push(await (async()=>{
+    for(const frame of frames){results.push(await (async()=>{
       // Without a debug ID, a release/dist artifact named by the frame's file URL (`~/static/app.js`) identifies the map.
       const debugId = frame.debugId ?? await byName(event,frame.file);
       if(!debugId) return {generated:frame,status:'missing_debug_id'};

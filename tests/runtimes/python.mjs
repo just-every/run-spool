@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 import {run,runOk,exceptionTypes,issueDetails,referenceCollector} from './harness.mjs';
 import {objectJson} from '../../src/domain/sentry/wire.ts';
 import {readScreens} from './screens.mjs';
+import {chooseLocalAgentPolicy} from '../agent-door/local-policy.mjs';
 
 const here=resolve(import.meta.dirname,'python');
 // Every environment variable sentry-sdk reads to infer a release; cleared to prove "no release".
@@ -40,7 +41,8 @@ export default {
    const url=new URL(page.url());assert.equal(url.searchParams.get('event'),event.id);assert.equal(url.searchParams.get('occurrence'),event.occurrence);
    const detail=handled.events.find(value=>value.id===event.id);assert.ok(detail,'selected event is an actual SDK capture');
    assert.ok((await selected.innerText()).includes(`${detail.event.type}: ${detail.event.message}`),'displayed detail follows the selected capture');
-   assert.equal(await page.locator('.event-table tr[aria-selected="true"] code').innerText(),event.id,'event list highlights the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-event-id'),event.id,'event list highlights the selected capture');
+   assert.equal(await page.locator('.event-table tr[aria-selected="true"]').getAttribute('data-list-occurrence-id'),event.occurrence,'event list highlights the exact occurrence');
    for(const exception of detail.event.sentry.exceptions)await page.locator('article.exception h3').filter({hasText:`${exception.type}: ${exception.value}`}).waitFor();
   };
   await page.getByRole('button',{name:'Oldest',exact:true}).waitFor();await choose('Oldest',listed.oldest);
@@ -68,20 +70,20 @@ export default {
   await raw.screenshot({path:`.artifacts/runtimes/python-raw-stack-${page.viewportSize().width}.png`});
   await page.keyboard.press('Escape');
  },
- async verify({app,details,dir,origin,cookie,reference}){
+ async verify({app,details,dir,origin,cookie,referenceSent}){
   const events=details.flatMap(d=>d.events.map(e=>e.event.sentry));
   // SDK-010: local variables, SDK context and default integrations, as the unmodified SDK sent them.
   const failing=events.find(sentry=>sentry.exceptions.some(x=>x.stacktrace?.frames.some(f=>f.vars?.order_note)));
   const frame=failing.exceptions.flatMap(x=>x.stacktrace.frames).find(f=>f.function==='charge'&&f.vars);
   assert.equal(frame.vars.quantity,'0','an ordinary local survives');assert.equal(frame.vars.password,'[redacted]');assert.equal(frame.vars.api_key,'[redacted]');
-  const sent=reference.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
+  const sent=referenceSent.filter(item=>item.type==='event').map(item=>objectJson(item.bytes));
   const sentChain=sent.find(event=>event.exception?.values.some(e=>e.type==='ZeroDivisionError')&&event.exception.values.every(e=>e.mechanism?.handled!==false));
   assertSentChain(failing,sentChain);
   assert.deepEqual(failing.contexts.checkout,{stage:'payment',items:3});assert.equal(failing.extra.cart_items,3);assert.ok(failing.breadcrumbs.some(crumb=>crumb.category==='checkout'&&crumb.message==='cart reviewed'));
   assert.equal(failing.contexts.runtime.name,'CPython');for(const integration of ['excepthook','logging','stdlib','threading'])assert.ok(failing.sdk.integrations.includes(integration),`default ${integration} integration`);
   // The SDK sends sessions separately, without event session references. Never
   // substitute the project's health denominator for an issue's affected sessions.
-  const referenceSessions=reference.filter(item=>item.type==='session').map(item=>objectJson(item.bytes));
+  const referenceSessions=referenceSent.filter(item=>item.type==='session').map(item=>objectJson(item.bytes));
   assert.ok(referenceSessions.length>0,'the unmodified SDK emitted real session observations');
   assert.ok(sent.every(event=>event.contexts?.session?.sid===undefined),'these SDK events have no explicit session association');
   for(const detail of details){
@@ -91,6 +93,7 @@ export default {
    assert.equal(impact.projectHealth.denominators.individualSessions,referenceSessions.length,'the project cohort remains separately labelled');
   }
   const nativeRoot='/api/projects/rt-python',selected=details[0],event=selected.events[0],issueRoot=nativeRoot+'/issues/'+selected.issue.id;
+  await chooseLocalAgentPolicy(origin,cookie);
   const agent=await app.json(nativeRoot+'/keys','POST',{kind:'agent'}),agentHeaders={Cookie:'',Authorization:'Bearer '+agent.key};
   const packet=await app.json(issueRoot+'/packet',undefined,undefined,agentHeaders);
   assert.ok(!JSON.stringify(packet).includes('synthetic-spool-note'),'agent packets exclude the actual SDK local variable');
@@ -109,6 +112,22 @@ export default {
    const spec=command(dir,script,mode,created.dsn,cwd);const result=await run(spec.command,spec.args,{cwd:spec.cwd,env:spec.env,unset:spec.unset});
    assert.equal(result.code,0,`${script}: ${result.stderr.slice(-500)}`);return issueDetails(app,created.id);
   };
+  // SDK-003: server rules scrub real default SDK locals before they reach owner evidence.
+  const scrubProject=await create('rt-python-scrubbing'),scrubRoot='/api/projects/'+scrubProject.id+'/scrubbing';
+  const scrubPolicy={version:1,sensitiveFields:[],safeFields:[],rules:[{id:'synthetic-spool-python-local',selector:'$frame.vars.order_note',pattern:'regex',regex:'synthetic-spool',method:'mask'},{id:'synthetic-spool-python-source',selector:'$frame.context',pattern:'regex',regex:'synthetic-spool-note',method:'mask'}]};
+  const scrubPreview=await app.json(scrubRoot+'/preview','POST',{policy:scrubPolicy});assert.ok(scrubPreview.token);assert.equal(scrubPreview.refusal,null);
+  await app.json(scrubRoot,'PUT',{revision:scrubPreview.revision,policy:scrubPolicy,token:scrubPreview.token});
+  const [scrubbed]=await send(scrubProject,'app.py',{mode:'handled'});
+  const scrubbedFrames=scrubbed.events.flatMap(detail=>detail.event.sentry.exceptions.flatMap(exception=>exception.stacktrace?.frames??[])).filter(frame=>frame.function==='charge'&&frame.vars);
+  assert.ok(scrubbedFrames.length,'the real SDK sent the charge locals');
+  for(const frame of scrubbedFrames){assert.equal(frame.vars.order_note,'[redacted]');assert.equal(frame.vars.password,'[redacted]');assert.equal(frame.vars.api_key,'[redacted]');assert.equal(frame.vars.quantity,'0')}
+  assert.ok(!JSON.stringify(scrubbed).includes('synthetic-spool-note'),'custom local content is absent at owner detail');
+  await readScreens(origin,cookie,[{name:'python-scrubbing',path:`/projects/${scrubProject.id}/issues/${scrubbed.issue.id}`,check:async page=>{
+   const frame=page.locator('.exception-stack li').filter({hasText:' · charge'}).first();await frame.waitFor();
+   await frame.locator('summary').filter({hasText:/^Local variables/}).click();
+   const note=frame.locator('details').filter({has:page.locator('summary').filter({hasText:/^order_note$/})}).last();await note.locator('summary').click();
+   assert.equal(await note.locator('pre').innerText(),'"[redacted]"');assert.ok(!(await page.content()).includes('synthetic-spool-note'));
+  }}]);
   // SDK-009: no release (no environment variable, not a git checkout) is accepted, alerted and counted as release-less.
   const releasesProject=await create('rt-python-releases'),root='/api/projects/rt-python-releases';
   const empty=resolve(dir,'no-release');await mkdir(empty,{recursive:true});

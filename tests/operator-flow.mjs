@@ -1,4 +1,5 @@
 import {testAndReview} from './alerts/runtime.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { archiveProjection } from './archive.mjs';
@@ -20,10 +21,13 @@ export async function operatorFlow({req,json}){
  assert.ok(falseMerge&&falseSplit);assert.equal(falseMerge.results[0].issue,falseMerge.results[1].issue,'minified columns expose default false merge');assert.notEqual(falseSplit.results[0].issue,falseSplit.results[1].issue,'bundle location drift exposes default false split');
  const readArchive=async()=>archiveProjection(await req('/api/archive'));
  const original=await readArchive(),originalEvents=original.data.events.filter(e=>e.project===project.id);
+ const groupingSnapshot=async()=>{const {data}=await readArchive();return Object.fromEntries(['events','issues','event_grouping'].map(table=>[table,data[table].filter(row=>row.project===project.id)]));};
+
  const receipts=async()=>{const a=await readArchive();return {outcomes:a.data.outcomes.filter(e=>e.project===project.id),alerts:a.data.alerts.filter(e=>e.project===project.id),history:a.data.alert_history.filter(e=>e.project===project.id)}};
  const before=await receipts(),source=falseMerge.results[0].issue,selected=falseMerge.case.events[1].event.eventId;
- let current=await packet(source);
+ let current=await packet(source);const beforeSplitPreview=await groupingSnapshot();
  const preview=await json(`${p}/corrections/preview`,'POST',{kind:'split',source,revision:current.issue.revision,events:[selected]});
+ assert.deepEqual(await groupingSnapshot(),beforeSplitPreview,'HTTP split preview preserves every occurrence, aggregate and revision');
  assert.equal(preview.plan.moves.length,1);assert.equal(preview.plan.moves[0].event,selected);assert.equal(preview.plan.issues[0].after,current.issue.count-1);assert.equal((await packet(source)).issue.count,current.issue.count,'preview does not move anything');
  assert.equal((await req(`${p}/corrections/${preview.id}/apply`,'POST',{confirm:false})).status,400);
  await json(`${p}/corrections/${preview.id}/apply`,'POST',{confirm:true});
@@ -37,7 +41,9 @@ export async function operatorFlow({req,json}){
  await json(`${p}/corrections/${preview.id}/undo`,'POST',{confirm:true});assert.equal((await packet(source)).issue.count,current.issue.count);
  assert.equal((await packet(splitIds[source])).issue.short_id,splitIds[source],'the original ID never moves');assert.equal((await packet(splitIds[preview.plan.target])).issue.id,source,'undo: the split-out ID resolves where its occurrences returned');
  const from=falseSplit.results[1].issue,to=falseSplit.results[0].issue,a=await packet(from),b=await packet(to);
+ const beforeMergePreview=await groupingSnapshot();
  const merge=await json(`${p}/corrections/preview`,'POST',{kind:'merge',source:from,revision:a.issue.revision,target:to,targetRevision:b.issue.revision});
+ assert.deepEqual(await groupingSnapshot(),beforeMergePreview,'HTTP merge preview preserves every occurrence, aggregate and revision');
  assert.deepEqual(merge.plan.issues.map(i=>[i.count,i.after]),[[a.issue.count,0],[b.issue.count,b.issue.count+a.issue.count]]);
  await json(`${p}/corrections/${merge.id}/apply`,'POST',{confirm:true});assert.equal((await packet(to)).issue.count,b.issue.count+a.issue.count);
  // TEAM-004: the absorbed short ID is an alias of the survivor in packets and search; guarded undo restores it.
@@ -109,15 +115,15 @@ async function agentProposalFlow({req,json},corpus){
  let destination=await json(root+'/issues/'+other.issue+'/packet');await json(root+'/issues/'+other.issue+'/assignment','PATCH',{revision:destination.issue.revision,label:'Release engineer'});
  const destinationId=(await json(root+'/alerting/destinations','POST',{label:'Grouping investigation',recipient:'grouping-alerts@example.test'})).id;
  await testAndReview(json,root+'/alerting',destinationId);
- const rule=await json(root+'/alerting/rules','POST',{name:'Two matching failures',enabled:true,channel:'mail',destination:destinationId,kinds:['spike','new_issue'],windowMs:60000,threshold:2});
+ const rule=await json(root+'/alerting/rules','POST',await reviewRule(json,root+'/alerting/rules','POST',{name:'Two matching failures',enabled:true,channel:'mail',destination:destinationId,kinds:['spike','new_issue'],windowMs:60000,threshold:2}));
  const input=async(kind='split')=>{const p=await packet(),target=await json(root+'/issues/'+other.issue+'/packet');return {kind,source:first.issue,revision:p.issue.revision,...kind==='split'?{events:['proposal-recurred','proposal-deceptive']}:{target:other.issue,targetRevision:target.issue.revision},variants:['grouping-r1','grouping-r2'].map(release=>({stack:JSON.stringify(p.events.find(e=>e.id==='proposal-first').event.frames),release,route:'/checkout'})),rationale:'These similar checkout failures may be one incident; compare the rebuilt release. token=private-canary alice@example.test',window:{start:Date.now()-60000,end:Date.now()+1}}};
  const projectRows=async()=>{const a=await archiveProjection(await req('/api/archive'));return Object.fromEntries(Object.entries(a.data).filter(([table])=>table!=='grouping_proposals').map(([table,rows])=>[table,rows]));};
- const before=await projectRows(),historical=await input('merge');historical.window={start:Date.now()-120000,end:Date.now()-60000};const rejected=await json(endpoint,'POST',historical,agent);
- assert.match(rejected.label,/^proposed by agent audit:[a-f0-9]{32}$/);assert.ok(!Object.hasOwn(rejected,'explanation'),'Agent grant gains no explanation read beyond packets');assert.ok(!JSON.stringify(rejected).includes('private-canary'));assert.ok(!JSON.stringify(rejected).includes('alice@example.test'));
+ const before=await projectRows(),historical=await input('merge');historical.window={start:Date.now()-120000,end:Date.now()-60000};const rejected=await json(endpoint,'POST',historical,{...agent,'Idempotency-Key':crypto.randomUUID()});
+ assert.match(rejected.actor,/^audit:[a-f0-9]{32}$/);assert.match(rejected.label,/^proposed by agent .+ for Test owner$/);assert.ok(!Object.hasOwn(rejected,'explanation'),'Agent grant gains no explanation read beyond packets');assert.ok(!JSON.stringify(rejected).includes('private-canary'));assert.ok(!JSON.stringify(rejected).includes('alice@example.test'));
  assert.deepEqual(await projectRows(),before,'A proposed record changes no archive grouping, alert, assignment, suppression, accepted counter or repair projection');
  let detail=await json(endpoint+'/'+rejected.id);assert.ok(detail.explanation.counterexamples.inside.length);assert.ok(detail.explanation.counterexamples.outside.some(e=>e.event==='proposal-rebuilt'));assert.ok(detail.explanation.repair.observations.find(r=>r.id===repair.id).observation.evidence.window.end>=detail.explanation.repair.observations.find(r=>r.id===repair.id).observation.evidence.release.registered,'A historical rate window cannot backdate the current repair observation');assert.equal(detail.explanation.ownership.length,2);assert.deepEqual(new Set(detail.explanation.ownership.map(r=>r.label)),new Set(['Runtime engineer','Release engineer']));
  await json(endpoint+'/'+rejected.id+'/reject','POST',{});assert.equal((await json(endpoint+'/'+rejected.id)).state,'rejected');assert.deepEqual(await projectRows(),before,'Reject changes no application projection');
- const proposed=await json(endpoint,'POST',await input(),agent);detail=await json(endpoint+'/'+proposed.id);
+ const proposed=await json(endpoint,'POST',await input(),{...agent,'Idempotency-Key':crypto.randomUUID()});detail=await json(endpoint+'/'+proposed.id);
  assert.equal(detail.explanation.affected.length,2);assert.deepEqual(new Set(detail.explanation.affected.map(e=>e.event)),new Set(['proposal-recurred','proposal-deceptive']));assert.equal(detail.explanation.rates.find(r=>r.issue===first.issue).delta,-2);assert.equal(detail.explanation.trace,'trace identity unavailable');
  const condition=detail.explanation.alerts.rules.find(r=>r.id===rule.id).issues.find(i=>i.issue===first.issue);assert.equal(condition.before,3);assert.equal(condition.after,1);assert.equal(condition.conditionBefore,true);assert.equal(condition.conditionAfter,false);assert.ok(detail.explanation.alerts.open.length);
  const observation=detail.explanation.repair.observations.find(r=>r.id===repair.id);assert.equal(observation.observation.verdict,'recurred');
@@ -129,8 +135,8 @@ async function agentProposalFlow({req,json},corpus){
  await json(root+'/corrections/'+approved.correction+'/undo','POST',{confirm:true});assert.equal((await json(endpoint+'/'+proposed.id)).state,'undone');
  const undone=await packet();assert.equal(undone.issue.count,original.issue.count);for(const old of original.events){const now=undone.events.find(e=>e.id===old.id);assert.deepEqual(now.event,old.event);assert.equal(now.originalGrouping.issue,first.issue);}
  const repairAfterUndo=(await json(root+'/repairs?issue='+first.issue)).repairs[0];assert.equal(repairAfterUndo.observation.verdict,'recurred');assert.ok(repairAfterUndo.observation.reasons.some(r=>r.code==='grouping_changed'));
- const stale=await json(endpoint,'POST',await input(),agent),current=await packet();await json(root+'/issues/'+first.issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Later owner decision'});assert.equal((await req(endpoint+'/'+stale.id+'/approve','POST',{})).status,409);assert.equal((await json(endpoint+'/'+stale.id)).state,'stale');
- const untouched=await json(endpoint,'POST',await input('merge'),agent);assert.equal((await json(endpoint+'/'+untouched.id)).state,'proposed');
- const safe=(await json('/api/audit?limit=100')).rows;assert.ok(safe.some(r=>r.action==='grouping.propose'&&r.actor_kind==='service'&&r.actor_label===proposed.actor));assert.ok(!JSON.stringify(safe).includes('private-canary'));
+ const stale=await json(endpoint,'POST',await input(),{...agent,'Idempotency-Key':crypto.randomUUID()}),current=await packet();await json(root+'/issues/'+first.issue+'/assignment','PATCH',{revision:current.issue.revision,label:'Later owner decision'});assert.equal((await req(endpoint+'/'+stale.id+'/approve','POST',{})).status,409);assert.equal((await json(endpoint+'/'+stale.id)).state,'stale');
+ const untouched=await json(endpoint,'POST',await input('merge'),{...agent,'Idempotency-Key':crypto.randomUUID()});assert.equal((await json(endpoint+'/'+untouched.id)).state,'proposed');
+ const safe=(await json('/api/audit?limit=100')).rows;assert.ok(safe.some(r=>r.action==='grouping.propose'&&r.actor_kind==='agent'&&r.actor_label===proposed.actor));assert.ok(!JSON.stringify(safe).includes('private-canary'));
  console.log(name+' passed.');
 }

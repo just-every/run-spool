@@ -1,19 +1,25 @@
-import { useEffect, useState } from 'react';
 import { date, type Request, type Run } from './shared';
+import { useSettingDoc } from './useSettingDoc';
+import { SaveAnnouncer, SaveFailure, SavedMark } from './SaveMarks';
 
 // TEAM-004: commit author and message are personal data; off until the owner chooses, audited.
-export function CommitSharing({ project, request, run, busy }: { project: string; request: Request; run: Run; busy: boolean }) {
+// Turning sharing on has an outside effect, so it asks once under the checkbox; turning it off saves at once.
+export function CommitSharing({ project, request }: { project: string; request: Request; run?: Run; busy?: boolean }) {
  const root = `/api/projects/${encodeURIComponent(project)}/commits/sharing`;
- const [current, setCurrent] = useState<any>(null), [share, setShare] = useState(false), [status, setStatus] = useState(''), [error, setError] = useState('');
- useEffect(() => { let alive = true; request(root).then(row => { if (alive) { setCurrent(row); setShare(row.share); } }).catch(e => { if (alive) setError(e.message); }); return () => { alive = false; }; }, [root, request]);
+ const doc = useSettingDoc<any, boolean>({
+  key: `commit-sharing:${project}`, read: () => request(root), draftOf: row => row.share,
+  write: (row, share, keepalive) => request(root, 'PUT', { share, revision: row.revision }, { keepalive }),
+ });
+ const current = doc.data;
  return <section className="evidence" aria-labelledby="commit-sharing-title"><h2 id="commit-sharing-title">Commit author and message</h2>
   <p>Commits a deploy key registers keep their author and message for your issue timeline. Evidence packets, agent reads, alerts and exports carry the short ID and commit SHA only, unless you share the author and message here. Retention and erasure remove them either way.</p>
-  {error && <p role="alert">{error}</p>}
-  {!current ? <p role="status">Loading commit sharing…</p> : <>
-   <label className="checkbox"><input type="checkbox" checked={share} disabled={busy} onChange={e => { setShare(e.target.checked); setStatus(''); }} /> Share commit author and message outside the owner session</label>
+  {doc.loadError && <p role="alert">{doc.loadError}</p>}
+  {!current ? <p role="status">{doc.loadError ? 'Commit sharing unavailable.' : 'Loading commit sharing…'}</p> : <>
+   <label className="checkbox"><input type="checkbox" checked={!!doc.draft} onChange={e => e.target.checked ? doc.edit(true, { hold: true }) : doc.held ? doc.discard() : doc.edit(false, { now: true })} /> Share commit author and message outside the owner session<SavedMark doc={doc} /></label>
+   {doc.held && <div className="save-confirm"><p>Agent reads, alerts and exports will carry each commit’s author and message.</p><div className="button-row"><button type="button" className="primary-button" onClick={() => void doc.commit()}>Share author and message</button><button type="button" className="text-button" onClick={doc.discard}>Keep private</button></div></div>}
+   <SaveFailure doc={doc} />
    <p className="metadata">{current.share ? 'Shared' : 'Not shared'} · {current.revision ? `changed ${date(current.updated)}, recorded in the audit history` : 'default, never changed'}</p>
-   <button className="primary-button" disabled={busy || share === current.share} onClick={() => void run(async () => { try { setError(''); const row = await request(root, 'PUT', { share, revision: current.revision }); setCurrent(row); setShare(row.share); setStatus(row.share ? 'Commit author and message are now shared.' : 'Commit author and message are no longer shared.'); } catch (e) { setError((e as Error).message); } })}>Save commit sharing</button>
-   {status && <p role="status">{status}</p>}
+   <SaveAnnouncer doc={doc} />
   </>}
  </section>;
 }
