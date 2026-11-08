@@ -1518,7 +1518,7 @@ Agent surface · target · **partial**
 
 #### BASE-AGENT-006 — Every action declares its risk class
 
-Agent surface · target · **partial**
+Agent surface · target · **missing**
 
 **Requirement.** Classes come from the fleet list in RISK-POLICY.md: standard, external, money, commitment, accounts, gated, access, security, destructive, sensitive and live. In the registry, each tool declares the classes it can carry and a server-side classifier that decides them per call from the arguments, current records and, for gated, the provider's answer. The classifier also supplies each class's facts: the measure (items, recipients, amount and currency, people or records), the counterparty (internal, known, new or public), the direction for access, the provider and step for gated, and the data kind for sensitive. A classifier never reads a flag, label or claim supplied by the agent or by record text. A seed cannot add a class; it proposes one for the fleet list.
 
@@ -1530,8 +1530,8 @@ Agent surface · target · **partial**
 5. No tool in `tools / list` declares a class outside the fleet list, and `rer check` fails on one.
 6. A refused call's audit row still records its computed classes.
 
-**Evidence.** `tests/agent-door/classification-audit-contract.mjs` classificationAuditContract, invoked by `tests/agent-door.mjs`: acceptance 6's native issue-suppression refusal under explicit live-blocked variants of both autonomous and held baseline policies. A populated issue at its current revision returns policy_blocked; the exact returned decision audit retains independently expected live class, measure 1, native project fact, policy revision, rule and refused outcome. Occurrence membership, issue state and revision, existing delivery jobs, native work and execution usage remain unchanged.
-**Gap.** Acceptance 1–5 remain unqualified: contract-table parity, every-tool and every-class fixtures, injection invariance, complete class facts and rer-check rejection of invented classes. Acceptance 6 beyond this native suppression policy-refusal boundary remains unqualified. SURFACE-001 remains held; all existing account, device and ct holds, queue scopes and release prerequisites remain unchanged.
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
 
 #### BASE-AGENT-007 — The company's policy decides, at one chokepoint
 
