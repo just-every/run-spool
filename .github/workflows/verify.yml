@@ -242,6 +242,14 @@ jobs:
           done
           printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
           exit 1
+      - if: matrix.runtime == 'electron'
+        name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/electron
+          key: electron-${{ runner.os }}-${{ hashFiles('tests/runtimes/electron/package.json') }}
+          restore-keys: |
+            electron-${{ runner.os }}-
       - name: Run ${{ matrix.runtime }} SDK journey
         env:
           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
