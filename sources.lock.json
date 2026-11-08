@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fedeaf70b3872e1b8e7a1c633eb0edc07edff5c6c698ad5fda9e6ec69568ebd1",
+      "sha256": "1c0e0365ea188b19c7a7da12fb68aa52466463de0331cfd633e7b7ceab0d138b",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "89b9e0667dc8b3223505acf514f39ac1c5ce167e96e8d47b1b42635acad2889c",
+      "sha256": "89ed2fba2b16c536acc3b949b5513c7b846d1fd501ea68a71e2fa4f233892042",
       "executable": false
     },
     "DEMO.md": {
@@ -11310,7 +11310,7 @@
       "executable": false
     },
     "tests/sentry-cli/field-refusals.mjs": {
-      "sha256": "b9a2808f04a07eaab12fddc3b11c3e9ab220b61235b74b1c3a26368f4fea3d51",
+      "sha256": "1603cf2d9a603923c467e20c9935e396bf643fcda5ff05436effb26ca5c69102",
       "executable": false
     },
     "tests/sentry-cli/fixtures.mjs": {
