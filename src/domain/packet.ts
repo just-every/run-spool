@@ -21,7 +21,7 @@ const EVENT_LIMIT = 10;
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 type Gap = { code: string; reason: string; [key: string]: unknown };
 const reasons: Record<string, string> = {
- missing_native_symbols: 'No Android ProGuard/R8 mapping is stored for this exact project, release and build.',
+ missing_native_symbols: 'No Android ProGuard and R8 mapping is stored for this exact project, release and build.',
  native_symbol_identity_mismatch: 'Android symbols exist for this release, but the build differs from this event.',
  native_symbol_unmapped: 'The Android mapping has no method and line range for this obfuscated frame.',
  native_symbol_ambiguous: 'The Android mapping does not establish a unique original method and line; inlining or omitted ranges remain unresolved.',

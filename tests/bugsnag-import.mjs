@@ -60,14 +60,16 @@ export async function bugsnagMigrationFlow(){
    const denied=await req('/api/operator/import/status','POST',{planId:plan.planId},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':plan.namespace});assert.equal(denied.status,401);
   }
   assert.equal((await req('/api/operator/import/undo','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':plan.namespace})).status,401);
-  // Restore transports retained native history, never source custody or credentials.
+  const nativeCutover=await bugsnagCutover({json,req,origin,web,android});
+  const cutoverArchive=await archiveProjection(await req('/api/archive'));assert.equal(cutoverArchive.data.native_symbols.length,1);
+  // Restore transports retained native history and private symbols, never credentials.
   const restored=await startTestWorker(await freePort());
   try{
    const restoredCookie=await signIn(restored.origin);
-   const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:archive.text});assert.equal(response.status,200,await response.text());
-   const after=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));assert.deepEqual(after.data,archive.data);
+   const response=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'X-Confirm-Restore':'yes','Content-Type':'application/x-ndjson'},body:cutoverArchive.text});assert.equal(response.status,200,await response.text());
+   const after=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));assert.deepEqual(after.data,cutoverArchive.data);
+   const restoredPacket=await (await fetch(`${restored.origin}/api/projects/${android.id}/issues/${nativeCutover.issue}/packet`,{headers:{Cookie:restoredCookie}})).json();assert.equal(restoredPacket.events[0].currentLookup[0].original.function,'com.synthetic.MainActivity.crash');
   }finally{await restored.stop()}
-  const nativeCutover=await bugsnagCutover({json,req,origin,web,android});
   browser=await launchBrowser();const context=await browser.newContext();await openGate(context,origin);
   await context.addCookies(cookie.split('; ').map(part=>({name:part.slice(0,part.indexOf('=')),value:part.slice(part.indexOf('=')+1),url:origin})));
   const page=await context.newPage();await mkdir('.artifacts/bugsnag',{recursive:true});
@@ -87,7 +89,7 @@ export async function bugsnagMigrationFlow(){
   // Erasing one project withdraws the complete shared raw bundle, and fences its replay.
   const preview=await json(`/api/projects/${android.id}/erasure`);let erased=await json(`/api/projects/${android.id}/erasure`,'POST',{confirm:android.id,planHash:preview.planHash});
   for(let step=0;erased.phase!=='complete'&&step<30;step++)erased=await json(`/api/erasures/${erased.id}/resume`,'POST');assert.equal(erased.phase,'complete');
-  const remaining=await archiveProjection(await req('/api/archive'));assert.ok(!remaining.data.projects.some(p=>p.id===android.id));
+  const remaining=await archiveProjection(await req('/api/archive'));assert.ok(!remaining.data.projects.some(p=>p.id===android.id));assert.equal(remaining.data.native_symbols.length,0,'project erasure removes native symbol bytes');
   await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',plan.planId),error=>[404,410].includes(error.status));
   const replay=await cli('dry-run','--file',file);await cli('apply','--organization',bundle.organization.id,'--plan',replay.planId,'--fingerprint',replay.fingerprint).catch(error=>assert.ok([403,409,410].includes(error.status)));
   assert.ok(!(await json('/api/projects')).some(p=>p.id===android.id),'erased native history cannot be resurrected by replay');

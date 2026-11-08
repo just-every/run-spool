@@ -15,6 +15,6 @@ export function createNativeDiagnoser(db: D1Database, project: string) {
    const elsewhere = await db.prepare('SELECT 1 FROM native_symbols WHERE project=? AND release=? LIMIT 1').bind(project, event.release).first();
    return frames.map(generated => ({ generated, status: elsewhere ? 'native_symbol_identity_mismatch' : 'missing_native_symbols' }));
   }
-  return frames.map(generated => ({ generated, ...row.mapping ? retrace(row.mapping, generated.function, generated.line) : { status: 'invalid_native_symbols' }, artifactDigest: row.digest }));
+  return frames.map(generated => ({ generated, ...(row.mapping ? retrace(row.mapping, generated.function, generated.line) : { status: 'invalid_native_symbols' }), artifactDigest: row.digest }));
  };
 }

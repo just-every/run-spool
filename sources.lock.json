@@ -6298,11 +6298,11 @@
       "executable": false
     },
     "src/domain/native-symbols/diagnose.ts": {
-      "sha256": "e0367d2e6d8a9f067429bc4dab65aeb1b911398b17e31cc0fa77fbc95630f751",
+      "sha256": "28f0f075ff39f6990692bbe6a7e7cb40fbb90b9488ea1fcd8ebcc47708e9bb1e",
       "executable": false
     },
     "src/domain/native-symbols/proguard.ts": {
-      "sha256": "57a353fc9467c5b8823966fc7bba7c7990ff3dbc2d4f1edfcd30cff094bf5760",
+      "sha256": "a0810935bab23e272423cbe2659a61812c228b834c90bdaf4e70b33179098d6c",
       "executable": false
     },
     "src/domain/native-symbols/routes.ts": {
@@ -6398,7 +6398,7 @@
       "executable": false
     },
     "src/domain/packet.ts": {
-      "sha256": "79daf9be14c81bc82851c809fb6ee16f717cd797744070236bfdf868ca2d4e06",
+      "sha256": "e4b27a8889a8cebc5c07bb3d9fa95ce76da723b8fdd704d1101c05c8dbb4188b",
       "executable": false
     },
     "src/domain/path-mappings.ts": {
@@ -10702,7 +10702,7 @@
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "bbd1ead85f5eab4dc52e013af412328f79389575625e1adda1287765d3e4cad6",
+      "sha256": "3fd6f87af6bad2ccaaa86bbeb89578899659dd597def04c56be9c0100cc9ccff",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
