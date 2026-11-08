@@ -1,6 +1,7 @@
+import { agentAuthority, localCredentialId } from '../agent-door/native-authority';
 import { resolveMembership } from '../members/resolver';
 import { Hono } from 'hono';
-import { ownerSession, ownerWrite } from '../../auth/session.server';
+import { requestAuthority as ownerSession, nativeWrite as ownerWrite } from '../agent-door/native-authority';
 import { agentProject } from '../agent-access';
 import { mintAdmission } from '../dev-credentials';
 import { mintedByCurrentPerson } from '../credential-fence';
@@ -14,28 +15,29 @@ import { normalizeProposal } from './input';
 import { explainProposal, issueRevisions, proposalPreview } from './explanation';
 import { proposalStale, revisionGuards } from './lifecycle';
 const routes=new Hono<any>();
-const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),label:`proposed by agent ${row.actor}`});
-const summary=(row:any)=>{const r=parsed(row);return {id:r.id,kind:r.kind,state:r.state,actor:r.actor,label:r.label,input:r.input,revisions:r.revisions,created:r.created,updated:r.updated}};
+const parsed=(row:any)=>({...row,input:JSON.parse(row.input),revisions:JSON.parse(row.revisions),explanation:JSON.parse(row.explanation),preparedBy:row.prepared_by??null,label:`proposed by agent ${row.prepared_by??row.actor}`});
+const summary=(row:any)=>{const r=parsed(row);return {id:r.id,kind:r.kind,state:r.state,actor:r.actor,preparedBy:r.preparedBy,label:r.label,input:r.input,revisions:r.revisions,created:r.created,updated:r.updated}};
 routes.use('*',async(c,next)=>{
  const project=c.req.param('project')!,session=await ownerSession(c.req.raw,c.env,resolveMembership),agent=await agentProject(c.req.raw,c.env.DB);
  if(!session&&agent!==project)return c.json({error:'Owner session or own-project agent grant required'},401);
  if(session&&!['GET','HEAD'].includes(c.req.method)&&!ownerWrite(c.req.raw,c.env))return c.json({error:'Same-origin required'},403);
  if(!await s(c.env.DB,'SELECT 1 FROM projects WHERE id=?',project).first())return c.json({error:'Project not found'},404);
- c.set('proposalOwner',session);c.set('proposalAgent',agent===project);await next();
+ c.set('proposalOwner',session);c.set('proposalAgent',agent===project||!!agentAuthority(c.req.raw));await next();
 });
 routes.get('/',async c=>{
  const db=c.env.DB,project=c.req.param('project')!,rows=(await s(db,'SELECT * FROM grouping_proposals WHERE project=? ORDER BY created DESC,id',project).all<any>()).results;
  return c.json(await Promise.all(rows.map(async row=>{
   if(['proposed','approved'].includes(row.state)&&await proposalStale(db,row))row={...row,state:'stale'};
-  return c.get('proposalOwner')?parsed(row):summary(row);
+  return c.get('proposalOwner')&&!localCredentialId(agentAuthority(c.req.raw)?.context.clientId)?parsed(row):summary(row);
  })));
 });
 routes.post('/',async c=>{
  if(!c.get('proposalAgent'))return c.json({error:'An agent grant submits inert proposals; owner decisions use approve or reject'},403);
  const db=c.env.DB,project=c.req.param('project')!;
- const bearer=c.req.header('authorization')!.replace(/^Bearer /i,''),digest=await hash(bearer);
+ const native=agentAuthority(c.req.raw);
+ const bearer=c.req.header('authorization')?.replace(/^Bearer /i,''),digest=native?native.context.agent.id:await hash(bearer!);
  const source=await s(db,"SELECT minted_by FROM credentials WHERE hash=? AND kind='agent'",digest).first<any>();
- const actor=await auditActor(db,{kind:'service',authority:digest,owner:source.minted_by,project});attributeAuditScope(actor);
+ const actor=await auditActor(db,{kind:native?'agent':'service',authority:digest,owner:native?.operator.id??source?.minted_by,project});attributeAuditScope(actor);
  const input=normalizeProposal(await jsonBody(c.req.raw,32768)),id=crypto.randomUUID(),time=Date.now();
  let preview,revisions;
  try{preview=await proposalPreview(db,project,input,id);revisions=null}catch(e){if(/revision conflict/i.test(String(e)))return c.json({error:'Stale issue or rule revision'},409);throw e}
@@ -43,12 +45,13 @@ routes.post('/',async c=>{
  revisions=await issueRevisions(db,project,input,preview,review);
  if(new TextEncoder().encode(explanation).length>2097152)return c.json({error:'Exact proposal explanation exceeds 2 MiB; narrow the proposal'},400);
 
- const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};
- try{await auditedBatch(db,[
-  guard(db,`EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)})`,digest,project),
+ const row={id,project,kind:input.kind,state:'proposed',actor:actor.label,prepared_by:native?.context.actor.label??null,input:canonical(input),explanation,revisions:canonical(revisions),correction:null,rule_revision:null,created:time,updated:time};
+ const write=native?(db:D1Database,jobs:D1PreparedStatement[])=>ownerBatch(db,c.get('proposalOwner'),jobs):auditedBatch;
+ try{await write(db,[
+  ...native?[]:[guard(db,`EXISTS(SELECT 1 FROM credentials WHERE hash=? AND project=? AND kind='agent' AND revoked IS NULL AND ${mintedByCurrentPerson} AND ${await mintAdmission(c.req.raw)})`,digest,project)],
   ...revisionGuards(db,project,revisions),
   ...(input.kind==='rule'?[guard(db,'COALESCE((SELECT revision FROM grouping_policies WHERE project=?),0)=?',project,input.policyRevision)]:[]),
-  s(db,'INSERT INTO grouping_proposals(id,project,kind,state,actor,input,explanation,revisions,correction,rule_revision,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',id,project,input.kind,'proposed',row.actor,row.input,row.explanation,row.revisions,null,null,time,time),auditCommit(db),s(db,'DELETE FROM operator_guards')
+  s(db,'INSERT INTO grouping_proposals(id,project,kind,state,actor,input,explanation,revisions,correction,rule_revision,created,updated,prepared_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',id,project,input.kind,'proposed',row.actor,row.input,row.explanation,row.revisions,null,null,time,time,row.prepared_by),auditCommit(db),s(db,'DELETE FROM operator_guards')
  ]);}catch(e){if(/grouping_proposal_budget/.test(String(e)))return c.json({error:'Project holds at most 50 grouping proposals'},409);if(/operator_guards/.test(String(e)))return c.json({error:'Authority or issue revision conflict'},409);throw e}
  return c.json(summary(row),201);
 });

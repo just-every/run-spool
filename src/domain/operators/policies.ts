@@ -9,7 +9,7 @@ const routes=new Hono<any>();
 routes.get('/:project/operator-state',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project');
  const [policies,assignments,audits]=await Promise.all([s(db,'SELECT * FROM suppression_policies WHERE project=? ORDER BY created,id',p).all(),s(db,'SELECT * FROM issue_assignments WHERE project=?',p).all(),s(db,"SELECT * FROM audit WHERE project=? AND kind IN ('issue_assigned','suppression_changed','grouping_applied','grouping_undone','deployment_registered') ORDER BY created DESC,id LIMIT 100",p).all()]);
- return c.json({policies:policies.results,assignments:assignments.results,audit:audits.results,assignmentSemantics:'A bounded operator label, not an account, invitation, permission or notification.'});
+ return c.json({policies:policies.results,assignments:assignments.results,audit:await Promise.all(audits.results.map(async(row:any)=>{const operation=await s(db,'SELECT kind,actor,approvers FROM spool_native_audit_actors WHERE audit_id=?',row.id).first<any>();return {...row,preparedBy:operation?.kind==='agent'?JSON.parse(operation.actor):null,personActor:operation?.kind==='person'?JSON.parse(operation.actor):null,approvers:operation?JSON.parse(operation.approvers):[]};})),assignmentSemantics:'A bounded operator label, not an account, invitation, permission or notification.'});
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);

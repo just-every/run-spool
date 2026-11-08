@@ -4,7 +4,7 @@ const p='/api/projects/shop';
 const workflow=async(app,issue,id)=>(await app.json(`${p}/fixes?issue=${issue}`)).workflows.find(row=>row.id===id);
 
 // #17 without an owner credential: the exact grant can be approved, and the
-// workflow stops there with no provider call and no receipt.
+// workflow retains the native consent fact without a provider call or provider receipt.
 export async function awaitingConnection(app,github,{issue,reproducer,run}){
  const refused=await app.request(`${p}/fixes`,'POST',{reproducer:reproducer.id,run:reproducer.runs.find(r=>r.outcome==='not_reproduced').id,repository:'just-every/run-spool',flow:'checkout'});
  assert.equal(refused.status,409,'only a run Spool confirmed as reproduced can start a fix branch');await refused.body?.cancel();
@@ -19,7 +19,7 @@ export async function awaitingConnection(app,github,{issue,reproducer,run}){
  assert.equal(approved.status,'approved_awaiting_connection');assert.equal(approved.states.approved.expires-approved.states.approved.at,120*60_000,'the grant expires when approved');
  const waiting=await app.request(`${p}/fixes/${proposed.id}/advance`,'POST',{revision:approved.revision});assert.equal(waiting.status,409,'no fake success without a connection');
  const body=await waiting.json();assert.match(body.error,/awaiting connection/);
- assert.deepEqual([body.workflow.receipts.length,github.requests.length],[0,0],'no receipt and no provider request');
+ assert.deepEqual([body.workflow.receipts.map(r=>r.step),github.requests.length],[['native_repository_consent'],0],'native consent is retained; no provider receipt or request');
  return {id:proposed.id,status:approved.status,error:body.error};
 }
 
@@ -29,7 +29,7 @@ export async function connectedWorkflow(app,github,{issue,reproducer,run},id){
  const before=await workflow(app,issue,id);assert.equal(before.status,'approved');assert.equal(before.connection.state,'configured');
  const opened=await app.json(`${p}/fixes/${id}/advance`,'POST',{revision:before.revision});
  assert.equal(opened.status,'pull_request_open');const number=opened.states.pullRequest.number;
- assert.deepEqual(opened.receipts.map(r=>[r.step,r.outcome]),[['mint_token','succeeded'],['read_base','succeeded'],['create_branch','succeeded'],['commit_file','succeeded'],['open_draft_pull_request','succeeded'],['revoke_token','succeeded']]);
+ assert.deepEqual(opened.receipts.map(r=>[r.step,r.outcome]),[['native_repository_consent','succeeded'],['mint_token','succeeded'],['read_base','succeeded'],['create_branch','succeeded'],['commit_file','succeeded'],['open_draft_pull_request','succeeded'],['revoke_token','succeeded']]);
  assert.equal(github.live(),0,'the installation token was revoked');
  const minted=github.requests.filter(r=>r.path.endsWith('/access_tokens')).map(r=>({repositories:r.body.repositories.map(name=>name.toLowerCase()),permissions:r.body.permissions}));
  assert.ok(minted.length&&minted.every(body=>isDeepStrictEqual(body,{repositories:['run-spool'],permissions:{contents:'write',pull_requests:'write',checks:'read'}})),'least privilege asked of GitHub');

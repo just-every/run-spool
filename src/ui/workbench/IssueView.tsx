@@ -1,3 +1,4 @@
+import {IssueImpact} from './IssueImpact';
 import {Suppression} from './Suppression';
 import {Discussion} from './Discussion';
 import {Priority} from './Priority';
@@ -72,7 +73,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {group.short_id_resolves_to && <p className="callout">{group.short_id} now resolves to {group.short_id_resolves_to}, where these occurrences were merged.</p>}
       {selectedEvent&&<p className="metadata" data-event-id={selectedEvent.id}>{date(selectedEvent.received)} · {selectedEvent.event.type}: {selectedEvent.event.message}</p>}
       <CheckInLink checkIns={event?.checkIns}/>
-      {event?.event.sentry&&<SentryEvent data={event.event.sentry} grouping={selectedEvent?.grouping??event.originalGrouping}/>}
+      {event?.event.sentry&&<SentryEvent key={`${project}:${group.id}:${event.id}:${event.occurrence}`} data={event.event.sentry} grouping={selectedEvent?.grouping??event.originalGrouping} lookupPath={!imported&&!language&&['javascript',undefined].includes(event.event.sentry.platform)?`/api/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(group.id)}/events/${encodeURIComponent(event.id)}/mapped-frames?${new URLSearchParams({occurrence:event.occurrence})}`:undefined}/>}
       {event&&!event.event.sentry&&<Details title="Event grouping information" triggerLabel="Grouping information"><GroupingFacts grouping={selectedEvent?.grouping ?? event.originalGrouping} event={event.event} /></Details>}
       <h2 className="stack-heading">{event?.event.sentry?'Primary exception source lookup':'Stack trace'}</h2>
       {sample && <p className="callout"><strong>Spool’s sample error.</strong> This stack comes from the Send test error button in Spool. It checks that your key and release can receive an error. It does not need a source map from your app.</p>}
@@ -94,6 +95,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
     <div className="issue-collaboration"><Suppression {...{project,request,run,busy,readOnly}} issue={group} onChange={refresh}/>
     <Discussion project={project} issue={group.id} refresh={packet} request={request} onChanged={refresh}/></div>
     <CommitTimeline project={project} issue={group.id} shortId={group.short_id} refresh={packet} request={request}/>
+    <IssueImpact key={`${project}:${group.id}`} project={project} issue={group.id} refresh={packet}/>
     <AffectedUsers project={project} issue={group.id} {...{request}} refresh={packet}/>
     {!readOnly && <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={group.id}/>}
     {manageOrganization && <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>}

@@ -5,9 +5,12 @@ import {archiveProjection} from './archive.mjs';
 import {followErasure} from './project-erasure/follow.mjs';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
+import {slackFollowUp} from './alerts/follow-up.mjs';
+// 'hold' keeps a call in flight until the test releases it with Slack's posted reply.
 export function slackReceiver(){
- const calls=[];let behavior='posted',sequence=0;
- return {calls,set behavior(value){behavior=value},async send(wire){assert.equal(wire.url,'https://slack.com/api/chat.postMessage');const body=JSON.parse(wire.body);assert.equal(body.mrkdwn,false);assert.equal(body.unfurl_links,false);assert.equal(body.unfurl_media,false);assert.equal(body.parse,'none');calls.push(wire);if(behavior==='never')return new Promise(()=>{});if(behavior==='500')return {status:500,headers:{},body:'provider failure'};if(behavior==='error')return {status:200,headers:{},body:JSON.stringify({ok:false,error:'not_in_channel'})};return {status:200,headers:{},body:JSON.stringify({ok:true,channel:body.channel,ts:`1900000000.${++sequence}`})}}};
+ const calls=[],held=[];let behavior='posted',sequence=0;
+ const posted=body=>({status:200,headers:{},body:JSON.stringify({ok:true,channel:body.channel,ts:`1900000000.${++sequence}`})});
+ return {calls,held,set behavior(value){behavior=value},async send(wire){assert.equal(wire.url,'https://slack.com/api/chat.postMessage');const body=JSON.parse(wire.body);assert.equal(body.mrkdwn,false);assert.equal(body.unfurl_links,false);assert.equal(body.unfurl_media,false);assert.equal(body.parse,'none');calls.push({...wire,at:Date.now()});if(behavior==='hold')return new Promise(release=>held.push(()=>release(posted(body))));if(behavior==='never')return new Promise(()=>{});if(behavior==='rate')return {status:429,headers:{'retry-after':'60'},body:''};if(behavior==='500')return {status:500,headers:{},body:'provider failure'};if(behavior==='error')return {status:200,headers:{},body:JSON.stringify({ok:false,error:'not_in_channel'})};return posted(body)}};
 }
 export async function slackFlow(receiver){
  const edge=slackReceiver(),app=await alertRuntime(receiver,{configure:false,egressBridge:wire=>edge.send(wire),extraBindings:{SLACK_TIMEOUT_MS:'500'}}),base='/api/projects/web/alerting',token='synthetic-spool-'+crypto.randomUUID(),nextToken='synthetic-spool-'+crypto.randomUUID();
@@ -39,4 +42,5 @@ export async function slackFlow(receiver){
   const plan=await app.json('/api/projects/web/erasure');await followErasure(app.json,await app.json('/api/projects/web/erasure','POST',{confirm:'web',planHash:plan.planHash}));assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM slack_delivery_meta').first()).n,0);assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM slack_destinations').first()).n,0);
   console.log('[ALERT-002] reviewed Slack test, exactly-once new/regression, safe identifiers, rotation/revoke, API/500/timeout/egress failures, secret exclusion, inert restore and erasure passed (recorded edge double only)');
  }finally{await restored?.stop();await app.close()}
+ await slackFollowUp(receiver,slackReceiver());
 }

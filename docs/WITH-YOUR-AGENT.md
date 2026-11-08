@@ -1,6 +1,10 @@
 # With your own agent
 
+The canonical company-policy MCP door and its native consent boundaries are described in [Spool’s agent door](AGENT-DOOR.md). The CLI configuration below retains its exact-project evidence and inert-proposal scope.
+
 Mint an **agent** key in a project's workbench and save the once-shown key privately. Set `SPOOL_URL` to that project's exact API root, for example `https://spool.example/api/projects/web`. The key reads only that project's bounded evidence and can submit inert grouping proposals labeled `proposed by agent <alias>`. Only the owner can approve, reject or apply them. Revoke the key in the workbench to stop the next HTTP request, including calls from an already-running MCP process.
+
+After upgrading, an existing agent key works only once an owner chooses a company agent policy at `/agents` on that installation (for example `https://spool.example/agents`). Until then each call is refused with `policy_unset`, and the CLI prints the setup URL from that refusal. An unanswered policy authorizes no agent action.
 
 Use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
 
@@ -80,6 +84,18 @@ SPOOL_URL = "https://spool.example/api/projects/web"
 ```
 
 The official MCP SDK serves `list_issues` (`state`, `limit`), `get_packet` (`issue`), `get_outcomes`, `list_grouping_proposals` and `propose_grouping` over the same exact-project routes as the CLI. `propose_grouping` takes the proposal fields above and is marked as a write because it stores an inert proposal; the other tools are read-only. Results begin with an untrusted/no-execution statement and put telemetry in dynamically sized fences. JSON output retains telemetry as JSON strings. Approval, application, repair recording, release, shell, model and provider actions are absent. Never give the agent an owner session, ingest key, or deploy key for this handoff.
+
+The same MCP server also accepts these canonical names. Legacy callers keep their existing names and arguments:
+
+| Canonical name | Arguments | Existing operation |
+| --- | --- | --- |
+| `spool.issues.read` | Optional `state` and `limit`, or no arguments | `list_issues` |
+| `spool.issues.read` | `issue` alone, using the full or short issue ID | `get_packet` |
+| `spool.outcomes.read` | No arguments | `get_outcomes` |
+| `spool.grouping.propose` | The complete proposal fields above | `propose_grouping` |
+| `spool.grouping.propose` | No arguments | `list_grouping_proposals` |
+
+An issue selector cannot be combined with list options. Unknown fields and unsupported operations are refused. Canonical names retain the same project scope, current-grant checks, sanitized results and inert proposal boundary. The grouping name is marked as a write because its proposal form stores a record; its empty form only lists safe summaries. These aliases use the shared production registry and its current company policy; they add no approval or apply authority.
 
 Paste this prompt into your agent:
 

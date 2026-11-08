@@ -1,20 +1,74 @@
-name: verify
+name: Verify
 
 on:
   push:
+    branches: ['**']
+    tags: ['**']
   pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      tier:
+        type: string
+        default: push
 
 permissions:
   contents: read
 
+concurrency:
+  group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  PLAYWRIGHT_SKIP_BROWSER_GC: '1'
+
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      skip: ${{ steps.plan.outputs.skip }}
+      coverage: ${{ steps.plan.outputs.coverage }}
+      tier: ${{ steps.plan.outputs.tier }}
+      readers: ${{ steps.plan.outputs.readers }}
+      has_shards: ${{ steps.plan.outputs.has_shards }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Check reusable workflow permissions
+        run: node scripts/verify-ci.mjs --check-workflows
+      - name: Look up complete nightly marker
+        id: nightly
+        if: ${{ github.event_name == 'schedule' || inputs.tier == 'nightly' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/nightly-green
+          key: nightly-green-${{ github.sha }}
+          lookup-only: true
+      - id: plan
+        env:
+          TIER: ${{ startsWith(github.ref, 'refs/tags/') && 'all' || inputs.tier || 'push' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NIGHTLY_CACHE_HIT: ${{ steps.nightly.outputs.cache-hit }}
+        run: node scripts/verify-ci.mjs --plan
+
   build:
+    needs: plan
+    if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # The prose reader resolves COVERAGE.json's recorded old commit.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 10.12.4
@@ -22,8 +76,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Set runner-owned pnpm store
+        run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: spool-ubuntu24-temp-store-${{ runner.arch }}-browser-false-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
       - name: Check source and portable contract
         run: |
@@ -57,7 +115,8 @@ jobs:
   runtimes:
     # Real Sentry SDK programs, one runtime per job, against Spool's public intake.
     name: runtime (${{ matrix.runtime }})
-    needs: build
+    needs: [plan, build]
+    if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ matrix.runtime == 'electron' && 15 || 10 }}
     env:
@@ -77,8 +136,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Prepare runner-owned dependency and browser caches
+        run: |
+          set -euo pipefail
+          pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+          printf 'PLAYWRIGHT_BROWSERS_PATH=%s/ms-playwright\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/pnpm-store" "$RUNNER_TEMP/ms-playwright" "$RUNNER_TEMP/rer-apt/archives"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/pnpm-store
+            ${{ runner.temp }}/ms-playwright
+            ${{ runner.temp }}/rer-apt/archives/*.deb
+          key: spool-ubuntu24-temp-store-${{ runner.arch }}-browser-true-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v4
         with:
@@ -123,18 +193,29 @@ jobs:
             ~/.cargo/registry
             ${{ runner.temp }}/cargo-target
           key: rust-runtime-${{ hashFiles('tests/runtimes/rust/Cargo.toml') }}
-      # Each journey also reads its issue through the UI at 1440 and 390. The runner image's
-      # Chrome already brings the browser's system libraries; apt here has taken 7-10 minutes.
-      - run: pnpm exec playwright install chromium
+      # Each journey also reads its issue through the UI at 1440 and 390.
+      - name: Install and probe Chromium before system dependencies
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install chromium
+          probe() { node --input-type=module -e "import { chromium } from '@playwright/test'; try { const browser = await chromium.launch({headless: true}); await browser.close(); } catch (error) { console.error(error); process.exit(/EACCES|permission denied/i.test(String(error)) ? 77 : 1); }"; }
+          if probe; then
+            :
+          else
+            status=$?
+            if [ "$status" -eq 77 ]; then exit "$status"; fi
+            sudo env "PATH=$PATH" "APT_ARCHIVES=$RUNNER_TEMP/rer-apt/archives" python3 scripts/install-chromium-deps.py
+            probe
+          fi
       - if: matrix.runtime == 'electron'
         name: Install Electron virtual display
         run: |
           # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
           # Three 60s attempts plus kill grace/backoff fit within the existing cap.
           mirrors=(http://azure.archive.ubuntu.com/ubuntu http://mirrors.edge.kernel.org/ubuntu http://us-east-1.ec2.archive.ubuntu.com/ubuntu)
-          sudo mkdir -p /var/tmp/spool-electron-apt/archives
-          cat <<'APT' | sudo tee /var/tmp/spool-electron-apt/apt.conf > /dev/null
-          Dir::Cache::archives "/var/tmp/spool-electron-apt/archives";
+          mkdir -p "$RUNNER_TEMP/spool-electron-apt"
+          cat > "$RUNNER_TEMP/spool-electron-apt/apt.conf" <<APT
+          Dir::Cache::archives "$RUNNER_TEMP/rer-apt/archives";
           APT::Keep-Downloaded-Packages "true";
           APT::Update::Error-Mode "any";
           Acquire::Retries "2";
@@ -146,7 +227,7 @@ jobs:
             mirror=${mirrors[attempt - 1]}
             sudo sed -i -E "s@^(URIs:[[:space:]]*)https?://(([a-z0-9.-]+\.)?archive\.ubuntu\.com|security\.ubuntu\.com|mirrors\.edge\.kernel\.org)/ubuntu/?@\1${mirror}/@" /etc/apt/sources.list.d/ubuntu.sources
             printf 'Electron apt: display attempt %s/3 (60s deadline; mirror %s)\n' "$attempt" "$mirror"
-            if sudo env APT_CONFIG=/var/tmp/spool-electron-apt/apt.conf timeout --kill-after=5s 60s bash -ec '
+            if sudo env "APT_CONFIG=$RUNNER_TEMP/spool-electron-apt/apt.conf" timeout --kill-after=5s 60s bash -ec '
               dpkg --configure -a
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xvfb xauth
@@ -190,7 +271,8 @@ jobs:
 
   tests:
     name: verify (${{ matrix.shard }})
-    needs: build
+    needs: [plan, build]
+    if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -218,7 +300,7 @@ jobs:
           - shard: wizard
             command: pnpm test:wizard
           - shard: agent-handoff
-            command: pnpm test:agent-handoff && pnpm test:privacy
+            command: pnpm test:agent-door && pnpm test:agent-handoff && pnpm test:privacy
           - shard: repair-recovery
             command: pnpm test:repair-recovery
           - shard: execution
@@ -242,16 +324,37 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+      - name: Prepare runner-owned dependency and browser caches
+        run: |
+          set -euo pipefail
+          pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+          printf 'PLAYWRIGHT_BROWSERS_PATH=%s/ms-playwright\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/pnpm-store" "$RUNNER_TEMP/ms-playwright" "$RUNNER_TEMP/rer-apt/archives"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/pnpm-store
+            ${{ runner.temp }}/ms-playwright
+            ${{ runner.temp }}/rer-apt/archives/*.deb
+          key: spool-ubuntu24-temp-store-${{ runner.arch }}-browser-true-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v4
         with:
           name: verify-build
           path: .
-      # Only the browser: the runner image's Chrome already brings its system libraries, and
-      # apt from the image's mirror has run past the 10-minute job limit.
-      - run: pnpm exec playwright install chromium
+      - name: Install and probe Chromium before system dependencies
+        run: |
+          set -euo pipefail
+          pnpm exec playwright install chromium
+          probe() { node --input-type=module -e "import { chromium } from '@playwright/test'; try { const browser = await chromium.launch({headless: true}); await browser.close(); } catch (error) { console.error(error); process.exit(/EACCES|permission denied/i.test(String(error)) ? 77 : 1); }"; }
+          if probe; then
+            :
+          else
+            status=$?
+            if [ "$status" -eq 77 ]; then exit "$status"; fi
+            sudo env "PATH=$PATH" "APT_ARCHIVES=$RUNNER_TEMP/rer-apt/archives" python3 scripts/install-chromium-deps.py
+            probe
+          fi
         env:
           DEBUG: pw:install
       - name: Run suites
@@ -295,9 +398,121 @@ jobs:
           node <<'NODE'
           import {checkHostedOutput} from '@runeditrun/rer/internal/cli/hosted-output.mjs';
           import {checkHydration} from '@runeditrun/rer/internal/cli/hydration/check.mjs';
+          import {checkAgentDoor} from '@runeditrun/rer/internal/cli/agent-door.mjs';
           import {commandAdapter} from './scripts/installer/local.mjs';
           const root = process.cwd();
           const declaration = commandAdapter.deployDeclaration ?? commandAdapter.deploy?.declaration;
           console.log(await checkHostedOutput(root, {declaration}));
           console.log(await checkHydration(root, {pages: commandAdapter.publicPages, declaration}));
+          await checkAgentDoor(root, {declaration, owner: commandAdapter.hooks?.owner});
           NODE
+
+  commands:
+    needs: plan
+    if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'nightly' || needs.plan.outputs.tier == 'all') }}
+    uses: ./.github/workflows/command-journey.yml
+    permissions:
+      contents: read
+
+  shards:
+    # Preserve Spool's existing runtime and test matrices beneath one push proof.
+    # Base's planner checks these exact names before reusing complete coverage.
+    name: shards (${{ matrix.name }})
+    needs: [plan, build, runtimes, tests, commands]
+    if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.has_shards == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Require every job in this coverage partition
+        env:
+          SHARD: ${{ matrix.name }}
+          BUILD: ${{ needs.build.result }}
+          RUNTIMES: ${{ needs.runtimes.result }}
+          TESTS: ${{ needs.tests.result }}
+          COMMANDS: ${{ needs.commands.result }}
+        run: |
+          set -euo pipefail
+          case "$SHARD" in
+            spool) test "$BUILD" = success && test "$RUNTIMES" = success && test "$TESTS" = success ;;
+            commands) test "$COMMANDS" = success ;;
+            *) exit 1 ;;
+          esac
+
+  light:
+    needs: plan
+    if: ${{ needs.plan.outputs.coverage == 'light' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      CI: 'true'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          # The prose reader resolves COVERAGE.json's recorded old commit.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+      - run: npm install --global pnpm@10.12.4
+      - run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run deps
+      - name: Run the changed files' reviewed readers and build the run site
+        env:
+          LIGHT_READERS: ${{ needs.plan.outputs.readers }}
+        run: node scripts/verify-ci.mjs --light
+
+  full-push-proof:
+    needs: [plan, shards]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') && needs.plan.outputs.tier == 'push' && needs.plan.outputs.coverage == 'full' && needs.shards.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - run: test '${{ needs.shards.result }}' = success
+
+  nightly-proof:
+    needs: [plan, shards]
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (needs.plan.outputs.tier == 'nightly' || needs.plan.outputs.tier == 'all') && needs.plan.outputs.coverage == 'full' && needs.shards.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Mark successful complete nightly coverage
+        run: mkdir -p "$RUNNER_TEMP/nightly-green" && printf '%s\n' '${{ github.sha }}' > "$RUNNER_TEMP/nightly-green/sha"
+      - uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/nightly-green
+          key: nightly-green-${{ github.sha }}
+
+  verify:
+    needs: [plan, shards, light, full-push-proof, nightly-proof]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Require the selected coverage and its proof
+        env:
+          PLAN: ${{ needs.plan.result }}
+          SHARDS: ${{ needs.shards.result }}
+          LIGHT: ${{ needs.light.result }}
+          PUSH_PROOF: ${{ needs.full-push-proof.result }}
+          NIGHTLY_PROOF: ${{ needs.nightly-proof.result }}
+          COVERAGE: ${{ needs.plan.outputs.coverage }}
+          HAS_SHARDS: ${{ needs.plan.outputs.has_shards }}
+          SKIP: ${{ needs.plan.outputs.skip }}
+        run: |
+          set -euo pipefail
+          test "$PLAN" = success
+          case "$PUSH_PROOF:$NIGHTLY_PROOF" in
+            *failure*|*cancelled*) exit 1 ;;
+          esac
+          case "$COVERAGE" in
+            reuse) test "$SKIP" = true && test "$SHARDS" = skipped && test "$LIGHT" = skipped ;;
+            light) test "$SKIP" = false && test "$LIGHT" = success && test "$SHARDS" = skipped ;;
+            full) test "$LIGHT" = skipped && { test "$SHARDS" = success || { test "$HAS_SHARDS" = false && test "$SHARDS" = skipped; }; } ;;
+            *) exit 1 ;;
+          esac

@@ -2,10 +2,32 @@ import assert from 'node:assert/strict';
 import {mkdir, writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {runCli} from './cli.mjs';
-import {deflateRawSync} from 'node:zlib';
+import {deflateRawSync, gzipSync} from 'node:zlib';
+import {createHash} from 'node:crypto';
+import {archiveProjection} from '../archive.mjs';
+
+/** Compare durable product rows and transient upload state through owner reads.
+ * Audit facts are allowed: refusals and archive reads must remain observable. */
+export async function boundaryState({api, req}) {
+ const {data} = await archiveProjection(await req('/api/archive'));
+ const rows = Object.fromEntries(Object.entries(data).filter(([table]) => table !== 'audit')
+  .map(([table, records]) => [table, records.map(row => JSON.stringify(row)).sort()]));
+ const uploads = {};
+ for (const project of ['web', 'other']) {
+  const inventory = await api(`/api/projects/${project}/erasure`);
+  uploads[project] = {
+   releases: await api(`/api/projects/${project}/releases`),
+   stored: await api(`/api/projects/${project}/sentry-uploads`),
+   chunks: inventory.deleted.sentry_upload_chunks ?? 0,
+   assemblies: inventory.deleted.sentry_assemblies ?? 0,
+  };
+ }
+ return {rows, uploads};
+}
 
 /** An ingest, agent (read-only), revoked, foreign-project or unknown token reaches no Sentry door's storage. */
 export async function denialFlow({origin, api, req, keys, temporary}) {
+ const before = await boundaryState({api, req});
  await authorityFlow({origin, req, keys});
  const dist = resolve(temporary, 'denied-dist'); await mkdir(dist, {recursive: true});
  await writeFile(resolve(dist, 'a.js'), 'console.log(1)\n//# sourceMappingURL=a.js.map\n');
@@ -23,6 +45,65 @@ export async function denialFlow({origin, api, req, keys, temporary}) {
   const stored = await api(`/api/projects/${project}/sentry-uploads`);
   assert.deepEqual(stored, {artifacts: [], assemblies: [], builds: []}, `${project}: no map or assembly was stored`);
  }
+ assert.deepEqual(await boundaryState({api, req}), before, 'denied clients preserve all product rows, deploys, receipts and staged chunks');
+}
+
+/** API-002: valid writes against populated state, with and without the owner's cookie.
+ * A staged bundle is assembled afterwards to prove its original bytes survived. */
+export async function populatedDenialFlow({origin, api, req, keys}) {
+ const root = '/api/0/organizations/acme', version = 'synthetic-spool-1';
+ const bundle = (debug, file) => bundleZip([
+  {name: 'manifest.json', text: JSON.stringify({files: {'map.json': {type: 'source_map', url: '~/map.json', headers: {'debug-id': debug}}}})},
+  {name: 'map.json', text: JSON.stringify({version: 3, sources: [file], sourcesContent: ['synthetic-spool-1'], names: [], mappings: 'AAAA'})},
+ ]);
+ const first = bundle('33333333-3333-4333-8333-333333333333', 'first.ts');
+ const staged = bundle('44444444-4444-4444-8444-444444444444', 'staged.ts');
+ const checksum = bytes => createHash('sha1').update(bytes).digest('hex');
+ const chunks = bytes => { const body = new FormData(); body.append('file_gzip', new Blob([gzipSync(bytes)]), checksum(bytes)); return body; };
+ const assemble = bytes => ({checksum: checksum(bytes), chunks: [checksum(bytes)], projects: ['web'], version, dist: 'boundary'});
+ const send = (request, token, method, path, body) => request(path, method, body, {Authorization: 'Bearer ' + token, Connection: 'close'});
+ const bearer = (path, method, body, headers) => fetch(origin + path, {method, headers, body: body instanceof FormData ? body : JSON.stringify(body)});
+ const jsonRequest = (path, method, body, headers) => bearer(path, method, body, {...(body instanceof FormData ? {} : {'Content-Type': 'application/json'}), ...headers});
+ for (const bytes of [first, staged]) {
+  const response = await send(jsonRequest, keys.deploy, 'POST', root + '/chunk-upload/', chunks(bytes));
+  assert.equal(response.status, 200, 'deploy authority stages real bytes'); await response.body?.cancel();
+  if (bytes === first) {
+   const response = await send(jsonRequest, keys.deploy, 'POST', root + '/artifactbundle/assemble/', assemble(bytes));
+   assert.equal(response.status, 200); assert.equal((await response.json()).state, 'ok', 'deploy authority stores the first map and receipt');
+  }
+ }
+ const before = await boundaryState({api, req});
+ assert.ok(before.uploads.web.releases.some(row => row.name === version));
+ assert.ok(before.uploads.web.stored.artifacts.some(row => row.release === version));
+ assert.ok(before.uploads.web.stored.assemblies.some(row => row.state === 'ok'));
+ assert.equal(before.uploads.web.chunks, 1, 'the denied requests have live staging to protect');
+ assert.ok(before.rows.sentry_deploys.length > 0, 'the denied requests have a deployment to protect');
+
+ const writes = [
+  ['POST', root + '/releases/', () => ({version: 'synthetic-spool-2', projects: ['web']})],
+  ['POST', '/api/0/projects/acme/web/releases/', () => ({version: 'synthetic-spool-2'})],
+  ['PUT', root + '/releases/' + version + '/', () => ({dateReleased: '2026-01-01T00:00:00.000Z', url: 'https://example.test/changed', commits: [{id: 'a'.repeat(40), message: 'synthetic-spool-2'}]})],
+  ['POST', root + '/releases/' + version + '/deploys/', () => ({environment: 'production', name: 'synthetic-spool-2'})],
+  ['POST', root + '/chunk-upload/', () => chunks(Buffer.from('synthetic-spool-3'))],
+  ['POST', root + '/artifactbundle/assemble/', () => assemble(staged)],
+  ['POST', '/api/0/projects/acme/web/files/difs/assemble/', () => ({[checksum(staged)]: {name: 'synthetic-spool-1', chunks: [checksum(staged)]}})],
+ ];
+ for (const [context, request] of [['bearer only', jsonRequest], ['owner cookie and Origin', req]]) {
+  for (const [method, path, input] of writes) {
+   const response = await send(request, keys.agent, method, path, input());
+   assert.equal(response.status, 403, `${context}: read-only ${method} ${path}`);
+   assert.match((await response.json()).error, /agent|read.only/i, 'the refusal identifies the limited authority');
+   assert.deepEqual(await boundaryState({api, req}), before, `${context}: ${method} ${path} changes no product or upload state`);
+  }
+  console.log(`PROBE API-002 acceptance-4: ${context}; seven served mutation doors=403; populated release, deploy, artifact, assembly and staged-chunk state unchanged`);
+ }
+ const completed = await send(jsonRequest, keys.deploy, 'POST', root + '/artifactbundle/assemble/', assemble(staged));
+ assert.equal(completed.status, 200); assert.equal((await completed.json()).state, 'ok', 'the permitted assembly still consumes the original staged bytes');
+ const after = await boundaryState({api, req});
+ assert.equal(after.uploads.web.chunks, 0);
+ assert.equal(after.uploads.web.stored.artifacts.length, before.uploads.web.stored.artifacts.length + 1);
+ const map = after.rows.artifacts.map(row => JSON.parse(row)).find(row => row.debug === '44444444-4444-4444-8444-444444444444');
+ assert.deepEqual(JSON.parse(map.payload).sources, ['staged.ts'], 'the staged source map survived denied writes intact');
 }
 
 // A real stored ZIP, including CRCs and Unix external attributes, sent through chunk upload and assembly.

@@ -9,7 +9,7 @@ export async function prepareNativeAlerts(app,kinds) {
  await app.json('/api/projects/web/releases','POST',{name:'r1',build:'b1'});
  await testAndReview(app.json,alerts,'mail-v1');
  const created=await app.json(alerts+'/rules','POST',rule('mail',{kinds,threshold:10}));
- return {rule:created.id,headers:{Authorization:`Bearer ${project.ingestKey}`}};
+ return {rule:created.id,dsn:project.dsn,headers:{Authorization:`Bearer ${project.ingestKey}`}};
 }
 export async function tick(app) {
  const response=await app.tick();assert.equal(response.status,200,'native scheduled handler succeeds');
