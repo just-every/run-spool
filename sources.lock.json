@@ -2638,7 +2638,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "9d1a7fc828fb6f8ff01f0cf52b90638b432883744d0b69ca386d671143a52a54",
+      "sha256": "7749bcd099f7b31b454fd8b2d1a732168e6c324126f146277ccdf817620cc171",
       "executable": false
     },
     "ACCESSIBILITY.md": {
@@ -2670,7 +2670,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a48202227e26ead104fa0082188fa4799c97082dafd5ccff1892222cbedd0c3a",
+      "sha256": "3640052fedd29117b9eed6874a0646b369f49f6ef45035a0e79a8f772d2e39fe",
       "executable": false
     },
     "DEMO.md": {
@@ -3010,7 +3010,7 @@
       "executable": false
     },
     "docs/INVESTIGATION.md": {
-      "sha256": "84fa4c3faef0765a02f2ce63100e94bbddbb47699a2d5f523b3d08713d88f027",
+      "sha256": "3020827253d4c9482cf104bcbe46a4e4a41b91cc9a3776fa965274eabfaf26bb",
       "executable": false
     },
     "docs/KEY-RATE-LIMITS.md": {
@@ -4314,7 +4314,7 @@
       "executable": false
     },
     "public/errors-capture.js": {
-      "sha256": "8d4c63a78be859a693bf558dbe45f0fd466bf4e3ac6e779e1a93ca7984e1b860",
+      "sha256": "5cc2c0ac1b7ac19a40b2078e73773773593b6158333515a3837e12473bacd250",
       "executable": false
     },
     "public/fonts/fonts.css": {
@@ -6142,7 +6142,11 @@
       "executable": false
     },
     "src/domain/investigation/events.ts": {
-      "sha256": "c233a57a8f1e7468e2bcb0909f54ac7cf42973fe792ccdc1e3d63aa639e640d0",
+      "sha256": "763239b818d205b16a094940ba1c8b226def3e30a6ef5754992a8c361ef427a1",
+      "executable": false
+    },
+    "src/domain/investigation/impact.ts": {
+      "sha256": "c1fc94322957d560a383950b92c854aa523042f2b6cb2117cbcd8666cf60e7cd",
       "executable": false
     },
     "src/domain/investigation/query.ts": {
@@ -6354,7 +6358,7 @@
       "executable": false
     },
     "src/domain/privacy.ts": {
-      "sha256": "68b5f3194734d5a818dae023cd5a67dc1b5faae7704536343b8b51b1f581377a",
+      "sha256": "a9fba91eab219dbb718e2c0b1e992fcc24b4ac797e19068d8996c40184babcfd",
       "executable": false
     },
     "src/domain/proposals/archive.ts": {
@@ -6750,7 +6754,7 @@
       "executable": false
     },
     "src/domain/sentry/convert.ts": {
-      "sha256": "59fb1399c34395bff08019236fb8b75118b4ded398918a48f53de53d8aab7afd",
+      "sha256": "d2db064b63f10bba424d3a1dcd8cb02f147a558a1e721bca30a4ecd62c681dd3",
       "executable": false
     },
     "src/domain/sentry/deploy-routes.ts": {
@@ -10093,6 +10097,10 @@
       "sha256": "489a2e712e2a8d36ebd97ce6fa4c4fc98ccad2f44d42b692ee05911f12a6f165",
       "executable": false
     },
+    "src/ui/workbench/IssueImpact.tsx": {
+      "sha256": "953373d1715130bdae4c84289c26eb3ae684bc9b8544464690ab2ed315c97da4",
+      "executable": false
+    },
     "src/ui/workbench/IssueList.tsx": {
       "sha256": "4844b582581b4e6e24ef412fac47c8e7832c26832016800f360601f002e679ac",
       "executable": false
@@ -10102,7 +10110,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "16e2c3e225bba60629fa767fba201e8bc6e012e095eceae2660f8ad8094f464d",
+      "sha256": "c3c58a4f784152ae5cc0a09f9823738d1b16ae3ce742c92bcf0ccd702c10150c",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10750,7 +10758,7 @@
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
-      "sha256": "365f7fec403979b48ffb42dadd41893aef19649638df0a367447d3403bfbd046",
+      "sha256": "b2876ecc99ac925b692c18111daafff6ef450446f0a51aab1ba103b49cdd492f",
       "executable": false
     },
     "tests/fixtures/adblock/easyprivacy-sentry.txt": {
@@ -11070,11 +11078,11 @@
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
-      "sha256": "dd37fe1ca0c6266a3927732bb9f2a288c0088767249b21b159513ac52653aebe",
+      "sha256": "439f871ecc3203feeaf8a973fa6b8bc751761e7e035a6bde666753c74e49b1ef",
       "executable": false
     },
     "tests/runtimes/browser/app.js": {
-      "sha256": "9abce30da71d3f8bf08a35f2cb54a2f92ba10f58a206f4d6d4bfd3ffd0fe4703",
+      "sha256": "f796ecfa0d8f9145cd83428a49a9c42226726ff7048f3e9eb69fedc7b1a2f8a2",
       "executable": false
     },
     "tests/runtimes/chain-proof.mjs": {
@@ -11194,15 +11202,15 @@
       "executable": false
     },
     "tests/runtimes/python.mjs": {
-      "sha256": "dd7b1ac3b084bbf79a5cf706166d9a139d831a4052a122e1cfd3013183f98db5",
+      "sha256": "1a254107c79155fcd57c74f7f0a8a0f68917be71f019a07df4cd4b6868a611a0",
       "executable": false
     },
     "tests/runtimes/python/app.py": {
-      "sha256": "228ca75b9f0c6f10e8a38755ef1ba7696eeb95e019ec33dc56f92358cced0d6e",
+      "sha256": "cb45b186baedbd3f2d95da2a32e88b4f17eb12a89854174f30d6c4a335d3d85b",
       "executable": false
     },
     "tests/runtimes/python/django_app.py": {
-      "sha256": "cff42f585dd7e11a8387abfcc802842d28133be047d5d22c54648f33ad31c770",
+      "sha256": "a66e6439aaf908314489587a7dc3adb1fb90548bc72ce861e5bcae5620f42f55",
       "executable": false
     },
     "tests/runtimes/python/group.py": {
@@ -11222,7 +11230,7 @@
       "executable": false
     },
     "tests/runtimes/python/shop/urls.py": {
-      "sha256": "113ba7f30a150536bee4cc1192000699f1e2d646d61b646c572ab5dd2f8884de",
+      "sha256": "a23fbec549e2b057f14f24040c9c868b32ede5c7984d2aea7c9220e91f8b2fc4",
       "executable": false
     },
     "tests/runtimes/ruby.mjs": {
