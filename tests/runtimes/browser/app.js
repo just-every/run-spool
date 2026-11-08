@@ -3,7 +3,7 @@ window.__SPOOL_SENT__ = [];
 window.__SPOOL_DISCARDS__ = 0;
 window.__SPOOL_FEEDBACK__ = null;
 window.__SPOOL_RESPONSES__ = [];
-let widgetEventId;
+let removeWidgetAssociation;
 Sentry.init({
   dsn: globalThis.__DSN__,
   ...globalThis.__SDK_CONFIG__,
@@ -28,10 +28,6 @@ Sentry.getClient().on('beforeEnvelope', envelope => {
   window.__SPOOL_SENT__.push(...envelope[1].map(item => item[0].type));
 });
 Sentry.getClient().on('afterSendEvent', (event, response) => window.__SPOOL_RESPONSES__.push({type:event.type??'event',status:response?.statusCode}));
-// The pinned widget exposes association through the public feedback lifecycle hook.
-Sentry.getClient().on('beforeSendFeedback', event => {
-  if (event.contexts.feedback.source === 'widget') event.contexts.feedback.associated_event_id = widgetEventId;
-});
 window.lastErrorId = () => Sentry.lastEventId();
 window.openReportDialog = options => Sentry.showReportDialog(options);
 window.sendFilterError = message => { Sentry.captureException(new Error(message)); return Sentry.flush(10000); };
@@ -51,11 +47,16 @@ window.qualifyHandled = async () => {
 };
 window.stopReplay = () => Sentry.getReplay().stop();
 window.openFeedback = eventId => {
-  widgetEventId = eventId;
   window.__SPOOL_FEEDBACK__ = null;
   delete window.__SPOOL_FEEDBACK_ERROR__;
   const feedback = Sentry.getFeedback();
   feedback.remove();
+  removeWidgetAssociation?.();
+  // This pinned widget has no association option on createWidget or createForm.
+  // Its typed public hook permits mutation; capture this widget's selected error.
+  removeWidgetAssociation = Sentry.getClient().on('beforeSendFeedback', event => {
+    if (event.contexts.feedback.source === 'widget') event.contexts.feedback.associated_event_id = eventId;
+  });
   return feedback.createWidget();
 };
 window.queueDiscards = () => { for (let i = 0; i < 3; i++) Sentry.captureMessage('synthetic-spool-browser-discard ' + i); };
