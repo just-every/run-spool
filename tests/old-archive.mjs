@@ -99,7 +99,7 @@ try {
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
  const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
- const newTables = ['spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
+ const newTables = ['native_symbols','spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
  transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }

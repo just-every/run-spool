@@ -10938,7 +10938,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "0c564b248326d5076810090d58ccd8f901a2bc91f7caea764ef1d8898abd23ab",
+      "sha256": "97b07190de1820048f4cc3b584d585179e0ec0248367f1ca0fcea26053a92b4e",
       "executable": false
     },
     "tests/operator-archive.mjs": {
