@@ -8,12 +8,12 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 47 | 24 | 87 |
-| Agent surface | 0 | 0 | 5 | 5 |
+| Core | 22 | 44 | 21 | 87 |
+| Agent surface | 0 | 8 | 10 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 47 | 29 | 92 |
+| Full target | 22 | 52 | 31 | 105 |
 
-Judged from the code and tests at commit `d0f261508c50ae3a19168bc9adcc5aae8f942bae` (30 October 2026). Replayed the candidate onto current main. Retained its browser and public rer archive equality assertions, inert restored-work custody, fresh-run recovery, erasure replay refusal and retention snapshot assertions. ERR-009 remains partial with main's recorded Gap; this conflict resolution does not promote acceptance. Current main's newer ERR-005 judgment and all other clause rows are retained. Exact-candidate Verify and guarded publication remain landing gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
+Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
 ## Core
 
@@ -96,12 +96,12 @@ Core · published · **partial** · Cites BASE-INPUT-003
 4. keeps generated frames with a reason when the uploaded map does not match;
 5. and its evidence packet excludes the confidential source.
 
-**Evidence.** `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs`; `tests/agent-handoff.mjs` Agent handoff public journey, second-origin captures: generated frames before upload, originals after upload, immutable admission snapshot beside current lookup, release and build mismatch refusals, confidential-source exclusion. Independent release-only and build-only mismatches preserve every generated frame with an identity_mismatch reason and no original coordinates; a fresh matching capture proves original file, one-based line and zero-based column. `tests/agent-handoff/packet.mjs` generatedFrames and compatible assertions.
+**Evidence.** `src/domain/artifacts.ts`; `src/domain/packet.ts`; `tests/triage-journey.mjs`; `tests/sentry-sdk.mjs`; `tests/agent-handoff.mjs` Agent handoff public journey, second-origin captures: generated frames before upload, originals after upload, immutable admission snapshot beside current lookup, release and build mismatch refusals, confidential-source exclusion. Independent release-only and build-only mismatches preserve every generated frame with an identity_mismatch reason and no original coordinates; a fresh matching capture proves original file, one-based line and zero-based column. `tests/agent-handoff/packet.mjs` generatedFrames and compatible assertions.; `tests/mapped-frames-flow.mjs`; `tests/fidelity-flow.mjs`; mappedScreens covers keyboard paging, stale-read recovery, Axe and reflow with desktop and phone captures.
 **Gap.** The five browser source-map acceptance outcomes are asserted through the second-origin Agent handoff public journey. Remaining inherited work: expanded SDK-010 mapped lookup beyond the current 30-coordinate bound and SRC-004's recorded capacity, streaming, artifact lifecycle, isolated opt-in source fetching, ignore-list and production-build qualification. Native-device qualification remains held under SDK-002 and SRC-004; commercial qualification still needs BILL-001's pricing ruling. Existing queue scopes and release prerequisites are unchanged.
 
 #### ERR-006 — Audited triage and regression
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** Revision-checked open, acknowledged, resolved and suppressed changes are audited. An issue resolved in its current release reopens as a regression on a recurrence in a later release; delayed older-release events cannot invent one. For native version-1 events the order is the registered sequence, never guessed semver; Sentry events follow the project's stated rule in SDK-028, including releases later enriched by registration. SDK-009 carries resolve in the next or a named release and plain Resolve, and plain Resolve regresses on the next accepted event in any release; TEAM-004 inherits resolution from a commit's release, and TEAM-003 carries same-release recurrence policies, bulk actions and collaborative triage. Recognized JavaScript bundle hash suffixes do not split grouping; native anchors and reported frames stay immutable. Corrections retain exact occurrence provenance and reversible fenced apply/undo.
 
@@ -113,8 +113,8 @@ Core · published · **partial**
 5. A stale revision is refused.
 6. Original membership stays inspectable after apply and undo.
 
-**Evidence.** `src/domain/admission.ts`; `src/domain/operators/grouping.ts`; `tests/product-runtime.mjs` emitted Worker and D1 acceptance (newer-release reopening and strictly older capture after newer resolution); `tests/alerts-native.mjs` native scheduled event delivers a later-release regression with silent local mail once; `tests/operator-flow.mjs` operatorFlow (inert HTTP split and merge previews, fenced apply and undo, stale revisions and immutable originals); `tests/triage-journey.mjs` journey calling `tests/operator-ui.mjs` operatorUi (inert previews, exact split and merge apply and undo, inspectable original membership at 1440 and 390); `tests/operator-archive.mjs` operatorRetentionAndErasure (expired occurrence and erasure fences)
-**Gap.** Main's partial judgment is retained during this landing replay. The candidate adds the cited regression, inert-preview and issue-view correction assertions; a fresh acceptance review of that evidence remains separate from conflict resolution.
+**Evidence.** `tests/product-runtime.mjs` — emitted Worker and D1 acceptance (1: newer-release reopening and one regression alert; 2: strictly older capture retains the newer resolution; 5: stale triage refusal); `tests/alerts-native.mjs` — native scheduled event delivers a later-release regression with silent local mail once (1); `tests/operator-flow.mjs` — operatorFlow (3: inert HTTP split and merge previews; 4: fenced HTTP apply and undo; 5: stale correction refusal; 6: immutable originals); `tests/triage-journey.mjs` — journey calling `tests/operator-ui.mjs` — operatorUi at 1440 and 390 (3: inert split and merge previews; 4: exact reviewed split and merge apply and undo; 6: inspectable original membership); `tests/operator-archive.mjs` — operatorRetentionAndErasure (expired occurrence and erasure fences)
+**Gap.** None.
 
 #### ERR-007 — Sanitized evidence packet
 
@@ -155,7 +155,7 @@ Core · published · **done** · Rules D-4
 
 #### ERR-009 — Archive, restore and retention
 
-Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
+Core · published · **done** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rules D-6
 
 **Requirement.** Versioned private archives carry stored source bytes, checksums, migration identity, triage, maps, repairs/checks, operator corrections and inert agent grouping proposals (including server-computed review snapshots), reproduction/fix/exposure history, sanitized Sentry evidence, feedback, capture/grouping/release policies and erasure journal. HTTP/CLI and legacy v1/v2 decoding share semantic validation. Source and maps are portable; run tokens, step leases, owner sessions, project grants, alert destination records/credentials and dispatch queues never travel; retained alert rules restore disabled and delivery history is historical. Restored schedules and quiet hours are disabled, restored snoozes and scheduled mail are historical and never send, and raw recipient receipts and passing-test authority do not travel. Older archives restore newly introduced collections empty under versioned rules. An archive holds at most 10,000 events per project and refuses more with `Archive event budget`; GOV-003 carries streaming archives of any retained volume, SRC-004 the artifact capacity and GOV-002 scheduled policies. Manual cutoff retention removes private derived content, keeps repair snapshots with coverage gaps and exposes the deduplication horizon. Imported history creates no active grant, dispatch or current repair proof.
 
@@ -168,8 +168,8 @@ Core · published · **partial** · Cites BASE-DATA-001, BASE-BACKUP-001 · Rule
 6. An import into a nonempty target is refused before any mutation.
 7. After a manual retention cutoff, repair snapshots keep their coverage gaps.
 
-**Evidence.** `src/domain/archive.ts`; `src/domain/portability.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; `tests/product-runtime.mjs`; `tests/agent-handoff.mjs`; `tests/old-archive.mjs` Supplementary replayed candidate evidence (status and recorded Gap retain current main's judgment): Acceptance 1: `tests/triage-journey.mjs` journey (Download private archive, verified downloaded rows and private maps at 1440 and 390); `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import equality, credential exclusion and fresh owner setup), invoked by `tests/repair-recovery.mjs`. Supplementary public rer export and import equality assertions remain in `tests/commands.mjs`; qualification here relies on the completed clause journeys. Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` independent empty restore and unchanged-row refusals; `tests/old-archive.mjs` published and current independent restores, mismatched schema, corruption and occupied-target refusals. Acceptance 3: `tests/repair-recovery/archive.mjs` archiveProof (source session and grant refusals, historical repair verification); `tests/execution-journey.mjs` archive (unchanged historical facts, excluded tokens and leases, zero dispatch, refused historical approval and passing-run authority, fresh-run recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical states, Axe and reflow at 1440 and 390). Acceptance 7: `tests/repair-recovery/archive.mjs` archiveProof (all repair and check rows and ordered snapshot identifiers preserved, exact removed_by_retention markers and retained recurrence). D-6: `src/domain/restored-work.ts`, `migrations/core/0084_restored_work.sql`, `src/domain/portability.ts`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
-**Gap.** Not asserted in the cited tests: export through the browser download and through `rer export` (asserted in tests/multilingual.mjs and tests/commands.mjs, which this clause does not cite); restored work holding no active grant (only the archive's lack of credentials, sessions and ingest key is asserted), starting no dispatch and holding no current repair proof; and repair snapshots keeping their coverage gaps after a manual cutoff. Asserted: restore into an independent empty destination with every row equal, an archive without credentials, sessions or ingest key, and refusal of tampered, conflicting and nonempty-target imports before mutation.
+**Evidence.** `src/domain/portability.ts`; `src/domain/restored-work.ts`; `src/domain/retention.ts`; `scripts/installer/portability.mjs`; Acceptance 1 and 2: `tests/triage-journey.mjs` journey (actual browser download, verified populated rows and private source maps, credential exclusions and independent empty restore at 1440 and 390); `tests/repair-recovery.mjs` repair recovery public journey invoking `tests/repair-recovery/archive.mjs` archiveProof (public rer export and import, whole-row equality and fresh owner setup). Acceptance 2 and 4 to 6: `tests/product-runtime.mjs` emitted Worker and D1 acceptance (independent restore, semantic tampering, configuration conflict and nonempty-target refusals); `tests/old-archive.mjs` old native archive journey (published and current independent restores, unchanged populated upgrades, schema mismatch, checksum and occupied-target refusals). Acceptance 3: archiveProof (source sessions and agent, ingest and deploy grants refused without product-row changes, disabled restored rules and historical repair verification); `tests/execution-journey.mjs` execution journey, archive stage (unchanged historical facts, source-token refusal, zero dispatch before and after scheduling, refused historical approval and passing-run authority, fresh-run-only recovery, erasure and replay refusal); `tests/execution/ui.mjs` restoredExecutionPanel and `tests/repair-recovery/ui.mjs` restoredRepairPanel (historical presentation, Axe and reflow at 1440 and 390). Acceptance 7: archiveProof (unchanged repair and check rows, ordered snapshot identifiers, exact removed_by_retention markers and retained recurrence). D-6: `migrations/core/0084_restored_work.sql`, `src/domain/erasure/declaration.ts` and `src/domain/erasure/owner-declaration.ts` declare destination-only custody, archive exclusion, project erasure and attribution-free owner retention.
+**Gap.** None.
 
 #### ERR-010 — Release gates
 
@@ -201,8 +201,8 @@ Core · published · **partial** · Cites BASE-ACCESS-001, BASE-INSTALL-001, BAS
 7. A reused managed claim is rejected.
 8. Anonymous and project-grant editor access is denied.
 
-**Evidence.** `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs`
-**Gap.** Not asserted in the cited tests: refusal of an unsafe answer path, and denial of anonymous and project-grant editor access (asserted in tests/owner-editor.mjs, which this clause does not cite). Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal.
+**Evidence.** `scripts/installer/local.mjs`; `scripts/installer/portability.mjs`; `src/editor`; `tests/commands.mjs`; `tests/owner-claim.mjs`; `tests/dev-credentials.mjs`; `tests/owner-editor.mjs` OWNER EDITOR, acceptance 8: anonymous HTTP 403; a live project read grant reads a captured issue before and after editor HTTP 403, including with a coincident owner cookie; native-owner configuration succeeds; current-session signout refuses config and removes the browser editor while another owner session remains valid; private cache, short expiry, CSP and browser proof at 1440 and 390
+**Gap.** Not asserted in the cited tests: refusal of an unsafe answer path. Asserted: install, setup, dev, export, import and reset, the provider-free dry run, setup preservation and reused-claim refusal.
 
 #### ERASE-001 — Project and installation-owner erasure
 
@@ -290,7 +290,7 @@ Core · target · **done** · Rules D-6
 
 #### TEAM-005 — Per-member notification settings and issue subscriptions
 
-Core · target · **missing** · Rules D-4
+Core · target · **partial** · Rules D-1, D-4, D-6
 
 **Requirement.** Each member chooses, per project and per notification type, what reaches them and on which personal channel (email, Slack direct message, Microsoft Teams chat). The types are workflow (resolution, regression, assignment, comment, mention), issue alert, deploy and weekly report. A member is subscribed to an issue by being assigned directly or through a team, commenting, being mentioned, bookmarking it or pressing subscribe; the issue shows why, and an explicit unsubscribe overrides automatic subscription until the member subscribes again. Workflow notifications go to subscribers other than the actor. Deploy notifications go to members whose commits are in the release. The weekly report is opt-in per member. A member can opt out of a project's personal alert email without disabling the rule for others; only an admin can make a rule's delivery mandatory, and the member's settings show it. Every message carries a settings and one-click unsubscribe link that applies before the next message. ALERT-003's personal digests arrive with member notifications: each member's daily/weekly schedules, timezone, channel selection and unsubscribe controls preserve one digest per calendar period and loss/backlog reporting.
 
@@ -299,8 +299,8 @@ Core · target · **missing** · Rules D-4
 2. An assignment, comment, mention, resolution, regression, issue alert, a deploy containing one member's commit and the weekly report each reach exactly the members and channels they chose.
 3. Unsubscribing through a message link stops the next qualifying message to that member, while the other member is unaffected.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: per-member notification settings and issue subscriptions.
+**Evidence.** `tests/team-flow.mjs` teamFlow with `tests/notification-preferences.mjs` notificationPreferencesFlow (acceptance 1 native email slice: two current members independently save and reopen workflow, issue-alert, deploy and opt-in weekly-report choices for two projects through HTTP and Settings; self-only authority, truthful safe audit, no notification on save, inert independent archive restore); `tests/discussion-flow.mjs` discussionFlow (comment, mention and manual issue subscriptions with explicit-unsubscribe precedence); `tests/project-erasure.mjs` and `tests/owner-erasure.mjs` (D-6 preference custody); `src/domain/notifications/`; `src/ui/workbench/PersonalNotifications.tsx`
+**Gap.** Native personal email preferences persist per project and workflow event or notification type; defaults are off, including weekly reports, and saves send no notification. Existing comment, mention and manual subscriptions remain intact. Remaining: personal Slack direct-message and Microsoft Teams chat channels; acceptance 2 event-to-recipient delivery for assignment, comment, mention, resolution, regression, issue alert, commit-matched deploy and weekly report; acceptance 3 message-link unsubscribe and settings links; assignment, team and bookmark subscription reasons and their explanations; actor exclusion, commit-recipient matching, personal alert opt-out applied to delivery, admin-only mandatory-rule controls and their disclosure; personal timezone, channel and daily or weekly digest schedules, one digest per calendar period and unsubscribe, loss and backlog qualification. ALERT-002 buyer-account and real-Slack qualification and ALERT-005 provider prerequisites remain unchanged.
 
 ### Capture and release health
 
@@ -350,7 +350,7 @@ Core · target · **partial** · Rules D-1
 5. From an unmodified Python SDK with default `include_local_variables`, the frame locals `password` and `api_key` are masked by default.
 6. A `$frame.vars.order_note` mask rule masks `order_note`, and the ordinary local survives in issue detail.
 
-**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`
+**Evidence.** `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs`; `src/domain/scrubbing/`; `src/domain/admission.ts`; `src/domain/sentry/located-log.ts`; `src/ui/workbench/ScrubbingRules.tsx`; `tests/sentry-sdk.mjs`; `tests/scrubbing-selectors.mjs` (scrubbingSelectors: field selectors, methods, scoped hashes, built-ins and OTLP); `tests/scrubbing-flow.mjs` (scrubbingFlow: real Node event and located log, installation protection, safe fields, masked preview, stale saves, unchanged retained evidence, owner/agent/export reads and policy archive, Settings and masked issue at 1440/390); `tests/runtimes/python.mjs` (default Python locals and custom order_note rule, 1440/390); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `tests/project-erasure.mjs`; `src/domain/sentry/evidence-values.ts`; `tests/sdk-runtimes.mjs` Python Q1 to Q7 runtime journey with `tests/runtimes/python/app.py` (unmodified sentry-sdk 2.72.0, default local-variable capture) and `tests/runtimes/python.mjs` verify (acceptance 5: owner HTTP issue detail retains quantity and masks password and api_key) and checkIssue (owner issue view exposes SDK-sent locals)
 **Gap.** Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent.
 
 #### SDK-004 — User feedback attached to failures
@@ -367,8 +367,8 @@ Core · target · **partial** · Cites BASE-PUBLIC-001 · Rules D-6
 5. Feedback from an unmodified Sentry feedback widget, `captureFeedback` and a legacy `user_report` each attaches to its issue.
 6. Spool's widget opened in Spanish shows Spanish visible labels and accessible names.
 
-**Evidence.** `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md`
-**Gap.** The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent.
+**Evidence.** `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` with `tests/runtimes/browser.mjs` (qualifyBrowser: SDK submit-success IDs, emitted descriptions and references, exact retained occurrences, complete inbox and archive sets, issue reads, retained-link stability and per-submission accepted quantities); `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md`
+**Gap.** Acceptance 5’s actual Sentry widget association is qualified at the description-only boundary: the same pinned SDK program uses its public beforeSendFeedback hook against a reference collector and Spool with only DSN changed; both reload rounds switch the widget between the same page’s handled and automatic errors, reverse report order after reload, and reconcile every SDK submit-success report ID with its emitted description and reference, complete inbox and archive report sets, intended handled or automatic error, exact archived occurrence, issue feedback, unchanged earlier report references and per-submission accepted quantity, with issue screens at 1440 and 390. The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent.
 
 #### SDK-005 — Crash-free sessions and release health
 
@@ -433,7 +433,7 @@ Core · target · **partial** · Rules D-2
 7. A `statsd` item and an unknown item type each appear in capability diagnostics with their count and no silent drop.
 8. With a replay-category budget exhausted, `X-Sentry-Rate-Limits` names only that category while errors are still accepted.
 
-**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`
+**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs`; `tests/triage-journey.mjs` Capture receipts item diagnostics (literal named quantities at 1440; screens at 1440 and 390)
 **Gap.** Errors, text feedback and client_report items are routed after complete envelope framing. SDK-reported discards are counted by bounded reason/category and quantity, separately from accepted events; invalid reports are individually counted while valid companion errors continue. The real Node SDK flush emits reports through its normal transport; automatic browser lifecycle report emission is qualified by the [SDK-001] journey in `tests/sentry-sdk.mjs`. Unsupported categories remain diagnosed. Check-ins are routed under SDK-024. Bounded sessions and release health are routed under SDK-005, with keyed DID hashes and named limitations. Traces, profiles, replay, logs, metrics, dedicated crash/security doors, category backpressure and full runtime qualification remain absent.
 
 #### SDK-008 — Sentry user identity policy and affected users
@@ -500,7 +500,7 @@ Core · target · **partial** · Rules D-4
 7. A release-less event on that issue is counted on it without reopening it.
 8. An event with an invalid release name is accepted as release "none", with its counted note.
 
-**Evidence.** `src/domain/releases/`; `src/domain/sentry/convert.ts`; `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/ResolutionPicker.tsx`; `tests/release-identity-flow.mjs`; `tests/bulk-triage-flow.mjs` Event identity, no-dist separation and upgrade, automatic release enrichment, first-seen/semver/registered total ordering, plain/current/next/named owner and bulk resolution, revision-fenced previews, strict/pattern/name outcomes, archive restore and 1440/390 picker journeys.
+**Evidence.** `src/domain/releases/`; `src/domain/sentry/convert.ts`; `src/domain/operators/bulk-triage.ts`; `src/ui/workbench/ResolutionPicker.tsx`; `tests/release-identity-flow.mjs`; `tests/bulk-triage-flow.mjs` Event identity, no-dist separation and upgrade, automatic release enrichment, first-seen/semver/registered total ordering, plain/current/next/named owner and bulk resolution, revision-fenced previews, strict/pattern/name outcomes, archive restore and 1440/390 picker journeys.; `tests/sdk-runtimes.mjs`; `tests/runtimes/node.mjs`; `tests/runtimes/node/app.mjs`; combined history preserves issue totals, !has:release search and noReleaseEvents. `tests/runtimes/screens.mjs` readScreens checks the rendered no-release disclosure and Releases and Alerts at 1440 and 390.
 **Gap.** Not asserted in the cited tests: the new-issue alert for the unmodified Node SDK's release-less and SHA-release events, and release-scoped views naming release-less events (both asserted in tests/runtimes/node.mjs, which this clause does not cite). Asserted: acceptance, auto-creation with first-seen time and creating SDK, search, enrichment, plain, next and named Resolve, release-less counting without reopening and invalid release names.
 
 #### SDK-028 — Release ordering rule
@@ -536,7 +536,7 @@ Core · target · **partial**
 7. A bare `captureMessage("quota exceeded for %s", ...)` is accepted as an issue grouped by the template.
 8. A 1,200-frame recursion keeps 1,000 frames with "200 frames omitted" shown, and the copied raw stack trace of the Python chain shows both tracebacks with no masked value revealed.
 
-**Evidence.** `src/domain/sentry/evidence.ts`; `src/domain/sentry/query.ts`; `src/ui/workbench/SentryEvent.tsx`; `tests/fidelity-flow.mjs` (SDK-010). Rich chain/group/frame/local/context evidence, scrubbed query retention, named exclusions, archive/packet privacy and bounded trimming.
+**Evidence.** `src/domain/sentry/evidence.ts`; `src/domain/sentry/query.ts`; `src/ui/workbench/SentryEvent.tsx`; `tests/fidelity-flow.mjs` (SDK-010); `tests/sdk-runtimes.mjs` Node and Java runtime journeys with `tests/runtimes/chain-proof.mjs` causeChainProof (acceptance 4: SDK-sent chains, each member and its full frames, root-only presentation, distinguishable wrappers and Java suppressed exceptions, owner-only and exact-project reads, keyboard access, Axe and desktop and phone screens). Rich chain/group/frame/local/context evidence, scrubbed query retention, named exclusions, archive/packet privacy and bounded trimming.
 **Gap.** Not asserted in the cited test: the `password` local masked in storage and exports; Related Exceptions and an `asyncio.TaskGroup` failure; root-cause marking for Node, Next.js and Java chains; the SDK's browser and os contexts read back; the `browser.name` and `os.name` tag-summary rows; the request URL and allowed headers; and the copied raw stack trace. Asserted: the chained exception's frames, context lines and locals, masking at the owner door and in packets, two root causes with their alerts, exception-group acceptance, the `browser.name` tag, the `tenant` tag summary and tag search, scrubbed request secrets, message-template grouping and the 1,000-frame bound.
 
 #### SDK-011 — Sentry intake encodings, published size limits and per-item refusal
@@ -554,7 +554,7 @@ Core · target · **partial**
 6. A small compressed body that expands past 200 MiB gets a 413 naming the limit, with no memory exhaustion and nothing stored.
 7. With one project's attachment limit lowered after its preview, a larger screenshot is refused alone and counted.
 
-**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs`
+**Evidence.** `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `tests/sentry-http.mjs`; `tests/sentry-sdk.mjs`; `tests/sentry-invalid-event-flow.mjs` sentryInvalidEventFlow (invoked by `tests/sentry-http.mjs`: constructed-envelope conversion isolation, exact occurrence/outcome/usage counts, privacy, storage failure and authority fences)
 **Gap.** Uncompressed, `gzip` and `deflate` bodies are accepted with bounded decompression. Public-door SDK-011 proof checks deflate issue creation and expanded-size refusal, unsupported encodings named in 415 responses and counted with header/query ingest grants, and malformed event JSON refused as `invalid_item` while a valid companion is admitted without extra accepted units. The whole request remains capped at 256 KiB compressed, 1 MiB expanded and 100 items; `br`/`zstd`, Sentry-equal limits, oversized-item isolation, streamed heavy-item storage and full usage/dual-run reconciliation remain absent.
 
 #### SDK-012 — Unmodified server-runtime SDKs: Python, Go, Java/JVM, Ruby, PHP, .NET, Rust and Elixir
@@ -573,7 +573,7 @@ Core · target · **partial** · Rules D-5
 7. It keeps Django request data over a real request.
 8. Unmodified Java `Caused by` and suppressed chains are kept.
 
-**Evidence.** `tests/sdk-runtimes.mjs`; `tests/runtimes/`; `tests/runtimes/screens.mjs`; `tests/runtimes/python.mjs`; `tests/runtimes/java.mjs`; `src/domain/sentry/auth.ts` Push Verify jobs runtime (python), (go), (java), (ruby), (php), (dotnet), (rust) and (elixir) each run one unmodified SDK program against a reference collector and against Spool with only the DSN changed. Q1: "every SDK error event is a persisted occurrence", "handled exception chain persisted" and the handled issue read through the UI at 1440 and 390. Q2: "unhandled failure persisted as unhandled" (sentry-go v0.50.0 marks a recovered panic only with level fatal, client.go line 805, which Spool keeps); in runtime (elixir) a crashed Task is reported by the SDK's logger handler with handled false, and `tests/runtimes/elixir/app.exs` attaches its cart in the process that runs the checkout, because sentry 14.0.0 loses a crash whose caller holds an attachment (the handler passes the caller's context as capture options, lib/sentry/logger_utils.ex line 30; Sentry.Event.create_event/1 refuses :attachments, lib/sentry/event.ex line 196; the handler swallows the error, lib/sentry/logger_handler.ex line 475). Q3: "the restarted process groups into the same issue" with no duplicate occurrence. Q4: "Spool outcomes reconcile with SDK-sent items" with tracing, logs and an attachment from every runtime and sessions from Python, Java, Ruby (request mode), .NET and Rust; sentry-go v0.50.0, sentry/sentry 4.34.0 (PHP) and sentry 14.0.0 (Elixir) offer no sessions. Q5: "release and dist equal what the SDK sent" and "release is created automatically". Q6: client-report discards in project outcomes (BILL-001 usage) from Python, Go, Java, .NET, Rust and Elixir; sentry/sentry 4.34.0 sends none (Client.php lines 354-366 only log a before_send drop) and sentry-ruby 7.1.0 sends none from this process (Sentry.close flushes the report, sentry-ruby.rb line 303, before stopping the worker that records the discard, line 312). Q7: "refused or undeliverable events create nothing". P1: "the release-less event raises one new-issue alert", "release-less alert names no release", "SDK-inferred git SHA is the release", "release-scoped no-release count" and the Releases and Alerts screens at 1440 and 390. P2: the raise-from chain, ExceptionGroup, default local variables, SDK context and "Django request headers are kept". J1: the Caused by chain with a suppressed exception (java verify).
+**Evidence.** `tests/sdk-runtimes.mjs`; `tests/runtimes/`; `tests/runtimes/screens.mjs`; `tests/runtimes/python.mjs`; `tests/runtimes/java.mjs`; `src/domain/sentry/auth.ts` Push Verify jobs runtime (python), (go), (java), (ruby), (php), (dotnet), (rust) and (elixir) each run one unmodified SDK program against a reference collector and against Spool with only the DSN changed. Q1: "every SDK error event is a persisted occurrence", "handled exception chain persisted" and the handled issue read through the UI at 1440 and 390. Q2: "unhandled failure persisted as unhandled" (sentry-go v0.50.0 marks a recovered panic only with level fatal, client.go line 805, which Spool keeps); in runtime (elixir) a crashed Task is reported by the SDK's logger handler with handled false, and `tests/runtimes/elixir/app.exs` attaches its cart in the process that runs the checkout, because sentry 14.0.0 loses a crash whose caller holds an attachment (the handler passes the caller's context as capture options, lib/sentry/logger_utils.ex line 30; Sentry.Event.create_event/1 refuses :attachments, lib/sentry/event.ex line 196; the handler swallows the error, lib/sentry/logger_handler.ex line 475). Q3: "the restarted process groups into the same issue" with no duplicate occurrence. Q4: "Spool outcomes reconcile with SDK-sent items" with tracing, logs and an attachment from every runtime and sessions from Python, Java, Ruby (request mode), .NET and Rust; sentry-go v0.50.0, sentry/sentry 4.34.0 (PHP) and sentry 14.0.0 (Elixir) offer no sessions. Q5: "release and dist equal what the SDK sent" and "release is created automatically". Q6: client-report discards in project outcomes (BILL-001 usage) from Python, Go, Java, Ruby, .NET, Rust and Elixir. Ruby at pinned sentry-ruby 7.1.0 requires a real client_report: `tests/runtimes/ruby/app.rb` flushes buffered telemetry, drains the public background worker and closes normally; `tests/runtimes/ruby.mjs` requires the item, and `tests/sdk-runtimes.mjs` asserts "real client reports contain every before_send discard with its exact category and quantity", "usage retains the exact SDK discard reasons, categories and quantities" and "a before_send discard creates no occurrence". The two restarted handled runs report exactly two error-category before_send discards; `tests/runtimes/harness.mjs` reconciles the SDK report quantities with public project outcomes. Pinned PHP SDK 4.34.0 still only logs this before_send drop (Client.php lines 354-366) and sends no client report. Q7: "refused or undeliverable events create nothing". P1: "the release-less event raises one new-issue alert", "release-less alert names no release", "SDK-inferred git SHA is the release", "release-scoped no-release count" and the Releases and Alerts screens at 1440 and 390. P2: the raise-from chain, ExceptionGroup, default local variables, SDK context and "Django request headers are kept". J1: the Caused by chain with a suppressed exception (java verify).
 **Gap.** Q6 is unshown for PHP and Ruby: sentry/sentry 4.34.0 and sentry-ruby 7.1.0 send no client report from these programs, so no discard reaches usage. Asserted: Q1 to Q5 and Q7 for all eight runtimes, Q6 for the other six, and the inherited Python and Java journeys.
 
 #### SDK-013 — Unmodified Electron SDK
@@ -668,7 +668,7 @@ Core · target · **missing** · Rules D-5
 
 #### SDK-020 — Guided setup command and published framework setup
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A guided setup command, comparable to the Sentry setup wizard, detects the framework, installs the SDK, writes the DSN, release and source-map configuration as a reviewable diff, sends a test event, and writes nothing when it refuses. Spool publishes framework setup for React/Next.js, Express, Django/FastAPI, Spring, Rails, Laravel and ASP.NET Core. Setup names Sentry's `tunnelRoute` limitation and its replacement (SDK-021). Source-map configuration is a JavaScript-framework step: Python frameworks have no source maps to configure, and Django setup says so.
 
@@ -679,8 +679,8 @@ Core · target · **partial**
 4. G4: a bad DSN or an unsafe path writes nothing.
 5. G5: the seven framework guides are published.
 
-**Evidence.** G1–G4: `tests/setup-flow.mjs` ([SDK-020] packed setup journey: reviewed/applied patch, real production error before/after map upload, receipt and no-write refusals). G5: `docs/SENTRY-SWITCHING.md` (Framework setup). Screens: `docs/retained-verification/sdk020/`.
-**Gap.** Not asserted in the cited tests: G5, the seven framework guides published (they exist only in docs/SENTRY-SWITCHING.md, a GitHub-only engineering note; no cited test reads them). Asserted: G1 to G4.
+**Evidence.** G1 and G2: `tests/setup-flow.mjs` packed setup journey, fresh Django and Next.js reviewed patch equals applied files; production Next.js error resolves to the original line after map upload. G3 and G4: the same journey, Spool receipt required and malformed DSN, redirect, wrong host, secret DSN and unsafe file paths refuse without configuration writes. G5: `tests/runtime.mjs` framework publication journey, anonymous documentation navigation reaches all seven framework sections with installation and DSN examples, Python no-source-map guidance, JavaScript maps and tunnel replacement; the public site build emits the same article. `docs/FRAMEWORK-SETUP.md`. Fresh framework qualification is limited to Next.js and Django.
+**Gap.** None.
 
 #### SDK-021 — Tunnel handlers and ad-blocker delivery
 
@@ -748,14 +748,14 @@ Core · target · **partial** · Rules D-5
 **Acceptance.**
 1. As each owning clause ships storage, every runtime family's rerun qualification run reconciles the persisted issue, release, session, trace, replay, feedback, attachment and discard outcomes.
 
-**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs`
+**Evidence.** `src/domain/feedback/`; `src/domain/sentry/client-reports.ts`; `tests/sentry-sdk.mjs`; `tests/client-report-flow.mjs`; `tests/sdk-runtimes.mjs` (java and dotnet qualification); `tests/runtimes/feedback-proof.mjs` feedbackProof (SDK-produced quantity, per-occurrence descriptions, exact retained associations, issue reads and rendered feedback)
 **Gap.** Feedback text and client-report discards persist for browser/Node (and Java and .NET feedback in the SDK-012 runs); bounded sessions persist under SDK-005 (Node/browser health qualified; other runtime health remains a gap), while traces, replay, logs and attachments are counted as unsupported.
 
 ### Investigation and source
 
 #### GROUP-001 — Explainable grouping and durable corrections
 
-Core · target · **partial** · Rules D-4
+Core · target · **done** · Rules D-4
 
 **Requirement.** Group occurrences stably across builds and runtimes, explain the fingerprint/rule version, support SDK fingerprints and project grouping rules, and preview future rule effects against retained events. Bulk split/merge corrections preserve original grouping, alert/repair coverage and undo provenance. New intake follows the chosen versioned rule; historical regrouping is explicit and cannot erase previous failure evidence. Stack trace rules honor the per-frame `in_app` flag and the in-app include/exclude options that unmodified Sentry SDKs send, and let a maintainer mark frames in-app or not in-app (`+app`/`-app`) and include or exclude them from grouping (`+group`/`-group`) by path, module, package, function and platform family (Sentry's `stack.abs_path`, `stack.module`, `stack.package`, `stack.function` and `family` matchers), previewed against retained events and applied to later intake. The issue view collapses frames that are not in-app, and grouping uses in-app frames when any exist; MIG-001 imports Sentry stack trace and fingerprint rules. The default rule groups over the whole exception chain SDK-010 keeps, processing each exception in turn as Sentry's default does, so the same wrapper exception with different root causes makes different issues. An exception group is grouped by its top-level exception and its children. Frames hidden by `__traceback_hide__` are left out of grouping. A message event with no stack groups by its message template. Fingerprint rules can match any exception in the chain (`error.type`, `error.value`), the message, the level, the logger, tags and SDK name, as Sentry's fingerprint matchers do. Each event has a grouping information view showing the rule version, the variant used (exception chain, stack, message or custom fingerprint) and, per exception, which frames and values contributed to the hash and which did not, with the reason (not in-app, hidden by a `-group` rule, or `__traceback_hide__`). Native JavaScript, Python and Go accept opt-in versioned path/function/family stack rules and type/message/family fingerprint rules; absent native module/package/tag/SDK fields are named unavailable, and without a matching rule their native v1 identities remain unchanged. Historical regrouping means an explicit selected-occurrence correction with preview, version, audit, immutable original membership and guarded undo; rule activation applies forward only, and explicit split/merge corrections never automatically become future rules. Policy changes retain repair coverage gaps and never replay alerts or alter loss counters. MIG-001 imports and previews grouping rules before migration completion.
 
@@ -769,8 +769,8 @@ Core · target · **partial** · Rules D-4
 7. Later events follow a fingerprint rule on `error.type` of the inner exception.
 8. A Python frame with `__traceback_hide__` set is hidden and excluded from the hash.
 
-**Evidence.** `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/grouping-rules-flow.mjs`; `tests/operator-flow.mjs`; `tests/fidelity-flow.mjs`; `docs/GROUPING-RULES.md`
-**Gap.** Not asserted in the cited tests: a `__traceback_hide__` frame's exclusion from a frame-based hash (the cited event is grouped by a custom fingerprint rule). Asserted: every other point.
+**Evidence.** `src/domain/grouping/`; `src/domain/sentry/grouping.ts`; `src/ui/workbench/GroupingRules.tsx`; `tests/operator-flow.mjs` operatorFlow and agentProposalFlow (acceptance 1 and 3: stable relations, reviewed split and merge, immutable originals, unchanged alert quantities and inspectable repair gaps after undo); `tests/grouping-rules-flow.mjs` groupingRulesFlow (acceptance 2, 4, 5 and 8: policy preview, later routing, selected historical corrections, collapsed library frames, default Python hidden-frame basis, admission fingerprint and issue identity with an unhidden control, hidden and unhidden issue views at 1440 and 390); `tests/fidelity-flow.mjs` fidelityFlow (acceptance 5 to 7: SDK in_app exclusion, whole-chain variants, distinct root causes and inner-cause fingerprint rules); `docs/GROUPING-RULES.md`
+**Gap.** None.
 
 #### FIND-001 — Search, facets and saved investigation views
 
@@ -786,8 +786,8 @@ Core · target · **partial** · Rules D-4
 5. The stream filters and sorts by priority and by affected users.
 6. Over events sent by unmodified Sentry SDKs, `tenant:acme browser.name:Chrome` and `error.type:KeyError` find the matching issues and facet counts, including an issue whose `KeyError` is the inner cause of a wrapper exception.
 
-**Evidence.** `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `src/ui/workbench/IssueList.tsx`; `tests/investigation-flow.mjs`; `tests/bulk-triage-flow.mjs`; `docs/INVESTIGATION.md`; `docs/BULK-TRIAGE.md` ;  `src/domain/review/`; `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `tests/bulk-triage-flow.mjs` [FIND-001]; `docs/REVIEW-INBOX.md`
-**Gap.** Owner-only review:pending count/filter, atomic previewed review of one/selection and regression reopening; 25 validated saved queries per project, authority-safe links, archive/restore/erasure and 1440/390 proof. Team search, shared views and additional priority remain gaps.
+**Evidence.** `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `src/ui/workbench/IssueList.tsx`; `tests/investigation-flow.mjs`; `tests/bulk-triage-flow.mjs`; `docs/INVESTIGATION.md`; `docs/BULK-TRIAGE.md` ;  `src/domain/review/`; `src/domain/investigation/search.ts`; `src/domain/investigation/query.ts`; `tests/bulk-triage-flow.mjs` [FIND-001]; `docs/REVIEW-INBOX.md`; `tests/priority-search-flow.mjs` prioritySearchFlow, invoked by `tests/investigation-flow.mjs` in the Sentry HTTP journey: acceptance 5 priority component, 90 captured issues across four cursor pages, each priority across two pages, regression and new-issue tie breaks, receipt ordering, combined priority predicates and list controls, query-wide status, release and environment facets on every page, query-bound cursors, exact ordered JSON and CSV exports; prioritySearchScreen changes Latest received to Highest priority, reconciles every rendered page and backward navigation, downloads complete JSON and CSV from page 3 and clears the page cursor on filtering at 1440; the same screens are inspected at 390
+**Gap.** Owner-only review:pending count/filter, atomic previewed review of one/selection and regression reopening; 25 validated saved queries per project, authority-safe links, archive/restore/erasure and 1440/390 proof. Acceptance 5 priority filtering and ordering are qualified by the cited public journey. Team-wide search and shared-view qualification remain gaps; acceptance 4 identity search and facets, and acceptance 5 affected-user filtering and sorting remain unqualified. Acceptance 1 to 3 and 6 retain their prior evidence and queue scopes. SDK-008 keep-as-sent and auto-address visitors, SDK-026 identity scope and TEAM-003 reopening-rule conflict retain their existing holds; no broader identity or SDK qualification is claimed.
 
 #### FIND-002 — Issue impact, detail and event navigation
 
@@ -802,12 +802,12 @@ Core · target · **partial**
 4. Its raw stack trace copies.
 5. Its All Events list, filtered by `tenant:acme`, steps from the oldest to the latest event, and the detail follows each chosen event.
 
-**Evidence.** `src/domain/investigation/events.ts`; `src/ui/workbench/EventExplorer.tsx`; `src/ui/workbench/SentryEvent.tsx`; `src/ui/workbench/RepositorySource.tsx`; `tests/fidelity-flow.mjs`; `tests/repository-source-flow.mjs`
-**Gap.** Owner detail selects exact retained occurrences with cursor pages, combined event queries, navigation, chain/context/raw evidence and all-issue tag counts. Selected source frames link through explicit recorded mappings to exact repository revisions, distinct from SDK context and map coordinates. User and session analytics and provider qualification remain absent; agent packets retain their minimized scope.
+**Evidence.** `src/domain/investigation/events.ts`; `src/domain/investigation/impact.ts`; `src/ui/workbench/EventExplorer.tsx`; `src/ui/workbench/IssueImpact.tsx`; `src/ui/workbench/SentryEvent.tsx`; `src/ui/workbench/RepositorySource.tsx`; `tests/sdk-runtimes.mjs` Python SDK journey with `tests/runtimes/python.mjs` checkIssue and verify (acceptance 3 through 5: actual SDK chain, frame context and ordinary locals compared with reference SDK captures; rendered request, contexts and Related Exceptions children; visible whole-issue tag summary, raw clipboard equality including every retained exception and frame, and tenant:acme oldest, next, previous and latest detail at 1440 and 390; real SDK session observations remain separate from unavailable issue session attribution; anonymous, agent, foreign-project, exact-occurrence and revoked-agent privacy refusals leave captures unchanged); `tests/fidelity-flow.mjs` fidelityFlow and impactJourney (acceptance 1 and 2 retained event and user quantities, no-release exclusions, rate, distinct explicitly linked sessions, separate project release-health denominators; query-scoped recommendation, exact issue and occurrence refusals, private agent scope, context redaction, private-reference archive restore, missing or foreign session references, identity dropping, retention, erasure and refused replay); `tests/repository-source-flow.mjs` repositorySourceFlow
+**Gap.** The conservative session-association default qualifies only an explicitly sent SDK session identifier matched to a retained individual session in the same project and environment, and the same release when named. Missing or mismatched references leave the affected-session total unavailable with a verified lower bound; no user or release inference is made. Unmodified sentry-sdk 2.72.0 emits three individual session observations but sends no session identifier in its three error events; the Python journey proves that issue attribution remains unavailable rather than borrowing the project cohort. Automatic association without an SDK-sent event session identifier remains unproved and cannot be qualified from those observations alone. Broader SDK-005 boundary and provider qualification remain open. SDK-005's release-less-session policy conflict is not resolved here. The native known-set reconciliation now covers acceptance 1 and 2 with all retained errors, distinct users and explicitly linked sessions, rate, and named-release exclusions; acceptance 3 through 5 and native recommendation selection have public-door qualification. Agent packets retain their minimized scope; SDK-008 identity policy, SDK-005 session obligations, SDK-010 qualification and existing source-provider account, native-device and pricing prerequisites remain unchanged.
 
 #### FIND-003 — Trends, dashboards and team reports
 
-Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
+Core · target · **done** · From FIND-002 · Rules D-1, D-4, D-6
 
 **Requirement.** Dashboards report error volume, new/regressed/resolved backlog, time to acknowledge/repair, team ownership and release stability with transparent time zones, sampling, retention and dropped-event denominators. Custom dashboards hold widgets that run FIND-001 queries (count, rate, affected users or sessions, grouped by any approved field), and a free-form event query table saves and shares queries. Share permissioned reports and export CSV/JSON.
 
@@ -817,8 +817,8 @@ Core · target · **missing** · From FIND-002 · Rules D-1, D-4, D-6
 3. A custom widget and a saved event query match the same totals.
 4. A read-only export omits inaccessible projects.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: custom dashboards, team reports and permissioned report exports remain absent.
+**Evidence.** `tests/reports-flow.mjs` reportsFlow (acceptance 1: four retained events including one without a release, one known affected user, one unattributed event, two sessions, backlog, acknowledgement and resolution quantiles, ownership and named-release exclusions; acceptance 2: identical UTC and New York totals with a 23-hour daylight-saving day); reportWorkbench (acceptance 3: persisted count widget and reopened saved query table use the same project, predicates and window, with exact event identities and totals equal to the report); `tests/investigation-flow.mjs` dashboardFlow (count, rate, users, sessions, approved groups, same-occurrence predicates, persisted definitions, query tables, sharing, revisions, safe bounded exports and refusal nonmutation), invoked by `tests/sentry-http.mjs`; `tests/team-flow.mjs` reportingTeamFlow (acceptance 4: populated read-only JSON and CSV exports omit inaccessible projects and private identity values; native role and concealed-id refusals preserve definitions, shares and revisions); teamFlow and inertTeamArchive (D-1 and D-4: current member removal fences report reads and exports, safe audit facts and independent restore with inert shares and erased authors), invoked by `tests/owner-claim.mjs`; `tests/project-erasure.mjs` project erasure public journey (D-6: reporting cascade, preserved unrelated widget and removed project-only shares, fresh archive and restore fences); `tests/owner-erasure.mjs` native owner erasure (D-6: erased report attribution, preserved safe chronology, successor read and old-archive refusal)
+**Gap.** None.
 
 #### SRC-001 — Build artifacts and CI pipelines
 
@@ -893,7 +893,7 @@ Core · target · **partial** · Cites BASE-INPUT-003
 
 #### REL-001 — Release and deployment history
 
-Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
+Core · target · **done** · Cites BASE-OPS-003 · Rules D-4
 
 **Requirement.** Register builds, commits and per-environment deployment start/success/failure/rollback with actor, timing and included commit range. CI retries are idempotent; abandoned starts become visibly timed out and notify their owner. Releases auto-created from Sentry SDK events (SDK-009) appear in release history labeled auto-created, with first-seen time, first environment and creating SDK; a later registration of the same name through the release API, `sentry-cli` or a build plugin enriches that release with commits, artifacts and deploys and removes the label, never creating a second release. The project's SDK-028 ordering rule governs regression, while deployment history records multiple environments, progressive exposure and rollback without rewriting past event identity. Starts carry the caller's explicit deadline and selected existing email destination; overdue evaluation appends one truthful timeout and one notice attempt (local mail is labeled suppressed), never an inferred deployment failure. Included ranges and exposure remain caller recorded. Restored history is inert. SRC-003 carries the unmodified CLI/plugin registration journey, SRC-002 connected included-commit read-back, and TEAM-001 member deployment authority.
 
@@ -905,8 +905,8 @@ Core · target · **partial** · Cites BASE-OPS-003 · Rules D-4
 5. Delayed old events keep regression ordering.
 6. A release auto-created by a Sentry SDK event and then enriched under the same name through the native release/deployment API stays one release, with its original first-seen time.
 
-**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` (REL-001); `tests/release-identity-flow.mjs`
-**Gap.** Not asserted in the cited tests: a failed deployment reported from CI read back as failed, and the CI run's progress and success steps read back by state (only their count is asserted). Asserted: the started run with its four steps, included commits, idempotent callbacks, one timeout notice, rollback, delayed older-release ordering and enrichment of an auto-created release.
+**Evidence.** `src/domain/deployments/`; `src/domain/releases/order.ts`; `migrations/core/0049_deployment_history.sql`; `migrations/core/0050_release_order_keys.sql`; `tests/deployment-history.mjs` REL-001 deployment history journey: acceptance 1, deploy-key started, ordered progress and success states with 0, 10, 50 and 100 percent exposure, and a separate failed run with included commits and permanent deploy-key actors; acceptance 2, concurrent idempotent callbacks and unchanged history after conflicting terminal callbacks; acceptance 3, one truthful timeout and one locally suppressed owner notice over repeated scheduled ticks; acceptance 4, complete production rollback state and exposure history; acceptance 6, native enrichment of one auto-created release with unchanged first-seen time and sequence. `tests/release-order-flow.mjs` releaseOrderFlow, invoked by `tests/deployment-history.mjs`: acceptance 5, delayed older events stay resolved under the project ordering rule and a genuinely newer release regresses once. The deployment journey also covers owner forms, multiple environments, project and revoked-key refusals, inert archive restore, erasure and screens at 1440 and 390.
+**Gap.** None.
 
 #### REL-002 — Suspect change and release comparisons
 
@@ -918,7 +918,7 @@ Core · target · **partial**
 1. With two commits deployed while old clients are retained, first and regressed errors and an unrelated spike show candidate reasons and comparable release rates.
 2. A false suspect is rejected without changing occurrences.
 
-**Evidence.** `src/domain/suspects/`; `src/ui/workbench/SuspectChanges.tsx`; `migrations/core/0070_suspect_decisions.sql`; `tests/deployment-history.mjs` ([REL-002] suspectFlow); `tests/suspect-flow.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `docs/SUSPECT-CHANGES.md`
+**Evidence.** `src/domain/suspects/`; `src/ui/workbench/SuspectChanges.tsx`; `migrations/core/0070_suspect_decisions.sql`; `tests/deployment-history.mjs` deployment history journey invokes `tests/suspect-flow.mjs` suspectFlow and reactivationFixture: acceptance 1 first-retained and strictly-later native reactivation candidates, exact regression alert, both recorded commits and deployment window, older-client spike counts, correlation and unavailable-rate disclosures, desktop and phone issue views; acceptance 2 audited confirm and reject with unchanged event and issue archives, grant refusal, inert restore and project erasure. `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `docs/SUSPECT-CHANGES.md`
 **Gap.** First retained occurrence and reactivation release/commit candidates name their basis and recorded deployment window as correlation, not demonstrated cause. Owner confirm/reject with bounded scrubbed evidence is audited and leaves occurrences, counts, grouping and status unchanged; private restore and project/owner erasure cover judgments. Same-window per-release occurrence/distinct-issue counts retain older-release failures; `tests/session-flow.mjs` adds observed SDK-005 session rates, denominators, adoption share and Wilson intervals beside them. Remaining: comparable device/OS adoption cohorts beyond SDK-005's observed session rates, rate-change attribution, changed-source matching (receipts have no file lists), agent packet provenance and learning from judgments (AI-006). Builder defaults are in docs/contract/adopted-defaults.md.
 
 #### CTX-001 — Error-linked traces, logs and request performance
@@ -995,7 +995,7 @@ Core · target · **partial**
 5. Of two plain-resolved issues, one receiving an event in the same release and the other an event with no release, each fires one regression alert.
 6. With unmodified Sentry tracing, a transaction's p95 duration and a page's LCP pushed over warning, then critical, then back each fire one alert per transition and a resolve.
 
-**Evidence.** `src/domain/alerts/rules.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`
+**Evidence.** `src/domain/alerts/filters.ts`; `src/domain/alerts/preview.ts`; `src/domain/alerts/measure.ts`; `src/domain/alerts/spikes.ts`; `tests/alerts-native.mjs`; `tests/alerts/conditions-journey.mjs`; `tests/alerts/baseline-journey.mjs` (conditionsJourney: filters, user/session denominators and refusals, plain Resolve, stale preview and restart deduplication; baselineJourney: sample-scaled normal/burst, weekly peaks, low traffic, capture loss and insufficient history); `tests/alerts-ui.mjs`; `tests/alerts/rules-ui.mjs`; `tests/alerts/baseline-ui.mjs` (rulesUI/baselineUI: 1440/390 filtered preview/refusal/enable and fired/withheld reasons); `tests/alerts/preview-rule.mjs`; `tests/alerts-runtime.mjs` (inert configuration archive); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `tests/project-erasure.mjs`; `tests/alerts/plain-resolve.mjs` qualifies two distinct plain-resolved Sentry issues, same-release and release-less recurrence, one correctly identified regression each, reviewed matching-rule fan-out, duplicate capture and repeated scheduling without replay
 **Gap.** New/regression and fixed-window count rules exist; historical baselines, crash-rate and rich routing filters are absent.
 
 #### ALERT-002 — Email, Slack, Teams, Oncall and PagerDuty
@@ -1011,7 +1011,7 @@ Core · target · **partial** · Rules D-1, D-3 · Register R-7
 4. Rotating and revoking a destination's credentials stops delivery through the old credentials.
 5. Delivery history reconciles without duplicate pages.
 
-**Evidence.** `src/domain/alerts/slack.server.ts`; `src/domain/alerts/slack-destinations.server.ts`; `tests/alerts-egress.mjs` ([ALERT-002] slackFlow); `tests/alerts-ui.mjs` ([ALERT-002] slackUI); `tests/slack-flow.mjs`; `tests/slack-ui.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0071_slack_destinations.sql`; `docs/ALERT-WEBHOOKS.md` Page-managed email and signed generic webhooks remain; native Slack issue alerts now share the durable queue and INTEGRATION_EGRESS, require a reviewed test, retain a posted message identifier separately from recipient receipt, stop on rotation/revocation, expose bounded API/HTTP/timeout/egress failures and exclude tokens from every read/archive. Safe acknowledgments restore inert; migration 0064 preserves populated upgrades, and project/owner erasure removes the new stores. Existing follow-up states account for failed Slack issue alerts; alternate notices use email or signed webhooks.
+**Evidence.** `src/domain/alerts/slack.server.ts`; `src/domain/alerts/slack-destinations.server.ts`; `tests/alerts-egress.mjs` ([ALERT-002] slackFlow); `tests/alerts-ui.mjs` ([ALERT-002] slackUI); `tests/slack-flow.mjs`; `tests/slack-ui.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0071_slack_destinations.sql`; `docs/ALERT-WEBHOOKS.md` Page-managed email and signed generic webhooks remain; native Slack issue alerts now share the durable queue and INTEGRATION_EGRESS, require a reviewed test, retain a posted message identifier separately from recipient receipt, stop on rotation/revocation, expose bounded API/HTTP/timeout/egress failures and exclude tokens from every read/archive. Safe acknowledgments restore inert; migration 0064 preserves populated upgrades, and project/owner erasure removes the new stores. Existing follow-up states account for failed Slack issue alerts; alternate notices use email or signed webhooks.; native Slack issue alerts now share the durable queue and INTEGRATION_EGRESS, require a reviewed test, retain a posted message identifier separately from recipient receipt, stop on rotation and revocation, expose bounded API, HTTP, timeout and egress failures and exclude tokens from every read or archive. Safe acknowledgments restore inert; migration 0071 preserves populated upgrades, and project/owner erasure removes the new stores. `src/domain/follow-up/notices.ts`; `tests/alerts/follow-up.mjs` (slackFollowUp through slackFlow); `migrations/core/0085_follow_up_acknowledgment.sql`
 **Gap.** Page-managed email and signed generic webhooks remain; native Slack issue alerts share the durable queue and INTEGRATION_EGRESS, require a reviewed test, retain a posted message identifier separately from recipient receipt, stop on rotation/revocation, expose bounded API/HTTP/timeout/egress failures and exclude tokens from every read/archive. Remaining: Teams, Oncall and PagerDuty adapters, Discord channel webhooks, chat actions (ALERT-005/TEAM-001), broader recovery/update semantics, Slack as an alternate follow-up destination and real Slack qualification (NOT RUN); the recorded edge double earns no real-Slack claim. Builder defaults are in docs/contract/adopted-defaults.md.
 
 #### ALERT-003 — Destination tests, digests and snoozing
@@ -1180,7 +1180,7 @@ Core · target · **partial** · Cites BASE-DATA-001, BASE-INPUT-003
 
 #### API-002 — Sentry Web API and Terraform compatibility
 
-Core · target · **missing** · Rules D-1
+Core · target · **partial** · Rules D-1
 
 **Requirement.** Scripts and infrastructure-as-code written against Sentry's Web API keep working when only the base URL and auth token change. Spool serves Sentry's `/api/0/` endpoints for organizations, teams, members, projects, project client keys (DSNs, including per-key rate limits), issues (list with Sentry search syntax, get, update, bulk mutate and delete), events, releases, issue alert rules and metric alert rules, with Sentry's cursor `Link` pagination. Sentry-style organization and personal auth tokens map to TEAM-001 roles and are limited to their scopes and projects. The community Terraform provider for Sentry (`jianyuan/sentry`) manages `sentry_team`, `sentry_project`, `sentry_key`, `sentry_issue_alert` and `sentry_metric_alert` unmodified except for base URL and token, and plan, apply and import are idempotent. An unsupported endpoint or field fails with an explicit error naming it, never a silent success; every write is audited under AUDIT-001.
 
@@ -1190,8 +1190,8 @@ Core · target · **missing** · Rules D-1
 3. An unsupported endpoint returns a named error.
 4. A write with a read-only token is refused and changes nothing.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: sentry Web API and Terraform compatibility.
+**Evidence.** `tests/sentry-cli/field-refusals.mjs` fieldRefusalFlow (unsupported top-level fields on both release-create aliases, update and finalization, and deployment creation; populated-state nonmutation, safe D-1 refusal facts, named endpoint and refs errors, read-only and revoked grants, project scope); `tests/sentry-cli/denials.mjs` authorityFlow and denialFlow (existing deploy-key authority); `tests/sentry-cli-compat.mjs` with releaseFlow, pluginFlow, chunkFlow and durableFlow (unmodified CLI and plugins, valid commands, retries, inert restore and erasure)
+**Gap.** Qualified only the currently implemented SRC-003 deploy-key doors. Acceptance 1 and 2 remain unproved: complete organization, team, member, project, client-key, issue, event, release and alert Web API compatibility, Sentry search and cursor Link pagination, organization and personal token mapping to TEAM-001 roles, and the unmodified Terraform plan, apply, import and unchanged re-plan journey. Unsupported nested fields and field validation outside the selected top-level release-create, release-update and deployment-create JSON bodies remain unproved. Existing SRC-003 capabilities and gaps remain, including SRC-002 connected-provider accounts, SDK-002 native debug-file and device qualification, and SRC-004 capacity with BILL-001 pricing dependencies.
 
 ### Governance and operation
 
@@ -1207,7 +1207,7 @@ Core · target · **partial** · Cites BASE-ACCESS-001, BASE-SIGNIN-001, BASE-SI
 3. One member signs in with Google and another with GitHub.
 4. With Google sign-in restricted to the verified domain, an outside Google account is refused.
 
-**Evidence.** `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs`
+**Evidence.** `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs`; `tests/governance-step-up.mjs` governanceStepUp, invoked by the owner-claim admission journey (acceptance 1, native owner-successor boundary: bootstrap-session refusal without mutation, same-session native email confirmation without a replacement cookie, one attributed invitation, foreign-session and replay refusal, revocation)
 **Gap.** Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not.
 
 #### GOV-002 — Retention, residency and data custody
@@ -1243,7 +1243,7 @@ Core · target · **partial** · Cites BASE-DATA-002 · Rules D-1
 7. The 160,000-event project is archived and exported, restored into an empty destination, and its counts reconcile.
 8. One user is erased within 300 seconds, and the project within 16 minutes.
 
-**Evidence.** `src/domain/retention.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure-cap.mjs`
+**Evidence.** `src/domain/retention.ts`; `src/domain/retention-schedule.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs` (scheduled-retention stage); `tests/retention-schedule-flow.mjs` (retentionScheduleFlow); `tests/retention-archive.mjs` (agedRetentionArchive); `tests/project-erasure-cap.mjs`
 **Gap.** An owner-run retention cutoff with occurrence tombstones, deduplication horizon and named retention gaps exists, and over-limit intake returns 429 with `Retry-After` and a counted outcome. Today `src/domain/admission.ts` and `migrations/core/0008_occurrence_identity.sql` refuse every new event once a project retains 10,000 (`retained_event_budget`) and above 120 a minute (`minute_budget`), and `src/domain/archive.ts` refuses a project archive above 10,000 events. Bounded daily expiry now uses applyRetention with occurrence/checkpoint tombstones, named gaps, scheduled retention service audit, held-project skips and an idempotent/resumable cursor; Settings reports the latest run. `tests/agent-handoff.mjs` [GOV-003] proves intake during a run, 50-row batches, remainder resume, hold and same-day no-op through the native scheduled clock seam. Plan volume, the published sustained rate, streaming archives, the 160,000-event run, automatic artifact/session-aggregate expiry and the named volume reasons remain absent.
 
 #### BILL-001 — Predictable USD usage and ingestion budgets
@@ -1287,7 +1287,7 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001, BASE-PUBLIC-003 �
 1. A realistic team project is onboarded, an error captured and mapped, searched, assigned and commented on, an alert followed and a repair's approval recorded.
 2. Revoked and offline sessions show their named states.
 
-**Evidence.** `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs`
+**Evidence.** `src/ui/workbench`; `tests/triage-journey.mjs`; `tests/alerts-ui.mjs`; `tests/execution-journey.mjs`; `tests/owner-claim.mjs`; `tests/team-browser.mjs`; native-device qualification remains with its SDK clauses, and human screen-reader and VPAT proof stays in R-16 and R-17.
 **Gap.** Current single-owner core has responsive/Axe journeys; full target team/mobile workflows are absent.
 
 #### AUDIT-001 — Permanent privacy-safe action audit
@@ -1300,7 +1300,7 @@ Core · target · **partial** · Cites BASE-OPS-005, BASE-AUDIT-001, BASE-DATA-0
 1. It survives export and restore.
 2. No secret or erased identifier remains in the history.
 
-**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`
+**Evidence.** `src/domain/audit/`; `src/ui/workbench/AuditHistory.tsx`; `migrations/core/0051_safe_audit.sql`; `migrations/core/0053_audit_transactions.sql`; `tests/audit-history.mjs` (AUDIT-001); `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; Supplementary historical source and journey references (qualification remains governed by the recorded Status and Gap): `src/domain/audit/classify.ts`; `src/domain/audit/archive.ts`; `src/domain/audit/types.ts`; `tests/owner-claim.mjs` (enclosing native owner-claim journey); `tests/team-flow.mjs` (teamFlow and inertTeamArchive)
 **Gap.** Not asserted in the cited tests: audit coverage for Spool's new member actions (D-1 carries their audit). Asserted: portability through Spool archives and the absence of secrets and erased identifiers in the history.
 
 ### Deployment integrations
@@ -1334,7 +1334,7 @@ Core · push-further · **partial** · Cites BASE-DATA-004, BASE-AGENT-004, BASE
 2. Cross-project, mutation and prompt-injection requests are refused.
 3. After the grant is revoked, the next HTTP, CLI and MCP call is denied.
 
-**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`
+**Evidence.** `packages/agent/src`; `src/domain/agent-access.ts`; `src/domain/packet.ts`; `tests/agent-handoff.mjs`; `tests/agent-handoff/selector-refusals.mjs` selectorRefusals qualifies traversal, command-shaped and instruction-shaped issue-selector refusal through HTTP, CLI packet and official MCP get_packet, preserving project scope, product rows and credential authority; the valid packet retains untrusted telemetry.
 **Gap.** Generic read-only CLI/MCP is implemented; named client qualification and model-egress controls for automated work are incomplete.
 
 #### AI-002 — Generate and test the smallest reproduction
@@ -1349,7 +1349,7 @@ Core · push-further · **partial** · Cites BASE-AGENT-011 · Register R-1
 3. Repeated against the fixed release, the failure no longer reproduces.
 4. A failed setup never becomes a not-reproduced success.
 
-**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`
+**Evidence.** `src/domain/reproducers/classify.ts`; `src/domain/reproducers/sandbox.ts`; `scripts/reproduce/runner.mjs`; `tests/execution-journey.mjs`; `tests/execution/reproduce.mjs` reproduceProof: captured mapped-JavaScript failure, reproduced and returned outcomes, missing export, timeout, isolation, single-use tokens and alternate-release syntax-error and unresolved-import load failures (acceptance 2 and 4)
 **Gap.** Bounded mapped-JavaScript reproductions with supplied calls exist; automatic minimization, cause experiments and non-JS/mobile reproduction do not.
 
 #### AI-003 — Minimal code repair as a tested pull request
@@ -1378,7 +1378,7 @@ Core · push-further · **partial** · Rules D-3 · Register R-19
 3. With coverage restored the criteria are reached, and a later recurrence reads recurred.
 4. The recurrence raises one accountable follow-up.
 
-**Evidence.** `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs`
+**Evidence.** `src/domain/exposure/proof.ts`; `src/domain/repairs/observation.ts`; `tests/execution-journey.mjs`; `tests/repair-recovery.mjs`; `tests/alerts-runtime.mjs` repairRecurrence in `tests/alerts/repair-recurrence.mjs`
 **Gap.** Current proof already compares baseline rates with a confidence bound, affected cohorts, rollout and capture gaps; automatic production measurement, an ongoing watch and real-account acceptance remain missing.
 
 #### AI-005 — Explain grouping proposals before applying
@@ -1429,6 +1429,232 @@ Core · push-further · **missing**
 
 ## Agent surface
 
+### Agent surface (Base-delivered)
+
+#### BASE-AGENT-001 — One MCP door per seed
+
+Agent surface · target · **partial**
+
+**Requirement.** Every seed, hosted or self-hosted, serves one remote MCP endpoint at `/mcp` over Streamable HTTP. It speaks the current revision (2026-07-28) and accepts 2025-11-25 clients through the twelve-month deprecation window. It implements `server / discover`, tools, resources and prompts. Lists are deterministic and carry `ttlMs` and `cacheScope: "private"`. Roots, Sampling and Logging are not served.
+
+**Acceptance.**
+1. `server / discover` returns the supported versions, capabilities, `serverInfo` and instructions.
+2. A 2026-07-28 request works with no handshake, and a 2025-11-25 client completes `initialize` and lists the same tools.
+3. An unsupported version returns `UnsupportedProtocolVersion`.
+4. Two `tools / list` calls return the same order, with cache fields.
+5. A foreign Origin returns 403, and a header and body method mismatch returns `HeaderMismatch`.
+6. An oversized body returns 413 with no effect.
+
+**Evidence.** `tests/agent-door/protocol-contract.mjs` protocolContract (acceptance 1 to 6 at the implemented native MCP transport boundary, independent autonomous and held policies, body-only legacy compatibility and populated proposal refusal nonmutation); `tests/agent-door.mjs` (enclosing emitted-Worker journey); `src/modules/agent-door/conformance/discovery.mjs` discoverDoor and listedDoor (installed shared transport checks)
+**Gap.** Resources and prompts remain undeclared and unserved. Complete registry and table-wide conformance, hosted qualification and obligations beyond this native transport slice remain unproved; optional capabilities and unscoped lifecycle families are unchanged. Existing account, device and ct holds and BASE-AGENT-012 scope remain unchanged.
+
+#### BASE-AGENT-002 — The seed's jobs are tools, through the UI's own actions
+
+Agent surface · target · **missing**
+
+**Requirement.** Each Core job a person does in the product is a tool. Where one is not, the Agent surface says why: it runs on a device, it is a person's interactive screen, it belongs to a connector or the import door, or it is an installation fact. Risk is never the reason: a risky job is a tool with its class (BASE-AGENT-006). Tools are named `<seed>.<area>.<verb>` and declare input and output schemas and truthful annotations. Each calls the same server action as the UI, so validation and authorization are written once, and the seed's embedded agents use the same registry. A business refusal returns `isError` with the seed's stable error code.
+
+**Acceptance.**
+1. The Core clause ids in each tool's `_meta`, with the not-a-tool reasons that `server / discover` serves, cover every Core clause in the contract, and no reason is risk; the harness and `rer check` fail on a gap.
+2. Each tool's fixture result validates against its `outputSchema`.
+3. Read tools declare `readOnlyHint`; tools that can carry destructive declare `destructiveHint`, and tools that can carry external declare `openWorldHint`.
+4. A refusal returns the same error code the UI gets for the same action.
+5. The UI action and its tool, on the same fixture, give the same record state and the same audit event type.
+6. The seed's embedded agents appear in the audit as calls to the same tools.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-003 — Records are resources
+
+Agent surface · target · **missing**
+
+**Requirement.** Each primary record type has a URI template, and tools return `resource_link`s to the records they touch. A read returns exactly the fields the caller's role sees in the UI. File bytes count against any byte budget on the grant. A record the caller cannot open reads as not found, identical to a missing id. Text from customers, imports or files carries an untrusted marker in `_meta`.
+
+**Acceptance.**
+1. `resources / templates / list` names every record type in the Agent surface.
+2. Reads as two roles return exactly what the UI shows each.
+3. An out-of-scope id and a missing id give identical responses.
+4. A write's `resource_link` reads back the new state.
+5. Bytes over budget return `budget_exhausted` and no partial content.
+6. Customer-sourced text carries the untrusted marker.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-004 — Business identity and short-lived, audience-bound tokens
+
+Agent surface · target · **missing**
+
+**Requirement.** The door is an OAuth 2.1 resource server. Its RFC 9728 metadata names the authorization servers this installation trusts. That is the paired Business when Business provisioned it, verified with the owner-claim trust the installation already holds for its import door; otherwise it is the seed's own sign-in. Access tokens are RFC 9068 JWTs with `aud` set to the seed's canonical MCP URI, `sub` the sponsoring person, `act` the agent (RFC 8693) with its specialist, scopes per tool family, and a lifetime of 15 minutes or less (5 by default). The policy scopes rules on the sponsor, agent and specialist the token names. The consent behind the tokens can last longer and is revocable. Tokens travel only in the Authorization header, and there is no passthrough.
+
+**Acceptance.**
+1. An unauthenticated call returns 401 with `resource_metadata`, and the metadata names the trusted servers and scopes.
+2. A Business token for this seed works, and the same token sent to a sibling seed returns 401.
+3. An expired token returns 401, and a token with a lifetime over 15 minutes is refused.
+4. A read-only token calling a write tool returns 403 `insufficient_scope` with every needed scope in one challenge.
+5. A token in a query string is refused and not logged.
+6. Revoking consent in the seed or in Business refuses the next call within 60 seconds.
+7. After unpairing, Business tokens are refused and the seed's own sign-in still works.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-005 — An agent acts as a person in a role, never more
+
+Agent surface · target · **partial**
+
+**Requirement.** Every call is authorized as the sponsoring person's current role and access (BASE-ACCESS-004), intersected with the grant's resources, actions and budget. A grant only narrows. No call widens the calling agent's own authority. A call that would widen its own grant or its sponsor's role, or change the company policy or Pause, is refused with `self_escalation`, whatever the policy says; narrowing its own grant is allowed. Other access and security changes are ordinary actions in the access and security classes. An agent never acts after its sponsor is suspended. Anything an agent reads (records, files, emails, imports, other seeds' results) is data and cannot change its scope, its targets or a call's class.
+
+**Acceptance.**
+1. For each role fixture, every tool's allow or deny through MCP equals the UI's for the same action.
+2. A one-folder, read-only grant holds, and widening through arguments is refused.
+3. Downgrading the sponsor changes the next call's result, and suspending the sponsor returns 401.
+4. Calls that widen the agent's own grant or its sponsor's role, or change the policy or Pause, return `self_escalation` and change nothing, even under a policy with every class autonomous; dropping a scope from its own grant runs.
+5. An injection fixture yields no out-of-grant call and no change of class: record text asking for a wider action, or claiming that a recipient is internal.
+
+**Evidence.** `tests/agent-door/sponsor-role-contract.mjs` sponsorRoleContract, invoked by `tests/agent-door.mjs`: acceptance 3's native role downgrade and inactive sponsor boundary, in independent autonomous and held policy fixtures. A real invited and mapped member completes ordinary triage under the fixture's autonomous or review policy; the same unexpired Business bearer then refuses the next fresh mutation and completed mutation replay (plus pending approval replay under held policy) after each independent project-role, organization-role and combined read-only downgrade, still reads the populated issue, and returns 401 on the next call after native deactivation. Whole-ledger snapshots preserve native product, membership, credential, approval and notification state, permitting only safe admission counts and audit facts. `tests/agent-door/people.mjs` peopleFlow retains scoped native authority, self-escalation and permanent credential retirement controls. Supplementary acceptance 2, 4 and 5 qualification: the same journey reads populated evidence with an evidence-only bearer, refuses writes with the required-scope challenge and foreign populated or absent records identically, and preserves the whole ledger. Real captured instructions remain marked untrusted; forged scope, role, approval and class claims cannot widen access or relabel native live suppression under autonomous and held policies. All three native sponsor aliases refuse both role and project-grant widening with self_escalation under all-class autonomy. The same file's nativeRoleParity helper compares populated native browser-session and MCP issue reads and triage writes for owner, admin, billing, maintainer, member and read-only roles, with permitted effects and unchanged refused issues.
+**Gap.** Acceptance 1 still needs every-tool UI and role parity beyond the qualified issue-read and triage-write role fixtures. Acceptance 2 still needs one-folder resource and grant-budget enforcement; the pinned Base Principal and local credential API carry scopes but no resource or byte-budget grant, and provider spend enforcement is absent. Acceptance 4 still needs own-grant widening and successful scope dropping, and policy and Pause changes returning self_escalation; the pinned door exposes no own-scope mutation tool and its person-only policy and Pause endpoints return person_session_required. Acceptance 3's suspension modes beyond the tested native inactive lifecycle remain unqualified; the standalone native auth status endpoint is disabled by Spool's role policy. Captured-record injection is qualified, not wider import, file, mail or other-seed transport coverage. SURFACE-001's continued hold, existing account, device and ct holds, live scopes, queue notes, release prerequisites, generated-view landing, publication scanning, exact-candidate Verify, guarded landing and Run site remain unchanged.
+
+#### BASE-AGENT-006 — Every action declares its risk class
+
+Agent surface · target · **missing**
+
+**Requirement.** Classes come from the fleet list in RISK-POLICY.md: standard, external, money, commitment, accounts, gated, access, security, destructive, sensitive and live. In the registry, each tool declares the classes it can carry and a server-side classifier that decides them per call from the arguments, current records and, for gated, the provider's answer. The classifier also supplies each class's facts: the measure (items, recipients, amount and currency, people or records), the counterparty (internal, known, new or public), the direction for access, the provider and step for gated, and the data kind for sensitive. A classifier never reads a flag, label or claim supplied by the agent or by record text. A seed cannot add a class; it proposes one for the fleet list.
+
+**Acceptance.**
+1. Every tool in `tools / list` carries its possible classes in `_meta`, equal to the Agent surface table.
+2. For each tool, fixture calls cover every class it can carry, and the computed classes and facts equal the fixture's expected values.
+3. An argument or record text asserting a class or a confirmation (`internal: true`, `confirmExternal: true`) leaves the computed classes unchanged.
+4. Money calls carry amount and currency, external calls their counterparty and recipient count, access calls their direction, and destructive calls their item count.
+5. No tool in `tools / list` declares a class outside the fleet list, and `rer check` fails on one.
+6. A refused call's audit row still records its computed classes.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-007 — The company's policy decides, at one chokepoint
+
+Agent surface · target · **missing**
+
+**Requirement.** Every agent door calls one decision function: MCP, the integration API with agent tokens, and the seed's embedded agents. It evaluates the call's classes against the company's policy, as above. The seed ships no dispositions and fills no gap with one: agent access opens only under a complete policy that setup has asked for (RISK-POLICY.md), and before then every agent call returns `policy_unset` with the setup link and changes nothing. *Autonomous* runs the call. *Review* runs it and adds it to the review feed. *Approval* saves a pending action with server-computed facts and returns `input_required`, with a URL-mode elicitation to the seed's approval page and a pending handle. Each person the rule names approves the exact saved revision in a signed-in browser, and changed inputs need a new approval. The retried call returns the result and a receipt. A rejection returns `approval_rejected`, and a lapse past the wait the rule sets returns `approval_expired`. *Blocked* returns `policy_blocked`, naming the class, rule and revision.
+
+**Acceptance.**
+1. The Base harness runs each tool under each disposition for every class it can carry, and sees it run, run and enter the review feed, wait with no effect, or be refused.
+2. Before setup is complete, the setup page lists every class the seed's tools carry with examples and no answer pre-selected, an agent call returns `policy_unset` with the setup link and changes nothing, and an incomplete revision cannot be confirmed; a `*` rule completes it, and a tool an upgrade adds with an unanswered class appears in `tools / list` once that class is answered, while the other tools keep running.
+3. Under "money autonomous up to $500, approval up to $10,000, blocked above", calls of $400, $600 and $20,000 run, wait and are refused; a per-day cap sends the call that crosses it to the next rule.
+4. A call carrying two classes takes the stricter disposition.
+5. An approval shows server-computed facts and an expiry, returns the URL elicitation and a handle, and completes once after the named approver approves; a changed input needs a new approval, and a rejection or lapse leaves no effect.
+6. The same call through MCP, the integration API and an embedded agent gets the same decision.
+7. A policy change applies to the next call within 60 seconds, and the audit cites the new revision.
+8. A policy document with a bad signature or another Business's id is rejected, and the door keeps the last valid revision.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-008 — Truthful attribution
+
+Agent surface · target · **partial**
+
+**Requirement.** Every agent act is recorded and shown as `"<agent> for <person>"`, and mail and messages an agent sends outside name it that way as their sender. An approval, a review mark, a confirmation (a warning dialog, a typed-field confirmation, a delivery confirmation), a decision or a signature attributed to a person comes only from that person's signed-in session. When an agent does the equivalent act, the record names the agent, and the act carries its own class; a binding decision or a signature is commitment. Agent doors ignore arguments that stand for a person's confirmation. No tool solves a bot check, or enters a person's own password or 2FA code at an outside service. A provider step that demands a person goes to a person, whatever the policy says; the gated class marks such steps before they run.
+
+**Acceptance.**
+1. An agent call carrying a person-confirmation flag is classified and decided exactly as without it.
+2. Approving, marking reviewed or answering a policy question with an agent or device token returns 403 and changes nothing.
+3. A form-mode elicitation "accept" never completes an approval.
+4. Where an agent's decision, signature or field confirmation runs without a person, it reads `"<agent> for <person>"` in the record, the activity view, exports and any certificate, never as the person's own act.
+5. After a person approves an agent's prepared action, the record shows the person as approver and the agent as preparer.
+6. Activity and exports at 1440 and 390 show `"<agent> for <person>"` for every agent act.
+7. Mail an agent sends to an outside address names `"<agent> for <person>"` as its sender.
+
+**Evidence.** `tests/agent-door.mjs` emitted-Worker agent-door journey invokes `tests/agent-door/person-actions-contract.mjs` personActionsContract: acceptance 1, confirmation flags preserve native results, classes and decisions; acceptance 2 agent components, admitted Business and exact-project tokens cannot approve, mark reviewed or answer policy questions, with or without a person session, under held and autonomous policies, with every persisted table unchanged; acceptance 3, form accept with a genuine pending request state leaves the approval and native issue untouched; acceptance 5, matching-policy person approval persists the real approver and separate agent preparer in the record and public audit. The same journey asserts every populated recent activity label at 1440 and captures 390, and exercises held and autonomous external TEST mail, person sender controls and replay without duplicate mail. `tests/agent-door/setup.mjs` nativeSetup qualifies standalone policy-answer refusal and the subsequent real owner save. `tests/agent-door/worker.mjs` nativeWorker qualifies retained sender attribution for resumed queued alert mail and real capture-loss follow-up notices, with Pause and detach no-send controls. These native provider payloads name the agent and sponsor as sender while retaining the configured sending mailbox.
+**Gap.** Acceptance 2 device-token qualification remains missing: the pinned Base adoption supplies no native device-credential lifecycle. Acceptance 4 still needs complete record, activity, export and certificate qualification for every supported equivalent agent act; acceptance 5 broader prepared-action coverage and acceptance 6 complete activity and export qualification remain open. The pinned shared Agents page has no activity export door. Provider-gated person handoffs and buyer-provider delivery remain unqualified; controlled mail-edge payloads prove neither native-device nor live-provider acceptance. Existing account, device and ct holds, queue scopes and release prerequisites remain unchanged.
+
+#### BASE-AGENT-009 — Every agent action is audited with its class and decision
+
+Agent surface · target · **partial**
+
+**Requirement.** Extending BASE-OPS-005, each call that reads private data or changes anything records the agent client, name and specialist, and the run or task id (`traceparent` when sent); the sponsoring person, the grant, the tool and the targets; the classes and their facts, and the policy revision and rule; the decision (autonomous, review, approval, blocked, unset or self_escalation) and the outcome (done, refused, pending or failed); the approval or review id and person, and the idempotency key. For a period, the seed's Agents page shows actions by class and decision with the notable ones, the review feed (Mark reviewed, Flag, and Undo where reversible), pending approvals, steps waiting for a person and setup questions. Business shows the same across seeds.
+
+**Acceptance.**
+1. One write leaves a complete audit row.
+2. Refused, pending, unset and self-escalation calls are audited.
+3. The Agents page's counts by class and decision equal the audit rows on a fixture week.
+4. The review feed lists exactly the calls decided as review; Mark reviewed records the person, and Undo restores a reversible one.
+5. Filtering by agent or class lists only those rows, and export includes every field.
+6. Removing the agent keeps its rows and its name.
+7. The Agents page works at 1440 and 390 with no serious or critical axe findings.
+
+**Evidence.** `tests/agent-door.mjs` emitted Worker journey invokes `tests/agent-door/audit-contract.mjs` auditContract under autonomous and held policies: acceptance 1, populated inert proposal writes retain the client, agent, specialist, sponsor, consent, scopes, native target, operation, class facts, policy rule and revision, decision, outcome, review, idempotency key and trace; acceptance 2, blocked, unset, pending, approved and self-escalation facts with native refusal nonmutation; acceptance 3, a fixed fixture week reconciles class and decision counts and excludes an earlier week; acceptance 4, exact review membership, person Mark reviewed and Flag, reversible native grouping Undo and reachable earlier review pages; acceptance 5, agent and class filters, complete paginated JSON exports and browser downloads, with anonymous, member and bearer refusals; acceptance 7, keyboard filters and no serious or critical Axe findings at 1440, with browser proof at 1440 and 390. `tests/agent-door/audit-retirement-contract.mjs` auditRetirementContract retains acceptance 6: both policies preserve all 206 prior rows for each retired agent, including names, chronology and decisions; fresh tokens refuse while the current person and another agent retain access and history. `tests/agent-door/review-erasure.mjs` reviewErasureFlow retains person-only Undo, value-free erased chronology and replay refusal.
+**Gap.** The seven acceptance outcomes are qualified at this installation's existing native doors and declared policies. Requirement-wide audit qualification across the complete tool registry and decision families remains with the held SURFACE-001 shared-conformance adoption. Business must still show equivalent cross-seed audit, review and removal behavior; the Business host and its cross-seed authority are outside this repository. Native signed-in retirement does not qualify Business-wide removal. No complete shared-conformance adoption or full-clause DONE is claimed; existing account, device and ct holds and release prerequisites remain unchanged.
+
+#### BASE-AGENT-010 — Agents can follow changes
+
+Agent surface · target · **missing**
+
+**Requirement.** The seed emits a typed event for every record change and for every approval, review and policy decision. Each event carries a stable id, a type, the record URI, the actor (a person, or an agent acting for a person) and a time. Events never carry secrets or more than the subscriber may read. Agents can read events three ways: `subscriptions / listen`, an `events.list` tool with a cursor, and signed webhooks from Base `integrations` using the same ids. Every channel delivers at least once and filters by access at delivery.
+
+**Acceptance.**
+1. A subscribed record changed in the UI produces a notification within 10 seconds.
+2. `events.list` returns the same event id the webhook carries.
+3. Replaying from a cursor returns the same ids in order.
+4. After access is revoked, no channel delivers events about that record.
+5. A failed webhook is visible and replays without duplicate effects.
+6. `approval.pending`, `approval.decided`, `review.flagged` and `policy.adopted` carry the class and decision and nothing the subscriber may not read.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-011 — Limits are policy, and Pause stops everything
+
+Agent surface · target · **partial**
+
+**Requirement.** Business limits are rules in the company's policy: per-call and per-day thresholds on any class's measure, such as money moved, outside recipients or items destroyed; spend caps on provider cost (models, SMS, email) per seed, specialist or agent, which setup asks with the classes; "no cap" is an answer. Tools with provider cost declare an estimate before they run, and an exhausted cap returns `budget_exhausted` before any partial effect. The seed's capacity limits (request rate, body and byte sizes) protect the installation: they bound rate and size, never daily business volume, are documented and are not policy. A grant carries budgets only when the person granting it sets them. A **Pause agents** control in the seed, and Pause all agents in Business when paired, refuses every agent token within 60 seconds until a person resumes; browser sessions and devices keep working.
+
+**Acceptance.**
+1. A rate overrun returns 429 with `Retry-After`.
+2. A per-day cap of three outside recipients sends the fourth to the rule that applies past the cap.
+3. An exhausted spend cap returns `budget_exhausted` with no partial effect and shows the spend.
+4. Under the answer "no cap", a spending call runs and its spend shows in usage; a call that spends nothing is unaffected by any cap.
+5. The usage view shows calls, decisions by class, money moved and provider spend per agent.
+6. Pause and Pause all agents each stop the next call within 60 seconds, and resume restores access.
+7. An agent token cannot resume.
+
+**Evidence.** `tests/agent-door.mjs` invokes `tests/agent-door/pause-contract.mjs` pauseContract: acceptance 6's native owner Pause and signed Business Pause admission, each stopping the next valid Business token and native project agent through MCP and the native HTTP alias within 60 seconds; both combined-pause resume orders, restored populated reads under autonomous and held policies, usable native person authority and retained-write replay refusal without duplicate effects. Acceptance 7: both valid agent credentials receive 403 at the native resume door with unchanged pause and policy state. Separate emitted Worker fixtures cover both policies; the native paused screen has 1440 and 390 proof. `tests/agent-door/continuation.mjs` continuationFlow retains the existing signed-pause and current-policy replay refusals.
+**Gap.** Acceptance 1–5 remain unqualified: rate-overrun Retry-After, per-day recipient thresholds, enforced provider spend caps without partial effects, no-cap spending and zero-spend behavior, and usage by agent with calls, class decisions, money moved and provider spend. The pinned Base door does not enforce provider spend caps; no spending or usage claim follows from the pause qualification. Acceptance 6's actual Business control and native-device qualification, plus pause coverage beyond the tested admission modes, remain unqualified. SURFACE-001's existing hold, every account, device and ct hold, queue scope and release prerequisite remain unchanged.
+
+#### BASE-AGENT-012 — Writes are idempotent and conflict-safe
+
+Agent surface · target · **missing**
+
+**Requirement.** Every mutating tool requires an idempotency key and takes an optional expected revision. The same key with the same arguments returns the first outcome for at least 24 hours; the same key with different arguments returns `idempotency_conflict`; a stale revision returns `revision_conflict` with the current revision. Long work returns a job handle and a status tool, with no dependence on the Tasks extension.
+
+**Acceptance.**
+1. Two calls with one key give one effect and equal results.
+2. A retry with a new JSON-RPC id and the same key, after a dropped stream, returns the recorded outcome.
+3. The same key with different arguments returns a conflict and no effect.
+4. A stale revision returns a conflict naming the current revision.
+5. A job handle used by another person's token reads as not found.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
+#### BASE-AGENT-013 — Manifest, docs and the conformance journey
+
+Agent surface · target · **missing**
+
+**Requirement.** `server / discover` instructions and an on-site `/docs/agents` page are generated from the action registry. The page lists tools by job, with each tool's classes, the test that adds each computed class, its scopes, resource templates, event types, capacity limits and error codes, and the specialist role. `prompts / list` carries the specialist's jobs. Base ships the conformance journey, a harness that `rer verify` runs against `rer dev` and seeds run in CI. It is an MCP client; a signed-in test person takes a person's steps (setup answers, approvals, review marks, resume) through the URLs the door returns, and the same browser leg runs the UI-parity actions and the page checks at 1440 and 390. It runs every acceptance point of BASE-AGENT-001 to 012 and of the seed's SURFACE clauses under two company policies: *all autonomous* (`*`), and *held* (standard review, every other class the seed declares approval, which the test person grants), plus the single-class variants a point names. A point that names no disposition passes under both.
+
+**Acceptance.**
+1. The docs list exactly the names in `tools / list` and `resources / templates / list`.
+2. Each tool's classes, and the test behind each computed one, are documented.
+3. The harness fails on any of: a tool without a schema; an effect under approval or blocked, or before setup is complete; a computed class that differs from its fixture; a flag that changes a class or completes a person's step; a role-parity mismatch; a wrong-audience token being accepted; a duplicate effect on retry.
+4. Every acceptance point runs under both policies, every decision matches the policy in force, and under all autonomous no call waits for a person or is refused by policy.
+5. A stranger agent given only the seed URL completes the specialist journey through MCP.
+
+**Evidence.** None.
+**Gap.** Not yet judged through this seed's own doors.
+
 ### Agent surface
 
 #### SURFACE-001 — The registry equals this table and the Base harness passes
@@ -1444,12 +1670,12 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-001, BASE
 4. `list_issues`, `get_packet`, `get_outcomes`, `list_grouping_proposals` and `propose_grouping` reach the same server actions as `spool.issues.read`, `spool.outcomes.read` and `spool.grouping.propose`.
 5. The Base conformance harness passes on Spool's seeded fixtures under both company policies.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: the MCP door, the tool registry with classes and the Base conformance harness are absent; the stdio agent package serves five read and proposal tools without classes.
+**Evidence.** `src/domain/agent-door/`; `agent-surface.json`; `tests/agent-door.mjs`; `tests/agent-door/review-erasure.mjs`; `tests/agent-door/replay-horizon.mjs`; `tests/agent-door/owner-custody.mjs`; `tests/agent-door/worker.mjs`. The preserved native adoption now uses released rer 0.2.96: one production MCP registry, native authority and durable Business mapping, signed relay, native subject-erasure custody and replay fences. The declared tools/policy/pause/audit/idempotency harness passes locally; native reviewer Undo, erased approvals, retained value-free audit, peer custody, original replay horizons across the prior-door upgrade, ordinary successor session fencing, attributed standing-mail Pause/resume and detached Business refusal have real Worker proof.; native reviewer Undo, erased approvals, retained value-free audit, peer custody, original replay horizons across the prior-door upgrade, ordinary successor session fencing, attributed standing-mail Pause/resume and detached Business refusal have real Worker proof. Supplementary alias-parity evidence: `tests/agent-handoff.mjs`; `tests/agent-handoff/clients.mjs` compare populated legacy/canonical reads, inert proposals, invalid-call refusals, scope and next-call revocation.
+**Gap.** Judgment unchanged. Optional events/resources/prompts/subscriptions and the unscoped lifecycle families are not qualified: undeclared checks execute zero assertions and earn no success. Complete table-wide/client/provider acceptance and the independent door/landing gates remain required. The Base adoption acknowledgement remains bounded to 20 tool names per class; the complete canonical registry is separate. No clause promotion or release claim follows from this local adoption.
 
 #### SURFACE-002 — External and money are computed per call
 
-Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
+Agent surface · target · **partial** · From new · Cites BASE-AGENT-006
 
 **Requirement.** Spool's server computes the external and money classes and their facts from the arguments and current records for every call that can carry them, never from a flag or record text.
 
@@ -1463,12 +1689,12 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 7. Record text or arguments claiming an internal recipient or zero cost leave computed classes and facts unchanged.
 8. `spool.members.update` adds external for an invitation that grants project access to a person or service outside the business; `spool.identity.update` adds it for an identity-visibility grant that exposes raw identity to one. Each names recipient count and counterparty known for a person or service on record, new otherwise; an internal-only grant adds no external.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: no tool computes external or money.
+**Evidence.** `tests/agent-door.mjs` agent-door journey invokes `tests/agent-door/external-injection-contract.mjs` externalInjectionContract (native email destination-test slices of acceptance 2 and 7): separate autonomous and held baseline fixtures with external explicitly blocked; clean and fresh-key internal, confirmation and zero-cost argument claims plus a saved-label-only claim retain external, measure 1, known counterparty, email provider and destination-test step; response and native refusal audit name the blocked rule and current revision, with no destination test, delivery job, approval or provider send. Removing the block admits the same saved target: autonomous execution or inert held approval followed by execution produces one native passing test and one network-edge fake send to the actual recipient; replay creates no second test or send. Restoring the external block refuses the previously admitted key at the new policy revision despite internal and zero-cost arguments, preserving the native test and fake-send count. Installation-configured email targets retain the same external facts despite their labels; a held approval names the actual saved address and executes one fake TEST, with inert replay. `tests/agent-door/internal-destination-contract.mjs` internalDestinationContract, invoked by that journey under both policies, proves standard classification for the current active owner and confirmed native teammates bound by signed Business settings; same-domain, invited, unmapped, roster-removed and native-removed recipients remain external. Fresh keys, injected internal and zero-cost claims and changed saved labels preserve each computed classification. Internal controls send one network-edge fake TEST to the real recipient; removing a signed recipient binding refuses an already held internal TEST without a native test or send. The same externalInjectionContract journey also invokes changedDestinationContract under both policies: a label-only edit retains the reviewed address and one approved native TEST, while an address edit retires the destination identity, refuses its old held approval and replay without a TEST or send, and requires fresh classification and exact approval before one fake TEST reaches the replacement recipient. Injected internal and zero-cost claims leave the replacement externally blocked at the current policy revision; neither replay duplicates the send.
+**Gap.** Acceptance 1, 3–6 and 8 remain unqualified. Acceptance 2 beyond the exact-identity native email TEST slice and acceptance 7 beyond the qualified email TEST cases remain unqualified: feedback, broader destinations and follow-up, repository, tracker, model, source-fetch, invitation and identity-visibility classifications; internal, known, new and public distinctions across those tools; money amount and payee facts, raised paid caps and paid longer windows. The interim internal boundary requires an exact current active native identity bound by signed Business settings; domain and workspace membership have no trusted classification source yet and remain unqualified pending ct. No provider delivery or spending qualification follows. BILL-001’s ct pricing ruling, provider prerequisites, SURFACE-001’s continued hold, all existing account, device and ct holds, live scopes, queue notes and release prerequisites remain unchanged.
 
 #### SURFACE-003 — Live, security, access and destructive are computed per call
 
-Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
+Agent surface · target · **partial** · From new · Cites BASE-AGENT-006
 
 **Requirement.** Spool's server computes the live, security, access and destructive additions from the setting a call changes, the direction of an authority change and the items it irreversibly converts or removes.
 
@@ -1482,8 +1708,8 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006
 7. `spool.releases.record` adds live for release-ordering changes, including registered-sequence-only refusals, and security for the commit author and message sharing choice; `spool.billing.update` adds live for budgets/caps changing intake. Each names the project and setting.
 8. `spool.runs.diagnose` adds live for candidate promotion, naming service and candidate; `spool.followups.resolve` adds live when an authorized resend performs a fix merge, naming the service.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: no tool computes live, security, access or destructive.
+**Evidence.** `src/domain/agent-door/tools.ts`; `src/domain/retention-policy.ts`; `tests/agent-door/retention-classes.mjs` retentionClasses, invoked by `tests/agent-door.mjs`: acceptance 4's existing 30–90-day retention windows, standard unchanged or longer windows, destructive shorter windows with native preview counts, company approval and refusal, stale inventory and revision fences, foreign authority, injected facts, execute-once replay, native audit and standing custody. `scripts/agent-door/surface.mjs` and `agent-surface.json` retain matching declarations.
+**Gap.** Acceptance 1–3 and 5–8 remain unqualified: filter, source-fetch and tracker security settings; identity conversion and visibility authority; member, credential and successor authority; destination removal and erasure counts; replay consent, masking, sampling and retention; release ordering and commit sharing; intake budgets and caps; candidate promotion and fix-merge resend classification. Acceptance 4's legal holds, direct cutoffs and replay-reference removal remain unqualified. SURFACE-001's continued hold and every GOV-002 and GOV-003 prerequisite, existing account and device hold, queue scope, release prerequisite, generated-view, publication, exact-candidate Verify, guarded landing and Run site gate remain unchanged.
 
 #### SURFACE-004 — Commitment, accounts and gated are computed per call
 
@@ -1504,7 +1730,7 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-006, BASE
 
 #### SURFACE-005 — The triage engineer journey under two company policies
 
-Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE-AGENT-013
+Agent surface · target · **partial** · From new · Cites BASE-AGENT-007, BASE-AGENT-013
 
 **Requirement.** A stranger agent given only the seed URL runs a seeded week of Spool work through MCP under two company policies, one of them autonomous for every class.
 
@@ -1515,8 +1741,8 @@ Agent surface · target · **missing** · From new · Cites BASE-AGENT-007, BASE
 4. Under the held policy with external blocked, the feedback reply, public pull request and public merge are refused, and the remaining internal work completes.
 5. Before setup is answered, the first call returns `policy_unset` with the setup link, and setup asks every Spool class with no answer pre-selected.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: the triage engineer journey under two company policies has not run.
+**Evidence.** `tests/agent-door.mjs` agent-door journey invokes `tests/agent-door/setup.mjs` nativeSetup (acceptance 5, currently declared unpaired native setup: exact-project MCP policy_unset and native setup link, every declared class and paid AI initially unanswered, keyboard and Axe, blank and incomplete form and native policy refusals without saved policy or admitted operation, explicit owner answers followed by a populated scoped read, foreign-project and revoked-key refusal; screens at 1440 and 390)
+**Gap.** Acceptance 1: the complete seeded triage, grouping, release, deployment, feedback, reproduction, public-source fix, merge and released-repair verification week remains unproved. Acceptance 2: autonomous completion with no approval or policy refusal and an empty review feed remains unproved. Acceptance 3: every non-standard call held without effect, once-only approved execution and the standard review feed remain unproved. Acceptance 4: external feedback, public pull request and merge refusals with remaining internal completion remain unproved. Acceptance 5: managed Business setup and coverage beyond the currently implemented class declarations remain unqualified. SURFACE-001's registry and full conformance gaps remain unchanged.
 
 ## Later
 

@@ -37,8 +37,8 @@ export async function deletionStatements(ctx, d, plan, entries, id, deleted) {
   }
   return out;
 }
-export async function firstStatements(ctx, d, plan, label) {
-  return d.beforeStatements ? await d.beforeStatements({ db: ctx.db, subject: plan.subject, label }) : [];
+export async function firstStatements(ctx, d, plan, label, operation) {
+  return d.beforeStatements ? await d.beforeStatements({ db: ctx.db, subject: plan.subject, label, operation }) : [];
 }
 // `relabel: false` (a slice of the plan) leaves the table-wide relabel of earlier audit rows to the final batch.
 export const cleanupStatements = (ctx, d, plan, label, options) => [...redactStatements(ctx.db, d, plan), ...auditStatements(ctx.db, d, plan, label, options)];
@@ -74,7 +74,7 @@ async function sliceStep(ctx, d, op, entries, { first = null, rest = null } = {}
     guard(db, "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND step=? AND phase='deleting')", id, op.step),
     ...await fence.transfers()];
   batch.push(...await scopeStatements(db, d, first ?? plan, id, first ? [...entries, first.root] : entries, { whole: Boolean(first) }));
-  if (first) batch.push(...await firstStatements(ctx, d, plan, op.label));
+  if (first) batch.push(...await firstStatements(ctx, d, plan, op.label, { id: op.id, at: op.requested_at }));
   batch.push(...await verificationStatements(db, d, plan, id, op.label));
   batch.push(...cleanupStatements(ctx, d, plan, op.label, { relabel: false }));
   batch.push(...await deletionStatements(ctx, d, plan, entries, id, deleted));
@@ -119,7 +119,7 @@ export async function step(ctx, d, id, { rows = 500 } = {}) {
     guard(db, "EXISTS(SELECT 1 FROM rer_erasure_operations WHERE id=? AND step=? AND phase='deleting')", id, op.step),
     ...await fence.transfers()];
   batch.push(...await scopeStatements(db, d, plan, id, [...take, plan.root]));
-  if (op.step === 0) batch.push(...await firstStatements(ctx, d, plan, op.label));
+  if (op.step === 0) batch.push(...await firstStatements(ctx, d, plan, op.label, { id: op.id, at: op.requested_at }));
   batch.push(...await verificationStatements(db, d, plan, id, op.label));
   batch.push(...cleanupStatements(ctx, d, plan, op.label));
   batch.push(...await deletionStatements(ctx, d, plan, take, id, deleted));

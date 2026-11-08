@@ -50,6 +50,9 @@ try {
  const event={version:1,eventId:'personal-event',release:'r1',build:'b1',environment:'test',type:'Error',message:`Test owner / ${owner.id} / ${other}`,frames:[{file:'https://app.test/a.js',line:1,column:0,function:'run',debugId:'map'}],breadcrumbs:[`Test owner and ${other}`]};
  const captured=await app.json('/api/ingest/personal-capture',event,201,{Authorization:'Bearer '+project.ingestKey});
  // [SDK-005] Session hashes and their private project key leave with installation-owner erasure.
+ const quotaHash=(await app.DB.prepare("SELECT hash FROM credentials WHERE project='personal-capture' AND kind='ingest'").first()).hash;
+ const quotaPath='/api/projects/personal-capture/keys/'+quotaHash+'/rate-limit';
+ const quotaSaved=await app.request(quotaPath,{revision:0,limit:100,period:'hour'},{},'PUT');assert.equal(quotaSaved.status,200);await quotaSaved.body.cancel();
  const sessionDsn=new URL(project.dsn),sessionValue={sid:randomUUID().replaceAll('-',''),started:new Date().toISOString(),status:'exited',did:'synthetic-spool-session-owner',attrs:{release:'r1',environment:'test'}};
  const sessionResponse=await fetch(app.origin+`/api/${sessionDsn.pathname.slice(1)}/envelope/?sentry_key=${sessionDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"session"}\n'+JSON.stringify(sessionValue)});assert.equal(sessionResponse.status,200);assert.equal((await sessionResponse.json()).sessions.session_stored,1);
  // [SDK-008] Owner-selected identity, preview and key share the same erasure custody.
@@ -57,12 +60,30 @@ try {
  const identityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:identityPolicy,revision:identityPreview.revision,token:identityPreview.token},{},'PUT');assert.equal(identityWrite.status,200);await identityWrite.body.cancel();
  const identityValue={event_id:randomUUID().replaceAll('-',''),release:'r1',dist:'b1',environment:'test',user:{email:testOwner},exception:{values:[{type:'IdentityError',value:'Owner identity custody',stacktrace:{frames:[{filename:'identity.js',lineno:1,colno:1,function:'capture'}]}}]}};
  const identityResponse=await fetch(app.origin+`/api/${sessionDsn.pathname.slice(1)}/envelope/?sentry_key=${sessionDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"event"}\n'+JSON.stringify(identityValue)});assert.equal(identityResponse.status,200);await identityResponse.body.cancel();
+ // [SDK-003] Both scopes, their safe change history and unused previews leave with the owner.
+ const scrubbingPolicy={version:1,sensitiveFields:['synthetic_spool_private'],safeFields:[],rules:[]};
+ for(const root of ['/api/scrubbing','/api/projects/personal-capture/scrubbing']){
+  const preview=await app.json(root+'/preview',{policy:scrubbingPolicy});
+  const saved=await app.request(root,{revision:preview.revision,policy:scrubbingPolicy,token:preview.token},{},'PUT');assert.equal(saved.status,200);await saved.body.cancel();
+ }
+ await app.json('/api/projects/personal-capture/scrubbing/preview',{policy:scrubbingPolicy});
+ // [ALERT-001] Configuration and unused preview authority leave with the owner.
+ const alertRoot='/api/projects/personal-capture/alerting',alertDestination=await app.json(alertRoot+'/destinations',{label:'Synthetic owner rules',recipient:'synthetic-spool-1@mail.runeditrun.com'},201);
+ const alertDraft={name:'Synthetic owner rule',enabled:false,channel:'mail',destination:alertDestination.id,kinds:['new_issue'],windowMs:60000,threshold:2,config:{metric:'count',filters:{environment:'test'},tagKeys:[]}};
+ const alertRule=await app.json(alertRoot+'/rules',alertDraft,201);
+ await app.json(alertRoot+'/rules/preview',{...alertDraft,ruleId:alertRule.id,revision:alertRule.revision});
  // [ALERT-002] Installation erasure removes reconnect-only Slack secrets.
  await app.json('/api/projects/personal-capture/alerting/destinations',{kind:'slack',label:'Synthetic owner Slack',channelId:'synthetic-spool-channel',token:'synthetic-spool-'+randomUUID()},201);
+ // A populated operational Slack acknowledgment belongs to the accountable owner.
+ const noticeAttention=randomUUID(),noticeId=randomUUID();
+ await app.DB.prepare("INSERT INTO follow_up_attention(id,project,source,source_id,due,state,reason,created,updated) VALUES(?,'personal-capture','alert',?,?,'uncertain','slack_timeout',?,?)").bind(noticeAttention,captured.issue,Date.now(),Date.now(),Date.now()).run();
+ await app.DB.prepare("INSERT INTO follow_up_notices(id,attention,project,destination,channel,state,next_at,body) VALUES(?,?,'personal-capture','synthetic-spool-1','webhook','completed',?,'{}')").bind(noticeId,noticeAttention,Date.now()).run();
+ await app.DB.prepare("INSERT INTO follow_up_notice_meta(notice,project,provider,message_id) VALUES(?,'personal-capture','slack','1900000000.1')").bind(noticeId).run();
+ await app.DB.prepare("INSERT INTO follow_up_attempts(id,notice,project,number,started,state,code) VALUES(?,?,'personal-capture',1,?,'completed','slack_posted')").bind(randomUUID(),noticeId,Date.now()).run();
  // [REL-002] An owner-authored suspect judgment is erased with its author.
  const judgment=await app.request('/api/projects/personal-capture/suspects/issues/'+captured.issue,{release:'r1',sha:null,judgment:'rejected',note:'Test owner reviewed this correlation.',revision:0},{},'PUT');assert.equal(judgment.status,200);await judgment.body?.cancel();
  const proposalKey=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201),proposalPacket=await app.json('/api/projects/personal-capture/issues/'+captured.issue+'/packet');
- await app.json('/api/projects/personal-capture/grouping-proposals',{kind:'split',source:captured.issue,revision:proposalPacket.issue.revision,events:['personal-event'],variants:[{stack:JSON.stringify(event.frames),release:'r1',route:''}],rationale:`Test owner / ${owner.id} / ${other}`,window:{start:Date.now()-60000,end:Date.now()+1}},201,{Cookie:'',Authorization:'Bearer '+proposalKey.key});
+ await app.json('/api/projects/personal-capture/grouping-proposals',{kind:'split',source:captured.issue,revision:proposalPacket.issue.revision,events:['personal-event'],variants:[{stack:JSON.stringify(event.frames),release:'r1',route:''}],rationale:`Test owner / ${owner.id} / ${other}`,window:{start:Date.now()-60000,end:Date.now()+1}},201,{Cookie:'',Authorization:'Bearer '+proposalKey.key,'Idempotency-Key':randomUUID()});
  const feedbackDsn=new URL(project.dsn),feedbackBody={event_id:'e'.repeat(32),type:'feedback',contexts:{feedback:{message:`Test owner / ${owner.id} / ${other}`}}};
  const feedbackResponse=await fetch(app.origin+`/api/${feedbackDsn.pathname.slice(1)}/envelope/?sentry_key=${feedbackDsn.username}&sentry_version=7`,{method:'POST',headers:{Origin:app.origin,'Content-Type':'text/plain'},body:'{}\n{"type":"feedback"}\n'+JSON.stringify(feedbackBody)});assert.equal(feedbackResponse.status,200);await feedbackResponse.body?.cancel();
  await app.json('/api/projects/personal-capture/repairs',{issue:captured.issue,link:'https://code.test/pull/1',note:`Test owner and ${other}`},201);
@@ -87,9 +108,13 @@ try {
  const alternate=await app.request('/api/projects/personal-capture/follow-up/alternate-member',{member:ownerMember.id},{},'PUT');assert.equal(alternate.status,200);await alternate.body?.cancel();
  const reportingWindow={from:Date.now()-60000,to:Date.now()+1000};
  const reporting=await app.json('/api/reporting/items',{kind:'dashboard',name:`Test owner with ${other}`,widgets:[{project:project.id,name:'Owner evidence',config:{metric:'count',q:'message:"Test owner"',...reportingWindow}}]},201);
+ const preferencePath='/api/projects/personal-capture/notifications/preferences';
+ const preference=await app.json(preferencePath);
+ const savedPreference=await app.request(preferencePath,{revision:preference.revision,email:{...preference.email,weekly_report:true}},{},'PUT');assert.equal(savedPreference.status,200);await savedPreference.arrayBuffer();
+ const otherPreference=await app.request(preferencePath,{revision:0,email:{...preference.email,comment:true}},{Cookie:otherCookies[['quinn','spool.test'].join('@')]},'PUT');assert.equal(otherPreference.status,200);await otherPreference.arrayBuffer();
  const pre=await archive(app),needles=[owner.id,'Test owner',testOwner,'personal-owner-subject'];
  const preview=await app.json('/api/owner/erasure');assert.equal(preview.hold,null,JSON.stringify(preview));
- assert.ok(preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
+ assert.ok(preview.deleted.scrubbing_policies===2 && preview.deleted.scrubbing_changes===2 && preview.deleted.scrubbing_previews===1 && preview.deleted.alert_rule_configs===1 && preview.deleted.alert_rule_previews===1 && preview.deleted.identity_policies===1 && preview.deleted.event_identities===1 && preview.deleted.health_sessions===1 && preview.deleted.project_identity_keys===1 && preview.deleted.slack_destinations===1 && preview.deleted.suspect_decisions===1 && preview.deleted.oa_operators===1 && preview.deleted.grouping_proposals===1 && preview.redacted.events>0 && preview.redacted.artifacts>0 && preview.redacted.feedback>0 && preview.redacted.commits===1);
  for(const needle of needles)assert.ok(!JSON.stringify(preview).includes(needle),'preview contains no identifier');
  before=await snapshot(app);
  for(const [headers,value,status] of [[{Cookie:''},eraseInput(preview),401],[{Authorization:'Bearer '+project.ingestKey},eraseInput(preview),403],[{Origin:'https://foreign.test'},eraseInput(preview),403],[{}, {...eraseInput(preview),subject:otherId},400],[{},{confirm:'no',planHash:preview.planHash},400]]) {
@@ -100,13 +125,15 @@ try {
  before=await snapshot(app);
  assert.equal((await app.request('/api/owner/erasure',eraseInput(preview))).status,409);
  assertAuditAppendOnly(await snapshot(app),before,'changed personal content makes old plan stale without mutation');
- const latest=await app.json('/api/owner/erasure');
- const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
+ const latest=await app.json('/api/owner/erasure');assert.equal(latest.deleted.spool_notification_preferences,1,'owner erasure previews personal preference custody');
+ const receipt=await app.json('/api/owner/erasure',eraseInput(latest));assert.equal(receipt.phase,'complete');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM suspect_decisions').first()).count,0,'REL-002 owner erasure removes authored judgments');assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM slack_destinations').first()).count,0,'ALERT-002 owner erasure removes Slack tokens');for(const table of ['scrubbing_policies','scrubbing_changes','scrubbing_previews','alert_rule_configs','alert_rule_previews','alert_decisions','alert_reactivation_markers','identity_policies','event_identities','health_sessions','health_aggregates','project_identity_keys'])assert.equal((await app.DB.prepare('SELECT COUNT(*) count FROM '+table).first()).count,0,'SDK-005 owner erasure removes session custody');
  for(const needle of needles)assert.ok(!JSON.stringify(receipt).includes(needle),'receipt contains no identifier');
  const after=await snapshot(app);
+ for(const table of ['follow_up_attention','follow_up_notices','follow_up_notice_meta','follow_up_attempts'])assert.equal(after[table].length,0,'owner erasure removes operational Slack custody: '+table);
  assert.equal(after.spool_reporting_items.find(row=>row.id===reporting.id).author,null,'Reporting author becomes erased without discarding the shared definition');
  assert.ok(after.spool_reporting_items.find(row=>row.id===reporting.id).name.includes('[erased]'));
 
+ assert.equal(after.spool_notification_preferences.length,1,'owner erasure preserves another current person’s preferences');assert.equal(after.spool_notification_preferences[0].operator_id,otherId);
  for(const table of ['spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_follow_up_alternates'])assert.equal(after[table].length,0,'former owner notification custody erased: '+table);
  assert.equal(after.spool_members.some(row=>row.operator_id===owner.id),false,'former owner membership erased');
  for(const table of ['spool_members','spool_project_grants','spool_member_invites','spool_project_teams'])assert.deepEqual(after[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),before[table].filter(row=>row.id!==ownerMember.id&&row.member!==ownerMember.id),'other team configuration preserved: '+table);
@@ -138,6 +165,10 @@ try {
  assert.ok(app.cookie);await app.json('/api/projects');
  const erasedReport=await app.call('/api/reporting/items/'+reporting.id,undefined,{Cookie:app.cookie});assert.equal(erasedReport.status,200);assert.equal((await erasedReport.json()).author,'[erased]');
  const minted=await app.json('/api/projects/personal-capture/keys',{kind:'agent'},201);assert.ok(minted.key,'successor retains management and minting');
+ const retainedQuota=await (await app.request(quotaPath)).json();assert.equal(retainedQuota.limit,100);
+ // The current UTC hour can expire during handoff; erasure must preserve the stored admissions exactly.
+ assert.ok(before.key_rate_usage.some(row=>row.key_hash===quotaHash&&row.hour_count>0),'capture populated the project key admission bucket');
+ assert.deepEqual(after.key_rate_usage,before.key_rate_usage,'BILL-001 personal erasure keeps every project key admission bucket without predecessor attribution');
  // SDK-008: the successor chooses a new policy above the erased policy's safe revision floor.
  const nextIdentityPolicy={id:'hash',email:'hash',username:'hash',ip_address:'hash'},nextIdentityPreview=await app.json('/api/projects/personal-capture/identity-policy/preview',{policy:nextIdentityPolicy});
  const nextIdentityWrite=await app.request('/api/projects/personal-capture/identity-policy',{policy:nextIdentityPolicy,revision:nextIdentityPreview.revision,token:nextIdentityPreview.token},{},'PUT');assert.equal(nextIdentityWrite.status,200);const nextIdentity=await nextIdentityWrite.json();assert.ok(nextIdentity.revision>identityPreview.revision+1,'successor does not reuse an erased policy revision');

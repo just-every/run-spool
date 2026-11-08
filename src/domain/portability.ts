@@ -1,3 +1,5 @@
+import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
+import { keyRateTables } from './key-rate-limits/model';
 import {ensureIssuePriorities} from './issue-priority/model';
 import {ensureRecurrenceBoundaries} from './recurrence/model';
 import {suppressionExportRow} from './suppression/archive';
@@ -5,6 +7,7 @@ import {discussionExportRow} from './discussion/archive';
 import {lifecycleTables} from './lifecycle/archive';
 import { reportingTables, reportingExportRow } from './dashboards/archive';
 import { memberTables, teamAlertTables, memberExportRow } from './members/archive';
+import {scrubbingTables} from './scrubbing/archive';
 import {reviewTables} from './review/model';
 import {retentionTables} from './retention-policy';
 import {identityTables} from './identities/archive';
@@ -24,6 +27,7 @@ import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
+import { schemaIdentityOf } from '../modules/portability/schema-identity.mjs';
 import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
@@ -39,6 +43,9 @@ import { shortIdTables } from './short-ids/archive';
 import { commitTables } from './commits/archive';
 import { sentryCliTables, sentryCliExcludedTables } from './sentry-cli/archive';
 import { ensureShortIds } from './short-ids/assign';
+import type { ArchivePolicy, MigrationReplay } from '../modules/portability/index.mjs';
+
+export type MigrationProvider = (db: D1Database, policy: ArchivePolicy) => Promise<MigrationReplay>;
 
 function stagedValidation(later: string[] = []) {
  return async ({ db, read, manifest }: { db: D1Database; read: (table: string) => Promise<any[]>; manifest: any }) => {
@@ -50,25 +57,26 @@ function stagedValidation(later: string[] = []) {
 }
 
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: ['restored_work','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
- exportRow: (table: string, row: any) => scrubExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row)))))))),
+ product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,'agent_door_%','bs_%','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
 };
 // Current archives carry the safe audit chronology as a payload. Previous
 // formats have none; restoring one uses the payload-free policy, and the
 // restore commit gives its journal rows legacy facts instead.
-export async function portability(db: D1Database, safeAudit = true) {
+export async function portability(db: D1Database, safeAudit = true, migrationProvider?: MigrationProvider) {
  const policy = safeAudit ? { ...portabilityPolicy, extraPayloads: { [SAFE_AUDIT_PAYLOAD]: auditPayload(db) } } : portabilityPolicy;
- const service = await createPortability({ db, policy });
+ const migrations = migrationProvider ? () => migrationProvider(db, policy) : undefined;
+ const service = await createPortability({ db, policy, migrations });
  const exports=orderedReleaseExports(service.exports);
- return { ...service, db, exports, status:async(id:string)=>{
+ return { ...service, db, migrationProvider, exports, status:async(id:string)=>{
   const status=await service.status(id);return status.kind==='export'?exports.status(id):status;
  }, imports: { ...service.imports,
   async finalize(id: string, options?: any) {
    // Include an explicitly supplied later journal in the legacy-key fence too.
    // Base still validates that journal and enforces its normal epoch/key fence.
-   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) } }) : service;
+   const checked = options?.laterJournal ? await createPortability({ db, policy: { ...policy, validateStaged: stagedValidation(options.laterJournal.journal) }, migrations }) : service;
    return checked.imports.finalize(id, options);
   },
  } };
@@ -187,14 +195,49 @@ for(const later of laterTables){later.tables.push(...Object.keys(lifecycleTables
 laterTables.unshift({tables:Object.keys(lifecycleTables),migrations:['0083_collaborative_lifecycle.sql']});
 const reportingNames=Object.keys(reportingTables);
 for(const later of laterTables){later.tables.push(...reportingNames);later.migrations.push('0081_reporting.sql')}
-laterTables.unshift({tables:reportingNames,migrations:['0081_reporting.sql']});
+// Later additions extend each compatibility set. Keep the complete reporting
+// collection independent so its carried-collection check stays authoritative.
+laterTables.unshift({tables:[...reportingNames],migrations:['0081_reporting.sql']});
 // Destination custody is excluded, so earlier archives need no added product rows.
 for(const later of laterTables)later.migrations.push('0084_restored_work.sql');
 laterTables.unshift({tables:[],migrations:['0084_restored_work.sql']});
+for(const later of laterTables)later.migrations.push('0085_follow_up_acknowledgment.sql');
+laterTables.unshift({tables:[],migrations:['0085_follow_up_acknowledgment.sql']});
+const preferenceNames=Object.keys(notificationPreferenceTables);
+for(const later of laterTables){later.tables.push(...preferenceNames);later.migrations.push('0086_notification_preferences.sql')}
+laterTables.unshift({tables:[...preferenceNames],migrations:['0086_notification_preferences.sql']});
+for(const later of laterTables){later.tables.push('alert_rule_configs');later.migrations.push('0087_alert_conditions.sql')}
+laterTables.unshift({tables:['alert_rule_configs'],migrations:['0087_alert_conditions.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(scrubbingTables));later.migrations.push('0088_scrubbing_rules.sql')}
+laterTables.unshift({tables:Object.keys(scrubbingTables),migrations:['0088_scrubbing_rules.sql']});
+// Key quota state is bound to excluded credentials; restored projects need fresh keys.
+for(const later of laterTables)later.migrations.push('0089_key_rate_limits.sql');
+laterTables.unshift({tables:[],migrations:['0089_key_rate_limits.sql']});
+const agentMigrations=['0099_agent_custody_replay_relay.sql','0098_agent_door.sql','0090_business_settings.sql','0097_business_people.sql','0091_native_agent_attribution.sql','0092_agent_runner_custody.sql','0093_native_agent_repository_consent.sql','0094_repository_proof_reference.sql','0095_agent_erasure_custody.sql','0096_native_action_actor_links.sql'];
+for(const later of laterTables)later.migrations.push(...agentMigrations);
+laterTables.unshift({tables:[],migrations:agentMigrations});
+// Match the exact archive inventory from before native attribution was added.
+// Current archives retain and validate their declared attribution columns.
+function beforeAgentAttribution(table:any,manifest:any){
+ if(manifest.migrations?.includes('0091_native_agent_attribution.sql'))return table;
+ const field=table.name==='repairs'?'recorded_by':table.name==='grouping_proposals'?'prepared_by':null;
+ if(!field)return table;
+ // Unrecorded native inventories can already carry attribution. Keep the
+ // current descriptor only when the archive actually declares the column;
+ // the exact descriptor comparison below still rejects forged additions.
+ if(manifest.schemaObjects!==undefined && manifest.tables?.find((entry:any)=>entry.name===table.name)?.columns?.some((column:any)=>column.name===field))return table;
+ const declaration=field==='recorded_by'?", recorded_by TEXT NOT NULL DEFAULT 'owner'":', prepared_by TEXT';
+ return {...table,sql:table.sql.replace(declaration,''),columns:table.columns.filter((column:any)=>column.name!==field)};
+}
 async function earlierManifest(db: D1Database, manifest: any) {
  const current = await catalogue(db, policy(portabilityPolicy));
  if (manifest?.kind !== 'manifest') return null;
  const product = await restorableManifest(manifest);
+ // Base canonicalizes the product identity, including behavior objects.
+ // Compare the known native table shape separately, then check the complete
+ // behavior inventory before translating a format that declares it.
+ const nativeTableIdentity=product.schemaObjects===undefined?product.schema
+  :await sha256(canonicalJson(product.tables.map(({name,sql}:any)=>({name,sql}))));
  // Reporting definitions can accompany an earlier core inventory. Retain only
  // the complete collection; its schema and column descriptors still match exactly.
  const carriedReporting=Array.isArray(product.tables)&&reportingNames.every(name=>product.tables.some((table:any)=>table.name===name));
@@ -206,26 +249,49 @@ async function earlierManifest(db: D1Database, manifest: any) {
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
-  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
-  if (product.schema !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
+  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  if (nativeTableIdentity !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
+  // A recognized native table upgrade must retain a complete, known object
+  // inventory. An unrecorded index/trigger is never installed or acknowledged.
+  // Archives without an object inventory still require Base's legacy replay.
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(current.schemaObjects))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.
   const tables = [...manifest.tables.filter((table: any) => platformTable(table.name)), ...current.tables.map((table: any) => ({ ...table, count: product.tables.find((old: any) => old.name === table.name)?.count ?? 0 }))].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-  return { ...manifest, ...migrations, schema: await sha256(canonicalJson(tables.map(({ name, sql }: any) => ({ name, sql })))), tables };
+  const schema=product.schemaObjects===undefined
+   ? await sha256(canonicalJson(tables.map(({name,sql}:any)=>({name,sql}))))
+   : await schemaIdentityOf(tables,current.schemaObjects);
+  return {...manifest,...migrations,schema,tables};
  }
  return null;
 }
 async function importRecords(service: any, source: ReadableStream<Uint8Array>, db?: D1Database, laterJournal?: LaterJournal) {
  let id, closing, binding: any, complete = false, rewritten = false;
+ const attributionDefaults=new Map<string,Record<string,unknown>>();
+ const archivedAttributionColumns=new Map<string,string[]>();
  try {
   for await (const record of readArchive(source)) {
    if (record.kind === 'manifest') {
-    const manifest = retireArchiveSetupToken((db ? await earlierManifest(db, record) : null) ?? record, portabilityPolicy.requiredConfiguration);
+    const earlier=db ? await earlierManifest(db,record) : null;
+    const manifest = retireArchiveSetupToken(earlier ?? record, portabilityPolicy.requiredConfiguration);
+    if(earlier)for(const [table,field,value] of [['repairs','recorded_by','owner'],['grouping_proposals','prepared_by',null]] as const){
+     const archived=record.tables.find((entry:any)=>entry.name===table);
+     if(archived&&!archived.columns.some((column:any)=>column.name===field)){attributionDefaults.set(table,{[field]:value});archivedAttributionColumns.set(table,archived.columns.map((column:any)=>column.name).sort());}
+    }
     rewritten = manifest !== record; binding = new ArchiveVerifier(manifest); id = await service.imports.create(manifest);
    }
-   else if (record.kind === 'part') { binding.add(record); await service.imports.uploadPart(id, record.index, record); }
+   else if (record.kind === 'part') {
+    // readArchive verifies the original bytes; bind translated parts to the
+    // recognized current inventory using only this migration's exact defaults.
+    const part=attributionDefaults.size?await makePart(record.index,record.items.map((item:any)=>{
+     if(item.kind!=='row'||!attributionDefaults.has(item.table))return item;
+     if(canonicalJson(Object.keys(item.row).sort())!==canonicalJson(archivedAttributionColumns.get(item.table)))throw new PortabilityError('legacy_column_inventory');
+     return {...item,row:{...item.row,...attributionDefaults.get(item.table)}};
+    })):record;
+    binding.add(part); await service.imports.uploadPart(id, part.index, part);
+   }
    else closing = record;
   }
   if (!closing) throw new Error('Archive closing record missing');
@@ -240,7 +306,7 @@ async function templateManifest(service:any){
  return manifest;
 }
 async function legacyRecords(input: any, value: unknown) {
- const service=await portability(input.db,false),legacy=await validateArchive(value);
+ const service=await portability(input.db,false,input.migrationProvider),legacy=await validateArchive(value);
  const data:Record<string,any[]>={...legacy,...Object.fromEntries(deliveryTables.map(table=>[table,[]])),alerts:legacy.alerts.map((row:any)=>({...row,payload:null})),alert_rules:[],alert_history:[],repairs:[],repair_checks:[],rer_erasure_operations:[],...emptyLinkTables(),...emptyExecutionTables()};
  const template=await templateManifest(service);
  return restoreRows(service,data,{...template,sourceIdentity:crypto.randomUUID(),epoch:0,journal:[],exportedAt:new Date().toISOString()});
@@ -290,13 +356,13 @@ export async function restoreArchive(service: any, source: ReadableStream<Uint8A
  // Only a current or later-additive archive carries the journal identity a later archive can extend.
  if(laterJournal&&(first?.kind!=='manifest'||isPreviousSchema(first.schema)))throw new PortabilityError('later_journal');
  if(first?.kind==='manifest'&&isPreviousSchema(first.schema)){
-  const previous=await readPreviousArchive(input),legacy=await portability(service.db,false);
+  const previous=await readPreviousArchive(input),legacy=await portability(service.db,false,service.migrationProvider);
   const normalized=await normalizePreviousArchive(previous,await templateManifest(legacy));
   return restoreRows(legacy,normalized.data,normalized.manifest);
  }
  if (first?.kind === 'manifest') {
   const carried = Array.isArray(first.payloads) && first.payloads.some((payload: any) => payload?.name === SAFE_AUDIT_PAYLOAD);
-  return importRecords(carried ? service : await portability(service.db, false), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
+  return importRecords(carried ? service : await portability(service.db, false, service.migrationProvider), input, await earlierManifest(service.db, first) ? service.db : undefined, laterJournal);
  }
  const legacyReader = input.getReader(); let count = 0, text = ''; const decoder = new TextDecoder();
  try {

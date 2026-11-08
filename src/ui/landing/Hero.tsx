@@ -11,7 +11,7 @@ export function Hero({ repository, variant }: { repository: string; variant?: 's
       <CopyThread />
       <h1 id="hero-title">See exactly <span className="nowrap">what broke.</span></h1>
       <p className="hero-subhead">Spool catches your JavaScript errors and points to the exact line in your own source.</p>
-      <p className="hero-alt">100% free, open source alternative to <strong>Sentry</strong>, <strong>Bugsnag</strong> and <strong>Rollbar</strong></p>
+      <p className="hero-alt">Open source alternative to <strong>Sentry</strong>, <strong>Bugsnag</strong> and <strong>Rollbar</strong></p>
       <div className="hero-actions"><a className="primary-button" href={variant === 'site' ? '/run' : repository}>{variant === 'site' ? 'Run Spool' : 'Get Spool'}</a>{variant === 'site' && <a className="primary-button" href="https://demo.run-spool.com/">Try the demo</a>}<a className="underlined-link" href="#run">Run it on your computer</a></div>
     </div>
     <div className="hero-drawing" role="img" aria-label="Spool catches a TypeError on release r42, maps it to line 42 of src/account.ts in your original source, and has its evidence packet ready to download.">

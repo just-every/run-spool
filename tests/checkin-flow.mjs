@@ -59,9 +59,10 @@ export async function checkInFlow({ browser }) {
   await writeFile(program, `import * as Sentry from ${JSON.stringify(require.resolve('@sentry/node'))};
 Sentry.init({dsn:process.env.FIXTURE_DSN,release:${JSON.stringify(release)},environment:'compatibility'});
 const pause=ms=>new Promise(done=>setTimeout(done,ms));
-await Sentry.withMonitor(${JSON.stringify(connected)},async()=>{await pause(200)});
-try{await Sentry.withMonitor(${JSON.stringify(connected)},async()=>{await pause(200);try{null.synthetic}catch(error){Sentry.captureException(error);throw error}},{schedule:{type:'crontab',value:'0 2 * * *'},checkinMargin:5,maxRuntime:10,isolateTrace:true})}catch{}
-await Sentry.withMonitor(${JSON.stringify(unconnected)},async()=>{await pause(200)});
+await Sentry.withMonitor(${JSON.stringify(connected)},async()=>{await Sentry.flush(10000);await pause(200)});await Sentry.flush(10000);
+try{await Sentry.withMonitor(${JSON.stringify(connected)},async()=>{await Sentry.flush(10000);await pause(200);try{null.synthetic}catch(error){Sentry.captureException(error);throw error}},{schedule:{type:'crontab',value:'0 2 * * *'},checkinMargin:5,maxRuntime:10,isolateTrace:true})}catch{}
+await Sentry.flush(10000);
+await Sentry.withMonitor(${JSON.stringify(unconnected)},async()=>{await Sentry.flush(10000);await pause(200)});await Sentry.flush(10000);
 await Sentry.flush(10000);await Sentry.close(10000);
 `);
   const execute = target => new Promise((done, fail) => { const child = spawn(process.execPath, [program], { env: { ...process.env, FIXTURE_DSN: target }, stdio: 'ignore' }); child.once('error', fail); child.once('exit', code => code === 0 ? done() : fail(new Error(`Node SDK exited ${code}`))); });

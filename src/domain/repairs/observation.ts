@@ -2,7 +2,7 @@
 // retention records. It is never declared by a person or a model.
 import { correctionMembership, originalMembership } from '../operators/provenance';
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
-export const LOSS_REASONS = ['unauthorized', 'invalid', 'oversized', 'rejected', 'rate_limited', 'budget', 'storage_failure', 'unregistered_release_or_build', 'missing_release_register_required'];
+export const LOSS_REASONS = ['unauthorized', 'invalid', 'oversized', 'rejected', 'rate_limited','key_rate_limited', 'budget', 'storage_failure', 'unregistered_release_or_build', 'missing_release_register_required'];
 const EVIDENCE_LIMIT = 10;
 export const VERDICT_LIMITS = 'This verdict does not show users who never reached the affected flow, failures lost in the client before transport, or the same failure grouped differently after a rebuild.';
 const CLIENT_LOSS = { code: 'client_loss_unknown', reason: 'Unreported loss in the client before transport remains unknown.' };

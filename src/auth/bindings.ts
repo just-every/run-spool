@@ -10,6 +10,7 @@ export type Bindings = {
  RER_DEV_KEY?: string; RER_DEV_IDENTITY?: string; RER_INSTALLATION_ID?: string; RER_MANAGEMENT_ORIGIN?: string;
  // The owner's GitHub App connection for fix branches (src/domain/fixes/connection.ts); absent means awaiting connection.
  GITHUB_CONNECTION?: string;
+ RER_BUSINESS_TRUST?: string; RER_OWNER_CLAIM_ISSUER?: string; RER_OWNER_CLAIM_INSTALLATION_ID?: string; RER_OWNER_CLAIM_APP_ORIGIN?: string; RER_OWNER_CLAIM_PUBLIC_KEYS?: string;
  RER_DEPLOY_SOURCE?: string; RER_DEPLOY_FINGERPRINT?: string; RER_VERSION?: { id: string };
 };
 export function runtimeBindings(env: Bindings): Bindings {

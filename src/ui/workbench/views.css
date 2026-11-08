@@ -15,7 +15,7 @@
 .operator-controls>.details-trigger{margin:0}
 div.data-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px;padding:12px 0;border-bottom:var(--hairline-border)}
 .evidence code{overflow-wrap:anywhere}
-div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.6fr) auto}
+div.key-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto}
 .evidence>:is(button,a)+:is(button,a){margin-left:24px}
 .field-error{font-size:14px;font-weight:600}
 [aria-invalid=true]{border-width:2.5px!important;border-style:dashed!important}
@@ -26,7 +26,7 @@ div.key-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) min
 .callout{margin:16px 0;padding:14px 18px;background:var(--paper-raised);border:var(--inner-border);border-radius:var(--radius-input)}
 .callout strong{display:block;font-weight:600}
 .callout p{margin:6px 0 0}
-.status-notice{border-left:4px solid var(--ink)}
+.status-notice button{margin-top:10px}
 .secret-key .key-value{display:block;margin:10px 0;padding:10px 14px;font-size:15px;overflow-wrap:anywhere}
 
 /* Opened issue. */
@@ -128,7 +128,9 @@ span.frame-function{font-family:var(--font-text)}
  .issue-counts{gap:8px}
  .issue-counts>div{padding:10px}
  .issue-counts strong{font-size:26px}
- div.key-row{grid-template-columns:minmax(0,1fr) auto}
+ div.key-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 16px}
+ div.key-row>span{grid-column:1}
+ div.key-row>.details-trigger{grid-column:2;grid-row:1 / span 2}
  .issue-filters{gap:8px 12px}
  /* Phone tables become one ruled card per row. */
  .issue-table thead,.data-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

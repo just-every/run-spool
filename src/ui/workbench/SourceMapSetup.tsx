@@ -1,15 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
+import { plural } from './readable';
+import { useEffect, useState } from 'react';
 import { CodeBlock, installCommand } from './SdkSetup';
 import { Field, useDraft, type Request, type Run } from './shared';
+import { useSettingDoc } from './useSettingDoc';
+import { SaveAnnouncer, SaveFailure, SavedMark } from './SaveMarks';
 import { bundlers, shellQuote, sourceMapInstructions, type Bundler } from './sourceMapSnippets';
 
 export function SourceMapSetup({ project, releases, request, run, busy, refresh }: {
   project: string; releases: any[]; request: Request; run: Run; busy: boolean; refresh: () => void;
 }) {
-  const [storage,setStorage]=useState<any>(null),[uploads,setUploads]=useState<any>(null);
-  const [cap,setCap]=useDraft(`${project}.artifact-cap`,''),[capEdited,setCapEdited]=useDraft(`${project}.artifact-cap-edited`,false);
-  const capDraft=useRef({project,edited:capEdited});capDraft.current={project,edited:capEdited};
-  useEffect(()=>{let live=true;Promise.all([request(`/api/projects/${encodeURIComponent(project)}/artifact-storage`),request(`/api/projects/${encodeURIComponent(project)}/sentry-uploads`)]).then(([setting,rows])=>{if(live){setStorage(setting);if(capDraft.current.project===project&&!capDraft.current.edited)setCap(setting.artifact_storage_cap===null?'':String(setting.artifact_storage_cap));setUploads(rows)}}).catch(()=>{if(live){setStorage(null);setUploads(null)}});return()=>{live=false}},[project,request,releases]);
+  const [uploads,setUploads]=useState<any>(null);
+  // The cap saves as you go: on blur or after a pause. A value that is not a whole number of bytes waits, unsent.
+  const capRoot=`/api/projects/${encodeURIComponent(project)}/artifact-storage`;
+  const capOf=(setting:any)=>setting.artifact_storage_cap===null?'':String(setting.artifact_storage_cap);
+  const cap=useSettingDoc<any,string>({key:`artifact-cap:${project}`,read:()=>request(capRoot),draftOf:capOf,
+   write:(setting,text,keepalive)=>request(capRoot,'PUT',{revision:setting.revision,artifact_storage_cap:text===''?null:Number(text)},{keepalive}),onSaved:()=>refresh()});
+  const storage=cap.data;
+  useEffect(()=>{let live=true;request(`/api/projects/${encodeURIComponent(project)}/sentry-uploads`).then(rows=>{if(live)setUploads(rows)}).catch(()=>{if(live)setUploads(null)});return()=>{live=false}},[project,request,releases]);
   const [endpoint, setEndpoint] = useState(''), [deployKey, setDeployKey] = useState('');
   const [bundler, setBundler] = useDraft<Bundler>(`${project}.map-bundler`, 'vite');
   const [release, setRelease] = useDraft(`${project}.map-setup-release`, releases[0]?.name ?? '');
@@ -25,7 +32,7 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh 
     <p>A source map connects a built JavaScript file’s line and column to the same code in your original source.</p>
     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
     <h3>Artifact storage</h3>
-    {storage ? <><p>{storage.count} maps use {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" type="number" min="0" step="1" value={cap} onChange={e=>{capDraft.current.edited=true;setCapEdited(true);setCap(e.target.value)}} /><button className="text-button" disabled={busy||(cap!==''&&(!Number.isSafeInteger(Number(cap))||Number(cap)<0))} onClick={()=>void run(async()=>{const setting=await request(`/api/projects/${encodeURIComponent(project)}/artifact-storage`,'PUT',{revision:storage.revision,artifact_storage_cap:cap===''?null:Number(cap)});setStorage(setting);capDraft.current.edited=false;setCapEdited(false);setCap(setting.artifact_storage_cap===null?'':String(setting.artifact_storage_cap));refresh()})}>Save artifact cap</button></div></> : <p role="status">Artifact storage setting unavailable.</p>}
+    {storage ? <><p>{storage.count} {plural(storage.count, 'map')} {storage.count === 1 ? 'uses' : 'use'} {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" adornment={<SavedMark doc={cap} field="cap" />} type="number" min="0" step="1" value={cap.draft ?? ''} onChange={e=>{const text=e.target.value;cap.edit(text,{field:'cap',hold:text!==''&&(!Number.isSafeInteger(Number(text))||Number(text)<0)})}} onBlur={cap.flush} /></div><SaveFailure doc={cap} field="cap" /><SaveAnnouncer doc={cap} /></> : <p role="status">Artifact storage setting unavailable.</p>}
     {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{row.release} / {row.build}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
     {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{row.release} / {row.build} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
     <h3>1. Match your application’s release</h3>

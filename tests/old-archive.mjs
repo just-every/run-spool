@@ -10,7 +10,7 @@ import {platformTable} from '../src/modules/portability/bookkeeping.mjs';
 import {policy} from '../src/modules/portability/catalogue.mjs';
 // TEAM-004 stores (migration 0059) and SRC-003's release/deploy stores (migration 0060) that the released schema lacks.
 const membershipTables = ['spool_reporting_items','spool_reporting_projects','spool_reporting_widgets','spool_reporting_shares','spool_team_digest_settings','spool_team_snoozes','spool_team_mail','spool_organizations','spool_members','spool_project_teams','spool_project_grants','spool_member_invites','spool_service_accounts','spool_service_scopes'];
-const citationTables = ['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
+const citationTables = ['spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates','slack_delivery_meta','suspect_decisions','source_map_builds','source_map_build_files','artifact_storage_settings','loader_settings','short_id_prefixes','issue_short_ids','issue_short_id_moves','commits','release_commits','commit_links','repository_link_log','commit_sharing','sentry_releases','sentry_deploys'];
 
 // This is the unchanged output of the old native exporter, including its ledger.
 const archive = await readFile('tests/fixtures/archive-fc75a7ac.ndjson', 'utf8');
@@ -65,14 +65,28 @@ try {
  const additions = unstable_splitSqlQuery(added.map(migration => migration.sql).join('\n')).filter(sql => !/^PRAGMA foreign_keys\s*=\s*ON;?$/i.test(sql.trim()));
  await upgrade.batch(additions.map(sql => upgrade.prepare(sql)));
  for (const {name,sql} of oldTables) {
-  assert.deepEqual(canonicalRows(await rows(upgrade, `SELECT * FROM "${name}"`)), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
-  if(name!=='spool_audit_events')assert.equal((await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql, sql, `populated upgrade preserves released table schema: ${name}`);
+  const upgradedRows=await rows(upgrade, `SELECT * FROM "${name}"`);
+  if(name==='alert_mail_jobs')assert.ok(upgradedRows.every(row=>row.agent_attribution===null),'upgrade never invents a first-send agent identity for historical mail');
+  assert.deepEqual(canonicalRows(name==='alert_mail_jobs'?upgradedRows.map(({agent_attribution,...row})=>row):upgradedRows), beforeUpgrade.get(name), `populated upgrade preserves every pre-existing row: ${name}`);
+  const currentSql=(await upgrade.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").bind(name).first()).sql;
+  if(name==='audit_context'){
+   assert.equal(currentSql,sql.replace(/\)\s*$/,', native_start INTEGER NOT NULL DEFAULT 0)'), 'native audit attribution adds only its declared default-zero cursor to the released context');
+  }else if(name==='repairs'){
+   assert.equal(currentSql.replace(", recorded_by TEXT NOT NULL DEFAULT 'owner'",''),sql,'native repair attribution preserves all released columns and constraints');
+   const attribution=(await rows(upgrade,"PRAGMA table_info('repairs')")).find(column=>column.name==='recorded_by');
+   assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:1,default:"'owner'"});
+  }else if(name==='alert_mail_jobs'){
+   assert.equal(currentSql.replace(', agent_attribution TEXT',''),sql,'first-send attribution preserves every released mail column and constraint');
+   const attribution=(await rows(upgrade,"PRAGMA table_info('alert_mail_jobs')")).find(column=>column.name==='agent_attribution');
+   assert.deepEqual({type:attribution.type,notnull:attribution.notnull,default:attribution.dflt_value},{type:'TEXT',notnull:0,default:null});
+  }else if(name!=='spool_audit_events')assert.equal(currentSql,sql,`populated upgrade preserves released table schema: ${name}`);
  }
  for(const table of ['review_stamps','review_views','retention_policies','identity_policies','event_identities','project_identity_keys','health_sessions','health_aggregates'])assert.deepEqual(await rows(upgrade, 'SELECT * FROM '+table), [], 'populated upgrade invents no observed sessions or identity key');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_destinations'), [], 'populated upgrade connects no Slack destination');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM slack_delivery_meta'), [], 'populated upgrade invents no Slack acknowledgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM suspect_decisions'), [], 'populated upgrade invents no suspect judgment');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM grouping_proposals'), []);
+ assert.deepEqual(await rows(upgrade, 'SELECT * FROM spool_notification_preferences'), [], 'a populated upgrade never invents personal opt-ins');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM checkin_routes'), [], 'existing projects start with cron check-in forwarding off');
  assert.deepEqual(await rows(upgrade, 'SELECT * FROM loader_settings'), [], 'existing capture keys start with lazy, optional-capture-off defaults');
  assert.equal((await upgrade.prepare("SELECT COUNT(*) n FROM credentials WHERE project=? AND kind='ingest' AND revoked IS NULL").bind(existingProject).first()).n, 1, 'the populated upgrade keeps the active capture key');
@@ -80,12 +94,12 @@ try {
  const upgradedIds = await rows(upgrade, 'SELECT * FROM issue_short_ids ORDER BY project,number');
  assert.ok(upgradedIds.length > 0 && upgradedIds.length === (await rows(upgrade, 'SELECT id FROM issues')).length && upgradedIds.every(row => row.issue === row.assigned), 'every upgraded issue has its own short ID');
  assert.deepEqual((await rows(upgrade, 'SELECT project FROM short_id_prefixes ORDER BY project')).map(row => row.project), (await rows(upgrade, 'SELECT id FROM projects ORDER BY id')).map(row => row.id));
- console.log('PASS populated published release upgrades without rewriting any pre-existing row or table: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
+ console.log('PASS populated published release upgrades preserve existing rows and columns with declared attribution additions: '+oldTables.length+' tables, '+[...beforeUpgrade.values()].reduce((count,rows)=>count+rows.length,0)+' rows before and after');
 
  // c17: apply only 0069 onward to a populated installation at current main's 0068.
  const at0068 = migrations.filter(m => m.name <= '0068_artifact_build_sets.sql');
  const currentUpgrade = await target('CURRENT_UPGRADE', at0068);
- const newTables = ['issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
+ const newTables = ['spool_notification_preferences','scrubbing_policies','scrubbing_changes','alert_rule_configs','issue_recurrence_boundaries','issue_priorities','issue_activity','issue_comments','issue_subscriptions','recurrence_policies','issue_suppressions',...membershipTables,'retention_runs','checkin_routes','checkin_links','suspect_decisions','slack_destinations','slack_delivery_meta','project_identity_keys','health_sessions','health_aggregates','review_stamps','review_views','retention_policies','identity_policies','event_identities'];
  transfer.portabilityPolicy.validateStaged = context => stagedValidation({...context, read: table => newTables.includes(table) ? Promise.resolve([]) : context.read(table)});
  try { await transfer.restoreArchive(await transfer.portability(currentUpgrade), new Response(archive).body); }
  finally { transfer.portabilityPolicy.validateStaged = stagedValidation; }

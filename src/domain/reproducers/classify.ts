@@ -1,6 +1,7 @@
 import { diagnose } from '../artifacts';
 import { normalize, scrub } from '../privacy';
 import { DEFECT_CLASS, mapModules, moduleName, recorded, RUNNER_PROTOCOL, SANDBOX } from './sandbox';
+import { REDUCTION } from './reduction.mjs';
 
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 const INPUT_BYTES = 8192;
@@ -59,10 +60,22 @@ export async function classify(db: D1Database, project: string, eventId: string,
  const entry = modules.find(module => module.original === top.original.file);
  if (!entry) return unsupported(moduleName(top.original.file) ? 'source_content_missing' : 'source_path_unsupported', event);
  const call = callInput(body, enclosingFunction(entry.source, top.original.line) ?? (/^[A-Za-z_$][\w$]{0,99}$/.test(top.original.function) ? top.original.function : 'default'));
+ if (body.minimize !== undefined && typeof body.minimize !== 'boolean') throw new Error('Minimize must be a boolean');
+ if (body.experiments !== undefined && !body.minimize) throw new Error('Experiments require minimization');
+ let analysis;
+ if (body.minimize) {
+  const experiments = body.experiments ?? [];
+  if (!Array.isArray(experiments) || experiments.length > 3) throw new Error('Choose at most three input experiments');
+  analysis = { ...REDUCTION, experiments: experiments.map((experiment: any) => {
+   if (!experiment || typeof experiment.name !== 'string' || !/^[A-Za-z0-9 ._-]{1,80}$/.test(experiment.name) || scrub(experiment.name) !== experiment.name) throw new Error('Invalid experiment name');
+   return { name: experiment.name, input: callInput({ input: experiment.input }, call.export).input };
+  }) };
+ }
  return { issue: row.issue, support: 'supported' as const, reason: null, spec: {
   version: 1, defectClass: DEFECT_CLASS, event,
   call: { module: entry.name, export: call.export, input: call.input },
   environment: SANDBOX, runner: { protocol: RUNNER_PROTOCOL },
+  ...(analysis ? { analysis } : {}),
   source: { release: row.release, build: row.build, debugId: top.generated.debugId, artifactDigest: artifact.digest, modules: recorded(modules) },
  } };
 }
