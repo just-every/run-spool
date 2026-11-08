@@ -24,7 +24,11 @@ export async function main(args) {
     const records=await client.download(id),file=await privateFile(opts.out+'.partial',Boolean(opts.resume));
     try{for await(const record of records)await file.writeFile(canonicalJson(record)+'\n');await file.sync();}
     finally{await file.close();}
-    await promote(opts.out+'.partial',opts.out);process.stdout.write('Export complete.\n');return;
+    await promote(opts.out+'.partial',opts.out);
+    // The verified local archive is durable: acknowledge it and release the
+    // hosted job's snapshots/parts. Failed downloads keep their resumable job.
+    await get('exports/'+id+'/abort','POST',{});
+    process.stdout.write('Export complete.\n');return;
   }
   if(opts.command==='import') {
     const source=Readable.toWeb(createReadStream(opts.from));let id=opts.resume,closing;

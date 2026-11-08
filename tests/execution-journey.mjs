@@ -27,7 +27,7 @@ try{
  app=await executionRuntime(state,15476);
  const {ingestKey}=await app.json('/api/projects','POST',{id:'shop',name:'Harbor Shop'});
  await app.json(`${p}/releases`,'POST',r1);await app.json(`${p}/artifacts`,'POST',{release:r1.name,build:r1.build,debugId:'cart-map',map:fixture.broken});
- stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
+ stage='reproduce';const reproduced=await reproduceProof(app,fixture,ingestKey);results.reproduce=reproduced.outcomes;results.loadFailures=reproduced.loadFailures;results.probe=reproduced.probe;results.checks=reproduced.checks;results.tools=reproduced.tools;
  const agent=(await app.json(`${p}/keys`,'POST',{kind:'agent'})).key;
  for(const path of [`${p}/reproducers?issue=${reproduced.issue}`,`${p}/fixes?issue=${reproduced.issue}`]){const r=await fetch(app.origin+path,{headers:{Authorization:'Bearer '+agent}});assert.equal(r.status,403,'agent keys cannot read reproducers or fix workflows');await r.body?.cancel();}
  stage='baseline';await baseline(app,ingestKey,r1);
@@ -48,6 +48,9 @@ try{
  // The same reproducer against the fixed release: the fix's behaviour, checked independently.
  const fixedRun=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{release:r2.name});
  const ran=await runner(fixedRun.command);assert.equal(ran.code,0,ran.output);assert.match(ran.output,/^not_reproduced: The call returned string/m);results.fixedRelease=ran.output.trim();
+ const fixedRecord=(await app.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers.find(row=>row.id===reproduced.reproducer.id).runs.find(row=>row.id===fixedRun.run);
+ assert.deepEqual([fixedRecord.release,fixedRecord.state,fixedRecord.outcome,fixedRecord.observation.phase],[r2.name,'finished','not_reproduced','returned'],'only the loaded fixed-release call supplies the successful-return control');
+ assert.deepEqual(fixedRecord.checks.filter(check=>check.required).map(check=>[check.check,check.passed]),[['threw',false]],'the fixed call is checked against the captured failure');
  stage='exposure';const verdicts=await exposureVerdicts(app,ingestKey,{issue:reproduced.issue,id:awaiting.id,r2,fixture});
  results.tiny=(await verdicts.tiny()).reasons;results.low=(await verdicts.low()).reasons;const reached=await verdicts.reached();results.reached={reasons:reached.reasons,denominators:reached.denominators};
  stage='ui';browser=await launchBrowser();results.captures=await executionPanel(app,browser,directory,reproduced.issue,reproduced.reproducer);await browser.close();browser=null;
@@ -60,11 +63,12 @@ try{
  const pending=await app.json(`${p}/reproducers/${reproduced.reproducer.id}/runs`,'POST',{});
  const archive=await (await app.request('/api/archive')).text();
  assert.ok(/"kind":"fix_advanced"/.test(archive),'owner-triggered advances leave an audit row');
- const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,...row})=>row)});
+ const views=async runtime=>({reproducers:(await runtime.json(`${p}/reproducers?issue=${reproduced.issue}`)).reproducers,workflows:(await runtime.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.map(({connection,proofReference,...row})=>row)});
  const before=await views(app);
  restored=await executionRuntime(restoredState,15477,{GITHUB_CONNECTION:github.connection});await restored.json('/api/restore','POST',archive,{'X-Confirm-Restore':'yes'});
  const historical={reproducers:before.reproducers.map(row=>({...row,runs:row.runs.map(run=>({...run,historical:true}))})),workflows:before.workflows.map(row=>({...row,historical:true,status:'historical'}))};
  assert.deepEqual(await views(restored),historical,'all reproducer, run, workflow, receipt and exposure facts survive as inert history');
+ assert.ok((await restored.json(`${p}/fixes?issue=${reproduced.issue}`)).workflows.every(row=>row.proofReference===null),'Restored history never restores live repository proof');
  const restoredData=(await archiveProjection(await restored.request('/api/archive'))).data;
  assert.deepEqual(restoredData,(await archiveProjection(new Response(archive))).data,'every stored product row restores unchanged');
  const sourceToken=await fetch(restored.origin+new URL(pending.url).pathname,{headers:{Authorization:'Bearer '+pending.token}});assert.equal(sourceToken.status,401,'a queued source run token cannot claim restored work');await sourceToken.body?.cancel();
@@ -99,7 +103,7 @@ try{
  results.erasure={before:planted,after:await counts()};
  results.githubRequests=github.requests.map(r=>`${r.method} ${r.path} (${r.token})`);
  await writeFile(resolve(directory,'results.json'),JSON.stringify(results,null,2)+'\n');
- console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
+ console.log(`ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes ${Object.values(results.reproduce).join(',')}; module loading ${Object.entries(results.loadFailures).map(([name,run])=>`${name} ${run.state} ${run.outcome} ${run.phase}`).join(',')}; workflow ${results.awaitingConnection.status} then deployed; exposure ${Object.values(results.verdicts).join(',')}; ${results.captures.length} captures.`);
 }catch(error){console.error(JSON.stringify({journey:'execution',stage,message:error.message,stack:error.stack?.split('\n').filter(row=>row.includes('/tests/')).slice(0,4)}));process.exitCode=1;}
 finally{
  const outcomes=await Promise.allSettled([browser?.close(),app?.stop(),restored?.stop(),github?.stop()]);

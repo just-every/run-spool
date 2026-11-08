@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import {mappedFramesFlow} from './mapped-frames-flow.mjs';
 
-export async function fidelityFlow({req,json}) {
+export async function fidelityFlow({req,json,origin,cookie}) {
+ await mappedFramesFlow({req,json,origin,cookie});
  const project=await json('/api/projects','POST',{id:'fidelity',name:'Cedar checkout diagnostics'}),base='/api/projects/fidelity';
  await json(base+'/releases','POST',{name:'checkout@2.0.0',build:'web'});
  const dsn=new URL(project.dsn),path=`/api/${dsn.pathname.slice(1)}/envelope/?sentry_key=${dsn.username}&sentry_version=7`;

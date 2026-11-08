@@ -48,7 +48,7 @@ function RepairRecord({ project, repair, releases, busy, write, request }: { pro
   const label = `repair-${repair.id}`;
   return <article className="repair" aria-labelledby={label}>
     <h3 id={label}><a href={repair.link} target="_blank" rel="noopener noreferrer">{repair.link}</a></h3>
-    <p className="repair-meta">Recorded by the owner {date(repair.created)}. The link is shown as text you can open; Spool never fetches it.</p>
+    <p className="repair-meta">Recorded by {repair.recordedBy === 'owner' ? 'the owner' : repair.recordedBy} {date(repair.created)}. The link is shown as text you can open; Spool never fetches it.</p>
     {repair.note && <p>{repair.note}</p>}
     {repair.historical && <p className="callout">Restored history is preserved here. It does not establish current repair proof in this installation; record a new repair for current verification.</p>}
     <div className={`callout verdict ${o.verdict}`}><strong>{repair.historical ? 'Historical verdict' : 'Verdict'}: {verdicts[o.verdict] ?? o.verdict}</strong>

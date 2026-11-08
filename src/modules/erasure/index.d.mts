@@ -5,7 +5,7 @@ export type Edge = Match & { table: string; blob?: { bucket: string; keyColumn: 
 export type Redaction = Match & { table: string; set: Record<string, Cell>; reason: string };
 export interface AuditReference { table: string; column: string; of: string; where?: string; clear?: Record<string, Cell> }
 export interface Retained { table: string; reason: string }
-export type PolicyInput = { db: D1Database; subject: Key; label: string };
+export type PolicyInput = { db: D1Database; subject: Key; label: string; operation?: { id: string; at: string } };
 export type RootRedaction = { identityColumns?: string[]; set: Record<string, Cell> | ((input: { subject: Key; anonymousId: string }) => Record<string, Cell> | Promise<Record<string, Cell>>); reason: string };
 export interface Declaration {
   entity: string;

@@ -2,6 +2,9 @@ import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
 import {startTestWorker} from './worker.mjs';
+import {execFileSync} from 'node:child_process';
+import {readFile} from 'node:fs/promises';
+import {launchBrowser} from './browser-launch.mjs';
 import {signIn,authBindings,testSetupToken,testDevKey} from './auth.mjs';
 const worker=await startTestWorker(15468),origin=worker.origin;
 let failure;
@@ -14,7 +17,68 @@ try {
  const health=await (await fetch(origin+'/health')).json();assert.equal(health.status,'ok');assert.equal(health.ok,true);
  await assertLobby(await fetch(origin+'/',{redirect:'manual'}));
  // The public docs are built from the repository Markdown and served to everyone; unknown pages are 404.
- {const docs=await fetch(origin+'/docs');assert.equal(docs.status,200);const html=await docs.text();assert.ok(html.includes('href="/docs/install"')&&!html.includes('<script'));const page=await fetch(origin+'/docs/install');assert.equal(page.status,200);await page.body?.cancel();const missing=await fetch(origin+'/docs/missing-page');assert.equal(missing.status,404);await missing.body?.cancel();}
+ {
+  const docs=await fetch(origin+'/docs');assert.equal(docs.status,200);const html=await docs.text();assert.ok(html.includes('href="/docs/getting-started"')&&!html.includes('<script'));
+  for(const path of ['/docs/getting-started','/docs/install']){const page=await fetch(origin+path);assert.equal(page.status,200);await page.body?.cancel();}
+  const missing=await fetch(origin+'/docs/missing-page');assert.equal(missing.status,404);await missing.body?.cancel();
+  // Framework publication journey: follow the anonymous navigation and every guide anchor.
+  // Check usable setup instructions, not exact prose, and compare the article emitted by the public site build.
+  const guide=await fetch(origin+'/docs/framework-setup');assert.equal(guide.status,200);const guideHtml=await guide.text();assert.ok(!guideHtml.includes('<script'));
+  const head=await fetch(origin+'/docs/framework-setup',{method:'HEAD'});assert.equal(head.status,200);assert.equal(await head.text(),'');
+  execFileSync(process.execPath,['node_modules/@runeditrun/rer/bin/rer.mjs','build','--site'],{stdio:'pipe',timeout:120_000});
+  const staticHtml=await readFile('dist/site/docs/framework-setup.html','utf8');
+  const browser=await launchBrowser();
+  try{
+   const context=await browser.newContext({viewport:{width:1440,height:900},javaScriptEnabled:false});
+   try{
+    const page=await context.newPage();await page.goto(origin+'/docs');
+    await page.getByRole('navigation',{name:'Docs',exact:true}).getByRole('link',{name:'Framework setup',exact:true}).click();
+    assert.equal(new URL(page.url()).pathname,'/docs/framework-setup');
+    const article=page.locator('article');
+    const sections=[
+     ['React and Next.js',/spool-setup/,/Sentry\.init/,/VITE_SPOOL_DSN/],
+     ['Express',/@sentry\/node/,/setupExpressErrorHandler/,/dsn:\s*process\.env\.SPOOL_DSN/],
+     ['Django and FastAPI',/sentry-sdk\[django\]/,/sentry-sdk\[fastapi\]/,/dsn=os\.environ/],
+     ['Spring',/sentry-spring-boot-starter-jakarta/,/sentry\.dsn=\$\{SPOOL_DSN\}/],
+     ['Rails',/sentry-rails/,/config\.dsn\s*=\s*ENV/],
+     ['Laravel',/composer require sentry\/sentry-laravel/,/sentry:publish.*SPOOL_DSN/,/Integration::handles/],
+     ['ASP.NET Core',/dotnet add package Sentry\.AspNetCore/,/UseSentry/,/options\.Dsn\s*=/],
+    ];
+    for(const [name,...instructions] of sections){
+     await article.getByRole('link',{name,exact:true}).click();
+     const anchor=decodeURIComponent(new URL(page.url()).hash.slice(1));
+     const section=await page.evaluate(id=>{
+      const heading=document.getElementById(id);if(!heading||heading.tagName!=='H2')return null;
+      const nodes=[];for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)nodes.push(node);
+      return {title:heading.textContent,text:nodes.map(node=>node.textContent).join('\n'),code:nodes.flatMap(node=>[...node.querySelectorAll('pre code')].map(code=>code.textContent)).join('\n')};
+     },anchor);
+     assert.ok(section,`${name}: anchor reaches a framework section`);assert.equal(section.title,name);
+     assert.ok(section.code.length>0,`${name}: visible configuration examples`);
+     for(const instruction of instructions)assert.match(section.code,instruction,`${name}: install and DSN instructions are published`);
+     if(name==='Django and FastAPI')assert.match(section.text,/Python has no source maps/i);
+    }
+    await article.getByRole('link',{name:'JavaScript source-map step',exact:true}).click();
+    assert.equal(new URL(page.url()).hash,'#javascript-source-maps');
+    const maps=await page.locator('#javascript-source-maps').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});
+    for(const instruction of [/productionBrowserSourceMaps/,/spool-build\.mjs/,/spool-sourcemaps/,/--key-env SPOOL_DEPLOY_KEY/,/debug ID/])assert.match(maps,instruction);
+    await article.getByRole('link',{name:'tunnel replacement',exact:true}).click();
+    assert.equal(new URL(page.url()).hash,'#replace-tunnelroute');
+    const tunnel=await page.locator('#replace-tunnelroute').evaluate(heading=>{let text='';for(let node=heading.nextElementSibling;node&&node.tagName!=='H2';node=node.nextElementSibling)text+=node.textContent+'\n';return text;});
+    for(const instruction of [/tunnelRoute/,/hosted ingest/,/cannot send to Spool/,/tunnel: '[/]monitoring'/,/spoolTunnelRoute/,/nodeTunnel/])assert.match(tunnel,instruction);
+    // Every link into a published document must resolve anonymously and keep its target anchor.
+    const links=await article.locator('a').evaluateAll(links=>links.map(link=>link.getAttribute('href')));
+    for(const href of new Set(links.filter(href=>href.startsWith('/docs')))){
+     const url=new URL(href,origin),response=await fetch(url);assert.equal(response.status,200,href);
+     const linked=await response.text();if(url.hash)assert.ok(linked.includes(`id="${url.hash.slice(1)}"`),href);
+    }
+    const liveArticle=await article.innerHTML();
+    await page.setContent(staticHtml);
+    assert.equal(await page.locator('article').innerHTML(),liveArticle,'generated static HTML publishes the complete same guide');
+    assert.equal(await page.getByRole('navigation',{name:'Docs',exact:true}).getByRole('link',{name:'Framework setup',exact:true}).getAttribute('aria-current'),'page');
+    console.log('PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.');
+   }finally{await context.close();}
+  }finally{await browser.close();}
+ }
  for(const path of ['/app','/setup','/projects','/projects/synthetic-project','/projects/synthetic-project/releases/web@1.2.0','/projects/synthetic-project/releases/setup/source-maps']){const response=await fetch(origin+path,{redirect:'manual'});assert.equal(response.status,303);const destination=new URL(response.headers.get('location'),origin);assert.equal(destination.pathname,'/sign-in');assert.equal(destination.searchParams.get('returnTo'),path);}
  for(const path of ['/missing','/health/extra'])assert.equal((await fetch(origin+path,{redirect:'manual'})).status,404);
  for(const path of ['/api','/api/missing','/api/projects','/api/archive'])assert.equal((await fetch(origin+path)).status,401);
