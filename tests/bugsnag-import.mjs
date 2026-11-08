@@ -77,8 +77,9 @@ export async function bugsnagMigrationFlow(){
    await page.setViewportSize({width,height:1000});
    for(const [name,project,issue,expected] of [['imported-android',android.id,importedIssues[1].issue.id,'com.synthetic.CheckoutActivity.submit'],['native-cutover',android.id,nativeCutover.issue,'com.synthetic.MainActivity.crash']]){
     await page.goto(`${origin}/projects/${project}/issues/${issue}`);await page.getByText(expected,{exact:true}).first().waitFor();
-    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'native stack fits viewport');
     await page.screenshot({path:`.artifacts/bugsnag/${name}-${width}.png`,fullPage:true});
+    const overflow=await page.locator('body *').evaluateAll(elements=>elements.filter(e=>e.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(e=>({tag:e.tagName,class:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})));
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${name} at ${width} fits viewport: ${JSON.stringify(overflow)}`);
    }
   }
   await browser.close();browser=null;

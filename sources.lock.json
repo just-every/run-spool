@@ -3746,7 +3746,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "1ff7b5deceecc6fde03f0156cd6f0e827fea8e252190f39725133de0f0c229b8",
+      "sha256": "c35f3e28b2ef8545cfab03ac24799f5b848a1c8be5195ea812a4421773ed56ef",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -10702,7 +10702,7 @@
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "18b84fb58419e9065b5edf49521d67c1712b85e88de420744797ae42edf26098",
+      "sha256": "61accf7b8858f4388d34488dbdc961fc1e05e4dca8eb330936e8c8429a5707cf",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
