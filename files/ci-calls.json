@@ -1,0 +1,72 @@
+[
+  {
+    "timestamp": "2026-11-08T11:19:05.172586+00:00",
+    "started_unix": 1794136744.7131255,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=45270b7ef7f2eb7e88c8685038a7615ef923b6eb&per_page=100"
+    ],
+    "exit": 0
+  },
+  {
+    "timestamp": "2026-11-08T11:24:05.280796+00:00",
+    "started_unix": 1794137044.7137382,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-spool/actions/runs/42475028293/jobs?per_page=100",
+      "--jq",
+      "{jobs: [.jobs[] | {id,name,status,conclusion,steps: [.steps[] | {name,status,conclusion,number}]}]}"
+    ],
+    "exit": 0
+  },
+  {
+    "timestamp": "2026-11-08T11:29:06.812130+00:00",
+    "started_unix": 1794137344.7152796,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42475028293",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128714401322",
+      "--log-failed"
+    ],
+    "exit": 0
+  },
+  {
+    "timestamp": "2026-11-08T11:34:05.542468+00:00",
+    "started_unix": 1794137644.7161431,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42475028293",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128714552415",
+      "--log-failed"
+    ],
+    "exit": 0
+  },
+  {
+    "timestamp": "2026-11-08T11:39:05.580108+00:00",
+    "started_unix": 1794137944.7169638,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42475028293",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "128714567856",
+      "--log-failed"
+    ],
+    "exit": 0
+  }
+]

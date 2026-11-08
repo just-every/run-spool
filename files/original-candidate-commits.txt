@@ -1,0 +1,17 @@
+7416c9367e8798c77ceb5de0e6912edcc20a1fc7 2e8987e6f6c25b617758d1b8938fa037eb97aa16 c7ab9104568557e0c481dd8a934ceef84ec2a2bc
+Merge current main and regenerate the edition source lock
+
+2e8987e6f6c25b617758d1b8938fa037eb97aa16 d1cf22affc92800bfd28ce19ddf9b090e510134e
+test: preserve every widget association when its target changes
+
+d1cf22affc92800bfd28ce19ddf9b090e510134e 08c0d53d2551df72a6389aa3724ca01565204ca9
+Exercise widget target changes within each reload round [skip ci]
+
+08c0d53d2551df72a6389aa3724ca01565204ca9 44730816b6d38bca3ff020133ed6ca6fb6b4da99
+Reconcile widget acknowledgements with retained feedback
+
+44730816b6d38bca3ff020133ed6ca6fb6b4da99 6806ef83d218dab5e368c5ad7612f3f33c9816a0
+Qualify real Sentry widget feedback associations
+
+Reconcile SDK-produced report identities and descriptions with the exact retained error occurrence, issue reads and accepted quantities across reloads. Keep SDK-004 partial with its broader feedback gaps unchanged.
+

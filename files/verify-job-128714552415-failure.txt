@@ -1,0 +1,2 @@
+Command: gh run view 42475028293 --repo just-every/run-spool --job 128714552415 --log-failed
+shards (spool)	Require every job in this coverage partition	2026-11-08T11:17:45.6484339Z ##[error]Process completed with exit code 1.

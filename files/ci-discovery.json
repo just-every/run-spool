@@ -1,0 +1,12 @@
+[
+  {
+    "id": 42475028293,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+    "head_branch": "cloud/sd-spool-c-f121-rb2",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42475028293",
+    "path": ".github/workflows/verify.yml"
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "head": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+  "base": "d9ce1390bbf7b98783b9ff7bdad5a6fae973078b",
+  "mechanical": [
+    {
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "counts_before": [
+    "| Core | 22 | 44 | 21 | 87 |",
+    "| Agent surface | 0 | 8 | 10 | 18 |",
+    "| Full target | 22 | 52 | 31 | 105 |"
+  ],
+  "counts_after": [
+    "| Core | 22 | 44 | 21 | 87 |",
+    "| Agent surface | 0 | 8 | 10 | 18 |",
+    "| Full target | 22 | 52 | 31 | 105 |"
+  ],
+  "status_change": "SDK-004 partial -> partial; all 105 statuses unchanged",
+  "contract_other_lines_identical": true,
+  "browser_files_identical_to_original": true,
+  "generated_views_committed": false,
+  "retained_replay_commits": 1,
+  "timestamp": "2026-11-08T11:12:47.707077+00:00"
+}

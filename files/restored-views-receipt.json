@@ -1,0 +1,6 @@
+{
+  "command": "node src/base/contract-docs.mjs check",
+  "exit": 1,
+  "context": "After generated views were restored from origin/main, as required by the task",
+  "generated_views_committed": false
+}

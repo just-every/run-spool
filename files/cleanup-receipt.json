@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-11-08T11:34:52.195529+00:00",
+  "node_modules_removed": true,
+  "product_checkout_clean": true,
+  "fixture_processes_finished": true,
+  "clone_exists_for_evidence_publication": true,
+  "clone_cleanup": "Remove the disposable clone immediately after successful evidence publication; product SHA already verified on the remote."
+}

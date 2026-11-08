@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f121-rb2",
+  "head": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+  "product_custody": "PUSHED, exact remote SHA verified",
+  "ready": "READY under the explicit generated-view-only exception",
+  "workflow_status": {
+    "id": 42475028293,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+    "head_branch": "cloud/sd-spool-c-f121-rb2",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42475028293",
+    "path": ".github/workflows/verify.yml"
+  },
+  "root_failure": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+  "downstream_failures": [
+    {
+      "id": 128714552415,
+      "name": "shards (spool)"
+    },
+    {
+      "id": 128714567856,
+      "name": "verify"
+    }
+  ],
+  "archive_reads_once_per_failed_job": true,
+  "github_calls_used": 5,
+  "github_call_budget": 10,
+  "min_seconds_between_calls": 300.0006127357483,
+  "local_checks": [
+    {
+      "name": "current main dependencies",
+      "command": "cloud_run timeout 600 pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "name": "setup",
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "name": "build",
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "name": "typecheck",
+      "command": "cloud_run timeout 300 pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "name": "first-party",
+      "command": "cloud_run timeout 300 pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "name": "integration",
+      "command": "cloud_run timeout 180 pnpm integration:check",
+      "exit": 0
+    },
+    {
+      "name": "base integrity",
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "name": "SDK browser runtime proof",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout --kill-after=10s 600 node --experimental-strip-types /tmp/sd-spool-sdk-probe.mjs",
+      "exit": 0
+    }
+  ],
+  "mechanical": {
+    "schema": 1,
+    "head": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+    "base": "d9ce1390bbf7b98783b9ff7bdad5a6fae973078b",
+    "mechanical": [
+      {
+        "command": "node src/base/contract-docs.mjs write",
+        "exit": 0
+      },
+      {
+        "command": "node src/base/contract-docs.mjs check",
+        "exit": 0
+      },
+      {
+        "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+        "exit": 0
+      },
+      {
+        "command": "node scripts/edition-authoring/cli.mjs lock",
+        "exit": 0
+      },
+      {
+        "command": "node scripts/edition-authoring/cli.mjs check",
+        "exit": 0
+      }
+    ],
+    "counts_before": [
+      "| Core | 22 | 44 | 21 | 87 |",
+      "| Agent surface | 0 | 8 | 10 | 18 |",
+      "| Full target | 22 | 52 | 31 | 105 |"
+    ],
+    "counts_after": [
+      "| Core | 22 | 44 | 21 | 87 |",
+      "| Agent surface | 0 | 8 | 10 | 18 |",
+      "| Full target | 22 | 52 | 31 | 105 |"
+    ],
+    "status_change": "SDK-004 partial -> partial; all 105 statuses unchanged",
+    "contract_other_lines_identical": true,
+    "browser_files_identical_to_original": true,
+    "generated_views_committed": false,
+    "retained_replay_commits": 1,
+    "timestamp": "2026-11-08T11:12:47.707077+00:00"
+  },
+  "blockers": [],
+  "pr_url": null,
+  "landing_claim": false,
+  "evidence_publication": "Separate report-only evidence ref; terminal EVIDENCE line supplies its exact ref/head",
+  "timestamp": "2026-11-08T11:39:29.979169+00:00"
+}

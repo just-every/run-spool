@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "head": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+  "checks": [
+    {
+      "name": "current main dependencies",
+      "command": "cloud_run timeout 600 pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "name": "setup",
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "name": "build",
+      "command": "cloud_run timeout 600 npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "name": "typecheck",
+      "command": "cloud_run timeout 300 pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "name": "first-party",
+      "command": "cloud_run timeout 300 pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "name": "integration",
+      "command": "cloud_run timeout 180 pnpm integration:check",
+      "exit": 0
+    },
+    {
+      "name": "base integrity",
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "name": "SDK browser runtime proof",
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run timeout --kill-after=10s 600 node --experimental-strip-types /tmp/sd-spool-sdk-probe.mjs",
+      "exit": 0
+    }
+  ],
+  "browser": "Chromium /usr/bin/chromium with --no-sandbox",
+  "node": "24.19.0",
+  "pnpm": "10.12.4",
+  "fixture_launcher": "Disposable .mjs file importing tests/sentry-sdk.mjs; --experimental-strip-types; no --input-type=module",
+  "probes": [
+    "PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 1440 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4",
+    "PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 390 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4"
+  ],
+  "whole_sentry_sdk_suite_passed": true
+}

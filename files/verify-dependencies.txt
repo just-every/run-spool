@@ -1,0 +1,56 @@
+Public workflow source at product head 45270b7ef7f2eb7e88c8685038a7615ef923b6eb
+
+417:   shards:
+418:     # Preserve Spool's existing runtime and test matrices beneath one push proof.
+419:     # Base's planner checks these exact names before reusing complete coverage.
+420:     name: shards (${{ matrix.name }})
+421:     needs: [plan, build, runtimes, tests, commands]
+422:     if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.has_shards == 'true' }}
+423:     runs-on: ubuntu-24.04
+424:     timeout-minutes: 1
+425:     strategy:
+426:       fail-fast: false
+427:       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+428:     steps:
+429:       - name: Require every job in this coverage partition
+430:         env:
+431:           SHARD: ${{ matrix.name }}
+432:           BUILD: ${{ needs.build.result }}
+433:           RUNTIMES: ${{ needs.runtimes.result }}
+434:           TESTS: ${{ needs.tests.result }}
+435:           COMMANDS: ${{ needs.commands.result }}
+436:         run: |
+437:           set -euo pipefail
+438:           case "$SHARD" in
+439:             spool) test "$BUILD" = success && test "$RUNTIMES" = success && test "$TESTS" = success ;;
+440:             commands) test "$COMMANDS" = success ;;
+441:             *) exit 1 ;;
+442:           esac
+491:   verify:
+492:     needs: [plan, shards, light, full-push-proof, nightly-proof]
+493:     if: ${{ always() }}
+494:     runs-on: ubuntu-24.04
+495:     timeout-minutes: 1
+496:     steps:
+497:       - name: Require the selected coverage and its proof
+498:         env:
+499:           PLAN: ${{ needs.plan.result }}
+500:           SHARDS: ${{ needs.shards.result }}
+501:           LIGHT: ${{ needs.light.result }}
+502:           PUSH_PROOF: ${{ needs.full-push-proof.result }}
+503:           NIGHTLY_PROOF: ${{ needs.nightly-proof.result }}
+504:           COVERAGE: ${{ needs.plan.outputs.coverage }}
+505:           HAS_SHARDS: ${{ needs.plan.outputs.has_shards }}
+506:           SKIP: ${{ needs.plan.outputs.skip }}
+507:         run: |
+508:           set -euo pipefail
+509:           test "$PLAN" = success
+510:           case "$PUSH_PROOF:$NIGHTLY_PROOF" in
+511:             *failure*|*cancelled*) exit 1 ;;
+512:           esac
+513:           case "$COVERAGE" in
+514:             reuse) test "$SKIP" = true && test "$SHARDS" = skipped && test "$LIGHT" = skipped ;;
+515:             light) test "$SKIP" = false && test "$LIGHT" = success && test "$SHARDS" = skipped ;;
+516:             full) test "$LIGHT" = skipped && { test "$SHARDS" = success || { test "$HAS_SHARDS" = false && test "$SHARDS" = skipped; }; } ;;
+517:             *) exit 1 ;;
+518:           esac

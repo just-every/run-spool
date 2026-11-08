@@ -1,0 +1,11 @@
+Command: gh run view 42475028293 --repo just-every/run-spool --job 128714401322 --log-failed
+build	Check source and portable contract	2026-11-08T11:17:35.6079248Z [36;1mnode src/base/contract-docs.mjs check[0m
+build	Check source and portable contract	2026-11-08T11:17:38.3736953Z     "ACCEPTANCE.md": {
+build	Check source and portable contract	2026-11-08T11:17:38.3805851Z     "docs/CLAIMS.md": {
+build	Check source and portable contract	2026-11-08T11:17:38.3922704Z     "docs/retained-verification/ai005/grouping-proposal-stale-1440.jpg": {
+build	Check source and portable contract	2026-11-08T11:17:38.3924721Z     "docs/retained-verification/ai005/grouping-proposal-stale-390.jpg": {
+build	Check source and portable contract	2026-11-08T11:17:38.4600493Z     "src/base/contract-docs.mjs": {
+build	Check source and portable contract	2026-11-08T11:17:38.4915304Z     "src/foundation/runtime/CONTRACT-DOCS.md": {
+build	Check source and portable contract	2026-11-08T11:17:38.4916248Z     "src/foundation/runtime/contract-docs.mjs": {
+build	Check source and portable contract	2026-11-08T11:17:38.5804127Z ACCEPTANCE.md: generated content differs; run contract-docs write.
+build	Check source and portable contract	2026-11-08T11:17:38.5815777Z ##[error]Process completed with exit code 1.

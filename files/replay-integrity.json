@@ -1,0 +1,26 @@
+{
+  "original_candidate_head": "7416c9367e8798c77ceb5de0e6912edcc20a1fc7",
+  "original_unique_history_commits": 5,
+  "retained_replay_commits": 1,
+  "sdk004_row_matches_original_candidate": true,
+  "main_is_ancestor": true,
+  "generated_views_unchanged_from_main": true,
+  "all_product_files": [
+    {
+      "path": "CONTRACT.md",
+      "blob": "16eeace7b6578558be99193de7d7e938c89c12a4"
+    },
+    {
+      "path": "sources.lock.json",
+      "blob": "28d5bde1a753f3591421e22488f5846a66760864"
+    },
+    {
+      "path": "tests/runtimes/browser.mjs",
+      "blob": "58a87a2dbb4f485392b7547afac92a4db0254a2d"
+    },
+    {
+      "path": "tests/runtimes/browser/app.js",
+      "blob": "b611ff519e94f1f4abc6193ee0994d95f7d3fcaf"
+    }
+  ]
+}

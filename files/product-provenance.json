@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f121-rb2",
+  "head": "45270b7ef7f2eb7e88c8685038a7615ef923b6eb",
+  "base": "d9ce1390bbf7b98783b9ff7bdad5a6fae973078b",
+  "original": "7416c9367e8798c77ceb5de0e6912edcc20a1fc7",
+  "commits": [
+    "45270b7ef7f2eb7e88c8685038a7615ef923b6eb"
+  ],
+  "tracked_clean": true,
+  "source_lock_sha256": "d33d7b0fb3b3da704ecf521e2337fd883e9565bd9a23c926f231e6028368f161",
+  "changed_files": [
+    "CONTRACT.md",
+    "sources.lock.json",
+    "tests/runtimes/browser.mjs",
+    "tests/runtimes/browser/app.js"
+  ]
+}
