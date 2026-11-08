@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import type { Edge } from '../../modules/erasure/index.mjs';
 import { nativeProject } from '../sentry-import/mapping';
+import { parseBugsnagOrganization } from '../bugsnag-import/source';
 import { parseSentryOrganization, sourceText } from '../sentry-import/source';
 import { sha256 } from '../../modules/import-kit/src/provenance/identity';
 
@@ -28,7 +29,13 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
    });
    const bytes=Buffer.concat(parts);
    if(bytes.length!==held.total_bytes||sha256(bytes)!==held.bundle_sha256)throw new Error('Unverified bundle');
-   const records=parseSentryOrganization(JSON.parse(bytes.toString('utf8')));
+   const bundle=JSON.parse(bytes.toString('utf8'));
+   if(bundle.format==='spool-bugsnag-org-export'){
+    const records=parseBugsnagOrganization(bundle);
+    for(const record of records.filter(r=>r.kind==='projects'))remember(nativeProject(bundle.organization.id,(record.payload as any).data.id,'bugsnag'));
+    return;
+   }
+   const records=parseSentryOrganization(bundle);
    const organization=(records[0].payload as any).organization.slug,projects=new Set<string>();
    let uncertain=false;
    for(const record of records) {

@@ -1,3 +1,4 @@
+import { createNativeDiagnoser, isJava } from './native-symbols/diagnose';
 import { sourceDiagnostics } from './path-mappings';
 import { AnyMap, originalPositionFor, decodedMappings, traceSegment } from '@jridgewell/trace-mapping';
 import { scrub, type Envelope, type Frame } from './privacy';
@@ -53,6 +54,7 @@ export async function diagnose(db:D1Database, project:string, event:Envelope): P
 // Share only reads started by this diagnosis operation (or packet request).
 // A new caller gets fresh artifact state, including maps uploaded since its last read.
 export function createDiagnoser(db:D1Database, project:string) {
+  const nativeDiagnose = createNativeDiagnoser(db,project);
   const artifacts = new Map<string, Promise<any>>();
   const identities = new Map<string, Promise<any>>();
   const scopes = new Map<string, FunctionScopes>();
@@ -74,6 +76,7 @@ export function createDiagnoser(db:D1Database, project:string) {
   };
   return async (event:Envelope, frames:Frame[]=event.frames): Promise<any[]> => {
     if (event.language) return sourceDiagnostics(db,project,event);
+    if (isJava(event)) return nativeDiagnose(event,frames);
     const results=[];
     for(const frame of frames){results.push(await (async()=>{
       // Without a debug ID, a release/dist artifact named by the frame's file URL (`~/static/app.js`) identifies the map.

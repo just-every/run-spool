@@ -1,3 +1,5 @@
+import { nativeSymbolTables } from './native-symbols/archive';
+import { previousNativeSymbolObjects } from './native-symbols/compat';
 import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
 import { keyRateTables } from './key-rate-limits/model';
 import {ensureIssuePriorities} from './issue-priority/model';
@@ -216,6 +218,8 @@ laterTables.unshift({tables:[],migrations:['0089_key_rate_limits.sql']});
 const agentMigrations=['0099_agent_custody_replay_relay.sql','0098_agent_door.sql','0090_business_settings.sql','0097_business_people.sql','0091_native_agent_attribution.sql','0092_agent_runner_custody.sql','0093_native_agent_repository_consent.sql','0094_repository_proof_reference.sql','0095_agent_erasure_custody.sql','0096_native_action_actor_links.sql'];
 for(const later of laterTables)later.migrations.push(...agentMigrations);
 laterTables.unshift({tables:[],migrations:agentMigrations});
+for(const later of laterTables){later.tables.push(...Object.keys(nativeSymbolTables));later.migrations.push('0100_native_symbols.sql')}
+laterTables.unshift({tables:Object.keys(nativeSymbolTables),migrations:['0100_native_symbols.sql']});
 // Match the exact archive inventory from before native attribution was added.
 // Current archives retain and validate their declared attribution columns.
 function beforeAgentAttribution(table:any,manifest:any){
@@ -255,7 +259,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(current.schemaObjects))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousNativeSymbolObjects(current.schemaObjects,manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.

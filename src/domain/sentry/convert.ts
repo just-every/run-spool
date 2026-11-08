@@ -16,6 +16,7 @@ export function convertSentry(value: WireObject, envelopeId?: unknown,identityRe
 function convertEvent(value: WireObject, envelopeId?: unknown,identityReason?:string,sampleRate?:number): Envelope {
  if(value.type!==undefined&&!isErrorEventType(value.type))throw new SentryWireError('unsupported_event_type',422);
  const language=['python','go'].includes(value.platform)?value.platform:undefined;
+ const nativeJava=['java','android'].includes(value.platform);
  // sentry-cli send-event writes the canonical hyphenated UUID; it names the same 128-bit identity as 32 hex digits.
  const plain=(id:unknown)=>typeof id==='string'&&/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(id)?id.replaceAll('-',''):id;
  const eventId=plain(value.event_id??envelopeId);
@@ -34,11 +35,11 @@ function convertEvent(value: WireObject, envelopeId?: unknown,identityReason?:st
  const frames:Frame[]=[];
  for(const frame of [...stack?.frames??[]].reverse()){
   const path=frame.abs_path??frame.filename;
-  if(typeof path!=='string'||!Number.isSafeInteger(frame.lineno)||frame.lineno!<1||frame.lineno!>1e7||(!language&&(!Number.isSafeInteger(frame.colno)||frame.colno!<1||frame.colno!>1e7)))continue;
+  if(typeof path!=='string'||!Number.isSafeInteger(frame.lineno)||frame.lineno!<1||frame.lineno!>1e7||(!language&&!nativeJava&&(!Number.isSafeInteger(frame.colno)||frame.colno!<1||frame.colno!>1e7)))continue;
   const matches=images.filter((image:any)=>image?.type==='sourcemap'&&image.code_file===path) as any[];
   if(new Set(matches.map(image=>image.debug_id)).size>1)throw new SentryWireError('conflicting_debug_ids');
   const debugId=matches[0]?.debug_id;
-  frames.push({file:path,line:frame.lineno!,column:frame.colno==null?null:frame.colno-1,function:frame.function??'<anonymous>',...(typeof debugId==='string'?{debugId}:{})});
+  frames.push({file:path,line:frame.lineno!,column:frame.colno==null?null:frame.colno-1,function:nativeJava&&frame.module&&frame.function&&!frame.function.startsWith(frame.module+'.')?`${frame.module}.${frame.function}`:frame.function??'<anonymous>',...(typeof debugId==='string'?{debugId}:{})});
   if(frames.length===30)break;
  }
  const breadcrumbs=(sentry.breadcrumbs??[]).filter(crumb=>typeof crumb.message==='string').slice(-20).map(crumb=>`${typeof crumb.category==='string'?crumb.category.slice(0,100)+': ':''}${crumb.message}`);

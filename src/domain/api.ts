@@ -68,6 +68,7 @@ import { PortabilityError } from '../modules/portability/index.mjs';
 import { authorizeIngest, admitEvent, recordIngest, ingestFailure } from './admission';
 import { nativeBody } from './native-wire';
 import deployRoutes from './sentry/deploy-routes';
+import nativeSymbolRoutes from './native-symbols/routes';
 import sentryCliRoutes from './sentry-cli/routes';
 import { sentryUploadRoutes } from './sentry-cli/owner';
 import sentryRoutes from './sentry/routes';
@@ -153,6 +154,7 @@ api.post('/api/ingest/:project',async c=>{
   }catch(error){try{await recordIngest(c,auth.scope,'invalid')}catch(failure){return ingestFailure(c,auth.scope,failure)}return ingestRejection(c,c.json({outcome:'rejected',reason:scrub((error as Error).message)},400))}
 });
 api.route('/api/projects',deployRoutes);
+api.route('/api/projects',nativeSymbolRoutes);
 api.route('/api/0',sentryCliRoutes);
 api.route('/api/projects',deploymentHistoryRoutes);
 api.route('/api',sentryRoutes);

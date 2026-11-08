@@ -2,7 +2,7 @@ import { ownerProjectRouter, ownerWrites, jsonBody } from './owner-router';
 import { auditCommit } from './audit/context';
 export async function artifactStorage(db:D1Database, project:string) {
  const setting=await db.prepare('SELECT artifact_storage_cap,revision FROM artifact_storage_settings WHERE project=?').bind(project).first<{artifact_storage_cap:number|null;revision:number}>();
- const usage=await db.prepare('SELECT COUNT(*) count,COALESCE(SUM(length(CAST(payload AS BLOB))),0) bytes FROM artifacts WHERE project=?').bind(project).first<{count:number;bytes:number}>();
+ const usage=await db.prepare('SELECT COUNT(*) count,COALESCE(SUM(length(CAST(payload AS BLOB))),0) bytes FROM (SELECT payload FROM artifacts WHERE project=? UNION ALL SELECT payload FROM native_symbols WHERE project=?)').bind(project,project).first<{count:number;bytes:number}>();
  return {...{artifact_storage_cap:null,revision:0},...setting,...usage};
 }
 export async function artifactCapReason(db:D1Database, project:string) {

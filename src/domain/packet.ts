@@ -21,6 +21,12 @@ const EVENT_LIMIT = 10;
 const query = (db: D1Database, sql: string, ...args: any[]) => db.prepare(sql).bind(...args);
 type Gap = { code: string; reason: string; [key: string]: unknown };
 const reasons: Record<string, string> = {
+ missing_native_symbols: 'No Android ProGuard/R8 mapping is stored for this exact project, release and build.',
+ native_symbol_identity_mismatch: 'Android symbols exist for this release, but the build differs from this event.',
+ native_symbol_unmapped: 'The Android mapping has no method and line range for this obfuscated frame.',
+ native_symbol_ambiguous: 'The Android mapping does not establish a unique original method and line; inlining or omitted ranges remain unresolved.',
+ native_symbol_source_unavailable: 'The Android mapping lacks source-file metadata; an original filename has not been inferred.',
+ invalid_native_symbols: 'The stored Android mapping could not be read for this frame.',
  python_source: 'Python file, line and function are reported source coordinates; source content and symbolication are unavailable.',
  go_path_mapped: 'This is owner-recorded repository path mapping only. Go binary/DWARF symbolication and source content are unavailable.',
  go_mapping_unavailable: 'No repository path mapping is recorded for this exact project, release, build and environment. Go binary/DWARF symbolication is unavailable.',
@@ -42,10 +48,10 @@ function eventGaps(events: any[]): Gap[] {
    const changes = event.currentLookup.map((frame: any, index: number) => {
     const admitted = event.atAdmission[index];
     if (canonical(frame) === canonical(admitted)) return 'unchanged';
-    return frame.status === 'mapped' && ['missing_artifact', 'identity_mismatch', 'unmapped_position', 'invalid_artifact'].includes(admitted?.status)
+    return frame.status === 'mapped' && ['missing_artifact', 'identity_mismatch', 'unmapped_position', 'invalid_artifact','missing_native_symbols','native_symbol_identity_mismatch','native_symbol_unmapped','native_symbol_ambiguous','native_symbol_source_unavailable','invalid_native_symbols'].includes(admitted?.status)
      && canonical(frame.generated) === canonical(admitted.generated) ? 'mapped' : 'changed';
    });
-   if (changes.includes('mapped')) gaps.push({ code: 'late_map', reason: 'The current source-map lookup resolves a frame that was missing, mismatched, unmapped or invalid at admission; atAdmission remains the original evidence snapshot.', event: event.id });
+   if (changes.includes('mapped')) gaps.push({ code: 'late_map', reason: 'The current source or native-symbol lookup resolves a frame that was missing, mismatched, unmapped or invalid at admission; atAdmission remains the original evidence snapshot.', event: event.id });
    if (changes.includes('changed') || event.atAdmission.length !== event.currentLookup.length) gaps.push({ code: 'lookup_changed', reason: 'The current source lookup differs from the unchanged atAdmission snapshot. Available artifacts, recorded path mappings or lookup diagnostics may differ.', event: event.id });
   }
   return gaps;

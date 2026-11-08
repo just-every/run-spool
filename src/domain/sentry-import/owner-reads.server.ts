@@ -4,6 +4,7 @@ import { DoorError } from '../../modules/import-kit/src/door/protocol.ts';
 import { authorized, erasedSince, loadSnapshot, planRow } from '../../modules/import-kit/src/door/store.ts';
 import { readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';
 import { attachmentHash, canonicalJson, sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
+import { bugsnagReport } from '../bugsnag-import/report';
 import { recordLabel, snapshotOrganization } from './read-labels';
 import { importReadReasons, rejectionReasonCode, unknownJobTimes } from './read-reasons';
 
@@ -64,7 +65,7 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
  const organization = snapshot ? snapshotOrganization(snapshot) : null;
  const rejected = snapshot?.plan.entries.filter(e => e.rejection).map(entry => ({kind:entry.source.kind,sourceId:entry.source.sourceId,
   reason:entry.rejection!, reasonCode:rejectionReasonCode(entry.rejection!), ...recordLabel(entry.source,snapshot!)})) ?? null;
- const details = {organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
+ const details = {...snapshot?{bugsnag:bugsnagReport(snapshot)}:{},organization, organizationReasonCode:organization === null ? (snapshot ? 'organization_unavailable' : 'snapshot_withdrawn') : null,
   projectIds, projectIdsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   rejected, rejectedReasonCode:snapshot ? null : 'snapshot_withdrawn',

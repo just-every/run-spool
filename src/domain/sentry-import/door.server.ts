@@ -14,6 +14,7 @@ import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
 import { ensureShortIds } from '../short-ids/assign';
 import type { OwnerSession } from '../owner-authority';
+import { bugsnagImport } from '../bugsnag-import/door';
 import { ownerReadResponse } from './owner-reads.server';
 
 /** Spool's one import pipeline: the owner's Sentry importer (owner session,
@@ -57,6 +58,10 @@ function sentryImport(organization?: string): ImportDoorSource {
  * their status, reconcile, undo and catch-up. Anything else is refused. */
 export async function importSource(db: D1Database, key: string, name: string): Promise<ImportDoorSource | null> {
  // RER's Business export names the vendor: one `sentry` namespace per installation.
+ if (name === 'bugsnag') return bugsnagImport();
+ if (name.startsWith('bugsnag-org:')) {
+  try { return bugsnagImport(sourceText(name.slice('bugsnag-org:'.length),'organization')); } catch { return null; }
+ }
  if (name === 'sentry') return sentryImport();
  if (name.startsWith(namespacePrefix)) {
   try { return sentryImport(sourceText(name.slice(namespacePrefix.length), 'organization')); } catch { return null; }

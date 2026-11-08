@@ -15,16 +15,17 @@ export function recordLabel(record: SourceRecord, snapshot: DoorSnapshot) {
  const payload = record.payload as any, data = payload?.data;
  let value: unknown;
  if (record.kind === 'projects') value = data?.name;
- if (record.kind === 'releases') value = data?.version;
  if (record.kind === 'issues') value = data?.title;
+ if (record.kind === 'errors') value = data?.message;
+ if (record.kind === 'releases') value = data?.version ?? data?.app_version;
  if (record.kind === 'events') {
-  const issue = snapshot.plan.source.records.find(r => r.kind === 'issues' && (r.payload as any)?.project === payload?.project && (r.payload as any)?.data?.id === data?.groupID);
-  value = data?.title ?? (issue?.payload as any)?.data?.title;
+  const issue = snapshot.plan.source.records.find(r => ['issues','errors'].includes(r.kind) && (r.payload as any)?.project === payload?.project && (r.payload as any)?.data?.id === (data?.groupID ?? data?.error_id));
+  value = data?.title ?? ((issue?.payload as any)?.data?.title ?? (issue?.payload as any)?.data?.message);
  }
  const label = safeImportLabel(value);
  return {label, labelReasonCode:label === null ? 'record_label_unavailable' : null};
 }
 export function snapshotOrganization(snapshot: DoorSnapshot) {
  const manifest = snapshot.plan.source.records.find(r => r.kind === 'manifest');
- return safeImportLabel((manifest?.payload as any)?.organization?.slug);
+ return safeImportLabel((manifest?.payload as any)?.organization?.slug ?? (manifest?.payload as any)?.organization?.name);
 }

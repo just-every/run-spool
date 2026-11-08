@@ -32,6 +32,7 @@ export function client(value: unknown): string { if (typeof value !== 'string' |
 export function normalize(v: any): Envelope {
   if (!v || (v.language !== undefined && !['javascript','python','go'].includes(v.language))) throw new Error('Unsupported language');
   const language = v.language === 'javascript' ? undefined : v.language;
+  const nativeJava = ['java','android'].includes(v.sentry?.platform);
   const stack = Object.hasOwn(v, 'stack');
   if (stack) {
     const {stack: text, ...rest} = v;
@@ -49,7 +50,7 @@ export function normalize(v: any): Envelope {
   if (v.dropped !== undefined && (!Number.isSafeInteger(v.dropped) || v.dropped < 1 || v.dropped > 1e9)) throw new Error('Invalid dropped count');
   if ((v.breadcrumbs ?? []).length > 20 || (v.breadcrumbs ?? []).some((b:any)=>typeof b!=='string')) throw new Error('Invalid breadcrumbs');
   return { version: 1, ...(language ? {language} : {}), eventId: identity(v.eventId,'eventId'),release:v.sentry?(v.release===''?'':releaseIdentity(v.release)):identity(v.release,'release'),build:v.sentry&&v.sentry.dist===undefined&&v.build===absentDist?absentDist:identity(v.build,'build'),environment:identity(v.environment,'environment'),type:v.sentry ? (typeof v.type==='string'?scrub(v.type):'Error') : language==='go' ? goType(v.type) : identity(v.type,'type'),message:scrub(v.message),frames:v.frames.map((f:any)=>{
-    if (!f || typeof f.file!=='string' || typeof f.function!=='string' || !Number.isSafeInteger(f.line) || f.line<1 || f.line>1e7 || (!(language && (f.column === undefined || f.column === null)) && (!Number.isSafeInteger(f.column) || f.column<0 || f.column>1e7)) || Object.keys(f).some(k=>!['file','line','column','function','debugId'].includes(k))) throw new Error('Invalid frame');
+    if (!f || typeof f.file!=='string' || typeof f.function!=='string' || !Number.isSafeInteger(f.line) || f.line<1 || f.line>1e7 || (!((language || nativeJava) && (f.column === undefined || f.column === null)) && (!Number.isSafeInteger(f.column) || f.column<0 || f.column>1e7)) || Object.keys(f).some(k=>!['file','line','column','function','debugId'].includes(k))) throw new Error('Invalid frame');
     const path=framePath(f.file,language);
     return {file:path,line:f.line,column:f.column ?? null,function:scrub(language==='go'?goFunction(f.function):f.function),...(f.debugId ? {debugId:identity(f.debugId,'debugId')} : {})};
   }),breadcrumbs:(v.breadcrumbs??[]).map(scrub),...(v.dropped !== undefined ? { dropped: v.dropped } : {}),...(v.client !== undefined ? { client: client(v.client) } : {}),...(v.exceptionSource !== undefined ? {exceptionSource:v.exceptionSource} : {}),...(v.grouping !== undefined ? {grouping:validateGroupingSnapshot(v.grouping)} : {}),...(v.sdkSession !== undefined ? {sdkSession:sdkSessionReference(v.sdkSession)} : {}),...(v.sentry !== undefined ? {sentry:sanitizeSentry(v.sentry)} : {})};
