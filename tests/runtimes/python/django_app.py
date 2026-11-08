@@ -11,6 +11,8 @@ import sentry_sdk
 sys.path.insert(0, os.path.dirname(__file__))
 os.environ["DJANGO_SETTINGS_MODULE"] = "shop.settings"
 sentry_sdk.init(dsn=os.environ["SPOOL_FIXTURE_DSN"], environment="compatibility")
+sentry_sdk.set_tag("tenant", "acme")
+sentry_sdk.set_context("checkout", {"stage": "payment", "items": 3})
 
 from django.core.wsgi import get_wsgi_application
 
