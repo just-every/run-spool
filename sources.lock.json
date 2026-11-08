@@ -10674,7 +10674,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "f4e917747fdaea200b98b60e2dbc53645d2a2b90ce2cedd11079b43d1d8a2e2e",
+      "sha256": "2ffb644012346d94aed7001c1c0eb9adfac48c216aa3a34fca6bcae44b5783bc",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -10938,7 +10938,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "da47a434d5f32bd81261385d44f5bc1f97b718d5ff17b12518dbfad2b9e15696",
+      "sha256": "0c564b248326d5076810090d58ccd8f901a2bc91f7caea764ef1d8898abd23ab",
       "executable": false
     },
     "tests/operator-archive.mjs": {
