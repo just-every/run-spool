@@ -92,9 +92,9 @@ export async function bugsnagMigrationFlow(){
   for(let step=0;erased.phase!=='complete'&&step<30;step++)erased=await json(`/api/erasures/${erased.id}/resume`,'POST');assert.equal(erased.phase,'complete');
   const remaining=await archiveProjection(await req('/api/archive'));assert.ok(!remaining.data.projects.some(p=>p.id===android.id));assert.equal(remaining.data.native_symbols.length,0,'project erasure removes native symbol bytes');
   await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',plan.planId),error=>[404,410].includes(error.status));
-  const replay=await cli('dry-run','--file',file);await cli('apply','--organization',bundle.organization.id,'--plan',replay.planId,'--fingerprint',replay.fingerprint).catch(error=>assert.ok([403,409,410].includes(error.status)));
+  await assert.rejects(cli('dry-run','--file',file),error=>error.status===409&&error.code==='source_erased','erased source is refused before a replay plan can exist');
   assert.ok(!(await json('/api/projects')).some(p=>p.id===android.id),'erased native history cannot be resurrected by replay');
-  await req('/auth/signout','POST',{});await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',replay.planId),error=>error.status===401);
+  await req('/auth/signout','POST',{});await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',plan.planId),error=>error.status===401);
   console.log('PROBE MIG-004 1: owner CLI web and Android export -> sampled graph and release session aggregates reconcile; interrupted apply resumes, history stays inert, archive restores and erasure fences replay.');
   console.log('PROBE MIG-004 2: deploy upload and public capture -> web map and Android original native stack, at 1440 and 390.');
   console.log('PROBE MIG-004 3: owner CLI missing and zero historical denominators -> explicit unavailable gap, crashFreeRate null and no fabricated sessions.');

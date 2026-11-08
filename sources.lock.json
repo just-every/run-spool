@@ -10702,7 +10702,7 @@
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "61accf7b8858f4388d34488dbdc961fc1e05e4dca8eb330936e8c8429a5707cf",
+      "sha256": "a2da9e21936b588222a778560b0fcee0b1e7e943706a6f053e98a58286a109d8",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
