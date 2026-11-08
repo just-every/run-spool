@@ -1,0 +1,73 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 151ecb6..7efcfbd 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -1749,7 +1749,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
+ | `MIG-004` | Bugsnag migration | target | missing |  | No implementation proof yet: bugsnag migration. |
+ | `MIG-005` | Up-and-comer switching paths | target | missing |  | No implementation proof yet: up-and-comer switching paths. |
+ | `API-001` | Public APIs, attachments and full export | target | partial | `src/domain/investigation/records.ts`; `tests/investigation-flow.mjs` ([API-001] recordReadFlow); `tests/records-flow.mjs`; `docs/INVESTIGATION.md` | Version-1 cursor-paginated occurrence metadata (project and issue) and scrubbed feedback report reads now share exact-project read authority, bounds, ordering and uniform wrong-scope refusal. The public journey reconciles multiple pages with issue detail and inbox totals, then proves withdrawal and erasure. Existing bounded issue JSON/CSV export remains. Gap: attachment storage/viewing audit/downloads (currently counted sentry_unsupported_attachment), release/session record pagination beyond SDK-005’s bounded health report, audit API, streaming exports/archives at GOV-003 volume and the 160,000-event acceptance remain absent. |
+-| `API-002` | Sentry Web API and Terraform compatibility | target | partial | `tests/sentry-cli/field-refusals.mjs` fieldRefusalFlow (unsupported top-level fields on both release-create aliases, update and finalization, and deployment creation; populated-state nonmutation, safe D-1 refusal facts, named endpoint and refs errors, read-only and revoked grants, project scope); `tests/sentry-cli/denials.mjs` authorityFlow and denialFlow (existing deploy-key authority); `tests/sentry-cli-compat.mjs` with releaseFlow, pluginFlow, chunkFlow and durableFlow (unmodified CLI and plugins, valid commands, retries, inert restore and erasure) | Qualified only the currently implemented SRC-003 deploy-key doors. Acceptance 1 and 2 remain unproved: complete organization, team, member, project, client-key, issue, event, release and alert Web API compatibility, Sentry search and cursor Link pagination, organization and personal token mapping to TEAM-001 roles, and the unmodified Terraform plan, apply, import and unchanged re-plan journey. Unsupported nested fields and field validation outside the selected top-level release-create, release-update and deployment-create JSON bodies remain unproved. Existing SRC-003 capabilities and gaps remain, including SRC-002 connected-provider accounts, SDK-002 native debug-file and device qualification, and SRC-004 capacity with BILL-001 pricing dependencies. |
++| `API-002` | Sentry Web API and Terraform compatibility | target | partial | `tests/sentry-cli/field-refusals.mjs` fieldRefusalFlow (unsupported top-level fields on both release-create aliases, update and finalization, and deployment creation; populated-state nonmutation including an unfinalized release, supported finalization and idempotent retry, safe D-1 refusal facts, named endpoint and refs errors, read-only and revoked grants, project scope); `tests/sentry-cli/denials.mjs` authorityFlow and denialFlow (existing deploy-key authority); `tests/sentry-cli-compat.mjs` with releaseFlow, pluginFlow, chunkFlow and durableFlow (unmodified CLI and plugins, valid commands, retries, inert restore and erasure) | Qualified only the currently implemented SRC-003 deploy-key doors. Acceptance 1 and 2 remain unproved: complete organization, team, member, project, client-key, issue, event, release and alert Web API compatibility, Sentry search and cursor Link pagination, organization and personal token mapping to TEAM-001 roles, and the unmodified Terraform plan, apply, import and unchanged re-plan journey. Unsupported nested fields and field validation outside the selected top-level release-create, release-update and deployment-create JSON bodies remain unproved. Existing SRC-003 capabilities and gaps remain, including SRC-002 connected-provider accounts, SDK-002 native debug-file and device qualification, and SRC-004 capacity with BILL-001 pricing dependencies. |
+ | `GOV-001` | Enterprise identity and administration | target | partial | `src/auth/bindings.ts`; `src/editor`; `tests/owner-claim.mjs`; `tests/owner-editor.mjs`; `tests/governance-step-up.mjs` governanceStepUp, invoked by the owner-claim admission journey (acceptance 1, native owner-successor boundary: bootstrap-session refusal without mutation, same-session native email confirmation without a replacement cookie, one attributed invitation, foreign-session and replay refusal, revocation) | Native owner auth and linked identity bindings exist; organization SSO/SCIM and named enterprise-provider qualification do not. |
+ | `GOV-002` | Retention, residency and data custody | target | partial | `src/domain/retention.ts`; `src/domain/privacy.ts`; `tests/agent-handoff.mjs`; `tests/project-erasure.mjs` | Owner-only per-type 30–90-day windows (default 90), dry-run counts/range/coverage, typed shortening, audited legal hold/release and estimated stored bytes exist. Holds pause expiry only, never erasure; policy/hold archive, restore and erase, and packet notes state hold status. `tests/agent-handoff.mjs` and `tests/project-erasure.mjs` [GOV-002], 1440/390 Settings. Gaps: residency, commercial plan windows and session aggregates. |
+ | `GOV-003` | Published retention, retained volume and sustained intake rate | target | partial | `src/domain/retention.ts`; `src/domain/retention-schedule.ts`; `src/domain/admission.ts`; `tests/agent-handoff.mjs` (scheduled-retention stage); `tests/retention-schedule-flow.mjs` (retentionScheduleFlow); `tests/retention-archive.mjs` (agedRetentionArchive); `tests/project-erasure-cap.mjs` | An owner-run retention cutoff with occurrence tombstones, deduplication horizon and named retention gaps exists, and over-limit intake returns 429 with `Retry-After` and a counted outcome. Today `src/domain/admission.ts` and `migrations/core/0008_occurrence_identity.sql` refuse every new event once a project retains 10,000 (`retained_event_budget`) and above 120 a minute (`minute_budget`), and `src/domain/archive.ts` refuses a project archive above 10,000 events. Bounded daily expiry now uses applyRetention with occurrence/checkpoint tombstones, named gaps, scheduled retention service audit, held-project skips and an idempotent/resumable cursor; Settings reports the latest run. `tests/agent-handoff.mjs` [GOV-003] proves intake during a run, 50-row batches, remainder resume, hold and same-day no-op through the native scheduled clock seam. Plan volume, the published sustained rate, streaming archives, the 160,000-event run, automatic artifact/session-aggregate expiry and the named volume reasons remain absent. |
+diff --git a/sources.lock.json b/sources.lock.json
+index e5342f1..31db09b 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2670,7 +2670,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "a48202227e26ead104fa0082188fa4799c97082dafd5ccff1892222cbedd0c3a",
++      "sha256": "674ad11eff5ae554cf2983b5a70fa734764111f4039540bcd4a7167b3e047db4",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -11298,7 +11298,7 @@
+       "executable": false
+     },
+     "tests/sentry-cli/field-refusals.mjs": {
+-      "sha256": "b9a2808f04a07eaab12fddc3b11c3e9ab220b61235b74b1c3a26368f4fea3d51",
++      "sha256": "b4b8fe20f3dca1981f630df5aaff6c51cac0d792c4f7f49d38b2b09b20de9564",
+       "executable": false
+     },
+     "tests/sentry-cli/fixtures.mjs": {
+diff --git a/tests/sentry-cli/field-refusals.mjs b/tests/sentry-cli/field-refusals.mjs
+index d17afac..92b66e6 100644
+--- a/tests/sentry-cli/field-refusals.mjs
++++ b/tests/sentry-cli/field-refusals.mjs
+@@ -10,6 +10,11 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
+  assert.ok(issue, 'a populated open issue makes accidental commit resolution observable');
+  // This credential has never deployed: a refused request must not allocate its deployment actor.
+  const fresh = (await api('/api/projects/web/keys', 'POST', {kind: 'deploy'})).key;
++ const pendingVersion = 'synthetic-spool-unfinalized', finalizedAt = '2026-01-02T00:00:00.000Z';
++ const pendingPath = `${root}/${pendingVersion}/`;
++ const pending = await fetch(origin + root + '/', {method: 'POST', headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + keys.deploy}, body: JSON.stringify({version: pendingVersion, projects: ['web']})});
++ assert.equal(pending.status, 201);
++ assert.equal((await pending.json()).dateReleased, null, 'the finalization target starts unfinalized');
+  const bytes = Buffer.from('synthetic-spool-staged-field-refusal'), form = new FormData();
+  form.append('file_gzip', new Blob([gzipSync(bytes)]), createHash('sha1').update(bytes).digest('hex'));
+  const staged = await fetch(origin + '/api/0/organizations/acme/chunk-upload/', {method: 'POST', headers: {Authorization: 'Bearer ' + keys.deploy}, body: form});
+@@ -33,6 +38,7 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
+   ['POST', root + '/', {version: 'synthetic-spool-org-create', ...release}, 'cli.release', '/api/0/organizations/:org/releases/'],
+   ['POST', '/api/0/projects/acme/web/releases/', {version: 'synthetic-spool-project-create', ...release}, 'cli.release', '/api/0/projects/:org/:project/releases/'],
+   ['PUT', `${root}/${version}/`, release, 'cli.release', '/api/0/organizations/:org/releases/:version/'],
++  ['PUT', pendingPath, {projects: ['web'], dateReleased: finalizedAt}, 'cli.release', '/api/0/organizations/:org/releases/:version/'],
+   ['POST', `${root}/${version}/deploys/`, {environment: 'field-refusal', name: 'synthetic-spool-deploy', url: 'https://example.test/deploy', dateStarted: '2026-01-01T00:00:00Z', dateFinished: '2026-01-02T00:00:00Z'}, 'cli.deploy', '/api/0/organizations/:org/releases/:version/deploys/'],
+  ];
+  const send = (method, path, body, token = keys.deploy) => fetch(origin + path, {
+@@ -80,4 +86,13 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
+  assert.equal(unsupported.status, 501); assert.ok((await unsupported.json()).detail.includes('POST /api/0/organizations/acme/unsupported/'));
+  assert.deepEqual(await snapshot(), before, 'auth, project, refs and endpoint refusals preserve populated product state');
+  console.log('PROBE API-002 refs and endpoint: named 501; read-only, revoked and foreign grants: auth refusal; no product changes');
++ const stillPending = await send('GET', pendingPath);
++ assert.equal(stillPending.status, 200);
++ assert.equal((await stillPending.json()).dateReleased, null, 'refused finalization leaves the release unfinalized');
++ for (const dateReleased of [finalizedAt, '2026-01-03T00:00:00Z']) {
++  const valid = await send('PUT', pendingPath, {projects: ['web'], dateReleased});
++  assert.equal(valid.status, 200, 'supported finalization and its retry succeed');
++  assert.equal((await valid.json()).dateReleased, finalizedAt, 'the first successful finalization stands');
++ }
++ console.log('PROBE API-002 finalization: extra fields leave dateReleased=null; supported retry -> 200, first successful date retained');
+ }

@@ -1,0 +1,4 @@
+{
+  "command": "cloud_run timeout 240 pnpm run check -- --profile first-party",
+  "exit": 0
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "run_id": 42475233161,
+    "job_id": 128715012060,
+    "label": "verify-build",
+    "command": "gh run view 42475233161 --repo just-every/run-spool --job 128715012060 --log-failed",
+    "exit": 0,
+    "diagnostic_file": "ci-verify-build-diagnostic.txt",
+    "raw_log_private_and_excluded": true
+  },
+  {
+    "run_id": 42475233161,
+    "job_id": 128715113221,
+    "label": "verify-shards",
+    "command": "gh run view 42475233161 --repo just-every/run-spool --job 128715113221 --log-failed",
+    "exit": 0,
+    "diagnostic_file": "ci-verify-shards-diagnostic.txt",
+    "raw_log_private_and_excluded": true
+  },
+  {
+    "run_id": 42475233161,
+    "job_id": 128715138347,
+    "label": "verify-summary",
+    "command": "gh run view 42475233161 --repo just-every/run-spool --job 128715138347 --log-failed",
+    "exit": 0,
+    "diagnostic_file": "ci-verify-summary-diagnostic.txt",
+    "raw_log_private_and_excluded": true
+  },
+  {
+    "run_id": 42475233143,
+    "job_id": 128714966393,
+    "label": "sdk-token-check",
+    "command": "gh run view 42475233143 --repo just-every/run-spool --job 128714966393 --log-failed",
+    "exit": 0,
+    "diagnostic_file": "ci-sdk-token-check-diagnostic.txt",
+    "raw_log_private_and_excluded": true
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "head": "3e7391b1fa53aafdc4cb2237e7527696eae7a101",
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "head": "de9012e63204b3d66be735c670239f209fe51372",
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "stderr": ""
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "range": "origin/main..HEAD",
+  "includes_side_parents": true,
+  "passed": true,
+  "commits": [
+    {
+      "head": "905bedda75a74441b779fb7685672c3a7efee2ae",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "message": "Replay assigned Sentry field refusals onto current main\n\nRetain current main source, tests and contract judgments. Replay the original unfinalized-release refusal and supported finalization assertions, keep API-002 partial, and regenerate the source lock after restoring generated views from main.",
+      "trailers": ""
+    },
+    {
+      "head": "de9012e63204b3d66be735c670239f209fe51372",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "message": "Qualify Sentry field refusals against populated state",
+      "trailers": ""
+    },
+    {
+      "head": "3e7391b1fa53aafdc4cb2237e7527696eae7a101",
+      "author": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "committer": {
+        "name": "Run Edit Run fleet",
+        "email": "fleet@runeditrun.com"
+      },
+      "message": "Reject unsupported Sentry release and deploy fields [skip ci]",
+      "trailers": ""
+    }
+  ]
+}

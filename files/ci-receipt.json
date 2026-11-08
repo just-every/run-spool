@@ -1,0 +1,39 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "905bedda75a74441b779fb7685672c3a7efee2ae",
+  "verify": {
+    "run_id": 42475233161,
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/just-every/run-spool/actions/runs/42475233161",
+    "root_failed_job": 128715012060,
+    "root_failed_step": "Check source and portable contract",
+    "root_diagnostic": "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+    "source_check_passed": true,
+    "prose_errors": 0,
+    "prose_warnings": 0,
+    "dependent_failed_jobs": [
+      128715113221,
+      128715138347
+    ],
+    "dependent_skipped": "runtimes, test suites, build-dependent proof jobs",
+    "ready_generated_view_exception": true
+  },
+  "sdk": {
+    "run_id": 42475233143,
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/just-every/run-spool/actions/runs/42475233143",
+    "build_job": 128714966266,
+    "build_smoke_and_reproducible_tarball": "success",
+    "failed_job": 128714966393,
+    "failed_step": "NPM_TOKEN reaches this repository",
+    "diagnostic": "npm error code E401; npm error 401 Unauthorized - GET https://registry.npmjs.org/-/whoami",
+    "publish_job": "skipped",
+    "unrelated_owner_credential_maintenance_required": true
+  },
+  "github_calls": 7,
+  "workflow_dispatches": 0,
+  "workflow_reruns": 0,
+  "empty_commits": 0
+}

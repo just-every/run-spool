@@ -1,0 +1,11 @@
+[36;1mnode src/base/contract-docs.mjs check[0m
+> @errors/errors-workbench@0.7.3 check /home/runner/work/run-spool/run-spool
+> rer check -- --profile first-party
+> @errors/errors-workbench@0.7.3 source:check /home/runner/work/run-spool/run-spool
+> node scripts/edition-authoring/cli.mjs check
+"ok": true,
+"src/base/contract-docs.mjs": {
+"src/foundation/runtime/contract-docs.mjs": {
+Contract prose: 0 errors, 0 warnings.
+ACCEPTANCE.md: generated content differs; run contract-docs write.
+##[error]Process completed with exit code 1.

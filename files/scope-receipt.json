@@ -1,0 +1,30 @@
+{
+  "clause": "API-002",
+  "before": "partial",
+  "after": "partial",
+  "all_clause_statuses_unchanged": true,
+  "contract_changed_line": 1752,
+  "all_other_contract_bytes_unchanged": true,
+  "main_cli_harness_preserved": true,
+  "field_refusal_file_exact_original_candidate": true,
+  "counts": {
+    "published": {
+      "done": 9,
+      "partial": 3,
+      "missing": 0,
+      "total": 12
+    },
+    "target": {
+      "done": 13,
+      "partial": 49,
+      "missing": 31,
+      "total": 93
+    },
+    "all": {
+      "done": 22,
+      "partial": 52,
+      "missing": 31,
+      "total": 105
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "source_check": {
+    "command": "pnpm source:check",
+    "exit": 0
+  },
+  "views": {
+    "write_command": "node src/base/contract-docs.mjs write",
+    "write_exit": 0,
+    "check_command": "node src/base/contract-docs.mjs check",
+    "check_generated_exit": 0,
+    "restored": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+    "view_files_committed": false,
+    "check_restored_exit": 1,
+    "expected_restored_failure": "ACCEPTANCE.md generated API-002 evidence row differs; generated write/check passed before required main-view restoration"
+  },
+  "lock_regenerated_after_views_restored": true
+}

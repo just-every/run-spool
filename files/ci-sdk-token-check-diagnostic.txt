@@ -1,0 +1,5 @@
+NPM_TOKEN present: yes
+npm error code E401
+npm error 401 Unauthorized - GET https://registry.npmjs.org/-/whoami
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-11-08T11_19_36_937Z-debug-0.log
+##[error]Process completed with exit code 1.
