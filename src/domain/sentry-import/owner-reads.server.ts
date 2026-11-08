@@ -4,6 +4,8 @@ import { DoorError } from '../../modules/import-kit/src/door/protocol.ts';
 import { authorized, erasedSince, loadSnapshot, planRow } from '../../modules/import-kit/src/door/store.ts';
 import { readD1PersistedImport } from '../../modules/import-kit/src/d1/index.ts';
 import { attachmentHash, canonicalJson, sha256 } from '../../modules/import-kit/src/provenance/identity.ts';
+import { bugsnagNamespacePrefix } from '../bugsnag-import/source';
+import { bugsnagFacts } from '../bugsnag-import/facts';
 import { recordLabel, snapshotOrganization } from './read-labels';
 import { importReadReasons, rejectionReasonCode, unknownJobTimes } from './read-reasons';
 
@@ -69,6 +71,7 @@ export async function readOwnerPlan(request:DoorRequest, planId:string, inventor
   counts:snapshot?.plan.counts ?? null, countsReasonCode:snapshot ? null : 'snapshot_withdrawn',
   rejected, rejectedReasonCode:snapshot ? null : 'snapshot_withdrawn',
   undo:await undoAvailability(request,job,snapshot,live),
+  ...(request.access.namespace.startsWith(bugsnagNamespacePrefix)?snapshot?{vendor:bugsnagFacts(snapshot.plan.entries),vendorReasonCode:null}:{vendor:null,vendorReasonCode:'snapshot_withdrawn' as const}:{}),
   ...unknownJobTimes()};
  await finishOwnerRead(request);
  return details;

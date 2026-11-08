@@ -32,5 +32,5 @@ export async function validateImportedRows(data:any){
 }
 export function importedDiagnostic(value:any,event:any){
   if(!Array.isArray(value)||value.length!==event.frames.length)throw new Error('Archive imported diagnostic');
-  for(const [index,diagnostic] of value.entries())if(!diagnostic||Object.keys(diagnostic).sort().join()!=='generated,source,status'||!['imported_raw_stack','imported_symbolicated_stack'].includes(diagnostic.status)||diagnostic.source!=='sentry-api-export'||canonical(diagnostic.generated)!==canonical(event.frames[index]))throw new Error('Archive imported diagnostic');
+  for(const [index,diagnostic] of value.entries())if(!diagnostic||Object.keys(diagnostic).sort().join()!=='generated,source,status'||!['imported_raw_stack','imported_symbolicated_stack'].includes(diagnostic.status)||!['sentry-api-export','bugsnag-api-export'].includes(diagnostic.source)||canonical(diagnostic.generated)!==canonical(event.frames[index]))throw new Error('Archive imported diagnostic');
 }

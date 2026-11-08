@@ -9,6 +9,8 @@ import { ownerSession, ownerWrite } from '../../auth/session.server';
 import { ownerClaimConfig } from '../../editor/owner-claim-config.server';
 import type { ManagedBindings } from '../../editor/bindings';
 import { parseSentryOrganization, mappingVersion, sourceText } from './source';
+import { bugsnagMappingVersion, bugsnagNamespacePrefix, parseBugsnagOrganization } from '../bugsnag-import/source';
+import { bugsnagMapping } from '../bugsnag-import/mapping';
 import { organizationMapping } from './mapping';
 import { sentryTargets } from './targets';
 import { ownerImportPredicate } from './context';
@@ -52,7 +54,26 @@ function sentryImport(organization?: string): ImportDoorSource {
  };
 }
 
-/** The server-owned allow-list: `sentry-org:<organization slug>`, plus every
+/** One Bugsnag organization bundle per request, through the same door, lineage, history and undo. */
+function bugsnagImport(organization: string): ImportDoorSource {
+ let mapping: ImportMapping | undefined;
+ return {
+  parse(value, index) {
+   if (index !== 0) throw new Error('One Bugsnag organization bundle required');
+   const records = parseBugsnagOrganization(value);
+   if ((records[0].payload as any).organization.slug !== organization) throw new Error('Bundle organization differs from its import namespace');
+   mapping = bugsnagMapping({ records } as SourceBundle, 'bugsnag:' + sha256(canonicalJson(value)));
+   return records;
+  },
+  mapping: { version: bugsnagMappingVersion, map(record) {
+   if (!mapping) throw new Error('Bugsnag bundle required');
+   return mapping.map(record);
+  } },
+ };
+}
+
+/** The server-owned allow-list: `sentry-org:<organization slug>` or
+ * `bugsnag-org:<organization slug>`, plus every
  * namespace this installation's door already holds, so earlier imports keep
  * their status, reconcile, undo and catch-up. Anything else is refused. */
 export async function importSource(db: D1Database, key: string, name: string): Promise<ImportDoorSource | null> {
@@ -60,6 +81,9 @@ export async function importSource(db: D1Database, key: string, name: string): P
  if (name === 'sentry') return sentryImport();
  if (name.startsWith(namespacePrefix)) {
   try { return sentryImport(sourceText(name.slice(namespacePrefix.length), 'organization')); } catch { return null; }
+ }
+ if (name.startsWith(bugsnagNamespacePrefix)) {
+  try { return bugsnagImport(sourceText(name.slice(bugsnagNamespacePrefix.length), 'organization')); } catch { return null; }
  }
  const held = await db.prepare('SELECT 1 FROM ik_door_namespaces WHERE installation_id=? AND namespace=?').bind(key, name).first();
  return held ? sentryImport() : null;

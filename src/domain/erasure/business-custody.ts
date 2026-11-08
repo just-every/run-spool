@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 import type { Edge } from '../../modules/erasure/index.mjs';
 import { nativeProject } from '../sentry-import/mapping';
 import { parseSentryOrganization, sourceText } from '../sentry-import/source';
+import { bugsnagOrganizationKey, parseBugsnagOrganization } from '../bugsnag-import/source';
 import { sha256 } from '../../modules/import-kit/src/provenance/identity';
 
 /** The door retains a second private copy of the raw bundle and plan. Withdraw
@@ -28,18 +29,21 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
    });
    const bytes=Buffer.concat(parts);
    if(bytes.length!==held.total_bytes||sha256(bytes)!==held.bundle_sha256)throw new Error('Unverified bundle');
-   const records=parseSentryOrganization(JSON.parse(bytes.toString('utf8')));
-   const organization=(records[0].payload as any).organization.slug,projects=new Set<string>();
+   const bundle=JSON.parse(bytes.toString('utf8')),bugsnag=held.namespace.startsWith('bugsnag-org:');
+   const records=bugsnag?parseBugsnagOrganization(bundle):parseSentryOrganization(bundle);
+   const organization=bugsnag?bugsnagOrganizationKey((records[0].payload as any).organization.slug):(records[0].payload as any).organization.slug,projects=new Set<string>();
    let uncertain=false;
    for(const record of records) {
     try {
      const payload=record.payload as any;
      if(record.kind==='projects')projects.add(sourceText(payload.data.slug,'project slug'));
+     else if(record.kind==='releases'&&bugsnag)projects.add(sourceText(payload.project,'release project'));
      else if(record.kind==='releases') {
       if(!Array.isArray(payload.data.projects)||!payload.data.projects.length)throw new Error('Unknown release membership');
       for(const project of payload.data.projects)projects.add(sourceText(project?.slug,'release project'));
-     } else if(record.kind==='issues'||record.kind==='events')projects.add(sourceText(payload.project,'collection project'));
-     else if(record.kind!=='manifest')uncertain=true;
+     } else if(['issues','events','errors'].includes(record.kind))projects.add(sourceText(payload.project,'collection project'));
+     else if(bugsnag&&record.kind!=='manifest'&&payload.project!==null)projects.add(sourceText(payload.project,'collection project'));
+     else if(record.kind!=='manifest'&&!(bugsnag&&payload.project===null))uncertain=true;
     } catch { uncertain=true; }
    }
    if(!projects.size||uncertain)remember(null);

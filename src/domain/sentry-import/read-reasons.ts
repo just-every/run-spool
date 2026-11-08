@@ -25,6 +25,9 @@ const definitions = {
  event_detail_required: ['The event has no supported exception detail.', 'Event detail entries required', 'Exception event detail required', 'Event unavailable'],
  event_stack_required: ['The event has no supported stack locations.', 'Event detail stack required'],
  conflicting_environment: ['The event names conflicting environments.', 'Conflicting exported environment'],
+ historical_sessions_missing: ['The export holds no historical sessions, so no crash-free rate is shown.'],
+ sessions_inconsistent: ['The exported session counts disagree, so no crash-free rate is shown.'],
+ native_symbols_unsupported: ['Spool does not accept native debug files yet; upload them again once it does.'],
  invalid_source_reference: ['A required source reference is missing or invalid.', 'Invalid issue id', 'Invalid event groupID', 'Invalid release project', 'Source project missing'],
 } as const;
 

@@ -7,6 +7,9 @@ const CHUNK = 65_536;
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 /** The namespace the import door keeps one Sentry organization's lineage under. */
 export const sentryNamespace = organization => `sentry-org:${organization}`;
+/** The same for one Bugsnag organization, through the same door. */
+export const bugsnagNamespace = organization => `bugsnag-org:${organization}`;
+const namespaces = { sentry: sentryNamespace, bugsnag: bugsnagNamespace };
 function organizationOf(bytes) {
   let bundle;
   try { bundle = JSON.parse(Buffer.from(bytes).toString('utf8')); } catch { throw new Error('Export bundle is not JSON'); }
@@ -19,13 +22,15 @@ function organizationOf(bytes) {
  * door at /api/operator/import/* with the owner's cookie and exact Origin.
  * `transport(action, body, namespace)` replaces that HTTP call for a caller
  * that already holds its own authenticated request (a test runtime). */
-export function sentryDoorClient({ endpoint, cookie, organization, transport }) {
+export function sentryDoorClient({ endpoint, cookie, organization, transport, vendor = 'sentry' }) {
+  const namespaceOf = namespaces[vendor];
+  if (!namespaceOf) throw new Error('Unknown import vendor');
   transport ??= (action, body, namespace) => {
     const origin = new URL(endpoint).origin;
     return fetch(`${origin}/api/operator/import/${action}`, { method: 'POST', redirect: 'error',
       headers: { Origin: origin, Cookie: cookie, 'Content-Type': 'application/json', 'X-Import-Source': namespace }, body: JSON.stringify(body) });
   };
-  async function call(action, body, namespace = sentryNamespace(organization)) {
+  async function call(action, body, namespace = namespaceOf(organization)) {
     let response;
     try { response = await transport(action, body, namespace); } catch { throw new Error('Spool import transport failed'); }
     const result = await response.json().catch(() => ({}));
@@ -43,7 +48,7 @@ export function sentryDoorClient({ endpoint, cookie, organization, transport }) 
   return {
     call,
     /** Uploads the exact bytes in checked chunks and returns the server's inventory. */
-    async upload(bytes, name = 'sentry-organization.json') {
+    async upload(bytes, name = `${vendor}-organization.json`) {
       organization ??= organizationOf(bytes);
       const bundleSha256 = sha256(bytes), totalChunks = Math.ceil(bytes.length / CHUNK);
       let uploadId;
@@ -59,7 +64,7 @@ export function sentryDoorClient({ endpoint, cookie, organization, transport }) 
     /** Upload and plan: counts, rejections and differences, and the fingerprint to review. Writes no native records. */
     async plan(bytes, { catchup } = {}) {
       const { uploadId } = await this.upload(bytes);
-      return { organization, namespace: sentryNamespace(organization), uploadId, ...await call('plan', { uploadId, ...catchup ? { catchup: true } : {} }) };
+      return { organization, namespace: namespaceOf(organization), uploadId, ...await call('plan', { uploadId, ...catchup ? { catchup: true } : {} }) };
     },
     apply: (planId, reviewedFingerprint) => until('apply', { planId, reviewedFingerprint }, 'completed'),
     status: planId => call('status', { planId }),
@@ -69,7 +74,7 @@ export function sentryDoorClient({ endpoint, cookie, organization, transport }) 
   };
 }
 
-export async function sentryImportCli(args) {
+export async function sentryImportCli(args, vendor = 'sentry') {
   const [action, ...rest] = args, options = {};
   const verbs = ['dry-run', 'apply', 'status', 'reconcile', 'undo', 'read', 'originals', 'resume'];
   if (!verbs.includes(action)) throw new Error(`Expected ${verbs.join(', ')}`);
@@ -88,12 +93,13 @@ export async function sentryImportCli(args) {
   if (action === 'dry-run') {
     if (!options.file) throw new Error('file is required');
     const bytes = await readFile(options.file); if (bytes.length > 2 * 1024 * 1024) throw new Error('Export bundle exceeds 2 MiB');
-    return sentryDoorClient({ endpoint: endpoint.origin, cookie }).plan(bytes, { catchup: options.catchup });
+    return sentryDoorClient({ endpoint: endpoint.origin, cookie, vendor }).plan(bytes, { catchup: options.catchup });
   }
   if (!options.organization) throw new Error('organization is required');
+  if (vendor !== 'sentry' && (['read', 'originals', 'resume'].includes(action) || (action === 'undo' && options.job))) throw new Error('Only Sentry has jobs from before the import door');
   if (['read', 'originals', 'resume'].includes(action) || (action === 'undo' && options.job)) return legacyJob(action, endpoint.origin, cookie, options);
   if (!options.plan) throw new Error('plan is required');
-  const client = sentryDoorClient({ endpoint: endpoint.origin, cookie, organization: options.organization });
+  const client = sentryDoorClient({ endpoint: endpoint.origin, cookie, organization: options.organization, vendor });
   if (action === 'apply') {
     if (!/^[a-f0-9]{64}$/.test(options.fingerprint ?? '')) throw new Error('The reviewed fingerprint is required');
     return client.apply(options.plan, options.fingerprint);
