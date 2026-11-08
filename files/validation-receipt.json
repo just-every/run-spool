@@ -1,0 +1,114 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-c-f124-rb2",
+  "head": "a75507566279f885d933dcb52a41b97413240054",
+  "commands": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout 300 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout 300 npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout 180 pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout 180 pnpm run check -- --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check (generated views)",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check (main views restored)",
+      "exit": 1,
+      "expected": "ACCEPTANCE.md generated content differs"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout --kill-after=10s 480 node --experimental-strip-types /tmp/spool-sdk-fixture.mjs",
+      "exit": 0,
+      "test": "entire unchanged tests/sentry-sdk.mjs"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "probe": {
+    "widths": [
+      1440,
+      390
+    ],
+    "reports_per_width": 4,
+    "callback_emitted_inbox_archive_ids_equal": true,
+    "exact_occurrence_links": true,
+    "earlier_links_stable": true,
+    "feedback_accepted_per_width": 4
+  },
+  "setup_and_build_private_output_excluded": true,
+  "first_product_push": "succeeded on attempt 1",
+  "product_commits": 1,
+  "trailers": [],
+  "ci_run_ids": [
+    42486174729
+  ],
+  "ci_status": "completed",
+  "product_remote_readback": "a75507566279f885d933dcb52a41b97413240054",
+  "main_remote_readback": "a088c374707959f48f80051eeabc02c003113396",
+  "candidate_committed_lock_verified": true,
+  "all_sdk_suite_passed": true,
+  "screens": [
+    {
+      "path": "screens/browser-1440-handled-1440.png",
+      "sha256": "6a42a9b96bb819ba1200fe6c983b3a9236e2d643ddcd1a35aa3675fb5a3d6bc0"
+    },
+    {
+      "path": "screens/browser-1440-handled-390.png",
+      "sha256": "f167199f857925c73de8cd8b01d974687bf882fd32db8c30206baf1279df6b3f"
+    },
+    {
+      "path": "screens/browser-1440-mapped-1440.png",
+      "sha256": "c405de25992a8b405b513eab547ea5c5d7853a796033dd61659bd9e02bc67a00"
+    },
+    {
+      "path": "screens/browser-1440-mapped-390.png",
+      "sha256": "568eda53891c9273a8ec52b76e4a7663cd825b8189f2537d5e3e10404043f780"
+    }
+  ],
+  "ci_conclusion": "failure",
+  "ready_contract_exception": "generated ACCEPTANCE.md differs only; downstream coverage failures",
+  "ready": true,
+  "github_calls": 4,
+  "github_call_interval_seconds_minimum": 300,
+  "failed_source_job": 128748451752,
+  "downstream_failed_jobs": [
+    128748570242,
+    128748586946
+  ],
+  "blockers": [],
+  "pr": null
+}

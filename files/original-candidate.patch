@@ -1,0 +1,258 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 94caea8..bca077e 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -1476,7 +1476,7 @@ Judged from the code and tests at commit `01588d3d4167bf40da7bd9c0bbe5d2e131639f
+ | `SDK-001` | Multi-language SDKs and DSN-compatible intake: browser JavaScript and Node.js | target | done | Q1–Q7 Node: `tests/sdk-runtimes.mjs` ([SDK-001] node journey), `tests/runtimes/node.mjs`; Q1–Q7 browser, real widget/replay and build-plugin original line: `tests/sentry-sdk.mjs`, `tests/runtimes/browser.mjs`; lifecycle reports: `tests/client-report-sdk.mjs`; inherited SDK-009 Node identity: `tests/runtimes/node.mjs`; screens: `docs/retained-verification/sdk001/`. |  |
+ | `SDK-002` | Native crashes and symbolication | target | missing |  | No implementation proof yet: native crashes and symbolication. |
+ | `SDK-003` | Automatic breadcrumbs and private context | target | partial | `src/domain/capture.ts`; `src/domain/sentry/convert.ts`; `packages/sdk/src/browser.ts`; `tests/privacy-table.mjs` | Supplied breadcrumb messages are stored; full automatic instrumentation and configurable context capture are absent. |
+-| `SDK-004` | User feedback attached to failures | target | partial | `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md` | The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent. |
++| `SDK-004` | User feedback attached to failures | target | partial | `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` with `tests/runtimes/browser.mjs` (qualifyBrowser: SDK submit-success IDs, emitted descriptions and references, exact retained occurrences, complete inbox and archive sets, issue reads, retained-link stability and per-submission accepted quantities); `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md` | Acceptance 5’s actual Sentry widget association is qualified at the description-only boundary: the same unmodified Sentry browser SDK 11.6.0 program uses its typed public beforeSendFeedback mutation hook against a reference collector and Spool with only DSN changed; createWidget and createForm expose no association option in this pinned version, so each widget captures its selected error reference in that hook and unregisters the previous widget’s hook; both reload rounds switch the widget between the same page’s handled and automatic errors, reverse report order after reload, and reconcile every SDK submit-success report ID with its emitted description and reference, complete inbox and archive report sets, intended handled or automatic error, exact archived occurrence, issue feedback, unchanged earlier report references and per-submission accepted quantity, with issue screens at 1440 and 390. The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent. |
+ | `SDK-005` | Crash-free sessions and release health | target | partial | `src/domain/sessions/`; `src/domain/identities/key.ts`; `tests/sentry-sdk.mjs` ([SDK-005] sessionFlow); `tests/session-flow.mjs` sessionFlow; `tests/session-backpressure.mjs` sessionBackpressureFlow (public bucket exhaustion, unmodified SDK session backoff with continued errors, deadline recovery, exact refusal and discard accounting, invalid and revoked and foreign grant fences); `tests/sdk-runtimes.mjs`; `tests/old-archive.mjs`; `tests/owner-erasure.mjs`; `migrations/core/0072_release_sessions.sql`; `docs/SENTRY-SESSIONS.md` Observed individual/aggregate session intake, per-project keyed DID hashes, automatic release identity, bounded owner/exact-project read and JSON health export, explicit denominators, observed adoption and 95% Wilson intervals now exist. Unmodified default Node healthy/crashed and browser healthy/unhandled sessions reconcile against a reference collector with only DSN changed; browser unhandled is preserved separately from process crash. Sessions create no occurrence, issue, alert or accepted-error unit. Origin and available category filters, per-item refusal and named bounds apply; session client-discard protocol tokens remain counted. Bounded session-only X-Sentry-Rate-Limits now preserve companion errors, separate rate and capacity and invalid outcomes, and admit fresh SDK captures after the deadline without replaying suppressed sessions. Populated upgrade, private key/aggregate archive restore and project/owner erasure are proven. Releases and suspect comparisons reflow at 1440/390 without serious Axe findings or icon-only controls. | Mobile session modes, device/OS/version cohorts and ANR rates, comparable adoption cohorts, rollback, trends, the 20% rollout acceptance, runtime-specific health qualification beyond Node/browser, Spool-SDK sessions and full SDK-008 policy/role scope remain absent. Idle-project expiry, aggregate replay deduplication and category backpressure headers remain gaps. Unauthenticated key refusals do not mutate project counters; loader disabled state is not an independently disabled ingest-key policy. The inherited sentence "sessions accept no release" remains unmet: this brief and SDK-007 require release-less sessions counted invalid. Session users use keyed per-project hashes only, a builder default recorded in docs/contract/adopted-defaults.md. |
+ | `SDK-006` | Ingest-time inbound filters and allowed domains | target | done | `src/domain/filters/`; `src/domain/admission.ts`; `src/domain/origins.ts`; `src/ui/workbench/InboundFilters.tsx`; `tests/inbound-filter-flow.mjs`; `docs/INBOUND-FILTERS.md` |  |
+ | `SDK-007` | Sentry envelope item coverage from unmodified SDKs | target | partial | `src/domain/sentry/wire.ts`; `src/domain/sentry/routes.ts`; `src/domain/sentry/client-reports.ts`; `src/domain/feedback/`; `tests/sentry-http.mjs`; `tests/client-report-flow.mjs`; `tests/sentry-sdk.mjs` | Errors, text feedback and client_report items are routed after complete envelope framing. SDK-reported discards are counted by bounded reason/category and quantity, separately from accepted events; invalid reports are individually counted while valid companion errors continue. The real Node SDK flush emits reports through its normal transport; automatic browser lifecycle report emission is qualified by the [SDK-001] journey in `tests/sentry-sdk.mjs`. Unsupported categories remain diagnosed. Check-ins are routed under SDK-024. Bounded sessions and release health are routed under SDK-005, with keyed DID hashes and named limitations. Traces, profiles, replay, logs, metrics, dedicated crash/security doors, category backpressure and full runtime qualification remain absent. |
+diff --git a/tests/runtimes/browser.mjs b/tests/runtimes/browser.mjs
+index 32a5f1c..58a87a2 100644
+--- a/tests/runtimes/browser.mjs
++++ b/tests/runtimes/browser.mjs
+@@ -3,6 +3,7 @@ import {counts,expectedOutcomes,issueDetails,outcomeMap,api,sentIdentities,refer
+ import {readScreens} from './screens.mjs';
+ import {parseEnvelope,objectJson} from '../../src/domain/sentry/wire.ts';
+ import {browserLifecycleReport} from '../client-report-sdk.mjs';
++import {archiveProjection} from '../archive.mjs';
+ 
+ // [SDK-001] One built official-SDK program, identical actions for reference and Spool.
+ export async function qualifyBrowser({browser,origin,cookie,request,applicationOrigin,dsns,upload,expectedLine}){
+@@ -11,7 +12,7 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+   const project=await request('/api/projects','POST',{id:`browser-qualification-${width}`,name:'Browser qualification'});
+   await request(`/api/projects/${project.id}/browser-origins`,'POST',{origin:applicationOrigin});
+   const execute=async(target)=>{
+-   const context=await browser.newContext({viewport:{width,height:900}}),page=await context.newPage(),sent=[];
++   const context=await browser.newContext({viewport:{width,height:900}}),page=await context.newPage(),sent=[],reports=[];
+    page.on('request',req=>{
+     if(req.method()==='POST'&&new URL(req.url()).pathname.includes('/envelope/')){
+      const envelope=parseEnvelope(req.postDataBuffer());sent.push(...envelope.items.map(item=>({type:item.header.type,header:item.header,bytes:item.bytes})));
+@@ -23,19 +24,48 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+     for(let round=0;round<2;round++){
+      console.log(JSON.stringify({stage:'browser-round',width,target,round}));
+      await page.waitForFunction(()=>window.__SDK_READY__&&window.__SPOOL_SENT__.includes('session')&&window.__SPOOL_SENT__.includes('transaction'));
+-     await page.evaluate(()=>window.qualifyHandled());
++     const handledId=await page.evaluate(()=>window.qualifyHandled());
+      await page.getByRole('button',{name:'Throw checkout exception',exact:true}).click();
+      await page.waitForFunction(()=>window.__SPOOL_SENT__.filter(type=>type==='event').length===2);
+      await page.evaluate(()=>window.flushSDK());
+-     await page.evaluate(()=>window.stopReplay());
+-     await page.evaluate(()=>window.openFeedback());
+-     await page.getByRole('button',{name:'Report a Bug',exact:true}).click();
+-     await page.getByRole('textbox',{name:'Description',exact:false}).fill('synthetic-spool-browser-widget');
+-     await page.getByRole('button',{name:'Send Bug Report',exact:true}).click();
+-     try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__===true||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
+-     catch(error){console.log(JSON.stringify({stage:'widget-submit',target,round,observed:await page.evaluate(()=>({sent:window.__SPOOL_SENT__,responses:window.__SPOOL_RESPONSES__,error:window.__SPOOL_FEEDBACK_ERROR__}))}));throw error}
+-     assert.equal(await page.evaluate(()=>window.__SPOOL_FEEDBACK_ERROR__),undefined,'the actual widget submission succeeds');
+-     await page.evaluate(()=>window.flushSDK());
++     const unhandledId=await page.evaluate(()=>window.lastErrorId());
++     assert.notEqual(unhandledId,handledId,'the automatic and handled captures have distinct SDK event IDs');
++     assert.match(handledId,/^[a-f0-9]{32}$/);
++     assert.match(unhandledId,/^[a-f0-9]{32}$/);
++     // Reuse this page's captured errors while switching the widget target.
++     // Reverse the report order after reload so neither last-capture nor first-report wins.
++     const targets=[['handled',handledId],['unhandled',unhandledId]];
++     for(const [kind,eventId] of round===0?targets:targets.toReversed()){
++      const message=`synthetic-spool-browser-widget ${kind} round ${round+1}`;
++      const submitted={eventId,message,kind};
++      reports.push(submitted);
++      await page.evaluate(()=>window.stopReplay());
++      await page.evaluate(id=>window.openFeedback(id),eventId);
++      await page.getByRole('button',{name:'Report a Bug',exact:true}).click();
++      await page.getByRole('textbox',{name:'Description',exact:false}).fill(message);
++      await page.getByRole('button',{name:'Send Bug Report',exact:true}).click();
++      try{await page.waitForFunction(()=>window.__SPOOL_FEEDBACK__!==null||window.__SPOOL_FEEDBACK_ERROR__,null,{timeout:35000})}
++      catch(error){console.log(JSON.stringify({stage:'widget-submit',target,round,observed:await page.evaluate(()=>({sent:window.__SPOOL_SENT__,responses:window.__SPOOL_RESPONSES__,error:window.__SPOOL_FEEDBACK_ERROR__}))}));throw error}
++      assert.equal(await page.evaluate(()=>window.__SPOOL_FEEDBACK_ERROR__),undefined,'the actual widget submission succeeds');
++      await page.evaluate(()=>window.flushSDK());
++      const receipt=await page.evaluate(()=>window.__SPOOL_FEEDBACK__);
++      assert.equal(receipt.message,message,'the SDK submit-success callback identifies the submitted description');
++      assert.match(receipt.id,/^[a-f0-9]{32}$/);
++      submitted.id=receipt.id;
++      if(target==='qualification'){
++       const inbox=await app.json(`/api/projects/${project.id}/feedback`);
++       assert.deepEqual(inbox.items.map(row=>row.id).sort(),reports.map(row=>row.id).sort(),'each round retains exactly the widget reports acknowledged so far');
++       assert.equal(inbox.total,reports.length);
++       for(const acknowledged of reports){
++        const row=inbox.items.find(row=>row.id===acknowledged.id);
++        assert.equal(row.message,acknowledged.message);
++        assert.equal(row.eventId,acknowledged.eventId,'later widget submissions never retarget earlier reports');
++        assert.equal(row.association,'attached');
++        assert.ok(row.issueId,'each acknowledged widget report belongs to a retained issue before reload');
++       }
++       assert.equal((await outcomeMap(app,project.id)).get('feedback_accepted'),reports.length,'accepted quantity reconciles before each reload');
++      }
++     }
+      await page.evaluate(()=>window.queueDiscards());
+      await page.waitForFunction(()=>window.__SPOOL_DISCARDS__===3);
+      await page.evaluate(()=>window.flushSDK()); // finish capture processing; ordinary browser flush leaves reports buffered.
+@@ -55,18 +85,39 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+      assert.deepEqual(objectJson(report.bytes).discarded_events,[{reason:'before_send',category:'error',quantity:3}]);
+     }
+    }finally{await context.close()}
+-   return sent;
++   const feedback=sent.filter(item=>item.type==='feedback').map(item=>objectJson(item.bytes));
++   assert.equal(feedback.length,reports.length,'each report action sends exactly one actual widget report');
++   for(const report of reports){
++    const matches=feedback.filter(event=>event.contexts.feedback.message===report.message);
++    assert.equal(matches.length,1,'every submitted description identifies exactly one SDK feedback item');
++    const event=matches[0];
++    assert.match(event.event_id,/^[a-f0-9]{32}$/);
++    assert.equal(event.event_id,report.id,'the emitted feedback ID equals the SDK submit-success ID');
++    assert.equal(event.contexts.feedback.source,'widget');
++    assert.equal(event.contexts.feedback.associated_event_id,report.eventId,'the real widget sends the intended captured error reference');
++    const error=sent.filter(item=>item.type==='event').map(item=>objectJson(item.bytes)).find(event=>event.event_id===report.eventId);
++    assert.ok(error,'the reference belongs to an error actually emitted by this SDK program');
++    assert.equal(error.exception.values.some(value=>value.mechanism?.handled===false),report.kind==='unhandled');
++   }
++   assert.equal(new Set(reports.map(report=>report.id)).size,reports.length,'reloads create distinct report IDs');
++   return {sent,reports};
+   };
+   const collector=await referenceCollector(),previous=dsns.reference;
+   let observedReference;
+   try{dsns.reference=collector.dsn;observedReference=await execute('reference')}finally{dsns.reference=previous;await collector.close()}
+   const reference=collector.sent;
+-  assert.deepEqual([...counts(reference.map(i=>i.type))].sort(),[...counts(observedReference.map(i=>i.type))].sort(),'collector received every observed reference item');
++  assert.deepEqual([...counts(reference.map(i=>i.type))].sort(),[...counts(observedReference.sent.map(i=>i.type))].sort(),'collector received every observed reference item');
++  for(const report of observedReference.reports){
++   const received=reference.filter(item=>item.type==='feedback').map(item=>objectJson(item.bytes)).find(event=>event.event_id===report.id);
++   assert.equal(received?.contexts.feedback.message,report.message);
++   assert.equal(received?.contexts.feedback.associated_event_id,report.eventId,'the collector receives the actual widget association');
++  }
+   const inventory=counts(reference.map(item=>item.type));
+   for(const type of ['event','session','transaction','log','attachment','feedback','replay_event','replay_recording','client_report'])assert.ok(inventory.get(type),`browser wizard qualification sent no ${type}`);
+   dsns.qualification=project.dsn;
+   const observedSpool=await execute('qualification');
+-  assert.deepEqual([...counts(observedSpool.map(i=>i.type))].sort(),[...inventory].sort(),'same browser actions produce the same item inventory with only DSN changed');
++  assert.deepEqual([...counts(observedSpool.sent.map(i=>i.type))].sort(),[...inventory].sort(),'same browser actions produce the same item inventory with only DSN changed');
++  assert.deepEqual(observedSpool.reports.map(({message,kind})=>({message,kind})),observedReference.reports.map(({message,kind})=>({message,kind})),'both targets perform identical report actions across reloads');
+   const outcomes=await outcomeMap(app,project.id),expected=expectedOutcomes(reference.map(item=>({...item,type:item.header.type})));
+   assert.deepEqual([...outcomes].sort(),[...expected].sort(),'every SDK item has one persisted or counted Spool outcome');
+   let details=await issueDetails(app,project.id);
+@@ -78,6 +129,38 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+   assert.equal(details.reduce((n,d)=>n+d.issue.count,0),inventory.get('event'));
+   assert.ok(handled.events.every(e=>e.event.sentry.exceptions.every(x=>x.mechanism?.handled!==false)));
+   assert.equal(new Set(details.flatMap(d=>d.events.map(e=>e.id))).size,inventory.get('event'));
++  const feedback=await app.json(`/api/projects/${project.id}/feedback`);
++  const snapshot=await archiveProjection(await app.request('/api/archive'));
++  const archived=snapshot.data.feedback.filter(row=>row.project===project.id);
++  assert.equal(feedback.total,observedSpool.reports.length);
++  assert.equal(feedback.next,null,'the complete report set is read');
++  assert.equal(archived.length,observedSpool.reports.length,'every widget report has exactly one stored row');
++  const acknowledgedIds=observedSpool.reports.map(row=>row.id).sort();
++  assert.deepEqual(feedback.items.map(row=>row.id).sort(),acknowledgedIds,'the complete public inbox equals the SDK-acknowledged report set');
++  assert.deepEqual(archived.map(row=>row.id).sort(),acknowledgedIds,'the complete archived report set equals the SDK-acknowledged report set');
++  assert.equal(outcomes.get('feedback_accepted'),observedSpool.reports.length,'accepted quantity equals distinct persisted widget reports');
++  const issueReports=new Map();
++  for(const report of observedSpool.reports){
++   const intended=report.kind==='handled'?handled:unhandled;
++   const occurrence=intended.events.find(event=>event.id===report.eventId);
++   assert.ok(occurrence,'the SDK reference resolves to the intended retained error');
++   const row=feedback.items.find(row=>row.id===report.id);
++   assert.ok(row,'each SDK feedback ID is present in the public inbox');
++   assert.equal(row.message,report.message);
++   assert.equal(row.eventId,report.eventId);
++   assert.equal(row.issueId,intended.issue.id,'feedback attaches to the intended issue, not the other captured failure');
++   assert.equal(row.association,'attached');
++   const stored=archived.find(row=>row.id===report.id);
++   assert.equal(stored.message,report.message);
++   assert.equal(stored.event_id,report.eventId);
++   assert.equal(stored.occurrence,occurrence.occurrence,'archive custody binds the exact retained occurrence');
++   assert.deepEqual(Object.keys(stored).sort(),['project','id','message','digest','received','event_id','occurrence'].sort(),'widget contact, URL, screenshot and other metadata have no stored fields');
++   issueReports.set(intended.issue.id,[...(issueReports.get(intended.issue.id)??[]),report]);
++  }
++  for(const detail of details){
++   const attached=await app.json(`/api/projects/${project.id}/feedback?issue=${detail.issue.id}`);
++   assert.deepEqual(attached.items.map(row=>row.id).sort(),(issueReports.get(detail.issue.id)??[]).map(row=>row.id).sort(),'issue reads contain exactly their own widget reports');
++  }
+   const sent=sentIdentities(reference);
+   const stored=new Set(details.flatMap(d=>d.events.map(e=>JSON.stringify([e.release,e.event.build]))));
+   assert.deepEqual([...stored].sort(),[...sent].sort());
+@@ -88,10 +171,27 @@ export async function qualifyBrowser({browser,origin,cookie,request,applicationO
+   const mapped=details.flatMap(d=>d.events).flatMap(e=>e.currentLookup??[]).find(f=>f.status==='mapped'&&f.original.line===expectedLine);
+   assert.ok(mapped,'the build-plugin map resolves the actual original failure line');
+   await readScreens(origin,cookie,[
+-   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:page=>page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor()},
+-   {name:`browser-${width}-mapped`,path:`/projects/${project.id}/issues/${unhandled.issue.id}`,check:page=>page.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor()},
++   {name:`browser-${width}-handled`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{
++    await page.getByRole('heading',{name:/synthetic-spool-browser-handled/}).first().waitFor();
++    await widgetReportsVisible(page,handled.issue.id);
++   }},
++   {name:`browser-${width}-mapped`,path:`/projects/${project.id}/issues/${unhandled.issue.id}`,check:async page=>{
++    await page.getByText(new RegExp(`checkout\\.js:${expectedLine}:`)).first().waitFor();
++    await widgetReportsVisible(page,unhandled.issue.id);
++   }},
+    {name:`browser-${width}-diagnostics`,path:`/projects/${project.id}/capture`,check:page=>page.getByRole('heading',{name:'SDK discarded',exact:true}).waitFor()},
+   ]);
+   console.log(JSON.stringify({qualification:'[SDK-001] browser',width,sent:Object.fromEntries(inventory),outcomes:Object.fromEntries(outcomes)}));
++  console.log(`PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at ${width} -> ${acknowledgedIds.length} callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=${outcomes.get('feedback_accepted')}`);
++  async function widgetReportsVisible(page,issue){
++   const panel=page.getByRole('region',{name:'Issue feedback',exact:true});
++   for(const report of issueReports.get(issue)??[]){
++    const row=panel.getByRole('listitem').filter({hasText:report.message});
++    await row.getByText(report.message,{exact:true}).waitFor();
++    assert.equal(await row.locator('code').textContent(),report.eventId,'the correct issue renders the exact linked event');
++   }
++   assert.equal(await panel.getByRole('listitem').count(),(issueReports.get(issue)??[]).length);
++   await panel.scrollIntoViewIfNeeded();
++  }
+  }
+ }
+diff --git a/tests/runtimes/browser/app.js b/tests/runtimes/browser/app.js
+index dd7cb72..b70f617 100644
+--- a/tests/runtimes/browser/app.js
++++ b/tests/runtimes/browser/app.js
+@@ -1,8 +1,9 @@
+ import * as Sentry from '@sentry/browser';
+ window.__SPOOL_SENT__ = [];
+ window.__SPOOL_DISCARDS__ = 0;
+-window.__SPOOL_FEEDBACK__ = false;
++window.__SPOOL_FEEDBACK__ = null;
+ window.__SPOOL_RESPONSES__ = [];
++let removeWidgetAssociation;
+ Sentry.init({
+   dsn: globalThis.__DSN__,
+   ...globalThis.__SDK_CONFIG__,
+@@ -14,7 +15,7 @@ Sentry.init({
+     Sentry.browserTracingIntegration(),
+     Sentry.replayIntegration({ minReplayDuration: 0, flushMinDelay: 60000, flushMaxDelay: 60000 }),
+     Sentry.feedbackIntegration({ autoInject: false, enableScreenshot: false, showEmail: false, showName: false,
+-      onSubmitSuccess: () => { window.__SPOOL_FEEDBACK__ = true; },
++      onSubmitSuccess: (data, eventId) => { window.__SPOOL_FEEDBACK__ = { id: eventId, message: data.message }; },
+       onSubmitError: error => { window.__SPOOL_FEEDBACK_ERROR__ = String(error); },
+     }),
+   ],
+@@ -27,6 +28,7 @@ Sentry.getClient().on('beforeEnvelope', envelope => {
+   window.__SPOOL_SENT__.push(...envelope[1].map(item => item[0].type));
+ });
+ Sentry.getClient().on('afterSendEvent', (event, response) => window.__SPOOL_RESPONSES__.push({type:event.type??'event',status:response?.statusCode}));
++window.lastErrorId = () => Sentry.lastEventId();
+ window.openReportDialog = options => Sentry.showReportDialog(options);
+ window.sendFilterError = message => { Sentry.captureException(new Error(message)); return Sentry.flush(10000); };
+ window.sendFeedback = (message, associatedEventId) => {
+@@ -44,7 +46,19 @@ window.qualifyHandled = async () => {
+   return eventId;
+ };
+ window.stopReplay = () => Sentry.getReplay().stop();
+-window.openFeedback = () => Sentry.getFeedback().createWidget();
++window.openFeedback = eventId => {
++  window.__SPOOL_FEEDBACK__ = null;
++  delete window.__SPOOL_FEEDBACK_ERROR__;
++  const feedback = Sentry.getFeedback();
++  feedback.remove();
++  removeWidgetAssociation?.();
++  // This pinned widget has no association option on createWidget or createForm.
++  // Its typed public hook permits mutation; capture this widget's selected error.
++  removeWidgetAssociation = Sentry.getClient().on('beforeSendFeedback', event => {
++    if (event.contexts.feedback.source === 'widget') event.contexts.feedback.associated_event_id = eventId;
++  });
++  return feedback.createWidget();
++};
+ window.queueDiscards = () => { for (let i = 0; i < 3; i++) Sentry.captureMessage('synthetic-spool-browser-discard ' + i); };
+ window.flushSDK = () => Sentry.flush(10000);
+ document.querySelector('button').onclick = () => setTimeout(function checkout() {

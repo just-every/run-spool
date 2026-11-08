@@ -1,0 +1,685 @@
+{
+  "ok": true,
+  "record": "base-copies.json",
+  "origin": "not checked (--offline): local bytes against recorded SHA-256 only",
+  "copies": [
+    {
+      "path": ".github/workflows/run-demo.yml",
+      "originPath": "export/run-demo.yml",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": ".github/workflows/run-site.yml",
+      "originPath": "export/run-site.yml",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "originPath": "export/verify.yml",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": ".node-version",
+      "originPath": "default-seed/.node-version",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "CLAUDE.md",
+      "originPath": "export/CLAUDE.md",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "LICENSE",
+      "originPath": "LICENSE",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0005_development_outbox.sql",
+      "originPath": "modules/mail/src/development/schema.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0006_portability.sql",
+      "originPath": "modules/portability/schema/portability.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0009_integrations.sql",
+      "originPath": "modules/integrations/core/schema.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0011_owner_claim.sql",
+      "originPath": "modules/owner-claim/schema/owner-claim.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0014_dev_sessions.sql",
+      "originPath": "modules/operator-auth/accounts/schema/dev-sessions.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0015_domain_rules_step_up.sql",
+      "originPath": "modules/operator-auth/accounts/schema/domain-rules-step-up.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0017_provider_control.sql",
+      "originPath": "modules/operator-auth/accounts/schema/provider-control.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0018_erasure.sql",
+      "originPath": "modules/erasure/schema/erasure.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0020_dependencies.sql",
+      "originPath": "modules/dependencies/schema/dependencies.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0021_dependency_approval.sql",
+      "originPath": "modules/dependencies/schema/approval-attempt.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0022_dependency_setup.sql",
+      "originPath": "modules/operator-auth/accounts/schema/dependency-setup.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0023_idp_owner.sql",
+      "originPath": "modules/owner-claim/schema/idp.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0024_identity_providers.sql",
+      "originPath": "modules/operator-auth/identity/oidc/schema/oidc.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "migrations/core/0036_owner_signin.sql",
+      "originPath": "modules/operator-auth/accounts/schema/owner-signin.sql",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/artifact.mjs",
+      "originPath": "modules/delivery-producer/artifact.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/bindings.mjs",
+      "originPath": "modules/delivery-producer/bindings.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/capabilities.mjs",
+      "originPath": "modules/delivery-producer/capabilities.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/cli.mjs",
+      "originPath": "modules/delivery-producer/cli.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/declarations.mjs",
+      "originPath": "modules/delivery-producer/declarations.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/export.mjs",
+      "originPath": "modules/delivery-producer/export.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/generators/integration.mjs",
+      "originPath": "modules/delivery-producer/generators/integration.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/generators/managed.mjs",
+      "originPath": "modules/delivery-producer/generators/managed.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/generators/project.mjs",
+      "originPath": "modules/delivery-producer/generators/project.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/generators/validation.mjs",
+      "originPath": "modules/delivery-producer/generators/validation.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/mail.mjs",
+      "originPath": "modules/delivery-producer/mail.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/migrations.mjs",
+      "originPath": "modules/delivery-producer/migrations.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/native-export.mjs",
+      "originPath": "modules/delivery-producer/native-export.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/package.mjs",
+      "originPath": "modules/delivery-producer/package.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/paths.mjs",
+      "originPath": "modules/delivery-producer/paths.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/payloads.mjs",
+      "originPath": "modules/delivery-producer/payloads.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/schema/business-field-inputs.mjs",
+      "originPath": "schema/business-field-inputs.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/schema/dependencies.mjs",
+      "originPath": "schema/dependencies.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/schema/json-schema.mjs",
+      "originPath": "schema/json-schema.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/schema/setup-validation.mjs",
+      "originPath": "schema/setup-validation.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/schema/SETUP.schema.json",
+      "originPath": "schema/SETUP.schema.json",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/sign-in.mjs",
+      "originPath": "modules/delivery-producer/sign-in.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/spec.mjs",
+      "originPath": "modules/delivery-producer/spec.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/delivery/base/sql-statements.mjs",
+      "originPath": "modules/delivery-producer/sql-statements.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/edition-authoring",
+      "originPath": "edition-authoring",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 150
+    },
+    {
+      "path": "scripts/install-chromium-deps.py",
+      "originPath": "export/install-chromium-deps.py",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/installer/ui/background.svg",
+      "originPath": "default-seed/scripts/installer/ui/background.svg",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/operations-config.mjs",
+      "originPath": "foundation/template/scripts/operations-config.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/verify-app.mjs",
+      "originPath": "export/verify-app.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/verify-ci.mjs",
+      "originPath": "export/verify-ci.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/verify-evidence.mjs",
+      "originPath": "export/verify-evidence.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/verify-light.mjs",
+      "originPath": "export/verify-light.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "scripts/verify-plan.mjs",
+      "originPath": "export/verify-plan.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "SEED-COMMAND-CONTRACT.md",
+      "originPath": "export/SEED-COMMAND-CONTRACT.md",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-anchor.mjs",
+      "originPath": "foundation/runtime/contract-anchor.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-docs.mjs",
+      "originPath": "foundation/runtime/contract-docs.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-filter.ts",
+      "originPath": "foundation/runtime/contract-filter.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-page.ts",
+      "originPath": "foundation/runtime/contract-page.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-prose-patterns.mjs",
+      "originPath": "foundation/runtime/contract-prose-patterns.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-prose.mjs",
+      "originPath": "foundation/runtime/contract-prose.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/contract-style.ts",
+      "originPath": "foundation/runtime/contract-style.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/deployment-health.ts",
+      "originPath": "foundation/runtime/deployment-health.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/dispatch.ts",
+      "originPath": "foundation/runtime/dispatch.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/font-response.ts",
+      "originPath": "foundation/runtime/font-response.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/hosting-page.ts",
+      "originPath": "foundation/runtime/hosting-page.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/hydration/intro-guard.ts",
+      "originPath": "foundation/runtime/hydration/intro-guard.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/hydration/README.md",
+      "originPath": "foundation/runtime/hydration/README.md",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/hydration/report.ts",
+      "originPath": "foundation/runtime/hydration/report.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/hydration/unit.tsx",
+      "originPath": "foundation/runtime/hydration/unit.tsx",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/icon-head.ts",
+      "originPath": "foundation/runtime/icon-head.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/identity.ts",
+      "originPath": "foundation/runtime/identity.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/lobby.ts",
+      "originPath": "foundation/runtime/lobby.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/page-style.ts",
+      "originPath": "foundation/runtime/page-style.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/rejected-response.ts",
+      "originPath": "foundation/runtime/rejected-response.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/run-chooser-style.ts",
+      "originPath": "foundation/runtime/run-chooser-style.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/run-data.d.mts",
+      "originPath": "foundation/runtime/run-data.d.mts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/run-data.mjs",
+      "originPath": "foundation/runtime/run-data.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/run-pricing.ts",
+      "originPath": "foundation/runtime/run-pricing.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/run-site.ts",
+      "originPath": "foundation/runtime/run-site.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/seed-contract.d.mts",
+      "originPath": "foundation/runtime/seed-contract.d.mts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/seed-contract.mjs",
+      "originPath": "foundation/runtime/seed-contract.mjs",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/select-style.ts",
+      "originPath": "foundation/runtime/select-style.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/setup-state.ts",
+      "originPath": "foundation/runtime/setup-state.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/setup.ts",
+      "originPath": "foundation/runtime/setup.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/static-assets.ts",
+      "originPath": "foundation/runtime/static-assets.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/base/theme-frame.ts",
+      "originPath": "foundation/runtime/theme-frame.ts",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/foundation/runtime",
+      "originPath": "foundation/runtime",
+      "revision": "e881e6f66ce7cd737d17dbeb945995aab83c30d8",
+      "files": 37
+    },
+    {
+      "path": "src/modules/agent-door",
+      "originPath": "modules/agent-door",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "files": 84
+    },
+    {
+      "path": "src/modules/business-settings",
+      "originPath": "modules/business-settings",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "files": 17
+    },
+    {
+      "path": "src/modules/d1-transport",
+      "originPath": "modules/d1-transport",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 2
+    },
+    {
+      "path": "src/modules/demo",
+      "originPath": "modules/demo",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 14
+    },
+    {
+      "path": "src/modules/dependencies",
+      "originPath": "modules/dependencies",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 16
+    },
+    {
+      "path": "src/modules/editor",
+      "originPath": "modules/editor/src",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 13
+    },
+    {
+      "path": "src/modules/egress-service",
+      "originPath": "modules/egress-service",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 40
+    },
+    {
+      "path": "src/modules/erasure",
+      "originPath": "modules/erasure",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "files": 21
+    },
+    {
+      "path": "src/modules/import-kit/schema/importer-verification-receipt.schema.json",
+      "originPath": "modules/import-kit/schema/importer-verification-receipt.schema.json",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/modules/import-kit/schema/importers.schema.json",
+      "originPath": "modules/import-kit/schema/importers.schema.json",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    },
+    {
+      "path": "src/modules/import-kit/src",
+      "originPath": "modules/import-kit/src",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 195
+    },
+    {
+      "path": "src/modules/integrations/core",
+      "originPath": "modules/integrations/core",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 15
+    },
+    {
+      "path": "src/modules/mail",
+      "originPath": "modules/mail",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 65
+    },
+    {
+      "path": "src/modules/operator-auth",
+      "originPath": "modules/operator-auth",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 111
+    },
+    {
+      "path": "src/modules/owner-claim",
+      "originPath": "modules/owner-claim",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 9
+    },
+    {
+      "path": "src/modules/portability",
+      "originPath": "modules/portability",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa",
+      "files": 54
+    },
+    {
+      "path": "src/router.tsx",
+      "originPath": "default-seed/src/router.tsx",
+      "revision": "45368920257f072f11e329024cd37fa2625371f6",
+      "files": 1
+    }
+  ],
+  "drift": [],
+  "unrecordedCopies": [],
+  "adapted": [
+    {
+      "path": ".github/workflows/run-demo.yml",
+      "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e"
+    },
+    {
+      "path": ".github/workflows/run-site.yml",
+      "revision": "46b52ccb1cd3d3dc6f8d8507819673a4d74e038e"
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "revision": "25d370982f5bd8afbe650b82cb58adc2137d10e9"
+    },
+    {
+      "path": "src/modules/agent-door/audit.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/agent-door/pages.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/agent-door/person-doors.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/agent-door/reviews.ts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/erasure/cascade.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/erasure/index.d.mts",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/erasure/index.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/erasure/order.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    },
+    {
+      "path": "src/modules/erasure/verification.mjs",
+      "revision": "8b925fa5ffaa577df9f2e4ebab6ede8af5155baa"
+    }
+  ],
+  "meaning": "Undeclared copies claim Base byte equality. Declared adaptations must match their acknowledged local bytes and mode; their recorded Base bytes and revision remain comparison baselines."
+}
+

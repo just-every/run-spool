@@ -1,0 +1,19 @@
+{
+  "before": {
+    "done": 22,
+    "partial": 52,
+    "missing": 31,
+    "total": 105
+  },
+  "after": {
+    "done": 22,
+    "partial": 52,
+    "missing": 31,
+    "total": 105
+  },
+  "statusesUnchanged": true,
+  "unrelatedContractBytesUnchanged": true,
+  "browserAssertionsUnchanged": true,
+  "sourceHead": "c6e3d08913d473d11fc75aec79e45b3bc3d14cfc",
+  "base": "a088c374707959f48f80051eeabc02c003113396"
+}

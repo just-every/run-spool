@@ -1,0 +1,26 @@
+{
+  "head": "a75507566279f885d933dcb52a41b97413240054",
+  "candidate_commit_count": 1,
+  "candidate_commits_including_side_parents": [
+    "a75507566279f885d933dcb52a41b97413240054"
+  ],
+  "checks": [
+    {
+      "file": "CONTRACT.md",
+      "sha256": "89ed2fba2b16c536acc3b949b5513c7b846d1fd501ea68a71e2fa4f233892042",
+      "committed_lock_matches": true
+    },
+    {
+      "file": "tests/runtimes/browser.mjs",
+      "sha256": "439f871ecc3203feeaf8a973fa6b8bc751761e7e035a6bde666753c74e49b1ef",
+      "committed_lock_matches": true
+    },
+    {
+      "file": "tests/runtimes/browser/app.js",
+      "sha256": "8506510d53e316d6ca2fa598fc18fb72552afe3f45c6e2da4777680e4379af5a",
+      "committed_lock_matches": true
+    }
+  ],
+  "source_check_exit": 0,
+  "generated_views_changed_in_commit": false
+}
