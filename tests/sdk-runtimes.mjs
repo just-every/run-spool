@@ -4,8 +4,9 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
-import {api,counts,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
+import {api,counts,discardedOutcomes,expectedOutcomes,exceptionTypes,issueDetails,outcomeMap,referenceCollector,run,sentIdentities} from './runtimes/harness.mjs';
 import {readScreens} from './runtimes/screens.mjs';
+import {causeChainProof} from './runtimes/chain-proof.mjs';
 
 // [SDK-005] [SDK-001] [SDK-012] [SDK-013] Real, unmodified Sentry SDK programs for each qualified runtime: once against a plain
 // reference collector, once against Spool with only the DSN changed. Spool's public API
@@ -30,6 +31,8 @@ try{
   for(const result of referenceRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} reference ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
   const types=counts(reference.sent.map(item=>item.type));
   for(const type of runtime.required)assert.ok(types.get(type),`${name} SDK sent no ${type} item with its default/wizard options (sent ${[...types].join(',')})`);
+  const discards=discardedOutcomes(reference.sent);
+  if(runtime.discards)assert.deepEqual([...discards].sort(),runtime.discards,`${name}: real client reports contain every before_send discard with its exact category and quantity`);
   const project=await app.json('/api/projects','POST',{id:`rt-${name}`,name:`${name} runtime`});
   const spoolRuns=await execute(project.dsn);
   for(const result of spoolRuns)assert.equal(result.mode==='crash'?result.code!==0:result.code===0,true,`${name} Spool ${result.mode} exit ${result.code}: ${result.stderr.slice(-600)}`);
@@ -38,6 +41,12 @@ try{
   assert.deepEqual([...outcomes].sort(),[...expected].sort(),`${name}: Spool outcomes reconcile with SDK-sent items`);
   const details=await issueDetails(app,project.id);
   assert.equal(details.reduce((n,d)=>n+d.issue.count,0),types.get('event'),`${name}: every SDK error event is a persisted occurrence`);
+  if(runtime.discards){
+   const {usage}=await app.json('/api/organization/usage');
+   const usageDiscards=usage.filter(row=>row.project===project.id&&row.reason.startsWith('client_discarded:')).map(row=>[row.reason,row.count]);
+   assert.deepEqual(usageDiscards.sort(),[...discards].sort(),`${name}: usage retains the exact SDK discard reasons, categories and quantities`);
+   assert.ok(details.every(d=>d.events.every(e=>e.event.message!=='synthetic-spool-discard')),`${name}: a before_send discard creates no occurrence`);
+  }
   // Every SDK marks crashes its own way: an explicit unhandled mechanism, or (sentry-go) level fatal.
   const unhandled=runtime.unhandled??(sentry=>sentry.exceptions.some(x=>x.mechanism?.handled===false));
   const handled=details.find(d=>JSON.stringify(exceptionTypes(d.events[0]))===JSON.stringify(runtime.chain)&&d.events.every(e=>!unhandled(e.event.sentry)));
@@ -51,9 +60,6 @@ try{
   assert.deepEqual([...stored].sort(),[...sent].sort(),`${name}: release and dist equal what the SDK sent`);
   const releases=await app.json(`/api/projects/${project.id}/releases`);
   for(const [release] of [...sent].map(value=>JSON.parse(value)))if(release)assert.ok(releases.some(r=>r.name===release&&r.auto_created===1&&JSON.parse(r.creating_sdk).name.startsWith(runtime.sdk)),`${name}: release ${release} is created automatically`);
-  // The handled occurrence reads the same through the UI, at desktop and phone width.
-  const outer=runtime.chain.at(-1);
-  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue&&page.viewportSize().width===1440)await runtime.checkIssue({page,app,project,handled})}}]);
   // Failure handling: a wrong key or an unreachable intake never breaks the application.
   const before=await app.json(`/api/projects/${project.id}/issues`);
   const url=new URL(project.dsn);
@@ -61,7 +67,11 @@ try{
   for(const dsn of [forged,`http://${url.username}@127.0.0.1:1/1`]){const [handledRun]=await execute(dsn,['handled']);assert.equal(handledRun.code,0,`${name}: SDK failure to deliver must not fail the app: ${handledRun.stderr.slice(-400)}`)}
   const after=await app.json(`/api/projects/${project.id}/issues`);
   assert.deepEqual(after.map(i=>[i.id,i.count]),before.map(i=>[i.id,i.count]),`${name}: refused or undeliverable events create nothing`);
-  if(runtime.verify)await runtime.verify({app,project,details,dir,origin,cookie});
+  const proof=await runtime.verify?.({app,project,details,dir,origin,cookie,referenceSent:reference.sent});
+  if(runtime.cause)await causeChainProof({runtime,app,dir,origin,cookie,identity});
+  // The handled occurrence reads the same through the UI, at desktop and phone width.
+  const outer=runtime.chain.at(-1);
+  await readScreens(origin,cookie,[{name:`${name}-issue`,path:`/projects/${project.id}/issues/${handled.issue.id}`,check:async page=>{await page.locator('article.exception h3').filter({hasText:outer}).first().waitFor();if(runtime.checkIssue)await runtime.checkIssue({page,app,project,handled});await proof?.checkIssue(page,handled)}}]);
   console.log(JSON.stringify({runtime:name,sdk:runtime.version,sent:Object.fromEntries(types),outcomes:Object.fromEntries(outcomes),identity:[...sent]}));
  }
 }finally{await worker?.stop();await rm(temporary,{recursive:true,force:true})}

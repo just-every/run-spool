@@ -1,4 +1,6 @@
+import {notificationPreferencesFlow} from './notification-preferences.mjs';
 import {discussionFlow} from './discussion-flow.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
@@ -7,11 +9,11 @@ import {cli} from './agent-handoff/clients.mjs';
 import {runtime} from './owner-erasure/helpers.mjs';
 import {signIn,confirmEmailLink,emailSignIn,testOwner} from './auth.mjs';
 import {legacyMailRows} from './legacy-mail.mjs';
-import {browserMembers,memberBrowser} from './team-browser.mjs';
+import {browserMembers,memberBrowser,teamTriage} from './team-browser.mjs';
 
 const organization = '/api/organization';
 const client = (origin,cookie='') => {
- const req = (path,method='GET',value,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
+ const req = (path,method='GET',value,headers={}) => fetch(origin+path,{method,redirect:'manual',headers:{Origin:origin,Cookie:cookie,Connection:'close',...value!==undefined?{'Content-Type':'application/json'}:{},...headers},...value!==undefined?{body:typeof value==='string'?value:JSON.stringify(value)}:{}});
  const json = async (...args) => {const response=await req(...args);assert.ok(response.ok,`${args[0]} HTTP ${response.status}`);return response.json()};
  return {req,json};
 };
@@ -51,8 +53,13 @@ async function invite(owner,origin,input) {
  return {...client(origin,cookie),cookie,member};
 }
 
-async function policyAuthority(owner,maintainer,member,reader,projects) {
+async function policyAuthority(owner,maintainer,member,reader,projects,admin) {
  const root=projectRoot(projects[0]),foreign=projectRoot(projects[1]);
+ const quotaKey=await owner.json(root+'/keys','POST',{kind:'ingest'}),quotaPath=root+'/keys/'+quotaKey.hash+'/rate-limit';
+ const quota=await admin.json(quotaPath,'PUT',{revision:0,limit:2,period:'hour'});assert.equal(quota.limit,2,'BILL-001 native admin configures an active key');
+ for(const actor of [maintainer,member,reader])await denied(actor.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'BILL-001 project roles cannot change a key budget');
+ assert.deepEqual({...await owner.json(quotaPath),retryAfter:0},{...quota,retryAfter:0},'refused project roles leave key configuration and usage unchanged');
+ await owner.json(root+'/keys/'+quotaKey.hash,'DELETE');await denied(admin.req(quotaPath,'PUT',{revision:quota.revision,limit:99,period:'hour'}),'revoked keys cannot receive a new rate limit');
  const filters=await maintainer.json(root+'/inbound-filters'),policy=structuredClone(filters.policy);
  policy.filters.messages.enabled=true;policy.filters.messages.values=['*synthetic-spool-filter*'];
  await maintainer.json(root+'/inbound-filters/preview','POST',{policy});
@@ -154,7 +161,7 @@ async function teamRiders(owner,first,second,reader,projects) {
   const target=await owner.json(base+'/destinations','POST',{label:'synthetic-spool-'+(20+index),recipient:'synthetic-spool-'+(20+index)+'@example.test'});
   const test=await owner.json(base+'/destinations/'+target.id+'/test','POST',{});
   await owner.json(base+'/destinations/'+target.id+'/review','POST',{testId:test.id});
-  await owner.json(base+'/rules','POST',{name:'synthetic-spool-'+(20+index),enabled:true,channel:'mail',destination:target.id,kinds:['new_issue'],windowMs:60000,threshold:2});
+  await owner.json(base+'/rules','POST',await reviewRule(owner.json,base+'/rules','POST',{name:'synthetic-spool-'+(20+index),enabled:true,channel:'mail',destination:target.id,kinds:['new_issue'],windowMs:60000,threshold:2}));
   const event={...nativeEvent('synthetic-spool-rider-'+index),type:'SyntheticSpoolRider'+index,frames:[{file:'https://synthetic-spool.example/rider'+index+'.js',function:'rider'+index,line:1,column:0}]};
   assert.equal(await status(owner.req('/api/ingest/'+project.id,'POST',event,{Cookie:'',Authorization:'Bearer '+project.ingestKey})),201);
   const held=await owner.json(base+'/controls');assert.ok(held.held.some(row=>row.snooze_id===snooze.id&&!row.released_at),'a team snooze durably lists each held project alert');
@@ -267,6 +274,9 @@ async function inertTeamArchive(owner,projects,formerCookie) {
  assert.ok(before.rows.some(row=>row.actor_kind==='service'&&row.action==='evidence.packet'&&row.outcome==='succeeded'),'scoped service evidence has its own safe actor');
  for(const actor of ['member','service'])assert.ok(before.rows.some(row=>row.actor_kind===actor&&row.outcome==='denied'),'new human and service denials remain truthful audit observations');
  const response=await owner.req('/api/archive');assert.equal(response.status,200);const archive=await response.text();
+ const preferenceRows=archive.trim().split('\n').flatMap(line=>JSON.parse(line).items??[]).filter(item=>item.kind==='row'&&item.table==='spool_notification_preferences').map(item=>item.row);
+ assert.ok(preferenceRows.length>=5,'the archive contains real saved personal preferences');
+ assert.ok(preferenceRows.every(row=>row.historical===1&&row.operator_id===null),'archived preferences retain choices without live account authority');
  const fresh=await runtime();
  try{
   const next={...client(fresh.origin,fresh.cookie),origin:fresh.origin,cookie:fresh.cookie};
@@ -274,6 +284,10 @@ async function inertTeamArchive(owner,projects,formerCookie) {
   assert.equal(restoredResponse.status,200,'the private archive restores through the public HTTP door: '+JSON.stringify(restoreResult));
   const carriedReports=await next.json('/api/reporting/items');assert.ok(carriedReports.items.length>0);for(const item of carriedReports.items){const detail=await next.json('/api/reporting/items/'+item.id);assert.equal(detail.author,'[erased]');assert.ok(detail.shares.every(share=>!share.active),'restored shares stay inert')}
   await denied(client(fresh.origin,formerCookie).req('/api/reporting/items'),'a source member gains no restored report access');
+  const carriedPreferences=(await fresh.DB.prepare('SELECT * FROM spool_notification_preferences ORDER BY project,actor_label').all()).results;
+  assert.deepEqual(carriedPreferences,preferenceRows.toSorted((a,b)=>a.project.localeCompare(b.project)||a.actor_label.localeCompare(b.actor_label)),'independent restore preserves inert preference history');
+  for(const project of projects){const own=await next.json(projectRoot(project)+'/notifications/preferences');assert.equal(own.revision,0);assert.ok(Object.values(own.email).every(value=>value===false),'historical settings cannot become a new owner preference');}
+  console.log('PROBE TEAM-005 custody: private archive and independent restore -> preserved choices, null account bindings, inert history and no revived email opt-in');
   const restored=await next.json(organization);
   assert.ok(restored.members.length>=6);assert.ok(restored.members.every(row=>row.state==='inert'&&row.operator_id===null&&row.operatorStatus==='inert'));
   assert.ok(restored.grants.length>0);assert.ok(restored.invites.length>0&&restored.invites.every(row=>row.state==='inert'));
@@ -347,10 +361,20 @@ export async function teamFlow() {
    await actor.json(own+'/issues/'+issue.id+'/packet');
    for(const suffix of ['/issue-search?q=synthetic-spool-1','/issues/'+issues[1-index].id+'/events','/issues/'+issues[1-index].id+'/packet','/issue-export?format=csv'])await concealed(actor,foreign+suffix);
   }
-  await policyAuthority(owner,first,second,reader,projects);
+  await notificationPreferencesFlow(owner,projects,invite,reader);
+  await policyAuthority(owner,first,second,reader,projects,admin);
   await memberDeployment(owner,second,projects[1]);
   const reportingId=await reportingTeamFlow(owner,first,second,reader,billing,projects);
   await browserMembers(owner,projects);
+  // Each viewport starts with a disjoint native team, project, member and capture.
+  for(const width of [1440,390]) {
+   const id='synthetic-spool-ux-'+width,project=await owner.json('/api/projects','POST',{id,name:'Cedar Dispatch '+width});
+   await owner.json(organization+'/projects/'+id,'PUT',{team:id});
+   const actor=await invite(owner,origin,{email:[id,'example.test'].join('@'),name:id,role:'member',grants:[{project:id,role:'maintainer'}]});
+   assert.deepEqual((await actor.json('/api/projects')).map(row=>row.id),[id],'each native triage member sees only its own project');
+   assert.equal((await owner.json(organization)).teams.find(row=>row.project===id).team,id,'the fixture has its own native team');
+   await teamTriage(owner,actor,project,width);
+  }
   await teamRiders(owner,first,second,reader,projects);
   await concurrentTriage(owner,first,second,reader,projects,issues);
   await discussionFlow(owner,first,second,reader,projects,issues,billing,admin);

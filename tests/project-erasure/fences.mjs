@@ -8,12 +8,12 @@ import {testOwner} from '../auth.mjs';
 // The pre-erasure archive keeps its source identity, journal and table set; only
 // the erased project's events remain, with an epoch high enough that just the
 // per-row fence can refuse it: a cascaded child row.
-async function childArchive(pre,project,erased){
+async function childArchive(pre,project,erased,epoch){
  // Rows of every erased project leave, except the selected project's events.
  const gone=row=>erased.includes(row.project);
  const data=Object.fromEntries(Object.entries(pre.data).map(([table,rows])=>[table,rows.filter(row=>table==='projects'?!erased.includes(row.id):table==='events'?row.project===project||!gone(row):!gone(row))]));
  data.events=data.events.filter(row=>row.project===project);assert.ok(data.events.length,'the pre-erasure archive holds the project events');
- const manifest={...pre.manifest,payloads:[],epoch:pre.manifest.epoch+1_000_000_000,tables:pre.manifest.tables.map(table=>({...table,count:data[table.name].length}))},items=[];
+ const manifest={...pre.manifest,payloads:[],epoch,tables:pre.manifest.tables.map(table=>({...table,count:data[table.name].length}))},items=[];
  for(const table of manifest.tables)for(const [index,row] of data[table.name].entries())items.push({kind:'row',table:table.name,index,row,...table.rowidAlias?{rowid:index+1}:{}});
  const parts=[];for(let n=0;n<items.length;n+=200)parts.push(await makePart(parts.length,items.slice(n,n+200)));
  manifest.partCount=parts.length;const content=new ContentVerifier(manifest),binding=new ArchiveVerifier(manifest);
@@ -28,7 +28,8 @@ const reason=result=>/Archive operation refused \(([^)]+)\)/.exec(result.output)
 
 // Older archives against the restore fence, through public HTTP and rer import.
 export async function fenceProof(app,{pre,project,erased}){
- const root=app.checkout.root,child=await childArchive(pre,project,erased),results={};
+ const postManifest=(await app.archive()).manifest;
+ const root=app.checkout.root,child=await childArchive(pre,project,erased,postManifest.epoch),results={};
  await mkdir(resolve(root,'exports'),{recursive:true,mode:0o700});
  for(const [name,text] of [['pre',pre.text],['child',child]])await writeFile(resolve(root,'exports',name+'.rer'),text,{mode:0o600});
  // Same installation: the fence answers before any occupancy check.
@@ -48,7 +49,10 @@ export async function fenceProof(app,{pre,project,erased}){
  // The stated limit: a brand-new store given only the older archive accepts it;
  // the newer archive as a later journal refuses it.
  await fresh();
- const journal=await app.checkout.command(['import','--input','exports/pre.rer','--journal','exports/post.rer','--yes'],null);results.newStoreWithJournal={exit:journal.code,reason:reason(journal)};assert.deepEqual(results.newStoreWithJournal,{exit:4,reason:'erased_row'});
+ const checkpoint=await app.checkout.command(['import','--input','exports/pre.rer','--journal','exports/post.rer','--yes'],null);results.newStoreWithCheckpoint={exit:checkpoint.code,reason:reason(checkpoint)};assert.deepEqual(results.newStoreWithCheckpoint,{exit:4,reason:'erasure_epoch'});
+ // A genuinely rebound archive at the later checkpoint must still fail the
+ // independent row tombstone fence, including when no parent row remains.
+ const journal=await app.checkout.command(['import','--input','exports/child.rer','--journal','exports/post.rer','--yes'],null);results.newStoreWithJournal={exit:journal.code,reason:reason(journal)};assert.deepEqual(results.newStoreWithJournal,{exit:4,reason:'erased_row'});
  const limit=await app.checkout.command(['import','--input','exports/pre.rer','--yes'],null);results.newStoreAlone={exit:limit.code,limit:'a brand-new store has no later journal and accepts the older archive'};assert.equal(limit.code,0);
  return results;
 }

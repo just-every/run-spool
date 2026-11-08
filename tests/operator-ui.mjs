@@ -1,4 +1,5 @@
 import {testAndReview} from './alerts/runtime.mjs';
+import {reviewRule} from './alerts/preview-rule.mjs';
 import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
@@ -102,15 +103,16 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await api(`${root}/repairs/${repair.id}/facts`,'POST',{revision:repair.revision,fact:'deployed',release:contextPacket.events[0].event.release});
  const destination=await api(root+'/alerting/destinations','POST',{label:'Dispatch on-call',recipient:'dispatch-alerts@example.test'});
  await testAndReview(api,root+'/alerting',destination.id);
- await api(root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2});
+ await api(root+'/alerting/rules','POST',await reviewRule(api,root+'/alerting/rules','POST',{name:'Dispatch recurrence window',enabled:true,channel:'mail',destination:destination.id,kinds:['spike'],windowMs:60000,threshold:2}));
  const grant=await api(root+'/keys','POST',{kind:'agent'});
  const propose=async(kind='split')=>{
   const packet=await api(`${root}/issues/${issue}/packet`),now=Date.now();
   const change=kind==='split'?{events:[packet.events[0].id]}:{policy:{version:1,stack:'',fingerprint:'message:* -> operator-proposal'},policyRevision:(await api(root+'/grouping-rules')).revision};
-  const response=await fetch(origin+endpoint,{method:'POST',headers:{Authorization:`Bearer ${grant.key}`,'Content-Type':'application/json'},body:JSON.stringify({kind,source:issue,revision:packet.issue.revision,...change,variants:[{stack:'prepareDelivery at dispatch.js',release:'autumn-deliveries',route:'/checkout'}],rationale:'Compare rebuilt delivery failures and look-alike routes before changing grouping.',window:{start:now-86400000,end:now}})});
+  const response=await fetch(origin+endpoint,{method:'POST',headers:{Authorization:`Bearer ${grant.key}`,'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({kind,source:issue,revision:packet.issue.revision,...change,variants:[{stack:'prepareDelivery at dispatch.js',release:'autumn-deliveries',route:'/checkout'}],rationale:'Compare rebuilt delivery failures and look-alike routes before changing grouping.',window:{start:now-86400000,end:now}})});
   assert.equal(response.status,201,'Agent can propose without moving retained events');return response.json();
  };
- const review=async proposal=>{await page.getByRole('button',{name:'Refresh grouping proposals',exact:true}).click();await page.getByRole('button',{name:`Review grouping proposal ${proposal.id}`,exact:true}).click();await page.getByRole('article',{name:'Grouping proposal review',exact:true}).getByText(proposal.id,{exact:true}).waitFor();};
+ // The section reads quietly and again on return to the tab; a window focus is that return.
+ const review=async proposal=>{await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.locator(`[data-proposal-id="${proposal.id}"]`).getByRole('button',{name:/^Review (split|merge|rule) proposal/}).click();await page.locator(`article[data-proposal-id="${proposal.id}"]`).waitFor();};
  const proposalPanel=page.locator('.grouping-proposals');
  const proposalReview=page.getByRole('article',{name:'Grouping proposal review',exact:true});
  await page.goto(`${origin}/projects/${project}/settings`);
@@ -129,13 +131,13 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
  await page.keyboard.press('Escape');assert.equal((await api(`${root}/issues/${issue}/packet`)).issue.count,originalCount);await capture('grouping-proposal-undone');
  const restored=await api(`${root}/issues/${issue}/packet`);for(const event of originalPacket.events){assert.deepEqual(restored.events.find(row=>row.id===event.id).event,event.event,'Undo preserves captured originals');}
  const rule=await propose('rule');await review(rule);await proposalReview.getByRole('button',{name:'Approve proposal and open preview',exact:true}).click();
- await page.getByText('Approved agent rule proposal opened for review. Save grouping rules explicitly to change later intake.',{exact:true}).waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'approved');await capture('grouping-rule-approved');
- await page.getByRole('button',{name:'Save grouping rules',exact:true}).click();await page.getByRole('status').filter({hasText:'Grouping rules saved at revision'}).waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'applied');await capture('grouping-rule-applied');
- await page.getByLabel('Previous grouping policy',{exact:true}).selectOption('0');await page.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await page.getByText('Grouping preview complete. No occurrences moved.',{exact:true}).waitFor();await page.getByRole('button',{name:'Save grouping rules',exact:true}).click();await page.getByRole('status').filter({hasText:'Grouping rules saved at revision'}).waitFor();
+ await page.getByText('Approved agent rule proposal opened for review. Apply grouping rules explicitly to change later intake.',{exact:true}).waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'approved');await capture('grouping-rule-approved');
+ await page.getByRole('button',{name:'Apply grouping rules',exact:true}).click();await page.locator('.save-mark[data-state="saved"]').waitFor();assert.equal((await api(endpoint+'/'+rule.id)).state,'applied');await capture('grouping-rule-applied');
+ await page.getByLabel('Previous grouping policy',{exact:true}).selectOption('0');await page.getByRole('button',{name:'Preview grouping rules',exact:true}).click();await page.getByText('Grouping preview complete. No occurrences moved.',{exact:true}).waitFor();await page.getByRole('button',{name:'Apply grouping rules',exact:true}).click();await page.locator('.save-mark[data-state="saved"]').waitFor();
  assert.equal((await api(endpoint+'/'+rule.id)).state,'undone');await capture('grouping-rule-undone');
  const stale=await propose();await review(stale);const current=await api(`${root}/issues/${issue}/packet`);await api(`${root}/issues/${issue}/assignment`,'PATCH',{revision:current.issue.revision,label:'Newer operator decision'});
  await proposalReview.getByRole('button',{name:'Approve proposal and open preview',exact:true}).click();await proposalReview.getByRole('heading',{name:'split proposal · stale',exact:true}).waitFor();await capture('grouping-proposal-stale');assert.equal((await api(endpoint+'/'+stale.id)).state,'stale');
  // Expire the browser authority at the real auth boundary while leaving the owner API harness intact.
- await page.context().clearCookies();await page.getByRole('button',{name:'Refresh grouping proposals',exact:true}).click();await page.getByRole('link',{name:'Sign in again',exact:true}).waitFor();await capture('grouping-proposal-denied');
+ await page.context().clearCookies();await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('link',{name:'Sign in again',exact:true}).waitFor();await capture('grouping-proposal-denied');
 
 }

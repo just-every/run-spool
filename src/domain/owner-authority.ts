@@ -1,6 +1,7 @@
 import { AuthError } from '../modules/operator-auth/index.mjs';
 import type { ownerSession } from '../auth/session.server';
-import { auditContextStatements } from './audit/context';
+import { agentGuard, reviewerGuard, nativeAttribution, type NativeAuthority } from './agent-door/native-authority';
+import { auditContextStatements,currentAuditScope } from './audit/context';
 
 export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>;
 
@@ -8,7 +9,7 @@ export type OwnerSession = NonNullable<Awaited<ReturnType<typeof ownerSession>>>
 // The session that admitted the request is checked again inside the same D1
 // batch, before and after its statements: still unrevoked and unexpired, at its
 // operator's current version, and that operator still the active owner.
-export const authorityGuard = (db: D1Database, session: OwnerSession) => db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
+export const authorityGuard = (db: D1Database, session: NativeAuthority) => session.kind === 'agent' ? agentGuard(db,session) : session.kind === 'reviewer'?reviewerGuard(db,session):db.prepare(`INSERT INTO spool_authority_guards(ok) SELECT CASE WHEN EXISTS(
  SELECT 1 FROM oa_sessions s JOIN oa_operators o ON o.id=s.operator_id
  WHERE s.id=? AND o.id=? AND o.version=? AND s.operator_version=o.version
   AND s.revoked_at IS NULL AND s.expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
@@ -18,11 +19,17 @@ export const authorityGuard = (db: D1Database, session: OwnerSession) => db.prep
  ...session.membership ? [session.membership.id,session.membership.version,session.membership.role,session.membership.organization,
   ...session.membership.project ? [session.membership.project,...session.membership.role==='admin'?[]:[session.membership.project,session.membership.projectRole]]:[]]:[]);
 
-export async function ownerBatch(db: D1Database, session: OwnerSession, statements: D1PreparedStatement[]) {
+export async function ownerBatch(db: D1Database, session: NativeAuthority, statements: D1PreparedStatement[]) {
  // The request's audit context opens and closes the batch: a journal row or an
  // explicit commit inside it records the attributed fact in this transaction.
  const [open, close] = auditContextStatements(db);
- try { return (await db.batch([open, authorityGuard(db, session), ...statements, authorityGuard(db, session), db.prepare('DELETE FROM spool_authority_guards'), close])).slice(2, -3); }
+ const kind=session.kind==='agent'?'agent':'person';
+ const actor=session.kind==='agent'?session.context.actor:{kind:'person',person:{id:session.operator.id,name:session.operator.displayName},label:session.operator.displayName};
+ const approvers=session.kind==='agent'?session.context.approvers:[];
+ const links=db.prepare(`INSERT INTO spool_native_audit_actors(audit_id,project,kind,actor,approvers)
+ SELECT a.id,a.project,?,?,? FROM audit a JOIN audit_context c ON c.slot=1 WHERE a.rowid>c.native_start AND ?`).bind(kind,JSON.stringify(actor),JSON.stringify(approvers),Number(!['archive.restore'].includes(currentAuditScope().action)));
+ try { const results=await db.batch([open,authorityGuard(db,session),db.prepare('UPDATE audit_context SET native_start=(SELECT COALESCE(MAX(rowid),0) FROM audit)'),...statements,
+ ...(session.kind==='agent'?[nativeAttribution(db,session)]:[]),links,authorityGuard(db,session),db.prepare('DELETE FROM spool_authority_guards'),close]);return results.slice(3,3+statements.length); }
  catch (error) { if (/CHECK constraint failed: ok=1/.test(String(error))) throw new AuthError('authority_changed', 409); throw error; }
 }
 
@@ -30,7 +37,7 @@ export async function ownerBatch(db: D1Database, session: OwnerSession, statemen
 // portability engine): every batch commits only under the same check. Once one
 // is refused, later batches pass unchecked so the engine's own cleanup and abort
 // run before the refusal reaches the caller.
-export function ownerDatabase(db: D1Database, session: OwnerSession): D1Database {
+export function ownerDatabase(db: D1Database, session: NativeAuthority): D1Database {
  let refused = false;
  return new Proxy(db, { get(target, key) {
   if (key === 'batch') return async (statements: D1PreparedStatement[]) => {

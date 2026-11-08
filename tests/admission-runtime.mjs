@@ -20,23 +20,26 @@ export async function freePort() {
 }
 
 /** Run the emitted application with real local D1 and all committed migrations. */
-export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, hostedMail = false, https = false} = {}) {
+export async function admissionRuntime(extra = {}, {port, deferClaimMigration = false, deferAgentUpgrade = false, hostedMail = false, https = false, networkEdge} = {}) {
  // Hosted auth has a fixed trusted origin, so let workerd bind its transport
  // atomically instead of releasing a probe port before startup or restart.
  port ??= hostedMail ? 0 : await freePort();
  let origin = `${https ? 'https' : 'http'}://127.0.0.1:${port}`;
  const {worker: emitted, database, triggers} = await emittedWorkerOptions(resolve('dist/server/wrangler.json'), miniflare);
  const temporary = await mkdtemp(resolve(tmpdir(), 'spool-admission-'));
- let worker;
+ let worker, hostedEntry, hostedSource;
  const trustedOrigin=hostedMail?'https://spool.example':origin;
- const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key',RER_OWNER_CLAIM_APP_ORIGIN:trustedOrigin}:{};
+ // Hosted mail is independent of owner-claim pairing. Paired fixtures supply
+ // their complete claim ring through extra; do not manufacture partial trust.
+ const mailBindings=hostedMail?{AUTH_ORIGIN:trustedOrigin,AUTH_LOCAL:'false',MAIL_PROVIDER:'resend',MAIL_API_KEY:'synthetic-provider-key'}:{};
  if(hostedMail){
-  const entry=resolve(temporary,'hosted-mail.mjs');
+  const entry=resolve(temporary,'hosted-mail.mjs');hostedEntry=entry;
   await writeFile(entry,`import application from ${JSON.stringify(emitted.modules[1].path)};
-export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},fetch(request,env,ctx){const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+export default {...application,async scheduled(event,env,ctx){try{return await application.scheduled(event,env,ctx)}catch(error){console.error('Scheduled fixture failure: '+(error?.stack??error)+'; cause='+(error?.cause?.message??'none'));throw error}},async fetch(request,env,ctx){if(new URL(request.url).pathname==='/__fixture/schedule'){const {time}=await request.json();await application.scheduled({scheduledTime:time,cron:'* * * * *'},env,ctx);return Response.json({});}const url=new URL(request.url),headers=new Headers(request.headers);if(headers.get('origin')===url.origin)headers.set('origin',${JSON.stringify(trustedOrigin)});headers.set('host','spool.example');return application.fetch(new Request(${JSON.stringify(trustedOrigin)}+url.pathname+url.search,{method:request.method,headers,body:request.body,redirect:'manual'}),env,ctx)}};`);
+  hostedSource=await readFile(entry,'utf8');
   emitted.modules.unshift({type:'ESModule',path:entry});
   emitted.outboundService=async request=>{
-   if(request.url!=='https://api.resend.com/emails')throw new Error('Unexpected test network destination');
+   if(request.url!=='https://api.resend.com/emails'){if(networkEdge)return networkEdge(request);throw new Error('Unexpected test network destination');}
    const message=await request.json(),id=request.headers.get('idempotency-key');
    const db=await worker.getD1Database(database.binding);
    await db.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) VALUES(?,?,?)').bind(id,Date.now(),JSON.stringify({...message,deliveryId:id})).run();
@@ -67,14 +70,21 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
  try {
   await start();
   const files = (await readdir('migrations/core')).filter(file => file.endsWith('.sql')).sort();
-  await apply(files.filter(file => !deferClaimMigration || !file.includes('owner_claim')));
+  await apply(files.filter(file => (!deferClaimMigration || !file.includes('owner_claim')) && (!deferAgentUpgrade || file!=='0099_agent_custody_replay_relay.sql')));
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
   const call = (path, value, headers = {}, method = value === undefined ? 'GET' : 'POST') => fetch(origin + path, {
-   method, redirect: 'manual', headers: {Origin: origin, ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
+   method, redirect: 'manual', headers: {Origin: origin, Connection: 'close', ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
    ...(value === undefined ? {} : {body: JSON.stringify(value)}),
   });
   const runtime = {get origin() {return origin;}, DB: db, call,
+   schedule:async time=>{const response=await call('/__fixture/schedule',{time});if(!response.ok)throw new Error('Native scheduled entry failed: '+response.status);await response.body?.cancel();},
+   applyAgentUpgrade:()=>apply(files.filter(file=>file==='0099_agent_custody_replay_relay.sql')),
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),
+   setTime: async value => {
+    if(!hostedEntry||!Number.isFinite(value))throw new Error('A hosted fixture clock is required');
+    const clock=`const NativeDate=Date;globalThis.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[${value}]))}static now(){return ${value}}};\n`;
+    await worker.dispose();await writeFile(hostedEntry,clock+hostedSource);await start();runtime.DB=await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);
+   },
    restart: async () => {await worker.dispose(); await start(); runtime.DB = await worker.getD1Database(database.binding);registerLegacyMail(origin,runtime.DB);},
    close: async () => {await worker.dispose(); await rm(temporary, {recursive: true, force: true});},
   };

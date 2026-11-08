@@ -2,7 +2,7 @@ import { categoryFilterCoverage } from './categories';
 import {hash,canonical} from '../privacy.ts';
 import { AuthError } from '../../modules/operator-auth/index.mjs';
 import { ownerProjectRouter, ownerWrites, jsonBody } from '../owner-router.ts';
-import { browserNames, defaultOnFilters, filterIds, filterLabels } from './types.ts';
+import { browserNames, defaultOnFilters, filterIds, filterLabels, filterToggleLabels } from './types.ts';
 import { defaultInboundPolicy, readInboundPolicy, validateInboundPolicy } from './policy.ts';
 import { previewInbound, recentInboundCounts } from './reporting.ts';
 import { crawlerCatalogue, crawlerCatalogueUpdated } from './crawlers.ts';
@@ -18,7 +18,7 @@ inboundFilterRoutes.get('/', async c => {
  const project = c.req.param('project')!, since = Date.now() - 86400000;
  const [snapshot, counts] = await Promise.all([readInboundPolicy(c.env.DB, project), recentInboundCounts(c.env.DB, project, since)]);
  return c.json({ ...snapshot, defaults: defaultInboundPolicy(), defaultOnFilters,
-  filters: filterIds.map(id => ({ id, label: filterLabels[id], recentMatches: counts[id] })),
+  filters: filterIds.map(id => ({ id, label: filterLabels[id], toggleLabel: filterToggleLabels[id], recentMatches: counts[id] })),
   categoryFilterCoverage, recentSince: since, browsers: browserNames, crawlerCatalogue, crawlerCatalogueUpdated,
   patternSyntax: 'Only * is a wildcard. Message patterns ignore case; releases and environments preserve case. Browser maximum versions include the specified version family. Wildcard domains match subdomains, not the apex. Legacy exact origins remain allowed.',
  });
