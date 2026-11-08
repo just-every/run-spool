@@ -10162,7 +10162,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "c3c58a4f784152ae5cc0a09f9823738d1b16ae3ce742c92bcf0ccd702c10150c",
+      "sha256": "ff499474c871f571a37ca50f5a430178008a4b17159332d95da79d8a5f1713f7",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10702,7 +10702,7 @@
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "2ad0e970d1caaddf177652a7c9ded440269756c134aca0ccd656c5a4c8f80141",
+      "sha256": "18b84fb58419e9065b5edf49521d67c1712b85e88de420744797ae42edf26098",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {

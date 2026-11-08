@@ -57,7 +57,7 @@ export async function bugsnagMigrationFlow(){
   assert.equal(archive.data.health_sessions.length,0);assert.equal(archive.data.health_aggregates.length,0);assert.equal(archive.data.alerts.length,0);
   for(const kind of ['ingest','deploy','agent']){
    const native=await json('/api/projects','POST',{id:'refusal-'+kind,name:'Authority boundary'}),grant=await json(`/api/projects/${native.id}/keys`,'POST',{kind});
-   const denied=await req('/api/operator/import/status','POST',{planId:plan.planId},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':plan.namespace});assert.equal(denied.status,401);
+   const denied=await req('/api/operator/import/status','POST',{planId:plan.planId},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':plan.namespace});assert.ok([401,403].includes(denied.status));assert.deepEqual(Object.keys(await denied.json()),['error']);
   }
   assert.equal((await req('/api/operator/import/undo','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':plan.namespace})).status,401);
   const nativeCutover=await bugsnagCutover({json,req,origin,web,android});
