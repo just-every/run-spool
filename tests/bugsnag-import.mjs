@@ -36,7 +36,7 @@ export async function bugsnagMigrationFlow(){
   const args=['--organization',bundle.organization.id,'--plan',plan.planId,'--fingerprint',plan.fingerprint];
   await assert.rejects(cli('apply',...args.slice(0,-1),'0'.repeat(64)),error=>error.status===403);
   const interrupted=await client.call('apply',{planId:plan.planId,reviewedFingerprint:plan.fingerprint});
-  assert.ok(['applying','completed'].includes(interrupted.job.state));
+  assert.equal(interrupted.job.state,'applying');assert.ok(interrupted.job.checkpoint>0&&interrupted.job.checkpoint<interrupted.job.total,'first bounded apply leaves a real durable checkpoint');
   cookie=await signIn(origin,{bootstrap:false});
   const applied=await cli('resume',...args);assert.equal(applied.job.id,interrupted.job.id);assert.equal(applied.job.state,'completed');
   assert.equal((await cli('apply',...args)).job.id,applied.job.id,'replay is the same durable job');
@@ -54,7 +54,7 @@ export async function bugsnagMigrationFlow(){
   }
   assert.equal(importedIssues[1].packet.events[0].event.sentry.exceptions[0].stacktrace.frames[0].function,'com.synthetic.CheckoutActivity.submit');
   const archive=await archiveProjection(await req('/api/archive'));
-  assert.equal(archive.data.health_sessions.length,0);assert.equal(archive.data.health_aggregates.length,0);assert.equal(archive.data.alert_intents.length,0);
+  assert.equal(archive.data.health_sessions.length,0);assert.equal(archive.data.health_aggregates.length,0);assert.equal(archive.data.alerts.length,0);
   for(const kind of ['ingest','deploy','agent']){
    const native=await json('/api/projects','POST',{id:'refusal-'+kind,name:'Authority boundary'}),grant=await json(`/api/projects/${native.id}/keys`,'POST',{kind});
    const denied=await req('/api/operator/import/status','POST',{planId:plan.planId},{Cookie:'',Authorization:`Bearer ${grant.key}`,'X-Import-Source':plan.namespace});assert.equal(denied.status,401);

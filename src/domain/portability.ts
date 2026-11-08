@@ -267,7 +267,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   const schema=product.schemaObjects===undefined
    ? await sha256(canonicalJson(tables.map(({name,sql}:any)=>({name,sql}))))
    : await schemaIdentityOf(tables,current.schemaObjects);
-  return {...manifest,...migrations,schema,tables};
+  return {...manifest,...migrations,...(manifest.schemaObjects!==undefined?{schemaObjects:current.schemaObjects}:{}),schema,tables};
  }
  return null;
 }

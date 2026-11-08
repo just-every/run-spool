@@ -16,6 +16,6 @@ export function bugsnagFixture(){
   collection('releases','android',[release('android-release','android','1.0.0')]),
   collection('errors','web',[error('web-error','web','fixed')]),collection('errors','android',[error('android-error','android','open')]),
   collection('events','web',[web,structuredClone(web)]),collection('events','android',[event('synthetic-spool-android-event','android','android-error')]),
-  collection('collaborators','web',[{id:'synthetic-spool-2',name:'Migration collaborator'}]),collection('integrations','android',[{id:'synthetic-spool-3',type:'webhook',url:'https://integrations.example/notify'}])
+  collection('collaborators','web',Array.from({length:24},(_,index)=>({id:`synthetic-spool-collaborator-${index}`,name:`Migration collaborator ${index}`}))),collection('integrations','android',[{id:'synthetic-spool-3',type:'webhook',url:'https://integrations.example/notify'}])
  ]};
 }

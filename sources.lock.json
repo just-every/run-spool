@@ -6410,7 +6410,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "d8c97f04cd84a46569f6acf81a3e4f6743e2f1a765972df5e52762c26f646e6a",
+      "sha256": "565287a1428c73add6928ba131f128f352b44968be9af07cf9542540e9233425",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -10702,7 +10702,7 @@
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "3fd6f87af6bad2ccaaa86bbeb89578899659dd597def04c56be9c0100cc9ccff",
+      "sha256": "2ad0e970d1caaddf177652a7c9ded440269756c134aca0ccd656c5a4c8f80141",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
@@ -10838,7 +10838,7 @@
       "executable": false
     },
     "tests/fixtures/bugsnag/organization.mjs": {
-      "sha256": "813cff267a6ac128e5557f7e9281e1add11c5ff5eb4bd7b071471ec8643e2a88",
+      "sha256": "ef2b8bd90bc303363f536007c4c18a57f922f487dec389f73b5eba96b5270018",
       "executable": false
     },
     "tests/fixtures/deployment-spec-v0.6.0.json": {
