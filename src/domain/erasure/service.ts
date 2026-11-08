@@ -9,6 +9,7 @@ import { portability } from '../portability';
 import { sentryTargets } from '../sentry-import/targets';
 import { mappingVersion } from '../sentry-import/source';
 import { nativeProject } from '../sentry-import/mapping';
+import { bugsnagOrganizationKey } from '../bugsnag-import/source';
 import { projectErasure, erasureExceptions } from './declaration';
 import { ownerErasureService } from './owner-service';
 import { businessCustodyEdges } from './business-custody';
@@ -33,13 +34,13 @@ export function receiptView(receipt: any) {
 // same id the import gave the project, so no organization needs to survive the
 // native cascade.
 function related(project: string): D1RelatedErasure {
- const names = (organization: unknown, slug: unknown) => typeof organization === 'string' && typeof slug === 'string' && nativeProject(organization, slug) === project;
+ const names = (organization: unknown, slug: unknown) => typeof organization === 'string' && typeof slug === 'string' && [organization, bugsnagOrganizationKey(organization)].some(key => nativeProject(key, slug) === project);
  return {
   source(record: SourceRecord) {
    const payload = record.payload as any;
    if(payload?.vendor==='rollbar')return typeof payload.project==='string' && rollbarProject(payload.project)===project;
    if (record.kind === 'projects') return names(payload?.organization, payload?.data?.slug);
-   if (record.kind === 'releases') return Array.isArray(payload?.data?.projects) && payload.data.projects.some((linked: any) => names(payload.organization, linked?.slug));
+   if (record.kind === 'releases' && Array.isArray(payload?.data?.projects)) return payload.data.projects.some((linked: any) => names(payload.organization, linked?.slug));
    return names(payload?.organization, payload?.project);
   },
   original(bytes: Uint8Array) {

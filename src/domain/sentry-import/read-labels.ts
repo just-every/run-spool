@@ -15,11 +15,13 @@ export function recordLabel(record: SourceRecord, snapshot: DoorSnapshot) {
  const payload = record.payload as any, data = payload?.data;
  let value: unknown;
  if (record.kind === 'projects') value = data?.name;
- if (record.kind === 'releases') value = data?.version;
+ if (record.kind === 'releases') value = data?.version ?? data?.app_version;
  if (record.kind === 'issues') value = data?.title;
+ if (record.kind === 'errors') value = data?.error_class;
  if (record.kind === 'events') {
   const issue = snapshot.plan.source.records.find(r => r.kind === 'issues' && (r.payload as any)?.project === payload?.project && (r.payload as any)?.data?.id === data?.groupID);
-  value = data?.title ?? (issue?.payload as any)?.data?.title;
+  const error = snapshot.plan.source.records.find(r => r.kind === 'errors' && (r.payload as any)?.project === payload?.project && (r.payload as any)?.data?.id === data?.error_id);
+  value = data?.title ?? (issue?.payload as any)?.data?.title ?? (error?.payload as any)?.data?.error_class;
  }
  const label = safeImportLabel(value);
  return {label, labelReasonCode:label === null ? 'record_label_unavailable' : null};

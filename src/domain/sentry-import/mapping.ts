@@ -5,7 +5,7 @@ import { absentDist } from '../releases/build.ts';
 import { apiEvent } from './event.ts';
 import { mappingVersion, sourceText } from './source.ts';
 export const nativeProject=(organization:string,slug:string)=>`sentry-${sha256(JSON.stringify([organization,slug])).slice(0,32)}`;
-const nativeIssue=(organization:string,slug:string,id:string)=>sha256(JSON.stringify(['sentry',organization,slug,id]));
+export const nativeIssue=(organization:string,slug:string,id:string)=>sha256(JSON.stringify(['sentry',organization,slug,id]));
 const time=(value:any)=>{const n=Date.parse(value);if(!Number.isSafeInteger(n)||n<0)throw new Error('Source timestamp required');return n};
 const effects=(targetKind:string,targetId:string,native:any,source:any):MappingResult=>({effects:[{targetKind,targetId,value:{native,source}}]});
 const omitted=(data:any,allowed:string[])=>Object.keys(data).filter(key=>!allowed.includes(key)).map(field=>({field,reason:'Not represented in Spool; exact source remains in the private import journal.'}));
