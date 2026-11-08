@@ -2929,6 +2929,10 @@
       "sha256": "98f33fe2202b87e8bbdb8b1cbe6c8c9a44880486b7aa91086ec2dd8586523732",
       "executable": false
     },
+    "docs/BUGSNAG-SWITCHING.md": {
+      "sha256": "d39bf8ea2d0f97852ac305f962e0ca1fdebc25ce4bdbc5a4ccdc783cfb7a6769",
+      "executable": false
+    },
     "docs/BULK-TRIAGE.md": {
       "sha256": "cd6b58e81c7f448bef22b6c2ac1bd22895be73a8a24be5261bb264d05c8fa146",
       "executable": false
@@ -4461,6 +4465,10 @@
       "sha256": "1ee581707123a36b21e224bbf92edde0ee31e8550287c3f0814e5c189a52475f",
       "executable": false
     },
+    "scripts/bugsnag-import.mjs": {
+      "sha256": "c2ebeb0ef0f9d2f28789bf16e6640101f181a3e1db86eb7eed2f72838a3cda16",
+      "executable": false
+    },
     "scripts/build-capture.mjs": {
       "sha256": "eff298cca9f94d7d0366fc754136a9fbdef359da12f196c5f22aafcd03b89cc2",
       "executable": false
@@ -5735,6 +5743,22 @@
     },
     "src/domain/audit/types.ts": {
       "sha256": "a7ebb6b39ac6024675584349802e09021ff4e429e6a9f7196678c4a17cdd2554",
+      "executable": false
+    },
+    "src/domain/bugsnag-import/event.ts": {
+      "sha256": "c7351eef15d6f4b839841041e5a38e0a5a6c155878e8f1b5b738a61ea4b046ab",
+      "executable": false
+    },
+    "src/domain/bugsnag-import/facts.ts": {
+      "sha256": "00a5bae2bf94d83495c286d65af0506be8f5a6fe652baf18d83a50d02b0b86e6",
+      "executable": false
+    },
+    "src/domain/bugsnag-import/mapping.ts": {
+      "sha256": "e398d2697ee0802015eb1323ee0b1eafd0ba1c632ac281932ea49396967365f2",
+      "executable": false
+    },
+    "src/domain/bugsnag-import/source.ts": {
+      "sha256": "130031f832348ec858abca2de355fc8701020bc3e134b2d5e2aac88df87314e2",
       "executable": false
     },
     "src/domain/bundle-grouping.ts": {
@@ -10641,6 +10665,10 @@
       "sha256": "5b8e50c6c5f1e0b402cbb10d7cac63af62097d2099a1ac0ce11c73f4d66fe90e",
       "executable": false
     },
+    "tests/bugsnag-import.mjs": {
+      "sha256": "0c3dd0853fff617253cb3225d15ffe4492f87fa5b801de1ad27e1902f26c8dec",
+      "executable": false
+    },
     "tests/bulk-triage-flow.mjs": {
       "sha256": "97384bf5d81b72d902ddb0a526d3c5dc9e47f3bc01952846c44c0a036c5ec791",
       "executable": false
@@ -10771,6 +10799,10 @@
     },
     "tests/fixtures/archive-v1-b2eb94a.txt": {
       "sha256": "5b8faa6170db8a0d920cba1ccf87324977a58cb0519daa8b6615ec0978cb4f5f",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/organization.json": {
+      "sha256": "1b937c156e8c12e99a1dd8ef5f15ae9fe1175827af37fdfbd3af3f22503d0a91",
       "executable": false
     },
     "tests/fixtures/deployment-spec-v0.6.0.json": {
