@@ -10,18 +10,21 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
  assert.ok(issue, 'a populated open issue makes accidental commit resolution observable');
  // This credential has never deployed: a refused request must not allocate its deployment actor.
  const fresh = (await api('/api/projects/web/keys', 'POST', {kind: 'deploy'})).key;
- const bytes = Buffer.from('synthetic-spool-staged-field-refusal'), form = new FormData();
- form.append('file_gzip', new Blob([gzipSync(bytes)]), createHash('sha1').update(bytes).digest('hex'));
- const staged = await fetch(origin + '/api/0/organizations/acme/chunk-upload/', {method: 'POST', headers: {Authorization: 'Bearer ' + keys.deploy}, body: form});
- assert.equal(staged.status, 200); await staged.body?.cancel();
  const database = await db();
  const table = async name => (await database.prepare(`SELECT * FROM ${name}`).all()).results.map(row => JSON.stringify(row)).sort();
+ const originalChunks = await table('sentry_upload_chunks');
+ const bytes = Buffer.from('synthetic-spool-staged-field-refusal'), form = new FormData();
+ const checksum = createHash('sha1').update(bytes).digest('hex');
+ form.append('file_gzip', new Blob([gzipSync(bytes)]), checksum);
+ const staged = await fetch(origin + '/api/0/organizations/acme/chunk-upload/', {method: 'POST', headers: {Authorization: 'Bearer ' + keys.deploy}, body: form});
+ assert.equal(staged.status, 200); await staged.body?.cancel();
  const snapshot = async () => ({
   product: (await archiveProjection(await req('/api/archive'))).data,
   uploads: await api('/api/projects/web/sentry-uploads'),
   actors: await table('deployment_actors'), chunks: await table('sentry_upload_chunks'),
  });
  const before = await snapshot();
+ assert.equal(before.chunks.length, originalChunks.length + 1, 'the permitted control adds exactly one staged chunk');
  assert.ok(before.product.release_metadata.length && before.product.release_commits.length && before.product.issue_resolutions.length, 'release metadata, commits and resolutions are populated');
  assert.ok(before.product.sentry_deploys.length && before.actors.length && before.uploads.artifacts.length && before.uploads.assemblies.length && before.chunks.length, 'deployment history, actors, artifacts, receipts and staged bytes are populated');
  const canary = 'synthetic-spool-private-field-value';
@@ -80,4 +83,19 @@ export async function fieldRefusalFlow({origin, api, req, keys, db}) {
  assert.equal(unsupported.status, 501); assert.ok((await unsupported.json()).detail.includes('POST /api/0/organizations/acme/unsupported/'));
  assert.deepEqual(await snapshot(), before, 'auth, project, refs and endpoint refusals preserve populated product state');
  console.log('PROBE API-002 refs and endpoint: named 501; read-only, revoked and foreign grants: auth refusal; no product changes');
+ // Refusals above must preserve the control bytes. Retire only this fixture's
+ // chunk through permitted assembly before the next journey seeds its staging.
+ // These synthetic bytes are deliberately not a ZIP: the normal malformed-bundle
+ // response discards the consumed chunk without creating release or map rows.
+ const cleanup = await send('POST', '/api/0/organizations/acme/artifactbundle/assemble/', {checksum, chunks: [checksum], projects: ['web']});
+ assert.equal(cleanup.status, 200);
+ const result = await cleanup.json();
+ assert.equal(result.state, 'error'); assert.match(result.detail, /\[malformed_bundle\]/);
+ const after = await snapshot();
+ assert.deepEqual(after.chunks, originalChunks, 'permitted cleanup consumes only the control chunk and preserves pre-existing staging');
+ assert.deepEqual(after.product, before.product, 'control cleanup creates no release, deployment or artifact rows');
+ assert.deepEqual(after.actors, before.actors, 'control cleanup creates no deployment actor');
+ assert.deepEqual(after.uploads.artifacts, before.uploads.artifacts);
+ assert.deepEqual(after.uploads.builds, before.uploads.builds);
+ console.log('PROBE API-002 staging control: permitted assembly -> 200/error [malformed_bundle]; control chunk consumed; pre-existing staging and product rows unchanged');
 }
