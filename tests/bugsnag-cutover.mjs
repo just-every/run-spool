@@ -25,10 +25,11 @@ export async function bugsnagCutover({json,req,web,android}){
   const path=`/api${dsn.pathname}/envelope/?sentry_key=${dsn.username}&sentry_version=7`,envelope=JSON.stringify({event_id:event.event_id})+'\n'+JSON.stringify({type:'event'})+'\n'+JSON.stringify(event);
   const response=await req(path,'POST',envelope,{Cookie:'','Content-Type':'application/x-sentry-envelope'});assert.equal(response.status,200,await response.clone().text());const receipt=await response.json();
   assert.equal((await req(path,'POST',envelope,{Cookie:''})).status,200,'capture replay creates no extra occurrence');
-  const packet=await json(`/api/projects/${project.id}/issues/${receipt.issue}/packet`);assert.equal(packet.events.length,1);assert.equal(packet.events[0].historical,false);assert.equal(packet.events[0].currentLookup[0].status,'mapped');
+  const live=(await json(`/api/projects/${project.id}/issues`)).filter(issue=>issue.algorithm!=='sentry-import-v1');assert.equal(live.length,1);
+  const packet=await json(`/api/projects/${project.id}/issues/${live[0].id}/packet`);assert.equal(packet.events.length,1);assert.equal(packet.events[0].historical,false);assert.equal(packet.events[0].currentLookup[0].status,'mapped');
   assert.equal(packet.events[0].currentLookup[0].original.file,mobile?'MainActivity.kt':'checkout.ts');
   assert.equal(packet.events[0].currentLookup[0].original.line,mobile?43:1);
-  if(mobile){assert.equal(packet.events[0].currentLookup[0].original.function,'com.synthetic.MainActivity.crash');assert.equal(packet.events[0].currentLookup[0].original.column,null);nativeReceipt=receipt;}
+  if(mobile){assert.equal(packet.events[0].currentLookup[0].original.function,'com.synthetic.MainActivity.crash');assert.equal(packet.events[0].currentLookup[0].original.column,null);nativeReceipt={...receipt,issue:live[0].id};}
   await json(`/api/projects/${project.id}/keys/${deploy.hash}`,'DELETE');assert.equal((await req(uploadPath,'POST',upload,headers)).status,401,'revoked deploy grant cannot reuse a symbol upload');
   await json(`/api/projects/${project.id}/keys/${ingest.hash}`,'DELETE');assert.equal((await req(path,'POST',envelope,{Cookie:''})).status,401,'revoked capture grant cannot replay');
  }

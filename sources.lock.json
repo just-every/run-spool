@@ -10698,7 +10698,7 @@
       "executable": false
     },
     "tests/bugsnag-cutover.mjs": {
-      "sha256": "4eb85ff30ada45b6a98d781f743d646a52785b8b8a931e8338882ad3f9f554df",
+      "sha256": "ec68c71d92b38b375839d515a0164586c3f15c46b558ca237e004e64d7c0a054",
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
