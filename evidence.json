@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "blob": "90786b4f2e3f21ce822ea06a0c63eab591a4321a",
+      "bytes": 4381,
+      "path": "REPORT.md",
+      "sha256": "60e00598acb0ee61c77b5a8e6b2bd52bb7c9a15d712bfc0431752e4755795133"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "actionlint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "3a14321d4c4917d4bc8cf0139c75e6f371ec8617",
+      "bytes": 22470,
+      "path": "base-check.json",
+      "sha256": "be1b03755f116f160fe70a19f7416e6cfc557641db4a21c3fa0727b8532a4202"
+    },
+    {
+      "blob": "e3e5a13b79d7a3431d13d9064e74259a2e322eb2",
+      "bytes": 208,
+      "path": "ci-discovery.json",
+      "sha256": "d2c24c018faba2e5926a02c21cbf9b12dff245a48d798790066b0f6be9bffcbe"
+    },
+    {
+      "blob": "e1f9331d66a2d7efd3aea532ed02d0034e9175ed",
+      "bytes": 175,
+      "path": "ci-status-1.json",
+      "sha256": "4f98f5d7176deceef12c43c9ff37ac9a0ecf6897563002ee8929a383e59d9950"
+    },
+    {
+      "blob": "e1f9331d66a2d7efd3aea532ed02d0034e9175ed",
+      "bytes": 175,
+      "path": "ci-status-2.json",
+      "sha256": "4f98f5d7176deceef12c43c9ff37ac9a0ecf6897563002ee8929a383e59d9950"
+    },
+    {
+      "blob": "e1f9331d66a2d7efd3aea532ed02d0034e9175ed",
+      "bytes": 175,
+      "path": "ci-status-3.json",
+      "sha256": "4f98f5d7176deceef12c43c9ff37ac9a0ecf6897563002ee8929a383e59d9950"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "commit-identities.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "0301ff21dad91167e156191327c01d68ebb3f9cf",
+      "bytes": 458334,
+      "path": "lock-check.json",
+      "sha256": "ed2886aa2adbae52ec3e18a7351c5f5078abe5c5d4d2e24b0975f5c41584bdea"
+    },
+    {
+      "blob": "f3489c0cc46278aa22e308b8c12ac1ffa771b2ca",
+      "bytes": 449,
+      "path": "lock-delta.json",
+      "sha256": "97be8c51eebd420b6596643ea57739ef03c25efdd008d6318b334e53105b3818"
+    },
+    {
+      "blob": "351d58c62c2c065100a1846461f3108343c18377",
+      "bytes": 2303,
+      "path": "prior-build-failure.log",
+      "sha256": "16df00f7fd42074ed0c89b959828c747a1e6e64f98f5402352cc0451fdbb64d7"
+    },
+    {
+      "blob": "e11167832955df45228885bd3ac8f9414223b560",
+      "bytes": 659,
+      "path": "prior-jobs.json",
+      "sha256": "e32f150c958c49c469c4be90c0752dafbb21017ee0ccc1df9015733b2d60045b"
+    },
+    {
+      "blob": "4019a9acfbc0c59f4e00b841648275b0811f3f43",
+      "bytes": 1005,
+      "path": "product-push.log",
+      "sha256": "0ce18ffa784945393ad3752f0c188b5d444cba7005ec6e7f44f21ffbe51589c8"
+    },
+    {
+      "blob": "da9eeb99781ecc890900782d5481ffed724f2be5",
+      "bytes": 2038,
+      "path": "product.diff",
+      "sha256": "3a3828b16713c6820390353b6705bfa5dcdb15e6f8d75214fe00370f76785afb"
+    },
+    {
+      "blob": "fd8ad09643ccc3297f20fabeaf11755705f1f5df",
+      "bytes": 2372,
+      "path": "receipt.json",
+      "sha256": "4aebc00e9e8dd98609005f0358494da78e291229ed14bbe108c6b709a12614ef"
+    },
+    {
+      "blob": "0acf54c00df28ea981049ddfd7eb0e29feffadda",
+      "bytes": 458320,
+      "path": "relock.json",
+      "sha256": "8359a920aa9b0657af2f11eb52182030e731d35187755b086871aaebbb6da53e"
+    },
+    {
+      "blob": "1c38c36a4e7b1f27ac32f06a524fc2322d51a22e",
+      "bytes": 3450,
+      "path": "rer-check.log",
+      "sha256": "cb95b296d56abc8c24b15966a072fb51ad70be981289337543d61c5668196fb5"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "rer-first-party-check.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "b8f17c2437753b8ff5a943386bc0f2d98ec47fbb",
+      "bytes": 879,
+      "path": "source-changes-before.json",
+      "sha256": "e4a4ee79c74e01503ba81300154e341f2427dffc6f087ef0c386f2f5b64ae0be"
+    }
+  ],
+  "product_branch": "cloud/fv-electron-cache-3",
+  "product_head": "3e4dad287e582509ce05047b02d0b6a40ccc05cc",
+  "ref": "refs/heads/evidence/fv-electron-cache-3",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "fv-electron-cache-3"
+}

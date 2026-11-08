@@ -1,0 +1,100 @@
+{
+  "tag": "fv-electron-cache-3",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/fv-electron-cache-3",
+  "head": "3e4dad287e582509ce05047b02d0b6a40ccc05cc",
+  "base": "a088c374707959f48f80051eeabc02c003113396",
+  "prior_candidate": "3fadabff2f18b813512dc5df6dcebf924a0bda72",
+  "prior_verify": 42484564470,
+  "prior_failed_build_job": 128743543830,
+  "product_push": {
+    "status": "success",
+    "attempts": 1
+  },
+  "checks": [
+    {
+      "command": "actionlint .github/workflows/verify.yml",
+      "exit": 0,
+      "version": "1.7.12"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs verify-base --offline",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "Assert lock delta contains exactly the two authorized SHA256 updates",
+      "exit": 0
+    }
+  ],
+  "local_toolchain": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.96"
+  },
+  "ci": {
+    "run_id": 42485822028,
+    "head": "3e4dad287e582509ce05047b02d0b6a40ccc05cc",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "3e4dad287e582509ce05047b02d0b6a40ccc05cc",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42485822028",
+    "observed_at": "2026-11-08T13:52:50.338806+00:00"
+  },
+  "counts_before": {
+    "core": {
+      "done": 22,
+      "partial": 44,
+      "missing": 21,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 8,
+      "missing": 10,
+      "total": 18
+    }
+  },
+  "counts_after": {
+    "core": {
+      "done": 22,
+      "partial": 44,
+      "missing": 21,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 8,
+      "missing": 10,
+      "total": 18
+    }
+  },
+  "clause_changes": [],
+  "pr": null,
+  "blockers": [],
+  "github_cli_calls_used": 8,
+  "evidence_status": "packet prepared for separate evidence publication"
+}

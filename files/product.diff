@@ -1,0 +1,54 @@
+diff --git a/.github/workflows/verify.yml b/.github/workflows/verify.yml
+index 7c1df96..da13539 100644
+--- a/.github/workflows/verify.yml
++++ b/.github/workflows/verify.yml
+@@ -242,6 +242,14 @@ jobs:
+           done
+           printf 'Electron apt: display failed after 3 attempts (exit %s; seconds=%s)\n' "$status" "$((SECONDS - started))" >&2
+           exit 1
++      - if: matrix.runtime == 'electron'
++        name: Cache Electron downloads
++        uses: actions/cache@v4
++        with:
++          path: ~/.cache/electron
++          key: electron-${{ runner.os }}-${{ hashFiles('tests/runtimes/electron/package.json') }}
++          restore-keys: |
++            electron-${{ runner.os }}-
+       - name: Run ${{ matrix.runtime }} SDK journey
+         env:
+           CARGO_TARGET_DIR: ${{ runner.temp }}/cargo-target
+diff --git a/base-copies.json b/base-copies.json
+index 9e6ee3f..45efee7 100644
+--- a/base-copies.json
++++ b/base-copies.json
+@@ -62,7 +62,7 @@
+       },
+       "acknowledged": {
+         ".github/workflows/verify.yml": {
+-          "sha256": "ce43c3e4b495f7756f7d86fa9c460619c0cf53ebf2847b834a0b0899efe17030",
++          "sha256": "6f254cf53dde402508f7d73b0ae4bd8c68dedd959da5a0d62c326b0131cc6f54",
+           "mode": "100644"
+         }
+       },
+diff --git a/sources.lock.json b/sources.lock.json
+index dbf64df..f1ef069 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2622,7 +2622,7 @@
+       "executable": false
+     },
+     ".github/workflows/verify.yml": {
+-      "sha256": "ce43c3e4b495f7756f7d86fa9c460619c0cf53ebf2847b834a0b0899efe17030",
++      "sha256": "6f254cf53dde402508f7d73b0ae4bd8c68dedd959da5a0d62c326b0131cc6f54",
+       "executable": false
+     },
+     ".gitignore": {
+@@ -2654,7 +2654,7 @@
+       "executable": false
+     },
+     "base-copies.json": {
+-      "sha256": "eb364be7381a5fdc98b4933970c63bfb42e6b7171c000de83c00f7633f0e2ca0",
++      "sha256": "0fa8bf510dca74a35a4b3988494fecb9c0510c2da0f977b3c0eb219702c34f2e",
+       "executable": false
+     },
+     "BROWSER-ORIGINS.md": {

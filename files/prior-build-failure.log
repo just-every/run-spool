@@ -1,0 +1,21 @@
+build	Check source and portable contract	﻿2026-11-08T13:22:00.2269980Z ##[group]Run pnpm run check -- --profile first-party
+build	Check source and portable contract	2026-11-08T13:22:00.2270347Z [36;1mpnpm run check -- --profile first-party[0m
+build	Check source and portable contract	2026-11-08T13:22:00.2270601Z [36;1mpnpm source:check[0m
+build	Check source and portable contract	2026-11-08T13:22:00.2270831Z [36;1mnode src/base/contract-docs.mjs check[0m
+build	Check source and portable contract	2026-11-08T13:22:00.2271142Z [36;1mnode scripts/edition-authoring/cli.mjs verify-base --offline[0m
+build	Check source and portable contract	2026-11-08T13:22:00.2288923Z shell: /usr/bin/bash -e {0}
+build	Check source and portable contract	2026-11-08T13:22:00.2289140Z env:
+build	Check source and portable contract	2026-11-08T13:22:00.2289318Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+build	Check source and portable contract	2026-11-08T13:22:00.2289574Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+build	Check source and portable contract	2026-11-08T13:22:00.2289840Z ##[endgroup]
+build	Check source and portable contract	2026-11-08T13:22:00.4464835Z 
+build	Check source and portable contract	2026-11-08T13:22:00.4465858Z > @errors/errors-workbench@0.7.3 check /home/runner/work/run-spool/run-spool
+build	Check source and portable contract	2026-11-08T13:22:00.4466577Z > rer check -- --profile first-party
+build	Check source and portable contract	2026-11-08T13:22:00.4466815Z 
+build	Check source and portable contract	2026-11-08T13:22:01.9658078Z 
+build	Check source and portable contract	2026-11-08T13:22:01.9659031Z > @errors/errors-workbench@0.7.3 source:check /home/runner/work/run-spool/run-spool
+build	Check source and portable contract	2026-11-08T13:22:01.9659646Z > node scripts/edition-authoring/cli.mjs check
+build	Check source and portable contract	2026-11-08T13:22:01.9659854Z 
+build	Check source and portable contract	2026-11-08T13:22:02.3745167Z Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock
+build	Check source and portable contract	2026-11-08T13:22:02.4048266Z  ELIFECYCLE  Command failed with exit code 1.
+build	Check source and portable contract	2026-11-08T13:22:02.4307213Z ##[error]Process completed with exit code 1.
