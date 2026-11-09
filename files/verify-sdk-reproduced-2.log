@@ -1,0 +1,40 @@
+
+> @errors/errors-workbench@0.7.3 test:sentry /workspace/run-spool-fix1
+> node tests/sentry-http.mjs && node tests/sentry-import.mjs && node tests/business-import.mjs
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:6446) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+[FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+[API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+[FIND-003] exact retained totals, saved-query read-back and widget equality, DST calendar buckets, history exclusions, acknowledgement and resolution quantiles, ownership, SDK-008 identity policy, SDK-005 health, no-release, discards and JSON and CSV public report doors passed
+SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (bulk; two auto semvers and two SHA releases).
+[TEAM-003] server deadlines, additional occurrences, shared affected-user definition, shown forecast, snooze, one follow-up and bulk suppression preview passed
+[FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, owner views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed
+Bulk triage public flow passed: preview, atomic stale refusal, action binding, project/owner/origin scope, apply, revision and query export.
+Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.
+PROBE ERR-005 issue view: independent exception paging, occurrence selection reset, keyboard recovery and Axe passed at 1440; mapped screens captured at 1440 and 390
+PROBE ERR-005 retained pages: public Sentry envelope and current mapped-frame route -> 1,000 unique stored indices, originals through frame 1,000, explicit missing and mismatch reasons
+PROBE ERR-005 late maps: public artifact upload and event reads -> every admission snapshot and occurrence unchanged; new captures mapped; replay unchanged
+PROBE ERR-005 authority: malformed and cross-stack cursors, foreign selectors, project grants and removed native member -> refused without changing evidence
+PROBE ERR-005 legacy privacy: owner and agent packets -> 30 diagnostic frames, no source content or frame locals
+file:///workspace/run-spool-fix1/tests/worker.mjs:91
+  throw new Error('Test Worker failed: '+JSON.stringify(result));
+        ^
+
+Error: Test Worker failed: {"failed":true,"failure":{"type":"Error","location":"tests/worker.mjs:49:3"},"cleanupFailures":[{"step":"test-worker","type":"Error","location":"tests/worker.mjs:28:26"}],"worker":{"redacted":true,"lines":2,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+    at startTestWorker (file:///workspace/run-spool-fix1/tests/worker.mjs:91:9)
+    at async impactJourney (file:///workspace/run-spool-fix1/tests/fidelity-flow.mjs:115:17)
+    at async fidelityFlow (file:///workspace/run-spool-fix1/tests/fidelity-flow.mjs:70:2)
+    at async file:///workspace/run-spool-fix1/tests/sentry-http.mjs:121:3
+
+Node.js v22.20.0
+ ELIFECYCLE  Command failed with exit code 1.

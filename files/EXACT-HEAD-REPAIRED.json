@@ -1,0 +1,56 @@
+{
+  "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+  "node": "v22.20.0",
+  "checks": [
+    {
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck-repaired-exact.log",
+      "started_utc": "2026-11-09T16:41:51Z",
+      "ended_utc": "2026-11-09T16:42:01Z"
+    },
+    {
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "timeout",
+        "240",
+        "node",
+        "tests/bugsnag-import.mjs"
+      ],
+      "exit": 0,
+      "log": "bugsnag-repaired-exact.log",
+      "started_utc": "2026-11-09T16:42:01Z",
+      "ended_utc": "2026-11-09T16:42:19Z"
+    },
+    {
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "command": [
+        "node",
+        "src/base/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "views-repaired-exact.log",
+      "started_utc": "2026-11-09T16:42:19Z",
+      "ended_utc": "2026-11-09T16:42:19Z"
+    },
+    {
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "lock-repaired-exact.log",
+      "started_utc": "2026-11-09T16:42:19Z",
+      "ended_utc": "2026-11-09T16:42:20Z"
+    }
+  ]
+}

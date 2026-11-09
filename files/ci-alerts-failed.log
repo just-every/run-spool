@@ -1,0 +1,67 @@
+Sanitized failed-step archive: workflow environment headers omitted; command, test output and failure retained.
+verify (alerts)	Run suites	﻿2026-11-09T15:52:42.3540598Z ##[group]Run pnpm test:alerts && pnpm test:alerts-ui
+verify (alerts)	Run suites	2026-11-09T15:52:42.3540981Z [36;1mpnpm test:alerts && pnpm test:alerts-ui[0m
+verify (alerts)	Run suites	2026-11-09T15:52:42.3558858Z shell: /usr/bin/bash -e {0}
+verify (alerts)	Run suites	2026-11-09T15:52:42.3560723Z ##[endgroup]
+verify (alerts)	Run suites	2026-11-09T15:52:42.5778904Z 
+verify (alerts)	Run suites	2026-11-09T15:52:42.5780007Z > @errors/errors-workbench@0.7.3 test:alerts /home/runner/work/run-spool/run-spool
+verify (alerts)	Run suites	2026-11-09T15:52:42.5781519Z > node tests/alerts-runtime.mjs && node tests/alerts-immediate.mjs && node tests/alerts-edge-runtime.mjs && node tests/alerts-native.mjs && node tests/alerts-egress.mjs
+verify (alerts)	Run suites	2026-11-09T15:52:42.5782394Z 
+verify (alerts)	Run suites	2026-11-09T15:52:42.6951688Z (node:2477) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-09T15:52:42.6952673Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-09T15:53:12.3830584Z PROBE AI-004 acceptance 4: native repair facts and strictly newer capture -> recurred observation, one matching regression delivery, one owner follow-up at the 24-hour boundary, one suppressed alternate notice and one creation audit fact; older capture and replay controls passed.
+verify (alerts)	Run suites	2026-11-09T15:53:12.4072959Z (node:2477) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-09T15:53:36.0994964Z ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss: passing reviewed tests and unchanged archive projection; accepted/delivered/bounced/complained (signed fixtures), unsigned/forged/unknown refused, duplicate once; webhook HTTP/signature receipt; America/New_York daily/weekly at DST boundary once; burst held, expiry one durable resumption and suppressed count; inert restore.
+verify (alerts)	Run suites	2026-11-09T15:53:36.1336894Z ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Alert public doors passed: atomic capture with silent local mail and HMAC receiver; regression, isolation/revocation/origin, immutable 429 retry, uncertainty, overlapping complete-window spikes, safe restore without replay.
+verify (alerts)	Run suites	2026-11-09T15:53:36.2749609Z (node:2540) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-09T15:53:36.2750285Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-09T15:53:40.6466071Z {"passed":true,"ingestToDeliveredMs":907,"proof":"Idle tick recorded in /health; new-issue and regression mail accepted silently and webhook delivered after ingest with no scheduled run; racing and later scheduled runs sent nothing twice."}
+verify (alerts)	Run suites	2026-11-09T15:53:40.7918644Z (node:2564) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-09T15:53:40.7919611Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-09T15:53:53.5860705Z Alert edge policy passed: missing enforcing egress blocks without fetch; real Base mail 429 retries, 503 uncertainty never replays, rule revocation cancels pending work.
+verify (alerts)	Run suites	2026-11-09T15:53:53.5864410Z RER relay: native sign-in and alert mail POST the exact relay envelope with ***; emitted workerd uses Base redirect:manual; 302 is rejected/provider_redirected with no target fetch or retry; 429 queues then retries per policy; 401 is a rejected delivery and a plain owner-visible sign-in problem, with health intact. Login hints prefill both sign-in paths without sending mail.
+verify (alerts)	Run suites	2026-11-09T15:53:53.7519507Z (node:2607) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (alerts)	Run suites	2026-11-09T15:53:53.7520132Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (alerts)	Run suites	2026-11-09T15:53:53.7884984Z TAP version 13
+verify (alerts)	Run suites	2026-11-09T15:54:00.4112664Z # Subtest: native scheduled event delivers a new issue with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:54:00.4119719Z not ok 1 - native scheduled event delivers a new issue with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:54:00.4120214Z   ---
+verify (alerts)	Run suites	2026-11-09T15:54:00.4120459Z   duration_ms: 6622.822779
+verify (alerts)	Run suites	2026-11-09T15:54:00.4120746Z   type: 'test'
+verify (alerts)	Run suites	2026-11-09T15:54:00.4122255Z   location: '/home/runner/work/run-spool/run-spool/tests/alerts-native.mjs:10:7'
+verify (alerts)	Run suites	2026-11-09T15:54:00.4122739Z   failureType: 'testCodeFailure'
+verify (alerts)	Run suites	2026-11-09T15:54:00.4123126Z   error: "Cannot read properties of undefined (reading 'reason')"
+verify (alerts)	Run suites	2026-11-09T15:54:00.4123566Z   code: 'ERR_TEST_FAILURE'
+verify (alerts)	Run suites	2026-11-09T15:54:00.4123805Z   name: 'TypeError'
+verify (alerts)	Run suites	2026-11-09T15:54:00.4124043Z   stack: |-
+verify (alerts)	Run suites	2026-11-09T15:54:00.4124481Z     conditionsJourney (file:///home/runner/work/run-spool/run-spool/tests/alerts/conditions-journey.mjs:43:95)
+verify (alerts)	Run suites	2026-11-09T15:54:00.4125063Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+verify (alerts)	Run suites	2026-11-09T15:54:00.4125659Z     async TestContext.<anonymous> (file:///home/runner/work/run-spool/run-spool/tests/alerts-native.mjs:12:119)
+verify (alerts)	Run suites	2026-11-09T15:54:00.4126145Z     async Test.run (node:internal/test_runner/test:1054:7)
+verify (alerts)	Run suites	2026-11-09T15:54:00.4126650Z     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+verify (alerts)	Run suites	2026-11-09T15:54:00.4127159Z     async file:///home/runner/work/run-spool/run-spool/tests/alerts-native.mjs:10:1
+verify (alerts)	Run suites	2026-11-09T15:54:00.4127505Z   ...
+verify (alerts)	Run suites	2026-11-09T15:54:04.1857996Z PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+verify (alerts)	Run suites	2026-11-09T15:54:04.2554527Z # Subtest: native scheduled event delivers a later-release regression with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:54:04.2555621Z ok 2 - native scheduled event delivers a later-release regression with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:54:04.2556251Z   ---
+verify (alerts)	Run suites	2026-11-09T15:54:04.2556529Z   duration_ms: 3843.909408
+verify (alerts)	Run suites	2026-11-09T15:54:04.2556859Z   type: 'test'
+verify (alerts)	Run suites	2026-11-09T15:54:04.2557142Z   ...
+verify (alerts)	Run suites	2026-11-09T15:56:00.8261142Z # Subtest: native scheduled event completes a real spike window and completes with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:56:00.8262187Z ok 3 - native scheduled event completes a real spike window and completes with silent local mail once
+verify (alerts)	Run suites	2026-11-09T15:56:00.8262733Z   ---
+verify (alerts)	Run suites	2026-11-09T15:56:00.8263023Z   duration_ms: 116570.740986
+verify (alerts)	Run suites	2026-11-09T15:56:00.8263315Z   type: 'test'
+verify (alerts)	Run suites	2026-11-09T15:56:00.8263549Z   ...
+verify (alerts)	Run suites	2026-11-09T15:56:00.8267802Z 1..3
+verify (alerts)	Run suites	2026-11-09T15:56:00.8268082Z # tests 3
+verify (alerts)	Run suites	2026-11-09T15:56:00.8268641Z # suites 0
+verify (alerts)	Run suites	2026-11-09T15:56:00.8269503Z # pass 2
+verify (alerts)	Run suites	2026-11-09T15:56:00.8269768Z # fail 1
+verify (alerts)	Run suites	2026-11-09T15:56:00.8270021Z # cancelled 0
+verify (alerts)	Run suites	2026-11-09T15:56:00.8270299Z # skipped 0
+verify (alerts)	Run suites	2026-11-09T15:56:00.8270556Z # todo 0
+verify (alerts)	Run suites	2026-11-09T15:56:00.8270850Z # duration_ms 127041.501221
+verify (alerts)	Run suites	2026-11-09T15:56:00.8639212Z  ELIFECYCLE  Command failed with exit code 1.
+verify (alerts)	Run suites	2026-11-09T15:56:00.8806031Z ##[error]Process completed with exit code 1.

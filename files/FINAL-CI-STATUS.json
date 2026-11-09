@@ -1,0 +1,13 @@
+{
+  "head_sha": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+  "branch": "cloud/strategy-trial-18-sol-fix1",
+  "status": "not_observed",
+  "conclusion": null,
+  "reason": "The ten-call task GitHub API budget was exhausted diagnosing the prior SHA; no discovery or rerun call was made for this new SHA.",
+  "prior_head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+  "prior_run_id": 42648796379,
+  "prior_conclusion": "failure",
+  "prior_receipt": "CI-RECEIPT.json",
+  "calls_used": 10,
+  "handoff": "PUSHED, not READY"
+}

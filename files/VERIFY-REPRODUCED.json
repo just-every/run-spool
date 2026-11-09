@@ -1,0 +1,25 @@
+[
+  {
+    "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+    "job": 129269854071,
+    "command": "node tests/multilingual.mjs",
+    "test": "tests/multilingual.mjs:119 forged earlier behavior inventory refusal",
+    "exit": 1,
+    "failure": "POST /api/restore: HTTP 409 schema_mismatch:legacy_evidence",
+    "log": "verify-sdk-candidate-multilingual.log",
+    "shard_command": "pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages",
+    "exact_shard_attempts": [
+      "verify-sdk-reproduced.log",
+      "verify-sdk-reproduced-2.log"
+    ]
+  },
+  {
+    "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+    "job": 129269853778,
+    "command": "pnpm test:repair-recovery",
+    "test": "tests/repair-recovery/archive.mjs#archiveProof",
+    "exit": 1,
+    "failure": "POST /api/restore: HTTP 400 other",
+    "log": "verify-repair-recovery-reproduced.log"
+  }
+]

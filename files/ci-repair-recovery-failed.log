@@ -1,0 +1,15 @@
+Sanitized failed-step archive: workflow environment headers omitted; command, test output and failure retained.
+verify (repair-recovery)	Run suites	﻿2026-11-09T15:52:44.7797862Z ##[group]Run pnpm test:repair-recovery
+verify (repair-recovery)	Run suites	2026-11-09T15:52:44.7798252Z [36;1mpnpm test:repair-recovery[0m
+verify (repair-recovery)	Run suites	2026-11-09T15:52:44.7818342Z shell: /usr/bin/bash -e {0}
+verify (repair-recovery)	Run suites	2026-11-09T15:52:44.7820500Z ##[endgroup]
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.0723303Z 
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.0724525Z > @errors/errors-workbench@0.7.3 test:repair-recovery /home/runner/work/run-spool/run-spool
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.0726009Z > node tests/repair-recovery.mjs
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.0726367Z 
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.6855578Z (node:2638) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (repair-recovery)	Run suites	2026-11-09T15:52:45.6856988Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (repair-recovery)	Run suites	2026-11-09T16:00:33.4688780Z {"journey":"repair-recovery","stage":"archive","type":"Error","message":"POST /api/restore: HTTP 400 other","stack":["    at json (file:///home/runner/work/run-spool/run-spool/tests/agent-handoff/runtime.mjs:42:238)","    at async Object.resetRestore (file:///home/runner/work/run-spool/run-spool/tests/agent-handoff/runtime.mjs:43:916)","    at async archiveProof (file:///home/runner/work/run-spool/run-spool/tests/repair-recovery/archive.mjs:48:2)","    at async file:///home/runner/work/run-spool/run-spool/tests/repair-recovery.mjs:43:32"]}
+verify (repair-recovery)	Run suites	2026-11-09T16:00:34.8153128Z Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+verify (repair-recovery)	Run suites	2026-11-09T16:00:34.8536725Z  ELIFECYCLE  Command failed with exit code 1.
+verify (repair-recovery)	Run suites	2026-11-09T16:00:34.8750808Z ##[error]Process completed with exit code 1.

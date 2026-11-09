@@ -1,11 +1,34 @@
 {
-  "conclusion": null,
+  "conclusion": "failure",
   "head_sha": "7d9f9d69db0f82c082572220c9a9c8543af06442",
   "html_url": "https://github.com/just-every/run-spool/actions/runs/42648796379",
-  "status": "in_progress",
+  "status": "completed",
   "id": 42648796379,
   "event": "push",
   "name": "Verify",
-  "calls_used": 3,
-  "observed_utc": "2026-11-09T15:56:51Z"
+  "calls_used": 6,
+  "observed_utc": "2026-11-09T16:11:56Z",
+  "diagnostic_calls_used": 10,
+  "failed_jobs": [
+    {
+      "id": 129269853607,
+      "name": "verify (alerts)"
+    },
+    {
+      "id": 129269853778,
+      "name": "verify (repair-recovery)"
+    },
+    {
+      "id": 129269854071,
+      "name": "verify (sdk)"
+    },
+    {
+      "id": 129280173912,
+      "name": "shards (spool)"
+    },
+    {
+      "id": 129280237424,
+      "name": "verify"
+    }
+  ]
 }

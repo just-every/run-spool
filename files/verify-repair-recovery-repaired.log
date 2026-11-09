@@ -1,0 +1,12 @@
+
+> @errors/errors-workbench@0.7.3 test:repair-recovery /workspace/run-spool-fix1
+> node tests/repair-recovery.mjs
+
+(node:12120) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [f966256e585b]
+(node:12142) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Repair recovery public journey passed: 6 groups; 16 captures; verdicts a,b,c,e,f,d.
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

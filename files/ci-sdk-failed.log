@@ -1,0 +1,160 @@
+Sanitized failed-step archive: workflow environment headers omitted; command, test output and failure retained.
+verify (sdk)	Run suites	﻿2026-11-09T15:52:41.7774545Z ##[group]Run pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+verify (sdk)	Run suites	2026-11-09T15:52:41.7774929Z [36;1mpnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages[0m
+verify (sdk)	Run suites	2026-11-09T15:52:41.7791020Z shell: /usr/bin/bash -e {0}
+verify (sdk)	Run suites	2026-11-09T15:52:41.7792228Z ##[endgroup]
+verify (sdk)	Run suites	2026-11-09T15:52:41.9362629Z 
+verify (sdk)	Run suites	2026-11-09T15:52:41.9363084Z > @errors/errors-workbench@0.7.3 test:sentry /home/runner/work/run-spool/run-spool
+verify (sdk)	Run suites	2026-11-09T15:52:41.9363495Z > node tests/sentry-http.mjs && node tests/sentry-import.mjs && node tests/business-import.mjs
+verify (sdk)	Run suites	2026-11-09T15:52:41.9363695Z 
+verify (sdk)	Run suites	2026-11-09T15:52:42.6808201Z (node:2470) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T15:52:42.6808952Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T15:53:05.9668970Z PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+verify (sdk)	Run suites	2026-11-09T15:53:06.6690049Z PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+verify (sdk)	Run suites	2026-11-09T15:53:09.6700782Z PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+verify (sdk)	Run suites	2026-11-09T15:53:11.3121031Z PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+verify (sdk)	Run suites	2026-11-09T15:53:24.8173143Z OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+verify (sdk)	Run suites	2026-11-09T15:53:35.5114860Z PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+verify (sdk)	Run suites	2026-11-09T15:53:41.6993843Z [FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+verify (sdk)	Run suites	2026-11-09T15:53:55.3621756Z [API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+verify (sdk)	Run suites	2026-11-09T15:54:04.0512393Z [FIND-003] exact retained totals, saved-query read-back and widget equality, DST calendar buckets, history exclusions, acknowledgement and resolution quantiles, ownership, SDK-008 identity policy, SDK-005 health, no-release, discards and JSON and CSV public report doors passed
+verify (sdk)	Run suites	2026-11-09T15:54:05.6662669Z SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (bulk; two auto semvers and two SHA releases).
+verify (sdk)	Run suites	2026-11-09T15:54:23.6922404Z [TEAM-003] server deadlines, additional occurrences, shared affected-user definition, shown forecast, snooze, one follow-up and bulk suppression preview passed
+verify (sdk)	Run suites	2026-11-09T15:54:36.7338528Z [FIND-001] pending count, one/selection review, atomic preview, unchanged issue data, regression, owner views, query validation, 25-view cap, stranger links, archive/restore/erasure and 1440/390 UI passed
+verify (sdk)	Run suites	2026-11-09T15:54:36.7339829Z Bulk triage public flow passed: preview, atomic stale refusal, action binding, project/owner/origin scope, apply, revision and query export.
+verify (sdk)	Run suites	2026-11-09T15:54:42.3162217Z Full-corpus search, query-wide facets, cursor pages, authorized JSON/CSV exports and scope passed.
+verify (sdk)	Run suites	2026-11-09T15:55:05.2657831Z PROBE ERR-005 issue view: independent exception paging, occurrence selection reset, keyboard recovery and Axe passed at 1440; mapped screens captured at 1440 and 390
+verify (sdk)	Run suites	2026-11-09T15:55:14.3756213Z PROBE ERR-005 retained pages: public Sentry envelope and current mapped-frame route -> 1,000 unique stored indices, originals through frame 1,000, explicit missing and mismatch reasons
+verify (sdk)	Run suites	2026-11-09T15:55:14.3757410Z PROBE ERR-005 late maps: public artifact upload and event reads -> every admission snapshot and occurrence unchanged; new captures mapped; replay unchanged
+verify (sdk)	Run suites	2026-11-09T15:55:14.3758092Z PROBE ERR-005 authority: malformed and cross-stack cursors, foreign selectors, project grants and removed native member -> refused without changing evidence
+verify (sdk)	Run suites	2026-11-09T15:55:14.3758620Z PROBE ERR-005 legacy privacy: owner and agent packets -> 30 diagnostic frames, no source content or frame locals
+verify (sdk)	Run suites	2026-11-09T15:55:31.2663393Z FIND-002 issue impact: all retained events, shared SDK-008 users, release exclusions, rate, project session denominators and query-scoped recommendation passed at 1440 and 390; explicit session association and truthful missing or foreign link coverage passed.
+verify (sdk)	Run suites	2026-11-09T15:57:13.1929034Z SDK-010 request query strings are kept scrubbed and every exclusion is named; GROUP-001 fidelity flow passed: chains/groups/message events, root-cause alerts, retained selection/pagination/tags, privacy and agent scope, 1,000-frame retention and Java chain.
+verify (sdk)	Run suites	2026-11-09T15:57:13.1930697Z GROUP-001 grouping rules public flow passed: exact-project authority, preview/no mutation, future routing, revision conflicts, immutable explanations, archive policy and responsive save/detail.
+verify (sdk)	Run suites	2026-11-09T15:57:14.3097603Z [TEAM-003] next-release regression, same/old/no-release accounting, previewed revision-fenced policy and unchanged plain resolution passed
+verify (sdk)	Run suites	2026-11-09T15:57:16.2047100Z SDK-009 an explicit dist 'sentry-no-dist' stays distinct from no dist, and next/named-release resolution regresses only on a later release (owner; two auto semvers and two SHA releases).
+verify (sdk)	Run suites	2026-11-09T15:57:46.0547360Z Release identity public flow passed: optional release, automatic/dists, enrichment, semantic regression, plain resolution, counted strict/pattern/name outcomes, archive restore and 1440/390 settings/history/triage.
+verify (sdk)	Run suites	2026-11-09T15:58:01.6758269Z TEAM-004 S1 / G1 passed: later SHA-release association, earlier resolution and revision kept, older-release protection, one SHA-release regression.
+verify (sdk)	Run suites	2026-11-09T15:58:34.2434950Z TEAM-004 S2 / G2 passed: reviewed email/signed-webhook regression rules; default SHA/release/citation and shared author/message bodies; nonempty fixture outbox; owner cutoff removes shared mail/outbox text and webhook copies, cancels pending deliveries retention_removed; clean archive, shared exports and scrub canary.
+verify (sdk)	Run suites	2026-11-09T15:58:34.2780081Z TEAM-004 short IDs, commit citations, resolution and unknown-ID link log passed: short IDs in lists, search, exports, packets and alerts; deploy-key and deployment citations; resolution, regression and older-release protection; SHA release association; merge alias; default-off and owner-shared author/message; inert restore, retention, erasure and retired prefixes; 1440/390 screens.
+verify (sdk)	Run suites	2026-11-09T15:58:40.2077467Z SDK-006 inbound-filter public flow passed: every filter, full retained preview, stale/authority denial, pre-group/alert/usage exclusion, IPv4/IPv6, wildcard Origin/Referer, counters and disabling.
+verify (sdk)	Run suites	2026-11-09T15:59:18.3338904Z Sentry HTTP public flows passed: shared admission, privacy and dedupe; distinct statsd and unknown counts with independent restore and erasure; SDK-011 deflate, counted 415s and item isolation; strict framing, binary, zero and gzip; CORS, credential agreement, revocation and project isolation; deploy scope and idempotent artifacts.
+verify (sdk)	Run suites	2026-11-09T15:59:18.6202193Z PROBE BILL-001 5 minute: public envelope, two key grants -> accepted=3, duplicate=1, filtered=1, key_rate_limited=1; second key accepted
+verify (sdk)	Run suites	2026-11-09T15:59:19.5034459Z PROBE BILL-001 5 hour and concurrency: six public envelopes at one remaining slot -> one accepted, five key-limited; restart and lower or higher limits preserve spend
+verify (sdk)	Run suites	2026-11-09T15:59:19.8093621Z PROBE BILL-001 5 deadline and configuration: public envelope after expired persisted buckets -> accepted; disabling and re-enabling retain spend; mixed refusal count=2 and SDK discard count=7
+verify (sdk)	Run suites	2026-11-09T15:59:20.4974267Z PROBE BILL-001 5 SDK: installed unmodified Node clients with two DSNs -> first key honors backoff; second key stores its error
+verify (sdk)	Run suites	2026-11-09T15:59:33.2641736Z PROBE BILL-001 5 custody: private archive and fresh restore -> no key authority or quota state; owner project erasure -> both tables removed and replay refused
+verify (sdk)	Run suites	2026-11-09T15:59:33.5019793Z PROBE BILL-001 5 loss: native capture refused by key limit -> repair verdict becomes inconclusive; reports and widgets reconcile server refusals
+verify (sdk)	Run suites	2026-11-09T15:59:35.0805437Z PROBE BILL-001 5 UI 1440: Settings save -> one event per hour; Capture receipts -> accepted=1 and capture-key-limited=1; keyboard, Axe and reflow passed
+verify (sdk)	Run suites	2026-11-09T15:59:35.9594506Z (node:3684) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T15:59:35.9595221Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T15:59:41.0858255Z Import reads: admin, maintainer, member and signed-out all refused with 401 and error only.
+verify (sdk)	Run suites	2026-11-09T15:59:43.6451686Z Owner import reads: project-free state, imported project IDs, history counts, rejected labels/codes, native-edit blockers and explicit unknown transition times passed through public HTTP.
+verify (sdk)	Run suites	2026-11-09T15:59:49.2876192Z Sentry org import fixture public flows passed through the import door: CLI no-write plan, reviewed apply, retained exact bytes, duplicates, inert native graph, scope and origin denial, reopen/resume, relation-safe undo, native-edit/revoked-session protection and inert archive restore. Synthetic export only.
+verify (sdk)	Run suites	2026-11-09T16:00:08.4518885Z PROBE MIG-004 1: owner CLI web and Android export -> sampled graph and release session aggregates reconcile; interrupted apply resumes, history stays inert, archive restores and erasure fences replay.
+verify (sdk)	Run suites	2026-11-09T16:00:08.4519809Z PROBE MIG-004 2: deploy upload and public capture -> web map and Android original native stack, at 1440 and 390.
+verify (sdk)	Run suites	2026-11-09T16:00:08.4520620Z PROBE MIG-004 3: owner CLI missing and zero historical denominators -> explicit unavailable gap, crashFreeRate null and no fabricated sessions.
+verify (sdk)	Run suites	2026-11-09T16:00:08.6384258Z (node:3790) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T16:00:08.6384760Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T16:02:37.9709542Z Signed bounded catch-up passed: 497 baseline -> 499 source records; native reconcile, changed issue + added issue/event, approval binding, over-allowance/gone/native-edit refusals and exact newest-first undo. Large-set reads approached the record limit with this synthetic graph; no arbitrary-byte/native-set claim.
+verify (sdk)	Run suites	2026-11-09T16:02:39.6433699Z Business import public HTTP journey passed: owner opt-in, namespace allow-list, checked chunks, no-write review, signed approval, native reconciliation, Base door conformance through the owner and Business mounts, both undo doors, the tool archive and its restore check, project erasure of door custody, the signed cutover read with its refusals, and durable key revocation. Synthetic export only.
+verify (sdk)	Run suites	2026-11-09T16:02:39.9497554Z 
+verify (sdk)	Run suites	2026-11-09T16:02:39.9499021Z > @errors/errors-workbench@0.7.3 test:sentry:sdk /home/runner/work/run-spool/run-spool
+verify (sdk)	Run suites	2026-11-09T16:02:39.9499544Z > node tests/sentry-sdk.mjs
+verify (sdk)	Run suites	2026-11-09T16:02:39.9499703Z 
+verify (sdk)	Run suites	2026-11-09T16:02:40.4273530Z (node:3853) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T16:02:40.4275308Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T16:02:46.6269105Z {"stage":"browser-qualification","width":1440,"target":"reference"}
+verify (sdk)	Run suites	2026-11-09T16:02:46.6689425Z {"stage":"browser-round","width":1440,"target":"reference","round":0}
+verify (sdk)	Run suites	2026-11-09T16:02:48.0045158Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:02:48.0048121Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:02:48.0054163Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:02:48.0111807Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:02:48.0416280Z {"stage":"browser-round","width":1440,"target":"reference","round":1}
+verify (sdk)	Run suites	2026-11-09T16:02:49.3370930Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:02:49.3375211Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:02:49.3415159Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:02:49.3426521Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:02:49.3794215Z {"stage":"browser-qualification","width":1440,"target":"qualification"}
+verify (sdk)	Run suites	2026-11-09T16:02:49.4187948Z {"stage":"browser-round","width":1440,"target":"qualification","round":0}
+verify (sdk)	Run suites	2026-11-09T16:02:50.8694274Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:02:50.8697815Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:02:50.8704123Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:02:50.8754927Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:02:50.9334367Z {"stage":"browser-round","width":1440,"target":"qualification","round":1}
+verify (sdk)	Run suites	2026-11-09T16:02:52.3570058Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:02:52.3573563Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:02:52.3587789Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:02:52.3610419Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:02:58.1255612Z {"qualification":"[SDK-001] browser","width":1440,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+verify (sdk)	Run suites	2026-11-09T16:02:58.1257497Z PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 1440 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+verify (sdk)	Run suites	2026-11-09T16:02:58.1818628Z {"stage":"browser-qualification","width":390,"target":"reference"}
+verify (sdk)	Run suites	2026-11-09T16:02:58.2240503Z {"stage":"browser-round","width":390,"target":"reference","round":0}
+verify (sdk)	Run suites	2026-11-09T16:02:59.5198729Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:02:59.5201663Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:02:59.5207670Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:02:59.5261690Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:02:59.5577226Z {"stage":"browser-round","width":390,"target":"reference","round":1}
+verify (sdk)	Run suites	2026-11-09T16:03:00.8524736Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:03:00.8527592Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:03:00.8532603Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:03:00.8574998Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:03:00.8922300Z {"stage":"browser-qualification","width":390,"target":"qualification"}
+verify (sdk)	Run suites	2026-11-09T16:03:00.9331410Z {"stage":"browser-round","width":390,"target":"qualification","round":0}
+verify (sdk)	Run suites	2026-11-09T16:03:02.3407068Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:03:02.3409243Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:03:02.3444596Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:03:02.3463464Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:03:02.4040762Z {"stage":"browser-round","width":390,"target":"qualification","round":1}
+verify (sdk)	Run suites	2026-11-09T16:03:03.8070738Z [SDK-001] lifecycle: original session
+verify (sdk)	Run suites	2026-11-09T16:03:03.8073375Z [SDK-001] lifecycle: focus released
+verify (sdk)	Run suites	2026-11-09T16:03:03.8077959Z [SDK-001] lifecycle: window minimized
+verify (sdk)	Run suites	2026-11-09T16:03:03.8124416Z [SDK-001] lifecycle: report sent
+verify (sdk)	Run suites	2026-11-09T16:03:09.3985165Z {"qualification":"[SDK-001] browser","width":390,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+verify (sdk)	Run suites	2026-11-09T16:03:09.3988176Z PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 390 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+verify (sdk)	Run suites	2026-11-09T16:03:30.5074148Z SDK-023 populated upgrade: existing project, key and occurrence preserved; same key defaults lazy and captures once after migration0061
+verify (sdk)	Run suites	2026-11-09T16:03:30.5326187Z {"clause":"SDK-023","captures":8,"widths":[1440,390],"icons":"no icon-only control on the touched screen","loader":"/sdk/<public-key>.min.js","custody":"archive excludes key; erasure removes settings"}
+verify (sdk)	Run suites	2026-11-09T16:03:45.3817285Z SDK-006 real unmodified Node SDK: every filter enabled through app at 1440/390, nonmatches, exact counters, no issues/alerts/accepted units, disable and later acceptance.
+verify (sdk)	Run suites	2026-11-09T16:04:23.2258778Z {"clause":"SDK-024","widths":[1440,390],"routed":4,"unrouted":2,"receiver":"recorded double of the documented Uptime heartbeat door","custody":"not archived, restored inert, erased with the project"}
+verify (sdk)	Run suites	2026-11-09T16:04:41.6818543Z [SDK-005] default Node healthy/crashed and browser healthy/unhandled sessions, exact reference reconciliation, aggregate unknown users, missing release/origin/key refusal, read grant, JSON, 1440/390, archive/restore and erasure passed
+verify (sdk)	Run suites	2026-11-09T16:04:41.9692205Z (node:3853) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T16:05:02.1932033Z [SDK-005] session-only SDK backoff, mixed errors, deadline recovery, exact rate, capacity, invalid and discard accounting and grant fences passed
+verify (sdk)	Run suites	2026-11-09T16:05:42.1717882Z [SDK-008] unmodified browser/Python: explicit keep, count-only preview, audited hash/drop conversion, count-only grants/packets, literal IPv4/IPv6, unresolved auto addresses, private restore and erasure; 1440/390 passed
+verify (sdk)	Run suites	2026-11-09T16:05:58.8351216Z {"passed":true,"browser":"11.6.0","node":"11.6.0","proof":"Unmodified SDK programs/configs with DSN switched only: browser 1440/390 original source line through build plugin and CLI, Node gzip capture+flush."}
+verify (sdk)	Run suites	2026-11-09T16:05:59.1863025Z 
+verify (sdk)	Run suites	2026-11-09T16:05:59.1864162Z > @errors/errors-workbench@0.7.3 test:sdk /home/runner/work/run-spool/run-spool
+verify (sdk)	Run suites	2026-11-09T16:05:59.1864586Z > node tests/sdk-package.mjs
+verify (sdk)	Run suites	2026-11-09T16:05:59.1864708Z 
+verify (sdk)	Run suites	2026-11-09T16:05:59.6248384Z (node:6150) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T16:05:59.6249086Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T16:06:43.5547433Z [SRC-004] Spool CLI 27 maps, indexed offsets/sourceRoot/large-map public issue lookup, byte cap, per-file refusal, owner-only setting, release UI 1440/390 passed; no icon-only control on touched section.
+verify (sdk)	Run suites	2026-11-09T16:07:01.1586807Z [plugin spool-source-maps] Uploaded 2 source maps.
+verify (sdk)	Run suites	2026-11-09T16:07:04.0475466Z [plugin spool-source-maps] Uploaded 2 source maps.
+verify (sdk)	Run suites	2026-11-09T16:07:07.1190616Z [plugin spool-source-maps] Uploaded 2 source maps.
+verify (sdk)	Run suites	2026-11-09T16:07:40.3418642Z [SRC-001] Packed Vite, Rollup, webpack and esbuild: two emitted maps used in each of three consecutive releases at b1; all 24 mapped failures and earlier artifact sets reconciled; withheld map fails all four without output; late artifacts complete unchanged identities; independent restore and erasure; checksum tampering refused by file; 1440/390 overflow and Axe passed.
+verify (sdk)	Run suites	2026-11-09T16:07:40.3424833Z {"passed":true,"proof":"Packed tarball installed offline into a fresh app: browser init with plugin-mapped frame and scrubbed breadcrumb, the same page without crypto.randomUUID, a fetch wrapper reporting refused sends without a feedback loop, a noisy location capped while another location’s error arrives and every drop counted on its issue, Node uncaught exception (and an odd-shaped one) reported then exit 1 with the app error, even with a never-settling fetch and a second throw, Worker catch block kept with a missing option."}
+verify (sdk)	Run suites	2026-11-09T16:07:40.6949727Z 
+verify (sdk)	Run suites	2026-11-09T16:07:40.6950638Z > @errors/errors-workbench@0.7.3 test:languages /home/runner/work/run-spool/run-spool
+verify (sdk)	Run suites	2026-11-09T16:07:40.6951100Z > node tests/multilingual.mjs
+verify (sdk)	Run suites	2026-11-09T16:07:40.6951256Z 
+verify (sdk)	Run suites	2026-11-09T16:07:40.9816305Z (node:6685) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-09T16:07:40.9816838Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-09T16:08:46.5222999Z node:internal/modules/run_main:123
+verify (sdk)	Run suites	2026-11-09T16:08:46.5223464Z     triggerUncaughtException(
+verify (sdk)	Run suites	2026-11-09T16:08:46.5223674Z     ^
+verify (sdk)	Run suites	2026-11-09T16:08:46.5223755Z 
+verify (sdk)	Run suites	2026-11-09T16:08:46.5224012Z AssertionError [ERR_ASSERTION]: POST /api/restore: HTTP 409 schema_mismatch:legacy_evidence
+verify (sdk)	Run suites	2026-11-09T16:08:46.5224466Z     at Object.json (file:///home/runner/work/run-spool/run-spool/tests/execution/runtime.mjs:29:137)
+verify (sdk)	Run suites	2026-11-09T16:08:46.5224918Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+verify (sdk)	Run suites	2026-11-09T16:08:46.5225306Z     at async file:///home/runner/work/run-spool/run-spool/tests/multilingual.mjs:119:2 {
+verify (sdk)	Run suites	2026-11-09T16:08:46.5225593Z   generatedMessage: false,
+verify (sdk)	Run suites	2026-11-09T16:08:46.5225958Z   code: 'ERR_ASSERTION',
+verify (sdk)	Run suites	2026-11-09T16:08:46.5226225Z   actual: false,
+verify (sdk)	Run suites	2026-11-09T16:08:46.5226468Z   expected: true,
+verify (sdk)	Run suites	2026-11-09T16:08:46.5226697Z   operator: '==',
+verify (sdk)	Run suites	2026-11-09T16:08:46.5226880Z   diff: 'simple'
+verify (sdk)	Run suites	2026-11-09T16:08:46.5227042Z }
+verify (sdk)	Run suites	2026-11-09T16:08:46.5227105Z 
+verify (sdk)	Run suites	2026-11-09T16:08:46.5227159Z Node.js v22.20.0
+verify (sdk)	Run suites	2026-11-09T16:08:46.5724783Z  ELIFECYCLE  Command failed with exit code 1.
+verify (sdk)	Run suites	2026-11-09T16:08:46.5914937Z ##[error]Process completed with exit code 1.

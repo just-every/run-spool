@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/strategy-trial-18-sol-fix1",
+  "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+  "builder_head": "b6793817f29b9f10abf688dd6fe5030711de626b",
+  "integrated_main": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+  "product_pushed": true,
+  "working_tree_clean": true,
+  "node": "v22.20.0",
+  "checks": [
+    {
+      "command": "node tests/bugsnag-import.mjs",
+      "exit": 0,
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "log": "bugsnag-repaired-exact.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "log": "typecheck-repaired-exact.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "log": "views-repaired-exact.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+      "log": "lock-repaired-exact.log"
+    },
+    {
+      "command": "node tests/multilingual.mjs",
+      "exit": 0,
+      "log": "verify-sdk-repaired.log",
+      "binding": "Same source and tests as final commit; only commit metadata and generated source lock were finalized afterwards."
+    },
+    {
+      "command": "pnpm test:repair-recovery",
+      "exit": 0,
+      "log": "verify-repair-recovery-repaired.log",
+      "binding": "Same source and tests as final commit; only commit metadata and generated source lock were finalized afterwards."
+    },
+    {
+      "command": "pnpm test:alerts && pnpm test:alerts-ui",
+      "exit": 0,
+      "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+      "log": "verify-alerts-reproduced.log",
+      "binding": "Alert code and tests unchanged by the fixture repair."
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "check-repaired.log"
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit": 0,
+      "log": "integration-merged.log",
+      "binding": "Application and integration configuration unchanged by the fixture-only final commit."
+    }
+  ],
+  "main_baselines": [
+    {
+      "head": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+      "command": "node tests/multilingual.mjs",
+      "exit": 0,
+      "log": "verify-sdk-main-multilingual.log"
+    },
+    {
+      "head": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+      "command": "node tests/alerts-native.mjs",
+      "exit": 0,
+      "log": "verify-alerts-main.log"
+    },
+    {
+      "head": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+      "command": "pnpm test:repair-recovery",
+      "exit": 0,
+      "log": "verify-repair-recovery-main.log"
+    },
+    {
+      "head": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+      "command": "node tests/rollbar-import.mjs",
+      "exit": 1,
+      "log": "rollbar-main.log",
+      "failure": "Pre-existing exact browser text assertion expects 1 matching events; view renders singular 1 matching event."
+    }
+  ],
+  "fixture_files": {
+    "tests/fixtures/archive-before-native-symbols.mjs": "6a578f7b198e20e65c5ac06836611a2a09d3996df6767b5f8b76a3ae9c696241",
+    "tests/multilingual/archive.mjs": "d674fa81c2d7f77f6fa6938614c754589be2dfeb4a401000e45065b01f049460",
+    "tests/repair-recovery/archive.mjs": "4fd21423d31263b6deca986872c560384a14146799b380e8560cfbeb99022cd0"
+  },
+  "status": {
+    "integrated_main": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+    "counts": {
+      "done": 13,
+      "partial": 45,
+      "missing": 28
+    },
+    "MIG-004": "missing",
+    "status_rows": 86
+  },
+  "findings_before": 3,
+  "findings_after_in_touched_journey": 0,
+  "registrations_added": 0,
+  "assertions_removed": 0,
+  "tests_skipped": 0,
+  "ci": "FINAL-CI-STATUS.json",
+  "prior_failed_ci": "CI-RECEIPT.json",
+  "reproduced_failures": "VERIFY-REPRODUCED.json",
+  "initial_local_receipt": "LOCAL-RECEIPT.json",
+  "publication_scan": "Deferred to fleet Mac; no COMPLETE claim",
+  "handoff": "PUSHED; exact-SHA Verify unobserved after ten-call budget exhausted",
+  "files": {
+    "bugsnag-repaired-exact.log": {
+      "bytes": 763,
+      "sha256": "dc5f4d90049ecd7b2178d82f6089092f0177ff9d729bf9ee64bf7b51af30709e"
+    },
+    "typecheck-repaired-exact.log": {
+      "bytes": 86,
+      "sha256": "3104764f0632c29246997bf130bf3537320bcf7d440be4f3ea4b8bf3810b204b"
+    },
+    "views-repaired-exact.log": {
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    "lock-repaired-exact.log": {
+      "bytes": 463467,
+      "sha256": "da538c59ff48883e71415ea6d49050d58483f107c23db2751052827fbaea7c7c"
+    },
+    "verify-sdk-repaired.log": {
+      "bytes": 695,
+      "sha256": "eac23cc8c4d1c5f23b67d48deda26ff90a8b79953de31f87c9014bba625b318f"
+    },
+    "verify-repair-recovery-repaired.log": {
+      "bytes": 786,
+      "sha256": "675db71dceeb9b8b5ead00d967b4d3a310e4a4766391f05816f4caaf407103fa"
+    },
+    "verify-repair-recovery-main.log": {
+      "bytes": 792,
+      "sha256": "efa3ec5520d95b7dc717b588b4f00f3f9c9ca2b69b97602eb4d501e3b3f194b8"
+    },
+    "verify-alerts-reproduced.log": {
+      "bytes": 17496,
+      "sha256": "f40f7b0b37943e8f3ae9f10f73e139b37bed231a4e472eca152d9321fe168493"
+    },
+    "verify-alerts-main.log": {
+      "bytes": 2684,
+      "sha256": "e2b4dae26dac2ebd82c79078bf62afa6c96c43a42d8a9b1b5bb37188aee2b706"
+    },
+    "verify-sdk-main-multilingual.log": {
+      "bytes": 2239,
+      "sha256": "1176a4aa56dbfd0d2b89edc26eb6391e3503691068973bee8fd281a0c260f2a9"
+    },
+    "ci-sdk-failed.log": {
+      "bytes": 25941,
+      "sha256": "57b6f7cf3b4d12205a97c2b9f62476e7631173ca680dcd8dd8ca82a7b09e073f"
+    },
+    "ci-alerts-failed.log": {
+      "bytes": 8846,
+      "sha256": "7bc2a50fdd1501e7f21ec5d6afff7b6a77901848b9e837aeb77995dd694d7537"
+    },
+    "ci-repair-recovery-failed.log": {
+      "bytes": 2266,
+      "sha256": "e5d4086f85aad26efe7301e0b997545bfb260f0120df37543f651ec368439fe7"
+    },
+    "repaired-push.log": {
+      "bytes": 746,
+      "sha256": "53d36795ccf37424f0df782ffd761dacae6601c5465b35e1e5b7b6799defe99f"
+    },
+    "imported-android-1440.png": {
+      "bytes": 467637,
+      "sha256": "d726d16b1e2f0302bbcc1bf85a8fe80e5e4461529fbbc362358102eae746db2a"
+    },
+    "imported-android-390.png": {
+      "bytes": 329406,
+      "sha256": "43f7d1b03b8fbd25cde477e2072746bfaa2edb9e530554e5d2323738f846e98a"
+    },
+    "native-cutover-1440.png": {
+      "bytes": 512255,
+      "sha256": "e222b5a42b50068a1dcfb6a10afeea6e7c20591626332d6a72e781fc5f4cb3f8"
+    },
+    "native-cutover-390.png": {
+      "bytes": 510020,
+      "sha256": "c49b241da1b728303e13f90d89ef1a28091f14c0d10c83986eb1c7c92b3b3e5c"
+    },
+    "LOCAL-RECEIPT.json": {
+      "bytes": 6241,
+      "sha256": "c101d168de606537f358337e8474c04df95a67a72a89def6a35aa82e1f0e2679"
+    }
+  }
+}

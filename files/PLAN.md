@@ -10,3 +10,5 @@ Scope: resolve the three Tier A findings against builder head b6793817f29b9f10ab
 6. Discover exact-SHA Verify via REST with a maximum ten-call budget and at most one call per run per 300 seconds. Record its actual state; never infer green from another SHA. Publish explicit non-secret reports and receipts to the separate evidence ref, then remove the scratch clone only after transfers succeed.
 
 No UI source change is planned. The existing journey's two-width proof may run unchanged. Contract status and counts remain the lander's judgments.
+
+Executed CI repair: the prior exact-SHA Verify failed in alerts, SDK and repair recovery. Alerts passed the exact local shard and main comparison. The two archive failures reproduced, then passed after correcting the old-format fixture constructors to predate native symbols. All assertions remain. The final head is ce4226c2903be0f01a11ef1f471974f2e6563661; its Verify is unobserved after the ten-call budget. Handoff is PUSHED.
