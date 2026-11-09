@@ -54,7 +54,9 @@ function diagnostic(value:any,event:any,data:any,project:string){
  for(let i=0;i<value.length;i++){
   const d=value[i],language=event.language,nativeJava=isJava(event);
   const statuses=nativeJava?['missing_native_symbols','native_symbol_identity_mismatch','native_symbol_unmapped','native_symbol_ambiguous','native_symbol_source_unavailable','invalid_native_symbols','mapped']:language==='python'?['python_source']:language==='go'?['go_mapping_unavailable','go_path_unmatched','go_path_mapped']:['missing_debug_id','missing_artifact','identity_mismatch','unmapped_position','mapped','invalid_artifact'];
-  if(!d||!statuses.includes(d.status))throw new Error('Archive diagnostic status');
+  // An archive exported before the Android symbol cutover stores the prior Java verdict `missing_debug_id` (a frame with no debug ID); only that exact legacy value stays valid for a Java frame, and new events never carry it.
+  const priorJava=nativeJava&&d?.status==='missing_debug_id'&&d.generated!==null&&typeof d.generated==='object'&&!('debugId' in d.generated);
+  if(!d||!(statuses.includes(d.status)||priorJava))throw new Error('Archive diagnostic status');
   const fields=['generated','status'];if(['mapped','unmapped_position','invalid_artifact','native_symbol_unmapped','native_symbol_ambiguous','native_symbol_source_unavailable','invalid_native_symbols'].includes(d.status))fields.push('artifactDigest');if(d.status==='mapped')fields.push('original');
   if(d.status==='python_source')fields.push('source');
   if(d.status==='go_path_mapped')fields.push('source','original','mapping');

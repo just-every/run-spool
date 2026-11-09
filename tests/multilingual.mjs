@@ -9,6 +9,7 @@ import {executionRuntime} from './execution/runtime.mjs';
 import {launchBrowser} from './browser-launch.mjs';
 import {openGate} from './auth.mjs';
 import {mappingArchive} from './multilingual/archive.mjs';
+import {priorJavaArchive} from './multilingual/java-archive.mjs';
 import {exceptionTrust} from './multilingual/trust.mjs';
 import {archiveProjection} from './archive.mjs';
 import {nativeRefusal} from './admission-proof.mjs';
@@ -145,6 +146,7 @@ try{
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM deployment_path_mappings').first()).n,0);
  assert.equal((await app.db.prepare('SELECT COUNT(*) n FROM inbound_filter_policies').first()).n,0,'pre-mapping archive starts inbound policies empty');
  for(const table of ['grouping_proposals','deployment_runs','deployment_steps','deployment_notices'])assert.equal((await app.db.prepare(`SELECT COUNT(*) n FROM ${table}`).first()).n,0,'pre-mapping archive starts '+table+' empty');
+ await priorJavaArchive(15486);
  console.log('Multilingual public journey passed: native/Sentry equivalence, grammar/privacy/deduplication, scoped late path mapping, unchanged admission, JS-only execution, archive restoration and project erasure.');
 }finally{
  await browser?.close();await app?.stop();await restored?.stop();await rm(state,{recursive:true,force:true});await rm(restoredState,{recursive:true,force:true});

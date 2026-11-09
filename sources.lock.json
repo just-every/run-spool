@@ -5710,7 +5710,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "80a6746326a388a19ce6e3698e1b9078b0fd4467d632e5baad7af731a81eca9e",
+      "sha256": "22c297d2c15a04ae648b4c1813a4983b39d05b6b9419c979318c766173ecf92c",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -10966,11 +10966,15 @@
       "executable": false
     },
     "tests/multilingual.mjs": {
-      "sha256": "4d0aa33934fa9db30c9c4a2c1831d24337f0cda64a0d6e51eb6ea6fd4423cc2d",
+      "sha256": "1cb33635dee16f4d1e40c211adc71c09ef0c616631d5b9a02c1c92f5c694dac9",
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
       "sha256": "d674fa81c2d7f77f6fa6938614c754589be2dfeb4a401000e45065b01f049460",
+      "executable": false
+    },
+    "tests/multilingual/java-archive.mjs": {
+      "sha256": "d2dbc8b1d190d35c445a07f17aefd1d5085348aa3ede12ef7de53db78c9b7f62",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
