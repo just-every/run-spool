@@ -1,0 +1,22 @@
+Verify discovered: {"conclusion": null, "event": "push", "head_branch": "cloud/sd-spool-alerts-clock-2", "head_sha": "6c400dfa509151626a81c81aae87a12589492206", "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701", "id": 42691915701, "name": "Verify", "status": "queued"}
+CI cadence: next REST read in 299 seconds
+CI cadence: next REST read in 239 seconds
+CI cadence: next REST read in 179 seconds
+CI cadence: next REST read in 119 seconds
+CI cadence: next REST read in 59 seconds
+Verify: {"conclusion": null, "head_sha": "6c400dfa509151626a81c81aae87a12589492206", "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701", "id": 42691915701, "run_attempt": 1, "status": "in_progress"}
+CI cadence: next REST read in 299 seconds
+CI cadence: next REST read in 239 seconds
+CI cadence: next REST read in 179 seconds
+CI cadence: next REST read in 119 seconds
+CI cadence: next REST read in 59 seconds
+Verify: {"conclusion": null, "head_sha": "6c400dfa509151626a81c81aae87a12589492206", "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701", "id": 42691915701, "run_attempt": 1, "status": "in_progress"}
+CI cadence: next REST read in 299 seconds
+CI cadence: next REST read in 239 seconds
+CI cadence: next REST read in 179 seconds
+CI cadence: next REST read in 119 seconds
+CI cadence: next REST read in 59 seconds
+Verify: {"conclusion": null, "head_sha": "6c400dfa509151626a81c81aae87a12589492206", "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701", "id": 42691915701, "run_attempt": 1, "status": "in_progress"}
+CI cadence: next REST read in 299 seconds
+CI cadence: next REST read in 239 seconds
+CI cadence: next REST read in 177 seconds

@@ -1,0 +1,20 @@
+verify
+Heavy job admitted: Spool verify:suite [e6679e6e08fe]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 filters, retained-user windows, explicit session denominator, identity/session refusals, stale preview, durable deduplication, reactivation and plain Resolve passed
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+ALERT-001 archive round trip restores 33 alerts of kinds new_issue, reactivation, regression, spike; unknown kind refused: {"error":"Invalid alert archive"}
+✔ native scheduled event delivers a new issue with silent local mail once (111122.643781ms)
+PROBE ALERT-001 acceptance-5: Sentry intake and plain Resolve on two distinct issues -> same-release and release-less recurrence each reopen once, retain the correct release identity and create two reviewed-rule intents; repeated capture and scheduling create no duplicate alert, intent or attempt.
+✔ native scheduled event delivers a later-release regression with silent local mail once (11613.710879ms)
+✔ native scheduled event completes a real spike window and completes with silent local mail once (82509.439972ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 205285.717872

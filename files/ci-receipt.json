@@ -1,0 +1,331 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-alerts-clock-2",
+  "head_sha": "6c400dfa509151626a81c81aae87a12589492206",
+  "run": {
+    "conclusion": "cancelled",
+    "head_sha": "6c400dfa509151626a81c81aae87a12589492206",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701",
+    "id": 42691915701,
+    "run_attempt": 1,
+    "status": "completed"
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "completed_at": "2026-11-09T20:20:00Z",
+        "conclusion": "success",
+        "id": 129413548737,
+        "name": "plan",
+        "started_at": "2026-11-09T20:19:51Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:20:59Z",
+        "conclusion": "success",
+        "id": 129413651451,
+        "name": "build",
+        "started_at": "2026-11-09T20:20:03Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:20:00Z",
+        "conclusion": "skipped",
+        "id": 129413653104,
+        "name": "light",
+        "started_at": "2026-11-09T20:20:00Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:20:00Z",
+        "conclusion": "skipped",
+        "id": 129413653415,
+        "name": "commands",
+        "started_at": "2026-11-09T20:20:00Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:07Z",
+        "conclusion": "success",
+        "id": 129414199271,
+        "name": "runtime (python)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:07Z",
+        "conclusion": "success",
+        "id": 129414199305,
+        "name": "runtime (java)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:21:59Z",
+        "conclusion": "success",
+        "id": 129414199352,
+        "name": "runtime (go)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:21:50Z",
+        "conclusion": "success",
+        "id": 129414199367,
+        "name": "runtime (php)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:32:11Z",
+        "conclusion": "success",
+        "id": 129414199402,
+        "name": "verify (runtime)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:21:57Z",
+        "conclusion": "success",
+        "id": 129414199403,
+        "name": "runtime (ruby)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:46:19Z",
+        "conclusion": "cancelled",
+        "id": 129414199420,
+        "name": "verify (sdk)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "cancelled",
+            "name": "Run suites"
+          }
+        ]
+      },
+      {
+        "completed_at": "2026-11-09T20:22:59Z",
+        "conclusion": "success",
+        "id": 129414199433,
+        "name": "verify (wizard)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:20Z",
+        "conclusion": "success",
+        "id": 129414199471,
+        "name": "runtime (electron)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:25:34Z",
+        "conclusion": "success",
+        "id": 129414199533,
+        "name": "verify (alerts)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:28:28Z",
+        "conclusion": "success",
+        "id": 129414199537,
+        "name": "verify (sentry-cli)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:40Z",
+        "conclusion": "success",
+        "id": 129414199539,
+        "name": "runtime (rust)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:29:48Z",
+        "conclusion": "success",
+        "id": 129414199543,
+        "name": "verify (owner-ui)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:33:41Z",
+        "conclusion": "success",
+        "id": 129414199548,
+        "name": "verify (repair-recovery)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:25:21Z",
+        "conclusion": "success",
+        "id": 129414199561,
+        "name": "runtime (elixir)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:30:30Z",
+        "conclusion": "success",
+        "id": 129414199568,
+        "name": "verify (project-erasure)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:07Z",
+        "conclusion": "success",
+        "id": 129414199631,
+        "name": "runtime (dotnet)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:21:54Z",
+        "conclusion": "success",
+        "id": 129414199632,
+        "name": "runtime (node)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:26:31Z",
+        "conclusion": "success",
+        "id": 129414199680,
+        "name": "verify (project-erasure-cap)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:34:44Z",
+        "conclusion": "success",
+        "id": 129414199690,
+        "name": "verify (agent-handoff)",
+        "started_at": "2026-11-09T20:21:02Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:22:09Z",
+        "conclusion": "success",
+        "id": 129414199705,
+        "name": "verify (tunnel)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:23:32Z",
+        "conclusion": "success",
+        "id": 129414199767,
+        "name": "verify (execution)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:27:40Z",
+        "conclusion": "success",
+        "id": 129414200026,
+        "name": "verify (owner-erasure)",
+        "started_at": "2026-11-09T20:21:01Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:46:24Z",
+        "conclusion": "failure",
+        "id": 129428292617,
+        "name": "shards (spool)",
+        "started_at": "2026-11-09T20:46:22Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require every job in this coverage partition"
+          }
+        ]
+      },
+      {
+        "completed_at": "2026-11-09T20:46:30Z",
+        "conclusion": "failure",
+        "id": 129428341882,
+        "name": "verify",
+        "started_at": "2026-11-09T20:46:27Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "failure",
+            "name": "Require the selected coverage and its proof"
+          }
+        ]
+      },
+      {
+        "completed_at": "2026-11-09T20:46:24Z",
+        "conclusion": "skipped",
+        "id": 129428343773,
+        "name": "full-push-proof",
+        "started_at": "2026-11-09T20:46:25Z",
+        "status": "completed",
+        "steps": []
+      },
+      {
+        "completed_at": "2026-11-09T20:46:24Z",
+        "conclusion": "skipped",
+        "id": 129428343797,
+        "name": "nightly-proof",
+        "started_at": "2026-11-09T20:46:25Z",
+        "status": "completed",
+        "steps": []
+      }
+    ],
+    "total_count": 31
+  },
+  "github_calls": 6,
+  "minimum_seconds_between_calls": 301.0519711971283,
+  "ready": false,
+  "product_pushed": true,
+  "product_pushes": 1,
+  "pull_request": null,
+  "landing_claim": false,
+  "blockers": [
+    "Exact-SHA Verify attempt 1 cancelled: verify (sdk) job 129414199420 reached its 25-minute job cap; shards (spool) 129428292617 and verify 129428341882 failed on the cancelled dependency. SDK investigation/fixes lie outside the tests/alerts lease."
+  ],
+  "rerun": {
+    "performed": false,
+    "reason": "Only the specified sole project-erasure 409 assertion flake permits a job retry; project-erasure passed and SDK cancellation is a different failure."
+  },
+  "failed_assertion_logs": {
+    "requested": false,
+    "reason": "No failed suite assertion was reported by job metadata; SDK Run suites was cancelled. The two failed aggregate shell conditions follow directly from the SDK cancellation and the checked-in workflow."
+  },
+  "cleanup": "Delete both product clones and their node_modules after successful evidence publication; packet retained outside clones."
+}

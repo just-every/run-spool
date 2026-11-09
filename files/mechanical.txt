@@ -1,0 +1,1 @@
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock exit=0; check=pnpm source:check exit=0

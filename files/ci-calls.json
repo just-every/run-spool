@@ -1,0 +1,70 @@
+{
+  "calls": [
+    {
+      "number": 1,
+      "time": 1794255602.0499814,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs?head_sha=6c400dfa509151626a81c81aae87a12589492206&per_page=100",
+        "--jq",
+        ".workflow_runs | map(select(.name == \"Verify\") | {id,name,status,conclusion,head_sha,html_url,event,head_branch})"
+      ]
+    },
+    {
+      "number": 2,
+      "time": 1794255903.1019526,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/42691915701",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url,run_attempt}"
+      ]
+    },
+    {
+      "number": 3,
+      "time": 1794256204.2656643,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/42691915701",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url,run_attempt}"
+      ]
+    },
+    {
+      "number": 4,
+      "time": 1794256505.3647113,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/42691915701",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url,run_attempt}"
+      ]
+    },
+    {
+      "number": 5,
+      "time": 1794257395.646991,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/42691915701",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url,run_attempt}"
+      ]
+    },
+    {
+      "number": 6,
+      "time": 1794257696.725908,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-spool/actions/runs/42691915701/jobs?per_page=100",
+        "--jq",
+        "{total_count,jobs:[.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|select(.conclusion == \"failure\" or .conclusion == \"cancelled\")|{name,conclusion}]}]}"
+      ]
+    }
+  ]
+}

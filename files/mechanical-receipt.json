@@ -1,0 +1,120 @@
+{
+  "setup": {
+    "command": "cloud_run timeout --kill-after=15s 10m npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0
+  },
+  "build": {
+    "command": "cloud_run timeout --kill-after=15s 10m npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "cloud_run timeout --kill-after=10s 5m pnpm typecheck",
+    "exit": 0
+  },
+  "boundary_probe": {
+    "command": "cloud_run timeout --kill-after=10s 3m node ../packet/boundary-probe.mjs .",
+    "exit": 0,
+    "method": "clock-1 original REPRO/PROBE using actual helpers, candidate SQL and decision() over SQLite; new guard boundary and mutation checks",
+    "script_sha256": "38ad7ef8bdf3b40879602e4c0a81e3c6e4786ef4646060f990520c1ac2a1c44b",
+    "clock1_script_sha256": "9f44e672b9dc17c5cc5aef425ef8cdf61c5fb0c1c83af4d5db9ee3df6f7714dc",
+    "clock1_evidence_head": "60a1a23e5c3451eb6f6e525006118e8d66e2c9c6",
+    "runs": 2,
+    "exact_head_verified": "6c400dfa509151626a81c81aae87a12589492206",
+    "proof_log_sha256": "d6321aa312e809e3a828ba26da973187a76a7a25fda0c2c55ec9714b9d61391c"
+  },
+  "contract_check": {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 0
+  },
+  "unchanged_sha256": {
+    "CONTRACT.md": "9f804450817d4a92f67c1ccaa3e53338e4e09c7cd56a49bfc3eb5a5dc65ac528",
+    "ACCEPTANCE.md": "4de361aa7704d4d00566cf035761e5cf663b3112fb744b052fc9426b9a9f6b5b",
+    "docs/CLAIMS.md": "7223784ab782714454430aab62ebac29a3b5f52777114b3ee7bec45b882abbdf",
+    "tests/alerts-native.mjs": "c997b73f66db17db51f71fde854e313c19902cf43453b3fcbcf5ffa2af06f5ac"
+  },
+  "assertions": {
+    "existing_preserved": true,
+    "before": 33,
+    "after": 34
+  },
+  "source_lock_order": "regenerated last after all test-source edits",
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "source_check": {
+    "command": "pnpm source:check",
+    "exit": 0
+  },
+  "clause_counts": {
+    "core": {
+      "done": 23,
+      "partial": 44,
+      "missing": 20,
+      "total": 87
+    },
+    "agent_surface": {
+      "done": 0,
+      "partial": 8,
+      "missing": 10,
+      "total": 18
+    },
+    "full_target": {
+      "done": 23,
+      "partial": 52,
+      "missing": 30,
+      "total": 105
+    }
+  },
+  "clause_status_changes": [],
+  "claim": "none",
+  "first_party_publication_check": {
+    "command": "cloud_run timeout --kill-after=10s 3m pnpm run check -- --profile first-party",
+    "exit": 0
+  },
+  "native_alerts": {
+    "command": "cloud_run timeout --kill-after=10s 10m node tests/alerts-native.mjs",
+    "exit": 0,
+    "runs": 1,
+    "tests": 3,
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0,
+    "direct_dedicated_cloud_command": true,
+    "duration_ms": 205285.717872
+  },
+  "product": {
+    "repository": "just-every/run-spool",
+    "branch": "cloud/sd-spool-alerts-clock-2",
+    "base": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+    "clock1": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+    "head": "6c400dfa509151626a81c81aae87a12589492206",
+    "new_commit_count": 1,
+    "candidate_commit_count": 2,
+    "push_exit": 0,
+    "push_attempts": 1,
+    "pull_request": null,
+    "working_tree_clean": true
+  },
+  "ci": {
+    "repository": "just-every/run-spool",
+    "run_id": 42691915701,
+    "head_sha": "6c400dfa509151626a81c81aae87a12589492206",
+    "url": "https://github.com/just-every/run-spool/actions/runs/42691915701",
+    "watcher": "one REST watcher, minimum 301 seconds between calls, ten-call total budget",
+    "result": {
+      "conclusion": "cancelled",
+      "head_sha": "6c400dfa509151626a81c81aae87a12589492206",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/42691915701",
+      "id": 42691915701,
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    "github_calls": 6,
+    "jobs_receipt": "ci-jobs-attempt-1.json"
+  },
+  "ready": false,
+  "blockers": [
+    "Exact-SHA Verify attempt 1 cancelled: verify (sdk) job 129414199420 reached its 25-minute job cap; shards (spool) 129428292617 and verify 129428341882 failed on the cancelled dependency. SDK investigation/fixes lie outside the tests/alerts lease."
+  ]
+}
