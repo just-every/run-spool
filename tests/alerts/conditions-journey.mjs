@@ -10,6 +10,7 @@ export async function conditionsJourney(app,fixture){
  const send=async(type,value)=>{const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
  const error=async(id,{user,environment='rules',release='r1',level='error',tenant='approved',group='rules',sample=1}={})=>{
   const event_id=id.toString(16).padStart(32,'0');await send('event',{event_id,...release?{release}:{},environment,level,tags:{tenant},sdk:{name:'synthetic-spool',version:'1',sample_rate:sample},...user?{user:{id:user}}:{},exception:{values:[{type:'Error',value:'Synthetic alert conditions',stacktrace:{frames:[{filename:`https://synthetic-spool.test/${group}.js`,function:group,lineno:1,colno:1}]}}]}});
+  await app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(start+200,'web',event_id).run();
   return (await app.db.prepare('SELECT issue FROM events WHERE project=? AND id=?').bind('web',event_id).first()).issue;
  };
  const untouched=await app.json(base+'/rules');
@@ -38,7 +39,7 @@ export async function conditionsJourney(app,fixture){
  assert.equal(decisions.filter(d=>d.fired).length,1,'four distinct users fire once, three do not');assert.equal(decisions.find(d=>d.fired).users,4);assert.equal(decisions.find(d=>d.fired).unattributed,1,'events without identity remain named');
  const before=(await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length;
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,users.id).run();await app.restart();await schedule(end);assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length,before,'durable window key deduplicates re-evaluation and restart');
- for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date().toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
+ for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date(start+200).toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
  const sessions=await app.json(base+'/rules','POST',sessionRule);await error(id++,{environment:'sessions'});await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await schedule(end);
  const percent=JSON.parse((await app.json(base+'/decisions')).find(d=>d.rule_id===sessions.id).reason);assert.deepEqual([percent.affected,percent.denominator,percent.value,percent.fired],[3,10,30,true],'three affected of ten observed sessions');
  const filtered=await app.json(base+'/rules','POST',rule('mail',{kinds:['new_issue','regression','reactivation'],config:config('count',{environment:'filtered',level:'error',release:'',tags:{tenant:'approved'}})}));
