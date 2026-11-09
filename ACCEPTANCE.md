@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 44 | 21 | 87 |
+| Core | 23 | 44 | 20 | 87 |
 | Agent surface | 0 | 8 | 10 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 52 | 31 | 105 |
+| Full target | 23 | 52 | 30 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1121,7 +1121,7 @@ Core · target · **missing** · Register R-3
 
 #### MIG-003 — Rollbar migration
 
-Core · target · **missing** · Register R-4
+Core · target · **done** · Register R-4
 
 **Requirement.** Import Rollbar projects/items/occurrences, environments, deploys, status/assignment, grouping fingerprints, comments, tracker links and notification policies through a documented authorized export/API path. Preserve source identities and private artifacts where obtainable; name unavailable data. Provide dry-run, reconciliation, resumable apply/guarded undo and a SDK cutover guide that preserves diagnostic context and explicitly reports conversion losses. A real buyer project is register row R-4.
 
@@ -1130,8 +1130,8 @@ Core · target · **missing** · Register R-4
 2. An interrupted migration resumes.
 3. The replacement capture setup works, and imported history causes no outbound work.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: rollbar migration.
+**Evidence.** `tests/rollbar-import.mjs` Rollbar migration journey (1: authorized API envelopes, resolved and reactivated items, source and native counts, stacks, deploys, rules, source identities, private originals and named conversion losses; 2: bounded apply, Worker restart, durable cursor and idempotent resume; 3: replacement Node SDK capture with release, build, stack and breadcrumb context, no imported alerts or provider work); same journey proves owner authority, guarded undo, portable inert history, erasure and replay refusal. `tests/rollbar-import/screens.mjs` rollbarScreens (1440 and 390 imported issue and import history). `docs/ROLLBAR-MIGRATION.md` cutover guide.
+**Gap.** None.
 
 #### MIG-004 — Bugsnag migration
 
