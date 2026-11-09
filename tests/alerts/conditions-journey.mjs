@@ -7,10 +7,14 @@ const config=(metric,filters={})=>({metric,filters,tagKeys:['tenant']});
 export async function conditionsJourney(app,fixture){
  const schedule=async time=>{const response=await app.tick(time);assert.equal(response.status,200,'native condition evaluation succeeds');assert.equal((await response.json()).outcome,'ok')};
  const width=60000,start=Math.floor(Date.now()/width)*width,end=start+width,dsn=new URL(fixture.dsn);
- const send=async(type,value)=>{const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
+ const stampInWindow=(name,stamp,from=start,to=end)=>{assert.ok(stamp>=from&&stamp<to,`${name} stamp ${stamp} must lie inside evaluated fixed window [${from}, ${to})`);return stamp};
+ const send=async(type,value)=>{if(type==='session')for(const field of ['started','timestamp'])stampInWindow(`session ${value.sid} ${field}`,Date.parse(value[field]));const r=await app.request(`/api${dsn.pathname}/envelope/?sentry_version=7&sentry_key=${encodeURIComponent(dsn.username)}`,'POST','{}\n'+JSON.stringify({type})+'\n'+JSON.stringify(value));assert.equal(r.status,200,await r.clone().text());return r.json()};
  const error=async(id,{user,environment='rules',release='r1',level='error',tenant='approved',group='rules',sample=1}={})=>{
   const event_id=id.toString(16).padStart(32,'0');await send('event',{event_id,...release?{release}:{},environment,level,tags:{tenant},sdk:{name:'synthetic-spool',version:'1',sample_rate:sample},...user?{user:{id:user}}:{},exception:{values:[{type:'Error',value:'Synthetic alert conditions',stacktrace:{frames:[{filename:`https://synthetic-spool.test/${group}.js`,function:group,lineno:1,colno:1}]}}]}});
-  return (await app.db.prepare('SELECT issue FROM events WHERE project=? AND id=?').bind('web',event_id).first()).issue;
+  await app.db.prepare('UPDATE events SET received=? WHERE project=? AND id=?').bind(start+200,'web',event_id).run();
+  const receipt=await app.db.prepare('SELECT issue,received FROM events WHERE project=? AND id=?').bind('web',event_id).first();
+  stampInWindow(`error ${event_id} received`,receipt?.received);
+  return receipt.issue;
  };
  const untouched=await app.json(base+'/rules');
  const noToken=await app.request(base+'/rules','POST',rule('mail',{name:'Synthetic missing preview',enabled:true}));
@@ -30,7 +34,7 @@ export async function conditionsJourney(app,fixture){
  await app.json('/api/projects/web/identity-policy','PUT',{revision:identity.revision,policy,token:ip.token});
  let id=100,issue;
  for(let i=0;i<3;i++)issue=await error(id++,{user:'synthetic-spool-'+i});
- await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND environment='rules'").bind(start-width+100).run();
+ await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND environment='rules'").bind(stampInWindow('prior users received',start-width+100,start-width,start)).run();
  for(let i=0;i<4;i++)await error(id++,{user:'synthetic-spool-'+i});await error(id++);
  const users=await app.json(base+'/rules','POST',userRule);
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start-width,users.id).run();
@@ -38,7 +42,7 @@ export async function conditionsJourney(app,fixture){
  assert.equal(decisions.filter(d=>d.fired).length,1,'four distinct users fire once, three do not');assert.equal(decisions.find(d=>d.fired).users,4);assert.equal(decisions.find(d=>d.fired).unattributed,1,'events without identity remain named');
  const before=(await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length;
  await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,users.id).run();await app.restart();await schedule(end);assert.equal((await app.json(base+'/deliveries')).filter(d=>d.rule_id===users.id).length,before,'durable window key deduplicates re-evaluation and restart');
- for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date().toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
+ for(let i=0;i<10;i++)await send('session',{sid:crypto.randomUUID().replaceAll('-',''),started:new Date(start+100).toISOString(),timestamp:new Date(start+200).toISOString(),status:'exited',errors:i<3?1:0,attrs:{release:'r1',environment:'sessions'}});
  const sessions=await app.json(base+'/rules','POST',sessionRule);await error(id++,{environment:'sessions'});await app.db.prepare('UPDATE alert_cursors SET next_start=? WHERE rule_id=?').bind(start,sessions.id).run();await schedule(end);
  const percent=JSON.parse((await app.json(base+'/decisions')).find(d=>d.rule_id===sessions.id).reason);assert.deepEqual([percent.affected,percent.denominator,percent.value,percent.fired],[3,10,30,true],'three affected of ten observed sessions');
  const filtered=await app.json(base+'/rules','POST',rule('mail',{kinds:['new_issue','regression','reactivation'],config:config('count',{environment:'filtered',level:'error',release:'',tags:{tenant:'approved'}})}));
@@ -59,10 +63,10 @@ export async function conditionsJourney(app,fixture){
  let scheduledIssue;
  for(const extra of [{},{},{environment:'elsewhere'},{level:'info'},{release:''},{tenant:'outside'}]){
   const eventId=id.toString(16).padStart(32,'0');scheduledIssue=await error(id++,{environment:'scheduled',group:'scheduled',...extra});
-  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(expected+100,eventId).run();
+  await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(stampInWindow(`scheduled error ${eventId} received`,expected+100,expected,expected+width),eventId).run();
  }
  const priorEventId=id.toString(16).padStart(32,'0');await error(id++,{environment:'scheduled',group:'scheduled'});
- await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(expected-width+100,priorEventId).run();
+ await app.db.prepare("UPDATE events SET received=? WHERE project='web' AND id=?").bind(stampInWindow(`prior scheduled error ${priorEventId} received`,expected-width+100,expected-width,expected),priorEventId).run();
  await schedule(expected+width);
  const scheduledDecisions=(await app.json(base+'/decisions')).filter(row=>row.rule_id===scheduled.id);
  assert.equal(scheduledDecisions.length,1,'only the first complete window is evaluated after enabling');

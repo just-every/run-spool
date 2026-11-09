@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 23 | 44 | 20 | 87 |
+| Core | 23 | 45 | 19 | 87 |
 | Agent surface | 0 | 8 | 10 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 23 | 52 | 30 | 105 |
+| Full target | 23 | 53 | 29 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -1135,7 +1135,7 @@ Core · target · **done** · Register R-4
 
 #### MIG-004 — Bugsnag migration
 
-Core · target · **missing** · Register R-5
+Core · target · **partial** · Register R-5
 
 **Requirement.** Import Bugsnag/SmartBear organizations/projects, errors/events, stability and release metadata, app versions/stages, triage, collaborators, source-map/symbol references and integrations available through buyer-authorized APIs/exports. Reconcile event and session denominators separately; missing historical sessions never become a fabricated crash-free rate. Preview mapping and unmigratable artifacts, resume/undo safely and document mobile/web SDK and symbol-upload cutover. A real buyer project is register row R-5.
 
@@ -1144,8 +1144,8 @@ Core · target · **missing** · Register R-5
 2. Capture and symbol CI repoint, and an original native stack shows.
 3. Where the source export lacks historical sessions, the gap is shown rather than a crash-free rate.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: bugsnag migration.
+**Evidence.** `tests/bugsnag-import.mjs` bugsnagMigrationFlow and bugsnagDocumentedShapes (1: owner-session reviewed import, separate sampled events and release/stability session inputs, release_stage object, release_time, bundleVersion/errorClass, snake_case and string-column stacks, two app.releaseStage Android events per release, resumable apply and native reconciliation; 3: unavailable historical denominators stay explicit with no inferred crash-free rate); `tests/bugsnag-cutover.mjs` (2 subset: web source-map and Android ProGuard CI uploads, R8 constructors, public capture and original Android source stack, import/native screens at 1440 and 390); `docs/BUGSNAG-SWITCHING.md`.
+**Gap.** Acceptance 2 remains incomplete: Apple dSYM/Mach-O and Android NDK symbol-upload cutover/decoding are unsupported (public dSYM upload is refused with HTTP 400); imported readable frames are source-symbolicated evidence, not fresh Apple/NDK decoding. Acceptance 1 is qualified only for the bounded synthetic API-shape samples, not complete collection mapping or vendor-wide completeness; collaborators/integrations and unavailable artifacts remain named losses. Real buyer migration is field register R-5, not run.
 
 #### MIG-005 — Up-and-comer switching paths
 

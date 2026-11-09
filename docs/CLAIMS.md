@@ -7,7 +7,7 @@ A product claim is done when every clause behind it is done, missing when every 
 | # | Claim | Clauses | Status |
 | --- | --- | --- | --- |
 | 1 | See exactly what broke: Spool catches your JavaScript errors and points to the exact line in your own source. | `ERR-001` done; `ERR-005` partial | partial |
-| 2 | 100% free, open source alternative to Sentry, Bugsnag and Rollbar. | `OPS-001` partial; `SDK-001` done; `MIG-001` partial; `MIG-003` done; `MIG-004` missing | partial |
+| 2 | 100% free, open source alternative to Sentry, Bugsnag and Rollbar. | `OPS-001` partial; `SDK-001` done; `MIG-001` partial; `MIG-003` done; `MIG-004` partial | partial |
 | 3 | 100% free: open source under the MIT licence, with every feature on your own computer. | `OPS-001` partial | partial |
 | 4 | Hand it to your coding agent: a read-only agent key reads that project's issues and evidence, and changes nothing. | `ERR-004` done; `ERR-007` done | done |
 | 5 | Know when it comes back: if a resolved issue returns in a later release, Spool opens it again and names that release. | `ERR-006` done | done |
