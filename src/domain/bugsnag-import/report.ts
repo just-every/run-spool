@@ -9,6 +9,14 @@ export function bugsnagReport(snapshot:DoorSnapshot) {
  const projects=records.filter(r=>r.kind==='projects').map(record=>{
   const p=(record.payload as any).data,rows=records.filter(r=>(r.payload as any).project===p.id);
   return {sourceId:p.id,name:safeImportLabel(p.name),sampledErrors:rows.filter(r=>r.kind==='errors').length,sampledEvents:rows.filter(r=>r.kind==='events').length,
+   stability:rows.filter(r=>r.kind==='stability').map(record=>{
+    const d=(record.payload as any).data;
+    return {stage:safeImportLabel(d.release_stage_name),timeline:d.timeline_points.map((point:any)=>{
+     const total=count(point?.total_sessions_count),unhandled=count(point?.unhandled_sessions_count);
+     return {start:safeImportLabel(point?.bucket_start),end:safeImportLabel(point?.bucket_end),totalSessions:total,unhandledSessions:unhandled,crashFreeRate:null,
+      denominatorStatus:total!==null&&total>0&&unhandled!==null&&unhandled<=total?'source_aggregate_only':'historical_sessions_unavailable'};
+    })};
+   }),
    releases:rows.filter(r=>r.kind==='releases').map(record=>{
     const d=(record.payload as any).data,total=count(d.total_sessions_count),unhandled=count(d.unhandled_sessions_count);
     const available=total!==null&&total>0&&unhandled!==null&&unhandled<=total;

@@ -13,6 +13,11 @@ export async function bugsnagCutover({json,req,web,android}){
   assert.equal((await req(uploadPath,'POST',upload,headers)).status,201);
   assert.equal((await req(uploadPath,'POST',upload,headers)).status,200);
   if(mobile){
+   // Apple's dSYM pipeline is a named public-door gap, never a ProGuard success.
+   const dsym=await req(uploadPath,'POST',{release:name,build,format:'dsym',mapping:'synthetic-dsym-unavailable'},headers);
+   assert.equal(dsym.status,400);assert.match((await dsym.json()).error,/proguard/);
+   console.log('PROBE MIG-004 GAP 2: mobile dSYM repointing -> 400; native-symbols supports ProGuard only');
+   console.log("PROBE MIG-004 A3: R8 '-> <init>' -> 201; stored mapping deduplicates with 200");
    assert.equal((await req(uploadPath,'POST',{...upload,mapping:mapping.replace('42:44','52:54')},headers)).status,409,'matching native build is immutable');
    assert.equal((await req(uploadPath,'POST',{...upload,build:'43'},headers)).status,409,'symbols need exact registered build');
    const foreign=await json(`/api/projects/${web.id}/keys`,'POST',{kind:'deploy'});

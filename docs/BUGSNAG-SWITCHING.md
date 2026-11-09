@@ -14,7 +14,7 @@ Capture the raw organization object with `id` and `name`; list its projects, the
 
 ## Bundle format
 
-The owner creates a `spool-bugsnag-org-export` version 1 JSON wrapper around those responses. `projects` has `project: null`; `errors`, `events` and `releases` use the Bugsnag project ID in `project`. `organization` is the raw Bugsnag object, and `response` is an array of raw API records. The wrapper is Spool's import format, not a universal Bugsnag export format.
+The owner creates a `spool-bugsnag-org-export` version 1 JSON wrapper around those responses. `projects` has `project: null`; `errors`, `events` and `releases` use the Bugsnag project ID in `project`. `organization` is the raw Bugsnag object, and `response` is an array of raw API records. The wrapper is Spool's import format, not a universal Bugsnag export format. An optional project-scoped `stability` collection carries the documented `GET /projects/{project_id}/stability_trend` response object directly as `response` on one page with both cursors null. Keep its `project_id`, `release_stage_name` and `timeline_points`; do not invent an `id` or flatten it into event rows. The report keeps its daily session counts separate from release aggregates and sampled events, with no inferred crash-free rate.
 
 This empty structural example contains no historical events. Replace its organization and collection scope with the authorized capture; do not manufacture records to fill a missing collection.
 

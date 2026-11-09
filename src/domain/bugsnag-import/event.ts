@@ -5,9 +5,15 @@ export const eventId=(org:string,project:string,id:string)=>sha256(JSON.stringif
 export function releaseIdentity(version:any,stage:any,build:any) {
  return identity(`${identity(version,'release')}@${identity(stage?.name??stage,'environment')}+${identity(String(build??'unspecified'),'build')}`,'release');
 }
+// Data Access v2 declares column_number as a decimal string; SDK exports
+// also use numbers. Never coerce empty, signed, fractional or nonfinite text.
+const coordinate=(value:any)=>{
+ const n=typeof value==='string'&&/^\d+$/.test(value)?Number(value):value;
+ return Number.isSafeInteger(n)&&n>=0&&n<=1e7?n:undefined;
+};
 const frame=(f:any)=>{
- const column=f.column_number??f.columnNumber;
- return {filename:f.file,function:f.method,lineno:f.line_number??f.lineNumber,colno:Number.isSafeInteger(column)?column+1:undefined,
+ const column=coordinate(f.column_number??f.columnNumber);
+ return {filename:f.file,function:f.method,lineno:coordinate(f.line_number??f.lineNumber),colno:Number.isSafeInteger(column)?column+1:undefined,
   in_app:f.in_project??f.inProject,instruction_addr:f.frame_address??f.frameAddress,symbol_addr:f.symbol_address??f.symbolAddress,image_addr:f.load_address??f.loadAddress,package:f.code_file,
   ...f.macho_uuid?{module:f.macho_uuid}:{}};
 };
