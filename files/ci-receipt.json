@@ -1,0 +1,79 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-alerts-clock-1",
+  "head": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+  "run": {
+    "id": 42665112042,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042"
+  },
+  "alerts_job": {
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042/job/129327317268",
+    "id": 129327317268,
+    "name": "verify (alerts)",
+    "status": "completed",
+    "steps": []
+  },
+  "failed_jobs": [
+    {
+      "id": 129327317282,
+      "name": "verify (project-erasure)",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042/job/129327317282",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Run suites",
+          "number": 10
+        }
+      ]
+    },
+    {
+      "id": 129341416986,
+      "name": "shards (spool)",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042/job/129341416986",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require every job in this coverage partition",
+          "number": 2
+        }
+      ]
+    },
+    {
+      "id": 129341462009,
+      "name": "verify",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042/job/129341462009",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ]
+    }
+  ],
+  "blocker": {
+    "kind": "exact-SHA Verify failure outside authorized lease",
+    "job": "verify (project-erasure)",
+    "job_id": 129327317282,
+    "file": "tests/project-erasure/ui.mjs:30",
+    "assertion": "the erase returns an accepted job",
+    "expected_status": 202,
+    "actual_status": 409,
+    "allowed_write_scope": "tests/alerts helpers and sources.lock.json; no product code, CONTRACT.md or timeout changes",
+    "resolution": "Fleet to resolve the project-erasure failure within its own lease, then rerun required exact-SHA Verify; no assertion weakened or out-of-scope repair attempted."
+  },
+  "github_calls": 9,
+  "ready": false,
+  "product_pushed": true,
+  "log_command": "gh run view 42665112042 --repo just-every/run-spool --job 129327317282 --log-failed",
+  "log_command_exit": 0,
+  "publication_scan": "independent fleet gate not run by cloud"
+}

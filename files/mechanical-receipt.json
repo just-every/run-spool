@@ -1,0 +1,127 @@
+{
+  "setup": {
+    "command": "cloud_run timeout 900 npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0
+  },
+  "build": {
+    "command": "cloud_run timeout 600 npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "timeout 180 pnpm typecheck",
+    "exit": 0
+  },
+  "contract_check": {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 0
+  },
+  "boundary_probe": {
+    "command": "cloud_run timeout 60 node ../packet/boundary-probe.mjs .",
+    "exit": 0
+  },
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "ci_node_pin": "22.20.0"
+  },
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "source_check": {
+    "command": "pnpm source:check",
+    "exit": 0
+  },
+  "diff_check": {
+    "command": "git diff --check",
+    "exit": 0
+  },
+  "changed_files": [
+    "sources.lock.json",
+    "tests/alerts/conditions-journey.mjs"
+  ],
+  "unchanged_sha256": {
+    "CONTRACT.md": "9f804450817d4a92f67c1ccaa3e53338e4e09c7cd56a49bfc3eb5a5dc65ac528",
+    "ACCEPTANCE.md": "4de361aa7704d4d00566cf035761e5cf663b3112fb744b052fc9426b9a9f6b5b",
+    "docs/CLAIMS.md": "7223784ab782714454430aab62ebac29a3b5f52777114b3ee7bec45b882abbdf",
+    "tests/alerts-native.mjs": "c997b73f66db17db51f71fde854e313c19902cf43453b3fcbcf5ffa2af06f5ac"
+  },
+  "assertions_timeouts_registrations": "unchanged",
+  "native_alerts": {
+    "command": "cloud_run timeout 600 node tests/alerts-native.mjs",
+    "exit": 0,
+    "runs": 1,
+    "tests": 3,
+    "pass": 3,
+    "fail": 0,
+    "skipped": 0,
+    "duration_ms": 236265.883261
+  },
+  "product": {
+    "repository": "just-every/run-spool",
+    "branch": "cloud/sd-spool-alerts-clock-1",
+    "base": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+    "head": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+    "commit_count": 1,
+    "push_exit": 0,
+    "push_attempts": 1,
+    "pull_request": null,
+    "working_tree_clean": true
+  },
+  "clauses": {
+    "before": {
+      "core": {
+        "done": 23,
+        "partial": 44,
+        "missing": 20,
+        "total": 87
+      },
+      "agent": {
+        "done": 0,
+        "partial": 8,
+        "missing": 10,
+        "total": 18
+      }
+    },
+    "after": "unchanged",
+    "status_changes": [],
+    "claim": "none"
+  },
+  "first_party_publication_check": {
+    "command": "cloud_run timeout 180 pnpm run check -- --profile first-party",
+    "exit": 0
+  },
+  "ci": {
+    "run_id": 42665112042,
+    "head_sha": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+    "url": "https://github.com/just-every/run-spool/actions/runs/42665112042",
+    "watcher": "single REST watcher; 301 second minimum between reads",
+    "result_file": "ci-run.json",
+    "calls_file": "ci-calls.json",
+    "result": {
+      "id": 42665112042,
+      "name": "Verify",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/42665112042"
+    },
+    "github_calls": 9
+  },
+  "limitations": [
+    "Boundary proof uses the permitted small-script fallback with actual helpers, candidate SQL and decision implementation over SQLite, not a fake-clock full Worker run.",
+    "Fleet publication scanning and landing are independent Mac gates; no landing performed."
+  ],
+  "blocker": {
+    "kind": "exact-SHA Verify failure outside authorized lease",
+    "job": "verify (project-erasure)",
+    "job_id": 129327317282,
+    "file": "tests/project-erasure/ui.mjs:30",
+    "assertion": "the erase returns an accepted job",
+    "expected_status": 202,
+    "actual_status": 409,
+    "allowed_write_scope": "tests/alerts helpers and sources.lock.json; no product code, CONTRACT.md or timeout changes",
+    "resolution": "Fleet to resolve the project-erasure failure within its own lease, then rerun required exact-SHA Verify; no assertion weakened or out-of-scope repair attempted."
+  },
+  "ready": false
+}

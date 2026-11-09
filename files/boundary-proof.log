@@ -1,0 +1,7 @@
+Clock: start within last 200ms of minute = 2026-11-09T17:00:59.800Z; send = 2026-11-09T17:01:05.800Z
+Window: [2026-11-09T17:00:00.000Z, 2026-11-09T17:01:00.000Z)
+REPRO alerts: events stamped new Date() across :00 -> no decision (TypeError)
+Before: session timestamp=2026-11-09T17:01:05.800Z; error received=2026-11-09T17:01:05.800Z; Cannot read properties of undefined (reading 'reason')
+Session-timestamp-only control: no decision; candidate SQL uses error received, sessionMeasure uses started.
+PROBE alerts: events stamped inside the window across :00 -> decision present
+After: session timestamp=2026-11-09T17:00:00.200Z; error received=2026-11-09T17:00:00.200Z; decision={"start":1794243600000,"end":1794243660000,"issue":"issue","count":1,"users":0,"unattributed":1,"threshold":30,"metric":"session_percent","denominator":10,"affected":3,"value":30,"fired":true,"reason":"3 affected / 10 observed sessions (30.00%); threshold 30%"}

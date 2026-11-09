@@ -1,0 +1,20 @@
+verify (project-erasure)	Run suites	﻿2026-11-09T17:31:13.9107826Z ##[group]Run pnpm test:project-erasure
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9108137Z [36;1mpnpm test:project-erasure[0m
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9126058Z shell: /usr/bin/bash -e {0}
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9126379Z env:
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9126767Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9127099Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9127521Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9127915Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9128365Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (project-erasure)	Run suites	2026-11-09T17:31:13.9128862Z ##[endgroup]
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.1303453Z 
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.1304671Z > @errors/errors-workbench@0.7.3 test:project-erasure /home/runner/work/run-spool/run-spool
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.1305679Z > node tests/project-erasure.mjs
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.1306002Z 
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.5880429Z (node:2460) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (project-erasure)	Run suites	2026-11-09T17:31:14.5881093Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (project-erasure)	Run suites	2026-11-09T17:34:04.6412684Z {"journey":"project-erasure","stage":"ui","type":"AssertionError","message":"the erase returns an accepted job\n\n409 !== 202\n","stack":["    at erasePanel (file:///home/runner/work/run-spool/run-spool/tests/project-erasure/ui.mjs:30:69)","    at async file:///home/runner/work/run-spool/run-spool/tests/project-erasure.mjs:63:14"]}
+verify (project-erasure)	Run suites	2026-11-09T17:34:05.5046728Z Project erasure cleanup: [{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]
+verify (project-erasure)	Run suites	2026-11-09T17:34:05.5597161Z  ELIFECYCLE  Command failed with exit code 1.
+verify (project-erasure)	Run suites	2026-11-09T17:34:05.5766505Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "blob": "0060b1b7e41320197cb61d4c70ff495a2cc1b8fa",
+      "bytes": 8121,
+      "path": "REPORT.md",
+      "sha256": "2fcaa6eac91d8f9df0d07eec9bce6eb38e706f8bd7bf499bff6c927bba9dff21"
+    },
+    {
+      "blob": "1fa076ea124582048d5d3afab25071cff18de752",
+      "bytes": 1404,
+      "path": "alerts-native.log",
+      "sha256": "8e8655c15c0a99b4e5383c8719290fdb3f73b66e02c11d73a9b6d86232c78d1a"
+    },
+    {
+      "blob": "d356227b5bd5a9930328cd8bb2bf3980f723ba7c",
+      "bytes": 5963,
+      "path": "boundary-probe.mjs",
+      "sha256": "9f44e672b9dc17c5cc5aef425ef8cdf61c5fb0c1c83af4d5db9ee3df6f7714dc"
+    },
+    {
+      "blob": "fda90bf8c262d60bf41bfc2c84bf839108db84d4",
+      "bytes": 938,
+      "path": "boundary-proof.log",
+      "sha256": "2da2cd027c50c4cff165bfa15278433f17ca1e3a3ddbd1fa611b501a2fb5bf21"
+    },
+    {
+      "blob": "73a2f1d021907fb51324683e994194e84845f575",
+      "bytes": 3205,
+      "path": "ci-calls.json",
+      "sha256": "b95908179bf22d973a4c6c8144850b3dd8d7a854812cb681f72ea3d1fbf6fbc9"
+    },
+    {
+      "blob": "f3fd2c2b778c68000b332fa3d11c9489eaaf8216",
+      "bytes": 6288,
+      "path": "ci-jobs.json",
+      "sha256": "a0ac53725aedf43ece3bb56eb8d4920937efc76e85447da04b76635a9a9cea0b"
+    },
+    {
+      "blob": "412df1eb22454fee39ab3136fddfbfdc2b65f3e7",
+      "bytes": 2632,
+      "path": "ci-receipt.json",
+      "sha256": "64f60a2dfe1edac8d1dfe823e6903d2e5991fa03f75a6d92ddda4366a82fc18f"
+    },
+    {
+      "blob": "2305b305032c9565cb049dae0838f0b03b6f8bb2",
+      "bytes": 236,
+      "path": "ci-run.json",
+      "sha256": "50eca8cf97c470f48a976bb0ef7e10eee184c556ec779672a42c51e9554ae2a5"
+    },
+    {
+      "blob": "a0c8b0bc8f0a2e1cfd59dbe2584688a47638eac4",
+      "bytes": 2722,
+      "path": "ci-watch.log",
+      "sha256": "082f486934dc088e912c041f12ad27b4dc6c7e1eab231bc5a3c51b51995c0650"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "identity.log",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "7effa37c991ca320f74596d036120a9a172a4a11",
+      "bytes": 4005,
+      "path": "mechanical-receipt.json",
+      "sha256": "b1c98d0fe130bc10d93f18f1aabf79dc829e50c5e90ef9f1b1a30e7bf57b09c0"
+    },
+    {
+      "blob": "8276ef4b5e66114b0c103e6aafa120058d3fec8b",
+      "bytes": 99,
+      "path": "mechanical.txt",
+      "sha256": "e63920eef3f2d313b11a599503398c57e5460cfb0addda1e9fb312ad8ef05a66"
+    },
+    {
+      "blob": "20f0e1fa50bcd1d3f816014388c189e8ecfec791",
+      "bytes": 3777,
+      "path": "product-diff.patch",
+      "sha256": "4e92f85678fe7fd192de8f03673a8eabb7fb61a67954bd874ccc9246b84915ce"
+    },
+    {
+      "blob": "50bf432696a56f474969860b4156e49aa817d78b",
+      "bytes": 2478,
+      "path": "project-erasure-failed.log",
+      "sha256": "7c8ba147fdb3d8df9445271eb2d205e11063ef0c64914720fabdbaae22bdeb1d"
+    },
+    {
+      "blob": "3443456435ff53bc1384bea975df5e0fd899493a",
+      "bytes": 389,
+      "path": "publication-check.log",
+      "sha256": "4ca9abd9140977cf8bdb5f665c70ff4462df3ae0938edd008d83627e5fd6978b"
+    },
+    {
+      "blob": "7d69bac1eaae061cd7fef5afa8e607009efef1fb",
+      "bytes": 938,
+      "path": "push.log",
+      "sha256": "e7b73284d7af11b85032e2d70f20ffd7623846a69437890897435b910f07fbb3"
+    },
+    {
+      "blob": "885739810a785b44a9c0fea4f2fcb0b1f47c27de",
+      "bytes": 460842,
+      "path": "source-check.log",
+      "sha256": "9796f2537838c1018ca51eb6625acedb9f291c46446e59a2f00f22d4fbb6bb76"
+    },
+    {
+      "blob": "fd85e94d497b5c7ce4fe45c9a06cedc68fde02c9",
+      "bytes": 460558,
+      "path": "source-lock.log",
+      "sha256": "98068a4ac0d6d01d7b01320b9f4e04f6baf417556692c66a3f264ec3b8895d0e"
+    },
+    {
+      "blob": "2b9efde3d67738e1956b20af54498cfdad425c9b",
+      "bytes": 235,
+      "path": "typecheck.log",
+      "sha256": "24db9276d4c2e3ee9a11f39c65a0b29c0ae333645536fc674b9532d09261bfcb"
+    }
+  ],
+  "product_branch": "cloud/sd-spool-alerts-clock-1",
+  "product_head": "19c2323f302a5e51ab0f2afc13e08e60f0f70745",
+  "ref": "refs/heads/evidence/sd-spool-alerts-clock-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "sd-spool-alerts-clock-1"
+}
