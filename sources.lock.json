@@ -10869,6 +10869,10 @@
       "sha256": "5471d2ebafa0037d6cd843db239aa1f79fac1f66bf2e0ae48c13c7d33ebfbd1d",
       "executable": false
     },
+    "tests/fixtures/archive-before-native-symbols.mjs": {
+      "sha256": "6a578f7b198e20e65c5ac06836611a2a09d3996df6767b5f8b76a3ae9c696241",
+      "executable": false
+    },
     "tests/fixtures/archive-fc75a7ac.md": {
       "sha256": "86f063d3329cb06cbd4edec976038ee5bbc578e72181d4bf7c4c9b295763c980",
       "executable": false
@@ -10966,7 +10970,7 @@
       "executable": false
     },
     "tests/multilingual/archive.mjs": {
-      "sha256": "7f6d7b42f6db7989cc40b3753a8b09266e7cb14598b8b3891ad984fd7752218e",
+      "sha256": "d674fa81c2d7f77f6fa6938614c754589be2dfeb4a401000e45065b01f049460",
       "executable": false
     },
     "tests/multilingual/trust.mjs": {
@@ -11122,7 +11126,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "60e5a8e45721869573f64a17a99a1e67422dcd70c9eef909b8df2066648ac766",
+      "sha256": "4fd21423d31263b6deca986872c560384a14146799b380e8560cfbeb99022cd0",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {

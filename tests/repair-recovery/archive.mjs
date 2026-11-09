@@ -1,3 +1,4 @@
+import {beforeNativeSymbols} from '../fixtures/archive-before-native-symbols.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -27,6 +28,7 @@ export async function preRepairArchive(text){
  const [manifest]=records,data=Object.fromEntries(manifest.tables.map(table=>[table.name,[]]));
  for(const part of records.filter(record=>record.kind==='part'))for(const item of part.items)if(item.kind==='row')data[item.table].push(item);
  data.audit=data.audit.filter(item=>!item.row.kind.startsWith('repair_')).map((item,index)=>({...item,index}));
+ await beforeNativeSymbols(manifest);
  const tables=manifest.tables.filter(table=>!laterTables.includes(table.name)).map(table=>({...table,count:data[table.name].length}));
  const items=tables.flatMap(table=>data[table.name]),parts=[];
  for(let offset=0;offset<items.length;offset+=500)parts.push(await makePart(parts.length,items.slice(offset,offset+500)));

@@ -1,3 +1,4 @@
+import {beforeNativeSymbols} from '../fixtures/archive-before-native-symbols.mjs';
 import {makePart,canonicalJson,sha256} from '../../src/modules/portability/index.mjs';
 import {ContentVerifier,ArchiveVerifier} from '../../src/modules/portability/format.mjs';
 // Re-sign deliberate archive mutations so semantic validation, not checksums,
@@ -10,6 +11,7 @@ export async function mappingArchive(text,edit=()=>{},previous=false,editManifes
  // Rebuilt from rows alone: no safe-audit payload.
  manifest.payloads=[];
  if(previous){
+  await beforeNativeSymbols(manifest);
   // The pre-mapping archive also predates bundle grouping, inbound policies,
   // loader settings and TEAM-001 membership/notification custody (0077–0079),
   // and alert conditions and scrubbing rules (0087–0088).
