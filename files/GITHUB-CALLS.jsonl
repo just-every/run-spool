@@ -1,0 +1,4 @@
+{"call": 1, "at": "2026-11-09T20:27:17.589389+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs?head_sha=fed0194f8095dfba005518f9a912f26939207754&per_page=100", "--jq", "[.workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}]"]}
+{"call": 2, "at": "2026-11-09T20:32:57.290879+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/42693082052", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 3, "at": "2026-11-09T20:38:29.578116+00:00", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/42693082052/jobs?per_page=100", "--jq", "{total_count, jobs:[.jobs[]|{id,name,status,conclusion,failed_steps:[.steps[]?|select(.conclusion==\"failure\")|.name]}]}"]}
+{"call": 4, "at": "2026-11-09T20:43:38.232469+00:00", "command": ["gh", "run", "view", "42693082052", "--repo", "just-every/run-spool", "--job", "129417749956", "--log-failed"]}

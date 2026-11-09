@@ -1,0 +1,13 @@
+
+> @errors/errors-workbench@0.7.3 test:repair-recovery /workspace/run-spool
+> node tests/repair-recovery.mjs
+
+(node:5238) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+(node:5260) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"journey":"repair-recovery","stage":"setup","type":"AssertionError","message":"{\"cliErrorCode\":\"command_failed\",\"refusalFamily\":\"unknown\",\"lifecycleMarker\":\"starting\"}\n\n1 !== 0\n","stack":["    at handoffRuntime (file://[REDACTED]/tests/agent-handoff/runtime.mjs:23:109)","    at async file://[REDACTED]/tests/repair-recovery.mjs:24:6"]}
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped"}]
+ ELIFECYCLE  Command failed with exit code 1.

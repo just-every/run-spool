@@ -1,0 +1,161 @@
+{
+  "repository": "just-every/run-spool",
+  "tag": "sd-spool-c-mig004-fix-1",
+  "base": "ce4226c2903be0f01a11ef1f471974f2e6563661",
+  "main": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+  "baseline": {
+    "command": "node tests/bugsnag-import.mjs",
+    "exit": 0,
+    "probes": [
+      "A1 accepted production",
+      "A2 web and Android frames present",
+      "A3 constructor mapping upload 201 and stored replay 200"
+    ]
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "build": {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "initial_setup": {
+    "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 1,
+    "reason": "temporary application readiness port mismatch; dependencies and build installed; isolated Worker test baseline passes"
+  },
+  "mechanical": {
+    "views_write": {
+      "command": "node src/base/contract-docs.mjs write",
+      "exit": 0
+    },
+    "views_check_before_restore": {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0
+    },
+    "generated_views": "restored from origin/main, not committed",
+    "lock_write": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    "lock_check": {
+      "command": "pnpm source:check",
+      "exit": 0
+    }
+  },
+  "github_api_calls": 4,
+  "publication_check": {
+    "command": "pnpm run check -- --profile first-party",
+    "exit": 0
+  },
+  "counts": {
+    "before": {
+      "done": 23,
+      "partial": 52,
+      "missing": 30,
+      "total": 105
+    },
+    "after": {
+      "done": 23,
+      "partial": 53,
+      "missing": 29,
+      "total": 105
+    },
+    "clause": "MIG-004 missing -> partial"
+  },
+  "documented_shapes_first_run": {
+    "exit": 1,
+    "positive_probes": "All requested positive shape assertions passed, including native 2-event count",
+    "test_harness_issue": "New negative source assertion received 409 catchup_required; corrected invocation to request catchup, preserving expected parser rejection"
+  },
+  "documented_shapes_pre_fix_attempt": {
+    "exit": 137,
+    "reason": "Bounded 240-second run did not return a response; terminated the surviving task-owned Node PID after deadline. This attempt is not evidence of a successful assertion."
+  },
+  "official_schema": {
+    "url": "https://api.swaggerhub.com/apis/smartbear-public/bugsnag-data-access-api/2",
+    "observed": "ReleaseApiView.release_stage object and release_time; _EventExceptionStacktrace.column_number string; _EventApp.bundleVersion; exception errorClass compatibility; ProjectStabilityTrendApiView object with project_id, release_stage_name, timeline_points"
+  },
+  "product_branch": "cloud/sd-spool-c-mig004-fix-1",
+  "product_head": "fed0194f8095dfba005518f9a912f26939207754",
+  "product_push": "success, guard attempt 1",
+  "identity_scan": {
+    "candidate_commits": 17,
+    "result": "pass",
+    "all_side_parents": true,
+    "openai_codex_coauthors": 0
+  },
+  "bugsnag": {
+    "command": "node tests/bugsnag-import.mjs",
+    "exit": 0,
+    "probes": "A1/A2/A3, documented shapes, refused cross-project stability object, native counts, archive, erasure, browser 1440/390"
+  },
+  "multilingual": {
+    "command": "node tests/multilingual.mjs",
+    "exit": 0,
+    "historical_archive_regression": "passed (legacy_evidence and native symbol inventory)"
+  },
+  "repair_recovery_node24": {
+    "command": "pnpm test:repair-recovery",
+    "exit": 1,
+    "stage": "setup",
+    "reason": "Managed first-run setup returned command_failed before archive assertions; all test-owned cleanup stopped."
+  },
+  "pre_repair_public_probe": {
+    "command": "node packet/PRE-REPAIR-PROBE.mjs",
+    "node": "22.20.0",
+    "exit": 0,
+    "pre_repair_restore": 200,
+    "pre_repair_repairs": 0,
+    "populated_restore": 200,
+    "populated_repairs": 1,
+    "events_retained": 1
+  },
+  "ci": {
+    "id": 42693082052,
+    "head_sha": "fed0194f8095dfba005518f9a912f26939207754",
+    "status": "completed",
+    "conclusion": "failure",
+    "build_job": 129417749956,
+    "failed_step": "Check source and portable contract",
+    "downstream_failed_jobs": [
+      129418014670,
+      129418066870
+    ],
+    "classification": "generated-view-only exemption confirmed by build job log",
+    "assertions": [
+      "ACCEPTANCE.md: generated content differs; run contract-docs write.",
+      "docs/CLAIMS.md: generated content differs; run contract-docs write."
+    ],
+    "log_command": "gh run view 42693082052 --repo just-every/run-spool --job 129417749956 --log-failed",
+    "log_exit": 0,
+    "exemption_eligible": true,
+    "actual_conclusion": "failure"
+  },
+  "repair_recovery_node22": {
+    "command": "pnpm test:repair-recovery",
+    "exit": 1,
+    "stage": "setup",
+    "reason": "Managed setup command_failed before archive assertions; owned cleanup all stopped; focused Worker archive probe passes."
+  },
+  "repair_recovery_isolated": {
+    "command": "pnpm test:repair-recovery",
+    "node": "22.20.0",
+    "exit": 1,
+    "stage": "archive",
+    "location": "tests/repair-recovery/archive.mjs:56 -> tests/agent-handoff/runtime.mjs:43 resetRestore -> tests/command-runner.mjs:87",
+    "reason": "Managed setup command returned command_failed during a later resetRestore; full suite did not complete. Recording/verdict/UI and earlier historical archive steps were reached.",
+    "cleanup": {
+      "capture": "stopped",
+      "browser": "stopped",
+      "children": "stopped",
+      "directory": "removed"
+    }
+  },
+  "terminal_status": "BLOCKED",
+  "blocker": "Required full repair-recovery suite remains red in managed CLI setup during archive recovery. Focused public restore probes pass; no product patch outside the lease was made.",
+  "ready_claim": false,
+  "no_unpushed_product_work": true,
+  "cleanup": "All test-owned runtimes stopped; product clone scheduled for deletion after successful evidence publication."
+}

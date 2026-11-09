@@ -1,0 +1,13 @@
+
+> @errors/errors-workbench@0.7.3 test:repair-recovery /workspace/run-spool
+> node tests/repair-recovery.mjs
+
+(node:6609) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+(node:6631) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"journey":"repair-recovery","stage":"archive","type":"AssertionError","message":"seed command exits with the expected status: {\"cliErrorCode\":\"command_failed\",\"refusalFamily\":\"unknown\",\"lifecycleMarker\":\"starting\"}\n\n1 !== 0\n","stack":["    at Object.command (file://[REDACTED]/tests/command-runner.mjs:87:31)","    at async Object.resetRestore (file://[REDACTED]/tests/agent-handoff/runtime.mjs:43:354)","    at async archiveProof (file://[REDACTED]/tests/repair-recovery/archive.mjs:56:2)","    at async file://[REDACTED]/tests/repair-recovery.mjs:43:32"]}
+Repair recovery cleanup: [{"name":"capture","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+ ELIFECYCLE  Command failed with exit code 1.

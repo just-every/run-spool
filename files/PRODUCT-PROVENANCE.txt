@@ -1,0 +1,56 @@
+commit fed0194f8095dfba005518f9a912f26939207754
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Mon Nov 9 20:27:04 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Mon Nov 9 20:27:04 2026 +0000
+
+    Reconcile documented Bugsnag stability and event shapes
+
+ CONTRACT.md                                      |   6 +-
+ docs/BUGSNAG-SWITCHING.md                        | 148 ++++++++++++++++++++
+ management/integration/deployment-spec.json      |   6 +
+ migrations/core/0100_native_symbols.sql          |  25 ++++
+ public/errors-capture.js                         |  18 +--
+ scripts/bugsnag-import.mjs                       |  54 ++++++++
+ scripts/import-door-client.mjs                   |  69 ++++++++++
+ scripts/sentry-import.mjs                        |  66 +--------
+ sources.lock.json                                | 128 +++++++++++++----
+ src/domain/api.ts                                |   2 +
+ src/domain/archive.ts                            |  27 ++--
+ src/domain/artifacts.ts                          |   3 +
+ src/domain/audit/classify.ts                     |   2 +-
+ src/domain/bugsnag-import/door.ts                |  15 ++
+ src/domain/bugsnag-import/event.ts               |  31 +++++
+ src/domain/bugsnag-import/mapping.ts             |  30 ++++
+ src/domain/bugsnag-import/report.ts              |  33 +++++
+ src/domain/bugsnag-import/source.ts              |  46 +++++++
+ src/domain/erasure/business-custody.ts           |   6 +
+ src/domain/erasure/declaration.ts                |   2 +-
+ src/domain/erasure/service.ts                    |   4 +-
+ src/domain/native-symbols/archive.ts             |  17 +++
+ src/domain/native-symbols/compat.ts              |  11 ++
+ src/domain/native-symbols/diagnose.ts            |  20 +++
+ src/domain/native-symbols/proguard.ts            |  89 ++++++++++++
+ src/domain/native-symbols/routes.ts              |  49 +++++++
+ src/domain/packet.ts                             |  10 +-
+ src/domain/portability.ts                        |   8 +-
+ src/domain/privacy.ts                            |   3 +-
+ src/domain/sentry-import/archive.ts              |  14 +-
+ src/domain/sentry-import/door.server.ts          |   5 +
+ src/domain/sentry-import/mapping.ts              |  31 +++--
+ src/domain/sentry-import/owner-reads.server.ts   |   3 +-
+ src/domain/sentry-import/read-labels.ts          |   9 +-
+ src/domain/sentry/convert.ts                     |   5 +-
+ src/domain/source-map-storage.ts                 |   2 +-
+ src/ui/workbench/IssueView.tsx                   |   6 +-
+ src/ui/workbench/views.css                       |   2 +-
+ tests/archive.mjs                                |   2 +-
+ tests/bugsnag-cutover.mjs                        |  42 ++++++
+ tests/bugsnag-import.mjs                         | 168 +++++++++++++++++++++++
+ tests/fixtures/archive-before-native-symbols.mjs |  13 ++
+ tests/fixtures/bugsnag/organization.mjs          |  21 +++
+ tests/multilingual/archive.mjs                   |   2 +
+ tests/old-archive.mjs                            |   4 +-
+ tests/repair-recovery/archive.mjs                |   2 +
+ tests/sentry-import.mjs                          |   3 +
+ 47 files changed, 1111 insertions(+), 151 deletions(-)
