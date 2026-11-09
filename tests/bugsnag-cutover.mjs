@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 export async function bugsnagCutover({json,req,web,android}){
- const mapping='com.synthetic.MainActivity -> a.b:\n# {"id":"sourceFile","fileName":"MainActivity.kt"}\n    1:3:void crash():42:44 -> c\n';
+ const mapping='com.synthetic.MainActivity -> a.b:\n# {"id":"sourceFile","fileName":"MainActivity.kt"}\n    1:1:void <init>():10:10 -> <init>\n    1:1:void <clinit>():11:11 -> <clinit>\n    1:3:void crash():42:44 -> c\n';
  let nativeReceipt;
  for(const project of [web,android]){
   const mobile=project===android,name=mobile?'1.0.0@production+42':'1.0.0@production+unspecified',build=mobile?'42':'unspecified';

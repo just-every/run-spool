@@ -3,7 +3,7 @@ import { scrub } from '../scrub';
 export const nativeSymbolByteLimit = 1024 * 1024;
 const javaName = '[A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*)*';
 const classLine = new RegExp(`^(${javaName}) -> (${javaName}):$`);
-const methodLine = new RegExp(`^(?:(\\d+):(\\d+):)?([^\\s]+) (${javaName}|<init>|<clinit>)\\(([^()]*)\\)(?::(\\d+)(?::(\\d+))?)? -> ([A-Za-z_$][A-Za-z0-9_$]*)$`);
+const methodLine = new RegExp(`^(?:(\\d+):(\\d+):)?([^\\s]+) (${javaName}|<init>|<clinit>)\\(([^()]*)\\)(?::(\\d+)(?::(\\d+))?)? -> ([A-Za-z_$][A-Za-z0-9_$]*|<init>|<clinit>)$`);
 const fieldLine = new RegExp(`^[^\\s]+ ${javaName} -> [A-Za-z_$][A-Za-z0-9_$]*$`);
 type Method = { name: string; obfuscated: string; start: number | null; end: number | null; originalStart: number | null; originalEnd: number | null; unsupported: boolean };
 type ClassMapping = { name: string; file: string | null; methods: Method[]; unsupported: boolean };

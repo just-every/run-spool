@@ -29,7 +29,7 @@ export async function bugsnagMigrationFlow(){
   assert.equal(plan.bugsnag.projects.find(p=>p.sourceId==='web').sampledEvents,1);
   assert.equal(plan.bugsnag.projects.find(p=>p.sourceId==='android').sampledEvents,1);
   const webRelease=plan.bugsnag.projects.find(p=>p.sourceId==='web').releases.find(r=>r.sourceId==='web-release');
-  assert.equal(webRelease.totalSessions,1000);assert.equal(webRelease.unhandledSessions,7);assert.equal(webRelease.denominatorStatus,'source_aggregate_only');assert.equal(webRelease.crashFreeRate,null);
+  assert.equal(webRelease.stage,'production');assert.equal(webRelease.totalSessions,1000);assert.equal(webRelease.unhandledSessions,7);assert.equal(webRelease.denominatorStatus,'source_aggregate_only');assert.equal(webRelease.crashFreeRate,null);
   for(const release of plan.bugsnag.projects.flatMap(p=>p.releases).filter(r=>r.sourceId!=='web-release')){assert.equal(release.denominatorStatus,'historical_sessions_unavailable');assert.equal(release.crashFreeRate,null);assert.ok(release.reason);}
   assert.ok(plan.bugsnag.losses.some(row=>row.kind==='collaborators'));assert.ok(plan.bugsnag.losses.some(row=>row.kind==='integrations'));assert.ok(plan.bugsnag.losses.some(row=>row.field==='unthrottled_occurrence_count'));
   const client=bugsnagDoorClient({endpoint:origin,cookie,organization:bundle.organization.id});
@@ -50,6 +50,14 @@ export async function bugsnagMigrationFlow(){
    const issues=await json(`/api/projects/${project.id}/issues`);assert.equal(issues.length,1);assert.equal(issues[0].count,1,'source aggregate event count is never fabricated as occurrences');
    assert.equal(issues[0].state,project===web?'resolved':'open');
    const packet=await json(`/api/projects/${project.id}/issues/${issues[0].id}/packet`);assert.equal(packet.events.length,1);assert.equal(packet.events[0].historical,true);assert.ok(!JSON.stringify(packet).includes('not projected'));
+   const imported=packet.events[0],mobile=project===android;
+   assert.equal(imported.event.release,mobile?'1.0.0@production+42':'1.0.0@production+unspecified');
+   assert.equal(imported.event.environment,'production');
+   assert.deepEqual(imported.event.frames,[mobile?
+    {file:'CheckoutActivity.kt',line:43,column:null,function:'com.synthetic.CheckoutActivity.submit'}:
+    {file:'https://shop.example/checkout.js',line:1,column:0,function:'submit'}]);
+   assert.equal(imported.event.type,'CheckoutError');
+   assert.deepEqual(imported.currentLookup,[{generated:imported.event.frames[0],status:'imported_symbolicated_stack',source:'bugsnag-api-export'}]);
    importedIssues.push({project,issue:issues[0],packet});
   }
   assert.equal(importedIssues[1].packet.events[0].event.sentry.exceptions[0].stacktrace.frames[0].function,'com.synthetic.CheckoutActivity.submit');

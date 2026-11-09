@@ -12,7 +12,7 @@ export function bugsnagReport(snapshot:DoorSnapshot) {
    releases:rows.filter(r=>r.kind==='releases').map(record=>{
     const d=(record.payload as any).data,total=count(d.total_sessions_count),unhandled=count(d.unhandled_sessions_count);
     const available=total!==null&&total>0&&unhandled!==null&&unhandled<=total;
-    return {sourceId:d.id,appVersion:safeImportLabel(d.app_version),stage:safeImportLabel(d.release_stage),
+    return {sourceId:d.id,appVersion:safeImportLabel(d.app_version),stage:safeImportLabel(d.release_stage?.name??d.release_stage),
      totalSessions:total,unhandledSessions:unhandled,crashFreeRate:null,
      denominatorStatus:available?'source_aggregate_only':'historical_sessions_unavailable',
      reason:available?'Source release aggregate, not reconstructed live sessions. No crash-free rate is inferred from sampled events.':'Historical session denominator is missing, zero or inconsistent. Crash-free rate is unavailable.'};
