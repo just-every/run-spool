@@ -5,7 +5,8 @@
       "browser": true,
       "hosted": true,
       "commands": [
-        "node scripts/installer/verify.mjs"
+        "node scripts/installer/verify.mjs",
+        "node tests/rollbar-import.mjs"
       ]
     }
   ],

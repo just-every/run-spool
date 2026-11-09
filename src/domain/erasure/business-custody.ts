@@ -1,3 +1,5 @@
+import { projectId as rollbarProject } from '../rollbar-import/identity.ts';
+import { parseRollbar } from '../rollbar-import/source.ts';
 import { Buffer } from 'node:buffer';
 import type { Edge } from '../../modules/erasure/index.mjs';
 import { nativeProject } from '../sentry-import/mapping';
@@ -33,6 +35,11 @@ export async function businessCustodyEdges(db: D1Database): Promise<Edge[]> {
    if(bundle.format==='spool-bugsnag-org-export'){
     const records=parseBugsnagOrganization(bundle);
     for(const record of records.filter(r=>r.kind==='projects'))remember(nativeProject(bundle.organization.id,(record.payload as any).data.id,'bugsnag'));
+    return;
+   }
+   if(bundle?.format==='spool-rollbar-export'){
+    const records=parseRollbar(bundle);
+    remember(rollbarProject((records[0].payload as any).project));
     return;
    }
    const records=parseSentryOrganization(bundle);

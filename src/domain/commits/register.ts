@@ -21,11 +21,11 @@ export function commitStatements(db: D1Database, project: string, release: strin
   auditCommit(db, 'changes()>0'),
   s(db, `INSERT INTO commit_links(project,sha,issue,citation,short_id,linked) SELECT ?,c.sha,t.issue,json_extract(x.value,'$.citation'),t.short_id,? FROM ${cited}
    JOIN issue_short_ids t ON t.short_id=json_extract(x.value,'$.id') AND t.project=c.project JOIN issues i ON i.id=t.issue AND i.project=t.project
-   WHERE i.algorithm<>'sentry-import-v1' ON CONFLICT(project,sha,issue) DO NOTHING`, project, time, rows, project),
+   WHERE i.algorithm NOT IN ('sentry-import-v1','rollbar-import-v1') ON CONFLICT(project,sha,issue) DO NOTHING`, project, time, rows, project),
   // Never a guess: an exact short ID of another project, of imported history, or of nothing.
   s(db, `INSERT INTO repository_link_log(project,sha,citation,reason,created) SELECT ?,c.sha,json_extract(x.value,'$.citation'),
    CASE WHEN EXISTS(${named} AND t.project=c.project) THEN 'inaccessible' WHEN EXISTS(${named}) THEN 'other_project' ELSE 'unknown' END,? FROM ${cited}
-   WHERE NOT EXISTS(${named} AND t.project=c.project AND i.algorithm<>'sentry-import-v1') ON CONFLICT(project,sha,citation) DO NOTHING`, project, time, rows, project),
+   WHERE NOT EXISTS(${named} AND t.project=c.project AND i.algorithm NOT IN ('sentry-import-v1','rollbar-import-v1')) ON CONFLICT(project,sha,citation) DO NOTHING`, project, time, rows, project),
   s(db, 'INSERT INTO release_commits(project,release,sha,source,created) SELECT ?,?,value,?,? FROM json_each(?) WHERE true ON CONFLICT(project,release,sha) DO NOTHING', project, release, source, time, shas),
   // SDK-009 commit-SHA association: a release named by a commit's full SHA includes it.
   s(db, "INSERT INTO release_commits(project,release,sha,source,created) SELECT r.project,r.name,r.name,'sha_release',? FROM releases r WHERE r.project=? AND r.name IN (SELECT value FROM json_each(?)) ON CONFLICT(project,release,sha) DO NOTHING", time, project, shas),

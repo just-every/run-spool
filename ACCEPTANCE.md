@@ -8,10 +8,10 @@ The primary journey: a US development team points its existing error capture at 
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 44 | 21 | 87 |
+| Core | 23 | 44 | 20 | 87 |
 | Agent surface | 0 | 8 | 10 | 18 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 52 | 31 | 105 |
+| Full target | 23 | 52 | 30 | 105 |
 
 Judged from the code and tests at commit `904529593333cdb8e65006b7554ece0aaf8c1d9b` (5 November 2026). Native MCP transport qualification: `tests/agent-door/protocol-contract.mjs` protocolContract, invoked by `tests/agent-door.mjs`, qualifies acceptance 1 to 6 of BASE-AGENT-001 at the implemented native transport boundary under independent autonomous and held policies. The first modern discovery and tool lists precede initialize; the legacy client reconciles the complete offered catalogue, capabilities, serverInfo and instructions. Repeated lists retain deterministic order and private cache fields. Unsupported versions refuse, while mismatched method headers and foreign Origin refuse both discovery and a valid native mutation; declared-length and streamed oversized mutation bodies preserve populated issues, events, releases and alerts, plus proposal rows and existing native attribution and replay custody; the held fixture also retains an already executed approval. A completed native MCP mutation seeds custody before the refusal snapshots. The bounded control executes once, after native sponsor approval under held policy. This is partial qualification only: resources and prompts remain undeclared and unserved, and broader registry conformance and hosted qualification remain unproved. Acceptance text, optional capabilities, unscoped lifecycle families, BASE-AGENT-012, existing account, device and ct holds, queue scopes and release prerequisites are unchanged. Exact-candidate Verify, generated-view landing, publication scanning, guarded landing and Run site remain fleet gates. Field proof register: 20 rows; 1 passed, 0 failed, 19 not run.
 
@@ -367,8 +367,8 @@ Core · target · **partial** · Cites BASE-PUBLIC-001 · Rules D-6
 5. Feedback from an unmodified Sentry feedback widget, `captureFeedback` and a legacy `user_report` each attaches to its issue.
 6. Spool's widget opened in Spanish shows Spanish visible labels and accessible names.
 
-**Evidence.** `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md`
-**Gap.** The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent.
+**Evidence.** `src/domain/feedback/`; `src/ui/workbench/FeedbackPanel.tsx`; `tests/feedback-flow.mjs`; `tests/sentry-sdk.mjs` with `tests/runtimes/browser.mjs` (qualifyBrowser: SDK submit-success IDs, emitted descriptions and references, exact retained occurrences, complete inbox and archive sets, issue reads, retained-link stability and per-submission accepted quantities); `tests/sentry-sdk.mjs` ([SDK-004] reportDialogFlow); `tests/report-dialog-flow.mjs`; `src/domain/report-dialog/`; `docs/FEEDBACK.md`
+**Gap.** Acceptance 5’s actual Sentry widget association is qualified at the description-only boundary: the same unmodified Sentry browser SDK 11.6.0 program uses its typed public beforeSendFeedback mutation hook against a reference collector and Spool with only DSN changed; createWidget and createForm expose no association option in this pinned version, so each widget captures its selected error reference in that hook and unregisters the previous widget’s hook; both reload rounds switch the widget between the same page’s handled and automatic errors, reverse report order after reload, and reconcile every SDK submit-success report ID with its emitted description and reference, complete inbox and archive report sets, intended handled or automatic error, exact archived occurrence, issue feedback, unchanged earlier report references and per-submission accepted quantity, with issue screens at 1440 and 390. The hosted crash-report modal is qualified through the unmodified browser SDK and queued loader stub at 1440/390, sharing the consented description-only feedback intake, exact occurrence association and withdrawal. Text descriptions from modern Sentry feedback events/items and legacy user_report are scrubbed, retry-safe and linked to an exact retained occurrence or shown as standalone/unavailable-reference reports in the owner inbox. Issue review and withdrawal, archive restore, retention and project/owner erasure cover this store. Contact and attachments are excluded; Spool’s independent localized widget, contact/replies, screenshot review, broader abuse policy and end-user identity erasure remain absent.
 
 #### SDK-005 — Crash-free sessions and release health
 
@@ -1121,7 +1121,7 @@ Core · target · **missing** · Register R-3
 
 #### MIG-003 — Rollbar migration
 
-Core · target · **missing** · Register R-4
+Core · target · **done** · Register R-4
 
 **Requirement.** Import Rollbar projects/items/occurrences, environments, deploys, status/assignment, grouping fingerprints, comments, tracker links and notification policies through a documented authorized export/API path. Preserve source identities and private artifacts where obtainable; name unavailable data. Provide dry-run, reconciliation, resumable apply/guarded undo and a SDK cutover guide that preserves diagnostic context and explicitly reports conversion losses. A real buyer project is register row R-4.
 
@@ -1130,8 +1130,8 @@ Core · target · **missing** · Register R-4
 2. An interrupted migration resumes.
 3. The replacement capture setup works, and imported history causes no outbound work.
 
-**Evidence.** None.
-**Gap.** No implementation proof yet: rollbar migration.
+**Evidence.** `tests/rollbar-import.mjs` Rollbar migration journey (1: authorized API envelopes, resolved and reactivated items, source and native counts, stacks, deploys, rules, source identities, private originals and named conversion losses; 2: bounded apply, Worker restart, durable cursor and idempotent resume; 3: replacement Node SDK capture with release, build, stack and breadcrumb context, no imported alerts or provider work); same journey proves owner authority, guarded undo, portable inert history, erasure and replay refusal. `tests/rollbar-import/screens.mjs` rollbarScreens (1440 and 390 imported issue and import history). `docs/ROLLBAR-MIGRATION.md` cutover guide.; `tests/rollbar-import.mjs` (Rollbar migration journey)
+**Gap.** None.
 
 #### MIG-004 — Bugsnag migration
 

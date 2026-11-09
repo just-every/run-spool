@@ -1,3 +1,4 @@
+import { projectId as rollbarProject } from '../rollbar-import/identity.ts';
 import { eraseNativeAgentArtifacts } from '../agent-door/artifacts';
 import { createErasure, defineErasure, ErasureError } from '../../modules/erasure/index.mjs';
 import { eraseD1ImportTarget } from '../../modules/import-kit/src/d1/index.ts';
@@ -37,6 +38,7 @@ function related(project: string): D1RelatedErasure {
   source(record: SourceRecord) {
    const payload = record.payload as any;
    if(payload?.vendor==='bugsnag')return names(payload.organization,record.kind==='projects'?payload.data?.id:payload.project,'bugsnag');
+   if(payload?.vendor==='rollbar')return typeof payload.project==='string' && rollbarProject(payload.project)===project;
    if (record.kind === 'projects') return names(payload?.organization, payload?.data?.slug);
    if (record.kind === 'releases') return Array.isArray(payload?.data?.projects) && payload.data.projects.some((linked: any) => names(payload.organization, linked?.slug));
    return names(payload?.organization, payload?.project);
@@ -45,6 +47,7 @@ function related(project: string): D1RelatedErasure {
    try {
     const bundle = JSON.parse(new TextDecoder().decode(bytes)), organization = bundle?.organization?.slug;
     if(bundle?.format==='spool-bugsnag-org-export')return Array.isArray(bundle.collections)&&bundle.collections.some((c:any)=>names(bundle.organization?.id,c.project,'bugsnag')||c.kind==='projects'&&c.pages?.some((p:any)=>p.response?.some((d:any)=>names(bundle.organization?.id,d.id,'bugsnag'))));
+    if(bundle?.format==='spool-rollbar-export')return rollbarProject(String(bundle?.project?.result?.id))===project;
     return Array.isArray(bundle?.collections) && bundle.collections.some((collection: any) => names(organization, collection?.project) ||
      (Array.isArray(collection?.pages) && collection.pages.some((page: any) => Array.isArray(page?.response) && page.response.some((item: any) => names(organization, item?.slug)))));
    } catch { return false; }
