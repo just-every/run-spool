@@ -1,0 +1,11 @@
+{
+  "conclusion": null,
+  "head_sha": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/42648796379",
+  "status": "in_progress",
+  "id": 42648796379,
+  "event": "push",
+  "name": "Verify",
+  "calls_used": 3,
+  "observed_utc": "2026-11-09T15:56:51Z"
+}

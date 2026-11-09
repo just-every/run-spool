@@ -1,0 +1,20 @@
+{
+  "builder": {
+    "counts": {
+      "done": 13,
+      "partial": 45,
+      "missing": 28
+    },
+    "MIG-004": "done",
+    "status_rows": 86
+  },
+  "main": {
+    "counts": {
+      "done": 13,
+      "partial": 45,
+      "missing": 28
+    },
+    "MIG-004": "missing",
+    "status_rows": 86
+  }
+}

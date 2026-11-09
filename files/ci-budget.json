@@ -1,0 +1,5 @@
+{
+  "calls_used": 3,
+  "last_check_epoch": 1794239811.5732055,
+  "note": "First discovery queried an incorrect SHA and returned no runs; second discovery uses git rev-parse HEAD."
+}

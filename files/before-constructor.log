@@ -1,0 +1,24 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+400 !== 201
+
+    at bugsnagCutover (file:///workspace/run-spool-fix1/tests/bugsnag-cutover.mjs:13:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async bugsnagMigrationFlow (file:///workspace/run-spool-fix1/tests/bugsnag-import.mjs:71:23)
+    at async file:///workspace/run-spool-fix1/tests/bugsnag-import.mjs:111:75 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 400,
+  expected: 201,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

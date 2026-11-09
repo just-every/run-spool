@@ -1,0 +1,31 @@
+{
+  "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+  "checks": [
+    {
+      "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck-final.log",
+      "started_utc": "2026-11-09T15:53:13Z",
+      "ended_utc": "2026-11-09T15:53:21Z"
+    },
+    {
+      "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "timeout",
+        "240",
+        "node",
+        "tests/bugsnag-import.mjs"
+      ],
+      "exit": 0,
+      "log": "touched-final.log",
+      "started_utc": "2026-11-09T15:53:21Z",
+      "ended_utc": "2026-11-09T15:53:39Z"
+    }
+  ]
+}

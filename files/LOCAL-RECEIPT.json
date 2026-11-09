@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/strategy-trial-18-sol-fix1",
+  "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+  "builder_head": "b6793817f29b9f10abf688dd6fe5030711de626b",
+  "integrated_main": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+  "save_head": "130d3cbe3aa4660f1b2b98f8fc4dcfe827f798c7",
+  "working_tree_clean": true,
+  "scope": [
+    "release_stage object",
+    "snake_case exception coordinates",
+    "ordinary R8 constructor upload"
+  ],
+  "checks": [
+    {
+      "command": "node tests/sentry-import.mjs",
+      "exit": 0,
+      "log": "touched-merged.log",
+      "includes": [
+        "Sentry owner import",
+        "bugsnagMigrationFlow",
+        "bugsnagCutover"
+      ],
+      "binding": "same product code and tests as final HEAD; only lock and merge metadata finalized afterwards"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-merged.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "check-merged.log"
+    },
+    {
+      "command": "pnpm integration:check",
+      "exit": 0,
+      "log": "integration-merged.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs write; node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "views-merged.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "lock-merged.log"
+    },
+    {
+      "command": "node tests/rollbar-import.mjs",
+      "exit": 1,
+      "log": "rollbar-merged.log",
+      "note": "supplemental integration check: same browser text timeout on untouched main, not repaired in this fix scope"
+    },
+    {
+      "command": "node tests/rollbar-import.mjs on untouched origin/main",
+      "exit": 1,
+      "log": "rollbar-main.log",
+      "head": "aa853b97de89f949da4fa5876ae525e3b1f343aa"
+    }
+  ],
+  "public_door_reproductions": [
+    {
+      "finding": "stage object",
+      "log": "before-stage.log",
+      "exit": 1,
+      "observed": "owner import dry-run HTTP 422 source_parser_failed"
+    },
+    {
+      "finding": "snake_case coordinates",
+      "log": "before-coordinates.log",
+      "exit": 1,
+      "observed": "native packet event.frames empty instead of exported web coordinate"
+    },
+    {
+      "finding": "R8 constructor",
+      "log": "before-constructor.log",
+      "exit": 1,
+      "observed": "project deploy symbol upload HTTP 400 instead of 201"
+    }
+  ],
+  "migration_ledger": "no migration authored or edited by fix round; inherited native-symbol migration applied in all touched Worker journeys",
+  "test_registrations_added": 0,
+  "tests_removed_or_skipped": 0,
+  "provider_proof": "synthetic export and local capture only; real buyer and real-device qualification remains R-5",
+  "publication_scan": "fleet Mac lander; unavailable in cloud, not claimed COMPLETE",
+  "pr": null,
+  "files": {
+    "touched-merged.log": {
+      "bytes": 1183,
+      "sha256": "1a73dad4f1d3bea997f7e4f173286f990409b579518f25bf3b8af0c4eaa4d258"
+    },
+    "typecheck-merged.log": {
+      "bytes": 192,
+      "sha256": "7dc110867b40b73854fb6ddcb0db414f2a1c93e0f0ed4fd8ff495015d8f3d8dd"
+    },
+    "check-merged.log": {
+      "bytes": 136,
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    "integration-merged.log": {
+      "bytes": 300,
+      "sha256": "7d59f7b1e42adc1526990431150136cc565a9497ed036a9b3fffe6bd463ed3d3"
+    },
+    "views-merged.log": {
+      "bytes": 98,
+      "sha256": "6a3edad7783bf6c13e63dbe5a49f4f1d6a932a81c60be61934495e59874a258a"
+    },
+    "lock-merged.log": {
+      "bytes": 926570,
+      "sha256": "8040ca1f9ba45126e2f1b02ba8dccc7a4aef4f4ec4b6f879336abd82eedb76d3"
+    },
+    "rollbar-merged.log": {
+      "bytes": 743,
+      "sha256": "3468e2f6b2a2dfefc3bd95d91e212e6e5cfefd8ffa9400a66ea63ccfad6aea3c"
+    },
+    "rollbar-main.log": {
+      "bytes": 755,
+      "sha256": "9c74a4ac4f6aa5d4364cf6e0fb70fbf304a369c18bdc630731e162af6f83b22e"
+    },
+    "before-stage.log": {
+      "bytes": 984,
+      "sha256": "8b9882c52c0eee459815b0b0789600845d2fd13b561a237f283da1315af4ff9a"
+    },
+    "before-coordinates.log": {
+      "bytes": 961,
+      "sha256": "b8d22a3dfeb81833b76357749d74f9a6605b3ddb18948a28a04fcb1ff8d3dfec"
+    },
+    "before-constructor.log": {
+      "bytes": 791,
+      "sha256": "61dc712f06d1cfeab3c95f9fdf2f110e1a713c52aff704343034d9d705f84318"
+    },
+    "EXACT-HEAD-LOCAL.json": {
+      "bytes": 719,
+      "sha256": "36df4b6c088d5540bdb1536db6cde7d847e291df7090362dcfc7e8c9c8adc0f1"
+    },
+    "typecheck-final.log": {
+      "bytes": 192,
+      "sha256": "7dc110867b40b73854fb6ddcb0db414f2a1c93e0f0ed4fd8ff495015d8f3d8dd"
+    },
+    "touched-final.log": {
+      "bytes": 594,
+      "sha256": "57d69a07e5b82e0343f9a852aade7e581c148af42b2d27a46f2da5ba1d8c6338"
+    },
+    "imported-android-1440.png": {
+      "bytes": 479594,
+      "sha256": "0085d2278c7200f84e396fe3974f556a8dc90eb7e2802e90d24a8aca44f85c3e"
+    },
+    "imported-android-390.png": {
+      "bytes": 375767,
+      "sha256": "926d77810769a193ebe69ea9f5981086f7de0d37b97382da4aa1bbe676c620ca"
+    },
+    "native-cutover-1440.png": {
+      "bytes": 514087,
+      "sha256": "41cdfad1479319ddb2ecb0d6075e54e0c1cba35b56253a7f469e1abe7fdf91ad"
+    },
+    "native-cutover-390.png": {
+      "bytes": 591009,
+      "sha256": "4bc90474ea6e9a1d6914b80ee9d5728c273d01d56a087a4db7ee3b703559389a"
+    },
+    "lock-final.log": {
+      "bytes": 463292,
+      "sha256": "f2c37b9af6fd62408ad6bdead31b573bc6d5130af8fabc424f101e4f7b57ba2b"
+    },
+    "views-final.log": {
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    }
+  },
+  "final_exact_head_receipt": "EXACT-HEAD-LOCAL.json",
+  "screenshots_binding": "generated by the final exact-head Bugsnag journey",
+  "final_readonly_freshness": {
+    "head": "7d9f9d69db0f82c082572220c9a9c8543af06442",
+    "lock_exit": 0,
+    "views_exit": 0,
+    "working_tree_clean": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "integrated_main": "aa853b97de89f949da4fa5876ae525e3b1f343aa",
+  "counts": {
+    "done": 13,
+    "partial": 45,
+    "missing": 28
+  },
+  "MIG-004": "missing",
+  "status_rows": 86
+}

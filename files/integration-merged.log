@@ -1,0 +1,6 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.3 integration:check /workspace/run-spool-fix1
+> node scripts/sync-integration.mjs --check
+
+Integration deployment spec, setup digest and producer workflow match.
