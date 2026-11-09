@@ -1130,7 +1130,7 @@ Core · target · **done** · Register R-4
 2. An interrupted migration resumes.
 3. The replacement capture setup works, and imported history causes no outbound work.
 
-**Evidence.** `tests/rollbar-import.mjs` Rollbar migration journey (1: authorized API envelopes, resolved and reactivated items, source and native counts, stacks, deploys, rules, source identities, private originals and named conversion losses; 2: bounded apply, Worker restart, durable cursor and idempotent resume; 3: replacement Node SDK capture with release, build, stack and breadcrumb context, no imported alerts or provider work); same journey proves owner authority, guarded undo, portable inert history, erasure and replay refusal. `tests/rollbar-import/screens.mjs` rollbarScreens (1440 and 390 imported issue and import history). `docs/ROLLBAR-MIGRATION.md` cutover guide.
+**Evidence.** `tests/rollbar-import.mjs` Rollbar migration journey (1: authorized API envelopes, resolved and reactivated items, source and native counts, stacks, deploys, rules, source identities, private originals and named conversion losses; 2: bounded apply, Worker restart, durable cursor and idempotent resume; 3: replacement Node SDK capture with release, build, stack and breadcrumb context, no imported alerts or provider work); same journey proves owner authority, guarded undo, portable inert history, erasure and replay refusal. `tests/rollbar-import/screens.mjs` rollbarScreens (1440 and 390 imported issue and import history). `docs/ROLLBAR-MIGRATION.md` cutover guide.; `tests/rollbar-import.mjs` (Rollbar migration journey)
 **Gap.** None.
 
 #### MIG-004 — Bugsnag migration
