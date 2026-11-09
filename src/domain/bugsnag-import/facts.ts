@@ -35,7 +35,7 @@ export function bugsnagFacts(entries: PlanEntry[]) {
   const timeline = kept('stability').map(row => {
     const points: any[] = Array.isArray(data(row).timeline_points) ? data(row).timeline_points : [];
     const total = points.reduce((sum, p) => sum + (whole(p?.total_sessions_count) ? p.total_sessions_count : 0), 0), unhandled = points.reduce((sum, p) => sum + (whole(p?.unhandled_sessions_count) ? p.unhandled_sessions_count : 0), 0);
-    return { project: scope(row), stage: data(row).release_stage_name, points: points.length, sessions: sessions(points.length ? total : undefined, unhandled, sessionsOmitted) };
+    return { project: scope(row), stage: data(row).release_stage_name ?? null, points: points.length, sessions: sessions(points.length ? total : undefined, unhandled, sessionsOmitted) };
   });
   const symbols = kept('symbols');
   const byType = new Map<string, number>();
@@ -44,8 +44,8 @@ export function bugsnagFacts(entries: PlanEntry[]) {
     const slug = data(project).slug, surface = surfaceOf(data(project).type);
     return { project: slug, type: data(project).type ?? null, surface,
       capture: surface === 'server' ? 'Spool SDK or an unmodified Sentry SDK with the Spool DSN' : surface === 'web' ? 'Spool browser SDK or the Sentry browser SDK with the Spool DSN' : 'Sentry mobile SDK with the Spool DSN',
-      symbols: symbols.filter(s => scope(s) === slug).map(s => ({ type: data(s).type, release: data(s).app_version ?? null, ...nativeSymbols.includes(String(data(s).type).toLowerCase())
-        ? { status: 'not_accepted_yet', reasonCode: 'native_symbols_unsupported' } : { status: 'repoint', command: 'spool-sourcemaps', reasonCode: null } })) };
+      symbols: symbols.filter(s => scope(s) === slug).map(s => ({ type: data(s).type, release: data(s).app_version ?? null, status: 'repoint',
+        command: nativeSymbols.includes(String(data(s).type).toLowerCase()) ? 'sentry-cli debug-files upload' : 'spool-sourcemaps', reasonCode: null })) };
   });
   return { vendor: 'bugsnag',
     reconciliation: { errors: { source: errors.length, imported: errors.filter(accepted).length, rejected: errors.filter(e => !accepted(e)).length },

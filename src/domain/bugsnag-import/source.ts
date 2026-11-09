@@ -10,8 +10,10 @@ export const bugsnagNamespacePrefix = 'bugsnag-org:';
 export const bugsnagOrganizationKey = (slug: string) => `bugsnag:${slug}`;
 const projectScoped = ['errors', 'events', 'releases', 'stability', 'symbols', 'integrations'];
 const organizationScoped = ['projects', 'collaborators'];
-// The identifier each documented response row carries.
-const idField: Record<string, string> = { stability: 'release_stage_name' };
+// The identifier each documented response row carries. A stability response names its release stage, or, unfiltered, covers every stage of the project.
+const identifier = (kind: string, row: any) => kind === 'stability' ? row.release_stage_name ?? 'all-stages' : row.id;
+// Bugsnag's stability trend answers one object, not a list: that object is the page's only row.
+const rowsOf = (kind: string, response: unknown): any[] | null => Array.isArray(response) ? response : kind === 'stability' && response && typeof response === 'object' ? [response] : null;
 function fields(value: any, allowed: string[]) {
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !allowed.includes(key))) throw new Error('Unsupported bundle shape');
 }
@@ -37,12 +39,12 @@ export function parseBugsnagOrganization(value: Json): ParsedRecord[] {
     for (const [pageIndex, page] of collection.pages.entries()) {
       fields(page, ['cursor', 'nextCursor', 'response']);
       if (cursors.has(page.cursor)) throw new Error('Repeated page cursor'); cursors.add(page.cursor);
-      if (page.cursor !== expected || (page.nextCursor !== null && (typeof page.nextCursor !== 'string' || !page.nextCursor || page.nextCursor === page.cursor)) || !Array.isArray(page.response)) throw new Error('Broken page chain');
+      if (page.cursor !== expected || (page.nextCursor !== null && (typeof page.nextCursor !== 'string' || !page.nextCursor || page.nextCursor === page.cursor)) || !rowsOf(kind, page.response)) throw new Error('Broken page chain');
       if (pageIndex < collection.pages.length - 1 && page.nextCursor === null || pageIndex === collection.pages.length - 1 && page.nextCursor !== null) throw new Error('Incomplete page chain');
       expected = page.nextCursor;
-      for (const [rowIndex, row] of page.response.entries()) {
+      for (const [rowIndex, row] of rowsOf(kind, page.response)!.entries()) {
         if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error('Invalid API record');
-        const id = sourceText(row[idField[kind] ?? 'id'], 'source id');
+        const id = sourceText(identifier(kind, row), 'source id');
         records.push({ kind, sourceId: JSON.stringify([organization, project, id]), payload: { organization, project, data: row }, pointer: `/collections/${collectionIndex}/pages/${pageIndex}/response/${rowIndex}` });
       }
     }

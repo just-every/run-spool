@@ -7,8 +7,10 @@ export const maxRequestSize = 4 * 1024 * 1024;
 export const concurrency = 4;
 export const maxFileSize = 16 * 1024 * 1024;
 export const stagedLimit = 64 * 1024 * 1024;
+/** Bytes of native debug files one project keeps. SRC-004's 2 GiB files need the isolated storage it names; a file beyond these bounds is refused by name. */
+export const debugFileProjectLimit = 64 * 1024 * 1024;
 export const stagedLifetime = 3600000;
-/** Artifact bundles carry source maps; debug files are accepted for assembly only to refuse each one by name. */
+/** Artifact bundles carry source maps; debug files are stored whole under the project and the debug ID the client names. */
 export const accepted = ['artifact_bundles', 'debug_files'];
 export const manifestLimit = 1024 * 1024;
 export const bundleFileLimit = 2000;

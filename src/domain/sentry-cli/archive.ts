@@ -2,12 +2,12 @@ import { releaseIdentity } from '../releases/identity';
 
 /** What unmodified sentry-cli and build plugins registered beyond the existing release and commit tables:
  * finalization time/URL per release and reported deploys. Transient chunk staging and assembly receipts
- * (sentry_upload_chunks, sentry_assemblies) are not archived. Deploys restore as inert history. */
+ * (sentry_upload_chunks, sentry_assemblies) and native debug files (sentry_debug_files and their bytes, which a build uploads again from CI) are not archived. Deploys restore as inert history. */
 export const sentryCliTables: Record<string, string[]> = {
  sentry_releases: ['project', 'release', 'url', 'started', 'released', 'created'],
  sentry_deploys: ['project', 'id', 'release', 'environment', 'name', 'url', 'started', 'finished', 'actor', 'created'],
 };
-export const sentryCliExcludedTables = ['sentry_upload_chunks', 'sentry_assemblies'];
+export const sentryCliExcludedTables = ['sentry_upload_chunks', 'sentry_assemblies', 'sentry_debug_files', 'sentry_debug_file_parts'];
 export const sentryCliDefaults = (data: any) => ({ ...Object.fromEntries(Object.keys(sentryCliTables).map(name => [name, []])), ...data });
 const integer = (value: any) => Number.isSafeInteger(value) && value >= 0;
 const optionalInteger = (value: any) => value === null || integer(value);

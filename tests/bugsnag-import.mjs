@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFileSync, spawn } from 'node:child_process';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { build } from 'esbuild';
@@ -9,6 +9,7 @@ import { signIn } from './auth.mjs';
 import { archiveProjection } from './archive.mjs';
 import { followErasure } from './project-erasure/follow.mjs';
 import { sdkPath, runNode } from './sentry-cli/sdk.mjs';
+import { runCli } from './sentry-cli/cli.mjs';
 import { bugsnagImportCli } from '../scripts/bugsnag-import.mjs';
 
 // MIG-004: a web and a mobile Bugsnag project in the Data Access API's documented
@@ -45,7 +46,9 @@ try {
   const rates = facts.stability.releases.map(row => [row.project, row.release, row.stage, row.sessions.total, row.sessions.crashFreeRate, row.sessions.reasonCode]);
   assert.deepEqual(rates, [['web-app', 'web@1.0.0', 'production', 1200, 98.5, null], ['web-app', 'web@1.1.0', 'production', 800, 99.5, null], ['web-app', 'web@1.1.0', 'staging', 50, 98, null], ['ios-app', '5.2.0', 'production', null, null, 'historical_sessions_missing']],
     'the mobile project exported no sessions: its gap is named and no crash-free rate is invented');
-  assert.ok(planned.reasonLabels.historical_sessions_missing && planned.reasonLabels.native_symbols_unsupported);
+  assert.deepEqual(facts.stability.timeline.map(row => [row.project, row.stage, row.points, row.sessions.total, row.sessions.crashFreeRate]), [['web-app', 'production', 2, 2000, 98.9]], 'the documented stability response object reconciles with the production release rows (1200 + 800 sessions)');
+  assert.ok(planned.reasonLabels.historical_sessions_missing);
+  assert.deepEqual(facts.cutover.map(row => [row.project, row.surface, row.symbols.map(sym => [sym.type, sym.status, sym.command])]), [['web-app', 'web', [['sourcemap', 'repoint', 'spool-sourcemaps']]], ['ios-app', 'mobile', [['dsym', 'repoint', 'sentry-cli debug-files upload']]]], 'the review names where each symbol upload goes, native dSYM included');
   assert.ok(!JSON.stringify(planned).includes('Fixture User') && !JSON.stringify(planned.vendor).includes('user-1'), 'affected-user identities never reach the review');
   // Apply needs the reviewed fingerprint and is repeatable.
   let base = ['--organization', 'fixture-org', '--plan', planned.planId];
@@ -68,11 +71,15 @@ try {
   const mobile = issues.find(i => i.title.startsWith('NSInvalid')), web = issues.find(i => i.title.startsWith('TypeError'));
   const mobilePacket = await packetOf(mobile);
   assert.equal(mobilePacket.events.length, 2);assert.ok(mobilePacket.events.every(e => e.historical === true));
-  const stack = mobilePacket.events[0].event.sentry.exceptions[0].stacktrace.frames, crash = stack.at(-1);
-  assert.deepEqual([crash.package, crash.function, crash.instruction_addr, crash.symbol_addr, crash.image_addr, crash.in_app], ['MyApp', '-[CheckoutController submitOrder:]', '0x100a3f1c4', '0x100a3f100', '0x100a00000', true], 'the original native stack shows exactly as the notifier sent it');
-  assert.equal(mobilePacket.events[0].event.release, '5.2.0');assert.equal(mobilePacket.events[0].event.build, '1142');
+  // Both exports of the iOS error show the same original native stack, whether the notifier sent snake_case fields or camelCase ones (errorClass, frameAddress, bundleVersion).
+  for (const e of mobilePacket.events) {
+    const exception = e.event.sentry.exceptions[0], crash = exception.stacktrace.frames.at(-1);
+    assert.equal(exception.type, 'NSInvalidArgumentException', 'the exception type survives conversion');
+    assert.deepEqual([crash.package, crash.function, crash.instruction_addr, crash.symbol_addr, crash.image_addr, crash.in_app], ['MyApp', '-[CheckoutController submitOrder:]', '0x100a3f1c4', '0x100a3f100', '0x100a00000', true], 'the original native stack shows exactly as the notifier sent it');
+    assert.deepEqual([e.event.release, e.event.build, e.event.environment], ['5.2.0', '1142', 'production']);
+  }
   const webPacket = await packetOf(web);
-  assert.deepEqual(webPacket.events[0].event.frames.map(f => [f.line, f.column]), [[1, 4820], [1, 901]]);
+  for (const e of webPacket.events) assert.deepEqual(e.event.frames.map(f => [f.line, f.column]), [[1, 4820], [1, 901]], 'line and column coordinates survive whether the export typed them as numbers or digit strings');
   assert.ok(!JSON.stringify([webPacket, mobilePacket]).includes('Fixture User') && !JSON.stringify([webPacket, mobilePacket]).includes('user-1'));
   const webProject = web.project, mobileProject = mobile.project;
   assert.deepEqual((await json(`/api/projects/${webProject}/releases`)).map(r => [r.name, r.seq, r.build]), [['web@1.0.0', 1, '[sentry:no-dist]'], ['web@1.1.0', 2, '[sentry:no-dist]']], 'one release per version, ordered by first release time');
@@ -122,6 +129,17 @@ try {
   assert.equal(liveMobile.historical, false);assert.deepEqual([liveMobile.event.release, liveMobile.event.build], ['5.2.0', '1142']);
   assert.equal(liveMobile.event.sentry.exceptions[0].stacktrace.frames.at(-1).instruction_addr, '0x100a3f1c4', 'the live native stack shows beside the imported one');
   assert.equal((await json(`/api/projects/${mobileProject}/releases`)).length, 1, 'the SDK reuses the imported release identity instead of duplicating it');
+
+  // Cutover, mobile symbol CI: the unmodified sentry-cli uploads the build's native debug file with only the Spool URL, project and deploy key changed.
+  const symbolDir = join(scratch, 'native'); await mkdir(symbolDir);
+  await writeFile(join(symbolDir, 'app.c'), '#include <stdio.h>\nint add(int a, int b) { return a + b; }\nint main(void) { printf("%d\\n", add(1, 2)); return 0; }\n');
+  execFileSync('gcc', ['-g', ...process.platform === 'darwin' ? [] : ['-Wl,--build-id'], '-o', join(symbolDir, 'app'), join(symbolDir, 'app.c')]);
+  const mobileDeploy = await json(`/api/projects/${mobileProject}/keys`, 'POST', { kind: 'deploy' });
+  const symbolUpload = await runCli(['debug-files', 'upload', symbolDir], { origin, token: mobileDeploy.key, project: mobileProject });
+  assert.equal(symbolUpload.code, 0, symbolUpload.output);
+  const debugFiles = (await json(`/api/projects/${mobileProject}/sentry-uploads`)).debugFiles;
+  assert.ok(debugFiles.length > 0 && debugFiles.every(row => row.size > 0 && ['macho', 'elf'].includes(row.kind)), 'the mobile project keeps the native debug file its CI uploaded');
+  assert.equal((await json(`/api/projects/${webProject}/sentry-uploads`)).debugFiles.length, 0, 'debug files belong to the project whose key uploaded them');
 
   // A native edit is never overwritten: undo stops on it and names why.
   const edited = (await issuesOf(webProject)).find(i => i.id === web.id);

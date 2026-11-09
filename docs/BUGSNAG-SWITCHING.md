@@ -4,15 +4,15 @@ Spool imports a Bugsnag (SmartBear) organization's history through the same owne
 
 ## What the export is
 
-The importer reads one JSON file, `spool-bugsnag-org-export`, holding the pages your own authorized Bugsnag Data Access API calls returned, unchanged. Spool never calls Bugsnag and never holds a Bugsnag token; it does not import a project's notifier API key. Each collection names its kind and project, and each page keeps its cursor chain, so a missing page is refused rather than imported short.
+The importer reads one JSON file, `spool-bugsnag-org-export`, holding the pages your own authorized Bugsnag Data Access API calls returned, unchanged. Spool never calls Bugsnag and never holds a Bugsnag token; it does not import a project's notifier API key. Each collection names its kind and project, and each page keeps its cursor chain and the response exactly as Bugsnag answered (a list, or for the stability trend one object), so a missing page is refused rather than imported short.
 
 | Collection | Bugsnag response it holds | What Spool does |
 | --- | --- | --- |
 | `projects` | organization projects | native project (name, creation time); type and release stages kept in the private journal |
-| `releases` | project releases, one row per release stage | one native release per app version, ordered by first release time; the build is the version code or bundle version |
+| `releases` | project releases, one row per release stage | one native release per app version, ordered by `release_time`; the build is the version code or bundle version |
 | `errors` | project errors | native issues; open, fixed and ignored map directly, snoozed becomes suppressed, and a snooze rule or assignee is named as not imported |
-| `events` | project events | historical events with exception locations, native frames, breadcrumb labels, app version, release stage and OS name; the affected user, request, device identifiers and metadata stay out |
-| `stability` | stability trend | session denominators for the review only |
+| `events` | project events (snake_case fields as the Data Access API returns them, or the camelCase notifier fields such as `errorClass`, `bundleVersion` and `frameAddress`; line and column numbers may be digit strings) | historical events with exception locations, native frames, breadcrumb labels, app version, release stage and OS name; the affected user, request, device identifiers and metadata stay out |
+| `stability` | stability trend, the response object (`timeline_points`) or a list of them | session denominators for the review only |
 | `collaborators`, `integrations`, `symbols` | roster, integrations, symbol references | named as not imported; see below |
 
 Input is limited to 2 MiB and 500 records, the same as the Sentry importer. Event bodies are usually a sample of an error's events: the review shows each error's source total beside the events actually imported.
@@ -46,7 +46,7 @@ A project deploy key can only register releases and upload maps. Register the fi
 
 **Mobile.** Bugsnag's mobile notifiers cannot send to Spool. Use Sentry's iOS or Android SDK with the project's Spool DSN, with the release set to your Bugsnag app version and the dist set to its version code or bundle version: the capture then joins the imported release instead of creating a second one. Its first live events are new issues beside the imported history.
 
-**Native symbols.** Spool accepts no dSYM, ProGuard or R8 mapping, NDK or Dart symbol file yet (SDK-002), so those CI uploads have nowhere to go and the review marks them `not_accepted_yet`. Keep uploading them to Bugsnag meanwhile. Imported native events show the original stack exactly as the notifier sent it, with image, addresses and the symbol Bugsnag resolved, and are not symbolicated again.
+**Native symbols.** Replace Bugsnag's dSYM, ProGuard/R8, NDK and Dart symbol upload step in CI with the unmodified `sentry-cli debug-files upload`, pointed at Spool (`SENTRY_URL`, `SENTRY_ORG`, `SENTRY_PROJECT` and the project's deploy key as `SENTRY_AUTH_TOKEN`). Spool stores each file under the project and its debug ID, and the review names that command for every native symbol reference. Spool does not yet symbolicate with them (SDK-002): imported native events show the original stack exactly as the notifier sent it, with image, addresses and the symbol Bugsnag resolved, and are not symbolicated again.
 
 ## Undo and erasure
 

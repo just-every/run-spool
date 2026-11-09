@@ -27,7 +27,7 @@ export const erasureLabels: Record<string, string> = {
   repository_link_log: 'Repository link log', rer_mail_event_receipts: 'Mail event receipts', rer_mail_event_states: 'Mail event states', restored_work: 'Restored work records',
   retention_policies: 'Retention settings', retention_runs: 'Retention runs', review_stamps: 'Review stamps', review_views: 'Saved review views',
   scrubbing_changes: 'Scrubbing rule changes', scrubbing_policies: 'Scrubbing rules', scrubbing_previews: 'Scrubbing previews',
-  sentry_assemblies: 'Sentry upload assemblies', sentry_deploys: 'Sentry deploy records', sentry_releases: 'Sentry release records', sentry_upload_chunks: 'Sentry upload chunks',
+  sentry_assemblies: 'Sentry upload assemblies', sentry_debug_file_parts: 'Native debug file bytes', sentry_debug_files: 'Native debug files', sentry_deploys: 'Sentry deploy records', sentry_releases: 'Sentry release records', sentry_upload_chunks: 'Sentry upload chunks',
   short_id_prefixes: 'Issue short IDs', slack_delivery_meta: 'Slack delivery details', slack_destinations: 'Slack destinations',
   source_map_build_files: 'Source map build files', source_map_builds: 'Source map builds',
   spool_follow_up_alternates: 'Follow-up alternates', spool_notification_preferences: 'Notification preferences', spool_project_grants: 'Project access grants', spool_project_teams: 'Project teams',

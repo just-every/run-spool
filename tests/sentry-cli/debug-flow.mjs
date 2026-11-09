@@ -18,13 +18,22 @@ export async function debugFlow({origin, api, req, keys, dsn, temporary}) {
  const check = await cli(['debug-files', 'check', debugFile]);
  assert.equal(check.code, 0, check.output); assert.match(check.output, /Debug ID: [0-9a-f-]{36}/);
 
+ // Native debug files from mobile CI are stored under the project and their debug ID (MIG-004 symbol-CI repoint);
+ // reading them to symbolicate is SDK-002, so the upload stores bytes and rewrites no event.
+ const debugId = /Debug ID: ([0-9a-f-]{36})/.exec(check.output)[1], size = (await stat(debugFile)).size;
  const before = await api('/api/projects/web/sentry-uploads');
- const beforeNative = await boundaryState({api, req});
+ assert.deepEqual(before.debugFiles, []);
  const upload = await cli(['debug-files', 'upload', dir]);
- assert.notEqual(upload.code, 0, 'native debug files are refused until SDK-002 symbolication exists');
- assert.match(upload.output, /ERROR app[\s\S]*native debug files are not accepted yet[\s\S]*SDK-002[\s\S]*uploaded nothing/);
- assert.deepEqual(await api('/api/projects/web/sentry-uploads'), before, 'nothing was staged or stored');
- assert.deepEqual(await boundaryState({api, req}), beforeNative, 'native debug refusal also preserves releases, deploys and staged chunks');
+ assert.equal(upload.code, 0, upload.output);
+ const stored = (await api('/api/projects/web/sentry-uploads')).debugFiles;
+ const mine = stored.find(row => row.debugId === debugId && row.size === size);
+ assert.ok(mine, 'the debug file is stored under the debug ID the CLI computed, at its full size');
+ assert.equal(mine.kind, process.platform === 'darwin' ? 'macho' : 'elf');
+ const again = await cli(['debug-files', 'upload', dir]);
+ assert.equal(again.code, 0, again.output);
+ assert.deepEqual((await api('/api/projects/web/sentry-uploads')).debugFiles, stored, 'a repeat upload changes nothing');
+ const refused = await fetch(origin + '/api/0/projects/acme/web/files/difs/assemble/', {method: 'POST', headers: {Authorization: 'Bearer ' + keys.deploy, 'Content-Type': 'application/json'}, body: JSON.stringify({['0'.repeat(40)]: {name: 'x', chunks: ['1'.repeat(40)]}})});
+ assert.equal((await refused.json())['0'.repeat(40)].state, 'error', 'a file with no debug ID is refused by name, never reported stored');
 
  // bundle-sources is a local command: it needs no server and its output is a real source bundle.
  const bundled = await cli(['debug-files', 'bundle-sources', '--output', dir, debugFile]);

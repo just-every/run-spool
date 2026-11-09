@@ -80,25 +80,25 @@
        "id": "0000000000000000000000b1",
        "release_stage_name": "production",
        "app_version": "web@1.0.0",
-       "first_released_at": "2026-02-01T00:00:00Z",
        "total_sessions_count": 1200,
-       "unhandled_sessions_count": 18
+       "unhandled_sessions_count": 18,
+       "release_time": "2026-02-01T00:00:00Z"
       },
       {
        "id": "0000000000000000000000b2",
        "release_stage_name": "production",
        "app_version": "web@1.1.0",
-       "first_released_at": "2026-02-02T00:00:00Z",
        "total_sessions_count": 800,
-       "unhandled_sessions_count": 4
+       "unhandled_sessions_count": 4,
+       "release_time": "2026-02-02T00:00:00Z"
       },
       {
        "id": "0000000000000000000000b3",
        "release_stage_name": "staging",
        "app_version": "web@1.1.0",
-       "first_released_at": "2026-02-01T12:00:00Z",
        "total_sessions_count": 50,
-       "unhandled_sessions_count": 1
+       "unhandled_sessions_count": 1,
+       "release_time": "2026-02-01T12:00:00Z"
       }
      ]
     }
@@ -117,7 +117,7 @@
        "release_stage_name": "production",
        "app_version": "5.2.0",
        "app_bundle_version": "1142",
-       "first_released_at": "2026-02-01T00:00:00Z"
+       "release_time": "2026-02-01T00:00:00Z"
       }
      ]
     }
@@ -286,15 +286,15 @@
          "stacktrace": [
           {
            "file": "https://app.example/static/app.min.js",
-           "line_number": 1,
-           "column_number": 4821,
+           "line_number": "1",
+           "column_number": "4821",
            "method": "t.render",
            "in_project": true
           },
           {
            "file": "https://app.example/static/vendor.min.js",
-           "line_number": 1,
-           "column_number": 902,
+           "line_number": "1",
+           "column_number": "902",
            "method": "r",
            "in_project": false
           }
@@ -493,15 +493,14 @@
        "id": "000000000000000000000202",
        "error_id": "0000000000000000000000e4",
        "project_id": "0000000000000000000000a2",
-       "received_at": "2026-02-02T12:00:00Z",
        "is_full_report": true,
        "unhandled": true,
        "severity": "error",
        "app": {
         "version": "5.2.0",
-        "bundle_version": "1142",
-        "release_stage": "production",
-        "type": "cocoa"
+        "type": "cocoa",
+        "bundleVersion": "1142",
+        "releaseStage": "production"
        },
        "device": {
         "os_name": "iOS",
@@ -514,31 +513,31 @@
        "context": "CheckoutController",
        "exceptions": [
         {
-         "error_class": "NSInvalidArgumentException",
          "message": "-[NSNull length]: unrecognized selector",
          "type": "cocoa",
          "stacktrace": [
           {
            "file": "MyApp",
            "method": "-[CheckoutController submitOrder:]",
-           "frame_address": "0x100a3f1c4",
-           "symbol_address": "0x100a3f100",
-           "load_address": "0x100a00000",
-           "macho_uuid": "2C1A6D87-6B7A-3A0F-9F51-0E2B7D3C4A11",
            "is_pc": true,
-           "in_project": true
+           "frameAddress": "0x100a3f1c4",
+           "symbolAddress": "0x100a3f100",
+           "loadAddress": "0x100a00000",
+           "machoUUID": "2C1A6D87-6B7A-3A0F-9F51-0E2B7D3C4A11",
+           "inProject": true
           },
           {
            "file": "UIKitCore",
            "method": "-[UIApplication sendAction:to:from:forEvent:]",
-           "frame_address": "0x1b2c3d4e5",
-           "symbol_address": "0x1b2c3d400",
-           "load_address": "0x1b2000000",
-           "macho_uuid": "7F4E9A21-1D2C-3B8A-8C66-5A9D0E7B2C33",
            "is_pc": false,
-           "in_project": false
+           "frameAddress": "0x1b2c3d4e5",
+           "symbolAddress": "0x1b2c3d400",
+           "loadAddress": "0x1b2000000",
+           "machoUUID": "7F4E9A21-1D2C-3B8A-8C66-5A9D0E7B2C33",
+           "inProject": false
           }
-         ]
+         ],
+         "errorClass": "NSInvalidArgumentException"
         }
        ],
        "breadcrumbs": [
@@ -547,7 +546,8 @@
          "type": "user",
          "timestamp": "2026-02-02T12:00:00Z"
         }
-       ]
+       ],
+       "receivedAt": "2026-02-02T12:00:00Z"
       }
      ]
     }
@@ -560,26 +560,24 @@
     {
      "cursor": null,
      "nextCursor": null,
-     "response": [
-      {
-       "project_id": "0000000000000000000000a1",
-       "release_stage_name": "production",
-       "timeline_points": [
-        {
-         "bucket_start": "2026-02-01T00:00:00Z",
-         "bucket_end": "2026-02-02T00:00:00Z",
-         "total_sessions_count": 1200,
-         "unhandled_sessions_count": 18
-        },
-        {
-         "bucket_start": "2026-02-02T00:00:00Z",
-         "bucket_end": "2026-02-03T00:00:00Z",
-         "total_sessions_count": 800,
-         "unhandled_sessions_count": 4
-        }
-       ]
-      }
-     ]
+     "response": {
+      "project_id": "0000000000000000000000a1",
+      "release_stage_name": "production",
+      "timeline_points": [
+       {
+        "bucket_start": "2026-02-01T00:00:00Z",
+        "bucket_end": "2026-02-02T00:00:00Z",
+        "total_sessions_count": 1200,
+        "unhandled_sessions_count": 18
+       },
+       {
+        "bucket_start": "2026-02-02T00:00:00Z",
+        "bucket_end": "2026-02-03T00:00:00Z",
+        "total_sessions_count": 800,
+        "unhandled_sessions_count": 4
+       }
+      ]
+     }
     }
    ]
   },

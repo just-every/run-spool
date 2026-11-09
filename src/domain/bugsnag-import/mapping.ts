@@ -4,7 +4,7 @@ import { identity, scrub } from '../privacy.ts';
 import { absentDist } from '../releases/build.ts';
 import { sourceText } from '../sentry-import/source.ts';
 import { nativeIssue, nativeProject } from '../sentry-import/mapping.ts';
-import { bugsnagApiEvent, nativeEventId } from './event.ts';
+import { bugsnagApiEvent, field, nativeEventId } from './event.ts';
 import { bugsnagMappingVersion, bugsnagOrganizationKey } from './source.ts';
 const time = (value: any) => { const n = Date.parse(value); if (!Number.isSafeInteger(n) || n < 0) throw new Error('Source timestamp required'); return n; };
 const effects = (targetKind: string, targetId: string, native: any, source: any): MappingResult => ({ effects: [{ targetKind, targetId, value: { native, source } }] });
@@ -60,8 +60,8 @@ export function bugsnagMapping(bundle: SourceBundle, operationKey: string): Impo
     const p = record.payload as any;
     try {
       if (!projects.has(p.project) || projectErrors.has(p.project)) throw new Error('Release project is missing or rejected');
-      const name = identity(p.data.app_version, 'release'), created = time(p.data.first_released_at);
-      const dist = label(p.data.app_version_code) ?? label(p.data.app_bundle_version); addDist(p.project, name, dist ?? absentDist);
+      const name = identity(p.data.app_version, 'release'), created = time(p.data.release_time);
+      const dist = label(field(p.data, 'app_version_code', 'appVersionCode')) ?? label(field(p.data, 'app_bundle_version', 'appBundleVersion')); addDist(p.project, name, dist ?? absentDist);
       const key = JSON.stringify([p.project, name]), held = canonical.get(key);
       if (!held) canonical.set(key, { record, created });
       else { held.created = Math.min(held.created, created); if (record.sourceId < held.record.sourceId) held.record = record; }
@@ -82,7 +82,7 @@ export function bugsnagMapping(bundle: SourceBundle, operationKey: string): Impo
     const names = [...canonical.entries()].filter(([key]) => JSON.parse(key)[0] === slug).sort((a, b) => a[1].created - b[1].created || a[0].localeCompare(b[0]));
     names.forEach(([key], index) => seqs.set(key, index + 1));
   }
-  const releaseAllowed = ['id', 'app_version', 'app_version_code', 'app_bundle_version', 'first_released_at', 'release_stage_name', 'total_sessions_count', 'unhandled_sessions_count'];
+  const releaseAllowed = ['id', 'app_version', 'app_version_code', 'appVersionCode', 'app_bundle_version', 'appBundleVersion', 'release_time', 'release_stage_name', 'total_sessions_count', 'unhandled_sessions_count'];
   return { version: bugsnagMappingVersion, map(record: SourceRecord): MappingResult {
     const p = record.payload as any, data = p.data;
     if (record.kind === 'manifest') return { effects: [], unmapped: [{ reason: 'Export window, declared omissions and organization metadata are retained for review; no account or credentials are created.' }] };
@@ -126,7 +126,7 @@ export function bugsnagMapping(bundle: SourceBundle, operationKey: string): Impo
       const result = effects('event', JSON.stringify([project, id]), { id, project, issue, release: envelope.release, release_seq: seqs.get(JSON.stringify([p.project, envelope.release]))!, build: envelope.build, environment: envelope.environment, payload, digest: sha256(canonicalJson(envelope)), diagnostic, received, occurrence: occurrence(record.sourceId), historical: 1 }, { organization, project: p.project, id });
       result.unmapped = [...omitted(data, ['id', 'error_id', 'received_at', 'app', 'device', 'exceptions', 'breadcrumbs', 'unhandled', 'severity']),
         { field: 'user', reason: 'The affected-user identity and request, device and metadata fields stay out of native events; only exception locations, breadcrumb labels, the app version, release stage and OS name are kept.' },
-        { field: 'stacktrace', reason: 'The stack is exactly as the notifier sent it. Native frames keep their image, addresses and symbol; Spool has no uploaded debug files for them, so none is symbolicated.' }];
+        { field: 'stacktrace', reason: 'The stack is exactly as the notifier sent it. Native frames keep their image, addresses and symbol; Spool does not symbolicate imported frames again, so the stack is the one the notifier resolved.' }];
       return result;
     } catch (error) { return { effects: [], rejection: (error as Error).message }; }
   } };

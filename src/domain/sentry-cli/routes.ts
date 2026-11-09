@@ -67,6 +67,6 @@ routes.get('/organizations/:org/releases/:version/previous-with-commits/', guard
 routes.all('/*', async c => {
  const probe = await cliAuthority(c);
  if ('response' in probe) return probe.response;
- return cliError(c, 501, `Spool does not serve ${c.req.method} ${new URL(c.req.url).pathname} for Sentry clients (SRC-003). Supported: chunk upload and options, artifact bundle assemble, release create/finalize/get, release commits (--local), deploys, and debug-file assemble (refused until SDK-002).`);
+ return cliError(c, 501, `Spool does not serve ${c.req.method} ${new URL(c.req.url).pathname} for Sentry clients (SRC-003). Supported: chunk upload and options, artifact bundle assemble, release create/finalize/get, release commits (--local), deploys, and debug-file assemble.`);
 });
 export default routes;

@@ -39,7 +39,7 @@ Before storing files, Spool validates every ZIP entry, including entries not nam
 
 ## What is not served yet
 
-* `debug-files upload` (dSYM, ELF/DWARF, Breakpad, ProGuard/R8, Dart symbols) and the Android Gradle plugin, Xcode build phase, Fastlane `sentry_debug_files_upload` and `sentry_dart_plugin` paths that depend on it: each file is refused by name before any byte is sent, because native symbolication (SDK-002) does not exist. `debug-files bundle-sources` and `check` run locally and need no server.
+* `debug-files upload` (dSYM, ELF/DWARF, Breakpad, ProGuard/R8, Dart symbols): each file is kept whole under the project and the debug ID the CLI names (at most 16 MiB a file and 64 MiB a project; a file beyond that is refused by name). A repeat upload of the same bytes changes nothing, and the owner's `GET /api/projects/{project}/sentry-uploads` lists them as `debugFiles`. Spool does not yet read them: symbolication and ProGuard/R8 deobfuscation (SDK-002) are not implemented, and the Android Gradle plugin, Xcode build phase, Fastlane `sentry_debug_files_upload` and `sentry_dart_plugin` paths are SDK-002's to qualify. Debug files are not archived; a build uploads them again from CI. `debug-files bundle-sources` and `check` run locally and need no server.
 * Repository-backed commit reading (SRC-002): `releases set-commits --auto/--commit` with a connected repository.
 * Every other Sentry endpoint: the answer is `501` naming the method and path.
 
