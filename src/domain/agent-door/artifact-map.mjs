@@ -39,6 +39,7 @@ const audits=mentions('agent_door_audit',['row','evidence']);
 const decisions=`SELECT decision_id FROM agent_door_calls WHERE ${calls} UNION SELECT json_extract(saved,'$.decision_id') FROM agent_door_approvals WHERE ${approvals} UNION SELECT json_extract(saved,'$.decision_id') FROM agent_door_reviews WHERE ${reviews} UNION SELECT id FROM agent_door_audit WHERE ${audits}`;
 const match=(sql)=>({sql,params:['values']});
 export function nativeAgentArtifacts(operator=false) {return {artifacts:[
+ {table:'agent_door_retired_refs',columns:['digest','marker'],unrelated:'Value-free suppression digests and erasure markers; they hold no personal value.'},
  {table:'agent_door_state',columns:['id','envelope','local_document','local_revision','local_paused','decision_lock','decision_until'],unrelated:'Installation policy without selected-subject references is retained. The native hook retires matching references in the same transaction; revision, Pause and admission-lease metadata remain.'},
  {table:'agent_door_agents',columns:['id','name','specialist','sponsor','sponsor_name','revoked','window','requests','tombstone'],...operator?{match:match(mentions('agent_door_agents',['sponsor','sponsor_name']))}:{unrelated:'Non-person agent identities and native sponsors belong to installation authority, not the erased project.'}},
  {table:'agent_door_calls',columns:['agent','key','digest','decision_id','created_at','state','outcome','expires_at'],match:match(`decision_id IN (${decisions})`)},
@@ -52,5 +53,5 @@ export function nativeAgentArtifacts(operator=false) {return {artifacts:[
 ]};}
 export const projectAgentArtifacts=nativeAgentArtifacts();
 export const operatorAgentArtifacts=nativeAgentArtifacts(true);
-export const retainedAgentArtifacts=projectAgentArtifacts.artifacts.filter(({table})=>!['agent_door_calls','agent_door_replay_aliases','agent_door_relay'].includes(table)).map(({table})=>({table,reason:'Selected native subject payloads are redacted in place under the erasure transaction. Unrelated native people and peer records remain unchanged; value-free chronology and policy accounting remain without the selected subject payload, confirming digest or execution authority.'}));
+export const retainedAgentArtifacts=projectAgentArtifacts.artifacts.filter(({table})=>!['agent_door_calls','agent_door_replay_aliases','agent_door_relay','agent_door_retired_refs'].includes(table)).map(({table})=>({table,reason:'Selected native subject payloads are redacted in place under the erasure transaction. Unrelated native people and peer records remain unchanged; value-free chronology and policy accounting remain without the selected subject payload, confirming digest or execution authority.'}));
 

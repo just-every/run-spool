@@ -50,8 +50,9 @@ export function spoolPeople(env: Bindings): PeopleAdapter {
   return {...p,active:p.active&&(p.role==='owner'||!!membership),role:p.role==='owner'?'owner':membership?.role??'inactive'};
  };
  return {...base,person,async businessStopped(){
+  // Fail closed: only a stored settings row that is positively running answers false.
   const settings=await env.DB.prepare('SELECT stopped FROM bs_settings WHERE singleton=1').first<{stopped:number}>();
-  return !!settings?.stopped;
+  return settings?.stopped!==0;
  },async sponsor(claims){
   const owner=await env.DB.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1').first<{owner_id:string|null}>();
   if(owner?.owner_id===claims.sub){

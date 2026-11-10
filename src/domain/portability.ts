@@ -222,6 +222,10 @@ for(const later of laterTables){later.tables.push(...Object.keys(nativeSymbolTab
 laterTables.unshift({tables:Object.keys(nativeSymbolTables),migrations:['0100_native_symbols.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(nativeDebugFileTables));later.migrations.push('0101_native_debug_files.sql')}
 laterTables.unshift({tables:Object.keys(nativeDebugFileTables),migrations:['0101_native_debug_files.sql']});
+// 0102 and 0103 add only agent-door custody, which archives exclude (agent_door_%).
+const doorCustodyMigrations=['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql'];
+for(const later of laterTables)later.migrations.push(...doorCustodyMigrations);
+laterTables.unshift({tables:[],migrations:doorCustodyMigrations});
 // Match the exact archive inventory from before native attribution was added.
 // Current archives retain and validate their declared attribution columns.
 function beforeAgentAttribution(table:any,manifest:any){

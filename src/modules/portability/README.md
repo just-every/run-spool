@@ -86,7 +86,7 @@ delivery receipts and state in `rer_mail_event_receipts` and
 `rer_mail_event_states` remain portable unless product policy excludes them.
 Seed-owned tables are likewise discovered and remain portable by default.
 
-For native local CLI transfers, declare executable policy through
+For native and container local CLI transfers, declare executable policy through
 `localPortability({database, buckets, policyModule})`. `policyModule` is a
 seed-root-relative path or a `file:` URL (including `new URL('./archive-policy.mjs',
 import.meta.url)` in the seed adapter). Its real path must be a file inside the
@@ -121,8 +121,17 @@ the atomic empty-table guards. Invalid paths, missing/invalid default exports,
 and declaring both `policy` and `policyModule` fail closed. Serializable object
 `policy` declarations remain supported; inline functions (including nested
 schema-upgrade and payload callbacks) are refused instead of being dropped by
-JSON transport. Container transfer currently refuses `policyModule` explicitly;
-it continues to accept serializable object policies. Malformed primary or later
+JSON transport. Container transfer compiles the seed-owned module and its imports
+with the installation's Wrangler esbuild compiler, without evaluating policy code
+or loading build plugins in the CLI. The policy must be bundleable for Node;
+Node built-ins remain available inside the existing transfer container. Only the
+compiled policy is copied into its private directory, with no additional host
+filesystem mounts or network service. The transfer process resolves that private
+entry through `policyModuleURL`, validates the default before opening data or
+applying migrations, then supplies its real D1 and bucket adapters to
+`createPolicy`. Both transports use the same archive format and policy hooks;
+archives carry neither executable policy nor a policy entry point.
+Malformed primary or later
 journal JSON is reported once as `invalid_archive` with exit 2 and a re-export
 recovery command, before local data
 migrations, without echoing archive content or parser diagnostics.
