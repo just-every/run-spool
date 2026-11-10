@@ -178,7 +178,9 @@ export async function teamTriage(owner,member,project,width) {
   assert.deepEqual(searched.rows.map(row=>row.id),[issue],'search reads only this width’s captured issue');
   await teamViewportProof(memberPage,'team-search');await activate(match.getByRole('link'));
   await expect(memberPage.locator('.frame-coordinate').first()).toContainText(coordinate.file);
-  await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-evidence-dialog'));
+  // Details returns focus to its trigger again from the dialog's asynchronous close event; let that handler finish before moving focus.
+  const detailsClosed=memberPage.evaluate(()=>new Promise(resolve=>document.addEventListener('close',()=>resolve(),{capture:true,once:true})));
+  await teamKeyboardDetails(memberPage,'Issue and source evidence',()=>screen(memberPage,'team-evidence-dialog'));await detailsClosed;
   probe('search','release query -> the isolated captured issue and its mapped frame');
 
   const label=memberPage.getByLabel('Assigned to',{exact:true}),save=memberPage.getByRole('button',{name:'Save assignment',exact:true});
