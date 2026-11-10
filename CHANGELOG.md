@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.7.4 — 2026-11-10
+
+Spool 0.7.4 is the first release since 0.7.3 (27 October). It adds team access, reporting, a Bugsnag and a Rollbar importer, and more Sentry-compatible behaviour, and it keeps earlier private archives restorable. Several clauses stay partial; the lists below say where.
+
+### What you can now do
+
+- **Move a Bugsnag project to Spool.** Import the documented Bugsnag export shapes (organization, projects, errors, events and releases) through the owner import: review a plan with no writes, apply it, resume it, and undo it. Release stability and sampled events are accepted as separate inputs, and unavailable historical denominators stay explicit, with no crash-free rate invented. For Android, replace the Bugsnag ProGuard or R8 upload step in CI with a Spool upload for the exact release and build, and new Android crashes show original file and line where the mapping allows. The cutover guide is `docs/BUGSNAG-SWITCHING.md`.
+- **Move a Rollbar project to Spool.** Import one project's captured Rollbar responses (items, occurrences, deploys, events and notification rules) with the same review, apply, resume and undo steps, readable originals and named conversion losses. The cutover guide is `docs/ROLLBAR-MIGRATION.md`.
+- **Work as a team.** Create an organization, invite people with one-use email confirmation, set project roles (admin, maintainer, member, read-only), create sponsored service accounts, and transfer ownership. Removing someone, or narrowing their grant, ends their sessions and keys. Team alerts support daily and weekly digests, snoozes and an alternate follow-up person.
+- **Work on an issue together.** Issues have a priority (automatic, or your own manual choice) that you can search and export. Comment on issues, mention teammates, and subscribe or unsubscribe. Archive an issue until a date, a number of further occurrences, an affected-user threshold or an escalation forecast. Choose whether repeats in the same release reopen a resolved issue.
+- **See impact and trends.** Reports show errors, affected users, sessions, backlog and acknowledgement times for the projects you can read, with explicit UTC windows and time zones. Build custom dashboards and saved event tables, and export them as JSON or CSV within stated limits.
+- **Control alerts and capture.** Alert rules filter by environment, severity, release or no release, and approved tags, with a preview before you enable them. Rules can also use affected users and session percentages. Set a per-key event limit by minute or hour (HTTP 429 with `Retry-After`, other keys unaffected). Configure server-side scrubbing rules at installation and project level. Each person saves their own email preferences per project; saving sends nothing and delivery is not yet built.
+- **Use a Sentry SDK unchanged, with fewer surprises.** Unsupported top-level fields on release-create, release-update and deploy requests are refused by name and leave stored data alone. Invalid events in a request are isolated while valid ones are kept, session backpressure no longer blocks companion errors, and statsd diagnostics are counted apart from unknown items. Python traceback frames that are hidden by the SDK no longer drive source lookup or grouping. Release ordering is one stated rule across lists, filters, exports, archives and regression alerts.
+- **Reproduce and hand off.** The reproducer can reduce its input and show a counterexample; failed reproducer setup is kept. Spool serves its triage-engineer agent door at `/mcp` with company policy, pause, audit and idempotency, and `/agents` shows activity and decisions.
+- **Check the end-user email policy.** Identity settings can preview which stored events an end-user email would match. Erasing an end user by email is not available.
+- **Smaller changes.** Settings for grouping rules, release policy, commit sharing, inbound filters and the source-map storage cap save as you edit them, and background reads are quieter. Project erasure covers the new tables and returns you to a valid screen. Labels in review and settings screens are plain words. Installation and hosting guides cover machines without Node.
+
+### Older archives and alerts
+
+- Private archives exported by earlier versions still restore, including archives from before this release's new tables and settings, older Java archives whose frames carry a column, and archives written before Bugsnag symbol storage. Restores bring back work as history without handing over authority, and never create an owner or project keys.
+- A project holding any kind of alert (new issue, regression, reactivation or spike) now exports an archive that its own restore accepts; a project with a reactivation or spike alert could previously export one that its restore refused with "Archive alert".
+- Alert rules take their allowed kinds from one list, and a project erasure that was already under way now continues even when a scheduled run's guarded step fails. Alert and report checks no longer depend on the clock minute or daylight-saving boundary they run in.
+
+### Bugsnag native symbols: stored, not decoded
+
+- Apple dSYM and Android NDK uploads are accepted and stored under their Mach-O UUID or ELF build id, and listed to the owner. Spool does not read them: native Apple and NDK stacks are reported as unsupported, and no original native frame is claimed. The Bugsnag migration clause is partial for this reason, and a real Bugsnag account migration has not been run.
+
+### Contract status
+
+- Newly done: team membership and project permissions, reports and dashboards, the Rollbar migration, release ordering. Newly partial: the Bugsnag migration, personal notification settings, Sentry Web API compatibility, user search and facets, and parts of the agent surface.
+- An audit demoted some earlier "done" clauses to partial where no cited test asserts the full outcome: source-map identity, release identity, event fidelity, server-runtime SDKs, base commands and the action audit. The product did not lose those features; the contract now says exactly what is proved.
+- Still absent: end-user erasure, mobile crash SDKs (iOS, Unity), personal Slack and Microsoft Teams messages, live-provider certification and real-account migration proof.
+
+### Updating
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.3 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.4` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds 24 migrations after 0.7.3 (0077 to 0101, with no 0082), all additive, and has no breaking changes. Do not reset; import private archives only into an empty destination. The application now pins rer exactly to 0.2.96. This application release does not publish the Spool SDK.
+
+### Known issues
+
+- Cloudflare Email Sending is checked through setup validation and provider selection; this release's checks do not send live mail through Cloudflare.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require the separate Managed-to-native release qualification. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The Bugsnag, Rollbar and Sentry importers are checked against synthetic samples. Large imports are bounded to 2 MiB and 500 records, and a bigger set is refused rather than partly applied.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 28 October 2026 — membership status carried into contract cleanup
 
 Main's TEAM-001 evidence now covers public-door membership and inherited riders. The clause remains partial pending ct's fresh judge. Main's Gap said status promotion and generated acceptance/count synchronization awaited a missing Lander-Regenerate command and absent contract-docs generator, and left generated acceptance and claims unchanged for the lander. Those mechanism claims are superseded on the cleanup branch: the generator and both Lander-Regenerate commands already exist, and the generated documents are synchronized here.
