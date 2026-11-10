@@ -300,11 +300,11 @@ jobs:
           - shard: alerts
             command: pnpm test:alerts && pnpm test:alerts-ui
           - shard: sdk
-            command: pnpm test:sentry && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+            command: node tests/sentry-http.mjs && node tests/sentry-import.mjs
           - shard: sentry-cli
             command: pnpm test:sentry:cli
           - shard: tunnel
-            command: pnpm test:tunnel
+            command: pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
           - shard: wizard
             command: pnpm test:wizard
           - shard: agent-handoff
@@ -312,7 +312,7 @@ jobs:
           - shard: repair-recovery
             command: pnpm test:repair-recovery
           - shard: execution
-            command: pnpm test:execution
+            command: pnpm test:execution && node tests/business-import.mjs
           - shard: project-erasure
             command: pnpm test:project-erasure
           - shard: project-erasure-cap
