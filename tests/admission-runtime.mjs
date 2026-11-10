@@ -67,10 +67,12 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
    await db.batch(queries.map(sql => db.prepare(sql)));
   }
  };
+ // The relay privacy migration alters the relay table 0099 creates, so both are the one deferred upgrade.
+ const agentUpgradeFiles=new Set(['0099_agent_custody_replay_relay.sql','0103_agent_door_relay_privacy.sql']);
  try {
   await start();
   const files = (await readdir('migrations/core')).filter(file => file.endsWith('.sql')).sort();
-  await apply(files.filter(file => (!deferClaimMigration || !file.includes('owner_claim')) && (!deferAgentUpgrade || file!=='0099_agent_custody_replay_relay.sql')));
+  await apply(files.filter(file => (!deferClaimMigration || !file.includes('owner_claim')) && (!deferAgentUpgrade || !agentUpgradeFiles.has(file))));
   const db = await worker.getD1Database(database.binding);registerLegacyMail(origin,db);
   const call = (path, value, headers = {}, method = value === undefined ? 'GET' : 'POST') => fetch(origin + path, {
    method, redirect: 'manual', headers: {Origin: origin, Connection: 'close', ...(value === undefined ? {} : {'Content-Type': 'application/json'}), ...headers},
@@ -78,7 +80,7 @@ export default {...application,async scheduled(event,env,ctx){try{return await a
   });
   const runtime = {get origin() {return origin;}, DB: db, call,
    schedule:async time=>{const response=await call('/__fixture/schedule',{time});if(!response.ok)throw new Error('Native scheduled entry failed: '+response.status);await response.body?.cancel();},
-   applyAgentUpgrade:()=>apply(files.filter(file=>file==='0099_agent_custody_replay_relay.sql')),
+   applyAgentUpgrade:()=>apply(files.filter(file=>agentUpgradeFiles.has(file))),
    applyClaimMigration: () => apply(files.filter(file => file.includes('owner_claim'))),
    setTime: async value => {
     if(!hostedEntry||!Number.isFinite(value))throw new Error('A hosted fixture clock is required');

@@ -10538,7 +10538,7 @@
       "executable": false
     },
     "tests/admission-runtime.mjs": {
-      "sha256": "9c50455e05b0b0fb44f7faca4a11f6a8bbadc606eb8e4ffee6254452e0a950e4",
+      "sha256": "c53c54e5e7bdc452765e70e76090ffc591e6b715f15e42c02f76bea91cbe5721",
       "executable": false
     },
     "tests/agent-door.mjs": {
