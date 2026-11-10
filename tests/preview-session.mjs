@@ -12,7 +12,16 @@ export async function previewOwnerSession(origin,secret) {
 }
 export async function browserPreviewSession(page,origin,output,token) {
  const ready=output.split('\n').flatMap(line=>{try{const e=JSON.parse(line);return e.event==='ready'?[e]:[]}catch{return []}});
- assert.equal(ready.length,1);assert.equal(ready[0].url,origin);assert.equal(ready[0].openUrl,undefined);
+ assert.equal(ready.length,1);assert.equal(ready[0].url,origin);
+ // Preview prints one native owner link on loopback (rer 0.2.95+): never a dev
+ // identity. Its fragment holds a run-owned single-use key, so only its shape
+ // and the absence of any dev sign-in are asserted here.
+ assert.equal(ready[0].signedInAs??null,null);
+ const link=new URL(ready[0].ownerOpenUrl);
+ assert.equal(ready[0].openUrl,ready[0].ownerOpenUrl);
+ assert.equal(link.origin,origin);assert.equal(link.pathname,'/__dev/key');
+ const fragment=new URLSearchParams(link.hash.slice(1));
+ assert.ok(fragment.get('rer-dev'));assert.equal(fragment.get('next'),'/');assert.equal(fragment.has('as'),false);
  const context=page.context();
  assert.equal((await context.request.get(origin+'/api/projects')).status(),401);
  assert.equal((await context.request.get(origin+'/auth/dev/enter')).status(),404);
