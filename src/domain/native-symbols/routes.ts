@@ -6,14 +6,17 @@ import { releaseIdentity } from '../releases/identity';
 import { storedBuild } from '../releases/build';
 import { hash } from '../privacy';
 import { nativeSymbolByteLimit, parseProguard } from './proguard';
+import { nativeDebugFileRoutes, uploadDebugFiles } from './debug-routes';
 
 const routes = new Hono<{ Bindings: Bindings }>();
 routes.post('/:project/native-symbols', async c => {
  const project = c.req.param('project'), auth = await authorizeDeploy(c, project);
  if ('response' in auth) return auth.response;
+ if (c.req.header('content-type')?.toLowerCase().startsWith('multipart/form-data')) return uploadDebugFiles(c, project, auth);
  let input: any, release: string, build: string, payload: string;
  try {
   input = await jsonBody(c.req.raw, 2 * nativeSymbolByteLimit);
+  if (input.format === 'dsym' || input.format === 'ndk') throw new Error('JSON native-symbols accepts only format proguard mapping text; upload a dSYM zip (field dsym) or NDK shared object (field soSymbolFile) as multipart/form-data');
   if (Object.keys(input).sort().join() !== 'build,format,mapping,release' || input.format !== 'proguard' || typeof input.mapping !== 'string') throw new Error('Expected release, build, format proguard and mapping text');
   release = releaseIdentity(input.release); build = storedBuild(input.build); payload = input.mapping;
   parseProguard(payload);
@@ -46,4 +49,5 @@ routes.post('/:project/native-symbols', async c => {
   throw error;
  }
 });
+routes.route('/:project/native-debug-files', nativeDebugFileRoutes);
 export default routes;

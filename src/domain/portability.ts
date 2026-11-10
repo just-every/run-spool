@@ -1,4 +1,4 @@
-import { nativeSymbolTables } from './native-symbols/archive';
+import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
 import { previousNativeSymbolObjects } from './native-symbols/compat';
 import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
 import { keyRateTables } from './key-rate-limits/model';
@@ -220,6 +220,8 @@ for(const later of laterTables)later.migrations.push(...agentMigrations);
 laterTables.unshift({tables:[],migrations:agentMigrations});
 for(const later of laterTables){later.tables.push(...Object.keys(nativeSymbolTables));later.migrations.push('0100_native_symbols.sql')}
 laterTables.unshift({tables:Object.keys(nativeSymbolTables),migrations:['0100_native_symbols.sql']});
+for(const later of laterTables){later.tables.push(...Object.keys(nativeDebugFileTables));later.migrations.push('0101_native_debug_files.sql')}
+laterTables.unshift({tables:Object.keys(nativeDebugFileTables),migrations:['0101_native_debug_files.sql']});
 // Match the exact archive inventory from before native attribution was added.
 // Current archives retain and validate their declared attribution columns.
 function beforeAgentAttribution(table:any,manifest:any){

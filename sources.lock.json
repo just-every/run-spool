@@ -2930,7 +2930,7 @@
       "executable": false
     },
     "docs/BUGSNAG-SWITCHING.md": {
-      "sha256": "35640ae3f0ed9308b48f2a7f65f28d7d2f434b38c1d4711bdcabafb05070ac08",
+      "sha256": "f3f09fc5843d71c33ec0c0689320a26697c29df9c27d4bab99d110792bd524d1",
       "executable": false
     },
     "docs/BULK-TRIAGE.md": {
@@ -3750,7 +3750,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "c35f3e28b2ef8545cfab03ac24799f5b848a1c8be5195ea812a4421773ed56ef",
+      "sha256": "0c62eb3e23654e5e5358293e3f734404362cd89c6cd47534e42333e9f38ae159",
       "executable": false
     },
     "migrations/core/0001_errors.sql": {
@@ -4127,6 +4127,10 @@
     },
     "migrations/core/0100_native_symbols.sql": {
       "sha256": "37c3df209778d8dc76458afda348f34c1a52cf7997ef4c14d029066ca6311e78",
+      "executable": false
+    },
+    "migrations/core/0101_native_debug_files.sql": {
+      "sha256": "7b803a68a2cfe186bce512a162eb373d21e10a1bf7ad8d5be944c5d3be77136b",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -5710,7 +5714,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "22c297d2c15a04ae648b4c1813a4983b39d05b6b9419c979318c766173ecf92c",
+      "sha256": "0435663b5756257f04788fcde044ae713161d2a90eb8b6526f9cbd5b2efe6c9e",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -5770,11 +5774,15 @@
       "executable": false
     },
     "src/domain/bugsnag-import/mapping.ts": {
-      "sha256": "d42b1aa0d72c44a70801fac7afb56682f9a3eab144b06285840127f3407988b7",
+      "sha256": "f9ca7ad1ad8cea28ba5ecfd5efa7fbd276cfb06018cc4f61ea7cacf019557e9d",
+      "executable": false
+    },
+    "src/domain/bugsnag-import/native.ts": {
+      "sha256": "68db1b2bc72e31000f7e884099161719bdc3003893ebd048da8839f899fb1bc3",
       "executable": false
     },
     "src/domain/bugsnag-import/report.ts": {
-      "sha256": "f90d6c49548dc4930e5fb833120c48056d8602473e23ee5c4cb2162f3e035461",
+      "sha256": "ff48a9333f03c4b60f645eb65cae3d90aae2968e7a9ddc9802086ebc7dc15783",
       "executable": false
     },
     "src/domain/bugsnag-import/source.ts": {
@@ -5934,7 +5942,7 @@
       "executable": false
     },
     "src/domain/erasure/declaration.ts": {
-      "sha256": "cb575f19eacdae7c7f17c6d8b878b979eef9b15aa9f8041b7265e9e29f9fd3fa",
+      "sha256": "d4f2e626ac6bd1b4fdaa920cd8e2df266b3f49c9acdaa3198d9bbdffb39a93f3",
       "executable": false
     },
     "src/domain/erasure/identifiers.ts": {
@@ -6298,11 +6306,23 @@
       "executable": false
     },
     "src/domain/native-symbols/archive.ts": {
-      "sha256": "22e76da83a8f394ccde41f70593dff72981e14041dad4334a17103d56a4e5df0",
+      "sha256": "f0850e48589d5c6227f685c1c37bb889ac9cfaf712861b22e193c13a9c4d8ff4",
       "executable": false
     },
     "src/domain/native-symbols/compat.ts": {
-      "sha256": "83d3b68d4efffbadcd0c665516692d82fa68904830ef967e340192ca315d0648",
+      "sha256": "5c09e5c03d70847547e5110c415afdf5019afba47d73960652a97d8eaa09b104",
+      "executable": false
+    },
+    "src/domain/native-symbols/debug-formats.ts": {
+      "sha256": "d370c8fa21a454f9421d927b19ae600823f8709c9fb3a566e2b75853a07f7626",
+      "executable": false
+    },
+    "src/domain/native-symbols/debug-routes.ts": {
+      "sha256": "8505ef6cb2c4e6084a613a6db3e070142366b1e3eab1544e5e12eaa5c7018a36",
+      "executable": false
+    },
+    "src/domain/native-symbols/debug-upload.ts": {
+      "sha256": "7b887bf07a5cc1cec482370746471e19247ec01b0d9c453128b3b60fc44dffcd",
       "executable": false
     },
     "src/domain/native-symbols/diagnose.ts": {
@@ -6314,7 +6334,7 @@
       "executable": false
     },
     "src/domain/native-symbols/routes.ts": {
-      "sha256": "1dd00b976be4dab037d43f96def6c61e5d41bd4d544b882901763b16cb408a0b",
+      "sha256": "5366d1ec3c3a88d593de1b3bfcbfd64418fd5d72b88611ede680f2ba502c6826",
       "executable": false
     },
     "src/domain/native-wire.ts": {
@@ -6418,7 +6438,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "565287a1428c73add6928ba131f128f352b44968be9af07cf9542540e9233425",
+      "sha256": "92271b0d9b2a503edddc68e153db0fbb38186a620bd4d3f8dcc045582678171f",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -6966,7 +6986,7 @@
       "executable": false
     },
     "src/domain/source-map-storage.ts": {
-      "sha256": "4db03f2d08bb331ef1be82b632ebf2868bb2267d4901867b7a6b8552e4ca8a5e",
+      "sha256": "70292178b116778ed60fec55ba86a8fd4bd13f80954d3509bc1e2cf09a9cfcdb",
       "executable": false
     },
     "src/domain/stacks-go.ts": {
@@ -10718,7 +10738,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "2ffb644012346d94aed7001c1c0eb9adfac48c216aa3a34fca6bcae44b5783bc",
+      "sha256": "e35911c5d9e90095e7857330548a872aac6fa889de9144c58dab2cf9303b9ed4",
       "executable": false
     },
     "tests/audit-history.mjs": {
@@ -10742,11 +10762,11 @@
       "executable": false
     },
     "tests/bugsnag-cutover.mjs": {
-      "sha256": "13cc381f60a1dcaddf76f4b5903f6c24d06846289ac5e58ca4bae342b9ceda62",
+      "sha256": "2e9c00d7c5291d024b164f6f6d77128b2f657b0f4e62d9721241a5c2211ee68f",
       "executable": false
     },
     "tests/bugsnag-import.mjs": {
-      "sha256": "d096bef960e10488d1993d23fa9d18d0bd708cd61b734312e589007930726bcb",
+      "sha256": "3e9d124cdf0a730407a2383ddfce419a743b72788ddeaa6f61239dbc5f3077c5",
       "executable": false
     },
     "tests/bulk-triage-flow.mjs": {
@@ -10870,7 +10890,7 @@
       "executable": false
     },
     "tests/fixtures/archive-before-native-symbols.mjs": {
-      "sha256": "6a578f7b198e20e65c5ac06836611a2a09d3996df6767b5f8b76a3ae9c696241",
+      "sha256": "1920b5a8f8ea3017761dd9152cd21a43f30b06575f6efecb20064abfd894d3ed",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
@@ -10883,6 +10903,34 @@
     },
     "tests/fixtures/archive-v1-b2eb94a.txt": {
       "sha256": "5b8faa6170db8a0d920cba1ccf87324977a58cb0519daa8b6615ec0978cb4f5f",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/apple.mjs": {
+      "sha256": "eb764d7092d2ebf908eddc50270e4987f0c086653d7d7e7b6eb8a03ab522f2d5",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/native-files.mjs": {
+      "sha256": "d3320ed9ba9ea21b0aa96a538fdd2e2e4226fe4c2b341e9b2602f43b8796e96c",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/native/crash.c": {
+      "sha256": "521d7bda4e562128f37639767dd53e217c3844c1e518b07d7e25468193fffcbc",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/native/libnobuildid.so": {
+      "sha256": "1c3e3586e7fbebec3b2eaabbf17f4f73f61e73cb95c9fbb453503a5cf2d758b0",
+      "executable": true
+    },
+    "tests/fixtures/bugsnag/native/libsynthetic.so": {
+      "sha256": "ca9be2020311c2918edfea07f7abab44ced5e3d090d3ed5317906d4e2d3ba0b5",
+      "executable": true
+    },
+    "tests/fixtures/bugsnag/native/README.md": {
+      "sha256": "41fdc53e920ef5d9cf90e820d26774d4956ee94cba82b332ffdd045c522ba8a8",
+      "executable": false
+    },
+    "tests/fixtures/bugsnag/native/SyntheticApp.dSYM.zip": {
+      "sha256": "c142475065ba48694f71d1cf2cba8552b647a5a7cf649dd4bb133008c1411fd8",
       "executable": false
     },
     "tests/fixtures/bugsnag/organization.mjs": {
@@ -10990,7 +11038,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "97b07190de1820048f4cc3b584d585179e0ec0248367f1ca0fcea26053a92b4e",
+      "sha256": "43b788314d265560622caf5040dde23ce172e4324b760b4068455f8b00a2efdd",
       "executable": false
     },
     "tests/operator-archive.mjs": {

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { dsymZip, ndkLibrary, ndkWithoutBuildId, storedZip, syntheticUuid, syntheticBuildId } from './fixtures/bugsnag/native-files.mjs';
 
 export async function bugsnagCutover({json,req,web,android}){
  const mapping='com.synthetic.MainActivity -> a.b:\n# {"id":"sourceFile","fileName":"MainActivity.kt"}\n    1:1:void <init>():10:10 -> <init>\n    1:1:void <clinit>():11:11 -> <clinit>\n    1:3:void crash():42:44 -> c\n';
@@ -39,4 +40,51 @@ export async function bugsnagCutover({json,req,web,android}){
   await json(`/api/projects/${project.id}/keys/${ingest.hash}`,'DELETE');assert.equal((await req(path,'POST',envelope,{Cookie:''})).status,401,'revoked capture grant cannot replay');
  }
  return nativeReceipt;
+}
+
+/** Bugsnag's documented dSYM and NDK uploads reach the same deploy-key door as ProGuard, and are stored by build identity. */
+export async function bugsnagNativeDebugFiles({json,req,origin,project}){
+ const deploy=await json(`/api/projects/${project.id}/keys`,'POST',{kind:'deploy'}),auth={Authorization:`Bearer ${deploy.key}`},path=`/api/projects/${project.id}/native-symbols`;
+ const post=(fields,headers=auth,target=path)=>{const form=new FormData();for(const [name,value] of Object.entries(fields)){if(value instanceof Uint8Array)form.append(name,new Blob([value]),'upload');else form.append(name,value)}return fetch(origin+target,{method:'POST',headers:{Connection:'close',...headers},body:form})};
+ const refused=async(fields,pattern,status=400)=>{const response=await post(fields),body=await response.json();assert.equal(response.status,status,JSON.stringify(body));assert.match(body.error,pattern);assert.doesNotMatch(body.error,/proguard/i,'a native refusal never reuses the ProGuard-only message');};
+ const zip=await dsymZip(),so=await ndkLibrary(),dsymFields={apiKey:'synthetic-bugsnag-key',projectRoot:'/synthetic/app',appVersion:'1.0.0',appBundleVersion:'84'};
+ // Malformed archives and shared objects are refused with the real reason.
+ await refused({...dsymFields,dsym:zip.subarray(0,zip.length-9)},/ZIP/);
+ await refused({...dsymFields,dsym:new Uint8Array(64)},/ZIP/);
+ await refused({...dsymFields,dsym:storedZip({'SyntheticApp.dSYM/Contents/Info.plist':Buffer.from('<plist/>')})},/DWARF/);
+ await refused({...dsymFields,dsym:storedZip({'SyntheticApp.dSYM/Contents/Resources/DWARF/SyntheticApp':Buffer.from('not a mach-o')})},/Mach-O/);
+ const executable=Buffer.from((await dsymFromZip(zip)));executable.writeUInt32LE(2,12);
+ await refused({...dsymFields,dsym:storedZip({'SyntheticApp.dSYM/Contents/Resources/DWARF/SyntheticApp':executable})},/dSYM/);
+ await refused(dsymFields,/dsym|soSymbolFile/);
+ await refused({...dsymFields,dsym:zip,soSymbolFile:so},/exactly one/);
+ await refused({soSymbolFile:new Uint8Array(32),sharedObjectName:'libsynthetic.so'},/ELF/);
+ await refused({soSymbolFile:await ndkWithoutBuildId(),sharedObjectName:'libnobuildid.so'},/build id/);
+ await refused({soSymbolFile:so,sharedObjectName:'libsynthetic.so',arch:'x86_64'},/arch/);
+ assert.equal((await post({...dsymFields,dsym:zip},{})).status,401);
+ // Accepted: stored by Mach-O UUID, immutable, idempotent, listed without bytes.
+ const created=await post({...dsymFields,dsym:zip}),body=await created.json();assert.equal(created.status,201,JSON.stringify(body));
+ assert.equal(body.format,'dsym');assert.equal(body.files.length,1);assert.equal(body.files[0].debugId,syntheticUuid);assert.equal(body.files[0].arch,'arm64');assert.equal(body.files[0].name,'SyntheticApp');
+ assert.equal(body.symbolication.status,'unsupported');assert.match(body.symbolication.reason,/Mach-O|DWARF/);
+ const replay=await post({...dsymFields,dsym:zip});assert.equal(replay.status,200);assert.deepEqual(await replay.json(),body);
+ const changed=Buffer.from(await dsymFromZip(zip));changed[changed.length-1]^=1;
+ assert.equal((await post({...dsymFields,dsym:storedZip({'SyntheticApp.dSYM/Contents/Resources/DWARF/SyntheticApp':changed})})).status,409,'a UUID names one immutable debug file');
+ const ndk=await post({soSymbolFile:so,sharedObjectName:'libsynthetic.so',arch:'arm64-v8a',appVersion:'1.0.0',appVersionCode:'42',apiKey:'synthetic-bugsnag-key',projectRoot:'/synthetic/app'}),ndkBody=await ndk.json();
+ assert.equal(ndk.status,201,JSON.stringify(ndkBody));assert.equal(ndkBody.format,'ndk');assert.equal(ndkBody.files[0].debugId,syntheticBuildId);assert.equal(ndkBody.files[0].arch,'arm64-v8a');assert.equal(ndkBody.symbolication.status,'unsupported');
+ assert.equal((await post({soSymbolFile:so,sharedObjectName:'libsynthetic.so'})).status,200,'identical NDK replay');
+ const foreign=await json('/api/projects','POST',{id:'foreign-'+project.id,name:'Foreign symbols'}),foreignKey=await json(`/api/projects/${foreign.id}/keys`,'POST',{kind:'deploy'});
+ assert.equal((await post({...dsymFields,dsym:zip},{Authorization:`Bearer ${foreignKey.key}`})).status,403,'foreign project cannot upload debug files');
+ await json(`/api/projects/${foreign.id}/artifact-storage`,'PUT',{artifact_storage_cap:1000,revision:0});
+ const capped=await post({...dsymFields,dsym:zip},{Authorization:`Bearer ${foreignKey.key}`},`/api/projects/${foreign.id}/native-symbols`);
+ assert.equal(capped.status,429,'debug files count against the project artifact storage cap');assert.match((await capped.json()).error,/storage cap/);
+ const listed=await json(`/api/projects/${project.id}/native-debug-files`);
+ assert.deepEqual(listed.map(f=>[f.format,f.debugId,f.arch,f.name]).sort(),[['dsym',syntheticUuid,'arm64','SyntheticApp'],['ndk',syntheticBuildId,'arm64-v8a','libsynthetic.so']]);
+ assert.ok(listed.every(f=>f.bytes>0&&/^[a-f0-9]{64}$/.test(f.digest)&&!('payload' in f)));
+ assert.equal((await req(`/api/projects/${project.id}/native-debug-files`,'GET',undefined,{Cookie:''})).status,401);
+ await json(`/api/projects/${project.id}/keys/${deploy.hash}`,'DELETE');await json(`/api/projects/${foreign.id}/keys/${foreignKey.hash}`,'DELETE');
+ assert.equal((await post({...dsymFields,dsym:zip})).status,401,'revoked deploy grant cannot upload debug files');
+ console.log('PROBE MIG-004 APPLE: bugsnag dSYM zip -> 201 keyed by Mach-O UUID, replay 200, malformed -> specific 400s; NDK .so -> 201 keyed by build id; symbolication of these files is reported unsupported');
+}
+async function dsymFromZip(zip){
+ const {listZip}=await import('../src/domain/sentry-cli/zip.ts');
+ const entry=listZip(zip,{entries:20,entryBytes:1<<20}).find(e=>e.name.endsWith('/DWARF/SyntheticApp'));return entry.read();
 }

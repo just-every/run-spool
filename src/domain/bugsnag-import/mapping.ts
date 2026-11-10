@@ -2,6 +2,7 @@ import type { SourceBundle, SourceRecord, ImportMapping } from '../../modules/im
 import { organizationMapping } from '../sentry-import/mapping';
 import { bugsnagEvent, releaseIdentity } from './event';
 import { mappingVersion } from './source';
+import { nativeFrames, nativeStackReason } from './native';
 const states:Record<string,string>={open:'unresolved',fixed:'resolved',ignored:'ignored',snoozed:'ignored'};
 /** Translate vendor fields into the shared inert native graph, retaining original source rows. */
 export function bugsnagMapping(bundle:SourceBundle,operationKey:string):ImportMapping {
@@ -22,6 +23,7 @@ export function bugsnagMapping(bundle:SourceBundle,operationKey:string):ImportMa
    const represented:Record<string,string[]>={projects:['id','name','created_at'],errors:['id','error_class','message','status','first_seen','last_seen'],events:['id','error_id','exceptions','threads','app','received_at','breadcrumbs','severity'],releases:['id','app_version','app_version_code','app_bundle_version','release_stage','release_time']};
    result.unmapped=Object.keys(d).filter(key=>!(represented[record.kind]??[]).includes(key)).map(field=>({field,reason:'Retained in private Bugsnag source custody only; not activated in Spool.'}));
    if(record.kind==='events')result.unmapped.push({field:'exceptions',reason:'Exported stack locations and native addresses are retained as evidence; private metadata and source text are excluded. Exported symbolication is not fresh native symbol decoding.'});
+   if(record.kind==='events'&&nativeFrames(d).frames>0)result.unmapped.push({field:'native_frames',reason:'Unsupported: '+nativeStackReason});
    for(const effect of result.effects){const value=effect.value as any;if(record.kind==='events')value.source.id=d.id;}
   }
   return result;

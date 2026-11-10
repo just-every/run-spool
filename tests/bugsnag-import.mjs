@@ -10,7 +10,9 @@ import { launchBrowser } from './browser-launch.mjs';
 import { archiveProjection } from './archive.mjs';
 import { bugsnagImportCli, bugsnagDoorClient } from '../scripts/bugsnag-import.mjs';
 import { bugsnagFixture } from './fixtures/bugsnag/organization.mjs';
-import { bugsnagCutover } from './bugsnag-cutover.mjs';
+import { bugsnagCutover, bugsnagNativeDebugFiles } from './bugsnag-cutover.mjs';
+import { bugsnagAppleFixture } from './fixtures/bugsnag/apple.mjs';
+import { syntheticUuid } from './fixtures/bugsnag/native-files.mjs';
 
 /** One public migration journey: reviewed history, recovery, cutover and erasure. */
 export async function bugsnagMigrationFlow(){
@@ -70,7 +72,8 @@ export async function bugsnagMigrationFlow(){
   }
   assert.equal((await req('/api/operator/import/undo','POST',{planId:plan.planId},{Origin:'https://foreign.example','X-Import-Source':plan.namespace})).status,401);
   const nativeCutover=await bugsnagCutover({json,req,origin,web,android});
-  const cutoverArchive=await archiveProjection(await req('/api/archive'));assert.equal(cutoverArchive.data.native_symbols.length,1);
+  await bugsnagNativeDebugFiles({json,req,origin,project:android});
+  const cutoverArchive=await archiveProjection(await req('/api/archive'));assert.equal(cutoverArchive.data.native_symbols.length,1);assert.equal(cutoverArchive.data.native_debug_files.length,2,'dSYM and NDK files are private archive rows');
   // Restore transports retained native history and private symbols, never credentials.
   const restored=await startTestWorker(await freePort());
   try{
@@ -99,10 +102,18 @@ export async function bugsnagMigrationFlow(){
   // Erasing one project withdraws the complete shared raw bundle, and fences its replay.
   const preview=await json(`/api/projects/${android.id}/erasure`);let erased=await json(`/api/projects/${android.id}/erasure`,'POST',{confirm:android.id,planHash:preview.planHash});
   for(let step=0;erased.phase!=='complete'&&step<30;step++)erased=await json(`/api/erasures/${erased.id}/resume`,'POST');assert.equal(erased.phase,'complete');
-  const remaining=await archiveProjection(await req('/api/archive'));assert.ok(!remaining.data.projects.some(p=>p.id===android.id));assert.equal(remaining.data.native_symbols.length,0,'project erasure removes native symbol bytes');
+  const remaining=await archiveProjection(await req('/api/archive'));assert.ok(!remaining.data.projects.some(p=>p.id===android.id));assert.equal(remaining.data.native_symbols.length,0,'project erasure removes native symbol bytes');assert.equal(remaining.data.native_debug_files.length,0,'project erasure removes dSYM and NDK bytes');
   await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',plan.planId),error=>[404,410].includes(error.status));
   await assert.rejects(cli('dry-run','--file',file),error=>error.status===409&&error.code==='source_erased','erased source is refused before a replay plan can exist');
   assert.ok(!(await json('/api/projects')).some(p=>p.id===android.id),'erased native history cannot be resurrected by replay');
+  // Native Cocoa frames carry only a Mach-O UUID and addresses. They are reported, never silently dropped or invented.
+  const appleFile=join(scratch,'apple.json');await writeFile(appleFile,JSON.stringify(bugsnagAppleFixture()));
+  const apple=await cli('dry-run','--file',appleFile);assert.equal(apple.counts.rejected,0);
+  const stacks=apple.bugsnag.projects[0].nativeStacks;
+  assert.deepEqual({events:stacks.events,frames:stacks.frames,machoUuids:stacks.machoUuids,buildIds:stacks.buildIds,symbolication:stacks.symbolication},{events:1,frames:2,machoUuids:[syntheticUuid],buildIds:[],symbolication:'unsupported'});
+  assert.match(stacks.reason,/Mach-O/);assert.match(stacks.reason,/not (?:yet )?symbolicate/);
+  assert.ok(apple.bugsnag.losses.some(row=>row.kind==='events'&&row.field==='native_frames'&&/unsupported/i.test(row.reason)),'native frames are a named conversion loss');
+  console.log('PROBE MIG-004 APPLE: iOS export with Mach-O UUID frames -> nativeStacks unsupported and a native_frames loss; no original frame fabricated');
   await req('/auth/signout','POST',{});await assert.rejects(cli('status','--organization',bundle.organization.id,'--plan',plan.planId),error=>error.status===401);
   await bugsnagDocumentedShapes();
   console.log('PROBE MIG-004 1: owner CLI web and Android export -> sampled graph and release session aggregates reconcile; interrupted apply resumes, history stays inert, archive restores and erasure fences replay.');

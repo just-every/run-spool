@@ -1,6 +1,13 @@
 import type { DoorSnapshot } from '../../modules/import-kit/src/door/types';
 import { safeImportLabel } from '../sentry-import/read-labels';
+import { nativeFrames, nativeStackReason } from './native';
 const count=(value:unknown)=>Number.isSafeInteger(value)&&Number(value)>=0?Number(value):null;
+/** Events whose native frames only a Mach-O or ELF debug file could name; Spool cannot read those files yet. */
+function nativeStacks(events:ReturnType<typeof nativeFrames>[]){
+ const native=events.filter(e=>e.frames>0);
+ if(!native.length)return {};
+ return {nativeStacks:{events:native.length,frames:native.reduce((n,e)=>n+e.frames,0),machoUuids:[...new Set(native.flatMap(e=>[...e.machoUuids]))].sort(),buildIds:[...new Set(native.flatMap(e=>[...e.buildIds]))].sort(),symbolication:'unsupported',reason:nativeStackReason}};
+}
 /** Source aggregates never enter live session or exposure tables. */
 export function bugsnagReport(snapshot:DoorSnapshot) {
  const records=[...new Map(snapshot.plan.source.records.map(r=>[JSON.stringify([r.kind,r.sourceId]),r])).values()];
@@ -9,6 +16,7 @@ export function bugsnagReport(snapshot:DoorSnapshot) {
  const projects=records.filter(r=>r.kind==='projects').map(record=>{
   const p=(record.payload as any).data,rows=records.filter(r=>(r.payload as any).project===p.id);
   return {sourceId:p.id,name:safeImportLabel(p.name),sampledErrors:rows.filter(r=>r.kind==='errors').length,sampledEvents:rows.filter(r=>r.kind==='events').length,
+   ...nativeStacks(rows.filter(r=>r.kind==='events').map(r=>nativeFrames((r.payload as any).data))),
    stability:rows.filter(r=>r.kind==='stability').map(record=>{
     const d=(record.payload as any).data;
     return {stage:safeImportLabel(d.release_stage_name),timeline:d.timeline_points.map((point:any)=>{
