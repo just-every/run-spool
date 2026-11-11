@@ -1,0 +1,11 @@
+{
+  "base": "65a8288d14a12711fc777f9c07646fedb12c6bf0",
+  "next": "Allow your application’s origin\nUpload a source map\nWatch Issues for its first error",
+  "uploadControls": 0,
+  "listedMapLinks": 0,
+  "testTitle": "TypeError: Cannot read properties of undefined (reading 'city')",
+  "testTitleMarked": false,
+  "realSameMessageGrouped": true,
+  "countBefore": 1,
+  "countAfter": 2
+}

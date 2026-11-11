@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "product_base": "65a8288d14a12711fc777f9c07646fedb12c6bf0",
+  "published_save": "a3e4239d86b3506b320174c370aaa84825d019ce",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "output": "typecheck.txt"
+    },
+    {
+      "command": "node tests/triage-journey.mjs",
+      "exit": 0,
+      "output": "triage.txt",
+      "receipt": "triage-receipt.json",
+      "groups": 22,
+      "captures": 96
+    },
+    {
+      "command": "firstProjectJourney(browser, origin, 1440) through real rer dev",
+      "exit": 0,
+      "output": "setup-journey.txt",
+      "mapped": {
+        "status": "mapped",
+        "file": "src/checkout.ts",
+        "line": 1,
+        "column": 0
+      },
+      "captures": [
+        "setup-1440.png",
+        "setup-390.png"
+      ]
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "source-check.json"
+    },
+    {
+      "command": "exact-SHA Verify via REST",
+      "status": "completed",
+      "conclusion": "success",
+      "head": "c6dfd817f8763ae44e5a2a473828e892c945685a",
+      "run_id": 42997978248,
+      "url": "https://github.com/just-every/run-spool/actions/runs/42997978248",
+      "github_calls": 5,
+      "receipt": "ci-receipt.json"
+    }
+  ],
+  "setup_attempts": [
+    {
+      "runtime": "emitted test Worker",
+      "result": "not qualified",
+      "reason": "firstProjectJourney requires the real rer dev owner-entry configuration; timeout before setup"
+    },
+    {
+      "runtime": "rer dev",
+      "result": "selector corrected",
+      "reason": "prepared-map release select accessible label includes its options; scope the picker to #upload-map"
+    },
+    {
+      "runtime": "rer dev",
+      "result": "driver waited for health before retry",
+      "reason": "restart exceeded the first readiness deadline; no project was created by that attempt"
+    },
+    {
+      "runtime": "rer dev",
+      "result": "fixture corrected",
+      "reason": "prepared-map endpoint accepts standard V3 map keys; the stamped debug_id extension is supplied separately in Bundle debug ID"
+    }
+  ],
+  "registration_delta": 0,
+  "contract_status_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "contract_status_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "final_head": "c6dfd817f8763ae44e5a2a473828e892c945685a",
+  "product_remote_ref": "refs/heads/cloud/main-spool-first-project-1",
+  "product_ui_blobs": {
+    "src/ui/setup/Setup.tsx": "77597c4ee20470d50e4fd7d0ce5375b4e59bb1f5",
+    "src/ui/workbench/SdkSetup.tsx": "46408146fd0affe6469259458bc3291bff807167",
+    "src/ui/workbench/CaptureView.tsx": "4921bf6d930134119fc39035907a1eb8da2714a0"
+  },
+  "product_status": "pushed",
+  "main_integration": "origin/main unchanged; merge reports Already up to date",
+  "hooks": "active; preserved repository hooks",
+  "identity_and_trailers": "all candidate authors and committers fleet; no trailers",
+  "blockers": []
+}
