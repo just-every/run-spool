@@ -5,7 +5,8 @@ import worker from './server';
 import { managedInstallation, withDevIdentity } from './modules/operator-auth/dev/index.mjs';
 import { devGate } from './modules/operator-auth/dev-gate.mjs';
 import { admitLocalProjectKeys } from './domain/dev-credentials';
-import { authConfig } from './auth/session.server';
+import { authConfig, ownerSession } from './auth/session.server';
+import { AuthError } from './modules/operator-auth/index.mjs';
 import { runtimeBindings, type Bindings } from './auth/bindings';
 import { signInPage } from './auth/sign-in.server';
 import { devPersonas } from './auth/dev-personas';
@@ -24,6 +25,20 @@ const local = {
    return bindings.ASSETS.fetch(request);
   }
   const env = runtimeBindings(bindings as Bindings);
+  // Only the local owner's session can discover this machine's executable paths.
+  // These bindings and this route are absent from the deployed Worker.
+  if (path === '/api/agent-runtime') {
+   const headers = { 'Cache-Control': 'no-store' };
+   try {
+    if (!await ownerSession(request, env)) return new Response('Unauthorized', { status: 401, headers });
+    if (request.method !== 'GET') return new Response('Method not allowed', { status: 405, headers });
+    const paths = bindings as Bindings & { SPOOL_AGENT_NODE: string; SPOOL_AGENT_CLI: string };
+    return Response.json({ node: paths.SPOOL_AGENT_NODE, cli: paths.SPOOL_AGENT_CLI }, { headers });
+   } catch (error) {
+    if (error instanceof AuthError) return new Response('Unauthorized', { status: error.status, headers });
+    throw error;
+   }
+  }
   // SDKs and build tools hold only their scoped project key. Recognize this
   // request in the local entry, without giving those clients the owner gate.
   if (!managedInstallation(env) && devGate({ key: env.RER_DEV_KEY, origin: env.AUTH_ORIGIN, local: env.AUTH_LOCAL === 'true' })) admitLocalProjectKeys(request);

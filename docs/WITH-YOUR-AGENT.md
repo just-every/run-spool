@@ -6,7 +6,9 @@ Mint an **agent** key in a project's workbench and save the once-shown key priva
 
 After upgrading, an existing agent key works only once an owner chooses a company agent policy at `/agents` on that installation (for example `https://spool.example/agents`). Until then each call is refused with `policy_unset`, and the CLI prints the setup URL from that refusal. An unanswered policy authorizes no agent action.
 
-Use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
+First, the owner answers all six agent policy questions at `/agents` and saves the policy. In Settings, **Create agent key** shows copyable setup lines with the local installation’s actual Node executable and Spool CLI path. That Node may be rer’s private runtime; Node does not need to be on PATH. Use the issue’s short ID shown at the top of its issue page. **Hand to agent** on the issue page fills that ID into the same setup lines.
+
+For manual setup, use the checkout's declared Node 22.20.0 and `rer install`. The unpublished `@errors/agent` package runs directly from the Spool checkout; no npm publication or model account is needed for evidence retrieval. Replace `/absolute/path/to/spool` below with the actual Spool checkout path, `node` with your Node executable, and `ISSUE_ID` with the issue’s short ID. These commands also work from your application's repository because the CLI path is absolute. Enter the key privately without putting it in process arguments (the private-input examples use Bash):
 
 ```sh
 export SPOOL_URL='https://spool.example/api/projects/web'
