@@ -35,7 +35,7 @@ import { schemaIdentityOf } from '../modules/portability/schema-identity.mjs';
 import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
-import { validateArchive, validateArchiveRows, tables } from './archive';
+import { validateArchive, validateArchiveRows, tables, tombstoneArchiveTables } from './archive';
 import { repairArchiveTables, validateRepairArchive } from './repairs/archive';
 import { emptyExecutionTables, executionArchiveTables, executionExcludedTables, validateExecutionArchive } from './execution-archive';
 import { erasureArchiveTables, erasureExcludedTables, validateErasureArchive } from './erasure/archive';
@@ -62,7 +62,7 @@ function stagedValidation(later: string[] = []) {
 
 // Door and Business custody stay on the installation, except the two value-free erasure tombstone tables: an erased
 // person's retired policy references and roster digests travel, so a restore never makes them eligible again.
-const tombstoneTables=['agent_door_retired_refs','bs_retired'];
+const tombstoneTables=Object.keys(tombstoneArchiveTables);
 const custodyExcluded=[...projectAgentArtifacts.artifacts.map(item=>item.table),...rosterArtifacts.map(item=>item.table)].filter(table=>!tombstoneTables.includes(table));
 export const portabilityPolicy = {
  product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],

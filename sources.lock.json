@@ -5730,7 +5730,7 @@
       "executable": false
     },
     "src/domain/archive.ts": {
-      "sha256": "0435663b5756257f04788fcde044ae713161d2a90eb8b6526f9cbd5b2efe6c9e",
+      "sha256": "bd112e0948abef261d96761c958ed6214fab17868001cf6209682c0e8fae6da9",
       "executable": false
     },
     "src/domain/artifacts.ts": {
@@ -6454,7 +6454,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "18a0e27625150f6fad929e51399f13d501d3f03b586233a76be9026e9e967fae",
+      "sha256": "cd35dacd978091a00aa5db3f744190f5d200ae95ed98b0e3ded4a59c757a34dc",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -10638,7 +10638,7 @@
       "executable": false
     },
     "tests/agent-door/replay-horizon.mjs": {
-      "sha256": "41310949741ebeafe1b99ec30a8c3865b280956de5d03c2cdf651fbede5f28ce",
+      "sha256": "e05d422368e35b8e7d6d5da21f437ef6ae988c7d5e2996e0be268a77668e30f3",
       "executable": false
     },
     "tests/agent-door/retention-classes.mjs": {
@@ -10798,7 +10798,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "e35911c5d9e90095e7857330548a872aac6fa889de9144c58dab2cf9303b9ed4",
+      "sha256": "7445df34a8a5e6efef14c2fb5e3d4ff678f65af2c58703e529233294b473b9cf",
       "executable": false
     },
     "tests/audit-history.mjs": {
