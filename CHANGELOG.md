@@ -1,9 +1,47 @@
 # Changelog
 
-## Unreleased
+## 0.7.6 — 2026-11-11
 
-- First-project setup links its source-map step directly to the project’s Releases setup. Save the once-shown ingest key before leaving setup.
-- Errors sent by **Send test error** and **Capture test exception** appear as `SpoolTestError` in Issues and issue detail, separate from ordinary application TypeErrors.
+Spool 0.7.6 is a small release since 0.7.5 (11 November). It fixes the rough edges that people setting Spool up for the first time ran into, it makes erasing a person also remove them from your Business team list, and it moves to rer 0.2.107.
+
+### What you can now do
+
+- **Erase the owner and have them leave your Business team list too.** Erasing the owner now also removes them from the team list your Business manages, from the stored Business settings and from the editor name recorded on earlier settings changes, in the same step. Only one-way digests are kept, never a name, email address, phone number or ID. A Business update that still lists an erased person applies without them, until the Business sends a new invitation number for that person. People erased by an older release drop off the list at your next Business update.
+- **Erase one person without touching another person's agent records.** Erasing an email address now matches whole addresses only. Agent records that name a different address that merely ends the same way, or that continues it with a further domain label, are left unchanged.
+- **Keep the erasure lists in your backups.** Private archives now carry the two lists of erased people (the retired agent-policy references and the retired Business team entries), so a restored installation cannot list or name an erased person again. They hold no name, address or ID. A backup made on 0.7.5 restores into this version; those lists simply start empty.
+- **See whether an assignment was saved.** Saving or clearing an issue assignment now says "Assignment saved." or "Assignment cleared." beside the field. A name that is refused, for example one that is too long or that contains an email address or other private data, now explains why in plain words next to the field.
+- **See what an alert rule still needs.** The rule form now says in one line what is missing before it can be saved: a name, a destination, at least one alert event, a release name, a configured and tested destination, or a preview of the rule. The save button stays off until that line is clear.
+- **Find source maps from your first project.** After you create your first project, the next-steps list links straight to source-map setup in Releases. Save the once-shown ingest key before leaving setup.
+- **Upload a prepared source map without a refusal.** The prepared-map picker now sends the standard Source Map V3 file and takes the bundle's debug ID from the field beside it. It no longer copies a debug ID out of the map file that the upload could then reject.
+- **Tell test errors from real ones.** Errors sent by Send test error and Capture test exception now appear as SpoolTestError in Issues and on the issue page, separate from your application's ordinary TypeErrors.
+- **Read dates without guessing the month.** Dates in Issues, alert previews, Reports, saved dashboard windows and daily report buckets now use short month names, for example "Nov 11, 2026 14:05 UTC", whatever language your browser is set to.
+- **See each release's environment.** The Releases list now shows each release's environment, or says "not reported".
+- **See what a source-map upload did.** The source-map command line prints a summary such as "Uploaded 1 source map." on success. Add --json for the machine-readable result. A failure prints its reason to standard error and exits 1. The setup page shows the same example. This application release does not publish the Spool SDK, and nothing about the SDK changes for users.
+
+### Older archives
+
+- A private archive made on 0.7.5 restores into this version. Older archives still restore as before.
+
+### Updating
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.5 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.6` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds one migration after 0.7.5 (0104). It creates one new table for the retired Business team entries and changes no existing row. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application now pins rer exactly to 0.2.107.
+
+### What is not covered
+
+- Erasing the owner is held, not completed, while other stored agent text contains a different address that ends with the owner's address.
+- The erasure match is case-sensitive: the same address written in different letter case is a different address to it.
+- Source-map upload summaries describe this repository's command line. The published SDK package is unchanged by this release.
+
+### Known issues
+
+- Cloudflare Email Sending is checked through setup validation and provider selection; this release's checks do not send live mail through Cloudflare.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require the separate Managed-to-native release qualification. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The Bugsnag, Rollbar and Sentry importers are checked against synthetic samples. Large imports are bounded to 2 MiB and 500 records, and a bigger set is refused rather than partly applied.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
 
 ## 0.7.5 — 2026-11-11
 
