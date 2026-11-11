@@ -1,0 +1,61 @@
+{
+  "repository": "just-every/run-spool",
+  "head_sha": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "calls": [
+    {
+      "number": 1,
+      "utc": "2026-11-11T21:41:45.148992+00:00",
+      "path": "repos/just-every/run-spool/actions/runs?head_sha=7b8cc6213c14b0e2af650e2d6289dd0ac59871aa&per_page=100",
+      "exit": 0,
+      "started_epoch": 1794433304.528332
+    },
+    {
+      "number": 2,
+      "utc": "2026-11-11T21:46:45.104199+00:00",
+      "path": "repos/just-every/run-spool/actions/runs?head_sha=7b8cc6213c14b0e2af650e2d6289dd0ac59871aa&per_page=100",
+      "exit": 0,
+      "started_epoch": 1794433604.535851
+    },
+    {
+      "number": 3,
+      "utc": "2026-11-11T21:51:45.147983+00:00",
+      "path": "repos/just-every/run-spool/actions/runs/43105299821",
+      "exit": 0,
+      "started_epoch": 1794433904.5431552
+    },
+    {
+      "number": 4,
+      "utc": "2026-11-11T21:56:45.155552+00:00",
+      "path": "repos/just-every/run-spool/actions/runs/43105299821",
+      "exit": 0,
+      "started_epoch": 1794434204.5500884
+    },
+    {
+      "number": 5,
+      "utc": "2026-11-11T22:01:45.080394+00:00",
+      "path": "repos/just-every/run-spool/actions/runs/43105299821",
+      "exit": 0,
+      "started_epoch": 1794434504.5526085
+    }
+  ],
+  "runs": [
+    {
+      "id": 43105299821,
+      "name": "Verify",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43105299821",
+      "head_branch": "cloud/main-spool-agent-handoff-1-c2"
+    }
+  ],
+  "terminal": {
+    "id": 43105299821,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43105299821",
+    "head_branch": "cloud/main-spool-agent-handoff-1-c2"
+  }
+}

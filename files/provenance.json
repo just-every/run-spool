@@ -1,0 +1,32 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-agent-handoff-1-c2",
+  "original_head": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+  "merged_main": "2e12affd54e9b3bfe759e0eaec60906e3548f876",
+  "head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "parents": [
+    "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+    "2e12affd54e9b3bfe759e0eaec60906e3548f876"
+  ],
+  "ci_display_fix": {
+    "commit": "5ec1f171e8a077614cdbcc689e006f9535da9934",
+    "committer_time": "2026-11-12T01:06:29+10:00",
+    "ancestor_of_main": true,
+    "behavior": "Skip apt when Xvfb/xvfb-run/xauth already exist; correctly rewrite mirror+file sources; bounded 90s fallback attempts."
+  },
+  "merge_conflicts": [],
+  "contract_modified_from_main": false,
+  "generated_views_modified_from_main": [],
+  "new_tests_added_this_continuation": 0,
+  "product_diff_from_main": "docs/WITH-YOUR-AGENT.md                 |  4 +-\n packages/agent/src/packet-markdown.mjs  | 19 +++++---\n sources.lock.json                       | 24 ++++++----\n src/server.dev.ts                       | 17 ++++++-\n src/ui/workbench/AgentHandoff.tsx       | 26 ++---------\n src/ui/workbench/AgentPacketCommand.tsx | 79 ++++++++++++++++++++++++++++++++\n src/ui/workbench/EvidenceRail.tsx       |  2 +-\n src/ui/workbench/IssueView.tsx          |  5 +-\n tests/agent-handoff.mjs                 | 11 +++--\n tests/agent-handoff/runtime.mjs         |  4 +-\n tests/agent-handoff/ui.mjs              | 81 +++++++++++++++++++++++++--------\n vite.config.ts                          |  3 +-\n 12 files changed, 208 insertions(+), 67 deletions(-)",
+  "date_utc": "2026-11-11T21:32:20.985024+00:00",
+  "shallow": false,
+  "main_is_ancestor": true,
+  "working_tree": "clean",
+  "remote_ref_verified": {
+    "ref": "refs/heads/cloud/main-spool-agent-handoff-1-c2",
+    "head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+    "method": "git ls-remote --heads origin refs/heads/cloud/main-spool-agent-handoff-1-c2",
+    "observed_utc": "2026-11-11T21:58:42.696033+00:00"
+  }
+}

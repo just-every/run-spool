@@ -1,0 +1,57 @@
+{
+  "head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "browser": "Chromium 154.0.8037.57 (Debian 13), /usr/bin/chromium",
+  "first_run": {
+    "stage": "ui",
+    "policy_page_title": "Agents \u00b7 Spool Dev",
+    "policy_form_after_save": false,
+    "policy_choices_after_save": "All declared classes displayed Allow",
+    "pending_playwright_call": {
+      "type": "Page",
+      "method": "close"
+    },
+    "policy_page_close_called": true,
+    "policy_page_closed": false,
+    "dialogs": [],
+    "duration": "more than five minutes",
+    "action": "Terminated only this run\u2019s Chromium PID 3841; test cleanup stopped browsers and checkout child processes and removed its temporary checkout."
+  },
+  "separate_minimal_popup_probe": {
+    "closed": true,
+    "exit": 0
+  },
+  "retry": {
+    "source": "unchanged",
+    "exit": 0,
+    "groups": 9,
+    "captures": 10,
+    "cleanup": [
+      {
+        "name": "mcp",
+        "outcome": "stopped"
+      },
+      {
+        "name": "browser",
+        "outcome": "stopped"
+      },
+      {
+        "name": "second-origin",
+        "outcome": "stopped"
+      },
+      {
+        "name": "redirect-edge",
+        "outcome": "stopped"
+      },
+      {
+        "name": "receiving-edge",
+        "outcome": "stopped"
+      },
+      {
+        "name": "checkout",
+        "outcome": "stopped",
+        "children": "stopped",
+        "directory": "removed"
+      }
+    ]
+  }
+}

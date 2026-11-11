@@ -1,0 +1,9 @@
+# Plan: main-spool-agent-handoff-1-c2
+
+1. Apply fleet identity, refresh the supplied launcher, install decrypted-bundle Git authentication, push guard and commit hook. Read repository instructions and the supplied builder rules.
+2. Clone full filtered history of just-every/run-spool. Create cloud/main-spool-agent-handoff-1-c2 at a6ea6cc152fd4a5d4d2ee4298706056fe8e31639. Confirm main contains a post-14:00Z Electron virtual-display fix.
+3. Merge origin/main without rebasing published commits. Preserve main contract judgments/tests, restore generated views if necessary, regenerate source lock last and check it. Make no additional product changes unless necessary for the merge.
+4. Install declared toolchain/dependencies, preserve hooks, build, run handoff journey and typecheck. The handoff journey exercises copied Settings and issue commands, selector refusals and captures each changed screen at 1440 and 390. Add no test.
+5. Fetch and merge main before candidate publication; inspect all origin/main..HEAD identities and trailers including side parents. Push only the named cloud branch through cloud-push.py. Keep evidence outside product history.
+6. Discover exact-SHA Verify through REST. Poll a run no more often than every 300 seconds, with one watcher and at most ten GitHub calls. On failure, inspect each failed job log once and rerun failed jobs once as authorized. Fix only attributable failures.
+7. Write actual non-secret reports/receipts, publish their complete explicit selection to evidence/main-spool-agent-handoff-1-c2. Report clause AI-001 PARTIAL points 1,2,3 only with surviving proof. Preserve any unfinished work via verified bundle; delete the clone only after product/evidence custody is complete. Finish with READY if exact-SHA Verify meets the contract, otherwise truthful PUSHED/BLOCKED.

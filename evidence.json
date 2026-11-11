@@ -1,0 +1,196 @@
+{
+  "files": [
+    {
+      "blob": "2447fcebb901b31720ab3dcb6d9b6a747a2a1202",
+      "bytes": 1825,
+      "path": "PLAN.md",
+      "sha256": "d9d86ec65f6a342fddf1ca7d04d431c9a58c5a30ed696b816ff51c9e14b95566"
+    },
+    {
+      "blob": "4f7afe944a99adfebee790f68341d7dd57ece47d",
+      "bytes": 6149,
+      "path": "REPORT.md",
+      "sha256": "9d09eeb041ecaff3e8d62f99cfef44836752a5f19ac3cc43bba34385e5bfb609"
+    },
+    {
+      "blob": "39b5ef8b70ca6563582290662be4fc265e213d43",
+      "bytes": 1421,
+      "path": "browser-diagnostic.json",
+      "sha256": "a85bf56bd4a63adc8492c3d60b225f64b1046a57690b7a04322fe1cb9d1ec61c"
+    },
+    {
+      "blob": "006b900c52787baea0ff6ed1679de93522983a1e",
+      "bytes": 1617,
+      "path": "browser-proof.json",
+      "sha256": "78b61187e2037f636787fe5a285afc71c8add4453c43378ce0b110ae142cb0dd"
+    },
+    {
+      "blob": "754cf8414b6fa0d8d55b4d19202f3fefb9ec6e0e",
+      "bytes": 166253,
+      "path": "browser/agent-handoff-policy-needed-1440.png",
+      "sha256": "6db2739a7f425fd020c40fb3dd423fc1f16956563da3b74b5aaa41a54abd3fc4"
+    },
+    {
+      "blob": "0599f686ac4b8d01582fb8d51b5f11f2fdc5b4f5",
+      "bytes": 173970,
+      "path": "browser/agent-handoff-policy-needed-390.png",
+      "sha256": "4af870b9a511d0ea3816fa0eaef85ae45d74b30fc77fcae8b731a12161a3865e"
+    },
+    {
+      "blob": "66973a9e1e52ac26b89444576f1e6f74160a6cee",
+      "bytes": 137183,
+      "path": "browser/gov002-preview-1440.png",
+      "sha256": "8012e8c7ab47e8c27ad99f15e6eb693fe0b3708a5ad7e41da517cc83014da9f6"
+    },
+    {
+      "blob": "cc623833f7224b579aebd4934e07b08b562701b1",
+      "bytes": 128051,
+      "path": "browser/gov002-preview-390.png",
+      "sha256": "782e6c310c83682121f2738547c3074bcbd47aa9a395796c135ea8e6281cadc1"
+    },
+    {
+      "blob": "d85fabff9b298ebfbad3de6b1fc466a833160f66",
+      "bytes": 72497,
+      "path": "browser/gov002-retention-1440.png",
+      "sha256": "9219200ac52cf7bda56ba37b0acba23d55e2f1a136569da43c91f2a37e7b5b11"
+    },
+    {
+      "blob": "d90cf23824a04cb896542cc3fef4674cbe034560",
+      "bytes": 77003,
+      "path": "browser/gov002-retention-390.png",
+      "sha256": "da5bdb80c875cbdc2cf474d3ca770cd11fc7b9a1dbfadad4dd5978e754d5174d"
+    },
+    {
+      "blob": "e7ed56d74420993cc5a9e33a08958a979bc66eba",
+      "bytes": 109349,
+      "path": "browser/issue-agent-command-1440.png",
+      "sha256": "82141d2ac77fb1b228fd0c12858822cf75a6e800b9a02bf35f79abec6d5ebafe"
+    },
+    {
+      "blob": "0029fbf5ab7895707d8bf2c5ef19829d787a1c0f",
+      "bytes": 76129,
+      "path": "browser/issue-agent-command-390.png",
+      "sha256": "ebc53ce342a0455e6006916aa6c9117803249a2afc5ee2d2c1db8b94b5e8bc2c"
+    },
+    {
+      "blob": "20cf54a1b5f31e4f5da95f39b6deb769c46b62fa",
+      "bytes": 929411,
+      "path": "browser/issue-evidence-1440.png",
+      "sha256": "544e701bd64437cdac9210d3fbf7202f10b7b5eb39662ebd06823a604dbe7dcf"
+    },
+    {
+      "blob": "d5d8a210feefd4bf5e426219033e83fd085e268b",
+      "bytes": 712871,
+      "path": "browser/issue-evidence-390.png",
+      "sha256": "e8064992eedbaf852a91f123cc0c2d35ccb369e99edd2e3226055336ad3f9702"
+    },
+    {
+      "blob": "b90310b7d753e5b84d344ad017a81e52251ed661",
+      "bytes": 12151,
+      "path": "build.log",
+      "sha256": "422eb0d502a4ed44d892e6f28618e52c49f385030cdfc7687203f891f39c59b4"
+    },
+    {
+      "blob": "5e6905a166dfaf634d10cd17ffaad6db6630bb7c",
+      "bytes": 595,
+      "path": "candidate-identities.txt",
+      "sha256": "eaf0cdbd2435c1d7cecd2f0b176b8c784d24c308bd648344e337bf5b1532f312"
+    },
+    {
+      "blob": "45bd8de252077d55dbad3765434264337b7f0e5e",
+      "bytes": 689,
+      "path": "candidate-messages.txt",
+      "sha256": "7f1e4ff6eee3515650f139c0753a5a514351821e0982ac87a1bc5290119e7cb8"
+    },
+    {
+      "blob": "ba9171f08069c9bd538e916063af5e36a5cda0b4",
+      "bytes": 341,
+      "path": "check.log",
+      "sha256": "76332c7a5eec60b594bb51225fe4dbd39f687a7d6af96f19db36b33ac751b846"
+    },
+    {
+      "blob": "cdd967b30a2ffd8e98e90d7e93abec74f006a227",
+      "bytes": 1931,
+      "path": "ci-receipt.json",
+      "sha256": "0f65f2356b08fa0c5642fd234a547f0f1a75871cf51783f91446285bc2f4bc24"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contractcheck.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "dce8288f722bc4491bd855235bc74cc610ad28a0",
+      "bytes": 383,
+      "path": "counts.json",
+      "sha256": "f1720e11891098970c77240b7bbc501e5761d6b43e6beba30161ac5d9dd372c9"
+    },
+    {
+      "blob": "de27f4a9a2ec059239273ca38cb8128577ec3f8a",
+      "bytes": 3869,
+      "path": "electron-display-fix.patch",
+      "sha256": "2a7bb05c842b99c3e568bf991fc3c6a80b9601e2ace4c583b9fea3eac5f13508"
+    },
+    {
+      "blob": "0ab042972be33871593ae47af85bcfc0fda2c269",
+      "bytes": 4417,
+      "path": "handoff-results.json",
+      "sha256": "641607bc4278fd5599caa45429b0d9103611069cfb3aa0cecca9a74ca7d2532a"
+    },
+    {
+      "blob": "9c8aee9b89e377b1fa54536e70c9491c3944853f",
+      "bytes": 1581,
+      "path": "handoff-retry.log",
+      "sha256": "ffadfafdfe646117e0f27c0be309946101c85d4299d5cb491b240199186930df"
+    },
+    {
+      "blob": "f85ee3e5584a874b722850e73c4b7d287a1013b6",
+      "bytes": 2740,
+      "path": "initial-handoff-interrupted.log",
+      "sha256": "dab3cca4bf898115cd9f0bbe27e5fc4e7aaf5f1cf2a229902570bb7de20692e8"
+    },
+    {
+      "blob": "fa59138fcf3d09158d5170cf2da8f49def6e2b21",
+      "bytes": 2402,
+      "path": "local-checks.json",
+      "sha256": "0bd46e336cdbd9ff6601531e90ec2c63c95b8500aa8772f5e901ebc46352829a"
+    },
+    {
+      "blob": "1d5b468d117bb5ed620595e9a3b5e7c221cd01d0",
+      "bytes": 5141,
+      "path": "packet-review.json",
+      "sha256": "c1a867d5d6494cd3595659471da6d2621c61161d5efa8f0be2e53468abce1dad"
+    },
+    {
+      "blob": "8ff9ade1e5436ad234e5e901327fafc98998f641",
+      "bytes": 2039,
+      "path": "provenance.json",
+      "sha256": "2ebda3ae0994a1a188281c953c717192556f719a09f942eb39ec6f45c83d0a13"
+    },
+    {
+      "blob": "4f32f5eae6d2557fe466764dab309abc89c85069",
+      "bytes": 968,
+      "path": "push-receipt.log",
+      "sha256": "d8a316570409bd7604ab1027f0c3be245bacb4033efd3c9761e31e1595441459"
+    },
+    {
+      "blob": "ffef8530406a2c5d5cc6a72c2fde90ad8955f19e",
+      "bytes": 1332,
+      "path": "terminal-product.json",
+      "sha256": "8f1797194157eb80450a6761683505d067d743e98782c88f930d9e987bf514f5"
+    },
+    {
+      "blob": "92e0d5659bfb50bb9f009362c91bd9c611801d8b",
+      "bytes": 187,
+      "path": "typecheck.log",
+      "sha256": "b89edd35c18c7642ae42d9dd20a30cfa255e98c43fcd8363e5ace04454fc1274"
+    }
+  ],
+  "product_branch": "cloud/main-spool-agent-handoff-1-c2",
+  "product_head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "ref": "refs/heads/evidence/main-spool-agent-handoff-1-c2",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-agent-handoff-1-c2"
+}

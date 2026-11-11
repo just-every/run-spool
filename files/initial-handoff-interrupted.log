@@ -1,0 +1,41 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.6 test:agent-handoff /workspace/run-spool
+> node tests/agent-handoff.mjs
+
+Waiting to start (queue position 1/1): all job slots are in use (1 of 1; change slots in /home/agent/.rer/jobs/config.json).
+Ahead of this job:
+  running: Spool build:workflow [6179c8701e00] in [REDACTED]
+Memory: 15.9 GiB available, floor 2.0 GiB. Change the floor with RER_JOBS_MIN_FREE_MEMORY_BYTES (bytes; 0 for no floor).
+Run from the project root. Inspect the queue with: 'node' 'node_modules/.pnpm/@runeditrun+rer@0.2.107/node_modules/@runeditrun/rer/modules/job-queue/cli.mjs' 'status' '--json'
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+Debugger listening on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:9229/[redacted inspector endpoint]
+For help, see: https://nodejs.org/learn/getting-started/debugging
+{"journey":"agent-handoff","stage":"ui","type":"Error","message":"assertion failed","stack":["    at handoffPanel ([REDACTED]/tests/agent-handoff/ui.mjs:50:224)","    at async file://[REDACTED]/tests/agent-handoff.mjs:89:61"]}
+Agent handoff cleanup: [{"name":"mcp","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"second-origin","outcome":"stopped"},{"name":"redirect-edge","outcome":"stopped"},{"name":"receiving-edge","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,128 @@
+{
+  "checks": [
+    "compatible bounded packet and immutable late-map provenance",
+    "real second-origin captures before and after map upload; immutable diagnostics, release and build mismatch refusal, confidential-source exclusion",
+    "exact project grant surface and state-preserving owner mutation refusal",
+    "CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial",
+    "whole HTTP, CLI JSON, embedded Markdown JSON and official MCP packet equality; readable plain values and UTC dates; labelled complete raw data; unchanged archived rows; key inputs, inert formatting, exit codes and redirect refusal",
+    "official SDK stdio initialization, every legacy and canonical operation pair, complete read equality, validated inert proposals, invalid argument and forbidden-operation refusal, next-call revocation",
+    "real unsaved policy linked in a new tab, owner save preserves once-shown key; actual Node/CLI paths stay owner-only; both copied setup commands read the same issue by its short ID; labelled raw JSON download matches HTTP; 1440 axe/reflow/reload and 1440/390 masked handoff and issue captures",
+    "retention, imported history, windowed loss and restored retained-event/byte cap",
+    "malicious issue selectors refused at HTTP, CLI packet and official MCP get_packet; valid untrusted packet, exact scope, product rows and credential authority preserved"
+  ],
+  "captures": [
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-preview-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-retention-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-preview-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-retention-390.png"
+  ],
+  "sourceMaps": {
+    "beforeUpload": "efae296d-e5bb-49b2-be5f-8bdd24d5520b",
+    "generated": {
+      "file": "http://127.0.0.1:41973/dispatch.js",
+      "line": 1,
+      "column": 159
+    },
+    "lateUpload": "immutable admission with separately labelled current lookup",
+    "mismatches": [
+      "release",
+      "build"
+    ],
+    "afterUpload": "c36c4d51-ad3e-43df-a679-01125f050327",
+    "confidentialSource": "excluded"
+  },
+  "scope": {
+    "readRoutes": 4,
+    "crossProjectRoutes": 5,
+    "deniedRequests": 47,
+    "unchangedArchiveTables": 100
+  },
+  "selectors": {
+    "selectors": [
+      {
+        "kind": "traversal",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      },
+      {
+        "kind": "command",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      },
+      {
+        "kind": "instruction",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      }
+    ],
+    "wholePacketEquality": true,
+    "untrustedCanary": true,
+    "productRowsUnchanged": true,
+    "credentialAuthorityUnchanged": true
+  },
+  "aliases": {
+    "readPairs": 7,
+    "completeResultsEqual": true,
+    "foreignIssueDenied": true
+  },
+  "proposals": {
+    "submitted": 4,
+    "canonicalSubmissionEqual": true,
+    "completeSummaryListsEqual": true,
+    "invalidCallsUnchanged": true,
+    "ownerActionsDenied": true,
+    "crossProjectDenied": true,
+    "inert": true
+  },
+  "cap": {
+    "bytes": 231566,
+    "cap": 262144,
+    "included": 1,
+    "available": 9999,
+    "capacity": {
+      "retained": 10000,
+      "accepted": 1,
+      "refused": 7
+    }
+  },
+  "cleanup": [
+    {
+      "name": "mcp",
+      "outcome": "stopped"
+    },
+    {
+      "name": "browser",
+      "outcome": "stopped"
+    },
+    {
+      "name": "second-origin",
+      "outcome": "stopped"
+    },
+    {
+      "name": "redirect-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "receiving-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "checkout",
+      "outcome": "stopped",
+      "children": "stopped",
+      "directory": "removed"
+    }
+  ]
+}

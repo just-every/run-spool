@@ -1,0 +1,56 @@
+commit 5ec1f171e8a077614cdbcc689e006f9535da9934
+Author: Run Edit Run fleet <fleet@runeditrun.com>
+Date:   Thu Nov 12 01:06:29 2026 +1000
+
+    Spool CI: skip Electron display apt when xvfb is on the image; fix the mirror rewrite
+    
+    The ubuntu-24.04 runner already has Xvfb, xvfb-run and xauth, so the step's
+    apt-get install was a no-op behind an apt-get update. That update hangs on
+    azure.archive.ubuntu.com, and the mirror fallback never took effect because the
+    sed did not match the image's mirror+file:/etc/apt/apt-mirrors.txt source, so
+    all three attempts used the same stalled mirror. Skip the install when the
+    binaries exist (logged), match mirror+file in the rewrite, raise the per-attempt
+    deadline to 90s, and still fail when the tools are missing.
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+diff --git a/.github/workflows/verify.yml b/.github/workflows/verify.yml
+index ffbe848..a4f0680 100644
+--- a/.github/workflows/verify.yml
++++ b/.github/workflows/verify.yml
+@@ -210,8 +210,16 @@ jobs:
+       - if: matrix.runtime == 'electron'
+         name: Install Electron virtual display
+         run: |
++          # The hosted ubuntu-24.04 image ships xvfb and xauth; apt only runs when one is missing.
+           # Base 144aa3ff mirror fallback, adapted for a hosted sudo runner.
+-          # Three 60s attempts plus kill grace/backoff fit within the existing cap.
++          # Three 90s attempts plus kill grace/backoff (about 5 minutes) fit within the 15 minute job cap.
++          missing=()
++          for tool in Xvfb xvfb-run xauth; do command -v "$tool" >/dev/null 2>&1 || missing+=("$tool"); done
++          if (( ${#missing[@]} == 0 )); then
++            printf 'Electron apt: display already present (Xvfb=%s xvfb-run=%s xauth=%s; install skipped)\n' "$(command -v Xvfb)" "$(command -v xvfb-run)" "$(command -v xauth)"
++            exit 0
++          fi
++          printf 'Electron apt: display tools missing (%s); installing\n' "${missing[*]}"
+           mirrors=(http://azure.archive.ubuntu.com/ubuntu http://mirrors.edge.kernel.org/ubuntu http://us-east-1.ec2.archive.ubuntu.com/ubuntu)
+           mkdir -p "$RUNNER_TEMP/spool-electron-apt"
+           cat > "$RUNNER_TEMP/spool-electron-apt/apt.conf" <<APT
+@@ -225,13 +233,14 @@ jobs:
+           started=$SECONDS
+           for attempt in 1 2 3; do
+             mirror=${mirrors[attempt - 1]}
+-            sudo sed -i -E "s@^(URIs:[[:space:]]*)https?://(([a-z0-9.-]+\.)?archive\.ubuntu\.com|security\.ubuntu\.com|mirrors\.edge\.kernel\.org)/ubuntu/?@\1${mirror}/@" /etc/apt/sources.list.d/ubuntu.sources
+-            printf 'Electron apt: display attempt %s/3 (60s deadline; mirror %s)\n' "$attempt" "$mirror"
+-            if sudo env "APT_CONFIG=$RUNNER_TEMP/spool-electron-apt/apt.conf" timeout --kill-after=5s 60s bash -ec '
++            sudo sed -i -E "s@^(URIs:[[:space:]]*)(https?://(([a-z0-9.-]+\.)?archive\.ubuntu\.com|security\.ubuntu\.com|mirrors\.edge\.kernel\.org)/ubuntu/?|mirror\+file:/etc/apt/apt-mirrors\.txt)@\1${mirror}/@" /etc/apt/sources.list.d/ubuntu.sources
++            printf 'Electron apt: display attempt %s/3 (90s deadline; mirror %s)\n' "$attempt" "$mirror"
++            if sudo env "APT_CONFIG=$RUNNER_TEMP/spool-electron-apt/apt.conf" timeout --kill-after=5s 90s bash -ec '
+               dpkg --configure -a
+               apt-get update
+               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xvfb xauth
+             '; then
++              for tool in Xvfb xvfb-run xauth; do command -v "$tool" >/dev/null 2>&1 || { printf 'Electron apt: display installed but %s is missing\n' "$tool" >&2; exit 1; }; done
+               printf 'Electron apt: display complete (attempts=%s mirror=%s seconds=%s)\n' "$attempt" "$mirror" "$((SECONDS - started))"
+               exit 0
+             else

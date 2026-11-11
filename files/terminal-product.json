@@ -1,0 +1,44 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-agent-handoff-1-c2",
+  "head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "product_pushed": true,
+  "ready": true,
+  "verify": {
+    "id": 43105299821,
+    "name": "Verify",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43105299821",
+    "head_branch": "cloud/main-spool-agent-handoff-1-c2"
+  },
+  "github_api_calls": 5,
+  "pr": null,
+  "blockers": [],
+  "clause_claim": {
+    "id": "AI-001",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      3
+    ],
+    "tests": [
+      "tests/agent-handoff.mjs#Agent handoff public journey",
+      "tests/agent-handoff/ui.mjs#handoffPanel",
+      "tests/agent-handoff/selector-refusals.mjs#selectorRefusals"
+    ]
+  },
+  "clause_status_changes": [],
+  "new_test_registrations_authored": 0,
+  "local_journey": {
+    "exit": 0,
+    "groups": 9,
+    "captures": 10,
+    "cleanup": "all stopped; temporary checkout removed"
+  },
+  "main_landing": "Not performed; fleet owns publication scan, integration and landing gates.",
+  "evidence_publication": "Report-only transfer; does not grant acceptance or landing.",
+  "recorded_utc": "2026-11-11T22:02:26.686089+00:00"
+}

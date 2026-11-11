@@ -1,0 +1,160 @@
+{
+  "selected_files": [
+    {
+      "file": "terminal-product.json",
+      "bytes": 1332,
+      "sha256": "8f1797194157eb80450a6761683505d067d743e98782c88f930d9e987bf514f5"
+    },
+    {
+      "file": "REPORT.md",
+      "bytes": 6149,
+      "sha256": "9d09eeb041ecaff3e8d62f99cfef44836752a5f19ac3cc43bba34385e5bfb609"
+    },
+    {
+      "file": "PLAN.md",
+      "bytes": 1825,
+      "sha256": "d9d86ec65f6a342fddf1ca7d04d431c9a58c5a30ed696b816ff51c9e14b95566"
+    },
+    {
+      "file": "local-checks.json",
+      "bytes": 2402,
+      "sha256": "0bd46e336cdbd9ff6601531e90ec2c63c95b8500aa8772f5e901ebc46352829a"
+    },
+    {
+      "file": "provenance.json",
+      "bytes": 2039,
+      "sha256": "2ebda3ae0994a1a188281c953c717192556f719a09f942eb39ec6f45c83d0a13"
+    },
+    {
+      "file": "counts.json",
+      "bytes": 383,
+      "sha256": "f1720e11891098970c77240b7bbc501e5761d6b43e6beba30161ac5d9dd372c9"
+    },
+    {
+      "file": "ci-receipt.json",
+      "bytes": 1931,
+      "sha256": "0f65f2356b08fa0c5642fd234a547f0f1a75871cf51783f91446285bc2f4bc24"
+    },
+    {
+      "file": "push-receipt.log",
+      "bytes": 968,
+      "sha256": "d8a316570409bd7604ab1027f0c3be245bacb4033efd3c9761e31e1595441459"
+    },
+    {
+      "file": "candidate-identities.txt",
+      "bytes": 595,
+      "sha256": "eaf0cdbd2435c1d7cecd2f0b176b8c784d24c308bd648344e337bf5b1532f312"
+    },
+    {
+      "file": "candidate-messages.txt",
+      "bytes": 689,
+      "sha256": "7f1e4ff6eee3515650f139c0753a5a514351821e0982ac87a1bc5290119e7cb8"
+    },
+    {
+      "file": "typecheck.log",
+      "bytes": 187,
+      "sha256": "b89edd35c18c7642ae42d9dd20a30cfa255e98c43fcd8363e5ace04454fc1274"
+    },
+    {
+      "file": "check.log",
+      "bytes": 341,
+      "sha256": "76332c7a5eec60b594bb51225fe4dbd39f687a7d6af96f19db36b33ac751b846"
+    },
+    {
+      "file": "build.log",
+      "bytes": 12151,
+      "sha256": "422eb0d502a4ed44d892e6f28618e52c49f385030cdfc7687203f891f39c59b4"
+    },
+    {
+      "file": "contractcheck.log",
+      "bytes": 70,
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "file": "handoff-results.json",
+      "bytes": 4417,
+      "sha256": "641607bc4278fd5599caa45429b0d9103611069cfb3aa0cecca9a74ca7d2532a"
+    },
+    {
+      "file": "handoff-retry.log",
+      "bytes": 1581,
+      "sha256": "ffadfafdfe646117e0f27c0be309946101c85d4299d5cb491b240199186930df"
+    },
+    {
+      "file": "initial-handoff-interrupted.log",
+      "bytes": 2740,
+      "sha256": "dab3cca4bf898115cd9f0bbe27e5fc4e7aaf5f1cf2a229902570bb7de20692e8"
+    },
+    {
+      "file": "browser-diagnostic.json",
+      "bytes": 1421,
+      "sha256": "a85bf56bd4a63adc8492c3d60b225f64b1046a57690b7a04322fe1cb9d1ec61c"
+    },
+    {
+      "file": "browser-proof.json",
+      "bytes": 1617,
+      "sha256": "78b61187e2037f636787fe5a285afc71c8add4453c43378ce0b110ae142cb0dd"
+    },
+    {
+      "file": "electron-display-fix.patch",
+      "bytes": 3869,
+      "sha256": "2a7bb05c842b99c3e568bf991fc3c6a80b9601e2ace4c583b9fea3eac5f13508"
+    },
+    {
+      "file": "browser/agent-handoff-policy-needed-1440.png",
+      "bytes": 166253,
+      "sha256": "6db2739a7f425fd020c40fb3dd423fc1f16956563da3b74b5aaa41a54abd3fc4"
+    },
+    {
+      "file": "browser/agent-handoff-policy-needed-390.png",
+      "bytes": 173970,
+      "sha256": "4af870b9a511d0ea3816fa0eaef85ae45d74b30fc77fcae8b731a12161a3865e"
+    },
+    {
+      "file": "browser/issue-agent-command-1440.png",
+      "bytes": 109349,
+      "sha256": "82141d2ac77fb1b228fd0c12858822cf75a6e800b9a02bf35f79abec6d5ebafe"
+    },
+    {
+      "file": "browser/issue-agent-command-390.png",
+      "bytes": 76129,
+      "sha256": "ebc53ce342a0455e6006916aa6c9117803249a2afc5ee2d2c1db8b94b5e8bc2c"
+    },
+    {
+      "file": "browser/issue-evidence-1440.png",
+      "bytes": 929411,
+      "sha256": "544e701bd64437cdac9210d3fbf7202f10b7b5eb39662ebd06823a604dbe7dcf"
+    },
+    {
+      "file": "browser/issue-evidence-390.png",
+      "bytes": 712871,
+      "sha256": "e8064992eedbaf852a91f123cc0c2d35ccb369e99edd2e3226055336ad3f9702"
+    },
+    {
+      "file": "browser/gov002-preview-1440.png",
+      "bytes": 137183,
+      "sha256": "8012e8c7ab47e8c27ad99f15e6eb693fe0b3708a5ad7e41da517cc83014da9f6"
+    },
+    {
+      "file": "browser/gov002-preview-390.png",
+      "bytes": 128051,
+      "sha256": "782e6c310c83682121f2738547c3074bcbd47aa9a395796c135ea8e6281cadc1"
+    },
+    {
+      "file": "browser/gov002-retention-1440.png",
+      "bytes": 72497,
+      "sha256": "9219200ac52cf7bda56ba37b0acba23d55e2f1a136569da43c91f2a37e7b5b11"
+    },
+    {
+      "file": "browser/gov002-retention-390.png",
+      "bytes": 77003,
+      "sha256": "da5bdb80c875cbdc2cf474d3ca770cd11fc7b9a1dbfadad4dd5978e754d5174d"
+    }
+  ],
+  "selected_explicitly": true,
+  "symlinks": false,
+  "injected_value_scan": "passed",
+  "credential_and_browser_transport_scan": "passed",
+  "screenshots": "Masks visually reviewed for all six changed-screen captures; additional four are synthetic retention proof.",
+  "scope": "Packet review does not replace the fleet Mac publication scan or product acceptance."
+}

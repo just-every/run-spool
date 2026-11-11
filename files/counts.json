@@ -1,0 +1,21 @@
+{
+  "before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "AI-001": {
+    "before": "partial",
+    "after": "partial"
+  },
+  "tests_added": 0,
+  "tests_deleted": 0,
+  "test_budget_file": "absent; default cap 200; no registration additions in continuation"
+}

@@ -1,0 +1,69 @@
+{
+  "product_head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "results": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "note": "Private setup output retained outside packet; generated credentials excluded."
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "cloud_run pnpm run check -- --profile first-party",
+      "exit": 0,
+      "log": "check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "note": "Regenerated last; no correction to the automatically merged lock was needed."
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contractcheck.log"
+    },
+    {
+      "command": "node scripts/verify-ci.mjs --check-workflows",
+      "exit": 0,
+      "note": "Workflow permissions and shared artifact names are valid."
+    },
+    {
+      "command": "cloud_run pnpm test:agent-handoff",
+      "exit": 1,
+      "outcome": "interrupted",
+      "stage": "ui",
+      "note": "Policy save and preceding assertions passed. Playwright Page.close for the policy popup remained pending more than five minutes without a dialog; the owner browser process was terminated to allow test cleanup. All journey cleanup outcomes were stopped/removed. No product or test source was changed. Unmodified retry running.",
+      "log": "initial-handoff-interrupted.log"
+    },
+    {
+      "command": "minimal system-Chromium popup open/close probe",
+      "exit": 0,
+      "outcome": {
+        "closed": true
+      },
+      "note": "Separate disposable browser context; all browsers closed. Does not qualify product acceptance."
+    },
+    {
+      "command": "DEBUG=pw:api cloud_run pnpm test:agent-handoff",
+      "exit": 0,
+      "groups": 9,
+      "captures": 10,
+      "log": "handoff-retry.log",
+      "receipt": "handoff-results.json",
+      "note": "Unmodified retry passed. API debug lines are omitted from public log to exclude browser authentication transport details. The raw diagnostic log remains outside the public packet."
+    }
+  ]
+}

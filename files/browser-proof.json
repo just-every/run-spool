@@ -1,0 +1,46 @@
+{
+  "product_head": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "assertion_width": 1440,
+  "capture_widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "Settings agent handoff before policy",
+    "Issue agent command dialog after policy",
+    "Issue view including handoff link and raw evidence download"
+  ],
+  "visual_review": "Reviewed all six changed-screen images; commands wrap at 390, policy notice precedes the masked once-shown key, issue short ID is included, and raw JSON is labelled. Scrollable dialog content remains within its phone panel.",
+  "files": [
+    {
+      "file": "browser/agent-handoff-policy-needed-1440.png",
+      "bytes": 166253,
+      "sha256": "6db2739a7f425fd020c40fb3dd423fc1f16956563da3b74b5aaa41a54abd3fc4"
+    },
+    {
+      "file": "browser/agent-handoff-policy-needed-390.png",
+      "bytes": 173970,
+      "sha256": "4af870b9a511d0ea3816fa0eaef85ae45d74b30fc77fcae8b731a12161a3865e"
+    },
+    {
+      "file": "browser/issue-agent-command-1440.png",
+      "bytes": 109349,
+      "sha256": "82141d2ac77fb1b228fd0c12858822cf75a6e800b9a02bf35f79abec6d5ebafe"
+    },
+    {
+      "file": "browser/issue-agent-command-390.png",
+      "bytes": 76129,
+      "sha256": "ebc53ce342a0455e6006916aa6c9117803249a2afc5ee2d2c1db8b94b5e8bc2c"
+    },
+    {
+      "file": "browser/issue-evidence-1440.png",
+      "bytes": 929411,
+      "sha256": "544e701bd64437cdac9210d3fbf7202f10b7b5eb39662ebd06823a604dbe7dcf"
+    },
+    {
+      "file": "browser/issue-evidence-390.png",
+      "bytes": 712871,
+      "sha256": "e8064992eedbaf852a91f123cc0c2d35ccb369e99edd2e3226055336ad3f9702"
+    }
+  ]
+}
