@@ -46,6 +46,11 @@ END`;
 /** Reconstruct the object inventory an archive recorded before 0103 (relay privacy). Only the two relay audit triggers changed. */
 export function previousRelayPrivacyObjects(objects: any[], manifest: any) {
  if (manifest.migrations?.includes('0103_agent_door_relay_privacy.sql')) return objects;
+ // A current-format archive records no ledger: its own relay trigger text says which side of 0103 it was exported on.
+ if (!Array.isArray(manifest.migrations)) {
+  const recorded = manifest.schemaObjects?.find((object: any) => object.name === 'agent_door_relay_audit_insert');
+  if (recorded && recorded.sql !== previousRelayAuditInsert) return objects;
+ }
  return objects.map(object => object.name === 'agent_door_relay_audit_insert' ? { ...object, sql: previousRelayAuditInsert }
   : object.name === 'agent_door_relay_audit_update' ? { ...object, sql: previousRelayAuditUpdate } : object);
 }

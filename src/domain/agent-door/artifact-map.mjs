@@ -28,9 +28,29 @@ const textMention = (column) => `EXISTS(
     AND ${boundary('pos-1', -1)}
     AND ${boundary('pos+length(source)', 1)}
 )`
+// A text subject that is an email address matches the whole address only: a character that can continue an address on
+// either side (al@example.com inside sal@example.com or al@example.com.test) is another person's. The one boundary rule
+// is Base's 0.2.101 matcher (default-seed/src/agent-door/erasure.ts): a period ends the address only when no address
+// character follows it. Every literal occurrence is checked, including one after an embedded occurrence.
+const addressCharacter = "'[A-Za-z0-9_@.+-]'"
+const addressBoundary = (position, outward) => {
+  const char = `substr(text,${position},1)`, next = `substr(text,(${position})+(${outward}),1)`
+  return `(${char} NOT GLOB ${addressCharacter} OR (${char}='.' AND ${next} NOT GLOB ${addressCharacter}))`
+}
+const addressMention = (column) => `EXISTS(
+  WITH RECURSIVE hits(text,source,pos) AS (
+    SELECT content.value,subject.value,instr(content.value,subject.value)
+    FROM json_tree(CASE WHEN json_valid(${column}) THEN ${column} ELSE json_quote(${column}) END) content
+    WHERE content.type='text' AND instr(content.value,subject.value)>0
+    UNION ALL
+    SELECT text,source,pos+instr(substr(text,pos+1),source) FROM hits
+    WHERE pos>0 AND instr(substr(text,pos+1),source)>0
+  )
+  SELECT 1 FROM hits WHERE pos>0 AND ${addressBoundary('pos-1', -1)} AND ${addressBoundary('pos+length(source)', 1)}
+)`
 export const mentions=(table,columns)=>`EXISTS(SELECT 1 FROM json_each(?1) subject WHERE ${columns.map(column=>{
  const value=table+'.'+column;
- return `(subject.type='text' AND EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(${value}) THEN ${value} ELSE json_quote(${value}) END) cell WHERE cell.type='text' AND (cell.value=subject.value OR cell.value='person:'||subject.value OR (instr(subject.value,'@')>0 AND instr(cell.value,subject.value)>0) OR (substr(subject.value,1,8)='spool://' AND (cell.value=subject.value OR instr(cell.value,subject.value||'/')=1))))) OR (subject.type='object' AND ${textMention(value)})`;
+ return `(subject.type='text' AND EXISTS(SELECT 1 FROM json_tree(CASE WHEN json_valid(${value}) THEN ${value} ELSE json_quote(${value}) END) cell WHERE cell.type='text' AND (cell.value=subject.value OR cell.value='person:'||subject.value OR (substr(subject.value,1,8)='spool://' AND (cell.value=subject.value OR instr(cell.value,subject.value||'/')=1))))) OR (subject.type='text' AND instr(subject.value,'@')>0 AND ${addressMention(value)}) OR (subject.type='object' AND ${textMention(value)})`;
 }).join(' OR ')})`;
 const calls=mentions('agent_door_calls',['key','outcome']);
 const approvals=mentions('agent_door_approvals',['saved','approvals','result']);
@@ -40,7 +60,7 @@ const decisions=`SELECT decision_id FROM agent_door_calls WHERE ${calls} UNION S
 const match=(sql)=>({sql,params:['values']});
 export function nativeAgentArtifacts(operator=false) {return {artifacts:[
  {table:'agent_door_retired_refs',columns:['digest','marker'],unrelated:'Value-free suppression digests and erasure markers; they hold no personal value.'},
- {table:'agent_door_state',columns:['id','envelope','local_document','local_revision','local_paused','decision_lock','decision_until'],unrelated:'Installation policy without selected-subject references is retained. The native hook retires matching references in the same transaction; revision, Pause and admission-lease metadata remain.'},
+ {table:'agent_door_state',columns:['id','envelope','local_document','local_revision','local_paused','decision_lock','decision_until'],...operator?{retire:{refs:'policyRefs'}}:{unrelated:'Installation policy without selected-subject references is retained. The native hook retires matching references in the same transaction; revision, Pause and admission-lease metadata remain.'}},
  {table:'agent_door_agents',columns:['id','name','specialist','sponsor','sponsor_name','revoked','window','requests','tombstone'],...operator?{match:match(mentions('agent_door_agents',['sponsor','sponsor_name']))}:{unrelated:'Non-person agent identities and native sponsors belong to installation authority, not the erased project.'}},
  {table:'agent_door_calls',columns:['agent','key','digest','decision_id','created_at','state','outcome','expires_at'],match:match(`decision_id IN (${decisions})`)},
  {table:'agent_door_audit',columns:['sequence','id','at','agent','classes','row','evidence'],match:match(`id IN (${decisions}) OR json_extract(row,'$.decision_id') IN (${decisions}) OR json_extract(row,'$.replay_of') IN (${decisions})`)},

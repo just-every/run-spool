@@ -1,4 +1,4 @@
-import {chromium} from '@playwright/test';
+import {launchBrowser} from './browser-launch.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import {followErasure} from './project-erasure/follow.mjs';
 import assert from 'node:assert/strict';
@@ -7,7 +7,7 @@ import {startTestWorker} from './worker.mjs';
 import {signIn} from './auth.mjs';
 
 async function reportWorkbench(origin,project,from,to,expected){
- const browser=await chromium.launch({headless:true});
+ const browser=await launchBrowser();
  try {
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),cookie=await signIn(origin,{bootstrap:false});
   await context.addCookies(cookie.split('; ').map(pair=>({name:pair.slice(0,pair.indexOf('=')),value:pair.slice(pair.indexOf('=')+1),url:origin})));
@@ -25,6 +25,18 @@ async function reportWorkbench(origin,project,from,to,expected){
   const table=page.getByRole('region',{name:'Query table',exact:true});await table.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await table.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
   const assertEvents=data=>{assert.equal(data.total,expected.total);assert.deepEqual(data.rows.map(row=>row.id).sort(),expected.ids,'The table contains exactly the known events, including the release-less event');assert.equal(data.rows.find(row=>row.id===expected.noRelease).release,'');assert.equal(data.bounds.complete,true)};
   const run=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assertEvents(await(await run).json());await table.locator('tbody tr').nth(3).waitFor();assert.equal(await table.locator('tbody tr').count(),4);
+  // Follow one exact event from Reports into Issues, then compare its receipt.
+  const eventRow=table.locator('tbody tr').filter({hasText:expected.noRelease}),eventLink=eventRow.locator('th a');
+  const reportDate=await eventLink.innerText(),eventHref=await eventLink.getAttribute('href');
+  assert.match(reportDate,/^[A-Za-z]{3} \d{1,2}, \d{4}, \d{2}:\d{2} UTC$/,'Reports names the month and time zone without a numeric date order');
+  assert.equal(Date.parse(reportDate),Math.floor(expected.noReleaseReceived/60000)*60000,'The displayed date names the captured event’s actual UTC day and minute');
+  const reportHref=page.url();await eventLink.click();
+  const selected=page.locator(`.metadata[data-event-id="${expected.noRelease}"]`);await selected.waitFor();
+  assert.equal((await selected.innerText()).split(' · ')[0],reportDate,'Issues and Reports name the same event’s receipt identically');
+  assert.equal(new URL(page.url()).searchParams.get('occurrence'),new URL(eventHref,origin).searchParams.get('occurrence'));
+  await page.goto(reportHref);await table.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await table.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
+  // Returning to Reports also starts its default-window request; await the submitted historical window.
+  const rerun=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.request().postDataJSON()?.from===from&&response.request().postDataJSON()?.to===to&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assertEvents(await(await rerun).json());await table.locator('tbody tr').nth(3).waitFor();
   const saved=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/review/views')&&response.request().method()==='POST'&&response.status()===201);await table.getByRole('button',{name:/^Save query/}).click();const view=await(await saved).json();
   const dashboardDownload=page.waitForEvent('download');await dashboard.getByRole('link',{name:'Export view JSON',exact:true}).click();assert.equal(await(await dashboardDownload).failure(),null);
   // Reopen from persisted definitions, after an unrelated draft proves that the
@@ -108,7 +120,7 @@ export async function reportsFlow(context){
   const exported=await req(url()+'&format=json&download=1');assert.ok(exported.headers.get('content-disposition'));assert.deepEqual((await exported.json()).volume,report.volume);const csv=await req(url()+'&format=csv');assert.equal(csv.status,200);assert.match(csv.headers.get('content-type'),/text\/csv/);assert.ok((await csv.text()).includes('"volume.events","4"'));
   for(const [field,value] of [['timeZone','not-a-zone'],['from','-1'],['to',String(from)]]){const query=new URL(url(),'https://synthetic.test');query.searchParams.set(field,value);const response=await req(query.pathname+query.search);assert.equal(response.status,400);await response.body?.cancel()}
   assert.equal((await req(url(),'GET',undefined,{Cookie:''})).status,401);const agent=await json(root+'/keys','POST',{kind:'agent'});assert.equal((await req(url(),'GET',undefined,{Cookie:'',Authorization:'Bearer '+agent.key})).status,403);
-  await reportWorkbench(context.origin,p.id,from,to,{total:report.volume.events,ids:sent.filter(row=>row.project===p.id).map(row=>row.event_id).sort(),noRelease:sent.find(row=>row.type==='ReportNoRelease').event_id});
+  await reportWorkbench(context.origin,p.id,from,to,{total:report.volume.events,ids:sent.filter(row=>row.project===p.id).map(row=>row.event_id).sort(),noRelease:sent.find(row=>row.type==='ReportNoRelease').event_id,noReleaseReceived:from+2*hour});
   const allDrop={id:'drop',email:'drop',username:'drop',ip_address:'drop'},current=await json(root+'/identity-policy'),preview=await json(root+'/identity-policy/preview','POST',{policy:allDrop});await json(root+'/identity-policy','PUT',{revision:current.revision,policy:allDrop,token:preview.token});report=await json(url());assert.equal(report.volume.events,4);assert.equal(report.volume.affectedUsers,null);assert.equal(report.volume.unattributedEvents,4);assert.match(report.users.projects[0].reason,/policy: drop/);
   // Timestamp fixtures are synthetic historical probes; retire their projects
   // through the public custody door before another journey archives this Worker.

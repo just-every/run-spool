@@ -57,6 +57,15 @@ completed; afterwards an existing key may only be revoked, which works
 regardless of who minted it or any later identity fence. Competing writes are frozen during the resumable
 operation, and each Base batch owns its guard only within that transaction.
 
+The Business roster is retired in the same transaction. The agent-door erasure step
+(`agent_door_state` declares `retire: { refs }`, fed by `operatorPolicyRefs`) removes the
+person's `bs_team` row and their entry in the stored `bs_settings.document`, marks their
+editor attribution in `bs_audit`, and records only SHA-256 digests of their roster address and
+Business member id in `bs_retired` (migration 0104). Spool's own steps still delete their local
+Business overrides and stop the Business with its stored document cleared. A signed revision that
+lists a retired person applies without them until it sends a larger invite number; a person whose
+native account an earlier release erased is retired the same way at the next revision.
+
 Repair create/check/fact transactions also recheck the original session and
 operator version, so a body withheld across the handoff cannot write later.
 The main API still has an in-flight authority boundary: already-admitted
