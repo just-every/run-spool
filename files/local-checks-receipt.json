@@ -1,0 +1,68 @@
+{
+  "head": "65a8288d14a12711fc777f9c07646fedb12c6bf0",
+  "commands": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "output_file": "typecheck.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/alerts-ui.mjs",
+      "exit": 0,
+      "output_file": "alerts-ui.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/triage-journey.mjs",
+      "exit": 0,
+      "output_file": "triage-ui.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "output_file": "contract-check.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "output_file": "source-check-summary.json"
+    }
+  ],
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "triage": {
+    "groups": 21,
+    "captures": 92,
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "source_lock_changed_paths": 6,
+  "new_test_registrations": 0,
+  "test_registration_files_extended": 2,
+  "contract_status_counts_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "contract_status_counts_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "notes": [
+    "Browser suites ran against the implemented emitted application before commit; exact-SHA focused browser proof ran after commit.",
+    "Local Node is 24.19.0; pnpm is pinned 10.12.4. Exact-SHA CI uses the repository-pinned Node 22.20.0.",
+    "No full local Verify ran.",
+    "Full fleet publication scan remains with the fleet machine under the cloud adaptation. Added-line credential-shape inspection passed."
+  ],
+  "packet_review": {
+    "regular_files_only": true,
+    "text_credential_shape_scan": "passed",
+    "development_sign_in_fragments": "none detected",
+    "product_checkout": "clean",
+    "product_evidence_files_committed": 0
+  }
+}

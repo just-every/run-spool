@@ -1,0 +1,7 @@
+{
+  "command": "pnpm source:check",
+  "exit": 0,
+  "ok": true,
+  "raw_output_sha256": "2fe60599491a212d298ca841cd80594f252900892b28ddf9c9b0fc78339e95da",
+  "source_lock_sha256": "48eb1913cf65103a027542ee3deee6af020086f740de0ba3352003ddcf81da2f"
+}

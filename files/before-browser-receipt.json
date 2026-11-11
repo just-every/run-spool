@@ -1,0 +1,77 @@
+{
+  "mode": "before",
+  "widths": [
+    {
+      "width": 1440,
+      "refused": {
+        "status": 400,
+        "body": {
+          "error": "Use a scrubbed operator label up to 80 characters, or null to unassign"
+        }
+      },
+      "saved": {
+        "status": 200,
+        "body": {
+          "issue": "21b64a442e1b72ddeee5919d035739e3381af4ac2657ef1363f65d5f635c5495",
+          "label": "Priya Nair",
+          "revision": 2
+        }
+      },
+      "createDisabledBeforePreview": true,
+      "boxes": [
+        {
+          "text": "Create rule",
+          "top": 745.765625,
+          "bottom": 767.359375
+        },
+        {
+          "text": "Rule name",
+          "top": 942.765625,
+          "bottom": 1012.359375
+        },
+        {
+          "text": "DestinationChoose destinationVerified receiver · WebhookOwner mailbox · EmailOn call 1440 · Email",
+          "top": 942.765625,
+          "bottom": 1012.359375
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "refused": {
+        "status": 400,
+        "body": {
+          "error": "Use a scrubbed operator label up to 80 characters, or null to unassign"
+        }
+      },
+      "saved": {
+        "status": 200,
+        "body": {
+          "issue": "21b64a442e1b72ddeee5919d035739e3381af4ac2657ef1363f65d5f635c5495",
+          "label": "Priya Nair",
+          "revision": 3
+        }
+      },
+      "createDisabledBeforePreview": true,
+      "boxes": [
+        {
+          "text": "Create rule",
+          "top": 901.28125,
+          "bottom": 922.875
+        },
+        {
+          "text": "Rule name",
+          "top": 942.875,
+          "bottom": 1012.46875
+        },
+        {
+          "text": "DestinationChoose destinationVerified receiver · WebhookOwner mailbox · EmailOn call 1440 · EmailOn call 390 · Email",
+          "top": 1028.46875,
+          "bottom": 1098.0625
+        }
+      ]
+    }
+  ],
+  "checks": [],
+  "status": "passed"
+}

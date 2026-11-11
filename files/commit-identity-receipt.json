@@ -1,0 +1,14 @@
+{
+  "range": "origin/main..HEAD",
+  "all_candidate_commits_including_side_parents": [
+    {
+      "head": "65a8288d14a12711fc777f9c07646fedb12c6bf0",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    }
+  ],
+  "passed": true
+}
