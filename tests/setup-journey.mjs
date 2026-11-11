@@ -83,7 +83,7 @@ export async function firstProjectJourney(browser, origin, width) {
    try {
     await maps.getByRole('heading',{name:'Set up original-source mapping',exact:true}).waitFor();
     await maps.locator('#upload-map').getByRole('combobox').selectOption('1.0.0');
-    const map={version:3,file:'app.js',sources:['src/checkout.ts'],names:[],mappings:'AAAA',sourcesContent:['export function checkout() { throw new Error("synthetic checkout failure"); }']};
+    const map={version:3,file:'app.js',debug_id:'synthetic-spool-1',sources:['src/checkout.ts'],names:[],mappings:'AAAA',sourcesContent:['export function checkout() { throw new Error("synthetic checkout failure"); }']};
     await maps.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'app.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(map))});
     await maps.getByLabel('Bundle debug ID',{exact:true}).fill('synthetic-spool-1');
     const uploaded=maps.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/journey/artifacts'&&response.request().method()==='POST');await maps.getByRole('button',{name:'Upload matching map',exact:true}).click();assert.equal((await uploaded).status(),201,'the prepared map is accepted');await maps.getByRole('status').filter({hasText:'Source map uploaded.'}).waitFor();
