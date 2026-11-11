@@ -53,7 +53,7 @@ npx spool-sourcemaps --endpoint https://spool.example --project web \
   --release web@1.2.0 --build build-42 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
-Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The command-line tool prints how many maps it uploaded; the Vite/Rollup plugin prints that count in SDK 0.2.0, while the published 0.1.0 plugin is silent on success. A failed upload fails your build.
+Each bundle needs its `.map` next to it. Run the tool before publishing the built application: it rewrites the bundle and map with the matching debug ID, so serve those resulting files. Both tools register the release, mark each bundle so the SDK can match its errors to the map, and upload the maps. The command-line tool prints a summary such as `Uploaded 1 source map.` (exit 0). Add `--json` for the machine-readable `{"uploaded":1}` result. Failures print a reason to stderr and exit 1 in either mode; the Vite/Rollup plugin prints that count in SDK 0.2.0, while the published 0.1.0 plugin is silent on success. A failed upload fails your build.
 
 ## 4. Check it works
 

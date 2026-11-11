@@ -104,6 +104,10 @@ npx spool-sourcemaps --endpoint https://spool.example.com --project web-app \
   --release web@1.4.0 --build b1907 --key-env SPOOL_DEPLOY_KEY dist/app.js
 ```
 
+The CLI prints a readable summary on success, such as `Uploaded 1 source map.`
+For scripts, add `--json` to print `{"uploaded":1}` instead. Success exits 0;
+a failure prints its reason to stderr and exits 1, including with `--json`.
+
 Both register the release and build, add a debug ID to each bundle and upload its map; a failed upload fails the build. The SDK reads those debug IDs at capture time, so `init` needs no extra option.
 
 ## Already using Sentry?
