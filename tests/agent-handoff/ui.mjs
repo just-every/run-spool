@@ -64,7 +64,7 @@ export async function handoffPanel(browser,app,directory,issue){
   await dialog.getByRole('button',{name:'Copy setup lines',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),issueSetup);
   const issueResult=await runCopiedSetup(issueSetup,`${grant.key}\n${app.devKey}\n`);assert.equal(issueResult.code,0,'issue command runs without a manual issue substitution');assert.equal(issueResult.stdout,result.stdout,'Settings and issue commands read the same packet');
   await accessible();await capture('issue-agent-command',dialog);
-  await dialog.getByRole('button',{name:'Close details',exact:true}).click();await capture('issue-evidence',page.locator('.issue'));
+  await dialog.getByRole('button',{name:'Close details',exact:true}).click();await capture('issue-evidence',page.locator('body'));
  }finally{await context.close();}
  return captures;
 }

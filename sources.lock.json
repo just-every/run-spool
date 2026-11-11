@@ -10710,7 +10710,7 @@
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "e7a0a719f2e9692bcf722f6d2e9c07fdf006b5528acc5db5ff77188ddee6a0ef",
+      "sha256": "297cc378acdb60ad381c32b5f717c304f9fff633c6a723e0e2a7d669458d80f2",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
