@@ -11266,7 +11266,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "4f08eae1a78ff4e5ca3bdc820e0ff610a3db937537cc2b5454f2ee0b8d839cbe",
+      "sha256": "327b814659b8fbeec9aa9705bbea54148d512311345a740c243d70a81fe419b1",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
@@ -11622,7 +11622,7 @@
       "executable": false
     },
     "tests/suspect-flow.mjs": {
-      "sha256": "dfa938837d7d48e8e39c0c8037e08c87dbf254d2fd2106eca1169f0f8ece46f7",
+      "sha256": "716b7726fbda82e52b8c89ad358b9e5bd1057f080696aaa26d77a554e0417faf",
       "executable": false
     },
     "tests/team-browser.mjs": {
