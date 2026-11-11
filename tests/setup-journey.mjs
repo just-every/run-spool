@@ -25,6 +25,7 @@ export async function firstProjectJourney(browser, origin, width) {
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'setup fits its viewport');
    const result=await new AxeBuilder({page}).analyze();assert.equal(result.violations.length,0,'setup accessibility');
    await page.screenshot({path:`${out}/${width}-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});
+   if(width===1440&&state==='sent'){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-sent.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
   }
   const name=page.getByLabel('Project name',{exact:true}),identifier=page.getByLabel('Project identifier',{exact:true}),submit=page.getByRole('button',{name:'Create project',exact:true});
   await identifier.waitFor();await submit.waitFor({state:'visible'});await page.waitForFunction(button=>button instanceof HTMLButtonElement&&!button.disabled,await submit.elementHandle());await inspect('pending');
@@ -60,7 +61,7 @@ export async function firstProjectJourney(browser, origin, width) {
   // A dev-created ingest key works from the app once its exact origin is allowed.
   // The application never receives the private owner gate.
   const appOrigin='http://127.0.0.1:15599',ingestKey=await key.inputValue();
-  const fromApp=()=>fetch(origin+'/api/ingest/journey',{method:'POST',headers:{Origin:appOrigin,Authorization:`Bearer ${ingestKey}`,'content-type':'application/json'},body:JSON.stringify({version:1,eventId:`app-${width}-${Date.now()}`,release:'1.0.0',build:'local',environment:'production',type:'TypeError',message:'From the app origin',frames:[{file:appOrigin+'/app.js',line:1,column:0,function:'checkout',debugId:'synthetic-spool-1'}]})});
+  const fromApp=(eventId=`app-${width}-${Date.now()}`)=>fetch(origin+'/api/ingest/journey',{method:'POST',headers:{Origin:appOrigin,Authorization:`Bearer ${ingestKey}`,'content-type':'application/json'},body:JSON.stringify({version:1,eventId,release:'1.0.0',build:'local',environment:'production',type:'TypeError',message:'From the app origin',frames:[{file:appOrigin+'/app.js',line:1,column:0,function:'checkout',debugId:'synthetic-spool-1'}]})});
   assert.equal((await (await fromApp()).json()).reason,'origin_not_allowed','an origin that first run has not allowed is refused');
   await tabTo(page.getByRole('link',{name:'source-map setup',exact:true}),'Source-map setup link');
   await tabTo(page.getByLabel('Your app’s origin',{exact:true}),'App origin field');await page.keyboard.type(appOrigin);
@@ -71,26 +72,28 @@ export async function firstProjectJourney(browser, origin, width) {
   await tabTo(page.getByRole('button',{name:'Send test error',exact:true}),'Send test error button');await page.keyboard.press('Enter');
   await page.getByRole('status').filter({hasText:'Test error received.'}).waitFor();
   const testIssue=page.getByRole('link',{name:'Open the test issue',exact:true});await tabTo(testIssue,'Open the test issue link');
-  const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));assert.ok((await (await request.get(origin+'/api/projects/journey/issues')).json()).some(row=>row.id===issueId),'the test error became an issue');
+  const issueId=decodeURIComponent((await testIssue.getAttribute('href')).split('/').at(-1));const testRow=(await (await request.get(origin+'/api/projects/journey/issues')).json()).find(row=>row.id===issueId);assert.ok(testRow,'the test error became an issue');assert.match(testRow.title,/test/i,'the first-run test has a recognizable issue title');
   const captured=await fromApp();assert.equal(captured.status,201,'the allowed app uses its scoped key without the owner gate');assert.equal((await captured.json()).outcome,'accepted');
   await tabTo(page.getByRole('button',{name:'Copy Sentry DSN',exact:true}),'Copy Sentry DSN button');await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(async()=>await navigator.clipboard.readText()),await dsn.innerText(),'copy retains the once-shown DSN');await page.evaluate(()=>navigator.clipboard.writeText(''));await inspect('sent');
   if(width===1440) {
    // Follow the setup page's own second step. Keep the once-shown key in its
    // original tab while completing the existing Releases upload form.
-   const opened=context.waitForEvent('page');await mapStep.click({modifiers:['Control']});const maps=await opened;
+   const opened=context.waitForEvent('page');await mapStep.click({modifiers:['ControlOrMeta']});const maps=await opened;
    try {
     await maps.getByRole('heading',{name:'Set up original-source mapping',exact:true}).waitFor();
-    await maps.getByLabel('Release',{exact:true}).selectOption('1.0.0');
-    const map={version:3,file:'app.js',debug_id:'synthetic-spool-1',sources:['src/checkout.ts'],names:[],mappings:'AAAA',sourcesContent:['export function checkout() { throw new Error("synthetic checkout failure"); }']};
+    await maps.locator('#upload-map').getByRole('combobox').selectOption('1.0.0');
+    const map={version:3,file:'app.js',sources:['src/checkout.ts'],names:[],mappings:'AAAA',sourcesContent:['export function checkout() { throw new Error("synthetic checkout failure"); }']};
     await maps.getByLabel('Source map file · max 256 KiB',{exact:true}).setInputFiles({name:'app.js.map',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(map))});
-    await maps.getByRole('button',{name:'Upload matching map',exact:true}).click();await maps.getByRole('status').filter({hasText:'Source map uploaded.'}).waitFor();
-    const captured=await (await fromApp()).json();assert.equal(captured.outcome,'accepted');
+    await maps.getByLabel('Bundle debug ID',{exact:true}).fill('synthetic-spool-1');
+    const uploaded=maps.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/journey/artifacts'&&response.request().method()==='POST');await maps.getByRole('button',{name:'Upload matching map',exact:true}).click();assert.equal((await uploaded).status(),201,'the prepared map is accepted');await maps.getByRole('status').filter({hasText:'Source map uploaded.'}).waitFor();
+    const mappedEventId=crypto.randomUUID(),captured=await (await fromApp(mappedEventId)).json();assert.equal(captured.outcome,'accepted');
     const packet=await (await request.get(origin+'/api/projects/journey/issues/'+captured.issue+'/packet')).json();
-    const mapped=packet.events.find(event=>event.id===captured.eventId).atAdmission[0];
-    assert.equal(mapped.status,'mapped','the map uploaded from the setup step is used on admission');assert.equal(mapped.original.file,map.sources[0]);
+    const mapped=packet.events.find(event=>event.id===mappedEventId).atAdmission[0];
+    assert.equal(mapped.status,'mapped','the map uploaded from the setup step is used on admission');assert.equal(mapped.original.file,map.sources[0]);assert.equal(mapped.original.line,1);assert.equal(mapped.original.column,0);
     await maps.goto(origin+'/projects/journey/issues/'+captured.issue);await maps.locator('.mapped-frame').first().waitFor();
    } finally {await maps.close();}
+   await page.getByRole('button',{name:'Copy Sentry DSN',exact:true}).focus();
   }
   const continueLink=page.getByRole('link',{name:'Continue to workbench',exact:true});await tabTo(continueLink,'Continue to workbench link');await page.keyboard.press('Enter');await page.getByRole('navigation',{name:'Workbench',includeHidden:true}).getByRole('link',{name:'Settings',exact:true,includeHidden:true}).waitFor({state:'attached'});assert.equal(new URL(page.url()).pathname,'/projects/journey/issues');
   await page.reload();await page.getByRole('navigation',{name:'Workbench',includeHidden:true}).getByRole('link',{name:'Settings',exact:true,includeHidden:true}).waitFor({state:'attached'});
