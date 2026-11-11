@@ -1,0 +1,25 @@
+{
+  "repository": "just-every/run-spool",
+  "run_id": 43036882637,
+  "head": "af6801647608f766f94d221e9ebcab8ac8d5a107",
+  "calls_before_watcher": 3,
+  "polls": [
+    {
+      "conclusion": null,
+      "head_sha": "af6801647608f766f94d221e9ebcab8ac8d5a107",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43036882637",
+      "status": "in_progress",
+      "observed_utc": "2026-11-11T14:21:40.721759+00:00"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "af6801647608f766f94d221e9ebcab8ac8d5a107",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43036882637",
+      "status": "in_progress",
+      "observed_utc": "2026-11-11T14:26:41.613817+00:00"
+    }
+  ],
+  "status": "in_progress",
+  "conclusion": null,
+  "discovery_utc": "2026-11-11T14:16:39Z"
+}

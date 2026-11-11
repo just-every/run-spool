@@ -1,0 +1,50 @@
+{
+  "head": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+  "assertion_width": 1440,
+  "engine": "/usr/bin/chromium",
+  "secret_key": "masked by the existing journey",
+  "files": [
+    {
+      "file": "screenshots/agent-handoff-policy-needed-1440.png",
+      "viewport_width": 1440,
+      "image_width": 1064,
+      "image_height": 1019,
+      "sha256": "81b838b4c82b6232ea1ba8b8130652452cb5667ac85dca2757dd1b8db11ac14d"
+    },
+    {
+      "file": "screenshots/agent-handoff-policy-needed-390.png",
+      "viewport_width": 390,
+      "image_width": 342,
+      "image_height": 2100,
+      "sha256": "d975bc535e7fe1bc3dbdcc3516c83fc5f5ba83642ca7380f51424c093b0c3782"
+    },
+    {
+      "file": "screenshots/issue-agent-command-1440.png",
+      "viewport_width": 1440,
+      "image_width": 760,
+      "image_height": 814,
+      "sha256": "ded6164c847ff30e0f0fed2d157fc2a3f22c08613a65bdaa4713445dd182d0cd"
+    },
+    {
+      "file": "screenshots/issue-agent-command-390.png",
+      "viewport_width": 390,
+      "image_width": 358,
+      "image_height": 960,
+      "sha256": "e56044f0b2e1f7f63cfb4b69a830eea58f7b5b2173551b00c6377954f4725bb0"
+    },
+    {
+      "file": "screenshots/issue-evidence-1440.png",
+      "viewport_width": 1440,
+      "image_width": 1440,
+      "image_height": 8022,
+      "sha256": "9edc34122f4db4646ba06dcee7b61e0ed646b351dd6642c60aa0356dff356a41"
+    },
+    {
+      "file": "screenshots/issue-evidence-390.png",
+      "viewport_width": 390,
+      "image_width": 390,
+      "image_height": 10348,
+      "sha256": "847c9671d01a7624874b62ea95e9dedaa16f5056bbcd3ae8960d03c983cd72af"
+    }
+  ]
+}

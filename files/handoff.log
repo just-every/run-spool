@@ -1,0 +1,16 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.5 test:agent-handoff /workspace/run-spool
+> node tests/agent-handoff.mjs
+
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+AI-001 packet-selector refusals passed: HTTP 403, CLI 3 and official MCP 3 for traversal, command and instruction; packet, product rows and authority preserved.
+PROBE SURFACE-001 4: official MCP over settled project a -> all five legacy operations match the three canonical names; complete reads, validated inert proposals, safe summaries, invalid arguments, forbidden writes, foreign projects and next-call revocation checked
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+[GOV-002] windows, preview, typed confirmation, legal hold, release, packet note, archive round trip and held erasure passed; 1440/390 captures
+[GOV-003] restored 60 aged and 2 recent events: same-project fresh intake survives 50-row expiry and 10-row resume; exact search, issue counts, gap quantities, held project, service audit and same-day no-op passed
+Agent handoff public journey passed: 9 groups; 10 masked captures; complete packet 231566/262144 UTF-8 bytes.
+Agent handoff cleanup: [{"name":"mcp","outcome":"stopped"},{"name":"browser","outcome":"stopped"},{"name":"second-origin","outcome":"stopped"},{"name":"redirect-edge","outcome":"stopped"},{"name":"receiving-edge","outcome":"stopped"},{"name":"checkout","outcome":"stopped","children":"stopped","directory":"removed"}]

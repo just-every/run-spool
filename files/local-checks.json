@@ -1,0 +1,33 @@
+{
+  "head": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "contract": {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 0
+  },
+  "sha256": {
+    "tests/agent-handoff.mjs": "e96214f65377332e54491b0dc096cc9428b9945987611d565397ef4a84f80743",
+    "tests/agent-handoff/ui.mjs": "30146d78d2d15fcb4daf6c82294a628c7c0d9958899e990dd748d9de2ff2a20e",
+    "packages/agent/src/packet-markdown.mjs": "68251c68d66cf0db87f2237eacbf40e4e8c1c5b0f5296e367401576ae15de380",
+    "src/ui/workbench/AgentPacketCommand.tsx": "f0aec872ed5f69fa8210aa974b7d134f40065f1ed771ab3013bfb8eac202b826",
+    "src/ui/workbench/AgentHandoff.tsx": "06dc2a69e0aeba1622f191952c6ec6de9f4d9b7e6d2de2b01a76d0c4b2db5ba7",
+    "src/ui/workbench/IssueView.tsx": "1d3fdbbe50fdf4b187f37e86bd0eb6342c8b98cb1dc74afb851da74b5d31aef2",
+    "src/ui/workbench/EvidenceRail.tsx": "ba4316e5278d5cc286bda347cd04d43c120c53ae9559914f5467b4147962662b",
+    "sources.lock.json": "4dd21fdd25623311c766354b6cbe7803dd49b59fa8e4927326135ddf78832d5e"
+  },
+  "handoff": {
+    "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run pnpm test:agent-handoff",
+    "exit": 0,
+    "assertion_groups": 9,
+    "captures": 10,
+    "receipt": "handoff-results.json",
+    "cleanup": "all stopped; scratch checkout removed"
+  }
+}

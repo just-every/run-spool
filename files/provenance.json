@@ -1,0 +1,26 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-agent-handoff-1-c1",
+  "head": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+  "merged_main": "39be151e04126fedd85ee47b792d6c977b96bb72",
+  "original_head": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+  "product_push": "succeeded",
+  "verify_run": 43039140439,
+  "github_calls_used": 8,
+  "pr": null,
+  "contract_status_changes": [],
+  "test_registration_delta": 0,
+  "superseded_candidates": [
+    {
+      "head": "88ff166613f072ee92061fca2d8bfc2f5dbd568a",
+      "verify_run": 43036161202
+    },
+    {
+      "head": "af6801647608f766f94d221e9ebcab8ac8d5a107",
+      "verify_run": 43036882637
+    }
+  ],
+  "local_handoff": "passed",
+  "ci_status": "in_progress",
+  "ci_conclusion": null
+}

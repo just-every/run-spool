@@ -1,0 +1,45 @@
+{
+  "head": "af6801647608f766f94d221e9ebcab8ac8d5a107",
+  "exit": 1,
+  "reason": "Builder stopped owned Chromium after the policy was saved but the test was still awaiting its PUT response; subsequent commit waits for the native page script before form interaction and bounds the response wait.",
+  "diagnostics": [
+    {
+      "journey": "agent-handoff",
+      "stage": "ui",
+      "type": "Error",
+      "message": "assertion failed",
+      "stack": [
+        "    at handoffPanel ([REDACTED]/tests/agent-handoff/ui.mjs:50:224)",
+        "    at async file://[REDACTED]/tests/agent-handoff.mjs:89:61"
+      ]
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "mcp",
+      "outcome": "stopped"
+    },
+    {
+      "name": "browser",
+      "outcome": "stopped"
+    },
+    {
+      "name": "second-origin",
+      "outcome": "stopped"
+    },
+    {
+      "name": "redirect-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "receiving-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "checkout",
+      "outcome": "stopped",
+      "children": "stopped",
+      "directory": "removed"
+    }
+  ]
+}
