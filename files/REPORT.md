@@ -56,3 +56,11 @@ Full fleet publication scanning cannot run in this cloud task and remains on the
 ## CI and custody appendix
 
 Product push: first attempt succeeded for cloud/main-spool-silent-saves-1 at 65a8288d14a12711fc777f9c07646fedb12c6bf0. Exact-head Verify run 42983001168 was observed in_progress at 2026-11-11T08:00:10Z: https://github.com/just-every/run-spool/actions/runs/42983001168 . One watcher has made two REST calls; the next run poll will be no earlier than 08:05:10Z. Final CI disposition will be appended after completion. This packet publication is report-only custody, not acceptance or landing authority.
+
+Initial report-only evidence publication succeeded: refs/heads/evidence/main-spool-silent-saves-1 at f7f4cd7a9d587925d2c32d7d9f5af26646ac8d65. All 31 returned manifest entries matched the selected local files by byte count and SHA-256. The product checkout/head/index remained unchanged. A final evidence publication will include the completed CI receipt.
+
+### Final CI disposition
+
+Verify run 42983001168 completed successfully on exact product head 65a8288d14a12711fc777f9c07646fedb12c6bf0, confirmed through REST at 2026-11-11T08:15:12Z. The single watcher made five calls, each run observation at least 300 seconds apart after discovery. No failed-job log reads, workflow reruns or dispatches were needed. Exact-SHA Verify is green; no contract-generator exception is being used.
+
+The requested fixes, touched checks, exact-head desktop/mobile browser proof and named-branch publication are complete. There are no product blockers. Full fleet publication scanning and landing remain with the fleet machine; this run made no main/default-branch push or deployment and no DONE claim. The final report-only evidence publication includes all 32 explicitly selected packet files. After that publication is confirmed, the successfully pushed product clone is deleted; the packet and publication receipts remain outside it.
