@@ -4,7 +4,7 @@ export type Request = (path: string, method?: string, value?: any, options?: { k
 export type Run = (work: () => Promise<unknown>) => Promise<void>;
 export const states = ['open', 'acknowledged', 'resolved', 'suppressed'];
 export const stateLabel = (state: string) => state.charAt(0).toUpperCase() + state.slice(1);
-export const date = (time: number) => new Date(time).toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) + ' UTC';
+export { date } from './dates';
 export function displayFile(value: string) {
   try { const url = new URL(value); return url.origin === location.origin ? url.pathname : value; } catch { return value; }
 }

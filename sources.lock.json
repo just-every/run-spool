@@ -10169,6 +10169,10 @@
       "sha256": "a710bb4519966394f1e9ad9740263d4d1a9682d18aa59d54502bdd38522861be",
       "executable": false
     },
+    "src/ui/workbench/dates.ts": {
+      "sha256": "4838743bac6602f5a12a8e02e45487c2a447f8692aec98c8dfdedad710f4a0c4",
+      "executable": false
+    },
     "src/ui/workbench/DeploymentHistory.tsx": {
       "sha256": "0a6e615b19f9371c13704b1b527e24d47bdfd2cae774e12ae971760b322e9c79",
       "executable": false
@@ -10382,7 +10386,7 @@
       "executable": false
     },
     "src/ui/workbench/ReportsDashboard.tsx": {
-      "sha256": "6e56302febc773af3d079ee0f7883fca46e577305708e191132ddefcdf23dd78",
+      "sha256": "f5b0fd554875c97b3a71926af40adc45f6b4092a294efe4baa5f5a24e11b4f32",
       "executable": false
     },
     "src/ui/workbench/ReportsQueryTable.tsx": {
@@ -10390,7 +10394,7 @@
       "executable": false
     },
     "src/ui/workbench/ReportsSummary.tsx": {
-      "sha256": "a563378416556270a7eaeca9c64b20d7503aa43f1d55075c37cdf60737f3aa8c",
+      "sha256": "70fddac1f5a69fa9df8929e9449a9cb1cf91c16d95ffa410e0abd6f883b8fcc3",
       "executable": false
     },
     "src/ui/workbench/ReportsView.tsx": {
@@ -10478,7 +10482,7 @@
       "executable": false
     },
     "src/ui/workbench/shared.tsx": {
-      "sha256": "ee24eddc4080250f5494ee4134827390cb5956bbec64e0c8d1aad7a81bfe54c2",
+      "sha256": "89dbbf0ef37e1944901e177314fe7d0bdd48d12e1fa7114e1092002901f5b890",
       "executable": false
     },
     "src/ui/workbench/shell.css": {
@@ -11262,7 +11266,7 @@
       "executable": false
     },
     "tests/reports-flow.mjs": {
-      "sha256": "7ceae07a8e01f31c3cfbe095bf17e932dcfea9376db2ab5eb9d6afd8e8c2b279",
+      "sha256": "4f08eae1a78ff4e5ca3bdc820e0ff610a3db937537cc2b5454f2ee0b8d839cbe",
       "executable": false
     },
     "tests/repository-source-flow.mjs": {
