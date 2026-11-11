@@ -49,6 +49,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
   project: string; packet: any; panels: IssuePanels | null; status: string; alert?: Alert; busy: boolean; request: Request; run: Run; refresh: () => void; onUpload: (release: string, debugId: string) => void; onViewed: (id: string) => void; rail: ReactNode; readOnly?: boolean; manageProject?: boolean; manageOrganization?: boolean;
 }) {
   const [allFrames, setAllFrames] = useState(false), [copied, setCopied] = useState(false);
+  const [agentCommandOpen, setAgentCommandOpen] = useState(false);
   const [resolution,setResolution]=useState('plain'),[resolutionRelease,setResolutionRelease]=useState('');
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   useEffect(()=>setSelectedEvent(null),[project,packet?.issue.id]);
@@ -72,7 +73,7 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
       {group.state==='resolved'&&<p className="metadata">{commitResolution?`Resolved in ${commitResolution.release} by commit ${commitResolution.sha.slice(0,12)} (“${commitResolution.citation}”) · the first event in a future target regresses it; repeats in an observed target follow the project recurrence policy.`:group.resolution_mode==='plain'?'Resolved · reopens on the next event.':group.resolution_mode==='next'?(group.resolution_release ? `Resolved for the next release after ${group.resolution_release}.` : 'Resolved until the first event with a release.'):group.resolution_mode==='named'?`Resolved for ${group.resolution_release??'the selected release'} · repeats follow the project recurrence policy; future target events and later releases reopen it.`:'Resolved in its current release · older events and events without a release do not reopen it.'}</p>}{!!group.seen_without_release&&<p className="callout">{group.seen_without_release} seen with no release after resolve. Inspect these occurrences in All Events with !has:release.</p>}
       {packet.shortIdRequest?.alias && <p className="callout" role="status">{packet.shortIdRequest.requested} is an alias of {group.short_id}: that issue was merged here, and every link to it opens this issue.</p>}
       {!!group.short_id_aliases?.length && <p className="metadata short-id-aliases">Also answers to {group.short_id_aliases.join(', ')}.</p>}
-      {!readOnly && <Details title="Hand this issue to your agent" triggerLabel="Hand to agent"><AgentPacketCommand project={project} issue={group.short_id ?? group.id} /></Details>}
+      {!readOnly && <Details title="Hand this issue to your agent" triggerLabel="Hand to agent" onOpen={() => setAgentCommandOpen(true)}>{agentCommandOpen && <AgentPacketCommand project={project} issue={group.short_id ?? group.id} />}</Details>}
       {group.short_id_resolves_to && <p className="callout">{group.short_id} now resolves to {group.short_id_resolves_to}, where these occurrences were merged.</p>}
       {selectedEvent&&<p className="metadata" data-event-id={selectedEvent.id}>{date(selectedEvent.received)} · {selectedEvent.event.type}: {selectedEvent.event.message}</p>}
       <CheckInLink checkIns={event?.checkIns}/>

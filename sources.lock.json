@@ -10278,7 +10278,7 @@
       "executable": false
     },
     "src/ui/workbench/IssueView.tsx": {
-      "sha256": "7505d9f7b2c38f0742ca650938def764fd5029e3df2325414e499355c01023b0",
+      "sha256": "1d3fdbbe50fdf4b187f37e86bd0eb6342c8b98cb1dc74afb851da74b5d31aef2",
       "executable": false
     },
     "src/ui/workbench/KeyRateLimit.tsx": {
@@ -10706,7 +10706,7 @@
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "9c029718e62d79af945b70f0f3ecc0331c49470fbf67846f77bb3fbac1ec5934",
+      "sha256": "e7a0a719f2e9692bcf722f6d2e9c07fdf006b5528acc5db5ff77188ddee6a0ef",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {

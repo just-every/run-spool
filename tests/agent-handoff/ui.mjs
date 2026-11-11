@@ -52,10 +52,12 @@ export async function handoffPanel(browser,app,directory,issue){
   const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);
   const result=await runCopiedSetup(setup,`${grant.key}\n${app.devKey}\n${packet.issue.short_id}\n`);assert.equal(result.code,0,'copied Settings command reads the displayed short ID');assert.ok(result.stdout.includes(packet.issue.short_id));assert.ok(!result.stdout.includes(grant.key)&&!result.stderr.includes(app.devKey),'copied command keeps credentials private');
   await page.reload();await page.getByRole('button',{name:'Create agent key',exact:true}).waitFor();assert.equal(await page.locator('.agent-handoff').count(),0);assert.ok(!(await page.locator('body').innerText()).includes(grant.key));
+  const setupReads=[];page.on('request',request=>{if(['/api/agent-runtime','/agents/api/state'].includes(new URL(request.url()).pathname))setupReads.push(request.url());});
   await page.goto(`${app.origin}/projects/a/issues/${issue}`);await page.locator('.short-id').waitFor();assert.equal(await page.locator('.short-id').innerText(),packet.issue.short_id);
   const downloadButton=page.getByRole('button',{name:'Download evidence (raw JSON)',exact:true}).filter({visible:true});
   const downloaded=page.waitForEvent('download');await downloadButton.click();const download=await downloaded;
   assert.deepEqual(JSON.parse(await readFile(await download.path(),'utf8')),await app.json(`/api/projects/a/issues/${issue}/packet`),'raw-labelled download retains the complete packet');
+  assert.deepEqual(setupReads,[],'ordinary issue viewing and download start no agent-setup requests');
   await page.getByRole('button',{name:'Details: Hand this issue to your agent',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Hand this issue to your agent',exact:true});await dialog.locator('[data-agent-command]').waitFor();
   const issueSetup=await dialog.locator('[data-agent-command]').innerText();assert.ok(issueSetup.includes(runtime.node)&&issueSetup.includes(runtime.cli));assert.ok(issueSetup.includes(packet.issue.short_id));
