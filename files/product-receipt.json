@@ -1,0 +1,11 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-releases-plain-1",
+  "head": "258c6f228fdf78480536886063912c46a60dc43c",
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/main-spool-releases-plain-1",
+  "push_attempts": 1,
+  "push_result": "PUSH_OK branch=cloud/main-spool-releases-plain-1",
+  "candidate_author_committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "clean_checkout": true
+}

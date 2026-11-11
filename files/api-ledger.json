@@ -1,0 +1,38 @@
+{
+  "github_call_budget": 10,
+  "calls_used": 8,
+  "calls": [
+    {
+      "purpose": "exact-SHA workflow discovery",
+      "count": 1
+    },
+    {
+      "purpose": "Verify poll 1",
+      "count": 1
+    },
+    {
+      "purpose": "Release SDK final status",
+      "count": 1
+    },
+    {
+      "purpose": "completed Release SDK jobs",
+      "count": 1
+    },
+    {
+      "purpose": "token-check failed-job archive, once",
+      "count": 1
+    },
+    {
+      "purpose": "Verify poll 2",
+      "count": 1
+    },
+    {
+      "purpose": "Verify poll 3",
+      "count": 1
+    },
+    {
+      "purpose": "Verify poll 4, completed/success on exact SHA",
+      "count": 1
+    }
+  ]
+}

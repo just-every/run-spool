@@ -1,0 +1,5 @@
+token-check	NPM_TOKEN reaches this repository	2026-11-11T11:19:53.1660767Z NPM_TOKEN present: yes
+token-check	NPM_TOKEN reaches this repository	2026-11-11T11:19:53.4157821Z npm error code E401
+token-check	NPM_TOKEN reaches this repository	2026-11-11T11:19:53.4158678Z npm error 401 Unauthorized - GET https://registry.npmjs.org/-/whoami
+token-check	NPM_TOKEN reaches this repository	2026-11-11T11:19:53.4164017Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-11-11T11_19_53_202Z-debug-0.log
+token-check	NPM_TOKEN reaches this repository	2026-11-11T11:19:53.4279303Z ##[error]Process completed with exit code 1.

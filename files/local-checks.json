@@ -1,0 +1,65 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-releases-plain-1",
+  "head": "258c6f228fdf78480536886063912c46a60dc43c",
+  "tree": "60590a70840c86a0008a18c2d922cb1812b07fb2",
+  "commands": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node /tmp/spool-capacity-check.mjs",
+      "exit": 0,
+      "test": "tests/source-map-capacity.mjs#sourceMapCapacity",
+      "log": "capacity.log"
+    },
+    {
+      "command": "cloud_run node /tmp/spool-release-probe.mjs after",
+      "exit": 0,
+      "receipt": "after-receipt.json"
+    },
+    {
+      "command": "git fetch origin main; git rebase --autostash origin/main",
+      "exit": 0,
+      "main_drift": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "result": "Contract prose: 0 errors, 0 warnings; documents current."
+    }
+  ],
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "clause_status_changes": [],
+  "test_registration_delta": 0,
+  "touched_journey_count_before": 1,
+  "touched_journey_count_after": 1,
+  "product_push": {
+    "attempts": 1,
+    "status": "success"
+  },
+  "publication_scan": "Full fleet scan unavailable in cloud; preserved as independent Mac lander gate. Candidate added-line credential-shape review passed."
+}

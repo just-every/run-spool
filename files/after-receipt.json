@@ -1,0 +1,29 @@
+{
+  "mode": "after",
+  "cli": {
+    "exit": 0,
+    "stdout": "Uploaded 1 source map.",
+    "stderr": ""
+  },
+  "json": {
+    "exit": 0,
+    "stdout": "{\"uploaded\":1}",
+    "stderr": ""
+  },
+  "failure": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Source map upload failed: Spool artifact-builds/verify refused (HTTP 409): Incomplete build: missing.js.map"
+  },
+  "history": "Release history\nDetails\nRelease\nBuild identifier\nFirst seen\nDetails\nstorefront@2.3.0\n\nEnvironment: not reported\n\nb2301\n11/11/2026, 11:21:55 UTC\nDetails\nstorefront@2.3.1\n\nEnvironment: not reported\n\nb2301\n11/11/2026, 11:21:56 UTC\nDetails",
+  "screens": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    }
+  ]
+}

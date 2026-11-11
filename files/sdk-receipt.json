@@ -1,0 +1,14 @@
+{
+  "workflow": "Release SDK",
+  "run_id": 43011028861,
+  "head": "258c6f228fdf78480536886063912c46a60dc43c",
+  "conclusion": "failure",
+  "build": "success",
+  "token_check_job": 130490387224,
+  "token_check": "failure",
+  "actual_error": "NPM_TOKEN present: yes; npm whoami returned E401 / HTTP 401 Unauthorized",
+  "failed_log_command": "gh run view 43011028861 --repo just-every/run-spool --job 130490387224 --log-failed",
+  "failed_log_command_exit": 0,
+  "publish": "skipped (branch dry run)",
+  "action_needed": "Owner repairs the repository/org NPM_TOKEN before SDK publication. No account credential change was attempted."
+}

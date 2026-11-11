@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-releases-plain-1",
+  "head": "258c6f228fdf78480536886063912c46a60dc43c",
+  "verify_run_id": 43011028998,
+  "conclusion": "success",
+  "head_sha": "258c6f228fdf78480536886063912c46a60dc43c",
+  "html_url": "https://github.com/just-every/run-spool/actions/runs/43011028998",
+  "status": "completed",
+  "sdk_run_id": 43011028861,
+  "sdk_build": "success",
+  "sdk_token_check": "failure: npm E401 / HTTP 401 Unauthorized",
+  "required_product_gate": "passed",
+  "product_custody": "pushed",
+  "full_publication_scan": "independent fleet landing gate, not run in cloud",
+  "github_calls_used": 8
+}
