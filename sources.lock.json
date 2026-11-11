@@ -10086,7 +10086,7 @@
       "executable": false
     },
     "src/ui/setup/Setup.tsx": {
-      "sha256": "d045c18b1ecbe65b518ea315e7707e87431fcc2e4426035f7ccf2cbab6822fba",
+      "sha256": "86cc4e9691c52ee5a5de054d132290545e947923f36676cb744697c4bcfd2dd6",
       "executable": false
     },
     "src/ui/Wordmark.tsx": {
@@ -10146,7 +10146,7 @@
       "executable": false
     },
     "src/ui/workbench/CaptureView.tsx": {
-      "sha256": "7d368e3ab8b13301d0e8004161b3d2232394288215e0edae19f9f5f72d172f9a",
+      "sha256": "cb836426eeed1fb4b3a3639d1d875fb30ea4b7d941f63ca5e6753f712e4c125e",
       "executable": false
     },
     "src/ui/workbench/CheckInLink.tsx": {
@@ -10462,7 +10462,7 @@
       "executable": false
     },
     "src/ui/workbench/SdkSetup.tsx": {
-      "sha256": "6b787798939b41f4e8157df1c03e2f801818da9dd7832624b66cc8bf7e4f7d8b",
+      "sha256": "b31bccf0d7e1001055560f7f36c8371f6f0add17b24e262606751af51db0a09d",
       "executable": false
     },
     "src/ui/workbench/SentryEvent.tsx": {
@@ -11594,7 +11594,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "84db212ee1f38a2957aab9a686b87aa0d220bae6b8209350171d0cc897b5e7df",
+      "sha256": "a265685355a9fb01ffcdc3c0919d316e79d67b96ae74ddcbbd730585a9c2b6fb",
       "executable": false
     },
     "tests/slack-flow.mjs": {
@@ -11642,7 +11642,7 @@
       "executable": false
     },
     "tests/triage-journey.mjs": {
-      "sha256": "5333fb414dc71deb2716a6e56345a8db38473615ba5e4c0cc1e2366ea2add9ff",
+      "sha256": "bcc365255d125d387265df7d7aee98b083a1ead9670bbe489bbd5d6110851a5a",
       "executable": false
     },
     "tests/tunnel-flow.mjs": {

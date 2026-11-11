@@ -4,6 +4,7 @@ import { ProjectForm } from '../workbench/ProjectForm';
 import { Wordmark } from '../Wordmark';
 import { OriginStep, SdkSetup, SendTestError, SentryIntake } from '../workbench/SdkSetup';
 import { Field } from '../workbench/shared';
+import { sourceMapHref } from '../workbench/location';
 import { ArchiveSettings } from '../workbench/ArchiveSettings';
 import './setup.css';
 
@@ -35,7 +36,7 @@ export function Setup() {
    <div className="setup-intro"><p className="setup-eyebrow">Your private installation</p>
     <h1 id="setup-title" ref={heading} tabIndex={-1}>{created ? 'Your project is ready' : restoring ? 'Restore your Spool' : 'Create your first project'}</h1>
     <p>{created ? 'Save your ingest key, add the Spool SDK to your app and send a test error. Then open the workbench to see it.' : restoring ? 'Bring your projects, issues and private source evidence into this empty installation.' : 'Give your application a home for errors, releases and private source evidence.'}</p>
-    {created && <ol className="setup-next" aria-label="Next in the workbench"><li>Allow your application’s origin</li><li>Upload a source map</li><li>Watch Issues for its first error</li></ol>}
+    {created && <ol className="setup-next" aria-label="Next in the workbench"><li>Allow your application’s origin</li><li><a className="inline-link" href={sourceMapHref(created.id)}>Set up source maps in Releases</a></li><li>Watch Issues for its first error</li></ol>}
     <img className="setup-illustration" src="/theme/spool-drawing.svg" alt="" width="240" height="220" />
    </div>
    <div className="setup-content">

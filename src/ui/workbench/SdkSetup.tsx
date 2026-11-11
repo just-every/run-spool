@@ -80,6 +80,8 @@ export function SendTestError({ project, ingestKey, release, build, request }: {
       await request(`/api/projects/${encodeURIComponent(project)}/releases`, 'POST', { name: release, build });
       let exception: Error;
       try { const order: any = {}; order.customer.email; throw new Error('Unexpected test result'); } catch (error) { exception = error as Error; }
+      // A distinct type labels the issue and keeps test captures out of real TypeError groups.
+      exception.name = 'SpoolTestError';
       setOutcome(await captureException(exception, { endpoint: location.origin, project, ingestKey, release, build, environment: 'spool-test', credentials: 'same-origin' }));
     } catch (error) { setFailure((error as Error).message || 'The release could not be registered.'); }
     finally { setBusy(false); }
