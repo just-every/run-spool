@@ -117,7 +117,11 @@ erasure management remains resumable. Retired approvals and Undo cannot restore
 an erased value or execute their earlier authority.
 
 Replay aliases use the installation's existing `SESSION_SECRET`, outside D1.
-The private alias and relay tables never enter native archives or restore.
+The private alias and relay tables never enter native archives or restore. The two
+value-free erasure tombstone tables do travel: `agent_door_retired_refs` (retired policy
+references and their erasure marker) and `bs_retired` (SHA-256 digests of an erased
+person's roster address and Business member id, with their invite number), so a restored
+installation cannot list or name an erased person again. Their rows hold no name, address or id.
 Completed calls retain their original 30-day replay horizon. Migration
 `0099_agent_custody_replay_relay.sql` backfills legacy completed calls from
 `created_at`, leaves running/pending calls unexpired, and preserves any earlier
