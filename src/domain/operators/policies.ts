@@ -13,7 +13,8 @@ routes.get('/:project/operator-state',async c=>{
 });
 routes.patch('/:project/issues/:issue/assignment',async c=>{
  const auth=await authorize(c);if('response' in auth)return auth.response;const db=c.env.DB,p=c.req.param('project'),issue=c.req.param('issue'),b=await body(c);
- if(!Number.isSafeInteger(b.revision)||b.label!==null&&(typeof b.label!=='string'||!b.label.trim()||b.label.length>80||scrub(b.label)!==b.label))throw new Error('Use a scrubbed operator label up to 80 characters, or null to unassign');
+ if(!Number.isSafeInteger(b.revision)||b.label!==null&&(typeof b.label!=='string'||!b.label.trim()||b.label.length>80))return c.json({error:'Use an operator name up to 80 characters, or clear the assignment.'},400);
+ if(b.label!==null&&scrub(b.label)!==b.label)return c.json({error:'Email addresses and other private data are not stored as operator labels. Use a plain name.'},400);
  try{await write(c,auth.session,[guard(db,'EXISTS(SELECT 1 FROM issues WHERE project=? AND id=? AND revision=?)',p,issue,b.revision),s(db,'UPDATE issues SET revision=revision+1 WHERE project=? AND id=?',p,issue),s(db,'INSERT INTO issue_assignments VALUES(?,?,?,?) ON CONFLICT(issue) DO UPDATE SET label=excluded.label,updated=excluded.updated',p,issue,b.label,Date.now()),audit(db,p,'issue_assigned',{issue,label:b.label,revision:b.revision+1})]);return c.json({issue,label:b.label,revision:b.revision+1})}catch(e){return conflict(c,e)}
 });
 routes.post('/:project/suppression-policies',async c=>{

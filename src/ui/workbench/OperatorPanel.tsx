@@ -1,5 +1,5 @@
 import { plural } from './readable';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Details } from './Details';
 import { useLiveRead } from './useLiveRead';
 import { date, Field, type Request, type Run } from './shared';
@@ -56,6 +56,8 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const [assignmentRevision, setAssignmentRevision] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [label, setLabel] = useState('');
+  const [assignmentError, setAssignmentError] = useState(''), [assignmentMessage, setAssignmentMessage] = useState('');
+  const assignmentFeedback = useId();
   const [selected, setSelected] = useState<string[]>([]);
   const [target, setTarget] = useState('');
   const [preview, setPreview] = useState<CorrectionPreview | null>(null);
@@ -70,7 +72,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
   const ready = !!state && !waitingForPacket;
   const labelEdited = useRef(false);
   const consumedInitial = useRef<Promise<any[]> | undefined>(undefined);
-  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); }, [root, issue.id]);
+  useEffect(() => { labelEdited.current = false; setState(null); setAssignmentRevision(null); setPreview(null); setSelected([]); setFailure(''); setAssignmentError(''); setAssignmentMessage(''); }, [root, issue.id]);
   useLiveRead(async (signal, background) => {
     if (waitingForPacket) return;
     try {
@@ -116,28 +118,35 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
     });
   };
 
+  const saveAssignment = (nextLabel: string | null) => run(async () => {
+    setAssignmentError(''); setAssignmentMessage('');
+    try {
+      const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: nextLabel });
+      setLabel(saved.label ?? '');
+      setAssignmentRevision(saved.revision);
+      labelEdited.current = false;
+      setState(null);
+      setAssignmentMessage(saved.label ? 'Assignment saved.' : 'Assignment cleared.');
+      refresh();
+    } catch (error) {
+      setAssignmentError((error as Error).message);
+    }
+  });
+
   return <section className="evidence">
     <h2>Operator decisions</h2>
     {failure && <p role="alert">{failure}</p>}
     <form className="form-grid" onSubmit={event => {
       event.preventDefault();
-      void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: label.trim() || null });
-        setAssignmentRevision(saved.revision);
-        labelEdited.current = false;
-        setState(null);
-        refresh();
-      });
+      void saveAssignment(label.trim() || null);
     }}>
-      <Field label="Assigned to" disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); }} />
+      <div>
+        <Field label="Assigned to" aria-invalid={assignmentError ? true : undefined} aria-describedby={assignmentError || assignmentMessage ? assignmentFeedback : undefined} disabled={busy || !ready} maxLength={80} value={label} onChange={event => { labelEdited.current = true; setLabel(event.target.value); setAssignmentError(''); setAssignmentMessage(''); }} />
+        {assignmentError && <p id={assignmentFeedback} className="field-error" role="alert">{assignmentError}</p>}
+        {assignmentMessage && <p id={assignmentFeedback} role="status">{assignmentMessage}</p>}
+      </div>
       <button className="primary-button" disabled={busy || !ready}>Save assignment</button>
-      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void run(async () => {
-        const saved = await request(`${root}/issues/${issue.id}/assignment`, 'PATCH', { revision: issue.revision, label: null });
-        setAssignmentRevision(saved.revision);
-        labelEdited.current = false;
-        setState(null);
-        refresh();
-      })}>Unassign</button>
+      <button type="button" className="text-button" disabled={busy || !ready} onClick={() => void saveAssignment(null)}>Unassign</button>
     </form>
     <p>A label records responsibility; it does not create an account, grant access or send a notification.</p>
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- First-project setup links its source-map step directly to the project’s Releases setup. Save the once-shown ingest key before leaving setup.
+- Errors sent by **Send test error** and **Capture test exception** appear as `SpoolTestError` in Issues and issue detail, separate from ordinary application TypeErrors.
+
 ## 0.7.5 — 2026-11-11
 
 Spool 0.7.5 is a small release since 0.7.4 (10 November). It makes a Spool linked to a Business company act for that company only while the company is running, it keeps backups made on 0.7.4 restorable, and it moves to rer 0.2.106.

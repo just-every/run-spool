@@ -23,8 +23,8 @@ try {
  browser=await launchBrowser();const context=await browser.newContext({viewport:{width,height:900},permissions:['clipboard-read','clipboard-write']});
  await context.addCookies([{name:cookie.split('=')[0],value:cookie.slice(cookie.indexOf('=')+1),url:origin}]);
  const page=await context.newPage(),pageErrors=[];page.on('pageerror',error=>pageErrors.push(error.message));page.setDefaultTimeout(15000);
- async function capture(scenario,width){
-  await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
+ async function capture(scenario,width,assertLayout=true){
+  await page.setViewportSize({width,height:900});if(assertLayout)assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`${scenario} overflow`);
   const grouping=scenario.startsWith('grouping-'),rule=scenario.startsWith('grouping-rule-');
   if(grouping){const target=rule?page.getByRole('heading',{name:'Project grouping rules',exact:true}):page.locator('article[aria-label="Grouping proposal review"] h3').first();if(await target.isVisible())await target.evaluate(element=>element.scrollIntoView({block:'start'}));else{const empty=page.getByRole('heading',{name:'Agent grouping proposals',exact:true});if(await empty.isVisible())await empty.evaluate(element=>element.scrollIntoView({block:'start'}));}}
   const shot=async name=>{const path=`${name}-${width}.jpg`;const archive=scenario==='private-archive',target=archive?page.getByRole('heading',{name:'Archive and restore',exact:true}).locator('..'):page;await target.screenshot({path:output+'/'+path,type:'jpeg',quality:85,...archive?{}:{fullPage:!grouping&&!scenario.startsWith('operator-')&&!['offline-workspace','unavailable-workspace','unavailable-issue','stale-offline-issue','reconnected-issue'].includes(scenario)},mask:[page.locator('.secret-key, input[type="password"], [data-secret]')]});evidence.captures.push({scenario:name,width,path});};
@@ -186,6 +186,24 @@ try {
  }
  await capture('capture-item-diagnostics',width);checked('Capture receipts name statsd and unknown item counts separately from the accepted companion error');
 
+ if(width===1440) {
+  await page.goto(origin+'/projects/cedar/capture');await page.getByLabel('Project ingest key',{exact:true}).fill(project.ingestKey);
+  // The UI sends a real native envelope. Replay its same message and exact
+  // frames as an ordinary TypeError to isolate the test marker's grouping.
+  const sent=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
+  const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
+  const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
+  const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Capture test exception',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
+  const issues=await api('/api/projects/cedar/issues'),testIssue=issues.find(row=>row.id===test.issue),realIssue=issues.find(row=>row.id===real.issue);
+  assert.match(testIssue.title,/test/i,'the test is identified in its title');assert.equal(testIssue.count,2,'repeat test captures stay in their own issue');assert.equal(realIssue.count,1,'test captures do not increment the real issue');assert.equal(realIssue.title,'TypeError: '+event.message,'ordinary ingestion keeps the real error title');
+  await page.goto(origin+'/projects/cedar/issues');await page.getByRole('link',{name:testIssue.title,exact:true}).waitFor();
+  for(const screen of [1440,390])await capture('test-issue-list',screen,screen===1440);await page.setViewportSize({width,height:900});
+  await page.getByRole('link',{name:testIssue.title,exact:true}).click();await page.getByRole('heading',{name:testIssue.title,exact:true}).waitFor();
+  for(const screen of [1440,390])await capture('test-issue-detail',screen,screen===1440);await page.setViewportSize({width,height:900});
+  const packet=await api('/api/projects/cedar/issues/'+real.issue+'/packet');assert.equal(packet.events.length,1);assert.ok(packet.events.every(row=>row.event.type==='TypeError'),'the real issue contains only ordinary errors');
+  checked('Built-in test capture has a visible test title in list and detail, separate grouping and counts from the same real error');
+ }
  await operatorUi({page,api,origin,project:'cedar',issue:admitted.issue,capture:scenario=>capture(scenario,width)});assert.equal(pageErrors.length,0,'No owner-page errors after operator flows');checked('Operator assignment, policy toggle and reviewed correction plus undo use the rendered controls');
 
 }finally{await browser?.close();await application?.stop();await worker.stop();}

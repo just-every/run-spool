@@ -16,9 +16,12 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
   await writeFile(resolve(dir,name+'.js.map'),JSON.stringify({version:3,sources:[`src/${name}.js`],sourcesContent:[`throw new Error('${name}');`],names:[],mappings:'AAAA'}));
  }
  const files=Array.from({length:27},(_,n)=>resolve(dir,`synthetic-spool-${n}.js`));
- const cli=release=>new Promise((done,fail)=>{const child=spawn(process.execPath,[resolve(app,'node_modules/@just-every/spool/dist/sourcemaps.js'),'--endpoint',origin,'--project',id,'--release',release,'--build','b1','--key-env','SYNTHETIC_SPOOL_DEPLOY',...files],{env:{...process.env,SYNTHETIC_SPOOL_DEPLOY:deploy.key},stdio:['ignore','pipe','pipe']});let output='';child.stdout.on('data',b=>output+=b);child.stderr.on('data',b=>output+=b);child.on('error',fail);child.on('close',code=>done({code,output}));});
+ const cli=(release,{selected=files,args=[]}={})=>new Promise((done,fail)=>{const child=spawn(process.execPath,[resolve(app,'node_modules/.bin/spool-sourcemaps'),'--endpoint',origin,'--project',id,'--release',release,'--build','b1','--key-env','SYNTHETIC_SPOOL_DEPLOY',...args,...selected],{env:{...process.env,SYNTHETIC_SPOOL_DEPLOY:deploy.key},stdio:['ignore','pipe','pipe']});let stdout='',stderr='';child.stdout.on('data',b=>stdout+=b);child.stderr.on('data',b=>stderr+=b);child.on('error',fail);child.on('close',code=>done({code,stdout,stderr,output:stdout+stderr}));});
  let result=await cli('capacity@1');assert.equal(result.code,0,result.output);
  assert.equal((await request(base+'/sentry-uploads')).artifacts.length,27,'[SRC-004] Spool CLI stores more than 25 maps');
+ assert.equal(result.stdout.trim(),`Uploaded ${files.length} source maps.`,'the published bin reports the actual uploaded count in a sentence');assert.equal(result.stderr,'');
+ const one=await cli('capacity-one@1',{selected:files.slice(0,1)});assert.equal(one.code,0,one.output);assert.equal(one.stdout.trim(),'Uploaded 1 source map.');assert.equal(one.stderr,'');
+ const machine=await cli('capacity-one@1',{selected:files.slice(0,1),args:['--json']});assert.equal(machine.code,0,machine.output);assert.deepEqual(JSON.parse(machine.stdout),{uploaded:1});assert.equal(machine.stderr,'');
  await request(base+'/releases','POST',{name:'formats@1',build:'b1'});
  const flat={version:3,sourceRoot:'src/original',sources:['checkout.js'],sourcesContent:['function checkout(){throw new Error("synthetic-spool-16")}'],ignoreList:[0],x_google_ignoreList:[0],names:[],mappings:'AAAA'};
  for(const [n,map,line,column] of [
@@ -57,8 +60,9 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  assert.equal(await capField.inputValue(),'42','[SRC-004] refreshing releases preserves the cap edit');
  await capField.fill(String(storage.bytes));await page.locator('.save-mark[data-state="saved"]').waitFor();
  await page.waitForFunction(async ({base,bytes})=>(await(await fetch(base+'/artifact-storage')).json()).artifact_storage_cap===bytes,{base,bytes:storage.bytes});
- result=await cli('capacity@2');assert.notEqual(result.code,0);assert.match(result.output,/storage cap [0-9]+ bytes/);
+ result=await cli('capacity@2');assert.equal(result.code,1);assert.equal(result.stdout,'');assert.match(result.stderr,/^Source map upload failed: /);assert.match(result.output,/storage cap [0-9]+ bytes/);
  for(const file of files)assert.ok(result.output.includes(file),'each refused file is named');
+ const machineFailure=await cli('capacity@2',{args:['--json']});assert.equal(machineFailure.code,1);assert.equal(machineFailure.stdout,'');assert.match(machineFailure.stderr,/storage cap [0-9]+ bytes/);
  const longName='synthetic-spool/'.repeat(30)+'last.js.map';
  const namedRefusal=await post(base+'/artifacts',{release:'formats@1',build:'b1',debugId:'00000000-0000-4000-8000-000000000011',file:longName,map:flat});assert.equal(namedRefusal.status,429);assert.ok((await namedRefusal.json()).error.includes(longName),'the full refused chunk path is returned');
  assert.ok((await request(base+'/sentry-uploads')).assemblies.some(row=>row.detail?.includes(longName)),'the release view retains the full refused chunk path');
@@ -67,6 +71,11 @@ export async function sourceMapCapacity({origin,request,app,browser}) {
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:1000});await page.reload();await page.getByText('Stored maps and upload failures',{exact:true}).click();
   await page.getByText(/storage cap [0-9]+ bytes/).first().waitFor();
+  if(width===1440){
+   const history=page.locator('section').filter({has:page.getByRole('heading',{name:'Release history',exact:true})});
+   const releaseRow=history.getByRole('row').filter({has:page.getByRole('link',{name:'capacity@1',exact:true})});
+   assert.match(await releaseRow.innerText(),/Environment: not reported/,'a registration without an environment names the missing field');
+  }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   const axe=await new AxeBuilder({page}).analyze();assert.deepEqual(axe.violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
   const out=process.env.SPOOL_PROOF_DIR??'.artifacts/src004';await mkdir(out,{recursive:true});await page.screenshot({path:resolve(out,`release-${width}.png`),fullPage:true});
