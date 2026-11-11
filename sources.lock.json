@@ -2614,7 +2614,7 @@
       "executable": false
     },
     ".github/workflows/sdk-release.yml": {
-      "sha256": "b9aa186ca429f714a5cd9532f8190163c509eabe6535448079db47c088ad84f3",
+      "sha256": "1755ce0f4c8d487d35d1eddb9bb0b19862433b4b48d96888f69c21642f12f81f",
       "executable": false
     },
     ".github/workflows/verify-nightly.yml": {
@@ -10362,7 +10362,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "260c4cb623261330ba9917e52544b52b57f17e109f2d72e67623d818fae25aef",
+      "sha256": "3a921b04d4b725d422c97dbc846be0ec5350ff659a8c6aae6a6573bfcceec342",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -11594,7 +11594,7 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "e5469ea7e552cbd6961781d21cf7ccef04dbed1b20e03475e763a2b96857f42a",
+      "sha256": "51fb35c4b3eb150af31990ace39bca35e856f6d405d098bbc81a8fbc751fc6c2",
       "executable": false
     },
     "tests/slack-flow.mjs": {
