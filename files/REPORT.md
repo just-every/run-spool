@@ -63,3 +63,14 @@ Candidate Verify 43019972372: exact SHA 7d7d67ee00fc51ee58d8f5aa2c0e026094c88403
 The complete fleet publication scan is unavailable in this cloud, as specified by the task's cloud adaptation. It remains the mandatory Mac landing gate; this report does not assert that it ran. Neither main nor a default branch was pushed. Evidence transfer and READY custody are separate. No deploy or landing was attempted.
 
 Packet hygiene: CI log environment preambles (12 lines total) were omitted from the published failure logs. Failure assertions and their stack traces are retained. No injected credential value occurs in the selected packet. No environment dump, held-out material or symlink is selected.
+
+## Final result
+
+Verify 43019972372 completed/success on exact SHA 7d7d67ee00fc51ee58d8f5aa2c0e026094c88403:
+https://github.com/just-every/run-spool/actions/runs/43019972372
+
+Eight of ten permitted GitHub calls were used: the original attempt's result, one archive read for each failed suite, candidate run discovery, and four spaced status reads. The candidate needed no failed-job rerun. No blocker remains for builder READY custody. The mandatory fleet publication scan, guarded landing and main release gates remain with the Mac fleet.
+
+The full report and receipt are published only under evidence/main-spool-one-date-format-1-c1. The initial 26-file packet was independently fetched and all manifest hashes verified; the final packet updates this report and receipt with the successful CI result. Clone cleanup follows successful final evidence publication and verification.
+
+READY branch=cloud/main-spool-one-date-format-1-c1 head=7d7d67ee00fc51ee58d8f5aa2c0e026094c88403

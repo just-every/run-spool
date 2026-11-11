@@ -17,8 +17,10 @@
   "candidate_verify": {
     "run": 43019972372,
     "head": "7d7d67ee00fc51ee58d8f5aa2c0e026094c88403",
-    "status": "in_progress",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "7d7d67ee00fc51ee58d8f5aa2c0e026094c88403",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43019972372"
   },
   "local_checks": [
     {
@@ -86,7 +88,7 @@
   },
   "publication_scan": "Complete fleet publication scan cannot run in this cloud; retained mandatory Mac landing gate.",
   "github_budget": {
-    "used": 7,
+    "used": 8,
     "limit": 10
   },
   "product_push": {
@@ -110,5 +112,13 @@
     "injected_value_scan_matches": 0,
     "original_job_log_environment_lines_omitted": 12,
     "symlinks_selected": 0
-  }
+  },
+  "evidence_checkpoint": {
+    "ref": "refs/heads/evidence/main-spool-one-date-format-1-c1",
+    "head": "dcf202dc5abf6ea6fb9b847490b2e5eebd75e237",
+    "verification": "restored",
+    "verified_files": 26
+  },
+  "blockers": [],
+  "terminal_custody": "READY"
 }
