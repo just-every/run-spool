@@ -3,8 +3,11 @@ name: Release SDK
 # Publishes @just-every/spool from an sdk-v<version> tag that equals packages/sdk/package.json's version, has a
 # CHANGELOG heading, and points at a main commit whose Verify run is green. Every other trigger is a dry run: every
 # step except npm publish. One build; the smoke test and npm publish use that exact tarball (the publish job takes
-# the build job's artifact and checks its sha256). Publishing authenticates with the just-every org secret NPM_TOKEN;
-# the token-check job reports on every push and manual run whether that secret reaches this repository.
+# the build job's artifact and checks its sha256). Publishing uses npm trusted publishing (OIDC): the publish job
+# holds id-token: write and no npm token, and npm accepts it only when the package @just-every/spool lists this
+# repository and this exact workflow file name (sdk-release.yml) as its Trusted Publisher on npmjs.com. The
+# trusted-publishing-check job reports on every push and manual run whether this run can mint the OIDC token and prints
+# the owner's one-time setup steps in the job summary.
 on:
   push:
     tags: ['sdk-v*']
@@ -159,23 +162,34 @@ jobs:
             if [[ -f "$RUNNER_TEMP/sdk-dist/SHA256SUMS" ]]; then echo; echo '```'; cat "$RUNNER_TEMP/sdk-dist/SHA256SUMS"; echo '```'; fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-  token-check:
+  trusted-publishing-check:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    permissions: {}
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    permissions:
+      contents: read
+      id-token: write # makes the OIDC token request available, as in the publish job; no token is requested here
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.20.0
-          registry-url: https://registry.npmjs.org
-      - name: NPM_TOKEN reaches this repository
+      - name: Report OIDC availability and the owner's setup steps
         run: |
           set -euo pipefail
-          if [[ -n "$NODE_AUTH_TOKEN" ]]; then echo "NPM_TOKEN present: yes"; else echo "NPM_TOKEN present: no"; exit 0; fi
-          npm whoami --registry=https://registry.npmjs.org
+          if [[ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]]; then oidc=yes; else oidc=no; fi
+          {
+            echo "### npm trusted publishing for @just-every/spool"
+            echo
+            echo "- OIDC available to this run (id-token permission granted): **$oidc**"
+            echo "- The package's configured Trusted Publisher cannot be read from CI; only the owner's npmjs.com session can show or change it."
+            echo "- The publish job holds no npm token. If the Trusted Publisher below is missing or does not match, npm refuses the publish with its own 401 or 403."
+            echo
+            echo "Owner steps, once (the package's only maintainer is the owner's npm account):"
+            echo
+            echo "1. Open https://www.npmjs.com/package/@just-every/spool/access and sign in as the owner."
+            echo "2. Under Trusted Publisher choose GitHub Actions."
+            echo "3. Organization or user: \`just-every\`. Repository: \`run-spool\`. Workflow filename: \`sdk-release.yml\`. Environment name: leave empty."
+            echo "4. Save. Then push the \`sdk-v<version>\` tag again, or re-run the failed Release SDK run; no secret is involved."
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
+          if [[ "$oidc" == no ]]; then echo "::warning::This run cannot request an OIDC token, so a publish from it could not use trusted publishing."; fi
 
   publish:
     needs: build
@@ -184,14 +198,14 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      id-token: write # npm trusted publishing (OIDC); there is no npm token anywhere in this job
     env:
       VERSION: ${{ needs.build.outputs.version }}
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
+      # No registry-url here: it would write an auth token placeholder that npm would send instead of the OIDC token.
       - uses: actions/setup-node@v4
         with:
           node-version: 22.20.0
-          registry-url: https://registry.npmjs.org
       - uses: actions/download-artifact@v4
         with:
           name: just-every-spool-${{ needs.build.outputs.version }}
@@ -200,14 +214,21 @@ jobs:
       - name: Publish the exact tarball the build smoke-tested
         run: |
           set -euo pipefail
-          if [[ -z "$NODE_AUTH_TOKEN" ]]; then
-            echo "::error::The NPM_TOKEN secret is empty in this repository. Add this repository to the org secret Repository access (Settings > Secrets and variables > Actions > NPM_TOKEN)."
-            exit 1
-          fi
           cd "$RUNNER_TEMP/sdk-dist"
           sha256sum --check --strict SHA256SUMS
           if npm view "@just-every/spool@$VERSION" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
             echo "@just-every/spool@$VERSION is already published; nothing to publish."
             exit 0
           fi
-          npm publish "just-every-spool-$VERSION.tgz" --access public --registry=https://registry.npmjs.org
+          # Trusted publishing (OIDC) needs npm 11.5.1 or later.
+          npm install --global --no-audit --no-fund npm@11.6.2
+          # An empty user config: no token is read from anywhere, so npm must authenticate through OIDC.
+          npmrc="$RUNNER_TEMP/publish.npmrc"
+          : > "$npmrc"
+          # Provenance stays disabled until the release attestation flow is qualified.
+          if ! NPM_CONFIG_USERCONFIG="$npmrc" npm publish "just-every-spool-$VERSION.tgz" --access public --provenance=false --registry=https://registry.npmjs.org; then
+            rm -f -- "$npmrc"
+            echo "::error::npm refused the publish. Owner step: on npmjs.com open @just-every/spool > Settings > Trusted Publisher > GitHub Actions and set Organization just-every, Repository run-spool, Workflow filename sdk-release.yml (environment empty), then re-run this workflow run. This job uses no npm token, so a 401 or 403 here means that Trusted Publisher is missing or differs."
+            exit 1
+          fi
+          rm -f -- "$npmrc"

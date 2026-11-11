@@ -27,13 +27,15 @@ import {inboundFilterTables} from './filters/archive';
 import { feedbackTables } from './feedback/archive';
 import { bundleTables } from './bundle-grouping';
 import { operatorTables } from './operators/archive';
+import { projectAgentArtifacts } from './agent-door/artifact-map.mjs';
+import { rosterArtifacts } from '../modules/business-settings/retire.ts';
 import { createPortability, readArchive, makePart, canonicalJson, sha256, PortabilityError } from '../modules/portability/index.mjs';
 import { catalogue, policy } from '../modules/portability/catalogue.mjs';
 import { schemaIdentityOf } from '../modules/portability/schema-identity.mjs';
 import { platformTable, restorableManifest } from '../modules/portability/bookkeeping.mjs';
 import { ArchiveVerifier } from '../modules/portability/format.mjs';
 import { alertArchiveTables, alertExcludedTables, alertExportRow, validateAlertArchive } from './alerts/archive';
-import { validateArchive, validateArchiveRows, tables } from './archive';
+import { validateArchive, validateArchiveRows, tables, tombstoneArchiveTables } from './archive';
 import { repairArchiveTables, validateRepairArchive } from './repairs/archive';
 import { emptyExecutionTables, executionArchiveTables, executionExcludedTables, validateExecutionArchive } from './execution-archive';
 import { erasureArchiveTables, erasureExcludedTables, validateErasureArchive } from './erasure/archive';
@@ -58,8 +60,12 @@ function stagedValidation(later: string[] = []) {
  };
 }
 
+// Door and Business custody stay on the installation, except the two value-free erasure tombstone tables: an erased
+// person's retired policy references and roster digests travel, so a restore never makes them eligible again.
+const tombstoneTables=Object.keys(tombstoneArchiveTables);
+const custodyExcluded=[...projectAgentArtifacts.artifacts.map(item=>item.table),...rosterArtifacts.map(item=>item.table)].filter(table=>!tombstoneTables.includes(table));
 export const portabilityPolicy = {
- product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,'agent_door_%','bs_%','spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
+ product: 'runeditrun/errors-workbench', excludeTables: [...keyRateTables,...custodyExcluded,'spool_agent_operations','spool_agent_custody','spool_native_approvals','spool_erasure_agents','spool_native_audit_actors','restored_work','scrubbing_previews','spool_follow_up_alternates','spool_service_credentials','retention_runs','credentials', 'sessions', 'login_budget', 'browser_origin_guards','spool_authority_guards','operator_guards',...safeAuditExcludedTables,...followUpExcludedTables,'deployment_actors','release_order_keys','checkin_routes','checkin_links','ik_%', ...alertExcludedTables, ...erasureExcludedTables, ...executionExcludedTables, ...sentryCliExcludedTables],
  exportRow: (table: string, row: any) => scrubExportRow(table, notificationPreferenceExportRow(table, reportingExportRow(table, suppressionExportRow(table, discussionExportRow(table, memberExportRow(table, proposalExportRow(table, deploymentExportRow(table, alertExportRow(table, row))))))))),
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'AUTH_ORIGIN', 'AUTH_LOCAL', 'MAIL_PROVIDER', 'MAIL_FROM', 'ALERT_DESTINATIONS', 'ALERT_DESTINATION_HASH_KEY', 'ALERT_PUBLIC_ORIGIN', 'INTEGRATION_EGRESS'],
  validateStaged: stagedValidation(),
@@ -222,11 +228,11 @@ for(const later of laterTables){later.tables.push(...Object.keys(nativeSymbolTab
 laterTables.unshift({tables:Object.keys(nativeSymbolTables),migrations:['0100_native_symbols.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(nativeDebugFileTables));later.migrations.push('0101_native_debug_files.sql')}
 laterTables.unshift({tables:Object.keys(nativeDebugFileTables),migrations:['0101_native_debug_files.sql']});
-// 0102 and 0103 add only agent-door custody, which archives exclude (agent_door_%). 0103 also rewrites two relay triggers whose
-// definitions stay in the object inventory; previousRelayPrivacyObjects maps them back for an archive without 0103.
-const doorCustodyMigrations=['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql'];
-for(const later of laterTables)later.migrations.push(...doorCustodyMigrations);
-laterTables.unshift({tables:[],migrations:doorCustodyMigrations});
+// 0102 and 0104 add the two erasure tombstone tables, which archives carry; 0103 only rewrites two relay triggers whose
+// definitions stay in the object inventory (previousRelayPrivacyObjects maps them back for an archive without 0103).
+const tombstoneMigrations=['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql','0104_business_retired.sql'];
+for(const later of laterTables){later.tables.push(...tombstoneTables);later.migrations.push(...tombstoneMigrations)}
+laterTables.unshift({tables:[...tombstoneTables],migrations:tombstoneMigrations});
 // Match the exact archive inventory from before native attribution was added.
 // Current archives retain and validate their declared attribution columns.
 function beforeAgentAttribution(table:any,manifest:any){
@@ -260,8 +266,15 @@ async function earlierManifest(db: D1Database, manifest: any) {
   if (!later.tables.length && !(Array.isArray(manifest.migrations) && later.migrations.some(name => !manifest.migrations.includes(name)) && tableless.every(name => manifest.migrations.includes(name) || later.migrations.includes(name)))) continue;
   const missing=later.tables.filter(name=>!carriedReporting||!reportingNames.includes(name));
   if(later.tables.length&&!missing.length)continue;
-  const earlier = current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&!manifest.migrations?.includes('0054_release_resolution_dist.sql')?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
-  if (nativeTableIdentity !== await sha256(canonicalJson(earlier.map(({ name, sql }: any) => ({ name, sql }))))) continue;
+  // An archive that records no migration list is either older than 0054 (issue_resolutions in its first form) or a current
+  // format that carries none: try the recorded reading first, then today's form of that table.
+  const earlierWith = (before0054: boolean) => current.tables.filter((table: any) => !missing.includes(table.name)).map((table:any)=>beforeAgentAttribution(table,manifest)).map((table:any)=>table.name==='issue_resolutions'&&before0054?{...table,sql:table.sql.replace('CREATE TABLE \"issue_resolutions\"','CREATE TABLE issue_resolutions').replace("('plain','current','next','named')","('plain','current')")}:table);
+  let earlier: any[] | undefined;
+  for (const before0054 of new Set([!manifest.migrations?.includes('0054_release_resolution_dist.sql'), false])) {
+   const candidate = earlierWith(before0054);
+   if (nativeTableIdentity === await sha256(canonicalJson(candidate.map(({ name, sql }: any) => ({ name, sql }))))) { earlier = candidate; break; }
+  }
+  if (!earlier) continue;
   if (!Array.isArray(product.tables) || canonicalJson(product.tables.map(({ count, ...table }: any) => table)) !== canonicalJson(earlier)) throw new PortabilityError('legacy_column_inventory');
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
