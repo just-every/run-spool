@@ -1,5 +1,5 @@
 import {beforeNativeSymbols} from '../fixtures/archive-before-native-symbols.mjs';
-import {beforeRelayPrivacy,rebuiltArchive} from '../fixtures/archive-before-relay-privacy.mjs';
+import {beforeRelayPrivacy,beforeTombstoneTables,rebuiltArchive} from '../fixtures/archive-before-relay-privacy.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -60,6 +60,9 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  const previousRelease=await rebuiltArchive(source.text,beforeRelayPrivacy),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeRelayPrivacy(manifest);manifest.schemaObjects.push(foreignObject);});
  await app.resetRestore(previousRelease,foreignInventory);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'previous-release archive restores '+table);
+ // The previous release's current-format archive carries every table but the two erasure tombstone tables.
+ await app.resetRestore(await rebuiltArchive(source.text,beforeTombstoneTables,{objectIdentity:true}));restored=await app.archive();
+ for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'previous-format archive restores '+table);
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
  // Restored deliveries are historical, so reconciliation cannot change the

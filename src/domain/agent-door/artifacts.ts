@@ -1,4 +1,4 @@
-import { agentErasureStatements, checkAgentArtifacts, type Tombstone } from '../../modules/agent-door/index.ts';
+import { agentErasureStatements, checkAgentArtifacts, operatorPolicyRefs, type Tombstone } from '../../modules/agent-door/index.ts';
 import { portability } from '../portability';
 import { catalogue } from './catalogue.mjs';
 import { ownerIdentifiers } from '../erasure/owner-capture';
@@ -24,12 +24,17 @@ export async function eraseNativeAgentArtifacts(db:D1Database,secret:string,kind
  }
  const map=kind==='operator'?operatorAgentArtifacts:projectAgentArtifacts;
  await checkAgentArtifacts(db,map);
- const transfer=await portability(db),subject={values:JSON.stringify([...new Set(values)])};
+ const transfer=await portability(db),subject:Record<string,string>={values:JSON.stringify([...new Set(values)])};
+ // The operator recipe: the person's policy references also retire them from the Business-signed roster.
+ if(kind==='operator')subject.policyRefs=JSON.stringify(await operatorPolicyRefs(db,id));
  let checkpointed=false;
  const out=await agentErasureStatements({db,map,subject,secret,tombstone:{erasure_id:operation.id,at:operation.at} as Tombstone,checkpoint:async()=>{checkpointed=true;return transfer.redactionStatements();}});
  if(!checkpointed)out.push(...await transfer.redactionStatements());
+ // Native policy hook first: it empties a policy that names the subject before the retired-reference step rewrites its references.
  const policyMention=mentions('agent_door_state',['envelope','local_document']);
- out.push(db.prepare(`UPDATE agent_door_state SET envelope=NULL,local_document=NULL,local_revision=local_revision+1,local_paused=1,decision_lock=NULL,decision_until=NULL WHERE ${policyMention}`).bind(subject.values));
+ out.unshift(db.prepare(`UPDATE agent_door_state SET envelope=NULL,local_document=NULL,local_revision=local_revision+1,local_paused=1,decision_lock=NULL,decision_until=NULL WHERE ${policyMention}`).bind(subject.values));
+ // Local Business overrides the person authored leave with them (the roster step may already have marked their attribution).
+ if(kind==='operator')out.push(db.prepare('DELETE FROM bs_overrides WHERE actor IN (SELECT value FROM json_each(?)) OR actor=?').bind(JSON.stringify(values.filter((value):value is string=>typeof value==='string'&&(value===id||value.includes('@')))),'person:erased:'+operation.id));
  if(kind==='operator')out.push(db.prepare('UPDATE bs_settings SET document=NULL,owner_id=NULL,stopped=1,token=? WHERE singleton=1').bind(crypto.randomUUID()));
  return out;
 }
