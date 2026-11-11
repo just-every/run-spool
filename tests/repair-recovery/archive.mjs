@@ -1,4 +1,5 @@
 import {beforeNativeSymbols} from '../fixtures/archive-before-native-symbols.mjs';
+import {beforeRelayPrivacy,rebuiltArchive} from '../fixtures/archive-before-relay-privacy.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -53,6 +54,12 @@ export async function archiveProof(app,{issue,repair,cutoff,credentials}){
  for(const table of lifecycleTables.filter(table=>table!=='issue_priorities'))assert.deepEqual(restored.data[table],[],'pre-repair archive has no collaborative history');
  assert.deepEqual(restored.data.issue_priorities.map(canonical).sort(),source.data.issue_priorities.map(canonical).sort(),'older native errors receive the same automatic priority');
  assert.deepEqual(withoutRepairs(restored.data),withoutRepairs(source.data),'pre-repair archive restores every other row');
+ // A previous release's own archive (ledger through 0101, relay triggers as 0099 wrote them) restores whole; the
+ // same inventory with one foreign trigger is refused by the public door and mutates nothing.
+ const foreignObject={name:'foreign_inventory_trigger',type:'trigger',table:'issues',sql:'CREATE TRIGGER foreign_inventory_trigger AFTER INSERT ON issues BEGIN SELECT 1; END'};
+ const previousRelease=await rebuiltArchive(source.text,beforeRelayPrivacy),foreignInventory=await rebuiltArchive(source.text,async manifest=>{await beforeRelayPrivacy(manifest);manifest.schemaObjects.push(foreignObject);});
+ await app.resetRestore(previousRelease,foreignInventory);restored=await app.archive();
+ for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'previous-release archive restores '+table);
  await app.resetRestore(source.text);restored=await app.archive();
  for(const table of Object.keys(source.data))assert.deepEqual(restored.data[table].map(canonical).sort(),source.data[table].map(canonical).sort(),'restored '+table);
  // Restored deliveries are historical, so reconciliation cannot change the

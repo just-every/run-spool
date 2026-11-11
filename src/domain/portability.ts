@@ -1,5 +1,5 @@
 import { nativeSymbolTables, nativeDebugFileTables } from './native-symbols/archive';
-import { previousNativeSymbolObjects } from './native-symbols/compat';
+import { previousNativeSymbolObjects, previousRelayPrivacyObjects } from './native-symbols/compat';
 import { notificationPreferenceTables, notificationPreferenceExportRow } from './notifications/archive';
 import { keyRateTables } from './key-rate-limits/model';
 import {ensureIssuePriorities} from './issue-priority/model';
@@ -222,7 +222,8 @@ for(const later of laterTables){later.tables.push(...Object.keys(nativeSymbolTab
 laterTables.unshift({tables:Object.keys(nativeSymbolTables),migrations:['0100_native_symbols.sql']});
 for(const later of laterTables){later.tables.push(...Object.keys(nativeDebugFileTables));later.migrations.push('0101_native_debug_files.sql')}
 laterTables.unshift({tables:Object.keys(nativeDebugFileTables),migrations:['0101_native_debug_files.sql']});
-// 0102 and 0103 add only agent-door custody, which archives exclude (agent_door_%).
+// 0102 and 0103 add only agent-door custody, which archives exclude (agent_door_%). 0103 also rewrites two relay triggers whose
+// definitions stay in the object inventory; previousRelayPrivacyObjects maps them back for an archive without 0103.
 const doorCustodyMigrations=['0102_agent_retired_refs.sql','0103_agent_door_relay_privacy.sql'];
 for(const later of laterTables)later.migrations.push(...doorCustodyMigrations);
 laterTables.unshift({tables:[],migrations:doorCustodyMigrations});
@@ -265,7 +266,7 @@ async function earlierManifest(db: D1Database, manifest: any) {
   // A recognized native table upgrade must retain a complete, known object
   // inventory. An unrecorded index/trigger is never installed or acknowledged.
   // Archives without an object inventory still require Base's legacy replay.
-  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousNativeSymbolObjects(current.schemaObjects,manifest)))throw new PortabilityError('legacy_schema_object_inventory');
+  if(product.schemaObjects!==undefined && canonicalJson(product.schemaObjects)!==canonicalJson(previousRelayPrivacyObjects(previousNativeSymbolObjects(current.schemaObjects,manifest),manifest)))throw new PortabilityError('legacy_schema_object_inventory');
   const migrations = Array.isArray(manifest.migrations) ? { migrations: [...manifest.migrations, ...later.migrations.filter(name => !manifest.migrations.includes(name))] } : {};
   // Parts still carry the original bookkeeping rows. Keep their descriptors so
   // Base can validate and skip them while restoring only the current product.

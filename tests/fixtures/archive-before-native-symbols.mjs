@@ -1,8 +1,10 @@
 import {readFile} from 'node:fs/promises';
+import {beforeRelayPrivacy} from './archive-before-relay-privacy.mjs';
 
 // Earlier archive fixtures must contain the table and behavior inventory that
-// existed before native symbols. Keep the original trigger from its migration.
+// existed before native symbols (and so before relay privacy). Keep the original trigger from its migration.
 export async function beforeNativeSymbols(manifest){
+ await beforeRelayPrivacy(manifest);
  manifest.tables=manifest.tables.filter(table=>!['native_symbols','native_debug_files'].includes(table.name));
  if(manifest.migrations)manifest.migrations=manifest.migrations.filter(name=>!['0100_native_symbols.sql','0101_native_debug_files.sql'].includes(name));
  if(manifest.schemaObjects){

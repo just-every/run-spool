@@ -22,3 +22,30 @@ export function previousNativeSymbolObjects(objects: any[], manifest: any) {
  return objects.map(object => object.name === 'artifact_storage_capacity' ? { ...object, sql: nativeSymbolCapacity('artifact_storage_capacity', 'artifacts') }
   : object.name === 'native_symbol_storage_capacity' ? { ...object, sql: nativeSymbolCapacity('native_symbol_storage_capacity', 'native_symbols') } : object);
 }
+
+// Exact trigger text from migration 0099, before 0103 rewrote the relay membership triggers.
+const previousRelayAuditInsert = `CREATE TRIGGER agent_door_relay_audit_insert AFTER INSERT ON agent_door_audit
+WHEN json_extract(NEW.row,'$.door')='mcp' AND json_extract(NEW.row,'$.consent') IS NOT NULL
+ AND (SELECT json_extract(envelope,'$.business') FROM agent_door_state WHERE id=1) IS NOT NULL
+BEGIN
+  INSERT INTO agent_door_relay(decision_id,business) VALUES(NEW.id,
+    COALESCE((SELECT business FROM agent_door_relay WHERE decision_id=NEW.id ORDER BY sequence DESC LIMIT 1),
+             (SELECT json_extract(envelope,'$.business') FROM agent_door_state WHERE id=1)));
+  DELETE FROM agent_door_relay WHERE decision_id=NEW.id AND sequence<(SELECT MAX(sequence) FROM agent_door_relay WHERE decision_id=NEW.id);
+END`;
+const previousRelayAuditUpdate = `CREATE TRIGGER agent_door_relay_audit_update AFTER UPDATE ON agent_door_audit
+WHEN EXISTS(SELECT 1 FROM agent_door_relay WHERE decision_id=NEW.id)
+  OR (json_extract(NEW.row,'$.door')='mcp' AND json_extract(NEW.row,'$.consent') IS NOT NULL
+      AND (SELECT json_extract(envelope,'$.business') FROM agent_door_state WHERE id=1) IS NOT NULL)
+BEGIN
+  INSERT INTO agent_door_relay(decision_id,business) VALUES(NEW.id,
+    COALESCE((SELECT business FROM agent_door_relay WHERE decision_id=NEW.id ORDER BY sequence DESC LIMIT 1),
+             (SELECT json_extract(envelope,'$.business') FROM agent_door_state WHERE id=1)));
+  DELETE FROM agent_door_relay WHERE decision_id=NEW.id AND sequence<(SELECT MAX(sequence) FROM agent_door_relay WHERE decision_id=NEW.id);
+END`;
+/** Reconstruct the object inventory an archive recorded before 0103 (relay privacy). Only the two relay audit triggers changed. */
+export function previousRelayPrivacyObjects(objects: any[], manifest: any) {
+ if (manifest.migrations?.includes('0103_agent_door_relay_privacy.sql')) return objects;
+ return objects.map(object => object.name === 'agent_door_relay_audit_insert' ? { ...object, sql: previousRelayAuditInsert }
+  : object.name === 'agent_door_relay_audit_update' ? { ...object, sql: previousRelayAuditUpdate } : object);
+}
