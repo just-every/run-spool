@@ -10,7 +10,7 @@ import {archiveProjection} from '../archive.mjs';
 import {keepDevOutput} from './dev-output.mjs';
 // The command harness clones HEAD. Overlay current tracked inputs and the new
 // agent package so this journey tests the candidate, including uncommitted edits.
-export async function handoffRuntime(port=15543,{destinations:declared}={}){
+export async function handoffRuntime(port=15543,{destinations:declared,savePolicy=true}={}){
  const checkout=await commandCheckout();
  try{
   const tracked=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean);
@@ -29,7 +29,7 @@ export async function handoffRuntime(port=15543,{destinations:declared}={}){
   gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];
   let active,cookie;
   // Foreground dev with the owner dev persona; stopping it is required before CLI transfers.
-  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');const policy=await fetch(origin+'/agents/api/policy',{method:'PUT',headers:{Origin:origin,Cookie:cookie,'x-rer-dev-key':gate.key,'content-type':'application/json'},body:JSON.stringify({document:{schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'test-owner-choice',class:'*',do:'autonomous'}],spend:{none:true}}})});assert.equal(policy.status,200,'the test owner explicitly chooses policy before legacy project-agent calls');await policy.body?.cancel();}
+  async function startDev(){gate.key=/^RER_DEV_KEY=(\S+)$/m.exec(await readFile(resolve(checkout.root,'.rer/local/dev-key.env'),'utf8'))[1];active=await checkout.ready(['dev','--foreground','--port',String(port)],origin);const entered=await fetch(origin+'/auth/dev/enter?as=owner',{redirect:'manual',headers:{'x-rer-dev-key':gate.key}});assert.equal(entered.status,303);await entered.body?.cancel();cookie=entered.headers.getSetCookie().map(row=>row.split(';')[0]).join('; ');if(savePolicy){const policy=await fetch(origin+'/agents/api/policy',{method:'PUT',headers:{Origin:origin,Cookie:cookie,'x-rer-dev-key':gate.key,'content-type':'application/json'},body:JSON.stringify({document:{schema:'rer-agent-policy/1',catalogue:'rer-agent-classes/1',rules:[{id:'test-owner-choice',class:'*',do:'autonomous'}],spend:{none:true}}})});assert.equal(policy.status,200,'the test owner explicitly chooses policy before legacy project-agent calls');await policy.body?.cancel();}savePolicy=true;}
   async function stopDev(){if(!active)return;const stopping=active;active=null;stopping.child.kill('SIGINT');const result=await stopping.closed;await keepDevOutput(result.output,settings,gate.key);assert.equal(result.code,130);}
   await startDev();
   async function request(path,method='GET',value,options={}){
