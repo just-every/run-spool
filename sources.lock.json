@@ -5730,7 +5730,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "a477d44f2bb62ce0ace8657e8b1b25f2620277133c124cde041563e1716a58ff",
+      "sha256": "bbe604c3a230dec3f282f6aa1afec460ea9452b8ffaaf97828e481ea4b86d5f6",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
