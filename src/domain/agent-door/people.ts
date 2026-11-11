@@ -23,17 +23,23 @@ function team(env: Bindings): TeamAdapter {
  return {
   async ownerEmail() { return (await db.prepare("SELECT email FROM oa_operators WHERE role='owner' AND status='active'").first<{email:string}>())?.email??null; },
   async prepare({members,managed}) {
-   const rows: ManagedMember[]=[];
+   const rows: ManagedMember[]=[],gone=new Set<string>();
+   // A stored row whose operator no longer exists was erased by an earlier release: the module retires it with this revision.
+   const erased=async(id:string|null|undefined)=>!!id&&!await db.prepare('SELECT 1 FROM oa_operators WHERE id=?').bind(id).first();
    for (const member of members) {
     const prior=managed.find(row=>row.businessId && row.businessId===member.id)??managed.find(row=>row.email===member.email);
+    if(await erased(prior?.operatorId)){gone.add(prior!.operatorId!);continue;}
     const native=await db.prepare(`SELECT o.id,o.status,m.state FROM oa_operators o JOIN spool_members m ON m.operator_id=o.id
      WHERE ${prior?.operatorId?'o.id=?':'o.email=?'} AND o.role<>'owner'`)
      .bind(prior?.operatorId??member.email).first<{id:string;status:string;state:string}>();
     rows.push({email:member.email,operatorId:native?.id??prior?.operatorId??null,invite:member.invite,
      state:!native?'conflict':native.status==='inactive'||native.state!=='active'?'inactive':native.status==='invited'?'invited':'active'});
    }
-   for(const prior of managed) if(!members.some(member=>member.email===prior.email)) rows.push({...prior,state:'inactive'});
-   return {statements:[],rows,async afterCommit(){}};
+   for(const prior of managed) if(!members.some(member=>member.email===prior.email)){
+    if(await erased(prior.operatorId)){gone.add(prior.operatorId!);continue;}
+    rows.push({...prior,state:'inactive'});
+   }
+   return {statements:[],rows,gone:[...gone],async afterCommit(){}};
   },
  };
 }

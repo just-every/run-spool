@@ -10,6 +10,7 @@ import {peopleFlow} from './agent-door/people.mjs';
 import {sponsorRoleContract} from './agent-door/sponsor-role-contract.mjs';
 import {agentScreens} from './agent-door/screens.mjs';
 import {reviewErasureFlow} from './agent-door/review-erasure.mjs';
+import {suffixEmailErasure} from './agent-door/suffix-erasure.mjs';
 import {personActionsContract} from './agent-door/person-actions-contract.mjs';
 import {ownerCustody} from './agent-door/owner-custody.mjs';
 import {nativeWorker} from './agent-door/worker.mjs';
@@ -155,6 +156,7 @@ try{
  assert.equal(stoppedResult.approval.code,'sponsor_unavailable');
  assert.equal((await app.json(`/api/projects/${project}/issues`))[0].state,currentIssue.state,'Detach leaves native state unchanged');
  await screens.capture('approval-missing','/agents/approvals/not-a-request');
+ await suffixEmailErasure(app);
  console.log('Spool native door: signed owner/settings, one registry, inert proposal/replay, attributed repair claim, exact approval, Pause and identity checks passed.');
 }finally{await screens?.close();await app.stop();await github.stop();}
 

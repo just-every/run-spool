@@ -20,6 +20,8 @@ export async function plantLegacyAlertMail(root,project){
  const directory=resolve(root,'.wrangler/state');
  for(const file of await readdir(directory,{recursive:true}))if(file.endsWith('.sqlite')){
   const db=new DatabaseSync(resolve(directory,file));
+  // The dev server is live and writes this file too: wait for its lock, never fail with `database is locked`.
+  db.exec('PRAGMA busy_timeout=60000');
   try{if(db.prepare("SELECT name FROM sqlite_master WHERE name='alert_mail_jobs'").get()){
    db.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) SELECT id,?,message FROM alert_mail_jobs WHERE project=? ON CONFLICT(id) DO NOTHING').run(Date.now(),project);return;
   }}finally{db.close()}

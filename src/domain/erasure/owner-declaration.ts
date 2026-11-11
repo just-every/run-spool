@@ -28,8 +28,7 @@ export async function ownerDeclaration(db: D1Database,secret:string) {
   {table:'follow_up_notice_meta',from:'follow_up_notices',on:{notice:'id'}},
   child('spool_notification_preferences'),child('issue_comments'),child('issue_subscriptions'),
   child('spool_members'),
-  child('spool_native_approvals','person'),child('bs_team'),
-  {table:'bs_overrides',from:'oa_operators',where:'actor=? OR actor=?',params:['id','email']},
+  child('spool_native_approvals','person'),
   {table:'spool_team_digest_settings',from:'spool_members',on:{member:'id'}},
   {table:'spool_team_snoozes',from:'spool_members',on:{creator:'id'}},
   {table:'spool_team_mail',from:'spool_members',on:{member:'id'}},
@@ -64,7 +63,7 @@ export async function ownerDeclaration(db: D1Database,secret:string) {
   {table:'oc_owner_claims',from:'oa_operators',on:{operator_id:'id'},set:{email:'',operator_id:'',session_id:'',jti:'retired-owner-claim'},reason:'Managed claim is irreversibly retired; initialization never reopens.'},
  ],
  audit:[{table:'oa_auth_audit',column:'actor_id',of:'oa_operators',clear:{value:''}}],
- retain:[...retainedAgentArtifacts,{table:'restored_work',reason:'Destination custody keeps only project and work identifiers, with no person attribution; retaining it prevents historical authority from becoming live after owner erasure.'},{table:'issue_activity',reason:'Project history retains safe actor aliases; personal text is covered by capture redaction.'},{table:'spool_audit_events',reason:'Permanent safe facts remain under random labels; the former owner bindings are deleted.'},{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
+ retain:[...retainedAgentArtifacts,{table:'bs_retired',reason:'Value-free digests of the roster address and Business member id with an invite number; they keep an erased person from being listed again.'},{table:'restored_work',reason:'Destination custody keeps only project and work identifiers, with no person attribution; retaining it prevents historical authority from becoming live after owner erasure.'},{table:'issue_activity',reason:'Project history retains safe actor aliases; personal text is covered by capture redaction.'},{table:'spool_audit_events',reason:'Permanent safe facts remain under random labels; the former owner bindings are deleted.'},{table:'oa_domain_rules',reason:'Domain policy with personal creator attribution causes a hold until it can be transferred safely.'},
   {table:'oc_idp_grants',reason:'Provider claim uniqueness remains with personal claim values retired.'},
   {table:'rer_erasure_operations',reason:'Completed receipts contain only counts and times.'}],
  hold:async ({db,subject}: any) => {
