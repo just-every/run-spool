@@ -11102,7 +11102,7 @@
       "executable": false
     },
     "tests/old-archive.mjs": {
-      "sha256": "43b788314d265560622caf5040dde23ce172e4324b760b4068455f8b00a2efdd",
+      "sha256": "8d0099e0b40676f6894abfe81ab0afba71477cc6356684eae3fb96f954212f76",
       "executable": false
     },
     "tests/operator-archive.mjs": {
@@ -11242,7 +11242,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "759df0eab97bc591735471224c02c21693cf6efea332c7fa8067a2711a3581e3",
+      "sha256": "6815b99da0fe33da42c0e68c1459aa5b3be6ff920412976cbe00f94accd82d0b",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
