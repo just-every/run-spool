@@ -28,10 +28,23 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
 
  await page.goto(`${origin}/projects/${project}/issues/${issue}`);
  await page.getByRole('heading',{name:'Operator decisions',exact:true}).waitFor();
- await page.getByLabel('Assigned to',{exact:true}).fill('Browser operator');
+ const assignment=page.getByLabel('Assigned to',{exact:true});
+ if(page.viewportSize().width===1440){
+ const beforeAssignment=await api(root+'/operator-state');
+ await assignment.fill('dev.lead@example.com');
+ const [refused]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
+ assert.equal(refused.status(),400);const refusal=await refused.json();assert.match(refusal.error,/email/i,'The public route explains why the value is refused');
+ await page.getByRole('alert').filter({hasText:refusal.error}).waitFor();
+ assert.equal(await assignment.inputValue(),'dev.lead@example.com','A refused assignment preserves the draft');
+ assert.equal(await assignment.getAttribute('aria-invalid'),'true');
+ assert.deepEqual((await api(root+'/operator-state')).assignments,beforeAssignment.assignments,'Refused private data changes no assignment');
+ }
+ await assignment.fill('Browser operator');
  const [assigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Save assignment',exact:true}).click()]);
  assert.equal(assigned.status(),200);assert.equal((await assigned.json()).label,'Browser operator');
+ if(page.viewportSize().width===1440)await page.getByRole('status').filter({hasText:/assignment.*saved/i}).waitFor();
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});
+ if(page.viewportSize().width===1440){await page.reload();await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='Browser operator';});}
  const [unassigned]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/assignment')&&r.request().method()==='PATCH'),page.getByRole('button',{name:'Unassign',exact:true}).click()]);
  assert.equal(unassigned.status(),200);assert.equal((await unassigned.json()).label,null);
  await page.waitForFunction(()=>{const input=document.querySelector('input[maxlength="80"]');return input&&!input.disabled&&input.value==='';});

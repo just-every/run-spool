@@ -86,6 +86,12 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
   finally { setBusy(null); }
  }
  const canSubmit = !!name.trim() && !!kinds.length && !!destination && (releaseMode !== 'named' || !!release);
+ const readiness = !name.trim() ? 'Enter a rule name.' : !destination ? 'Choose a destination.'
+  : !kinds.length ? 'Choose at least one alert event.' : releaseMode === 'named' && !release ? 'Enter a release name.'
+  : enabled && !selected?.configured ? 'Configure this destination before enabling the rule.'
+  : enabled && needsTest(selected) ? 'Test this destination and review its passing result before enabling.'
+  : enabled && preview?.refusal ? 'Resolve the reason in the rule preview, then preview again.'
+  : enabled && !preview?.token ? 'Preview rule to review its matches before enabling.' : '';
  const thresholdLabel = metric === 'users' ? 'Affected user threshold (more than)' : metric === 'session_percent' ? 'Session error threshold (%)' : metric === 'baseline' ? 'Baseline multiplier' : 'Accepted occurrence threshold';
  return <section className="evidence alert-rules"><h2>Per-project rules</h2>
   {!destinations.length && <p className="callout">Add an email destination above before creating a rule.</p>}
@@ -127,11 +133,11 @@ export function AlertRules({ project, rules, destinations, refresh }: Props) {
    </div></details>
    {filterLabels.length > 0 && <p aria-label="Applied rule filters">{filterLabels.map(label => <span className="state-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', margin: '0 8px 8px 0' }} key={String(label)}>{label}</span>)}</p>}
    <label className="alert-check"><input type="checkbox" checked={enabled} disabled={!!busy} onChange={e => change({ enabled: e.target.checked })}/>Enabled</label>
-   {selected && needsTest(selected) && <p className="callout">Test this destination and review its passing result before enabling.</p>}
    {preview && <RulePreview preview={preview} project={project} destinations={destinations}/>}
+   {readiness && <p id="rule-readiness" role="status">{readiness}</p>}
    <div className="button-row" style={{ gridColumn: '1 / -1', flexWrap: 'wrap' }}>
     <button type="submit" value="preview" className="text-button" disabled={!!busy || !canSubmit}>{busy === 'preview' ? 'Previewing…' : 'Preview rule'}</button>
-    <button type="submit" value="save" className="primary-button" disabled={!!busy || !canSubmit || enabled && (!preview?.token || !!preview.refusal)}>{busy === 'save' ? 'Saving…' : editing ? 'Save rule' : 'Create rule'}</button>
+    <button type="submit" value="save" className="primary-button" aria-describedby={readiness ? 'rule-readiness' : undefined} disabled={!!busy || !!readiness}>{busy === 'save' ? 'Saving…' : editing ? 'Save rule' : 'Create rule'}</button>
     {editing && <button type="button" className="text-button" disabled={!!busy} onClick={() => { if (window.confirm('Discard the unsaved rule changes?')) clear(); }}>Discard edit</button>}
    </div>
   </form>
