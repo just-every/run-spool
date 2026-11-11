@@ -43,10 +43,10 @@ export async function handoffPanel(browser,app,directory,issue){
   await panel.getByRole('button',{name:'Copy agent key',exact:true}).click();assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),grant.key,'key copied separately');await page.evaluate(()=>navigator.clipboard.writeText(''));
   // The real prerequisite link keeps the once-shown key available in this tab.
   const opened=page.waitForEvent('popup');await notice.getByRole('link').click();const policyPage=await opened;
-  const form=policyPage.locator('[data-create-policy]');await form.waitFor();
+  const form=policyPage.locator('[data-create-policy]');await form.waitFor();await policyPage.waitForLoadState('networkidle');
   for(const select of await form.locator('[data-policy-class]').all())await select.selectOption('autonomous');
   await form.locator('input[name="paidAI"][value="no"]').check();
-  const saved=policyPage.waitForResponse(response=>new URL(response.url()).pathname==='/agents/api/policy'&&response.request().method()==='PUT');
+  const saved=policyPage.waitForResponse(response=>new URL(response.url()).pathname==='/agents/api/policy'&&response.request().method()==='PUT',{timeout:30000});
   await form.getByRole('button',{name:'Save policy',exact:true}).click();assert.equal((await saved).status(),200);assert.equal((await app.json('/agents/api/state')).policy.complete,true);await policyPage.close();await page.bringToFront();
   assert.equal(await panel.locator('[data-secret="agent-key"]').innerText(),grant.key,'following and saving policy preserves the once-shown key');
   const packet=await app.json(`/api/projects/a/issues/${issue}/packet`);
