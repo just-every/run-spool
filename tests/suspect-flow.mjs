@@ -74,7 +74,7 @@ export async function suspectFlow({req,json,origin,browser}) {
  console.log('[REL-002] first-release and reactivation candidates, exact regression alert and two commits with recorded deployment window, older-release spike comparison, audited reject and confirm without occurrence changes, restore and erasure; desktop and phone passed');
 }
 
-const displayTime=time=>new Date(time).toLocaleString('en-GB',{timeZone:'UTC',hour12:false})+' UTC';
+const displayTime=time=>new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(time)+' UTC';
 async function reactivationFixture({req,json,old,current,falseSha,trueSha,priorSha,time}) {
  const p=await json('/api/projects','POST',{id:'synthetic-spool-reactivation',name:'Checkout reactivation correlation'}),base=`/api/projects/${p.id}`;
  await json(base+'/releases','POST',{name:old,build:'web-1',commits:[{sha:priorSha,message:'Older checkout confirmation'}]});

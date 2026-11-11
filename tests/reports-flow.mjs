@@ -35,7 +35,8 @@ async function reportWorkbench(origin,project,from,to,expected){
   assert.equal((await selected.innerText()).split(' · ')[0],reportDate,'Issues and Reports name the same event’s receipt identically');
   assert.equal(new URL(page.url()).searchParams.get('occurrence'),new URL(eventHref,origin).searchParams.get('occurrence'));
   await page.goto(reportHref);await table.getByLabel('Window start (UTC)',{exact:true}).fill(date(from));await table.getByLabel('Window end (UTC)',{exact:true}).fill(date(to));
-  const rerun=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assertEvents(await(await rerun).json());await table.locator('tbody tr').nth(3).waitFor();
+  // Returning to Reports also starts its default-window request; await the submitted historical window.
+  const rerun=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/reporting/table-preview'&&response.request().method()==='POST'&&response.request().postDataJSON()?.from===from&&response.request().postDataJSON()?.to===to&&response.status()===200);await table.getByRole('button',{name:'Run query',exact:true}).click();assertEvents(await(await rerun).json());await table.locator('tbody tr').nth(3).waitFor();
   const saved=page.waitForResponse(response=>new URL(response.url()).pathname.endsWith('/review/views')&&response.request().method()==='POST'&&response.status()===201);await table.getByRole('button',{name:/^Save query/}).click();const view=await(await saved).json();
   const dashboardDownload=page.waitForEvent('download');await dashboard.getByRole('link',{name:'Export view JSON',exact:true}).click();assert.equal(await(await dashboardDownload).failure(),null);
   // Reopen from persisted definitions, after an unrelated draft proves that the
