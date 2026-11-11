@@ -1,0 +1,75 @@
+
+> @errors/errors-workbench@0.7.5 test:agent-door /workspace/run-spool
+> node tests/agent-door.mjs
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:7095) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 autonomous: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control autonomous: remove external block on the same saved target -> one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay autonomous: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured autonomous: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 autonomous: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal autonomous: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change autonomous: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change autonomous: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 held: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control held: remove external block on the same saved target -> inert approval then one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay held: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured held: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 held: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal held: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change held: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change held: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 autonomous: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 autonomous: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 autonomous: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 autonomous: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 autonomous: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 autonomous: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control autonomous: identical bounded mutation -> suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 held: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 held: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 held: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 held: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 held: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+node:internal/deps/undici/undici:13510
+      Error.captureStackTrace(err);
+            ^
+
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.json (file:///workspace/run-spool/tests/agent-door/runtime.mjs:22:38)
+    at async state (file:///workspace/run-spool/tests/agent-door/protocol-contract.mjs:92:12)
+    at async protocolContract (file:///workspace/run-spool/tests/agent-door/protocol-contract.mjs:125:22)
+    at async file:///workspace/run-spool/tests/agent-door.mjs:30:1 {
+  [cause]: Error: read ECONNRESET
+      at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+      at TCP.callbackTrampoline (node:internal/async_hooks:130:17) {
+    errno: -104,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+
+Node.js v22.20.0
+ ELIFECYCLE  Command failed with exit code 1.

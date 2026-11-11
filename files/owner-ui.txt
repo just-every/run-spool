@@ -1,0 +1,10 @@
+
+> @errors/errors-workbench@0.7.5 test:accessibility /workspace/run-spool
+> node tests/triage-journey.mjs
+
+(node:10741) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Triage public journey passed: 21 groups; 92 JPG captures at 1440 and 390.

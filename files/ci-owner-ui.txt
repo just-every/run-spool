@@ -1,0 +1,30 @@
+verify (owner-ui)	Run suites	﻿2026-11-11T08:12:08.2934689Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2935133Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2955985Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2956260Z env:
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2956478Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2957047Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2957491Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2958001Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2958794Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.2959399Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.5439369Z 
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.5440215Z > @errors/errors-workbench@0.7.5 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.5440796Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-11T08:12:08.5440968Z 
+verify (owner-ui)	Run suites	2026-11-11T08:12:09.1129458Z (node:2470) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-11T08:12:09.1130379Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2123250Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2123689Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2123969Z     ^
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2124078Z 
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2126471Z page.waitForLoadState: Timeout 15000ms exceeded.
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2127242Z     at journey (/home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:135:124)
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2128358Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:193:31 {
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2129025Z   log: [],
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2129325Z   name: 'TimeoutError'
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2129691Z }
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2129855Z 
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2130163Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2660050Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-11T08:13:04.2875392Z ##[error]Process completed with exit code 1.

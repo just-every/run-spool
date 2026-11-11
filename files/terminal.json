@@ -1,0 +1,26 @@
+{
+  "state": "PUSHED",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-agent-handoff-1",
+  "head": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+  "verify": {
+    "id": 42989170168,
+    "head_sha": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42989170168"
+  },
+  "github_calls": 10,
+  "github_budget": 10,
+  "previous_verify": {
+    "id": 42984934345,
+    "head": "56df5649f90f4df47b0dc2ee89d266217a1ff6c1",
+    "conclusion": "failure",
+    "owner_ui": "networkidle timeout; deferred-loading fix and full local owner UI regression now pass",
+    "runtime": "failed; log archive command returned zip: not a valid zip file; HTTP status not supplied"
+  },
+  "ready_claimed": false,
+  "clause_judgments_changed": 0,
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0
+}

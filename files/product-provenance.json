@@ -1,0 +1,28 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-agent-handoff-1",
+  "head": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+  "tree": "c4a298ae5aa1f6620d0ee8f5da9c278dd874c6a7",
+  "origin_main_at_integration": "5886617d17da50761fb442f66b03ce623d5e9559",
+  "remote_product_head": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+  "remote_matches": true,
+  "worktree_clean": true,
+  "published_save": "e7bff21474507420605c58beaed8b8e45a1fad7e",
+  "final_skip_ci": false,
+  "pr": null,
+  "contract_judgments_changed": false,
+  "generated_views_committed": false,
+  "publication_scan": "Reserved for the fleet Mac lander as required by the cloud brief.",
+  "previous_candidate": "56df5649f90f4df47b0dc2ee89d266217a1ff6c1",
+  "previous_verify": 42984934345,
+  "previous_verify_conclusion": "failure",
+  "terminal_state": "PUSHED",
+  "verify": {
+    "id": 42989170168,
+    "head_sha": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/42989170168"
+  },
+  "github_calls": 10
+}

@@ -1,0 +1,128 @@
+{
+  "checks": [
+    "compatible bounded packet and immutable late-map provenance",
+    "real second-origin captures before and after map upload; immutable diagnostics, release and build mismatch refusal, confidential-source exclusion",
+    "exact project grant surface and state-preserving owner mutation refusal",
+    "CLI/MCP inert agent grouping proposals, service alias and owner/cross-project denial",
+    "whole HTTP, CLI JSON, embedded Markdown JSON and official MCP packet equality; unchanged archived rows; key inputs, inert formatting, exit codes and redirect refusal",
+    "official SDK stdio initialization, every legacy and canonical operation pair, complete read equality, validated inert proposals, invalid argument and forbidden-operation refusal, next-call revocation",
+    "1440/390 once-shown handoff, axe/reflow/reload",
+    "retention, imported history, windowed loss and restored retained-event/byte cap",
+    "malicious issue selectors refused at HTTP, CLI packet and official MCP get_packet; valid untrusted packet, exact scope, product rows and credential authority preserved"
+  ],
+  "captures": [
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-preview-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-retention-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-preview-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/gov002-retention-390.png"
+  ],
+  "sourceMaps": {
+    "beforeUpload": "a56a40be-7848-4b7e-b749-40810158f5b7",
+    "generated": {
+      "file": "http://127.0.0.1:39089/dispatch.js",
+      "line": 1,
+      "column": 159
+    },
+    "lateUpload": "immutable admission with separately labelled current lookup",
+    "mismatches": [
+      "release",
+      "build"
+    ],
+    "afterUpload": "85ac3e3c-33a0-408a-921f-8a96d8fee4b8",
+    "confidentialSource": "excluded"
+  },
+  "scope": {
+    "readRoutes": 4,
+    "crossProjectRoutes": 5,
+    "deniedRequests": 47,
+    "unchangedArchiveTables": 98
+  },
+  "selectors": {
+    "selectors": [
+      {
+        "kind": "traversal",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      },
+      {
+        "kind": "command",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      },
+      {
+        "kind": "instruction",
+        "http": 403,
+        "cli": 3,
+        "mcp": "refused",
+        "clientRequests": 0
+      }
+    ],
+    "wholePacketEquality": true,
+    "untrustedCanary": true,
+    "productRowsUnchanged": true,
+    "credentialAuthorityUnchanged": true
+  },
+  "aliases": {
+    "readPairs": 7,
+    "completeResultsEqual": true,
+    "foreignIssueDenied": true
+  },
+  "proposals": {
+    "submitted": 4,
+    "canonicalSubmissionEqual": true,
+    "completeSummaryListsEqual": true,
+    "invalidCallsUnchanged": true,
+    "ownerActionsDenied": true,
+    "crossProjectDenied": true,
+    "inert": true
+  },
+  "cap": {
+    "bytes": 231566,
+    "cap": 262144,
+    "included": 1,
+    "available": 9999,
+    "capacity": {
+      "retained": 10000,
+      "accepted": 1,
+      "refused": 7
+    }
+  },
+  "cleanup": [
+    {
+      "name": "mcp",
+      "outcome": "stopped"
+    },
+    {
+      "name": "browser",
+      "outcome": "stopped"
+    },
+    {
+      "name": "second-origin",
+      "outcome": "stopped"
+    },
+    {
+      "name": "redirect-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "receiving-edge",
+      "outcome": "stopped"
+    },
+    {
+      "name": "checkout",
+      "outcome": "stopped",
+      "children": "stopped",
+      "directory": "removed"
+    }
+  ]
+}

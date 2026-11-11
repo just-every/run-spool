@@ -1,0 +1,17 @@
+{
+  "contract_status_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "contract_status_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "contract_bytes_unchanged": true,
+  "existing_handoff_journeys_before": 1,
+  "existing_handoff_journeys_after": 1,
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0
+}

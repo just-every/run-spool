@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "captures": [
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/agent-handoff-policy-needed-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-agent-command-390.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-1440.png",
+    "/workspace/run-spool/.artifacts/agent-handoff/issue-evidence-390.png"
+  ],
+  "assertionWidth": 1440,
+  "captureWidths": [
+    1440,
+    390
+  ],
+  "checks": [
+    "real unsaved policy and owner save through the linked new tab",
+    "once-shown key retained across policy save",
+    "actual executable paths withheld from anonymous and bearer calls",
+    "copied Settings and issue Bash commands read the same short-ID packet",
+    "raw-labelled download equals complete HTTP packet",
+    "clipboard, Axe, reflow and reload secrecy",
+    "ordinary issue viewing and download start no agent-setup requests"
+  ]
+}

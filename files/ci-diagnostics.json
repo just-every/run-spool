@@ -1,0 +1,31 @@
+{
+  "calls_before_diagnostics": 5,
+  "jobs_query": {
+    "exit_code": 0,
+    "file": "ci-jobs.json"
+  },
+  "logs": [
+    {
+      "command": "gh run view 42984934345 --repo just-every/run-spool --job 130404279661 --log-failed",
+      "exit_code": 0,
+      "file": "ci-owner-ui.txt",
+      "environment_block_omitted": true,
+      "failure": "page.waitForLoadState networkidle timeout at tests/triage-journey.mjs:135"
+    },
+    {
+      "command": "gh run view 42984934345 --repo just-every/run-spool --job 130404279704 --log-failed",
+      "exit_code": 1,
+      "file": "ci-runtime.txt",
+      "failure": "failed to get run log: zip: not a valid zip file",
+      "http_status": "unknown (not supplied)"
+    }
+  ],
+  "total_calls_used": 8,
+  "remaining_calls": 2,
+  "derived_failures": [
+    "shards (spool)",
+    "verify"
+  ],
+  "agent_handoff_job": "success",
+  "build_job": "success"
+}

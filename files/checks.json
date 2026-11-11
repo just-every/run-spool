@@ -1,0 +1,79 @@
+[
+  {
+    "name": "contract-check",
+    "command": [
+      "node",
+      "src/base/contract-docs.mjs",
+      "check"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-11-11T08:06:06.238950+00:00",
+    "finished_at": "2026-11-11T08:06:06.760125+00:00",
+    "output": "contract-check.txt"
+  },
+  {
+    "name": "agent-handoff",
+    "command": [
+      "pnpm",
+      "test:agent-handoff"
+    ],
+    "exit_code": 0,
+    "output": "agent-handoff.txt",
+    "receipt": "agent-handoff-results.json",
+    "note": "Full journey passed before the final tab-link UI-only proof; final component state was separately exercised in final-ui.json."
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-11-11T08:37:31.051300+00:00",
+    "finished_at": "2026-11-11T08:37:53.235399+00:00",
+    "output": "typecheck.txt"
+  },
+  {
+    "name": "source-check",
+    "command": [
+      "pnpm",
+      "source:check"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-11-11T08:42:27.493765+00:00",
+    "finished_at": "2026-11-11T08:42:28.788145+00:00",
+    "output": "source-check.txt"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "build"
+    ],
+    "exit_code": 0,
+    "output": "build.txt"
+  },
+  {
+    "name": "owner-ui",
+    "command": [
+      "pnpm",
+      "test:accessibility"
+    ],
+    "exit_code": 0,
+    "output": "owner-ui.txt",
+    "receipt": "owner-ui-results.json"
+  },
+  {
+    "name": "final-ui",
+    "command": [
+      "node",
+      "/tmp/spool-final-ui.mjs"
+    ],
+    "exit_code": 0,
+    "output": "final-ui.txt",
+    "receipt": "final-ui.json",
+    "note": "Repeated after deferring the issue setup reads."
+  }
+]

@@ -1,0 +1,4 @@
+(node:10117) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Final handoff UI proof passed at 1440; changed-screen captures at 1440 and 390.
+Final UI proof cleanup complete.

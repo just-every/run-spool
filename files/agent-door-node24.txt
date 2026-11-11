@@ -1,0 +1,118 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.5 test:agent-door /workspace/run-spool
+> node tests/agent-door.mjs
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 autonomous: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control autonomous: remove external block on the same saved target -> one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay autonomous: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured autonomous: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 autonomous: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal autonomous: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change autonomous: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change autonomous: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+kj::getCaughtExceptionAsKj() = kj/async-io-unix.c++:186: disconnected: ::write(fd, buffer.begin(), buffer.size()): Broken pipe
+stack: /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2038 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@56a2ef1 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583f90f /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@583fb55 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@5a392a8 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589bd33 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fad7 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@589fe48 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@3343740 /workspace/run-spool/node_modules/.pnpm/@cloudflare+workerd-linux-64@1.20260907.1/node_modules/@cloudflare/workerd-linux-64/bin/workerd@247f477
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 held: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control held: remove external block on the same saved target -> inert approval then one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay held: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured held: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 held: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal held: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change held: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change held: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 autonomous: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 autonomous: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 autonomous: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 autonomous: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 autonomous: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 autonomous: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control autonomous: identical bounded mutation -> suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-001 1 held: signed modern discovery before initialize -> supported versions, capabilities, serverInfo and specialist instructions
+PROBE BASE-AGENT-001 2 held: handshake-free modern list and body-only legacy initialize without modern metadata -> identical complete 55-tool catalogue and server description
+PROBE BASE-AGENT-001 4 held: repeated lists in both revisions -> deterministic unique sorted names, unchanged descriptions, ttlMs and private cache scope
+PROBE BASE-AGENT-001 3 held: unsupported version -> HTTP 400 UnsupportedProtocolVersion and supported revisions, unchanged populated state
+PROBE BASE-AGENT-001 5 held: mismatched method header -> HTTP 400 HeaderMismatch; foreign Origin -> HTTP 403, unchanged populated state
+PROBE BASE-AGENT-001 6 held: oversized valid issue mutation with declared length and streamed body -> HTTP 413, identical populated native records and custody
+PROBE BASE-AGENT-001 control held: identical bounded mutation -> waits for native sponsor approval, then suppressed exactly once
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-007 acceptance-8-autonomous: untrusted-key policy POST -> 400 policy_invalid, stored policy and pending actions unchanged, native records preserved; subsequent MCP update follows original autonomous policy; trusted-signature control adopted
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-007 acceptance-8-held: untrusted-key policy POST -> 400 policy_invalid, stored policy and pending actions unchanged, native records preserved; subsequent MCP update follows original held policy; trusted-signature control adopted
+PROBE BASE-AGENT-008 acceptance-2-policy: native policy PUT with real project agent key, with and without owner cookie -> 403 and unchanged policy and native records; subsequent owner UI save succeeds
+PROBE SURFACE-005 native-link: authenticated exact-project MCP read -> policy_unset and native /agents setup URL
+PROBE SURFACE-005 unanswered-controls: native owner setup -> every declared class and paid AI unanswered; labelled keyboard controls, Axe and desktop and phone proof
+PROBE SURFACE-005 incomplete-refusal: blank form, omitted class, unanswered paid AI and incomplete native PUT -> no policy saved and no MCP operation admitted
+PROBE SURFACE-005 explicit-choice: owner answers all classes and No paid AI -> revision 1, exact-project MCP read succeeds, foreign-project read and revoked key refused
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-011 6 autonomous native Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous native resume: owner resumes -> both agent credentials read the retained issue under the original disposition; native person mutation remains usable
+PROBE BASE-AGENT-011 6 autonomous signed Business Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous Business resume: signed policy clears pause -> both agent credentials and the native HTTP alias regain access
+PROBE BASE-AGENT-011 6 autonomous Business pause after local resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous local pause after Business resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 autonomous combined pause: clear either source alone -> agents_paused; clear both -> access and original replay restored without duplicate effects
+PROBE BASE-AGENT-011 7 autonomous: valid Business and native project agent POST paused=false -> 403 person_session_required with identical pause and policy state
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE BASE-AGENT-011 6 held native Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held native resume: owner resumes -> both agent credentials read the retained issue under the original disposition; native person mutation remains usable
+PROBE BASE-AGENT-011 6 held signed Business Pause: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held Business resume: signed policy clears pause -> both agent credentials and the native HTTP alias regain access
+PROBE BASE-AGENT-011 6 held Business pause after local resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held local pause after Business resume: Business MCP, native project MCP and HTTP read -> agents_paused within 60 seconds; retained writes refused without changes
+PROBE BASE-AGENT-011 6 held combined pause: clear either source alone -> agents_paused; clear both -> access and original replay restored without duplicate effects
+PROBE BASE-AGENT-011 7 held: valid Business and native project agent POST paused=false -> 403 person_session_required with identical pause and policy state
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+Catalogue acknowledgement probe: [{"class":"standard","acknowledged":20,"declared":50},{"class":"external","acknowledged":5,"declared":2},{"class":"access","acknowledged":2,"declared":2},{"class":"security","acknowledged":1,"declared":1},{"class":"destructive","acknowledged":4,"declared":3},{"class":"live","acknowledged":7,"declared":3}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+TypeError: fetch failed
+    at Object.processResponse (/workspace/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+    at /workspace/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+    at /workspace/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+    at async MessagePort.<anonymous> ([worker eval]:32:22) {
+  [cause]: SocketError: other side closed
+      at Socket.onHttpSocketEnd (/workspace/run-spool/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+      at Socket.emit (node:events:521:24)
+      at endReadableNT (node:internal/streams/readable:1736:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+}
+
+Node.js v24.19.0
+ ELIFECYCLE  Command failed with exit code 1.

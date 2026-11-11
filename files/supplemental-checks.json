@@ -1,0 +1,30 @@
+{
+  "agent-door": {
+    "complete": false,
+    "attempts": [
+      {
+        "node": "24.19.0",
+        "exit_code": 1,
+        "reason": "Chromium executable variable was not set for this helper",
+        "log": "agent-door-browser-attempt.txt"
+      },
+      {
+        "node": "24.19.0",
+        "exit_code": 1,
+        "reason": "fetch failed; SocketError: other side closed",
+        "log": "agent-door-node24.txt"
+      },
+      {
+        "node": "22.20.0",
+        "exit_code": 1,
+        "reason": "fetch failed; read ECONNRESET in protocolContract state read",
+        "log": "agent-door-node22.txt"
+      }
+    ]
+  },
+  "final-ui": {
+    "exit_code": 0,
+    "receipt": "final-ui.json",
+    "log": "final-ui.txt"
+  }
+}

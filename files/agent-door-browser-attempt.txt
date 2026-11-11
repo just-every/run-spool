@@ -1,0 +1,49 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.5 test:agent-door /workspace/run-spool
+> node tests/agent-door.mjs
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 autonomous: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control autonomous: remove external block on the same saved target -> one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay autonomous: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+PROBE SURFACE-002 acceptance-7-configured autonomous: configured mail with an internal label claim -> unchanged external facts; company approval names the saved address; one fake TEST and inert replay
+PROBE SURFACE-002 acceptance-2 autonomous: MCP spool.alerts.test -> exact active owner and confirmed signed teammate are standard; same-domain, invited, unmapped, roster-removed and native-removed recipients stay external; blocked calls leave native effects unchanged; allowed internal controls each send once to the actual recipient
+PROBE SURFACE-002 acceptance-7-internal autonomous: fresh-key internal and zero-cost arguments plus saved-label claims -> identical standard facts for current Business identities and identical external facts for outside identities
+PROBE SURFACE-002 acceptance-2-held-change autonomous: approve a held internal TEST after signed roster removal -> approval_evidence_changed; a fresh call is externally blocked; no native test or provider send
+PROBE SURFACE-002 acceptance-7-recipient-change autonomous: MCP spool.alerts.test and native destination edit -> label-only change preserves one approved send; address change retires the target and refuses old approval and replay with no send; fresh replacement is externally blocked despite injected claims, then sends once only after fresh exact approval
+Native agent fixture: starting emitted Worker
+Native agent fixture: Worker and ledger ready
+Native agent fixture: signed owner ready
+Native agent fixture: durable Business mapping ready
+PROBE SURFACE-002 acceptance-7 held: MCP spool.alerts.test clean, fresh-key arguments and saved-label claims -> external measure=1 counterparty=known provider=email step=destination test; policy_blocked rule=external-blocked revision=1; no native test, delivery job or provider send
+PROBE SURFACE-002 acceptance-7-control held: remove external block on the same saved target -> inert approval then one native passing test and one fake email to the actual recipient; replay unchanged; external facts retained at revision=2
+PROBE SURFACE-002 acceptance-7-replay held: restore external block then replay admitted key with internal and zero-cost claims -> policy_blocked rule=external-blocked revision=3; computed external facts and completed native state unchanged
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     pnpm exec playwright install                           ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at agentScreens (/workspace/run-spool/tests/agent-door/screens.mjs:9:31)
+    at async externalInjectionContract (/workspace/run-spool/tests/agent-door/external-injection-contract.mjs:142:19)
+    at async file:///workspace/run-spool/tests/agent-door.mjs:29:1 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.19.0
+ ELIFECYCLE  Command failed with exit code 1.
