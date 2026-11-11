@@ -10798,7 +10798,7 @@
       "executable": false
     },
     "tests/archive.mjs": {
-      "sha256": "7445df34a8a5e6efef14c2fb5e3d4ff678f65af2c58703e529233294b473b9cf",
+      "sha256": "2f762764da443408aa82029a80fe1e9f135a9d79d279340c62c93c2eb2afe787",
       "executable": false
     },
     "tests/audit-history.mjs": {
