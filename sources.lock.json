@@ -2662,7 +2662,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "aa7acf59271dac1c8f744d37a5b88a788aa77b7f15b455288db90931ea0a281f",
+      "sha256": "5b9c6854eb819e19696113017e863cf570521316508887eddcef090ffc7fb5fe",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2990,7 +2990,7 @@
       "executable": false
     },
     "docs/getting-started.md": {
-      "sha256": "7338c74a859dc853be72f84653c654ddbc0de11a73813bf162e4e84943208400",
+      "sha256": "3a029c941e5e8616bd4f390caec0be765db19f0ddb84299bbee5f9b89eefafdd",
       "executable": false
     },
     "docs/GROUPING-RULES.md": {
@@ -4154,7 +4154,7 @@
       "executable": false
     },
     "package.json": {
-      "sha256": "7705850df7c5e7eb28ec63968288ba6550c9448f5338af1e1084e7fb25364386",
+      "sha256": "a856064f5af489ec1a4e99622d98ffdca8a67f54369c43a861d1fea102beca60",
       "executable": false
     },
     "packages/agent/bin/spool-agent.mjs": {
@@ -4442,7 +4442,7 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "2a1a22886a577caf5779fd0b581462376792490b12943dd2940523aba1b3e952",
+      "sha256": "9b9687b7e5001444c9e213ffb7879d0996ea48961544f8eff09ae0770e4defc4",
       "executable": false
     },
     "release-history/0.6.0.json": {
@@ -4465,8 +4465,12 @@
       "sha256": "a45511a70267afbe482f90b0bb2791efbb616199ffa5b3c66d410297801cfd03",
       "executable": false
     },
-    "RELEASE.json": {
+    "release-history/0.7.4.json": {
       "sha256": "ed7eec9b68664f3851a04c6d994e2aeddb8c356aefcc887261556f519e18ae65",
+      "executable": false
+    },
+    "RELEASE.json": {
+      "sha256": "daf4b16093e490ab936fdae05f51208a6d11ce3fa2b077b47f69e883bb5f27a7",
       "executable": false
     },
     "rer-project.json": {
@@ -5314,7 +5318,7 @@
       "executable": false
     },
     "seed.json": {
-      "sha256": "2075e37b65fe15176733f6ce2d514b6db20157aaa3138e589ccc0a33c271bac4",
+      "sha256": "109db094b590a3e33e0c4178b2a2f79243b6dbea307ad799e3cc1c07401b734b",
       "executable": false
     },
     "src/archive-evidence.d.ts": {

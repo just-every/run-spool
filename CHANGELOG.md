@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.7.5 — 2026-11-11
+
+Spool 0.7.5 is a small release since 0.7.4 (10 November). It makes a Spool linked to a Business company act for that company only while the company is running, it keeps backups made on 0.7.4 restorable, and it moves to rer 0.2.106.
+
+### What you can now do
+
+- **Rely on a stopped company staying stopped.** A Spool linked to a Business now acts for that Business only when it can positively read that the Business is running. If the Business has stopped, was detached, or its state cannot be read, Spool treats it as stopped and no longer lets it pull agent decisions. Approvals saved by older versions that do not record where they came from are treated as the Business's own and are refused once that Business stops.
+- **Keep each decision with its own company.** A decision handed on is now recorded against the Business it belongs to and no other. Links between a decision and a different Business that can be proved wrong are removed when the migration runs; their audit records are kept.
+- **Keep erased people out of the company policy.** When an operator is erased, every reference to them in the company's policy and in stored approvals becomes a marker that matches nobody. Only a one-way digest of the person's opaque reference is kept, never a name, email or phone, and only until the Business delivers a policy that no longer names them. Until then the policy page asks for a replacement before their approvals can proceed.
+- **Preview a deploy without credentials.** `rer deploy --dry-run` with no Cloudflare credentials builds and plans on your computer, makes no request to the provider, exits successfully, and lists what a real deploy still needs.
+- **Smaller change.** The "Run it yourself" card on the Spool site says "On your computer" instead of "100% free".
+
+### Older archives
+
+- A private archive made on 0.7.4 restores into this version. Spool recognises the earlier relay triggers such an archive records and still refuses an archive whose schema differs in any other way.
+
+### Updating
+
+Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.4 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.5` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds two migrations after 0.7.4 (0102 and 0103). 0102 adds one table for the erased-person markers; 0103 replaces the two relay triggers and removes only the provably wrong cross-Business decision links described above, keeping every audit record. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application now pins rer exactly to 0.2.106. This application release does not publish the Spool SDK.
+
+### Known issues
+
+- Cloudflare Email Sending is checked through setup validation and provider selection; this release's checks do not send live mail through Cloudflare.
+- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
+- Retained hosted archives still require the separate Managed-to-native release qualification. If a retained archive is refused with `schema_mismatch`, restore into the release you exported from.
+- Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
+- The Bugsnag, Rollbar and Sentry importers are checked against synthetic samples. Large imports are bounded to 2 MiB and 500 records, and a bigger set is refused rather than partly applied.
+- The historical 0.6.0 record names 0.5.1 as its predecessor, but no `release-history/0.5.1.json` was retained. This release preserves the earlier records unchanged and does not invent the missing record.
+
+Product screenshot: .github/assets/release/spool-issue-page-1600.png
+
 ## 0.7.4 — 2026-11-10
 
 Spool 0.7.4 is the first release since 0.7.3 (27 October). It adds team access, reporting, a Bugsnag and a Rollbar importer, and more Sentry-compatible behaviour, and it keeps earlier private archives restorable. Several clauses stay partial; the lists below say where.
