@@ -12,7 +12,7 @@ export async function sourceMapCli(args) {
     else if (arg.startsWith('--')) throw new Error('Unknown option');
     else files.push(arg);
   }
-  if (!files.length) throw new Error('Usage: spool-sourcemaps --endpoint ORIGIN --project ID --release NAME --build DIST --key-env ENV_NAME bundle.js [bundle.js ...]');
+  if (!files.length) throw new Error('Usage: spool-sourcemaps --endpoint ORIGIN --project ID --release NAME --build DIST --key-env ENV_NAME [--json] bundle.js [bundle.js ...]');
   const artifacts=[];
   for (const file of files) {
     if (!/\.(?:c?js|mjs)$/.test(file)) throw new Error('Expected JavaScript bundle with adjacent .map');

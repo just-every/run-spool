@@ -2938,7 +2938,7 @@
       "executable": false
     },
     "docs/capture.md": {
-      "sha256": "df8d35ae44d4e9c5e6c6d4643c902096d545b70d567d50643c9bd4e02ae0d60b",
+      "sha256": "f2be46af210e47778097bbc50a1ac64c527d186717daaa22ffd8441889be9b16",
       "executable": false
     },
     "docs/CHECK-INS.md": {
@@ -4206,7 +4206,7 @@
       "executable": false
     },
     "packages/sdk/README.md": {
-      "sha256": "0dd30c0ffc7ff20775340f4fc61de865e8ac55b5ed8d5375831585cd6f46ee80",
+      "sha256": "2422c586f37c735520f8c4dd74ea22af15d4a4abf23142192a1716a04129f0a5",
       "executable": false
     },
     "packages/sdk/src/browser.ts": {
@@ -4258,11 +4258,11 @@
       "executable": false
     },
     "packages/sdk/src/sourcemaps/bin.mjs": {
-      "sha256": "c36078d8e797976b180b9af86c1a1a5b2d3a3a6f41ce54ba3d6a8605d8a1c681",
+      "sha256": "154a57212801acac209873a1430dfefeb26aacdb658d8bd181526f8f00759ab9",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/cli.mjs": {
-      "sha256": "7c99c5b769190c7274047935fca53a25a5af67c931d1b34d5b1a620ca1e9e0e1",
+      "sha256": "e8e664cbd1c7ef3f7bb277dafe325e38b795e46dcee59f0aa5d8fc438779b22e",
       "executable": false
     },
     "packages/sdk/src/sourcemaps/esbuild.mjs": {
@@ -10362,7 +10362,7 @@
       "executable": false
     },
     "src/ui/workbench/ReleasesView.tsx": {
-      "sha256": "5730cc9fef12c7bd5a3d49598f9f778813aadaa0cd380daa264948a8227c3d9e",
+      "sha256": "260c4cb623261330ba9917e52544b52b57f17e109f2d72e67623d818fae25aef",
       "executable": false
     },
     "src/ui/workbench/RepairPanel.css": {
@@ -10486,7 +10486,7 @@
       "executable": false
     },
     "src/ui/workbench/SourceMapSetup.tsx": {
-      "sha256": "3a2d9b624351f91a6322871608d58d4378bddb90e540e9549c4552fc789718a8",
+      "sha256": "ffb48e60f30dbd21cb91ce77ef5884ef42e8a5cbfd933a58d1ead821ee18ff1a",
       "executable": false
     },
     "src/ui/workbench/sourceMapSnippets.ts": {
@@ -11610,7 +11610,7 @@
       "executable": false
     },
     "tests/source-map-capacity.mjs": {
-      "sha256": "2229e51b63eb51a4a56ae35d6d828013401a5a0ca45270d892e69e3f463108da",
+      "sha256": "908ddeef17ba8be2474c98303aef7ac534e176f7d9fe7e091ee310981726b9c5",
       "executable": false
     },
     "tests/source-map-plugins.mjs": {
