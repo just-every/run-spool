@@ -1,0 +1,27 @@
+verify (runtime)	Run suites	﻿2026-11-11T12:14:47.7976257Z ##[group]Run node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+verify (runtime)	Run suites	2026-11-11T12:14:47.7977057Z [36;1mnode tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials[0m
+verify (runtime)	Run suites	2026-11-11T12:14:47.7992974Z shell: /usr/bin/bash -e {0}
+verify (runtime)	Run suites	2026-11-11T12:14:47.7994897Z ##[endgroup]
+verify (runtime)	Run suites	2026-11-11T12:14:47.8596712Z (node:2449) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-11T12:14:47.8597450Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-11T12:14:51.0424216Z Demo capture: app 200; 3 recent events; 3 attributed transaction facts; restart unchanged
+verify (runtime)	Run suites	2026-11-11T12:14:51.4057974Z (node:2478) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (runtime)	Run suites	2026-11-11T12:14:51.4058661Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (runtime)	Run suites	2026-11-11T12:15:54.9321694Z node:internal/modules/run_main:123
+verify (runtime)	Run suites	2026-11-11T12:15:54.9322083Z     triggerUncaughtException(
+verify (runtime)	Run suites	2026-11-11T12:15:54.9322345Z     ^
+verify (runtime)	Run suites	2026-11-11T12:15:54.9322452Z 
+verify (runtime)	Run suites	2026-11-11T12:15:54.9322684Z locator.waitFor: Timeout 30000ms exceeded.
+verify (runtime)	Run suites	2026-11-11T12:15:54.9322855Z Call log:
+verify (runtime)	Run suites	2026-11-11T12:15:54.9324025Z   - waiting for getByRole('region', { name: 'Suspect changes', exact: true }).locator('[data-evidence-id="bf1dd974-b12a-4bf3-9639-0104c3297def"]').getByText('Reactivation · 11/11/2026, 12:15:21 UTC', { exact: true }).first() to be visible
+verify (runtime)	Run suites	2026-11-11T12:15:54.9324761Z 
+verify (runtime)	Run suites	2026-11-11T12:15:54.9325011Z     at suspectFlow (/home/runner/work/run-spool/run-spool/tests/suspect-flow.mjs:42:169)
+verify (runtime)	Run suites	2026-11-11T12:15:54.9325555Z     at async file:///home/runner/work/run-spool/run-spool/tests/deployment-history.mjs:59:2 {
+verify (runtime)	Run suites	2026-11-11T12:15:54.9325869Z   log: [
+verify (runtime)	Run suites	2026-11-11T12:15:54.9326538Z     `  - waiting for getByRole('region', { name: 'Suspect changes', exact: true }).locator('[data-evidence-id="bf1dd974-b12a-4bf3-9639-0104c3297def"]').getByText('Reactivation · 11/11/2026, 12:15:21 UTC', { exact: true }).first() to be visible`
+verify (runtime)	Run suites	2026-11-11T12:15:54.9327008Z   ],
+verify (runtime)	Run suites	2026-11-11T12:15:54.9327127Z   name: 'TimeoutError'
+verify (runtime)	Run suites	2026-11-11T12:15:54.9327257Z }
+verify (runtime)	Run suites	2026-11-11T12:15:54.9327316Z 
+verify (runtime)	Run suites	2026-11-11T12:15:54.9327368Z Node.js v22.20.0
+verify (runtime)	Run suites	2026-11-11T12:15:54.9593291Z ##[error]Process completed with exit code 1.

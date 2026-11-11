@@ -1,0 +1,37 @@
+verify (sdk)	Run suites	﻿2026-11-11T12:14:53.3642816Z ##[group]Run node tests/sentry-http.mjs && node tests/sentry-import.mjs
+verify (sdk)	Run suites	2026-11-11T12:14:53.3643264Z [36;1mnode tests/sentry-http.mjs && node tests/sentry-import.mjs[0m
+verify (sdk)	Run suites	2026-11-11T12:14:53.3661108Z shell: /usr/bin/bash -e {0}
+verify (sdk)	Run suites	2026-11-11T12:14:53.3664064Z ##[endgroup]
+verify (sdk)	Run suites	2026-11-11T12:14:54.3501877Z (node:2459) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (sdk)	Run suites	2026-11-11T12:14:54.3502807Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (sdk)	Run suites	2026-11-11T12:15:32.0436170Z PROBE SDK-011 invalid-only: framed JSON and conversion failures -> typed event invalid_item; no identity, scrubbing, release, issue or alert writes; exact refusal usage
+verify (sdk)	Run suites	2026-11-11T12:15:32.7378970Z PROBE SDK-011 order and accounting: each invalid kind before and after two valid companions -> accepted=25, invalid_item=21; one retained occurrence and accepted unit per valid error
+verify (sdk)	Run suites	2026-11-11T12:15:33.6716768Z PROBE SDK-011 refusal boundaries: malformed framing and store -> whole request refused; refusal-accounting and event-storage faults -> 503 with no partial product writes
+verify (sdk)	Run suites	2026-11-11T12:15:33.8356712Z PROBE SDK-011 authority: invalid, foreign and revoked grants and denied origin -> no companions admitted or conversion refusals attributed
+verify (sdk)	Run suites	2026-11-11T12:15:50.3252389Z OTLP HTTP flow passed: located log/JS exception, resource association, privacy/deduplication, full/partial rejection accounting, framing/limits, project CORS/grant revocation and shared native budget.
+verify (sdk)	Run suites	2026-11-11T12:16:02.1113804Z PROBE FIND-001 priority filtering and ordering: 90 captured issues, four cursor pages, three two-page priority filters, combined predicates, exact JSON and CSV identities and priorities, and changed-query cursor refusals passed.
+verify (sdk)	Run suites	2026-11-11T12:16:09.0465933Z [FIND-003] persisted metric widgets, same-occurrence queries, SDK008 counts, sessions, no-release, saved review tables, report definitions, revisions, sharing, bounded safe exports and capacity refusals passed
+verify (sdk)	Run suites	2026-11-11T12:16:25.8311335Z [API-001] occurrence and feedback pages reconcile with owner UI reads; scope refusals, withdrawal and erasure passed
+verify (sdk)	Run suites	2026-11-11T12:16:28.8462736Z node:internal/modules/run_main:123
+verify (sdk)	Run suites	2026-11-11T12:16:28.8463216Z     triggerUncaughtException(
+verify (sdk)	Run suites	2026-11-11T12:16:28.8463462Z     ^
+verify (sdk)	Run suites	2026-11-11T12:16:28.8463564Z 
+verify (sdk)	Run suites	2026-11-11T12:16:28.8464081Z AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+verify (sdk)	Run suites	2026-11-11T12:16:28.8464404Z 
+verify (sdk)	Run suites	2026-11-11T12:16:28.8464516Z 0 !== 4
+verify (sdk)	Run suites	2026-11-11T12:16:28.8464647Z 
+verify (sdk)	Run suites	2026-11-11T12:16:28.8465026Z     at assertEvents (file:///home/runner/work/run-spool/run-spool/tests/reports-flow.mjs:26:36)
+verify (sdk)	Run suites	2026-11-11T12:16:28.8466113Z     at reportWorkbench (file:///home/runner/work/run-spool/run-spool/tests/reports-flow.mjs:38:246)
+verify (sdk)	Run suites	2026-11-11T12:16:28.8467039Z     at async reportsFlow (file:///home/runner/work/run-spool/run-spool/tests/reports-flow.mjs:122:3)
+verify (sdk)	Run suites	2026-11-11T12:16:28.8468126Z     at async investigationFlow (file:///home/runner/work/run-spool/run-spool/tests/investigation-flow.mjs:34:2)
+verify (sdk)	Run suites	2026-11-11T12:16:28.8469094Z     at async file:///home/runner/work/run-spool/run-spool/tests/sentry-http.mjs:120:3 {
+verify (sdk)	Run suites	2026-11-11T12:16:28.8469982Z   generatedMessage: true,
+verify (sdk)	Run suites	2026-11-11T12:16:28.8470325Z   code: 'ERR_ASSERTION',
+verify (sdk)	Run suites	2026-11-11T12:16:28.8470630Z   actual: 0,
+verify (sdk)	Run suites	2026-11-11T12:16:28.8470882Z   expected: 4,
+verify (sdk)	Run suites	2026-11-11T12:16:28.8471173Z   operator: 'strictEqual',
+verify (sdk)	Run suites	2026-11-11T12:16:28.8471460Z   diff: 'simple'
+verify (sdk)	Run suites	2026-11-11T12:16:28.8471710Z }
+verify (sdk)	Run suites	2026-11-11T12:16:28.8471841Z 
+verify (sdk)	Run suites	2026-11-11T12:16:28.8471963Z Node.js v22.20.0
+verify (sdk)	Run suites	2026-11-11T12:16:28.8882090Z ##[error]Process completed with exit code 1.

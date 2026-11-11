@@ -1,0 +1,69 @@
+{
+  "screens": [
+    {
+      "name": "issues",
+      "width": 1440,
+      "file": "screens/issues-1440.png",
+      "dateText": []
+    },
+    {
+      "name": "issue-detail",
+      "width": 1440,
+      "file": "screens/issue-detail-1440.png",
+      "dateText": [
+        "r1 · fixture",
+        "Nov 11, 2026, 12:25 UTC · Error: Synthetic checkout confirmation missing",
+        "Repository: unmapped. No deployment manifest for this release, build and environment."
+      ]
+    },
+    {
+      "name": "reports",
+      "width": 1440,
+      "file": "screens/reports-1440.png",
+      "dateText": [
+        "Nov 4, 2026, 12:31 UTC – Nov 11, 2026, 12:31 UTC. Daily buckets use this time zone.",
+        "Duration and backlog exclusionsBacklog: 0 excludedAcknowledge: 1 excludedweb · 705bd411cb69c8c0e5afc64a0ffe021bdbc9e187ce4d3b68029b3382cd0d009f: Explicit acknowledgement was not recorded before the window endResolution: 1 excludedweb · 705bd411cb69c8c0e5afc64a0ffe021bdbc9e187ce4d3b68029b3382cd0d009f: Resolution was not recorded before the window end",
+        "Sampling, retention and coverageEvery retained event in the requested receipt-time window is counted; no server query sampling. Upstream SDK sampling and losses before receipt are unknown. These are observed retained counts, not an estimate of all real failures.Event totals use retained receipt times in [from,to); issue and state transitions use their recorded creation times. Daily boundaries follow the chosen IANA time zone; changing zone never changes the underlying instant window or totals.Affected users use retained project-scoped keys only; identities are not joined between projects. Unattributed events remain in every error total.Backlog and duration exclusions name issues with missing lifetime history, grouping changes, inconsistent state or unfinished cycles. Resolved is a recorded triage state, not proof of a successful repair.Ownership and project teams are current assignments. Assignment labels are operator labels, not verified member identities or notifications; historical ownership is unavailable.No-release errors count in all non-release totals and are explicitly excluded from named release rows. Observed session health uses session start time and retains its own denominators, uncertainty and coverage notes.Capture lossesserverRefused: 0clientDiscardedErrors: 0nativeClientDropped: 0filtered: 0Project identity coverageweb: Unavailable affected users · 1 unattributed event · unavailable (policy: drop)Outcome counter windowCounters include whole receipt-minute buckets whose start is within this range; a partial first or last minute may include receipts outside the exact event window. Counter reasons can overlap and must not be summed as a single lost-event denominator. Filter detail reasons overlap the filtered total. Session counters are separate from error counters.Retention and loss records{\n  \"retention\": [\n    {\n      \"project\": \"web\",\n      \"windows\": {\n        \"events\": 90,\n        \"artifacts\": 90,\n        \"feedback\": 90,\n        \"exposures\": 90,\n        \"commits\": 90,\n        \"sessions\": 90\n      },\n      \"held\": false,\n      \"policyCutoffs\": {\n        \"events\": 1786624218056,\n        \"artifacts\": 1786624218056,\n        \"feedback\": 1786624218056,\n        \"exposures\": 1786624218056,\n        \"commits\": 1786624218056,\n        \"sessions\": 1786624218056\n      },\n      \"appliedCutoff\": null,\n      \"removedEvents\": 0,\n      \"removedDuringWindow\": 0,\n      \"lastApplied\": null,\n      \"definition\": \"Policy cutoffs describe current expiry policy at generation time. Applied cutoff and removed counts come from recorded retention operations; they do not reconstruct missing event-time buckets. Legal hold pauses expiry only.\"\n    }\n  ],\n  \"outcomes\": [\n    {\n      \"project\": \"web\",\n      \"reason\": \"accepted\",\n      \"count\": 1\n    }\n  ]\n}Session denominatorsweb · 90 days, at most 50,000 individual sessions and 10,000 aggregate status buckets per project; 100 KiB per item, 1,200 items per project minute. SID updates deduplicate; aggregate quantities have no SDK id and repeated aggregate envelopes cannot be deduplicated. Invalid/refused/client-discard counts use receipt-minute windows, are project-wide and have no release/environment attribution. Historical unsupported sessions are not reconstructed. No raw did, IP or user agent is stored.{\n  \"sessionsSeen\": 0,\n  \"individualSessions\": 0,\n  \"aggregateSessions\": 0,\n  \"anonymousSessions\": 0,\n  \"releaseLess\": 0,\n  \"invalid\": 0,\n  \"filtered\": 0,\n  \"clientDiscarded\": 0\n}"
+      ]
+    },
+    {
+      "name": "alert-preview",
+      "width": 1440,
+      "file": "screens/alert-preview-1440.png",
+      "dateText": "Rule preview\n\nInstallation owner · Owner mailbox · Email\n\nAug 13, 2026, 12:30 UTC – Nov 11, 2026, 12:30 UTC · 5 minute windows · 1 matching accepted events\n\nPreview ready\n\nMatching transitions (1)\nWEB-1 Error: Synthetic checkout confirmation missing\n\nFired · new issue · Nov 11, 2026, 12:30 UTC\n\nDecision details\nOpen issue"
+    },
+    {
+      "name": "issues",
+      "width": 390,
+      "file": "screens/issues-390.png",
+      "dateText": []
+    },
+    {
+      "name": "issue-detail",
+      "width": 390,
+      "file": "screens/issue-detail-390.png",
+      "dateText": [
+        "r1 · fixture",
+        "Nov 11, 2026, 12:25 UTC · Error: Synthetic checkout confirmation missing",
+        "Repository: unmapped. No deployment manifest for this release, build and environment."
+      ]
+    },
+    {
+      "name": "reports",
+      "width": 390,
+      "file": "screens/reports-390.png",
+      "dateText": [
+        "Nov 4, 2026, 12:31 UTC – Nov 11, 2026, 12:31 UTC. Daily buckets use this time zone.",
+        "Duration and backlog exclusionsBacklog: 0 excludedAcknowledge: 1 excludedweb · 705bd411cb69c8c0e5afc64a0ffe021bdbc9e187ce4d3b68029b3382cd0d009f: Explicit acknowledgement was not recorded before the window endResolution: 1 excludedweb · 705bd411cb69c8c0e5afc64a0ffe021bdbc9e187ce4d3b68029b3382cd0d009f: Resolution was not recorded before the window end",
+        "Sampling, retention and coverageEvery retained event in the requested receipt-time window is counted; no server query sampling. Upstream SDK sampling and losses before receipt are unknown. These are observed retained counts, not an estimate of all real failures.Event totals use retained receipt times in [from,to); issue and state transitions use their recorded creation times. Daily boundaries follow the chosen IANA time zone; changing zone never changes the underlying instant window or totals.Affected users use retained project-scoped keys only; identities are not joined between projects. Unattributed events remain in every error total.Backlog and duration exclusions name issues with missing lifetime history, grouping changes, inconsistent state or unfinished cycles. Resolved is a recorded triage state, not proof of a successful repair.Ownership and project teams are current assignments. Assignment labels are operator labels, not verified member identities or notifications; historical ownership is unavailable.No-release errors count in all non-release totals and are explicitly excluded from named release rows. Observed session health uses session start time and retains its own denominators, uncertainty and coverage notes.Capture lossesserverRefused: 0clientDiscardedErrors: 0nativeClientDropped: 0filtered: 0Project identity coverageweb: Unavailable affected users · 1 unattributed event · unavailable (policy: drop)Outcome counter windowCounters include whole receipt-minute buckets whose start is within this range; a partial first or last minute may include receipts outside the exact event window. Counter reasons can overlap and must not be summed as a single lost-event denominator. Filter detail reasons overlap the filtered total. Session counters are separate from error counters.Retention and loss records{\n  \"retention\": [\n    {\n      \"project\": \"web\",\n      \"windows\": {\n        \"events\": 90,\n        \"artifacts\": 90,\n        \"feedback\": 90,\n        \"exposures\": 90,\n        \"commits\": 90,\n        \"sessions\": 90\n      },\n      \"held\": false,\n      \"policyCutoffs\": {\n        \"events\": 1786624221899,\n        \"artifacts\": 1786624221899,\n        \"feedback\": 1786624221899,\n        \"exposures\": 1786624221899,\n        \"commits\": 1786624221899,\n        \"sessions\": 1786624221899\n      },\n      \"appliedCutoff\": null,\n      \"removedEvents\": 0,\n      \"removedDuringWindow\": 0,\n      \"lastApplied\": null,\n      \"definition\": \"Policy cutoffs describe current expiry policy at generation time. Applied cutoff and removed counts come from recorded retention operations; they do not reconstruct missing event-time buckets. Legal hold pauses expiry only.\"\n    }\n  ],\n  \"outcomes\": [\n    {\n      \"project\": \"web\",\n      \"reason\": \"accepted\",\n      \"count\": 1\n    }\n  ]\n}Session denominatorsweb · 90 days, at most 50,000 individual sessions and 10,000 aggregate status buckets per project; 100 KiB per item, 1,200 items per project minute. SID updates deduplicate; aggregate quantities have no SDK id and repeated aggregate envelopes cannot be deduplicated. Invalid/refused/client-discard counts use receipt-minute windows, are project-wide and have no release/environment attribution. Historical unsupported sessions are not reconstructed. No raw did, IP or user agent is stored.{\n  \"sessionsSeen\": 0,\n  \"individualSessions\": 0,\n  \"aggregateSessions\": 0,\n  \"anonymousSessions\": 0,\n  \"releaseLess\": 0,\n  \"invalid\": 0,\n  \"filtered\": 0,\n  \"clientDiscarded\": 0\n}"
+      ]
+    },
+    {
+      "name": "alert-preview",
+      "width": 390,
+      "file": "screens/alert-preview-390.png",
+      "dateText": "Rule preview\n\nInstallation owner · Owner mailbox · Email\n\nAug 13, 2026, 12:30 UTC – Nov 11, 2026, 12:30 UTC · 5 minute windows · 1 matching accepted events\n\nPreview ready\n\nMatching transitions (1)\nWEB-1 Error: Synthetic checkout confirmation missing\n\nFired · new issue · Nov 11, 2026, 12:30 UTC\n\nDecision details\nOpen issue"
+    }
+  ],
+  "pageErrors": []
+}

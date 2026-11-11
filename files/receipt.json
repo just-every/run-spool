@@ -1,0 +1,114 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-one-date-format-1-c1",
+  "head": "7d7d67ee00fc51ee58d8f5aa2c0e026094c88403",
+  "original_head": "956ead3445c24e14513f5925d6b45228e5b8c92d",
+  "main_at_integration": "c6dfd817f8763ae44e5a2a473828e892c945685a",
+  "integration": "origin/main is an ancestor of original head; both merge attempts already up to date; no rebase or force push",
+  "original_verify": {
+    "run": 43013521341,
+    "attempt": 2,
+    "conclusion": "failure",
+    "jobs": {
+      "sdk": 130515840839,
+      "runtime": 130515840851
+    }
+  },
+  "candidate_verify": {
+    "run": 43019972372,
+    "head": "7d7d67ee00fc51ee58d8f5aa2c0e026094c88403",
+    "status": "in_progress",
+    "conclusion": null
+  },
+  "local_checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "node tests/reports-flow.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node tests/deployment-history.mjs",
+      "exit": 0
+    },
+    {
+      "command": "node .artifacts/date-proof.mjs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "test_changes": {
+    "extended_existing_flows": 2,
+    "added": 0,
+    "deleted": 0,
+    "weakened": 0
+  },
+  "contract_changes": {
+    "source_changed": false,
+    "statuses_changed": 0,
+    "gaps_changed": 0,
+    "evidence_changed": 0
+  },
+  "browser_proof": {
+    "widths": [
+      1440,
+      390
+    ],
+    "screens": [
+      "Issues",
+      "Issue detail",
+      "Reports summary and event query table",
+      "Populated saved dashboard windows",
+      "Alerts Rules Preview rule"
+    ],
+    "page_errors": 0
+  },
+  "publication_scan": "Complete fleet publication scan cannot run in this cloud; retained mandatory Mac landing gate.",
+  "github_budget": {
+    "used": 7,
+    "limit": 10
+  },
+  "product_push": {
+    "attempt": 1,
+    "exit": 0,
+    "log": "product-push.log"
+  },
+  "clause_counts_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "clause_counts_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "packet_hygiene": {
+    "injected_value_scan_matches": 0,
+    "original_job_log_environment_lines_omitted": 12,
+    "symlinks_selected": 0
+  }
+}
