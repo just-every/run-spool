@@ -1,10 +1,10 @@
 {
   "files": [
     {
-      "blob": "08b2f91b5f9dcfde3c38ea1abb535e6468a06340",
-      "bytes": 6694,
+      "blob": "af468f6c041ebe0e1afa155dbd33dabe1027393f",
+      "bytes": 8653,
       "path": "REPORT.md",
-      "sha256": "d8f290ca3ae8bde1bd666caef285f4e83c76374ec8b3a3ea03f7d5728400b1eb"
+      "sha256": "4a9a363f4d12685c244a33a322d8d5437f681d2764064ad078a70416ec4875e5"
     },
     {
       "blob": "c2b09a0c5d86e1d6f1e60a272161041e240e0d42",
@@ -13,10 +13,10 @@
       "sha256": "9de17afc145ac493d410f060619d9719e59bbb2565c4385c0d6df438bbedbdc3"
     },
     {
-      "blob": "a5ac17b479810af4d0cd7b854c3f2a8ddcd89d86",
-      "bytes": 810,
+      "blob": "482c3ecb5fd3e9992ad266356ee7dcb9e885c726",
+      "bytes": 1393,
       "path": "ci-receipt.json",
-      "sha256": "058feddcc05df72c2fa55f16aee28c760cfd6fa7c476b8517ed504e70ade9e0a"
+      "sha256": "97542fcc3376695f2e292d50f2a068ea0276f3f04298f5cc2b820e3a6e9ede9e"
     },
     {
       "blob": "e79f75047f17223025aa7dac25485d10df07ca54",
@@ -29,6 +29,12 @@
       "bytes": 70,
       "path": "contract-check.log",
       "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "c4aa77399c433c7ab6d9c1b7422d50498de8fe16",
+      "bytes": 4175,
+      "path": "evidence-roundtrip.json",
+      "sha256": "4f7cadef4b27a89c83a02b5d15ce67104c81995f1e7f0138c87e30ab2e22c679"
     },
     {
       "blob": "2f7c5803330cdd6ce12373f928017a660385fcef",
@@ -67,10 +73,10 @@
       "sha256": "46629ce2c45e18e9d8cc10244f1dcdae440ea5558a7d6ee2e303b7da50ade8a2"
     },
     {
-      "blob": "17c169305f9ac90759c7e954360d4e55041667ee",
-      "bytes": 760,
+      "blob": "58c18bca161eb0d640e3d9e33a3ddb977645259e",
+      "bytes": 917,
       "path": "provenance.json",
-      "sha256": "166aacd55b965a4fa0da9a0af163dd3b3b7baa834481b6c6e1b3892083f16f6f"
+      "sha256": "dddb94220230356d299a1e98fddefba89e05900fea30de9858c2fa485ab20233"
     },
     {
       "blob": "2229b96be307c115e51582baffe6ed2a05972fba",

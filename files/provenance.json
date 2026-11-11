@@ -6,7 +6,7 @@
   "original_head": "5979f3e449d11c30a1ebc65f0148ba5350aa24bc",
   "product_push": "succeeded",
   "verify_run": 43039140439,
-  "github_calls_used": 8,
+  "github_calls_used": 10,
   "pr": null,
   "contract_status_changes": [],
   "test_registration_delta": 0,
@@ -21,6 +21,8 @@
     }
   ],
   "local_handoff": "passed",
-  "ci_status": "in_progress",
-  "ci_conclusion": null
+  "ci_status": "completed",
+  "ci_conclusion": "failure",
+  "custody": "BLOCKED",
+  "blocker": "Required exact-SHA Verify 43039140439 failed; job diagnosis unavailable within exhausted ten-call GitHub budget."
 }

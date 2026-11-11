@@ -17,9 +17,24 @@
       "html_url": "https://github.com/just-every/run-spool/actions/runs/43039140439",
       "status": "in_progress",
       "observed_utc": "2026-11-11T14:41:44.101021+00:00"
+    },
+    {
+      "conclusion": null,
+      "head_sha": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43039140439",
+      "status": "in_progress",
+      "observed_utc": "2026-11-11T14:46:44.865252+00:00"
+    },
+    {
+      "conclusion": "failure",
+      "head_sha": "a6ea6cc152fd4a5d4d2ee4298706056fe8e31639",
+      "html_url": "https://github.com/just-every/run-spool/actions/runs/43039140439",
+      "status": "completed",
+      "observed_utc": "2026-11-11T15:01:00.745979+00:00"
     }
   ],
-  "status": "in_progress",
-  "conclusion": null,
-  "discovery_utc": "2026-11-11T14:31:15Z"
+  "status": "completed",
+  "conclusion": "failure",
+  "discovery_utc": "2026-11-11T14:31:15Z",
+  "github_calls_used": 10
 }
