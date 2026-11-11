@@ -6322,7 +6322,7 @@
       "executable": false
     },
     "src/domain/native-symbols/compat.ts": {
-      "sha256": "5c09e5c03d70847547e5110c415afdf5019afba47d73960652a97d8eaa09b104",
+      "sha256": "ed129835254ddf17c01e0ebb15c295a9c6cf8e87047dcdfc86230854c0eca0c8",
       "executable": false
     },
     "src/domain/native-symbols/debug-formats.ts": {
@@ -6450,7 +6450,7 @@
       "executable": false
     },
     "src/domain/portability.ts": {
-      "sha256": "7abe5466f2da170920c7075c8b2d3f09651bbea34b5fb2395e65c35e81ce7aec",
+      "sha256": "4ac3fbd588f0ce44d6ac6ed3ef727547749c32a98d5e0c7138e96cf34eea6966",
       "executable": false
     },
     "src/domain/privacy.ts": {
@@ -10934,7 +10934,11 @@
       "executable": false
     },
     "tests/fixtures/archive-before-native-symbols.mjs": {
-      "sha256": "1920b5a8f8ea3017761dd9152cd21a43f30b06575f6efecb20064abfd894d3ed",
+      "sha256": "ce1a076b539ae53f4215c6e9e4ad658d267f4c812aa766fc5e152913ec2cb65c",
+      "executable": false
+    },
+    "tests/fixtures/archive-before-relay-privacy.mjs": {
+      "sha256": "455d6a6aac3ad34d7c61f84784f150fba60c14951ad4fce43bd293bb4af1a75d",
       "executable": false
     },
     "tests/fixtures/archive-fc75a7ac.md": {
@@ -11222,7 +11226,7 @@
       "executable": false
     },
     "tests/repair-recovery/archive.mjs": {
-      "sha256": "4fd21423d31263b6deca986872c560384a14146799b380e8560cfbeb99022cd0",
+      "sha256": "29b29262c630092c2c462e673c6dc945633bc97c0c0b29ebdf5cbcddd9bf98ee",
       "executable": false
     },
     "tests/repair-recovery/capture.mjs": {
