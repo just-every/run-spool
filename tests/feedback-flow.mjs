@@ -8,7 +8,10 @@ async function restoreFeedback(before, after, expected) {
  const destination = await startTestWorker(await freePort());
  try {
   const cookie = await signIn(destination.origin);
-  const request = (path, method = 'GET', text) => fetch(destination.origin + path, { method, headers: { Origin: destination.origin, Cookie: cookie,
+  // One connection per request, as sentry-http's req does: archiveProjection verifies a whole archive with the event loop busy,
+  // and a keep-alive connection left idle past the Worker's 5 s idle limit is closed by it; the refused POST would then be
+  // written to a dead socket (fetch failed, write EPIPE) before the client had seen the close.
+  const request = (path, method = 'GET', text) => fetch(destination.origin + path, { method, headers: { Connection: 'close', Origin: destination.origin, Cookie: cookie,
    ...text ? { 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' } : {} }, ...text ? { body: text } : {} });
   const restored = await request('/api/restore', 'POST', after.text);
   assert.equal(restored.status, 200, 'populated feedback restores on an independent installation: '+await restored.clone().text());

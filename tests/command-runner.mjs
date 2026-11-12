@@ -87,7 +87,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
     if(expected!==null)assert.equal(result.code,expected,'seed command exits with the expected status: '+JSON.stringify(classifyCommandOutput(result.output,args[0])));return result;
    }finally{clearTimeout(timeout);}
   }
-  async function ready(args,origin){
+  async function ready(args,origin,onStart=()=>{}){
    const admissionDeadline=Date.now()+20*60*1000;
    let admissionRefusal;
    for(;;){
@@ -99,7 +99,7 @@ export async function commandCheckout(diagnostics=journeyDiagnostics()) {
     diagnostic.resourcePreflight=diagnostic.resourcePreflightRefusal==='unknown'?'failed':'refused';
     throw error;
    }
-   const item=start(args,diagnostic);let timeout;
+   const item=start(args,diagnostic);onStart(item);let timeout;
    const expired=new Promise((_,reject)=>{timeout=setTimeout(()=>{item.diagnostic.timedOut=true;reject(new Error('Managed server failed readiness'));},5*60*1000);});
    async function poll(){
     for(let i=0;i<1200;i++){

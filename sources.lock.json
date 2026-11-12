@@ -5730,7 +5730,7 @@
       "executable": false
     },
     "src/domain/api.ts": {
-      "sha256": "a477d44f2bb62ce0ace8657e8b1b25f2620277133c124cde041563e1716a58ff",
+      "sha256": "bbe604c3a230dec3f282f6aa1afec460ea9452b8ffaaf97828e481ea4b86d5f6",
       "executable": false
     },
     "src/domain/archive-compat.ts": {
@@ -10698,7 +10698,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "e96214f65377332e54491b0dc096cc9428b9945987611d565397ef4a84f80743",
+      "sha256": "491ff86b4e2ffb76a5abf83936fa230841e13ffb3cc3e0d29faecf8f4817b76f",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -10718,7 +10718,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "9bc867408c0627e7da65aede591cdc2615982a6e2833f0bb659d77e6df921214",
+      "sha256": "f2d5a202fff864bac9be183321c55a8892a2c3ab435cac1fa93a17885a43dbee",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -10729,8 +10729,12 @@
       "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
       "executable": false
     },
+    "tests/agent-handoff/trace.mjs": {
+      "sha256": "ea7992640749c5b5f92fb0738b91e91e5e1f74e18e367bd1f3815bbf316c1002",
+      "executable": false
+    },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "7eb963453f7442f52d30290ac43b9402e8bcc8f54b945b2db88887aafe10719a",
+      "sha256": "ba6668293cd09f953d17b0b5ab41c1ccc2ab61f81f6b810e56c4799c01132145",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
@@ -10882,7 +10886,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "6d5d4517ba7ca7c4913621cb6523d787eecef0a813353bbaee9150f5698e3252",
+      "sha256": "f8a0b7ad83899b8d388b8d5d84176a6fe8a9b86678ba0ac91e94960f55c1ec20",
       "executable": false
     },
     "tests/commands.mjs": {
@@ -10954,7 +10958,7 @@
       "executable": false
     },
     "tests/feedback-flow.mjs": {
-      "sha256": "ee2b5a9440b20d51c114eed31c4207e5183c3dc849fb67a7831342038a6002b5",
+      "sha256": "27c5cd42bc5852a7b0cdc7f48c24959a063ab7c9352e415c79fba4ebda4192f6",
       "executable": false
     },
     "tests/fidelity-flow.mjs": {
