@@ -14,7 +14,7 @@ export type CorrectionPreview = {
   newIssue: { id: string; before: number; after: number } | null;
 };
 
-export type CorrectionLabels = { issue: (id: string) => string; event: (id: string, occurrence?: string) => string; issueHref?: (id: string) => string | undefined; eventHref?: (id: string, occurrence?: string) => string | undefined; actor?: (entry: any) => string };
+export type CorrectionLabels = { issue: (id: string) => string; event: (id: string, occurrence?: string) => string; issueHref?: (id: string) => string | undefined; eventHref?: (id: string, occurrence?: string) => string | undefined; actor?: (entry: any) => string; timeZone?: string };
 function IssueReference({ id, labels }: { id: string; labels?: CorrectionLabels }) {
   const href = labels?.issueHref?.(id), text = labels?.issue(id) ?? 'Recorded issue';
   return href ? <a className="inline-link" href={href}>{text}</a> : <span>{text}</span>;
@@ -45,14 +45,17 @@ export function CorrectionReview({ preview, busy, onApply, onCancel, labels }: {
 }
 
 export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { entries: any[]; issueId?: string; busy: boolean; onUndo: (id: string) => void; labels?: CorrectionLabels }) {
+  const [copied, setCopied] = useState(''), [copyError, setCopyError] = useState('');
   const relevant = entries.filter(entry => !issueId || entry.plan.issues.some((item: any) => item.id === issueId) || entry.plan.target === issueId);
   return <>
     <h3>Correction history</h3>
     {relevant.map(entry => <Details key={entry.id} title={`${entry.kind} · ${entry.state}`} triggerLabel={`${entry.kind} · ${entry.state}`}>
-      <p>{labels?.actor?.(entry) ?? 'Recorded operator'} · Created {date(entry.created)} · updated {date(entry.updated)}</p>
+      <p>{labels?.actor?.(entry) ?? 'Recorded operator'} · Created {date(entry.created, labels?.timeZone)} · updated {date(entry.updated, labels?.timeZone)}</p>
       <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}><IssueReference id={issue.id} labels={labels} />: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
       <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}><EventMove move={move} labels={labels} /></li>)}</ol>
-      <button className="text-button" onClick={() => void navigator.clipboard.writeText(JSON.stringify(entry, null, 2))}>Copy details</button>
+      <button className="text-button" onClick={() => { setCopyError(''); void navigator.clipboard.writeText(JSON.stringify(entry, null, 2)).then(() => setCopied(entry.id)).catch(() => setCopyError('Clipboard unavailable. Try Copy details again in a secure browser.')); }}>Copy details</button>
+      {copied === entry.id && <p role="status">Details copied.</p>}
+      {copyError && <p role="alert">{copyError}</p>}
       {entry.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => onUndo(entry.id)}>Undo this correction</button>}
     </Details>)}
     <p>Undo refuses after newer issue work, capture or retention; it never restores deleted occurrences. History is bounded to 50 records per project.</p>
@@ -167,7 +170,7 @@ export function OperatorPanel({ project, packet, busy, request, run, refresh, in
         <p>Corrections move only the reviewed events. Future events keep their original grouping. Retries stay with this issue. Imported history is excluded. A new preview replaces the previous unapplied preview.</p>
         <fieldset>
           <legend>Occurrences to split into a new issue</legend>
-          {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field" key={event.id}>
+          {packet.events.filter((event: any) => !event.historical).map((event: any) => <label className="form-field grouping-event" key={event.id}>
             <input type="checkbox" disabled={busy || !ready} checked={selected.includes(event.id)} onChange={change => setSelected(change.target.checked ? [...selected, event.id] : selected.filter(id => id !== event.id))} />
             <span>{labels.event(event.id, event.occurrence)}</span><a className="inline-link" href={labels.eventHref?.(event.id, event.occurrence)}>Open event</a>
           </label>)}

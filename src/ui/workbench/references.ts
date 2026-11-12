@@ -12,7 +12,7 @@ export function eventReference(row: any, timeZone = 'UTC') {
   if (!row) return 'Event no longer retained';
   const event = row.event ?? row;
   const message = referenceText(event.message || event.type || 'Recorded event');
-  return `${date(row.received, timeZone)} · ${referenceText(event.release) || 'No release'} · ${message.length > 100 ? message.slice(0, 99) + '…' : message}`;
+  return `${date(row.received, timeZone, 'second')} · ${referenceText(event.release) || 'No release'} · ${message.length > 100 ? message.slice(0, 99) + '…' : message}`;
 }
 export function actorReference(actor?: { kind: string; name?: string | null } | null) {
   return actor ? referenceText(personLabel(actor.kind, actor.name)) : 'Recorded operator';

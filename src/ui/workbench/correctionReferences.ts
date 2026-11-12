@@ -8,8 +8,8 @@ export async function loadCorrectionReferences(root: string, packet: any, histor
   const events = [...packet.events];
   // Resolve moved occurrences from their current issue as well as their recorded source.
   const ids = [...new Set<string>(history.flatMap(entry => entry.plan.moves.flatMap((move: any) => [move.from, move.to])))];
-  const missing = ids.filter(id => id !== packet.issue.id && history.some(entry => entry.plan.moves.some((move: any) =>
-    (move.from === id || move.to === id) && !events.some(event => event.id === move.event && event.occurrence === move.occurrence))));
+  const missing = ids.filter(id => id !== packet.issue.id && (!issues.some((issue: any) => issue.id === id) || history.some(entry => entry.plan.moves.some((move: any) =>
+    (move.from === id || move.to === id) && !events.some(event => event.id === move.event && event.occurrence === move.occurrence)))));
   for (const result of await Promise.allSettled(missing.map(id => request(`${root}/issues/${encodeURIComponent(id)}/packet`)))) {
     if (result.status === 'rejected') { if (result.reason?.status !== 404) throw result.reason; continue; }
     issues.push(result.value.issue); events.push(...result.value.events);
@@ -20,6 +20,7 @@ export function correctionLabels(project: string, packet: any, references: any, 
   const issues = references?.issues ?? [packet.issue], events = [...packet.events, ...(references?.events ?? [])];
   const event = (id: string, occurrence?: string) => events.find(row => row.id === id && (!occurrence || row.occurrence === occurrence));
   return {
+    timeZone: references?.timeZone,
     issue: id => issueReference(issues.find((row: any) => row.id === id) ?? (preview?.newIssue?.id === id ? { title: `New issue · ${packet.issue.title} (short ID assigned on apply)` } : null)),
     event: (id, occurrence) => eventReference(event(id, occurrence), references?.timeZone),
     issueHref: id => issues.some((row: any) => row.id === id) ? hrefFor(project, 'issues', id) : undefined,

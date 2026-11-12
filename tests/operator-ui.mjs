@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 /** Runs inside the existing triage browser and uses actual IssueView/ReleasesView. */
 export async function operatorUi({page,api,origin,project,issue,capture}){
  const root='/api/projects/'+project;
+ await api(root+'/alerting/digest-settings','PUT',{timezone:'America/New_York',destination:null,daily:false,weekly:false,personal_daily:false,personal_weekly:false,hour:9,quiet_start:null,quiet_end:null});
  const readable=async locator=>assert.doesNotMatch(await locator.innerText(),/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b|\b[0-9a-f]{24,}\b|\{\s*"(?:id|plan|moves)"/i,'Readable grouping content excludes storage identities and JSON');
  const groupingSnapshot=async()=>{const {data}=await api('/api/archive');return Object.fromEntries(['events','issues','event_grouping'].map(table=>[table,data[table].filter(row=>row.project===project)]));};
  const assertMoves=(before,after,plan,undo=false)=>{
@@ -71,6 +72,8 @@ export async function operatorUi({page,api,origin,project,issue,capture}){
   const href=await page.locator('.correction-review ol a').first().getAttribute('href');
   assert.equal(new URL(href,origin).searchParams.get('occurrence'),selected.occurrence);
   assert.equal(new URL(href,origin).searchParams.get('event'),selected.id);
+  assert.ok((await page.getByRole('dialog',{name:'Correct grouping',exact:true}).locator('fieldset').innerText()).includes('America/New_York'),'The picker uses the project timezone');
+  const record=await page.context().newPage();await record.goto(origin+href);await record.locator(`.metadata[data-event-id="${selected.id}"]`).waitFor();assert.equal(new URL(record.url()).searchParams.get('occurrence'),selected.occurrence);await record.close();
  }
  const before=await api(`/api/projects/${project}/issues/${issue}/packet`);assert.ok(before.events.length);await capture('operator-preview');
  await Promise.all([page.waitForResponse(r=>/\/corrections\/[^/]+\/apply$/.test(r.url())&&r.status()===200),page.getByRole('button',{name:'Apply reviewed correction',exact:true}).click()]);
