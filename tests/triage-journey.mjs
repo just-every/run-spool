@@ -94,12 +94,13 @@ try {
   await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
   const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();assert.equal((await created).status(),201);
+  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();const createdResponse=await created;assert.equal(createdResponse.status(),201);const createdKey=await createdResponse.json();
   await page.getByRole('button',{name:'Dismiss key',exact:true}).click();
-  const key=page.locator('.key-row').last();await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
+  const key=page.locator(`[data-key-hash="${createdKey.hash}"]`);await expect(key).toContainText('Deploy');await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
   await page.getByRole('dialog',{name:'Project key',exact:true}).getByRole('button',{name:'Revoke key',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Project key',exact:true})).toContainText('Revoked');
   await page.getByRole('button',{name:'Close details',exact:true}).click();
+  const remainingKeys=await api('/api/projects/cedar/keys');assert.ok(remainingKeys.find(row=>row.hash===createdKey.hash)?.revoked,'the newly created deploy key is revoked');assert.ok(remainingKeys.filter(row=>row.hash!==createdKey.hash).every(row=>row.revoked===null),'existing project keys remain active');
   const projectsAddress=page.url();await page.reload();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();assert.equal(page.url(),projectsAddress);
  }
  await capture('settings-projects',width);
@@ -220,7 +221,7 @@ try {
   // The UI sends a real native envelope. Replay its same message and exact
   // frames as an ordinary TypeError to isolate the test marker's grouping.
   const sent=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');
-  await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted');
+  await page.getByRole('button',{name:'Capture test exception',exact:true}).click();const response=await sent,event=response.request().postDataJSON(),test=await response.json();assert.equal(test.outcome,'accepted',`built-in test capture: ${test.reason??test.outcome}`);
   const ingest=async value=>{const response=await fetch(origin+'/api/ingest/cedar',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+project.ingestKey,'Content-Type':'application/json'},body:JSON.stringify(value)});assert.equal(response.status,201);return response.json();};
   const real=await ingest({...event,eventId:crypto.randomUUID(),type:'TypeError',environment:'production'});assert.notEqual(test.issue,real.issue,'a test never joins the real issue with the same message and frames');
   const repeated=page.waitForResponse(response=>response.url()===origin+'/api/ingest/cedar'&&response.request().method()==='POST');await page.getByRole('button',{name:'Capture test exception',exact:true}).click();assert.equal((await (await repeated).json()).issue,test.issue);
