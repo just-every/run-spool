@@ -43,11 +43,41 @@ export async function releaseIdentityFlow({req,json,origin,cookie}){
  for(const release of [undefined,'b'.repeat(40)]){await promisify(execFile)(process.execPath,['--input-type=module','-e',program],{cwd:process.cwd(),env:{PATH:process.env.PATH,HOME:process.env.HOME,SPOOL_DSN:sdkProject.dsn,...release?{SENTRY_RELEASE:release}:{}},timeout:20000});}
  assert.equal((await json('/api/projects/release-sdk/issue-search?q=!has:release')).total,1,'unmodified Node SDK without release is accepted');
  const sdkReleases=await json('/api/projects/release-sdk/releases');assert.equal(sdkReleases.length,1);assert.equal(sdkReleases[0].name,'b'.repeat(40));assert.equal(sdkReleases[0].auto_created,1);assert.ok(JSON.parse(sdkReleases[0].creating_sdk).name.includes('node'));
+ // A deployment can refer to the same absent-dist identity without exposing its storage marker.
+ const deadlineDestination=await json('/api/projects/release-sdk/alerting/destinations','POST',{label:'Release deadline',recipient:'synthetic-spool-1@example.com'});
+ const startedAt=new Date().toISOString();
+ await json('/api/projects/release-sdk/deployments','POST',{id:'synthetic-spool-1',release:sdkReleases[0].name,build:sdkReleases[0].build,environment:'production',repository:'https://github.com/synthetic-spool/app',commitSha:'a'.repeat(40),includedCommits:['a'.repeat(40)],startedAt,deadline:new Date(Date.parse(startedAt)+3600000).toISOString(),destination:deadlineDestination.id});
  const archive=await archiveProjection(await req('/api/archive'));assert.equal(archive.data.release_metadata.filter(r=>r.project==='release-identity').length,3);assert.ok(archive.data.events.some(e=>e.project==='release-identity'&&e.release===''&&e.release_seq===0));
  const restored=await startTestWorker(15526);try{const restoredCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const t of ['release_metadata','release_builds','release_policies','issue_resolutions','recurrence_policies','issue_recurrence_boundaries','issue_priorities','issue_activity'])assert.deepEqual(copied.data[t],archive.data[t]);}finally{await restored.stop()}
  const samePolicy=await json(base+'/recurrence-policy'),samePreview=await json(base+'/recurrence-policy','POST',{revision:samePolicy.revision,reopenSameRelease:true,preview:true});await json(base+'/recurrence-policy','POST',{revision:samePolicy.revision,reopenSameRelease:true,apply:true,preview:samePreview.preview});
  const browser=await launchBrowser();try{await mkdir('.artifacts/release-identity',{recursive:true});for(const width of [1440,390]){
   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();
+  // The same unmodified SDK captures must remain intelligible without release/dist.
+  await page.goto(origin+'/projects/release-sdk/issues');await page.locator('.issue-open').first().waitFor();
+  const releaseFilter=page.getByRole('combobox',{name:'Release',exact:true});
+  if(width===1440){
+   const missingOption=releaseFilter.locator('option[value=""]');
+   assert.match(await missingOption.innerText(),/no release/i,'Absent release has a meaningful filter label');
+   await releaseFilter.selectOption('');await page.getByRole('status').filter({hasText:'matching your filters'}).waitFor();assert.equal(await page.locator('.issue-open').count(),1,'The labelled absence still filters the captured issue');
+  }
+  await page.screenshot({path:`.artifacts/release-identity/no-release-filter-${width}.png`,fullPage:true});
+  const sdkIssue=(await json('/api/projects/release-sdk/issues'))[0];
+  await page.goto(origin+'/projects/release-sdk/issues/'+sdkIssue.id);await page.getByRole('button',{name:'Oldest',exact:true}).click();
+  const recent=page.locator('.recent-occurrence');await recent.locator('dd').filter({hasText:/no release/i}).waitFor();
+  const observed=page.locator('section').filter({has:page.getByRole('heading',{name:'Observed deployments',exact:true})});
+  if(width===1440){
+   const fact=label=>recent.locator('.issue-facts > div').filter({has:page.getByText(label,{exact:true})}).locator('dd');
+   assert.match(await fact('Release').innerText(),/no release/i);assert.match(await fact('Build').innerText(),/no build/i);
+   assert.match(await observed.innerText(),/no release/i);assert.ok(!(await observed.innerText()).includes('[sentry:'));
+  }
+  await recent.screenshot({path:`.artifacts/release-identity/no-release-issue-${width}.png`});await observed.screenshot({path:`.artifacts/release-identity/no-release-observed-${width}.png`});
+  await page.goto(origin+'/projects/release-sdk/releases');const sdkHistory=page.locator('section').filter({has:page.getByRole('heading',{name:'Release history',exact:true})});await sdkHistory.locator('.data-row').first().waitFor();
+  if(width===1440){assert.match(await sdkHistory.locator('[data-label="Build identifier"]').innerText(),/no build/i);assert.ok(!(await sdkHistory.innerText()).includes('[sentry:'));}
+  await sdkHistory.screenshot({path:`.artifacts/release-identity/no-dist-history-${width}.png`});
+  const sdkDeployment=page.locator('.deployment-record').filter({hasText:'synthetic-spool-1'});await sdkDeployment.waitFor();
+  if(width===1440){assert.match(await sdkDeployment.innerText(),/no build/i);assert.ok(!(await sdkDeployment.innerText()).includes('[sentry:'));}
+  await sdkDeployment.screenshot({path:`.artifacts/release-identity/no-dist-deployment-${width}.png`});
+
   await page.goto(origin+'/projects/release-identity/settings#settings-processing');if(width===1440){const recurrence=page.locator('section').filter({has:page.getByRole('heading',{name:'Release recurrence',exact:true})});for(const checked of [false,true]){await recurrence.getByRole('checkbox').setChecked(checked);await recurrence.getByRole('button',{name:'Preview recurrence policy',exact:true}).click();await recurrence.getByRole('heading',{name:'Resolved issue preview',exact:true}).waitFor();await recurrence.getByRole('button',{name:'Save recurrence policy',exact:true}).click();await recurrence.getByRole('status').waitFor();}}const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Sentry release identity',exact:true})});await panel.getByLabel('Release ordering rule',{exact:true}).selectOption('sentry');await panel.getByRole('button',{name:'Preview release policy',exact:true}).click();await panel.getByRole('heading',{name:'Resolution boundary preview',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-identity/policy-${width}.png`});const apply=panel.getByRole('button',{name:'Apply release policy',exact:true});if(await apply.count()){await apply.click();await panel.locator('.save-mark[data-state="saved"]').waitFor();}
   await page.goto(origin+'/projects/release-identity/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await page.screenshot({path:`.artifacts/release-identity/history-${width}.png`,fullPage:true});
   row=await issue();await page.goto(origin+'/projects/release-identity/issues/'+row.id);await page.getByLabel('Resolution',{exact:true}).selectOption('plain');await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');await page.locator('.issue-summary').screenshot({path:`.artifacts/release-identity/resolved-${width}.png`});const recurrence=await send();
