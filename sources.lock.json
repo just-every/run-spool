@@ -10338,7 +10338,7 @@
       "executable": false
     },
     "src/ui/workbench/OperatorPanel.tsx": {
-      "sha256": "01a4d5ead36ba727aac930ddc6479aec2c18ce49e1fa9317637e427724c0c0db",
+      "sha256": "2b817275859844bf17e3f71f2f1cef8c2cb6b167f53a35144816d40736ce8a27",
       "executable": false
     },
     "src/ui/workbench/PersonalNotifications.tsx": {

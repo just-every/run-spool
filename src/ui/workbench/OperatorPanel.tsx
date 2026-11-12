@@ -53,10 +53,10 @@ export function CorrectionHistory({ entries, issueId, busy, onUndo, labels }: { 
       <p>{labels?.actor?.(entry) ?? 'Recorded operator'} · Created {date(entry.created, labels?.timeZone)} · updated {date(entry.updated, labels?.timeZone)}</p>
       <ul>{entry.plan.issues.map((issue: any) => <li key={issue.id}><IssueReference id={issue.id} labels={labels} />: {issue.count} → {issue.after} {plural(issue.after, 'event')}</li>)}</ul>
       <ol>{entry.plan.moves.map((move: any) => <li key={`${move.event}:${move.occurrence}`}><EventMove move={move} labels={labels} /></li>)}</ol>
-      <button className="text-button" onClick={() => { setCopyError(''); void navigator.clipboard.writeText(JSON.stringify(entry, null, 2)).then(() => setCopied(entry.id)).catch(() => setCopyError('Clipboard unavailable. Try Copy details again in a secure browser.')); }}>Copy details</button>
+      <div className="button-row"><button className="text-button" onClick={() => { setCopyError(''); void navigator.clipboard.writeText(JSON.stringify(entry, null, 2)).then(() => setCopied(entry.id)).catch(() => setCopyError('Clipboard unavailable. Try Copy details again in a secure browser.')); }}>Copy details</button>
+      {entry.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => onUndo(entry.id)}>Undo this correction</button>}</div>
       {copied === entry.id && <p role="status">Details copied.</p>}
       {copyError && <p role="alert">{copyError}</p>}
-      {entry.state === 'applied' && <button className="text-button" disabled={busy} onClick={() => onUndo(entry.id)}>Undo this correction</button>}
     </Details>)}
     <p>Undo refuses after newer issue work, capture or retention; it never restores deleted occurrences. History is bounded to 50 records per project.</p>
   </>;
