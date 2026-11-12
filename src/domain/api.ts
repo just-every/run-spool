@@ -79,7 +79,7 @@ import businessImportRoutes from './sentry-import/business-routes';
 import { projectDsn } from './sentry/dsn';
 import { feedbackRoutes } from './feedback/routes';
 import { browserOrigin, ingestOrigin, requestedHeaders } from './origins';
-import { clientDroppedSql, issueAttentionSql, decodeIssueAttention } from './issue-attention';
+import { clientDroppedSql, issueAttentionSql, decodeIssueAttention, listedIssueSql } from './issue-attention';
 import { recordDevMint } from './dev-credentials';
 import { agentProject, agentReadPath } from './agent-access';
 import { deniedResponse } from './denied-response';
@@ -230,7 +230,7 @@ api.get('/api/projects/:project/issues',async c=>{
   if(!['open','all'].includes(state))throw new Error('Issue state must be open or all');
   if(!/^[1-9]\d*$/.test(limitParam)||!Number.isSafeInteger(limit)||limit>100)throw new Error('Issue limit must be an integer from 1 to 100');
   await ensureShortIds(c.env.DB,c.req.param('project'));
-  const rows=(await stmt(c.env.DB,`SELECT i.*, ${prioritySql('i')} priority, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE issue=i.id AND project=i.project ORDER BY received DESC,id DESC LIMIT 1) last_release, ${issueReleasesSql('i')} releases FROM issues i WHERE i.project=? AND i.count>0 AND (?='all' OR i.state=?) ORDER BY CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END DESC,last_seen DESC,id DESC LIMIT ?`,c.req.param('project'),state,state,limit).all<any>()).results;
+  const rows=(await stmt(c.env.DB,`SELECT i.*, ${prioritySql('i')} priority, ${shortIdColumnsSql('i')}, (SELECT mode FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) resolution_mode,(SELECT seen_without_release FROM issue_resolutions r WHERE r.project=i.project AND r.issue=i.id) seen_without_release, ${issueAttentionSql}, ${clientDroppedSql}, (SELECT release FROM events WHERE issue=i.id AND project=i.project ORDER BY received DESC,id DESC LIMIT 1) last_release, ${issueReleasesSql('i')} releases FROM issues i WHERE i.project=? AND ${listedIssueSql('i')} AND (?='all' OR i.state=?) ORDER BY CASE json_extract(attention,'$.kind') WHEN 'regression' THEN 2 WHEN 'new_issue' THEN 1 ELSE 0 END DESC,last_seen DESC,id DESC LIMIT ?`,c.req.param('project'),state,state,limit).all<any>()).results;
   return c.json(rows.map(decodeIssueAttention).map(decodeShortIds).map(row=>c.get('project')?issueProjection(row):ownerIssue(row)));
 });
 api.get('/api/projects/:project/outcomes',async c=>c.json({captureKeys:await stmt(c.env.DB,`SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN revoked IS NULL AND ${mintedByCurrentPerson} THEN 1 ELSE 0 END),0) active FROM credentials WHERE project=? AND kind='ingest'`,c.req.param('project')).first(),window:'last 24 hours',coverage:'Server admission and SDK-reported client discards; unreported pre-transport loss remains unknown',rows:(await stmt(c.env.DB,'SELECT reason,SUM(count) count FROM outcomes WHERE project=? AND window>=? GROUP BY reason',c.req.param('project'),now()-86400000).all<any>()).results.map(outcomeProjection)}));
