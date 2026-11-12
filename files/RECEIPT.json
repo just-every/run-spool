@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-setup-links-1",
+  "head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "counts": {
+    "indexedDocsPages": {
+      "before": 8,
+      "after": 12
+    },
+    "prerequisiteGuides": {
+      "before": 0,
+      "after": 4
+    },
+    "prerequisiteSurfacesWithOnSiteGuide": {
+      "before": 0,
+      "after": 4
+    },
+    "firstProjectIdentityNotice": {
+      "before": 0,
+      "after": 1
+    },
+    "testRegistrationsAdded": 0,
+    "contractJudgmentsChanged": 0
+  },
+  "localChecks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/runtime.mjs",
+      "exit": 0,
+      "log": "runtime.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/execution-journey.mjs",
+      "exit": 0,
+      "log": "execution.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node .rer/live-first-project.mjs",
+      "exit": 0,
+      "log": "first-project.log",
+      "note": "First-project helper on actual rer dev; private entry output consumed without recording. 1440 assertions, 1440/390 screenshots."
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node .rer/docs-proof.mjs",
+      "exit": 0,
+      "log": "docs-proof.log",
+      "note": "Anonymous published guides at 1440 and 390; phone page width measured 390 for every guide."
+    }
+  ],
+  "ci": {
+    "run": 43180459370,
+    "head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+    "status": "in_progress",
+    "discovered": "2026-11-12T08:08:09Z",
+    "coreCallsUsed": 3,
+    "supersededRun": 43179749770,
+    "conclusion": null,
+    "head_sha": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43180459370",
+    "observed": "2026-11-12T08:13:09.523904+00:00"
+  },
+  "publication": {
+    "productPush": "success",
+    "defaultBranchWritten": false,
+    "fullPublicationScan": "Mac fleet only; cloud cannot run it",
+    "evidence": "pending",
+    "saveHeads": [
+      "40ffe5e",
+      "9fd3957"
+    ],
+    "productHead": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca"
+  },
+  "unpublishedFailures": [
+    {
+      "probe": "firstProjectJourney on standalone emitted test Worker",
+      "result": "NOT APPLICABLE: test Worker lacks actual rer dev owner entry; actual rer dev journey passed"
+    },
+    {
+      "probe": "early actual rer dev harness",
+      "result": "Dev process exited before readiness; filtered diagnostic was empty. A later actual rer dev journey passed."
+    }
+  ],
+  "candidateRecheck": {
+    "head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+    "build": 0,
+    "runtime": 0,
+    "typecheck": 0,
+    "sourceCheck": 0,
+    "workingTreeClean": true
+  },
+  "browserReceipt": "BROWSER-RECEIPT.json"
+}

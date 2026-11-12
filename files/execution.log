@@ -1,0 +1,6 @@
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-004 an interrupted send, an expired lease and a lost provider response each leave one durable follow-up and never a duplicate. Execution journey passed: outcomes reproduced,not_reproduced,failed,failed,not_reproduced,unsupported; module loading syntax finished failed load_failed,unresolved finished failed load_failed; workflow approved_awaiting_connection then deployed; exposure inconclusive,inconclusive,inconclusive,reached,inconclusive,recurred; 4 captures.

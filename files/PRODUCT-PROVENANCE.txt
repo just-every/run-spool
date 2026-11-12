@@ -1,0 +1,41 @@
+$ git rev-parse HEAD
+4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca
+
+$ git log origin/main..HEAD --format=%H%n%an <%ae>%n%cn <%ce>%n%s%n%(trailers:only,unfold)
+4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+Keep egress installation configuration outside the vendored module
+
+9fd395749934185d55d067417a85d466d11c2617
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+Capture the first-project policy at desktop and phone widths
+
+40ffe5edcc2df2e9297a333630f2a3a1099c44d6
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+Link setup prerequisites to complete local guides [skip ci]
+
+
+$ git diff --stat origin/main..HEAD
+ docs/BUSINESS-IMPORT-TRUST.md              | 40 +++++++++++++++
+ docs/GITHUB-CONNECTION.md                  | 33 ++++++++++++
+ docs/INTEGRATION-EGRESS.md                 | 80 ++++++++++++++++++++++++++++++
+ docs/USER-IDENTITY.md                      | 16 ++++++
+ docs/overview.md                           |  7 +++
+ docs/site.json                             | 25 ++++++++++
+ sources.lock.json                          | 44 +++++++++++-----
+ src/ui/alerts/SlackDestinationForm.tsx     |  2 +-
+ src/ui/workbench/BusinessImports.tsx       |  2 +-
+ src/ui/workbench/CheckInRoutes.tsx         |  2 +-
+ src/ui/workbench/GitHubConnectionSetup.tsx |  7 +--
+ src/ui/workbench/IdentityPolicy.tsx        |  2 +-
+ src/ui/workbench/ProjectForm.tsx           |  2 +-
+ tests/execution/ui.mjs                     |  6 ++-
+ tests/runtime.mjs                          |  2 +
+ tests/setup-journey.mjs                    | 13 +++--
+ tests/setup-prerequisites.mjs              | 47 ++++++++++++++++++
+ 17 files changed, 306 insertions(+), 24 deletions(-)
+
+$ git status --short

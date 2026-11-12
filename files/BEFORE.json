@@ -1,0 +1,11 @@
+{
+  "setupPolicyVisible": false,
+  "cron": {
+    "text": "Cron check-ins\n\nSpool accepts Sentry cron check-ins at your DSN and forwards each to an Uptime heartbeat you connect here: a start, a success or a failure receipt per check-in. Uptime, not Spool, evaluates schedules and missed runs. With no connection a check-in is counted as unrouted and nothing is sent.\n\nThis installation has no egress service installed, so connected check-ins are counted as not routed and nothing is sent.\n\nNo monitor is connected. Forwarding is off.\n\nMonitor slug\nUptime heartbeat capability URL\n\nPaste the separate capability URL Uptime shows once when it issues a heartbeat key. It is kept by this installation, never shown again and never exported.\n\nConnect monitor",
+    "guideLinks": 0
+  },
+  "slack": "Slack destinations\nConnect Slack\n\nPosts a compact issue summary and link only. No interactive actions. A test posts “Spool TEST — destination check. No issue or alert was created.” to the selected channel. Posted is provider acknowledgment; it never means a person read it.\n\nSlack destination name\nSlack channel identifier\nSlack bot token\n\nThe token stays in this installation and is excluded from reads, archives and exports. Restored rules stay disabled until you reconnect. Slack needs the installation’s integration egress service; real Slack qualification is not run.\n\nConnect Slack",
+  "business": "Business imports\nClose details\n\nEnable imports from trusted business keys. Imports are off by default.\n\nOwner-claim trust configuration is required before enabling business imports.\n\nEnable business imports\nTrusted keys\n\nNo trusted business keys configured.\n\nImport history\n\nNo business imports yet.",
+  "github": "GitHub connection: not configured. Fix branches cannot contact GitHub.\n\nGitHub setup is unavailable on this page.\nThere is no credential form or connection test.\n\nHosted Spool cannot connect GitHub on this install: its deployment does not support the optional GitHub connection secret. Local Spool requires operator changes: someone with access to the Spool checkout must edit its private settings and restart Spool. Creating a GitHub App alone does not connect it.\n\nApproving a grant while disconnected does not contact GitHub; its expiry clock still starts.\n\nShow connection limits",
+  "githubGuideLinks": 0
+}

@@ -1,0 +1,20 @@
+{
+  "head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+  "runtime": "emitted Worker from final rer build",
+  "widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    "setup",
+    "GitHub connection",
+    "Slack destinations",
+    "Cron check-ins",
+    "Business imports",
+    "four on-site docs guides"
+  ],
+  "setupAndGitHubCapture": "final-ui-proof.mjs",
+  "settingsCapture": "tests/runtime.mjs#settingsPrerequisiteGuides",
+  "docsCapture": "docs-proof.mjs",
+  "credentials": "No keys or private entry URLs rendered in selected screenshots."
+}
