@@ -2937,6 +2937,10 @@
       "sha256": "cd6b58e81c7f448bef22b6c2ac1bd22895be73a8a24be5261bb264d05c8fa146",
       "executable": false
     },
+    "docs/BUSINESS-IMPORT-TRUST.md": {
+      "sha256": "a926ea4ea3d53621f8ce7f642956364b1b3d070d9854c046049eb70d1c27ad8b",
+      "executable": false
+    },
     "docs/capture.md": {
       "sha256": "f2be46af210e47778097bbc50a1ac64c527d186717daaa22ffd8441889be9b16",
       "executable": false
@@ -2993,6 +2997,10 @@
       "sha256": "3aa0206a0047352daf62a139f704fe9e3f36db28f2bdcb5b0692fb252091a88e",
       "executable": false
     },
+    "docs/GITHUB-CONNECTION.md": {
+      "sha256": "3565cc8ee227f0b8947c9d315f37eca10d0ef7e4eb1f6a727cda7f7d86e61986",
+      "executable": false
+    },
     "docs/GROUPING-RULES.md": {
       "sha256": "3e757d157d9cfd77bfac274b73383c4018e3b1de6c9d49f001bcb6dd385a3ddb",
       "executable": false
@@ -3011,6 +3019,10 @@
     },
     "docs/install.md": {
       "sha256": "3ce1be13db94dd2e86e98626f2fd3037fd9acb5be0c9299ec7c24021acbda16e",
+      "executable": false
+    },
+    "docs/INTEGRATION-EGRESS.md": {
+      "sha256": "c094a6ead1b966dfd78906bf733b53ef0cc1121416a6afeb17c16dacd75b287b",
       "executable": false
     },
     "docs/INVESTIGATION.md": {
@@ -3038,7 +3050,7 @@
       "executable": false
     },
     "docs/overview.md": {
-      "sha256": "1ee9c1440a5d9864064c5823592b578b1350b8f0f1a8b61bb54a34bac01ccbd9",
+      "sha256": "7429467fb0cfdba8c5d98464f72e07714c9528b180e6101c7676bb07d8c0a641",
       "executable": false
     },
     "docs/OWNER-ERASURE.md": {
@@ -3702,7 +3714,7 @@
       "executable": false
     },
     "docs/site.json": {
-      "sha256": "20cfad4b0bbc5bf5778cc09fcca20b181fa48fc22da093b5d51d5c83f65c1e38",
+      "sha256": "d75b05d45f8dc997f0b3b75d302d5d4874bc78b878e82c3be06009d4b915dec7",
       "executable": false
     },
     "docs/SOURCE-MAPS.md": {
@@ -3719,6 +3731,10 @@
     },
     "docs/triage.md": {
       "sha256": "4404ac92f456fd4fec44be5ad504d22421b499af45a66f3636a6866f01a1edb4",
+      "executable": false
+    },
+    "docs/USER-IDENTITY.md": {
+      "sha256": "952f48e25dac6abbf2a0574873fade08b316616fbd6dbe6e6b0086ca1f165428",
       "executable": false
     },
     "docs/WITH-YOUR-AGENT.md": {
@@ -10014,7 +10030,7 @@
       "executable": false
     },
     "src/ui/alerts/SlackDestinationForm.tsx": {
-      "sha256": "e87aa157f4403a5f3fbdbd85b8f953f778363e6c0731984377cfff7f00475299",
+      "sha256": "4d7d2d7e90971a2a4555a562e84d4932a90a4351289a986b998b8810e0591bef",
       "executable": false
     },
     "src/ui/BrowserOrigins.tsx": {
@@ -10166,7 +10182,7 @@
       "executable": false
     },
     "src/ui/workbench/BusinessImports.tsx": {
-      "sha256": "3a4d103861b28fb8f3342b8b2b49674f0250466da2b92ffb66f2ffdb1cc679ce",
+      "sha256": "1c24ab021e029c3aa42b951267f63fb4fcc6954570c5163048f80c974c4a496c",
       "executable": false
     },
     "src/ui/workbench/CaptureReceipts.tsx": {
@@ -10186,7 +10202,7 @@
       "executable": false
     },
     "src/ui/workbench/CheckInRoutes.tsx": {
-      "sha256": "0bde9b7a36eaba0ab8c6c50e9cee36e23436d496183ed97e337115e351648e3a",
+      "sha256": "f14b2105107597536a460e5a1d5096d1b0cf97eae3c43eb1cb75a0bff58e6ddc",
       "executable": false
     },
     "src/ui/workbench/client.ts": {
@@ -10266,7 +10282,7 @@
       "executable": false
     },
     "src/ui/workbench/GitHubConnectionSetup.tsx": {
-      "sha256": "8d737e09761c25e59524f6221e19126d08891265a7fcf2a92feee94719a6222f",
+      "sha256": "cc086901aaf90592b2798c105459038cc6528b4f859bb5cc7e06d96b87801296",
       "executable": false
     },
     "src/ui/workbench/GroupingExplanation.tsx": {
@@ -10286,7 +10302,7 @@
       "executable": false
     },
     "src/ui/workbench/IdentityPolicy.tsx": {
-      "sha256": "3dbac4f5d952b320b8f5684c921ec901019d188fb5122e07c76e43d64acff1c3",
+      "sha256": "1a3a6210d5b8b32bbf4e3c16dd65320a0acc54b3ee4df1380bb412dae24f5983",
       "executable": false
     },
     "src/ui/workbench/inbound-filters.css": {
@@ -10358,7 +10374,7 @@
       "executable": false
     },
     "src/ui/workbench/ProjectForm.tsx": {
-      "sha256": "9a62c88fa8800e34a39313b77971e706b8b9abb3f8f84c504d477e149a712a12",
+      "sha256": "be22bbc09f16e6a030cc37350982ac65ee43a8d63d276ed39b5ca8d781e6f88b",
       "executable": false
     },
     "src/ui/workbench/projectIdentifier.ts": {
@@ -10966,7 +10982,7 @@
       "executable": false
     },
     "tests/execution/ui.mjs": {
-      "sha256": "0a958dde418fd22853c4bc24cea8da5a2009e8c97bf84ae4aba0b67cd6488df0",
+      "sha256": "5d887613f0cff97b0dde2526c1f3d69e24faa65d70f36153896db1d206357a2f",
       "executable": false
     },
     "tests/feedback-flow.mjs": {
@@ -11346,7 +11362,7 @@
       "executable": false
     },
     "tests/runtime.mjs": {
-      "sha256": "949672581e937bd987a21fada308fb1a7bf7ff34773c3af47e41b2b297cb5a8e",
+      "sha256": "c289ad57b2c4fad4a2d9dece33ef4cda4d537339a5ea607c2da62b8bd7b2f0b1",
       "executable": false
     },
     "tests/runtimes/browser.mjs": {
@@ -11638,7 +11654,11 @@
       "executable": false
     },
     "tests/setup-journey.mjs": {
-      "sha256": "51fb35c4b3eb150af31990ace39bca35e856f6d405d098bbc81a8fbc751fc6c2",
+      "sha256": "ad83b96677c3b79682c9240b21f3efaefb8b74cad837b06ee1761c8f91a23ad9",
+      "executable": false
+    },
+    "tests/setup-prerequisites.mjs": {
+      "sha256": "89344a5ef6c7db9b9cc58771a77ca7ca310153db892d6d483a7c4434a6b9e0fa",
       "executable": false
     },
     "tests/slack-flow.mjs": {
