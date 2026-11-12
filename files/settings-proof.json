@@ -1,0 +1,88 @@
+{
+  "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+  "assertionWidth": 1440,
+  "captureWidths": [
+    1440,
+    390
+  ],
+  "sections": [
+    {
+      "id": "organization",
+      "label": "Organization",
+      "address": "/projects/synthetic-spool-settings/settings#settings-organization",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "projects",
+      "label": "Projects & keys",
+      "address": "/projects/synthetic-spool-settings/settings#settings-projects",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "processing",
+      "label": "Issue processing",
+      "address": "/projects/synthetic-spool-settings/settings#settings-processing",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "alerts",
+      "label": "Alerts & integrations",
+      "address": "/projects/synthetic-spool-settings/settings#settings-alerts",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "privacy",
+      "label": "Privacy & filtering",
+      "address": "/projects/synthetic-spool-settings/settings#settings-privacy",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "data",
+      "label": "Data & archive",
+      "address": "/projects/synthetic-spool-settings/settings#settings-data",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    },
+    {
+      "id": "audit",
+      "label": "Audit",
+      "address": "/projects/synthetic-spool-settings/settings#settings-audit",
+      "reload": true,
+      "onlySelectedSectionVisible": true
+    }
+  ],
+  "legacy": [
+    {
+      "fragment": "slack-destinations",
+      "section": "alerts",
+      "visible": true
+    },
+    {
+      "fragment": "reports-configuration-title",
+      "section": "projects",
+      "visible": true
+    }
+  ],
+  "screenshots": [
+    "screenshots/settings-organization-1440.png",
+    "screenshots/settings-organization-390.png",
+    "screenshots/settings-projects-1440.png",
+    "screenshots/settings-projects-390.png",
+    "screenshots/settings-processing-1440.png",
+    "screenshots/settings-processing-390.png",
+    "screenshots/settings-alerts-1440.png",
+    "screenshots/settings-alerts-390.png",
+    "screenshots/settings-privacy-1440.png",
+    "screenshots/settings-privacy-390.png",
+    "screenshots/settings-data-1440.png",
+    "screenshots/settings-data-390.png",
+    "screenshots/settings-audit-1440.png",
+    "screenshots/settings-audit-390.png"
+  ],
+  "result": "passed"
+}

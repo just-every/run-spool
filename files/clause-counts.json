@@ -1,0 +1,23 @@
+{
+  "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+  "main": "56e2029c36482c291eb846d3c33c935302d98250",
+  "before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29
+  },
+  "targetClause": "UX-001",
+  "targetStatusBefore": "partial",
+  "targetStatusAfter": "partial",
+  "clauseStatusChanges": [],
+  "settingsBlocksBefore": 23,
+  "settingsBlocksAfter": 23,
+  "settingsSectionsBefore": 1,
+  "settingsSectionsAfter": 7,
+  "registeredTestDelta": 0
+}

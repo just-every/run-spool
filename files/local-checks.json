@@ -1,0 +1,110 @@
+{
+  "productHead": "56fbf8fe02314d90b93091124ddb079d40828d33",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs write && node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+      "log": "contract-check.log",
+      "generatedViews": "restored from main before final source lock generation"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "56fbf8fe02314d90b93091124ddb079d40828d33"
+    },
+    {
+      "command": "node --check tests/triage-journey.mjs && node --check tests/agent-handoff/ui.mjs && git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node /tmp/spool-settings-proof.mjs",
+      "exit": 0,
+      "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+      "receipt": "settings-proof.json",
+      "log": "settings-proof.log"
+    },
+    {
+      "command": "cloud_run node tests/triage-journey.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "headUnderTest": "689a31bd98a4391295f315d582175e754e3cf173",
+      "triageSourceByteIdenticalOnFinalHead": true,
+      "receipt": "triage-final.json",
+      "log": "triage-final.log",
+      "groups": 22,
+      "captures": 100
+    },
+    {
+      "command": "saved-head exploratory triage journey",
+      "exit": 0,
+      "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+      "receipt": "triage-baseline.json",
+      "log": "triage-baseline.log"
+    },
+    {
+      "command": "first corrected candidate triage journey",
+      "exit": 1,
+      "head": "426039ec2935c39552ff1518244c50d96da0df4b",
+      "failure": "offline selected URL snapshot timing; fixed forward",
+      "log": "triage-first-candidate.log"
+    },
+    {
+      "command": "Node 24 triage journey on 689a31b",
+      "exit": 1,
+      "failure": "late fetch ECONNRESET; pinned Node 22 retry passed",
+      "log": "triage-final-transport.log"
+    },
+    {
+      "command": "initial handoff diagnostic",
+      "exit": 1,
+      "disposition": "interrupted for fresh rerun after diagnosing popup close; no complete pass claimed",
+      "receipt": "handoff-browser-diagnostic.json"
+    },
+    {
+      "command": "cloud_run node tests/agent-handoff.mjs",
+      "runtime": "Node 22.20.0",
+      "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+      "exit": 0,
+      "groups": 9,
+      "captures": 10,
+      "cleanup": [
+        {
+          "name": "mcp",
+          "outcome": "stopped"
+        },
+        {
+          "name": "browser",
+          "outcome": "stopped"
+        },
+        {
+          "name": "second-origin",
+          "outcome": "stopped"
+        },
+        {
+          "name": "redirect-edge",
+          "outcome": "stopped"
+        },
+        {
+          "name": "receiving-edge",
+          "outcome": "stopped"
+        },
+        {
+          "name": "checkout",
+          "outcome": "stopped",
+          "children": "stopped",
+          "directory": "removed"
+        }
+      ],
+      "receipt": "agent-handoff-results.json",
+      "log": "agent-handoff.log",
+      "intervention": "none in this final run"
+    }
+  ]
+}

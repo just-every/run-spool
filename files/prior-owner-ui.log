@@ -1,0 +1,39 @@
+verify (owner-ui)	Run suites	﻿2026-11-12T02:40:35.7334770Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7335363Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7356370Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7356655Z env:
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7356876Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7357390Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7357847Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7358296Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7359278Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (owner-ui)	Run suites	2026-11-12T02:40:35.7359872Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.0206825Z 
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.0208049Z > @errors/errors-workbench@0.7.6 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.0209212Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.0209529Z 
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.6207975Z (node:2819) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-12T02:40:36.6209186Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9285611Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9286494Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9287084Z     ^
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9287338Z 
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9291853Z AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9292691Z + actual - expected
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9292964Z 
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9293133Z + 'rejected'
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9293533Z - 'accepted'
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9293758Z 
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9294387Z     at journey (file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:223:185)
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9295661Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:240:31 {
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9296602Z   generatedMessage: true,
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9297081Z   code: 'ERR_ASSERTION',
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9297524Z   actual: 'rejected',
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9297965Z   expected: 'accepted',
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9298434Z   operator: 'strictEqual',
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9299140Z   diff: 'simple'
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9299410Z }
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9299538Z 
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9299659Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9723626Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-12T02:41:31.9932235Z ##[error]Process completed with exit code 1.

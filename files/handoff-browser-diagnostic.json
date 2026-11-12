@@ -1,0 +1,10 @@
+{
+  "headUnderTest": "426039ec2935c39552ff1518244c50d96da0df4b",
+  "finalHead": "56fbf8fe02314d90b93091124ddb079d40828d33",
+  "observedUtc": "2026-11-12T04:08:55.688952+00:00",
+  "policySave": "completed; policy editor contained all six autonomous choices and no paid AI",
+  "stalledOperation": "Playwright Page.close on /agents popup; original Settings tab retained once-shown handoff",
+  "diagnosis": "existing Playwright connection had one pending close; both documents had readyState complete; local dev health HTTP 200",
+  "environmentWorkaround": "closed only that test-owned policy popup with browser CDP Target.closeTarget; returned success=true; no application state, authentication or assertions were changed",
+  "laterResult": "After CDP completed the already requested popup close, CLI/MCP selector, alias and revocation checks progressed. The diagnostic browser was then explicitly closed for restart; retention UI was interrupted. Exit 1; all owned cleanup components reported stopped and the temporary checkout was removed. No complete pass is claimed."
+}

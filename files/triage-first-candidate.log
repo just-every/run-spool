@@ -1,0 +1,24 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: the selected event and occurrence stay in the destination
++ actual - expected
+
++ 'http://127.0.0.1:15482/projects/cedar/issues/283d9c9f2f6439af1068db4eb870bd0773daaf13136a905ba3688c405bd8cc82?context=synthetic-spool-1&event=ef52989a-ac26-4113-93e0-817209637d37&occurrence=2d9fbcdb-53ec-4746-bb9d-e8ebcece015e'
+- 'http://127.0.0.1:15482/projects/cedar/issues/283d9c9f2f6439af1068db4eb870bd0773daaf13136a905ba3688c405bd8cc82?context=synthetic-spool-1'
+
+    at journey (file:///workspace/run-spool/tests/triage-journey.mjs:182:10)
+    at async file:///workspace/run-spool/tests/triage-journey.mjs:241:31 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'http://127.0.0.1:15482/projects/cedar/issues/283d9c9f2f6439af1068db4eb870bd0773daaf13136a905ba3688c405bd8cc82?context=synthetic-spool-1&event=ef52989a-ac26-4113-93e0-817209637d37&occurrence=2d9fbcdb-53ec-4746-bb9d-e8ebcece015e',
+  expected: 'http://127.0.0.1:15482/projects/cedar/issues/283d9c9f2f6439af1068db4eb870bd0773daaf13136a905ba3688c405bd8cc82?context=synthetic-spool-1',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

@@ -1,0 +1,27 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-settings-split-1-c1-pc1",
+  "head": "56fbf8fe02314d90b93091124ddb079d40828d33",
+  "recordedUtc": "2026-11-12T04:49:00.068336+00:00",
+  "productPushed": true,
+  "remoteProductHeadVerified": true,
+  "allRequiredLocalChecksPassed": true,
+  "exactShaVerify": {
+    "call": 10,
+    "utc": "2026-11-12T04:48:31.997175+00:00",
+    "command": "gh api repos/just-every/run-spool/actions/runs/43153230296 --jq {status,conclusion,head_sha,html_url}",
+    "exit": 0,
+    "conclusion": "success",
+    "head_sha": "56fbf8fe02314d90b93091124ddb079d40828d33",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43153230296",
+    "status": "completed"
+  },
+  "githubCallsUsed": 10,
+  "disposition": "READY",
+  "finalObservationUtc": "2026-11-12T04:48:17Z",
+  "clauseStatusChanges": [],
+  "claim": "CLAIM UX-001 PARTIAL points=none tests=tests/triage-journey.mjs#journey",
+  "evidencePublication": "selected packet published separately after this receipt",
+  "cloneCleanup": "performed after evidence publication/verification; terminal message records outcome",
+  "blockers": []
+}

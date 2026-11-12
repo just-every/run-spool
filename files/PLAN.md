@@ -1,0 +1,9 @@
+# Settings continuation plan
+
+1. Preserve published 8ef55561973155476e8c9c8d98c1c7b2e80c8b70 on cloud/main-spool-settings-split-1-c1-pc1; do not squash, amend, rebase or rewrite it. Read launcher and seed rules and keep every write in just-every/run-spool.
+2. Read completed Verify 43139064627 attempt 2 and the failed owner-ui job log once. Diagnose the rejected built-in test capture through the real UI/API, preserving existing assertions. Agent-handoff was cancelled, not an independent assertion failure.
+3. Fix forward within the Settings/navigation continuation scope. Keep all 23 original blocks, seven sections, old fragment destinations, and current main contract/views. Add no registered tests and change no clause judgments.
+4. Use repository toolchain and setup. Run touched Settings navigation journeys, triage journey, relevant cancelled handoff journey and typecheck. Capture only Settings screens at 1440 and 390. Do not run full local Verify or edit the SDK flake.
+5. Fetch main, merge if advanced (published history is immutable), retain newer contract source and tests, regenerate source lock last and run source check. Commit under fleet identity with hooks active and no AI coauthor trailer.
+6. Audit every candidate commit and trailer, push only the named cloud branch through the push guard, and watch exact-SHA Verify with REST at intervals of at least 300 seconds, within ten GitHub calls. Fix actual failures if necessary. The Mac retains publication scan and landing custody.
+7. Save full non-secret report, actual check/CI receipts and selected masked Settings screenshots in this packet. Publish only to evidence/main-spool-settings-split-1-c1-pc1. Report exact product/evidence SHAs and run IDs, unchanged clause counts, the UX-001 PARTIAL claim, and the main lane POST. Delete clone only after custody and evidence are secured; retain a verified bundle if a push is blocked.
