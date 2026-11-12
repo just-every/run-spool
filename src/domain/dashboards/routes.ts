@@ -11,7 +11,7 @@ import {canRead,currentProjects,finishRead,itemRevisionGuard,loadItem,projectGua
 import {saveItem,shareItem,deleteItem} from './mutations';
 import {itemView} from './view';
 import {widgetMetric} from './metrics';
-import {eventTable} from './tables';
+import {eventTable,readableTableRows} from './tables';
 import {itemExport} from './export';
 
 export const reportingRoutes=new Hono<any>();
@@ -32,6 +32,7 @@ async function admitted(c:any){
 }
 async function show(c:any,exporting=false){
  const {projects,snapshot}=await admitted(c),result=await itemView(c.env.DB,session(c),snapshot,projects,true,exporting);
+ if(!exporting&&c.req.query('display')==='readable'&&snapshot.row.kind==='table')for(const widget of result.view.widgets){const table=(widget as any).data;table.rows=await readableTableRows(c.env.DB,widget.project,table.rows);}
  // Export construction can refuse its bounds before a successful export fact.
  const response=exporting?itemExport(result.view,c.req.query('format')??'json'):c.json(result.view);
  await ownerBatch(c.env.DB,session(c),[...projectGuards(c.env.DB,session(c),snapshot.projects.filter(id=>projects.has(id)).map(id=>projects.get(id)!)),itemRevisionGuard(c.env.DB,snapshot.row),...result.viewGuards,auditCommit(c.env.DB)]);
@@ -74,7 +75,7 @@ reportingRoutes.post('/preview',async c=>{
 reportingRoutes.post('/table-preview',async c=>{
  const body=await jsonBody(c.req.raw,4096);fields(body,['project','query','from','to']);const project=identity(body.project,'project'),projects=await currentProjects(c.env.DB,session(c)),selected:ProjectSnapshot|undefined=projects.get(project);
  if(!selected)fail('Project not found',404);
- const data=await eventTable(c.env.DB,project,body.query,window(body,true));await finishRead(c.env.DB,session(c),[selected!]);return c.json(data);
+ const data=await eventTable(c.env.DB,project,body.query,window(body,true));if(c.req.query('display')==='readable')data.rows=await readableTableRows(c.env.DB,project,data.rows);await finishRead(c.env.DB,session(c),[selected!]);return c.json(data);
 });
 reportingRoutes.onError((error,c)=>{
  if(error instanceof AuthError)return c.json({error:error.code},error.status as any);
