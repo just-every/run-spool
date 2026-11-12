@@ -1,0 +1,1 @@
+A	migrations/core/0105_local_invitation_links.sql

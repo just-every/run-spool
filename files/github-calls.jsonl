@@ -1,0 +1,8 @@
+{"call": 1, "time": "2026-11-12T12:21:59.331758+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs?head_sha=3f87233fb50563262d694a13a9b7152f1aa76b51&per_page=100", "--jq", "[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]"]}
+{"call": 2, "time": "2026-11-12T12:22:00.181482+00:00", "args": ["api", "repos/just-every/run-spool/pulls?state=open&per_page=100", "--jq", "[.[]|{number,title,head:.head.ref,sha:.head.sha,html_url}]"]}
+{"call": 3, "time": "2026-11-12T12:23:01.650457+00:00", "args": ["api", "repos/just-every/run-spool/releases?per_page=20", "--jq", "[.[]|{tag_name,name,draft,prerelease,html_url,target_commitish}]"]}
+{"call": 4, "time": "2026-11-12T12:26:32.013969+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs?head_sha=422a43dd5d3a89848165a1ee7dcab9172820676c&per_page=100", "--jq", "[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]"]}
+{"call": 5, "time": "2026-11-12T12:31:33.060210+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs?head_sha=422a43dd5d3a89848165a1ee7dcab9172820676c&per_page=100", "--jq", "[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]"]}
+{"call": 6, "time": "2026-11-12T12:36:34.105705+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43217917813", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 7, "time": "2026-11-12T12:41:35.147708+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43217917813", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 8, "time": "2026-11-12T12:46:36.185032+00:00", "args": ["api", "repos/just-every/run-spool/actions/runs/43217917813", "--jq", "{status,conclusion,head_sha,html_url}"]}

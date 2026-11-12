@@ -1,0 +1,46 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/sd-spool-release-0-7-8",
+  "head": "422a43dd5d3a89848165a1ee7dcab9172820676c",
+  "tree": "c0169dc5b49b43cc5f76b711cf85db7afa9bcb6f",
+  "base": "3f87233fb50563262d694a13a9b7152f1aa76b51",
+  "previousTag": "v0.7.7",
+  "previousTagObject": "3c0bd301740535e72a31b64e77b71faca7351461",
+  "previousReleaseHead": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "productPush": "success",
+  "cleanWorkingTree": true,
+  "pr": null,
+  "rer": "0.2.107",
+  "nodeLocal": "24.19.0",
+  "pnpmLocal": "10.12.4",
+  "nodeCI": "22.20.0",
+  "newTests": 0,
+  "clauseStatusChanges": 0,
+  "clausesBefore": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "clausesAfter": {
+    "done": 23,
+    "partial": 54,
+    "missing": 28,
+    "total": 105
+  },
+  "time": "2026-11-12T12:27:46.557943+00:00",
+  "terminalState": "READY",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "422a43dd5d3a89848165a1ee7dcab9172820676c",
+    "html_url": "https://github.com/just-every/run-spool/actions/runs/43217917813",
+    "status": "completed",
+    "id": 43217917813,
+    "name": "Verify",
+    "observedAt": "2026-11-12T12:46:36.959272+00:00"
+  },
+  "githubCallsUsed": 8,
+  "blockers": [],
+  "releasePublication": "not performed; metadata candidate only",
+  "finalizedAt": "2026-11-12T12:47:03.517550+00:00"
+}

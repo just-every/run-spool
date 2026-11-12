@@ -1,0 +1,186 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index b2489c1..28f7326 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,32 @@
+ # Changelog
+ 
++## 0.7.8 — 2026-11-12
++
++Spool 0.7.8 makes Settings easier to navigate, adds copyable invitations on a local installation, and corrects issue and capture-loss reporting.
++
++### What you can now do
++
++- **Go straight to the Settings you need.** Settings has seven sections: Organization, Projects & keys, Issue processing, Alerts & integrations, Privacy & filtering, Data & archive, and Audit. Links to existing controls open the matching section, and browser Back returns to the previous section. Each person sees the sections their access allows.
++- **Invite someone to your local copy without waiting for email.** Members explains that local development sends no email. The inviting owner can copy a pending invitation's existing single-use, expiring link on that machine. Another browser must first open the copy with its private local access link. Hosted installations continue to send invitations by email and do not expose these links. Local invitation links are excluded from private archives.
++- **Keep empty native issue groups out of your work lists.** Native groups with no remaining occurrences stay out of Issues, investigation search, Reports and digests. Their correction history remains stored, and imported Sentry and Rollbar issue-only records remain visible.
++- **See capture loss without counting successful receipts as failures.** Successful feedback storage, session storage, check-in routing and other non-loss receipts no longer create capture-loss follow-ups. Earlier follow-ups created for those receipts are canceled on the next scan; actual refusals and SDK-reported discards remain in the loss path.
++
++### Updating
++
++Back up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.7 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.8` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds one migration after 0.7.7 (0105), creating a local invitation-link table without changing existing rows. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.
++
++### Known limits
++
++- Local development sends no email, so ownership-transfer email verification cannot be completed there. Copyable invitations do not change that limit.
++- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.
++- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.
++- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.
++- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.
++- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.
++- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.
++
++Product screenshot: .github/assets/release/spool-issue-page-1600.png
++
+ ## 0.7.7 — 2026-11-12
+ 
+ Spool 0.7.7 fixes backup refusal messages and makes the agent handoff commands usable directly from the panel.
+diff --git a/README.md b/README.md
+index d4f99ab..e497e75 100644
+--- a/README.md
++++ b/README.md
+@@ -33,7 +33,7 @@
+ 
+ Spool catches JavaScript, Python and Go errors, groups repeats into issues, and maps JavaScript stacks back to your original source. Download an evidence packet for a fix, give an agent evidence access and inert grouping-proposal submission to one project, and see when a resolved error comes back in a later release. One owner can keep several projects separate, export private evidence and restore it into a fresh copy.
+ 
+-Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.7.7](https://github.com/just-every/run-spool/tree/v0.7.7). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
++Public source: [just-every/run-spool](https://github.com/just-every/run-spool). The latest tagged Spool release is [v0.7.8](https://github.com/just-every/run-spool/tree/v0.7.8). The clone instructions below use `main`, which may be ahead of that tag; the tagged release has its own instructions. See the [changelog](CHANGELOG.md). Licensed under the [MIT License](LICENSE).
+ 
+ Run Spool on your computer without a Cloudflare account or mail provider, or deploy it to your own Cloudflare Worker and D1 database. The [first-release jobs and verification requirements](ACCEPTANCE.md) describe what to expect.
+ 
+@@ -55,7 +55,7 @@ Repeat that line in each new terminal, or use `~/.local/bin/rer` wherever this g
+ 
+ Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-spool` does the same.
+ 
+-To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. To run the tagged release instead, use `git clone --branch v0.7.7 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
++To start it again later, run `cd run-spool && ~/.local/bin/rer dev`. To run the tagged release instead, use `git clone --branch v0.7.8 https://github.com/just-every/run-spool.git spool && cd spool && rer dev` in place of that line. Its dependencies and instructions are those shipped with that tag.
+ 
+ `rer dev` installs everything, prepares a local owner and prints a link that opens Spool signed in. First start uses `owner@run-spool.test` for the `run-spool` folder above, without asking for an email, even when input is piped. Another folder name produces `owner@<sanitized-folder-name>.test`; existing setup keeps its owner.
+ 
+@@ -77,7 +77,7 @@ Export before reset and import only into an empty destination. Export includes p
+ 
+ Back up first: export a private archive (Settings → **Download private archive**, or stop dev and run `rer export --output exports/spool.rer`). Keep the original checkout, database and private settings.
+ 
+-For the latest tagged release, run `git fetch --tags && git checkout v0.7.7`, then `rer dev`. To keep following `main`, run `git pull --ff-only` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings, generated secrets and deployment receipt; follow [the hosting update procedure](docs/HOSTED.md#update-to-a-newer-spool).
++For the latest tagged release, run `git fetch --tags && git checkout v0.7.8`, then `rer dev`. To keep following `main`, run `git pull --ff-only` and then `rer dev`. Hosted installations update with `rer deploy` from the original deploying checkout, retaining its private settings, generated secrets and deployment receipt; follow [the hosting update procedure](docs/HOSTED.md#update-to-a-newer-spool).
+ 
+ Those commands apply any migrations missing from the installed version. This `main` checkout includes migrations through `0099`; a tag applies the migrations shipped with that tag. Existing projects, evidence, triage states, grouping rules, inbound filters, alert rules and project keys are preserved. No reset or restore is needed for an upgrade. Older native private archives can also restore into a fresh, empty current installation. See the [release record](RELEASE.json) and [changelog](CHANGELOG.md).
+ 
+diff --git a/RELEASE.json b/RELEASE.json
+index 238683a..1d034d9 100644
+--- a/RELEASE.json
++++ b/RELEASE.json
+@@ -1,10 +1,12 @@
+ {
+-  "version": "0.7.7",
+-  "previousVersion": "0.7.6",
++  "version": "0.7.8",
++  "previousVersion": "0.7.7",
+   "contractChanges": {},
+   "extensionPointChanges": [],
+-  "migrations": [],
++  "migrations": [
++    "migrations/core/0105_local_invitation_links.sql"
++  ],
+   "breaking": false,
+-  "agentUpdateInstructions": "From 0.7.6: back up first with a private archive from Settings, or stop local dev and run rer export --output exports/spool.jsonl. Keep the existing database, private settings, project keys and deployment receipt. On main use git pull --ff-only; from a tag run git fetch --tags && git checkout v0.7.7. Run rer dev locally, or rer deploy from the original deploying checkout for a hosted installation. There are no new migrations or breaking changes after 0.7.6. Previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.",
+-  "publicReleaseNotes": "Spool 0.7.7 fixes backup refusal messages and makes the agent handoff commands usable directly from the panel.\n\n### What you can now do\n\n- **Read why a backup restore was refused.** When Spool refuses a restore before reading the upload, it discards the unread upload so the refusal can reach you instead of the connection resetting.\n- **Copy working agent setup commands from the panel.** Create agent key in Settings shows copyable Bash setup lines with this local installation's actual Node executable and Spool checkout path. Node does not need to be on PATH. The panel explains the six agent policy questions that the owner must answer and save first; opening that policy keeps the once-shown key available in the original tab. Credentials are entered at hidden prompts and copied separately from the commands. Hand to agent on an issue fills in its short ID, so the copied command can run from your application's repository without substituting an internal ID. On a hosted installation, enter the absolute Node and checkout paths on the computer where your agent runs.\n- **Open an issue without starting agent setup.** The issue page loads agent setup only when you open the handoff panel. Download evidence (raw JSON) still gives the complete packet.\n- **Read the evidence packet more easily.** The Markdown summary shows the issue's short ID, readable UTC dates and each event's received time. The complete raw data remains available underneath for tools.\n\n### Updating\n\nBack up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.6 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.7` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. There are no new migrations or breaking changes after 0.7.6; previously applied migration files are unchanged, so do not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.\n\n### Known limits\n\n- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.\n- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.\n- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.\n- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.\n- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.\n- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.\n\nProduct screenshot: .github/assets/release/spool-issue-page-1600.png"
++  "agentUpdateInstructions": "From 0.7.7: back up first with a private archive from Settings, or stop local dev and run rer export --output exports/spool.jsonl. Keep the existing database, private settings, project keys and deployment receipt. On main use git pull --ff-only; from a tag run git fetch --tags && git checkout v0.7.8. Run rer dev locally, or rer deploy from the original deploying checkout for a hosted installation. This release adds one migration after 0.7.7 (0105), creating a local invitation-link table without changing existing rows. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.",
++  "publicReleaseNotes": "Spool 0.7.8 makes Settings easier to navigate, adds copyable invitations on a local installation, and corrects issue and capture-loss reporting.\n\n### What you can now do\n\n- **Go straight to the Settings you need.** Settings has seven sections: Organization, Projects & keys, Issue processing, Alerts & integrations, Privacy & filtering, Data & archive, and Audit. Links to existing controls open the matching section, and browser Back returns to the previous section. Each person sees the sections their access allows.\n- **Invite someone to your local copy without waiting for email.** Members explains that local development sends no email. The inviting owner can copy a pending invitation's existing single-use, expiring link on that machine. Another browser must first open the copy with its private local access link. Hosted installations continue to send invitations by email and do not expose these links. Local invitation links are excluded from private archives.\n- **Keep empty native issue groups out of your work lists.** Native groups with no remaining occurrences stay out of Issues, investigation search, Reports and digests. Their correction history remains stored, and imported Sentry and Rollbar issue-only records remain visible.\n- **See capture loss without counting successful receipts as failures.** Successful feedback storage, session storage, check-in routing and other non-loss receipts no longer create capture-loss follow-ups. Earlier follow-ups created for those receipts are canceled on the next scan; actual refusals and SDK-reported discards remain in the loss path.\n\n### Updating\n\nBack up first: download a private archive in Settings, or stop local dev and run `rer export --output exports/spool.jsonl`. From 0.7.7 on main, update with `git pull --ff-only` and `rer dev`; from a tag, run `git fetch --tags && git checkout v0.7.8` and `rer dev`. For a hosted installation, use `rer deploy` from the original deploying checkout. Keep the database, private settings, project keys and deployment receipt. This release adds one migration after 0.7.7 (0105), creating a local invitation-link table without changing existing rows. Previously applied migration files are unchanged, there are no breaking changes, and you should not reset. Import private archives only into an empty destination. The application still pins rer exactly to 0.2.107. This application release does not publish the Spool SDK.\n\n### Known limits\n\n- Local development sends no email, so ownership-transfer email verification cannot be completed there. Copyable invitations do not change that limit.\n- Browser restore is limited to 16 MiB. Larger current JSONL archives need the CLI; legacy JSON archives over 16 MiB remain refused. A refused legacy JSON upload over 16 MiB can still end in a connection reset: the fix drains only what the restore engine has not already begun reading. Refused requests on the agent-door `/mcp` route are not covered by this fix.\n- Agent setup still requires an owner to save all six policy answers and create a project agent key. The agent CLI runs from a Spool checkout; it is not an npm-published package. Local agent calls also require the private dev gate described in the panel.\n- Erasing the owner is held while other stored agent text contains a different address that ends with the owner's address. The erasure match is case-sensitive.\n- Before the first project is created, opening a missing project URL as the owner redirects to setup instead of showing a not-found page.\n- Retained hosted archives still require separate Managed-to-native release qualification. If an archive is refused with `schema_mismatch`, restore into the release you exported from. Retrying a cut-off hosted restore can be refused until its five-minute lease expires; wait before retrying.\n- Bugsnag, Rollbar and Sentry imports remain bounded to 2 MiB and 500 records; larger sets are refused rather than partly applied. A real-account migration and live mail delivery through Cloudflare remain unqualified.\n\nProduct screenshot: .github/assets/release/spool-issue-page-1600.png"
+ }
+diff --git a/docs/getting-started.md b/docs/getting-started.md
+index ff7dd76..036be4a 100644
+--- a/docs/getting-started.md
++++ b/docs/getting-started.md
+@@ -16,7 +16,7 @@ To start Spool again later, run the same line from the same folder, or `cd run-s
+ 
+ ## Choose your owner
+ 
+-These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.7.7`. For that release, clone it yourself with `git clone --branch v0.7.7 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
++These instructions describe `main`, which may be ahead of the latest tagged Spool release, `v0.7.8`. For that release, clone it yourself with `git clone --branch v0.7.8 https://github.com/just-every/run-spool.git run-spool` and follow the instructions shipped with the tag.
+ 
+ For separate lifecycle steps, `rer install` installs the locked dependencies and `rer setup` prepares or preserves the owner and local settings, then stops its temporary app. Run `rer dev` afterwards to start Spool. Explicit `rer setup` prompts for missing required answers when stdin is a terminal (unless `--json` or `--non-interactive` is set). Piping an email alone is not a setup answer.
+ 
+diff --git a/package.json b/package.json
+index 1c87977..e0b3cff 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@errors/errors-workbench",
+-  "version": "0.7.7",
++  "version": "0.7.8",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/just-every/run-spool.git"
+diff --git a/seed.json b/seed.json
+index b0ef6c3..8073eb6 100644
+--- a/seed.json
++++ b/seed.json
+@@ -1,7 +1,7 @@
+ {
+   "id": "errors-workbench",
+   "name": "Spool",
+-  "version": "0.7.7",
++  "version": "0.7.8",
+   "maturity": "Local-first JavaScript, Python and Go evidence product with one owner and isolated projects; bounded native, Sentry and OTLP-log intake, private source maps, operator corrections, owner/project erasure, sandbox reproducer, granted GitHub fix branches and exposure measurement. Runtime checks and review evidence are recorded separately; source metadata does not establish hosted, provider or npm publication acceptance.",
+   "category": "monitoring",
+   "replaces": [
+diff --git a/sources.lock.json b/sources.lock.json
+index 1c9181a..27a63c9 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -2662,7 +2662,7 @@
+       "executable": false
+     },
+     "CHANGELOG.md": {
+-      "sha256": "fc0e18d9bf8398e39e81d261513110ea59b260cb830efe52fdea8c1fc06f5ea1",
++      "sha256": "757b831ea6b52ef372245b460808c63e46ad167159de17ba9a722c55852af6f9",
+       "executable": false
+     },
+     "CLAUDE.md": {
+@@ -2990,7 +2990,7 @@
+       "executable": false
+     },
+     "docs/getting-started.md": {
+-      "sha256": "3aa0206a0047352daf62a139f704fe9e3f36db28f2bdcb5b0692fb252091a88e",
++      "sha256": "43c7f719becb18e2d5ab45d4f12185406aad94401b2e0024ecb04b1464fa586a",
+       "executable": false
+     },
+     "docs/GROUPING-RULES.md": {
+@@ -4162,7 +4162,7 @@
+       "executable": false
+     },
+     "package.json": {
+-      "sha256": "784a73b634a2938cd5e3bc15f8fcf80e50633b4228a701318eac5db124326b5c",
++      "sha256": "761cdadc8a31f2f706d2191116aec2f4f493a5c5c0fd17e64a36d235a5f85f37",
+       "executable": false
+     },
+     "packages/agent/bin/spool-agent.mjs": {
+@@ -4450,7 +4450,7 @@
+       "executable": false
+     },
+     "README.md": {
+-      "sha256": "bff27b2cfdded428c060477c659865274ec51b3cb66f017de27b76a48cebb043",
++      "sha256": "d44d9fa5bcb3d84ee2ff824fb9486ee12e0beff259cee186b25f21d4451e7d8e",
+       "executable": false
+     },
+     "release-history/0.6.0.json": {
+@@ -4486,7 +4486,7 @@
+       "executable": false
+     },
+     "RELEASE.json": {
+-      "sha256": "8198c5331338b1fbbae7d25af0d1606976ea5f2b44a6d2eb908470be786b62cd",
++      "sha256": "209d028ca06d0062f89adabee335d4442000a17155346ed4000bf8f6d0ce6cf8",
+       "executable": false
+     },
+     "rer-project.json": {
+@@ -5334,7 +5334,7 @@
+       "executable": false
+     },
+     "seed.json": {
+-      "sha256": "50242715acf7191b405e0158db82937ea445347847a8df1aa09015f67a43ec23",
++      "sha256": "abe07bec13dcc59fc41b0399aac1a946275307227cfc64d74a5246364e2dfee3",
+       "executable": false
+     },
+     "src/archive-evidence.d.ts": {

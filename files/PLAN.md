@@ -1,0 +1,9 @@
+# sd-spool-release-0-7-8 plan
+
+1. Establish fleet identity, credential helper, commit hooks and checkout-local pinned toolchain. Clone only just-every/run-spool, shallow and filtered; read launcher and seed instructions plus the inline fleet and release rules.
+2. Establish current main and exact-SHA green Verify, confirm v0.7.8 is absent and no competing release branch/open PR is visible, and inspect the actual v0.7.7 tag metadata and intervening source commits.
+3. Prepare release metadata only: package and seed versions, README and existing getting-started version references, CHANGELOG.md and RELEASE.json. Preserve the exact rer dependency pin, prior release history, all product/tests/contracts and generated views. Do not invent package-lock.json in this pnpm repository.
+4. Run affected metadata validation and typecheck, without tests, a full local verification, build, browser session, tag, signing or release publication. Regenerate sources.lock.json last using the seed's documented command, then check it.
+5. Fetch/rebase current main before the first product push; resolve source locks last if main moved. Inspect every candidate author, committer, full commit message and trailer; push only cloud/sd-spool-release-0-7-8 with the cloud guard as soon as the first real checked commit exists. Never rebase after publication.
+6. Discover exact-head Verify with GitHub REST, then poll no more than once per 300 seconds with one watcher, within ten GitHub calls total. Report actual conclusions; do not dispatch or rerun CI. The fleet owns publication scanning and landing.
+7. Save full non-secret report and actual receipts in this packet, publish selected files only to evidence/sd-spool-release-0-7-8, record its exact custody line, and remove the successful product clone/dependencies after evidence return. Final relay includes metadata paths/version/head, counts, clause changes, CI run IDs and READY or honest terminal state.

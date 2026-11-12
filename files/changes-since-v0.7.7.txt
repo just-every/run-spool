@@ -1,0 +1,4 @@
+3f87233fb50563262d694a13a9b7152f1aa76b51 Keep capture-truth counts accurate and restore caps corpus coverage
+ae07f7a47522ac43a5894fdfed3918ae49f763ea Regenerate deployment integration for local invitation custody
+8e8a226a87f431f971fdb0d8a68753ab8c8c9c31 Make local invitation and verification mail steps honest
+ddeed7780feda8bb85c9b3d9dc740387c63b18db Split Settings into seven addressable sections on current main

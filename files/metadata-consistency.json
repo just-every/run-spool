@@ -1,0 +1,42 @@
+{
+  "time": "2026-11-12T12:26:27.678429+00:00",
+  "head": "422a43dd5d3a89848165a1ee7dcab9172820676c",
+  "ok": true,
+  "versionBefore": "0.7.7",
+  "versionAfter": "0.7.8",
+  "rerBefore": "0.2.107",
+  "rerAfter": "0.2.107",
+  "metadataPaths": [
+    "CHANGELOG.md",
+    "README.md",
+    "RELEASE.json",
+    "docs/getting-started.md",
+    "package.json",
+    "seed.json",
+    "sources.lock.json"
+  ],
+  "sourceLockChangedEntries": [
+    "CHANGELOG.md",
+    "docs/getting-started.md",
+    "package.json",
+    "README.md",
+    "RELEASE.json",
+    "seed.json"
+  ],
+  "migrations": [
+    "migrations/core/0105_local_invitation_links.sql"
+  ],
+  "contractChanges": {},
+  "testCountChange": 0,
+  "newTests": 0,
+  "lockFileCountBefore": 2295,
+  "lockFileCountAfter": 2295,
+  "changelogMatchesReleaseNotes": true,
+  "priorChangelogPreserved": true,
+  "pnpmLockUnchanged": true,
+  "contractAndViewsUnchanged": true,
+  "metadataCheckExit": 0,
+  "typecheckExit": 0,
+  "sourceCheckExit": 0,
+  "contractViewsCheckExit": 0
+}

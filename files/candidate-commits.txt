@@ -1,0 +1,7 @@
+commit 422a43dd5d3a89848165a1ee7dcab9172820676c
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Thu Nov 12 12:25:50 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Thu Nov 12 12:25:50 2026 +0000
+
+    Prepare Spool 0.7.8 release metadata
