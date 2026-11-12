@@ -1,0 +1,71 @@
+{
+  "guides": [
+    {
+      "path": "/docs/user-identity",
+      "status": 200,
+      "localLinksChecked": 11
+    },
+    {
+      "path": "/docs/github-connection",
+      "status": 200,
+      "localLinksChecked": 11
+    },
+    {
+      "path": "/docs/integration-egress",
+      "status": 200,
+      "localLinksChecked": 11
+    },
+    {
+      "path": "/docs/business-import-trust",
+      "status": 200,
+      "localLinksChecked": 11
+    }
+  ],
+  "settings": [
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-organization",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-projects",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-processing",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-alerts",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-privacy",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-data",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#settings-audit",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#user-identity-policy",
+      "status": 200,
+      "visible": true
+    },
+    {
+      "path": "/projects/synthetic-spool-1/settings#slack-destinations",
+      "status": 200,
+      "visible": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+PASS tests/setup-journey.mjs#firstProjectJourney at 1440 against rer dev; changed setup screens captured at 1440 and 390.

@@ -1,0 +1,43 @@
+{
+  "assertion_width": 1440,
+  "capture_widths": [
+    1440,
+    390
+  ],
+  "changed_screens": [
+    "first-project",
+    "github-disconnected",
+    "cron",
+    "slack",
+    "business",
+    "user-identity-guide",
+    "github-connection-guide",
+    "cron-guide",
+    "business-guide",
+    "identity-settings"
+  ],
+  "screenshots": [
+    "screens/first-project-1440.png",
+    "screens/first-project-390.png",
+    "screens/github-disconnected-1440.png",
+    "screens/github-disconnected-390.png",
+    "screens/cron-1440.png",
+    "screens/cron-390.png",
+    "screens/slack-1440.png",
+    "screens/slack-390.png",
+    "screens/business-1440.png",
+    "screens/business-390.png",
+    "screens/user-identity-guide-1440.png",
+    "screens/user-identity-guide-390.png",
+    "screens/github-connection-guide-1440.png",
+    "screens/github-connection-guide-390.png",
+    "screens/cron-guide-1440.png",
+    "screens/cron-guide-390.png",
+    "screens/business-guide-1440.png",
+    "screens/business-guide-390.png",
+    "screens/identity-settings-1440.png",
+    "screens/identity-settings-390.png"
+  ],
+  "data": "synthetic fixtures or blank setup; no key-bearing states selected",
+  "visual_review": "setup disclosure, GitHub prerequisite, Cron prerequisite and docs screenshots inspected; empty/secret controls stayed unfilled"
+}

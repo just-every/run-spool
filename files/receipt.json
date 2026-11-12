@@ -1,0 +1,74 @@
+{
+  "repository": "just-every/run-spool",
+  "tag": "main-spool-setup-links-1-c1",
+  "baseline_head": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "original_round_head": "4c2aa83ca1b827d7c86e3b702e2cc5b2040af7ca",
+  "baseline": {
+    "build_exit": 0,
+    "runtime_exit": 0
+  },
+  "unfixed_squash": {
+    "build_exit": 0,
+    "runtime_exit": 1
+  },
+  "proof_kind": "local synthetic public-door journeys; no live-provider qualification",
+  "product_branch": "cloud/main-spool-setup-links-1-c1",
+  "local_results": {
+    "runtime_fixed_exit": 0,
+    "execution_journey_exit": 0,
+    "typecheck_exit": 0,
+    "guide_and_settings_links_exit": 0,
+    "browser_widths": [
+      1440,
+      390
+    ],
+    "first_project_journey_exit": 0,
+    "structural_check_exit": 0,
+    "contract_generator_check_exit": 0,
+    "source_lock_exit": 0,
+    "source_check_exit": 0
+  },
+  "fixture_fix": {
+    "file": "tests/setup-prerequisites.mjs",
+    "change": "navigate the existing Settings section links before inspecting the corresponding controls",
+    "assertions_removed_or_weakened": 0,
+    "timing_changes": 0,
+    "registrations_added": 0
+  },
+  "head": "32e0d9a80a6ca4bf4d6d257ff9670ab428e3af85",
+  "parent": "ae07f7a47522ac43a5894fdfed3918ae49f763ea",
+  "product_push": "succeeded first attempt; exact named branch only",
+  "product_commit_count": 1,
+  "pr_url": null,
+  "identity": {
+    "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+    "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+    "trailers": [],
+    "all_candidate_commits_checked": true
+  },
+  "publication_scan": "Mac fleet full scan remains required; task-side staged-diff credential pattern check passed",
+  "process_cleanup": {
+    "task_dev_port_15530": "closed after targeted TERM to the task-started PIDs",
+    "task_started_server_pids": [
+      6439,
+      6535,
+      6567
+    ],
+    "remaining_pid_states": "zombie only; no listening task dev server",
+    "browsers": "all contexts and browsers closed in finally blocks"
+  },
+  "source_comparison": "15 carried files identical to original round; only 5 added fixture-navigation lines and regenerated lock differ",
+  "ci_run_id": 43215360941,
+  "ci_url": "https://github.com/just-every/run-spool/actions/runs/43215360941",
+  "counts": {
+    "docs_pages_before": 8,
+    "docs_pages_after": 12,
+    "test_registrations_added": 0,
+    "contract_files_changed": []
+  },
+  "ci_conclusion": "success",
+  "ci_run_attempt": 1,
+  "github_calls_used": 5,
+  "blockers": [],
+  "terminal_status": "READY"
+}

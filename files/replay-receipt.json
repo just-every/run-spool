@@ -1,0 +1,23 @@
+{
+  "carried_files_identical_to_original_round": [
+    "docs/BUSINESS-IMPORT-TRUST.md",
+    "docs/GITHUB-CONNECTION.md",
+    "docs/INTEGRATION-EGRESS.md",
+    "docs/USER-IDENTITY.md",
+    "docs/overview.md",
+    "docs/site.json",
+    "src/ui/alerts/SlackDestinationForm.tsx",
+    "src/ui/workbench/BusinessImports.tsx",
+    "src/ui/workbench/CheckInRoutes.tsx",
+    "src/ui/workbench/GitHubConnectionSetup.tsx",
+    "src/ui/workbench/IdentityPolicy.tsx",
+    "src/ui/workbench/ProjectForm.tsx",
+    "tests/execution/ui.mjs",
+    "tests/runtime.mjs",
+    "tests/setup-journey.mjs"
+  ],
+  "additional_fix_only": "tests/setup-prerequisites.mjs: 5 added navigation/comment lines",
+  "regenerated_source_lock": true,
+  "contract_files_identical_to_main": true,
+  "working_tree_clean": true
+}

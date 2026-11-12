@@ -1,0 +1,21 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.7 test:runtime /home/agent/rer-consolidation/work/main-spool-setup-links-1-c1/run-spool
+> node tests/runtime.mjs
+
+verify
+Heavy job admitted: Spool verify:suite [bccd52c1b6be]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE SDK-020 G5: anonymous docs navigation, seven configuration sections, source maps, Python guidance, tunnel replacement and generated static article passed.
+{"spool_runtime_diagnostic":"owner_runtime_failure","assertionError":false,"error_type":"Error","error_code":"unknown","source":{},"actual":{"type":"undefined"},"expected":{"type":"undefined"},"workerBeforeStop":{"redacted":true,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"lines":150,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}},"workerAfterStop":{"redacted":true,"networkConnectionLost":false,"d1Error":false,"sqliteError":false,"lines":150,"mentions":{"typeError":false,"referenceError":false,"rangeError":false,"syntaxError":false,"invalidProject":false,"instanceofOperand":false,"temporalDeadZone":false,"undefinedAccess":false,"notDefined":false,"internalError":false,"scriptNoResponse":false,"contextNotFinalized":false,"scrub":false,"apiErrorHandler":false}}}
+file://[REDACTED]/tests/runtime.mjs:122
+}catch(error){failure=error;throw new Error('Owner runtime journey failed; private runtime details withheld');}finally{
+                                  ^
+
+Error: Owner runtime journey failed; private runtime details withheld
+    at file://[REDACTED]/tests/runtime.mjs:122:35
+
+Node.js v24.19.0
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,28 @@
+commit 32e0d9a80a6ca4bf4d6d257ff9670ab428e3af85
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Thu Nov 12 12:09:31 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Thu Nov 12 12:09:31 2026 +0000
+
+    Carry setup prerequisite guides through sectioned Settings
+    
+    Restore the setup-links round on current main. The runtime fixture now follows Settings section navigation before checking Cron, Slack and Business imports, preserving every assertion and timeout.
+
+ docs/BUSINESS-IMPORT-TRUST.md              | 40 +++++++++++++++
+ docs/GITHUB-CONNECTION.md                  | 33 ++++++++++++
+ docs/INTEGRATION-EGRESS.md                 | 80 ++++++++++++++++++++++++++++++
+ docs/USER-IDENTITY.md                      | 16 ++++++
+ docs/overview.md                           |  7 +++
+ docs/site.json                             | 25 ++++++++++
+ sources.lock.json                          | 42 ++++++++++++----
+ src/ui/alerts/SlackDestinationForm.tsx     |  2 +-
+ src/ui/workbench/BusinessImports.tsx       |  2 +-
+ src/ui/workbench/CheckInRoutes.tsx         |  2 +-
+ src/ui/workbench/GitHubConnectionSetup.tsx |  7 +--
+ src/ui/workbench/IdentityPolicy.tsx        |  2 +-
+ src/ui/workbench/ProjectForm.tsx           |  2 +-
+ tests/execution/ui.mjs                     |  6 ++-
+ tests/runtime.mjs                          |  2 +
+ tests/setup-journey.mjs                    | 13 +++--
+ tests/setup-prerequisites.mjs              | 52 +++++++++++++++++++
+ 17 files changed, 310 insertions(+), 23 deletions(-)

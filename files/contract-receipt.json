@@ -1,0 +1,14 @@
+{
+  "CONTRACT.md": {
+    "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+    "identical_to_origin_main": true
+  },
+  "ACCEPTANCE.md": {
+    "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+    "identical_to_origin_main": true
+  },
+  "docs/CLAIMS.md": {
+    "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba",
+    "identical_to_origin_main": true
+  }
+}
