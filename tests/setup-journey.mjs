@@ -27,18 +27,25 @@ export async function firstProjectJourney(browser, origin, width) {
    await page.screenshot({path:`${out}/${width}-${state}.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});
    if(width===1440&&state==='sent'){await page.setViewportSize({width:390,height:900});await page.screenshot({path:`${out}/390-sent.png`,fullPage:true,mask:[page.locator('#setup-ingest-key'),page.getByLabel('SDK init',{exact:true}),page.getByLabel('Sentry DSN',{exact:true})]});await page.setViewportSize(viewport);}
   }
+  const policy=page.getByRole('note',{name:'New project user identity policy'});
+  await policy.waitFor();
+  if(width===1440){
+   assert.equal(await policy.evaluate(node=>!!(node.compareDocumentPosition(document.querySelector('button.primary-button'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'policy is shown before project creation');
+   const guide=await context.newPage();try{const response=await guide.goto(new URL(await policy.getByRole('link').getAttribute('href'),origin).href);assert.equal(response.status(),200);assert.equal(await guide.locator('[id]').evaluateAll((nodes,id)=>nodes.some(node=>node.id===id),new URL(guide.url()).hash.slice(1)),true,'policy guide reaches the change route');}finally{await guide.close();}
+  }
   const name=page.getByLabel('Project name',{exact:true}),identifier=page.getByLabel('Project identifier',{exact:true}),submit=page.getByRole('button',{name:'Create project',exact:true});
   await identifier.waitFor();await submit.waitFor({state:'visible'});await page.waitForFunction(button=>button instanceof HTMLButtonElement&&!button.disabled,await submit.elementHandle());await inspect('pending');
   async function tabTo(control,label){await page.keyboard.press('Tab');assert.equal(await control.evaluate(el=>el===document.activeElement),true,label+' receives keyboard focus');}
   await page.getByRole('heading',{name:'Create your first project',exact:true}).focus();
   await tabTo(name,'Project name');await page.keyboard.type('   ');
   await tabTo(identifier,'Project identifier');await page.keyboard.type('journey');
-  await tabTo(submit,'Create project button');
+  await tabTo(page.getByRole('note',{name:'New project user identity policy'}).getByRole('link'),'User identity settings guide');await tabTo(submit,'Create project button');
   const failure=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects'&&response.request().method()==='POST');await page.keyboard.press('Enter');assert.equal((await failure).status(),400);
   await page.getByRole('alert').waitFor();assert.equal(await page.getByRole('alert').evaluate(el=>el===document.activeElement),true);await inspect('failed');
   assert.equal((await (await request.get(origin+'/api/projects')).json()).length,0);assert.equal((await request.get(origin+'/',{maxRedirects:0})).headers().location,'/setup');
-  await identifier.fill('');await name.fill('Journey');assert.equal(await identifier.inputValue(),'journey','a cleared identifier follows the name');await tabTo(identifier,'Project identifier');await tabTo(submit,'Create project button');
+  await identifier.fill('');await name.fill('Journey');assert.equal(await identifier.inputValue(),'journey','a cleared identifier follows the name');await tabTo(identifier,'Project identifier');await tabTo(page.getByRole('note',{name:'New project user identity policy'}).getByRole('link'),'User identity settings guide');await tabTo(submit,'Create project button');
   const success=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects'&&response.request().method()==='POST');await page.keyboard.press('Enter');assert.equal((await success).status(),201);
+  if(width===1440){const saved=await (await request.get(origin+'/api/projects/journey/identity-policy')).json();assert.ok(Object.values(saved.policy).every(mode=>mode==='drop'),'project creation preserves the disclosed privacy default');}
   const key=page.getByLabel('Ingest key',{exact:true});await key.waitFor();assert.equal((await key.inputValue()).length>0,true);
   const init=page.getByLabel('SDK init',{exact:true}),initText=await init.innerText();assert.equal(initText.includes(await key.inputValue())&&initText.includes(JSON.stringify(origin)),true,'first-run SDK init carries this installation and the new ingest key');
   const dsn=page.getByLabel('Sentry DSN',{exact:true});assert.equal((await dsn.innerText()).includes(await key.inputValue()),true,'first-run setup still shows the Sentry DSN for the new ingest key');

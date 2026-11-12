@@ -1,3 +1,4 @@
+import {settingsPrerequisiteGuides} from './setup-prerequisites.mjs';
 import {queuedEntrypoint} from '@runeditrun/rer/queued-entry';
 const queuedExit=await queuedEntrypoint(import.meta.url);if(queuedExit!==null)process.exit(queuedExit);
 import assert from 'node:assert/strict';import {emitRuntimeDiagnostic,observeRuntimeFetch} from './runtime-diagnostic.mjs';
@@ -97,6 +98,7 @@ try {
  assert.equal((await (await fetch(origin+'/api/projects',{headers})).json()).length,0);
  assert.equal((await fetch(origin+'/setup',{headers,redirect:'manual'})).status,200);
  const created=await create({id:'fresh',name:'Fresh'});assert.equal(created.status,201);const project=await created.json();
+ await settingsPrerequisiteGuides(origin,cookie,project.id);
  assert.deepEqual(await (await fetch(origin+'/setup/state')).json(),{state:'claimed'});
  await assertLobby(await fetch(origin+'/'),true);
  const agentResponse=await fetch(origin+'/api/projects/fresh/keys',{method:'POST',headers,body:JSON.stringify({kind:'agent'})});assert.equal(agentResponse.status,201);const agent=await agentResponse.json();
