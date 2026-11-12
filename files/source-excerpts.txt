@@ -1,0 +1,213 @@
+
+## tests/loader-flow.mjs
+
+130:  const disabled = await request(keyPath); await request(keyPath, 'PUT', { revision: disabled.revision, settings: { ...disabled.settings, enabled: false } });
+131:  const refused = async path => { const response = await fetch(origin + path); return { status: response.status, type: response.headers.get('content-type'), body: await response.text() }; };
+132:  const unknown = await refused('/sdk/' + 'a'.repeat(64) + '.min.js');
+133:  assert.deepEqual(await refused(scriptPath), unknown, 'disabled and unknown keys give the same script-free response');
+134:  await request(`/api/projects/${project.id}/keys/${keyHash}`, 'DELETE');
+135:  assert.deepEqual(await refused(scriptPath), unknown, 'revoked and unknown keys give the same script-free response');
+136:  assert.equal(unknown.status, 404); assert.ok(!unknown.body.includes(project.dsn));
+137:  // Custody uses the actual archive and erasure doors. No grant is exported.
+138:  const archived = await archiveProjection(await fetch(origin + '/api/archive', { headers: { Cookie: cookie, Origin: origin } }));
+139:  const archive = archived.text;
+140:  assert.ok(archived.data.loader_settings.some(row => row.key_hash === keyHash)); assert.ok(!archive.includes(key), 'raw ingest key is absent from archive');
+141:  let destination;
+142:  try {
+143:   destination = await startTestWorker(15523); const destinationCookie = await signIn(destination.origin);
+144:   const headers = { Origin: destination.origin, Cookie: destinationCookie };
+145:   const restored = await fetch(destination.origin + '/api/restore', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/x-ndjson', 'X-Confirm-Restore': 'yes' }, body: archive });
+146:   assert.equal(restored.status, 200, 'private archive restores through the owner door'); await restored.body.cancel();
+147:   const roundtrip = await archiveProjection(await fetch(destination.origin + '/api/archive', { headers }));
+148:   assert.deepEqual(roundtrip.data.loader_settings, archived.data.loader_settings, 'archive restores every key setting without restoring credentials');
+149:   const keys = await fetch(destination.origin + `/api/projects/${project.id}/keys`, { headers }); assert.deepEqual(await keys.json(), []);
+150:   const inactive = await fetch(destination.origin + scriptPath); assert.equal(inactive.status, 404); await inactive.body.cancel();
+151:  } finally { await destination?.stop(); }
+152:  const preview = await request(`/api/projects/${project.id}/erasure`);
+153:  const receipt = await followErasure(request, await request(`/api/projects/${project.id}/erasure`, 'POST', { confirm: project.id, planHash: preview.planHash }));
+154:  assert.equal(receipt.phase, 'complete');
+155:  const after = await fetch(origin + '/api/archive', { headers: { Cookie: cookie, Origin: origin } });
+156:  assert.ok(!(await after.text()).includes(keyHash), 'project erasure removes the key settings');
+157:  await loaderUpgrade({browser,applicationOrigin,dsns,defaults});
+158:  console.log(JSON.stringify({ clause: 'SDK-023', captures: count, widths: [1440, 390], icons: 'no icon-only control on the touched screen', loader: '/sdk/<public-key>.min.js', custody: 'archive excludes key; erasure removes settings' }));
+159:  return { archive, project, keyHash, settings: disabled.settings };
+
+## tests/sentry-sdk.mjs
+
+29: const require=createRequire(import.meta.url),temporary=await mkdtemp(resolve(tmpdir(),'spool-sentry-sdk-'));
+30: let worker,browser,application,collector;
+31: const captures=[];
+32: const listen=server=>new Promise(resolve=>server.listen(0,'127.0.0.1',()=>resolve(`http://127.0.0.1:${server.address().port}`)));
+33: const close=server=>server?new Promise(resolve=>server.close(resolve)):Promise.resolve();
+34: try{
+35:   worker=await startTestWorker(15521);const {origin}=worker,cookie=await signIn(origin);
+36:   const request=async(path,method='GET',body)=>{const response=await fetch(origin+path,{method,headers:{Origin:origin,Cookie:cookie,...body?{'Content-Type':'application/json'}:{}},...body?{body:JSON.stringify(body)}:{}});assert.ok(response.ok,`${method} ${path}: HTTP ${response.status}`);return response.json()};
+89:     assert.equal(await owner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+90:     await context.close();
+91:   }
+92:   await qualifyBrowser({browser,origin,cookie,request,applicationOrigin,dsns,expectedLine,upload:async project=>{
+93:     process.env.SPOOL_FIXTURE_DEPLOY_KEY=(await request(`/api/projects/${project}/keys`,'POST',{kind:'deploy'})).key;
+94:     try{await sourceMapCli(['--endpoint',origin,'--project',project,'--release',sdkConfig.release,'--build',sdkConfig.dist,'--key-env','SPOOL_FIXTURE_DEPLOY_KEY',bundle])}finally{delete process.env.SPOOL_FIXTURE_DEPLOY_KEY}
+95:   }});
+96:   await loaderFlow({browser,origin,cookie,request,applicationOrigin,dsns});
+97:   await sdkInboundFilterFlow({request,origin,browser,temporary,require,applicationOrigin,dsns});
+98:   // Successful non-error items share the public envelope door with real loss
+99:   // receipts. Exercise default Node session tracking and captureFeedback together.
+
+## tests/worker.mjs
+
+11: export async function startTestWorker(port, bindings={}, {beforeMigration,deferMigration}={}) {
+12:  let temporary,native,stopping,migrate;
+13:  const origin=`http://127.0.0.1:${port}`,summary=workerOutput();
+14:  const artifactDirectory=resolve('.artifacts'),runId=Date.now();
+15:  // The redacted summary above goes into test errors; the Worker's own text, from synthetic
+16:  // test data only, is kept under .artifacts/worker-output for CI's failure artifact.
+17:  let kept='';
+18:  const output={add(message){summary.add(message);kept=(kept+message).slice(-200_000)},summary:()=>summary.summary()};
+19:  const keep=async()=>{const folder=resolve(artifactDirectory,'worker-output');await mkdir(folder,{recursive:true});await writeFile(resolve(folder,`${port}-${runId}.log`),kept)};
+30:  try {
+31:   temporary=await mkdtemp(resolve(tmpdir(),'spool-worker-'));
+32:   const require=createRequire(import.meta.url);
+33:   const miniflare=require(require.resolve('miniflare',{paths:[require.resolve('wrangler/package.json')]}));
+34:   const {Miniflare,convertV4MiniflareOptions,Log,LogLevel}=miniflare;
+35:   const {worker,database,triggers}=await emittedWorkerOptions(resolve('dist/server/wrangler.json'),miniflare);
+36:   const log=new Log(LogLevel.INFO);log.log=message=>output.add(message+'\n');
+37:   // One native listener owns the actual emitted app, disk assets and migrated D1.
+38:   // Wrangler dev's additional proxy hop is deliberately absent; no HTTP replay.
+39:   const options=convertV4MiniflareOptions({
+40:    ...worker,bindings:{...worker.bindings,...authBindings(origin),...bindings},
+41:    log,handleStructuredLogs:({message})=>output.add(message+'\n'),
+42:    resourcePersistencePath:resolve(temporary,'state/v3'),host:'127.0.0.1',port,
+43:    unsafeTriggerHandlers:triggers.length>0
+44:   });
+45:   // V4 conversion omits cron declarations. Preserve them in Miniflare's native
+85:    assert.equal(health.status,200,'Emitted Worker health succeeds');
+86:   } finally { await health.body?.cancel(); }
+87:   return {origin,stop,migrate,scheduled:time=>fetch(origin+'/cdn-cgi/local/scheduled?time='+time+'&cron=*+*+*+*+*&format=json',{headers:{Connection:'close'}}),db:()=>native.getD1Database(database.binding),restart:async()=>{await native.dispose();native=new Miniflare(options);await native.ready;},diagnostic:()=>output.summary()};
+88:  }catch(failure){
+89:   output.add(String(failure));
+90:   const result=await finishProductRun({failure,output,artifactDirectory,runId,cleanup:[['test-worker',stop]]});
+
+## .github/workflows/verify.yml
+
+1: name: Verify
+2: 
+3: on:
+4:   push:
+5:     branches: ['**']
+6:     tags: ['**']
+7:   pull_request:
+8:   workflow_dispatch:
+9:   workflow_call:
+10:     inputs:
+11:       tier:
+12:         type: string
+13:         default: push
+14: 
+15: permissions:
+16:   contents: read
+17: 
+18: concurrency:
+19:   group: seed-verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.event.pull_request.number || github.ref }}
+20:   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+21: 
+22: env:
+
+## .github/workflows/verify-nightly.yml
+
+1: name: Nightly journeys
+2: 
+3: on:
+4:   schedule:
+5:     - cron: '11 4 * * 1,4'
+6:   workflow_dispatch:
+7: 
+8: permissions:
+9:   contents: read
+10: 
+11: jobs:
+12:   verify:
+13:     # A called workflow can only keep or reduce its caller's token permissions,
+14:     # and Verify's plan job reads Actions runs for the main short-circuit.
+15:     permissions:
+16:       contents: read
+17:       actions: read
+18:     uses: ./.github/workflows/verify.yml
+19:     with:
+20:       tier: ${{ github.event_name == 'schedule' && 'nightly' || 'all' }}
+
+## .github/workflows/verify.yml
+286:           if-no-files-found: ignore
+287:           retention-days: 7
+288: 
+289:   tests:
+290:     name: verify (${{ matrix.shard }})
+291:     needs: [plan, build]
+292:     if: ${{ needs.plan.outputs.coverage == 'full' && (needs.plan.outputs.tier == 'push' || needs.plan.outputs.tier == 'all') }}
+293:     runs-on: ubuntu-24.04
+294:     timeout-minutes: 25
+295:     env:
+296:       # sd-spool-disk measured a 1.708 GiB peak on cbc874e; retain the guard with margin.
+297:       RER_SERVERS_DISK_FLOOR_GIB: '4'
+298:       # The Cloudflare Vite plugin says why it restarts the dev server (a config change or a
+299:       # workerd crash) only under this flag; the kept server output below then carries it.
+300:       NODE_DEBUG: '@cloudflare:vite-plugin'
+301:     strategy:
+302:       fail-fast: false
+303:       matrix:
+304:         include:
+305:           - shard: runtime
+306:             command: node tests/demo-capture.mjs && node tests/deployment-history.mjs && node tests/audit-history.mjs && node tests/old-archive.mjs && pnpm test:runtime && pnpm test:product && pnpm test:origins && pnpm test:dev-credentials
+307:           - shard: owner-ui
+308:             command: pnpm test:accessibility && pnpm test:admission
+309:           - shard: alerts
+310:             command: pnpm test:alerts && pnpm test:alerts-ui
+311:           - shard: sdk
+312:             command: node tests/sentry-http.mjs && node tests/sentry-import.mjs
+313:           - shard: sentry-cli
+314:             command: pnpm test:sentry:cli
+315:           - shard: tunnel
+316:             command: pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+317:           - shard: wizard
+318:             command: pnpm test:wizard
+319:           - shard: agent-handoff
+320:             command: pnpm test:agent-door && pnpm test:agent-handoff && pnpm test:privacy
+
+## .github/workflows/command-journey.yml
+1: name: Command journey
+2: 
+3: on:
+4:   workflow_call:
+5:   workflow_dispatch:
+6: 
+7: permissions:
+8:   contents: read
+9: 
+10: env:
+11:   PLAYWRIGHT_SKIP_BROWSER_GC: '1'
+12: 
+13: jobs:
+14:   commands:
+15:     runs-on: ubuntu-24.04
+16:     timeout-minutes: 90
+17:     steps:
+66:       # The public CLI journey clones HEAD and performs its own installs/builds.
+67:       - run: pnpm test:commands
+
+## tests/tunnel-flow.mjs
+189:   // 7. Hostile requests. A TRACE and an upload the client abandons end that request only: each host keeps serving.
+190:   const raw = (base, text, hold = 2000) => new Promise(done => { const socket = connect(Number(new URL(base).port), '127.0.0.1', () => socket.write(text)); socket.on('data', () => {}); socket.on('error', done); socket.on('close', done); setTimeout(() => socket.destroy(), hold); });
+191:   const tunnels = [nodeOrigin, pythonOrigin, nextOrigin];
+192:   for (const base of tunnels) {
+193:     await raw(base, 'TRACE /monitoring HTTP/1.1\r\nHost: tunnel\r\nConnection: close\r\n\r\n');
+194:     await raw(base, 'POST /monitoring HTTP/1.1\r\nHost: tunnel\r\nContent-Length: 100000\r\n\r\nsynthetic-spool-partial', 200);
+195:     assert.equal((await post(`${base}/monitoring`, envelopeOf(captureDsn))).status, 200, `${base} keeps serving after a TRACE and an aborted upload`);
+196:   }
+197:   assert.equal(nodeServer.exitCode, null, 'the Node host process is still running');
+198:   // No redirect is followed or relayed: the envelope goes to the configured Spool origin or nowhere.
+199:   for (const base of tunnels) for (redirectStatus of [301, 302, 303, 307, 308]) {
+200:     const reply = await post(`${base}/monitoring`, envelopeOf(redirectDsn));
+201:     assert.equal(reply.status, 502, `${base} refuses an upstream ${redirectStatus}`); assert.ok(!(await reply.text()).includes('synthetic-spool-foreign-body'), 'the redirected host’s body is never relayed');
+202:   }
+203:   assert.deepEqual(foreignHits, [], 'nothing reaches the host a redirect names');
+204:   console.log(JSON.stringify({ passed: true, memory: { platform: process.platform, source: process.platform === 'linux' ? '/proc/<pid>/status VmHWM after minus VmRSS before (KiB)' : 'getrusage maxRSS after minus ps rss before (KiB)', hosts: memory }, proof: 'Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts.' }));

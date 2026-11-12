@@ -1,0 +1,36 @@
+{
+  "main": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "candidate": "d371ff60239cff49b2cb251f6e40309b883a631b",
+  "files": [
+    {
+      "path": "tests/loader-flow.mjs",
+      "current_main_sha256": "970b983bf4fd4d3ee4cda858197f548b58fa76ed1cef6c0e6e9e08735bae20c8",
+      "candidate_sha256": "970b983bf4fd4d3ee4cda858197f548b58fa76ed1cef6c0e6e9e08735bae20c8",
+      "identical": true
+    },
+    {
+      "path": "tests/sentry-sdk.mjs",
+      "current_main_sha256": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a",
+      "candidate_sha256": "127e93e74cb4ba64d6222d093314158a1d45cc23c20ecf948410b5f81dcf160a",
+      "identical": true
+    },
+    {
+      "path": "tests/tunnel-flow.mjs",
+      "current_main_sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7",
+      "candidate_sha256": "9726b3edc0918d995f5059f5c7d05139be564a3b9f53fa726171b649355ef3e7",
+      "identical": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "current_main_sha256": "4e37178ccff6fd86b4acf80b66cfa575cffe93eee6e59ada8ffed481970b79ed",
+      "candidate_sha256": "4e37178ccff6fd86b4acf80b66cfa575cffe93eee6e59ada8ffed481970b79ed",
+      "identical": true
+    },
+    {
+      "path": "tests/worker.mjs",
+      "current_main_sha256": "33c488175802c128eb0e4e3a7b6693f56c6ad853fbefbd6829066b3f8a5cff32",
+      "candidate_sha256": "33c488175802c128eb0e4e3a7b6693f56c6ad853fbefbd6829066b3f8a5cff32",
+      "identical": true
+    }
+  ]
+}

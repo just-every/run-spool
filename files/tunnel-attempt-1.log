@@ -1,0 +1,94 @@
+verify (tunnel)	Run suites	﻿2026-11-12T13:41:58.4227782Z ##[group]Run pnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages
+verify (tunnel)	Run suites	2026-11-12T13:41:58.4228324Z [36;1mpnpm test:tunnel && pnpm test:sentry:sdk && pnpm test:sdk && pnpm test:languages[0m
+verify (tunnel)	Run suites	2026-11-12T13:41:58.4246621Z shell: /usr/bin/bash -e {0}
+[public environment preamble omitted from packet]
+verify (tunnel)	Run suites	2026-11-12T13:41:58.4248454Z ##[endgroup]
+verify (tunnel)	Run suites	2026-11-12T13:41:58.7031005Z 
+verify (tunnel)	Run suites	2026-11-12T13:41:58.7031918Z > @errors/errors-workbench@0.7.8 test:tunnel /home/runner/work/run-spool/run-spool
+verify (tunnel)	Run suites	2026-11-12T13:41:58.7032357Z > node tests/tunnel-flow.mjs
+verify (tunnel)	Run suites	2026-11-12T13:41:58.7032505Z 
+verify (tunnel)	Run suites	2026-11-12T13:41:59.0679534Z (node:2527) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (tunnel)	Run suites	2026-11-12T13:41:59.0680579Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (tunnel)	Run suites	2026-11-12T13:42:35.5319511Z ⨯ TypeError: 'TRACE' HTTP method is unsupported.
+verify (tunnel)	Run suites	2026-11-12T13:42:35.5320162Z     at new ta (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:31787)
+verify (tunnel)	Run suites	2026-11-12T13:42:35.5320878Z     at tl.fromNodeNextRequest (.next/server/chunks/[root-of-the-server]__0lgrtlrvdjxsy._.js:1:33057)
+verify (tunnel)	Run suites	2026-11-12T13:42:35.5321498Z     at Module.S [as handler] (.next/server/chunks/_1m5vp8hb3q0y3._.js:1:5452)
+verify (tunnel)	Run suites	2026-11-12T13:42:35.7361536Z ⨯ Error: aborted
+verify (tunnel)	Run suites	2026-11-12T13:42:35.7361846Z     at ignore-listed frames {
+verify (tunnel)	Run suites	2026-11-12T13:42:35.7362103Z   code: 'ECONNRESET'
+verify (tunnel)	Run suites	2026-11-12T13:42:35.7362297Z }
+verify (tunnel)	Run suites	2026-11-12T13:42:35.7758494Z {"passed":true,"memory":{"platform":"linux","source":"/proc/<pid>/status VmHWM after minus VmRSS before (KiB)","hosts":[{"host":"node","pid":2600,"residentBeforeKiB":58392,"peakBeforeKiB":58392,"peakAfterKiB":62532,"costKiB":4140},{"host":"python","pid":2607,"residentBeforeKiB":23336,"peakBeforeKiB":23336,"peakAfterKiB":25824,"costKiB":2488},{"host":"next","pid":2851,"residentBeforeKiB":95428,"peakBeforeKiB":95428,"peakAfterKiB":99400,"costKiB":3972}]},"proof":"Unmodified @sentry/browser with only DSN/tunnel changed: EasyPrivacy Sentry rules (Ghostery engine) block the default route; Node, real Next.js (build/start) and Python tunnels deliver; Spool origin enforcement, project fence and forwarded fields asserted; hosts survive TRACE and aborted uploads, follow no redirect, and refuse a decompression bomb within 32 MiB of peak memory on each of the three hosts."}
+verify (tunnel)	Run suites	2026-11-12T13:42:37.7656298Z 
+verify (tunnel)	Run suites	2026-11-12T13:42:37.7657325Z > @errors/errors-workbench@0.7.8 test:sentry:sdk /home/runner/work/run-spool/run-spool
+verify (tunnel)	Run suites	2026-11-12T13:42:37.7658014Z > node tests/sentry-sdk.mjs
+verify (tunnel)	Run suites	2026-11-12T13:42:37.7658248Z 
+verify (tunnel)	Run suites	2026-11-12T13:42:38.3136049Z (node:2890) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (tunnel)	Run suites	2026-11-12T13:42:38.3136724Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (tunnel)	Run suites	2026-11-12T13:42:46.8626459Z {"stage":"browser-qualification","width":1440,"target":"reference"}
+verify (tunnel)	Run suites	2026-11-12T13:42:46.9045308Z {"stage":"browser-round","width":1440,"target":"reference","round":0}
+verify (tunnel)	Run suites	2026-11-12T13:42:48.2294130Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:42:48.2299170Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:42:48.2306828Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:42:48.2351951Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:42:48.2654508Z {"stage":"browser-round","width":1440,"target":"reference","round":1}
+verify (tunnel)	Run suites	2026-11-12T13:42:49.5631523Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:42:49.5635815Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:42:49.5644036Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:42:49.5675382Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:42:49.6043618Z {"stage":"browser-qualification","width":1440,"target":"qualification"}
+verify (tunnel)	Run suites	2026-11-12T13:42:49.6471506Z {"stage":"browser-round","width":1440,"target":"qualification","round":0}
+verify (tunnel)	Run suites	2026-11-12T13:42:51.1809166Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:42:51.1813318Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:42:51.1820088Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:42:51.1864206Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:42:51.2441534Z {"stage":"browser-round","width":1440,"target":"qualification","round":1}
+verify (tunnel)	Run suites	2026-11-12T13:42:53.7796273Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:42:53.7799820Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:42:53.7804981Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:42:53.7837890Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:43:03.4962793Z {"qualification":"[SDK-001] browser","width":1440,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+verify (tunnel)	Run suites	2026-11-12T13:43:03.4964758Z PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 1440 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+verify (tunnel)	Run suites	2026-11-12T13:43:03.7919757Z {"stage":"browser-qualification","width":390,"target":"reference"}
+verify (tunnel)	Run suites	2026-11-12T13:43:03.8340792Z {"stage":"browser-round","width":390,"target":"reference","round":0}
+verify (tunnel)	Run suites	2026-11-12T13:43:05.1615079Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:43:05.1618725Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:43:05.1623699Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:43:05.1676280Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:43:05.1972970Z {"stage":"browser-round","width":390,"target":"reference","round":1}
+verify (tunnel)	Run suites	2026-11-12T13:43:06.4941966Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:43:06.4945326Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:43:06.4950185Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:43:06.4992779Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:43:06.5382375Z {"stage":"browser-qualification","width":390,"target":"qualification"}
+verify (tunnel)	Run suites	2026-11-12T13:43:06.5810681Z {"stage":"browser-round","width":390,"target":"qualification","round":0}
+verify (tunnel)	Run suites	2026-11-12T13:43:08.0627727Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:43:08.0631207Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:43:08.0635256Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:43:08.0682380Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:43:08.1266861Z {"stage":"browser-round","width":390,"target":"qualification","round":1}
+verify (tunnel)	Run suites	2026-11-12T13:43:09.9729052Z [SDK-001] lifecycle: original session
+verify (tunnel)	Run suites	2026-11-12T13:43:09.9732419Z [SDK-001] lifecycle: focus released
+verify (tunnel)	Run suites	2026-11-12T13:43:09.9736522Z [SDK-001] lifecycle: window minimized
+verify (tunnel)	Run suites	2026-11-12T13:43:09.9765740Z [SDK-001] lifecycle: report sent
+verify (tunnel)	Run suites	2026-11-12T13:43:19.7102387Z {"qualification":"[SDK-001] browser","width":390,"sent":{"session":6,"transaction":4,"event":4,"attachment":2,"log":2,"replay_event":2,"replay_recording":2,"feedback":4,"span":2,"client_report":2},"outcomes":{"accepted":4,"client_discarded:error:before_send":6,"feedback_accepted":4,"sentry_unsupported_attachment":2,"sentry_unsupported_other_telemetry":2,"sentry_unsupported_performance":6,"sentry_unsupported_replay":4,"session_stored":6}}
+verify (tunnel)	Run suites	2026-11-12T13:43:19.7104871Z PROBE SDK-004 acceptance5: actual Sentry widget, handled then automatic error across reloads at 390 -> 4 callback IDs equal emitted, inbox and archived reports; exact occurrence and issue links; feedback_accepted=4
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7368476Z node:internal/deps/undici/undici:13510
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7369171Z       Error.captureStackTrace(err);
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7369507Z             ^
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7369664Z 
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7369817Z TypeError: fetch failed
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7370201Z     at node:internal/deps/undici/undici:13510:13
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7371284Z     at async loaderFlow (file:///home/runner/work/run-spool/run-spool/tests/loader-flow.mjs:155:16)
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7372107Z     at async file:///home/runner/work/run-spool/run-spool/tests/sentry-sdk.mjs:96:3 {
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7372648Z   [cause]: Error: read ECONNRESET
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7373179Z       at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7373800Z       at TCP.callbackTrampoline (node:internal/async_hooks:130:17) {
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374108Z     errno: -104,
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374302Z     code: 'ECONNRESET',
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374503Z     syscall: 'read'
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374679Z   }
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374841Z }
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7374933Z 
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7375008Z Node.js v22.20.0
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7754611Z  ELIFECYCLE  Command failed with exit code 1.
+verify (tunnel)	Run suites	2026-11-12T13:44:00.7923490Z ##[error]Process completed with exit code 1.

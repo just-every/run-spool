@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "tag": "sd-spool-release-0-7-8-ci-triage-1",
+  "repository": "just-every/run-spool",
+  "recorded_utc": "2026-11-12T14:24:10Z",
+  "candidate_sha": "d371ff60239cff49b2cb251f6e40309b883a631b",
+  "candidate_branch": "cloud/sd-spool-release-0-7-8-rebase-d371ff60239cff49b2cb251f6e40309b883a631b",
+  "investigation_branch": "cloud/sd-spool-release-0-7-8-ci-triage-1",
+  "checkout_main_sha": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "run_id": 43229401150,
+  "before": {
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "failure",
+    "counts": {
+      "success": 24,
+      "skipped": 4,
+      "failure": 3
+    },
+    "root_job": 131221381091,
+    "aggregate_jobs": [
+      131230600828,
+      131230648534
+    ]
+  },
+  "retry": {
+    "requested_count": 1,
+    "endpoint": "POST repos/just-every/run-spool/actions/jobs/131221381091/rerun",
+    "http_status": 201,
+    "requested_utc": "2026-11-12T14:07:59Z",
+    "job_id": 131236537649,
+    "runner_name": "GitHub Actions 1000314700",
+    "started_at": "2026-11-12T14:08:04Z",
+    "completed_at": "2026-11-12T14:18:49Z",
+    "conclusion": "success"
+  },
+  "original_failure": {
+    "command": "pnpm test:sentry:sdk",
+    "test": "tests/sentry-sdk.mjs -> loaderFlow",
+    "location": "tests/loader-flow.mjs:155",
+    "operation": "GET http://127.0.0.1:15521/api/archive after project erasure",
+    "error": "TypeError: fetch failed",
+    "cause": "read ECONNRESET",
+    "assertion": "No AssertionError: fetch failed before line 156 assertion that project erasure removes the key settings"
+  },
+  "source_edits": 0,
+  "product_commits": 0,
+  "clause_changes": 0,
+  "local_test_runs": 0,
+  "investigation_outcome": "Done",
+  "classification": "Intermittent local Worker transport/runtime failure; recovered by one shard retry; reset root cause not established; no demonstrated release metadata product defect",
+  "after": {
+    "attempt": 2,
+    "status": "completed",
+    "conclusion": "success",
+    "counts": {
+      "success": 27,
+      "skipped": 4
+    },
+    "root_job": 131236537649,
+    "aggregate_jobs": [
+      131242959384,
+      131243010610
+    ],
+    "completed_utc": "2026-11-12T14:19:01Z"
+  },
+  "next_action": "sd: ordinary guarded readmit of sd-spool-release-0-7-8 for exact d371ff60239cff49b2cb251f6e40309b883a631b, with all remaining landing and publication gates preserved",
+  "main_reproduction": "Not required: the same shard passed its sole authorized retry",
+  "blockers": [],
+  "github_operations": 8,
+  "workflow_dispatches": 0,
+  "whole_workflow_reruns": 0,
+  "product_pushes": 0,
+  "pr_created": null
+}

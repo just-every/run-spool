@@ -1,0 +1,36 @@
+{
+  "checkout_head": "aff1c97b9c3b3dbba92472102265f0171fdb3bf3",
+  "tracked_diff_empty": true,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 12336,
+      "sha256": "5f3cc219b610a4bfd3d0568dd3bdcab546c5ea0944f7befc8d753017a1fd3635",
+      "matches_head": true
+    },
+    {
+      "path": "CONTRACT.md",
+      "bytes": 325429,
+      "sha256": "ee9c871bfa25a110d3f3e61924164c75cc17ea412cb775f2e0621f114ab3594b",
+      "matches_head": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 277139,
+      "sha256": "09f4bb713a3cf9acdde84ba680630f9e9356198966ea70f2ac502520909a9ab1",
+      "matches_head": true
+    },
+    {
+      "path": "docs/CLAIMS.md",
+      "bytes": 2082,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba",
+      "matches_head": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 22668,
+      "sha256": "4e37178ccff6fd86b4acf80b66cfa575cffe93eee6e59ada8ffed481970b79ed",
+      "matches_head": true
+    }
+  ]
+}

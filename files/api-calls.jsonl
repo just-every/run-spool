@@ -1,0 +1,8 @@
+{"time_utc": "2026-11-12T14:07:18Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150"], "exit": 0}
+{"time_utc": "2026-11-12T14:07:28Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150/jobs?filter=all&per_page=100"], "exit": 0}
+{"time_utc": "2026-11-12T14:07:45Z", "command": ["gh", "run", "view", "43229401150", "--repo", "just-every/run-spool", "--job", "131221381091", "--log-failed"], "exit": 0}
+{"time_utc": "2026-11-12T14:07:59Z", "command": ["gh", "api", "--method", "POST", "repos/just-every/run-spool/actions/jobs/131221381091/rerun", "--include"], "exit": 0}
+{"time_utc": "2026-11-12T14:13:00Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150", "--jq", "{id,name,status,conclusion,head_sha,head_branch,run_attempt,html_url,created_at,updated_at}"], "exit": 0}
+{"time_utc": "2026-11-12T14:18:01Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150", "--jq", "{id,name,status,conclusion,head_sha,head_branch,run_attempt,html_url,created_at,updated_at}"], "exit": 0}
+{"time_utc": "2026-11-12T14:23:02Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150", "--jq", "{id,name,status,conclusion,head_sha,head_branch,run_attempt,html_url,created_at,updated_at}"], "exit": 0}
+{"time_utc": "2026-11-12T14:23:19Z", "command": ["gh", "api", "repos/just-every/run-spool/actions/runs/43229401150/jobs?filter=all&per_page=100"], "exit": 0}
