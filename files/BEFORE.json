@@ -1,0 +1,20 @@
+{
+  "releaseOptions": [
+    "All releases",
+    " (1)",
+    "synthetic-spool-1 (1)"
+  ],
+  "recent": "Recent occurrence\nLanguage\nnode\nRelease\nsynthetic-spool-1\nEnvironment\nproduction\nLast received\nOct 31, 2026, 12:00 UTC",
+  "observed": "Observed deployments\nDetails\nFirst seen\n\n· production\n\nDeployment and commit unknown for this environment.\n\nLast seen\n\nsynthetic-spool-1 · production\n\nDeployment and commit unknown for this environment.",
+  "history": [
+    "ReleaseBuild identifierFirst seenDetailssynthetic-spool-1 · Created automaticallyEnvironment: production[sentry:no-dist]Oct 31, 2026, 12:00 UTCDetailsRelease synthetic-spool-1Close detailsBuild [sentry:no-dist]Created automatically from the first event · Oct 31, 2026, 12:00 UTCFirst event · Oct 31, 2026, 12:00 UTC in productionReceived from sentry.javascript.node 11.6.00 linked commitsNo deployments recorded."
+  ],
+  "delivery": [
+    "suppressed locally0Provider: local development suppressed mail. Recipient: no recipient delivery event yet; receipt unconfirmed.Error: Synthetic capture token=[redacted] · new issueEmail · 1 attemptOct 31, 2026, 12:00 UTCDetailsDelivery Oct 31, 2026, 12:00 UTCClose detailsLoading delivery details…Refresh delivery"
+  ],
+  "controls": [
+    "daily · personal · accepted2026-11-01..2026-11-02Read scrubbed digestSpool daily personal digest for web\nTimezone: America/New_York. Completed calendar period: 2026-11-01..2026-11-02.\nUTC coverage: 2026-11-01T04:00:00.000Z to 2026-11-02T05:00:00.000Z.\nPersonal means the installation owner.\nNew: 0; regressed: 0; unowned: 1; work total: 1.\nNew / regressed / unowned work (first 50; full backlog stays in Spool):\nWEB-1 21b64a442e1b72ddeee5919d035739e3381af4ac2657ef1363f65d5f635c5495: Error: Synthetic capture token=[redacted] | open | unowned\nCapture receipts / usage (including loss):\n\nFailed or overdue automation / Needs attention:\nalert: overdue / unacknowledged: 1\nHeld alert backlog: 0. Quiet hours and maintenance do not remove receipts or backlog.\nNo event payload is included.daily · project · accepted2026-11-01..2026-11-02Read scrubbed digestSpool daily project digest for web\nTimezone: America/New_York. Completed calendar period: 2026-11-01..2026-11-02.\nUTC coverage: 2026-11-01T04:00:00.000Z to 2026-11-02T05:00:00.000Z.\nPersonal means the installation owner.\nNew: 0; regressed: 0; unowned: 1; work total: 1.\nNew / regressed / unowned work (first 50; full backlog stays in Spool):\nWEB-1 21b64a442e1b72ddeee5919d035739e3381af4ac2657ef1363f65d5f635c5495: Error: Synthetic capture token=[redacted] | open | unowned\nCapture receipts / usage (including loss):\n\nFailed or overdue automation / Needs attention:\nalert: overdue / unacknowledged: 1\nHeld alert backlog: 0. Quiet hours and maintenance do not remove receipts or backlog.\nNo event payload is included.resumption · personal · acceptedb4c91b3c-fc05-4a9a-8ee1-e7acb2cfc72bRead scrubbed digestSpool snooze expired. project: web. Held alerts: 0. Capture continued. Inspect Alerts → Digests and snoozes and Needs attention; held deliveries remain listed until explicitly released.",
+    "project · expired · resumption recordedweb · until Oct 31, 2026, 12:02 UTC0 suppressed alerts kept",
+    ""
+  ]
+}

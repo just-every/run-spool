@@ -1,0 +1,9 @@
+{
+  "existing_journeys_extended_before": 2,
+  "existing_journeys_extended_after": 2,
+  "new_registrations": 0,
+  "removed_registrations": 0,
+  "default_cap": 200,
+  "test_budget_file_present": false,
+  "policy": "Extended existing script/function journeys; no new executable suite, registration, skip, or cap raise."
+}

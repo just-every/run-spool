@@ -1,0 +1,81 @@
+{
+  "tag": "main-spool-plain-delivery-labels-1-r1",
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-plain-delivery-labels-1-r1",
+  "head": "32e75542b7d75b44cb55508056a7bd63a655c824",
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "product_push": "success",
+  "pr": null,
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "BUILD.txt"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node .artifacts/test-release-labels.mjs",
+      "entry": "tests/release-identity-flow.mjs#releaseIdentityFlow",
+      "exit": 0,
+      "log": "RELEASE-TEST.txt"
+    },
+    {
+      "command": "RER_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/alerts-ui.mjs",
+      "exit": 0,
+      "log": "ALERTS-TEST.txt"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "TYPECHECK.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+      "exit": 0,
+      "log": "SOURCE-CHECK.txt"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "CONTRACT-CHECK.txt"
+    }
+  ],
+  "counts": {
+    "reported_findings_before": 3,
+    "reported_findings_after": 0,
+    "extended_existing_journeys_before": 2,
+    "extended_existing_journeys_after": 2,
+    "added_test_registrations": 0,
+    "removed_test_registrations": 0,
+    "contract_status_changes": 0
+  },
+  "claims": [
+    "CLAIM SDK-009 PARTIAL points=3 tests=tests/release-identity-flow.mjs#releaseIdentityFlow",
+    "CLAIM ALERT-003 PARTIAL points=1,4,5 tests=tests/alerts-ui.mjs#destination tests, delivery states, timezone digests and snoozing"
+  ],
+  "limitations": [
+    "Local suppressed-mail qualification only; no live provider receipt claimed.",
+    "Full publication scan and landing are owned by the fleet Mac.",
+    "Exact-SHA Verify pending at receipt creation."
+  ],
+  "ci": {
+    "workflow": "Verify",
+    "id": 43180512757,
+    "head_sha": "32e75542b7d75b44cb55508056a7bd63a655c824",
+    "status": "in_progress",
+    "github_api_calls": 2
+  },
+  "runtime": {
+    "node": "24.19.0",
+    "repository_node_pin": "22.20.0",
+    "pnpm": "10.12.4",
+    "chromium": "/usr/bin/chromium"
+  },
+  "identity_scan": "All origin/main..HEAD commits, including side parents; fleet author/committer; no trailers; passed.",
+  "proof_reproduction": {
+    "exit": 0,
+    "before": "BEFORE.json",
+    "after": "AFTER.json",
+    "screens": "selected release/build, delivery and digest/resumption screens at 1440 and 390",
+    "notes": "Screenshots use synthetic records and contain no private dev entry link or project credentials."
+  }
+}
