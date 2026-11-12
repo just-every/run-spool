@@ -1,0 +1,9 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "baseline_blocks": 23,
+  "current_original_blocks": 23,
+  "missing_original_blocks": [],
+  "sections_before": 1,
+  "sections_after": 7,
+  "method": "Compare each original top-level rendered setting block verbatim with section contents; JSX expression or direct self-closing component."
+}

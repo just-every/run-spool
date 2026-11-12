@@ -1,0 +1,66 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "branch": "cloud/main-spool-settings-split-1-c1",
+  "base": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "commits_above_main": 1,
+  "merge_commits_above_main": [],
+  "identity_and_trailers": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "files": [
+    "public/theme/spool.css",
+    "sources.lock.json",
+    "src/ui/workbench/SettingsView.tsx",
+    "tests/agent-handoff/ui.mjs",
+    "tests/audit-history.mjs",
+    "tests/checkin-flow.mjs",
+    "tests/end-user-erasure-preview.mjs",
+    "tests/grouping-rules-flow.mjs",
+    "tests/identity-flow.mjs",
+    "tests/inbound-filter-flow.mjs",
+    "tests/key-rate-limit-flow.mjs",
+    "tests/loader-flow.mjs",
+    "tests/notification-preferences.mjs",
+    "tests/operator-ui.mjs",
+    "tests/project-erasure/ui.mjs",
+    "tests/release-identity-flow.mjs",
+    "tests/reports-flow.mjs",
+    "tests/retention-flow.mjs",
+    "tests/retention-schedule-flow.mjs",
+    "tests/rollbar-import/screens.mjs",
+    "tests/scrubbing-flow.mjs",
+    "tests/slack-ui.mjs",
+    "tests/triage-journey.mjs"
+  ],
+  "contract_files": {
+    "CONTRACT.md": {
+      "identical_to_main": true,
+      "sha256": "ab1e2b5eff5e817008c0490af7e04c35f2bae2734b406d593936abeba5f70018"
+    },
+    "ACCEPTANCE.md": {
+      "identical_to_main": true,
+      "sha256": "ec7f2cced10a28af51071c64f6d97a440e76289d114e252f297198d78b0bc53d"
+    },
+    "docs/CLAIMS.md": {
+      "identical_to_main": true,
+      "sha256": "dea371100eb9ee81aee20dfc3264506a9885383e15a197f813f044a335555aba"
+    }
+  },
+  "summary_counts_before": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "summary_counts_after": {
+    "done": 23,
+    "partial": 53,
+    "missing": 29,
+    "total": 105
+  },
+  "clause_status_changes": [],
+  "tree": "09be129a47d906d9c063fe034582b9527bb006af",
+  "full_history": true,
+  "sources_lock_sha256": "4e5aef73cc77eb7585dbc3fd1477e0a624546ff943238c61616113bf194984f4",
+  "candidate_message": "Split Settings into seven addressable sections",
+  "working_tree_clean": true,
+  "same_product_and_tests_as_original": true
+}

@@ -1,0 +1,59 @@
+{
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "output": "Private setup output intentionally excluded from public evidence"
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0,
+    "output": "Build output retained locally; no full local Verify run"
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; pnpm source:check",
+    "exit": 0,
+    "log": "source-check.log"
+  },
+  "contract": {
+    "command": "node src/base/contract-docs.mjs check",
+    "exit": 0,
+    "log": "contract-check.log"
+  },
+  "screenshots": {
+    "command": "cloud_run node settings-proof.mjs",
+    "exit": 0,
+    "log": "settings-proof.log",
+    "receipt": "settings-browser.json",
+    "captures": 14,
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "screenshot_initial_attempt": {
+    "exit": 1,
+    "reason": "Harness initially chose port 15483, which the existing triage journey uses for its independent restore worker. Retried the harness at unused port 16483; no product change required."
+  },
+  "publication_scan": {
+    "status": "FLEET_GATE_PENDING",
+    "reason": "The cloud task cannot run the fleet publication scan. The fleet performs the scan before landing, as required by the cloud adaptation."
+  },
+  "slack_settings": {
+    "command": "cloud_run node /tmp/spool-settings-slack.mjs (invokes existing tests/slack-ui.mjs#slackUI)",
+    "exit": 0,
+    "log": "settings-slack.log"
+  },
+  "triage": {
+    "command": "cloud_run node tests/triage-journey.mjs",
+    "exit": 0,
+    "log": "triage-journey.log",
+    "behavior_groups": 22,
+    "captures": 100,
+    "settings_assertions": "Create/revoke deploy key; active section visibility; reload preserves address; browser back/forward; legacy Slack and reports fragments; private archive restore."
+  }
+}

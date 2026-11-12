@@ -1,0 +1,6 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "scope": "Product diff only; not the fleet publication scan",
+  "patterns_with_matches": [],
+  "fleet_publication_scan": "Required at landing; unavailable in cloud"
+}

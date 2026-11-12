@@ -1,0 +1,126 @@
+[
+  {
+    "number": 1,
+    "at": 1794449200.492249,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs?head_sha=8ef55561973155476e8c9c8d98c1c7b2e80c8b70&per_page=100",
+      "--jq",
+      "{workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ],
+    "run": null,
+    "discovery": true
+  },
+  {
+    "number": 2,
+    "at": 1794449501.5272996,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 3,
+    "at": 1794449802.575159,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 4,
+    "at": 1794450103.615708,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 5,
+    "at": 1794450404.6534963,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 6,
+    "at": 1794450705.6886592,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 7,
+    "at": 1794451006.7341638,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "run": "43139064627",
+    "discovery": false
+  },
+  {
+    "number": 8,
+    "at": 1794451021.5834463,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627/jobs?per_page=100",
+      "--jq",
+      "{jobs:[.jobs[]|{id,name,status,conclusion,failed_steps:[.steps[]|select(.conclusion==\"failure\")|{number,name,conclusion}]}]}"
+    ],
+    "run": null,
+    "discovery": false
+  },
+  {
+    "number": 9,
+    "at": 1794451056.0363271,
+    "args": [
+      "run",
+      "view",
+      "43139064627",
+      "--repo",
+      "just-every/run-spool",
+      "--job",
+      "130921765752",
+      "--log-failed"
+    ],
+    "run": null,
+    "discovery": false
+  },
+  {
+    "number": 10,
+    "at": 1794451200.9667773,
+    "args": [
+      "api",
+      "repos/just-every/run-spool/actions/runs/43139064627/rerun-failed-jobs",
+      "--method",
+      "POST"
+    ],
+    "run": null,
+    "discovery": false
+  }
+]

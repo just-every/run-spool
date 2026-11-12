@@ -1,0 +1,87 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "helperFiles": [
+    {
+      "file": "tests/agent-handoff/ui.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/audit-history.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/checkin-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/end-user-erasure-preview.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/grouping-rules-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/identity-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/inbound-filter-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/key-rate-limit-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/loader-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/notification-preferences.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/operator-ui.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/project-erasure/ui.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/release-identity-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/reports-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/retention-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/retention-schedule-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/rollbar-import/screens.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/scrubbing-flow.mjs",
+      "onlySectionAddressChanged": true
+    },
+    {
+      "file": "tests/slack-ui.mjs",
+      "onlySectionAddressChanged": false,
+      "change": "Two Settings section-navigation clicks added; existing assertions retained."
+    }
+  ],
+  "journey": "tests/triage-journey.mjs#journey",
+  "testRegistrationsAdded": 0,
+  "existingAssertionsDeleted": 0,
+  "existingAssertionsWeakened": 0,
+  "notes": "18 modified test/helper files differ only by a section fragment in their destination URL. tests/slack-ui.mjs adds section-navigation clicks in two existing flows. The triage journey gains Settings assertions without adding another registration. Existing assertions are retained. No test-budget.json override exists."
+}

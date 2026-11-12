@@ -1,0 +1,12 @@
+{
+  "repository": "just-every/run-spool",
+  "main": "7b8cc6213c14b0e2af650e2d6289dd0ac59871aa",
+  "source": "a6ba9c9eb819120a3a4a40968e5220a72bd6de93",
+  "target_branch": "cloud/main-spool-settings-split-1-c1",
+  "settings_blocks_before": 23,
+  "settings_blocks_after": 23,
+  "sections_before": 1,
+  "sections_after": 7,
+  "tests_added": 0,
+  "contract_changes": false
+}

@@ -1,0 +1,25 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-settings-split-1-c1",
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "push": "success",
+  "attempts": 1,
+  "workflow": "Verify",
+  "run_id": 43139064627,
+  "run_url": "https://github.com/just-every/run-spool/actions/runs/43139064627",
+  "status": "rerun_requested",
+  "conclusion": null,
+  "github_calls": 10,
+  "pr": null,
+  "clause_status_changes": [],
+  "custody": "PUSHED",
+  "first_attempt_conclusion": "failure",
+  "rerun_accepted": true,
+  "ci_observation_limit": "Ten-call budget exhausted after the accepted failed-job rerun; no successful exact-SHA Verify has been observed.",
+  "outstanding_gate": "Successful exact-SHA Verify rerun",
+  "failed_jobs": [
+    130921765752,
+    130921765780
+  ],
+  "cancelled_job": 130921765813
+}

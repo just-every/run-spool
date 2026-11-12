@@ -1,0 +1,43 @@
+verify (owner-ui)	Run suites	﻿2026-11-12T02:08:02.4778205Z ##[group]Run pnpm test:accessibility && pnpm test:admission
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4778863Z [36;1mpnpm test:accessibility && pnpm test:admission[0m
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4799431Z shell: /usr/bin/bash -e {0}
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4799867Z env:
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4800167Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4800609Z   RER_SERVERS_DISK_FLOOR_GIB: 4
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4801058Z   NODE_DEBUG: @cloudflare:vite-plugin
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4801545Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4802102Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.4802603Z ##[endgroup]
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.7594741Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.7596023Z > @errors/errors-workbench@0.7.6 test:accessibility /home/runner/work/run-spool/run-spool
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.7597156Z > node tests/triage-journey.mjs
+verify (owner-ui)	Run suites	2026-11-12T02:08:02.7597412Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:03.3412282Z (node:2690) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+verify (owner-ui)	Run suites	2026-11-12T02:08:03.3413892Z (Use `node --trace-warnings ...` to show where the warning was created)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5429523Z node:internal/modules/run_main:123
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5430040Z     triggerUncaughtException(
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5430317Z     ^
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5430441Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5430750Z AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5433666Z + actual - expected
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5433975Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5434163Z + 'rejected'
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5434599Z - 'accepted'
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5434819Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5435508Z     at journey (file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:223:185)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5436446Z     at runNextTicks (node:internal/process/task_queues:65:5)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5437290Z     at process.processImmediate (node:internal/timers:453:9)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5437847Z     at process.topLevelDomainCallback (node:domain:161:15)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5438336Z     at process.callbackTrampoline (node:internal/async_hooks:128:24)
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5438956Z     at async file:///home/runner/work/run-spool/run-spool/tests/triage-journey.mjs:240:31 {
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5439419Z   generatedMessage: true,
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5439676Z   code: 'ERR_ASSERTION',
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5439922Z   actual: 'rejected',
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5440155Z   expected: 'accepted',
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5440401Z   operator: 'strictEqual',
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5440641Z   diff: 'simple'
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5440851Z }
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5440960Z 
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5441057Z Node.js v22.20.0
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.5875870Z  ELIFECYCLE  Command failed with exit code 1.
+verify (owner-ui)	Run suites	2026-11-12T02:08:58.6071177Z ##[error]Process completed with exit code 1.

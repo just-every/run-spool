@@ -1,0 +1,949 @@
+{
+  "head": "8ef55561973155476e8c9c8d98c1c7b2e80c8b70",
+  "screens": [
+    {
+      "section": "organization",
+      "width": 1440,
+      "file": "screens/settings-organization-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-organization"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": "page",
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Members"
+      ]
+    },
+    {
+      "section": "projects",
+      "width": 1440,
+      "file": "screens/settings-projects-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-projects"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": "page",
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Create another project",
+        "Project keys",
+        "Project key",
+        "Browser loader",
+        "Event rate limit",
+        "Reports, dashboards and query tables",
+        "Send errors to this project",
+        "Install the Spool SDK",
+        "Initialise it once in your app",
+        "Allow your app’s origin",
+        "Already using Sentry? Point your DSN here"
+      ]
+    },
+    {
+      "section": "processing",
+      "width": 1440,
+      "file": "screens/settings-processing-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-processing"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": "page",
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Cron check-ins",
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ]
+    },
+    {
+      "section": "alerts",
+      "width": 1440,
+      "file": "screens/settings-alerts-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-alerts"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": "page",
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Connect Slack",
+        "Scheduled alert run"
+      ]
+    },
+    {
+      "section": "privacy",
+      "width": 1440,
+      "file": "screens/settings-privacy-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-privacy"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": "page",
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Server scrubbing rules",
+        "Installation protection",
+        "Custom scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ]
+    },
+    {
+      "section": "data",
+      "width": 1440,
+      "file": "screens/settings-data-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-data"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": "page",
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Business imports",
+        "Trusted keys",
+        "Import history",
+        "Archive and restore",
+        "Retention windows",
+        "Legal hold: inactive",
+        "Delete old evidence",
+        "Erase this project"
+      ]
+    },
+    {
+      "section": "audit",
+      "width": 1440,
+      "file": "screens/settings-audit-1440.png",
+      "documentWidth": 1440,
+      "visibleSections": [
+        "settings-audit"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 328,
+          "right": 437.1875
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 445.1875,
+          "right": 571.234375
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 579.234375,
+          "right": 715.40625
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 723.40625,
+          "right": 882.109375
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 890.109375,
+          "right": 1029.890625
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 1037.890625,
+          "right": 1158.984375
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": "page",
+          "left": 1166.984375,
+          "right": 1230.453125
+        }
+      ],
+      "headings": [
+        "Organization audit"
+      ]
+    },
+    {
+      "section": "organization",
+      "width": 390,
+      "file": "screens/settings-organization-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-organization"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Members"
+      ]
+    },
+    {
+      "section": "projects",
+      "width": 390,
+      "file": "screens/settings-projects-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-projects"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Create another project",
+        "Project keys",
+        "Project key",
+        "Browser loader",
+        "Event rate limit",
+        "Reports, dashboards and query tables",
+        "Send errors to this project",
+        "Install the Spool SDK",
+        "Initialise it once in your app",
+        "Allow your app’s origin",
+        "Already using Sentry? Point your DSN here"
+      ]
+    },
+    {
+      "section": "processing",
+      "width": 390,
+      "file": "screens/settings-processing-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-processing"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Cron check-ins",
+        "Project grouping rules",
+        "Agent grouping proposals",
+        "Release recurrence",
+        "Sentry release identity",
+        "Commit author and message",
+        "Feedback inbox"
+      ]
+    },
+    {
+      "section": "alerts",
+      "width": 390,
+      "file": "screens/settings-alerts-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-alerts"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Personal notifications",
+        "Slack destinations",
+        "Connect Slack",
+        "Scheduled alert run"
+      ]
+    },
+    {
+      "section": "privacy",
+      "width": 390,
+      "file": "screens/settings-privacy-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-privacy"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Server scrubbing rules",
+        "Installation protection",
+        "Custom scrubbing rules",
+        "User identity policy",
+        "End-user erasure preview",
+        "Inbound filters and usage"
+      ]
+    },
+    {
+      "section": "data",
+      "width": 390,
+      "file": "screens/settings-data-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-data"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": null,
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Business imports",
+        "Trusted keys",
+        "Import history",
+        "Archive and restore",
+        "Retention windows",
+        "Legal hold: inactive",
+        "Delete old evidence",
+        "Erase this project"
+      ]
+    },
+    {
+      "section": "audit",
+      "width": 390,
+      "file": "screens/settings-audit-390.png",
+      "documentWidth": 390,
+      "visibleSections": [
+        "settings-audit"
+      ],
+      "navigation": [
+        {
+          "text": "Organization",
+          "href": "#settings-organization",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Projects & keys",
+          "href": "#settings-projects",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Issue processing",
+          "href": "#settings-processing",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Alerts & integrations",
+          "href": "#settings-alerts",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Privacy & filtering",
+          "href": "#settings-privacy",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Data & archive",
+          "href": "#settings-data",
+          "current": null,
+          "left": 24,
+          "right": 366
+        },
+        {
+          "text": "Audit",
+          "href": "#settings-audit",
+          "current": "page",
+          "left": 24,
+          "right": 366
+        }
+      ],
+      "headings": [
+        "Organization audit"
+      ]
+    }
+  ]
+}
