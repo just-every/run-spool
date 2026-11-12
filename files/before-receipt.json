@@ -1,0 +1,90 @@
+{
+  "phase": "before",
+  "outcomes": [
+    {
+      "reason": "feedback_accepted",
+      "count": 1
+    },
+    {
+      "reason": "session_stored",
+      "count": 1
+    }
+  ],
+  "successAttention": [
+    {
+      "state": "overdue",
+      "reason": "capture_loss_session_stored",
+      "capture_loss": 1
+    },
+    {
+      "state": "overdue",
+      "reason": "capture_loss_feedback_accepted",
+      "capture_loss": 1
+    }
+  ],
+  "counts": {
+    "before": {
+      "total": 1,
+      "open": 1,
+      "unowned": 1,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ]
+    },
+    "after": {
+      "total": 2,
+      "open": 2,
+      "unowned": 2,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+        "6b0dc908eeef0a84bf9f50ef2aed1b510f025abae6ae96419c3b698aecf7d949"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+        "6b0dc908eeef0a84bf9f50ef2aed1b510f025abae6ae96419c3b698aecf7d949"
+      ]
+    }
+  },
+  "restoredCount": 3,
+  "alias": {
+    "shortId": "SYNTHETIC-SPOOL-TRUTH-2",
+    "resolves": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+    "original": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+  },
+  "correction": [
+    {
+      "id": "7c30fa72-729d-47f3-9fa3-b57e22541b23",
+      "project": "synthetic-spool-truth",
+      "kind": "split",
+      "state": "undone",
+      "plan": {
+        "version": 1,
+        "project": "synthetic-spool-truth",
+        "kind": "split",
+        "moves": [
+          {
+            "event": "synthetic-spool-truth-2",
+            "occurrence": "bedd449f-adcb-432a-b6be-6f511284a1e2",
+            "from": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "to": "6b0dc908eeef0a84bf9f50ef2aed1b510f025abae6ae96419c3b698aecf7d949"
+          }
+        ],
+        "issues": [
+          {
+            "id": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "revision": 3,
+            "count": 3,
+            "after": 2
+          }
+        ],
+        "target": "6b0dc908eeef0a84bf9f50ef2aed1b510f025abae6ae96419c3b698aecf7d949",
+        "fingerprint": "253ff027db6a33d325f4569d0fca1888db6ad53b5d7a37bb035d56b479f97fae"
+      },
+      "created": 1794470035242,
+      "updated": 1794470035751
+    }
+  ]
+}

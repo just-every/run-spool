@@ -1,0 +1,80 @@
+{
+  "candidate": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit_code": 0,
+      "execution": "toolchain source and cloud_run",
+      "result": "setup completed"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit_code": 0,
+      "execution": "cloud_run",
+      "result": "application built"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "execution": "toolchain source",
+      "result": "TypeScript clean"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit_code": 0,
+      "execution": "toolchain source",
+      "result": "documents current; no prose errors or warnings"
+    },
+    {
+      "command": "node tests/sentry-sdk.mjs",
+      "exit_code": 0,
+      "execution": "cloud_run; /usr/bin/chromium --no-sandbox",
+      "result": "all existing SDK flows plus successful intake, genuine losses and legacy repair passed"
+    },
+    {
+      "command": "node tests/triage-journey.mjs",
+      "exit_code": 0,
+      "execution": "cloud_run; /usr/bin/chromium --no-sandbox",
+      "result": "22 groups; 97 existing JPG captures at 1440 and 390; new count checks passed at 1440"
+    },
+    {
+      "command": "node tests/product-runtime.mjs --no-browser",
+      "exit_code": 1,
+      "execution": "initial concurrent execution",
+      "result": "shared local wrapper interference: POST fixture clock HTTP 404; replaced by sequential run"
+    },
+    {
+      "command": "node tests/product-runtime.mjs --no-browser",
+      "exit_code": 0,
+      "execution": "sequential cloud_run",
+      "result": "emitted Worker/D1, operatorFlow, archive/restore and retention passed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "execution": "after main fetch/rebase, last source change",
+      "result": "source lock regenerated"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit_code": 0,
+      "execution": "toolchain source",
+      "result": "source lock current"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "execution": "candidate commit",
+      "result": "clean"
+    },
+    {
+      "command": "node .artifacts/capture-truth.mjs (PROOF_PHASE=after)",
+      "exit_code": 0,
+      "execution": "cloud_run, exact committed candidate; /usr/bin/chromium --no-sandbox",
+      "result": "success-only intake and rendered split/apply/undo: count restoration, alias/history, screenshots at 1440/390"
+    }
+  ],
+  "newTestRegistrations": 0,
+  "testFilesAdded": 0,
+  "fullLocalVerify": "not run; branch Verify is the full wall"
+}

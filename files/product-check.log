@@ -1,0 +1,8 @@
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+AI-005 agent grouping proposals show counterexamples and rate, alert and repair effects, and stay reversible passed.
+Spool emitted Worker/D1 acceptance passed: atomic retry, pre-scrub conflict, privacy, minified capture, CSRF, delayed release/regression, archive independent restore, retention.
+Non-browser domain gate: browser capture/UI skipped under explicit launch hold; separate Worker transport passed.

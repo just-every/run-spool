@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "62fc05634d18ecf6432f2703f4a4558f1e2f8646",
+      "bytes": 2723,
+      "path": "CHECKS.json",
+      "sha256": "c3ccbac78612fd49b07633485a218ac59bbdd25f5ffd28347ba61db96adcadfd"
+    },
+    {
+      "blob": "a88d7dac188b25d1ba7967e91f8c65034e46e4e8",
+      "bytes": 1504,
+      "path": "PLAN.md",
+      "sha256": "2e45c67447beeb511b1c8183c254e5e6066e2ae6245043b5a354bfaf39372718"
+    },
+    {
+      "blob": "d627dd76141c7cf952d0b530915aaa622c5cc2b3",
+      "bytes": 5960,
+      "path": "REPORT.md",
+      "sha256": "6a5306fa9261ce859c5360b5e5c19afb6a7a253a9e8136c6b5f680d70fb889ae"
+    },
+    {
+      "blob": "41cb387f26dbcca872116be40831a6c09323203e",
+      "bytes": 104727,
+      "path": "after-attention-1440.png",
+      "sha256": "f8e7ceabd1c09fc4a4b145fd76cb8ed1422737cd85eb524075854a107033d31f"
+    },
+    {
+      "blob": "fe353ab0985761d3adcb0ac23e0271a23bf6d31c",
+      "bytes": 77212,
+      "path": "after-attention-390.png",
+      "sha256": "28718c6058525e293c59e2b7d316d3a999c5046d2297c525e03e78c7be81410a"
+    },
+    {
+      "blob": "6f1ff70e6b0f68b3740be6b195a4c619e239b219",
+      "bytes": 111997,
+      "path": "after-issues-1440.png",
+      "sha256": "6706d44ad17d3f43df643a3d327ebf2281a775032f468e4c1b1fac0cfddfbf7e"
+    },
+    {
+      "blob": "34d14ec7fedaed5619834852c14dea65c724ee1d",
+      "bytes": 88425,
+      "path": "after-issues-390.png",
+      "sha256": "6ac919debaa456475f6d31502d8b79f641e0d2d2b0f9f22b7a17dac68097b277"
+    },
+    {
+      "blob": "f59b4c006ec01a5bb7f5c7612ba220e5893f81c1",
+      "bytes": 2175,
+      "path": "after-receipt.json",
+      "sha256": "d8fb15e83d1e793f8ac07f2d0f8be6f9188f772349a180c39df87b0a4d39ea7b"
+    },
+    {
+      "blob": "c946de557a2feb3d66ee3cd28b973bc26ed2f279",
+      "bytes": 2494,
+      "path": "before-receipt.json",
+      "sha256": "084159acbe942eeb0bcbdd04e6faad693b614a135d7d29465eeeee00ee08954b"
+    },
+    {
+      "blob": "44016980a4b18517d939519745c83cfa4042e0f5",
+      "bytes": 928,
+      "path": "ci-receipt.json",
+      "sha256": "72bc221052248b8771007008f829b84e4c0aa33d43e16a61ac6f6629f16f5b5b"
+    },
+    {
+      "blob": "b59d39532e8a030ff74f6339019ab7870ef51548",
+      "bytes": 70,
+      "path": "contract-check.log",
+      "sha256": "b04031901cfff3e9bc42a429b52cbc14c2442ffb68817fd62a245ac52847b422"
+    },
+    {
+      "blob": "6d07c7f57a4c6e879c7da330f2198a742f18e598",
+      "bytes": 469,
+      "path": "contract-status-receipt.json",
+      "sha256": "e26c9d21f417b36f56130161f79bd9f257ff47549bd04d92a95653839d64b3fe"
+    },
+    {
+      "blob": "58ef1ed95a54a9b460f04905dc4f78a128322d57",
+      "bytes": 565,
+      "path": "product-check.log",
+      "sha256": "b24067350e3794361c3e4b8706f99537755bfcf8a629858baf906df641133f6e"
+    },
+    {
+      "blob": "66bf481e50f0942e14e0fc8659b4e860361aa27f",
+      "bytes": 1601,
+      "path": "product-receipt.json",
+      "sha256": "d66b5eba1858c061f2305526806f82571b9e65d60439ec9740dd5e39bb0bc76d"
+    },
+    {
+      "blob": "b9c1399c729934dd995222054e59b15b3df73f8d",
+      "bytes": 6072,
+      "path": "proof-driver.mjs",
+      "sha256": "f442e4bfd3d56a96367903de79269be0724590977351e504b0ddd97a3cab8591"
+    },
+    {
+      "blob": "821d0a6214db33c058415db5bacf8c17e03c9d98",
+      "bytes": 4982,
+      "path": "sdk-check.log",
+      "sha256": "e308ffdca88931058eb60d99459f3fb2f93950e62460955c38841b2b6d99a06d"
+    },
+    {
+      "blob": "0ff0da8b7dd47a3aab0e2c75fef43c1ffe269162",
+      "bytes": 210,
+      "path": "triage-check.log",
+      "sha256": "d485434c51bae14c8a90528fd12bf1cb6dd8f192dae1bdf35178eb017e1457c3"
+    },
+    {
+      "blob": "263cb819d72f35d90566e49a163bd04b7df4a98c",
+      "bytes": 187,
+      "path": "typecheck.log",
+      "sha256": "6fe6a4b9611436770e6f27c811e5fa22ddff6d0fec708b816f20491474dd158a"
+    }
+  ],
+  "product_branch": "cloud/main-spool-capture-truth-1",
+  "product_head": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+  "ref": "refs/heads/evidence/main-spool-capture-truth-1",
+  "repository": "just-every/run-spool",
+  "schema": 1,
+  "tag": "main-spool-capture-truth-1"
+}

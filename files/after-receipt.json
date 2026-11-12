@@ -1,0 +1,78 @@
+{
+  "candidate": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+  "phase": "after",
+  "outcomes": [
+    {
+      "reason": "feedback_accepted",
+      "count": 1
+    },
+    {
+      "reason": "session_stored",
+      "count": 1
+    }
+  ],
+  "successAttention": [],
+  "counts": {
+    "before": {
+      "total": 1,
+      "open": 1,
+      "unowned": 1,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ]
+    },
+    "after": {
+      "total": 1,
+      "open": 1,
+      "unowned": 1,
+      "ids": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ],
+      "nativeIds": [
+        "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+      ]
+    }
+  },
+  "restoredCount": 3,
+  "alias": {
+    "shortId": "SYNTHETIC-SPOOL-TRUTH-2",
+    "resolves": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+    "original": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5"
+  },
+  "correction": [
+    {
+      "id": "9e62b36b-519b-42f0-a1fe-36b5476e8df6",
+      "project": "synthetic-spool-truth",
+      "kind": "split",
+      "state": "undone",
+      "plan": {
+        "version": 1,
+        "project": "synthetic-spool-truth",
+        "kind": "split",
+        "moves": [
+          {
+            "event": "synthetic-spool-truth-2",
+            "occurrence": "11418d2a-7ba0-4fe7-b567-713c4d678aea",
+            "from": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "to": "7001800f6f18b1b4de72926c5d2b4ce9e92f1d9b81a537946cc67904f07627b1"
+          }
+        ],
+        "issues": [
+          {
+            "id": "b39634d2fa3677cb2b6b54fdf2e06f04e559fc50a1008667853b767e9dbde3f5",
+            "revision": 3,
+            "count": 3,
+            "after": 2
+          }
+        ],
+        "target": "7001800f6f18b1b4de72926c5d2b4ce9e92f1d9b81a537946cc67904f07627b1",
+        "fingerprint": "9bafccd1b15d0fc1f37f4aa43f20f01d7259f8e95db5d2bdd0fe687704a8a52f"
+      },
+      "created": 1794471154401,
+      "updated": 1794471154946
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-capture-truth-1",
+  "head": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+  "base": "26d13d4f574298851f25778818c1af0b9b2a2386",
+  "candidateTree": "4c95acb22c5f5648f06b2d71571925baf59372f8",
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "identityCheck": "all commits origin/main..HEAD, including side parents",
+  "cleanCheckout": true,
+  "changedFiles": [
+    "sources.lock.json",
+    "src/domain/alerts/digests.ts",
+    "src/domain/alerts/team-digests.ts",
+    "src/domain/api.ts",
+    "src/domain/follow-up/routes.ts",
+    "src/domain/follow-up/scan.ts",
+    "src/domain/follow-up/types.ts",
+    "src/domain/investigation/search.ts",
+    "src/domain/reports/read.ts",
+    "tests/operator-flow.mjs",
+    "tests/operator-ui.mjs",
+    "tests/sentry-sdk.mjs"
+  ],
+  "publicationScan": "fleet host gate; unavailable in cloud per task adaptation",
+  "localTouchedChecks": "passed",
+  "push": {
+    "status": "pushed",
+    "attempts": 1,
+    "remote": "origin",
+    "ref": "refs/heads/cloud/main-spool-capture-truth-1",
+    "head": "958ff23cd5acbd7190a52fbebcb3a2209cf64ad8",
+    "guard": "cloud-push.py"
+  },
+  "gitPorcelainPushReceipt": [
+    "PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/main-spool-capture-truth-1",
+    "To https://github.com/just-every/run-spool",
+    "*\tHEAD:refs/heads/cloud/main-spool-capture-truth-1\t[new branch]",
+    "Done",
+    "PUSH_OK branch=cloud/main-spool-capture-truth-1"
+  ]
+}

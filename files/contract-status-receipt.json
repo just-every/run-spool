@@ -1,0 +1,32 @@
+{
+  "source": "CONTRACT.md",
+  "statusChanges": {},
+  "targetBeforeAfter": {
+    "ERR-008": [
+      "done",
+      "done"
+    ],
+    "SDK-007": [
+      "partial",
+      "partial"
+    ],
+    "GROUP-001": [
+      "done",
+      "done"
+    ]
+  },
+  "summaryBeforeAfter": [
+    {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    },
+    {
+      "done": 23,
+      "partial": 54,
+      "missing": 28
+    }
+  ],
+  "registrationsAdded": 0,
+  "countedClauses": 105
+}
