@@ -25,7 +25,7 @@ async function preferenceBrowser(owner,actors,projects,expected) {
    await context.addCookies([{name:actor.cookie.slice(0,split),value:actor.cookie.slice(split+1),url:owner.origin.replace('http:','https:'),secure:true}]);
    const page=await context.newPage();
    for(const [projectIndex,project] of projects.entries()) {
-    await page.goto(owner.origin+'/projects/'+project.id+'/settings');
+    await page.goto(owner.origin+'/projects/'+project.id+'/settings#settings-alerts');
     const panel=page.getByRole('region',{name:'Personal notifications',exact:true});
     await panel.getByRole('group',{name:'Email preferences',exact:true}).waitFor();
     for(const [i,type] of types.entries())await expect(panel.getByRole('checkbox',{name:labels[i],exact:true})).toBeChecked({checked:expected[index][projectIndex][type]});

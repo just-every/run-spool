@@ -88,7 +88,29 @@ try {
 
  // Open the actual browser download, including its verified closing hashes.
  await (await workbenchLink(page,'Settings')).click();
+ const settingsNavigation=page.getByRole('navigation',{name:'Settings sections'});
+ await settingsNavigation.getByRole('link',{name:'Projects & keys',exact:true}).click();
+ if(width===1440){
+  await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Members',exact:true})).toBeHidden();
+  const created=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/cedar/keys'&&response.request().method()==='POST');
+  await page.getByRole('button',{name:'Create deploy key',exact:true}).click();assert.equal((await created).status(),201);
+  await page.getByRole('button',{name:'Dismiss key',exact:true}).click();
+  const key=page.locator('.key-row').last();await key.getByRole('button',{name:'Details: Project key',exact:true}).click();
+  await page.getByRole('dialog',{name:'Project key',exact:true}).getByRole('button',{name:'Revoke key',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'Project key',exact:true})).toContainText('Revoked');
+  await page.getByRole('button',{name:'Close details',exact:true}).click();
+  const projectsAddress=page.url();await page.reload();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();assert.equal(page.url(),projectsAddress);
+ }
+ await capture('settings-projects',width);
+ await settingsNavigation.getByRole('link',{name:'Data & archive',exact:true}).click();
  await page.getByRole('heading',{name:'Archive and restore',exact:true}).waitFor();
+ if(width===1440){
+  await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeHidden();
+  await page.goBack();await expect(page.getByRole('heading',{name:'Project keys',exact:true})).toBeVisible();
+  await page.goForward();await expect(page.getByRole('heading',{name:'Archive and restore',exact:true})).toBeVisible();
+ }
+ await capture('settings-data',width);
  const beforeDownload=await archiveProjection(await fetch(origin+'/api/archive',{headers:{Cookie:cookie}}));
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download private archive',exact:true}).click()]);
  assert.equal(await download.failure(),null);assert.equal(download.suggestedFilename(),'spool-private-archive.jsonl');
