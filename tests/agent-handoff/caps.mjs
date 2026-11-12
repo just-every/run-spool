@@ -1,3 +1,4 @@
+import {traceStep,traceStage,traceServer,traceBrowser} from './trace.mjs';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {normalize} from '../../src/domain/privacy.ts';

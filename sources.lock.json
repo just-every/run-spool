@@ -10698,11 +10698,11 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "e96214f65377332e54491b0dc096cc9428b9945987611d565397ef4a84f80743",
+      "sha256": "909af8b42d69f23160429d13f597d5dbbf6ef403ca93af0371e811406edc0479",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
-      "sha256": "d390a629ef9ee63bcbce7d19d8bcfcefddcd63928d139b4b933f54fb4d834644",
+      "sha256": "471107fe9b8c70fbb82071c3bfcacb791dc0549ce0948f55213e0310a1b0eec2",
       "executable": false
     },
     "tests/agent-handoff/clients.mjs": {
@@ -10718,7 +10718,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "9bc867408c0627e7da65aede591cdc2615982a6e2833f0bb659d77e6df921214",
+      "sha256": "88c4788a4a9654c96ed7334fbdd8eb9af1a7d44988e7819cedefb1a3f26038c7",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -10730,7 +10730,7 @@
       "executable": false
     },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "30146d78d2d15fcb4daf6c82294a628c7c0d9958899e990dd748d9de2ff2a20e",
+      "sha256": "195e206729e3030d85213f2fd7013fd0624fc38621c97de4653360ec7c621bc4",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
@@ -10882,7 +10882,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "6d5d4517ba7ca7c4913621cb6523d787eecef0a813353bbaee9150f5698e3252",
+      "sha256": "f8a0b7ad83899b8d388b8d5d84176a6fe8a9b86678ba0ac91e94960f55c1ec20",
       "executable": false
     },
     "tests/commands.mjs": {
