@@ -61,7 +61,7 @@ try{
     const destination=await startTestWorker(await freePort());
     try{
       const destinationCookie=await signIn(destination.origin);
-      const request=(url,method='GET',body)=>fetch(destination.origin+url,{method,headers:{Origin:destination.origin,Cookie:destinationCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
+      const request=(url,method='GET',body)=>fetch(destination.origin+url,{method,headers:{Connection:'close',Origin:destination.origin,Cookie:destinationCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},...body?{body:typeof body==='string'?body:JSON.stringify(body)}:{}});
       const read=async url=>{const response=await request(url);assert.equal(response.status,200);return response.json()};
       const restored=await request('/api/restore','POST',text);assert.equal(restored.status,200,`${format} item counters restore: ${await restored.text()}`);
       const rows=(await read('/api/projects/wire/outcomes')).rows,quantity=reason=>rows.find(row=>row.reason===reason)?.count??0;

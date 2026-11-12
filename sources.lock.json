@@ -10698,7 +10698,7 @@
       "executable": false
     },
     "tests/agent-handoff.mjs": {
-      "sha256": "e96214f65377332e54491b0dc096cc9428b9945987611d565397ef4a84f80743",
+      "sha256": "491ff86b4e2ffb76a5abf83936fa230841e13ffb3cc3e0d29faecf8f4817b76f",
       "executable": false
     },
     "tests/agent-handoff/caps.mjs": {
@@ -10718,7 +10718,7 @@
       "executable": false
     },
     "tests/agent-handoff/runtime.mjs": {
-      "sha256": "9bc867408c0627e7da65aede591cdc2615982a6e2833f0bb659d77e6df921214",
+      "sha256": "f2d5a202fff864bac9be183321c55a8892a2c3ab435cac1fa93a17885a43dbee",
       "executable": false
     },
     "tests/agent-handoff/scope.mjs": {
@@ -10729,8 +10729,12 @@
       "sha256": "e865cf29d1f91f71805146a44a1cbb4571ec6c16b6de7c88a0cd6cb679424cba",
       "executable": false
     },
+    "tests/agent-handoff/trace.mjs": {
+      "sha256": "ea7992640749c5b5f92fb0738b91e91e5e1f74e18e367bd1f3815bbf316c1002",
+      "executable": false
+    },
     "tests/agent-handoff/ui.mjs": {
-      "sha256": "30146d78d2d15fcb4daf6c82294a628c7c0d9958899e990dd748d9de2ff2a20e",
+      "sha256": "e6f26287eea0fc53f49a4070ef58b8e6db032ab4e6bbee801c7067ca35f86329",
       "executable": false
     },
     "tests/alerts-edge-runtime.mjs": {
@@ -10882,7 +10886,7 @@
       "executable": false
     },
     "tests/command-runner.mjs": {
-      "sha256": "6d5d4517ba7ca7c4913621cb6523d787eecef0a813353bbaee9150f5698e3252",
+      "sha256": "f8a0b7ad83899b8d388b8d5d84176a6fe8a9b86678ba0ac91e94960f55c1ec20",
       "executable": false
     },
     "tests/commands.mjs": {
@@ -11590,7 +11594,7 @@
       "executable": false
     },
     "tests/sentry-http.mjs": {
-      "sha256": "e77c0e8fae68ec77cb7e06ab662d1a15445e46aca40ea7cea27bd31cefde390d",
+      "sha256": "bab33e3f8bafcf6c3ceb37a47430f7e3aa7517aca26f6392070632f764cd0dbb",
       "executable": false
     },
     "tests/sentry-import.mjs": {
