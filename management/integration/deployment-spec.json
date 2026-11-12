@@ -594,6 +594,12 @@
       "name": "0104_business_retired.sql",
       "sha256": "1bfc79bfe6432e03a4eba9843ab10fae6a501e7ac5b9fd98caf42054c9f36c0c",
       "sql": "-- Value-free tombstones of people erased from the installation: domain-separated SHA-256 digests of the roster\n-- address and the Business member id, with the invite number they had. Never a name, address or id.\nCREATE TABLE bs_retired (\n  digest TEXT PRIMARY KEY,\n  invite INTEGER NOT NULL CHECK(invite >= 0),\n  erasure_id TEXT NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0105_local_invitation_links.sql",
+      "sha256": "98404438e520c79ca5ea6dff0f415d04fa64c16ecc5235307155a4bf13cd1d95",
+      "sql": "-- Local-only custody of the existing invitation token, encrypted under the\n-- installation secret. Never exported; native oa_tokens remains authoritative.\nCREATE TABLE spool_local_invite_links (\n invite TEXT PRIMARY KEY REFERENCES spool_member_invites(id) ON DELETE CASCADE,\n token_id TEXT NOT NULL REFERENCES oa_tokens(id) ON DELETE CASCADE,\n issuer TEXT NOT NULL REFERENCES oa_operators(id) ON DELETE CASCADE,\n envelope TEXT NOT NULL\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
