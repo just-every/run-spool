@@ -1,0 +1,28 @@
+{
+  "reviewedTextFiles": [
+    "REPORT.md",
+    "validation-receipt.json",
+    "assertion-preservation.json",
+    "preflight.json",
+    "browser-receipt.json",
+    "ci-receipt.json",
+    "packet-review.json",
+    "commit-receipt.txt",
+    "product.diff",
+    "release-flow-runner.mjs",
+    "setup-first-attempt.log",
+    "setup.log",
+    "build.log",
+    "alerts-ui.log",
+    "release-identity.log",
+    "typecheck.log",
+    "contract-check.log",
+    "source-lock.log",
+    "source-check.log",
+    "push-receipt.log"
+  ],
+  "injectedValuesAbsent": true,
+  "credentialShapesAbsent": true,
+  "symlinksAbsent": true,
+  "screenshots": "Synthetic local fixtures only; reviewed representative release and digest screens."
+}

@@ -1,0 +1,13 @@
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @errors/errors-workbench@0.7.7 test:alerts-ui /workspace/run-spool
+> node tests/alerts-ui.mjs
+
+verify
+Heavy job admitted: Spool verify:suite [6179c8701e00]
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ALERT-001 baseline journey: sample-scaled normal/burst, weekly seasonality, low traffic, current/historical loss, insufficient history, and durable once-only routing across restart
+[ALERT-002] Slack settings/test/review/rotate/revoke and posted delivery identifiers at 1440/390: no overflow, serious Axe finding or icon-only control
+ALERT-003 destination tests, delivery states, timezone digests and snoozing never hide loss. Alert browser journeys passed at 1440 and 390: persisted rule create/edit/reload, real feed/delivery/webhook state, project isolation and keyboard navigation.

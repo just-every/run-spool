@@ -1,0 +1,62 @@
+{
+  "githubUrlsInWholeDiff": [
+    "https://github.com/just-every/run-spool"
+  ],
+  "bareRepositoryStringsInWholeDiff": [],
+  "pathAndMimeStringsReviewed": [
+    "./BulkTriage",
+    "./Details",
+    "./Discussion",
+    "./IssueImpact",
+    "./NotFound",
+    "./ReviewViews",
+    "./SdkSetup",
+    "./Suppression",
+    "./client",
+    "./location",
+    "./readable",
+    "./references",
+    "./releaseLabels",
+    ".artifacts/release-identity",
+    "application/x-ndjson",
+    "tests/alerts-ui.mjs",
+    "tests/release-identity-flow.mjs",
+    "tests/release-order-flow.mjs"
+  ],
+  "publicFixtureHttp": 200,
+  "credentialShapeMatches": [],
+  "contractFilesByteIdenticalToMain": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true
+  },
+  "newTestRegistrations": 0,
+  "assertionCallsBeforeAfter": {
+    "alerts-ui": [
+      26,
+      32
+    ],
+    "release-identity-flow": [
+      228,
+      238
+    ]
+  },
+  "contractSourceSummaryBeforeAfter": {
+    "done": [
+      23,
+      23
+    ],
+    "partial": [
+      54,
+      54
+    ],
+    "missing": [
+      28,
+      28
+    ],
+    "total": [
+      105,
+      105
+    ]
+  }
+}

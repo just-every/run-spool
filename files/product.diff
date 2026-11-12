@@ -1,0 +1,396 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index 748271f..e4aa0e5 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -9986,11 +9986,11 @@
+       "executable": false
+     },
+     "src/ui/alerts/AlertControls.tsx": {
+-      "sha256": "5cecd24b18acb034bf3374c9eb4c8912a4f5f93899c67d6c01d129dbc5d8c2b8",
++      "sha256": "4f7e918ad85aa058188c848e558cf1bca62e6d1f5f3ff572e9077b3527d52d55",
+       "executable": false
+     },
+     "src/ui/alerts/AlertDeliveries.tsx": {
+-      "sha256": "b1ab744b8f8fafb0033b381a1e45cf7a74da916b5de91d1e7ebee75282ed7979",
++      "sha256": "8a25f86ce83f4d1877014393a247d561e829cf6126a12b389cb8b39af4bdb641",
+       "executable": false
+     },
+     "src/ui/alerts/AlertDestinations.tsx": {
+@@ -10010,7 +10010,7 @@
+       "executable": false
+     },
+     "src/ui/alerts/client.ts": {
+-      "sha256": "7a3992462fe764da9ef4bcdd9e906a2404c5837195748956b9efc54f58aacd60",
++      "sha256": "749d4cc0d1add72c7ce3c3dec066d9e324e1b082d8ea29d9c5485c26d1b82b41",
+       "executable": false
+     },
+     "src/ui/alerts/NeedsAttention.tsx": {
+@@ -10226,7 +10226,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/DeploymentHistory.tsx": {
+-      "sha256": "91b0f600b781073cda3b8500c06925c49c814c65af219ec4ff4db745568e5309",
++      "sha256": "234f0dc98c8ebe9ad884cf200e00e8b05f96899732c2bcd969984aa83b57f57f",
+       "executable": false
+     },
+     "src/ui/workbench/Details.tsx": {
+@@ -10258,7 +10258,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/EventExplorer.tsx": {
+-      "sha256": "987bfaa3542cc45b3afec5ae3b6123643bd03a744835b23cbbb21527df40d387",
++      "sha256": "8c366fa47c4e17d571f343594ecc982d81c1361dcaeb273befe3ebb9d7b8ffad",
+       "executable": false
+     },
+     "src/ui/workbench/EvidenceRail.tsx": {
+@@ -10322,7 +10322,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/IssueList.tsx": {
+-      "sha256": "4844b582581b4e6e24ef412fac47c8e7832c26832016800f360601f002e679ac",
++      "sha256": "2edff6e400cf4597a83f01caddcf0b4b6569034b2421b34878fa6ba0ddb251bf",
+       "executable": false
+     },
+     "src/ui/workbench/issuePanels.ts": {
+@@ -10330,7 +10330,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/IssueView.tsx": {
+-      "sha256": "1d3fdbbe50fdf4b187f37e86bd0eb6342c8b98cb1dc74afb851da74b5d31aef2",
++      "sha256": "0facba1a6c9c2e53dc848eb17b6c6673653f662ee9d346337b2e6ed6933d620a",
+       "executable": false
+     },
+     "src/ui/workbench/KeyRateLimit.tsx": {
+@@ -10417,12 +10417,16 @@
+       "sha256": "a5fb6f413a5d0be2cdc556681668dd9649c6bae330ebcb8de23eb0901cd6d1e3",
+       "executable": false
+     },
++    "src/ui/workbench/releaseLabels.ts": {
++      "sha256": "1f756ec1516b712ee49c781d8b37debf782cc6f9ff6f61a383627e3ffd24cf5f",
++      "executable": false
++    },
+     "src/ui/workbench/ReleasePolicy.tsx": {
+       "sha256": "fa2093461a5cff8a1f55dff3615a453dd68574aa9eea804fa3925c3185a55a41",
+       "executable": false
+     },
+     "src/ui/workbench/ReleasesView.tsx": {
+-      "sha256": "3a921b04d4b725d422c97dbc846be0ec5350ff659a8c6aae6a6573bfcceec342",
++      "sha256": "3890d920892514ded029b2964ef76bbc9423bcd1f68c3f8cbf3033db7313591b",
+       "executable": false
+     },
+     "src/ui/workbench/RepairPanel.css": {
+@@ -10546,7 +10550,7 @@
+       "executable": false
+     },
+     "src/ui/workbench/SourceMapSetup.tsx": {
+-      "sha256": "7a2f599f3f5fe8c3c470bd028aaafcf71c0c8caccabbe813955fad0f48120f7c",
++      "sha256": "a2c0d1d8e134ad2c5c803c8fe0df4e0bf9cce2c002dc0a4759398b63f57265c1",
+       "executable": false
+     },
+     "src/ui/workbench/sourceMapSnippets.ts": {
+@@ -10794,7 +10798,7 @@
+       "executable": false
+     },
+     "tests/alerts-ui.mjs": {
+-      "sha256": "ce72056fc07d0f25c71dc867bbedd122b9efb966d30ca9014b864e582104923c",
++      "sha256": "44ae9fe92c698a729d3e5fb02703eb8396298929e58a546f9d33fa819a01afa3",
+       "executable": false
+     },
+     "tests/alerts/baseline-journey.mjs": {
+@@ -11282,7 +11286,7 @@
+       "executable": false
+     },
+     "tests/release-identity-flow.mjs": {
+-      "sha256": "6bbbc080116b026eabe81b176e99475c7ff3672cf7d5b128f29ac938fd463eaa",
++      "sha256": "0063d99925e141f5f75151228cffe781432b12cbe59cfcf830355abe16c9f60a",
+       "executable": false
+     },
+     "tests/release-order-flow.mjs": {
+diff --git a/src/ui/alerts/AlertControls.tsx b/src/ui/alerts/AlertControls.tsx
+index 74938b8..85d4e72 100644
+--- a/src/ui/alerts/AlertControls.tsx
++++ b/src/ui/alerts/AlertControls.tsx
+@@ -1,6 +1,6 @@
+ import { issueReference, referenceText } from '../workbench/references';
+ import {useEffect,useState} from 'react';
+-import {alertApi,date,status} from './client';
++import {alertApi,date,mailStatus} from './client';
+ import {Field} from '../workbench/shared';
+ export function AlertControls({project,rules,feed,destinations}:{project:string;rules:any[];feed:any[];destinations:any[]}){
+  const [data,setData]=useState<any>(null),[draft,setDraft]=useState<any>(null),[error,setError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
+@@ -23,7 +23,7 @@ export function AlertControls({project,rules,feed,destinations}:{project:string;
+  <label className="alert-check"><input type="checkbox" checked={draft.quiet_start!==null} onChange={e=>{field('quiet_start',e.target.checked?22:null);field('quiet_end',e.target.checked?7:null)}}/>Quiet hours</label>
+  {draft.quiet_start!==null&&<><Field label="Quiet hours start" type="number" required min={0} max={23} value={draft.quiet_start} onChange={e=>field('quiet_start',Number(e.target.value))}/><Field label="Quiet hours end" type="number" required min={0} max={23} value={draft.quiet_end} onChange={e=>field('quiet_end',Number(e.target.value))}/></>}
+  <p>Digests include new, regressed and unowned work, capture receipt usage and loss, failed or overdue automation and held backlog. Event payloads are excluded. Quiet hours and maintenance hold notifications; capture and Needs attention continue.</p><button className="primary-button" disabled={busy}>Save digest settings</button></form>
+- <h3>Digest and resumption history</h3>{!data.digests.length?<p>No scheduled mail yet.</p>:<ul className="alert-records">{data.digests.map((d:any)=><li key={d.id}><div><strong>{d.kind} · {d.scope} · {status(d.state)}</strong><p>{d.kind==='resumption'?(resumption(d)?`${targetLabel(resumption(d))} · ${period(resumption(d))}`:'Expired snooze · '+date(d.created,data.settings.timezone)):d.period}{d.historical?' · restored, inert':''}</p><details><summary>Read scrubbed digest</summary><pre>{d.kind==='resumption'?`Snooze expired. ${resumption(d)?targetLabel(resumption(d)):'Recorded target'}. Capture continued; held alerts remain listed until explicitly released.`:d.body}</pre></details></div></li>)}</ul>}</section>
++ <h3>Digest and resumption history</h3>{!data.digests.length?<p>No scheduled mail yet.</p>:<ul className="alert-records">{data.digests.map((d:any)=><li key={d.id}><div><strong>{d.kind} · {d.scope} · {mailStatus(d)}</strong>{d.code==='mail_development'&&<p>No email sent.</p>}<p>{d.kind==='resumption'?(resumption(d)?`${targetLabel(resumption(d))} · ${period(resumption(d))}`:'Expired snooze · '+date(d.created,data.settings.timezone)):d.period}{d.historical?' · restored, inert':''}</p><details><summary>Read scrubbed digest</summary><pre>{d.kind==='resumption'?`Snooze expired. ${resumption(d)?targetLabel(resumption(d)):'Recorded target'}. Capture continued; held alerts remain listed until explicitly released.`:d.body}</pre></details></div></li>)}</ul>}</section>
+  <section className="evidence"><h2>Expiring snoozes</h2><p>Choose an issue, rule or project maintenance window and a required expiry. One durable resumption notice goes to the owner at expiry. Held alerts remain listed; release them explicitly when ready.</p>
+  <form className="form-grid" onSubmit={e=>{e.preventDefault();void act('snoozes','POST',{scope,target:scope==='project'?project:target,until:Date.parse(until)})}}>
+  <label className="form-field">Snooze scope<select aria-label="Snooze scope" value={scope} onChange={e=>{setScope(e.target.value);setTarget('')}}><option value="issue">Issue</option><option value="rule">Rule</option><option value="project">Project maintenance</option></select></label>
+diff --git a/src/ui/alerts/AlertDeliveries.tsx b/src/ui/alerts/AlertDeliveries.tsx
+index f0452b9..d936dc8 100644
+--- a/src/ui/alerts/AlertDeliveries.tsx
++++ b/src/ui/alerts/AlertDeliveries.tsx
+@@ -1,5 +1,5 @@
+ import { useState } from 'react';
+-import { alertApi, date, status } from './client';
++import { alertApi, date, status, mailStatus } from './client';
+ import { Details } from '../workbench/Details';
+ import { Field, useDraft } from '../workbench/shared';
+ export function AlertDeliveries({project,rows,refresh}:{project:string;rows:any[];refresh:()=>void}) {
+@@ -11,9 +11,9 @@ function Delivery({project,row,refresh}:{project:string;row:any;refresh:()=>void
+  const [evidence,setEvidence]=useDraft(`${project}.delivery.${row.id}.evidence`,'');
+  async function inspect(){setError('');try{setDetail(await alertApi(`/api/projects/${project}/alerting/deliveries/${row.id}`))}catch(e){setError((e as Error).message)}}
+  async function resolve(state:string){setBusy(true);setError('');try{await alertApi(`/api/projects/${project}/alerting/deliveries/${row.id}/resolve`,'POST',{state,evidence});setEvidence('');await inspect();refresh()}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
+- return <li><div><strong className="tag">{row.slack&&row.message_id?'posted':row.code==='mail_development'?'suppressed locally':status(row.state)}</strong>{row.slack&&<p>Slack {row.message_id?<>posted · message identifier <code>{row.message_id}</code></>:'post not acknowledged'}. Provider acknowledgment only; recipient receipt unconfirmed.</p>}{row.channel==='mail'&&<p>Provider: {row.code==='mail_development'?'local development suppressed mail':row.state==='accepted'?'accepted by provider':status(row.state)}. Recipient: {row.recipient_state?`${row.recipient_state}${row.provenance==='fixture'?' (fixture)':''}`:'no recipient delivery event yet; receipt unconfirmed'}.</p>}{row.channel==='webhook'&&row.code?.startsWith('http_')&&<p>Signature header sent; receiver answered HTTP {row.code.split('_')[1]}. Receiver signature verification is not established.</p>}{row.historical===1&&<span> · restored history, quarantined</span>}{row.issue&&<p><a href={`/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(row.issue)}`}>{row.title??'Open issue'}</a>{row.kind?` · ${status(row.kind)}`:''}</p>}<p>{row.slack?'Slack':row.channel==='mail'?'Email':'Webhook'} · {row.attempts} {row.attempts===1?'attempt':'attempts'}</p><p><time>{date(row.created)}</time></p></div>
++ return <li><div><strong className="tag">{row.slack&&row.message_id?'posted':mailStatus(row)}</strong>{!!row.slack&&<p>Slack {row.message_id?<>posted · message identifier <code>{row.message_id}</code></>:'post not acknowledged'}. Provider acknowledgment only; recipient receipt unconfirmed.</p>}{row.channel==='mail'&&<p>Provider: {row.code==='mail_development'?'local development suppressed mail':row.state==='accepted'?'accepted by provider':status(row.state)}. Recipient: {row.recipient_state?`${row.recipient_state}${row.provenance==='fixture'?' (fixture)':''}`:'no recipient delivery event yet; receipt unconfirmed'}.</p>}{row.channel==='webhook'&&row.code?.startsWith('http_')&&<p>Signature header sent; receiver answered HTTP {row.code.split('_')[1]}. Receiver signature verification is not established.</p>}{row.historical===1&&<span> · restored history, quarantined</span>}{row.issue&&<p><a href={`/projects/${encodeURIComponent(project)}/issues/${encodeURIComponent(row.issue)}`}>{row.title??'Open issue'}</a>{row.kind?` · ${status(row.kind)}`:''}</p>}<p>{row.slack?'Slack':row.channel==='mail'?'Email':'Webhook'} · {row.attempts} {row.attempts===1?'attempt':'attempts'}</p><p><time>{date(row.created)}</time></p></div>
+  <Details title={`Delivery ${date(row.created)}`} onOpen={()=>void inspect()}>
+- {error&&<p role="alert" className="callout">{error}</p>}{!detail?<p role="status">{error?'Delivery details could not be loaded.':'Loading delivery details…'}</p>:<><p>{status(detail.delivery.state)}</p><ol>{detail.attempts.map((attempt:any)=><li key={attempt.number}>Attempt {attempt.number}: {status(attempt.outcome?.code??attempt.code??'awaiting_result')} · {date(attempt.startedAt??attempt.started)}</li>)}</ol>
++ {error&&<p role="alert" className="callout">{error}</p>}{!detail?<p role="status">{error?'Delivery details could not be loaded.':'Loading delivery details…'}</p>:<><p>{mailStatus(detail.delivery)}</p><ol>{detail.attempts.map((attempt:any)=><li key={attempt.number}>Attempt {attempt.number}: {status(attempt.outcome?.code??attempt.code??'awaiting_result')} · {date(attempt.startedAt??attempt.started)}</li>)}</ol>
+  {detail.delivery.state==='uncertain'&&!detail.delivery.historical&&<form onSubmit={event=>event.preventDefault()}><p>Check the receiver or provider before reconciling. Recording the observed outcome never sends again.</p><Field label="Evidence code" required pattern="[a-z][a-z0-9_]{0,63}" value={evidence} onChange={event=>setEvidence(event.target.value)} placeholder="receiver_confirmed"/><div className="button-row"><button type="button" className="primary-button" disabled={busy||!/^[a-z][a-z0-9_]{0,63}$/.test(evidence)} onClick={()=>void resolve('accepted')}>Record accepted</button><button type="button" className="text-button" disabled={busy||!/^[a-z][a-z0-9_]{0,63}$/.test(evidence)} onClick={()=>void resolve('rejected')}>Record rejected</button></div></form>}
+  {detail.events?.length>0&&<><h3>Provider event timeline</h3><ol>{detail.events.map((e:any)=><li key={e.event_id}>{e.type}: {e.state??'accepted by provider'}{e.provenance==='fixture'?' (fixture)':''} · {date(e.occurred_at)}</li>)}</ol></>}
+  <h3>Saved delivery facts</h3><pre>{JSON.stringify(detail,null,2)}</pre></>}
+diff --git a/src/ui/alerts/client.ts b/src/ui/alerts/client.ts
+index 03d1ae6..4eee697 100644
+--- a/src/ui/alerts/client.ts
++++ b/src/ui/alerts/client.ts
+@@ -1,3 +1,5 @@
+ export { api as alertApi } from '../workbench/client';
+ export { date } from '../workbench/shared';
+ export const status=(value:string)=>value.replaceAll('_',' ');
++
++export const mailStatus = (row: { state: string; code?: string | null }) => row.code === 'mail_development' ? 'suppressed locally' : status(row.state);
+diff --git a/src/ui/workbench/DeploymentHistory.tsx b/src/ui/workbench/DeploymentHistory.tsx
+index ca07cf5..25c8574 100644
+--- a/src/ui/workbench/DeploymentHistory.tsx
++++ b/src/ui/workbench/DeploymentHistory.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel, buildLabel } from './releaseLabels';
+ import { actorReference } from './references';
+ import { Details } from './Details';
+ import { useEffect,useState } from 'react';
+@@ -30,6 +31,6 @@ export function DeploymentHistory({project,releases,request,run,busy}:{project:s
+  <button className="primary-button" disabled={busy}>Record deployment outcome</button></form>}
+  {message&&<p role="status">{message}</p>}{error&&<div role="alert"><p>{error}</p><button className="text-button" onClick={()=>void load()}>Retry deployment history</button></div>}
+  {!loaded&&!error&&<p role="status">Loading deployment history…</p>}{loaded&&!rows.length&&<p>No deployment runs recorded.</p>}
+- {rows.map(row=><article className="deployment-record" key={row.id} style={{borderTop:'1px solid var(--line)',paddingBlock:'1rem',overflowWrap:'anywhere'}}><h3>{row.id} · {row.environment} · {row.steps.at(-1)?.state.replaceAll('_',' ')}</h3><p>{row.release} · build {row.build}{row.historical?' · Restored history; callbacks and notifications are disabled.':''}</p><p>Started {date(row.started_at)} · owner deadline {date(row.deadline)}</p><p>Actor {actorReference(row.actorReference)} · <a href={row.repository} rel="noreferrer" target="_blank">Repository</a></p><details><summary>Included commits ({row.includedCommits.length})</summary><p>Previous: <code>{row.previous_commit??'Not supplied'}</code></p><ol>{row.includedCommits.map((sha:string)=><li key={sha}><code>{sha}</code></li>)}</ol><p>Caller recorded; repository ancestry has not been read back.</p></details><ol>{row.steps.map((step:any)=><li key={step.callback}><strong>{step.state.replaceAll('_',' ')}</strong> · {step.exposure}% exposure · {date(step.occurred)} · {actorReference(step.actorReference)}{step.rollback_release?` · rollback target ${step.rollback_release}`:''}</li>)}</ol>{row.notice&&<p>Deadline notice: {row.notice.state.replaceAll('_',' ')} · {date(row.notice.updated)}. A timeout records an overdue callback; deployment failure remains unconfirmed.</p>}</article>)}
++ {rows.map(row=><article className="deployment-record" key={row.id} style={{borderTop:'1px solid var(--line)',paddingBlock:'1rem',overflowWrap:'anywhere'}}><h3>{row.id} · {row.environment} · {row.steps.at(-1)?.state.replaceAll('_',' ')}</h3><p>{releaseLabel(row.release)} · build {buildLabel(row.build)}{row.historical?' · Restored history; callbacks and notifications are disabled.':''}</p><p>Started {date(row.started_at)} · owner deadline {date(row.deadline)}</p><p>Actor {actorReference(row.actorReference)} · <a href={row.repository} rel="noreferrer" target="_blank">Repository</a></p><details><summary>Included commits ({row.includedCommits.length})</summary><p>Previous: <code>{row.previous_commit??'Not supplied'}</code></p><ol>{row.includedCommits.map((sha:string)=><li key={sha}><code>{sha}</code></li>)}</ol><p>Caller recorded; repository ancestry has not been read back.</p></details><ol>{row.steps.map((step:any)=><li key={step.callback}><strong>{step.state.replaceAll('_',' ')}</strong> · {step.exposure}% exposure · {date(step.occurred)} · {actorReference(step.actorReference)}{step.rollback_release?` · rollback target ${step.rollback_release}`:''}</li>)}</ol>{row.notice&&<p>Deadline notice: {row.notice.state.replaceAll('_',' ')} · {date(row.notice.updated)}. A timeout records an overdue callback; deployment failure remains unconfirmed.</p>}</article>)}
+  </section>;
+ }
+diff --git a/src/ui/workbench/EventExplorer.tsx b/src/ui/workbench/EventExplorer.tsx
+index 8a90ffc..394b011 100644
+--- a/src/ui/workbench/EventExplorer.tsx
++++ b/src/ui/workbench/EventExplorer.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel } from './releaseLabels';
+ import { plural } from './readable';
+ import {useEffect, useState} from 'react';
+ import {api} from './client';
+@@ -34,7 +35,7 @@ export function EventExplorer({project,issue,refresh,onSelect}:{project:string;i
+    {!!list?.total&&<>
+     <nav className="event-navigation" aria-label="Select occurrence">{[['Oldest',list.oldest],['Latest',list.latest],['Recommended',list.recommended],['Previous event',selected?.previous],['Next event',selected?.next]].map(([label,value]:any)=><button key={label} className="text-button" disabled={listing||reading||!value} onClick={()=>choose(value)}>{label}</button>)}</nav>
+     <p className="muted">{list.recommendation}</p>
+-    <details className="event-page"><summary>Browse {list.rows.length} {plural(list.rows.length, 'event')} on this page</summary><div className="table-region"><table className="event-table"><thead><tr><th scope="col">Received</th><th scope="col">Release / environment</th><th scope="col">Event</th></tr></thead><tbody>{list.rows.map((row:any)=><tr key={row.occurrence} data-list-event-id={row.id} data-list-occurrence-id={row.occurrence} aria-selected={selected?.occurrence===row.occurrence}><th scope="row"><button className="text-button" disabled={listing||reading} onClick={()=>choose(row)}>{date(row.received)}</button>{selected?.occurrence===row.occurrence&&<span className="selected-event-label">Selected</span>}</th><td data-label="Release / environment">{row.release||'none'} · {row.environment}</td><td data-label="Event"><p>{row.type}: {row.message}</p></td></tr>)}</tbody></table></div>
++    <details className="event-page"><summary>Browse {list.rows.length} {plural(list.rows.length, 'event')} on this page</summary><div className="table-region"><table className="event-table"><thead><tr><th scope="col">Received</th><th scope="col">Release / environment</th><th scope="col">Event</th></tr></thead><tbody>{list.rows.map((row:any)=><tr key={row.occurrence} data-list-event-id={row.id} data-list-occurrence-id={row.occurrence} aria-selected={selected?.occurrence===row.occurrence}><th scope="row"><button className="text-button" disabled={listing||reading} onClick={()=>choose(row)}>{date(row.received)}</button>{selected?.occurrence===row.occurrence&&<span className="selected-event-label">Selected</span>}</th><td data-label="Release / environment">{releaseLabel(row.release)} · {row.environment}</td><td data-label="Event"><p>{row.type}: {row.message}</p></td></tr>)}</tbody></table></div>
+     {(cursors.length>1||list.next)&&<nav className="pagination" aria-label="Event pages"><button className="text-button" disabled={listing||cursors.length===1} onClick={()=>setCursors(values=>values.slice(0,-1))}>Previous page</button><span>Page {cursors.length}</span><button className="text-button" disabled={listing||!list.next} onClick={()=>setCursors(values=>[...values,list.next])}>Next page</button></nav>}</details>
+    </>}
+    {list&&!list.total&&<p>No events match this query. <button className="text-button" onClick={()=>filter('')}>Clear event filters</button></p>}
+diff --git a/src/ui/workbench/IssueList.tsx b/src/ui/workbench/IssueList.tsx
+index 201b8cd..20c7ee4 100644
+--- a/src/ui/workbench/IssueList.tsx
++++ b/src/ui/workbench/IssueList.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel } from './releaseLabels';
+ import {ReviewViews} from './ReviewViews';
+ import { useState } from 'react';
+ import { BulkTriage, useBulkSelection } from './BulkTriage';
+@@ -26,7 +27,7 @@ export function IssueList({ project, rows, unseen, loading, failed, onRefresh, o
+   return <section className="evidence issue-browser" aria-labelledby="issue-browser-heading" aria-busy={loading}>
+     <div className="issue-browser-heading"><h2 id="issue-browser-heading" className="visually-hidden">Issues</h2></div>
+     <div className="issue-counts"><div><span>Pending review</span><strong>{loading?'…':failed?'—':result?.reviewPending??0}</strong></div><div><span>Unseen on this page</span><strong>{loading ? '…' : failed ? '—' : visible.filter(row => unseen(issueAlert(row))).length}</strong></div><div><span>Open</span><strong>{loading ? '…' : failed ? '—' : result?.facets.statuses.find((r:any)=>r.value==='open')?.count ?? 0}</strong></div><div><span>Resolved</span><strong>{loading ? '…' : failed ? '—' : result?.facets.statuses.find((r:any)=>r.value==='resolved')?.count ?? 0}</strong></div></div>
+-    <div className="issue-filters"><label className="form-field">Search issues<input type="search" value={search} onChange={e => { setSearch(e.target.value); reset(); }} /></label><label className="form-field">Status<select value={state} onChange={e => { setState(e.target.value); reset(); }}><option value="all">All statuses</option>{states.map(value => <option key={value} value={value}>{stateLabel(value)}</option>)}</select></label><label className="form-field">Release<select value={release} onChange={e => { setRelease(e.target.value); reset(); }}><option value="all">All releases</option>{(result?.facets.releases??[]).map((item:any) => <option key={item.value} value={item.value}>{item.value} ({item.count})</option>)}</select></label><label className="form-field">Sort<select value={sort} onChange={e => { setSort(e.target.value); reset(); }}><option value="priority">Highest priority</option><option value="latest">Latest received</option><option value="occurrences">Most occurrences</option></select></label></div>
++    <div className="issue-filters"><label className="form-field">Search issues<input type="search" value={search} onChange={e => { setSearch(e.target.value); reset(); }} /></label><label className="form-field">Status<select value={state} onChange={e => { setState(e.target.value); reset(); }}><option value="all">All statuses</option>{states.map(value => <option key={value} value={value}>{stateLabel(value)}</option>)}</select></label><label className="form-field">Release<select value={release} onChange={e => { setRelease(e.target.value); reset(); }}><option value="all">All releases</option>{(result?.facets.releases??[]).map((item:any) => <option key={item.value} value={item.value}>{releaseLabel(item.value)} ({item.count})</option>)}</select></label><label className="form-field">Sort<select value={sort} onChange={e => { setSort(e.target.value); reset(); }}><option value="priority">Highest priority</option><option value="latest">Latest received</option><option value="occurrences">Most occurrences</option></select></label></div>
+     <div className="issue-search-actions"><button className="text-button" onClick={()=>{setSearch(/(^|\s)review:pending(?=\s|$)/.test(search)?search:(search+' review:pending').trim());reset()}}>Show pending review</button></div>
+     {!readOnly && <ReviewViews project={project} query={{q:search,status:state,release,sort}} onChoose={view=>{setSearch(view.q);setState(view.status);setRelease(view.release);setSort(view.sort);reset()}}/>}
+     {loading ? <p role="status">Loading issues…</p> : failed ? <p role="alert">Issue search is unavailable. <button className="text-button" onClick={onRefresh}>Retry search</button></p> : <>
+@@ -36,7 +37,7 @@ export function IssueList({ project, rows, unseen, loading, failed, onRefresh, o
+       {!readOnly && !!visible.length&&<><button className="text-button" disabled={query.refreshing} onClick={()=>selection.select(visible)}>Select this page</button><BulkTriage project={project} selected={selection.selected} refreshing={query.refreshing} clear={selection.clear} onApplied={onRefresh}/></>}
+       {visible.length ? <div className="table-region"><table className="issue-table"><thead><tr><th scope="col">Issue</th><th scope="col">Release</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col">Occurrences</th><th scope="col">Last received</th></tr></thead><tbody>{visible.map(row => {
+         const alert = issueAlert(row);
+-        return <tr key={row.id} className={unseen(alert) ? 'unseen-issue' : undefined}><th scope="row">{!readOnly && <label className="issue-select"><input type="checkbox" disabled={query.refreshing} aria-label={`Select ${row.title}`} checked={selection.selected.some(item=>item.id===row.id)} onChange={()=>selection.toggle(row)}/> Select</label>}{row.short_id && <code className="short-id" title="Short ID">{row.short_id}</code>}<Link className="issue-open" to={hrefFor(project, 'issues', row.id) as any}>{row.title}</Link>{alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}{unseen(alert) && <span className="unseen-label">Unseen</span>}</th><td data-label="Release">{row.last_release === ''?'none':row.last_release ?? 'No retained events'}</td><td data-label="Status"><span className={`state-chip ${row.state}`}>{stateLabel(row.state)}</span></td><td data-label="Priority"><span className={`priority-chip ${row.priority}`}>{stateLabel(row.priority)}</span></td><td data-label="Occurrences">{row.count}</td><td data-label="Last received">{date(row.last_seen)}</td></tr>;
++        return <tr key={row.id} className={unseen(alert) ? 'unseen-issue' : undefined}><th scope="row">{!readOnly && <label className="issue-select"><input type="checkbox" disabled={query.refreshing} aria-label={`Select ${row.title}`} checked={selection.selected.some(item=>item.id===row.id)} onChange={()=>selection.toggle(row)}/> Select</label>}{row.short_id && <code className="short-id" title="Short ID">{row.short_id}</code>}<Link className="issue-open" to={hrefFor(project, 'issues', row.id) as any}>{row.title}</Link>{alert && <span className={`attention-badge ${alert.kind}`}>{attentionLabel(alert)}</span>}{unseen(alert) && <span className="unseen-label">Unseen</span>}</th><td data-label="Release">{row.last_release == null ? 'No retained events' : releaseLabel(row.last_release)}</td><td data-label="Status"><span className={`state-chip ${row.state}`}>{stateLabel(row.state)}</span></td><td data-label="Priority"><span className={`priority-chip ${row.priority}`}>{stateLabel(row.priority)}</span></td><td data-label="Occurrences">{row.count}</td><td data-label="Last received">{date(row.last_seen)}</td></tr>;
+       })}</tbody></table></div> : <div className="issue-filter-empty"><p>No issues match these filters.</p><button className="text-button" onClick={() => { setSearch(''); setState('all'); setRelease('all'); reset(); }}>Clear filters</button></div>}
+       {(cursors.length>1||result?.next) && <nav className="pagination" aria-label="Issue pages"><button className="text-button" disabled={cursors.length===1} onClick={()=>{selection.clear();setCursors(values=>values.slice(0,-1))}}>Previous</button><span>Page {cursors.length} · {total} issues</span><button className="text-button" disabled={!result?.next} onClick={()=>{selection.clear();setCursors(values=>[...values,result.next])}}>Next</button></nav>}
+     </>}
+diff --git a/src/ui/workbench/IssueView.tsx b/src/ui/workbench/IssueView.tsx
+index 485e915..da22c8b 100644
+--- a/src/ui/workbench/IssueView.tsx
++++ b/src/ui/workbench/IssueView.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel, buildLabel } from './releaseLabels';
+ import {IssueImpact} from './IssueImpact';
+ import {Suppression} from './Suppression';
+ import {Discussion} from './Discussion';
+@@ -105,8 +106,8 @@ export function IssueView({ project, packet, panels, status, alert, busy, reques
+     {!readOnly && <SuspectChanges project={project} issue={group.id} {...{request,run,busy}} refresh={group.id}/>}
+     {manageOrganization && <FeedbackPanel key={`${project}:${group.id}`} project={project} issue={group.id} {...{request,run,busy}}/>}
+     {rail}
+-    <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? event?.event.sentry?.platform ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{event?.event.release ?? 'Unavailable'}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>
+-    <section className="evidence"><h2>Observed deployments</h2><Details title="Observed deployments"><p>First and last events by receipt time. Deployment details are supplied by you or your deploy key.</p></Details>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${d.release} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>
++    <section className="evidence recent-occurrence"><h2>Recent occurrence</h2><dl className="issue-facts"><div><dt>Language</dt><dd>{language ?? event?.event.sentry?.platform ?? 'javascript'}</dd></div><div><dt>Release</dt><dd>{releaseLabel(event?.event.release)}</dd></div><div><dt>Build</dt><dd>{buildLabel(event?.event.build)}</dd></div><div><dt>Environment</dt><dd>{event?.event.environment ?? 'Unavailable'}</dd></div><div><dt>Last received</dt><dd>{date(group.last_seen)}</dd></div>{group.client_dropped > 0 && <div><dt>Not sent by the SDK</dt><dd>{group.client_dropped} more at this location (rate cap or repeats)</dd></div>}</dl></section>
++    <section className="evidence"><h2>Observed deployments</h2><Details title="Observed deployments"><p>First and last events by receipt time. Deployment details are supplied by you or your deploy key.</p></Details>{(['first','last'] as const).map(key=>{const d=packet.deployments?.[key];return <div key={key}><h3>{key==='first'?'First seen':'Last seen'}</h3><p>{d?`${releaseLabel(d.release)} · ${d.environment}`:'No retained occurrence'}</p>{d?.manifest?<p><a href={d.manifest.repository} rel="noreferrer" target="_blank">Repository</a> · <code>{d.manifest.commit_sha}</code> · {date(d.manifest.deployed_at)}</p>:<p>Deployment and commit unknown for this environment.</p>}</div>})}</section>
+     {manageProject && <OperatorPanel initial={panels?.operator} project={project} packet={packet} busy={busy} request={request} run={run} refresh={refresh}/>}
+     {manageOrganization && <RepairPanel initial={panels?.repairs} project={project} issue={group} busy={busy} request={request} run={run} refresh={refresh} />}
+     {manageOrganization && <ExecutionPanel initial={panels?.execution} project={project} issue={group} event={event} busy={busy} request={request} run={run} />}
+diff --git a/src/ui/workbench/ReleasesView.tsx b/src/ui/workbench/ReleasesView.tsx
+index 7301070..9d38004 100644
+--- a/src/ui/workbench/ReleasesView.tsx
++++ b/src/ui/workbench/ReleasesView.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel, buildLabel } from './releaseLabels';
+ import { Link } from '@tanstack/react-router';
+ import { hrefFor } from './location';
+ import { MissingContent } from './NotFound';
+@@ -49,12 +50,12 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
+   if (selectedRelease) {
+     const row = releases.find(item => item.name === selectedRelease);
+     if (!row && loading) return <section className="evidence"><p role="status">Loading release…</p></section>;
+-    return row ? <section className="evidence"><Link className="text-button" to={hrefFor(project, 'releases') as any}>All releases</Link><h2>{row.name}</h2><ReleaseFacts row={row} /></section> : <MissingContent />;
++    return row ? <section className="evidence"><Link className="text-button" to={hrefFor(project, 'releases') as any}>All releases</Link><h2>{releaseLabel(row.name)}</h2><ReleaseFacts row={row} /></section> : <MissingContent />;
+   }
+   if (readOnly) return <>
+     <ReleaseHealth {...{project,request}} />
+     <RepositoryLinkLog {...{project,request,releases}} />
+-    <section className="evidence"><h2>Release history</h2>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">First seen</th></tr></thead><tbody>{releases.map(row => <tr className="data-row" key={row.name}><th scope="row"><Link className="inline-link" to={hrefFor(project, 'releases', row.name) as any}><strong>{row.name}</strong></Link><ReleaseEnvironment row={row} /></th><td data-label="Build identifier"><code>{row.build}</code></td><td data-label="First seen">{date(row.first_seen ?? row.created)}</td></tr>)}</tbody></table></div> : <p>No releases recorded.</p>}</section>
++    <section className="evidence"><h2>Release history</h2>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">First seen</th></tr></thead><tbody>{releases.map(row => <tr className="data-row" key={row.name}><th scope="row"><Link className="inline-link" to={hrefFor(project, 'releases', row.name) as any}><strong>{releaseLabel(row.name)}</strong></Link><ReleaseEnvironment row={row} /></th><td data-label="Build identifier"><code>{buildLabel(row.build)}</code></td><td data-label="First seen">{date(row.first_seen ?? row.created)}</td></tr>)}</tbody></table></div> : <p>No releases recorded.</p>}</section>
+   </>;
+   const release = releases.find(row => row.name === selected);
+   return <>
+@@ -74,7 +75,7 @@ export function ReleasesView({ project, releases, busy, request, run, refresh, t
+       if (!file) return;
+       void (async () => { try { if (file.size > 262144) throw new Error('Map exceeds 256 KiB.'); const value = JSON.parse(await file.text()); if (!value || value.version !== 3 || !Array.isArray(value.sources) || typeof value.mappings !== 'string') throw new Error('Choose a flat Source Map V3 file.'); if (selection.current === current) { const { debug_id: _snake, debugId: _camel, ...standard } = value; setMap({ name: file.name, value: standard }); } } catch (failure) { if (selection.current === current) setError(failure instanceof SyntaxError ? 'Invalid source map JSON.' : (failure as Error).message); } })();
+     }} /></label>{error && <p id="map-error" role="alert">{error}</p>}{map && <p>Ready to upload: {map.name}</p>}<button className="primary-button" disabled={busy || !map || !release}>Upload matching map</button></form>{result && <p role="status">{result}</p>}{context && <button className="text-button" onClick={() => onUploaded(context.issue)}>Return to issue</button>}<Details title="Source map requirements"><p id="map-debug-help">Use the bundle’s <code>//# debugId=…</code> comment. Missing it? Run the setup above.</p><p>Maps must be flat Source Map V3 files, up to 256 KiB, with exact project, release, build and debug ID matches. Each project holds up to 20 maps. Source contents remain private and are excluded from issue packets. No remote source URL is fetched.</p><p>The debug ID joins a built bundle to its map. Use the build plugin or CLI in the setup on this page to generate and stamp both files, then deploy those exact output files. The map is uploaded as standard Source Map V3; its <code>debug_id</code> extension is not read or sent, so the Bundle debug ID above is the one that counts.</p></Details></section>
+-    <section className="evidence"><h2>Release history</h2><Details title="Events without a release"><p>{noRelease === null ? 'The count of events without a release is unavailable.' : `${noRelease} events have no release.`} <a className="inline-link" href={`${hrefFor(project)}?q=${encodeURIComponent('!has:release')}`}>Find events without a release</a></p></Details>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">First seen</th><th scope="col"><span className="visually-hidden">Details</span></th></tr></thead><tbody>{releases.map(row => <tr className="data-row" key={row.name}><th scope="row"><Link className="inline-link" to={hrefFor(project, 'releases', row.name) as any}><strong>{row.name}</strong></Link>{row.auto_created===1&&<span> · Created automatically</span>}<ReleaseEnvironment row={row} /></th><td data-label="Build identifier"><code>{row.build}</code></td><td data-label="First seen">{date(row.first_seen ?? row.created)}</td><td><Details title={`Release ${row.name}`}><ReleaseFacts row={row} /></Details></td></tr>)}</tbody></table></div> : <p>Register your first release above before connecting your application.</p>}</section>
++    <section className="evidence"><h2>Release history</h2><Details title="Events without a release"><p>{noRelease === null ? 'The count of events without a release is unavailable.' : `${noRelease} events have no release.`} <a className="inline-link" href={`${hrefFor(project)}?q=${encodeURIComponent('!has:release')}`}>Find events without a release</a></p></Details>{releases.length ? <div className="table-region"><table className="data-table"><thead><tr><th scope="col">Release</th><th scope="col">Build identifier</th><th scope="col">First seen</th><th scope="col"><span className="visually-hidden">Details</span></th></tr></thead><tbody>{releases.map(row => <tr className="data-row" key={row.name}><th scope="row"><Link className="inline-link" to={hrefFor(project, 'releases', row.name) as any}><strong>{releaseLabel(row.name)}</strong></Link>{row.auto_created===1&&<span> · Created automatically</span>}<ReleaseEnvironment row={row} /></th><td data-label="Build identifier"><code>{buildLabel(row.build)}</code></td><td data-label="First seen">{date(row.first_seen ?? row.created)}</td><td><Details title={`Release ${row.name}`}><ReleaseFacts row={row} /></Details></td></tr>)}</tbody></table></div> : <p>Register your first release above before connecting your application.</p>}</section>
+   </>;
+ }
+ 
+@@ -87,7 +88,7 @@ function ReleaseFacts({ row }: { row: any }) {
+   const deploys = typeof row.cli_deploys === 'string' ? JSON.parse(row.cli_deploys) : row.cli_deploys ?? [];
+   const sdk = typeof row.creating_sdk === 'string' ? JSON.parse(row.creating_sdk) : row.creating_sdk;
+   return <div className="release-facts">
+-    <p>Build <code>{row.build}</code></p>
++    <p>Build <code>{buildLabel(row.build)}</code></p>
+     <p>{row.auto_created === 1 ? 'Created automatically from the first event' : 'Registered'} · {date(row.created)}</p>
+     {row.first_seen && <p>First event · {date(row.first_seen)}{row.first_environment ? ` in ${row.first_environment}` : ''}</p>}
+     {sdk?.name && <p>Received from {sdk.name}{sdk.version ? ` ${sdk.version}` : ''}</p>}
+diff --git a/src/ui/workbench/SourceMapSetup.tsx b/src/ui/workbench/SourceMapSetup.tsx
+index 37cb5f6..d4b3e4d 100644
+--- a/src/ui/workbench/SourceMapSetup.tsx
++++ b/src/ui/workbench/SourceMapSetup.tsx
+@@ -1,3 +1,4 @@
++import { releaseLabel, buildLabel } from './releaseLabels';
+ import { plural } from './readable';
+ import { useEffect, useState } from 'react';
+ import { CodeBlock, installCommand } from './SdkSetup';
+@@ -33,13 +34,13 @@ export function SourceMapSetup({ project, releases, request, run, busy, refresh
+     <p>Run these steps in your application’s repository before deploying its built files. The tool generates a <strong>debug ID</strong>, stamps that same ID into the bundle and its map, registers the release and uploads the map. You do not need to invent or enter an ID.</p>
+     <h3>Artifact storage</h3>
+     {storage ? <><p>{storage.count} {plural(storage.count, 'map')} {storage.count === 1 ? 'uses' : 'use'} {storage.bytes} stored bytes. An empty cap allows uploads without a project byte cap. Lowering the cap preserves stored maps and limits future uploads.</p><div className="form-grid"><Field label="Artifact storage cap (bytes, optional)" adornment={<SavedMark doc={cap} field="cap" />} type="number" min="0" step="1" value={cap.draft ?? ''} onChange={e=>{const text=e.target.value;cap.edit(text,{field:'cap',hold:text!==''&&(!Number.isSafeInteger(Number(text))||Number(text)<0)})}} onBlur={cap.flush} /></div><SaveFailure doc={cap} field="cap" /><SaveAnnouncer doc={cap} /></> : <p role="status">Artifact storage setting unavailable.</p>}
+-    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{row.release} / {row.build}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
+-    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{row.release} / {row.build} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
++    {uploads?.builds?.map((row:any)=><p key={`${row.release}:${row.build}`}><strong>{releaseLabel(row.release)} / {buildLabel(row.build)}: {row.state}</strong>{row.missing.length>0&&<> · Missing: {row.missing.join(', ')}</>}</p>)}
++    {uploads&&<details><summary>Stored maps and upload failures</summary>{uploads.artifacts.length?<ul>{uploads.artifacts.map((row:any)=><li key={`${row.release}:${row.build}:${row.debug}`}><code>{releaseLabel(row.release)} / {buildLabel(row.build)} / {row.debug}</code> · {row.bytes} bytes</li>)}</ul>:<p>No maps uploaded.</p>}{uploads.assemblies.filter((row:any)=>row.state==='error').map((row:any)=><p key={row.checksum} style={{overflowWrap:'anywhere',whiteSpace:'pre-wrap'}}>{row.detail}</p>)}</details>}
+     <h3>1. Match your application’s release</h3>
+     <p>Use exactly the <code>release</code> and <code>build</code> from your SDK’s <code>init</code>. A new release is registered automatically when the upload runs.</p>
+     <div className="form-grid">
+       <Field label="Application release" required pattern={String.raw`[a-zA-Z0-9._:@+\-]+`} value={release} placeholder="web@1.0.0" onChange={e => setRelease(e.target.value)} />
+-      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={build} placeholder="build-1" onChange={e => setBuild(e.target.value)} />
++      <Field label="Application build" required pattern={String.raw`[a-zA-Z0-9._:\-]+`} value={buildLabel(build) === build ? build : ''} placeholder={buildLabel(build) === build ? 'build-1' : buildLabel(build)} onChange={e => setBuild(e.target.value)} />
+       <label className="form-field">Your bundler<select value={bundler} onChange={e => setBundler(e.target.value as Bundler)}>{bundlers.map(row => <option key={row.value} value={row.value}>{row.label}</option>)}</select></label>
+     </div>
+     <h3>2. Create a build-only key</h3>
+diff --git a/src/ui/workbench/releaseLabels.ts b/src/ui/workbench/releaseLabels.ts
+new file mode 100644
+index 0000000..bb7d196
+--- /dev/null
++++ b/src/ui/workbench/releaseLabels.ts
+@@ -0,0 +1,4 @@
++import { absentDist } from '../../domain/releases/build';
++
++export const releaseLabel = (value?: string | null) => value?.trim() ? value : 'No release';
++export const buildLabel = (value?: string | null) => value?.trim() && value !== absentDist ? value : 'No build supplied';
+diff --git a/tests/alerts-ui.mjs b/tests/alerts-ui.mjs
+index 31670cf..bd66453 100644
+--- a/tests/alerts-ui.mjs
++++ b/tests/alerts-ui.mjs
+@@ -55,6 +55,12 @@ try {
+   const archive=await (await app.request('/api/archive')).text();assert.ok(!archive.includes(`rotated-${width}@example.com`));
+   await app.json('/api/ingest/web','POST',event(`browser-${width}`,{message:'Payment confirmation callback failed',frames:[{file:`https://app.example.com/ui-${width}.js`,line:1,column:0,function:'browser'}]}),auth);await app.schedule(Date.now());
+   await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByText('suppressed locally',{exact:true}).first().waitFor();// Keep the exact opener: a pending alerts refresh can prepend newer deliveries.
++  if(width===1440){
++   const localDelivery=page.locator('.alert-records > li').filter({has:page.getByText('suppressed locally',{exact:true})}).first();
++   const stray=await localDelivery.locator(':scope > div').evaluate(div=>Array.from(div.childNodes).filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>node.textContent.trim()).filter(Boolean));
++   assert.deepEqual(stray,[],'A suppressed mail row has no unlabelled numeric text');
++   assert.doesNotMatch(await localDelivery.locator('strong').innerText(),/accepted|delivered/i);
++  }
+   const deliveryDetails=await page.getByRole('button',{name:/Details: Delivery/}).first().elementHandle();assert.ok(deliveryDetails);await deliveryDetails.click();await page.getByRole('dialog').getByRole('heading',{name:'Saved delivery facts'}).waitFor();await page.waitForFunction(()=>document.querySelector('[role=dialog]')?.contains(document.activeElement),null,{timeout:5000}).catch(()=>{});assert.ok(await page.getByRole('dialog').evaluate(dialog=>dialog.contains(document.activeElement)));// close() queues the native close event; wait for that event and React's onClose handler.
+   const dismissal=await page.getByRole('dialog').evaluateHandle(dialog=>{const state={closed:false};dialog.addEventListener('close',()=>{state.closed=true;},{once:true});return state;});
+   await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'hidden'});await page.waitForFunction(({closed})=>closed,dismissal,{timeout:5000});await dismissal.dispose();
+@@ -81,8 +87,8 @@ try {
+   await app.json('/api/ingest/web','POST',event(`held-ui-${width}`,{message:'Order confirmation failed during maintenance',frames:[{file:`https://app.example.com/held-${width}.js`,line:1,column:0,function:'held'}]}),auth);
+   await page.getByRole('button',{name:'Refresh alerts',exact:true}).click();await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByText('snoozed',{exact:true}).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/snoozed-delivery-${width}.png`,fullPage:true});
+   await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByRole('heading',{name:/Held alerts \([1-9]/}).waitFor();await page.screenshot({path:`docs/retained-verification/alert003/snoozed-${width}.png`,fullPage:true});
+-  await app.schedule(expiry+1000);await app.schedule(expiry+2000);await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByText(/expired · resumption recorded/).first().waitFor();if(width===1440){const controls=await app.json('/api/projects/web/alerting/controls'),notice=controls.digests.find(row=>row.kind==='resumption'),snooze=controls.snoozes.find(row=>row.id===notice.period);const history=page.locator('.alert-records li').filter({hasText:/^resumption/}).first();assert.doesNotMatch(await history.innerText(),/\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|\{\s*"/i);assert.ok((await history.innerText()).includes(`Updated mail ${width}`),'Resumption names the exact snoozed rule');assert.ok((await history.innerText()).includes(new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:controls.settings.timezone}).format(snooze.until)),'Resumption includes its actual expiry period');await history.locator('summary').click();assert.doesNotMatch(await history.innerText(),/\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b/i);} await page.screenshot({path:`docs/retained-verification/alert003/expired-${width}.png`,fullPage:true});
+-  await app.schedule(Date.parse('2026-11-02T14:00:00Z'));await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByText(/daily · project · accepted/).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/digest-${width}.png`,fullPage:true});
++  await app.schedule(expiry+1000);await app.schedule(expiry+2000);await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();await page.getByText(/expired · resumption recorded/).first().waitFor();if(width===1440){const controls=await app.json('/api/projects/web/alerting/controls'),notice=controls.digests.find(row=>row.kind==='resumption'),snooze=controls.snoozes.find(row=>row.id===notice.period);const history=page.locator('.alert-records li').filter({hasText:/^resumption/}).first();assert.doesNotMatch(await history.innerText(),/\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b|\{\s*"/i);assert.ok((await history.innerText()).includes(`Updated mail ${width}`),'Resumption names the exact snoozed rule');assert.ok((await history.innerText()).includes(new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:controls.settings.timezone}).format(snooze.until)),'Resumption includes its actual expiry period');await history.locator('summary').click();assert.doesNotMatch(await history.innerText(),/\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b/i);}const resumption=page.locator('.alert-records > li').filter({has:page.locator('strong').filter({hasText:/resumption · personal/})}).first();await resumption.getByText(/suppressed locally/).waitFor();if(width===1440){assert.doesNotMatch(await resumption.locator('strong').innerText(),/accepted|delivered/i);assert.match(await resumption.innerText(),/no email sent/i);}await page.screenshot({path:`docs/retained-verification/alert003/expired-${width}.png`,fullPage:true});
++  await app.schedule(Date.parse('2026-11-02T14:00:00Z'));await page.getByRole('button',{name:'Delivery log',exact:true}).click();await page.getByRole('button',{name:'Digests and snoozes',exact:true}).click();const digest=page.locator('.alert-records > li').filter({has:page.locator('strong').filter({hasText:/daily · project/})}).first();await digest.getByText(/suppressed locally/).waitFor();if(width===1440){assert.doesNotMatch(await digest.locator('strong').innerText(),/accepted|delivered/i);assert.match(await digest.innerText(),/no email sent/i);}await page.screenshot({path:`docs/retained-verification/alert003/digest-${width}.png`,fullPage:true});
+   await page.getByRole('button',{name:'Needs attention',exact:true}).click();await page.getByText(/held alert backlog/).first().waitFor();await page.screenshot({path:`docs/retained-verification/alert003/attention-${width}.png`,fullPage:true});
+   await page.getByRole('button',{name:'Alert feed',exact:true}).click();await page.getByRole('button',{name:'Open issue',exact:true}).first().waitFor();
+   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('other');await page.getByRole('button',{name:'Delivery log',exact:true}).click();assert.equal(await page.getByRole('button',{name:/Details: Delivery/}).count(),0);await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('web');
+diff --git a/tests/release-identity-flow.mjs b/tests/release-identity-flow.mjs
+index e4bc7f1..dac5927 100644
+--- a/tests/release-identity-flow.mjs
++++ b/tests/release-identity-flow.mjs
+@@ -43,11 +43,41 @@ export async function releaseIdentityFlow({req,json,origin,cookie}){
+  for(const release of [undefined,'b'.repeat(40)]){await promisify(execFile)(process.execPath,['--input-type=module','-e',program],{cwd:process.cwd(),env:{PATH:process.env.PATH,HOME:process.env.HOME,SPOOL_DSN:sdkProject.dsn,...release?{SENTRY_RELEASE:release}:{}},timeout:20000});}
+  assert.equal((await json('/api/projects/release-sdk/issue-search?q=!has:release')).total,1,'unmodified Node SDK without release is accepted');
+  const sdkReleases=await json('/api/projects/release-sdk/releases');assert.equal(sdkReleases.length,1);assert.equal(sdkReleases[0].name,'b'.repeat(40));assert.equal(sdkReleases[0].auto_created,1);assert.ok(JSON.parse(sdkReleases[0].creating_sdk).name.includes('node'));
++ // A deployment can refer to the same absent-dist identity without exposing its storage marker.
++ const deadlineDestination=await json('/api/projects/release-sdk/alerting/destinations','POST',{label:'Release deadline',recipient:'synthetic-spool-1@example.com'});
++ const startedAt=new Date().toISOString();
++ await json('/api/projects/release-sdk/deployments','POST',{id:'synthetic-spool-1',release:sdkReleases[0].name,build:sdkReleases[0].build,environment:'production',repository:'https://github.com/just-every/run-spool',commitSha:'a'.repeat(40),includedCommits:['a'.repeat(40)],startedAt,deadline:new Date(Date.parse(startedAt)+3600000).toISOString(),destination:deadlineDestination.id});
+  const archive=await archiveProjection(await req('/api/archive'));assert.equal(archive.data.release_metadata.filter(r=>r.project==='release-identity').length,3);assert.ok(archive.data.events.some(e=>e.project==='release-identity'&&e.release===''&&e.release_seq===0));
+  const restored=await startTestWorker(15526);try{const restoredCookie=await signIn(restored.origin);const r=await fetch(restored.origin+'/api/restore',{method:'POST',headers:{Origin:restored.origin,Cookie:restoredCookie,'Content-Type':'application/x-ndjson','X-Confirm-Restore':'yes'},body:archive.text});assert.ok(r.ok,await r.text());const copied=await archiveProjection(await fetch(restored.origin+'/api/archive',{headers:{Cookie:restoredCookie}}));for(const t of ['release_metadata','release_builds','release_policies','issue_resolutions','recurrence_policies','issue_recurrence_boundaries','issue_priorities','issue_activity'])assert.deepEqual(copied.data[t],archive.data[t]);}finally{await restored.stop()}
+  const samePolicy=await json(base+'/recurrence-policy'),samePreview=await json(base+'/recurrence-policy','POST',{revision:samePolicy.revision,reopenSameRelease:true,preview:true});await json(base+'/recurrence-policy','POST',{revision:samePolicy.revision,reopenSameRelease:true,apply:true,preview:samePreview.preview});
+  const browser=await launchBrowser();try{await mkdir('.artifacts/release-identity',{recursive:true});for(const width of [1440,390]){
+   const context=await browser.newContext({viewport:{width,height:900}});await context.addCookies(cookie.split('; ').map(v=>({name:v.slice(0,v.indexOf('=')),value:v.slice(v.indexOf('=')+1),url:origin})));const page=await context.newPage();
++  // The same unmodified SDK captures must remain intelligible without release/dist.
++  await page.goto(origin+'/projects/release-sdk/issues');await page.locator('.issue-open').first().waitFor();
++  const releaseFilter=page.getByRole('combobox',{name:'Release',exact:true});
++  if(width===1440){
++   const missingOption=releaseFilter.locator('option[value=""]');
++   assert.match(await missingOption.innerText(),/no release/i,'Absent release has a meaningful filter label');
++   await releaseFilter.selectOption('');await page.getByRole('status').filter({hasText:'matching your filters'}).waitFor();assert.equal(await page.locator('.issue-open').count(),1,'The labelled absence still filters the captured issue');
++  }
++  await page.screenshot({path:`.artifacts/release-identity/no-release-filter-${width}.png`,fullPage:true});
++  const sdkIssue=(await json('/api/projects/release-sdk/issues'))[0];
++  await page.goto(origin+'/projects/release-sdk/issues/'+sdkIssue.id);await page.getByRole('button',{name:'Oldest',exact:true}).click();
++  const recent=page.locator('.recent-occurrence');await recent.locator('dd').filter({hasText:/no release/i}).waitFor();
++  const observed=page.locator('section').filter({has:page.getByRole('heading',{name:'Observed deployments',exact:true})});
++  if(width===1440){
++   const fact=label=>recent.locator('.issue-facts > div').filter({has:page.getByText(label,{exact:true})}).locator('dd');
++   assert.match(await fact('Release').innerText(),/no release/i);assert.match(await fact('Build').innerText(),/no build/i);
++   assert.match(await observed.innerText(),/no release/i);assert.ok(!(await observed.innerText()).includes('[sentry:'));
++  }
++  await recent.screenshot({path:`.artifacts/release-identity/no-release-issue-${width}.png`});await observed.screenshot({path:`.artifacts/release-identity/no-release-observed-${width}.png`});
++  await page.goto(origin+'/projects/release-sdk/releases');const sdkHistory=page.locator('section').filter({has:page.getByRole('heading',{name:'Release history',exact:true})});await sdkHistory.locator('.data-row').first().waitFor();
++  if(width===1440){assert.match(await sdkHistory.locator('[data-label="Build identifier"]').innerText(),/no build/i);assert.ok(!(await sdkHistory.innerText()).includes('[sentry:'));}
++  await sdkHistory.screenshot({path:`.artifacts/release-identity/no-dist-history-${width}.png`});
++  const sdkDeployment=page.locator('.deployment-record').filter({hasText:'synthetic-spool-1'});await sdkDeployment.waitFor();
++  if(width===1440){assert.match(await sdkDeployment.innerText(),/no build/i);assert.ok(!(await sdkDeployment.innerText()).includes('[sentry:'));}
++  await sdkDeployment.screenshot({path:`.artifacts/release-identity/no-dist-deployment-${width}.png`});
++
+   await page.goto(origin+'/projects/release-identity/settings#settings-processing');if(width===1440){const recurrence=page.locator('section').filter({has:page.getByRole('heading',{name:'Release recurrence',exact:true})});for(const checked of [false,true]){await recurrence.getByRole('checkbox').setChecked(checked);await recurrence.getByRole('button',{name:'Preview recurrence policy',exact:true}).click();await recurrence.getByRole('heading',{name:'Resolved issue preview',exact:true}).waitFor();await recurrence.getByRole('button',{name:'Save recurrence policy',exact:true}).click();await recurrence.getByRole('status').waitFor();}}const panel=page.locator('section').filter({has:page.getByRole('heading',{name:'Sentry release identity',exact:true})});await panel.getByLabel('Release ordering rule',{exact:true}).selectOption('sentry');await panel.getByRole('button',{name:'Preview release policy',exact:true}).click();await panel.getByRole('heading',{name:'Resolution boundary preview',exact:true}).waitFor();await panel.screenshot({path:`.artifacts/release-identity/policy-${width}.png`});const apply=panel.getByRole('button',{name:'Apply release policy',exact:true});if(await apply.count()){await apply.click();await panel.locator('.save-mark[data-state="saved"]').waitFor();}
+   await page.goto(origin+'/projects/release-identity/releases');await page.getByRole('heading',{name:'Release history',exact:true}).waitFor();await page.locator('.data-row').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await page.screenshot({path:`.artifacts/release-identity/history-${width}.png`,fullPage:true});
+   row=await issue();await page.goto(origin+'/projects/release-identity/issues/'+row.id);await page.getByLabel('Resolution',{exact:true}).selectOption('plain');await page.getByRole('combobox',{name:'Status',exact:true}).selectOption('resolved');await page.waitForFunction(()=>document.querySelector('.state-chip')?.textContent==='Resolved');await page.locator('.issue-summary').screenshot({path:`.artifacts/release-identity/resolved-${width}.png`});const recurrence=await send();

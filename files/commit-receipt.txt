@@ -1,0 +1,22 @@
+commit dc513779d58445111c87540416d80bd8b85ddc14
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Thu Nov 12 15:39:31 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Thu Nov 12 15:39:31 2026 +0000
+
+    Restore plain release and delivery labels on current main
+
+ sources.lock.json                      | 26 +++++++++++++++-----------
+ src/ui/alerts/AlertControls.tsx        |  4 ++--
+ src/ui/alerts/AlertDeliveries.tsx      |  6 +++---
+ src/ui/alerts/client.ts                |  2 ++
+ src/ui/workbench/DeploymentHistory.tsx |  3 ++-
+ src/ui/workbench/EventExplorer.tsx     |  3 ++-
+ src/ui/workbench/IssueList.tsx         |  5 +++--
+ src/ui/workbench/IssueView.tsx         |  5 +++--
+ src/ui/workbench/ReleasesView.tsx      |  9 +++++----
+ src/ui/workbench/SourceMapSetup.tsx    |  7 ++++---
+ src/ui/workbench/releaseLabels.ts      |  4 ++++
+ tests/alerts-ui.mjs                    | 10 ++++++++--
+ tests/release-identity-flow.mjs        | 30 ++++++++++++++++++++++++++++++
+ 13 files changed, 83 insertions(+), 31 deletions(-)

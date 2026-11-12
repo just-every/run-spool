@@ -1,0 +1,88 @@
+{
+  "repository": "just-every/run-spool",
+  "head": "dc513779d58445111c87540416d80bd8b85ddc14",
+  "calls": [
+    {
+      "number": 1,
+      "kind": "discovery",
+      "queryHead": "dc51377a",
+      "result": {
+        "runs": []
+      },
+      "note": "Incorrect abbreviated discovery; no success inferred; full-SHA discovery follows after 300 seconds."
+    },
+    {
+      "number": 2,
+      "at": "2026-11-12T15:45:25.398729+00:00",
+      "kind": "discovery",
+      "result": {
+        "runs": [
+          {
+            "conclusion": null,
+            "head_sha": "dc513779d58445111c87540416d80bd8b85ddc14",
+            "html_url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+            "id": 43250182362,
+            "name": "Verify",
+            "status": "in_progress"
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "at": "2026-11-12T15:51:03.934642+00:00",
+      "kind": "poll",
+      "result": {
+        "conclusion": null,
+        "head_sha": "dc513779d58445111c87540416d80bd8b85ddc14",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+        "id": 43250182362,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "number": 4,
+      "at": "2026-11-12T15:56:04.597555+00:00",
+      "kind": "poll",
+      "result": {
+        "conclusion": null,
+        "head_sha": "dc513779d58445111c87540416d80bd8b85ddc14",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+        "id": 43250182362,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    },
+    {
+      "number": 5,
+      "at": "2026-11-12T16:01:05.317183+00:00",
+      "kind": "poll",
+      "result": {
+        "conclusion": null,
+        "head_sha": "dc513779d58445111c87540416d80bd8b85ddc14",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+        "id": 43250182362,
+        "name": "Verify",
+        "status": "queued"
+      }
+    },
+    {
+      "number": 6,
+      "at": "2026-11-12T16:06:06.037169+00:00",
+      "kind": "poll",
+      "result": {
+        "conclusion": "success",
+        "head_sha": "dc513779d58445111c87540416d80bd8b85ddc14",
+        "html_url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+        "id": 43250182362,
+        "name": "Verify",
+        "status": "completed"
+      }
+    }
+  ],
+  "status": "completed",
+  "runId": 43250182362,
+  "url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+  "conclusion": "success"
+}

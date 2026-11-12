@@ -1,0 +1,16 @@
+[
+  {
+    "file": "tests/alerts-ui.mjs",
+    "mainAssertionCalls": 26,
+    "candidateAssertionCalls": 32,
+    "unchangedMainAssertions": true,
+    "addedAssertionCalls": 6
+  },
+  {
+    "file": "tests/release-identity-flow.mjs",
+    "mainAssertionCalls": 228,
+    "candidateAssertionCalls": 238,
+    "unchangedMainAssertions": true,
+    "addedAssertionCalls": 10
+  }
+]

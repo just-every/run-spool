@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-spool",
+  "branch": "cloud/main-spool-plain-delivery-labels-1-r1-c3",
+  "head": "dc513779d58445111c87540416d80bd8b85ddc14",
+  "base": "461eb0f58adf9456aef587866dd013d628c38b9f",
+  "commitsOverBase": 1,
+  "mergeCommitsOverBase": 0,
+  "cleanWorktree": true,
+  "identity": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": [],
+  "newTestRegistrations": 0,
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "chromium": "/usr/bin/chromium"
+  },
+  "steps": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "log": "setup.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "cloud_run pnpm test:alerts-ui",
+      "exit": 0,
+      "log": "alerts-ui.log",
+      "blockedSaveMainAssertion": "passed unchanged"
+    },
+    {
+      "command": "cloud_run node /tmp/spool-release-flow.mjs",
+      "flow": "tests/release-identity-flow.mjs#releaseIdentityFlow",
+      "fixture": "Existing startTestWorker/signIn/chooseLocalAgentPolicy and original HTTP request helpers",
+      "exit": 0,
+      "log": "release-identity.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node src/base/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "pnpm source:check",
+      "exit": 0,
+      "log": "source-check.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "initialSetupAttempt": {
+    "exit": 1,
+    "reason": "Build encountered squash conflict markers before resolution completed; rerun after resolution passed.",
+    "log": "setup-first-attempt.log"
+  },
+  "push": {
+    "exit": 0,
+    "attempts": 1,
+    "receipt": "push-receipt.log"
+  },
+  "publicationScan": "Fleet lander; unavailable in this cloud per assignment",
+  "pr": null,
+  "productFiles": [
+    "sources.lock.json",
+    "src/ui/alerts/AlertControls.tsx",
+    "src/ui/alerts/AlertDeliveries.tsx",
+    "src/ui/alerts/client.ts",
+    "src/ui/workbench/DeploymentHistory.tsx",
+    "src/ui/workbench/EventExplorer.tsx",
+    "src/ui/workbench/IssueList.tsx",
+    "src/ui/workbench/IssueView.tsx",
+    "src/ui/workbench/ReleasesView.tsx",
+    "src/ui/workbench/SourceMapSetup.tsx",
+    "src/ui/workbench/releaseLabels.ts",
+    "tests/alerts-ui.mjs",
+    "tests/release-identity-flow.mjs"
+  ],
+  "releaseFlowRunner": "release-flow-runner.mjs",
+  "ci": {
+    "runId": 43250182362,
+    "head": "dc513779d58445111c87540416d80bd8b85ddc14",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/just-every/run-spool/actions/runs/43250182362",
+    "calls": 6
+  }
+}
